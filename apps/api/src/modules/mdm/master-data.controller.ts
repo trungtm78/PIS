@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { MasterStore, TenantDatabase } from '@machvon/db';
-import type { ChangeRequestRow, ChangeStatus, MasterContent, MasterSearchRow, MasterVersionRow } from '@machvon/db';
+import type { ChangeRequestDetail, ChangeStatus, MasterContent, MasterSearchRow, MasterVersionRow } from '@machvon/db';
 import { DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -61,9 +61,12 @@ function searchViewOf(row: MasterSearchRow): Record<string, unknown> {
   };
 }
 
-function changeViewOf(row: ChangeRequestRow): Record<string, unknown> {
+function changeViewOf(row: ChangeRequestDetail): Record<string, unknown> {
   return {
     id: row.id,
+    business_key: row.businessKey,
+    master_record_version: row.recordVersion,
+    master_record_status: row.recordStatus,
     change_kind: row.changeKind,
     master_type: row.masterType,
     master_record_id: row.masterRecordId,
@@ -98,6 +101,8 @@ function versionViewOf(row: MasterVersionRow): Record<string, unknown> {
     status: row.status,
     legal_basis: row.legalBasis,
     content_sha256: row.contentSha256,
+    approved_by: row.approvedBy,
+    change_request_id: row.changeRequestId,
   };
 }
 
@@ -329,7 +334,7 @@ export class MasterDataReadsController {
   @Get('master-change-requests/:id')
   @OperationId('getMasterChangeRequest')
   async change(@CurrentTenant() tenant: TenantContext, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
-    const row = await this.database.withTenant(tenant, (tx) => this.store.findChange(tx, id));
+    const row = await this.database.withTenant(tenant, (tx) => this.store.findChangeDetail(tx, id));
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return changeViewOf(row);
   }

@@ -63,14 +63,19 @@ describe('master data commands and reads (ST-MDM-001)', () => {
     ...overrides,
   });
 
-  const propose = (member: number, body: Record<string, unknown> = proposalBody(), options: { tenantId?: string; key?: string } = {}): Promise<Reply> =>
-    call('POST', '/master-records', { member, body, ...options });
+  const propose = async (member: number, body: Record<string, unknown> = proposalBody(), options: { tenantId?: string; key?: string } = {}): Promise<Reply> => {
+    const reply = await call('POST', '/master-records', { member, body, ...options });
+    if (reply.status === 200) keyRows.set(reply.json.resource_id as string, body.business_key as string);
+    return reply;
+  };
   const submit = (member: number, changeId: string, version = 1): Promise<Reply> => call('POST', `/master-change-requests/${changeId}/submit`, { member, ifMatch: `"${version}"` });
   const decide = (member: number, changeId: string, decision: string, version: number): Promise<Reply> =>
     call('POST', `/master-change-requests/${changeId}/decision`, { member, ifMatch: `"${version}"`, body: { decision, reason: 'Checked against the decision' } });
   const publish = (member: number, recordId: string, version: number): Promise<Reply> =>
     call('POST', `/master-records/${recordId}/publish`, { member, ifMatch: `"${version}"`, body: { decision_document_id: DECISION_DOCUMENT } });
   const idOf = (reply: Reply): string => reply.json.resource_id as string;
+  const keyRows = new Map<string, string>();
+  const proposalKeyOf = (reply: Reply): string => keyRows.get(idOf(reply)) ?? '';
   const versionOf = (reply: Reply): number => reply.json.resource_version as number;
 
   const rows = async <R extends object>(sql: string, params: unknown[] = []): Promise<R[]> => harness.owner<R>(TENANT_A, [[sql, params]]);
@@ -320,6 +325,7 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       const queue = await call('GET', '/master-change-requests?status=IN_REVIEW&master_type=QUEUE', { member: CHECKER });
       expect(queue.status).toBe(200);
       expect((queue.json.items as Array<{ id: string; status: string; impact: unknown }>).map((item) => [item.id, item.status])).toEqual([[change.id, 'IN_REVIEW']]);
+      expect((queue.json.items as Array<Record<string, unknown>>)[0]).toMatchObject({ business_key: proposalKeyOf(proposed), master_record_version: expect.any(Number), master_record_status: 'IN_REVIEW' });
       expect(queue.json.next_cursor).toBeNull();
       const paged = await call('GET', '/master-change-requests?master_type=QUEUE&limit=1', { member: CHECKER });
       expect((paged.json.items as unknown[]).length).toBe(1);

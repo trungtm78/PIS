@@ -402,6 +402,9 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         [1, 'Giao thông'],
         [2, 'Renamed once'],
       ]);
+      // The reviewer and the request that made each version are known, for the history screen.
+      expect(history[0]?.approvedBy).toBe(memberId(CHECKER));
+      expect(history[1]).toMatchObject({ approvedBy: memberId(CHECKER), changeRequestId: opened.id });
     });
 
     it('lists the change requests oldest first, by status and type, in pages that follow the cursor', async () => {
@@ -410,6 +413,10 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
       await as(STEWARD, (tx) => store.submit(tx, second.changeRequestId, 1, memberId(STEWARD)));
       const drafts = await as(STEWARD, (tx) => store.listChanges(tx, { status: 'DRAFT', masterType: 'LISTED', limit: 10, after: undefined }));
       expect(drafts.map((row) => row.id)).toEqual([created.changeRequestId]);
+      // The entry the request is about comes with it: the key, and the record version a publication names in If-Match.
+      expect(drafts[0]).toMatchObject({ businessKey: expect.stringMatching(/^LI-/), recordVersion: 1, recordStatus: 'DRAFT' });
+      expect(await as(STEWARD, (tx) => store.findChangeDetail(tx, created.changeRequestId))).toMatchObject({ id: created.changeRequestId, recordVersion: 1 });
+      expect(await as(STEWARD, (tx) => store.findChangeDetail(tx, randomUUID()))).toBeUndefined();
       const all = await as(STEWARD, (tx) => store.listChanges(tx, { masterType: 'LISTED', limit: 10, after: undefined }));
       expect(all.map((row) => row.id)).toEqual([created.changeRequestId, second.changeRequestId]);
       const first = all[0];

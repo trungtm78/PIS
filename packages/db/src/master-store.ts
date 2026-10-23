@@ -84,6 +84,8 @@ export interface MasterVersionRow {
   status: string;
   legalBasis: string | null;
   contentSha256: string | null;
+  approvedBy: string | null;
+  changeRequestId: string | null;
 }
 
 export interface ChangeRequestRow {
@@ -104,6 +106,15 @@ export interface ChangeRequestRow {
   publishedBy: string | null;
   decisionDocumentId: string | null;
   version: number;
+}
+
+/** A change request with the entry it is about: what a reviewer sees, and the record version a publication must name in If-Match. */
+export interface ChangeRequestDetail extends ChangeRequestRow {
+  businessKey: string | null;
+  recordVersion: number | null;
+  recordStatus: MasterRecordStatus | null;
+  /** Creation time to the microsecond (UTC): the ordering key of the queue and its cursor. */
+  createdAtKey: string;
 }
 
 export interface MasterSearchRow {
@@ -169,12 +180,35 @@ interface ChangeRow {
   version: string;
 }
 
-const CHANGE_COLUMNS = `id, change_kind, master_type, master_record_id, proposed_json, before_json, reason, evidence_document_id, impact_json,
-  effective_from::text as effective_from, status, created_by, reviewed_by, decided_at::text as decided_at, published_by,
-  decision_document_id, version::text as version`;
+const CHANGE_COLUMN_LIST = [
+  'id',
+  'change_kind',
+  'master_type',
+  'master_record_id',
+  'proposed_json',
+  'before_json',
+  'reason',
+  'evidence_document_id',
+  'impact_json',
+  'effective_from::text as effective_from',
+  'status',
+  'created_by',
+  'reviewed_by',
+  'decided_at::text as decided_at',
+  'published_by',
+  'decision_document_id',
+  'version::text as version',
+];
+const CHANGE_COLUMNS = CHANGE_COLUMN_LIST.join(', ');
+const KEY_FORMAT = `'YYYY-MM-DD"T"HH24:MI:SS.US'`;
+// A change request with the entry it is about (the key and the version a publication names in If-Match).
+const DETAIL_SELECT = `select ${CHANGE_COLUMN_LIST.map((column) => `c.${column}`).join(', ')},
+  r.business_key as record_business_key, r.version::text as record_version, r.status as record_status,
+  to_char(c.created_at at time zone 'UTC', ${KEY_FORMAT}) as created_at_key
+  from machvon.master_change_request c left join machvon.master_record r on r.id = c.master_record_id`;
 
 const VERSION_COLUMNS = `v.id, v.master_record_id, v.master_type, v.code, v.revision, v.label, v.parent_id, v.attributes, v.valid_from::text as valid_from,
-  v.valid_until::text as valid_until, v.status, v.legal_basis, v.content_sha256`;
+  v.valid_until::text as valid_until, v.status, v.legal_basis, v.content_sha256, v.approved_by, v.change_request_id`;
 
 interface VersionSqlRow {
   id: string;
@@ -190,6 +224,8 @@ interface VersionSqlRow {
   status: string;
   legal_basis: string | null;
   content_sha256: string | null;
+  approved_by: string | null;
+  change_request_id: string | null;
 }
 
 interface RecordSqlRow {
@@ -222,6 +258,21 @@ const toChange = (row: ChangeRow): ChangeRequestRow => ({
   version: Number(row.version),
 });
 
+interface DetailRow extends ChangeRow {
+  record_business_key: string | null;
+  record_version: string | null;
+  record_status: MasterRecordStatus | null;
+  created_at_key: string;
+}
+
+const toDetail = (row: DetailRow): ChangeRequestDetail => ({
+  ...toChange(row),
+  businessKey: row.record_business_key,
+  recordVersion: row.record_version === null ? null : Number(row.record_version),
+  recordStatus: row.record_status,
+  createdAtKey: row.created_at_key,
+});
+
 const toVersion = (row: VersionSqlRow): MasterVersionRow => ({
   id: row.id,
   masterRecordId: row.master_record_id,
@@ -236,6 +287,8 @@ const toVersion = (row: VersionSqlRow): MasterVersionRow => ({
   status: row.status,
   legalBasis: row.legal_basis,
   contentSha256: row.content_sha256,
+  approvedBy: row.approved_by,
+  changeRequestId: row.change_request_id,
 });
 
 const toRecord = (row: RecordSqlRow): MasterRecordRow => ({
@@ -326,17 +379,22 @@ export class MasterStore {
   async listChanges(
     tx: TenantTx,
     request: { status?: ChangeStatus | undefined; masterType?: string | undefined; limit: number; after: { code: string; id: string } | undefined },
-  ): Promise<Array<ChangeRequestRow & { createdAtKey: string }>> {
-    const rows = await tx.query<ChangeRow & { created_at_key: string }>(
-      `select ${CHANGE_COLUMNS}, to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US') as created_at_key
-         from machvon.master_change_request
-        where ($1::text is null or status = $1) and ($2::text is null or master_type = $2)
-          and ($3::text is null or (to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US'), id) > ($3::text, $4::uuid))
-        order by created_at, id
+  ): Promise<ChangeRequestDetail[]> {
+    const rows = await tx.query<DetailRow>(
+      `${DETAIL_SELECT}
+        where ($1::text is null or c.status = $1) and ($2::text is null or c.master_type = $2)
+          and ($3::text is null or (to_char(c.created_at at time zone 'UTC', ${KEY_FORMAT}), c.id) > ($3::text, $4::uuid))
+        order by c.created_at, c.id
         limit $5`,
       [request.status ?? null, request.masterType ?? null, request.after?.code ?? null, request.after?.id ?? null, request.limit],
     );
-    return rows.map((row) => ({ ...toChange(row), createdAtKey: row.created_at_key }));
+    return rows.map(toDetail);
+  }
+
+  /** One change request with the entry it is about (no lock: the reads use it). */
+  async findChangeDetail(tx: TenantTx, id: string): Promise<ChangeRequestDetail | undefined> {
+    const rows = await tx.query<DetailRow>(`${DETAIL_SELECT} where c.id = $1::uuid`, [id]);
+    return rows[0] === undefined ? undefined : toDetail(rows[0]);
   }
 
   async findVersion(tx: TenantTx, id: string): Promise<MasterVersionRow | undefined> {

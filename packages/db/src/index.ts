@@ -141,6 +141,7 @@ export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChan
 export { MASTER_REFERENCES, MasterStore, contentHashOf } from './master-store.ts';
 export type {
   ChangeKind,
+  ChangeRequestDetail,
   ChangeRequestRow,
   ChangeStatus,
   ImpactPreview,
