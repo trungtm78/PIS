@@ -117,3 +117,5 @@ export type { FinishedSpan, Span, SpanAttributeValue, SpanExporter, TraceContext
 export { AlertEvaluator, CollectingTelemetry, LICENSE_EXPIRING_ALERT, MANDATORY_ALERT_RULES, raiseExpiringLicenses } from './alerts.ts';
 export type { AlertAdapter, AlertChannel, AlertRule, AlertSeverity, AlertSource, Evaluation, FiredAlert, MetricSample, MetricsSnapshot } from './alerts.ts';
 export { ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';
+export { CHANGE_REQUEST_STATES, assertFourEyes, canTransition, changeRequestNext } from './four-eyes.ts';
+export type { ChangeRequestAction, ChangeRequestState } from './four-eyes.ts';
