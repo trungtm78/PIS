@@ -173,7 +173,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
       const created = await as(STEWARD, (tx) => store.propose(tx, { masterType: 'SECTOR', businessKey: nextKey(), content: content(), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
       const submitted = await as(STEWARD, (tx) => store.submit(tx, created.changeRequestId, 1, memberId(STEWARD)));
       const record = await as(STEWARD, (tx) => store.findRecord(tx, created.recordId));
-      expect(await refusal(as(PUBLISHER, (tx) => store.publish(tx, created.recordId, record?.version ?? 0, DECISION_DOCUMENT, memberId(PUBLISHER))))).toMatchObject({ code: 'STAGE_TRANSITION_DENIED', status: 409 });
+      expect(await refusal(as(PUBLISHER, (tx) => store.publish(tx, created.recordId, record?.version ?? 0, DECISION_DOCUMENT, memberId(PUBLISHER))))).toEqual({ code: 'CHANGE_NOT_APPROVED', status: 409 });
       await as(CHECKER, (tx) => store.decide(tx, created.changeRequestId, submitted.version, 'approve', memberId(CHECKER)));
       const approved = await as(STEWARD, (tx) => store.findRecord(tx, created.recordId));
       expect(await refusal(as(STEWARD, (tx) => store.publish(tx, created.recordId, approved?.version ?? 0, DECISION_DOCUMENT, memberId(STEWARD))))).toEqual({ code: 'SELF_APPROVAL_DENIED', status: 403 });
@@ -211,13 +211,25 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
       expect(stored?.impact).toMatchObject({ counts: { 'project.sector_master_version_id': 2 }, total: 2 });
       expect(stored?.before).toMatchObject({ label: 'Giao thông' });
       expect(stored?.proposed).toMatchObject({ label: 'Giao thông vận tải', valid_from: '2025-06-01' });
-      const usage = await as(STEWARD, (tx) => store.usage(tx, entry.recordId, TODAY));
+      const usage = await as(STEWARD, (tx) => store.usage(tx, entry.recordId));
       expect(usage).toMatchObject({ total: 2, counts: { 'project.sector_master_version_id': 2 } });
       expect(usage.samples).toHaveLength(2);
 
       await admin([['delete from machvon.project where sector_master_version_id = $1', [entry.versionId]]]);
       const submitted = await as(STEWARD, (tx) => store.submit(tx, opened.id, 1, memberId(STEWARD)));
       expect(submitted.impact).toMatchObject({ total: 0, counts: {} });
+    });
+
+    it('counts the references to the version that was in force on the date asked, and to every version without a date', async () => {
+      const entry = await inForce();
+      await admin([insertProject(`U-${counter}`, entry.versionId)]);
+      const opened = await change(entry.recordId, 'UPDATE', { label: 'Renamed' }, '2025-06-01');
+      await approve(opened.id);
+      await publishChange(entry.recordId);
+      expect((await as(STEWARD, (tx) => store.usage(tx, entry.recordId, '2025-01-01'))).total).toBe(1);
+      expect((await as(STEWARD, (tx) => store.usage(tx, entry.recordId, TODAY))).total).toBe(0);
+      expect((await as(STEWARD, (tx) => store.usage(tx, entry.recordId))).total).toBe(1);
+      expect(await as(STEWARD, (tx) => store.usage(tx, entry.recordId, '2023-01-01'))).toMatchObject({ total: 0, asOf: '2023-01-01' });
     });
 
     it('refuses to submit a request that has no computed impact with 422 IMPACT_NOT_COMPUTED and keeps it a draft (AC-ST-MDM-001-4)', async () => {

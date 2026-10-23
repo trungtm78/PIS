@@ -122,7 +122,8 @@ export interface MasterSearchRow {
 
 export interface MasterUsage {
   masterRecordId: string;
-  asOf: string;
+  /** The date the references were judged on; null: references to any version. */
+  asOf: string | null;
   counts: Record<string, number>;
   total: number;
   samples: Array<{ reference: string; id: string }>;
@@ -406,28 +407,39 @@ export class MasterStore {
     }));
   }
 
-  /** Counts the rows that refer to the record or to any of its versions, per referencing column (RLS keeps it to the tenant). */
-  async usage(tx: TenantTx, recordId: string, asOf: string, sampleSize = 5): Promise<MasterUsage> {
+  /**
+   * Counts the rows that refer to the record or to any of its versions, per referencing column (RLS keeps it to the tenant). With
+   * `asOf`, a reference by version counts only when it points at the version that was in force on that date.
+   */
+  async usage(tx: TenantTx, recordId: string, asOf?: string, sampleSize = 5): Promise<MasterUsage> {
     const counts: Record<string, number> = {};
     const samples: Array<{ reference: string; id: string }> = [];
     let total = 0;
+    const inForce = asOf === undefined ? undefined : await this.versionInForce(tx, recordId, asOf);
     for (const reference of this.references) {
-      const target = reference.kind === 'byVersion' ? `${reference.column} in (select id from machvon.master_record_version where master_record_id = $1::uuid)` : `${reference.column} = $1::uuid`;
-      const rows = await tx.query<{ id: string }>(`select id from machvon.${reference.table} where ${target} order by id limit ${sampleSize + 1}`, [recordId]);
+      const { sql, params } = this.targetOf(reference, recordId, asOf === undefined ? 'all' : (inForce?.id ?? null));
+      const rows = await tx.query<{ id: string }>(`select id from machvon.${reference.table} where ${sql} order by id limit ${sampleSize + 1}`, params);
       if (rows.length === 0) continue;
-      const counted = await tx.query<{ n: string }>(`select count(*)::text as n from machvon.${reference.table} where ${target}`, [recordId]);
+      const counted = await tx.query<{ n: string }>(`select count(*)::text as n from machvon.${reference.table} where ${sql}`, params);
       const n = Number((counted[0] as { n: string }).n);
       counts[reference.key] = n;
       total += n;
       for (const row of rows.slice(0, sampleSize)) samples.push({ reference: reference.key, id: row.id });
     }
-    return { masterRecordId: recordId, asOf, counts, total, samples };
+    return { masterRecordId: recordId, asOf: asOf ?? null, counts, total, samples };
+  }
+
+  /** The condition that selects the rows referring to the record: to any version ('all'), to one version, or to nothing (null). */
+  private targetOf(reference: MasterReference, recordId: string, versions: 'all' | string | null): { sql: string; params: unknown[] } {
+    if (reference.kind === 'byRecord') return { sql: `${reference.column} = $1::uuid`, params: [recordId] };
+    if (versions === 'all') return { sql: `${reference.column} in (select id from machvon.master_record_version where master_record_id = $1::uuid)`, params: [recordId] };
+    return { sql: `${reference.column} = $1::uuid`, params: [versions] };
   }
 
   private async impactOf(tx: TenantTx, recordId: string | null): Promise<ImpactPreview> {
     const computedAt = new Date().toISOString();
     if (recordId === null) return { counts: {}, total: 0, computed_at: computedAt };
-    const usage = await this.usage(tx, recordId, today(), 0);
+    const usage = await this.usage(tx, recordId, undefined, 0);
     return { counts: usage.counts, total: usage.total, computed_at: computedAt };
   }
 
@@ -649,7 +661,7 @@ export class MasterStore {
       [recordId],
     );
     const change = rows[0] === undefined ? undefined : toChange(rows[0]);
-    if (change === undefined) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'no approved change request');
+    if (change === undefined) throw new DomainError('CHANGE_NOT_APPROVED', 409);
     assertFourEyes(change.createdBy, publisher);
     const documents = await tx.query('select 1 from machvon.document where id = $1::uuid', [decisionDocumentId]);
     if (documents.length === 0) throw new DomainError('VALIDATION_FAILED', 422, 'decision_document_id');
