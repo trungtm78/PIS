@@ -12,6 +12,7 @@ Stories: ST-ADM-001, ST-ADM-002. Code: `packages/kernel/src/scheduler.ts` (port 
 | `outbox-relay` | 5 seconds | one relay batch; raises `OUTBOX_LAG` and `OUTBOX_EVENT_DEAD` | API process only (it owns the broker adapter) |
 | `idempotency-purge` | hourly | deletes expired idempotency rows that no legal hold contains | API process or command line |
 | `certificate-expiry` | daily | marks the signing certificates whose validity has ended as `Expired` in every tenant (reads already report them as Expired; the 30-day warning of ADM-08 is computed when the register is read) | API process only |
+| `master-activation` | hourly | puts the master data versions whose date has come in force, retires the records whose retirement date has come, and sets `mdm_change_pending_gauge` to the number of change requests that wait for a reviewer in all tenants (ST-MDM-001; the pass is idempotent) | API process only |
 | `access-cache-expiry` | every minute | drops the lapsed entries of the access cache of the process | API process only |
 
 "Every tenant" is the tenant registry plus the platform tenant, which holds the audit rows of control-plane commands.

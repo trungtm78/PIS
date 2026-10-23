@@ -4,6 +4,8 @@ import type { ControlDatabase } from './control-database.ts';
 import { PLATFORM_TENANT_ID } from './control-database.ts';
 import type { IdempotencyStore } from './idempotency-store.ts';
 import type { JobHandler } from './job-runner.ts';
+import { NOOP_METRICS } from '@machvon/kernel';
+import type { MetricsSink } from '@machvon/kernel';
 
 /** The scheduled jobs of the platform (ADM section 9: seal every 5 minutes, verify and purge hourly, the cache every minute). */
 export const JOB_INTERVAL_SECONDS = {
@@ -12,6 +14,8 @@ export const JOB_INTERVAL_SECONDS = {
   'outbox-relay': 5,
   'idempotency-purge': 3600,
   'certificate-expiry': 86400,
+  // Hourly, so a version whose date has come is in force within the hour; the pass is idempotent.
+  'master-activation': 3600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -51,6 +55,13 @@ export interface StandardJobDeps {
   relay?: { runOnce(): Promise<unknown> };
   /** Makes the stored status of the signing certificates whose validity has ended Expired (ST-ADM-008); the API process has the store. */
   certificates?: { expireDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<number> };
+  /**
+   * Puts the master data versions whose date has come in force and retires the records whose retirement date has come
+   * (ST-MDM-001); also tells how many change requests of the tenant wait for a reviewer, for the gauge below.
+   */
+  masterData?: { activateDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<{ changed: number; pendingReviews: number }> };
+  /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
+  metrics?: MetricsSink;
   /** Drops the lapsed entries of the access cache of this process. */
   accessCache?: { expire(): number };
 }
@@ -104,7 +115,7 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     },
   ];
-  const { relay, accessCache, certificates } = deps;
+  const { relay, accessCache, certificates, masterData } = deps;
   if (relay !== undefined) handlers.push({ name: 'outbox-relay', run: async () => void (await relay.runOnce()) });
   handlers.push({
     name: 'idempotency-purge',
@@ -112,6 +123,23 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
   });
   if (certificates !== undefined) {
     handlers.push({ name: 'certificate-expiry', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await certificates.expireDue(workerContext(tenantId)))) });
+  }
+  if (masterData !== undefined) {
+    handlers.push({
+      name: 'master-activation',
+      run: async () => {
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let pending = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            pending += (await masterData.activateDue(workerContext(tenantId))).pendingReviews;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge('mdm_change_pending_gauge', pending);
+        }
+      },
+    });
   }
   if (accessCache !== undefined) handlers.push({ name: 'access-cache-expiry', run: async () => void accessCache.expire() });
   return handlers;

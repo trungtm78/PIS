@@ -1,7 +1,7 @@
-import { AuditSealJob, CertificateStore, IdempotencyStore, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, OutboxRelay, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AuditSealJob, CertificateStore, IdempotencyStore, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, JobName, OutboxDelivery, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler } from '@machvon/kernel';
-import type { AlertSink, JobRunRecord, TimerPort } from '@machvon/kernel';
+import type { AlertSink, JobRunRecord, MetricsSink, TimerPort } from '@machvon/kernel';
 import type { Pool } from 'pg';
 
 export interface WorkersDeps {
@@ -20,6 +20,8 @@ export interface WorkersDeps {
   publish: (delivery: OutboxDelivery) => Promise<void>;
   /** The access cache of this process: its lapsed entries are dropped every minute. */
   accessCache: { expire(): number };
+  /** Receives the gauges of the jobs (`mdm_change_pending_gauge`); default: dropped until the exporter exists (KERNEL-050). */
+  metrics?: MetricsSink;
 }
 
 export interface WorkersOptions {
@@ -61,12 +63,18 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const runner = new JobRunner(deps.lockPool, { alerts });
   const relay = new OutboxRelay(deps.relayPool, deps.publish, { signingKey: deps.signingKey, alerts });
   const certificates = new CertificateStore();
+  const masterData = new MasterStore();
   const handlers = standardJobs({
     tenantIds: () => registeredTenantIds(deps.control),
     seal: new AuditSealJob(deps.tenants, { alerts }),
     idempotency: new IdempotencyStore(deps.tenants),
     relay,
     certificates: { expireDue: (ctx) => deps.tenants.withTenant(ctx, (tx) => certificates.expireDue(tx)) },
+    masterData: {
+      activateDue: (ctx) =>
+        deps.tenants.withTenant(ctx, async (tx) => ({ changed: await masterData.activateDue(tx, ctx.membershipId), pendingReviews: await masterData.pendingReviews(tx) })),
+    },
+    ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }),
     accessCache: deps.accessCache,
   });
 

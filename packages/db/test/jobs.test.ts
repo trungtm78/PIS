@@ -130,6 +130,44 @@ describe('standard jobs', () => {
     expect(visited).toEqual([TENANT_A, TENANT_B]);
   });
 
+  it('activates the master data of every tenant and reports the reviews that wait as one gauge (ST-MDM-001)', async () => {
+    const visited: string[] = [];
+    const gauges: Array<[string, number]> = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      masterData: {
+        activateDue: async (ctx) => {
+          visited.push(ctx.tenantId);
+          return { changed: 1, pendingReviews: ctx.tenantId === TENANT_A ? 2 : 3 };
+        },
+      },
+      metrics: { increment: () => undefined, gauge: (name, value) => void gauges.push([name, value]) },
+    });
+    await handlers.find((handler) => handler.name === 'master-activation')?.run();
+    expect(visited).toEqual([TENANT_A, TENANT_B]);
+    expect(gauges).toEqual([['mdm_change_pending_gauge', 5]]);
+  });
+
+  it('keeps going when one tenant fails to activate, reports it, and still sets the gauge for the others', async () => {
+    const gauges: number[] = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      masterData: {
+        activateDue: async (ctx) => {
+          if (ctx.tenantId === TENANT_A) throw new Error('boom');
+          return { changed: 0, pendingReviews: 4 };
+        },
+      },
+      metrics: { increment: () => undefined, gauge: (_name, value) => void gauges.push(value) },
+    });
+    await expect(handlers.find((handler) => handler.name === 'master-activation')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(gauges).toEqual([4]);
+  });
+
   it('serves the relay and the access cache only when the process has them, in schedule order', async () => {
     const deps = { tenantIds: async () => [], seal: new AuditSealJob(harness.tenantDatabase), idempotency: new IdempotencyStore(harness.tenantDatabase) };
     expect(standardJobs(deps).map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'idempotency-purge']);
@@ -139,9 +177,10 @@ describe('standard jobs', () => {
       ...deps,
       relay: { runOnce: async () => void (relayed += 1) },
       certificates: { expireDue: async () => 0 },
+      masterData: { activateDue: async () => ({ changed: 0, pendingReviews: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

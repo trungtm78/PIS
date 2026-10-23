@@ -53,10 +53,10 @@ describe('startWorkers without a reachable database', () => {
     return workers;
   };
 
-  it('schedules the six jobs of docs/runbooks/jobs.md at their documented intervals', () => {
+  it('schedules the seven jobs of docs/runbooks/jobs.md at their documented intervals', () => {
     const running = start(depsWith(collecting));
-    expect(running.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'access-cache-expiry']);
-    expect(timers.delays()).toEqual([5, 60, 300, 3600, 3600, 86_400].map((seconds) => seconds * 1000));
+    expect(running.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'access-cache-expiry']);
+    expect(timers.delays()).toEqual([5, 60, 300, 3600, 3600, 3600, 86_400].map((seconds) => seconds * 1000));
   });
 
   it('takes an interval override of the caller (the end-to-end stack polls its relay faster)', () => {
@@ -114,7 +114,7 @@ describe('startWorkers without a reachable database', () => {
 
   it('stops every timer, and a second stop is safe', async () => {
     const running = start(depsWith(collecting));
-    expect(timers.delays()).toHaveLength(6);
+    expect(timers.delays()).toHaveLength(7);
     await running.stop();
     expect(timers.delays()).toEqual([]);
     await expect(running.stop()).resolves.toBeUndefined();
