@@ -138,3 +138,21 @@ export { SecurityPolicyStore } from './security-policy-store.ts';
 export type { PolicyPageAnchor, PolicyStatus, SecurityPolicyRow } from './security-policy-store.ts';
 export { REVIEW_LIFETIME_MS, ThemeStore, themeChanges, themeHash } from './theme-store.ts';
 export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChange, ThemeConfig, ThemeDraftRow, ThemeReviewResult, ThemeVersionAnchor, ThemeVersionRow } from './theme-store.ts';
+export { MASTER_REFERENCES, MasterStore, contentHashOf } from './master-store.ts';
+export type {
+  ChangeKind,
+  ChangeRequestRow,
+  ChangeStatus,
+  ImpactPreview,
+  MasterContent,
+  MasterDecision,
+  MasterNamespace,
+  MasterRecordRow,
+  MasterRecordStatus,
+  MasterReference,
+  MasterSearchRow,
+  MasterUsage,
+  MasterVersionRow,
+  NewChangeRequest,
+  NewMasterRecord,
+} from './master-store.ts';
