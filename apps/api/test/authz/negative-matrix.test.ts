@@ -23,6 +23,8 @@ const MATRIX_COMMANDS: string[] = (JSON.parse(readFileSync(join(__dirname, 'matr
 
 const ROLE_MEMBER_BASE = 10; // member n = ROLE_MEMBER_BASE + index of the role in SYSTEM_ROLES
 const RECIPIENT = 5;
+/** A second TENANT_OWNER: the master permissions are held by that role alone, so the checker of a maker-checker case needs a colleague of it. */
+const SECOND_OWNER = 6;
 const OTHER_TENANT_OWNER = 1;
 const CUSTOM_ROLE = 90;
 const ONE_GRANT_TO_REVOKE = 900;
@@ -162,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideMasterChangeRequest', 'post_master_records_id_publish']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -220,6 +222,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text || last_number::text, ',' order by id) from machvon.document_number_register where tenant_id = $1),
     (select count(*)::text from machvon.document where tenant_id = $1),
     (select string_agg(id::text || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.doc_type where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || coalesce(current_version_id::text, ''), ',' order by id) from machvon.master_record where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_record_version where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_change_request where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1),
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
@@ -330,11 +335,13 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     }
     await harness.seedMembership(TENANT_B, OTHER_TENANT_OWNER, 11);
     await harness.seedMembership(TENANT_A, RECIPIENT, 1);
+    await harness.seedMembership(TENANT_A, SECOND_OWNER, 1);
     for (const [index, role] of SYSTEM_ROLES.entries()) {
       const member = ROLE_MEMBER_BASE + index;
       await harness.seedMembership(TENANT_A, member, 1);
       await giveSystemRole(TENANT_A, member, 100 + index, await roleId(TENANT_A, role.code));
     }
+    await giveSystemRole(TENANT_A, SECOND_OWNER, 99, await roleId(TENANT_A, 'TENANT_OWNER'));
     // The wrong-tenant caller is a full TENANT_OWNER of tenant B: only the tenant boundary may stop it.
     await giveSystemRole(TENANT_B, OTHER_TENANT_OWNER, 100, await roleId(TENANT_B, 'TENANT_OWNER'));
     await harness.seedRole(TENANT_A, CUSTOM_ROLE, 'MATRIX_CUSTOM', ['iam.unit.manage'], 10);
@@ -411,7 +418,49 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, signingSessionId, outgoingDocumentId, memberId(RECIPIENT), certificateId, documentVersionId],
       ],
     ]);
+    const masterRecordId = id(0x79, 1);
+    const masterDraftChangeId = id(0x79, 3);
+    const masterReviewChangeId = id(0x79, 5);
+    const decisionDocumentId = id(0x78, 1);
+    const impact = '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}';
+    const masterRecord = (n: number, status: string): [string, unknown[]] => [
+      `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
+       values ($1, $2, 'TENANT', 'MATRIX', $3, $4, $5, $5)`,
+      [TENANT_A, id(0x79, n), `MX-FIXTURE-${n}`, status, ACTOR],
+    ];
+    // The record and its version point at each other: the version is inserted first, then the record names it.
+    const masterCurrent = (recordN: number, versionN: number): [string, unknown[]] => [
+      'update machvon.master_record set current_version_id = $2 where id = $1',
+      [id(0x79, recordN), id(0x79, versionN)],
+    ];
+    const masterVersion = (n: number, recordN: number, status: string): [string, unknown[]] => [
+      `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, created_by, updated_by)
+       values ($1, $2, $3, 'MATRIX', $4, 1, 'Matrix fixture', '{}', '2026-01-01', $5, 'TENANT', $6, $6)`,
+      [TENANT_A, id(0x79, n), id(0x79, recordN), `MX-FIXTURE-${recordN}`, status, ACTOR],
+    ];
+    const masterChange = (n: number, recordN: number, status: string): [string, unknown[]] => [
+      `insert into machvon.master_change_request (tenant_id, id, change_kind, master_type, master_record_id, proposed_json, reason, impact_json, effective_from, status, reviewed_by, decided_at, created_by, updated_by)
+       values ($1, $2, 'UPDATE', 'MATRIX', $3, '{"label":"Renamed"}'::jsonb, 'negative matrix fixture', $4::jsonb, '2026-06-01', $5, null, null, $6, $6)`,
+      [TENANT_A, id(0x79, n), id(0x79, recordN), impact, status, ACTOR],
+    ];
+    await harness.owner(TENANT_A, [
+      masterRecord(1, 'EFFECTIVE'),
+      masterVersion(2, 1, 'EFFECTIVE'),
+      masterCurrent(1, 2),
+      masterRecord(6, 'EFFECTIVE'),
+      masterVersion(7, 6, 'EFFECTIVE'),
+      masterCurrent(6, 7),
+      masterChange(3, 6, 'DRAFT'),
+      masterRecord(8, 'EFFECTIVE'),
+      masterVersion(9, 8, 'EFFECTIVE'),
+      masterCurrent(8, 9),
+      masterChange(5, 8, 'IN_REVIEW'),
+    ]);
     targets = {
+      masterRecordId,
+      masterDraftChangeId,
+      masterReviewChangeId,
+      decisionDocumentId,
       notificationId,
       legalHoldId,
       registerId,
@@ -500,7 +549,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       const command = APPROVER_COMMANDS.find((candidate) => candidate.operationId === makerCase.operationId);
       if (command === undefined) throw new Error(`no approver command ${makerCase.operationId}`);
       const maker = roleMember(makerCase.roleCode);
-      const checker = makerCases.map((other) => roleMember(other.roleCode)).find((member) => member !== maker) ?? -1;
+      // Another holder of this command's permission: a member of one of its roles, or the second owner (who holds every tenant permission).
+      const checker = [...makerCases.filter((other) => other.operationId === makerCase.operationId).map((other) => roleMember(other.roleCode)), SECOND_OWNER].find((member) => member !== maker) ?? -1;
       const objectId = id(MAKER_BASE, maker);
       await harness.owner(TENANT_A, [command.seedMadeBy(objectId, memberId(maker))]);
       const request = command.build(objectId);

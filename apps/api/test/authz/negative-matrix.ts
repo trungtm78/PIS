@@ -30,6 +30,12 @@ export interface MatrixTargets {
   /** An outgoing document of tenant A in SUBMITTED (version 1) and an open leader signing session of it (version 1). */
   outgoingDocumentId: string;
   signingSessionId: string;
+  /** An EFFECTIVE master record of tenant A (version 1), a DRAFT change request of another record and an IN_REVIEW one of a third. */
+  masterRecordId: string;
+  masterDraftChangeId: string;
+  masterReviewChangeId: string;
+  /** A document of tenant A, named as the decision that authorises a publication. */
+  decisionDocumentId: string;
 }
 
 export interface MatrixRequest {
@@ -206,6 +212,34 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/document-renders',
       body: { template_code: 'QD-DEFAULT', as_of_date: '2026-10-23', payload: { title: 'Matrix', body: 'Matrix', agency: 'Matrix agency', place: 'Cao Bang' } },
     }),
+  },
+  proposeMasterRecord: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/master-records',
+      body: { namespace: 'TENANT', master_type: 'MATRIX', business_key: 'MX-NEW', label: 'Matrix entry', attributes: {}, valid_from: '2026-01-01', reason: REASON },
+    }),
+  },
+  createMasterChangeRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/master-change-requests',
+      body: { change_kind: 'UPDATE', master_type: 'MATRIX', master_record_id: t.masterRecordId, proposed: { label: 'Renamed by matrix' }, effective_from: '2026-06-01', reason: REASON },
+    }),
+  },
+  submitMasterChangeRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-change-requests/${t.masterDraftChangeId}/submit`, ifMatch: '"1"', body: {} }),
+  },
+  decideMasterChangeRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-change-requests/${t.masterReviewChangeId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  post_master_records_id_publish: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-records/${t.masterRecordId}/publish`, ifMatch: '"1"', body: { decision_document_id: t.decisionDocumentId } }),
   },
   markNotificationRead: {
     referencesTenantIds: true,

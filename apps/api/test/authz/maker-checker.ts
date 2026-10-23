@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { PERMISSIONS, STEP_UP } from '@machvon/contracts';
 import type { SystemRole } from '@machvon/db';
 import { STEP_UP_WINDOW_MINUTES, holdsPermission } from '@machvon/kernel';
@@ -60,6 +61,30 @@ export interface ApproverCommand {
  * knowledge; the matrix test checks that each one is a command of the matrix, and that the maker is refused while
  * another holder of the same permission is not.
  */
+/** A second id for the same object, so two commands of one maker never meet on a primary key (the same maker is the maker of both). */
+export function derivedId(objectId: string, purpose: string): string {
+  const hex = createHash('md5').update(`${objectId}:${purpose}`).digest('hex');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
+const IMPACT = '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}';
+const REVIEWER = '00000000-0000-4000-8000-0000000000e1';
+
+/** A new master record with its first version and its CREATE change request, all made by `$2`, the request in the status `$3`. */
+const SEED_MASTER = `with r as (
+    insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'TENANT', 'MATRIX', 'MX-' || $1::uuid::text, $3::text, $2::uuid, $2::uuid)
+  ), v as (
+    insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, 'MATRIX', 'MX-' || $1::uuid::text, 1, 'Matrix entry', '{}', '2026-01-01', $3::text, 'TENANT', $2::uuid, $2::uuid)
+  ), d as (
+    insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'INCOMING', 'CV', 'Matrix decision', 'INTERNAL', $2::uuid, $2::uuid)
+  )
+  insert into machvon.master_change_request (tenant_id, id, change_kind, master_type, master_record_id, proposed_json, reason, impact_json, effective_from, status, reviewed_by, decided_at, created_by, updated_by)
+  values (current_setting('app.tenant_id')::uuid, $1::uuid, 'CREATE', 'MATRIX', $1::uuid, '{"label":"Matrix entry"}'::jsonb, 'maker-checker matrix', '${IMPACT}'::jsonb, '2026-01-01', $3::text,
+          case $3::text when 'APPROVED' then '${REVIEWER}'::uuid end, case $3::text when 'APPROVED' then now() end, $2::uuid, $2::uuid)`;
+
 export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
   {
     operationId: 'releaseLegalHold',
@@ -78,6 +103,26 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
        values (current_setting('app.tenant_id')::uuid, $1, (select coalesce(max(revision), 0) + 1 from machvon.security_policy_version), '{"mfa_required_roles":[],"session_idle_minutes":30,"session_max_hours":8}'::jsonb, 'Draft', $2, 1)`,
       [objectId, maker],
     ],
+  },
+  {
+    operationId: 'decideMasterChangeRequest',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/master-change-requests/${derivedId(objectId, 'decide')}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: 'maker-checker matrix decision' },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_MASTER, [derivedId(objectId, 'decide'), maker, 'IN_REVIEW']],
+  },
+  {
+    operationId: 'post_master_records_id_publish',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/master-records/${derivedId(objectId, 'publish')}/publish`,
+      ifMatch: '"1"',
+      body: { decision_document_id: derivedId(objectId, 'publish') },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_MASTER, [derivedId(objectId, 'publish'), maker, 'APPROVED']],
   },
 ];
 
