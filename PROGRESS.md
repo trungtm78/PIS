@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-24T12:00+07:00 | Milestone: M2/6 | Task: M2f 23/23 xong, cổng milestone M2 đạt (chờ push); kế tiếp M3
+Cập nhật: 2026-10-24T12:00+07:00 | Milestone: M2/6 | Task: M2f 23/23 xong, cổng milestone M2 đạt, đã push (origin/main 5ceb833); kế tiếp M3
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -36,9 +36,9 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] Cổng milestone M2 (docs/m2-alignment-review.md mục 1 và 7): R0 57 story = 21 DONE, 2 DONE_UNCONFIRMED (DOC-001, DOC-003: CXN-DOC), 19 DONE_PENDING_ENV (môi trường ngoài: CA, Keycloak, Temporal, Redis, cloud, PowerSync, mô hình AI), 15 PARTIAL (DOC-002, KERNEL-013/014/025/026/027/030/031, IAM-002/005, ADM-006/007/009, SAS-001/003; phần thiếu nêu cụ thể), 0 NOT STARTED.
 
 ## Đang làm dở
-Task: M2 đã đóng (M2a..M2f, cổng milestone đạt) — chờ push một lần lên origin/main; kế tiếp M3 (R1 lát rộng).
+Task: M2 đã đóng (M2a..M2f, cổng milestone đạt) — đã push lên origin/main (5ceb833); kế tiếp M3 (R1 lát rộng).
 Đã làm: M2a..M2f; R0 57 story = 21 DONE / 2 DONE_UNCONFIRMED / 19 DONE_PENDING_ENV / 15 PARTIAL / 0 NOT STARTED; 24 màn hình web đã cài (ADM 6, DOC 5, IAM 2, NOT 2, SAS 9), 382 web + 72 mobile chưa làm.
-BƯỚC TIẾP THEO: push M2 (một lần, nền sau khi cổng đạt); rồi M3 theo docs/superpowers/plans/2026-10-23-m3-r1-breadth-roadmap.md, lát đầu KERNEL-1, MDM-1, ISS-1 (viết plan bằng writing-plans trước). Trước lát M3 đầu tiên: quy tắc đồ thị module trong .dependency-cruiser.cjs (F9), wiring hạ tầng thật của Task 20 khi có môi trường.
+BƯỚC TIẾP THEO: M3 theo docs/superpowers/plans/2026-10-23-m3-r1-breadth-roadmap.md, lát đầu KERNEL-1, MDM-1, ISS-1 (viết plan bằng writing-plans trước). Trước lát M3 đầu tiên: quy tắc đồ thị module trong .dependency-cruiser.cjs (F9), wiring hạ tầng thật của Task 20 khi có môi trường.
 File liên quan: docs/m2-alignment-review.md (mục 1 và 7), docs/UAT-COVERAGE.md, docs/r10-baseline-approvals.md, docs/runbooks/{test-lanes,web-e2e,jobs,api-runtime,release-checklist}.md, TODOS.md
 
 ## Hàng đợi task kế tiếp (M1)
