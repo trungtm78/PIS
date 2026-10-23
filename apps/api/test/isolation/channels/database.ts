@@ -73,6 +73,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'post_master_records_id_publish',
   'searchMasterRecords',
   'getMasterRecordUsages',
+  'listMasterChangeRequests',
   'getMasterChangeRequest',
   'get_resources_master_record_version',
   'get_resources_master_record_version_id',

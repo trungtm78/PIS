@@ -479,6 +479,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listIncomingDocuments': OperationDescriptor(method: 'GET', path: '/incoming-documents', versioned: false, stepUp: null, permission: 'doc.incoming.read'),
   'listInteropMessages': OperationDescriptor(method: 'GET', path: '/doc-interop-messages', versioned: false, stepUp: null, permission: 'doc.interop.read'),
   'listIssueSlaBreaches': OperationDescriptor(method: 'GET', path: '/issues/sla-breaches', versioned: false, stepUp: null, permission: 'issue.read'),
+  'listMasterChangeRequests': OperationDescriptor(method: 'GET', path: '/master-change-requests', versioned: false, stepUp: null, permission: 'master.read'),
   'listMneForms': OperationDescriptor(method: 'GET', path: '/mne-forms', versioned: false, stepUp: null, permission: 'mne.read'),
   'listMneObligations': OperationDescriptor(method: 'GET', path: '/mne-obligations', versioned: false, stepUp: null, permission: 'mne.read'),
   'listMyConsents': OperationDescriptor(method: 'GET', path: '/me/consents', versioned: false, stepUp: null, permission: 'notification.self'),

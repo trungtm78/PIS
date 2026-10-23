@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { MasterStore, TenantDatabase } from '@machvon/db';
-import type { ChangeRequestRow, MasterContent, MasterSearchRow, MasterVersionRow } from '@machvon/db';
+import type { ChangeRequestRow, ChangeStatus, MasterContent, MasterSearchRow, MasterVersionRow } from '@machvon/db';
 import { DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -17,6 +17,7 @@ const CHANGE_RESOURCE_TYPE = 'master_change_request';
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_TEXT = 100;
 const SUPPORTED_CHANGES = new Set(['UPDATE', 'RETIRE']);
+const CHANGE_STATUSES: ReadonlySet<string> = new Set(['DRAFT', 'IN_REVIEW', 'APPROVED', 'REJECTED', 'APPLIED', 'CANCELLED']);
 const DECISION_ACTIONS = { approve: 'master.change_approved', reject: 'master.change_rejected', return: 'master.change_returned' } as const;
 
 /** A calendar date as the contract writes it; anything else, or a date that does not exist, is 422 naming the parameter. */
@@ -301,6 +302,28 @@ export class MasterDataReadsController {
       return this.store.usage(tx, id, on);
     });
     return { master_record_id: usage.masterRecordId, as_of: usage.asOf, counts: usage.counts, total: usage.total, samples: usage.samples };
+  }
+
+  @Get('master-change-requests')
+  @OperationId('listMasterChangeRequests')
+  async changes(
+    @CurrentTenant() tenant: TenantContext,
+    @Query('status') status?: unknown,
+    @Query('master_type') masterType?: unknown,
+    @Query('limit') limit?: unknown,
+    @Query('cursor') cursor?: unknown,
+  ): Promise<{ items: Array<Record<string, unknown>>; next_cursor: string | null }> {
+    const request = parsePageRequest(limit, cursor);
+    if (status !== undefined && (typeof status !== 'string' || !CHANGE_STATUSES.has(status))) throw new DomainError('VALIDATION_FAILED', 422, 'status');
+    const rows = await this.database.withTenant(tenant, (tx) =>
+      this.store.listChanges(tx, { status: status as ChangeStatus | undefined, masterType: textOf(masterType, 'master_type'), limit: request.limit + 1, after: request.after }),
+    );
+    const shown = rows.slice(0, request.limit);
+    const last = shown[shown.length - 1];
+    return {
+      items: shown.map(changeViewOf),
+      next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAtKey, id: last.id }) : null,
+    };
   }
 
   @Get('master-change-requests/:id')

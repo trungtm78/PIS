@@ -477,6 +477,7 @@ export const OPERATIONS = {
   "listIncomingDocuments": { method: "get", path: "/incoming-documents", versioned: false, stepUp: null, permission: "doc.incoming.read" },
   "listInteropMessages": { method: "get", path: "/doc-interop-messages", versioned: false, stepUp: null, permission: "doc.interop.read" },
   "listIssueSlaBreaches": { method: "get", path: "/issues/sla-breaches", versioned: false, stepUp: null, permission: "issue.read" },
+  "listMasterChangeRequests": { method: "get", path: "/master-change-requests", versioned: false, stepUp: null, permission: "master.read" },
   "listMneForms": { method: "get", path: "/mne-forms", versioned: false, stepUp: null, permission: "mne.read" },
   "listMneObligations": { method: "get", path: "/mne-obligations", versioned: false, stepUp: null, permission: "mne.read" },
   "listMyConsents": { method: "get", path: "/me/consents", versioned: false, stepUp: null, permission: "notification.self" },

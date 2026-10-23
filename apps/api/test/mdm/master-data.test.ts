@@ -312,6 +312,22 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       expect((await call('GET', `/master-records/${randomUUID()}/usages`, { member: READER })).status).toBe(404);
     });
 
+    it('lists the change requests by status for the approval queue, pages them and refuses an unknown status', async () => {
+      const proposed = await propose(STEWARD, proposalBody({ master_type: 'QUEUE' }));
+      const change = await changeOf(idOf(proposed));
+      const submitted = await submit(STEWARD, change.id);
+      expect(submitted.status).toBe(200);
+      const queue = await call('GET', '/master-change-requests?status=IN_REVIEW&master_type=QUEUE', { member: CHECKER });
+      expect(queue.status).toBe(200);
+      expect((queue.json.items as Array<{ id: string; status: string; impact: unknown }>).map((item) => [item.id, item.status])).toEqual([[change.id, 'IN_REVIEW']]);
+      expect(queue.json.next_cursor).toBeNull();
+      const paged = await call('GET', '/master-change-requests?master_type=QUEUE&limit=1', { member: CHECKER });
+      expect((paged.json.items as unknown[]).length).toBe(1);
+      expect((await call('GET', '/master-change-requests?status=SOMETHING', { member: CHECKER })).status).toBe(422);
+      expect((await call('GET', '/master-change-requests?master_type=QUEUE', { member: OTHER_TENANT_STEWARD, tenantId: TENANT_B })).json.items).toEqual([]);
+      expect((await call('GET', '/master-change-requests', { member: NOBODY })).status).toBe(403);
+    });
+
     it('lists the versions through the generic scaffold and reads one by id', async () => {
       const listed = await call('GET', '/resources/master_record_version?limit=2', { member: READER });
       expect(listed.status).toBe(200);

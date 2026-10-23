@@ -35302,7 +35302,8 @@
         "getMasterRecordUsages",
         "getMasterChangeRequest",
         "get_resources_master_record_version",
-        "get_resources_master_record_version_id"
+        "get_resources_master_record_version_id",
+        "listMasterChangeRequests"
       ],
       "tables": [
         "master_record",

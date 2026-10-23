@@ -114,7 +114,9 @@ Index cho mọi `*_id`; RLS + `tenant_guard`. Namespace PLATFORM được nhân 
 | `stageMasterImport` / `applyMasterImport` | POST /master-imports[/{id}/apply] | master.import | `MdmImportRequest` | 409 IMPORT_FILE_ALREADY_APPLIED; 422 IMPORT_HAS_ERRORS | ✔ | ✔ (apply) |
 | `recordMasterSuccession` | POST /master-successions | master.propose | `MdmSuccession` | 422 SUCCESSION_CYCLE | ✔ | – |
 | `resetIntegrationCursor` | POST /integration-cursors/{id}/reset | integration.cursor.reset | `MdmCursorReset` | 422 VALIDATION_FAILED | ✔ | ✔ |
-| `searchMasterRecords`, `getMasterRecordUsages`, `getMasterRecordAsOf`, `getMasterRecordSuccessors`, `getMasterChangeRequest`, `listGlossaryTerms` | GET | master.read / glossary.read | – | 404 | – | – |
+| `searchMasterRecords`, `listMasterChangeRequests`, `getMasterRecordUsages`, `getMasterRecordAsOf`, `getMasterRecordSuccessors`, `getMasterChangeRequest`, `listGlossaryTerms` | GET | master.read / glossary.read | – | 404 | – | – |
+
+(Cập nhật — CR-MDM-02) Thêm `GET /master-change-requests?status&master_type` (`listMasterChangeRequests`, master.read): hàng chờ duyệt và công bố của MDM-32.
 
 (Cập nhật — CR-MDM-01) `GET /resources/master_record_version` nhận thêm tham số tùy chọn `master_record_id` để màn lịch sử (MDM-28) đọc các version của một bản ghi.
 

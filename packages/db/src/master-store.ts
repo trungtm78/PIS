@@ -319,6 +319,26 @@ export class MasterStore {
     return rows[0] === undefined ? undefined : toChange(rows[0]);
   }
 
+  /**
+   * The change requests, oldest first (a fair queue for the reviewers), optionally of one status and one master type. The cursor
+   * is the creation time (to the microsecond, UTC) and the id of the last row.
+   */
+  async listChanges(
+    tx: TenantTx,
+    request: { status?: ChangeStatus | undefined; masterType?: string | undefined; limit: number; after: { code: string; id: string } | undefined },
+  ): Promise<Array<ChangeRequestRow & { createdAtKey: string }>> {
+    const rows = await tx.query<ChangeRow & { created_at_key: string }>(
+      `select ${CHANGE_COLUMNS}, to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US') as created_at_key
+         from machvon.master_change_request
+        where ($1::text is null or status = $1) and ($2::text is null or master_type = $2)
+          and ($3::text is null or (to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US'), id) > ($3::text, $4::uuid))
+        order by created_at, id
+        limit $5`,
+      [request.status ?? null, request.masterType ?? null, request.after?.code ?? null, request.after?.id ?? null, request.limit],
+    );
+    return rows.map((row) => ({ ...toChange(row), createdAtKey: row.created_at_key }));
+  }
+
   async findVersion(tx: TenantTx, id: string): Promise<MasterVersionRow | undefined> {
     const rows = await tx.query<VersionSqlRow>(`select ${VERSION_COLUMNS} from machvon.master_record_version v where v.id = $1::uuid`, [id]);
     return rows[0] === undefined ? undefined : toVersion(rows[0]);

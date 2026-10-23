@@ -404,6 +404,20 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
       ]);
     });
 
+    it('lists the change requests oldest first, by status and type, in pages that follow the cursor', async () => {
+      const created = await as(STEWARD, (tx) => store.propose(tx, { masterType: 'LISTED', businessKey: nextKey('LI'), content: content(), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
+      const second = await as(STEWARD, (tx) => store.propose(tx, { masterType: 'LISTED', businessKey: nextKey('LI'), content: content(), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
+      await as(STEWARD, (tx) => store.submit(tx, second.changeRequestId, 1, memberId(STEWARD)));
+      const drafts = await as(STEWARD, (tx) => store.listChanges(tx, { status: 'DRAFT', masterType: 'LISTED', limit: 10, after: undefined }));
+      expect(drafts.map((row) => row.id)).toEqual([created.changeRequestId]);
+      const all = await as(STEWARD, (tx) => store.listChanges(tx, { masterType: 'LISTED', limit: 10, after: undefined }));
+      expect(all.map((row) => row.id)).toEqual([created.changeRequestId, second.changeRequestId]);
+      const first = all[0];
+      const next = await as(STEWARD, (tx) => store.listChanges(tx, { masterType: 'LISTED', limit: 10, after: { code: first?.createdAtKey ?? '', id: first?.id ?? '' } }));
+      expect(next.map((row) => row.id)).toEqual([second.changeRequestId]);
+      expect(await as(STEWARD, (tx) => store.listChanges(tx, { masterType: 'LISTED', limit: 10, after: undefined }), TENANT_B)).toEqual([]);
+    });
+
     it('counts the requests that wait for a reviewer', async () => {
       const before = await as(STEWARD, (tx) => store.pendingReviews(tx));
       const created = await as(STEWARD, (tx) => store.propose(tx, { masterType: 'SECTOR', businessKey: nextKey(), content: content(), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
