@@ -13,7 +13,7 @@ const small = documentWith({
     put: {
       operationId: 'update_thing',
       'x-permission': 'thing.update',
-      parameters: [{ name: 'id', in: 'path' }, { name: 'Idempotency-Key', in: 'header' }, { name: 'If-Match', in: 'header' }],
+      parameters: [{ name: 'id', in: 'path' }, { name: 'Idempotency-Key', in: 'header' }, { name: 'If-Match', in: 'header', required: true }],
       responses: {},
     },
     get: { operationId: 'get_thing', 'x-permission': 'thing.read', responses: {} },
@@ -46,11 +46,19 @@ describe('generateOperations', () => {
   it('recognises If-Match in any letter case and through a shared parameter reference', () => {
     const doc = documentWith({
       '/a': {
-        patch: { operationId: 'patch_a', 'x-permission': 'a.update', parameters: [{ $ref: '#/components/parameters/IfMatch' }, { name: 'if-match', in: 'header' }], responses: {} },
+        patch: { operationId: 'patch_a', 'x-permission': 'a.update', parameters: [{ $ref: '#/components/parameters/IfMatch' }, { name: 'if-match', in: 'header', required: true }], responses: {} },
       },
     });
-    doc.components = { ...doc.components, parameters: { IfMatch: { name: 'If-Match', in: 'header' } } };
+    doc.components = { ...doc.components, parameters: { IfMatch: { name: 'If-Match', in: 'header', required: true } } };
     expect(generateOperations(doc).patch_a?.versioned).toBe(true);
+  });
+
+  it('does not call an operation versioned when it only offers If-Match as an optional header (a create has no version to name)', () => {
+    const doc = documentWith({
+      '/a': { post: { operationId: 'post_a', 'x-permission': 'a.create', parameters: [{ name: 'If-Match', in: 'header' }], responses: {} } },
+      '/b': { post: { operationId: 'post_b', 'x-permission': 'b.create', parameters: [{ name: 'If-Match', in: 'header', required: false }], responses: {} } },
+    });
+    expect([generateOperations(doc).post_a?.versioned, generateOperations(doc).post_b?.versioned]).toEqual([false, false]);
   });
 
   it('ignores an unresolvable parameter reference instead of failing', () => {

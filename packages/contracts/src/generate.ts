@@ -66,15 +66,16 @@ const IF_MATCH_HEADER = 'if-match';
 const PARAMETER_REF_PREFIX = '#/components/parameters/';
 
 // Names of the parameters of an operation, following references into components.parameters.
-function parameterNames(operation: OpenApiOperation, doc: OpenApiDocument): string[] {
-  const shared = (doc.components?.parameters ?? {}) as Record<string, { name?: unknown }>;
-  const parameters = Array.isArray(operation.parameters) ? (operation.parameters as Array<{ name?: unknown; $ref?: unknown }>) : [];
+function parameterNames(operation: OpenApiOperation, doc: OpenApiDocument, requiredOnly = false): string[] {
+  const shared = (doc.components?.parameters ?? {}) as Record<string, { name?: unknown; required?: unknown }>;
+  const parameters = Array.isArray(operation.parameters) ? (operation.parameters as Array<{ name?: unknown; required?: unknown; $ref?: unknown }>) : [];
   const names: string[] = [];
   for (const parameter of parameters) {
     const resolved = typeof parameter.$ref === 'string' && parameter.$ref.startsWith(PARAMETER_REF_PREFIX)
       ? shared[parameter.$ref.slice(PARAMETER_REF_PREFIX.length)]
       : parameter;
-    if (typeof resolved?.name === 'string') names.push(resolved.name);
+    // An optional parameter is not part of the protocol of the operation: a client is not asked for it.
+    if (typeof resolved?.name === 'string' && (requiredOnly ? resolved.required === true : true)) names.push(resolved.name);
   }
   return names;
 }
@@ -89,7 +90,8 @@ export function generateOperations(doc: OpenApiDocument): Record<string, Operati
     operations[id] = {
       method,
       path,
-      versioned: parameterNames(operation, doc).some((name) => name.toLowerCase() === IF_MATCH_HEADER),
+      // Versioned means the request must carry If-Match: a record that is created may declare the header as optional (it has no version yet).
+      versioned: parameterNames(operation, doc, true).some((name) => name.toLowerCase() === IF_MATCH_HEADER),
       stepUp: stepUp[id] ?? null,
       permission: permissions[id] ?? '',
     };
