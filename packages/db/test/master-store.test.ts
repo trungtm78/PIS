@@ -392,6 +392,18 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
       expect(versions).toHaveLength(3);
     });
 
+    it('lists the history of one entry only, oldest revision first', async () => {
+      const entry = await inForce();
+      const opened = await change(entry.recordId, 'UPDATE', { label: 'Renamed once' }, '2025-06-01');
+      await approve(opened.id);
+      await publishChange(entry.recordId);
+      const history = await as(STEWARD, (tx) => store.listVersions(tx, { limit: 10, after: undefined, masterRecordId: entry.recordId }));
+      expect(history.map((version) => [version.revision, version.label])).toEqual([
+        [1, 'Giao thông'],
+        [2, 'Renamed once'],
+      ]);
+    });
+
     it('counts the requests that wait for a reviewer', async () => {
       const before = await as(STEWARD, (tx) => store.pendingReviews(tx));
       const created = await as(STEWARD, (tx) => store.propose(tx, { masterType: 'SECTOR', businessKey: nextKey(), content: content(), reason: 'Initial catalogue entry' }, memberId(STEWARD)));

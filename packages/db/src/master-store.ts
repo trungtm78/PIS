@@ -324,14 +324,15 @@ export class MasterStore {
     return rows[0] === undefined ? undefined : toVersion(rows[0]);
   }
 
-  /** The versions in the order of their master type, code and id, for the generic read scaffold. */
-  async listVersions(tx: TenantTx, request: { limit: number; after: { code: string; id: string } | undefined }): Promise<MasterVersionRow[]> {
+  /** The versions in the order of their master type, code and revision, for the generic read scaffold; `masterRecordId` keeps one entry's history. */
+  async listVersions(tx: TenantTx, request: { limit: number; after: { code: string; id: string } | undefined; masterRecordId?: string | undefined }): Promise<MasterVersionRow[]> {
     const rows = await tx.query<VersionSqlRow>(
       `select ${VERSION_COLUMNS} from machvon.master_record_version v
         where ($1::text is null or (v.master_type || ':' || v.code || ':' || lpad(v.revision::text, 9, '0'), v.id) > ($1::text, $2::uuid))
+          and ($4::uuid is null or v.master_record_id = $4::uuid)
         order by v.master_type || ':' || v.code || ':' || lpad(v.revision::text, 9, '0'), v.id
         limit $3`,
-      [request.after?.code ?? null, request.after?.id ?? null, request.limit],
+      [request.after?.code ?? null, request.after?.id ?? null, request.limit, request.masterRecordId ?? null],
     );
     return rows.map(toVersion);
   }

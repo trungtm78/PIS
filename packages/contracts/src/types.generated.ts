@@ -28553,6 +28553,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Only the versions of this master record (the history of one entry). */
+                master_record_id?: string;
             };
             header?: never;
             path?: never;

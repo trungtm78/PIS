@@ -116,6 +116,8 @@ Index cho mọi `*_id`; RLS + `tenant_guard`. Namespace PLATFORM được nhân 
 | `resetIntegrationCursor` | POST /integration-cursors/{id}/reset | integration.cursor.reset | `MdmCursorReset` | 422 VALIDATION_FAILED | ✔ | ✔ |
 | `searchMasterRecords`, `getMasterRecordUsages`, `getMasterRecordAsOf`, `getMasterRecordSuccessors`, `getMasterChangeRequest`, `listGlossaryTerms` | GET | master.read / glossary.read | – | 404 | – | – |
 
+(Cập nhật — CR-MDM-01) `GET /resources/master_record_version` nhận thêm tham số tùy chọn `master_record_id` để màn lịch sử (MDM-28) đọc các version của một bản ghi.
+
 **GET scaffold:** `/resources/master_record_version[/{id}]` → `dto` (version hiệu lực theo policy namespace; attributes lọc theo classification); `/resources/integration_cursor[/{id}]` → `internal` (vận hành nội bộ). Không endpoint ghi chung; mọi thay đổi qua change request.
 
 ## 8. UI/UX

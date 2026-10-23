@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { MasterStore, TenantDatabase } from '@machvon/db';
 import type { ChangeRequestRow, MasterContent, MasterSearchRow, MasterVersionRow } from '@machvon/db';
-import { DomainError, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -317,9 +317,12 @@ export class MasterDataReadsController {
     @CurrentTenant() tenant: TenantContext,
     @Query('limit') limit?: unknown,
     @Query('cursor') cursor?: unknown,
+    @Query('master_record_id') masterRecordId?: unknown,
   ): Promise<{ items: Array<Record<string, unknown>>; next_cursor: string | null; as_of: string }> {
     const request = parsePageRequest(limit, cursor);
-    const rows = await this.database.withTenant(tenant, (tx) => this.store.listVersions(tx, { limit: request.limit + 1, after: request.after }));
+    const record = masterRecordId === undefined ? undefined : asUuid(masterRecordId);
+    if (masterRecordId !== undefined && record === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'master_record_id');
+    const rows = await this.database.withTenant(tenant, (tx) => this.store.listVersions(tx, { limit: request.limit + 1, after: request.after, masterRecordId: record }));
     const shown = rows.slice(0, request.limit);
     const last = shown[shown.length - 1];
     return {

@@ -14864,6 +14864,15 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "master_record_id",
+            "in": "query",
+            "description": "Only the versions of this master record (the history of one entry).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {

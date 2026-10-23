@@ -320,6 +320,10 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       const one = await call('GET', `/resources/master_record_version/${items[0]?.id}`, { member: READER });
       expect(one.json).toMatchObject({ id: items[0]?.id });
       expect((await call('GET', `/resources/master_record_version/${randomUUID()}`, { member: READER })).status).toBe(404);
+      const entry = await inForce();
+      const history = await call('GET', `/resources/master_record_version?master_record_id=${entry.recordId}`, { member: READER });
+      expect((history.json.items as Array<{ master_record_id: string }>).map((item) => item.master_record_id)).toEqual([entry.recordId]);
+      expect((await call('GET', '/resources/master_record_version?master_record_id=not-a-uuid', { member: READER })).status).toBe(422);
       expect((await call('GET', '/master-records', { member: NOBODY })).status).toBe(403);
     });
   });
