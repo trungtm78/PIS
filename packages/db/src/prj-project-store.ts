@@ -185,16 +185,16 @@ interface DetailSql extends ListSql {
 }
 
 /** The project with the two units its scope is judged by. */
-const SCOPE_FROM = `machvon.project p
+export const SCOPE_FROM = `machvon.project p
   join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
   left join machvon.organization_unit iu on iu.tenant_id = p.tenant_id and iu.id = p.investor_unit_id`;
 
-const LIST_FROM = `from ${SCOPE_FROM}
+export const LIST_FROM = `from ${SCOPE_FROM}
   left join machvon.project_accountability lead on lead.tenant_id = p.tenant_id and lead.project_id = p.id
     and lead.accountability_role = 'LEADER_IN_CHARGE' and lead.status = 'ACTIVE'
   left join machvon.tenant_user_directory lu on lu.tenant_id = p.tenant_id and lu.membership_id = lead.leader_membership_id`;
 
-const LIST_COLUMNS = `p.id, p.code, p.name, p.owner_unit_id, ou.name as owner_unit_name, p.investor_unit_id, iu.name as investor_unit_name,
+export const LIST_COLUMNS = `p.id, p.code, p.name, p.owner_unit_id, ou.name as owner_unit_name, p.investor_unit_id, iu.name as investor_unit_name,
   p.project_group, p.status, p.national_project_code, lead.leader_membership_id, lu.display_name as leader_name, p.version::text as version`;
 
 const DETAIL_COLUMNS = `${LIST_COLUMNS}, p.decision_authority_unit_id, du.name as decision_authority_unit_name, p.area_master_version_id, p.sector_master_version_id,

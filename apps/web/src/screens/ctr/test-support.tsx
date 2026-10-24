@@ -24,6 +24,11 @@ export const TENANT: SessionTenant = {
 
 export const MAKER = ['contract.read', 'contract.create', 'contract.update'];
 export const READER = ['contract.read'];
+export const BOQ_MANAGER = ['contract.read', 'boq.manage', 'boq_line.read'];
+export const BOQ_READER = ['contract.read', 'boq_line.read'];
+export const GUARANTEE_OFFICER = ['contract.read', 'guarantee.read', 'guarantee.manage'];
+export const ACCOUNTANT = ['guarantee.read', 'guarantee.verify', 'guarantee.release', 'guarantee.manage'];
+export const GUARANTEE_READER = ['guarantee.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({ id, path: `/ctr/${id.toLowerCase()}`, title: id, kind: 'table', area: 'investment', module: 'CTR', group: 'Hợp đồng & điều khoản', role: 'workspace', parent: null, req });
 
@@ -88,6 +93,53 @@ export const party = (n: number, contractorId: string, name: string, role: strin
   version: 1,
 });
 
+export const boqLine = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0013', n),
+  contract_id: contractId(1),
+  contract_code: 'HD-A-001',
+  contract_revision_id: uuid('0011', 1),
+  revision: 1,
+  revision_status: 'DRAFT',
+  line_no: n,
+  business_key: `B0${n}`,
+  description: `Hạng mục ${n}`,
+  unit_code: 'M3',
+  quantity: '3',
+  unit_price: '1234.5',
+  rounding_rule: 'HALF_UP',
+  amount_vnd: '3704',
+  retention_pct: '5.0000',
+  milestone_code: null,
+  milestone_due_on: null,
+  party_contractor_id: null,
+  party_name: null,
+  boq_item_id: uuid('0014', n),
+  ...overrides,
+});
+
+export const guarantee = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0015', n),
+  contract_id: contractId(1),
+  contract_code: 'HD-A-001',
+  kind: 'PERFORMANCE',
+  issuer: 'Ngân hàng Tỉnh',
+  guarantee_no: `BL-A-00${n}`,
+  party_contractor_id: null,
+  party_name: null,
+  amount_vnd: '500000000',
+  currency: 'VND',
+  valid_from: '2026-03-01',
+  expires_at: '2026-12-31T16:59:00.000Z',
+  expires_on: '2026-12-31',
+  status: 'PENDING_VERIFICATION',
+  verification_status: 'UNVERIFIED',
+  last_alert_days: null,
+  extended_from_id: null,
+  version: 1,
+  registered_by: uuid('0030', 7),
+  ...overrides,
+});
+
 export const detail = (n: number, overrides: Record<string, unknown> = {}) => ({
   ...line(n),
   advance_category: 'CONSTRUCTION',
@@ -112,6 +164,10 @@ export interface World {
   details: Array<Record<string, unknown>>;
   projects: Array<Record<string, unknown>>;
   contractors: Array<Record<string, unknown>>;
+  boqLines: Array<Record<string, unknown>>;
+  guarantees: Array<Record<string, unknown>>;
+  /** The answer of the read of the guarantees about to expire, by window. */
+  expiring: Array<Record<string, unknown>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
   /** The answer of the read of one contract when it is not in `details`. */
@@ -128,6 +184,9 @@ export function world(overrides: Partial<World> = {}): World {
       option(SECOND, { legal_name: 'Công ty Cơ khí Bình Minh', verification_status: 'VERIFIED' }),
       option(THIRD, { legal_name: 'Công ty chưa xác minh', verification_status: 'UNVERIFIED' }),
     ],
+    boqLines: [],
+    guarantees: [],
+    expiring: [],
     failing: new Set(),
     ...overrides,
   };
@@ -141,6 +200,7 @@ export function client(state: World, command: (operation: string, input: unknown
       const id = (input as { path?: { id?: string } } | undefined)?.path?.id;
       return state.details.find((item) => item.id === id) ?? state.missing ?? new Error('not found');
     }
+    if (operation === 'listExpiringGuarantees') return { items: state.expiring, next_cursor: null, as_of: '2026-10-24T00:00:00.000Z', within_days: (input as { query?: { within_days?: number } } | undefined)?.query?.within_days };
     return new Error(`unexpected read ${operation}`);
   }, command);
   (h.client as unknown as { readAll: (operation: string) => Promise<unknown[]> }).readAll = vi.fn((operation: string) => {
@@ -152,6 +212,10 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.projects);
       case 'get_resources_contractor':
         return Promise.resolve(state.contractors);
+      case 'get_resources_boq_line':
+        return Promise.resolve(state.boqLines);
+      case 'get_resources_guarantee':
+        return Promise.resolve(state.guarantees);
       default:
         return Promise.reject(new Error(`unexpected readAll ${operation}`));
     }

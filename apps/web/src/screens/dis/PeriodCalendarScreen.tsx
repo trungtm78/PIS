@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -6,25 +6,14 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field, StatusPill } from './components';
-import { useGeneratePeriods, usePeriods } from './hooks';
+import { useGeneratePeriods, useNow, usePeriods } from './hooks';
 import { fieldProblemMessage, moveLabel, problemMessage, reopenScopeLabel, reopenStatusLabel, statusLabel } from './labels';
 import { PERIOD_LOCK_PERMISSION, PERIOD_MANAGE_PERMISSION, PERIOD_STATUSES, countsOf, describeProblem, hasPassed, movesOf, periodsOf, validateYear, vietnamMoment, yearsOf } from './model';
 import type { FieldProblem, PeriodMove, PeriodStatus, PeriodView } from './model';
 import { TransitionDialog } from './TransitionDialog';
 
 const NEVER_EMPTY = (): boolean => false;
-const CLOCK_MS = 60_000;
 const NONE = '–';
-
-/** The current time, moved on every minute so that a period turns soft-closable at its deadline while the screen stays open. */
-function useNow(): number {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), CLOCK_MS);
-    return () => clearInterval(timer);
-  }, []);
-  return now;
-}
 
 /**
  * DIS-14: the calendar of the reporting periods. Each period shows its status (Open, Soft closed, Locked: the one source of truth), its

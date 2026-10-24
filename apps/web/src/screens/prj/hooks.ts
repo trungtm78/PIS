@@ -8,7 +8,7 @@ import type { CreateBody, MasterOption, ProfileBody, ProjectLine, ProjectView, U
 
 // What the register shows depends on the scope of the membership that is signed in, not only on the tenant: switching between two
 // memberships of one tenant keeps the query client, so the membership is part of every key.
-function useScopeKey(): readonly ['prj', string | undefined, string | undefined] {
+export function useScopeKey(): readonly ['prj', string | undefined, string | undefined] {
   const { tenant } = useSession();
   return ['prj', tenant?.id, tenant?.membershipId];
 }

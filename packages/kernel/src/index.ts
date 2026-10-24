@@ -147,7 +147,7 @@ export type { AlertAdapter, AlertChannel, AlertRule, AlertSeverity, AlertSource,
 export { ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';
 export { CHANGE_REQUEST_STATES, assertFourEyes, canTransition, changeRequestNext } from './four-eyes.ts';
 export type { ChangeRequestAction, ChangeRequestState } from './four-eyes.ts';
-export { ROUNDING_MODES, addDecimal, compareDecimal, convertDecimal, roundDecimal, subtractDecimal } from './decimal.ts';
+export { ROUNDING_MODES, addDecimal, compareDecimal, convertDecimal, multiplyDecimal, roundDecimal, subtractDecimal } from './decimal.ts';
 export type { RoundingMode } from './decimal.ts';
 export { VND_SCALE, creditAmount, debitAmount, entriesInForce, netOfEntries, orderLockTargets, requirePositiveAmount, reversalCancels, reverseEntry } from './money-ledger.ts';
 export type { LedgerEntry, LockTarget } from './money-ledger.ts';
@@ -188,3 +188,52 @@ export {
 export type { ProviderSignatureScheme, ProviderSigningKey, VerifyCallbackInput } from './provider-signature.ts';
 export { UNCERTAIN_STATUS, defineStatusTable, reduceStatus } from './provider-status.ts';
 export type { ReduceOutcome, StatusTable } from './provider-status.ts';
+export {
+  CIRCUIT_ALERT_SECONDS,
+  CIRCUIT_ERROR_THRESHOLD,
+  CIRCUIT_OPEN_SECONDS,
+  CIRCUIT_WINDOW_SECONDS,
+  DELIVERY_STATUS_TABLE,
+  MAX_ATTEMPTS_PER_CHANNEL,
+  RECONCILE_INTERVAL_SECONDS,
+  RECONCILE_WINDOW_SECONDS,
+  RETRY_DELAYS_SECONDS,
+  RETRY_JITTER_MAX,
+  RETRY_JITTER_MIN,
+  SENDING_STALE_SECONDS,
+  attemptStatusOf,
+  circuitAfterFailure,
+  circuitVerdict,
+  decideRetry,
+  deliveryStatusOf,
+  failureClassOfHttpStatus,
+  retryDelaySeconds,
+  rollupNotificationStatus,
+} from './delivery.ts';
+export type { CircuitState, CircuitVerdict, DeliveryStatus, RetryDecision, RetryInput, RollupInput } from './delivery.ts';
+export type {
+  ChannelAdapter,
+  ChannelLookupResult,
+  ChannelSendRequest,
+  ChannelSendResult,
+  ParsedChannelCallback,
+} from './channel-port.ts';
+export {
+  BUSINESS_KEY_INVALID_CODE,
+  BUSINESS_KEY_MAX_LENGTH,
+  DUPLICATE_CONFLICT_CODE,
+  FILE_IMPORT_MAX_ROWS,
+  MEASURE_INVALID_CODE,
+  accept,
+  assertRejection,
+  checkDifference,
+  isStorableMeasure,
+  maskedPreview,
+  planFileImport,
+  reject,
+  fileSha256,
+  rowHash,
+  signedDifference,
+  sourceRowsOfTable,
+} from './file-import.ts';
+export type { AcceptedRow, Difference, FileImportFormat, FilePlan, PlannedAccepted, PlannedRejected, PlannedRow, Rejection, RowJudgement, SourceRow } from './file-import.ts';

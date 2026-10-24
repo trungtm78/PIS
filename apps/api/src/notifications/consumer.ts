@@ -1,5 +1,5 @@
-import { consumeOnce } from '@machvon/db';
-import type { ConsumeSecurity, NotificationRef, NotificationStore, OutboxDelivery, TenantDatabase, TenantTx } from '@machvon/db';
+import { DeliveryStore, consumeOnce, externalChannelsOf } from '@machvon/db';
+import type { ConsumeSecurity, DeliveryEngine, NotificationRef, NotificationStore, OutboxDelivery, TenantDatabase, TenantTx } from '@machvon/db';
 import { DomainError, NOOP_METRICS, asUuid } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { definitionOf } from './definition';
@@ -22,6 +22,11 @@ export interface NotificationConsumerDeps {
   /** Key and alert sink of the signed delivery context (the relay signs with the same key). */
   security: ConsumeSecurity;
   resolver?: RecipientResolver;
+  /**
+   * Starts the delivery of the external channels of a workflow (ST-NOT-002). Without it a notification is delivered in the application only: the external
+   * channels of the plan are ignored rather than left queued with nobody to send them.
+   */
+  delivery?: DeliveryEngine;
   metrics?: MetricsSink;
   now?: () => Date;
 }
@@ -56,6 +61,7 @@ function refOf(payload: Record<string, unknown>): NotificationRef & { recipients
  */
 export class NotificationConsumer {
   private readonly resolver: RecipientResolver;
+  private readonly deliveries = new DeliveryStore();
   private readonly metrics: MetricsSink;
   private readonly now: () => Date;
 
@@ -109,6 +115,7 @@ export class NotificationConsumer {
   ): Promise<void> {
     const recipient = asUuid(recipientId);
     if (recipient === undefined) return;
+    const channelPlan = this.deps.delivery === undefined ? ['IN_APP'] : definition.channels.map((entry) => entry.channel);
     const result = await this.deps.store.insert(tx, {
       eventId: delivery.id,
       workflowVersionId,
@@ -120,7 +127,12 @@ export class NotificationConsumer {
       eventVersion: delivery.schemaVersion,
       priority: definition.priority,
       ackRequired: definition.ackRequired,
+      channelPlan,
     });
+    // The first send of the first external channel is queued here, in the transaction that wrote the notification; it goes out later, from the dispatcher.
+    if (result.created && this.deps.delivery !== undefined && externalChannelsOf(channelPlan).length > 0) {
+      await this.deps.delivery.startChain(tx, await this.deliveries.requireNotification(tx, result.id));
+    }
     this.metrics.increment(result.created ? 'notification_created_total' : 'notification_dedupe_hits_total', result.created ? { event_type: delivery.type } : undefined);
   }
 }

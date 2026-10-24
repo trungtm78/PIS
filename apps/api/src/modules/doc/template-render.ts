@@ -59,6 +59,17 @@ export function fillPlaceholders(blocks: readonly RenderBlock[], payload: unknow
   return blocks.map((block) => ({ kind: block.kind, text: block.text.replace(PLACEHOLDER, (_match, path: string) => scalarText(lookup(data, path), path)) }));
 }
 
+/** Every field a payload still lacks for a template: the two fixed required members and the required placeholders, all at once. */
+export function missingPayloadFields(payload: unknown, schema: { required?: readonly string[] | undefined }): string[] {
+  const data = isRecord(payload) ? payload : {};
+  const fixed = ['agency', 'place'].filter((field) => typeof data[field] !== 'string' || data[field].trim() === '');
+  const placeholders = (schema.required ?? []).filter((path) => {
+    const value = lookup(data, path);
+    return value === undefined || value === null || value === '';
+  });
+  return [...new Set([...fixed, ...placeholders])];
+}
+
 function requiredText(payload: Record<string, unknown>, field: string): string {
   const value = payload[field];
   if (typeof value !== 'string' || value.trim() === '') throw invalid([field]);

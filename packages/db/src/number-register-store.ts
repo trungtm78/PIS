@@ -64,6 +64,16 @@ export interface AllocateInput {
   allocatedBy: string;
 }
 
+export interface ExternalNumberInput {
+  registerId: string;
+  documentId: string;
+  /** The number the other system gave, and the symbol and the date of issue written on the document. */
+  number: number;
+  symbol: string;
+  issuedOn: string;
+  allocatedBy: string;
+}
+
 export interface AllocationResult {
   allocationId: string;
   number: number;
@@ -261,6 +271,52 @@ export class NumberRegisterStore {
     if (allocation === undefined || bumped === undefined) throw new Error('number allocation returned no row');
     await this.claimSymbol(tx, input.documentId, { number, year: register.year, symbol, issuedOn, actor: input.allocatedBy });
     return { allocationId: allocation.id, number, symbol, issuedOn, registerVersion: Number(bumped.version) };
+  }
+
+  /**
+   * DOC.md F5 (b): a document that was signed and numbered in another system is entered in the register as it was numbered. A MANAGED register is the
+   * source of its numbers, so the declared number must be the next one; a MIRRORED register copies the numbers of the other system, so the number only
+   * has to be free (a number that is taken, voided ones included, is 409 NUMBER_ALREADY_REGISTERED) and the counter becomes the larger of the two.
+   */
+  async registerExternal(tx: TenantTx, input: ExternalNumberInput): Promise<AllocationResult> {
+    await tx.query("select set_config('lock_timeout', $1, true)", [`${this.lockTimeoutMs}ms`]);
+    const register = await this.lockRegister(tx, input.registerId);
+    if (register.status !== 'OPEN') throw new DomainError('REGISTER_NOT_OPEN', 409);
+    if (register.year !== Number(input.issuedOn.slice(0, 4))) throw new DomainError('REGISTER_YEAR_MISMATCH', 409, 'declared_issued_on');
+    const [document] = await tx.query<{ doc_kind: string }>('select doc_kind from machvon.document where id = $1::uuid for update', [input.documentId]);
+    if (document === undefined) throw notFound();
+    if (document.doc_kind !== register.direction) throw new DomainError('DOCUMENT_STATE_INVALID', 409, 'doc_kind');
+    if (register.mode === 'MANAGED' && input.number !== register.last_number + 1) throw new DomainError('REGISTER_MODE_MISMATCH', 409, 'declared_number');
+    const [taken] = await tx.query<{ id: string }>('select id from machvon.document_number_allocation where register_id = $1::uuid and number = $2', [register.id, input.number]);
+    if (taken !== undefined) throw new DomainError('NUMBER_ALREADY_REGISTERED', 409, 'declared_number');
+    const counter = Math.max(register.last_number, input.number);
+    const [bumped] = await tx.query<{ version: string }>(
+      'update machvon.document_number_register set last_number = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid returning version::text as version',
+      [register.id, counter, input.allocatedBy],
+    );
+    let allocation: { id: string } | undefined;
+    await tx.query('savepoint external_number');
+    try {
+      [allocation] = await tx.query<{ id: string }>(
+        `insert into machvon.document_number_allocation (tenant_id, id, register_id, number, symbol, document_id, issued_on, allocated_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2, $3, $4::uuid, $5::date, $6::uuid)
+         returning id`,
+        [register.id, input.number, input.symbol, input.documentId, input.issuedOn, input.allocatedBy],
+      );
+      await tx.query(
+        `update machvon.document set document_number = $2, number_year = $3, symbol = $4, issued_on = $5::date, updated_at = now(), updated_by = $6::uuid, version = version + 1
+          where id = $1::uuid`,
+        [input.documentId, input.number, register.year, input.symbol, input.issuedOn, input.allocatedBy],
+      );
+      await tx.query('release savepoint external_number');
+    } catch (error) {
+      if ((error as { code?: string } | null)?.code !== UNIQUE_VIOLATION) throw error;
+      // The same number or the same symbol came in under a race: the first one to commit holds it.
+      await tx.query('rollback to savepoint external_number');
+      throw new DomainError('NUMBER_ALREADY_REGISTERED', 409, 'declared_number');
+    }
+    if (allocation === undefined || bumped === undefined) throw new Error('external number registration returned no row');
+    return { allocationId: allocation.id, number: input.number, symbol: input.symbol, issuedOn: input.issuedOn, registerVersion: Number(bumped.version) };
   }
 
   /**

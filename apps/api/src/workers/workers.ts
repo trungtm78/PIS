@@ -1,7 +1,7 @@
-import { AuditSealJob, AuditWriter, BASELINE_PACK, CertificateStore, DisPeriodAutoclose, IdempotencyStore, IntegrationInboxProcessor, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, PmtPermitTypeStore, RetentionJob, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AuditSealJob, AuditWriter, BASELINE_PACK, CertificateStore, CtrGuaranteeExpiry, DisPeriodAutoclose, DisReopenExpiry,IdempotencyStore, IntegrationInboxProcessor, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, PmtPermitTypeStore, RetentionJob, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler } from '@machvon/kernel';
-import type { AlertSink, JobRunRecord, MetricsSink, TimerPort } from '@machvon/kernel';
+import type { AlertSink, JobRunRecord, MetricsSink, TenantContext, TimerPort } from '@machvon/kernel';
 import type { Pool } from 'pg';
 
 export interface WorkersDeps {
@@ -26,6 +26,8 @@ export interface WorkersDeps {
   payloads?: PayloadRemover;
   /** The adapters that process inbound provider events, by provider; without any, the inbox job is not scheduled (ST-ADM-018). */
   inboxHandlers?: InboxHandlerRegistry;
+  /** Sends the due notifications and reconciles the lost results (ST-NOT-002); without it the delivery jobs are not scheduled. */
+  notificationDelivery?: { dispatchDue(ctx: TenantContext): Promise<unknown>; reconcile(ctx: TenantContext): Promise<unknown> };
 }
 
 export interface WorkersOptions {
@@ -70,7 +72,9 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const masterData = new MasterStore();
   const audit = new AuditWriter(deps.tenants);
   const disPeriods = new DisPeriodAutoclose(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
+  const disReopens = new DisReopenExpiry(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const permitTypes = new PmtPermitTypeStore();
+  const guaranteeExpiry = new CtrGuaranteeExpiry(audit);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const handlers = standardJobs({
@@ -92,8 +96,11 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
       },
     },
     disPeriods: { autoclose: (ctx) => deps.tenants.withTenant(ctx, (tx) => disPeriods.run(tx, ctx.membershipId, new Date())) },
+    disReopens: { expire: (ctx) => deps.tenants.withTenant(ctx, (tx) => disReopens.run(tx, ctx.membershipId, new Date())) },
     retention: { run: (ctx, now) => retention.run(ctx, now) },
+    guaranteeExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => guaranteeExpiry.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),
+    ...(deps.notificationDelivery === undefined ? {} : { notificationDelivery: deps.notificationDelivery }),
     ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }),
     accessCache: deps.accessCache,
   });

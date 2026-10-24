@@ -1,4 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
 import { DocumentStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import type { MetricsSink } from '@machvon/kernel';
@@ -12,6 +15,14 @@ import { DocumentVersionReadsController, DocumentsController } from '../../src/m
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { PdfLibRenderer, loadRendererResources } from '../../src/modules/doc/pdf-renderer';
 import { OutgoingController } from '../../src/modules/doc/outgoing.controller';
+import { OutgoingDraftsController } from '../../src/modules/doc/outgoing-drafts.controller';
+import { IssueRequestsController } from '../../src/modules/doc/issue-requests.controller';
+import { DocumentFilesController } from '../../src/modules/doc/document-files.controller';
+import { SignedDocumentsController } from '../../src/modules/doc/signed-documents.controller';
+import { FileService } from '../../src/modules/files/file.service';
+import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
+import { MockScanPort } from '../../src/modules/files/mock-scan';
+import { DocumentIssueService } from '../../src/modules/doc/issue-request.service';
 import { RegistersController } from '../../src/modules/doc/registers.controller';
 import { MockSigningDirectory } from '../../src/modules/doc/signing-adapters';
 import { SignaturesController } from '../../src/modules/doc/signatures.controller';
@@ -32,6 +43,14 @@ export const RENDERER_ONLY = 4; // doc.render only
 export const DRAFTER = 5; // reads outgoing documents and holds the signing permission, but drafts documents
 export const LEADER = 6; // signs outgoing documents of unit 2
 export const CLERK = 7; // numbers and seals the outgoing documents of unit 2
+export const MAKER = 8; // drafts, edits, submits and cancels outgoing documents of unit 2, and may review (a head of department who drafts too)
+export const REVIEWER = 9; // reviews, returns and cancels the outgoing documents of unit 2
+export const BOARD = 10; // signs the documents of the high DoA band in unit 2
+export const SOURCE = 11; // a source module: asks for documents and checks references over the whole tenant
+export const SOURCE_UNIT = 12; // the same permissions, on the subtree of unit 2 only
+export const REFERENCER = 13; // only checks whether a document may be relied on, on the whole tenant
+export const EXT_CLERK = 14; // takes in documents signed outside the system, for unit 2 and below
+export const EXT_OUTSIDE = 15; // the same permissions, but only on unit 1 itself: nothing drafted in unit 2 is in their reach
 
 export interface Reply {
   status: number;
@@ -59,18 +78,26 @@ export class DocApp {
   app!: RunningApp;
   layoutProfileId = '';
   templateId = '';
+  /** The shared upload pipeline (stored on a temporary folder, scanned by the MOCK scanner): files come in through it, as they do in production. */
+  uploads!: FileService;
+  /** The storage under the pipeline: a test can put an object that was never scanned (PENDING). */
+  objects!: FsObjectStorage;
+  private objectRoot = '';
 
   async start(): Promise<void> {
     const { harness } = this;
     await harness.start();
+    this.objectRoot = await mkdtemp(join(tmpdir(), 'machvon-doc-objects-'));
+    this.objects = new FsObjectStorage(this.objectRoot);
+    this.uploads = new FileService({ storage: this.objects, scanner: new MockScanPort(), urlSecret: randomBytes(32), now: () => this.now });
     await harness.seedUnits(TENANT_A, [
       { n: 1, path: `/${unitId(1)}/` },
       { n: 2, path: `/${unitId(1)}/${unitId(2)}/`, parent: 1 },
     ]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: `/${unitId(1)}/` }]);
-    for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY, DRAFTER, LEADER, CLERK]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY, DRAFTER, LEADER, CLERK, MAKER, REVIEWER, BOARD, SOURCE, SOURCE_UNIT, REFERENCER, EXT_CLERK, EXT_OUTSIDE]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
-    const all = ['doc.render', 'doc.type.manage', 'doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.verify', 'doc.signature.read'];
+    const all = ['doc.render', 'doc.type.manage', 'doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.verify', 'doc.signature.read', 'doc.file.upload'];
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.seedRole(tenant, 1, 'DOC_ADMIN', all, 60);
       await harness.seedGrants(tenant, [{ n: 1, member: ADMIN, role: 1, kind: 'TENANT' }]);
@@ -79,8 +106,22 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 3, 'DOC_RENDERER', ['doc.render'], 20);
     await harness.seedRole(TENANT_A, 4, 'DOC_SIGNER', ['doc.outgoing.read', 'doc.outgoing.sign', 'document_version.read', 'doc.signature.read'], 40);
     await harness.seedRole(TENANT_A, 5, 'DOC_SEALER', ['doc.outgoing.read', 'doc.outgoing.sign', 'doc.outgoing.number', 'doc.outgoing.seal', 'doc.register.read', 'document_version.read'], 30);
+    await harness.seedRole(TENANT_A, 6, 'DOC_MAKER', ['doc.outgoing.read', 'doc.outgoing.create', 'doc.outgoing.edit', 'doc.outgoing.submit', 'doc.outgoing.cancel', 'doc.outgoing.review', 'doc.render'], 30);
+    await harness.seedRole(TENANT_A, 7, 'DOC_REVIEWER', ['doc.outgoing.read', 'doc.outgoing.review', 'doc.outgoing.cancel', 'document_version.read'], 40);
+    await harness.seedRole(TENANT_A, 8, 'DOC_BOARD', ['doc.outgoing.read', 'doc.outgoing.sign'], 50);
+    await harness.seedRole(TENANT_A, 9, 'DOC_SOURCE', ['doc.issue.request', 'doc.reference.check'], 30);
+    await harness.seedRole(TENANT_A, 10, 'DOC_REFERENCER', ['doc.reference.check'], 20);
+    await harness.seedRole(TENANT_A, 11, 'DOC_EXTERNAL_CLERK', ['doc.outgoing.read', 'doc.outgoing.upload_signed', 'doc.outgoing.register_external', 'doc.file.upload', 'doc.register.read'], 30);
     await harness.seedGrants(TENANT_A, [
       { n: 2, member: UNIT_TWO_CLERK, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 7, member: MAKER, role: 6, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 8, member: REVIEWER, role: 7, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 9, member: BOARD, role: 8, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 10, member: SOURCE, role: 9, kind: 'TENANT' },
+      { n: 11, member: SOURCE_UNIT, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 12, member: REFERENCER, role: 10, kind: 'TENANT' },
+      { n: 13, member: EXT_CLERK, role: 11, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 14, member: EXT_OUTSIDE, role: 11, kind: 'UNIT_ONLY', refs: [unitId(1)] },
       { n: 3, member: RENDERER_ONLY, role: 3, kind: 'TENANT' },
       { n: 4, member: DRAFTER, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 5, member: LEADER, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -103,13 +144,15 @@ export class DocApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, RegistersController, SignaturesController],
+      controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DOCUMENT_FILE_PORT, useValue: this.files },
         { provide: PDF_RENDERER, useValue: new PdfLibRenderer(resources) },
         { provide: DOC_STATE_TEXT, useValue: resources.text },
         { provide: DOC_METRICS, useValue: sink },
+        { provide: DocumentIssueService, useValue: new DocumentIssueService(this.files, sink, () => this.now) },
+        { provide: FileService, useValue: this.uploads },
         { provide: DOC_CLOCK, useValue: () => this.now },
         { provide: DOC_SIGNING_PORT, useValue: this.signing },
         { provide: DOC_TRUST_STORE, useValue: { forTenant: async () => ({ anchors: () => this.anchors }) } },
@@ -122,6 +165,7 @@ export class DocApp {
   async stop(): Promise<void> {
     if (this.app) await this.app.close();
     await this.harness.stop();
+    if (this.objectRoot !== '') await rm(this.objectRoot, { recursive: true, force: true });
   }
 
   async call(
@@ -134,6 +178,15 @@ export class DocApp {
     if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;
     if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${this.app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
+    return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
+  }
+
+  /** A multipart upload the way the screen sends it: one file field, the tenant token and an idempotency key. */
+  async upload(url: string, options: { member: number; bytes: Uint8Array; tenantId?: string; type?: string; key?: string; name?: string }): Promise<Reply> {
+    const token = signTenantContext({ tenantId: options.tenantId ?? TENANT_A, membershipId: memberId(options.member), scopeVersion: 1 }, SIGNING_KEY);
+    const form = new FormData();
+    form.append('file', new Blob([options.bytes], { type: options.type ?? 'application/pdf' }), options.name ?? 'document.pdf');
+    const response = await fetch(`${this.app.baseUrl}${url}`, { method: 'POST', headers: { [TENANT_HEADER]: token, 'idempotency-key': options.key ?? `key-${randomUUID()}` }, body: form });
     return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
   }
 

@@ -55,7 +55,7 @@ interface NotificationMetadata {
  * ancestor's grant must not keep revealing the record. The path is therefore taken from the unit as it is now: a
  * resource that names no unit has no path, and a unit that no longer exists is left without one (its unit scopes do not reach it).
  */
-function withCurrentOwnerPath(resource: ResourceRef, unitPaths: ReadonlyMap<string, string>): ResourceRef {
+export function withCurrentOwnerPath(resource: ResourceRef, unitPaths: ReadonlyMap<string, string>): ResourceRef {
   const rest: ResourceRef = { ...resource };
   delete rest.ownerUnitPath;
   if (rest.ownerUnitId === undefined) return rest;

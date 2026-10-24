@@ -55,14 +55,38 @@ export interface PeriodRow {
   version: number;
 }
 
-/** A request to reopen a locked period (ST-DIS-002), read here only to show the history of the period. */
+export type ReopenScopeKind = 'PERIOD' | 'PROJECTS';
+export type ReopenStatus = 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'EXPIRED' | 'CLOSED';
+
+/** A project a reopening names: the code is what a person recognises it by. */
+export interface ReopenProject {
+  id: string;
+  code: string;
+}
+
+/**
+ * A request to reopen a locked period (ST-DIS-002). `status` is the effective one: an approved request whose window has ended is EXPIRED
+ * from that instant, whether or not the job has stored it yet.
+ */
 export interface PeriodReopenRow {
   id: string;
   periodId: string;
-  scopeKind: 'PERIOD' | 'PROJECTS';
-  status: 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'EXPIRED' | 'CLOSED';
+  scopeKind: ReopenScopeKind;
+  status: ReopenStatus;
+  /** The end of the window that was granted; empty until the request is approved. */
   windowUntil: string | null;
   requestedAt: string;
+  reason: string;
+  requestedBy: string;
+  requestedWindowHours: number;
+  /** The approver (empty for a rejection and a request that waits), and when and why the decision was made. */
+  approvedBy: string | null;
+  decidedBy: string | null;
+  decidedAt: string | null;
+  decisionReason: string | null;
+  /** The projects of a request for projects, in the order of their codes; empty for a request for the whole period. */
+  projects: ReopenProject[];
+  version: number;
 }
 
 export interface PeriodFilter {
@@ -88,6 +112,8 @@ export interface SubmissionJudgement {
   period: PeriodRow;
   late: boolean;
   deadlineAt: string;
+  /** The reopening that lets a locked period take this project's report, and the end of its window; empty when the period is not locked. */
+  reopen: { id: string; windowUntil: string } | null;
 }
 
 interface SqlRow {
@@ -108,13 +134,58 @@ interface SqlRow {
   version: string;
 }
 
-interface ReopenSqlRow {
+export interface ReopenSqlRow {
   id: string;
   period_id: string;
-  scope_kind: PeriodReopenRow['scopeKind'];
-  status: PeriodReopenRow['status'];
+  scope_kind: ReopenScopeKind;
+  status: ReopenStatus;
   window_until: string | null;
   requested_at: string;
+  reason: string;
+  requested_by: string;
+  requested_window_hours: number;
+  approved_by: string | null;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_reason: string | null;
+  scope_project_ids: string[] | null;
+  version: string;
+}
+
+/** The columns of a request as the store reads them, the status turned into EXPIRED once the window has ended (`$1` is the time of the read). */
+export const REOPEN_SELECT = `select r.id, r.period_id, r.scope_kind,
+  case when r.status = 'APPROVED' and r.window_until <= $1::timestamptz then 'EXPIRED' else r.status end as status,
+  to_char(r.window_until at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as window_until,
+  to_char(r.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as requested_at,
+  r.reason, r.requested_by, r.requested_window_hours, r.approved_by, r.decided_by,
+  to_char(r.decided_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as decided_at,
+  r.decision_reason, r.scope_project_ids, r.version::text as version
+  from machvon.period_reopen r`;
+
+/** The requests with their projects named by code; a project that no longer resolves is left out rather than guessed. */
+export async function readReopens(tx: TenantTx, rows: readonly ReopenSqlRow[]): Promise<PeriodReopenRow[]> {
+  const ids = [...new Set(rows.flatMap((row) => row.scope_project_ids ?? []))];
+  const codes = new Map<string, string>();
+  if (ids.length > 0) {
+    for (const project of await tx.query<{ id: string; code: string }>('select id, code from machvon.project where id = any($1::uuid[])', [ids])) codes.set(project.id, project.code);
+  }
+  return rows.map((row) => ({
+    id: row.id,
+    periodId: row.period_id,
+    scopeKind: row.scope_kind,
+    status: row.status,
+    windowUntil: row.window_until,
+    requestedAt: row.requested_at,
+    reason: row.reason,
+    requestedBy: row.requested_by,
+    requestedWindowHours: row.requested_window_hours,
+    approvedBy: row.approved_by,
+    decidedBy: row.decided_by,
+    decidedAt: row.decided_at,
+    decisionReason: row.decision_reason,
+    projects: (row.scope_project_ids ?? []).flatMap((id) => (codes.has(id) ? [{ id, code: codes.get(id) as string }] : [])).sort((left, right) => (left.code < right.code ? -1 : left.code > right.code ? 1 : 0)),
+    version: Number(row.version),
+  }));
 }
 
 const iso = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
@@ -181,19 +252,12 @@ export class DisPeriodStore {
     return rows.map(toRow);
   }
 
-  /** The requests to reopen the periods, oldest first: the history that DIS-14 shows next to the status. */
-  async reopens(tx: TenantTx, periodIds: readonly string[]): Promise<Map<string, PeriodReopenRow[]>> {
+  /** The requests to reopen the periods, oldest first: the history that DIS-14 and DIS-22 show next to the status. Their status is judged at `now`. */
+  async reopens(tx: TenantTx, periodIds: readonly string[], now: Date): Promise<Map<string, PeriodReopenRow[]>> {
     const byPeriod = new Map<string, PeriodReopenRow[]>();
     if (periodIds.length === 0) return byPeriod;
-    const rows = await tx.query<ReopenSqlRow>(
-      `select id, period_id, scope_kind, status, ${iso('window_until')} as window_until, ${iso('created_at')} as requested_at
-         from machvon.period_reopen where period_id = any($1::uuid[]) order by created_at, id`,
-      [[...periodIds]],
-    );
-    for (const row of rows) {
-      const entry: PeriodReopenRow = { id: row.id, periodId: row.period_id, scopeKind: row.scope_kind, status: row.status, windowUntil: row.window_until, requestedAt: row.requested_at };
-      byPeriod.set(row.period_id, [...(byPeriod.get(row.period_id) ?? []), entry]);
-    }
+    const rows = await tx.query<ReopenSqlRow>(`${REOPEN_SELECT} where r.period_id = any($2::uuid[]) order by r.created_at, r.id`, [now.toISOString(), [...periodIds]]);
+    for (const entry of await readReopens(tx, rows)) byPeriod.set(entry.periodId, [...(byPeriod.get(entry.periodId) ?? []), entry]);
     return byPeriod;
   }
 
@@ -287,16 +351,31 @@ export class DisPeriodStore {
 
   /**
    * Whether a report handed in at `at` is late for a period: by the deadline of the calendar version the period is bound to, never by the
-   * calendar in force today (BR-DIS-09). A locked period takes nothing (409 PERIOD_LOCKED); the reopening of a scope is the business of
-   * ST-DIS-002, which lifts this refusal for a scope that has an approved window.
+   * calendar in force today (BR-DIS-09). A locked period takes nothing (409 PERIOD_LOCKED) unless a reopening (ST-DIS-002) that was approved
+   * names the project, or the whole period, and its window is open at `at`: the window is judged by the time alone, so it ends on time
+   * whether or not the job that stores the expiry has run, and it covers only the scope that was approved. A report handed in under a
+   * reopening is late, as the period is past its deadline.
    */
-  async judge(tx: TenantTx, periodId: string, at: Date): Promise<SubmissionJudgement> {
+  async judge(tx: TenantTx, periodId: string, projectId: string, at: Date): Promise<SubmissionJudgement> {
     const period = await this.find(tx, periodId);
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    if (period.status === 'LOCKED') throw new DomainError('PERIOD_LOCKED', 409);
+    const reopen = period.status === 'LOCKED' ? await this.openWindow(tx, periodId, projectId, at) : null;
+    if (period.status === 'LOCKED' && reopen === null) throw new DomainError('PERIOD_LOCKED', 409);
     const bound = { calendarVersionId: period.calendarVersionId, startsOn: period.startDate };
     const deadlineAt = await this.rules.boundDeadline(tx, bound);
-    return { period, late: await this.rules.isLate(tx, bound, at), deadlineAt };
+    return { period, late: await this.rules.isLate(tx, bound, at), deadlineAt, reopen };
+  }
+
+  /** The approved reopening whose window is open at `at` and covers the project (the latest to end when several do); empty when none does. */
+  private async openWindow(tx: TenantTx, periodId: string, projectId: string, at: Date): Promise<{ id: string; windowUntil: string } | null> {
+    const rows = await tx.query<{ id: string; window_until: string }>(
+      `select r.id, ${iso('r.window_until')} as window_until from machvon.period_reopen r
+        where r.period_id = $1::uuid and r.status = 'APPROVED' and r.decided_at <= $3::timestamptz and r.window_until > $3::timestamptz
+          and (r.scope_kind = 'PERIOD' or $2::uuid = any(r.scope_project_ids))
+        order by r.window_until desc, r.id limit 1`,
+      [periodId, projectId, at.toISOString()],
+    );
+    return rows[0] === undefined ? null : { id: rows[0].id, windowUntil: rows[0].window_until };
   }
 
   private async lockForMove(tx: TenantTx, id: string, expectedVersion: number, from: PeriodStatus): Promise<PeriodRow> {

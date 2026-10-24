@@ -182,9 +182,22 @@ const DOA_CHECKER_ROLE = { n: 96, code: 'E2E_DOA_CHECKER', permissions: ['adm.do
 
 /** The person who only reads the governance screens (ADM-09, ADM-10, ADM-11, ADM-12): no system role holds these read permissions but the administrators'. */
 const ADM_READER_ROLE = { n: 98, code: 'E2E_ADM_READER', permissions: ['adm.retention.read', 'adm.integration.read', 'audit_event.read', 'integration_cursor.read', 'legal_hold.read'], rank: 20 };
+/** The person who reads the send queue and the failed queue of the notification center (NOT-11 to NOT-13) and may not replay or cancel anything. */
+const NOTIFICATION_READER_ROLE = { n: 190, user: 'notificationReader', code: 'E2E_NOTIFICATION_READER', permissions: ['delivery_attempt.read'], rank: 20 };
 
 /** The manager of the SLA policies of the issue module (ISS-09): no system role holds issue.sla.manage but the owner's. */
 const ISS_ROLE = { n: 97, code: 'E2E_SLA_MANAGER', permissions: ['issue.sla.manage', 'issue.read', 'master.read', 'organization_unit.read'], rank: 40 };
+
+/**
+ * The people of the issue screens (ISS-01 to 03): the coordinator reports, assigns and moves issues, the worker starts and comments on the ones given to
+ * them, the reader only reads. No system role holds the issue permissions but the owner's. The permissions are the ones of
+ * apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
+ */
+const ISSUE_ROLES = [
+  { n: 140, user: 'issueCoordinator', code: 'E2E_ISSUE_COORDINATOR', permissions: ['issue.read', 'issue.create', 'issue.assign', 'issue.work', 'project.read', 'organization_unit.read', 'master.read'], rank: 40 },
+  { n: 141, user: 'issueWorker', code: 'E2E_ISSUE_WORKER', permissions: ['issue.read', 'issue.work', 'organization_unit.read'], rank: 30 },
+  { n: 142, user: 'issueReader', code: 'E2E_ISSUE_READER', permissions: ['issue.read', 'organization_unit.read'], rank: 20 },
+];
 
 /**
  * The people of the project register (PRJ-01 to 03), the capital register (CAP-04, 14, 16) and the reporting period calendar (DIS-14). No system
@@ -201,6 +214,9 @@ const INVESTMENT_ROLES = [
   { n: 115, user: 'periodManager', code: 'E2E_PERIOD_MANAGER', permissions: ['period.manage', 'reporting_period.read'], rank: 40 },
   { n: 116, user: 'periodLocker', code: 'E2E_PERIOD_LOCKER', permissions: ['period.lock', 'reporting_period.read'], rank: 50 },
   { n: 117, user: 'periodReader', code: 'E2E_PERIOD_READER', permissions: ['reporting_period.read'], rank: 20 },
+  // The reopening of a locked period (DIS-22): the requester asks (and reads the register to name the projects), a different person decides.
+  { n: 118, user: 'reopenRequester', code: 'E2E_REOPEN_REQUESTER', permissions: ['period.reopen.request', 'reporting_period.read', 'project.read'], rank: 30 },
+  { n: 119, user: 'reopenApprover', code: 'E2E_REOPEN_APPROVER', permissions: ['period.reopen.approve', 'reporting_period.read'], rank: 50 },
 ];
 
 /**
@@ -224,6 +240,45 @@ const STORY_ROLES = [
   { n: 131, user: 'mneReader', code: 'E2E_MNE_READER', permissions: ['mne.read'], rank: 20 },
 ];
 
+/** The people of the project bank (PRJ-14): one holds every stage permission, the other only the right to cancel. No system role holds these permissions. */
+const STAGE_ROLES = [
+  { n: 170, user: 'stageManager', code: 'E2E_STAGE_MANAGER', permissions: ['project.read', 'project.stage.implement', 'project.stage.suspend', 'project.stage.complete', 'project.stage.close', 'project.stage.cancel', 'organization_unit.read'], rank: 40 },
+  { n: 171, user: 'stageCanceller', code: 'E2E_STAGE_CANCELLER', permissions: ['project.read', 'project.stage.cancel', 'organization_unit.read'], rank: 30 },
+];
+
+/** The people of the permit dossier (PMT-01, PMT-02): the officer who keeps the file and records decisions, the manager who only keeps the file, the reader. No system role holds permit.manage or permit.record but the owner's. */
+const PERMIT_ROLES = [
+  { n: 150, user: 'permitOfficer', code: 'E2E_PERMIT_OFFICER', permissions: ['permit.manage', 'permit.record', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 40 },
+  { n: 151, user: 'permitManager', code: 'E2E_PERMIT_MANAGER', permissions: ['permit.manage', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 30 },
+  { n: 152, user: 'permitReader', code: 'E2E_PERMIT_READER', permissions: ['permit.read'], rank: 20 },
+];
+
+/**
+ * The people of the BOQ (CTR-04) and the guarantees (CTR-05): the contract officer imports the BOQ and registers and extends guarantees (and holds the
+ * right to verify and release, so that the server, not the screen, refuses the registrant), the chief accountant verifies and releases and reads the
+ * ledger, a second accountant is the other person of a four-eyes step, the reader only reads. No system role holds these permissions but the owner's.
+ * The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
+ */
+const CTR_ROLES = [
+  { n: 200, user: 'ctrOfficer', code: 'E2E_CTR_OFFICER', permissions: ['contract.read', 'contract.create', 'contract.update', 'contract_revision.read', 'boq.manage', 'boq_line.read', 'guarantee.manage', 'guarantee.verify', 'guarantee.release', 'guarantee.read'], rank: 40 },
+  { n: 201, user: 'ctrAccountant', code: 'E2E_CTR_ACCOUNTANT', permissions: ['contract.read', 'guarantee.verify', 'guarantee.release', 'guarantee.manage', 'guarantee.read', 'ledger.read'], rank: 50 },
+  { n: 202, user: 'ctrChecker', code: 'E2E_CTR_CHECKER', permissions: ['contract.read', 'guarantee.verify', 'guarantee.release', 'guarantee.read'], rank: 50 },
+  { n: 203, user: 'ctrReader', code: 'E2E_CTR_READER', permissions: ['contract.read', 'boq_line.read', 'guarantee.read'], rank: 20 },
+];
+
+/**
+ * The people of the outgoing documents (DOC-02, 03, 04): the drafter who composes and sends for review, the reviewer who checks and approves, the head who both
+ * drafts and may review (so the server, not the screen, refuses a self-approval), and the reader who sees the list. They act on the subtree of unit 2, the
+ * drafting unit of the stack; the signer of the documents is the owner, who holds the role the DoA rule of the stack names.
+ */
+const DOC_DRAFT_ROLES = [
+  { n: 132, user: 'docDrafter', code: 'E2E_DOC_DRAFTER', permissions: ['doc.outgoing.read', 'doc.outgoing.create', 'doc.outgoing.edit', 'doc.outgoing.submit', 'doc.outgoing.cancel', 'doc.render', 'document_version.read', 'doc.template.read', 'organization_unit.read'], rank: 30 },
+  { n: 133, user: 'docReviewer', code: 'E2E_DOC_REVIEWER', permissions: ['doc.outgoing.read', 'doc.outgoing.review', 'doc.outgoing.cancel', 'document_version.read'], rank: 40 },
+  { n: 134, user: 'docHead', code: 'E2E_DOC_HEAD', permissions: ['doc.outgoing.read', 'doc.outgoing.create', 'doc.outgoing.edit', 'doc.outgoing.submit', 'doc.outgoing.review', 'doc.render', 'document_version.read', 'doc.template.read', 'organization_unit.read'], rank: 40 },
+  { n: 135, user: 'docReader', code: 'E2E_DOC_READER', permissions: ['doc.outgoing.read'], rank: 20 },
+  { n: 136, user: 'docClerk', code: 'E2E_DOC_CLERK', permissions: ['doc.outgoing.read', 'doc.outgoing.upload_signed', 'doc.outgoing.register_external', 'doc.file.upload', 'doc.register.read', 'organization_unit.read'], rank: 30 },
+];
+
 interface GrantPlan {
   n: number;
   user: string;
@@ -242,9 +297,15 @@ const GRANTS: GrantPlan[] = [
   { n: 6, user: 'steward', role: MASTER_ROLES[0]?.code ?? '', kind: 'TENANT', refs: [] },
   { n: 7, user: 'dataChecker', role: MASTER_ROLES[1]?.code ?? '', kind: 'TENANT', refs: [] },
   { n: 21, user: 'slaManager', role: ISS_ROLE.code, kind: 'TENANT', refs: [] },
+  ...ISSUE_ROLES.map((role, index): GrantPlan => ({ n: 140 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   { n: 22, user: 'admReader', role: ADM_READER_ROLE.code, kind: 'TENANT', refs: [] },
+  { n: 23, user: 'notificationReader', role: NOTIFICATION_READER_ROLE.code, kind: 'TENANT', refs: [] },
   ...STORY_ROLES.map((role, index): GrantPlan => ({ n: 60 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...INVESTMENT_ROLES.map((role, index): GrantPlan => ({ n: 30 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...STAGE_ROLES.map((role, index): GrantPlan => ({ n: 170 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...PERMIT_ROLES.map((role, index): GrantPlan => ({ n: 150 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...DOC_DRAFT_ROLES.map((role, index): GrantPlan => ({ n: 180 + index, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] })),
+  ...CTR_ROLES.map((role, index): GrantPlan => ({ n: 200 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -296,6 +357,30 @@ function issueFixtures(tenantId: string): Array<[string, unknown[]]> {
     ]);
   });
   return statements;
+}
+
+/**
+ * What the outgoing documents (DOC-02, 03, 04) need and no screen of this build makes: the delegation-of-authority matrix in force, with one rule for decisions
+ * (QD) at the root unit for every amount, signed by the role of the tenant owner. The owner holds that role over the whole tenant, so the owner is the signer
+ * whom the DoA check accepts; every other member is refused with the band that decided.
+ */
+function docDraftFixtures(tenantId: string): Array<[string, unknown[]]> {
+  const matrix = fixtureId(0xd5, 1);
+  return [
+    [
+      `insert into machvon.doa_matrix_version (tenant_id, id, revision, status, effective_from, legal_basis_ref, created_by, last_edited_by, approved_by, published_at, version)
+       values ($1, $2, 900, 'Draft', date '2020-01-01', 'E2E regulation on the signature of decisions', $3, $3, null, null, 1)`,
+      [tenantId, matrix, ACTOR],
+    ],
+    [
+      `insert into machvon.doa_rule (tenant_id, id, matrix_version_id, document_type, unit_id, include_subtree, amount_min_vnd, amount_max_vnd, approver_role_id, position)
+       values ($1, $2, $3, 'QD', $4, true, 0, null, (select id from machvon.role_definition where code = 'TENANT_OWNER'), 0)`,
+      [tenantId, fixtureId(0xd5, 2), matrix, unitId(1)],
+    ],
+    // The rules are written while the version is a draft; it then goes through the approval, which the guard of the table demands.
+    ["update machvon.doa_matrix_version set status = 'PendingApproval' where id = $1", [matrix]],
+    ["update machvon.doa_matrix_version set status = 'Published', approved_by = $2, published_at = now() where id = $1", [matrix, fixtureId(0xd5, 9)]],
+  ];
 }
 
 /**
@@ -403,6 +488,93 @@ function governanceFixtures(tenantId: string): Array<[string, unknown[]]> {
   return statements;
 }
 
+/**
+ * What the delivery screens (NOT-11, NOT-12, NOT-13) show before a flow touches anything, for the recipient `nobody`: a notification whose five e-mail
+ * sends all failed (replayed by the first flow), one whose SMS result was lost an hour ago (it must be reconciled first), one whose SMS result was lost two
+ * days ago (it may be replayed, with a warning), one that waits in the queue (cancelled by a flow), one that went through after two failures (the journey the
+ * milestones are read from), and the channel accounts and templates they name. The delivery job is not run by this stack, so a queued send stays queued.
+ */
+function deliveryFixtures(tenantId: string): Array<[string, unknown[]]> {
+  const recipient = userKey('nobody').membershipId;
+  const workflow = fixtureId(0xe5, 1);
+  const emailAccount = fixtureId(0xe5, 2);
+  const smsAccount = fixtureId(0xe5, 3);
+  const emailTemplate = fixtureId(0xe5, 4);
+  const smsTemplate = fixtureId(0xe5, 5);
+  const statements: Array<[string, unknown[]]> = [
+    [
+      `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, event_type, created_by, definition_hash)
+       values ($1, $2, 'NOTIFICATION', 1, $3::jsonb, 'Published', 'NOTIFICATION', 'e2e.delivery', $4, repeat('e', 64))`,
+      [tenantId, workflow, JSON.stringify({ channels: [{ channel: 'EMAIL', templateCode: 'e2e.mail' }, { channel: 'SMS', templateCode: 'e2e.sms' }] }), ACTOR],
+    ],
+    [
+      `insert into machvon.channel_account (tenant_id, id, channel, external_account_id, credential_secret_ref, capability_version, status, verified_at)
+       values ($1, $2, 'EMAIL', 'e2e-relay', 'secret://e2e/mail', 'v1', 'Active', now()), ($1, $3, 'SMS', 'e2e-sms', 'secret://e2e/sms', 'v1', 'Active', now())`,
+      [tenantId, emailAccount, smsAccount],
+    ],
+    [
+      `insert into machvon.notification_template_version (tenant_id, id, code, channel, locale, revision, content_ast, variable_schema, status, content_hash, created_by)
+       values ($1, $2, 'e2e.mail', 'EMAIL', 'vi-VN', 1, '{"subject":"E2E","body":"E2E"}'::jsonb, '{}'::jsonb, 'Active', repeat('a', 64), $4),
+              ($1, $3, 'e2e.sms', 'SMS', 'vi-VN', 1, '{"body":"E2E"}'::jsonb, '{}'::jsonb, 'Active', repeat('b', 64), $4)`,
+      [tenantId, emailTemplate, smsTemplate, ACTOR],
+    ],
+  ];
+  interface Planted {
+    n: number;
+    status: string;
+    plan: string;
+    attempts: Array<{ channel: 'EMAIL' | 'SMS'; no: number; status: string; unknownAgo?: string; error?: string }>;
+  }
+  const failed = (no: number): Planted['attempts'][number] => ({ channel: 'EMAIL', no, status: 'Failed', error: 'HTTP_503' });
+  const planted: Planted[] = [
+    { n: 1, status: 'Failed', plan: '{EMAIL}', attempts: [1, 2, 3, 4, 5].map(failed) },
+    { n: 2, status: 'Unknown', plan: '{SMS}', attempts: [{ channel: 'SMS', no: 1, status: 'Unknown', unknownAgo: '1 hour', error: 'TIMEOUT_AFTER_SEND' }] },
+    { n: 3, status: 'Unknown', plan: '{SMS}', attempts: [{ channel: 'SMS', no: 1, status: 'Unknown', unknownAgo: '2 days', error: 'TIMEOUT_AFTER_SEND' }] },
+    { n: 4, status: 'Queued', plan: '{EMAIL,SMS}', attempts: [{ channel: 'EMAIL', no: 1, status: 'Queued' }] },
+    { n: 5, status: 'Delivered', plan: '{EMAIL,SMS}', attempts: [failed(1), failed(2), { channel: 'EMAIL', no: 3, status: 'Delivered' }] },
+  ];
+  let attemptNumber = 0;
+  for (const notification of planted) {
+    const notificationId = fixtureId(0xe6, notification.n);
+    statements.push([
+      `insert into machvon.notification_instance
+         (tenant_id, id, event_id, workflow_version_id, recipient_id, purpose, dedupe_key, expires_at, status, source_event_type, event_version, priority, channel_plan)
+       values ($1, $2, gen_random_uuid(), $3, $4, 'OPERATIONAL', $5, now() + interval '30 days', $6, 'e2e.delivery', 1, 'NORMAL', $7::text[])`,
+      [tenantId, notificationId, workflow, recipient, `n1:${notification.n.toString(16).padStart(64, '0')}`, notification.status, notification.plan],
+    ]);
+    for (const attempt of notification.attempts) {
+      attemptNumber += 1;
+      statements.push([
+        `insert into machvon.delivery_attempt
+           (tenant_id, id, notification_id, channel_account_id, attempt_no, status, cost, channel, template_version_id, sending_at, failed_at, unknown_at, failure_class, error_code,
+            accepted_at, delivered_at, provider_message_id)
+         values ($1, $2, $3, $4, $5, $6, 0, $7, $8,
+                 case when $6 <> 'Queued' then now() - interval '3 hours' end,
+                 case when $6 in ('Failed', 'Unknown') then now() - interval '3 hours' end,
+                 case when $6 = 'Unknown' then now() - $9::interval end,
+                 case $6 when 'Failed' then 'RETRYABLE' when 'Unknown' then 'UNKNOWN' end,
+                 case when $6 in ('Failed', 'Unknown') then $10 end,
+                 case when $6 = 'Delivered' then now() - interval '2 hours' end,
+                 case when $6 = 'Delivered' then now() - interval '2 hours' end,
+                 case when $6 = 'Delivered' then 'e2e-message-1' end)`,
+        [
+          tenantId,
+          fixtureId(0xe7, attemptNumber),
+          notificationId,
+          attempt.channel === 'EMAIL' ? emailAccount : smsAccount,
+          attempt.no,
+          attempt.status,
+          attempt.channel,
+          attempt.channel === 'EMAIL' ? emailTemplate : smsTemplate,
+          attempt.unknownAgo ?? '0 seconds',
+          attempt.error ?? null,
+        ],
+      ]);
+    }
+  }
+  return statements;
+}
+
 async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: TenantName): Promise<void> {
   const tenantId = fixtures.tenants[name];
   await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => seedSystemRoles(tx, ACTOR));
@@ -426,13 +598,13 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, ISS_ROLE, ...INVESTMENT_ROLES, ...STORY_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...INVESTMENT_ROLES, ...STAGE_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...CTR_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
     ]);
   }
-  if (name === 'A') statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId));
+  if (name === 'A') statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId), ...deliveryFixtures(tenantId), ...docDraftFixtures(tenantId));
   // The units that owe the reports of the investors in the monitoring calendar (MNE-01): the Office and the Project Management Board of the Department.
   if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, ['CB-SKHDT-VP', 'CB-SKHDT-QLDA']]]);
   await asOwner(database, tenantId, statements);
@@ -499,6 +671,42 @@ async function seedMemberFixtures(database: TestDatabase): Promise<void> {
         `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due)
          values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', date '2026-01-01', current_date + $8::int)`,
         [tenantId, fixtureId(0x51, n), project, fixtureId(0x53, 1), contractor, code, status, daysToCompletion],
+      );
+    }
+  } finally {
+    await client.end();
+  }
+}
+
+/**
+ * What the browser flows of the BOQ (CTR-04) and the guarantees (CTR-05) stand on: a project of the Project Management Board, a verified contractor and
+ * a few clean document versions (the papers a guarantee, its check and its release name). The flows make their own contracts, so that none depends on
+ * another. Foreign keys to the modules that are not seeded here are switched off, as for the fixtures above.
+ */
+async function seedCtrFixtures(database: TestDatabase): Promise<void> {
+  const tenantId = fixtures.tenants.A;
+  const client = new Client({ connectionString: database.adminUrl });
+  await client.connect();
+  try {
+    await client.query('set session_replication_role = replica');
+    await client.query(
+      "insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id) values ($1, $2, '0100000777', 'Nhà thầu hợp đồng thử', 'VERIFIED', $3)",
+      [tenantId, fixtureId(0x5b, 1), fixtureId(0x5c, 1)],
+    );
+    await client.query(
+      `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, investor_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+       values ($1, $2, 'DA-CTR', 'Dự án cầu thử hợp đồng', $3, $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
+      [tenantId, fixtureId(0x5b, 2), unitId(5), unitId(2), fixtureId(0x52, 1)],
+    );
+    await client.query(
+      "insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by) values ($1, $2, 'REFERENCE', 'HD', 'Hồ sơ hợp đồng thử', 'INTERNAL', $3, $3)",
+      [tenantId, fixtureId(0x5c, 2), ACTOR],
+    );
+    for (const n of [1, 2, 3, 4]) {
+      await client.query(
+        `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
+         values ($1, $2, $3, $4, $5, repeat('a', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL')`,
+        [tenantId, fixtureId(0x5c, 10 + n), fixtureId(0x5c, 2), n, `tenants/e2e/ctr-${n}.pdf`],
       );
     }
   } finally {
@@ -689,6 +897,7 @@ describe('e2e API stack', () => {
       await seedTenant(database, tenants, 'B');
       await seedTenant(database, tenants, 'C');
       await seedMemberFixtures(database);
+      await seedCtrFixtures(database);
       await seedPlacement(database);
       // Outgoing documents of tenant A with a signed PDF, a certificate authority of the test and a signing adapter that approves by itself.
       const outgoing = await seedOutgoingDocuments({
@@ -697,6 +906,7 @@ describe('e2e API stack', () => {
         tenantId: fixtures.tenants.A,
         signerMembershipId: userKey('owner').membershipId,
         drafterMembershipId: userKey('unitAdmin').membershipId,
+        clerkMembershipId: userKey('docClerk').membershipId,
         draftingUnitId: unitId(2),
         organizationUnitId: unitId(1),
       });

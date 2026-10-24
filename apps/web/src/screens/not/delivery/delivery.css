@@ -1,0 +1,50 @@
+/* NOT-11, NOT-12 and NOT-13: the operator screens of the delivery engine. They reuse the shared card, table and pill classes. */
+.milestones {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.milestones li {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line, #d9d4dc);
+  border-radius: 8px;
+}
+
+.milestones li[data-state='delivered'] {
+  border-color: var(--ok, #2f7d4f);
+}
+
+.milestones li[data-state='failed'] {
+  border-color: var(--danger, #b3261e);
+}
+
+.milestones li[data-state='unreached'] {
+  opacity: 0.6;
+}
+
+.timeline {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  justify-content: space-between;
+}
+
+@media (max-width: 720px) {
+  .milestones {
+    grid-template-columns: 1fr;
+  }
+}

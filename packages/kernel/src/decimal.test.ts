@@ -1,4 +1,4 @@
-import { ROUNDING_MODES, addDecimal, compareDecimal, convertDecimal, roundDecimal, subtractDecimal } from './decimal.ts';
+import { ROUNDING_MODES, addDecimal, compareDecimal, convertDecimal, multiplyDecimal, roundDecimal, subtractDecimal } from './decimal.ts';
 import type { RoundingMode } from './decimal.ts';
 
 const problem = (work: () => unknown): { code: string; detail: string | undefined } | undefined => {
@@ -98,6 +98,29 @@ describe('conversion between units of one dimension', () => {
     expect(problem(() => convertDecimal('1', '1', '1', 99, 'HALF_UP'))).toEqual({ code: 'VALIDATION_FAILED', detail: 'rounding' });
     expect(problem(() => convertDecimal('1', '1', '1', 0, 'X' as never))).toEqual({ code: 'VALIDATION_FAILED', detail: 'rounding' });
     expect(problem(() => convertDecimal('abc', '1', '1', 0, 'HALF_UP'))).toEqual({ code: 'VALIDATION_FAILED', detail: 'amount' });
+  });
+});
+
+describe('exact decimal products', () => {
+  it('multiplies without a float and keeps every digit, so the caller rounds once', () => {
+    expect(multiplyDecimal('3', '1234.5')).toBe('3703.5');
+    expect(multiplyDecimal('0.1', '0.2')).toBe('0.02');
+    expect(multiplyDecimal('2.50', '4')).toBe('10.00');
+    expect(multiplyDecimal('-2', '3.5')).toBe('-7.0');
+    expect(multiplyDecimal('-2', '-3')).toBe('6');
+    expect(multiplyDecimal('0', '123.456')).toBe('0.000');
+    expect(multiplyDecimal('1000000000000', '1000000000000.000001')).toBe('1000000000000000001000000.000000');
+  });
+
+  it('rounds to a whole amount in the three rules of a BOQ line (3 x 1,234.5 is 3,703.5)', () => {
+    const product = multiplyDecimal('3', '1234.5');
+    expect(roundDecimal(product, 0, 'HALF_UP')).toBe('3704');
+    expect(roundDecimal(product, 0, 'DOWN')).toBe('3703');
+    expect(roundDecimal(product, 0, 'UP')).toBe('3704');
+  });
+
+  it('refuses text that is not a decimal', () => {
+    expect(problem(() => multiplyDecimal('1,5', '1'))).toEqual({ code: 'VALIDATION_FAILED', detail: 'amount' });
   });
 });
 

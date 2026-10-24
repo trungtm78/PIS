@@ -1,9 +1,10 @@
 import { NotificationStore } from '@machvon/db';
-import type { AuthzCache, ConsumeSecurity, ControlDatabase, EffectiveAccessStore, EntitlementCache, TenantDatabase } from '@machvon/db';
+import type { AuthzCache, ConsumeSecurity, ControlDatabase, DeliveryEngine, EffectiveAccessStore, EntitlementCache, TenantDatabase } from '@machvon/db';
 import { EntitlementChangedConsumer, ENTITLEMENT_CONSUMER } from '../entitlements/entitlement-consumer';
 import { InProcessEntitlementPush } from '../entitlements/entitlement-push';
 import type { EntitlementPushPort } from '../entitlements/entitlement-push';
 import { TenantStatusChangedConsumer, TENANT_STATUS_CONSUMER } from '../modules/sas/tenant-status-consumer';
+import { PlanPublishedConsumer, PRJ_PLAN_PUBLISHED_CONSUMER } from '../modules/prj/plan-published.consumer';
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
 import { ControlEventTypeCatalog, PayloadValidator } from '../notifications/payload-validator';
@@ -26,8 +27,12 @@ export interface OutboxConsumersDeps {
   /** Key and alert sink of the signed delivery context; the relay signs with the same key. */
   security: ConsumeSecurity;
   provisioning: ProvisioningConsumer;
+  /** Starts the delivery of the external channels of a notification (ST-NOT-002); without it notifications are delivered in the application only. */
+  delivery?: DeliveryEngine;
   /** Tells connected clients that entitlements changed; defaults to the in-process transport. */
   push?: EntitlementPushPort;
+  /** The consumer of the issue-request events of the source modules (DOC, ST-DOC-008); without it those events are not served. */
+  docIssue?: OutboxConsumer;
 }
 
 /**
@@ -45,6 +50,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     loadAccess: (ctx) => deps.access.load(ctx),
     resourceAccess: new PermissionResourceAccess(),
     security,
+    ...(deps.delivery === undefined ? {} : { delivery: deps.delivery }),
   });
   const entitlements = new EntitlementChangedConsumer({
     database: tenants,
@@ -58,10 +64,13 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     effects: new CacheTenantStateEffects({ runtime: deps.tenantRuntime, entitlementCache: deps.entitlementCache, authzCache: deps.authzCache }),
     security,
   });
+  const planPublished = new PlanPublishedConsumer({ database: tenants, security });
   return [
     { name: PROVISIONING_CONSUMER, handle: (delivery) => deps.provisioning.handle(delivery) },
     { name: ENTITLEMENT_CONSUMER, handle: (delivery) => entitlements.handle(delivery) },
     { name: TENANT_STATUS_CONSUMER, handle: (delivery) => tenantStatus.handle(delivery) },
+    { name: PRJ_PLAN_PUBLISHED_CONSUMER, handle: (delivery) => planPublished.handle(delivery) },
+    ...(deps.docIssue === undefined ? [] : [deps.docIssue]),
     new RegisteredEventConsumer(NOTIFICATION_CONSUMER, catalog, { name: NOTIFICATION_CONSUMER, handle: (delivery) => notifications.handle(delivery) }),
   ];
 }

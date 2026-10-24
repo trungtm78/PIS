@@ -70,6 +70,8 @@ export function revisionView(row: RevisionRow): Record<string, unknown> {
     decided_at: row.decidedAt,
     version: row.version,
     created_at: row.createdAt,
+    boq_total_vnd: row.boqTotalVnd,
+    boq_line_count: row.boqLineCount,
   };
 }
 

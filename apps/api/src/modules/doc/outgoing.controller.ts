@@ -7,6 +7,7 @@ import {
   NumberRegisterStore,
   OUTGOING_SCOPE_COLUMNS,
   OutgoingDocumentStore,
+  OutgoingDraftStore,
   REGISTER_SCOPE_COLUMNS,
   SignatureStore,
   TenantDatabase,
@@ -35,6 +36,7 @@ import type { PreparedSignature } from './pdf-signing';
 import type { SessionRef, SigningPort, SigningProvider } from './signing-port';
 import { DOC_CLOCK, DOC_METRICS, DOC_SIGNING_PORT, DOC_TRUST_STORE } from './tokens';
 import type { TrustStoreProvider } from './trust-anchors';
+import { SignerAuthority } from './signer-authority';
 import { mayActOnUnit } from './unit-scope';
 
 const OUTGOING_TYPE = 'outgoing_document';
@@ -102,6 +104,15 @@ function documentView(row: OutgoingDocumentRecord): Record<string, unknown> {
     issued_at: iso(row.issuedAt),
     created_at: row.createdAt.toISOString(),
     version: row.version,
+    effect_status: row.effectStatus,
+    classification: row.classification,
+    template_id: row.templateId,
+    source_module: row.sourceModule,
+    source_ref: row.sourceRef,
+    payload_sha256: row.payloadSha256,
+    review_due_on: row.reviewDueOn,
+    cancel_reason: row.cancelReason,
+    delegation_id: row.delegationId,
   };
 }
 
@@ -175,6 +186,8 @@ export class OutgoingController {
   private readonly registers = new NumberRegisterStore();
   private readonly certificates = new CertificateStore();
   private readonly signatures = new SignatureStore();
+  private readonly drafts = new OutgoingDraftStore();
+  private readonly authority = new SignerAuthority();
   private readonly metrics: MetricsSink;
   private readonly clock: () => Date;
 
@@ -243,12 +256,29 @@ export class OutgoingController {
         this.outgoing.certificatesFor(tx, { holderMembershipId: row.signerUserId, draftingUnitId: row.draftingUnitId }),
       ]);
       const signatures = row.currentVersionId === null ? [] : await this.signatures.latest(tx, row.currentVersionId);
-      return { row, sessions, versions, certificates, signatures };
+      const content = await this.drafts.contentOf(tx, row.id);
+      const review = await this.drafts.latestEvent(tx, row.id, ['REVIEW_APPROVED', 'RETURNED']);
+      return { row, sessions, versions, certificates, signatures, content, review };
     });
     // A document the caller cannot see is indistinguishable from one that does not exist.
     if (loaded === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return {
       ...documentView(loaded.row),
+      payload: loaded.content?.payload ?? {},
+      subject_module: loaded.content?.subjectModule ?? null,
+      subject_id: loaded.content?.subjectId ?? null,
+      reply_to_incoming_id: loaded.content?.replyToIncomingId ?? null,
+      latest_review:
+        loaded.review === undefined
+          ? null
+          : {
+              kind: loaded.review.kind,
+              actor_id: loaded.review.actorId,
+              comment: loaded.review.comment,
+              checklist: loaded.review.details.checklist ?? null,
+              file_sha256: loaded.review.details.file_sha256 ?? null,
+              occurred_at: loaded.review.occurredAt.toISOString(),
+            },
       sessions: loaded.sessions.map(sessionView),
       versions: loaded.versions.map((version) => ({
         id: version.id,
@@ -303,6 +333,17 @@ export class OutgoingController {
     // The drafter never signs their own document as leader; only the named signer does (DOC.md F4).
     if (document.drafterUserId === actor) throw new DomainError('SELF_APPROVAL_DENIED', 403, 'signer_user_id');
     if (document.signerUserId !== actor) throw new DomainError('SIGNER_NOT_AUTHORIZED', 422, 'signer_user_id');
+    // A document signed for someone else (KT., TM., TL., TUQ.) needs the delegation to be in force now, not only when it was approved.
+    await this.authority.assertDelegation(scope.tx, {
+      documentType: document.docTypeCode,
+      amountVnd: null,
+      draftingUnitId: document.draftingUnitId,
+      signerId: actor,
+      signingMode: document.signingMode,
+      delegationId: document.delegationId,
+      at: now,
+      businessDate: vietnamDateOf(now),
+    });
     const certificate = await this.chooseCertificate(scope.tx, request.certificate_id, { kind: 'PERSONAL', holder: actor, document });
     const prepared = await this.prepareSession(scope, document, {
       role: 'LEADER',
@@ -396,6 +437,16 @@ export class OutgoingController {
         ? await this.outgoing.markSigned(scope.tx, document.id, { expectedVersion: document.version, signedAt: now, actor })
         : await this.outgoing.markSealed(scope.tx, document.id, { expectedVersion: document.version, sealedAt: now, actor });
     const sealed = role === 'ORGANIZATION';
+    await this.drafts.appendEvent(scope.tx, {
+      outgoingDocumentId: document.id,
+      kind: sealed ? 'SEALED' : 'LEADER_SIGNED',
+      fromStatus: document.status,
+      toStatus: advanced.status,
+      actor,
+      documentVersion: advanced.version,
+      occurredAt: now,
+      details: { version_id: stored.id, session_id: session.id },
+    });
     await scope.audit({
       action: sealed ? 'outgoing_document.organization_seal.complete' : 'outgoing_document.leader_signing.complete',
       resourceType: OUTGOING_TYPE,
@@ -480,6 +531,16 @@ export class OutgoingController {
       allocationId: allocation.allocationId,
       numberedAt: now,
       clerk: actor,
+    });
+    await this.drafts.appendEvent(scope.tx, {
+      outgoingDocumentId: document.id,
+      kind: 'NUMBERED',
+      fromStatus: 'SIGNED',
+      toStatus: 'NUMBERED',
+      actor,
+      documentVersion: advanced.version,
+      occurredAt: now,
+      details: { register_id: register.id, number: allocation.number, symbol: allocation.symbol, version_id: stored.id },
     });
     await scope.audit({
       action: 'outgoing_document.number',

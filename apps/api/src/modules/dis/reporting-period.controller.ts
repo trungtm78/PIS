@@ -34,16 +34,31 @@ function isCalendarDate(value: string): boolean {
   return DATE.test(value) && !Number.isNaN(parsed) && new Date(parsed).toISOString().slice(0, 10) === value;
 }
 
-const reopenViewOf = (row: PeriodReopenRow): Record<string, unknown> => ({
-  id: row.id,
-  scope_kind: row.scopeKind,
-  status: row.status,
-  window_until: row.windowUntil,
-  requested_at: row.requestedAt,
-});
+/** Who sees the reason, the people and the projects of a request: the approvers (whole tenant, DIS 2) and the person who asked; everyone else who reads the calendar sees the scope and the window. */
+interface ReopenViewer {
+  membershipId: string;
+  approver: boolean;
+}
+
+function reopenViewOf(row: PeriodReopenRow, viewer: ReopenViewer): Record<string, unknown> {
+  const summary = { id: row.id, scope_kind: row.scopeKind, status: row.status, window_until: row.windowUntil, requested_at: row.requestedAt };
+  if (!viewer.approver && row.requestedBy !== viewer.membershipId) return summary;
+  return {
+    ...summary,
+    version: row.version,
+    reason: row.reason,
+    requested_by: row.requestedBy,
+    requested_window_hours: row.requestedWindowHours,
+    approved_by: row.approvedBy,
+    decided_by: row.decidedBy,
+    decided_at: row.decidedAt,
+    decision_reason: row.decisionReason,
+    projects: row.projects.map((project) => ({ id: project.id, code: project.code })),
+  };
+}
 
 /** A period as the calendar shows it: its status is the one source of truth, `locked_at` follows it, and the history of reopening goes with it. */
-function periodViewOf(row: PeriodRow, reopens: readonly PeriodReopenRow[]): Record<string, unknown> {
+function periodViewOf(row: PeriodRow, reopens: readonly PeriodReopenRow[], viewer: ReopenViewer): Record<string, unknown> {
   return {
     id: row.id,
     code: row.code,
@@ -60,9 +75,14 @@ function periodViewOf(row: PeriodRow, reopens: readonly PeriodReopenRow[]): Reco
     locked_at: row.lockedAt,
     locked_by: row.lockedBy,
     version: row.version,
-    reopens: reopens.map(reopenViewOf),
+    reopens: reopens.map((reopen) => reopenViewOf(reopen, viewer)),
   };
 }
+
+const viewerOf = (tenant: TenantContext, access: EffectiveAccess): ReopenViewer => ({
+  membershipId: tenant.membershipId,
+  approver: holdsOnWholeTenant(access, PERMISSIONS.decidePeriodReopen),
+});
 
 function reasonOf(value: string): string {
   const reason = value.trim();
@@ -180,13 +200,17 @@ export class ReportingPeriodController {
 @Controller('resources/reporting_period')
 export class ReportingPeriodReadsController {
   private readonly periods = new DisPeriodStore();
+  private readonly clock: () => Date;
 
-  constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
+  constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase, @Optional() @Inject(DIS_CLOCK) clock?: () => Date) {
+    this.clock = clock ?? ((): Date => new Date());
+  }
 
   @Get()
   @OperationId('get_resources_reporting_period')
   async list(
     @CurrentTenant() tenant: TenantContext,
+    @CurrentAccess() access: EffectiveAccess,
     @Query('fiscal_year') fiscalYear?: unknown,
     @Query('status') status?: unknown,
     @Query('period_type') periodType?: unknown,
@@ -197,27 +221,30 @@ export class ReportingPeriodReadsController {
     const request = parsePageRequest(limit, cursor);
     const filter = filterOf({ fiscal_year: fiscalYear, status, period_type: periodType, calendar_code: calendarCode });
     if (request.after !== undefined && !isCalendarDate(request.after.code)) throw new DomainError('VALIDATION_FAILED', 422, 'cursor');
+    const now = this.clock();
+    const viewer = viewerOf(tenant, access);
     const { rows, reopens } = await this.database.withTenant(tenant, async (tx) => {
       const found = await this.periods.list(tx, filter, { limit: request.limit + 1, after: request.after });
-      return { rows: found, reopens: await this.periods.reopens(tx, found.slice(0, request.limit).map((row) => row.id)) };
+      return { rows: found, reopens: await this.periods.reopens(tx, found.slice(0, request.limit).map((row) => row.id), now) };
     });
     const shown = rows.slice(0, request.limit);
     const last = shown[shown.length - 1];
     return {
-      items: shown.map((row) => periodViewOf(row, reopens.get(row.id) ?? [])),
+      items: shown.map((row) => periodViewOf(row, reopens.get(row.id) ?? [], viewer)),
       next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.startDate, id: last.id }) : null,
-      as_of: new Date().toISOString(),
+      as_of: now.toISOString(),
     };
   }
 
   @Get(':id')
   @OperationId('get_resources_reporting_period_id')
-  async get(@CurrentTenant() tenant: TenantContext, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
+  async get(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
+    const now = this.clock();
     const { row, reopens } = await this.database.withTenant(tenant, async (tx) => {
       const found = await this.periods.find(tx, id);
-      return { row: found, reopens: found === undefined ? new Map<string, PeriodReopenRow[]>() : await this.periods.reopens(tx, [found.id]) };
+      return { row: found, reopens: found === undefined ? new Map<string, PeriodReopenRow[]>() : await this.periods.reopens(tx, [found.id], now) };
     });
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return periodViewOf(row, reopens.get(row.id) ?? []);
+    return periodViewOf(row, reopens.get(row.id) ?? [], viewerOf(tenant, access));
   }
 }

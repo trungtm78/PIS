@@ -1,7 +1,7 @@
 import { DomainError, assertLayoutWithinLegalRange, payloadSha256, renderInputHash } from '@machvon/kernel';
-import type { MetricsSink, PdfRenderer } from '@machvon/kernel';
+import type { LayoutProfile, MetricsSink, PdfRenderer, RenderedPdf } from '@machvon/kernel';
 import { DocumentStore } from '@machvon/db';
-import type { DocumentVersionRecord, TenantTx } from '@machvon/db';
+import type { DocumentVersionRecord, TemplateRecord, TenantTx } from '@machvon/db';
 import type { DocumentFilePort } from './file-port';
 import type { StateText } from './pdf-renderer';
 import { buildContent } from './template-render';
@@ -16,6 +16,22 @@ export interface RenderParams {
   payloadSha256?: string | undefined;
   output: 'PDF' | 'PREVIEW_PNG';
   actor: string;
+}
+
+/** The input of a render that is pinned to one template revision (the draft of an outgoing document) and stores nothing. */
+export interface ComposeParams {
+  templateId: string;
+  asOfDate: string;
+  payload: unknown;
+  /** Writes the AcroForm of revision 0 (number fields and the two signature fields): the file that is going to be signed. */
+  signatureFields: boolean;
+}
+
+export interface Composed {
+  template: TemplateRecord;
+  rendered: RenderedPdf;
+  inputSha256: string;
+  watermarked: boolean;
 }
 
 export interface RenderOutcome {
@@ -45,19 +61,27 @@ export class DocumentRenderService {
     this.documents = deps.documents ?? new DocumentStore();
   }
 
-  async render(tx: TenantTx, tenantId: string, params: RenderParams): Promise<RenderOutcome> {
-    if (params.output !== 'PDF') throw new DomainError('VALIDATION_FAILED', 422, 'output');
-    const template = await this.documents.templateFor(tx, { templateCode: params.templateCode, formCode: params.formCode }, params.asOfDate);
-    const record =
-      params.layoutProfileCode === undefined
-        ? await this.documents.layoutProfileById(tx, template.layoutProfileId, params.asOfDate)
-        : await this.documents.layoutProfileByCode(tx, params.layoutProfileCode, params.asOfDate);
-    const layout = record.profile;
+  /**
+   * Renders the revision of a template that a draft was pinned to, as it applies on the date: the bytes and what decided them. Nothing is
+   * stored; the caller writes the file under the document it belongs to.
+   */
+  async compose(tx: TenantTx, params: ComposeParams): Promise<Composed> {
+    const template = await this.documents.templateInForce(tx, params.templateId, params.asOfDate);
+    if (template === undefined) throw new DomainError('TEMPLATE_NOT_EFFECTIVE', 422, 'template_id');
+    const record = await this.documents.layoutProfileById(tx, template.layoutProfileId, params.asOfDate);
+    return this.draw(template, record.profile, { asOfDate: params.asOfDate, payload: params.payload, signatureFields: params.signatureFields, requireConfirmed: false, expectedPayloadSha256: undefined });
+  }
+
+  /** The part that compose and render share: the legal range of the layout, the watermark rule, the hash check, the content and the bytes. */
+  private async draw(
+    template: TemplateRecord,
+    layout: LayoutProfile,
+    params: { asOfDate: string; payload: unknown; signatureFields: boolean; requireConfirmed: boolean; expectedPayloadSha256: string | undefined },
+  ): Promise<Composed> {
     assertLayoutWithinLegalRange(layout);
     const unconfirmed = template.confirmationStatus !== 'CONFIRMED' || layout.confirmationStatus !== 'CONFIRMED';
     if (unconfirmed && params.requireConfirmed) throw new DomainError('TEMPLATE_UNCONFIRMED', 422, template.confirmationStatus === 'CONFIRMED' ? 'layout_profile_code' : 'template_code');
-    const computedHash = payloadSha256(params.payload);
-    if (params.payloadSha256 !== undefined && params.payloadSha256 !== computedHash) throw new DomainError('PAYLOAD_HASH_MISMATCH', 422, 'payload_sha256');
+    if (params.expectedPayloadSha256 !== undefined && params.expectedPayloadSha256 !== payloadSha256(params.payload)) throw new DomainError('PAYLOAD_HASH_MISMATCH', 422, 'payload_sha256');
     const content = buildContent(
       {
         template: { title: template.title, docTypeCode: template.docTypeCode, bodyBlocks: template.bodyBlocks, placeholderSchema: template.placeholderSchema },
@@ -67,7 +91,7 @@ export class DocumentRenderService {
       this.deps.text,
     );
     const watermarkText = unconfirmed ? (template.watermarkText ?? layout.watermarkPolicy.text) : null;
-    const inputHash = renderInputHash({
+    const inputSha256 = renderInputHash({
       templateContentSha256: template.contentSha256,
       templateRevision: template.revision,
       layout,
@@ -75,8 +99,29 @@ export class DocumentRenderService {
       asOfDate: params.asOfDate,
       rendererVersion: this.deps.renderer.rendererVersion,
       watermarkText,
+      ...(params.signatureFields ? { signatureFields: true } : {}),
     });
-    const rendered = await this.deps.renderer.render({ layout, content, asOfDate: params.asOfDate, inputHash, watermarkText });
+    const rendered = await this.deps.renderer.render({ layout, content, asOfDate: params.asOfDate, inputHash: inputSha256, watermarkText, ...(params.signatureFields ? { signatureFields: true } : {}) });
+    return { template, rendered, inputSha256, watermarked: unconfirmed };
+  }
+
+  async render(tx: TenantTx, tenantId: string, params: RenderParams): Promise<RenderOutcome> {
+    if (params.output !== 'PDF') throw new DomainError('VALIDATION_FAILED', 422, 'output');
+    const template = await this.documents.templateFor(tx, { templateCode: params.templateCode, formCode: params.formCode }, params.asOfDate);
+    const record =
+      params.layoutProfileCode === undefined
+        ? await this.documents.layoutProfileById(tx, template.layoutProfileId, params.asOfDate)
+        : await this.documents.layoutProfileByCode(tx, params.layoutProfileCode, params.asOfDate);
+    const drawn = await this.draw(template, record.profile, {
+      asOfDate: params.asOfDate,
+      payload: params.payload,
+      signatureFields: false,
+      requireConfirmed: params.requireConfirmed,
+      expectedPayloadSha256: params.payloadSha256,
+    });
+    const { rendered } = drawn;
+    const unconfirmed = drawn.watermarked;
+    const inputHash = drawn.inputSha256;
     const document = await this.documents.insertDocument(tx, {
       docKind: 'ATTACHMENT',
       docTypeCode: template.docTypeCode,

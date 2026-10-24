@@ -106,6 +106,20 @@ export const CONTRACT_FIXTURES: Readonly<Record<TenantName, { id: string; revisi
   'TNT-B': { id: '00000000-0000-4000-b0c3-000000000001', revisionId: '00000000-0000-4000-b0c3-000000000002', packageId: '00000000-0000-4000-b0c3-000000000003', code: 'BETA-CONTRACT-0001', title: 'Beta tenant isolation contract' },
 };
 
+/**
+ * A BOQ line of each tenant under that draft revision with its stable item, and two guarantees of the contract (a PENDING_VERIFICATION one and an
+ * ACTIVE one), each with a distinctive key, wording, number and issuer (tenant financial data).
+ */
+export const BOQ_FIXTURES: Readonly<Record<TenantName, { itemId: string; lineId: string; businessKey: string; description: string }>> = {
+  'TNT-A': { itemId: '00000000-0000-4000-a0c4-000000000001', lineId: '00000000-0000-4000-a0c4-000000000002', businessKey: 'ALPHA-BOQ-0001', description: 'Alpha tenant isolation BOQ item' },
+  'TNT-B': { itemId: '00000000-0000-4000-b0c4-000000000001', lineId: '00000000-0000-4000-b0c4-000000000002', businessKey: 'BETA-BOQ-0001', description: 'Beta tenant isolation BOQ item' },
+};
+
+export const GUARANTEE_FIXTURES: Readonly<Record<TenantName, { id: string; activeId: string; guaranteeNo: string; activeGuaranteeNo: string; issuer: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c5-000000000001', activeId: '00000000-0000-4000-a0c5-000000000002', guaranteeNo: 'ALPHA-GUARANTEE-0001', activeGuaranteeNo: 'ALPHA-GUARANTEE-0002', issuer: 'Alpha isolation issuer bank' },
+  'TNT-B': { id: '00000000-0000-4000-b0c5-000000000001', activeId: '00000000-0000-4000-b0c5-000000000002', guaranteeNo: 'BETA-GUARANTEE-0001', activeGuaranteeNo: 'BETA-GUARANTEE-0002', issuer: 'Beta isolation issuer bank' },
+};
+
 /** A dataset of the catalogue of each tenant (its code and its title are distinctive; tenant data). */
 export const DATASET_FIXTURES: Readonly<Record<TenantName, { id: string; datasetCode: string; title: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d1-000000000001', datasetCode: 'ALPHA-DATASET-0001', title: 'Alpha tenant isolation dataset' },
@@ -118,16 +132,34 @@ export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code
   'TNT-B': { id: '00000000-0000-4000-b0e1-000000000001', code: 'BETA-SLA-POLICY-0001' },
 };
 
+/** An OPEN issue of each tenant under that policy (its code and its title are distinctive; tenant data, and its description names no one). */
+export const ISSUE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0e2-000000000001', code: 'VM-2026-770001', title: 'Alpha tenant isolation issue 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0e2-000000000001', code: 'VM-2026-770002', title: 'Beta tenant isolation issue 0001' },
+};
+
 /** A PUBLISHED permit type version of each tenant, still waiting for its legal confirmation (the code and the legal basis are distinctive; tenant legal data). */
 export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; legalBasis: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f1-000000000001', code: 'ALPHA_PERMIT_0001', legalBasis: 'Alpha tenant permit regulation 0001' },
   'TNT-B': { id: '00000000-0000-4000-b0f1-000000000001', code: 'BETA_PERMIT_0001', legalBasis: 'Beta tenant permit regulation 0001' },
 };
 
+/** The permit dossier of the isolation project of each tenant and a permit in appraisal in it (the authority is distinctive; tenant legal file). */
+export const PERMIT_FIXTURES: Readonly<Record<TenantName, { dossierId: string; permitId: string; authority: string }>> = {
+  'TNT-A': { dossierId: '00000000-0000-4000-a0f3-000000000001', permitId: '00000000-0000-4000-a0f3-000000000002', authority: 'Alpha tenant permit authority 0001' },
+  'TNT-B': { dossierId: '00000000-0000-4000-b0f3-000000000001', permitId: '00000000-0000-4000-b0f3-000000000002', authority: 'Beta tenant permit authority 0001' },
+};
+
 /** An OPEN reporting period of each tenant, past its deadline (the code is distinctive; the calendar of reporting is tenant configuration). */
 export const PERIOD_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0b5-000000000001', code: 'ALPHA-PERIOD-0001' },
   'TNT-B': { id: '00000000-0000-4000-b0b5-000000000001', code: 'BETA-PERIOD-0001' },
+};
+
+/** A LOCKED reporting period of each tenant and a request to reopen it that waits for a decision (the reason of the request is distinctive: it is internal to the tenant). */
+export const REOPEN_FIXTURES: Readonly<Record<TenantName, { periodId: string; periodCode: string; id: string; reason: string }>> = {
+  'TNT-A': { periodId: '00000000-0000-4000-a0b6-000000000001', periodCode: 'ALPHA-PERIOD-0002', id: '00000000-0000-4000-a0b7-000000000001', reason: 'Alpha tenant request to reopen the locked period 0001' },
+  'TNT-B': { periodId: '00000000-0000-4000-b0b6-000000000001', periodCode: 'BETA-PERIOD-0002', id: '00000000-0000-4000-b0b7-000000000001', reason: 'Beta tenant request to reopen the locked period 0001' },
 };
 
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
@@ -192,6 +224,12 @@ export const DOA_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis:
 export const RETENTION_FIXTURES: Readonly<Record<TenantName, { id: string; reviewId: string; recordClass: string; legalBasis: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0a2-000000000001', reviewId: '00000000-0000-4000-a0a2-000000000002', recordClass: 'alpha_isolation_dossier', legalBasis: 'Alpha archives circular 0001/2026' },
   'TNT-B': { id: '00000000-0000-4000-b0a2-000000000001', reviewId: '00000000-0000-4000-b0a2-000000000002', recordClass: 'beta_isolation_dossier', legalBasis: 'Beta archives circular 0001/2026' },
+};
+
+/** A failed delivery attempt of the notification fixture of each tenant, with the channel account and template it names (the provider message id is the provider's reference and must not reach another tenant). */
+export const DELIVERY_ATTEMPT_FIXTURES: Readonly<Record<TenantName, { id: string; accountId: string; templateId: string; providerMessageId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0a4-000000000001', accountId: '00000000-0000-4000-a0a4-000000000002', templateId: '00000000-0000-4000-a0a4-000000000003', providerMessageId: 'alpha-provider-message-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0a4-000000000001', accountId: '00000000-0000-4000-b0a4-000000000002', templateId: '00000000-0000-4000-b0a4-000000000003', providerMessageId: 'beta-provider-message-0001' },
 };
 
 /** A draft integration connector and a failed inbox event of each tenant (the code, the endpoint and the event key are distinctive; the payload reference must never be shown). */
@@ -307,6 +345,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'role name', value: ROLE_FIXTURES[tenant].name },
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
     { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
+    { kind: 'delivery attempt id', value: DELIVERY_ATTEMPT_FIXTURES[tenant].id },
+    { kind: 'delivery provider message id', value: DELIVERY_ATTEMPT_FIXTURES[tenant].providerMessageId },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
     { kind: 'certificate id', value: CERTIFICATE_FIXTURES[tenant].id },
     { kind: 'certificate fingerprint', value: CERTIFICATE_FIXTURES[tenant].fingerprint },
@@ -348,16 +388,35 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contract revision id', value: CONTRACT_FIXTURES[tenant].revisionId },
     { kind: 'contract code', value: CONTRACT_FIXTURES[tenant].code },
     { kind: 'contract title', value: CONTRACT_FIXTURES[tenant].title },
+    { kind: 'boq item id', value: BOQ_FIXTURES[tenant].itemId },
+    { kind: 'boq line id', value: BOQ_FIXTURES[tenant].lineId },
+    { kind: 'boq business key', value: BOQ_FIXTURES[tenant].businessKey },
+    { kind: 'boq description', value: BOQ_FIXTURES[tenant].description },
+    { kind: 'guarantee id', value: GUARANTEE_FIXTURES[tenant].id },
+    { kind: 'active guarantee id', value: GUARANTEE_FIXTURES[tenant].activeId },
+    { kind: 'guarantee number', value: GUARANTEE_FIXTURES[tenant].guaranteeNo },
+    { kind: 'active guarantee number', value: GUARANTEE_FIXTURES[tenant].activeGuaranteeNo },
+    { kind: 'guarantee issuer', value: GUARANTEE_FIXTURES[tenant].issuer },
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
+    { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },
+    { kind: 'issue code', value: ISSUE_FIXTURES[tenant].code },
+    { kind: 'issue title', value: ISSUE_FIXTURES[tenant].title },
     { kind: 'permit type id', value: PERMIT_TYPE_FIXTURES[tenant].id },
     { kind: 'permit type code', value: PERMIT_TYPE_FIXTURES[tenant].code },
     { kind: 'permit type legal basis', value: PERMIT_TYPE_FIXTURES[tenant].legalBasis },
+    { kind: 'permit dossier id', value: PERMIT_FIXTURES[tenant].dossierId },
+    { kind: 'permit id', value: PERMIT_FIXTURES[tenant].permitId },
+    { kind: 'permit authority', value: PERMIT_FIXTURES[tenant].authority },
     { kind: 'reporting period id', value: PERIOD_FIXTURES[tenant].id },
     { kind: 'reporting period code', value: PERIOD_FIXTURES[tenant].code },
+    { kind: 'locked reporting period id', value: REOPEN_FIXTURES[tenant].periodId },
+    { kind: 'locked reporting period code', value: REOPEN_FIXTURES[tenant].periodCode },
+    { kind: 'period reopen id', value: REOPEN_FIXTURES[tenant].id },
+    { kind: 'period reopen reason', value: REOPEN_FIXTURES[tenant].reason },
     { kind: 'appropriation id', value: APPROPRIATION_FIXTURES[tenant].id },
     { kind: 'appropriation issuing authority', value: APPROPRIATION_FIXTURES[tenant].issuingAuthority },
     { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },

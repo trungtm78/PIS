@@ -1,0 +1,76 @@
+/* DOC-02, DOC-03 and DOC-04: the list, the editor and the review, in the language of the shared screen classes. */
+.doc-drafts .field-error {
+  color: #a22b22;
+}
+
+.doc-drafts .row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.doc-drafts .formgrid .field.wide {
+  grid-column: 1 / -1;
+}
+
+.doc-drafts .editor-form fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.doc-drafts .recipients {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.doc-drafts .recipients input {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-drafts .review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.doc-drafts .review-queue {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.doc-drafts .review-queue li.selected a {
+  font-weight: 600;
+}
+
+.doc-drafts .checklist-items {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: grid;
+  gap: 6px;
+}
+
+.doc-drafts .hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  word-break: break-all;
+}
+
+.doc-drafts tr.selected {
+  background: #fbf3f5;
+}
+
+@media (max-width: 1000px) {
+  .doc-drafts .review-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -15,3 +15,7 @@ One rule per file in `alerts/rules`; one runbook per rule here. `npm run alerts:
 - [LICENSE_EXPIRING](LICENSE_EXPIRING.md) · warning · platform-oncall
 - [INTEGRATION_INBOX_DEAD](INTEGRATION_INBOX_DEAD.md) · warning · platform-oncall
 - [RETENTION_REVIEW_BACKLOG](RETENTION_REVIEW_BACKLOG.md) · warning · platform-oncall
+- [NOTIFICATION_DLQ_BACKLOG](NOTIFICATION_DLQ_BACKLOG.md) · warning · platform-oncall
+- [NOTIFICATION_UNKNOWN_STALE](NOTIFICATION_UNKNOWN_STALE.md) · warning · platform-oncall
+- [CHANNEL_CIRCUIT_OPEN](CHANNEL_CIRCUIT_OPEN.md) · warning · platform-oncall
+- [CTR_ADVANCE_GUARANTEE_AT_RISK](CTR_ADVANCE_GUARANTEE_AT_RISK.md) · warning · contract-office (product channel)

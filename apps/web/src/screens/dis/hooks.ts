@@ -1,12 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { generateBody, toPeriod } from './model';
-import type { PeriodMove, PeriodView } from './model';
+import { decisionBody, generateBody, reopenBody, toPeriod, toProjectOption } from './model';
+import type { DecisionForm, PeriodMove, PeriodView, ProjectOption, ReopenForm } from './model';
 
 const root = (tenantId: string | undefined) => ['dis', tenantId] as const;
+
+const CLOCK_MS = 60_000;
+
+/** The current time, moved on every minute so that a deadline or the end of a reopening window is seen while the screen stays open. */
+export function useNow(): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), CLOCK_MS);
+    return () => clearInterval(timer);
+  }, []);
+  return now;
+}
 
 /**
  * Every period of the tenant, read page by page. The server decides who sees what; the screen picks the year and the status in the browser,
@@ -57,4 +69,40 @@ export function usePeriodMove() {
     const request = { path: { id: input.id }, body: { reason: input.reason }, ifMatchVersion: input.version, attempt };
     return input.move === 'softClose' ? client.command('softCloseReportingPeriod', request) : client.command('lockReportingPeriod', request);
   });
+}
+
+/** The projects the requester can name (the register answers only what the caller may see); read only while the request form is open. */
+export function useReopenProjects(enabled: boolean) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ProjectOption[]>({
+    queryKey: [...root(tenant?.id), 'projects'],
+    queryFn: async () => (await client.readAll('get_resources_project')).flatMap((raw) => toProjectOption(raw) ?? []),
+    enabled: enabled && tenant !== undefined,
+    retry: false,
+  });
+}
+
+export interface RequestInput {
+  periodId: string;
+  form: ReopenForm;
+}
+
+/** Asks for a locked period to be reopened for a scope, with a reason and a window. */
+export function useRequestReopen() {
+  const client = useApiClient();
+  return useCommand<RequestInput>((input, attempt) => client.command('requestPeriodReopen', { path: { id: input.periodId }, body: reopenBody(input.form), attempt }));
+}
+
+export interface DecideInput {
+  id: string;
+  /** The version of the request the screen showed: the server refuses the decision if it has changed since (If-Match). */
+  version: number;
+  form: DecisionForm;
+}
+
+/** Approves a request for the hours given, or rejects it, for a stated reason. */
+export function useDecideReopen() {
+  const client = useApiClient();
+  return useCommand<DecideInput>((input, attempt) => client.command('decidePeriodReopen', { path: { id: input.id }, body: decisionBody(input.form), ifMatchVersion: input.version, attempt }));
 }

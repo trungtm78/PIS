@@ -21,7 +21,7 @@ describe('toPeriod', () => {
       }),
     );
     expect(read).toMatchObject({ code: expect.stringMatching(/-40$/), status: 'LOCKED', softClosedAt: '2026-10-02T03:05:00.000Z', lockedAt: '2026-10-02T03:10:00.000Z', version: 3, calendarRevision: 2 });
-    expect(read?.reopens).toEqual([{ id: 'r1', scopeKind: 'PROJECTS', status: 'APPROVED', windowUntil: '2026-10-05T03:00:00.000Z', requestedAt: '2026-10-03T01:00:00.000Z' }]);
+    expect(read?.reopens).toEqual([{ id: 'r1', scopeKind: 'PROJECTS', status: 'APPROVED', windowUntil: '2026-10-05T03:00:00.000Z', requestedAt: '2026-10-03T01:00:00.000Z', detail: null }]);
   });
 
   it('drops a row that does not have the shape, and a reopening that does not have it', () => {
@@ -31,7 +31,7 @@ describe('toPeriod', () => {
     expect(toPeriod({ ...period(1), version: '1' })).toBeUndefined();
     expect(toPeriod({ ...period(1), deadline_at: undefined })).toBeUndefined();
     expect(toPeriod({ ...period(1), reopens: [null, { id: 'x' }, { id: 'r', scope_kind: 'PERIOD', status: 'EXPIRED', requested_at: 'later' }] })?.reopens).toEqual([
-      { id: 'r', scopeKind: 'PERIOD', status: 'EXPIRED', windowUntil: null, requestedAt: 'later' },
+      { id: 'r', scopeKind: 'PERIOD', status: 'EXPIRED', windowUntil: null, requestedAt: 'later', detail: null },
     ]);
     expect(toPeriod({ ...period(1), reopens: 'none' })?.reopens).toEqual([]);
   });

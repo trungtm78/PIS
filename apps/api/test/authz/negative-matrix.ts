@@ -26,6 +26,9 @@ export interface MatrixTargets {
   contractPackageId: string;
   draftContractId: string;
   contractMemberId: string;
+  /** The DRAFT base revision of that contract (version 1, amount 1000) and a PENDING_VERIFICATION guarantee of it made by someone other than the callers (version 1). */
+  draftRevisionId: string;
+  guaranteeId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
   contractorToVerifyId: string;
   /** A clean PDF version of tenant A: the signature verification names it in the path. */
@@ -54,6 +57,8 @@ export interface MatrixTargets {
   /** The version in force of an issue category of tenant A, and an ACTIVE SLA policy written for it (version 1). */
   issueCategoryVersionId: string;
   slaPolicyId: string;
+  /** An OPEN issue of unit 2 of tenant A under that policy (version 1), reported by someone other than the callers. */
+  issueId: string;
   /** A DRAFT dataset of tenant A (version 1). */
   datasetId: string;
   /** A DRAFT retention policy version of tenant A made by someone other than the callers (version 1). */
@@ -76,12 +81,18 @@ export interface MatrixTargets {
   layoutProfileId: string;
   /** A PUBLISHED permit type version of tenant A (version 1, open-ended). */
   permitTypeId: string;
+  /** The permit dossier of the CONCEPT project of unit 2 of tenant A (version 1) and a permit in it, IN_APPRAISAL (version 1). */
+  permitDossierId: string;
+  permitId: string;
   /** The version in force of a fund source of tenant A, and a DRAFT appropriation of it made by someone other than the callers (version 1). */
   fundSourceVersionId: string;
   appropriationId: string;
   /** Reporting periods of tenant A past their deadline: one OPEN and one SOFT_CLOSED (both version 1). */
   periodOpenId: string;
   periodSoftClosedId: string;
+  /** A LOCKED reporting period of tenant A, and a request to reopen it made by someone other than the callers (version 1). */
+  periodLockedId: string;
+  reopenRequestId: string;
   /** A DRAFT report form and a DRAFT obligation rule of it in tenant A, made by someone other than the callers (both version 1). */
   mneFormId: string;
   mneRuleId: string;
@@ -333,6 +344,85 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { code: 'MATRIX', name: 'Matrix type', symbol_kind: 'DECISION', symbol_pattern: '{number}/{type}', register_code: 'MATRIX-REG', legal_basis: 'ND 30/2020', effective_from: '2026-01-01' },
     }),
   },
+  uploadDocumentFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/document-files', body: {} }),
+  },
+  uploadLeaderSignedDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/outgoing-documents/${t.outgoingDocumentId}/signed-uploads`,
+      ifMatch: '"1"',
+      body: { file_object_key: 'tenants/matrix/document/none', file_sha256: 'a'.repeat(64) },
+    }),
+  },
+  registerExternallySignedDocument: {
+    // A register or unit of another tenant is a refusal of the request (422), like any reference of a command.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/outgoing-documents/external-registrations',
+      body: {
+        doc_type_code: 'QD',
+        title: 'Matrix external registration',
+        file_object_key: 'tenants/matrix/document/none',
+        file_sha256: 'a'.repeat(64),
+        declared_number: 1,
+        declared_symbol: '1/QD-MATRIX',
+        declared_issued_on: '2026-01-02',
+        register_id: t.registerId,
+        drafting_unit_id: t.unit2,
+      },
+    }),
+  },
+  requestDocumentIssue: {
+    // The payload is looked up by the reference and a template or unit of another tenant is a refusal of the request, not a 404.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/document-issue-requests',
+      body: {
+        source_module: 'MNE',
+        source_ref: 'MNE:mne_report:matrix:r1',
+        template_code: 'QD-DEFAULT',
+        payload_ref: 'tenants/matrix/payloads/none.json',
+        payload_sha256: 'a'.repeat(64),
+        event_id: '00000000-0000-4000-8000-0000000000ee',
+        as_of_date: '2026-10-23',
+        signer_hint: { drafting_unit_id: t.unit2 },
+      },
+    }),
+  },
+  createOutgoingDocument: {
+    // A unit that does not exist in the caller's tenant is a 422 (like a missing reference of any command), not a 404.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/outgoing-documents',
+      body: { doc_type_code: 'QD', template_code: 'QD-DEFAULT', title: 'Matrix draft', drafting_unit_id: t.unit2, payload: { agency: 'Matrix agency', place: 'Cao Bang', title: 'Matrix', body: 'Matrix' } },
+    }),
+  },
+  updateOutgoingDocumentDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/draft`, ifMatch: '"1"', body: { title: 'Matrix title' } }),
+  },
+  submitOutgoingDocumentForReview: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/review-submission`, ifMatch: '"1"', body: {} }),
+  },
+  decideOutgoingDocumentReview: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/review-decision`, ifMatch: '"1"', body: { decision: 'RETURN', comment: 'negative authorization matrix' } }),
+  },
+  returnOutgoingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/return`, ifMatch: '"1"', body: { reason: 'negative authorization matrix' } }),
+  },
+  cancelOutgoingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/cancellation`, ifMatch: '"1"', body: { reason: 'negative authorization matrix', reject_code: 'CANCELLED_BY_DRAFTER' } }),
+  },
   startLeaderSigning: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/leader-signing-sessions`, ifMatch: '"1"', body: {} }),
@@ -484,9 +574,47 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodSoftClosedId}/lock`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  requestPeriodReopen: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodLockedId}/reopen-requests`, body: { scope_kind: 'PERIOD', reason: 'Matrix request to reopen the locked period', window_hours: 24 } }),
+  },
+  decidePeriodReopen: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/period-reopens/${t.reopenRequestId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, window_hours: 24 } }),
+  },
   retirePermitType: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/permit-types/${t.permitTypeId}/retire`, body: { effective_until: '2999-12-31' } }),
+  },
+  // The project, the dossier and the permit are looked up in the caller's own tenant: one of tenant A does not exist for a caller of tenant B (404).
+  createPermitDossier: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/permit-dossiers`, body: { owner_unit_id: t.unit2 } }),
+  },
+  addPermit: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/permit-dossiers/${t.permitDossierId}/permits`, body: { permit_type_id: t.permitTypeId } }),
+  },
+  recordPermitMilestone: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/permits/${t.permitId}/milestones`, ifMatch: '"1"', body: { step_code: 'APPRAISAL_MEETING', planned_on: '2999-01-01' } }),
+  },
+  recordPermitDecision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/permits/${t.permitId}/decision`, ifMatch: '"1"', body: { outcome: 'REJECTED', reason: REASON } }),
+  },
+  renewPermit: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/permits/${t.permitId}/renew`,
+      ifMatch: '"1"',
+      body: { new_permit_no: 'MATRIX-RENEWED', new_valid_until: '2999-12-31', document_version_id: t.documentVersionId },
+    }),
+  },
+  revokePermit: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/permits/${t.permitId}/revoke`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId } }),
   },
   createDocumentTemplateRevision: {
     // The layout profile of tenant A does not exist for a caller of tenant B: a 422 (a missing reference of any command), not a 404.
@@ -586,6 +714,39 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/issue-sla-policies/${t.slaPolicyId}/retire`, body: { valid_until: '2999-12-31' } }),
   },
+  // The project, the unit and the category named in the body are looked up in the caller's own tenant: those of tenant A do not exist for a caller of another tenant (404 or 422).
+  createIssue: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/issues',
+      body: {
+        project_id: t.projectId,
+        category_version_id: t.issueCategoryVersionId,
+        severity: 'HIGH',
+        title: 'Matrix issue',
+        description: 'Matrix issue description',
+        owner_unit_id: t.unit2,
+        client_operation_id: '00000000-0000-4000-8000-0000000000e1',
+      },
+    }),
+  },
+  assignIssue: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/issues/${t.issueId}/assign`, ifMatch: '"1"', body: { assignee_id: t.recipientMembershipId } }),
+  },
+  startIssue: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/issues/${t.issueId}/start`, ifMatch: '"1"', body: {} }),
+  },
+  commentIssue: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/issues/${t.issueId}/comments`, body: { note: REASON } }),
+  },
+  transferIssueUnit: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/issues/${t.issueId}/transfer`, ifMatch: '"1"', body: { target_unit_id: t.unit3, reason: REASON } }),
+  },
   // The members named in the body are checked as members of the caller's own tenant: another tenant's member is refused as 422 naming the field, like one that does not exist.
   registerDataset: {
     referencesTenantIds: false,
@@ -621,6 +782,32 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   updateProjectProfile: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/profile`, ifMatch: '"1"', body: { name: 'Renamed by matrix' } }),
+  },
+  // The stage commands name the CONCEPT project of tenant A and the decision document of the matrix: a caller without the permission is refused before
+  // any lookup, and a caller of another tenant finds no such project; the project is never moved.
+  startProjectImplementation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/implementation-start`, ifMatch: '"1"', body: { reason: REASON, investment_decision_document_id: t.decisionDocumentId } }),
+  },
+  suspendProject: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/suspension`, ifMatch: '"1"', body: { reason: REASON, decision_document_id: t.decisionDocumentId } }),
+  },
+  resumeProject: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/resumption`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  completeProject: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/completion`, ifMatch: '"1"', body: { reason: REASON, decision_document_id: t.decisionDocumentId } }),
+  },
+  closeProject: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/closure`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  cancelProject: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/cancellation`, ifMatch: '"1"', body: { reason: REASON, decision_document_id: t.decisionDocumentId } }),
   },
   createContract: {
     referencesTenantIds: true,
@@ -662,6 +849,40 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  importBoqLines: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/contract-revisions/${t.draftRevisionId}/boq-lines`,
+      ifMatch: '"1"',
+      body: { mode: 'REPLACE', lines: [{ business_key: 'MX-B01', description: 'Matrix item', unit_code: 'M3', quantity: '1', unit_price: '1000' }] },
+    }),
+  },
+  registerGuarantee: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.draftContractId}/guarantees`,
+      body: { kind: 'PERFORMANCE', issuer: 'Matrix bank', guarantee_no: 'MX-NEW-GUARANTEE', amount_vnd: '1000', valid_from: '2026-01-01', expires_at: '2099-01-01T00:00:00Z', document_version_id: t.documentVersionId },
+    }),
+  },
+  verifyGuarantee: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/guarantees/${t.guaranteeId}/verify`, ifMatch: '"1"', body: { outcome: 'VERIFIED', method: 'Matrix check', evidence_document_version_id: t.documentVersionId } }),
+  },
+  extendGuarantee: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/guarantees/${t.guaranteeId}/extend`,
+      ifMatch: '"1"',
+      body: { new_expires_at: '2100-01-01T00:00:00Z', new_guarantee_no: 'MX-EXTENDED', document_version_id: t.documentVersionId },
+    }),
+  },
+  releaseGuarantee: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/guarantees/${t.guaranteeId}/release`, ifMatch: '"1"', body: { release_evidence_id: t.documentVersionId, reason: REASON } }),
+  },
   resetIntegrationCursor: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/integration-cursors/${t.integrationCursorId}/reset`, ifMatch: '"1"', body: { reason: REASON, cursor_json: {} } }),
@@ -700,6 +921,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   acknowledgeNotification: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/notifications/${t.notificationId}/acknowledge`, body: {} }),
+  },
+  post_notifications_id_replay: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notifications/${t.notificationId}/replay`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
+  },
+  cancelNotification: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notifications/${t.notificationId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
 };
 

@@ -4241,7 +4241,8 @@
         "commentIssue",
         "transferIssueUnit",
         "get_resources_issue",
-        "get_resources_issue_id"
+        "get_resources_issue_id",
+        "listIssueAssignees"
       ],
       "tables": [
         "issue",
@@ -5753,7 +5754,10 @@
         "recordPermitMilestone",
         "recordPermitDecision",
         "renewPermit",
-        "revokePermit"
+        "revokePermit",
+        "get_resources_permit_dossier",
+        "get_resources_permit_dossier_id",
+        "get_resources_permit_id"
       ],
       "tables": [
         "permit_dossier",
@@ -8936,7 +8940,8 @@
       ],
       "operations": [
         "uploadLeaderSignedDocument",
-        "registerExternallySignedDocument"
+        "registerExternallySignedDocument",
+        "uploadDocumentFile"
       ],
       "tables": [],
       "nfr": [

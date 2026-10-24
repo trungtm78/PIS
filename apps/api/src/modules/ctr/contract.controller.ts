@@ -21,7 +21,7 @@ const UPDATE_PERMISSION = PERMISSIONS.reviseContractDraft;
 const READ_PERMISSION = PERMISSIONS.get_resources_contract;
 const REVISION_READ_PERMISSION = PERMISSIONS.get_resources_contract_revision;
 /** The right to the totals of the ledger kept on a contract: without it a reader sees no total at all. */
-const LEDGER_PERMISSION = 'ledger.read';
+export const LEDGER_PERMISSION = 'ledger.read';
 const RESOURCE_TYPE = 'contract';
 const CLASSIFICATION = 'INTERNAL';
 
@@ -32,7 +32,7 @@ function refsOf(project: { ownerUnit: { id: string; path: string }; investorUnit
 }
 
 /** Whether a grant that carries the permission has a scope that contains the contract, or the project it lies in. */
-function reaches(access: EffectiveAccess, permission: string, refs: readonly ResourceRef[], now: Date): boolean {
+export function reaches(access: EffectiveAccess, permission: string, refs: readonly ResourceRef[], now: Date): boolean {
   return refs.some((ref) => holdsPermission(effectivePermissions(access, now, ref), permission));
 }
 
@@ -40,7 +40,7 @@ function scopesOf(access: EffectiveAccess, now: Date): ContractScopes {
   return { update: contractScope(access, UPDATE_PERMISSION, now), read: contractScope(access, READ_PERMISSION, now) };
 }
 
-const placeRefs = (place: ContractPlace): ResourceRef[] => refsOf(place, place.projectId, place.contractId);
+export const placeRefs = (place: ContractPlace): ResourceRef[] => refsOf(place, place.projectId, place.contractId);
 
 /** What the caller may see of the contracts in `places`: the staff see the internal fields, a guest contractor does not, and the ledger totals follow `ledger.read`. */
 function rightsFor(access: EffectiveAccess, guest: boolean, place: ContractPlace, now: Date): ContractRights {

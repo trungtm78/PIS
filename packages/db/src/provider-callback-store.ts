@@ -32,7 +32,7 @@ export interface ProviderItem extends ProviderItemRef {
 export interface ProviderHistoryRow {
   fromStatus: string | null;
   toStatus: string;
-  cause: 'CREATED' | 'CALLBACK' | 'UNCERTAIN' | 'RECONCILED';
+  cause: 'CREATED' | 'CALLBACK' | 'UNCERTAIN' | 'RECONCILED' | 'RESPONSE';
   inboxEventId: string | null;
   itemVersion: number;
 }
@@ -94,6 +94,23 @@ export interface ApplyResult {
   /** The status of the item after the event. */
   status: string;
   /** The task opened (or already open) because the event contradicted the item. */
+  taskId: string | null;
+}
+
+export interface RecordResponseInput {
+  ref: ProviderItemRef;
+  table: StatusTable;
+  /** What the provider answered to the request itself (accepted, refused). */
+  status: string;
+  occurredAt: Date;
+  metrics?: MetricsSink;
+}
+
+export interface RecordResponseResult {
+  outcome: ReduceOutcome;
+  itemId: string;
+  /** The status of the item after the answer. */
+  status: string;
   taskId: string | null;
 }
 
@@ -260,6 +277,28 @@ export class ProviderCallbackStore {
       "update machvon.integration_event_inbox set status = 'PROCESSED', processed_at = now(), error_code = $2, next_attempt_at = null where id = $1::uuid",
       [input.inboxId, IGNORED_CODE[outcome] ?? null],
     );
+    return { outcome, itemId: item.id, status, taskId };
+  }
+
+  /**
+   * Records the answer of the provider to the request itself (accepted, refused). It is the same move as a callback, without an inbox event
+   * behind it: only a later status moves the item and adds a history row (cause RESPONSE); an answer that contradicts the item (a refusal after
+   * a delivery) is ignored and opens a reconciliation task, like a callback that does.
+   */
+  async recordResponse(tx: TenantTx, input: RecordResponseInput): Promise<RecordResponseResult> {
+    const item = await this.lockItem(tx, input.ref);
+    const outcome = reduceStatus(input.table, item.status, input.status);
+    let status = item.status;
+    let taskId: string | null = null;
+    if (outcome === 'APPLIED') {
+      status = input.status;
+      await this.moveItem(tx, item, { to: status, cause: 'RESPONSE', inboxEventId: null, occurredAt: input.occurredAt });
+    } else if (outcome === 'CONFLICT') {
+      taskId = await this.openTask(tx, item.id, 'STATUS_CONFLICT', `${item.status} then ${input.status}`, new Date());
+    }
+    if (outcome === 'STALE' || outcome === 'CONFLICT' || outcome === 'UNKNOWN_STATUS') {
+      (input.metrics ?? NOOP_METRICS).increment(CALLBACK_IGNORED_METRIC, { provider: input.ref.provider, reason: outcome });
+    }
     return { outcome, itemId: item.id, status, taskId };
   }
 

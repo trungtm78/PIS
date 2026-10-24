@@ -286,13 +286,17 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       expect(typeof all.json.as_of).toBe('string');
     });
 
-    it('shows the history of reopening requests with the period', async () => {
+    it('shows the history of reopening requests with the period: the scope and the window, not the reason or the people, to a reader who is not the requester or an approver', async () => {
       const id = await periodId('W2027-10');
+      // Only a locked period is reopened: close it after its deadline, then lock it.
+      now = new Date('2027-12-31T00:00:00Z');
+      expect((await softClose(MANAGER, id, 1)).status).toBe(200);
+      expect((await lock(MANAGER, id, 2)).status).toBe(200);
       const requestId = randomUUID();
       await rows(
-        `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, status, created_by, updated_by)
-         values ($1, $2, $3, 'PERIOD', 'Correction of the figures after the lock', $4, 'REQUESTED', $4, $4)`,
-        [TENANT_A, requestId, id, memberId(MAKER)],
+        `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, requested_window_hours, status, created_by, updated_by)
+         values ($1, $2, $3, 'PERIOD', 'Correction of the figures after the lock', $4, 24, 'REQUESTED', $4, $4)`,
+        [TENANT_A, requestId, id, memberId(MANAGER)],
       );
       const detail = await get(`/resources/reporting_period/${id}`, MAKER);
       expect(detail.json.reopens).toEqual([{ id: requestId, scope_kind: 'PERIOD', status: 'REQUESTED', window_until: null, requested_at: expect.stringMatching(/Z$/) }]);

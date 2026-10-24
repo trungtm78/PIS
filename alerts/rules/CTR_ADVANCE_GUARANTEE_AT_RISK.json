@@ -1,0 +1,14 @@
+{
+  "id": "CTR_ADVANCE_GUARANTEE_AT_RISK",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "contract-office",
+  "runbook": "docs/runbooks/alerts/CTR_ADVANCE_GUARANTEE_AT_RISK.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "ctr_advance_guarantee_at_risk",
+    "above": 0
+  },
+  "summary": "An advance guarantee expires within 30 days while the contract still owes an advance."
+}

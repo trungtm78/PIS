@@ -1186,6 +1186,15 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesPaymentRequestId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_payment_request_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesPermitDossier({Map<String, Object?>? query}) =>
+      execute('get_resources_permit_dossier', query: query);
+
+  Future<Object?> getResourcesPermitDossierId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_permit_dossier_id', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getResourcesPermitId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_permit_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesPermitType({Map<String, Object?>? query}) =>
       execute('get_resources_permit_type', query: query);
 
@@ -1479,6 +1488,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listInteropMessages({Map<String, Object?>? query}) =>
       execute('listInteropMessages', query: query);
+
+  Future<Object?> listIssueAssignees({required String id, Map<String, Object?>? query}) =>
+      execute('listIssueAssignees', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> listIssueSlaBreaches({Map<String, Object?>? query}) =>
       execute('listIssueSlaBreaches', query: query);

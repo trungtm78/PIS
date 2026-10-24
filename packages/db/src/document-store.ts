@@ -92,6 +92,9 @@ export interface NewDocument {
   classification: Classification;
   createdBy: string;
   issuerUnitId?: string | undefined;
+  /** The object of another module that the document is about (`PRJ` and the id of a project, for example); both or neither. */
+  subjectModule?: string | undefined;
+  subjectId?: string | undefined;
 }
 
 export interface NewDocumentVersion {
@@ -404,6 +407,36 @@ export class DocumentStore {
     return toTemplate(row);
   }
 
+  /** A published template revision by id that is in force on the date, or undefined: the template a draft was pinned to (BR-DOC-09). */
+  async templateInForce(tx: TenantTx, id: string, asOfDate: string): Promise<TemplateRecord | undefined> {
+    const [row] = await tx.query<TemplateRow>(
+      `select ${TEMPLATE_COLUMNS} from machvon.document_template
+        where id = $1::uuid and status = 'PUBLISHED' and effective_from <= $2::date and (effective_until is null or $2::date < effective_until)`,
+      [id, asOfDate],
+    );
+    return row === undefined ? undefined : toTemplate(row);
+  }
+
+  /**
+   * The template a draft of a document type starts from when the drafter names none: the published revision in force on the date whose
+   * code is `<TYPE>-DEFAULT`, else the first by code. Undefined when the type has no template in force.
+   */
+  async templateForDocType(tx: TenantTx, docTypeCode: string, asOfDate: string): Promise<TemplateRecord | undefined> {
+    const [row] = await tx.query<TemplateRow>(
+      `select ${TEMPLATE_COLUMNS} from machvon.document_template
+        where doc_type_code = $1 and status = 'PUBLISHED' and effective_from <= $2::date and (effective_until is null or $2::date < effective_until)
+        order by (template_code = $1 || '-DEFAULT') desc, template_code, revision desc limit 1`,
+      [docTypeCode, asOfDate],
+    );
+    return row === undefined ? undefined : toTemplate(row);
+  }
+
+  /** Whether any revision of the template code exists, in force or not: tells a missing template from one that is not in force. */
+  async templateCodeExists(tx: TenantTx, templateCode: string): Promise<boolean> {
+    const [row] = await tx.query<{ found: boolean }>('select exists (select 1 from machvon.document_template where template_code = $1) as found', [templateCode]);
+    return row?.found === true;
+  }
+
   /**
    * BR-DOC-05: defines a document type with the symbol pattern of its register. An open-ended revision that starts after an
    * earlier one closes it on its own start date; any other overlap of two periods of the same code is refused.
@@ -471,10 +504,10 @@ export class DocumentStore {
 
   async insertDocument(tx: TenantTx, input: NewDocument): Promise<{ id: string }> {
     const [row] = await tx.query<{ id: string }>(
-      `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, issuer_unit_id, created_by, updated_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2, $3, $4, $5, $6, $6)
+      `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, issuer_unit_id, subject_module, subject_id, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2, $3, $4, $5, $7, $8::uuid, $6, $6)
        returning id`,
-      [input.docKind, input.docTypeCode, input.title, input.classification, input.issuerUnitId ?? null, input.createdBy],
+      [input.docKind, input.docTypeCode, input.title, input.classification, input.issuerUnitId ?? null, input.createdBy, input.subjectModule ?? null, input.subjectId ?? null],
     );
     if (row === undefined) throw new Error('document insert returned no row');
     return row;
@@ -531,6 +564,21 @@ export class DocumentStore {
       [page.after?.sortKey ?? null, page.after?.id ?? null, page.limit, ...(predicate?.params ?? [])],
     );
     return rows.map(toVersion);
+  }
+
+  /** The version of a document stored under the key, or undefined: a file written again with the same bytes is the same version. */
+  async versionByKey(tx: TenantTx, documentId: string, objectKey: string): Promise<DocumentVersionRecord | undefined> {
+    const [row] = await tx.query<VersionRow>(`select ${VERSION_COLUMNS} ${VERSION_FROM} where v.document_id = $1::uuid and v.object_key = $2`, [documentId, objectKey]);
+    return row === undefined ? undefined : toVersion(row);
+  }
+
+  /** Makes a version of the document its current one (after the final PDF was taken back and is approved again as the same file). */
+  async pointAt(tx: TenantTx, documentId: string, versionId: string, actor: string): Promise<void> {
+    await tx.query(
+      `update machvon.document set current_version_id = $2::uuid, updated_at = now(), updated_by = $3::uuid, version = version + 1
+        where id = $1::uuid and exists (select 1 from machvon.document_version where id = $2::uuid and document_id = $1::uuid)`,
+      [documentId, versionId, actor],
+    );
   }
 
   /** Records the result of the malware scan, once: only a version still PENDING takes a result (V015 enforces it too). */

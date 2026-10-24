@@ -28,3 +28,66 @@
 .dis-dialog-body {
   padding: 18px 22px 22px;
 }
+.dis-reopen-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+}
+.dis-scope,
+.dis-projects {
+  margin: 12px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line, #d8d3da);
+  border-radius: 6px;
+}
+.dis-radio {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-right: 16px;
+}
+.dis-project-list {
+  max-height: 220px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.dis-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+.dis-chip-list .pill {
+  margin-left: 6px;
+}
+.dis-reason {
+  display: block;
+  max-width: 320px;
+  overflow-wrap: anywhere;
+}
+.dis-decision {
+  padding: 8px 4px;
+}
+.dis-radio input {
+  flex: none;
+  width: auto;
+  margin: 0;
+}
+.dis-project-list li {
+  margin: 4px 0;
+}
+.dis-back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+.dis-back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}

@@ -49,8 +49,9 @@ export const admModule = defineModule({
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [
     { provide: INVITATION_MAILER, useValue: new MockInvitationMailer() },
-    // The adapters of inbound provider events are registered here by the module that owns the provider (ST-ADM-018); none exists yet.
-    { provide: ADM_INBOX_HANDLERS, useValue: new InboxHandlerRegistry() },
+    // The adapters of inbound provider events are registered here by the module that owns the provider (ST-ADM-018; NOT registers its channels, ST-NOT-002).
+    // One registry per application, not per process: an application started twice in one process (the tests do) must not find the handlers of the first.
+    { provide: ADM_INBOX_HANDLERS, useFactory: () => new InboxHandlerRegistry() },
     { provide: ADM_INBOX_PROCESSOR, useFactory: (database: TenantDatabase, registry: InboxHandlerRegistry) => new IntegrationInboxProcessor(database, registry), inject: [TenantDatabase, ADM_INBOX_HANDLERS] },
     // MACHVON_ENVIRONMENT names the deployment (infra/environments); unset or unknown means production, where a MOCK adapter is never Active.
     { provide: ADM_ENVIRONMENT, useFactory: () => process.env.MACHVON_ENVIRONMENT },

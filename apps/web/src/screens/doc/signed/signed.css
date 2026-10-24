@@ -1,0 +1,40 @@
+/* DOC-09: the file of a document signed outside the system, what its signatures hold, and the two ways to attach it. */
+.doc-signed fieldset.plain,
+.doc-signed fieldset.mode-choice {
+  border: 0;
+  margin: 0 0 12px;
+  padding: 0;
+  min-width: 0;
+}
+
+.doc-signed .mode-choice .check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.doc-signed .card + .card,
+.doc-signed .card + form.card {
+  margin-top: 18px;
+}
+
+.doc-signed .verdict {
+  margin-top: 16px;
+}
+
+.doc-signed .verdict table ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.doc-signed .back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+
+.doc-signed .back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}

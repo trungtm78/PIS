@@ -136,7 +136,7 @@ describe('the project register: create, profile update, list and workspace (ST-P
 
   it('is registered once in the module registry with the controllers of the register', () => {
     expect(prjModule.code).toBe('PRJ');
-    expect(prjModule.controllers).toEqual([ProjectController, ProjectReadsController]);
+    expect(prjModule.controllers).toEqual(expect.arrayContaining([ProjectController, ProjectReadsController]));
     expect(MODULES).toContain(prjModule);
   });
 

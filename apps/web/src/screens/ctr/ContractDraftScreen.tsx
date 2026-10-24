@@ -6,7 +6,9 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { boqLink } from './boq-model';
 import { BackLink, Fact, Field, StatusBadge } from './components';
+import { guaranteesLink } from './guarantee-model';
 import { useCancelContract, useContract, useContractorOptions, useCreateContract, useProjectOptions, useReviseContract } from './hooks';
 import { advanceLabel, fieldProblemMessage, problemMessage, revisionStatusLabel, statusText, typeLabel } from './labels';
 import {
@@ -351,11 +353,19 @@ function DraftView({ contract }: { contract: ContractView }) {
             <StatusBadge status={contract.status} />
           </p>
         </div>
-        {contract.isJointVenture ? (
-          <Link className="button" to={partiesLink(contract.id)}>
-            {t('ctr.draft.parties.action')}
+        <div className="ctr-row-actions">
+          {contract.isJointVenture ? (
+            <Link className="button" to={partiesLink(contract.id)}>
+              {t('ctr.draft.parties.action')}
+            </Link>
+          ) : null}
+          <Link className="button" to={boqLink(contract.id)}>
+            {t('ctr.draft.boq.action')}
           </Link>
-        ) : null}
+          <Link className="button" to={guaranteesLink(contract.id)}>
+            {t('ctr.draft.guarantees.action')}
+          </Link>
+        </div>
       </div>
       <div className="ctr-grid">
         <div>

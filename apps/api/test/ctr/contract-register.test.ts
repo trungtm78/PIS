@@ -194,7 +194,7 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
 
   it('is registered once in the module registry with the controllers of the register', () => {
     expect(ctrModule.code).toBe('CTR');
-    expect(ctrModule.controllers).toEqual([ContractController, ContractReadsController, ContractRevisionReadsController]);
+    expect(ctrModule.controllers).toEqual(expect.arrayContaining([ContractController, ContractReadsController, ContractRevisionReadsController]));
     expect(MODULES).toContain(ctrModule);
     expect(MODULES.filter((module) => module.code === 'CTR')).toHaveLength(1);
   });

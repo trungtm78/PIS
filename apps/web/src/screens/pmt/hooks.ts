@@ -1,8 +1,11 @@
+import { ApiError } from '@machvon/api-client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
+import { toDossier, toDossierLine, toPermitDetail } from './dossier-model';
+import type { DossierLineView, DossierView, PermitDetailView } from './dossier-model';
 import { toPermitType } from './model';
 import type { PermitTypeView, PublishTypeBody } from './model';
 
@@ -10,7 +13,7 @@ import type { PermitTypeView, PublishTypeBody } from './model';
 export const pmtRoot = (tenantId: string | undefined) => ['pmt', tenantId] as const;
 
 /** One mutation hook: one idempotency attempt per intention, the cached reads of the tenant refreshed on success. */
-function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<unknown>) {
+export function useCommand<Input, Result = unknown>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<Result>) {
   const queryClient = useQueryClient();
   const { tenant } = useSession();
   const attempts = useRef(new AttemptRegistry());
@@ -49,6 +52,53 @@ export function usePermitTypes() {
     queryKey: [...pmtRoot(tenant?.id), 'permit-types'],
     queryFn: async () => (await client.readAll('get_resources_permit_type')).flatMap((raw) => toPermitType(raw) ?? []),
     enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** A read by id: a record that does not exist or lies outside the scope of the caller (404) is null, not a failure of the screen. */
+async function orMissing<Row>(read: Promise<unknown>, convert: (raw: unknown) => Row | undefined): Promise<Row | null> {
+  try {
+    return convert(await read) ?? null;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+/** Every dossier in the scope of the caller, in the order of the read (by project code). */
+export function useDossiers() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<DossierLineView[]>({
+    // The list depends on the scope of the membership, not only on the tenant.
+    queryKey: [...pmtRoot(tenant?.id), tenant?.membershipId, 'dossiers'],
+    queryFn: async () => (await client.readAll('get_resources_permit_dossier')).flatMap((raw) => toDossierLine(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** One dossier with its permits; null when none is named or the one named is not in the scope of the caller (404). */
+export function useDossier(dossierId: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<DossierView | null>({
+    queryKey: [...pmtRoot(tenant?.id), tenant?.membershipId, 'dossier', dossierId ?? ''],
+    queryFn: async () => orMissing(client.read('get_resources_permit_dossier_id', { path: { id: dossierId ?? '' } }), toDossier),
+    enabled: tenant !== undefined && dossierId !== undefined,
+    retry: false,
+  });
+}
+
+/** One permit with its milestones; null when none is named or the one named is not in the scope of the caller. */
+export function usePermit(permitId: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<PermitDetailView | null>({
+    queryKey: [...pmtRoot(tenant?.id), tenant?.membershipId, 'permit', permitId ?? ''],
+    queryFn: async () => orMissing(client.read('get_resources_permit_id', { path: { id: permitId ?? '' } }), toPermitDetail),
+    enabled: tenant !== undefined && permitId !== undefined,
     retry: false,
   });
 }

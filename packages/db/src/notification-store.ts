@@ -1,4 +1,5 @@
 import { DomainError, asUuid } from '@machvon/kernel';
+import { IN_APP_CHANNEL } from './delivery-store.ts';
 import { assertTimestampCursor } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -16,6 +17,11 @@ export interface NewNotification {
   eventVersion: number;
   priority: NotificationPriority;
   ackRequired: boolean;
+  /**
+   * The channels in the order they are tried (NOT 3.1 step 4). IN_APP is the inbox: it is delivered by the insert itself, so a plan that holds it
+   * starts Delivered; the others are sent by the delivery engine, one channel at a time, the next one only when a channel is exhausted. Default: IN_APP.
+   */
+  channelPlan?: readonly string[];
 }
 
 /** What an event says about the thing a notification is about (the `notification` member of its payload). */
@@ -86,9 +92,9 @@ const AFTER = `($1::text is null or (n.created_at, n.id) < ($1::timestamptz, $2:
 
 const INSERT_SQL = `insert into machvon.notification_instance
     (tenant_id, id, event_id, workflow_version_id, recipient_id, purpose, dedupe_key, expires_at, status,
-     source_event_type, event_version, priority, ack_required)
+     source_event_type, event_version, priority, ack_required, channel_plan)
   values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3::uuid, $4, $5, $6::timestamptz,
-     'Delivered', $7, $8, $9, $10)
+     case when 'IN_APP' = any($11::text[]) then 'Delivered' else 'Queued' end, $7, $8, $9, $10, $11::text[])
   on conflict (tenant_id, dedupe_key) do nothing
   returning id`;
 
@@ -139,6 +145,7 @@ export class NotificationStore {
       notification.eventVersion,
       notification.priority,
       notification.ackRequired,
+      notification.channelPlan ?? [IN_APP_CHANNEL],
     ]);
     const created = inserted[0];
     if (created !== undefined) return { id: created.id, created: true };
@@ -180,7 +187,7 @@ export class NotificationStore {
     assertCursor(page.after);
     const rows = await tx.query<Row>(
       `select ${COLUMNS} ${FROM}
-        where ${AFTER} and n.recipient_id = $3::uuid and n.recipient_kind = 'MEMBERSHIP' and not n.is_test
+        where ${AFTER} and n.recipient_id = $3::uuid and n.recipient_kind = 'MEMBERSHIP' and not n.is_test and 'IN_APP' = any(n.channel_plan)
         order by n.created_at desc, n.id desc limit $4`,
       [page.after?.code ?? null, page.after?.id ?? null, membershipId, page.limit],
     );

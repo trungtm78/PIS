@@ -143,6 +143,8 @@ Cột hiện có giữ nguyên: `tenant_id`, `id`, `project_id`, `category_versi
 | `geo_lng` | numeric(9,6) | không |  |  |  |
 | `geo_accuracy_m` | numeric(8,2) | không |  |  |  |
 | `geo_consent` | boolean | có | false |  | Chỉ lưu vị trí khi người dùng đồng ý |
+| `client_operation_id` | uuid | không |  |  | Mã thao tác do thiết bị sinh khi tạo (bổ sung khi triển khai ST-ISS-002); gửi lại cùng mã của cùng người báo trả đúng vướng mắc đã có |
+| `client_request_hash` | char(64) | không |  | cùng có hoặc cùng không có với `client_operation_id` | Băm nội dung yêu cầu tạo; cùng mã thao tác mà nội dung khác là 409 `IDEMPOTENCY_CONFLICT` |
 | `created_at` | timestamptz | có | now() |  |  |
 | `created_by` | uuid | không |  |  |  |
 | `updated_at` | timestamptz | có | now() |  |  |
@@ -154,6 +156,7 @@ Bất biến DB:
 - CHECK `issue_geo_consent_chk`: geo_lat IS NULL OR geo_consent
 - CHECK `issue_assignee_chk`: status = 'OPEN' OR assignee_id IS NOT NULL
 - UNIQUE INDEX `issue_code_uq` (tenant_id, code) WHERE code IS NOT NULL
+- Bổ sung khi triển khai ST-ISS-002 (migration V1061): UNIQUE INDEX `issue_client_operation_uq` (tenant_id, reported_by, client_operation_id) WHERE client_operation_id IS NOT NULL; CHECK `issue_client_operation_chk` (cặp `client_operation_id`/`client_request_hash` cùng có hoặc cùng không); CHECK `issue_source_chk` ((source_module = 'MANUAL') = (source_ref_id IS NULL)) và UNIQUE INDEX `issue_open_source_uq` (tenant_id, source_module, source_ref_id) WHERE source_ref_id IS NOT NULL AND status <> 'CLOSED' (BR-ISS-07, 409 `DUPLICATE_SOURCE_OPEN`); CHECK `issue_core_chk`, `issue_code_chk`, `issue_due_chk`, `issue_geo_chk`; trigger `issue_guard` giữ máy trạng thái mục 4 và các cột không đổi (mã, dự án, hợp đồng, nhóm, mức độ, nguồn, `sla_policy_id`, người báo, `opened_at`, `response_due_at`, vị trí, mã thao tác; `overdue_since` đã có thì không xóa/đổi); không cấp DELETE/TRUNCATE cho runtime. Bảng `issue_event`: thêm kiểu sự kiện `TRANSFERRED` (chuyển đơn vị: `payload` {from_unit_id, to_unit_id}, lý do ở `note`) và trigger `issue_event_guard` (chỉ thêm, không sửa/xóa).
 
 Chỉ mục: `issue_source_ref_id_idx`, `issue_contract_id_idx`, `issue_owner_unit_id_idx`, `issue_sla_policy_id_idx`, `issue_verifier_id_idx`, `issue_escalated_task_force_id_idx`, `issue_project_id_idx`, `issue_category_version_id_idx`, `issue_assignee_id_idx`, `issue_status_due_idx`, `issue_project_status_idx`, `issue_source_idx`.
 
@@ -165,7 +168,7 @@ Phân loại: Nội bộ (có thể chứa vị trí, cần đồng ý). Lưu gi
 | `tenant_id` | uuid | có |  |  |  |
 | `id` | uuid | có |  |  |  |
 | `issue_id` | uuid | có |  | FK issue |  |
-| `event_kind` | text | có |  | ∈ {CREATED, ASSIGNED, REASSIGNED, STARTED, COMMENTED, EVIDENCE_ADDED, EXTENSION_REQUESTED, EXTENDED, ESCALATED, ESCALATION_ACCEPTED, VERIFICATION_REQUESTED, CLOSED, REOPENED, SLA_BREACHED, SOURCE_UPDATED} |  |
+| `event_kind` | text | có |  | ∈ {CREATED, ASSIGNED, REASSIGNED, TRANSFERRED, STARTED, COMMENTED, EVIDENCE_ADDED, EXTENSION_REQUESTED, EXTENDED, ESCALATED, ESCALATION_ACCEPTED, VERIFICATION_REQUESTED, CLOSED, REOPENED, SLA_BREACHED, SOURCE_UPDATED} |  |
 | `from_status` | text | không |  |  |  |
 | `to_status` | text | không |  |  |  |
 | `from_assignee_id` | uuid | không |  | FK membership |  |
@@ -228,6 +231,7 @@ Mọi lệnh ghi: `Idempotency-Key` (≥16 ký tự) bắt buộc; `If-Match` b�
 | `reopenIssue` | `POST /issues/{id}/reopen` | `issue.reopen` | reason* | CommandResult | 409 ISSUE_STATE_INVALID; 422 REOPEN_WINDOW_EXPIRED; 409 VERSION_CONFLICT | bắt buộc | có |
 | `upsertIssueSlaPolicy` | `POST /issue-sla-policies` | `issue.sla.manage` | code*, category_version_id*, severity*, owner_unit_id, calendar_code*, response_hours*, resolve_hours*, escalate_l2_pct, escalate_l3_pct, require_independent_verifier, require_evidence, valid_from* | CommandResult | 409 SLA_POLICY_OVERLAP; 422 VALIDATION_FAILED | bắt buộc | không |
 | `retireIssueSlaPolicy` | `POST /issue-sla-policies/{id}/retire` | `issue.sla.manage` | valid_until* | CommandResult | 409 SLA_POLICY_STATE_INVALID | bắt buộc | không |
+| `listIssueAssignees` | `GET /issues/{id}/assignees` | `issue.assign` | — | DTO đọc: {membership_id, display_name} của các thành viên đang hoạt động có `issue.work` trong phạm vi của vướng mắc (đúng những người `assignIssue` chấp nhận; CR-ISS-14) | 404 RESOURCE_NOT_FOUND | — | không |
 | `getIssueWeeklyMatrix` | `GET /issues/weekly-matrix` | `issue.read` | week, unit_id | DTO đọc (read model) | — | — | không |
 | `listIssueSlaBreaches` | `GET /issues/sla-breaches` | `issue.read` | level, cursor, limit | DTO đọc (read model) | — | — | không |
 

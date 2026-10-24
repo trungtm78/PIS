@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { PERMISSIONS, STEP_UP } from '@machvon/contracts';
 import type { SystemRole } from '@machvon/db';
 import { STEP_UP_WINDOW_MINUTES, holdsPermission } from '@machvon/kernel';
+import { id } from '../../../../packages/db/test/support/authz-fixtures';
 import { evaluateGuardDenial } from './negative-matrix';
 import type { MatrixRequest, Observation } from './negative-matrix';
 
@@ -150,6 +151,10 @@ const SEED_APPROPRIATION = `with d as (
   values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.master_record_version where code = 'MX-CAP-FUND' limit 1), 2026, 'PM_ASSIGNED', 'CENTRAL', 1000,
           $1::uuid, 'Matrix authority', 2026, 1, 'DRAFT', $2::uuid, $2::uuid)`;
 
+/** A request to reopen the locked period of the matrix, made by `$2`; the table keeps one row per request, so each case names its own. */
+const SEED_PERIOD_REOPEN = `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, requested_window_hours, status, created_by, updated_by)
+  values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.reporting_period where code = 'MX-W2026-03'), 'PERIOD', 'Maker-checker matrix request to reopen', $2::uuid, 24, 'REQUESTED', $2::uuid, $2::uuid)`;
+
 /** A report form made by `$2` in the status `$3` (a published one names a reviewer as its publisher). The code is made from the id. */
 const SEED_MNE_FORM = `insert into machvon.mne_report_form
     (tenant_id, id, form_code, title, report_kind, legal_basis, effective_from, schema_json, doc_template_code, export_formats, revision, status, approved_by, published_at, created_by, updated_by)
@@ -166,6 +171,20 @@ const SEED_MNE_RULE = `with f as (
   insert into machvon.mne_obligation_rule
     (tenant_id, id, rule_code, form_id, reporting_role, recipient, frequency, due_rule_json, legal_basis, effective_from, revision, status, created_by, updated_by)
   values (current_setting('app.tenant_id')::uuid, $3::uuid, 'MX-RULE-' || $3::uuid::text, $1::uuid, 'INVESTOR', 'Matrix recipient', 'SEMIANNUAL', '{"period":"H1","month":7,"day":10}'::jsonb, 'Matrix legal basis', '2026-01-01', 1, 'DRAFT', $2::uuid, $2::uuid)`;
+
+/**
+ * A guarantee of the draft contract that the matrix seeds, made by `$2` in the status `$3` (PENDING_VERIFICATION, or ACTIVE as verified by a
+ * reviewer on the clean document version of the matrix). The number is made from the id, so two guarantees never meet on the unique number.
+ */
+const MATRIX_DRAFT_CONTRACT = id(0x77, 8);
+const MATRIX_EVIDENCE = id(0x78, 2);
+const SEED_GUARANTEE = `insert into machvon.guarantee
+    (tenant_id, id, contract_id, kind, issuer, guarantee_no, amount_vnd, expires_at, verification_status, status, valid_from, document_version_id,
+     verified_by, verified_at, verification_method, verification_evidence_id, created_by, updated_by)
+  values (current_setting('app.tenant_id')::uuid, $1::uuid, '${MATRIX_DRAFT_CONTRACT}'::uuid, 'PERFORMANCE', 'Matrix bank', 'MX-' || $1::uuid::text, 1000, now() + interval '1 year',
+          case $3::text when 'PENDING_VERIFICATION' then 'UNVERIFIED' else 'VERIFIED' end, $3::text, date '2026-01-01', '${MATRIX_EVIDENCE}'::uuid,
+          case $3::text when 'PENDING_VERIFICATION' then null else '${REVIEWER}'::uuid end, case $3::text when 'PENDING_VERIFICATION' then null else now() end,
+          case $3::text when 'PENDING_VERIFICATION' then null else 'Matrix check' end, case $3::text when 'PENDING_VERIFICATION' then null else '${MATRIX_EVIDENCE}'::uuid end, $2::uuid, $2::uuid)`;
 
 const SEED_MASTER = seedMaster(false);
 const SEED_MASTER_IMPORT = seedMaster(true);
@@ -298,6 +317,26 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     seedMadeBy: (objectId, maker) => [SEED_CONTRACTOR, [derivedId(objectId, 'verify-contractor'), maker]],
   },
   {
+    operationId: 'verifyGuarantee',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/guarantees/${derivedId(objectId, 'verify-guarantee')}/verify`,
+      ifMatch: '"1"',
+      body: { outcome: 'VERIFIED', method: 'maker-checker matrix check', evidence_document_version_id: MATRIX_EVIDENCE },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_GUARANTEE, [derivedId(objectId, 'verify-guarantee'), maker, 'PENDING_VERIFICATION']],
+  },
+  {
+    operationId: 'releaseGuarantee',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/guarantees/${derivedId(objectId, 'release-guarantee')}/release`,
+      ifMatch: '"1"',
+      body: { release_evidence_id: MATRIX_EVIDENCE, reason: 'maker-checker matrix release' },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_GUARANTEE, [derivedId(objectId, 'release-guarantee'), maker, 'ACTIVE']],
+  },
+  {
     operationId: 'decideAppropriation',
     build: (objectId) => ({
       method: 'POST',
@@ -306,6 +345,16 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
       body: { decision: 'approve', reason: 'maker-checker matrix appropriation decision' },
     }),
     seedMadeBy: (objectId, maker) => [SEED_APPROPRIATION, [derivedId(objectId, 'decide-appropriation'), maker]],
+  },
+  {
+    operationId: 'decidePeriodReopen',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/period-reopens/${derivedId(objectId, 'decide-period-reopen')}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: 'maker-checker matrix reopen decision', window_hours: 24 },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_PERIOD_REOPEN, [derivedId(objectId, 'decide-period-reopen'), maker]],
   },
   {
     operationId: 'publishMneForm',

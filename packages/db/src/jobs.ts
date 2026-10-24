@@ -21,10 +21,18 @@ export const JOB_INTERVAL_SECONDS = {
   'master-baseline-sync': 21600,
   // Every 15 minutes: a period is soft closed within a quarter of an hour after its deadline; the pass is idempotent (ST-DIS-001).
   'dis-period-autoclose': 900,
+  // Every 5 minutes: the end of a reopening window is stored (EXPIRED) and audited within 5 minutes of its last instant. The rule itself never waits for this run: the submit guard and the reads judge the window by the clock (ST-DIS-002); the pass is idempotent.
+  'dis-reopen-expiry': 300,
   // Hourly tick that works only in the 01:00 hour of Vietnam time, so the retention run happens once a night at a fixed hour wherever the process started (ST-ADM-017).
   'retention-purge': 3600,
+  // Hourly tick that works only in the 06:00 hour of Vietnam time, so the guarantee reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-CTR-003).
+  'guarantee-expiry': 3600,
   // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
   'integration-inbox': 60,
+  // Every 5 seconds, like the outbox relay: a retry on the schedule of 30 seconds is taken up within seconds of its time (ST-NOT-002, BR-NOT-03); the pass is idempotent.
+  'notification-dispatch': 5,
+  // Every 5 minutes: a send whose result was lost is found, and an Unknown one is asked about at its provider for a day (BR-NOT-04).
+  'notification-reconcile': 300,
   'access-cache-expiry': 60,
 } as const;
 
@@ -33,6 +41,11 @@ export type JobName = keyof typeof JOB_INTERVAL_SECONDS;
 /** The hour of the night, in Vietnam time (UTC+7, no daylight saving), in which the retention run works (ADM 3.12: daily at 01:00). */
 export const RETENTION_HOUR = 1;
 const VIETNAM_UTC_OFFSET_HOURS = 7;
+/** The hour of the morning, in Vietnam time, in which the guarantee reminders and expiries run (CTR 3.5: 06:00). */
+export const GUARANTEE_EXPIRY_HOUR = 6;
+/** The gauges of the guarantee job: the ACTIVE guarantees within `days` days of their expiry, and the advance guarantees at risk with an advance still owed. */
+export const GUARANTEE_EXPIRING_GAUGE = 'ctr_guarantee_expiring';
+export const ADVANCE_GUARANTEE_AT_RISK_GAUGE = 'ctr_advance_guarantee_at_risk';
 
 /** The hour of the day, 0 to 23, in Vietnam. */
 export const vietnamHourOf = (instant: Date): number => (instant.getUTCHours() + VIETNAM_UTC_OFFSET_HOURS) % 24;
@@ -80,13 +93,27 @@ export interface StandardJobDeps {
   masterBaseline?: { apply(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
   /** Soft-closes the reporting periods past their deadline and locks them three working days later, by the same moves as the commands (ST-DIS-001). */
   disPeriods?: { autoclose(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
+  /** Stores the end of the reopening windows of locked periods that have ended (APPROVED to EXPIRED) and audits it (ST-DIS-002). */
+  disReopens?: { expire(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
   /**
    * The nightly retention run of a tenant (ST-ADM-017): removes the technical data that has outlived its period and puts the expired business
    * records on the review list, never deleting them; tells how many items wait, for the gauge below. Only the 01:00 hour of Vietnam time works.
    */
   retention?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ pending: number }> };
+  /**
+   * The daily pass over the guarantees of a tenant (ST-CTR-003): the reminders at 30, 15, 7 and 0 days and the expiry of the ones past their day;
+   * tells how many guarantees are within each threshold, for the gauges. Only the 06:00 hour of Vietnam time works.
+   */
+  guaranteeExpiry?: {
+    run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ expiring: Readonly<Record<number, number>>; advanceAtRisk: number }>;
+  };
   /** Takes up the inbound provider events that are due and have an adapter, and retries the failed ones when their wait is over (ST-ADM-018). */
   inbox?: { processDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
+  /** Sends the notifications that are due on each channel, and reconciles the sends whose result was lost (ST-NOT-002); the API process has the adapters. */
+  notificationDelivery?: {
+    dispatchDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown>;
+    reconcile(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown>;
+  };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -144,7 +171,7 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     },
   ];
-  const { relay, accessCache, certificates, masterData, masterBaseline, disPeriods, retention, inbox } = deps;
+  const { relay, accessCache, certificates, masterData, masterBaseline, disPeriods, disReopens, retention, inbox } = deps;
   if (relay !== undefined) handlers.push({ name: 'outbox-relay', run: async () => void (await relay.runOnce()) });
   handlers.push({
     name: 'idempotency-purge',
@@ -176,6 +203,9 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
   if (disPeriods !== undefined) {
     handlers.push({ name: 'dis-period-autoclose', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await disPeriods.autoclose(workerContext(tenantId)))) });
   }
+  if (disReopens !== undefined) {
+    handlers.push({ name: 'dis-reopen-expiry', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await disReopens.expire(workerContext(tenantId)))) });
+  }
   if (retention !== undefined) {
     handlers.push({
       name: 'retention-purge',
@@ -195,8 +225,37 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     });
   }
+  const guarantees = deps.guaranteeExpiry;
+  if (guarantees !== undefined) {
+    handlers.push({
+      name: 'guarantee-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== GUARANTEE_EXPIRY_HOUR) return;
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        const expiring: Record<number, number> = { 0: 0, 7: 0, 15: 0, 30: 0 };
+        let atRisk = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            const pass = await guarantees.run(workerContext(tenantId), now);
+            for (const [days, count] of Object.entries(pass.expiring)) expiring[Number(days)] = (expiring[Number(days)] ?? 0) + count;
+            atRisk += pass.advanceAtRisk;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
+          for (const [days, count] of Object.entries(expiring)) metrics.gauge(GUARANTEE_EXPIRING_GAUGE, count, { days });
+          metrics.gauge(ADVANCE_GUARANTEE_AT_RISK_GAUGE, atRisk);
+        }
+      },
+    });
+  }
   if (inbox !== undefined) {
     handlers.push({ name: 'integration-inbox', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await inbox.processDue(workerContext(tenantId)))) });
+  }
+  const delivery = deps.notificationDelivery;
+  if (delivery !== undefined) {
+    handlers.push({ name: 'notification-dispatch', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await delivery.dispatchDue(workerContext(tenantId)))) });
+    handlers.push({ name: 'notification-reconcile', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await delivery.reconcile(workerContext(tenantId)))) });
   }
   if (accessCache !== undefined) handlers.push({ name: 'access-cache-expiry', run: async () => void accessCache.expire() });
   return handlers;

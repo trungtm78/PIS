@@ -1,4 +1,7 @@
 import { X509Certificate, createHash, randomUUID } from 'node:crypto';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { DocumentStore, NumberRegisterStore } from '@machvon/db';
 import type { TenantDatabase } from '@machvon/db';
 import type { TestDatabase } from '@machvon/db/src/test-database';
@@ -7,6 +10,7 @@ import { fingerprintOf } from '../../src/modules/doc/cms-verification';
 import type { TrustStoreProvider } from '../../src/modules/doc/trust-anchors';
 import { MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { MockCertificateAuthority, MockTimestampAuthority, OID } from '../../src/modules/doc/mock-pki';
+import { applyNumbering } from '../../src/modules/doc/numbering-revision';
 import { PdfLibRenderer } from '../../src/modules/doc/pdf-renderer';
 import { MockSigningDirectory } from '../../src/modules/doc/signing-adapters';
 import { MockSigningPort } from '../../src/modules/doc/signing-port';
@@ -33,6 +37,8 @@ export interface OutgoingSeedInput {
   /** The leader signer and certificate holder, and the drafter. */
   signerMembershipId: string;
   drafterMembershipId: string;
+  /** The records clerk of DOC-09: the drafter of one document, so the screen can be shown refusing a person who uploads the signed file of their own document. */
+  clerkMembershipId: string;
   /** The drafting unit of the documents, and the unit above it that holds the organisation certificate. */
   draftingUnitId: string;
   organizationUnitId: string;
@@ -43,7 +49,7 @@ export interface OutgoingSeed {
   signing: MockSigningDirectory;
   trust: TrustStoreProvider;
   /** Ids the browser checks name: documents the visual cases read, and ones the flows change. */
-  documents: { visualSubmitted: string; flowSubmitted: string; visualSigned: string };
+  documents: { visualSubmitted: string; flowSubmitted: string; visualSigned: string; uploadSubmitted: string; selfDrafted: string };
 }
 
 /**
@@ -93,6 +99,18 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
       scopeDocTypes: ['QD'],
       actor: ACTOR,
     });
+    // A register that mirrors the numbers of another system: the flow of DOC-09 registers a document that was numbered elsewhere. Its code sorts after UBND, so
+    // the numbering screen keeps choosing UBND.
+    await registers.openRegister(tx, {
+      registerCode: 'ZEXT',
+      name: 'So van ban ky ben ngoai',
+      direction: 'OUTGOING',
+      organizationUnitId: input.draftingUnitId,
+      year: now.getFullYear(),
+      mode: 'MIRRORED',
+      scopeDocTypes: ['QD'],
+      actor: ACTOR,
+    });
     return seeded;
   });
   const owner = new Client({ connectionString: input.database.urlFor('machvon_owner') });
@@ -114,7 +132,7 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
   const rendered = Buffer.from((await new PdfLibRenderer().render({ ...sampleRequest(), signatureFields: true })).bytes);
   const leaderSigned = await signField(rendered, { field: 'sig_leader', identity: leader, signingTime: now, timestamps: tsa });
 
-  const insert = async (title: string, signed: boolean): Promise<string> => {
+  const insert = async (title: string, signed: boolean, drafter: string = input.drafterMembershipId): Promise<string> => {
     const outgoingId = randomUUID();
     await input.tenants.withTenant(context, async (tx) => {
       const document = await documents.insertDocument(tx, { docKind: 'OUTGOING', docTypeCode: 'QD', title, classification: 'INTERNAL', createdBy: ACTOR, issuerUnitId: input.draftingUnitId });
@@ -139,7 +157,7 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
       await tx.query(
         `insert into machvon.outgoing_document (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, signer_title, leader_signed_at, created_by, updated_by)
          values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4, $5::uuid, $6::uuid, $7::uuid, 'Giam doc', $8::timestamptz, $6::uuid, $6::uuid)`,
-        [outgoingId, document.id, layoutProfileId, signed ? 'SIGNED' : 'SUBMITTED', input.draftingUnitId, input.drafterMembershipId, input.signerMembershipId, signed ? now.toISOString() : null],
+        [outgoingId, document.id, layoutProfileId, signed ? 'SIGNED' : 'SUBMITTED', input.draftingUnitId, drafter, input.signerMembershipId, signed ? now.toISOString() : null],
       );
     });
     return outgoingId;
@@ -147,5 +165,38 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
   const visualSigned = await insert('Quyet dinh giao von dot 2', true);
   const flowSubmitted = await insert('Quyet dinh phe duyet ke hoach giai ngan', false);
   const visualSubmitted = await insert('Quyet dinh giao von dot 1', false);
-  return { files, signing, trust, documents: { visualSubmitted, flowSubmitted, visualSigned } };
+  const uploadSubmitted = await insert('Quyet dinh cho lanh dao ky ben ngoai', false);
+  const selfDrafted = await insert('Quyet dinh do van thu soan', false, input.clerkMembershipId);
+  await writeSignedSamples({ rendered, leaderSigned, organization, tsa, now, uploadSubmitted, selfDrafted });
+  return { files, signing, trust, documents: { visualSubmitted, flowSubmitted, visualSigned, uploadSubmitted, selfDrafted } };
+}
+
+/** The folder the browser flow of DOC-09 reads its files from (the spec and the stack agree on the name). */
+export const SIGNED_SAMPLES_DIR = join(tmpdir(), 'machvon-e2e-doc-signed');
+
+/**
+ * Files for the upload of documents signed outside the system: the PDF the leader signed (the locked version of the document that waits for the
+ * signature, plus a timestamped signature in its leader field), the same PDF signed and numbered by another system (number, symbol and date in its
+ * form fields, the seal of the organisation on top), and the one nobody signed. The manifest names what the file declares.
+ */
+async function writeSignedSamples(input: {
+  rendered: Buffer;
+  leaderSigned: Buffer;
+  organization: Parameters<typeof signField>[1]['identity'];
+  tsa: MockTimestampAuthority;
+  now: Date;
+  uploadSubmitted: string;
+  selfDrafted: string;
+}): Promise<void> {
+  const issuedOn = input.now.toISOString().slice(0, 10);
+  const [year, month, day] = issuedOn.split('-');
+  const number = 128;
+  const symbol = `${number}/QD-NGOAI`;
+  const numbered = applyNumbering(input.leaderSigned, { docNumber: String(number), docSymbol: symbol, docDate: `${day}/${month}/${year}` }).pdf;
+  const sealed = await signField(numbered, { field: 'sig_org', identity: input.organization, signingTime: new Date(input.now.getTime() + 60_000), timestamps: input.tsa });
+  mkdirSync(SIGNED_SAMPLES_DIR, { recursive: true });
+  writeFileSync(join(SIGNED_SAMPLES_DIR, 'leader-signed.pdf'), input.leaderSigned);
+  writeFileSync(join(SIGNED_SAMPLES_DIR, 'externally-issued.pdf'), sealed);
+  writeFileSync(join(SIGNED_SAMPLES_DIR, 'unsigned.pdf'), input.rendered);
+  writeFileSync(join(SIGNED_SAMPLES_DIR, 'manifest.json'), JSON.stringify({ number, symbol, issuedOn, uploadDocumentId: input.uploadSubmitted, selfDraftedId: input.selfDrafted, sha256: createHash('sha256').update(sealed).digest('hex') }));
 }

@@ -8,7 +8,7 @@ import type { ContractLine, ContractView, CreateBody, Option, PartiesBody, Revis
 
 // What the register shows depends on the scope of the membership that is signed in, not only on the tenant: switching between two
 // memberships of one tenant keeps the query client, so the membership is part of every key.
-function useScopeKey(): readonly ['ctr', string | undefined, string | undefined] {
+export function useScopeKey(): readonly ['ctr', string | undefined, string | undefined] {
   const { tenant } = useSession();
   return ['ctr', tenant?.id, tenant?.membershipId];
 }
@@ -62,7 +62,7 @@ export function useContractorOptions(enabled = true) {
 }
 
 /** One mutation hook: one idempotency attempt per intention, the cached reads of the register refreshed on success. */
-function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<{ resource_id?: string; resource_version?: number }>) {
+export function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<{ resource_id?: string; resource_version?: number }>) {
   const queryClient = useQueryClient();
   const key = useScopeKey();
   const attempts = useRef(new AttemptRegistry());

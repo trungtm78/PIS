@@ -58,6 +58,16 @@ export interface OutgoingDocumentRecord {
   createdAt: Date;
   /** Microsecond text of `createdAt`: the ordering key of the keyset cursor. */
   sortKey: string;
+  templateId: string | null;
+  /** The effect of the document anchor: PENDING until it is issued, EXPIRED when the draft was cancelled. */
+  effectStatus: string;
+  classification: string;
+  sourceModule: string | null;
+  sourceRef: string | null;
+  issueRequestId: string | null;
+  payloadSha256: string | null;
+  reviewDueOn: string | null;
+  cancelReason: string | null;
 }
 
 export interface SigningSessionRecord {
@@ -142,6 +152,15 @@ interface OutgoingRow {
   issued_on: string | null;
   created_at: Date;
   sort_key: string;
+  template_id: string | null;
+  effect_status: string;
+  classification: string;
+  source_module: string | null;
+  source_ref: string | null;
+  issue_request_id: string | null;
+  payload_sha256: string | null;
+  review_due_on: string | null;
+  cancel_reason: string | null;
 }
 
 interface SessionRow {
@@ -169,7 +188,8 @@ interface SessionRow {
 const OUTGOING_COLUMNS = `o.id, o.document_id, o.status, o.route, o.urgency, o.circulation, o.drafting_unit_id, o.drafter_user_id, o.signer_user_id,
   o.signer_title, o.signing_mode, o.delegation_id, o.clerk_user_id, o.register_id, o.allocation_id, o.recipients, o.leader_signed_at, o.numbered_at,
   o.sealed_at, o.issued_at, o.version::text as version, d.title, d.doc_type_code, d.current_version_id, d.document_number, d.number_year, d.symbol,
-  d.issued_on::text as issued_on, o.created_at, ${timestampKey('o.created_at')} as sort_key`;
+  d.issued_on::text as issued_on, o.created_at, ${timestampKey('o.created_at')} as sort_key, o.template_id, d.effect_status, d.classification,
+  o.source_module, o.source_ref, o.issue_request_id, o.payload_sha256, o.review_due_on::text as review_due_on, o.cancel_reason`;
 const OUTGOING_FROM = `from machvon.outgoing_document o join machvon.document d on d.tenant_id = o.tenant_id and d.id = o.document_id`;
 const SESSION_COLUMNS = `s.id, s.outgoing_document_id, s.role, s.signer_user_id, s.signing_certificate_id, s.adapter_code, s.adapter_status, s.status,
   s.base_version_id, s.result_version_id, s.digest_hex, s.byte_range, s.provider_txn_ref, s.expires_at, s.attempts, s.error_code, s.created_at,
@@ -239,6 +259,15 @@ function toOutgoing(row: OutgoingRow): OutgoingDocumentRecord {
     issuedOn: row.issued_on,
     createdAt: row.created_at,
     sortKey: row.sort_key,
+    templateId: row.template_id,
+    effectStatus: row.effect_status,
+    classification: row.classification,
+    sourceModule: row.source_module,
+    sourceRef: row.source_ref,
+    issueRequestId: row.issue_request_id,
+    payloadSha256: row.payload_sha256,
+    reviewDueOn: row.review_due_on,
+    cancelReason: row.cancel_reason,
   };
 }
 
@@ -281,6 +310,16 @@ export class OutgoingDocumentStore {
     const [row] = await tx.query<OutgoingRow>(
       `select ${OUTGOING_COLUMNS} ${OUTGOING_FROM} where o.id = $1::uuid and ${predicate === undefined ? 'true' : IN_SCOPE(predicate.sql)}`,
       [id, ...(predicate?.params ?? [])],
+    );
+    return row === undefined ? undefined : toOutgoing(row);
+  }
+
+  /** The outgoing document that belongs to a document anchor, inside the scope. */
+  async findByDocument(tx: TenantTx, documentId: string, scope?: ScopeBuilder): Promise<OutgoingDocumentRecord | undefined> {
+    const predicate = scope?.(2);
+    const [row] = await tx.query<OutgoingRow>(
+      `select ${OUTGOING_COLUMNS} ${OUTGOING_FROM} where o.document_id = $1::uuid and ${predicate === undefined ? 'true' : IN_SCOPE(predicate.sql)}`,
+      [documentId, ...(predicate?.params ?? [])],
     );
     return row === undefined ? undefined : toOutgoing(row);
   }
@@ -468,6 +507,46 @@ export class OutgoingDocumentStore {
     return this.advance(tx, id, input.expectedVersion, 'SUBMITTED', 'status = \'SIGNED\', leader_signed_at = $3::timestamptz', [input.signedAt.toISOString()], input.actor);
   }
 
+  /** The leader signature came from outside the system: SUBMITTED to SIGNED, and the route of the document is the external one (DOC.md F5). */
+  async markSignedExternally(tx: TenantTx, id: string, input: { expectedVersion: number; signedAt: Date; actor: string }): Promise<OutgoingDocumentRecord> {
+    return this.advance(tx, id, input.expectedVersion, 'SUBMITTED', "status = 'SIGNED', route = 'EXTERNAL_UPLOAD', leader_signed_at = $3::timestamptz", [input.signedAt.toISOString()], input.actor);
+  }
+
+  /**
+   * A document that was signed and numbered in another system enters DOC already issued (DOC.md F5 b): the row carries the number it was given, the two
+   * instants of its signatures and the register; the database checks of an issued document (allocation, issue and seal instants) hold.
+   */
+  async insertIssuedExternally(
+    tx: TenantTx,
+    input: {
+      documentId: string;
+      layoutProfileId: string;
+      draftingUnitId: string;
+      registerId: string;
+      allocationId: string;
+      recipients: readonly unknown[];
+      leaderSignedAt: Date;
+      sealedAt: Date;
+      issuedAt: Date;
+      actor: string;
+    },
+  ): Promise<OutgoingDocumentRecord> {
+    const [row] = await tx.query<{ id: string }>(
+      `insert into machvon.outgoing_document
+         (tenant_id, id, document_id, layout_profile_id, status, route, drafting_unit_id, drafter_user_id, clerk_user_id, register_id, allocation_id, recipients,
+          leader_signed_at, numbered_at, sealed_at, issued_at, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, 'ISSUED', 'EXTERNAL_UPLOAD', $3::uuid, $4::uuid, $4::uuid, $5::uuid, $6::uuid, $7::jsonb,
+          $8::timestamptz, $8::timestamptz, $9::timestamptz, $10::timestamptz, $4::uuid, $4::uuid)
+       returning id`,
+      [input.documentId, input.layoutProfileId, input.draftingUnitId, input.actor, input.registerId, input.allocationId, JSON.stringify(input.recipients), input.leaderSignedAt.toISOString(), input.sealedAt.toISOString(), input.issuedAt.toISOString()],
+    );
+    if (row === undefined) throw new Error('external outgoing document insert returned no row');
+    await tx.query("update machvon.document set effect_status = 'EFFECTIVE', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [input.documentId, input.actor]);
+    const found = await this.find(tx, row.id);
+    if (found === undefined) throw new Error('outgoing document vanished while it was written');
+    return found;
+  }
+
   /** The number is assigned: SIGNED to NUMBERED, with the register, the allocation and the clerk. */
   async markNumbered(
     tx: TenantTx,
@@ -488,6 +567,18 @@ export class OutgoingDocumentStore {
   /** The organisation seal is in: NUMBERED to SEALED. */
   async markSealed(tx: TenantTx, id: string, input: { expectedVersion: number; sealedAt: Date; actor: string }): Promise<OutgoingDocumentRecord> {
     return this.advance(tx, id, input.expectedVersion, 'NUMBERED', "status = 'SEALED', sealed_at = $3::timestamptz", [input.sealedAt.toISOString()], input.actor);
+  }
+
+  /**
+   * The document is issued: SEALED to ISSUED, and the document in force (EFFECTIVE). Its number and symbol are on the anchor already (the numbering wrote
+   * them), so the checks of the database that ask for both hold.
+   */
+  async markIssued(tx: TenantTx, id: string, input: { expectedVersion: number; issuedAt: Date; actor: string }): Promise<OutgoingDocumentRecord> {
+    const issued = await this.advance(tx, id, input.expectedVersion, 'SEALED', "status = 'ISSUED', issued_at = $3::timestamptz", [input.issuedAt.toISOString()], input.actor);
+    await tx.query("update machvon.document set effect_status = 'EFFECTIVE', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [issued.documentId, input.actor]);
+    const found = await this.find(tx, id);
+    if (found === undefined) throw new Error('outgoing document vanished while it was locked');
+    return found;
   }
 
   private async advance(

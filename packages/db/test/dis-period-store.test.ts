@@ -14,6 +14,7 @@ const harness = new AuthzHarness();
 const periods = new DisPeriodStore();
 const masters = new MasterStore();
 const ACTOR = 1;
+const PROJECT = '00000000-0000-4000-8000-0000000000a1';
 const WORKER = '00000000-0000-4000-8000-000000000000';
 const calendarEntry = BASELINE_PACK.entries.find((entry) => entry.masterType === 'CALENDAR') as BaselineEntry;
 const calendarAt = (validFrom: string, attributes: Record<string, unknown>, legalBasis: string): BaselineEntry => ({ ...calendarEntry, validFrom, legalBasis, attributes: { ...calendarEntry.attributes, ...attributes } });
@@ -183,14 +184,14 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       const closed = await as((tx) => periods.softClose(tx, week40.id, 1, memberId(ACTOR), at('2026-10-02T03:05:00Z')));
       expect(closed).toMatchObject({ status: 'SOFT_CLOSED', softClosedAt: '2026-10-02T03:05:00.000Z', lockedAt: null, version: 2 });
       // A maker submits in SOFT_CLOSED: accepted, and late (the deadline was 03:00:00Z).
-      const judged = await as((tx) => periods.judge(tx, week40.id, at('2026-10-02T03:05:30Z')));
+      const judged = await as((tx) => periods.judge(tx, week40.id, PROJECT, at('2026-10-02T03:05:30Z')));
       expect(judged).toMatchObject({ late: true, deadlineAt: '2026-10-02T03:00:00.000Z', period: { status: 'SOFT_CLOSED' } });
       expect(await refusal(as((tx) => periods.softClose(tx, week40.id, 2, memberId(ACTOR), at('2026-10-02T03:06:00Z'))))).toEqual({ code: 'PERIOD_STATE_INVALID', status: 409, detail: 'status' });
       const locked = await as((tx) => periods.lock(tx, week40.id, 2, memberId(ACTOR), at('2026-10-02T03:10:00Z')));
       expect(locked).toMatchObject({ status: 'LOCKED', lockedAt: '2026-10-02T03:10:00.000Z', lockedBy: memberId(ACTOR), version: 3 });
-      expect(await refusal(as((tx) => periods.judge(tx, week40.id, at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'PERIOD_LOCKED', status: 409 });
+      expect(await refusal(as((tx) => periods.judge(tx, week40.id, PROJECT, at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'PERIOD_LOCKED', status: 409 });
       expect(await refusal(as((tx) => periods.lock(tx, week40.id, 3, memberId(ACTOR), at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'PERIOD_STATE_INVALID', status: 409, detail: 'status' });
-      expect(await refusal(as((tx) => periods.judge(tx, randomUUID(), at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      expect(await refusal(as((tx) => periods.judge(tx, randomUUID(), PROJECT, at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
     });
 
     it('does not let a tenant move the period of another', async () => {
@@ -212,14 +213,32 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
 
       const requestId = randomUUID();
       await owner(
-        `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, status, created_by, updated_by)
-         values ($1, $2, $3, 'PERIOD', 'Correction of the figures after the lock', $4, 'REQUESTED', $4, $4)`,
+        `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, requested_window_hours, status, created_by, updated_by)
+         values ($1, $2, $3, 'PERIOD', 'Correction of the figures after the lock', $4, 24, 'REQUESTED', $4, $4)`,
         [TENANT_A, requestId, week40.id, memberId(ACTOR)],
       );
-      const history = await as((tx) => periods.reopens(tx, [week40.id, (head as PeriodRow).id]));
-      expect(history.get(week40.id)).toEqual([{ id: requestId, periodId: week40.id, scopeKind: 'PERIOD', status: 'REQUESTED', windowUntil: null, requestedAt: expect.stringMatching(/Z$/) }]);
+      const history = await as((tx) => periods.reopens(tx, [week40.id, (head as PeriodRow).id], at('2026-10-05T00:00:00Z')));
+      expect(history.get(week40.id)).toEqual([
+        {
+          id: requestId,
+          periodId: week40.id,
+          scopeKind: 'PERIOD',
+          status: 'REQUESTED',
+          windowUntil: null,
+          requestedAt: expect.stringMatching(/Z$/),
+          reason: 'Correction of the figures after the lock',
+          requestedBy: memberId(ACTOR),
+          requestedWindowHours: 24,
+          approvedBy: null,
+          decidedBy: null,
+          decidedAt: null,
+          decisionReason: null,
+          projects: [],
+          version: 1,
+        },
+      ]);
       expect(history.get((head as PeriodRow).id)).toBeUndefined();
-      expect((await as((tx) => periods.reopens(tx, []))).size).toBe(0);
+      expect((await as((tx) => periods.reopens(tx, [], at('2026-10-05T00:00:00Z')))).size).toBe(0);
     });
   });
 
@@ -233,9 +252,9 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       await generate(2026, '2026-09-15T00:00:00Z', TENANT_B);
       const bound = await byCode('W2026-40', TENANT_B);
       expect(bound).toMatchObject({ calendarRevision: 2, startDate: '2026-09-27', deadlineAt: '2026-10-02T03:00:00.000Z' });
-      const late = await as((tx) => periods.judge(tx, bound.id, at('2026-10-02T03:00:01Z')), TENANT_B);
-      const inTime = await as((tx) => periods.judge(tx, bound.id, at('2026-10-02T02:59:59Z')), TENANT_B);
-      const onTheDot = await as((tx) => periods.judge(tx, bound.id, at('2026-10-02T03:00:00Z')), TENANT_B);
+      const late = await as((tx) => periods.judge(tx, bound.id, PROJECT, at('2026-10-02T03:00:01Z')), TENANT_B);
+      const inTime = await as((tx) => periods.judge(tx, bound.id, PROJECT, at('2026-10-02T02:59:59Z')), TENANT_B);
+      const onTheDot = await as((tx) => periods.judge(tx, bound.id, PROJECT, at('2026-10-02T03:00:00Z')), TENANT_B);
       expect([late.late, inTime.late, onTheDot.late]).toEqual([true, false, false]);
 
       // The same week generated under version 1 stays due on Saturday after version 2 exists.
@@ -243,10 +262,10 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       await generate(2026, '2026-08-15T00:00:00Z', TENANT_B);
       const older = await byCode('W2026-40', TENANT_B);
       expect(older).toMatchObject({ calendarRevision: 1, deadlineAt: '2026-10-03T03:00:00.000Z' });
-      expect((await as((tx) => periods.judge(tx, older.id, at('2026-10-02T03:00:01Z')), TENANT_B)).late).toBe(false);
-      expect((await as((tx) => periods.judge(tx, older.id, at('2026-10-03T03:00:01Z')), TENANT_B)).late).toBe(true);
+      expect((await as((tx) => periods.judge(tx, older.id, PROJECT, at('2026-10-02T03:00:01Z')), TENANT_B)).late).toBe(false);
+      expect((await as((tx) => periods.judge(tx, older.id, PROJECT, at('2026-10-03T03:00:01Z')), TENANT_B)).late).toBe(true);
       // The stored deadline is the one the bound version gives.
-      expect((await as((tx) => periods.judge(tx, older.id, at('2026-10-03T03:00:01Z')), TENANT_B)).deadlineAt).toBe(older.deadlineAt);
+      expect((await as((tx) => periods.judge(tx, older.id, PROJECT, at('2026-10-03T03:00:01Z')), TENANT_B)).deadlineAt).toBe(older.deadlineAt);
     });
   });
 

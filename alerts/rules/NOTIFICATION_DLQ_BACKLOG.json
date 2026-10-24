@@ -1,0 +1,14 @@
+{
+  "id": "NOTIFICATION_DLQ_BACKLOG",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/NOTIFICATION_DLQ_BACKLOG.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "notification_dlq_gauge",
+    "above": 50
+  },
+  "summary": "More than 50 notifications of a tenant ended Failed or Unknown and wait in the failed queue."
+}

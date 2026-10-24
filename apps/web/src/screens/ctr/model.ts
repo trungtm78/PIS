@@ -66,6 +66,11 @@ export interface RevisionLine {
   amountVnd: string;
   documentVersionId: string;
   validFrom: string;
+  /** The version of the revision that a command on it (the import of its BOQ) must name. */
+  version: number;
+  /** What the lines of its BOQ add up to and how many there are, as the server counted them (BR-CTR-02); undefined when the answer has none. */
+  boqTotalVnd: string | undefined;
+  boqLineCount: number | undefined;
 }
 
 export interface PartyLine {
@@ -136,7 +141,20 @@ function toRevision(raw: unknown): RevisionLine[] {
   const revision = whole(row?.revision);
   const amount = text(row?.amount_vnd);
   if (row === undefined || id === undefined || revision === undefined || amount === undefined) return [];
-  return [{ id, revision, kind: text(row.kind) ?? '', status: text(row.status) ?? '', amountVnd: amount, documentVersionId: text(row.document_version_id) ?? '', validFrom: text(row.valid_from) ?? '' }];
+  return [
+    {
+      id,
+      revision,
+      kind: text(row.kind) ?? '',
+      status: text(row.status) ?? '',
+      amountVnd: amount,
+      documentVersionId: text(row.document_version_id) ?? '',
+      validFrom: text(row.valid_from) ?? '',
+      version: whole(row.version) ?? 1,
+      boqTotalVnd: text(row.boq_total_vnd),
+      boqLineCount: whole(row.boq_line_count),
+    },
+  ];
 }
 
 function toParty(raw: unknown): PartyLine[] {

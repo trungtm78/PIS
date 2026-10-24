@@ -1,8 +1,21 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { statusLabel, statusTone } from './labels';
 import type { PeriodStatus } from './model';
 import './dis.css';
+
+/** The link above the title that the mockup of a screen carries: an arrow and the name of the screen it comes from. */
+export function BackLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <p className="dis-back-link">
+      <Link to={to}>
+        <span aria-hidden="true">← </span>
+        {children}
+      </Link>
+    </p>
+  );
+}
 
 export interface FieldProps {
   id: string;

@@ -35,6 +35,31 @@ function amountOf(value: unknown): string {
   return value;
 }
 
+/**
+ * What is known about a project when the rule is read for it. A fact the project does not have yet (the group of a project is set at
+ * appraisal, its kind of works may not be chosen) is `null` or empty, and a rule that depends on it is NOT used to leave the permit out:
+ * a permit missing from the list of a dossier is a legal risk nobody sees, a permit too many is one click for the officer who knows better.
+ */
+export interface ProjectFacts {
+  projectGroup: string | null;
+  /** The business keys of the project type and the sector of the project, upper case. */
+  workTypes: readonly string[];
+  /** Whole VND as digits. */
+  totalInvestmentVnd: string;
+}
+
+/** Whether a stored condition (see `checkApplicability`) applies to a project. Every key present must hold; an absent key constrains nothing. */
+export function appliesTo(rule: Record<string, unknown>, facts: ProjectFacts): boolean {
+  const groups = rule.project_group_keys as string[] | undefined;
+  if (groups !== undefined && facts.projectGroup !== null && !groups.includes(facts.projectGroup)) return false;
+  const workTypes = rule.work_types as string[] | undefined;
+  if (workTypes !== undefined && facts.workTypes.length > 0 && !workTypes.some((key) => facts.workTypes.includes(key))) return false;
+  const min = rule.min_total_investment_vnd as string | undefined;
+  if (min !== undefined && compareDecimal(facts.totalInvestmentVnd, min) < 0) return false;
+  const max = rule.max_total_investment_vnd as string | undefined;
+  return max === undefined || compareDecimal(facts.totalInvestmentVnd, max) <= 0;
+}
+
 /** The condition as it is stored: refused when it has an unknown key or a bad value, otherwise with its lists sorted and without repeats. */
 export function checkApplicability(rule: unknown): Record<string, unknown> {
   if (typeof rule !== 'object' || rule === null || Array.isArray(rule)) throw invalid();

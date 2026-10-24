@@ -83,6 +83,9 @@ export interface RevisionRow {
   decidedAt: string | null;
   version: number;
   createdAt: string;
+  /** What the lines of the BOQ add up to (an exact decimal string in VND) and how many there are: the screens compare it with `amountVnd` (BR-CTR-02). */
+  boqTotalVnd: string;
+  boqLineCount: number;
   reach: ContractPlace;
 }
 
@@ -268,6 +271,8 @@ interface RevisionSql {
   decided_at: string | null;
   version: string;
   created_at: string;
+  boq_total_vnd: string;
+  boq_line_count: number;
   project_id: string;
   owner_unit_id: string;
   owner_unit_path: string;
@@ -287,10 +292,10 @@ interface PartySql {
   version: string;
 }
 
-const TIMESTAMP = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
+export const TIMESTAMP = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
 
 /** The contract with the project and the two units its scope is judged by: the aliases `c`, `p`, `ou` and `iu` are those of `projectScope`. */
-const SCOPE_FROM = `machvon.contract c
+export const SCOPE_FROM = `machvon.contract c
   join machvon.project p on p.tenant_id = c.tenant_id and p.id = c.project_id
   join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
   left join machvon.organization_unit iu on iu.tenant_id = p.tenant_id and iu.id = p.investor_unit_id`;
@@ -315,7 +320,9 @@ const REVISION_FROM = `from machvon.contract_revision r
 const REVISION_KEY = `(c.code || '#' || lpad(r.revision::text, 6, '0'))`;
 const REVISION_COLUMNS = `r.id, r.contract_id, c.code as contract_code, r.revision, r.kind, r.status, r.amount_vnd::text as amount_vnd, r.document_version_id,
   r.valid_from::text as valid_from, r.valid_until::text as valid_until, r.retroactive, ${TIMESTAMP('r.decided_at')} as decided_at, r.version::text as version,
-  ${TIMESTAMP('r.created_at')} as created_at, c.project_id, ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path`;
+  ${TIMESTAMP('r.created_at')} as created_at, c.project_id, ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path,
+  (select coalesce(sum(l.amount_vnd), 0)::text from machvon.boq_line l where l.tenant_id = r.tenant_id and l.contract_revision_id = r.id) as boq_total_vnd,
+  (select count(*)::int from machvon.boq_line l where l.tenant_id = r.tenant_id and l.contract_revision_id = r.id) as boq_line_count`;
 
 const reachOf = (contractId: string, row: { project_id: string; owner_unit_id: string; owner_unit_path: string; investor_unit_id: string | null; investor_unit_path: string | null }): ContractPlace => ({
   contractId,
@@ -360,6 +367,8 @@ const toRevision = (row: RevisionSql): RevisionRow => ({
   decidedAt: row.decided_at,
   version: Number(row.version),
   createdAt: row.created_at,
+  boqTotalVnd: row.boq_total_vnd,
+  boqLineCount: row.boq_line_count,
   reach: reachOf(row.contract_id, row),
 });
 
@@ -378,7 +387,7 @@ const toParty = (row: PartySql): PartyRow => ({
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
 /** A code or a title as it is stored: trimmed, within its length, without control characters. */
-function textOf(value: string, field: string, max: number): string {
+export function textOf(value: string, field: string, max: number): string {
   const text = value.trim();
   // eslint-disable-next-line no-control-regex
   if (text.length < 1 || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);

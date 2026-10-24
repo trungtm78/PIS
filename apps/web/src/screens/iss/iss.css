@@ -1,0 +1,84 @@
+.iss-back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+.iss-back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
+.iss-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .iss-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.iss-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(0, 1fr));
+  align-items: end;
+  margin-bottom: 12px;
+}
+.iss-board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  align-items: start;
+}
+.iss-column {
+  padding: 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+}
+.iss-column h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.iss-card {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 8px;
+  padding: 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.iss-card p {
+  margin: 0;
+}
+.iss-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.iss-badge.warning {
+  border-color: var(--shell-warning, #b45309);
+}
+.iss-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 8px 0 0;
+}
+.iss-timeline {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+.iss-timeline li {
+  margin: 0 0 12px;
+}
+.iss-timeline p {
+  margin: 0;
+}
+.iss-note {
+  white-space: pre-wrap;
+}

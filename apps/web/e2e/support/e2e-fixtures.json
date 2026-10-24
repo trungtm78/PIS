@@ -86,6 +86,39 @@
       ]
     },
     {
+      "key": "issueCoordinator",
+      "displayName": "Điều phối vướng mắc",
+      "membershipId": "00000000-0000-4000-8000-00000000007a",
+      "permissions": [
+        "issue.read",
+        "issue.create",
+        "issue.assign",
+        "issue.work",
+        "project.read",
+        "organization_unit.read",
+        "master.read"
+      ]
+    },
+    {
+      "key": "issueWorker",
+      "displayName": "Cán bộ xử lý vướng mắc",
+      "membershipId": "00000000-0000-4000-8000-00000000007b",
+      "permissions": [
+        "issue.read",
+        "issue.work",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "issueReader",
+      "displayName": "Người xem vướng mắc",
+      "membershipId": "00000000-0000-4000-8000-00000000007c",
+      "permissions": [
+        "issue.read",
+        "organization_unit.read"
+      ]
+    },
+    {
       "key": "projectManager",
       "displayName": "Cán bộ quản lý dự án",
       "membershipId": "00000000-0000-4000-8000-0000000000b1",
@@ -105,6 +138,30 @@
         "project.read",
         "organization_unit.read",
         "master.read"
+      ]
+    },
+    {
+      "key": "stageManager",
+      "displayName": "Người điều hành vòng đời dự án",
+      "membershipId": "00000000-0000-4000-8000-0000000000c1",
+      "permissions": [
+        "project.read",
+        "project.stage.implement",
+        "project.stage.suspend",
+        "project.stage.complete",
+        "project.stage.close",
+        "project.stage.cancel",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "stageCanceller",
+      "displayName": "Người hủy dự án",
+      "membershipId": "00000000-0000-4000-8000-0000000000c2",
+      "permissions": [
+        "project.read",
+        "project.stage.cancel",
+        "organization_unit.read"
       ]
     },
     {
@@ -161,6 +218,25 @@
       ]
     },
     {
+      "key": "reopenRequester",
+      "displayName": "Cán bộ đề nghị mở lại kỳ",
+      "membershipId": "00000000-0000-4000-8000-0000000000b9",
+      "permissions": [
+        "period.reopen.request",
+        "reporting_period.read",
+        "project.read"
+      ]
+    },
+    {
+      "key": "reopenApprover",
+      "displayName": "Người duyệt mở lại kỳ",
+      "membershipId": "00000000-0000-4000-8000-0000000000ba",
+      "permissions": [
+        "period.reopen.approve",
+        "reporting_period.read"
+      ]
+    },
+    {
       "key": "dgvSteward",
       "displayName": "Quản trị danh mục dữ liệu",
       "membershipId": "00000000-0000-4000-8000-0000000000a1",
@@ -176,6 +252,70 @@
       "membershipId": "00000000-0000-4000-8000-0000000000a2",
       "permissions": [
         "data.catalog.read"
+      ]
+    },
+    {
+      "key": "docDrafter",
+      "displayName": "Chuyên viên soạn thảo",
+      "membershipId": "00000000-0000-4000-8000-0000000000d4",
+      "permissions": [
+        "doc.outgoing.read",
+        "doc.outgoing.create",
+        "doc.outgoing.edit",
+        "doc.outgoing.submit",
+        "doc.outgoing.cancel",
+        "doc.render",
+        "document_version.read",
+        "doc.template.read",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "docReviewer",
+      "displayName": "Người rà soát văn bản",
+      "membershipId": "00000000-0000-4000-8000-0000000000d5",
+      "permissions": [
+        "doc.outgoing.read",
+        "doc.outgoing.review",
+        "doc.outgoing.cancel",
+        "document_version.read"
+      ]
+    },
+    {
+      "key": "docHead",
+      "displayName": "Trưởng phòng soạn thảo",
+      "membershipId": "00000000-0000-4000-8000-0000000000d6",
+      "permissions": [
+        "doc.outgoing.read",
+        "doc.outgoing.create",
+        "doc.outgoing.edit",
+        "doc.outgoing.submit",
+        "doc.outgoing.review",
+        "doc.render",
+        "document_version.read",
+        "doc.template.read",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "docReader",
+      "displayName": "Người xem văn bản đi",
+      "membershipId": "00000000-0000-4000-8000-0000000000d7",
+      "permissions": [
+        "doc.outgoing.read"
+      ]
+    },
+    {
+      "key": "docClerk",
+      "displayName": "Văn thư tiếp nhận văn bản ký ngoài",
+      "membershipId": "00000000-0000-4000-8000-0000000000d8",
+      "permissions": [
+        "doc.outgoing.read",
+        "doc.outgoing.upload_signed",
+        "doc.outgoing.register_external",
+        "doc.file.upload",
+        "doc.register.read",
+        "organization_unit.read"
       ]
     },
     {
@@ -298,6 +438,14 @@
       ]
     },
     {
+      "key": "notificationReader",
+      "displayName": "Người xem hàng đợi gửi",
+      "membershipId": "00000000-0000-4000-8000-0000000000f3",
+      "permissions": [
+        "delivery_attempt.read"
+      ]
+    },
+    {
       "key": "sysAdmin",
       "displayName": "Nguyễn An",
       "initials": "AN",
@@ -311,6 +459,90 @@
       "audience": "control",
       "roles": [
         "SystemAdmin"
+      ]
+    },
+    {
+      "key": "permitOfficer",
+      "displayName": "Chuyên viên pháp lý dự án",
+      "membershipId": "00000000-0000-4000-8000-0000000000c8",
+      "permissions": [
+        "permit.manage",
+        "permit.record",
+        "permit.read",
+        "project.read",
+        "organization_unit.read",
+        "master.read"
+      ]
+    },
+    {
+      "key": "permitManager",
+      "displayName": "Cán bộ giữ hồ sơ pháp lý",
+      "membershipId": "00000000-0000-4000-8000-0000000000c9",
+      "permissions": [
+        "permit.manage",
+        "permit.read",
+        "project.read",
+        "organization_unit.read",
+        "master.read"
+      ]
+    },
+    {
+      "key": "permitReader",
+      "displayName": "Người xem hồ sơ pháp lý",
+      "membershipId": "00000000-0000-4000-8000-0000000000ca",
+      "permissions": [
+        "permit.read"
+      ]
+    },
+    {
+      "key": "ctrOfficer",
+      "displayName": "Chuyên viên hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000071",
+      "permissions": [
+        "contract.read",
+        "contract.create",
+        "contract.update",
+        "contract_revision.read",
+        "boq.manage",
+        "boq_line.read",
+        "guarantee.manage",
+        "guarantee.verify",
+        "guarantee.release",
+        "guarantee.read"
+      ]
+    },
+    {
+      "key": "ctrAccountant",
+      "displayName": "Kế toán trưởng",
+      "membershipId": "00000000-0000-4000-8000-000000000072",
+      "permissions": [
+        "contract.read",
+        "guarantee.verify",
+        "guarantee.release",
+        "guarantee.manage",
+        "guarantee.read",
+        "ledger.read"
+      ]
+    },
+    {
+      "key": "ctrChecker",
+      "displayName": "Kế toán kiểm tra",
+      "membershipId": "00000000-0000-4000-8000-000000000073",
+      "permissions": [
+        "contract.read",
+        "guarantee.verify",
+        "guarantee.release",
+        "guarantee.read"
+      ]
+    },
+    {
+      "key": "ctrReader",
+      "displayName": "Người xem hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000074",
+      "permissions": [
+        "contract.read",
+        "boq_line.read",
+        "guarantee.read"
       ]
     },
     {

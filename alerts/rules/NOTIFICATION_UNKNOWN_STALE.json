@@ -1,0 +1,14 @@
+{
+  "id": "NOTIFICATION_UNKNOWN_STALE",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/NOTIFICATION_UNKNOWN_STALE.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "notification_unknown_oldest_seconds",
+    "above": 3600
+  },
+  "summary": "A send whose result was lost has stayed Unknown for more than an hour."
+}

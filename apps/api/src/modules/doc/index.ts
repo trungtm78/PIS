@@ -1,25 +1,34 @@
 import { defineModule } from '../module-descriptor';
+import { DocumentFilesController } from './document-files.controller';
 import { DocumentVersionReadsController, DocumentsController } from './documents.controller';
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from './file-port';
+import type { DocumentFilePort } from './file-port';
+import type { MetricsSink } from '@machvon/kernel';
 import { OutgoingController } from './outgoing.controller';
+import { IssueRequestsController } from './issue-requests.controller';
+import { DocumentIssueService } from './issue-request.service';
+import { OutgoingDraftsController } from './outgoing-drafts.controller';
+import { SignedDocumentsController } from './signed-documents.controller';
 import { PdfLibRenderer, loadRendererResources } from './pdf-renderer';
 import type { RendererResources } from './pdf-renderer';
 import { RegistersController } from './registers.controller';
 import { SignaturesController } from './signatures.controller';
 import { UnconfiguredSigningPort } from './signing-adapters';
 import { DocumentTemplatesController } from './templates.controller';
-import { DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
+import { DOC_CLOCK, DOC_METRICS, DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
 import { StaticTrustStoreProvider, UnavailableRevocationPort, loadTrustAnchors } from './trust-anchors';
 
 /**
  * DOC, documents: the anchor and file versions, deterministic PDF rendering, document types and number registers
  * (ST-DOC-001, ST-DOC-002), the verification of PDF signatures (ST-DOC-003) and the outgoing documents with leader signing,
- * numbering and the organisation seal (ST-DOC-005) and the template library with its separated legal confirmation
- * (ST-DOC-006). The issue, delivery and incoming flows join it in later slices.
+ * numbering and the organisation seal (ST-DOC-005), the template library with its separated legal confirmation
+ * (ST-DOC-006), the composing, review and lock of outgoing documents (ST-DOC-007) and the issue-request and document-reference ports for source
+ * modules (ST-DOC-008) and the documents signed outside the system (ST-DOC-009, the production path while no certification authority sandbox exists).
+ * The issue, delivery and incoming flows join it in later slices.
  */
 export const docModule = defineModule({
   code: 'DOC',
-  controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, RegistersController, SignaturesController, DocumentTemplatesController],
+  controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController, DocumentTemplatesController],
   providers: [
     // The object storage of the platform replaces the in-memory adapter when it is bound (KERNEL-024).
     { provide: DOCUMENT_FILE_PORT, useValue: new MockDocumentFilePort() },
@@ -33,5 +42,11 @@ export const docModule = defineModule({
     // No certification authority adapter exists yet (DOC-SPK-01): signing answers PROVIDER_UNAVAILABLE until one is bound.
     { provide: DOC_SIGNING_PORT, useValue: new UnconfiguredSigningPort() },
     { provide: DOC_STATE_TEXT, useFactory: (resources: RendererResources) => resources.text, inject: [DOC_RESOURCES] },
+    // The port that source modules ask for documents through; the event consumer of the workers uses the same instance.
+    {
+      provide: DocumentIssueService,
+      useFactory: (files: DocumentFilePort, metrics?: MetricsSink, clock?: () => Date) => new DocumentIssueService(files, metrics, clock),
+      inject: [DOCUMENT_FILE_PORT, { token: DOC_METRICS, optional: true }, { token: DOC_CLOCK, optional: true }],
+    },
   ],
 });

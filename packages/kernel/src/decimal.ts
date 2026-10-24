@@ -116,6 +116,13 @@ export function subtractDecimal(a: string, b: string): string {
   return renderSigned(left - right, scale);
 }
 
+/** Exact product `a * b`, written with the sum of the two scales: no digit is lost, so a caller rounds it once with `roundDecimal`. */
+export function multiplyDecimal(a: string, b: string): string {
+  const x = parse(a);
+  const y = parse(b);
+  return render(x.negative !== y.negative, x.units * y.units, x.scale + y.scale);
+}
+
 /** -1, 0 or 1 as `a` is less than, equal to or greater than `b`; scales do not matter (`1.0` equals `1`). */
 export function compareDecimal(a: string, b: string): -1 | 0 | 1 {
   const { left, right } = align(a, b);

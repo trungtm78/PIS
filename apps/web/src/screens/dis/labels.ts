@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../i18n';
-import type { FieldProblem, PeriodMove, PeriodStatus, ProblemReason, ReopenScope, ReopenStatus } from './model';
+import type { FieldProblem, PeriodMove, PeriodStatus, ProblemReason, ReopenField, ReopenFieldProblem, ReopenScope, ReopenStatus } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -82,7 +82,50 @@ export function problemMessage(t: Translate, reason: ProblemReason): string {
       return t('dis.calendar.problem.validation.error');
     case 'denied':
       return t('dis.calendar.problem.denied.error');
+    case 'reasonRequired':
+    case 'selfApproval':
     case 'general':
       return t('dis.calendar.problem.general.error');
+  }
+}
+
+/** The sentence for a problem of a field of the request and decision forms of DIS-22; the minimum of the reason differs between the two. */
+export function reopenFieldMessage(t: Translate, problem: ReopenFieldProblem, field: ReopenField | 'decisionReason' = 'reason'): string {
+  switch (problem) {
+    case 'required':
+      return t('dis.reopen.field.required.error');
+    case 'tooShort':
+      return field === 'decisionReason' ? t('dis.reopen.field.decisionShort.error') : t('dis.reopen.field.reasonShort.error');
+    case 'tooLong':
+      return t('dis.reopen.field.tooLong.error');
+    case 'tooMany':
+      return t('dis.reopen.field.tooMany.error');
+    case 'invalidHours':
+      return t('dis.reopen.field.hours.error');
+  }
+}
+
+/** The sentence for the refusal of a command of DIS-22; a problem the screen has no sentence for is the general one. */
+export function reopenProblemMessage(t: Translate, reason: ProblemReason): string {
+  switch (reason) {
+    case 'stateInvalid':
+      return t('dis.reopen.problem.stateInvalid.error');
+    case 'versionConflict':
+      return t('dis.reopen.problem.versionConflict.error');
+    case 'notFound':
+      return t('dis.reopen.problem.notFound.error');
+    case 'validation':
+      return t('dis.reopen.problem.validation.error');
+    case 'denied':
+      return t('dis.reopen.problem.denied.error');
+    case 'reasonRequired':
+      return t('dis.reopen.problem.reasonRequired.error');
+    case 'selfApproval':
+      return t('dis.reopen.problem.selfApproval.error');
+    case 'overlap':
+    case 'noCalendar':
+    case 'beforeDeadline':
+    case 'general':
+      return t('dis.reopen.problem.general.error');
   }
 }

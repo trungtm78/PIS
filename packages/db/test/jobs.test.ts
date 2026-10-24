@@ -184,6 +184,23 @@ describe('standard jobs', () => {
     expect(visited).toEqual([TENANT_A, TENANT_B]);
   });
 
+  it('stores the end of the reopening windows of every tenant and keeps going when one fails (dis-reopen-expiry, ST-DIS-002)', async () => {
+    const visited: string[] = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      disReopens: {
+        expire: async (ctx) => {
+          visited.push(ctx.tenantId);
+          if (ctx.tenantId === TENANT_A) throw new Error('boom');
+        },
+      },
+    });
+    await expect(handlers.find((handler) => handler.name === 'dis-reopen-expiry')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(visited).toEqual([TENANT_A, TENANT_B]);
+  });
+
   it('keeps going when one tenant fails to activate, reports it, and still sets the gauge for the others', async () => {
     const gauges: number[] = [];
     const handlers = standardJobs({
@@ -214,11 +231,14 @@ describe('standard jobs', () => {
       masterData: { activateDue: async () => ({ changed: 0, pendingReviews: 0 }) },
       masterBaseline: { apply: async () => undefined },
       disPeriods: { autoclose: async () => undefined },
+      disReopens: { expire: async () => undefined },
       retention: { run: async () => ({ pending: 0 }) },
+      guaranteeExpiry: { run: async () => ({ expiring: {}, advanceAtRisk: 0 }) },
       inbox: { processDue: async () => undefined },
+      notificationDelivery: { dispatchDue: async () => undefined, reconcile: async () => undefined },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'retention-purge', 'integration-inbox', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

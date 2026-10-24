@@ -1,4 +1,5 @@
-import { checkApplicability } from '../src/pmt-permit-applicability';
+import { appliesTo, checkApplicability } from '../src/pmt-permit-applicability';
+import type { ProjectFacts } from '../src/pmt-permit-applicability';
 
 const refusal = (rule: unknown): { code: string; status: number; detail: string | undefined } | undefined => {
   try {
@@ -48,5 +49,40 @@ describe('the applicability condition of a permit type (PMT 6, applies_to_rule)'
     ['a minimum above the maximum', { min_total_investment_vnd: '10', max_total_investment_vnd: '9' }],
   ])('refuses %s as a 422 naming applies_to_rule', (_name, rule) => {
     expect(refusal(rule)).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'applies_to_rule' });
+  });
+});
+
+describe('reading the condition of a permit type against a project (ST-PMT-002, createPermitDossier)', () => {
+  const facts = (overrides: Partial<ProjectFacts> = {}): ProjectFacts => ({ projectGroup: 'B', workTypes: ['ROAD', 'TRANSPORT'], totalInvestmentVnd: '1000000', ...overrides });
+
+  it('applies the empty condition to every project', () => {
+    expect(appliesTo({}, facts())).toBe(true);
+    expect(appliesTo({}, facts({ projectGroup: null, workTypes: [] }))).toBe(true);
+  });
+
+  it.each([
+    ['a group in the list', { project_group_keys: ['A', 'B'] }, true],
+    ['a group outside the list', { project_group_keys: ['A', 'C'] }, false],
+    ['a kind of works the project has', { work_types: ['BRIDGE', 'ROAD'] }, true],
+    ['a kind of works the project does not have', { work_types: ['BRIDGE'] }, false],
+    ['the sector of the project counted as a kind of works', { work_types: ['TRANSPORT'] }, true],
+    ['an investment on the minimum', { min_total_investment_vnd: '1000000' }, true],
+    ['an investment one below the minimum', { min_total_investment_vnd: '1000001' }, false],
+    ['an investment on the maximum', { max_total_investment_vnd: '1000000' }, true],
+    ['an investment one above the maximum', { max_total_investment_vnd: '999999' }, false],
+    ['every key at once, all held', { project_group_keys: ['B'], work_types: ['ROAD'], min_total_investment_vnd: '1', max_total_investment_vnd: '2000000' }, true],
+    ['every key at once, one not held', { project_group_keys: ['B'], work_types: ['ROAD'], min_total_investment_vnd: '2000000' }, false],
+  ])('%s', (_name, rule, applies) => {
+    expect(appliesTo(rule, facts())).toBe(applies);
+  });
+
+  it('compares the investment as an exact decimal, beyond the range of a double', () => {
+    expect(appliesTo({ min_total_investment_vnd: '9007199254740993' }, facts({ totalInvestmentVnd: '9007199254740992' }))).toBe(false);
+    expect(appliesTo({ max_total_investment_vnd: '9007199254740992' }, facts({ totalInvestmentVnd: '9007199254740993' }))).toBe(false);
+  });
+
+  it('does not leave a permit out for a fact the project does not have yet: no group and no kind of works keep the rule that names them in', () => {
+    expect(appliesTo({ project_group_keys: ['A'] }, facts({ projectGroup: null }))).toBe(true);
+    expect(appliesTo({ work_types: ['BRIDGE'] }, facts({ workTypes: [] }))).toBe(true);
   });
 });

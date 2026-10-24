@@ -16,7 +16,7 @@ import {
   ThemeStore,
   UserSessionStore,
 } from '@machvon/db';
-import type { InboxHandlerRegistry } from '@machvon/db';
+import type { DeliveryEngine, InboxHandlerRegistry } from '@machvon/db';
 import { ConsoleSpanExporter, NoopSpanExporter, OtlpHttpSpanExporter, Tracer, loadErrorRegistry } from '@machvon/kernel';
 import type { AlertSink, SpanExporter, TimerPort } from '@machvon/kernel';
 import { Pool } from 'pg';
@@ -33,6 +33,11 @@ import type { ReadinessProbe } from './health/health.controller';
 import { INVITATION_MAILER } from './modules/adm/invitation-mailer';
 import type { InvitationMailer } from './modules/adm/invitation-mailer';
 import { ADM_INBOX_HANDLERS } from './modules/adm/tokens';
+import { CHANNEL_ADAPTERS } from './notifications/delivery/channel-adapters';
+import type { ChannelAdapterRegistry } from './notifications/delivery/channel-adapters';
+import { DeliveryDispatcher } from './notifications/delivery/dispatcher';
+import { DELIVERY_ENGINE } from './notifications/delivery/tokens';
+import { PermissionResourceAccess } from './notifications/resource-access-port';
 import { FileService } from './modules/files';
 import { EnvironmentLicenseKeyStore } from './modules/sas/license-signer';
 import { operationIdOf } from './operation-id.decorator';
@@ -44,6 +49,8 @@ import type { WorkflowRunner } from './provisioning/workflow-runner';
 import { DatabaseTenantRuntime } from './session/tenant-runtime';
 import { UserSessionDenyList } from './session/user-session-deny-list';
 import { requestTelemetry } from './telemetry/request-telemetry';
+import { DocumentIssueConsumer } from './modules/doc/issue-consumer';
+import { DocumentIssueService } from './modules/doc/issue-request.service';
 import { createOutboxConsumers } from './workers/outbox-consumers';
 import { createOutboxPublisher } from './workers/outbox-publisher';
 import { startWorkers } from './workers/workers';
@@ -187,7 +194,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
     })
     class RootModule {}
 
-    app = await NestFactory.create<NestExpressApplication>(RootModule, { bodyParser: false, logger: ['error', 'warn'] });
+    app = await NestFactory.create<NestExpressApplication>(RootModule, { bodyParser: false, rawBody: true, logger: ['error', 'warn'] });
     app.use(requestTelemetry(tracer));
     // The body size limit applies before any route parses a body; an oversized body is a 413 problem, never a crash.
     app.useBodyParser('json', { limit: config.maxBodyBytes });
@@ -221,7 +228,22 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
         security,
         runner: workflowRunner,
       });
-      const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning });
+      // The delivery engine and the adapters are the ones the controllers use (the webhook, replay and cancel): the dispatcher of the workers must not own a second set.
+      const delivery = app.get<DeliveryEngine>(DELIVERY_ENGINE, { strict: false });
+      const dispatcher = new DeliveryDispatcher(
+        {
+          database: tenants,
+          engine: delivery,
+          adapters: app.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }),
+          loadAccess: (ctx) => access.load(ctx),
+          resourceAccess: new PermissionResourceAccess(),
+          alerts,
+        },
+        process.env.MACHVON_ENVIRONMENT,
+      );
+      // The issue requests of the source modules (DOC): the same service that answers the REST port, with the same file store.
+      const docIssue = new DocumentIssueConsumer({ database: tenants, service: app.get(DocumentIssueService, { strict: false }), security });
+      const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning, delivery, docIssue });
       workers = startWorkers(
         {
           tenants,
@@ -236,6 +258,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           payloads: app.get(FileService, { strict: false }),
           // The adapters that modules register for their inbound provider events are served by the inbox job (ST-ADM-018).
           inboxHandlers: app.get<InboxHandlerRegistry>(ADM_INBOX_HANDLERS, { strict: false }),
+          // The sends that are due go out, and the ones whose result was lost are asked about (ST-NOT-002).
+          notificationDelivery: dispatcher,
         },
         { ...(overrides.timers === undefined ? {} : { timers: overrides.timers }), ...(overrides.workerLog === undefined ? {} : { log: overrides.workerLog }) },
       );

@@ -1,0 +1,13 @@
+{
+  "id": "CHANNEL_CIRCUIT_OPEN",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/CHANNEL_CIRCUIT_OPEN.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "CHANNEL_CIRCUIT_OPEN"
+  },
+  "summary": "The circuit breaker of a channel account has stayed open for ten minutes."
+}

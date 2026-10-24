@@ -111,14 +111,14 @@ describe('ControlEventTypeCatalog and PayloadValidator against notification_even
 describe('definitionOf (the part of workflow_version.definition_json the core reads)', () => {
   it('applies the defaults to an empty or missing definition', () => {
     for (const raw of [{}, null, undefined, [], 'text']) {
-      expect(definitionOf(raw)).toEqual({ resolver: { kind: 'explicit' }, priority: 'NORMAL', ackRequired: false, expiresAfterMinutes: 10_080, purpose: 'OPERATIONAL' });
+      expect(definitionOf(raw)).toEqual({ channels: [{ channel: 'IN_APP' }], resolver: { kind: 'explicit' }, priority: 'NORMAL', ackRequired: false, expiresAfterMinutes: 10_080, purpose: 'OPERATIONAL' });
     }
   });
 
   it('reads every member', () => {
     expect(
       definitionOf({ resolver: { kind: 'role-in-scope', roles: ['LEADER', 'SPECIALIST'] }, priority: 'CRITICAL', ackRequired: true, expiresAfterMinutes: 60, purpose: 'SECURITY' }),
-    ).toEqual({ resolver: { kind: 'role-in-scope', roles: ['LEADER', 'SPECIALIST'] }, priority: 'CRITICAL', ackRequired: true, expiresAfterMinutes: 60, purpose: 'SECURITY' });
+    ).toEqual({ channels: [{ channel: 'IN_APP' }], resolver: { kind: 'role-in-scope', roles: ['LEADER', 'SPECIALIST'] }, priority: 'CRITICAL', ackRequired: true, expiresAfterMinutes: 60, purpose: 'SECURITY' });
   });
 
   it.each([

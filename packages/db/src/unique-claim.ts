@@ -4,16 +4,16 @@ import type { TenantTx } from './tenant-database.ts';
 const UNIQUE_VIOLATION = '23505';
 const SAVEPOINT = 'unique_claim';
 
-/** The unique constraint that guards a claim and the refusal that a second claim gets. */
+/** The unique constraint (or constraints) that guard a claim and the refusal that a second claim gets. */
 export interface UniqueClaim {
-  constraint: string;
+  constraint: string | readonly string[];
   code: string;
   status?: number;
 }
 
-function violates(error: unknown, constraint: string): boolean {
+function violates(error: unknown, constraint: string | readonly string[]): boolean {
   const { code, constraint: violated } = (error ?? {}) as { code?: string; constraint?: string };
-  return code === UNIQUE_VIOLATION && violated === constraint;
+  return code === UNIQUE_VIOLATION && violated !== undefined && (typeof constraint === 'string' ? violated === constraint : constraint.includes(violated));
 }
 
 /**

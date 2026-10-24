@@ -164,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'decideAppropriation', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -370,6 +370,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           `insert into machvon.contract_revision (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, version, created_by)
            values ($1, $2, $3, 1, 1000, $4, date '2026-01-01', 'DRAFT', 'BASE', 1, $5)`,
           [TENANT_A, id(0x77, 9), draftId, id(0x78, 2), ACTOR],
+        ],
+        [
+          `insert into machvon.guarantee (tenant_id, id, contract_id, kind, issuer, guarantee_no, amount_vnd, expires_at, verification_status, status, valid_from, document_version_id, created_by, updated_by)
+           values ($1, $2, $3, 'PERFORMANCE', 'Matrix bank', 'MX-GUARANTEE', 1000, now() + interval '1 year', 'UNVERIFIED', 'PENDING_VERIFICATION', date '2026-01-01', $4, $5, $5)`,
+          [TENANT_A, id(0x77, 13), draftId, id(0x78, 2), ACTOR],
         ],
       ];
       for (const [sql, params] of statements) await seeder.query(sql, params);
@@ -606,6 +611,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const issueCategoryRecordId = id(0x7a, 1);
     const issueCategoryVersionId = id(0x7a, 2);
     const slaPolicyId = id(0x7a, 3);
+    const issueId = id(0x7a, 4);
     const permitTypeId = id(0x7b, 1);
     const contractorToVerifyId = id(0x7c, 1);
     await harness.owner(TENANT_A, [
@@ -633,9 +639,28 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, slaPolicyId, issueCategoryVersionId, issueCategoryRecordId, ACTOR],
       ],
       [
+        `insert into machvon.issue (tenant_id, id, code, project_id, category_version_id, severity, title, description, owner_unit_id, sla_policy_id, status, version, reported_by,
+                                    opened_at, response_due_at, due_at, created_by, updated_by)
+         values ($1, $2, 'VM-2026-000001', $3, $4, 'HIGH', 'Matrix issue', 'Matrix issue description', $5, $6, 'OPEN', 1, $7, now(), now() + interval '4 hours', now() + interval '16 hours', $7, $7)`,
+        [TENANT_A, issueId, projectId, issueCategoryVersionId, unitId(2), slaPolicyId, ACTOR],
+      ],
+      [
         `insert into machvon.permit_type (tenant_id, id, code, name, category, authority_text, legal_basis, effective_from, applies_to_rule, status, created_by, updated_by)
          values ($1, $2, 'MATRIX_FIXTURE', 'Matrix fixture permit type', 'OTHER', 'Matrix authority', 'Matrix fixture legal basis', '2026-01-01', '{}'::jsonb, 'PUBLISHED', $3, $3)`,
         [TENANT_A, permitTypeId, ACTOR],
+      ],
+    ]);
+    // The permit dossier of the CONCEPT project of unit 2 and a permit in it that is in appraisal: the permit commands act on them.
+    const permitDossierId = id(0x7d, 1);
+    const permitId = id(0x7d, 2);
+    await harness.owner(TENANT_A, [
+      [
+        'insert into machvon.permit_dossier (tenant_id, id, project_id, owner_unit_id, created_by, updated_by) values ($1, $2, $3, $4, $5, $5)',
+        [TENANT_A, permitDossierId, projectId, unitId(2), ACTOR],
+      ],
+      [
+        "insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, status, created_by, updated_by) values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $5)",
+        [TENANT_A, permitId, permitDossierId, permitTypeId, ACTOR],
       ],
     ]);
     const fundSourceRecordId = id(0x8c, 1);
@@ -671,6 +696,23 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     await harness.owner(TENANT_A, [
       matrixPeriod(periodOpenId, 'MX-W2026-01', '2026-01-03', '2026-01-09', 'OPEN'),
       matrixPeriod(periodSoftClosedId, 'MX-W2026-02', '2026-01-10', '2026-01-16', 'SOFT_CLOSED'),
+    ]);
+    // A locked period, and a request to reopen it made by someone other than the callers: the reopening commands act on them.
+    const periodLockedId = id(0xd5, 3);
+    const reopenRequestId = id(0xd5, 4);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.reporting_period
+           (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, soft_closed_at, locked_at, locked_by, calendar_version_id, created_by, updated_by)
+         values ($1, $2, 'MX-W2026-03', 1, date '2026-01-17', date '2026-01-23', date '2026-01-23' + interval '3 hours', 'DEFAULT', 'WEEK', 2026, 'LOCKED',
+                 date '2026-01-23' + interval '4 hours', date '2026-01-23' + interval '5 hours', $4, $3, $4, $4)`,
+        [TENANT_A, periodLockedId, id(0x79, 2), ACTOR],
+      ],
+      [
+        `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, requested_window_hours, status, created_by, updated_by)
+         values ($1, $2, $3, 'PERIOD', 'Matrix fixture request to reopen the period', $4, 24, 'REQUESTED', $4, $4)`,
+        [TENANT_A, reopenRequestId, periodLockedId, ACTOR],
+      ],
     ]);
     // A DRAFT report form and a DRAFT obligation rule of it, made by someone other than the callers: the MNE commands act on them.
     const mneFormId = id(0xd6, 1);
@@ -727,11 +769,16 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       mneRuleId,
       periodOpenId,
       periodSoftClosedId,
+      periodLockedId,
+      reopenRequestId,
       fundSourceVersionId,
       appropriationId,
       permitTypeId,
+      permitDossierId,
+      permitId,
       issueCategoryVersionId,
       slaPolicyId,
+      issueId,
       masterRecordId,
       masterDraftChangeId,
       masterReviewChangeId,
@@ -771,6 +818,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       contractPackageId: id(0x77, 6),
       draftContractId,
       contractMemberId,
+      draftRevisionId: id(0x77, 9),
+      guaranteeId: id(0x77, 13),
       recipientMembershipId: memberId(RECIPIENT),
       grantToRevoke: grantId(ONE_GRANT_TO_REVOKE),
     };

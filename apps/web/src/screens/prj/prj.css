@@ -60,3 +60,66 @@
   gap: 4px 16px;
   margin: 8px 0 0;
 }
+.prj-board {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.prj-column {
+  flex: 0 0 260px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+}
+.prj-column-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.prj-column-head h2 {
+  margin: 0;
+  font-size: 14px;
+}
+.prj-cards {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.prj-card {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.prj-card-name {
+  font-size: 12px;
+}
+.prj-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+}
+.prj-dialog-body {
+  padding: 18px 22px 22px;
+}
+.prj-moves {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+.prj-guards,
+.prj-history {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  font-size: 13px;
+}
