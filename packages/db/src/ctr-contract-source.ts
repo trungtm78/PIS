@@ -91,6 +91,12 @@ export class CtrContractSource {
     return rows[0]?.found === true;
   }
 
+  /** Whether a version of a document exists in the tenant and the scan of its file found it clean: what a guarantee or its check may rest on (a file still waiting for the scan, or infected, is no evidence). */
+  async cleanDocumentVersionExists(tx: TenantTx, documentVersionId: string): Promise<boolean> {
+    const rows = await tx.query<{ found: boolean }>("select exists (select 1 from machvon.document_version where id = $1::uuid and scan_status = 'CLEAN') as found", [documentVersionId]);
+    return rows[0]?.found === true;
+  }
+
   /** Whether a version of a document exists in the tenant. */
   async documentVersionExists(tx: TenantTx, documentVersionId: string): Promise<boolean> {
     const rows = await tx.query<{ found: boolean }>('select exists (select 1 from machvon.document_version where id = $1::uuid) as found', [documentVersionId]);

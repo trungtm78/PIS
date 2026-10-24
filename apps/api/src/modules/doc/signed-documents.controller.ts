@@ -202,6 +202,8 @@ export class SignedDocumentsController {
       throw new DomainError('SIGNATURE_INVALID', 422, 'file_object_key', { extensions: { findings: ['SEAL_DOES_NOT_COVER_FILE'] } });
     }
     this.assertDeclaredMatches(bytes, { number: body.declared_number, symbol, issuedOn });
+    // The same signed file entered a second time under another number would give one document two numbers.
+    if (await this.documents.sealedFileRegistered(scope.tx, sha256Hex(bytes))) throw new DomainError('NUMBER_ALREADY_REGISTERED', 409, 'file_sha256');
 
     const title = body.title.normalize('NFC').trim();
     const anchor = await this.documents.insertDocument(scope.tx, {

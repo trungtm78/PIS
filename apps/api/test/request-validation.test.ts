@@ -92,6 +92,14 @@ describe('assertValidBody', () => {
     expect(() => assertValidBody('createCustomRole', role)).not.toThrow();
   });
 
+  it('takes an empty lines array that comes with the lines to remove, and still refuses an unknown field or a missing array (CR-CAP-01)', () => {
+    const lineId = '00000000-0000-4000-8000-0000000000aa';
+    expect(() => assertValidBody('draftCapitalAllocation', { lines: [], remove_line_ids: [lineId] })).not.toThrow();
+    expect(() => assertValidBody('draftCapitalAllocation', { lines: [] })).not.toThrow();
+    expect(thrown(() => assertValidBody('draftCapitalAllocation', { remove_line_ids: [lineId] }))).toMatchObject({ code: 'INVALID_REQUEST', status: 400, detail: 'lines' });
+    expect(thrown(() => assertValidBody('draftCapitalAllocation', { lines: [], allocated_total_vnd: '1' }))).toMatchObject({ code: 'FIELD_NOT_ALLOWED', detail: 'allocated_total_vnd' });
+  });
+
   it('throws the problem of the first failing class for the real schemas', () => {
     expect(thrown(() => assertValidBody('createCustomRole', { ...role, is_system: true }))).toMatchObject({ code: 'FIELD_NOT_ALLOWED', detail: 'is_system' });
     expect(thrown(() => assertValidBody('createCustomRole', { ...role, rank: 95 }))).toMatchObject({ code: 'INVALID_REQUEST', status: 400, detail: 'rank' });

@@ -74,6 +74,8 @@ export interface MatrixTargets {
   /** A CONCEPT project of unit 2 of tenant A (version 1) and the area version in force that it names. */
   projectId: string;
   projectAreaVersionId: string;
+  /** A SUBMITTED appraisal sheet (version 1) of a project of tenant A that is in APPRAISAL, made by someone other than the callers. */
+  appraisalId: string;
   /** A document of tenant A, named as the decision that authorises a publication. */
   decisionDocumentId: string;
   /** A DRAFT template revision of tenant A made by someone other than the callers (version 1), and the published layout profile it uses. */
@@ -87,6 +89,8 @@ export interface MatrixTargets {
   /** The version in force of a fund source of tenant A, and a DRAFT appropriation of it made by someone other than the callers (version 1). */
   fundSourceVersionId: string;
   appropriationId: string;
+  /** A DRAFT capital plan of tenant A, annual 2026, made by someone other than the callers (version 1). */
+  capitalPlanId: string;
   /** Reporting periods of tenant A past their deadline: one OPEN and one SOFT_CLOSED (both version 1). */
   periodOpenId: string;
   periodSoftClosedId: string;
@@ -491,6 +495,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/master-imports/files', body: {} }),
   },
+  uploadNationalCodeFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/project-national-code-imports/files', body: {} }),
+  },
   stageMasterImport: {
     referencesTenantIds: false,
     build: () => ({
@@ -522,6 +530,51 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   retireMasterCrosswalk: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/master-crosswalks/${t.masterCrosswalkId}/retire`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  uploadTreasuryStatementFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/treasury-imports/files', body: {} }),
+  },
+  importTreasuryStatement: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/treasury-imports',
+      body: { file_object_id: '00000000-0000-4000-8000-0000000000e1', file_sha256: 'a'.repeat(64), source_kind: 'STATEMENT_FILE' },
+    }),
+  },
+  confirmTreasuryManually: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/treasury-transactions',
+      body: {
+        payment_request_id: '00000000-0000-4000-8000-0000000000e2',
+        document_no: 'CT-MATRIX',
+        document_date: '2026-10-15',
+        amount_vnd: '1000',
+        confirmed_at: '2026-10-16T02:00:00Z',
+        evidence_document_version_id: '00000000-0000-4000-8000-0000000000e3',
+      },
+    }),
+  },
+  receiveTreasuryCallback: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/integrations/treasury/callbacks',
+      body: {
+        provider_event_id: 'matrix-event',
+        provider: 'MATRIX',
+        document_no: 'CT-MATRIX',
+        document_date: '2026-10-15',
+        project_code: 'NO-SUCH',
+        amount_vnd: '1000',
+        direction: 'PAYMENT',
+        confirmed_at: '2026-10-16T02:00:00Z',
+        signature: 'b'.repeat(64),
+      },
+    }),
   },
   publishPermitType: {
     referencesTenantIds: false,
@@ -560,6 +613,20 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideAppropriation: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/appropriations/${t.appropriationId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  createCapitalPlan: {
+    // The unit of tenant A does not exist for a caller of tenant B (404).
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/capital-plans', body: { plan_code: 'MX-PLAN', plan_kind: 'ANNUAL', plan_year: 2027, period_from_year: 2027, period_to_year: 2027, scope_unit_id: t.unit2 } }),
+  },
+  draftCapitalAllocation: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/capital-plans/${t.capitalPlanId}/allocations`,
+      ifMatch: '"1"',
+      body: { lines: [{ project_id: t.projectId, appropriation_id: t.appropriationId, bucket: 'CURRENT_YEAR', source_year: 2026, amount_vnd: '100' }] },
+    }),
   },
   generateReportingPeriods: {
     // The reporting calendar is the caller's own: a caller of another tenant generates for that tenant (or is told it has no calendar) and never touches tenant A.
@@ -808,6 +875,41 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   cancelProject: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/cancellation`, ifMatch: '"1"', body: { reason: REASON, decision_document_id: t.decisionDocumentId } }),
+  },
+  // The national code commands: the code of the CONCEPT project is not set by a caller that is refused, and a file of tenant A is not read for another tenant.
+  assignNationalProjectCode: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/national-code`, ifMatch: '"1"', body: { national_project_code: '9900001', evidence_document_id: t.decisionDocumentId } }),
+  },
+  importNationalProjectCodes: {
+    referencesTenantIds: true,
+    build: () => ({
+      method: 'POST',
+      path: '/project-national-code-imports',
+      body: { file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/import/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64), dry_run: true },
+    }),
+  },
+  // The appraisal commands: the CONCEPT project is not moved by a caller that is refused, and the sheet is never decided.
+  submitProjectForAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/appraisal-submissions`, ifMatch: '"1"', body: { reason: REASON, policy_proposal_document_id: t.decisionDocumentId } }),
+  },
+  recordProjectAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/projects/${t.projectId}/appraisals`,
+      body: { criteria_set_version_id: t.appraisalId, scores: [{ criterion_code: 'A', score: 4 }], recommendation: 'ADMIT' },
+    }),
+  },
+  decideProjectAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/project-appraisals/${t.appraisalId}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'ADMIT', reason: REASON, decision_document_id: t.decisionDocumentId, project_group: 'B' },
+    }),
   },
   createContract: {
     referencesTenantIds: true,

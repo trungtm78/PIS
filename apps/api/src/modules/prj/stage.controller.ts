@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PRJ_STAGE_TRANSITION_METRIC, PrjStageStore, STAGE_COMMANDS, TenantDatabase, checkedPipelineFilter, projectScope, stageChangeRecord } from '@machvon/db';
+import { PRJ_STAGE_TRANSITION_METRIC, PrjAppraisalStore, PrjStageStore, STAGE_COMMANDS, TenantDatabase, checkedPipelineFilter, projectInScope, projectScope, stageChangeRecord } from '@machvon/db';
 import type { StageCommand } from '@machvon/db';
 import { DomainError, NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
@@ -13,6 +13,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { appraisalView } from './appraisal-view';
 import { SHARED_PIPELINE_CACHE, pipelineVariant } from './pipeline-cache';
 import type { PipelineCache } from './pipeline-cache';
 import { lifecycleView, pipelineCardView, stageInputOf } from './stage-view';
@@ -20,6 +21,7 @@ import { PRJ_METRICS, PRJ_PIPELINE_CACHE } from './tokens';
 
 const READ_PERMISSION = PERMISSIONS.get_resources_project;
 const BOARD_ALL_STAGES = 'all';
+const NATIONAL_CODE_WARNING = 'NATIONAL_CODE_REQUIRED';
 
 /** The text of a query parameter, or undefined when it is absent; a parameter that is repeated or not text is a fault of the request. */
 function queryText(value: unknown, name: string): string | undefined {
@@ -92,7 +94,7 @@ export class ProjectStageController {
     return this.move(scope, access, id, 'cancelProject', body);
   }
 
-  private async move(scope: CommandScope, access: EffectiveAccess, id: string, command: StageCommand, body: Schemas['PrjStageCommand']): Promise<CommandResult> {
+  private async move(scope: CommandScope, access: EffectiveAccess, id: string, command: StageCommand, body: Schemas['PrjStageCommand']): Promise<CommandResult & { warnings?: string[] }> {
     const now = new Date();
     const change = await this.stages.transition(scope.tx, {
       command,
@@ -112,7 +114,8 @@ export class ProjectStageController {
       this.metrics.increment(PRJ_STAGE_TRANSITION_METRIC, { to: change.to });
       await this.cache.invalidate(scope.tenant.tenantId);
     });
-    return commandResult(scope, change.to, change.version, change.projectId);
+    // A rule that only flags a project without its national code lets the move through and says so, for the person and for the caller.
+    return change.nationalCodeWarning ? { ...commandResult(scope, change.to, change.version, change.projectId), warnings: [NATIONAL_CODE_WARNING] } : commandResult(scope, change.to, change.version, change.projectId);
   }
 }
 
@@ -120,6 +123,7 @@ export class ProjectStageController {
 @Controller()
 export class ProjectLifecycleReadsController {
   private readonly stages = new PrjStageStore();
+  private readonly appraisals = new PrjAppraisalStore();
   private readonly cache: PipelineCache;
 
   constructor(
@@ -134,10 +138,23 @@ export class ProjectLifecycleReadsController {
   async lifecycle(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
     const now = new Date();
     const act = Object.fromEntries(STAGE_COMMANDS.map((command) => [command, projectScope(access, PERMISSIONS[command], now)])) as Record<StageCommand, ReturnType<typeof projectScope>>;
-    const lifecycle = await this.database.withTenant(tenant, (tx) => this.stages.lifecycle(tx, id.toLowerCase(), { read: projectScope(access, READ_PERMISSION, now), act }, vietnamDateOf(now)));
+    const projectId = id.toLowerCase();
+    const today = vietnamDateOf(now);
+    const read = await this.database.withTenant(tenant, async (tx) => {
+      const found = await this.stages.lifecycle(tx, projectId, { read: projectScope(access, READ_PERMISSION, now), act }, today);
+      if (found === undefined) return undefined;
+      // The sheets of the appraisal are for whoever scores or decides on the project, in the scope of the permission that does it.
+      const appraisal = await this.appraisals.overview(tx, projectId, {
+        actor: tenant.membershipId,
+        canAppraise: await projectInScope(tx, projectId, projectScope(access, PERMISSIONS.recordProjectAppraisal, now)),
+        canDecide: await projectInScope(tx, projectId, projectScope(access, PERMISSIONS.decideProjectAppraisal, now)),
+        today,
+      });
+      return { found, appraisal };
+    });
     // A project in another tenant or outside the scope of the caller is indistinguishable from one that does not exist.
-    if (lifecycle === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return lifecycleView(lifecycle, now);
+    if (read === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return { ...lifecycleView(read.found, now), appraisal: read.appraisal === null ? null : appraisalView(read.appraisal, tenant.membershipId) };
   }
 
   @Get('project-pipeline')

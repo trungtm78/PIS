@@ -572,6 +572,22 @@ export class DocumentStore {
     return row === undefined ? undefined : toVersion(row);
   }
 
+  /**
+   * Whether a sealed file with these bytes already stands for a document of the tenant that was not cancelled: one signed file is one document with one
+   * number. The check is serialised on the hash for the rest of the transaction, so two clerks entering the same file under two numbers at once cannot
+   * both pass it.
+   */
+  async sealedFileRegistered(tx: TenantTx, checksum: string): Promise<boolean> {
+    await tx.query("select pg_advisory_xact_lock(hashtextextended('sealed-file:' || $1, 0))", [checksum]);
+    const [row] = await tx.query<{ found: boolean }>(
+      `select exists (
+         select 1 from machvon.document_version v join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id
+          where v.checksum = $1 and v.stage = 'ORG_SEALED' and d.effect_status <> 'EXPIRED') as found`,
+      [checksum],
+    );
+    return row?.found === true;
+  }
+
   /** Makes a version of the document its current one (after the final PDF was taken back and is approved again as the same file). */
   async pointAt(tx: TenantTx, documentId: string, versionId: string, actor: string): Promise<void> {
     await tx.query(

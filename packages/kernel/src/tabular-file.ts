@@ -191,10 +191,16 @@ function zipText(bytes: Buffer, entry: ZipEntry, limits: TabularLimits): string 
 }
 
 const ENTITIES: Readonly<Record<string, string>> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+/** A character reference names a code point of Unicode; one beyond it makes the file unreadable (fromCodePoint would throw a RangeError, a server fault). */
+function characterOf(code: number): string {
+  if (!Number.isInteger(code) || code > 0x10ffff) throw unreadable();
+  return String.fromCodePoint(code);
+}
+
 const decodeXml = (value: string): string =>
   value.replace(/&(#x[0-9a-fA-F]+|#\d+|[a-z]+);/g, (match, name: string) => {
-    if (name.startsWith('#x')) return String.fromCodePoint(Number.parseInt(name.slice(2), 16));
-    if (name.startsWith('#')) return String.fromCodePoint(Number.parseInt(name.slice(1), 10));
+    if (name.startsWith('#x')) return characterOf(Number.parseInt(name.slice(2), 16));
+    if (name.startsWith('#')) return characterOf(Number.parseInt(name.slice(1), 10));
     return ENTITIES[name] ?? match;
   });
 

@@ -16,6 +16,7 @@ import type { WebhookPayloadStore, WebhookSecretResolver } from './webhook-suppo
 
 const OPERATION = 'receiveChannelWebhook';
 const MAX_EVENT_KEY = 200;
+const MAX_EXTERNAL_ACCOUNT_ID = 200;
 /** The route of an external account id (the tenant and the account it belongs to) is remembered this long, a miss included, so a flood of forged ids costs one lookup each and not one per request. */
 const ROUTE_CACHE_MS = 30_000;
 const ROUTE_CACHE_SIZE = 5000;
@@ -80,8 +81,11 @@ export class ChannelWebhookController {
     if (signature === undefined || signature === '') verifyProviderCallback({ provider, rawBody, signature, timestampSeconds, keys: [], metrics: this.metrics });
     const parsed = adapter.parseCallback(rawBody);
     if (parsed === undefined) throw unknownAccount();
-    const eventKey = idempotencyKey !== undefined && idempotencyKey !== '' ? idempotencyKey : parsed.eventKey;
-    if (eventKey.length > MAX_EVENT_KEY) throw new DomainError('INVALID_REQUEST', 400, 'idempotency-key');
+    // The event is the one the signed body names. The Idempotency-Key header is not under the signature (only the timestamp and the body are), so whoever
+    // replays a signed receipt could write another key and make it a new event: it is checked for its size and never decides what a duplicate is.
+    if (idempotencyKey !== undefined && idempotencyKey.length > MAX_EVENT_KEY) throw new DomainError('INVALID_REQUEST', 400, 'idempotency-key');
+    const eventKey = parsed.eventKey;
+    if (eventKey === '' || eventKey.length > MAX_EVENT_KEY) throw new DomainError('INVALID_REQUEST', 400, 'event-key');
 
     const route = await this.routeOf(adapter.channel, parsed.externalAccountId);
     const worker: TenantContext = { tenantId: route.tenant_id, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 };
@@ -128,6 +132,8 @@ export class ChannelWebhookController {
 
   /** The channel account the receipt is for: found by its external id across tenants, and the one of this channel only. Zero or several is unknown. */
   private async routeOf(channel: string, externalAccountId: string): Promise<AccountRoute> {
+    // The id comes from a body that is not verified yet: a value no provider issues is neither looked up nor remembered.
+    if (externalAccountId === '' || externalAccountId.length > MAX_EXTERNAL_ACCOUNT_ID) throw unknownAccount();
     const key = `${channel}
 ${externalAccountId}`;
     const remembered = this.routes.get(key);

@@ -192,6 +192,55 @@
       ]
     },
     {
+      "key": "planPlanner",
+      "displayName": "Cán bộ lập kế hoạch vốn năm",
+      "membershipId": "00000000-0000-4000-8000-0000000003b1",
+      "permissions": [
+        "capital.read",
+        "capital.plan.draft",
+        "plan_version.read",
+        "allocation_line.read",
+        "project.read",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "planSecond",
+      "displayName": "Cán bộ lập kế hoạch vốn thứ hai",
+      "membershipId": "00000000-0000-4000-8000-0000000003b2",
+      "permissions": [
+        "capital.read",
+        "capital.plan.draft",
+        "plan_version.read",
+        "allocation_line.read",
+        "project.read",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "planReader",
+      "displayName": "Người xem kế hoạch vốn",
+      "membershipId": "00000000-0000-4000-8000-0000000003b3",
+      "permissions": [
+        "capital.read",
+        "plan_version.read",
+        "allocation_line.read"
+      ]
+    },
+    {
+      "key": "planScoped",
+      "displayName": "Cán bộ lập kế hoạch vốn của Ban Quản lý dự án",
+      "membershipId": "00000000-0000-4000-8000-0000000003b4",
+      "permissions": [
+        "capital.read",
+        "capital.plan.draft",
+        "plan_version.read",
+        "allocation_line.read",
+        "project.read",
+        "organization_unit.read"
+      ]
+    },
+    {
       "key": "periodManager",
       "displayName": "Cán bộ quản lý kỳ báo cáo",
       "membershipId": "00000000-0000-4000-8000-0000000000b6",
@@ -543,6 +592,104 @@
         "contract.read",
         "boq_line.read",
         "guarantee.read"
+      ]
+    },
+    {
+      "key": "treasuryImporter",
+      "displayName": "Kế toán nhập sao kê",
+      "membershipId": "00000000-0000-4000-8000-000000000091",
+      "permissions": [
+        "treasury.import",
+        "treasury.import.read",
+        "treasury_transaction.read"
+      ]
+    },
+    {
+      "key": "treasuryReader",
+      "displayName": "Người xem sao kê",
+      "membershipId": "00000000-0000-4000-8000-000000000092",
+      "permissions": [
+        "treasury.import.read"
+      ]
+    },
+    {
+      "key": "treasuryMaker",
+      "displayName": "Kế toán lập hồ sơ thanh toán",
+      "membershipId": "00000000-0000-4000-8000-000000000093",
+      "permissions": [
+        "treasury.confirm_manual",
+        "treasury_transaction.read"
+      ]
+    },
+    {
+      "key": "treasuryChecker",
+      "displayName": "Kế toán xác nhận Kho bạc",
+      "membershipId": "00000000-0000-4000-8000-000000000094",
+      "permissions": [
+        "treasury.confirm_manual",
+        "treasury_transaction.read"
+      ]
+    },
+    {
+      "key": "appraisalProposer",
+      "displayName": "Cán bộ gửi thẩm định",
+      "membershipId": "00000000-0000-4000-8000-0000000003a1",
+      "permissions": [
+        "project.read",
+        "project.stage.submit",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "appraisalAppraiser",
+      "displayName": "Người thẩm định thứ nhất",
+      "membershipId": "00000000-0000-4000-8000-0000000003a2",
+      "permissions": [
+        "project.read",
+        "project.appraise",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "appraisalSecond",
+      "displayName": "Người thẩm định thứ hai",
+      "membershipId": "00000000-0000-4000-8000-0000000003a3",
+      "permissions": [
+        "project.read",
+        "project.appraise",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "appraisalDecider",
+      "displayName": "Người quyết định thẩm định",
+      "membershipId": "00000000-0000-4000-8000-0000000003a4",
+      "permissions": [
+        "project.read",
+        "project.appraisal.decide",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "appraisalAll",
+      "displayName": "Cán bộ giữ đủ quyền thẩm định",
+      "membershipId": "00000000-0000-4000-8000-0000000003a5",
+      "permissions": [
+        "project.read",
+        "project.stage.submit",
+        "project.appraise",
+        "project.appraisal.decide",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "nationalCodeAdmin",
+      "displayName": "Chuyên viên mã dự án TTQG",
+      "membershipId": "00000000-0000-4000-8000-0000000003c1",
+      "permissions": [
+        "project.read",
+        "project.national_code.manage",
+        "organization_unit.read"
       ]
     },
     {

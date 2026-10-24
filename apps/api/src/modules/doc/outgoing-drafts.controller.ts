@@ -43,10 +43,18 @@ const PDF_MIME = 'application/pdf';
 const SUBJECT_MODULE = /^[A-Z]{2,10}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const MIN_REASON_CHARS = 10;
+const MIN_TITLE_CHARS = 3;
 
 type ReasonCode = 'CANCELLED_BY_DRAFTER' | 'REJECTED_BY_LEADER' | 'SUPERSEDED_BEFORE_ISSUE' | 'SOURCE_WITHDRAWN';
 
 const lower = (id: string): string => id.toLowerCase();
+
+/** The title as it is kept: NFC and trimmed, and still the 3 characters the contract asks for (blanks pass the length of the schema and say nothing). */
+function titleOf(raw: string): string {
+  const title = raw.normalize('NFC').trim();
+  if (title.length < MIN_TITLE_CHARS) throw new DomainError('VALIDATION_FAILED', 422, 'title');
+  return title;
+}
 
 function eventPayload(scope: CommandScope, document: OutgoingDocumentRecord, version: number, now: Date, extra: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -122,7 +130,7 @@ export class OutgoingDraftsController {
     const urgency = body.urgency ?? 'NORMAL';
     const draft = await this.drafts.createDraft(scope.tx, {
       docTypeCode: body.doc_type_code,
-      title: body.title.normalize('NFC').trim(),
+      title: titleOf(body.title),
       draftingUnitId: unitId,
       templateId: template.id,
       layoutProfileId: template.layoutProfileId,
@@ -192,9 +200,11 @@ export class OutgoingDraftsController {
     const patch: DraftPatch = {};
     const diff: Record<string, unknown> = { changed };
     let payloadNow: Record<string, unknown> | undefined;
-    if (body.title !== undefined) patch.title = body.title.normalize('NFC').trim();
+    if (body.title !== undefined) patch.title = titleOf(body.title);
     if (body.payload !== undefined || body.content_blocks !== undefined) {
-      const current = body.payload === undefined ? (await this.drafts.contentOf(scope.tx, document.id))?.payload : body.payload;
+      // The stored payload already holds the blocks of the last edit under `content_blocks`; blocks sent now replace them instead of clashing with them.
+      const stored = body.payload === undefined ? (await this.drafts.contentOf(scope.tx, document.id))?.payload : undefined;
+      const current = body.payload ?? (stored !== undefined && body.content_blocks !== undefined ? Object.fromEntries(Object.entries(stored).filter(([name]) => name !== 'content_blocks')) : stored);
       const normalised = normalisedPayload(payloadWithBlocks(current ?? {}, body.content_blocks));
       patch.payload = normalised.payload;
       patch.payloadSha256 = normalised.sha256;

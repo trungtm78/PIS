@@ -285,6 +285,14 @@
       "statusBasis": "spec",
       "source": "spec:CAP"
     },
+    "APPROPRIATION_NOT_PUBLISHED": {
+      "status": 422,
+      "title": "Appropriation not published",
+      "meaning": "A plan line draws on an appropriation that is still a draft, was rejected or was replaced by a revision; only a published appropriation takes plan lines (ST-CAP-002).",
+      "module": "CAP",
+      "statusBasis": "plan",
+      "source": "plan:ST-CAP-002"
+    },
     "APPROVAL_REQUIRED": {
       "status": 422,
       "title": "Approval required",

@@ -24,6 +24,13 @@ const CODE = /^[A-Z][A-Z0-9_]{0,49}$/;
 const FIELD = /^[A-Za-z][A-Za-z0-9_.]{0,79}$/;
 const hasControlCharacter = (text: string): boolean => Array.from(text).some((character) => (character.codePointAt(0) ?? 0) < 0x20 || character.codePointAt(0) === 0x7f);
 const MEASURE = /^-?(0|[1-9]\d*)(\.\d+)?$/;
+/** A NUL byte cannot be stored in a text or jsonb column, and a cell of a file may carry one. */
+const stripNul = (text: string): string => text.replaceAll('\u0000', '');
+/** The key of a refused row as the quarantine can keep it: trimmed again after the cut, and none when it has a control character. */
+const keptRejectedKey = (key: string | undefined): string | null => {
+  const kept = (key ?? '').trim().slice(0, BUSINESS_KEY_MAX_LENGTH).trim();
+  return kept === '' || hasControlCharacter(kept) ? null : kept;
+};
 
 /** One row of the file as the format read it: the line it starts on (the first line of the file is 1) and its cells by column name. */
 export interface SourceRow {
@@ -95,6 +102,8 @@ export interface PlannedAccepted<R> {
   accepted: true;
   row: AcceptedRow<R>;
   rowHash: string;
+  /** The cells of the file as read: what `mask` is given if the module refuses the row later (never the normalised `fields`). */
+  values: Readonly<Record<string, string>>;
 }
 
 export interface PlannedRejected {
@@ -153,7 +162,7 @@ export function maskedPreview<R>(format: FileImportFormat<R>, values: Readonly<R
   if (format.mask === undefined) return null;
   const masked = format.mask(values);
   const preview: Record<string, string> = {};
-  for (const key of Object.keys(masked).slice(0, PREVIEW_MAX_FIELDS)) preview[key] = (masked[key] ?? '').slice(0, PREVIEW_MAX_VALUE_LENGTH);
+  for (const key of Object.keys(masked).slice(0, PREVIEW_MAX_FIELDS)) preview[stripNul(key)] = stripNul(masked[key] ?? '').slice(0, PREVIEW_MAX_VALUE_LENGTH);
   return preview;
 }
 
@@ -173,12 +182,12 @@ export function planFileImport<R>(format: FileImportFormat<R>, bytes: Uint8Array
       assertRejection(rejection);
       return { line: row.line, accepted: false, rejection, businessKey, rowHash: rowHash(row.values), preview: maskedPreview(format, row.values) };
     };
-    if (!judged.accepted) return rejected(judged.rejection, judged.businessKey?.trim().slice(0, BUSINESS_KEY_MAX_LENGTH) || null);
+    if (!judged.accepted) return rejected(judged.rejection, keptRejectedKey(judged.businessKey));
     const key = judged.row.businessKey.trim();
     if (key === '' || key.length > BUSINESS_KEY_MAX_LENGTH || hasControlCharacter(key)) return rejected({ code: BUSINESS_KEY_INVALID_CODE, field: 'business_key' }, null);
     const measure = judged.row.measure;
     if (measure !== undefined && !isStorableMeasure(measure)) return rejected({ code: MEASURE_INVALID_CODE, field: 'measure' }, key);
-    return { line: row.line, accepted: true, row: { ...judged.row, businessKey: key }, rowHash: rowHash(judged.row.fields) };
+    return { line: row.line, accepted: true, row: { ...judged.row, businessKey: key }, rowHash: rowHash(judged.row.fields), values: row.values };
   });
   return { fileSha256: fileSha256(bytes), rows };
 }

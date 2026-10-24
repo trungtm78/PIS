@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { DECISION_PATH, PROPOSAL_PATH, SCORE_PATH, appraisalLink } from './appraisal-model';
 import { BackLink, NationalCode, ProjectFormFields, SuggestionPanel, optionsWith } from './components';
 import { useMasterOptions, useProject, useUnits, useUpdateProfile } from './hooks';
 import { classificationLabel, lifeLabel, problemMessage, stageLabel } from './labels';
@@ -97,6 +98,15 @@ function Workspace({ project, tab, onTab, onReload }: { project: ProjectView; ta
             </span>{' '}
             <NationalCode code={project.nationalProjectCode} />
           </p>
+          {project.status === 'CONCEPT' ? (
+            <p data-testid="appraisal-links">
+              <Link to={appraisalLink(PROPOSAL_PATH, project.id)}>{t('prj.workspace.appraisal.propose.link')}</Link>
+            </p>
+          ) : project.status === 'APPRAISAL' ? (
+            <p data-testid="appraisal-links">
+              <Link to={appraisalLink(SCORE_PATH, project.id)}>{t('prj.workspace.appraisal.score.link')}</Link> · <Link to={appraisalLink(DECISION_PATH, project.id)}>{t('prj.workspace.appraisal.decide.link')}</Link>
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="prj-tabs" role="tablist" aria-label={t('prj.workspace.tabs.title')}>

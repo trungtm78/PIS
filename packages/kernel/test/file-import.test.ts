@@ -107,7 +107,24 @@ describe('planFileImport', () => {
       expect(planFileImport(formatOf(key), bytesOf('x')).rows[0]).toMatchObject({ accepted: false, rejection: { code: BUSINESS_KEY_INVALID_CODE, field: 'business_key' }, businessKey: null });
     });
 
-    it.each(['abc', '1,5', '12345678901234567890123456', '1.1234567', '--1', '1e5', ''])('rejects the measure %p as MEASURE_INVALID', (measure) => {
+    it('never hands the database a rejected key it would refuse: a NUL, or a space left at the end by the cut', () => {
+      const rejectedKey = (key: string) => {
+        const format: FileImportFormat<Statement> = { ...FORMAT, parse: (): SourceRow[] => [{ line: 2, values: {} }], judge: () => reject('MISSING_PROJECT_CODE', 'project_code', key) };
+        const row = planFileImport(format, bytesOf('x')).rows[0];
+        return row?.accepted === false ? row.businessKey : 'accepted';
+      };
+      expect(rejectedKey('S1\u0000')).toBeNull();
+      const cutAtASpace = `${'K'.repeat(BUSINESS_KEY_MAX_LENGTH - 1)} tail`;
+      const kept = rejectedKey(cutAtASpace);
+      expect(kept).toBe('K'.repeat(BUSINESS_KEY_MAX_LENGTH - 1));
+    });
+
+    it('drops a NUL from the masked preview, which jsonb cannot hold', () => {
+      const format: FileImportFormat<Statement> = { ...FORMAT, mask: () => ({ account: 'a\u0000b' }) };
+      expect(maskedPreview(format, {})).toEqual({ account: 'ab' });
+    });
+
+    it.each(['abc', '1,5','12345678901234567890123456', '1.1234567', '--1', '1e5', ''])('rejects the measure %p as MEASURE_INVALID', (measure) => {
       expect(planFileImport(formatOf('S1', measure), bytesOf('x')).rows[0]).toMatchObject({ accepted: false, rejection: { code: MEASURE_INVALID_CODE, field: 'measure' }, businessKey: 'S1' });
     });
 

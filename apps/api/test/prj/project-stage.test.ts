@@ -181,7 +181,7 @@ describe('the guarded lifecycle transitions and the project bank (ST-PRJ-002)', 
     }
     for (const n of [MANAGER, DEPARTMENT_MANAGER, READER, NOBODY, IMPLEMENTER, NARROW_ACTOR]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MANAGER, ROOT);
-    const manager = ['project.create', 'project.read', ...STAGE_PERMISSIONS];
+    const manager = ['project.create', 'project.read', 'project.update', ...STAGE_PERMISSIONS];
     await harness.seedRole(TENANT_A, 1, 'STAGE_MANAGER', manager, 40);
     await harness.seedRole(TENANT_A, 2, 'PROJECT_READER', ['project.read'], 20);
     await harness.seedRole(TENANT_A, 3, 'IMPLEMENTER', ['project.read', 'project.stage.implement'], 30);
@@ -413,7 +413,7 @@ describe('the guarded lifecycle transitions and the project bank (ST-PRJ-002)', 
       expect(await consumer().handle(delivery)).toBe('processed');
       const read = await call('GET', `/projects/${waiting.id}/lifecycle`, { member: MANAGER });
       expect(read.status).toBe(200);
-      expect(Object.keys(read.json).sort()).toEqual(['as_of', 'code', 'history', 'national_project_code', 'next', 'project_group', 'project_id', 'status', 'status_changed_at', 'version']);
+      expect(Object.keys(read.json).sort()).toEqual(['appraisal', 'as_of', 'code', 'history', 'national_project_code', 'next', 'project_group', 'project_id', 'status', 'status_changed_at', 'version']);
       expect(read.json).toMatchObject({ project_id: waiting.id, status: 'BUDGETED', version: 2, national_project_code: null });
       expect(read.json.history).toEqual([
         expect.objectContaining({ from: 'PIPELINE', to: 'BUDGETED', version: 2, actor_kind: 'SYSTEM', actor_name: null, decision_document_id: plan.documentId, reason: null }),
@@ -503,6 +503,28 @@ describe('the guarded lifecycle transitions and the project bank (ST-PRJ-002)', 
       await stageCall(MANAGER, 'suspension', running, { decision_document_id: await document() });
       expect(cache.keys().filter((key) => key.startsWith(`t:${TENANT_A}:prj:pipeline:`))).toEqual([]);
       expect(items(await call('GET', url, { member: MANAGER }))).toEqual([]);
+    });
+
+    it('drops the pages of the tenant when the register creates a project or changes its profile, so the board never shows an old version or misses a new card', async () => {
+      const group = 'A';
+      const url = `/project-pipeline?stage=SUSPENDED&project_group=${group}&limit=200`;
+      const watched = await project('SUSPENDED', { group, score: '30.00' });
+      const before = await call('GET', url, { member: MANAGER });
+      expect(items(before).find((card) => card.id === watched.id)).toMatchObject({ version: 1 });
+      // The profile of a card changes (name, version): the next read of the board shows the project as it is now.
+      const renamed = await call('POST', `/projects/${watched.id}/profile`, { member: MANAGER, ifMatch: '"1"', body: { name: 'Dự án cầu Thủ Thiêm 4 (đổi tên)' } });
+      expect(renamed.status).toBe(200);
+      expect(items(await call('GET', url, { member: MANAGER })).find((card) => card.id === watched.id)).toMatchObject({ name: 'Dự án cầu Thủ Thiêm 4 (đổi tên)', version: 2 });
+      // A project created through the register is a card of the CONCEPT column at once.
+      const conceptUrl = `/project-pipeline?stage=CONCEPT&limit=200`;
+      const conceptBefore = await call('GET', conceptUrl, { member: MANAGER });
+      const created = await call('POST', '/projects', {
+        member: MANAGER,
+        body: { code: `NEW-${randomUUID().slice(0, 8)}`, name: 'Dự án mới tạo', owner_unit_id: unitId(DEPARTMENT), area_master_version_id: versions.area, total_investment_vnd: '1000000000' },
+      });
+      expect(created.status).toBe(200);
+      expect(items(conceptBefore).map((card) => card.id)).not.toContain(created.json.resource_id);
+      expect(items(await call('GET', conceptUrl, { member: MANAGER })).map((card) => card.id)).toContain(created.json.resource_id);
     });
   });
 

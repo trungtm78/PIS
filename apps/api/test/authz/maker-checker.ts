@@ -207,7 +207,38 @@ begin
 end
 $seed$`;
 
+/**
+ * A project in APPRAISAL made by `$2` with one SUBMITTED sheet of the set of criteria of the same id, scored by the member `$3` (an active member who is
+ * not the maker), and the document that a decision on it names (all with the id `$1`). The set has one criterion of weight 100, so the sheet is 100.00 and recommends ADMIT.
+ */
+export const SEED_APPRAISAL = `with r as (
+    insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'TENANT', 'APPRAISAL_CRITERIA', 'MX-CRIT-' || $1::uuid::text, 'EFFECTIVE', $2::uuid, $2::uuid)
+  ), v as (
+    insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, 'APPRAISAL_CRITERIA', 'MX-CRIT-' || $1::uuid::text, 1, 'Matrix criteria',
+            '{"criteria":[{"code":"A","name":"Matrix criterion","max_score":100}],"pass_threshold":60}'::jsonb, '2020-01-01', 'EFFECTIVE', 'TENANT', now(), $2::uuid, $2::uuid)
+  ), d as (
+    insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, symbol, issued_on, effect_status, classification, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'REFERENCE', 'QD', 'Matrix appraisal decision', 'MX-' || $1::uuid::text, '2026-01-15', 'EFFECTIVE', 'INTERNAL', $2::uuid, $2::uuid)
+  ), p as (
+    insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MX-AP-' || $1::uuid::text, 'Matrix appraised project', '${id(0x10, 2)}'::uuid, '${id(0x8a, 3)}'::uuid, 'INTERNAL', 1000, 'APPRAISAL', 1, $2::uuid, $2::uuid)
+  )
+  insert into machvon.project_appraisal (tenant_id, id, project_id, round, criteria_set_version_id, appraiser_membership_id, scores_json, total_score, recommendation, status, created_by, updated_by)
+  values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, 1, $1::uuid, $3::uuid, '[{"criterion_code":"A","score":5}]'::jsonb, 100, 'ADMIT', 'SUBMITTED', $3::uuid, $3::uuid)`;
+
 export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
+  {
+    operationId: 'decideProjectAppraisal',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/project-appraisals/${derivedId(objectId, 'appraisal')}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'ADMIT', reason: 'maker-checker matrix decision', decision_document_id: derivedId(objectId, 'appraisal'), project_group: 'B' },
+    }),
+    seedMadeBy: (objectId, maker, checker) => [SEED_APPRAISAL, [derivedId(objectId, 'appraisal'), maker, checker]],
+  },
   {
     operationId: 'releaseLegalHold',
     build: (objectId) => ({ method: 'POST', path: `/legal-holds/${objectId}/release`, ifMatch: '"1"', body: { reason: 'maker-checker matrix release' } }),

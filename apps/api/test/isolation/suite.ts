@@ -94,6 +94,12 @@ export const PROJECT_FIXTURES: Readonly<Record<TenantName, { id: string; code: s
   'TNT-B': { id: '00000000-0000-4000-b0c1-000000000001', code: 'BETA-PROJECT-0001', name: 'Beta tenant isolation project' },
 };
 
+/** A SUBMITTED appraisal sheet of the CONCEPT project of each tenant (the decision on it is addressed to the sheet; tenant data). */
+export const APPRAISAL_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c4-000000000001' },
+  'TNT-B': { id: '00000000-0000-4000-b0c4-000000000001' },
+};
+
 /** An UNVERIFIED contractor of each tenant (its tax id and its name are distinctive; the tax id is personal data when the contractor is a sole trader). */
 export const CONTRACTOR_FIXTURES: Readonly<Record<TenantName, { id: string; taxIdentifier: string; legalName: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', taxIdentifier: '0111111111', legalName: 'Alpha tenant isolation contractor' },
@@ -138,6 +144,12 @@ export const ISSUE_FIXTURES: Readonly<Record<TenantName, { id: string; code: str
   'TNT-B': { id: '00000000-0000-4000-b0e2-000000000001', code: 'VM-2026-770002', title: 'Beta tenant isolation issue 0001' },
 };
 
+/** A Treasury statement import of each tenant with the transaction it created (the file hash and the voucher number are distinctive; tenant financial data). */
+export const TREASURY_FIXTURES: Readonly<Record<TenantName, { importId: string; fileSha256: string; transactionId: string; documentNo: string; externalId: string }>> = {
+  'TNT-A': { importId: '00000000-0000-4000-a0aa-000000000001', fileSha256: 'a7'.repeat(32), transactionId: '00000000-0000-4000-a0aa-000000000002', documentNo: 'ALPHA-VOUCHER-0001', externalId: 'KBNN_FILE|ALPHA-VOUCHER-0001|2026-10-15|ALPHA-PROJECT' },
+  'TNT-B': { importId: '00000000-0000-4000-b0aa-000000000001', fileSha256: 'b8'.repeat(32), transactionId: '00000000-0000-4000-b0aa-000000000002', documentNo: 'BETA-VOUCHER-0001', externalId: 'KBNN_FILE|BETA-VOUCHER-0001|2026-10-15|BETA-PROJECT' },
+};
+
 /** A PUBLISHED permit type version of each tenant, still waiting for its legal confirmation (the code and the legal basis are distinctive; tenant legal data). */
 export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; legalBasis: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f1-000000000001', code: 'ALPHA_PERMIT_0001', legalBasis: 'Alpha tenant permit regulation 0001' },
@@ -166,6 +178,12 @@ export const REOPEN_FIXTURES: Readonly<Record<TenantName, { periodId: string; pe
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
   'TNT-B': { id: '00000000-0000-4000-b0f2-000000000001', issuingAuthority: 'Beta tenant assigning authority 0001' },
+};
+
+/** A DRAFT capital plan of each tenant with one line of its project on its appropriation (the code is distinctive: the plan of a tenant is internal to it). */
+export const CAPITAL_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string; planCode: string; versionId: string; lineId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0f8-000000000001', planCode: 'ALPHA-CAPITAL-PLAN-0001', versionId: '00000000-0000-4000-a0f8-000000000002', lineId: '00000000-0000-4000-a0f8-000000000003' },
+  'TNT-B': { id: '00000000-0000-4000-b0f8-000000000001', planCode: 'BETA-CAPITAL-PLAN-0001', versionId: '00000000-0000-4000-b0f8-000000000002', lineId: '00000000-0000-4000-b0f8-000000000003' },
 };
 
 /** A published template revision of each tenant, waiting for its legal confirmation (the code and the legal basis are distinctive). */
@@ -365,6 +383,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'integration cursor id', value: CROSSWALK_FIXTURES[tenant].cursorId },
     { kind: 'integration cursor scope', value: CROSSWALK_FIXTURES[tenant].sourceScope },
     { kind: 'integration cursor file hash', value: CROSSWALK_FIXTURES[tenant].fileSha256 },
+    { kind: 'treasury import id', value: TREASURY_FIXTURES[tenant].importId },
+    { kind: 'treasury import file hash', value: TREASURY_FIXTURES[tenant].fileSha256 },
+    { kind: 'treasury transaction id', value: TREASURY_FIXTURES[tenant].transactionId },
+    { kind: 'treasury voucher number', value: TREASURY_FIXTURES[tenant].documentNo },
     { kind: 'template id', value: TEMPLATE_FIXTURES[tenant].id },
     { kind: 'template code', value: TEMPLATE_FIXTURES[tenant].templateCode },
     { kind: 'template legal basis', value: TEMPLATE_FIXTURES[tenant].legalBasis },
@@ -419,6 +441,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'period reopen reason', value: REOPEN_FIXTURES[tenant].reason },
     { kind: 'appropriation id', value: APPROPRIATION_FIXTURES[tenant].id },
     { kind: 'appropriation issuing authority', value: APPROPRIATION_FIXTURES[tenant].issuingAuthority },
+    { kind: 'capital plan id', value: CAPITAL_PLAN_FIXTURES[tenant].id },
+    { kind: 'capital plan code', value: CAPITAL_PLAN_FIXTURES[tenant].planCode },
+    { kind: 'allocation line id', value: CAPITAL_PLAN_FIXTURES[tenant].lineId },
     { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },
     { kind: 'work calendar id', value: WORK_CALENDAR_FIXTURES[tenant].id },
     { kind: 'work calendar code', value: WORK_CALENDAR_FIXTURES[tenant].calendarCode },

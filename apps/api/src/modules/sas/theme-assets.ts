@@ -19,6 +19,8 @@ export interface UploadedFile {
   bytes: Buffer;
   /** SHA-256 of the bytes, hex. */
   sha256: string;
+  /** The name the client gave the file, without any folder and cut to 200 characters; a module that shows the name back to the person keeps it, the others ignore it. */
+  name?: string;
 }
 
 const invalid = (detail: string): DomainError => new DomainError('INVALID_REQUEST', 400, detail);
@@ -38,8 +40,21 @@ function parameterOf(header: string, name: string): string | undefined {
 /**
  * Reads the one file of a `multipart/form-data` body (RFC 7578). The request must hold exactly one part, named `file`
  * and carrying a file name; anything else, or a body that is not well formed, is 400 INVALID_REQUEST. The file name is
- * read to prove it is a file and is never kept.
+ * read to prove it is a file; it is handed on only as `name`, cleaned of folders and control characters.
  */
+const MAX_NAME_LENGTH = 200;
+
+/** The last segment of a file name, without control characters, at most 200 characters; empty when nothing is left. */
+function cleanName(filename: string): string | undefined {
+  const last = filename.split(/[\\/]/).pop() ?? '';
+  const clean = Array.from(last)
+    .filter((character) => (character.codePointAt(0) ?? 0) >= 0x20 && character.codePointAt(0) !== 0x7f)
+    .join('')
+    .trim()
+    .slice(0, MAX_NAME_LENGTH);
+  return clean === '' ? undefined : clean;
+}
+
 export function parseSingleFile(contentTypeHeader: string | undefined, body: Buffer): UploadedFile {
   const delimiter = Buffer.from(`--${boundaryOf(contentTypeHeader)}`);
   if (body.subarray(0, delimiter.length).compare(delimiter) !== 0) throw invalid('body');
@@ -61,11 +76,12 @@ export function parseSingleFile(contentTypeHeader: string | undefined, body: Buf
   const disposition = lines.find((line) => /^content-disposition\s*:/i.test(line));
   if (disposition === undefined || !/^content-disposition\s*:\s*form-data\s*(;|$)/i.test(disposition)) throw invalid('content-disposition');
   if (parameterOf(disposition, 'name') !== FILE_FIELD) throw invalid('name');
-  if (parameterOf(disposition, 'filename') === undefined) throw invalid(FILE_FIELD);
+  const filename = parameterOf(disposition, 'filename');
+  if (filename === undefined) throw invalid(FILE_FIELD);
   const declared = lines.find((line) => /^content-type\s*:/i.test(line));
   const contentType = (declared?.slice(declared.indexOf(':') + 1).split(';')[0] ?? 'application/octet-stream').trim().toLowerCase();
   const bytes = body.subarray(contentStart, contentEnd);
-  return { contentType, bytes, sha256: createHash('sha256').update(bytes).digest('hex') };
+  return { contentType, bytes, sha256: createHash('sha256').update(bytes).digest('hex'), name: cleanName(filename) };
 }
 
 async function readBounded(stream: AsyncIterable<Buffer | string>, limit: number): Promise<Buffer> {

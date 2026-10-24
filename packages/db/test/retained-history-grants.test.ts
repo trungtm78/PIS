@@ -14,6 +14,7 @@ const KEPT_FOR_GOOD = [
   'project',
   'project_revision',
   'project_stage_change',
+  'project_appraisal',
   'master_record',
   'master_record_version',
   'master_crosswalk',
@@ -21,6 +22,7 @@ const KEPT_FOR_GOOD = [
   'outgoing_document_event',
   'doc_issue_request',
   'period_reopen',
+  'capital_plan',
   'mne_report',
   'contractor',
   'contract',
@@ -37,6 +39,10 @@ const KEPT_FOR_GOOD = [
   'file_import_row',
   'file_import_quarantine',
   'file_import_reconciliation_item',
+  'treasury_import',
+  'treasury_import_row',
+  'treasury_transaction',
+  'reconciliation_item',
 ];
 
 describe('the runtime role cannot delete or truncate the records that are kept for good (retention "permanent")', () => {

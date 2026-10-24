@@ -246,6 +246,22 @@ const STAGE_ROLES = [
   { n: 171, user: 'stageCanceller', code: 'E2E_STAGE_CANCELLER', permissions: ['project.read', 'project.stage.cancel', 'organization_unit.read'], rank: 30 },
 ];
 
+/**
+ * The people of the appraisal (PRJ-09, PRJ-10, PRJ-15): the one who sends a project to appraisal, two appraisers, the one who decides, and one person who
+ * holds all three permissions (so that the server, not the screen, keeps the proposer of a project from scoring or deciding it). No system role holds
+ * these permissions but the owner's. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
+ */
+const APPRAISAL_ROLES = [
+  { n: 360, user: 'appraisalProposer', code: 'E2E_APPRAISAL_PROPOSER', permissions: ['project.read', 'project.stage.submit', 'organization_unit.read'], rank: 30 },
+  { n: 361, user: 'appraisalAppraiser', code: 'E2E_APPRAISAL_APPRAISER', permissions: ['project.read', 'project.appraise', 'organization_unit.read'], rank: 30 },
+  { n: 362, user: 'appraisalSecond', code: 'E2E_APPRAISAL_SECOND', permissions: ['project.read', 'project.appraise', 'organization_unit.read'], rank: 30 },
+  { n: 363, user: 'appraisalDecider', code: 'E2E_APPRAISAL_DECIDER', permissions: ['project.read', 'project.appraisal.decide', 'organization_unit.read'], rank: 50 },
+  { n: 364, user: 'appraisalAll', code: 'E2E_APPRAISAL_ALL', permissions: ['project.read', 'project.stage.submit', 'project.appraise', 'project.appraisal.decide', 'organization_unit.read'], rank: 50 },
+];
+
+/** The planning officer who assigns the national project codes (PRJ-21). No system role holds project.national_code.manage but the owner's. */
+const NATIONAL_CODE_ROLES = [{ n: 380, user: 'nationalCodeAdmin', code: 'E2E_NATIONAL_CODE_ADMIN', permissions: ['project.read', 'project.national_code.manage', 'organization_unit.read'], rank: 40 }];
+
 /** The people of the permit dossier (PMT-01, PMT-02): the officer who keeps the file and records decisions, the manager who only keeps the file, the reader. No system role holds permit.manage or permit.record but the owner's. */
 const PERMIT_ROLES = [
   { n: 150, user: 'permitOfficer', code: 'E2E_PERMIT_OFFICER', permissions: ['permit.manage', 'permit.record', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 40 },
@@ -279,6 +295,31 @@ const DOC_DRAFT_ROLES = [
   { n: 136, user: 'docClerk', code: 'E2E_DOC_CLERK', permissions: ['doc.outgoing.read', 'doc.outgoing.upload_signed', 'doc.outgoing.register_external', 'doc.file.upload', 'doc.register.read', 'organization_unit.read'], rank: 30 },
 ];
 
+/**
+ * The people of the Treasury statement import (PAY-13) and of the confirmation by hand: the importer imports and reads, the reader only reads imports, and
+ * two accountants are the maker and the checker of a confirmation (the checker is never the person who drafted or sent the request). No system role holds the
+ * treasury permissions but the owner's. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
+ */
+const PAY_ROLES = [
+  { n: 330, user: 'treasuryImporter', code: 'E2E_TREASURY_IMPORTER', permissions: ['treasury.import', 'treasury.import.read', 'treasury_transaction.read'], rank: 40 },
+  { n: 331, user: 'treasuryReader', code: 'E2E_TREASURY_READER', permissions: ['treasury.import.read'], rank: 20 },
+  { n: 332, user: 'treasuryMaker', code: 'E2E_TREASURY_MAKER', permissions: ['treasury.confirm_manual', 'treasury_transaction.read'], rank: 40 },
+  { n: 333, user: 'treasuryChecker', code: 'E2E_TREASURY_CHECKER', permissions: ['treasury.confirm_manual', 'treasury_transaction.read'], rank: 50 },
+];
+
+/**
+ * The people of the capital plan (CAP-01, 02, 03, 06): two planners who draft (and read the projects and units to name them), so that the browser
+ * flows can race them on one ceiling and on one version of a plan, and a reader who sees the published plans only. No system role holds these
+ * permissions but the owner's. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
+ */
+const PLAN_ROLES = [
+  { n: 370, user: 'planPlanner', code: 'E2E_PLAN_PLANNER', permissions: ['capital.read', 'capital.plan.draft', 'plan_version.read', 'allocation_line.read', 'project.read', 'organization_unit.read'], rank: 40 },
+  { n: 371, user: 'planSecond', code: 'E2E_PLAN_SECOND', permissions: ['capital.read', 'capital.plan.draft', 'plan_version.read', 'allocation_line.read', 'project.read', 'organization_unit.read'], rank: 40 },
+  { n: 372, user: 'planReader', code: 'E2E_PLAN_READER', permissions: ['capital.read', 'plan_version.read', 'allocation_line.read'], rank: 20 },
+  // The same rights as the first planner, on the subtree of the Project Management Board only: the projects of the rest of the Department do not exist for this person.
+  { n: 373, user: 'planScoped', code: 'E2E_PLAN_SCOPED', permissions: ['capital.read', 'capital.plan.draft', 'plan_version.read', 'allocation_line.read', 'project.read', 'organization_unit.read'], rank: 40 },
+];
+
 interface GrantPlan {
   n: number;
   user: string;
@@ -302,10 +343,14 @@ const GRANTS: GrantPlan[] = [
   { n: 23, user: 'notificationReader', role: NOTIFICATION_READER_ROLE.code, kind: 'TENANT', refs: [] },
   ...STORY_ROLES.map((role, index): GrantPlan => ({ n: 60 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...INVESTMENT_ROLES.map((role, index): GrantPlan => ({ n: 30 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...PLAN_ROLES.map((role): GrantPlan => (role.user === 'planScoped' ? { n: role.n, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(5)] } : { n: role.n, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...STAGE_ROLES.map((role, index): GrantPlan => ({ n: 170 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...APPRAISAL_ROLES.map((role, index): GrantPlan => ({ n: 360 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...NATIONAL_CODE_ROLES.map((role, index): GrantPlan => ({ n: 380 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PERMIT_ROLES.map((role, index): GrantPlan => ({ n: 150 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...DOC_DRAFT_ROLES.map((role, index): GrantPlan => ({ n: 180 + index, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] })),
   ...CTR_ROLES.map((role, index): GrantPlan => ({ n: 200 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...PAY_ROLES.map((role, index): GrantPlan => ({ n: 330 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -598,7 +643,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...INVESTMENT_ROLES, ...STAGE_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...CTR_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
@@ -707,6 +752,67 @@ async function seedCtrFixtures(database: TestDatabase): Promise<void> {
         `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
          values ($1, $2, $3, $4, $5, repeat('a', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL')`,
         [tenantId, fixtureId(0x5c, 10 + n), fixtureId(0x5c, 2), n, `tenants/e2e/ctr-${n}.pdf`],
+      );
+    }
+  } finally {
+    await client.end();
+  }
+}
+
+/** The codes of the Treasury world below, for the flows of PAY-13 (apps/web/e2e/pay-flows.spec.ts names the same two). */
+export const PAY_PROJECT_CODE = 'DA-PAY';
+export const PAY_OFFICE_CODE = 'KB-CB-1';
+
+/**
+ * What the browser flows of the Treasury statement import (PAY-13) and of the confirmation by hand stand on: a project of the Project Management Board whose
+ * code the statements name, the Treasury office entry that the code KB-CB-1 is mapped to by the crosswalk TREASURY/AGENCY_CODE, a contract, a clean evidence
+ * document, and a few payment requests that were sent to the Treasury (drafted and sent by the maker). The flows make their own statement files; the
+ * requests are here because the payment requests themselves are another story. Foreign keys to the modules that are not seeded here are switched off.
+ */
+async function seedPayFixtures(database: TestDatabase): Promise<void> {
+  const tenantId = fixtures.tenants.A;
+  const maker = userKey('treasuryMaker').membershipId;
+  const client = new Client({ connectionString: database.adminUrl });
+  await client.connect();
+  try {
+    await client.query('set session_replication_role = replica');
+    const project = fixtureId(0x5e, 1);
+    await client.query(
+      `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, investor_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+       values ($1, $2, $3, 'Dự án thanh toán thử', $4, $5, $6, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
+      [tenantId, project, PAY_PROJECT_CODE, unitId(5), unitId(2), fixtureId(0x52, 1)],
+    );
+    const office = fixtureId(0x5e, 2);
+    await client.query(
+      "insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'TREASURY_OFFICE', 'KBNN-CB', 'EFFECTIVE', $3, $3)",
+      [tenantId, office, ACTOR],
+    );
+    await client.query(
+      `insert into machvon.master_crosswalk (tenant_id, id, master_record_id, source_system, external_type, external_code, valid_from, match_method, status, created_by, updated_by)
+       values ($1, $2, $3, 'TREASURY', 'AGENCY_CODE', $4, date '2024-01-01', 'MANUAL', 'ACTIVE', $5, $5)`,
+      [tenantId, fixtureId(0x5e, 3), office, PAY_OFFICE_CODE, ACTOR],
+    );
+    await client.query(
+      `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from)
+       values ($1, $2, $3, $4, $4, 'HD-PAY', 'LUMP_SUM', 'VND', 'ACTIVE', 1, 1000000000, date '2026-01-01', date '2026-01-01')`,
+      [tenantId, fixtureId(0x5e, 4), project, fixtureId(0x5e, 5)],
+    );
+    await client.query("insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by) values ($1, $2, 'REFERENCE', 'CT', 'Chứng từ Kho bạc thử', 'INTERNAL', $3, $3)", [
+      tenantId,
+      fixtureId(0x5e, 6),
+      ACTOR,
+    ]);
+    await client.query(
+      `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
+       values ($1, $2, $3, 1, 'tenants/e2e/treasury-evidence.pdf', repeat('a', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL')`,
+      [tenantId, fixtureId(0x5e, 7), fixtureId(0x5e, 6)],
+    );
+    for (const n of [1, 2, 3, 4]) {
+      await client.query(
+        `insert into machvon.payment_request
+           (tenant_id, id, project_id, contract_id, acceptance_id, currency, gross_vnd, advance_recovery_vnd, retention_vnd, tax_adjustment_vnd, net_vnd, status, version, claims_acceptance, request_no, created_by, submitted_by)
+         values ($1, $2, $3, $4, $5, 'VND', 5000000, 0, 0, 0, 5000000, 'SENT_TREASURY', 1, true, $6, $7, $7)`,
+        [tenantId, fixtureId(0x5e, 10 + n), project, fixtureId(0x5e, 4), fixtureId(0x5e, 20 + n), `HS-PAY-${n}`, maker],
       );
     }
   } finally {
@@ -898,6 +1004,7 @@ describe('e2e API stack', () => {
       await seedTenant(database, tenants, 'C');
       await seedMemberFixtures(database);
       await seedCtrFixtures(database);
+      await seedPayFixtures(database);
       await seedPlacement(database);
       // Outgoing documents of tenant A with a signed PDF, a certificate authority of the test and a signing adapter that approves by itself.
       const outgoing = await seedOutgoingDocuments({

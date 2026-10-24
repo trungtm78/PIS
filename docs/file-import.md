@@ -71,6 +71,14 @@ The rules an adapter keeps:
 
 A wrong `expectedSha256` (the hash that the upload recorded) is 422 `HASH_MISMATCH` before anything is written.
 
+## Dry run
+
+`previewFileImport(tx, adapter, bytes)` (`packages/db/src/file-import-preview.ts`) reads and judges a file exactly as `FileImportStore.run` will and
+writes nothing: no claim of the file, no claim of a row, no quarantine, no outbox event. It answers the file hash, whether the same bytes were applied
+before (`alreadyApplied`), the counts, and for each row `VALID`, `ERROR` (with its code and field), `DUPLICATE` or `CONFLICT`, with the masked
+preview of the row. An adapter may add `outcomeOf(tx, entry)` to say what its `apply` would do with a valid row. The first adapter to use it is the
+national project code file of PRJ-21 (`docs/prj-national-code-file.md`).
+
 ## Connector position (`integration_cursor`)
 
 Pass `cursorScope` (normally `DEFAULT`) to keep the position of the connector in step:

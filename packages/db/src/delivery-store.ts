@@ -438,12 +438,18 @@ export class DeliveryStore {
     );
   }
 
+  /** The probe ended in a refusal that says nothing about the provider: the circuit stays open and the next send is the next probe. */
+  async circuitProbeUndecided(tx: TenantTx, channelAccountId: string): Promise<void> {
+    await tx.query("update machvon.channel_account_circuit set state = 'OPEN', probe_started_at = null, updated_at = now() where channel_account_id = $1::uuid and state = 'HALF_OPEN'", [channelAccountId]);
+  }
+
   /** A send on the account failed or was lost: the circuit opens after enough failures in the window, or again after a failed probe. Returns the state. */
   async circuitFailure(tx: TenantTx, channelAccountId: string, now: Date): Promise<CircuitState> {
     await tx.query(`insert into machvon.channel_account_circuit (tenant_id, channel_account_id) values (${TENANT}, $1::uuid) on conflict do nothing`, [channelAccountId]);
     const [row] = await tx.query<{ state: CircuitState; failures: string }>(
       `select c.state, (select count(*) from machvon.delivery_attempt a
-                         where a.channel_account_id = c.channel_account_id and a.failed_at > $2::timestamptz - make_interval(secs => 60) and a.failed_at <= $2::timestamptz)::text as failures
+                         where a.channel_account_id = c.channel_account_id and a.failure_class is distinct from 'PERMANENT'
+                           and a.failed_at > $2::timestamptz - make_interval(secs => 60) and a.failed_at <= $2::timestamptz)::text as failures
          from machvon.channel_account_circuit c where c.channel_account_id = $1::uuid for update`,
       [channelAccountId, now.toISOString()],
     );
@@ -512,8 +518,13 @@ export class DeliveryStore {
   /** The gauges of the alerts: notifications waiting in the failed queue, and the age in seconds of the oldest send whose result is unknown. */
   async gauges(tx: TenantTx): Promise<{ deadLetter: number; oldestUnknownSeconds: number }> {
     const [row] = await tx.query<{ dead: string; oldest: string | null }>(
-      `select (select count(*) from machvon.notification_instance where status in ('Failed', 'Unknown'))::text as dead,
-              (select extract(epoch from now() - min(unknown_at))::text from machvon.delivery_attempt where status = 'Unknown') as oldest`,
+      // The notifications the failed queue lists (NOT-13): one that a replay copy has taken over is not waiting there any more.
+      `select (select count(*) from machvon.notification_instance n
+                where n.status in ('Failed', 'Unknown')
+                  and not exists (select 1 from machvon.notification_instance copy where copy.replay_of = coalesce(n.replay_of, n.id) and coalesce(copy.replay_seq, 0) > coalesce(n.replay_seq, 0)))::text as dead,
+              (select extract(epoch from now() - min(a.unknown_at))::text from machvon.delivery_attempt a join machvon.notification_instance n on n.tenant_id = a.tenant_id and n.id = a.notification_id
+                where a.status = 'Unknown' and n.status = 'Unknown'
+                  and not exists (select 1 from machvon.notification_instance copy where copy.replay_of = coalesce(n.replay_of, n.id) and coalesce(copy.replay_seq, 0) > coalesce(n.replay_seq, 0))) as oldest`,
     );
     return { deadLetter: Number(row?.dead ?? 0), oldestUnknownSeconds: Math.floor(Number(row?.oldest ?? 0)) };
   }

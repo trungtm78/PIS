@@ -97,6 +97,21 @@ describe('NOT-13 failed queue and replay (UI-NOT-13, AC-ST-NOT-002-9)', () => {
     await waitFor(() => expect(screen.queryByTestId('replay-panel')).toBeNull());
   });
 
+  it('takes the focus into the reason field when the panel opens and ties the missing-reason message to the field it is about', async () => {
+    const user = userEvent.setup();
+    mount(<FailedQueueScreen route={ROUTE} />, reads([FAILED]));
+    await user.click(await screen.findByRole('button', { name: vi_['not.failed.replay.action'] }));
+    const panel = screen.getByTestId('replay-panel');
+    const field = within(panel).getByLabelText(vi_['not.failed.replay.reason.label']);
+    expect(document.activeElement).toBe(field);
+    expect(field.getAttribute('aria-invalid')).toBeNull();
+    await user.click(within(panel).getByRole('button', { name: vi_['not.failed.replay.confirm.action'] }));
+    const message = await within(panel).findByText(vi_['not.failed.replay.reason.error']);
+    expect(field.getAttribute('aria-invalid')).toBe('true');
+    expect(field.getAttribute('aria-describedby')).toBe(message.id);
+    expect(document.activeElement).toBe(field);
+  });
+
   it('warns that the message may be sent twice before replaying a send whose result was never learnt', async () => {
     const user = userEvent.setup();
     mount(<FailedQueueScreen route={ROUTE} />, reads([LOST_OLD]));

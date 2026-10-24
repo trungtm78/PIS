@@ -7,7 +7,7 @@ import { CtrGuaranteeExpiry } from '../src/ctr-guarantee-expiry';
 import { CtrGuaranteeStore, thresholdFor } from '../src/ctr-guarantee-store';
 import type { GuaranteeMove, NewGuarantee } from '../src/ctr-guarantee-store';
 import type { TenantTx } from '../src/tenant-database';
-import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
+import { AuthzHarness, TENANT_A, TENANT_B, contextFor, id, memberId, unitId } from './support/authz-fixtures';
 import { seedCtrWorld } from './support/ctr-fixtures';
 import type { CtrWorld } from './support/ctr-fixtures';
 
@@ -181,6 +181,33 @@ describe('CtrGuaranteeStore (guarantees: register, verify, extend by replacement
       expect(final?.released_at).not.toBeNull();
     });
 
+    it('takes as the paper, the evidence of a check and the evidence of a release only a file the scan found clean', async () => {
+      const unclean: Record<string, string> = {};
+      for (const [status, version] of [['INFECTED', 70], ['PENDING', 71]] as const) {
+        unclean[status] = randomUUID();
+        await owner(
+          `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
+           values ($1, $2, $3, $4, $5, repeat('a', 64), 'application/pdf', 1, 'INTERNAL', $6, '{}'::jsonb, 'RENDERED_FINAL')`,
+          [TENANT_A, unclean[status], id(FAMILY, 47), version, `tenants/ctr/${status}.pdf`, status],
+        );
+      }
+      const contract = await draft();
+      for (const bad of Object.values(unclean)) {
+        expect(await refusal(register(contract, { documentVersionId: bad }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'document_version_id' });
+      }
+      const registered = await register(contract);
+      for (const bad of Object.values(unclean)) {
+        expect(await refusal(verify(registered.id, 1, 'VERIFIED', ACCOUNTANT, bad))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'evidence_document_version_id' });
+      }
+      expect(await row(registered.id)).toMatchObject({ status: 'PENDING_VERIFICATION' });
+      await verify(registered.id, 1);
+      for (const bad of Object.values(unclean)) {
+        expect(await refusal(release(registered.id, 2, bad))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'release_evidence_id' });
+        expect(await refusal(extend(registered.id, 2, { documentVersionId: bad }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'document_version_id' });
+      }
+      expect(await row(registered.id)).toMatchObject({ status: 'ACTIVE', released_at: null });
+    });
+
     it('refuses the release by the person who registered the guarantee, a state that cannot be released, and a stale version', async () => {
       const contract = await draft();
       const registered = await register(contract);
@@ -319,6 +346,46 @@ describe('CtrGuaranteeStore (guarantees: register, verify, extend by replacement
       const recovered = await draft('10000000000');
       const other = await active(recovered, { kind: 'ADVANCE' });
       expect((await release(other.id, 2)).status).toBe('RELEASED');
+    });
+
+    it('never lets two advance guarantees release each other away at the same time: the second release is judged after the first has committed (RELEASE_CONDITION_NOT_MET)', async () => {
+      const contract = await draft('10000000000');
+      await owner('update machvon.contract set advance_paid_vnd = 2000000000, advance_recovered_vnd = 750000000 where id = $1::uuid', [contract]);
+      const first = await active(contract, { kind: 'ADVANCE', amountVnd: '2000000000' });
+      const second = await active(contract, { kind: 'ADVANCE', amountVnd: '2000000000' });
+      let openGate!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        openGate = resolve;
+      });
+      let firstReleased!: () => void;
+      const released = new Promise<void>((resolve) => {
+        firstReleased = resolve;
+      });
+      const body = { releaseEvidenceId: world.evidence, reason: 'Obligation completed' };
+      // The first release has written but not committed when the second one starts: each sees the other guarantee still ACTIVE.
+      const a = as(
+        async (tx) => {
+          const moved = await guarantees.release(tx, first.id, 2, body, memberId(ACCOUNTANT), scopesFor(RELEASE), NOW);
+          firstReleased();
+          await gate;
+          return moved;
+        },
+        TENANT_A,
+        ACCOUNTANT,
+      );
+      await released;
+      const b = as((tx) => guarantees.release(tx, second.id, 2, body, memberId(ACCOUNTANT), scopesFor(RELEASE), NOW), TENANT_A, ACCOUNTANT);
+      const settled = b.then(
+        () => 'released',
+        (error: { code?: string }) => error.code ?? 'failed',
+      );
+      // Either the second release is waiting for the first (the right behaviour) or it has already gone through (the race).
+      await Promise.race([settled, new Promise((resolve) => setTimeout(resolve, 1500))]);
+      openGate();
+      expect((await a).status).toBe('RELEASED');
+      expect(await settled).toBe('RELEASE_CONDITION_NOT_MET');
+      const left = await owner<{ status: string }>(`select status from machvon.guarantee where contract_id = $1::uuid and kind = 'ADVANCE' order by status`, [contract]);
+      expect(left.map((entry) => entry.status).sort()).toEqual(['ACTIVE', 'RELEASED']);
     });
 
     it('releases a performance guarantee of a contract in force, on evidence and by another person, and an expired one', async () => {

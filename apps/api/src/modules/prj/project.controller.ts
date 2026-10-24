@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe
 import { PERMISSIONS } from '@machvon/contracts';
 import { PrjProjectStore, TenantDatabase, projectScope } from '@machvon/db';
 import type { ProfileChange } from '@machvon/db';
-import { DomainError, NOOP_METRICS, effectivePermissions, holdsPermission, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -13,19 +13,17 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { SHARED_PIPELINE_CACHE } from './pipeline-cache';
+import type { PipelineCache } from './pipeline-cache';
 import { projectDetailView, projectLineView } from './project-view';
-import { PRJ_METRICS } from './tokens';
+import { reaches } from './reach';
+import { PRJ_METRICS, PRJ_PIPELINE_CACHE } from './tokens';
 
 const CREATE_PERMISSION = PERMISSIONS.createProject;
 const UPDATE_PERMISSION = PERMISSIONS.updateProjectProfile;
 const READ_PERMISSION = PERMISSIONS.get_resources_project;
 const RESOURCE_TYPE = 'project';
 const MISSING_CODE_GAUGE = 'prj_national_code_missing_gauge';
-
-/** Whether a grant that carries the permission has a scope that contains the unit. */
-function reaches(access: EffectiveAccess, permission: string, unit: { id: string; path: string }, now: Date): boolean {
-  return holdsPermission(effectivePermissions(access, now, { ownerUnitPath: unit.path, ownerUnitId: unit.id }), permission);
-}
 
 /** The allowlist of the contract in the shape the store takes (no code, no status, no tenant, no money, no rights: BR-PRJ-13). */
 function profileChangeOf(body: Schemas['PrjProfileChange']): ProfileChange {
@@ -50,6 +48,16 @@ function profileChangeOf(body: Schemas['PrjProfileChange']): ProfileChange {
 @Controller()
 export class ProjectController {
   private readonly projects = new PrjProjectStore();
+  private readonly cache: PipelineCache;
+
+  constructor(@Optional() @Inject(PRJ_PIPELINE_CACHE) cache?: PipelineCache) {
+    this.cache = cache ?? SHARED_PIPELINE_CACHE;
+  }
+
+  /** The cards of the project bank show the name, the version and the column of a project: a committed change of the register clears the pages of the tenant. */
+  private dropBoardPages(scope: CommandScope): void {
+    scope.afterCommit(() => this.cache.invalidate(scope.tenant.tenantId));
+  }
 
   @Post('projects')
   @HttpCode(200)
@@ -108,6 +116,7 @@ export class ProjectController {
       },
       eventKey: `${RESOURCE_TYPE}:${created.id}:${created.version}`,
     });
+    this.dropBoardPages(scope);
     return commandResult(scope, created.status, created.version, created.id);
   }
 
@@ -156,6 +165,7 @@ export class ProjectController {
       },
       eventKey: `${RESOURCE_TYPE}:${id}:${done.version}`,
     });
+    this.dropBoardPages(scope);
     return commandResult(scope, done.status, done.version, id);
   }
 }

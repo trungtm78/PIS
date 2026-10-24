@@ -42,10 +42,11 @@ export class DocumentFilesController {
     const verdict = validateUpload({ declaredType: file.contentType, bytes: file.bytes, purpose: 'document' });
     if (!verdict.ok) throw new DomainError(verdict.code, verdict.status);
     assertPdf(file.bytes);
-    const pages = await pageCountOf(file.bytes);
     const stored = await this.files.upload(scope.tenant, { purpose: 'document', declaredType: file.contentType, bytes: file.bytes });
     if (stored.scanStatus === 'INFECTED') throw new DomainError('FILE_NOT_CLEAN', 422);
     if (stored.scanStatus !== 'CLEAN') throw new DomainError('SCAN_PENDING', 409);
+    // The PDF reader is a parser of the sender's bytes: it reads only a file the scan found clean.
+    const pages = await pageCountOf(file.bytes);
     const report = await verifyPdfSignatures(file.bytes, await this.trust.forTenant(scope.tenant.tenantId), this.clock(), { policy: 'STRICT' });
     await scope.audit({
       action: 'document.file_uploaded',

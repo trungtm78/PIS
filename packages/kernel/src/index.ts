@@ -237,3 +237,17 @@ export {
   sourceRowsOfTable,
 } from './file-import.ts';
 export type { AcceptedRow, Difference, FileImportFormat, FilePlan, PlannedAccepted, PlannedRejected, PlannedRow, Rejection, RowJudgement, SourceRow } from './file-import.ts';
+export {
+  APPRAISAL_MAX_SCORE,
+  APPRAISAL_RECOMMENDATIONS,
+  APPRAISAL_SCORE_SCALE,
+  APPRAISAL_WEIGHT_TOTAL,
+  appraisalTotal,
+  assertCriteriaWeights,
+  decisionOpposesRecommendation,
+  meanAppraisalScore,
+  thresholdRecommendation,
+} from './appraisal-score.ts';
+export type { AppraisalCriterion, AppraisalRecommendation, AppraisalScoreInput } from './appraisal-score.ts';
+export { NATIONAL_CODE_ADAPTER_STATUS, NATIONAL_CODE_CONNECTOR, NATIONAL_CODE_FORMAT_VERSION, NATIONAL_CODE_MAX_LENGTH, nationalCodeFileFormat } from './national-code-file.ts';
+export type { NationalCodeRow } from './national-code-file.ts';

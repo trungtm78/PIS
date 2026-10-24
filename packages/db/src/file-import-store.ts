@@ -310,7 +310,7 @@ export class FileImportStore {
         const refusal = adapter.examine === undefined ? undefined : await adapter.examine(tx, entry);
         if (refusal !== undefined) {
           assertRejection(refusal);
-          await this.quarantine(tx, importId, { line: planned.line, accepted: false, rejection: refusal, businessKey: entry.businessKey, rowHash: entry.rowHash, preview: maskedPreview(adapter, entry.fields) });
+          await this.quarantine(tx, importId, { line: planned.line, accepted: false, rejection: refusal, businessKey: entry.businessKey, rowHash: entry.rowHash, preview: maskedPreview(adapter, planned.values) });
           counts.quarantined += 1;
           metrics.increment(FILE_IMPORT_QUARANTINED_METRIC, { connector: adapter.connectorCode, reason: refusal.code });
           continue;

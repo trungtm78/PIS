@@ -6,15 +6,17 @@ import { ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../
 import { TEMPLATE_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
-import { PROJECT_FIXTURES } from '../suite';
+import { APPRAISAL_FIXTURES, PROJECT_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
+import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { PERIOD_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
+import { TREASURY_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -172,6 +174,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'registerAppropriation',
   'decideAppropriation',
   'listAppropriations',
+  'createCapitalPlan',
+  'draftCapitalAllocation',
+  'listCapitalPlanLines',
+  'get_resources_plan_version',
+  'get_resources_plan_version_id',
+  'get_resources_allocation_line',
+  'get_resources_allocation_line_id',
   'listDocumentTemplates',
   'getDocumentTemplate',
   'createDocumentTemplateRevision',
@@ -194,6 +203,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'completeProject',
   'closeProject',
   'cancelProject',
+  'submitProjectForAppraisal',
+  'recordProjectAppraisal',
+  'decideProjectAppraisal',
+  'assignNationalProjectCode',
+  'importNationalProjectCodes',
+  'uploadNationalCodeFile',
   'getProjectLifecycle',
   'listProjectPipeline',
   'createRetentionPolicyVersion',
@@ -234,6 +249,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listMneObligationRules',
   'generateMneObligations',
   'listMneObligations',
+  'importTreasuryStatement',
+  'getTreasuryImport',
+  'confirmTreasuryManually',
+  'receiveTreasuryCallback',
+  'get_resources_treasury_transaction',
+  'get_resources_treasury_transaction_id',
+  'uploadTreasuryStatementFile',
+  'listTreasuryImports',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -358,6 +381,18 @@ const INSERT_APPROPRIATION = `insert into machvon.appropriation
   (tenant_id, id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, decision_document_id, issuing_authority, source_year, revision, status, created_by, updated_by)
   values ($1, $2, $3, 2026, 'LOCAL_ADDED', 'LOCAL', 1000, $4, $5, 2026, 1, 'DRAFT', $6, $6) on conflict do nothing`;
 
+const INSERT_CAPITAL_PLAN = `insert into machvon.capital_plan
+  (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, created_by, updated_by)
+  values ($1, $2, $3, 'ANNUAL', 2026, 2026, 2026, $4, 1, 'DRAFT', $5, $5) on conflict do nothing`;
+
+const INSERT_PLAN_VERSION = `insert into machvon.plan_version
+  (tenant_id, id, project_id, fiscal_year, revision, status, capital_plan_id, created_by, updated_by)
+  values ($1, $2, $3, 2026, 1, 'DRAFT', $4, $5, $5) on conflict do nothing`;
+
+const INSERT_ALLOCATION_LINE = `insert into machvon.allocation_line
+  (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin, created_by, updated_by)
+  values ($1, $2, $3, $4, 'CURRENT_YEAR', 2026, 100, 0, $5, $6, 'LOCAL', 'LOCAL_ADDED', $7, $7) on conflict do nothing`;
+
 const INSERT_WORK_CALENDAR = `insert into machvon.work_calendar_version
   (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, version)
   values ($1, $2, $3, 2026, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, $4, 'Draft', $5, 1) on conflict do nothing`;
@@ -420,6 +455,13 @@ const INSERT_CURSOR = `insert into machvon.integration_cursor
   (tenant_id, id, connector_code, source_scope, cursor_json, schema_version, adapter_status, status, last_file_sha256)
   values ($1, $2, 'ISOLATION_FILE', $3, '{}'::jsonb, '1', 'PROPOSED', 'ACTIVE', $4) on conflict do nothing`;
 
+const INSERT_TREASURY_IMPORT = `insert into machvon.treasury_import
+  (tenant_id, id, provider, source_kind, file_name, file_sha256, file_object_key, row_total, row_new, status, imported_by, created_by)
+  values ($1, $2, 'KBNN_FILE', 'STATEMENT_FILE', 'isolation-statement', $3, $4, 1, 1, 'APPLIED', $5, $5) on conflict do nothing`;
+const INSERT_TREASURY_TRANSACTION = `insert into machvon.treasury_transaction
+  (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, import_id, document_no, document_date, source_kind, row_hash, created_by)
+  values ($1, $2, $3, $4, 'KBNN_FILE', 1000, '2026-10-16T00:00:00Z', repeat('c', 64), $5, $6, date '2026-10-15', 'FILE_IMPORT', repeat('c', 64), $7) on conflict do nothing`;
+
 const INSERT_DATASET = `insert into machvon.dataset
   (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'ISOLATION', 'one row per isolation case', 'PAY', $5, $5, 'PUBLIC', false, 3600, 'DRAFT', $6, $6) on conflict do nothing`;
@@ -463,6 +505,10 @@ const INSERT_GUARANTEE = `insert into machvon.guarantee
 const INSERT_PROJECT = `insert into machvon.project
   (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, created_by, updated_by)
   values ($1, $2, $3, $4, $5, $6, 'INTERNAL', 1000, 'CONCEPT', 1, $7, $7) on conflict do nothing`;
+
+const INSERT_APPRAISAL = `insert into machvon.project_appraisal
+  (tenant_id, id, project_id, round, criteria_set_version_id, appraiser_membership_id, scores_json, total_score, recommendation, status, created_by, updated_by)
+  values ($1, $2, $3, 1, $4, $5, '[{"criterion_code":"A","score":3}]'::jsonb, 60, 'ADMIT', 'SUBMITTED', $5, $5) on conflict do nothing`;
 
 const INSERT_REGISTER = `insert into machvon.document_number_register
   (tenant_id, id, register_code, name, direction, organization_unit_id, year, created_by, updated_by)
@@ -572,11 +618,15 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CURSOR, [tenantId, crosswalk.cursorId, crosswalk.sourceScope, crosswalk.fileSha256]);
     const project = PROJECT_FIXTURES[tenant];
     await client.query(INSERT_PROJECT, [tenantId, project.id, project.code, project.name, home, master.versionId, ACTOR_ID]);
+    await client.query(INSERT_APPRAISAL, [tenantId, APPRAISAL_FIXTURES[tenant].id, project.id, master.versionId, MEMBERSHIP_ID]);
     const issue = ISSUE_FIXTURES[tenant];
     await client.query(INSERT_ISSUE, [tenantId, issue.id, issue.code, project.id, master.versionId, issue.title, home, slaPolicy.id, ACTOR_ID]);
     const permit = PERMIT_FIXTURES[tenant];
     await client.query(INSERT_PERMIT_DOSSIER, [tenantId, permit.dossierId, project.id, home, ACTOR_ID]);
     await client.query(INSERT_PERMIT, [tenantId, permit.permitId, permit.dossierId, permitType.id, permit.authority, ACTOR_ID]);
+    const treasury = TREASURY_FIXTURES[tenant];
+    await client.query(INSERT_TREASURY_IMPORT, [tenantId, treasury.importId, treasury.fileSha256, `tenants/${tenantId}/import/isolation-statement`, MEMBERSHIP_ID]);
+    await client.query(INSERT_TREASURY_TRANSACTION, [tenantId, treasury.transactionId, project.id, treasury.externalId, treasury.importId, treasury.documentNo, MEMBERSHIP_ID]);
     const dataset = DATASET_FIXTURES[tenant];
     await client.query(INSERT_DATASET, [tenantId, dataset.id, dataset.datasetCode, dataset.title, MEMBERSHIP_ID, ACTOR_ID]);
     const term = GLOSSARY_FIXTURES[tenant];
@@ -586,6 +636,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_DOCUMENT, [tenantId, documents.documentId, ACTOR_ID]);
     const appropriation = APPROPRIATION_FIXTURES[tenant];
     await client.query(INSERT_APPROPRIATION, [tenantId, appropriation.id, master.versionId, documents.documentId, appropriation.issuingAuthority, ACTOR_ID]);
+    const plan = CAPITAL_PLAN_FIXTURES[tenant];
+    await client.query(INSERT_CAPITAL_PLAN, [tenantId, plan.id, plan.planCode, home, ACTOR_ID]);
+    await client.query(INSERT_PLAN_VERSION, [tenantId, plan.versionId, project.id, plan.id, ACTOR_ID]);
+    await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     const contractor = CONTRACTOR_FIXTURES[tenant];
     await client.query(INSERT_CONTRACTOR, [tenantId, contractor.id, contractor.taxIdentifier, contractor.legalName, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
@@ -614,7 +668,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'contractor', 'contractor_restriction', 'appropriation', 'procurement_package', 'contract', 'contract_revision', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'procurement_package', 'contract', 'contract_revision', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

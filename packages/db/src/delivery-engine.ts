@@ -369,13 +369,24 @@ export class DeliveryEngine {
       [notification.id],
     );
     cancelled.forEach((row) => this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: row.channel, outcome: 'cancelled' }));
-    const nothingOut = ['Created', 'Scheduled', 'Queued'].includes(notification.status);
+    // A notification that is only waiting for a retry is still "Sending" (an earlier send failed and the next one is queued): once the waiting sends are
+    // cancelled nothing is in flight or delivered any more, and nobody would ever move it on, so it ends Cancelled like one that never went out.
+    const nothingOut = ['Created', 'Scheduled', 'Queued'].includes(notification.status) || (notification.status === 'Sending' && (await this.nothingInFlight(tx, notification.id)));
     if (nothingOut) {
       await this.store.moveNotification(tx, notification.id, 'Cancelled');
     } else {
       await tx.query('update machvon.notification_instance set cancel_requested_at = $2::timestamptz, version = version + 1 where id = $1::uuid', [notification.id, input.now.toISOString()]);
     }
     return { outcome: nothingOut ? 'CANCELLED' : 'CANCEL_REQUESTED', version: notification.version + 1, cancelledAttempts: cancelled.length };
+  }
+
+  /** Whether no send of the notification is in flight, uncertain or accepted by a provider: every attempt it has is over without reaching the person. */
+  private async nothingInFlight(tx: TenantTx, notificationId: string): Promise<boolean> {
+    const [row] = await tx.query<{ n: string }>(
+      "select count(*)::text as n from machvon.delivery_attempt where notification_id = $1::uuid and status in ('Sending', 'Unknown', 'ProviderAccepted', 'Delivered', 'Read')",
+      [notificationId],
+    );
+    return Number(row?.n ?? 0) === 0;
   }
 
   // The steps that follow a failed send.
@@ -388,7 +399,10 @@ export class DeliveryEngine {
       now.toISOString(),
     ]);
     await this.callbacks.recordResponse(tx, { ref, table: itemTable, status: 'FAILED', occurredAt: now, metrics: this.metrics });
-    await this.store.circuitFailure(tx, attempt.channelAccountId, now);
+    // Only a failure that says the provider is in trouble counts against its circuit. A refusal about one recipient (no address, an address the provider
+    // rejects, a template that does not render) is the same on a healthy provider; counting it would let twenty bad addresses stop every message of the account.
+    if (failureClass === 'RETRYABLE') await this.store.circuitFailure(tx, attempt.channelAccountId, now);
+    else await this.store.circuitProbeUndecided(tx, attempt.channelAccountId);
   }
 
   /** What follows a failed send: another send on the schedule, the next channel of the plan, or the end of the chain. */
@@ -482,7 +496,12 @@ export class DeliveryEngine {
     const stamp = occurredAt.toISOString();
     if (status === 'FAILED') {
       await tx.query(
-        "update machvon.delivery_attempt set status = 'Failed', failure_class = coalesce(failure_class, 'PERMANENT'), error_code = coalesce(error_code, 'PROVIDER_REPORTED_FAILURE'), failed_at = coalesce(failed_at, $2::timestamptz), provider_message_id = coalesce(provider_message_id, $3) where id = $1::uuid and status <> 'Failed'",
+        // A send of unknown result carries the class UNKNOWN, which a Failed send may not (delivery_attempt_failed_chk): the provider's word makes it a refusal.
+        `update machvon.delivery_attempt
+            set status = 'Failed', failure_class = case when failure_class in ('RETRYABLE', 'PERMANENT') then failure_class else 'PERMANENT' end,
+                error_code = case when status = 'Unknown' then 'PROVIDER_REPORTED_FAILURE' else coalesce(error_code, 'PROVIDER_REPORTED_FAILURE') end,
+                failed_at = coalesce(failed_at, $2::timestamptz), provider_message_id = coalesce(provider_message_id, $3)
+          where id = $1::uuid and status <> 'Failed'`,
         [attempt.id, stamp, providerMessageId ?? null],
       );
       this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: 'failed_permanent' });
@@ -500,6 +519,12 @@ export class DeliveryEngine {
     );
     await this.store.circuitSuccess(tx, attempt.channelAccountId);
     this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: target === 'ProviderAccepted' ? 'accepted' : target.toLowerCase() });
+    if (target === 'Delivered' || target === 'Read') {
+      // The message reached the person (it may have been reported failed first and delivered late): a retry or a next channel that the failure queued is no
+      // longer wanted, and on a paid channel it would be a second message.
+      const waiting = await tx.query<{ channel: string }>("update machvon.delivery_attempt set status = 'Cancelled', error_code = 'DELIVERED_LATE' where notification_id = $1::uuid and status = 'Queued' returning channel", [notification.id]);
+      waiting.forEach((row) => this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: row.channel, outcome: 'cancelled' }));
+    }
     await this.store.syncNotification(tx, notification);
   }
 

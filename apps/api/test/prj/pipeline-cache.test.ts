@@ -18,6 +18,21 @@ describe('the cache of the pages of the project bank (ST-PRJ-002)', () => {
     expect(PIPELINE_CACHE_TTL_SECONDS).toBe(60);
   });
 
+  it('does not grow without bound: a page that nobody reads again is dropped, and the oldest go when the cache is full', async () => {
+    let now = 1_000_000;
+    const cache = new InMemoryPipelineCache(() => now, PIPELINE_CACHE_TTL_SECONDS, 5);
+    // A caller can ask for any number of different cursors: pages that expired are not kept for the life of the process.
+    for (let index = 0; index < 5; index += 1) await cache.set(TENANT_A, 'all', `old-${index}`, 'x');
+    now += (PIPELINE_CACHE_TTL_SECONDS + 1) * 1000;
+    await cache.set(TENANT_A, 'all', 'fresh-0', 'y');
+    expect(cache.keys()).toEqual([`t:${TENANT_A}:prj:pipeline:all:fresh-0`]);
+    // Live pages over the limit: the oldest entries leave first, the size stays within the limit.
+    for (let index = 1; index <= 8; index += 1) await cache.set(TENANT_A, 'all', `fresh-${index}`, 'y');
+    expect(cache.keys()).toHaveLength(5);
+    expect(await cache.get(TENANT_A, 'all', 'fresh-8')).toBe('y');
+    expect(await cache.get(TENANT_A, 'all', 'fresh-0')).toBeUndefined();
+  });
+
   it('never gives a page of one tenant to another, and clears only the tenant that asks', async () => {
     const cache = new InMemoryPipelineCache();
     await cache.set(TENANT_A, 'PIPELINE', 'abc', 'a');

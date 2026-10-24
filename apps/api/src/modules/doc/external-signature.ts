@@ -64,8 +64,12 @@ export async function verifyExternalSignatures(bytes: Uint8Array, trust: TrustSt
   const refusal = refusalOf(report);
   if (refusal !== undefined) throw refusal;
   const signatures = report.signatures.filter((signature) => signature.role !== 'DOCUMENT_TIMESTAMP');
-  if (signatures.length < minimum || signatures.some((signature) => signature.incrementalChangesAllowed !== true || signature.signedAt === null)) {
-    throw new DomainError('SIGNATURE_INVALID', 422, 'file_object_key', { extensions: { findings: [signatures.length < minimum ? 'SIGNATURE_MISSING' : 'INCREMENTAL_CHANGES_NOT_ALLOWED'] } });
+  // Two signatures are two signers: the same certificate twice (a leader who also "seals") is one signature counted twice.
+  const signers = new Set(signatures.map((signature) => signature.fingerprintSha256 ?? `index:${signature.index}`));
+  if (signatures.length < minimum || signers.size < minimum || signatures.some((signature) => signature.incrementalChangesAllowed !== true || signature.signedAt === null)) {
+    throw new DomainError('SIGNATURE_INVALID', 422, 'file_object_key', {
+      extensions: { findings: [signatures.length < minimum || signers.size < minimum ? 'SIGNATURE_MISSING' : 'INCREMENTAL_CHANGES_NOT_ALLOWED'] },
+    });
   }
   const times = signatures.map((signature) => Math.min((signature.signedAt as Date).getTime(), now.getTime()));
   return { report, signatures, firstSignedAt: new Date(Math.min(...times)), lastSignedAt: new Date(Math.max(...times)) };

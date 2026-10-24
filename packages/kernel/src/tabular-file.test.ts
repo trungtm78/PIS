@@ -271,6 +271,17 @@ describe('reading an XLSX file', () => {
     });
   });
 
+  it('refuses a character reference that is not a character as an unreadable file, never as a server fault', () => {
+    for (const reference of ['&#x110000;', '&#1114112;', '&#99999999999999999999;', '&#xFFFFFFFFFFFF;']) {
+      const inline = `<row r="1"><c r="A1" t="inlineStr"><is><t>code</t></is></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>${reference}</t></is></c></row>`;
+      const number = `<row r="1"><c r="A1" t="inlineStr"><is><t>code</t></is></c></row><row r="2"><c r="A2"><v>${reference}</v></c></row>`;
+      expect(failure(() => readTabularFile(book(inline)))).toEqual(unreadable);
+      expect(failure(() => readTabularFile(book(number)))).toEqual(unreadable);
+    }
+    // A reference to a real character is still read.
+    expect(readTabularFile(book('<row r="1"><c r="A1" t="inlineStr"><is><t>code</t></is></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>&#x1F600;&#65;</t></is></c></row>')).rows).toEqual([['\u{1F600}A']]);
+  });
+
   it('refuses a workbook that cannot be read: damaged, without its parts, encrypted, or declared far larger than any sheet', () => {
     const good = Buffer.from(xlsx({ rows }));
     expect(failure(() => readTabularFile(good.subarray(0, good.length - 30)))).toEqual(unreadable);

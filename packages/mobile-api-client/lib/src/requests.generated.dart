@@ -7731,12 +7731,14 @@ final class PayImportTreasuryStatement implements RequestModel {
     required this.fileSha256,
     required this.sourceKind,
     this.statementDate,
+    this.fileName,
   });
 
   final String fileObjectId;
   final String fileSha256;
   final String sourceKind;
   final String? statementDate;
+  final String? fileName;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -7744,6 +7746,7 @@ final class PayImportTreasuryStatement implements RequestModel {
         'file_sha256': fileSha256,
         'source_kind': sourceKind,
         if (statementDate != null) 'statement_date': statementDate,
+        if (fileName != null) 'file_name': fileName,
       };
 }
 

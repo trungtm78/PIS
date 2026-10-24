@@ -29010,7 +29010,10 @@
         "x-error-codes": [
           "NATIONAL_CODE_DUPLICATE",
           "NATIONAL_CODE_FORMAT_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "DECISION_REQUIRED",
+          "STAGE_LOCKED_FIELD",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -29151,7 +29154,12 @@
         "x-error-codes": [
           "IMPORT_FILE_ALREADY_APPLIED",
           "IMPORT_HAS_ERRORS",
-          "NATIONAL_CODE_DUPLICATE"
+          "NATIONAL_CODE_DUPLICATE",
+          "HASH_MISMATCH",
+          "IMPORT_SCHEMA_INVALID",
+          "IMPORT_EMPTY",
+          "FILE_NOT_CLEAN",
+          "STAGE_TRANSITION_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -32632,7 +32640,8 @@
           "FISCAL_YEAR_LOCKED",
           "PROJECT_STAGE_INVALID",
           "VERSION_CONFLICT",
-          "IDEMPOTENCY_CONFLICT"
+          "IDEMPOTENCY_CONFLICT",
+          "APPROPRIATION_NOT_PUBLISHED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -73034,6 +73043,129 @@
           }
         },
         "x-note": "Trả result = APPLIED | PARTIALLY_APPLIED | ALREADY_IMPORTED; nạp lại cùng tệp không tạo bản ghi. Adapter Kho bạc: PROPOSED (tệp), API: MISSING."
+      },
+      "get": {
+        "operationId": "listTreasuryImports",
+        "summary": "Các lần nhập sao kê Kho bạc, mới nhất trước",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "treasury.import.read",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope"
       }
     },
     "/treasury-transactions": {
@@ -118699,6 +118831,309 @@
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
       }
+    },
+    "/treasury-imports/files": {
+      "post": {
+        "operationId": "uploadTreasuryStatementFile",
+        "summary": "Put a Treasury statement file (CSV or XLSX) into the shared upload pipeline, scan it and read its header",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "treasury.import",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The file is stored and clean; its columns and rows are read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayStatementFile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "FILE_TYPE_NOT_ALLOWED",
+          "FILE_NOT_CLEAN",
+          "PAYLOAD_TOO_LARGE",
+          "SCAN_PENDING",
+          "TREASURY_IMPORT_SCHEMA_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
+    },
+    "/project-national-code-imports/files": {
+      "post": {
+        "operationId": "uploadNationalCodeFile",
+        "summary": "Tải tệp đối chiếu mã TTQG (CSV hoặc XLSX) lên kho đối tượng, quét mã độc và kiểm tra cột internal_code, national_project_code",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "project.national_code.manage",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The file is stored, clean and has the layout of the adapter; its columns and rows are read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrjNationalCodeFileUpload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "FILE_TYPE_NOT_ALLOWED",
+          "FILE_NOT_CLEAN",
+          "PAYLOAD_TOO_LARGE",
+          "IMPORT_SCHEMA_INVALID",
+          "IMPORT_EMPTY",
+          "SCAN_PENDING"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
     }
   },
   "components": {
@@ -120316,7 +120751,8 @@
             "items": {
               "$ref": "#/components/schemas/CapAllocationLineInput"
             },
-            "minItems": 1
+            "minItems": 0,
+            "description": "May be empty when remove_line_ids names the lines to take out; the command needs at least one of the two."
           },
           "remove_line_ids": {
             "type": "array",
@@ -127319,6 +127755,11 @@
           "statement_date": {
             "type": "string",
             "format": "date"
+          },
+          "file_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
           }
         },
         "required": [
@@ -135860,6 +136301,110 @@
                 }
               }
             }
+          }
+        }
+      },
+      "PayStatementFile": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_id",
+          "file_sha256",
+          "size_bytes",
+          "file_name",
+          "format",
+          "columns",
+          "row_count",
+          "layout_ok",
+          "missing_columns"
+        ],
+        "properties": {
+          "file_object_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "file_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "CSV",
+              "XLSX"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "layout_ok": {
+            "type": "boolean"
+          },
+          "missing_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PrjNationalCodeFileUpload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_key",
+          "file_sha256",
+          "size_bytes",
+          "format",
+          "columns",
+          "row_count"
+        ],
+        "properties": {
+          "file_object_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "CSV",
+              "XLSX"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       }

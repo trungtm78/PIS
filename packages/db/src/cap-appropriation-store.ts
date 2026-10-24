@@ -236,7 +236,7 @@ function dateOf(value: string, field: string): string {
   return value;
 }
 
-interface MasterDetail {
+export interface MasterDetail {
   versionId: string;
   recordId: string;
   attributes: Record<string, unknown>;
@@ -479,7 +479,7 @@ export class CapAppropriationStore {
    * The entry a version belongs to, when the version is published, in force on `today`, of one of the types and not retired or merged away. A
    * version that does not exist or is of another type is a fault of the request; one that is no longer in force is MASTER_NOT_EFFECTIVE.
    */
-  private async masterInForce(tx: TenantTx, field: string, versionId: string, masterTypes: readonly string[], today: string): Promise<MasterDetail> {
+  async masterInForce(tx: TenantTx, field: string, versionId: string, masterTypes: readonly string[], today: string): Promise<MasterDetail> {
     const rows = await tx.query<{ master_type: string; record_id: string; record_status: string; attributes: Record<string, unknown>; status: string; published: boolean; in_range: boolean }>(
       `select r.master_type, r.id as record_id, r.status as record_status, v.attributes, v.status, (v.published_at is not null) as published,
               (v.valid_from <= $2::date and (v.valid_until is null or v.valid_until > $2::date)) as in_range

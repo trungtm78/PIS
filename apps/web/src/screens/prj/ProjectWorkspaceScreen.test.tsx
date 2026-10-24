@@ -254,4 +254,22 @@ describe('ProjectWorkspaceScreen: updating the profile', () => {
     fireEvent.submit(screen.getByRole('form', { name: vi_['prj.workspace.edit.title'] }));
     expect(h.command).not.toHaveBeenCalled();
   });
+
+  it('AC-ST-PRJ-003-2: leads a concept to the proposal and a project in appraisal to the scoring and the decision, and no other stage anywhere', async () => {
+    mount(<ProjectWorkspaceScreen route={ROUTE} />, client(world()), { permissions: READER, path: open() });
+    await ready();
+    expect(within(screen.getByTestId('appraisal-links')).getByRole('link', { name: vi_['prj.workspace.appraisal.propose.link'] }).getAttribute('href')).toBe(`/prj/prj-09?id=${detail(1).id as string}`);
+    cleanup();
+    const appraisal = detail(1, { status: 'APPRAISAL' });
+    mount(<ProjectWorkspaceScreen route={ROUTE} />, client(withProject(appraisal)), { permissions: READER, path: open(appraisal) });
+    await ready();
+    const links = within(screen.getByTestId('appraisal-links'));
+    expect(links.getByRole('link', { name: vi_['prj.workspace.appraisal.score.link'] }).getAttribute('href')).toBe(`/prj/prj-15?id=${detail(1).id as string}`);
+    expect(links.getByRole('link', { name: vi_['prj.workspace.appraisal.decide.link'] }).getAttribute('href')).toBe(`/prj/prj-10?id=${detail(1).id as string}`);
+    cleanup();
+    const bank = detail(1, { status: 'PIPELINE', project_group: 'B' });
+    mount(<ProjectWorkspaceScreen route={ROUTE} />, client(withProject(bank)), { permissions: READER, path: open(bank) });
+    await ready();
+    expect(screen.queryByTestId('appraisal-links')).toBeNull();
+  });
 });

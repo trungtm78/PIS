@@ -124,7 +124,7 @@ const TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 40 };
 const BACKLINK_TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 75 };
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10' | 'ADM-11' | 'ADM-12' | 'ADM-15'| 'ADM-03' | 'ADM-17' | 'BID-01' | 'BID-02' | 'DGV-03' | 'DGV-04' | 'DOC-02' | 'DOC-03' | 'DOC-04' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-09' | 'DOC-10' | 'DOC-14' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'ISS-01' | 'ISS-02' | 'ISS-03' | 'ISS-09' | 'MDM-01' | 'MDM-02' | 'MDM-03' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'MDM-34' | 'MDM-37' | 'MNE-01' | 'MNE-02' | 'NOT-01' | 'NOT-02' | 'NOT-11' | 'NOT-12' | 'NOT-13' | 'PMT-01' | 'PMT-02' | 'PMT-03' | 'PRJ-01' | 'PRJ-02' | 'PRJ-03' | 'PRJ-14' | 'CAP-04' | 'CAP-14' | 'CAP-16' | 'CTR-04' | 'CTR-05' | 'DIS-14' | 'DIS-22' | 'SAS-01' |'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10' | 'ADM-11' | 'ADM-12' | 'ADM-15'| 'ADM-03' | 'ADM-17' | 'BID-01' | 'BID-02' | 'DGV-03' | 'DGV-04' | 'DOC-02' | 'DOC-03' | 'DOC-04' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-09' | 'DOC-10' | 'DOC-14' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'ISS-01' | 'ISS-02' | 'ISS-03' | 'ISS-09' | 'MDM-01' | 'MDM-02' | 'MDM-03' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'MDM-34' | 'MDM-37' | 'MNE-01' | 'MNE-02' | 'NOT-01' | 'NOT-02' | 'NOT-11' | 'NOT-12' | 'NOT-13' | 'PMT-01' | 'PMT-02' | 'PMT-03' | 'PRJ-01' | 'PRJ-02' | 'PRJ-03' | 'PRJ-09' | 'PRJ-10' | 'PRJ-14' | 'PRJ-15' | 'PRJ-21' | 'PAY-13' | 'CAP-01' | 'CAP-02' | 'CAP-03' | 'CAP-04' | 'CAP-06' | 'CAP-14' | 'CAP-16' | 'CTR-04' | 'CTR-05' | 'DIS-14' | 'DIS-22' | 'SAS-01' |'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -581,15 +581,70 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10
     topbar: TOPBAR,
     heading: BACKLINK_TITLE_ONLY,
   },
+  // PRJ-09 (policy proposal), PRJ-10 (appraisal decision) and PRJ-15 (appraisal scoring): the mockups are the generic prototype pages with sample fields or a
+  // placeholder grid, while the application shows the proposal form with the summary of the project, the sheets with the decision form and the grid of the
+  // criteria; each states what the screen is in its subtitle, so only the frame and the title are compared. They are looked at without a project named,
+  // so the title is the name of the screen and there is no back link above it (with a project there is one, to its workspace).
+  'PRJ-09': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'PRJ-10': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'PRJ-15': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // PRJ-21 (national project codes): the mockup is the generic prototype page with a reconciliation checklist; the application shows the adapter badge, the
+  // projects with their codes and the assignment dialog, and states what the screen is in its subtitle, so only the frame and the title are compared.
+  'PRJ-21': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   // PRJ-14 (project bank): the mockup is the generic board page of the prototype; the application shows a column for each stage, so only the frame and the title are compared.
   'PRJ-14': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: TITLE_ONLY,
   },
+  // PAY-13 (Treasury statement import): the mockup keeps the generic subtitle of the prototype and a file chooser with a column of pending checks; the application opens on the form, the adapter verdict and the result of an import, so only the frame and the title are compared.
+  'PAY-13': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   // CAP-04 (fund source tree), CAP-14 (support and revenue increase) and CAP-16 (appropriation book): the mockups keep the generic subtitle of the
   // prototype, the application states what the screen holds, so only the title is compared with the frame.
+  // CAP-01 (plans), CAP-02 (propose capital), CAP-03 (annual plan) and CAP-06 (allocation grid): the mockups keep the generic subtitle of the prototype and
+  // sample rows; the application shows the plans, the lines and the form of the tenant and says in a sentence what each holds, so the frame and the title are compared.
+  'CAP-01': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // CAP-02 is a detail of CAP-01: the mockup carries the link back to the plans above the title.
+  'CAP-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: BACKLINK_TITLE_ONLY,
+  },
+  'CAP-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   'CAP-04': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'CAP-06': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: TITLE_ONLY,
@@ -695,7 +750,7 @@ const queryOf = (id: string): string => {
   return id === 'SAS-03' || id === 'SAS-04' || id === 'SAS-22' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-02', 'ADM-07', 'ADM-09', 'ADM-10', 'ADM-11', 'ADM-12', 'ADM-15','ADM-03', 'ADM-17', 'BID-01', 'BID-02', 'DGV-03', 'DGV-04', 'DOC-02', 'DOC-03', 'DOC-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-09', 'DOC-10', 'DOC-14', 'DOC-21', 'IAM-04', 'IAM-09', 'ISS-01', 'ISS-02', 'ISS-03', 'ISS-09', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'NOT-11', 'NOT-12', 'NOT-13', 'PMT-01', 'PMT-02', 'PMT-03', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'PRJ-14', 'CAP-04', 'CAP-14', 'CAP-16', 'CTR-04', 'CTR-05', 'DIS-14', 'DIS-22', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-02', 'ADM-07', 'ADM-09', 'ADM-10', 'ADM-11', 'ADM-12', 'ADM-15','ADM-03', 'ADM-17', 'BID-01', 'BID-02', 'DGV-03', 'DGV-04', 'DOC-02', 'DOC-03', 'DOC-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-09', 'DOC-10', 'DOC-14', 'DOC-21', 'IAM-04', 'IAM-09', 'ISS-01', 'ISS-02', 'ISS-03', 'ISS-09', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'NOT-11', 'NOT-12', 'NOT-13', 'PMT-01', 'PMT-02', 'PMT-03', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'PRJ-09', 'PRJ-10', 'PRJ-14', 'PRJ-15', 'PRJ-21', 'PAY-13', 'CAP-01', 'CAP-02', 'CAP-03', 'CAP-04', 'CAP-06', 'CAP-14', 'CAP-16', 'CTR-04', 'CTR-05', 'DIS-14', 'DIS-22', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

@@ -22,6 +22,9 @@ export function pipelineVariant(parts: { scopeSql: string; scopeParams: readonly
   return createHash('sha256').update(JSON.stringify([parts.scopeSql, parts.scopeParams, parts.group ?? null, parts.limit, parts.cursor ?? null])).digest('hex').slice(0, 32);
 }
 
+/** The most pages one process keeps: a caller can ask for any cursor, so the number of distinct pages is not bounded by the data. */
+export const PIPELINE_CACHE_MAX_ENTRIES = 2000;
+
 /** In-process cache; a shared one replaces it behind the same port when the API runs on more than one node. */
 export class InMemoryPipelineCache implements PipelineCache {
   private readonly entries = new Map<string, { value: string; expiresAt: number }>();
@@ -29,6 +32,7 @@ export class InMemoryPipelineCache implements PipelineCache {
   constructor(
     private readonly now: () => number = Date.now,
     private readonly ttlSeconds: number = PIPELINE_CACHE_TTL_SECONDS,
+    private readonly maxEntries: number = PIPELINE_CACHE_MAX_ENTRIES,
   ) {}
 
   async get(tenantId: string, stage: string, variant: string): Promise<string | undefined> {
@@ -43,7 +47,21 @@ export class InMemoryPipelineCache implements PipelineCache {
   }
 
   async set(tenantId: string, stage: string, variant: string, value: string): Promise<void> {
-    this.entries.set(tenantKey(tenantId, ...PREFIX_PARTS, stage, variant), { value, expiresAt: this.now() + this.ttlSeconds * 1000 });
+    const key = tenantKey(tenantId, ...PREFIX_PARTS, stage, variant);
+    // A page that is never read again would otherwise stay for the life of the process (only a read drops an expired entry).
+    this.entries.delete(key);
+    if (this.entries.size >= this.maxEntries) this.makeRoom();
+    this.entries.set(key, { value, expiresAt: this.now() + this.ttlSeconds * 1000 });
+  }
+
+  /** Drops the pages whose time has run out; when every page is live, the oldest leave first (the map keeps the order of insertion). */
+  private makeRoom(): void {
+    const at = this.now();
+    for (const [key, entry] of this.entries) if (at >= entry.expiresAt) this.entries.delete(key);
+    for (const key of this.entries.keys()) {
+      if (this.entries.size < this.maxEntries) break;
+      this.entries.delete(key);
+    }
   }
 
   async invalidate(tenantId: string): Promise<void> {

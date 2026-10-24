@@ -296,13 +296,13 @@ function ImportPanel({ contract, revision }: { contract: ContractView; revision:
           </div>
           <div className="field">
             <label htmlFor="boq-file">{t('ctr.boq.file.label')}</label>
-            <input key={fileKey} id="boq-file" type="file" accept=".csv,text/csv" onChange={choose} />
+            <input key={fileKey} id="boq-file" type="file" accept=".csv,text/csv" aria-invalid={prepared?.problem !== undefined} aria-describedby={fileName === '' || prepared === undefined ? undefined : 'boq-file-note'} onChange={choose} />
             {fileName === '' || prepared === undefined ? null : prepared.problem === undefined ? (
-              <small className="sub" data-testid="file-ready">
+              <small className="sub" id="boq-file-note" data-testid="file-ready">
                 {t('ctr.boq.file.ready', { name: fileName, count: prepared.lineCount })}
               </small>
             ) : (
-              <small role="alert" className="field-error" data-testid="file-problem">
+              <small role="alert" className="field-error" id="boq-file-note" data-testid="file-problem">
                 {fileProblemMessage(t, prepared.problem, prepared.column)}
               </small>
             )}

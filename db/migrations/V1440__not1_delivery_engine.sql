@@ -100,7 +100,8 @@ ALTER TABLE machvon.provider_status_history
 -- Cross-tenant lookup for receiveChannelWebhook: a provider callback carries no session and the tenant in its payload is never trusted, so the tenant is found
 -- from the external account id of the receiving account. The table owner is subject to FORCE ROW LEVEL SECURITY too, so the function names each tenant in
 -- app.tenant_id while it looks and then puts the caller's setting back. It returns ids only; the account is read again, with its status and secret
--- reference, inside the transaction of the tenant it names. Only the control role may run it.
+-- reference, inside the transaction of the tenant it names. Only the control role may run it. Only an account that is Active (verified) is an answer: the same
+-- external id held by another tenant on an account that is still pending, disabled or expired must not make the receipt ambiguous and refuse it for the live one.
 CREATE FUNCTION machvon.channel_accounts_by_external_id(p_external_account_id text)
 RETURNS TABLE (tenant_id uuid, channel_account_id uuid, channel text)
 LANGUAGE plpgsql
@@ -117,7 +118,7 @@ BEGIN
     RETURN QUERY
       SELECT a.tenant_id, a.id, a.channel
       FROM machvon.channel_account a
-      WHERE a.tenant_id = one_tenant.id AND a.external_account_id = p_external_account_id
+      WHERE a.tenant_id = one_tenant.id AND a.external_account_id = p_external_account_id AND a.status = 'Active'
       ORDER BY a.id;
   END LOOP;
   PERFORM set_config('app.tenant_id', coalesce(previous, ''), true);

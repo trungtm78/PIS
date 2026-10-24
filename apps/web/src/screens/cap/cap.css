@@ -76,3 +76,15 @@
   margin: 12px 0 0;
   font-weight: 600;
 }
+.cap-back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+.cap-back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
+.cap-negative {
+  color: #b3261e;
+}

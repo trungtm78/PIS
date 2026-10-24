@@ -256,6 +256,7 @@ describe('outgoing documents: compose, review and submit for signature (ST-DOC-0
       ['a template of another document type', { doc_type_code: 'CV' }, 422, 'VALIDATION_FAILED'],
       ['a document type that does not exist', { doc_type_code: 'ZZ', template_code: undefined }, 422, 'VALIDATION_FAILED'],
       ['a payload that is not an object', { payload: ['x'] }, 400, 'INVALID_REQUEST'],
+      ['a title that is only blanks', { title: '     ' }, 422, 'VALIDATION_FAILED'],
       ['an amount that is not whole VND', { payload: payloadOf({ amount_vnd: '12.5' }) }, 422, 'PAYLOAD_SCHEMA_INVALID'],
       ['a subject module without an id', { subject_module: 'PRJ' }, 422, 'SUBJECT_REF_INVALID'],
       ['a reply to a document that was never received', { reply_to_incoming_id: randomUUID() }, 422, 'SUBJECT_REF_INVALID'],
@@ -328,10 +329,22 @@ describe('outgoing documents: compose, review and submit for signature (ST-DOC-0
       expect(events.map((event) => event.type)).toEqual(['doc.draft_created.v1', 'doc.draft_updated.v1']);
     });
 
+    it('replaces content_blocks on a later edit that sends no payload, and still refuses a payload that carries content_blocks of its own next to them', async () => {
+      const made = await create(createBody({ content_blocks: { annex: 'Annex 1' } }));
+      const id = made.json.resource_id as string;
+      const again = await update(id, 1, { content_blocks: { annex: 'Annex 2' } });
+      expect([again.status, again.json.code]).toEqual([200, undefined]);
+      expect(((await read(id)).json.payload as Record<string, unknown>).content_blocks).toEqual({ annex: 'Annex 2' });
+      const both = await update(id, 2, { payload: payloadOf({ content_blocks: 'x' }), content_blocks: { annex: 'Annex 3' } });
+      expect([both.status, both.json.code]).toEqual([422, 'PAYLOAD_SCHEMA_INVALID']);
+    });
+
     it('refuses an empty change, a state secret, and a field the draft does not have', async () => {
       const made = await create(createBody());
       const id = made.json.resource_id as string;
       expect((await update(id, 1, {})).json.code).toBe('VALIDATION_FAILED');
+      const blank = await update(id, 1, { title: '     ' });
+      expect([blank.status, blank.json.code]).toEqual([422, 'VALIDATION_FAILED']);
       const secret = await update(id, 1, { payload: payloadOf({ secrecy_level: 'mat' }) });
       expect([secret.status, secret.json.code]).toEqual([422, 'STATE_SECRET_NOT_SUPPORTED']);
       const extra = await update(id, 1, { status: 'SUBMITTED' });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { REASON_MAX_LENGTH, reasonIsValid } from './model';
 
@@ -28,11 +28,16 @@ export interface ReasonPanelProps {
 export function ReasonPanel(props: ReasonPanelProps) {
   const [reason, setReason] = useState('');
   const [invalid, setInvalid] = useState(false);
+  const field = useRef<HTMLTextAreaElement>(null);
+
+  // The panel opens under the table the operator was in: the keyboard goes to the reason, the one thing the command needs.
+  useEffect(() => field.current?.focus(), []);
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     if (!reasonIsValid(reason)) {
       setInvalid(true);
+      field.current?.focus();
       return;
     }
     props.onConfirm(reason.trim());
@@ -54,7 +59,15 @@ export function ReasonPanel(props: ReasonPanelProps) {
       )}
       <div className="field" data-field={`${props.testId}-reason`}>
         <label htmlFor={`${props.testId}-reason`}>{props.reasonLabel}</label>
-        <textarea id={`${props.testId}-reason`} value={reason} maxLength={REASON_MAX_LENGTH + 1} onChange={(event) => setReason(event.target.value)} />
+        <textarea
+          id={`${props.testId}-reason`}
+          ref={field}
+          value={reason}
+          maxLength={REASON_MAX_LENGTH + 1}
+          aria-invalid={invalid ? true : undefined}
+          aria-describedby={invalid ? `${props.testId}-reason-error` : undefined}
+          onChange={(event) => setReason(event.target.value)}
+        />
         {invalid ? (
           <small role="alert" className="field-error" id={`${props.testId}-reason-error`}>
             {props.reasonError}

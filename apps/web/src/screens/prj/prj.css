@@ -123,3 +123,38 @@
   padding-left: 18px;
   font-size: 13px;
 }
+.prj-segments {
+  display: inline-flex;
+  gap: 2px;
+}
+.prj-segment {
+  position: relative;
+  display: inline-flex;
+}
+.prj-segment input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.prj-segment span {
+  min-width: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  text-align: center;
+}
+.prj-segment input:checked + span {
+  border-color: var(--shell-accent, #5b2a86);
+  background: var(--shell-accent, #5b2a86);
+  color: var(--shell-accent-ink, #ffffff);
+  font-weight: 600;
+}
+.prj-segment input:focus-visible + span {
+  outline: 2px solid var(--shell-accent, #5b2a86);
+  outline-offset: 2px;
+}
+.prj-links {
+  margin: 12px 0 0;
+  font-size: 13px;
+}

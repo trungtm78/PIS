@@ -1,23 +1,22 @@
-import { randomUUID } from 'node:crypto';
-import { DomainError, asUuid, versionConflict } from '@machvon/kernel';
+import { DomainError, versionConflict } from '@machvon/kernel';
 import { MasterRules } from './master-rules.ts';
 import type { NationalCodeRule } from './master-rules.ts';
 import { LIST_COLUMNS, LIST_FROM, PROJECT_STATUSES, SCOPE_FROM } from './prj-project-store.ts';
 import type { ProjectClassification, ProjectListRow, ProjectStatus } from './prj-project-store.ts';
 import { PLAN_PUBLISHED_EVENT, STAGE_SEQUENCE, commandEdgesFrom, edgeBy } from './prj-stage-machine.ts';
 import type { StageCommand } from './prj-stage-machine.ts';
+import { effectiveDateOf, invalid, lockProject, projectInScope, reasonOf, recordStageChange, usableDocumentId } from './prj-stage-support.ts';
+import type { StageScopes } from './prj-stage-support.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
+
+export type { StageScopes } from './prj-stage-support.ts';
 
 /** The counter of the stage a project moved to: `prj_stage_transition_total{to}` (PRJ 3.1 section 9). */
 export const PRJ_STAGE_TRANSITION_METRIC = 'prj_stage_transition_total';
 
-const MIN_REASON = 5;
-const MAX_REASON = 2000;
-const PROJECT_GROUPS: readonly string[] = ['QTQG', 'A', 'B', 'C'];
-/** A document that has been recalled, replaced or has expired is no ground for a decision; one still waiting to take effect or corrected is. */
-const USABLE_DOCUMENT_STATUSES: readonly string[] = ['PENDING', 'EFFECTIVE', 'CORRECTED'];
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
+/** The groups a project can be put in (BR-PRJ-05); the database says the same in `project_group_chk`. */
+export const PROJECT_GROUPS: readonly string[] = ['QTQG', 'A', 'B', 'C'];
 const BOARD_RANK_COLLATION = '"C"';
 const HISTORY_LIMIT = 500;
 const SYSTEM_ACTOR_KIND = 'SYSTEM';
@@ -72,12 +71,6 @@ export interface StageInput {
   investmentDecisionDocumentId?: string | undefined;
   policyProposalDocumentId?: string | undefined;
   effectiveDate?: string | undefined;
-}
-
-/** The scopes a stage command is judged by: the one of its own permission decides, the one of `project.read` tells a refusal from a miss. */
-export interface StageScopes {
-  act: ScopeBuilder;
-  read: ScopeBuilder;
 }
 
 export interface StageRequest {
@@ -187,17 +180,8 @@ export interface PipelinePage {
   total: number;
 }
 
-interface LockedProject {
-  id: string;
-  code: string;
-  version: number;
-  status: ProjectStatus;
-  classification: ProjectClassification;
-  projectGroup: string | null;
-  nationalProjectCode: string | null;
-}
-
-interface LockSql {
+/** The columns of a project that the moves and the history read. */
+interface ProjectStageSql {
   id: string;
   code: string;
   version: string;
@@ -228,24 +212,6 @@ interface PipelineSql {
   rank_key: string;
 }
 
-const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
-
-/** The reason as it is stored: trimmed, within its length, with line breaks but no other control character. */
-function reasonOf(value: string): string {
-  const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < MIN_REASON || text.length > MAX_REASON || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) throw invalid('reason');
-  return text;
-}
-
-function effectiveDateOf(value: string | undefined): string | null {
-  if (value === undefined) return null;
-  const parsed = new Date(`${value}T00:00:00Z`);
-  // A date that does not exist (the 30th of February) is read by the engine as a later one: only a date that reads back as typed is a date.
-  if (!DATE.test(value) || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) throw invalid('effective_date');
-  return value;
-}
-
 const isStage = (value: string): value is ProjectStatus => (PROJECT_STATUSES as readonly string[]).includes(value);
 
 /** The filter of the project bank when it names a stage and a group that exist; anything else is a fault of the request (422 naming the parameter). */
@@ -267,7 +233,7 @@ function codeRequiredAt(rule: NationalCodeRule, target: ProjectStatus): boolean 
   return from === undefined || STAGE_SEQUENCE[target] >= from;
 }
 
-function nationalCodeReading(rule: NationalCodeRule | undefined, target: ProjectStatus, code: string | null): GuardReading {
+export function nationalCodeReading(rule: NationalCodeRule | undefined, target: ProjectStatus, code: string | null): GuardReading {
   if (rule === undefined || !codeRequiredAt(rule, target)) return { key: 'NATIONAL_CODE', state: 'MET' };
   const unmet = (refusal: { code: string; status: number; detail: string }): GuardReading =>
     rule.mode === 'WARN' ? { key: 'NATIONAL_CODE', state: 'WARNING' } : { key: 'NATIONAL_CODE', state: 'UNMET', refusal };
@@ -347,7 +313,7 @@ export class PrjStageStore {
    * STAGE_TRANSITION_DENIED, the project unchanged), and the guards of the command must hold.
    */
   async transition(tx: TenantTx, request: StageRequest): Promise<StageChange> {
-    const locked = await this.lock(tx, request.projectId, request.scopes);
+    const locked = await lockProject(tx, request.projectId, request.scopes);
     if (locked.version !== request.expectedVersion) throw versionConflict(locked.version);
     const edge = edgeBy(request.command, locked.status);
     if (edge === undefined) throw new DomainError('STAGE_TRANSITION_DENIED', 409);
@@ -367,7 +333,15 @@ export class PrjStageStore {
         where id = $1::uuid`,
       [locked.id, edge.to, request.actor, version, documents.investmentDecisionDocumentId ?? null],
     );
-    await this.record(tx, {
+    // A project cancelled while it is being appraised takes its open sheets with it: nobody decides on a sheet of a project that is gone.
+    if (locked.status === 'APPRAISAL' && edge.to === 'CANCELLED') {
+      await tx.query(
+        `update machvon.project_appraisal set status = 'VOID', updated_at = now(), updated_by = $2::uuid, version = version + 1
+          where project_id = $1::uuid and status in ('DRAFT', 'SUBMITTED')`,
+        [locked.id, request.actor],
+      );
+    }
+    await recordStageChange(tx, {
       projectId: locked.id,
       version,
       from: locked.status,
@@ -407,7 +381,7 @@ export class PrjStageStore {
     const plans = await tx.query<{ decision_document_id: string | null }>(`select decision_document_id from machvon.capital_plan where id = $1::uuid and status = 'PUBLISHED'`, [request.capitalPlanId]);
     if (plans[0] === undefined || request.projectIds.length === 0) return [];
     const decisionDocumentId = plans[0].decision_document_id;
-    const candidates = await tx.query<LockSql>(
+    const candidates = await tx.query<ProjectStageSql>(
       `select p.id, p.code, p.version::text as version, p.status, p.classification, p.project_group, p.national_project_code
          from machvon.project p
         where p.id = any($1::uuid[]) and p.status = 'PIPELINE'
@@ -421,7 +395,7 @@ export class PrjStageStore {
     for (const row of candidates) {
       const version = Number(row.version) + 1;
       await tx.query(`update machvon.project set status = 'BUDGETED', status_changed_at = now(), updated_at = now(), updated_by = $2::uuid, version = $3::bigint where id = $1::uuid`, [row.id, request.actor, version]);
-      await this.record(tx, {
+      await recordStageChange(tx, {
         projectId: row.id,
         version,
         from: 'PIPELINE',
@@ -457,7 +431,7 @@ export class PrjStageStore {
   /** The history of the stage of a project, who moved it and on what ground, and the moves it may make now with the state of their guards. */
   async lifecycle(tx: TenantTx, id: string, scopes: { read: ScopeBuilder; act: Readonly<Record<StageCommand, ScopeBuilder>> }, today: string): Promise<ProjectLifecycle | undefined> {
     const predicate = scopes.read(2);
-    const rows = await tx.query<LockSql & { status_changed_at: string }>(
+    const rows = await tx.query<ProjectStageSql & { status_changed_at: string }>(
       `select p.id, p.code, p.version::text as version, p.status, p.classification, p.project_group, p.national_project_code,
               to_char(p.status_changed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as status_changed_at
          from ${SCOPE_FROM} where p.id = $1::uuid and ${predicate.sql}`,
@@ -493,7 +467,7 @@ export class PrjStageStore {
       next.push({
         operation: edge.by,
         to: edge.to,
-        allowed: await this.holds(tx, project.id, scopes.act[edge.by]),
+        allowed: await projectInScope(tx, project.id, scopes.act[edge.by]),
         guards: [...inputs, ...readings].map(({ key, state }) => ({ key, state })),
       });
     }
@@ -581,29 +555,6 @@ export class PrjStageStore {
     };
   }
 
-  /** Locks the project for update inside the scope of the command; a project the caller can read but not act on is a refusal, not a miss. */
-  private async lock(tx: TenantTx, id: string, scopes: StageScopes): Promise<LockedProject> {
-    const predicate = scopes.act(2);
-    const rows = await tx.query<LockSql>(
-      `select p.id, p.code, p.version::text as version, p.status, p.classification, p.project_group, p.national_project_code
-         from ${SCOPE_FROM} where p.id = $1::uuid and ${predicate.sql} for update of p`,
-      [id, ...predicate.params],
-    );
-    const row = rows[0];
-    if (row === undefined) {
-      const readable = scopes.read(2);
-      const seen = await tx.query<{ id: string }>(`select p.id from ${SCOPE_FROM} where p.id = $1::uuid and ${readable.sql}`, [id, ...readable.params]);
-      throw seen[0] === undefined ? new DomainError('RESOURCE_NOT_FOUND', 404) : new DomainError('SCOPE_DENIED', 403);
-    }
-    return { id: row.id, code: row.code, version: Number(row.version), status: row.status, classification: row.classification, projectGroup: row.project_group, nationalProjectCode: row.national_project_code };
-  }
-
-  private async holds(tx: TenantTx, projectId: string, scope: ScopeBuilder): Promise<boolean> {
-    const predicate = scope(2);
-    const rows = await tx.query<{ id: string }>(`select p.id from ${SCOPE_FROM} where p.id = $1::uuid and ${predicate.sql}`, [projectId, ...predicate.params]);
-    return rows[0] !== undefined;
-  }
-
   /**
    * The documents of a command, normalised and checked: each must be a document of the tenant that can still ground a decision. A field the
    * command does not take is refused by name, so a document sent to the wrong command is not stored as if it counted.
@@ -620,12 +571,7 @@ export class PrjStageStore {
         if (document.required) throw new DomainError('DECISION_REQUIRED', 422, document.apiField);
         continue;
       }
-      const id = asUuid(given);
-      if (id === undefined) throw invalid(document.apiField);
-      const rows = await tx.query<{ effect_status: string }>('select effect_status from machvon.document where id = $1::uuid', [id]);
-      // A document of another tenant is indistinguishable from one that does not exist.
-      if (rows[0] === undefined || !USABLE_DOCUMENT_STATUSES.includes(rows[0].effect_status)) throw new DomainError('DECISION_REQUIRED', 422, document.apiField);
-      checked[document.field] = id;
+      checked[document.field] = await usableDocumentId(tx, given, document.apiField);
     }
     return checked;
   }
@@ -643,17 +589,5 @@ export class PrjStageStore {
     if (guards.nationalCode) readings.push(nationalCodeReading(known ?? (await this.rules.nationalCode(tx, today)), target, project.nationalProjectCode));
     if (guards.obligations !== null) readings.push(obligationsReading(guards.obligations, await this.obligations.openObligations(tx, project.id)));
     return readings;
-  }
-
-  private async record(
-    tx: TenantTx,
-    row: { projectId: string; version: number; from: ProjectStatus; to: ProjectStatus; operation: string; actorKind: string; actorId: string; decisionDocumentId: string | null; reason: string | null; effectiveDate: string | null; sourceEventId: string | null },
-  ): Promise<void> {
-    await tx.query(
-      `insert into machvon.project_stage_change
-         (tenant_id, id, project_id, project_version, from_stage, to_stage, operation, actor_kind, actor_id, decision_document_id, reason, effective_date, source_event_id)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::bigint, $4, $5, $6, $7, $8::uuid, $9::uuid, $10, $11::date, $12::uuid)`,
-      [randomUUID(), row.projectId, row.version, row.from, row.to, row.operation, row.actorKind, row.actorId, row.decisionDocumentId, row.reason, row.effectiveDate, row.sourceEventId],
-    );
   }
 }

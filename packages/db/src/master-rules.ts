@@ -28,6 +28,20 @@ export interface NationalCodeRule {
   reading: RuleReading;
 }
 
+/** A criterion of the set of appraisal criteria as the sheet scores it: the weight of the rule is its `max_score` (the weights add up to 100). */
+export interface AppraisalCriterionRule {
+  code: string;
+  name: string;
+  weight: string;
+}
+
+export interface AppraisalCriteriaSet {
+  criteria: AppraisalCriterionRule[];
+  /** The score from which the recommendation is ADMIT, as a decimal string. */
+  passThreshold: string;
+  reading: RuleReading;
+}
+
 export interface SuggestedGroup {
   groupKey: string;
   /** The sector whose table decided; null when the default table did. */
@@ -67,6 +81,15 @@ function reading(ruleType: string, row: RuleSqlRow): RuleReading {
     awaitingConfirmation: attributes.awaiting_confirmation === true,
     cxn: typeof attributes.cxn === 'string' ? attributes.cxn : null,
     attributes,
+  };
+}
+
+function criteriaSetOf(found: RuleReading): AppraisalCriteriaSet {
+  const list = Array.isArray(found.attributes.criteria) ? (found.attributes.criteria as Array<Record<string, unknown>>) : [];
+  return {
+    criteria: list.map((criterion) => ({ code: String(criterion.code), name: String(criterion.name ?? ''), weight: String(criterion.max_score) })),
+    passThreshold: String(found.attributes.pass_threshold),
+    reading: found,
   };
 }
 
@@ -146,6 +169,29 @@ export class MasterRules {
     // The edges are half open: an amount on an edge belongs to the band above it.
     const band = table.find((candidate) => cents(candidate.min_amount) <= amount && (candidate.max_amount === null || amount < cents(candidate.max_amount)));
     return band === undefined ? undefined : { groupKey: band.group_key, sectorKey, reading: rule };
+  }
+
+  /**
+   * The set of appraisal criteria in force on a date (BR-PRJ-03, BR-PRJ-04): the platform's sets come before a tenant's own, and of those in
+   * force the one that took effect last decides. Sheets are scored against the version they name, so a newer set never changes a sheet.
+   */
+  async appraisalCriteria(tx: TenantTx, asOf: string): Promise<AppraisalCriteriaSet | undefined> {
+    const rows = await tx.query<RuleSqlRow>(
+      `select v.id, r.business_key, v.revision, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.legal_basis, v.attributes
+         from machvon.master_record r
+         join machvon.master_record_version v on v.master_record_id = r.id
+        where r.master_type = 'APPRAISAL_CRITERIA' and v.status in ('APPROVED', 'EFFECTIVE') and v.published_at is not null
+          and v.valid_from <= $1::date and (v.valid_until is null or v.valid_until > $1::date)
+        order by v.valid_from desc, case r.namespace when 'PLATFORM' then 0 else 1 end, v.revision desc limit 1`,
+      [asOf],
+    );
+    return rows[0] === undefined ? undefined : criteriaSetOf(reading('APPRAISAL_CRITERIA', rows[0]));
+  }
+
+  /** The set of appraisal criteria that a sheet names, whatever its dates. */
+  async appraisalCriteriaVersion(tx: TenantTx, versionId: string): Promise<AppraisalCriteriaSet | undefined> {
+    const found = await this.readVersion(tx, 'APPRAISAL_CRITERIA', versionId);
+    return found === undefined ? undefined : criteriaSetOf(found);
   }
 
   /** Exactly one published version of a rule, whatever its dates: what a period or a record that was bound to it must keep reading. */

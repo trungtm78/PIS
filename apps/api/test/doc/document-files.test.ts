@@ -124,6 +124,20 @@ describe('uploadDocumentFile: a PDF into DOC (ST-DOC-009, CR-DOC-01)', () => {
     expect(named.json.code).toBe('UPLOAD_NOT_PDF');
   });
 
+  it('judges the scan before the PDF reader touches the file: an infected file that is no readable PDF is infected, not "not a PDF"', async () => {
+    // The page reader is a parser of attacker bytes; it runs only on a file the scanner found clean.
+    const hostile = await upload(Buffer.concat([Buffer.from('%PDF-1.7\n1 0 obj << /Type /Pages /Kids [ 1 0 R ] >> endobj\n'), Buffer.from(eicarBytes())]));
+    expect([hostile.status, hostile.json.code]).toEqual([422, 'FILE_NOT_CLEAN']);
+  });
+
+  it('judges the scan before the PDF reader touches a file that is no readable PDF at all: infected is infected, and a clean unreadable file is still not a PDF', async () => {
+    const garbage = Buffer.from('%PDF-1.7\nthis is not a real file, only a header and some noise\n');
+    const infected = await upload(Buffer.concat([garbage, Buffer.from(eicarBytes())]));
+    expect([infected.status, infected.json.code]).toEqual([422, 'FILE_NOT_CLEAN']);
+    const clean = await upload(garbage);
+    expect([clean.status, clean.json.code]).toEqual([422, 'UPLOAD_NOT_PDF']);
+  });
+
   it('refuses a file above the limit before reading it', async () => {
     const big = Buffer.concat([Buffer.from('%PDF-1.7\n'), Buffer.alloc(11 * 1024 * 1024, 0x20)]);
     expect((await upload(big)).status).toBe(413);

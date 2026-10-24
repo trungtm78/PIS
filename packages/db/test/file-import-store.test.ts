@@ -286,6 +286,14 @@ describe('FileImportStore (idempotent file-import framework, ST-KERNEL-070)', ()
       expect(await target()).toBe(3);
     });
 
+    it('hands the mask the cells of the file, also for a row the module refuses, not the normalised content of the row', async () => {
+      const file = statementFile([{ n: 2, project: 'PX' }]);
+      const result = await runFile(file);
+      const [row] = await inTenant((tx) => imports.quarantined(tx, result.importId, 10));
+      // The mask reads the column `account`, which the normalised `fields` of this format do not carry.
+      expect(row?.maskedPreview).toEqual({ statement_no: statementNo(2), account: '***002' });
+    });
+
     it('refuses a malformed examine rejection as a defect', async () => {
       const adapter = { ...statementAdapter(), examine: async () => ({ code: 'unknown project', field: 'project_code' }) };
       await expect(runFile(statementFile([{ n: 1 }]), adapter)).rejects.toThrow('malformed rejection');

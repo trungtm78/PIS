@@ -436,18 +436,24 @@ export class CtrGuaranteeStore {
   }
 
   private async assertDocument(tx: TenantTx, documentVersionId: string, field: string): Promise<void> {
-    if (!UUID.test(documentVersionId) || !(await this.source.documentVersionExists(tx, documentVersionId))) throw invalid(field);
+    if (!UUID.test(documentVersionId) || !(await this.source.cleanDocumentVersionExists(tx, documentVersionId))) throw invalid(field);
   }
 
   private async assertReleasable(tx: TenantTx, held: GuaranteeRow, now: Date): Promise<void> {
-    if (held.kind !== 'ADVANCE' || compareDecimal(held.advanceOutstandingVnd, '0') === 0) return;
+    if (held.kind !== 'ADVANCE') return;
+    // The rule reads the other advance guarantees of the contract, which this transaction does not lock: two releases that each lean on the
+    // other guarantee would both pass and leave an advance owed with no cover. The contract row serialises them, and what is owed is read
+    // again under that lock (a payment or a recovery may have moved it since the guarantee was read).
+    const locked = await tx.query<{ outstanding: string }>('select advance_outstanding_vnd::text as outstanding from machvon.contract where id = $1::uuid for update', [held.contractId]);
+    const outstanding = locked[0]?.outstanding ?? held.advanceOutstandingVnd;
+    if (compareDecimal(outstanding, '0') === 0) return;
     const covered = await tx.query<{ found: boolean }>(
       `select exists (
          select 1 from machvon.guarantee
           where contract_id = $1::uuid and kind = 'ADVANCE' and status = 'ACTIVE' and id <> $2::uuid and expires_at > $3::timestamptz and amount_vnd >= $4::numeric) as found`,
-      [held.contractId, held.id, isoOf(now), held.advanceOutstandingVnd],
+      [held.contractId, held.id, isoOf(now), outstanding],
     );
-    if (covered[0]?.found !== true) throw new DomainError('RELEASE_CONDITION_NOT_MET', 422, 'advance_outstanding_vnd', { extensions: { advance_outstanding_vnd: held.advanceOutstandingVnd } });
+    if (covered[0]?.found !== true) throw new DomainError('RELEASE_CONDITION_NOT_MET', 422, 'advance_outstanding_vnd', { extensions: { advance_outstanding_vnd: outstanding } });
   }
 
   private moveOf(held: GuaranteeRow, status: GuaranteeStatus, version: number, from: GuaranteeStatus | null, supersededId: string | null): GuaranteeMove {

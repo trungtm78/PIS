@@ -3397,7 +3397,9 @@
         "receiveTreasuryCallback",
         "getTreasuryImport",
         "get_resources_treasury_transaction",
-        "get_resources_treasury_transaction_id"
+        "get_resources_treasury_transaction_id",
+        "uploadTreasuryStatementFile",
+        "listTreasuryImports"
       ],
       "tables": [
         "treasury_import",
@@ -37261,7 +37263,8 @@
       ],
       "operations": [
         "assignNationalProjectCode",
-        "importNationalProjectCodes"
+        "importNationalProjectCodes",
+        "uploadNationalCodeFile"
       ],
       "tables": [],
       "nfr": [

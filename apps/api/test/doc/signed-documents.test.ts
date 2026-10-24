@@ -341,10 +341,29 @@ describe('documents signed outside the system (ST-DOC-009)', () => {
       expect(await count("select count(*) as n from machvon.outbox_event where type = 'doc.issued.v1' and payload->>'symbol' = '55/QD-UBND'")).toBe(1);
     });
 
+    it('does not enter one signed file twice under two numbers, in turn or at once, even when the file prints no number to check the declaration against', async () => {
+      const registerId = await flow.openRegister({ mode: 'MIRRORED' });
+      const file = await upload(await externalFile({ number: 400, printed: false }));
+      const first = await register(registration(file, { register_id: registerId, declared_number: 400, declared_symbol: '400/QD-UBND' }));
+      expect(first.status).toBe(200);
+      const again = await register(registration(file, { register_id: registerId, declared_number: 401, declared_symbol: '401/QD-UBND' }));
+      expect([again.status, again.json.code]).toEqual([409, 'NUMBER_ALREADY_REGISTERED']);
+      expect(await count('select count(*) as n from machvon.document_number_allocation where register_id = $1', [registerId])).toBe(1);
+
+      const racing = await upload(await externalFile({ number: 402, printed: false }));
+      const [one, two] = await Promise.all([
+        register(registration(racing, { register_id: registerId, declared_number: 402, declared_symbol: '402/QD-UBND' })),
+        register(registration(racing, { register_id: registerId, declared_number: 403, declared_symbol: '403/QD-UBND' })),
+      ]);
+      expect([one.status, two.status].sort()).toEqual([200, 409]);
+      expect(await count('select count(*) as n from machvon.document_number_allocation where register_id = $1', [registerId])).toBe(2);
+    });
+
     it.each([
       ['a signing time nobody proved', { timestamp: false }, 422, 'SIGNING_TIME_UNPROVEN'],
       ['an authority the tenant does not trust', { leader: 'stranger', seal: 'stranger' }, 422, 'CERTIFICATE_CHAIN_UNTRUSTED'],
       ['a file with one signature only', { seal: null }, 422, 'SIGNATURE_INVALID'],
+      ['two signatures made with one and the same certificate (no second signer)', { seal: 'leader' }, 422, 'SIGNATURE_INVALID'],
     ] as const)('refuses a file with %s', async (_name, variant, status, code) => {
       const registerId = await flow.openRegister({ mode: 'MIRRORED' });
       const file = await upload(
@@ -352,7 +371,7 @@ describe('documents signed outside the system (ST-DOC-009)', () => {
           number: 70,
           ...('timestamp' in variant ? { timestamp: variant.timestamp } : {}),
           ...('leader' in variant ? { leader: stranger } : {}),
-          ...('seal' in variant ? { seal: variant.seal === 'stranger' ? stranger : null } : {}),
+          ...('seal' in variant ? { seal: variant.seal === 'stranger' ? stranger : variant.seal === 'leader' ? flow.world.leader : null } : {}),
         }),
       );
       const reply = await register(registration(file, { register_id: registerId, declared_number: 70, declared_symbol: '70/QD-UBND' }));

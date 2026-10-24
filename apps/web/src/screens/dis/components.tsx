@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { errorIdOf, hintIdOf, wireControl } from '../field-wiring';
 import { statusLabel, statusTone } from './labels';
 import type { PeriodStatus } from './model';
 import './dis.css';
@@ -29,10 +30,14 @@ export function Field({ id, label, error, hint, children }: FieldProps) {
   return (
     <div className="field" data-field={id}>
       <label htmlFor={id}>{label}</label>
-      {children}
-      {hint === undefined ? null : <small className="sub">{hint}</small>}
+      {wireControl(children, id, { hint: hint !== undefined, error: error !== undefined })}
+      {hint === undefined ? null : (
+        <small className="sub" id={hintIdOf(id)}>
+          {hint}
+        </small>
+      )}
       {error === undefined ? null : (
-        <small role="alert" className="field-error" id={`${id}-error`}>
+        <small role="alert" className="field-error" id={errorIdOf(id)}>
           {error}
         </small>
       )}

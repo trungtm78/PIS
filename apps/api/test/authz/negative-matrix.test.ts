@@ -15,7 +15,7 @@ import { ERROR_CODES_PATH, loadOpenApi, startTestApp } from '../isolation/test-a
 import type { RunningApp } from '../isolation/test-app';
 import { COMMAND_FIXTURES, evaluateGuardDenial, evaluateWrongTenant, negativeCasesFor, operationsOf } from './negative-matrix';
 import type { MatrixCase, MatrixRequest, MatrixTargets, Observation } from './negative-matrix';
-import { APPROVER_COMMANDS, STEP_UP_REPLAYS, evaluateSelfApproval, evaluateStepUpDenial, makerCheckerCasesFor, stepUpCasesFor } from './maker-checker';
+import { APPROVER_COMMANDS, SEED_APPRAISAL, STEP_UP_REPLAYS, evaluateSelfApproval, evaluateStepUpDenial, makerCheckerCasesFor, stepUpCasesFor } from './maker-checker';
 
 const SIGNING_KEY = randomBytes(32);
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
@@ -164,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -528,6 +528,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     ];
     const projectId = id(0x8a, 1);
     const projectAreaVersionId = id(0x8a, 3);
+    const appraisalId = id(0x8a, 4);
     const decisionDocumentId = id(0x78, 1);
     const templateId = id(0x7a, 1);
     const impact = '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}';
@@ -577,6 +578,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
          values ($1, $2, 'MX-PRJ', 'Matrix register project', $3, $4, 'INTERNAL', 1000, 'CONCEPT', 1)`,
         [TENANT_A, projectId, unitId(2), projectAreaVersionId],
       ],
+      [SEED_APPRAISAL, [appraisalId, ACTOR, memberId(RECIPIENT)]],
       [
         `insert into machvon.master_import_batch (tenant_id, id, master_type, file_object_key, file_sha256, mapping_json, mode, status, total_rows, error_rows, errors_json, created_by, updated_by)
          values ($1, $2, 'MATRIX', 'tenants/matrix/import/fixture', repeat('c', 64), '{}'::jsonb, 'ATOMIC', 'IN_REVIEW', 0, 0, '[]'::jsonb, $3, $3)`,
@@ -666,6 +668,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const fundSourceRecordId = id(0x8c, 1);
     const fundSourceVersionId = id(0x8c, 2);
     const appropriationId = id(0x8c, 3);
+    const capitalPlanId = id(0x8c, 4);
     await harness.owner(TENANT_A, [
       [
         `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
@@ -681,6 +684,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         `insert into machvon.appropriation (tenant_id, id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, decision_document_id, issuing_authority, source_year, revision, status, created_by, updated_by)
          values ($1, $2, $3, 2026, 'LOCAL_ADDED', 'LOCAL', 1000, $4, 'Matrix authority', 2026, 1, 'DRAFT', $5, $5)`,
         [TENANT_A, appropriationId, fundSourceVersionId, decisionDocumentId, ACTOR],
+      ],
+      [
+        `insert into machvon.capital_plan (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, created_by, updated_by)
+         values ($1, $2, 'MX-CAP-PLAN', 'ANNUAL', 2026, 2026, 2026, $3, 1, 'DRAFT', $4, $4)`,
+        [TENANT_A, capitalPlanId, unitId(2), ACTOR],
       ],
     ]);
     // Two periods of 2026 whose deadline has passed: one OPEN (it could be soft closed) and one SOFT_CLOSED (it could be locked).
@@ -773,6 +781,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       reopenRequestId,
       fundSourceVersionId,
       appropriationId,
+      capitalPlanId,
       permitTypeId,
       permitDossierId,
       permitId,
@@ -787,6 +796,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       integrationCursorId,
       projectId,
       projectAreaVersionId,
+      appraisalId,
       datasetId,
       glossaryOwnerId,
       glossaryDraftTermId,

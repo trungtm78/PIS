@@ -26,6 +26,16 @@ describe('parseSingleFile', () => {
     expect(file.sha256).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   });
 
+  it('hands on the name of the file without its folders and control characters, and none when nothing is left', () => {
+    expect(parseSingleFile(CONTENT_TYPE, bodyOf('x')).name).toBe('logo.png');
+    const named = (name: string) => bodyOf('x', FILE_HEAD.replace('logo.png', name));
+    expect(parseSingleFile(CONTENT_TYPE, named('C:\\Users\\an\\statement.csv')).name).toBe('statement.csv');
+    expect(parseSingleFile(CONTENT_TYPE, named('../../etc/sao ke.csv')).name).toBe('sao ke.csv');
+    expect(parseSingleFile(CONTENT_TYPE, named('a'.repeat(300) + '.csv')).name).toHaveLength(200);
+    expect(parseSingleFile(CONTENT_TYPE, named('')).name).toBeUndefined();
+    expect(parseSingleFile(CONTENT_TYPE, named('dir/')).name).toBeUndefined();
+  });
+
   it('keeps bytes that look like a line break or a partial delimiter, and accepts a quoted boundary and no closing line break', () => {
     const tricky = Buffer.concat([Buffer.from('\r\n--'), Buffer.from(BOUNDARY.slice(0, 3)), Buffer.from([0x00, 0xff, 0x0d])]);
     expect(parseSingleFile(`multipart/form-data; boundary="${BOUNDARY}"`, bodyOf(tricky, FILE_HEAD, `\r\n--${BOUNDARY}--`)).bytes.equals(tricky)).toBe(true);

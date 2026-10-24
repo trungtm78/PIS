@@ -458,6 +458,21 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       ]);
     });
 
+    it('a delivery reported late cancels the send that the late failure had queued on the next channel, so the person is not messaged twice', async () => {
+      const { id, messageId } = await acceptedNotification(['EMAIL', 'SMS']);
+      await callback(EMAIL, EMAIL_ACCOUNT, `evt-${messageId}-bounce`, messageId, 'FAILED');
+      expect((await attemptsOf(id)).map((row) => [row.channel, row.status])).toEqual([
+        ['EMAIL', 'Failed'],
+        ['SMS', 'Queued'],
+      ]);
+      await callback(EMAIL, EMAIL_ACCOUNT, `evt-${messageId}-late`, messageId, 'DELIVERED');
+      expect((await attemptsOf(id)).map((row) => [row.channel, row.status])).toEqual([
+        ['EMAIL', 'Delivered'],
+        ['SMS', 'Cancelled'],
+      ]);
+      expect(await statusOf(id)).toMatchObject({ status: 'Delivered' });
+    });
+
     it('answers 404 for a provider message id it does not know, and keeps a message id of one account apart from the same id of another', async () => {
       await expect(callback(EMAIL, EMAIL_ACCOUNT, `evt-${randomUUID()}`, 'msg-unknown', 'DELIVERED')).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
       const { messageId } = await acceptedNotification();
@@ -533,6 +548,28 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       expect(await inTenant((tx) => engine.reconcile(tx, randomUUID(), { kind: 'NOT_FOUND' }, at(300)))).toBe('UNCHANGED');
     });
 
+    it('a failure that the provider reports for a send of unknown result, by callback or by the answer to the question, ends the send Failed and moves the plan on', async () => {
+      const byCallback = await notify(['EMAIL', 'SMS']);
+      const first = await queuedOf(byCallback);
+      await send(first.id, timedOut, T0);
+      await owner("update machvon.delivery_attempt set provider_message_id = 'msg-bounced' where id = $1", [first.id]);
+      expect(await callback(EMAIL, EMAIL_ACCOUNT, `evt-${randomUUID()}`, 'msg-bounced', 'FAILED')).toMatchObject({ outcome: 'APPLIED' });
+      expect((await attemptsOf(byCallback)).map((row) => [row.channel, row.status, row.failure_class])).toEqual([
+        ['EMAIL', 'Failed', 'PERMANENT'],
+        ['SMS', 'Queued', null],
+      ]);
+      expect(await openTasksOf(first.id)).toBe(0);
+
+      const byLookup = await notify(['EMAIL', 'SMS']);
+      const second = await queuedOf(byLookup);
+      await send(second.id, timedOut, T0);
+      expect(await inTenant((tx) => engine.reconcile(tx, second.id, { kind: 'FOUND', status: 'FAILED', providerMessageId: 'msg-refused' }, at(300)))).toBe('RESOLVED');
+      expect((await attemptsOf(byLookup)).map((row) => [row.channel, row.status, row.failure_class])).toEqual([
+        ['EMAIL', 'Failed', 'PERMANENT'],
+        ['SMS', 'Queued', null],
+      ]);
+    });
+
     it('a callback that arrives for a send of unknown result resolves it and closes the task', async () => {
       const id = await notify(['EMAIL']);
       const attempt = await queuedOf(id);
@@ -584,6 +621,31 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       const stuck = await queuedOf(await notify(['EMAIL']));
       expect(await inTenant((tx) => engine.claim(tx, stuck.id, EMAIL, at(3200)))).toEqual({ kind: 'SKIPPED', reason: 'CIRCUIT_OPEN' });
       expect((await inTenant((tx) => engine.claim(tx, stuck.id, EMAIL, at(3400)))).kind).toBe('CLAIMED');
+      await owner('delete from machvon.channel_account_circuit');
+    });
+
+    it('does not count the refusals that are about one recipient: twenty permanent failures in a minute leave the provider circuit closed, and a permanent failure of a probe lets the next send probe again', async () => {
+      await owner('delete from machvon.channel_account_circuit');
+      for (let n = 0; n < 20; n += 1) {
+        const bad = await queuedOf(await notify(['EMAIL']));
+        await send(bad.id, refused, at(6000 + n));
+      }
+      const [afterRefusals] = await owner<{ state: string }>('select state from machvon.channel_account_circuit where channel_account_id = $1', [EMAIL_ACCOUNT]);
+      expect(afterRefusals?.state ?? 'CLOSED').toBe('CLOSED');
+      const next = await queuedOf(await notify(['EMAIL']));
+      expect((await inTenant((tx) => engine.claim(tx, next.id, EMAIL, at(6030)))).kind).toBe('CLAIMED');
+      await inTenant((tx) => engine.recordSendResult(tx, next.id, accepted('msg-after-refusals'), at(6031)));
+
+      // A probe that ended in a refusal about its recipient says nothing about the provider: the circuit stays open and the next send is the next probe.
+      await owner('delete from machvon.channel_account_circuit');
+      await owner("insert into machvon.channel_account_circuit (tenant_id, channel_account_id, state, opened_at) values ($1, $2, 'OPEN', $3)", [TENANT_A, EMAIL_ACCOUNT, at(7000).toISOString()]);
+      const probe = await queuedOf(await notify(['EMAIL']));
+      expect((await inTenant((tx) => engine.claim(tx, probe.id, EMAIL, at(7121)))).kind).toBe('CLAIMED');
+      await inTenant((tx) => engine.recordSendResult(tx, probe.id, refused, at(7122)));
+      const [released] = await owner<{ state: string }>('select state from machvon.channel_account_circuit where channel_account_id = $1', [EMAIL_ACCOUNT]);
+      expect(released?.state).toBe('OPEN');
+      const following = await queuedOf(await notify(['EMAIL']));
+      expect((await inTenant((tx) => engine.claim(tx, following.id, EMAIL, at(7123)))).kind).toBe('CLAIMED');
       await owner('delete from machvon.channel_account_circuit');
     });
 
@@ -653,7 +715,12 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       await send((await queuedOf(id)).id, timedOut, T0);
       expect(await statusOf(id)).toMatchObject({ status: 'Unknown' });
       await expect(replay(id, (await statusOf(id)).version, at(86_399))).rejects.toMatchObject({ code: 'RECONCILE_REQUIRED' });
+      // The alert on a send that stays Unknown is about notifications still waiting for a decision: once the operator has replayed it, it no longer counts.
+      const [unknown] = await attemptsOf(id);
+      await owner("update machvon.delivery_attempt set unknown_at = '2001-01-01T00:00:00Z' where id = $1", [unknown?.id]);
+      expect((await inTenant((tx) => deliveries.gauges(tx))).oldestUnknownSeconds).toBeGreaterThan(20 * 365 * 86_400);
       const result = await replay(id, (await statusOf(id)).version, at(86_401));
+      expect((await inTenant((tx) => deliveries.gauges(tx))).oldestUnknownSeconds).toBeLessThan(10 * 365 * 86_400);
       expect(result).toMatchObject({ notificationId: id, startedNewChain: false, channel: 'EMAIL' });
       expect((await attemptsOf(id)).map((row) => [row.channel, row.attempt_no, row.status])).toEqual([
         ['EMAIL', 1, 'Unknown'],
@@ -671,8 +738,11 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       }
       expect(await statusOf(id)).toMatchObject({ status: 'Failed' });
       const before = await statusOf(id);
+      const queueBefore = await inTenant((tx) => deliveries.gauges(tx));
       const result = await replay(id, before.version, at(5000));
       expect(result.startedNewChain).toBe(true);
+      // The original stays Failed in its record, but it is no longer waiting in the failed queue: the gauge of the alert counts what the screen lists.
+      expect((await inTenant((tx) => deliveries.gauges(tx))).deadLetter).toBe(queueBefore.deadLetter - 1);
       expect(result.notificationId).not.toBe(id);
       const [copy] = await owner<{ status: string; replay_of: string; replay_seq: number; dedupe_key: string; channel_plan: string[]; recipient_id: string }>(
         'select status, replay_of, replay_seq, dedupe_key, channel_plan, recipient_id from machvon.notification_instance where id = $1',
@@ -712,6 +782,18 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       expect(await statusOf(id)).toEqual({ status: 'Delivered', version: before.version + 1 });
       const [row] = await owner<{ cancel_requested_at: Date | null }>('select cancel_requested_at from machvon.notification_instance where id = $1', [id]);
       expect(row?.cancel_requested_at).not.toBeNull();
+    });
+
+    it('cancels a notification that is only waiting for its next retry: nothing is in flight, so it ends Cancelled and is not left Sending', async () => {
+      const id = await notify(['EMAIL']);
+      expect(await send((await queuedOf(id)).id, unavailable(), T0)).toBe('RETRY');
+      const before = await statusOf(id);
+      expect(await cancel(id, before.version)).toEqual({ outcome: 'CANCELLED', version: before.version + 1, cancelledAttempts: 1 });
+      expect(await statusOf(id)).toEqual({ status: 'Cancelled', version: before.version + 1 });
+      expect((await attemptsOf(id)).map((row) => [row.attempt_no, row.status])).toEqual([
+        [1, 'Failed'],
+        [2, 'Cancelled'],
+      ]);
     });
 
     it('refuses a stale version, an unknown notification and a notification that is already over', async () => {

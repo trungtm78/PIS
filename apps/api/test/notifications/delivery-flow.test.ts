@@ -106,10 +106,11 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     });
 
   /** A delivery receipt as the in-memory provider writes it, signed the way the registry says. */
-  async function receipt(api: RunningApi, body: Record<string, unknown>, options: { secret?: string; timestamp?: number; path?: string; signed?: boolean } = {}): Promise<Reply> {
+  async function receipt(api: RunningApi, body: Record<string, unknown>, options: { secret?: string; timestamp?: number; path?: string; signed?: boolean; idempotencyKey?: string } = {}): Promise<Reply> {
     const raw = JSON.stringify(body);
     const timestamp = options.timestamp ?? Math.floor(Date.now() / 1000);
     const headers: Record<string, string> = { 'content-type': 'application/json', 'x-timestamp': String(timestamp) };
+    if (options.idempotencyKey !== undefined) headers['idempotency-key'] = options.idempotencyKey;
     if (options.signed !== false) headers['x-signature'] = createHmac('sha256', options.secret ?? WEBHOOK_SECRET).update(`${timestamp}.${raw}`).digest('hex');
     const response = await fetch(`http://127.0.0.1:${api.port}/webhooks/channels/${options.path ?? PROVIDER}`, { method: 'POST', headers, body: raw });
     return { status: response.status, json: (await response.json()) as Record<string, unknown> };
@@ -241,6 +242,8 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect(late.json).toEqual({ received: true, duplicate: false });
     expect((await receipt(api, eventBody('e-delivered', message, 'DELIVERED'))).json).toEqual({ received: true, duplicate: true });
     expect((await receipt(api, eventBody('e-accepted', message, 'ACCEPTED'))).json).toEqual({ received: true, duplicate: true });
+    // The Idempotency-Key header is not under the signature: whoever replays a signed receipt cannot make it a new event by writing another key.
+    expect((await receipt(api, eventBody('e-delivered', message, 'DELIVERED'), { idempotencyKey: 'a-key-the-provider-never-signed' })).json).toEqual({ received: true, duplicate: true });
     expect((await attemptsOf(eventId))[0]).toMatchObject({ status: 'Delivered' });
     const history = await rows<{ to_status: string; cause: string }>(
       `select h.to_status, h.cause from machvon.provider_status_history h join machvon.provider_status_item i on i.id = h.item_id where i.subject_id = $1 order by h.item_version`,

@@ -286,9 +286,10 @@ describe('CapAppropriationStore (the appropriation register by origin, ST-CAP-00
       await runInTransaction(adminPool, TENANT_A, async (tx) => {
         await tx.query('set local session_replication_role = replica');
         await tx.query(
-          `insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, created_by)
-           values ($1, $2, $3, $4, 'CURRENT_YEAR', $5, $6::numeric, 0, $7, $8)`,
-          [TENANT_A, lineId, randomUUID(), versions.nstw, year, money(6), published.id, memberId(MAKER)],
+          `insert into machvon.allocation_line
+             (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin, created_by, updated_by)
+           values ($1, $2, $3, $4, 'CURRENT_YEAR', $5, $6::numeric, 0, $7, $8, 'CENTRAL', 'PM_ASSIGNED', $9, $9)`,
+          [TENANT_A, lineId, randomUUID(), versions.nstw, year, money(6), published.id, randomUUID(), memberId(MAKER)],
         );
       });
       const revision = await register({ planYear: year, supersedesId: published.id, amountVnd: money(12), issuingAuthority: 'Ủy ban nhân dân tỉnh' });

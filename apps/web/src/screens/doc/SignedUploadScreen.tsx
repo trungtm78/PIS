@@ -167,13 +167,13 @@ function SignedUploadContent({ route }: ScreenProps) {
           <fieldset disabled={!canUpload || busy} className="plain">
             <div className="field">
               <label htmlFor="signed-file">{t('doc.signed.file.label')}</label>
-              <input id="signed-file" type="file" accept="application/pdf,.pdf" aria-invalid={fileError !== undefined} onChange={(event) => choose(event.target.files?.[0])} />
+              <input id="signed-file" type="file" accept="application/pdf,.pdf" aria-invalid={fileError !== undefined} aria-describedby={fileError === undefined ? 'signed-file-hint' : 'signed-file-error signed-file-hint'} onChange={(event) => choose(event.target.files?.[0])} />
               {fileError === undefined ? null : (
-                <small role="alert" className="field-error">
+                <small role="alert" className="field-error" id="signed-file-error">
                   {fileProblemMessage(t, fileError)}
                 </small>
               )}
-              <small className="muted">{t('doc.signed.file.hint')}</small>
+              <small className="muted" id="signed-file-hint">{t('doc.signed.file.hint')}</small>
             </div>
             <button type="button" className="primary" onClick={read} disabled={file === undefined || upload.isPending}>
               {upload.isPending ? t('doc.signed.file.reading.text') : t('doc.signed.file.read.action')}
