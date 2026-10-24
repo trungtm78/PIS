@@ -219,6 +219,35 @@ describe('standard jobs', () => {
     expect(gauges).toEqual([4]);
   });
 
+  it('issue-sla: sums the open issues and the waiting escalations of every tenant into the gauges, whatever tenant fails (ST-ISS-004)', async () => {
+    const gauges: Array<[string, number, Record<string, string> | undefined]> = [];
+    const clock = new Date('2026-08-12T07:00:00Z');
+    const seen: Date[] = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B, PLATFORM_TENANT_ID],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      clock: () => clock,
+      issueSla: {
+        run: async (ctx, now) => {
+          seen.push(now);
+          if (ctx.tenantId === TENANT_B) throw new Error('boom');
+          return { overdueMarked: 1, escalated: { 2: 1, 3: 0 }, withoutTaskForce: 0, withoutCalendar: 0, open: { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 0 }, pending: 2 };
+        },
+      },
+      metrics: { increment: () => undefined, gauge: (name, value, labels) => void gauges.push([name, value, labels]) },
+    });
+    await expect(handlers.find((handler) => handler.name === 'issue-sla')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(seen).toEqual([clock, clock, clock]);
+    expect(gauges).toEqual([
+      ['iss_open_total', 2, { severity: 'LOW' }],
+      ['iss_open_total', 4, { severity: 'MEDIUM' }],
+      ['iss_open_total', 6, { severity: 'HIGH' }],
+      ['iss_open_total', 0, { severity: 'CRITICAL' }],
+      ['iss_escalation_pending', 4, undefined],
+    ]);
+  });
+
   it('serves the relay and the access cache only when the process has them, in schedule order', async () => {
     const deps = { tenantIds: async () => [], seal: new AuditSealJob(harness.tenantDatabase), idempotency: new IdempotencyStore(harness.tenantDatabase) };
     expect(standardJobs(deps).map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'idempotency-purge']);
@@ -234,11 +263,13 @@ describe('standard jobs', () => {
       disReopens: { expire: async () => undefined },
       retention: { run: async () => ({ pending: 0 }) },
       guaranteeExpiry: { run: async () => ({ expiring: {}, advanceAtRisk: 0 }) },
+      issueSla: { run: async () => ({ overdueMarked: 0, escalated: { 2: 0, 3: 0 }, withoutTaskForce: 0, withoutCalendar: 0, open: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }, pending: 0 }) },
       inbox: { processDue: async () => undefined },
       notificationDelivery: { dispatchDue: async () => undefined, reconcile: async () => undefined },
+      dgvQuality: { run: async () => ({ notAssessed: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

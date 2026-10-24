@@ -302,6 +302,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         'EXPERT_ROLE',
         'FUND_SOURCE',
         'LANGUAGE',
+        'LND_TIMER',
         'NATIONAL_CODE_FORMAT',
         'NATIONAL_CODE_REQUIRED',
         'PAYMENT_TYPE',
@@ -316,7 +317,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         'UNIT',
       ]);
       // The law and the process of the platform are its own; the rule data is never a tenant's to write by default.
-      for (const type of ['PROJECT_GROUP', 'PROJECT_STAGE', 'PROJECT_GROUP_THRESHOLDS', 'NATIONAL_CODE_REQUIRED', 'NATIONAL_CODE_FORMAT', 'APPRAISAL_CRITERIA']) {
+      for (const type of ['PROJECT_GROUP', 'PROJECT_STAGE', 'PROJECT_GROUP_THRESHOLDS', 'NATIONAL_CODE_REQUIRED', 'NATIONAL_CODE_FORMAT', 'APPRAISAL_CRITERIA', 'LND_TIMER']) {
         expect(BASELINE_POLICIES[type]?.scope).toBe('PLATFORM_ONLY');
       }
     });

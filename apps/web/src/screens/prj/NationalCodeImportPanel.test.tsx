@@ -41,7 +41,7 @@ const problem = (code: string, status: number, extensions: Record<string, unknow
 
 afterEach(cleanup);
 
-function panel(options: { command?: (operation: string, input: unknown) => unknown; upload?: () => unknown; canImport?: boolean } = {}) {
+function panel(options: { command?: (operation: string, input: unknown) => unknown; upload?: () => unknown; canImport?: boolean; wholeTenant?: boolean | undefined } = {}) {
   const h = harness(() => new Error('no read'), options.command ?? ((_operation, input) => ((input as { body: { dry_run: boolean } }).body.dry_run ? PREVIEW : APPLIED)));
   const upload = vi.fn(async () => {
     const result = options.upload?.() ?? UPLOADED;
@@ -49,7 +49,7 @@ function panel(options: { command?: (operation: string, input: unknown) => unkno
     return result;
   });
   (h.client as unknown as { upload: unknown }).upload = upload;
-  mount(<NationalCodeImportPanel canImport={options.canImport ?? true} />, h, { permissions: ['project.national_code.manage'] });
+  mount(<NationalCodeImportPanel canImport={options.canImport ?? true} wholeTenant={'wholeTenant' in options ? options.wholeTenant : true} />, h, { permissions: ['project.national_code.manage'] });
   return { h, upload };
 }
 
@@ -140,6 +140,26 @@ describe('NationalCodeImportPanel (PRJ-21): the reconciliation file', () => {
     choose();
     check();
     expect((await screen.findByTestId('import-problem')).textContent).toBe(vi_['prj.reconcile.importProblem.schemaInvalid.error']);
+  });
+
+  it('AC-ST-PRJ-004-2: a unit-scoped officer checks the file but cannot apply it: the notice says only the whole-tenant officer applies it, and no apply is sent', async () => {
+    const { h } = panel({ wholeTenant: false });
+    expect(screen.getByTestId('import-scope-notice').textContent).toBe(vi_['prj.reconcile.import.wholeTenant.notice']);
+    choose();
+    check();
+    await screen.findByTestId('import-rows');
+    expect(screen.queryByRole('button', { name: vi_['prj.reconcile.import.apply.action'] })).toBeNull();
+    expect(h.command).toHaveBeenCalledTimes(1);
+    expect(h.command).toHaveBeenCalledWith('importNationalProjectCodes', expect.objectContaining({ body: { file_object_key: KEY, file_sha256: SHA, dry_run: true } }));
+  });
+
+  it('keeps the apply out of sight, without a notice, while it is not yet known whether the officer holds the permission on the whole tenant', async () => {
+    panel({ wholeTenant: undefined });
+    expect(screen.queryByTestId('import-scope-notice')).toBeNull();
+    choose();
+    check();
+    await screen.findByTestId('import-rows');
+    expect(screen.queryByRole('button', { name: vi_['prj.reconcile.import.apply.action'] })).toBeNull();
   });
 
   it('offers no file to someone who may not import, and starts over when another file is chosen', async () => {

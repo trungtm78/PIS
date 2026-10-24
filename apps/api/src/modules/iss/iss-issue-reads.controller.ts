@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { IssIssueStore, LAND_HOUSEHOLD_PERMISSION, TenantDatabase, issueScope } from '@machvon/db';
+import { IssEscalationStore, IssIssueStore, LAND_HOUSEHOLD_PERMISSION, TenantDatabase, issueScope } from '@machvon/db';
 import { DomainError, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
@@ -10,6 +10,7 @@ import { CurrentTenant } from '../../tenant-context.decorator';
 import { issueDetailView, issueEventView, issueLineView } from './issue-view';
 
 const READ_PERMISSION = PERMISSIONS.get_resources_issue;
+const ESCALATE_PERMISSION = PERMISSIONS.escalateIssue;
 
 /**
  * The issues in the scope of the caller (ISS-01) and the workspace of one issue with its timeline (ISS-03): a DTO allowlist filtered by the
@@ -20,6 +21,7 @@ const READ_PERMISSION = PERMISSIONS.get_resources_issue;
 @Controller('resources/issue')
 export class IssIssueReadsController {
   private readonly issues = new IssIssueStore();
+  private readonly escalations = new IssEscalationStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
 
@@ -67,7 +69,11 @@ export class IssIssueReadsController {
       if (detail === undefined) return undefined;
       const [overdue] = await this.issues.overdueDays(tx, [detail], now);
       const events = await this.issues.events(tx, id, { limit: request.limit + 1, after: request.after });
-      return { detail, overdue: overdue ?? null, events, guest: await this.issues.isGuest(tx, tenant.membershipId) };
+      const escalationRows = await this.escalations.forIssue(tx, id);
+      // The task force that could be offered for a manual escalation to level 3 is told to a reader who may escalate.
+      const mayEscalate = holdsPermission(effectivePermissions(access, now, detail.place), ESCALATE_PERMISSION);
+      const taskForce = mayEscalate ? await this.escalations.activeTaskForceOf(tx, { projectId: detail.projectId, ownerUnitPath: detail.place.ownerUnitPath }, now) : undefined;
+      return { detail, overdue: overdue ?? null, events, escalationRows, taskForce, guest: await this.issues.isGuest(tx, tenant.membershipId) };
     });
     // An issue in another tenant or outside the scope of the caller is indistinguishable from one that does not exist.
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -76,7 +82,7 @@ export class IssIssueReadsController {
     const shown = found.events.slice(0, request.limit);
     const last = shown[shown.length - 1];
     return {
-      ...issueDetailView(found.detail, found.overdue, viewer, rights),
+      ...issueDetailView(found.detail, found.overdue, viewer, rights, { escalations: found.escalationRows, taskForce: found.taskForce }),
       events: shown.map((event) => issueEventView(event, viewer, rights, found.detail.sourceModule)),
       next_cursor: found.events.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAtKey, id: last.id }) : null,
       as_of: now.toISOString(),

@@ -1,5 +1,7 @@
 import type { CapitalPlanListRow, PlanLineRow, PlanProjectRow, PlanTotals } from '@machvon/db';
 
+const IN_WORK: readonly string[] = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'REJECTED'];
+
 function totalsView(totals: PlanTotals): Record<string, unknown> {
   return { line_count: totals.lineCount, allocated_vnd: totals.allocatedVnd, ctmtqg_subset_vnd: totals.ctmtqgSubsetVnd, ceiling_vnd: totals.ceilingVnd };
 }
@@ -23,6 +25,10 @@ export function planView(plan: CapitalPlanListRow): Record<string, unknown> {
     supersedes_id: plan.supersedesId,
     effective_at: plan.effectiveAt,
     published_at: plan.publishedAt,
+    submitted_at: plan.submittedAt,
+    decided_at: plan.decidedAt,
+    // The reason of a decision is for the circle that drafts and approves the revision; a published or superseded plan does not carry it.
+    decision_reason: IN_WORK.includes(plan.status) ? plan.decisionReason : null,
     totals: totalsView(plan.totals),
     fund_sources: plan.fundSources.map((source) => ({ version_id: source.versionId, business_key: source.businessKey, label: source.label })),
     version: plan.version,
@@ -68,6 +74,7 @@ export function lineView(row: PlanLineRow): Record<string, unknown> {
     previous_line_id: row.previousLineId,
     committed_vnd: row.committedVnd,
     reserved_vnd: row.reservedVnd,
+    disbursed_vnd: row.disbursedVnd,
     version: row.version,
   };
 }

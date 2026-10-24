@@ -60,3 +60,7 @@ A slice that adds a ledger adds its declaration, picking the next free lock rank
 one moment, repeats the scenario M times from a reset state and names the first loop that breaks an invariant.
 `packages/db/test/ledger-concurrency.test.ts` applies it to the spend, transfer and double-claim scenarios, 100 loops each.
 A new ledger command adds its scenario there (or in its own suite with the same helpers).
+
+## Capital balances
+
+The capital ledger (`allocation_balance`, `capital_ledger_entry`) follows these rules; what its publication writes and what each later story must keep is in `docs/capital-balances.md`.

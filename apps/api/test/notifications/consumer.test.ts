@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { EffectiveAccessStore, InMemoryAuthzCache, NotificationStore, WORKER_MEMBERSHIP_ID, enqueueOutbox } from '@machvon/db';
+import { EffectiveAccessStore, InMemoryAuthzCache, NotificationPreferenceStore, NotificationStore, WORKER_MEMBERSHIP_ID, enqueueOutbox } from '@machvon/db';
 import type { NewNotification, OutboxDelivery, TenantTx } from '@machvon/db';
 import { signTenantContext } from '@machvon/kernel';
 import type { AlertSink, MetricsSink } from '@machvon/kernel';
@@ -76,7 +76,7 @@ describe('NotificationConsumer (ST-NOT-001)', () => {
   let alerts: Alerts;
   let access: EffectiveAccessStore;
 
-  const consumer = (overrides: { store?: NotificationStore; catalog?: EventTypeCatalog } = {}): NotificationConsumer =>
+  const consumer = (overrides: { store?: NotificationStore; catalog?: EventTypeCatalog; preferences?: NotificationPreferenceStore } = {}): NotificationConsumer =>
     new NotificationConsumer({
       database: harness.tenants,
       store: overrides.store ?? store,
@@ -85,6 +85,7 @@ describe('NotificationConsumer (ST-NOT-001)', () => {
       resourceAccess: new PermissionResourceAccess(),
       security: { signingKey: SIGNING_KEY, alerts },
       metrics,
+      ...(overrides.preferences === undefined ? {} : { preferences: overrides.preferences }),
     });
 
   async function delivery(payload: Record<string, unknown>, options: { tenant?: string; type?: string } = {}): Promise<OutboxDelivery> {
@@ -204,6 +205,36 @@ describe('NotificationConsumer (ST-NOT-001)', () => {
       ["delete from machvon.workflow_version where revision = 2 and event_type = $1", [EVENT_TYPE]],
       ["update machvon.workflow_version set status = 'Published' where revision = 1 and event_type = $1", [EVENT_TYPE]],
     ]);
+  });
+
+  it('ST-NOT-003: a recipient who switched the inbox off for the category gets no notification of an ordinary event, and always gets an urgent one', async () => {
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.notification_preference (tenant_id, id, membership_id, event_category, channel, enabled) values ($1, gen_random_uuid(), $2, 'project', 'IN_APP', false)`,
+        [TENANT_A, memberId(READER)],
+      ],
+    ]);
+    const preferences = new NotificationPreferenceStore();
+    // The workflow is HIGH: the inbox of an urgent message is never dropped.
+    const urgent = await delivery(explicit(READER));
+    await consumer({ preferences }).handle(urgent);
+    expect((await rowsOf(urgent.id)).map((row) => row.recipient_id)).toEqual([memberId(READER)]);
+    await harness.owner(TENANT_A, [["update machvon.workflow_version set definition_json = '{\"priority\":\"NORMAL\"}'::jsonb where event_type = $1 and status = 'Published'", [EVENT_TYPE]]]);
+    try {
+      const ordinary = await delivery(explicit(READER));
+      await consumer({ preferences }).handle(ordinary);
+      expect(await rowsOf(ordinary.id)).toHaveLength(0);
+      expect(metrics.get('notification_suppressed_total{reason=preference}')).toBe(1);
+      // The same event without the preference store (a consumer that does not know preferences) still creates it.
+      const unaware = await delivery(explicit(READER));
+      await consumer().handle(unaware);
+      expect(await rowsOf(unaware.id)).toHaveLength(1);
+    } finally {
+      await harness.owner(TENANT_A, [
+        [`update machvon.workflow_version set definition_json = $2::jsonb where event_type = $1 and status = 'Published'`, [EVENT_TYPE, JSON.stringify({ priority: 'HIGH', ackRequired: true, expiresAfterMinutes: 120 })]],
+        ['delete from machvon.notification_preference where membership_id = $1', [memberId(READER)]],
+      ]);
+    }
   });
 
   it('drops recipients without read access, suspended memberships and memberships of another tenant', async () => {

@@ -1,6 +1,6 @@
 import { DeliveryStore, consumeOnce, externalChannelsOf } from '@machvon/db';
-import type { ConsumeSecurity, DeliveryEngine, NotificationRef, NotificationStore, OutboxDelivery, TenantDatabase, TenantTx } from '@machvon/db';
-import { DomainError, NOOP_METRICS, asUuid } from '@machvon/kernel';
+import type { ConsumeSecurity, DeliveryEngine, NotificationPreferenceStore, NotificationRef, NotificationStore, OutboxDelivery, TenantDatabase, TenantTx } from '@machvon/db';
+import { DomainError, NOOP_METRICS, asUuid, eventCategoryOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { definitionOf } from './definition';
 import type { NotificationDefinition } from './definition';
@@ -27,6 +27,11 @@ export interface NotificationConsumerDeps {
    * channels of the plan are ignored rather than left queued with nobody to send them.
    */
   delivery?: DeliveryEngine;
+  /**
+   * The preferences of the recipients (ST-NOT-003): a recipient who switched off the inbox for the category of an event that is not urgent does not get a
+   * notification in it. The external channels are decided when each send is taken up, from the preferences and the consent of that moment.
+   */
+  preferences?: Pick<NotificationPreferenceStore, 'channelEnabled'>;
   metrics?: MetricsSink;
   now?: () => Date;
 }
@@ -105,6 +110,18 @@ export class NotificationConsumer {
     return this.deps.resourceAccess.canRead(access, ref.resource, this.now());
   }
 
+  /**
+   * The channels the notification will use for this recipient (NOT 3.1 step 4): the plan of the workflow without the inbox when the recipient switched it off
+   * for this category of events. The inbox of an urgent message (CRITICAL, HIGH) is never dropped; without a delivery engine the inbox is the only channel.
+   */
+  private async planFor(tx: TenantTx, delivery: OutboxDelivery, definition: NotificationDefinition, recipient: string): Promise<string[]> {
+    const plan = this.deps.delivery === undefined ? ['IN_APP'] : definition.channels.map((entry) => entry.channel);
+    const urgent = definition.priority === 'CRITICAL' || definition.priority === 'HIGH';
+    if (this.deps.preferences === undefined || urgent || !plan.includes('IN_APP')) return plan;
+    const inboxOn = await this.deps.preferences.channelEnabled(tx, recipient, eventCategoryOf(delivery.type), 'IN_APP');
+    return inboxOn ? plan : plan.filter((channel) => channel !== 'IN_APP');
+  }
+
   private async insert(
     tx: TenantTx,
     delivery: OutboxDelivery,
@@ -115,7 +132,11 @@ export class NotificationConsumer {
   ): Promise<void> {
     const recipient = asUuid(recipientId);
     if (recipient === undefined) return;
-    const channelPlan = this.deps.delivery === undefined ? ['IN_APP'] : definition.channels.map((entry) => entry.channel);
+    const channelPlan = await this.planFor(tx, delivery, definition, recipient);
+    if (channelPlan.length === 0) {
+      this.metrics.increment('notification_suppressed_total', { reason: 'preference' });
+      return;
+    }
     const result = await this.deps.store.insert(tx, {
       eventId: delivery.id,
       workflowVersionId,

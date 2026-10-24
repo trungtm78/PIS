@@ -371,22 +371,58 @@ describe('the national project code: assignment by hand, reconciliation file and
       expect((await importFile(CODE_ADMIN, retry, { dryRun: false })).status).toBe(200);
     });
 
-    it('AC-ST-PRJ-004-2: a department administrator reconciles the projects of the department and no others, and a project with another code is a difference, not an overwrite', async () => {
+    it('AC-ST-PRJ-004-2: a department administrator may dry-run the file for the projects of the department, but only the whole-tenant officer applies it; a project with another code is a difference, not an overwrite', async () => {
       const mine = await project('BUDGETED');
       const elsewhere = await project('BUDGETED', { unit: ELSEWHERE });
       const held = await project('IMPLEMENTATION', { nationalCode: freshCode() });
       const heldCode = (await row(held.id)).national_project_code as string;
       const proposed = freshCode();
       const file = await upload(csv(`${mine.code},${freshCode()}`, `${elsewhere.code},${freshCode()}`, `${held.code},${proposed}`));
-      const applied = await importFile(DEPARTMENT_ADMIN, file, { dryRun: false });
+      const dry = await importFile(DEPARTMENT_ADMIN, file, { dryRun: true });
+      expect(dry.status).toBe(200);
+      expect((dry.json.rows as Array<Record<string, unknown>>).map((entry) => [entry.internal_code, entry.status, entry.outcome ?? entry.code])).toEqual([
+        [mine.code, 'VALID', 'ASSIGN'],
+        [elsewhere.code, 'ERROR', 'PROJECT_NOT_FOUND'],
+        [held.code, 'VALID', 'MISMATCH'],
+      ]);
+      // The file spans every project and its hash is consumed once: a unit-scoped officer must not use it up with a partial apply.
+      const refused = await importFile(DEPARTMENT_ADMIN, file, { dryRun: false });
+      expect([refused.status, refused.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect(await rows('select id from machvon.file_import where file_sha256 = $1', [file.sha])).toEqual([]);
+      expect((await row(mine.id)).national_project_code).toBeNull();
+
+      const applied = await importFile(CODE_ADMIN, file, { dryRun: false });
       expect(applied.status).toBe(200);
-      expect(applied.json).toMatchObject({ assigned: 1, counts: { applied: 2, quarantined: 1, differencesOpened: 1 } });
-      expect((applied.json.errors as Array<Record<string, unknown>>).map((entry) => [entry.internal_code, entry.code])).toEqual([[elsewhere.code, 'PROJECT_NOT_FOUND']]);
+      expect(applied.json).toMatchObject({ assigned: 2, counts: { applied: 3, quarantined: 0, differencesOpened: 1 } });
       expect((await row(held.id)).national_project_code).toBe(heldCode);
-      expect((await row(elsewhere.id)).national_project_code).toBeNull();
+      expect((await row(elsewhere.id)).national_project_code).not.toBeNull();
       expect(await rows('select code, expected_value, actual_value from machvon.file_import_reconciliation_item where import_id = $1::uuid', [applied.json.resource_id as string])).toEqual([
         { code: 'NATIONAL_CODE_MISMATCH', expected_value: heldCode, actual_value: proposed },
       ]);
+    });
+
+    it('AC-ST-PRJ-004-2: the dry run of a unit-scoped officer does not reveal that a national code is held by a project outside the scope, while a code held inside the scope is still a duplicate', async () => {
+      const outside = await project('BUDGETED', { unit: ELSEWHERE });
+      const inside = await project('BUDGETED');
+      const wanting = await project('BUDGETED');
+      const wantingToo = await project('BUDGETED');
+      const hiddenCode = freshCode();
+      const visibleCode = freshCode();
+      await rows('update machvon.project set national_project_code = $2 where id = $1::uuid', [outside.id, hiddenCode]);
+      await rows('update machvon.project set national_project_code = $2 where id = $1::uuid', [inside.id, visibleCode]);
+      const file = await upload(csv(`${wanting.code},${hiddenCode}`, `${wantingToo.code},${visibleCode}`));
+      const scoped = await importFile(DEPARTMENT_ADMIN, file, { dryRun: true });
+      expect((scoped.json.rows as Array<Record<string, unknown>>).map((entry) => [entry.internal_code, entry.status, entry.outcome ?? entry.code])).toEqual([
+        [wanting.code, 'VALID', 'ASSIGN'],
+        [wantingToo.code, 'ERROR', 'NATIONAL_CODE_DUPLICATE'],
+      ]);
+      expect(scoped.json.counts).toMatchObject({ valid: 1, errors: 1 });
+      const whole = await importFile(CODE_ADMIN, file, { dryRun: true });
+      expect((whole.json.rows as Array<Record<string, unknown>>).map((entry) => [entry.internal_code, entry.status, entry.outcome ?? entry.code])).toEqual([
+        [wanting.code, 'ERROR', 'NATIONAL_CODE_DUPLICATE'],
+        [wantingToo.code, 'ERROR', 'NATIONAL_CODE_DUPLICATE'],
+      ]);
+      expect(whole.json.counts).toMatchObject({ valid: 0, errors: 2 });
     });
 
     it('AC-ST-PRJ-004-2: the file is checked before it is read: a hash that is not its own is 422 HASH_MISMATCH, a layout it is not is 422, a file of another tenant does not exist, an unreadable file is 422', async () => {

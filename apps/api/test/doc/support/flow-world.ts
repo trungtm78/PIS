@@ -1,12 +1,9 @@
 import { X509Certificate, randomUUID } from 'node:crypto';
-import { AuditWriter, DoaMatrixStore, OutgoingDocumentStore, enqueueOutbox } from '@machvon/db';
-import type { TenantTx } from '@machvon/db';
+import { DoaMatrixStore } from '@machvon/db';
 import { fingerprintOf } from '../../../src/modules/doc/cms-verification';
-import { OutgoingIssuance } from '../../../src/modules/doc/issuance';
 import { MockSigningPort } from '../../../src/modules/doc/signing-port';
-import type { CommandScope } from '../../../src/command-scope';
 import { roleId } from '../../../../../packages/db/test/support/authz-fixtures';
-import { ACTOR, ADMIN, CLERK, DocApp, LEADER, MAKER, NOW, REVIEWER, TENANT_A, memberId, unitId } from '../doc-app';
+import { ACTOR, ADMIN, CLERK, DocApp, LEADER, LEGAL_ISSUER, MAKER, NOW, REVIEWER, TENANT_A, memberId, unitId } from '../doc-app';
 import type { Reply } from '../doc-app';
 import { createWorld } from './pki-world';
 import type { World } from './pki-world';
@@ -139,27 +136,16 @@ export class FlowWorld {
     return sealed.json.document_version as number;
   }
 
-  /** What the command that issues a sealed document does with the issuance step, in a transaction of its own: audit, outbox and the state in one. */
-  async issueSealed(id: string, member: number = CLERK): Promise<void> {
-    const tenant = { tenantId: TENANT_A, membershipId: memberId(member), scopeVersion: 1 };
-    const audit = new AuditWriter(this.app.harness.tenants);
-    const issuance = new OutgoingIssuance();
-    await this.app.harness.tenants.withTenant(tenant, async (tx: TenantTx) => {
-      const requestId = randomUUID();
-      const scope: CommandScope = {
-        tx,
-        tenant,
-        requestId,
-        correlationId: requestId,
-        expectedVersion: null,
-        audit: (entry) => audit.recordInTx(tx, tenant.membershipId, { ...entry, correlationId: requestId, requestId }),
-        emit: (event) => enqueueOutbox(tx, { ...event, correlationId: requestId }),
-        afterCommit: () => undefined,
-      };
-      const found = await new OutgoingDocumentStore().lock(tx, id);
-      if (found === undefined || found.currentVersionId === null) throw new Error('nothing to issue');
-      const [file] = await tx.query<{ checksum: string }>('select checksum from machvon.document_version where id = $1::uuid', [found.currentVersionId]);
-      await issuance.issue(scope, found, { versionId: found.currentVersionId, fileSha256: file?.checksum ?? '' }, this.app.now);
+  /**
+   * Issues a sealed document through the command (the gate verifies both signatures again): a legal user of the whole tenant, with the reason that a document
+   * of the unconfirmed default template needs. A refusal rejects with the code of the problem.
+   */
+  async issueSealed(id: string, member: number = LEGAL_ISSUER): Promise<void> {
+    const [current] = await this.app.harness.owner<{ version: string }>(TENANT_A, [['select version::text as version from machvon.outgoing_document where id = $1', [id]]]);
+    const reply = await this.call('POST', `/outgoing-documents/${id}/issuance`, member, {
+      version: Number(current?.version),
+      body: { unconfirmed_override_reason: 'The legal office confirmed the template by letter 12/PC' },
     });
+    if (reply.status !== 200) throw Object.assign(new Error(String(reply.json.code)), { code: reply.json.code });
   }
 }

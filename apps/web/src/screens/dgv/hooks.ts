@@ -6,7 +6,8 @@ import { useSession } from '../../session/SessionContext';
 import { toDataset, toMember } from './model';
 import type { Classification, DatasetView, MemberOption, RegisterBody } from './model';
 
-const root = (tenantId: string | undefined) => ['dgv', tenantId] as const;
+/** The key every query of the DGV screens of a tenant starts with: a command drops them all. */
+export const root = (tenantId: string | undefined) => ['dgv', tenantId] as const;
 
 export interface CatalogFilter {
   text: string;
@@ -49,7 +50,8 @@ export function useMembers(enabled: boolean) {
   });
 }
 
-function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<unknown>) {
+/** A command of the DGV screens: one idempotency attempt per payload, and every DGV query of the tenant is read again once it succeeded. */
+export function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<unknown>) {
   const queryClient = useQueryClient();
   const { tenant } = useSession();
   const attempts = useRef(new AttemptRegistry());

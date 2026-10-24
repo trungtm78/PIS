@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   DELIVERY_STATUS_TABLE,
   DomainError,
@@ -9,7 +10,9 @@ import {
   versionConflict,
 } from '@machvon/kernel';
 import type { ChannelLookupResult, ChannelSendResult, DeliveryStatus, MetricsSink } from '@machvon/kernel';
+import type { AuditWriter } from './audit-writer.ts';
 import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
+import { DeliveryGate, QUIET_HOURS_CODE } from './delivery-gate.ts';
 import { DeliveryStore, externalChannelsOf } from './delivery-store.ts';
 import type { AttemptRecord, FailureClass, LockedNotification } from './delivery-store.ts';
 import { ProviderCallbackStore } from './provider-callback-store.ts';
@@ -20,6 +23,8 @@ export const DELIVERY_ATTEMPTS_METRIC = 'delivery_attempts_total';
 export const DELIVERY_LATENCY_METRIC = 'delivery_latency_seconds';
 export const OUT_OF_ORDER_METRIC = 'out_of_order_callbacks_total';
 export const CHANNEL_SKIPPED_METRIC = 'notification_channel_skipped_total';
+/** BR-NOT-08: an urgent message that went out in the quiet hours of its recipient (NOT 9). */
+export const QUIET_HOURS_OVERRIDE_METRIC = 'quiet_hours_override_total';
 /** The subject type of the status items the engine tracks, one per send that was taken up. */
 export const ATTEMPT_SUBJECT_TYPE = 'delivery_attempt';
 
@@ -40,8 +45,11 @@ export interface ClaimedSend {
 
 export type ClaimOutcome =
   | { kind: 'CLAIMED'; send: ClaimedSend }
-  /** Nothing to send now: another process has it, it is not due, the notification is closed or expired, or the circuit of the account is open. */
-  | { kind: 'SKIPPED'; reason: 'NOT_DUE' | 'CLOSED' | 'EXPIRED' | 'CIRCUIT_OPEN' };
+  /**
+   * Nothing to send now: another process has it, it is not due, the notification is closed or expired, the circuit of the account is open, the person
+   * does not accept the message on this channel (SUPPRESSED: the send is over and the plan has moved on) or is in their quiet hours (DEFERRED: the send waits).
+   */
+  | { kind: 'SKIPPED'; reason: 'NOT_DUE' | 'CLOSED' | 'EXPIRED' | 'CIRCUIT_OPEN' | 'SUPPRESSED' | 'DEFERRED' };
 
 export type ResultNext = 'ACCEPTED' | 'RETRY' | 'FALLBACK' | 'EXPIRED' | 'FAILED' | 'UNKNOWN' | 'IGNORED';
 
@@ -87,6 +95,10 @@ export interface DeliveryEngineOptions {
   random?: () => number;
   /** BR-NOT-01 for a replay that starts a new chain: the dedupe key of `(tenant, source event id, recipient, purpose)`. */
   dedupeKeyOf: (input: { tenantId: string; sourceEventId: string; recipientId: string; purpose: string }) => string;
+  /** Writes the audit row of an urgent message that breaks the quiet hours (BR-NOT-08): without it the engine could not prove why it sent. */
+  audit: Pick<AuditWriter, 'recordInTx'>;
+  /** The preference, consent and quiet-hours check made when a send is taken up; tests replace it. */
+  gate?: DeliveryGate;
 }
 
 const itemTable = DELIVERY_STATUS_TABLE;
@@ -103,11 +115,15 @@ export class DeliveryEngine {
   private readonly metrics: MetricsSink;
   private readonly random: (() => number) | undefined;
   private readonly dedupeKeyOf: DeliveryEngineOptions['dedupeKeyOf'];
+  private readonly audit: DeliveryEngineOptions['audit'];
+  private readonly gate: DeliveryGate;
 
   constructor(options: DeliveryEngineOptions) {
     this.metrics = options.metrics ?? NOOP_METRICS;
     this.random = options.random;
     this.dedupeKeyOf = options.dedupeKeyOf;
+    this.audit = options.audit;
+    this.gate = options.gate ?? new DeliveryGate();
   }
 
   /**
@@ -155,13 +171,25 @@ export class DeliveryEngine {
       await this.expire(tx, notification);
       return { kind: 'SKIPPED', reason: 'EXPIRED' };
     }
+    // The person decides before the provider does: a preference, a consent or quiet hours are checked here, in the transaction that takes the send up.
+    const decision = await this.gate.decide(tx, notification, attempt.channel, now);
+    if (decision.kind === 'SUPPRESS') {
+      await this.suppressAttempt(tx, notification, attempt, decision.reason, now);
+      return { kind: 'SKIPPED', reason: 'SUPPRESSED' };
+    }
+    if (decision.kind === 'DEFER') {
+      await tx.query('update machvon.delivery_attempt set next_retry_at = $2::timestamptz, error_code = $3 where id = $1::uuid', [attempt.id, decision.until.toISOString(), QUIET_HOURS_CODE]);
+      this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: 'deferred' });
+      return { kind: 'SKIPPED', reason: 'DEFERRED' };
+    }
     const circuit = await this.store.circuitAdmit(tx, attempt.channelAccountId, now);
     if (circuit.verdict === 'REJECT') {
       // Put back for when the circuit may admit a probe: the attempt is not lost, and the next tick does not look at it again before then.
       await tx.query('update machvon.delivery_attempt set next_retry_at = $2::timestamptz where id = $1::uuid', [attempt.id, (circuit.retryAt ?? new Date(now.getTime() + 120_000)).toISOString()]);
       return { kind: 'SKIPPED', reason: 'CIRCUIT_OPEN' };
     }
-    await tx.query("update machvon.delivery_attempt set status = 'Sending', sending_at = $2::timestamptz, next_retry_at = null where id = $1::uuid", [attempt.id, now.toISOString()]);
+    await tx.query("update machvon.delivery_attempt set status = 'Sending', sending_at = $2::timestamptz, next_retry_at = null, error_code = null where id = $1::uuid", [attempt.id, now.toISOString()]);
+    if (decision.quietHoursOverride === true) await this.recordOverride(tx, notification, attempt, decision.quietEndsAt, now);
     await this.callbacks.track(tx, { provider, subjectType: ATTEMPT_SUBJECT_TYPE, subjectId: attempt.id }, itemTable, 'SENDING');
     await this.store.syncNotification(tx, notification);
     const [account] = await tx.query<{ external_account_id: string }>('select external_account_id from machvon.channel_account where id = $1::uuid', [attempt.channelAccountId]);
@@ -191,9 +219,26 @@ export class DeliveryEngine {
     const notification = await this.store.lockNotification(tx, notificationId);
     const attempt = await this.store.lockAttempt(tx, attemptId);
     if (notification === undefined || attempt === undefined || attempt.status !== 'Queued') return;
-    await tx.query("update machvon.delivery_attempt set status = 'Suppressed', error_code = $2 where id = $1::uuid", [attempt.id, reason]);
+    await this.suppressAttempt(tx, notification, attempt, reason, now);
+  }
+
+  private async suppressAttempt(tx: TenantTx, notification: LockedNotification, attempt: AttemptRecord, reason: string, now: Date): Promise<void> {
+    await tx.query("update machvon.delivery_attempt set status = 'Suppressed', error_code = $2, next_retry_at = null where id = $1::uuid", [attempt.id, reason]);
     this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: 'suppressed' });
     await this.moveOn(tx, notification, attempt, now);
+  }
+
+  /** BR-NOT-08: every urgent send inside the quiet hours of its recipient leaves an audit row, in the transaction that takes the send up. */
+  private async recordOverride(tx: TenantTx, notification: LockedNotification, attempt: AttemptRecord, quietEndsAt: Date | undefined, now: Date): Promise<void> {
+    await this.audit.recordInTx(tx, WORKER_MEMBERSHIP_ID, {
+      action: 'notification.quiet_hours_override',
+      resourceType: 'notification',
+      resourceId: notification.id,
+      diff: { channel: attempt.channel, attempt_no: attempt.attemptNo, priority: notification.priority, sent_at: now.toISOString(), quiet_ends_at: quietEndsAt?.toISOString() ?? null },
+      correlationId: randomUUID(),
+      requestId: randomUUID(),
+    });
+    this.metrics.increment(QUIET_HOURS_OVERRIDE_METRIC, { channel: attempt.channel });
   }
 
   /** Records what the adapter answered to the send (BR-NOT-03, BR-NOT-04). A result for a send that is no longer Sending is ignored. */

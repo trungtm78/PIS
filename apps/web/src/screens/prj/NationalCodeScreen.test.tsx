@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import NationalCodeScreen from './NationalCodeScreen';
-import { client, line, mount, routeOf, world } from './test-support';
+import { UNIT_GRANT, WHOLE_TENANT_GRANT, client, line, mount, routeOf, world } from './test-support';
 
 const ROUTE = routeOf('PRJ-21', 'FR-PRJ-21');
 const MANAGER = ['project.read', 'project.national_code.manage'];
@@ -46,9 +46,9 @@ describe('NationalCodeScreen (PRJ-21): the national project codes of the registe
     expect(screen.getByTestId('adapter-badge').textContent).toBe(vi_['prj.reconcile.adapter.badge']);
     expect(vi_['prj.reconcile.adapter.badge']).toContain('Adapter: PROPOSED');
     expect(screen.getByTestId('adapter-note').textContent).toBe(vi_['prj.reconcile.adapter.note']);
-    // The screen reads the register and writes nothing: no command, no other read, no request to a system outside the application.
+    // The screen reads the register and writes nothing: no command, no read but the caller's own grants, no request to a system outside the application.
     expect(h.command).not.toHaveBeenCalled();
-    expect(h.read).not.toHaveBeenCalled();
+    expect(h.read.mock.calls.map((call) => call[0])).toEqual(['getMyEffectiveAccess']);
     expect(fetched).not.toHaveBeenCalled();
   });
 
@@ -105,6 +105,53 @@ describe('NationalCodeScreen (PRJ-21): the national project codes of the registe
     save();
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(h.command).toHaveBeenCalledWith('assignNationalProjectCode', expect.objectContaining({ body: { national_project_code: '7000002', evidence_document_id: DOCUMENT } }));
+  });
+
+  describe('who may apply the reconciliation file (AC-ST-PRJ-004-2)', () => {
+    const notice = vi_['prj.reconcile.import.wholeTenant.notice'];
+
+    it('AC-ST-PRJ-004-2: says that only the whole-tenant officer applies the file when the caller holds the permission on a unit subtree only', async () => {
+      const h = client({ ...worldOf(), grants: [UNIT_GRANT] });
+      mount(<NationalCodeScreen route={ROUTE} />, h, { permissions: MANAGER, path: '/prj/prj-21' });
+      expect((await screen.findByTestId('import-scope-notice')).textContent).toBe(notice);
+      // The file can still be checked: the dry run is for the projects of the officer's units.
+      expect(screen.getByLabelText(vi_['prj.reconcile.import.file.label'])).toBeTruthy();
+    });
+
+    it('AC-ST-PRJ-004-2: says nothing to a caller whose grant on the whole tenant carries the permission, by name or by pattern', async () => {
+      for (const permissions of [['project.national_code.manage'], ['project.*']]) {
+        const h = client({ ...worldOf(), grants: [{ ...UNIT_GRANT, permissions: ['project.read'] }, { ...WHOLE_TENANT_GRANT, permissions }] });
+        const view = mount(<NationalCodeScreen route={ROUTE} />, h, { permissions: MANAGER, path: '/prj/prj-21' });
+        await ready();
+        await waitFor(() => expect(h.read).toHaveBeenCalledWith('getMyEffectiveAccess'));
+        expect(screen.queryByTestId('import-scope-notice')).toBeNull();
+        view.unmount();
+      }
+    });
+
+    it('AC-ST-PRJ-004-2: counts only a grant that is in force, and a failed reading of the grants as not whole-tenant', async () => {
+      const ended = client({ ...worldOf(), grants: [{ ...WHOLE_TENANT_GRANT, state: 'EXPIRED' }, { ...WHOLE_TENANT_GRANT, permissions: ['project.read'] }] });
+      mount(<NationalCodeScreen route={ROUTE} />, ended, { permissions: MANAGER, path: '/prj/prj-21' });
+      expect((await screen.findByTestId('import-scope-notice')).textContent).toBe(notice);
+      cleanup();
+      const failing = client({ ...worldOf(), failing: new Set(['getMyEffectiveAccess']) });
+      mount(<NationalCodeScreen route={ROUTE} />, failing, { permissions: MANAGER, path: '/prj/prj-21' });
+      expect((await screen.findByTestId('import-scope-notice')).textContent).toBe(notice);
+    });
+
+    it('AC-ST-PRJ-004-2: does not read the grants of a caller who may not import, nor of one whose permissions are unknown', async () => {
+      const reader = client(worldOf());
+      mount(<NationalCodeScreen route={ROUTE} />, reader, { permissions: READER, path: '/prj/prj-21' });
+      await ready();
+      expect(reader.read).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('import-scope-notice')).toBeNull();
+      cleanup();
+      const unknown = client(worldOf());
+      mount(<NationalCodeScreen route={ROUTE} />, unknown, { permissions: undefined, path: '/prj/prj-21' });
+      await ready();
+      expect(unknown.read).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('import-scope-notice')).toBeNull();
+    });
   });
 
   it('AC-ST-PRJ-004-1: checks the code before it is sent: too long, with a control character', async () => {

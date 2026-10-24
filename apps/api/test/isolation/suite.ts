@@ -58,6 +58,12 @@ export const NOTIFICATION_FIXTURES: Readonly<Record<TenantName, { id: string; wo
   'TNT-B': { id: '00000000-0000-4000-b005-000000000001', workflowId: '00000000-0000-4000-b006-000000000001' },
 };
 
+/** A Granted SMS consent of the test membership of each tenant (the consent history is personal data: its id must not reach another tenant). */
+export const CONSENT_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0a5-000000000001' },
+  'TNT-B': { id: '00000000-0000-4000-b0a5-000000000001' },
+};
+
 /** An Active tenant-wide legal hold of each tenant (tenant administration data; the authority reference is confidential). */
 export const LEGAL_HOLD_FIXTURES: Readonly<Record<TenantName, { id: string; authorityReference: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a009-000000000001', authorityReference: 'ALPHA-HOLD-REF-0001' },
@@ -100,6 +106,24 @@ export const APPRAISAL_FIXTURES: Readonly<Record<TenantName, { id: string }>> = 
   'TNT-B': { id: '00000000-0000-4000-b0c4-000000000001' },
 };
 
+/** A SURVEYED land parcel of the project of each tenant (its code is distinctive; a parcel carries no owner, so there is no person in it). */
+export const PARCEL_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0b2-000000000001', code: 'ALPHA-PARCEL-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0b2-000000000001', code: 'BETA-PARCEL-0001' },
+};
+
+/** The ACTIVE deputy-leader assignment of the isolation project of each tenant and an ACTIVE task force (the code and the name are distinctive; who answers for a project is tenant data). */
+export const ACCOUNTABILITY_FIXTURES: Readonly<Record<TenantName, { assignmentId: string; taskForceId: string; taskForceCode: string; taskForceName: string }>> = {
+  'TNT-A': { assignmentId: '00000000-0000-4000-a0b3-000000000001', taskForceId: '00000000-0000-4000-a0b3-000000000002', taskForceCode: 'ALPHA-TF-0001', taskForceName: 'Alpha tenant disbursement task force 0001' },
+  'TNT-B': { assignmentId: '00000000-0000-4000-b0b3-000000000001', taskForceId: '00000000-0000-4000-b0b3-000000000002', taskForceCode: 'BETA-TF-0001', taskForceName: 'Beta tenant disbursement task force 0001' },
+};
+
+/** A handover section of the project of each tenant (its code is distinctive; tenant data). */
+export const SECTION_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0b3-000000000001', code: 'ALPHA-SECTION-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0b3-000000000001', code: 'BETA-SECTION-0001' },
+};
+
 /** An UNVERIFIED contractor of each tenant (its tax id and its name are distinctive; the tax id is personal data when the contractor is a sole trader). */
 export const CONTRACTOR_FIXTURES: Readonly<Record<TenantName, { id: string; taxIdentifier: string; legalName: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', taxIdentifier: '0111111111', legalName: 'Alpha tenant isolation contractor' },
@@ -126,10 +150,22 @@ export const GUARANTEE_FIXTURES: Readonly<Record<TenantName, { id: string; activ
   'TNT-B': { id: '00000000-0000-4000-b0c5-000000000001', activeId: '00000000-0000-4000-b0c5-000000000002', guaranteeNo: 'BETA-GUARANTEE-0001', activeGuaranteeNo: 'BETA-GUARANTEE-0002', issuer: 'Beta isolation issuer bank' },
 };
 
+/** A DRAFT procurement plan of the project of each tenant with one package on the line of capital (the title and the package code are distinctive; tenant financial data). */
+export const PROCUREMENT_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string; packageId: string; title: string; packageCode: string; packageTitle: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c6-000000000001', packageId: '00000000-0000-4000-a0c6-000000000002', title: 'Alpha tenant isolation procurement plan', packageCode: 'ALPHA-PKG-0001', packageTitle: 'Alpha tenant isolation package' },
+  'TNT-B': { id: '00000000-0000-4000-b0c6-000000000001', packageId: '00000000-0000-4000-b0c6-000000000002', title: 'Beta tenant isolation procurement plan', packageCode: 'BETA-PKG-0001', packageTitle: 'Beta tenant isolation package' },
+};
+
 /** A dataset of the catalogue of each tenant (its code and its title are distinctive; tenant data). */
 export const DATASET_FIXTURES: Readonly<Record<TenantName, { id: string; datasetCode: string; title: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d1-000000000001', datasetCode: 'ALPHA-DATASET-0001', title: 'Alpha tenant isolation dataset' },
   'TNT-B': { id: '00000000-0000-4000-b0d1-000000000001', datasetCode: 'BETA-DATASET-0001', title: 'Beta tenant isolation dataset' },
+};
+
+/** A working contract of the dataset above, a DRAFT quality rule of it and a finished quality run (their codes are distinctive; tenant configuration and results). */
+export const QUALITY_FIXTURES: Readonly<Record<TenantName, { contractId: string; ruleId: string; ruleCode: string; runId: string }>> = {
+  'TNT-A': { contractId: '00000000-0000-4000-a0d2-000000000001', ruleId: '00000000-0000-4000-a0d2-000000000002', ruleCode: 'ALPHA-QUALITY-RULE-0001', runId: '00000000-0000-4000-a0d2-000000000003' },
+  'TNT-B': { contractId: '00000000-0000-4000-b0d2-000000000001', ruleId: '00000000-0000-4000-b0d2-000000000002', ruleCode: 'BETA-QUALITY-RULE-0001', runId: '00000000-0000-4000-b0d2-000000000003' },
 };
 
 /** An ACTIVE SLA policy of each tenant (its code is distinctive; tenant configuration). */
@@ -142,6 +178,12 @@ export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code
 export const ISSUE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0e2-000000000001', code: 'VM-2026-770001', title: 'Alpha tenant isolation issue 0001' },
   'TNT-B': { id: '00000000-0000-4000-b0e2-000000000001', code: 'VM-2026-770002', title: 'Beta tenant isolation issue 0001' },
+};
+
+/** An open escalation to the unit of the isolation issue of each tenant (ST-ISS-004; the escalation names ids and a reason code, no text). */
+export const ESCALATION_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0e3-000000000001' },
+  'TNT-B': { id: '00000000-0000-4000-b0e3-000000000001' },
 };
 
 /** A Treasury statement import of each tenant with the transaction it created (the file hash and the voucher number are distinctive; tenant financial data). */
@@ -272,7 +314,7 @@ export const INTEGRATION_FIXTURES: Readonly<Record<TenantName, { connectorId: st
 
 /** A number register and a stored document version of each tenant (the register code and the object key are distinctive). */
 export const DOCUMENT_FIXTURES: Readonly<
-  Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string }>
+  Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string; distributionId: string }>
 > = {
   'TNT-A': {
     registerId: '00000000-0000-4000-a00b-000000000001',
@@ -283,6 +325,7 @@ export const DOCUMENT_FIXTURES: Readonly<
     layoutProfileId: '00000000-0000-4000-a011-000000000001',
     outgoingId: '00000000-0000-4000-a012-000000000001',
     sessionId: '00000000-0000-4000-a013-000000000001',
+    distributionId: '00000000-0000-4000-a014-000000000001',
   },
   'TNT-B': {
     registerId: '00000000-0000-4000-b00b-000000000001',
@@ -293,6 +336,7 @@ export const DOCUMENT_FIXTURES: Readonly<
     layoutProfileId: '00000000-0000-4000-b011-000000000001',
     outgoingId: '00000000-0000-4000-b012-000000000001',
     sessionId: '00000000-0000-4000-b013-000000000001',
+    distributionId: '00000000-0000-4000-b014-000000000001',
   },
 };
 
@@ -363,6 +407,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'role name', value: ROLE_FIXTURES[tenant].name },
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
     { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
+    { kind: 'consent id', value: CONSENT_FIXTURES[tenant].id },
     { kind: 'delivery attempt id', value: DELIVERY_ATTEMPT_FIXTURES[tenant].id },
     { kind: 'delivery provider message id', value: DELIVERY_ATTEMPT_FIXTURES[tenant].providerMessageId },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
@@ -403,6 +448,14 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'project id', value: PROJECT_FIXTURES[tenant].id },
     { kind: 'project code', value: PROJECT_FIXTURES[tenant].code },
     { kind: 'project name', value: PROJECT_FIXTURES[tenant].name },
+    { kind: 'land parcel id', value: PARCEL_FIXTURES[tenant].id },
+    { kind: 'land parcel code', value: PARCEL_FIXTURES[tenant].code },
+    { kind: 'land section id', value: SECTION_FIXTURES[tenant].id },
+    { kind: 'land section code', value: SECTION_FIXTURES[tenant].code },
+    { kind: 'assignment id', value: ACCOUNTABILITY_FIXTURES[tenant].assignmentId },
+    { kind: 'task force id', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceId },
+    { kind: 'task force code', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceCode },
+    { kind: 'task force name', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceName },
     { kind: 'contractor id', value: CONTRACTOR_FIXTURES[tenant].id },
     { kind: 'contractor tax id', value: CONTRACTOR_FIXTURES[tenant].taxIdentifier },
     { kind: 'contractor name', value: CONTRACTOR_FIXTURES[tenant].legalName },
@@ -419,14 +472,24 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'guarantee number', value: GUARANTEE_FIXTURES[tenant].guaranteeNo },
     { kind: 'active guarantee number', value: GUARANTEE_FIXTURES[tenant].activeGuaranteeNo },
     { kind: 'guarantee issuer', value: GUARANTEE_FIXTURES[tenant].issuer },
+    { kind: 'procurement plan id', value: PROCUREMENT_PLAN_FIXTURES[tenant].id },
+    { kind: 'procurement plan title', value: PROCUREMENT_PLAN_FIXTURES[tenant].title },
+    { kind: 'procurement package id', value: PROCUREMENT_PLAN_FIXTURES[tenant].packageId },
+    { kind: 'procurement package code', value: PROCUREMENT_PLAN_FIXTURES[tenant].packageCode },
+    { kind: 'procurement package title', value: PROCUREMENT_PLAN_FIXTURES[tenant].packageTitle },
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },
+    { kind: 'quality contract id', value: QUALITY_FIXTURES[tenant].contractId },
+    { kind: 'quality rule id', value: QUALITY_FIXTURES[tenant].ruleId },
+    { kind: 'quality rule code', value: QUALITY_FIXTURES[tenant].ruleCode },
+    { kind: 'quality run id', value: QUALITY_FIXTURES[tenant].runId },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },
     { kind: 'issue code', value: ISSUE_FIXTURES[tenant].code },
     { kind: 'issue title', value: ISSUE_FIXTURES[tenant].title },
+    { kind: 'issue escalation id', value: ESCALATION_FIXTURES[tenant].id },
     { kind: 'permit type id', value: PERMIT_TYPE_FIXTURES[tenant].id },
     { kind: 'permit type code', value: PERMIT_TYPE_FIXTURES[tenant].code },
     { kind: 'permit type legal basis', value: PERMIT_TYPE_FIXTURES[tenant].legalBasis },
@@ -467,6 +530,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'document object key', value: DOCUMENT_FIXTURES[tenant].objectKey },
     { kind: 'outgoing document id', value: DOCUMENT_FIXTURES[tenant].outgoingId },
     { kind: 'signing session id', value: DOCUMENT_FIXTURES[tenant].sessionId },
+    { kind: 'document distribution id', value: DOCUMENT_FIXTURES[tenant].distributionId },
     { kind: 'audit event id', value: AUDIT_EVENT_FIXTURES[tenant].id },
     { kind: 'audit event action', value: AUDIT_EVENT_FIXTURES[tenant].action },
     { kind: 'legal hold authority reference', value: LEGAL_HOLD_FIXTURES[tenant].authorityReference },

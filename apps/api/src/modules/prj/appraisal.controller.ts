@@ -124,11 +124,9 @@ export class ProjectAppraisalController {
       ...commandResult(scope, 'SUBMITTED', sheet.version, sheet.id),
       project_id: sheet.projectId,
       round: sheet.round,
+      // Blind scoring: nothing computed over the other sheets (the mean, their count, what the threshold says of it) goes back to an appraiser, or the
+      // second of two would read the first one's total off it. The decision maker reads those figures from the lifecycle read.
       total_score: sheet.totalScore,
-      mean_score: sheet.meanScore,
-      sheet_count: sheet.sheetCount,
-      pass_threshold: sheet.passThreshold,
-      threshold_recommendation: sheet.thresholdRecommendation,
     };
   }
 

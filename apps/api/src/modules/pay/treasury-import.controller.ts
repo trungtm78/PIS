@@ -57,6 +57,10 @@ export class TreasuryImportController {
     if (!holdsOnWholeTenant(access, PERMISSIONS.uploadTreasuryStatementFile)) throw new DomainError('SCOPE_DENIED', 403);
     const verdict = validateUpload({ declaredType: file.contentType, bytes: file.bytes, purpose: UPLOAD_PURPOSE });
     if (!verdict.ok) throw new DomainError(verdict.code, verdict.status);
+    const stored = await this.files.upload(scope.tenant, { purpose: UPLOAD_PURPOSE, declaredType: file.contentType, bytes: file.bytes });
+    if (stored.scanStatus === 'INFECTED') throw new DomainError('FILE_NOT_CLEAN', 422);
+    if (stored.scanStatus !== 'CLEAN') throw new DomainError('SCAN_PENDING', 409);
+    // The table reader is a parser of the sender's bytes (it inflates a workbook): it reads only a file the scan found clean.
     let table;
     try {
       table = readTabularFile(file.bytes);
@@ -66,9 +70,6 @@ export class TreasuryImportController {
       throw error;
     }
     const layout = checkTreasuryLayout(table.headers);
-    const stored = await this.files.upload(scope.tenant, { purpose: UPLOAD_PURPOSE, declaredType: file.contentType, bytes: file.bytes });
-    if (stored.scanStatus === 'INFECTED') throw new DomainError('FILE_NOT_CLEAN', 422);
-    if (stored.scanStatus !== 'CLEAN') throw new DomainError('SCAN_PENDING', 409);
     const fileName = file.name ?? `statement-${file.sha256.slice(0, 12)}`;
     await scope.audit({
       action: 'pay.treasury_file_uploaded',

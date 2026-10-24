@@ -11,7 +11,7 @@ import { FileService } from '../../src/modules/files';
 import type { ObjectStoragePort } from '@machvon/kernel';
 import { FOREIGN_ATTEMPT_SPECS, attempt, createApiChannel, tokenFor } from './channels/api';
 import type { ForeignAttemptSpec } from './channels/api';
-import { DOCUMENT_FIXTURES, MASTER_IMPORT_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
+import { DOCUMENT_FIXTURES, MASTER_IMPORT_FIXTURES, PROJECT_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
 import type { ForeignAttempt, IsolationChannel } from './suite';
 import { TENANT_HEADER } from './test-auth.guard';
 import { ERROR_CODES_PATH, loadOpenApi, startIsolationDatabase, startTestApp } from './test-app';
@@ -89,8 +89,8 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
 
   // Reads that are not a list of rows of the tenant: the published theme answers 403 to a tenant that has none, and the global search needs a text (its own channel
   // of the isolation suite reads it).
-  // The two reads of the caller's own access and entitlements answer one object, not a page of rows: they are read for leaks like the others and hold no `items`.
-  const LISTS_WITHOUT_ROWS: string[] = ['getMyEffectiveAccess', 'getMyEntitlements'];
+  // The reads of the caller's own access, entitlements and notification preferences answer one object, not a page of rows: they are read for leaks like the others. The preferences hold an `items` list that is empty for a person who never saved.
+  const LISTS_WITHOUT_ROWS: string[] = ['getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences'];
   const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getMyPublishedTheme', 'searchGlobal']);
 
   // The isolation suite reads one list (the organization units) as the other tenant. Every other list read is a place where a missing tenant
@@ -100,8 +100,11 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
     return plain.map((entry) => entry.id).sort();
   };
   const pathOf = (operationId: string): string => listOperations(doc).find((entry) => entry.id === operationId)?.path ?? '';
+  // The lists of a project name the project they read: both tenants read the project of TNT-B, so TNT-A must meet none of its rows and TNT-B all of them.
+  const PROJECT_LISTS: ReadonlySet<string> = new Set(['listLandParcels', 'listLandSections']);
   const readAs = async (tenant: 'TNT-A' | 'TNT-B', operationId: string): Promise<{ status: number; body: string }> => {
-    const response = await fetch(`${app.baseUrl}${pathOf(operationId)}?limit=200`, { headers: { [TENANT_HEADER]: tokenFor(tenant, SIGNING_KEY) } });
+    const project = PROJECT_LISTS.has(operationId) ? `&project_id=${PROJECT_FIXTURES['TNT-B'].id}` : '';
+    const response = await fetch(`${app.baseUrl}${pathOf(operationId)}?limit=200${project}`, { headers: { [TENANT_HEADER]: tokenFor(tenant, SIGNING_KEY) } });
     return { status: response.status, body: await response.text() };
   };
 

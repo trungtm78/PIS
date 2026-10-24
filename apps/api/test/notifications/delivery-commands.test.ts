@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
-import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { AuditWriter, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { NotificationDeliveryController } from '../../src/notifications/delivery/delivery.controller';
@@ -128,7 +128,7 @@ describe('replay, cancel and the reads of the delivery attempts (ST-NOT-002, NOT
       controllers: [NotificationDeliveryController, DeliveryAttemptReadsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
-        { provide: DELIVERY_ENGINE, useValue: createDeliveryEngine() },
+        { provide: DELIVERY_ENGINE, useValue: createDeliveryEngine(new AuditWriter(tenants)) },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });

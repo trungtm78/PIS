@@ -1,7 +1,7 @@
 import { DomainError, assertFourEyes, readTabularFile, versionConflict } from '@machvon/kernel';
 import type { TabularFile } from '@machvon/kernel';
 import type { BatchAccess, MasterContent, MasterNamespace } from './master-store.ts';
-import { MasterCrosswalkStore } from './master-crosswalk-store.ts';
+import { MasterCrosswalkStore, TENANT_ALIAS_SYSTEM } from './master-crosswalk-store.ts';
 import type { CrosswalkTarget } from './master-crosswalk-store.ts';
 import { MasterStore } from './master-store.ts';
 import { coerceCell, entryOfRecord, masterTypeDefinition, tenantLookup, validateMasterContent } from './master-types.ts';
@@ -172,7 +172,10 @@ function checkCrosswalk(raw: unknown, mapping: ImportMapping): NonNullable<Impor
   const allowed = new Set<string>([...(mapping.parent_key === undefined ? [] : ['parent_key']), ...Object.keys(mapping.attributes ?? {}).map((attribute) => `attributes.${attribute}`)]);
   const chosen = fields.map((field) => (typeof field === 'string' && allowed.has(field) ? field : undefined));
   if (chosen.includes(undefined) || new Set(chosen).size !== chosen.length) throw invalid('mapping.crosswalk');
-  return { source_system: name(system), external_type: name(type), fields: chosen as string[] };
+  const source = name(system);
+  // An alias is a label the tenant gives to an entry of the platform, not the code of another system: it must not translate the codes of a file.
+  if (source === TENANT_ALIAS_SYSTEM) throw invalid('mapping.crosswalk');
+  return { source_system: source, external_type: name(type), fields: chosen as string[] };
 }
 
 /** The mapping the request carries, checked against the columns of the file: every name must be a column that the file has. */

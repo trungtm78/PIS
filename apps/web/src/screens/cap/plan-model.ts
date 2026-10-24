@@ -57,9 +57,14 @@ export interface PlanSummary {
   scopeUnit: { id: string; name: string };
   revision: number;
   status: PlanStatus;
+  decisionId: string | null;
   decisionSymbol: string | null;
   decisionIssuedOn: string | null;
+  /** The revision this one replaces (a revision made from a published one), and the reason of the last decision on a revision in work. */
+  supersedesId: string | null;
+  decisionReason: string | null;
   effectiveAt: string | null;
+  publishedAt: string | null;
   totals: PlanTotals;
   fundSources: FundSourceLabel[];
   version: number;
@@ -88,6 +93,7 @@ export interface PlanLine {
   extensionDocument: { id: string; symbol: string | null; issuedOn: string | null } | null;
   committedVnd: string | null;
   reservedVnd: string | null;
+  disbursedVnd: string | null;
   version: number;
 }
 
@@ -134,9 +140,13 @@ export function toPlan(raw: unknown): PlanSummary | undefined {
     scopeUnit: { id: text(unit?.id) ?? '', name: text(unit?.name) ?? '' },
     revision: whole(row.revision) ?? 1,
     status: status as PlanStatus,
+    decisionId: nullableText(decision?.id),
     decisionSymbol: nullableText(decision?.symbol),
     decisionIssuedOn: nullableText(decision?.issued_on),
+    supersedesId: nullableText(row.supersedes_id),
+    decisionReason: nullableText(row.decision_reason),
     effectiveAt: nullableText(row.effective_at),
+    publishedAt: nullableText(row.published_at),
     totals: totalsOf(row.totals),
     fundSources: (Array.isArray(row.fund_sources) ? row.fund_sources : []).flatMap((source: unknown) => {
       const found = fundSourceOf(source);
@@ -184,6 +194,7 @@ export function toPlanLine(raw: unknown): PlanLine | undefined {
     extensionDocument: extensionId === undefined ? null : { id: extensionId, symbol: nullableText(extension?.symbol), issuedOn: nullableText(extension?.issued_on) },
     committedVnd: typeof row.committed_vnd === 'string' ? row.committed_vnd : null,
     reservedVnd: typeof row.reserved_vnd === 'string' ? row.reserved_vnd : null,
+    disbursedVnd: typeof row.disbursed_vnd === 'string' ? row.disbursed_vnd : null,
     version,
   };
 }

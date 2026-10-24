@@ -40,8 +40,10 @@ export interface DispatcherDeps {
 export interface DispatchResult {
   /** Sends handed to an adapter. */
   sent: number;
-  /** Sends not made because the recipient or the channel did not qualify. */
+  /** Sends not made because the recipient or the channel did not qualify (no access, no consent, a preference that says no). */
   suppressed: number;
+  /** Sends that wait for the quiet hours of their recipient to end. */
+  deferred: number;
 }
 
 export interface ReconcileResult {
@@ -91,12 +93,13 @@ export class DeliveryDispatcher {
     const now = this.now();
     const channels = await this.deps.database.withTenant(ctx, (tx) => this.store.channelsWithWork(tx, now));
     const settled = await Promise.allSettled(channels.map((channel) => this.dispatchChannel(ctx, channel, now)));
-    const total: DispatchResult = { sent: 0, suppressed: 0 };
+    const total: DispatchResult = { sent: 0, suppressed: 0, deferred: 0 };
     let failure: unknown;
     for (const outcome of settled) {
       if (outcome.status === 'fulfilled') {
         total.sent += outcome.value.sent;
         total.suppressed += outcome.value.suppressed;
+        total.deferred += outcome.value.deferred;
       } else {
         failure ??= outcome.reason;
       }
@@ -113,7 +116,7 @@ export class DeliveryDispatcher {
 
   private async dispatchChannel(ctx: TenantContext, channel: string, now: Date): Promise<DispatchResult> {
     const due = await this.deps.database.withTenant(ctx, (tx) => this.store.dueAttempts(tx, channel, now, this.batch));
-    const result: DispatchResult = { sent: 0, suppressed: 0 };
+    const result: DispatchResult = { sent: 0, suppressed: 0, deferred: 0 };
     const adapter = this.deps.adapters.forChannel(channel);
     const blocked = blockedReason(adapter, this.environment);
     for (let from = 0; from < due.length; from += this.concurrency) {
@@ -143,11 +146,11 @@ export class DeliveryDispatcher {
     return this.deps.resourceAccess.canRead(access, withCurrentOwnerPath(resource, paths), this.now()) ? undefined : 'NO_ACCESS';
   }
 
-  private async sendOne(ctx: TenantContext, adapter: ChannelAdapter, due: { id: string; notificationId: string }, now: Date): Promise<'sent' | 'suppressed'> {
+  private async sendOne(ctx: TenantContext, adapter: ChannelAdapter, due: { id: string; notificationId: string }, now: Date): Promise<'sent' | 'suppressed' | 'deferred'> {
     const refusal = await this.preflight(ctx, due.notificationId);
     if (refusal !== undefined) return await this.suppress(ctx, due.id, refusal, now);
     const claimed = await this.deps.database.withTenant(ctx, (tx) => this.deps.engine.claim(tx, due.id, adapter.provider, now));
-    if (claimed.kind === 'SKIPPED') return 'suppressed';
+    if (claimed.kind === 'SKIPPED') return claimed.reason === 'DEFERRED' ? 'deferred' : 'suppressed';
     const result = await this.call(ctx, adapter, claimed.send);
     await this.deps.database.withTenant(ctx, (tx) => this.deps.engine.recordSendResult(tx, due.id, result, this.now()));
     return 'sent';

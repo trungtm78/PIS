@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   EMPTY_ADD_PERMIT,
   EMPTY_DECISION,
+  EMPTY_EXEMPTION,
   EMPTY_RENEWAL,
   EMPTY_REVOCATION,
   actionsFor,
@@ -18,6 +19,7 @@ import {
   stepsFor,
   toAddPermitBody,
   toDecisionBody,
+  toExemptionBody,
   toDossier,
   toDossierLine,
   toMilestoneBody,
@@ -28,12 +30,13 @@ import {
   toRevocationBody,
   validateAddPermit,
   validateDecision,
+  validateExemption,
   validateMilestone,
   validateRenewal,
   validateRevocation,
   PERMIT_STATUSES,
 } from './dossier-model';
-import type { DecisionForm, PermitLineView } from './dossier-model';
+import type { DecisionForm, PermitLineView, PermitStatus } from './dossier-model';
 import { DOCUMENT, dossier, dossierLine, milestone, permitDetail, permitLine, projectRow } from './dossier-test-support';
 
 const TODAY = '2026-10-24';
@@ -172,11 +175,29 @@ describe('what a permit status means on the screen', () => {
   });
 
   it('offers a decision in appraisal, a renewal for an issued or expired permit that has an end, and a revocation of an issued one', () => {
-    expect(actionsFor({ status: 'IN_APPRAISAL', noExpiry: false })).toMatchObject({ decide: true, renew: false, revoke: false });
-    expect(actionsFor({ status: 'ISSUED', noExpiry: false })).toMatchObject({ decide: false, renew: true, revoke: true });
-    expect(actionsFor({ status: 'ISSUED', noExpiry: true })).toMatchObject({ renew: false, revoke: true });
-    expect(actionsFor({ status: 'EXPIRED', noExpiry: false })).toMatchObject({ renew: true, revoke: false });
-    expect(actionsFor({ status: 'SUPERSEDED', noExpiry: false })).toEqual({ steps: [], decide: false, renew: false, revoke: false });
+    expect(actionsFor({ status: 'IN_APPRAISAL', noExpiry: false, exemptionAllowed: false })).toMatchObject({ decide: true, renew: false, revoke: false });
+    expect(actionsFor({ status: 'ISSUED', noExpiry: false, exemptionAllowed: false })).toMatchObject({ decide: false, renew: true, revoke: true });
+    expect(actionsFor({ status: 'ISSUED', noExpiry: true, exemptionAllowed: false })).toMatchObject({ renew: false, revoke: true });
+    expect(actionsFor({ status: 'EXPIRED', noExpiry: false, exemptionAllowed: false })).toMatchObject({ renew: true, revoke: false });
+    expect(actionsFor({ status: 'SUPERSEDED', noExpiry: false, exemptionAllowed: false })).toEqual({ steps: [], decide: false, renew: false, revoke: false, exempt: false });
+  });
+
+  it('offers an exemption for a planned or submitted permit of a type that allows it, and for nothing else (CXN-EXE-02)', () => {
+    const exempt = (status: PermitStatus, exemptionAllowed: boolean): boolean => actionsFor({ status, noExpiry: false, exemptionAllowed }).exempt;
+    expect(['PLANNED', 'SUBMITTED', 'IN_APPRAISAL', 'SUPPLEMENT_REQUESTED', 'ISSUED', 'REJECTED', 'EXPIRED', 'REVOKED', 'SUPERSEDED', 'EXEMPTED'].map((status) => exempt(status as PermitStatus, true))).toEqual([
+      true, true, false, false, false, false, false, false, false, false,
+    ]);
+    expect(exempt('PLANNED', false)).toBe(false);
+  });
+
+  it('needs the basis and the decision document before an exemption is sent, and sends them trimmed', () => {
+    expect(validateExemption(EMPTY_EXEMPTION)).toEqual({ basis: 'required', decisionDocumentVersionId: 'required' });
+    expect(validateExemption({ basis: 'Article 89', decisionDocumentVersionId: 'not an id' })).toEqual({ decisionDocumentVersionId: 'invalidId' });
+    expect(validateExemption({ basis: 'x'.repeat(2001), decisionDocumentVersionId: '00000000-0000-4000-8000-000000000001' })).toEqual({ basis: 'tooLong' });
+    expect(toExemptionBody({ basis: '  Article 89  ', decisionDocumentVersionId: ' 00000000-0000-4000-8000-000000000001 ' })).toEqual({
+      exemption_basis: 'Article 89',
+      exemption_decision_document_version_id: '00000000-0000-4000-8000-000000000001',
+    });
   });
 });
 

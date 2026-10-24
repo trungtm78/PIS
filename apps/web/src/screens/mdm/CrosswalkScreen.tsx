@@ -30,6 +30,7 @@ import {
   CURSOR_READ_PERMISSION,
   CURSOR_RESET_PERMISSION,
   EMPTY_CROSSWALK_FORM,
+  TENANT_ALIAS_SYSTEM,
   describeProblem,
   validateCrosswalk,
   validateCursorReset,
@@ -528,6 +529,11 @@ function CreateCrosswalk() {
           </select>
         </Field>
       </div>
+      {form.sourceSystem.trim() === TENANT_ALIAS_SYSTEM ? (
+        <p className="sub" data-testid="crosswalk-alias-note">
+          {t("mdm.crosswalk.alias.note")}
+        </p>
+      ) : null}
       <div className="formfooter">
         <span className="sub">{t("mdm.crosswalk.form.hint")}</span>
         <button type="submit" className="primary" disabled={create.isPending}>

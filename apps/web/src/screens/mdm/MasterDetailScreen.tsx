@@ -80,6 +80,12 @@ function Detail({ record }: { record: RecordView }) {
           </dd>
           <dt>{t('mdm.detail.name.label')}</dt>
           <dd>{record.label ?? t('mdm.detail.name.none')}</dd>
+          {record.aliasLabel === null && record.aliasOrder === null ? null : (
+            <>
+              <dt>{t('mdm.detail.alias.label')}</dt>
+              <dd data-testid="alias">{t('mdm.detail.alias.text', { label: record.aliasLabel ?? t('mdm.detail.alias.unset'), order: record.aliasOrder ?? t('mdm.detail.alias.unset') })}</dd>
+            </>
+          )}
           <dt>{t('mdm.detail.status.label')}</dt>
           <dd>{recordStatusLabel(t, record.status)}</dd>
           <dt>{t('mdm.detail.validity.label')}</dt>

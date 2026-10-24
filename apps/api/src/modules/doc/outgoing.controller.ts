@@ -3,7 +3,9 @@ import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe
 import { PERMISSIONS } from '@machvon/contracts';
 import {
   CertificateStore,
+  DocumentDistributionStore,
   DocumentStore,
+  DocumentTemplateStore,
   NumberRegisterStore,
   OUTGOING_SCOPE_COLUMNS,
   OutgoingDocumentStore,
@@ -11,9 +13,10 @@ import {
   REGISTER_SCOPE_COLUMNS,
   SignatureStore,
   TenantDatabase,
+  rendersWatermarked,
   scopePredicate,
 } from '@machvon/db';
-import type { CertificateRow, DocumentVersionRecord, OutgoingDocumentRecord, OutgoingStatus, SigningRole, SigningSessionRecord, TenantTx, VersionStage } from '@machvon/db';
+import type { CertificateRow, DistributionRecord, DocumentVersionRecord, OutgoingDocumentRecord, OutgoingStatus, SigningRole, SigningSessionRecord, TenantTx, VersionStage } from '@machvon/db';
 import { DomainError, NOOP_METRICS, formatRegisterNumber, objectKey, vietnamDateOf, versionConflict } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -116,6 +119,27 @@ function documentView(row: OutgoingDocumentRecord): Record<string, unknown> {
   };
 }
 
+/** One recipient of the document on one channel, as the issue and distribution screen shows it (no internal ids beyond its own and the unit). */
+function distributionView(row: DistributionRecord): Record<string, unknown> {
+  return {
+    id: row.id,
+    recipient_kind: row.recipientKind,
+    recipient_unit_id: row.recipientUnitId,
+    recipient_name: row.recipientName,
+    recipient_code: row.recipientCode,
+    channel: row.channel,
+    status: row.status,
+    acknowledgement_required: row.acknowledgementRequired,
+    sent_at: iso(row.sentAt),
+    delivered_at: iso(row.deliveredAt),
+    acknowledged_at: iso(row.acknowledgedAt),
+    external_ref: row.externalRef,
+    attempts: row.attempts,
+    error_code: row.errorCode,
+    version: row.version,
+  };
+}
+
 function sessionView(row: SigningSessionRecord): Record<string, unknown> {
   return {
     id: row.id,
@@ -187,6 +211,8 @@ export class OutgoingController {
   private readonly certificates = new CertificateStore();
   private readonly signatures = new SignatureStore();
   private readonly drafts = new OutgoingDraftStore();
+  private readonly distributions = new DocumentDistributionStore();
+  private readonly templates = new DocumentTemplateStore();
   private readonly authority = new SignerAuthority();
   private readonly metrics: MetricsSink;
   private readonly clock: () => Date;
@@ -258,7 +284,9 @@ export class OutgoingController {
       const signatures = row.currentVersionId === null ? [] : await this.signatures.latest(tx, row.currentVersionId);
       const content = await this.drafts.contentOf(tx, row.id);
       const review = await this.drafts.latestEvent(tx, row.id, ['REVIEW_APPROVED', 'RETURNED']);
-      return { row, sessions, versions, certificates, signatures, content, review };
+      const distributed = await this.distributions.listFor(tx, row.id);
+      const template = row.templateId === null ? undefined : await this.templates.find(tx, row.templateId);
+      return { row, sessions, versions, certificates, signatures, content, review, distributed, template };
     });
     // A document the caller cannot see is indistinguishable from one that does not exist.
     if (loaded === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -268,6 +296,10 @@ export class OutgoingController {
       subject_module: loaded.content?.subjectModule ?? null,
       subject_id: loaded.content?.subjectId ?? null,
       reply_to_incoming_id: loaded.content?.replyToIncomingId ?? null,
+      // Whether the template (or its layout) still waits for its legal confirmation: an issue then needs the written reason of a legal officer (BR-DOC-10).
+      renders_watermarked: loaded.template === undefined ? false : rendersWatermarked(loaded.template),
+      unconfirmed_override_reason: loaded.row.unconfirmedOverrideReason,
+      distributions: loaded.distributed.map(distributionView),
       latest_review:
         loaded.review === undefined
           ? null

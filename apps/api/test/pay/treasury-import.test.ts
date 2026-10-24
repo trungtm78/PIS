@@ -196,6 +196,13 @@ describe('importTreasuryStatement and getTreasuryImport (ST-PAY-006)', () => {
       expect([imported.status, imported.json.code]).toEqual([422, 'TREASURY_IMPORT_SCHEMA_INVALID']);
     });
 
+    it('reads a file as a table only after the scan found it clean: an infected file that is not even a table is FILE_NOT_CLEAN, not a layout error', async () => {
+      // The workbook reader is a parser of the sender's bytes (an archive inflater): it must never see a file the scan has not cleared.
+      const infectedBrokenSheet = new Uint8Array([0x50, 0x4b, 0x03, 0x04, 1, 2, 3, 4, ...eicarBytes()]);
+      const reply = await upload(infectedBrokenSheet, IMPORTER, { name: 'a.xlsx', type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      expect([reply.status, reply.json.code]).toEqual([422, 'FILE_NOT_CLEAN']);
+    });
+
     it('refuses what is not a table, what is infected and what is too large, and a caller who may not import', async () => {
       const png = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
       expect(await upload(png, IMPORTER, { name: 'a.csv', type: 'image/png' })).toMatchObject({ status: 422, json: { code: 'FILE_TYPE_NOT_ALLOWED' } });

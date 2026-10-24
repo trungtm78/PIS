@@ -67,6 +67,8 @@ function rowCode(t: Translate, row: ImportRow): string {
 export interface ImportPanelProps {
   /** The caller holds the permission and the session is not read-only. */
   canImport: boolean;
+  /** The caller holds the permission on the whole tenant, which applying the file needs; undefined while that is being read. */
+  wholeTenant: boolean | undefined;
 }
 
 /**
@@ -74,7 +76,7 @@ export interface ImportPanelProps {
  * without writing anything (the dry run: row by row, what would be taken and what refused and why), and only then is it applied, once. The adapter
  * is a proposal and nothing here calls the national system.
  */
-export function NationalCodeImportPanel({ canImport }: ImportPanelProps) {
+export function NationalCodeImportPanel({ canImport, wholeTenant }: ImportPanelProps) {
   const { t } = useTranslation();
   const upload = useUploadNationalCodeFile();
   const run = useImportNationalCodes();
@@ -141,6 +143,11 @@ export function NationalCodeImportPanel({ canImport }: ImportPanelProps) {
           </div>
         </div>
       )}
+      {canImport && wholeTenant === false ? (
+        <p className="callout" role="status" data-testid="import-scope-notice">
+          {t('prj.reconcile.import.wholeTenant.notice')}
+        </p>
+      ) : null}
       {failure === undefined ? null : (
         <p className="callout warning" role="alert" data-testid="import-problem">
           {problemText(t, failure)}
@@ -185,7 +192,7 @@ export function NationalCodeImportPanel({ canImport }: ImportPanelProps) {
             </table>
           )}
           {shown.truncated ? <p className="sub">{t('prj.reconcile.importRows.truncated.notice')}</p> : null}
-          {canImport && stored !== undefined && applied === undefined && refused === undefined ? (
+          {canImport && wholeTenant === true && stored !== undefined && applied === undefined && refused === undefined ? (
             <div className="formfooter">
               <button type="button" className="button primary" disabled={!canApply} onClick={apply}>
                 {run.isPending ? t('prj.reconcile.import.apply.pending') : t('prj.reconcile.import.apply.action')}

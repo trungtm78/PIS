@@ -201,6 +201,10 @@ const decide = (permitId: string, version: number, input: DecisionInput) => as((
 const renew = (permitId: string, version: number, input: Parameters<PmtPermitStore['renew']>[3]) => as((tx) => permits.renew(tx, permitId, version, input, memberId(ACTOR)));
 const revoke = (permitId: string, version: number, reason = 'The authority took the permit back', documentVersionId = DOCUMENT) =>
   as((tx) => permits.revoke(tx, permitId, version, { reason, decisionDocumentVersionId: documentVersionId }, memberId(ACTOR)));
+const THIRD = 3;
+/** The exemption is declared by someone other than the proposer: the colleague by default, the proposer (who created the permit) when asked. */
+const exempt = (permitId: string, version: number, input: Partial<{ basis: string; decisionDocumentVersionId: string }> = {}, by = COLLEAGUE) =>
+  as((tx) => permits.exempt(tx, permitId, version, { basis: 'Exempt under the construction law, article 89', decisionDocumentVersionId: DOCUMENT, ...input }, memberId(by)));
 const permitRow = async (permitId: string) => (await owner<Record<string, unknown>>('select *, valid_until::text as valid_until_text from machvon.permit where id = $1::uuid', [permitId]))[0];
 const dossierRow = async (dossierId: string) =>
   (await owner<Record<string, unknown>>('select status, readiness_pct::text as readiness_pct, version::text as version from machvon.permit_dossier where id = $1::uuid', [dossierId]))[0];
@@ -686,6 +690,89 @@ describe('the project permit dossier (ST-PMT-002)', () => {
       expect(await refusal(revoke(permitId, issued.version, 'Reason', ABSENT))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'decision_document_version_id' });
       expect(await refusal(revoke(permitId, issued.version + 4))).toMatchObject({ code: 'VERSION_CONFLICT' });
       expect(await permitRow(permitId)).toMatchObject({ status: 'ISSUED' });
+    });
+  });
+
+  describe('declaring an exemption (ST-PMT-003)', () => {
+    it('exempts a planned permit on its basis and decision, by someone other than the proposer, and the exemption counts as covering the type (AC-ST-PMT-003-1, UAT-AC372)', async () => {
+      const opened = await freshDossier();
+      const permitId = planned(opened, EVERY);
+      expect((await dossierRow(opened.id))?.readiness_pct).toBe('0.00');
+      const done = await exempt(permitId, 1, { basis: '  Exempt under the construction law, article 89  ', decisionDocumentVersionId: SECOND_DOCUMENT.toUpperCase() });
+      expect(done).toMatchObject({ status: 'EXEMPTED', fromStatus: 'PLANNED', version: 2, decisionDocumentVersionId: SECOND_DOCUMENT, exemptedOn: TODAY });
+      expect(done.readiness).toMatchObject({ readinessPct: '50.00', required: 2, satisfied: 1, changed: true });
+      expect(await permitRow(permitId)).toMatchObject({
+        status: 'EXEMPTED',
+        exemption_basis: 'Exempt under the construction law, article 89',
+        exemption_decision_document_version_id: SECOND_DOCUMENT,
+        updated_by: memberId(COLLEAGUE),
+        created_by: memberId(ACTOR),
+      });
+      const decision = await owner<{ step_code: string; actual_on: string; document_version_id: string }>(
+        "select step_code, actual_on::text as actual_on, document_version_id from machvon.permit_milestone where permit_id = $1::uuid and step_code = 'DECISION'",
+        [permitId],
+      );
+      expect(decision).toEqual([{ step_code: 'DECISION', actual_on: TODAY, document_version_id: SECOND_DOCUMENT }]);
+      expect(await dossierRow(opened.id)).toMatchObject({ readiness_pct: '50.00' });
+    });
+
+    it('exempts a submitted permit too', async () => {
+      const opened = await freshDossier();
+      const permitId = planned(opened, EVERY);
+      const submitted = await milestone(permitId, 1, 'SUBMITTED', { actualOn: '2026-10-01' });
+      await owner('update machvon.permit set updated_by = $2::uuid where id = $1::uuid', [permitId, memberId(ACTOR)]);
+      expect(await exempt(permitId, submitted.version)).toMatchObject({ status: 'EXEMPTED', fromStatus: 'SUBMITTED', version: submitted.version + 1 });
+    });
+
+    it('refuses the proposer and whoever last changed the permit with 403 SELF_APPROVAL_DENIED, and lets a third person decide (UAT-AC372)', async () => {
+      const opened = await freshDossier();
+      const permitId = planned(opened, EVERY);
+      expect(await refusal(exempt(permitId, 1, {}, ACTOR))).toEqual({ code: 'SELF_APPROVAL_DENIED', status: 403 });
+      const submitted = await milestone(permitId, 1, 'SUBMITTED', { actualOn: '2026-10-01' });
+      // The colleague recorded the last change: they are now one of those who proposed the exemption.
+      await owner('update machvon.permit set updated_by = $2::uuid where id = $1::uuid', [permitId, memberId(COLLEAGUE)]);
+      expect(await refusal(exempt(permitId, submitted.version, {}, COLLEAGUE))).toEqual({ code: 'SELF_APPROVAL_DENIED', status: 403 });
+      expect(await permitRow(permitId)).toMatchObject({ status: 'SUBMITTED' });
+      expect(await exempt(permitId, submitted.version, {}, THIRD)).toMatchObject({ status: 'EXEMPTED' });
+    });
+
+    it('refuses a type that does not allow an exemption with 422 EXEMPTION_NOT_ALLOWED', async () => {
+      const opened = await freshDossier();
+      const permitId = planned(opened, UNCONFIRMED);
+      expect(await refusal(exempt(permitId, 1))).toEqual({ code: 'EXEMPTION_NOT_ALLOWED', status: 422 });
+      expect(await permitRow(permitId)).toMatchObject({ status: 'PLANNED', exemption_basis: null });
+    });
+
+    it('refuses a permit that is not planned or submitted, a missing basis, an unreadable decision and a stale version, and changes nothing', async () => {
+      const opened = await freshDossier();
+      const permitId = planned(opened, EVERY);
+      expect(await refusal(exempt(permitId, 1, { basis: '   ' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'exemption_basis' });
+      expect(await refusal(exempt(permitId, 1, { basis: 'x'.repeat(2001) }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'exemption_basis' });
+      expect(await refusal(exempt(permitId, 1, { decisionDocumentVersionId: ABSENT }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'exemption_decision_document_version_id' });
+      expect(await refusal(exempt(permitId, 1, { decisionDocumentVersionId: INFECTED_DOCUMENT }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'exemption_decision_document_version_id' });
+      expect(await refusal(exempt(permitId, 7))).toMatchObject({ code: 'VERSION_CONFLICT' });
+      expect(await refusal(exempt(ABSENT, 1))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      expect(await permitRow(permitId)).toMatchObject({ status: 'PLANNED', version: '1' });
+      const exempted = await exempt(permitId, 1);
+      expect(await refusal(exempt(permitId, exempted.version))).toEqual({ code: 'PERMIT_STATE_INVALID', status: 409 });
+      const second = await freshDossier();
+      const appraised = planned(second, EVERY);
+      const version = await toAppraisal(appraised);
+      expect(await refusal(exempt(appraised, version))).toEqual({ code: 'PERMIT_STATE_INVALID', status: 409 });
+    });
+
+    it('is held by the database whatever the application does: the proposer, a basis that is not a written text and a type that does not allow it are refused', async () => {
+      const opened = await freshDossier();
+      const permitId = planned(opened, EVERY);
+      const direct = (target: string, by: number, basis = 'Exempt by the regulation') =>
+        as((tx) =>
+          tx.query(`update machvon.permit set status = 'EXEMPTED', exemption_basis = $2, exemption_decision_document_version_id = $3::uuid, updated_by = $4::uuid where id = $1::uuid`, [target, basis, DOCUMENT, memberId(by)]),
+        );
+      expect((await databaseRefusal(direct(permitId, ACTOR))).message).toContain('someone other than the person who proposed it');
+      expect((await databaseRefusal(direct(permitId, COLLEAGUE, ' padded '))).message).toContain('permit_exempt_basis_chk');
+      expect((await databaseRefusal(direct(planned(opened, UNCONFIRMED), COLLEAGUE))).message).toContain('does not allow an exemption');
+      await direct(permitId, COLLEAGUE);
+      expect(await permitRow(permitId)).toMatchObject({ status: 'EXEMPTED' });
     });
   });
 

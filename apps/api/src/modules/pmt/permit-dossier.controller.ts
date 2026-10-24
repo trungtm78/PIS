@@ -14,6 +14,7 @@ import { OperationId } from '../../operation-id.decorator';
 
 const MANAGE_PERMISSION = PERMISSIONS.createPermitDossier;
 const RECORD_PERMISSION = PERMISSIONS.recordPermitDecision;
+const EXEMPT_PERMISSION = PERMISSIONS.declarePermitExemption;
 const DOSSIER_RESOURCE = 'permit_dossier';
 const PERMIT_RESOURCE = 'permit';
 const CLASSIFICATION = 'INTERNAL';
@@ -386,6 +387,54 @@ export class PermitDossierController {
       type: 'pmt.permit.revoked.v1',
       schemaVersion: 1,
       payload: permitPayload(scope, place.projectId, done, now),
+      eventKey: `${PERMIT_RESOURCE}:${done.id}:${done.version}`,
+    });
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
+  @Post('permits/:id/exempt')
+  @HttpCode(200)
+  @OperationId('declarePermitExemption')
+  @Command({ operation: 'declarePermitExemption', versioned: true })
+  async exempt(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) permitId: string,
+    @Body() body: Schemas['PmtDeclarePermitExemption'],
+  ): Promise<CommandResult> {
+    const now = new Date();
+    const place = await this.permitPlace(scope, access, permitId.toLowerCase(), EXEMPT_PERMISSION, now);
+    const done = await this.permits.exempt(
+      scope.tx,
+      permitId.toLowerCase(),
+      scope.expectedVersion ?? 0,
+      { basis: body.exemption_basis, decisionDocumentVersionId: body.exemption_decision_document_version_id },
+      scope.tenant.membershipId,
+    );
+    // The basis is the legal text the exemption stands on, kept with the permit; the audit row names the document and the states, not the text.
+    await scope.audit({
+      action: 'pmt.permit_exempted',
+      resourceType: PERMIT_RESOURCE,
+      resourceId: done.id,
+      classification: CLASSIFICATION,
+      diff: {
+        dossier_id: done.dossierId,
+        permit_type_code: done.permitTypeCode,
+        permit_type_revision: done.permitTypeRevision,
+        from_status: done.fromStatus,
+        to_status: done.status,
+        exemption_decision_document_version_id: done.decisionDocumentVersionId,
+        exempted_on: done.exemptedOn,
+        readiness_pct: done.readiness?.readinessPct ?? null,
+      },
+    });
+    await scope.emit({
+      aggregateType: PERMIT_RESOURCE,
+      aggregateId: done.id,
+      aggregateVersion: done.version,
+      type: 'pmt.permit.exempted.v1',
+      schemaVersion: 1,
+      payload: { ...permitPayload(scope, place.projectId, done, now), exemption_decision_document_version_id: done.decisionDocumentVersionId },
       eventKey: `${PERMIT_RESOURCE}:${done.id}:${done.version}`,
     });
     return commandResult(scope, done.status, done.version, done.id);

@@ -1,14 +1,16 @@
 import { PERMISSIONS } from '@machvon/contracts';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
-import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
-import { ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
+import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { QUALITY_FIXTURES } from '../suite';
+import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
-import { APPRAISAL_FIXTURES, PROJECT_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
+import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
@@ -65,6 +67,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_delivery_attempt_id',
   'post_notifications_id_replay',
   'cancelNotification',
+  'updateMyNotificationPreferences',
+  'getMyNotificationPreferences',
+  'grantMyConsent',
+  'listMyConsents',
+  'withdrawMyConsent',
+  'get_resources_contact_consent',
+  'get_resources_contact_consent_id',
   'registerSigningCertificate',
   'revokeSigningCertificate',
   'get_resources_signing_certificate',
@@ -112,6 +121,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'resolveDocumentReference',
   'uploadDocumentFile',
   'uploadLeaderSignedDocument',
+  'issueOutgoingDocument',
+  'dispatchOutgoingDocument',
+  'recordDistributionAcknowledgement',
+  'retryDocumentDistribution',
   'proposeMasterRecord',
   'createMasterChangeRequest',
   'submitMasterChangeRequest',
@@ -146,6 +159,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'startIssue',
   'commentIssue',
   'transferIssueUnit',
+  'requestIssueVerification',
+  'closeIssue',
+  'reopenIssue',
+  'extendIssueDeadline',
+  'escalateIssue',
+  'acceptIssueEscalation',
+  'listIssueSlaBreaches',
   'get_resources_issue',
   'get_resources_issue_id',
   'listIssueAssignees',
@@ -157,6 +177,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordPermitDecision',
   'renewPermit',
   'revokePermit',
+  'declarePermitExemption',
+  'get_resources_project_accountability',
+  'get_resources_task_force',
   'get_resources_permit_dossier',
   'get_resources_permit_dossier_id',
   'get_resources_permit_id',
@@ -176,6 +199,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listAppropriations',
   'createCapitalPlan',
   'draftCapitalAllocation',
+  'submitCapitalPlan',
+  'decideCapitalPlan',
+  'post_plans_id_publish',
   'listCapitalPlanLines',
   'get_resources_plan_version',
   'get_resources_plan_version_id',
@@ -190,6 +216,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'registerDataset',
   'assignDatasetOwnership',
   'searchCatalog',
+  'createQualityRuleVersion',
+  'approveQualityRuleVersion',
+  'runQualityChecks',
+  'getQualityScorecard',
+  'get_resources_quality_rule_version',
+  'get_resources_quality_rule_version_id',
+  'get_resources_quality_run',
+  'get_resources_quality_run_id',
   'proposeGlossaryTerm',
   'submitGlossaryTerm',
   'decideGlossaryTerm',
@@ -207,8 +241,20 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordProjectAppraisal',
   'decideProjectAppraisal',
   'assignNationalProjectCode',
+  'assignProjectLeader',
+  'endProjectLeaderAssignment',
+  'createTaskForce',
+  'addTaskForceMember',
+  'dissolveTaskForce',
   'importNationalProjectCodes',
   'uploadNationalCodeFile',
+  'createLandSection',
+  'createLandParcel',
+  'importLandParcels',
+  'uploadLandParcelFile',
+  'listLandParcels',
+  'listLandSections',
+  'recordRecoveryNotice',
   'getProjectLifecycle',
   'listProjectPipeline',
   'createRetentionPolicyVersion',
@@ -218,6 +264,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'replayInboxEvent',
   'get_resources_project',
   'get_resources_project_id',
+  'createProcurementPlan',
+  'submitProcurementPlan',
+  'decideProcurementPlan',
+  'listProcurementPlans',
+  'get_resources_procurement_package',
+  'get_resources_procurement_package_id',
   'registerContractor',
   'verifyContractor',
   'recordContractorRestriction',
@@ -427,6 +479,10 @@ const INSERT_DELIVERY_ATTEMPT = `insert into machvon.delivery_attempt
   (tenant_id, id, notification_id, channel_account_id, provider_message_id, attempt_no, status, cost, channel, template_version_id, sending_at, failed_at, failure_class, error_code)
   values ($1, $2, $3, $4, $5, 1, 'Failed', 0, 'EMAIL', $6, now(), now(), 'PERMANENT', 'HTTP_550') on conflict do nothing`;
 
+const INSERT_CONSENT = `insert into machvon.contact_consent
+  (tenant_id, id, membership_id, channel, purpose, status, evidence_reference, effective_at, consent_text_version, capture_method)
+  values ($1, $2, $3, 'SMS', 'OPERATIONAL', 'Granted', 'isolation-fixture', now(), 'isolation-1', 'IN_APP') on conflict do nothing`;
+
 const INSERT_MASTER_RECORD = `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
   values ($1, $2, 'TENANT', 'ISOLATION', $3, 'EFFECTIVE', $4, $4) on conflict do nothing`;
 const INSERT_MASTER_VERSION = `insert into machvon.master_record_version
@@ -438,6 +494,9 @@ const INSERT_SLA_POLICY = `insert into machvon.issue_sla_policy
 const INSERT_ISSUE = `insert into machvon.issue
   (tenant_id, id, code, project_id, category_version_id, severity, title, description, owner_unit_id, sla_policy_id, status, version, reported_by, opened_at, response_due_at, due_at, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 'HIGH', $6, 'Isolation fixture issue', $7, $8, 'OPEN', 1, $9, now(), now() + interval '4 hours', now() + interval '16 hours', $9, $9) on conflict do nothing`;
+const INSERT_ESCALATION = `insert into machvon.issue_escalation
+  (tenant_id, id, issue_id, level, "trigger", target_unit_id, reason, due_at, created_by, updated_by)
+  values ($1, $2, $3, 2, 'SLA_AUTO', $4, 'SLA_L2_THRESHOLD_REACHED', now() + interval '8 hours', $5, $5) on conflict do nothing`;
 const SET_MASTER_CURRENT ='update machvon.master_record set current_version_id = $2 where id = $1';
 const INSERT_MASTER_CHANGE = `insert into machvon.master_change_request
   (tenant_id, id, change_kind, master_type, master_record_id, proposed_json, reason, impact_json, effective_from, status, created_by, updated_by)
@@ -466,6 +525,18 @@ const INSERT_DATASET = `insert into machvon.dataset
   (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'ISOLATION', 'one row per isolation case', 'PAY', $5, $5, 'PUBLIC', false, 3600, 'DRAFT', $6, $6) on conflict do nothing`;
 
+const INSERT_QUALITY_CONTRACT = `insert into machvon.dataset_contract
+  (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id)
+  values ($1, $2, $3, 1, $4, '{}'::jsonb, '{}'::jsonb, 3600, 'PUBLIC', 'DRAFT', $5) on conflict do nothing`;
+
+const INSERT_QUALITY_RULE = `insert into machvon.quality_rule_version
+  (tenant_id, id, contract_id, dataset_id, code, revision, expression_ast, severity, threshold_json, status, dimension, field_path, action_on_fail, criticality_weight, created_by)
+  values ($1, $2, $3, $4, $5, 1, '{"op":"not_null","field":"project_id"}'::jsonb, 'MEDIUM', '{"min_pass_rate_pct":"100.000000"}'::jsonb, 'DRAFT', 'COMPLETENESS', 'project_id', 'QUARANTINE', 1, $6) on conflict do nothing`;
+
+const INSERT_QUALITY_RUN = `insert into machvon.quality_run
+  (tenant_id, id, dataset_contract_id, snapshot_id, rule_version_ids, passed_count, failed_count, quarantined_count, started_at, finished_at, dataset_id, trigger, status, overall_result, score, hard_fail, certified_blocked)
+  values ($1, $2, $3, gen_random_uuid(), jsonb_build_array($4::text), 1, 0, 0, now(), now(), $5, 'MANUAL', 'COMPLETED', 'PASSED', 100, false, false) on conflict do nothing`;
+
 const INSERT_GLOSSARY_TERM =`insert into machvon.glossary_term
   (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, created_by, updated_by)
   values ($1, $2, $3, 'Isolation fixture term', $4, 'ISOLATION', $5, 1, 'IN_REVIEW', $6, $6) on conflict do nothing`;
@@ -477,6 +548,14 @@ const INSERT_CONTRACTOR = `insert into machvon.contractor
 const INSERT_PACKAGE = `insert into machvon.procurement_package
   (tenant_id, id, project_id, code, budget_vnd, method, revision, status)
   values ($1, $2, $3, $4, 1000, 'OPEN', 1, 'AWARDED') on conflict do nothing`;
+
+const INSERT_PROCUREMENT_PLAN = `insert into machvon.procurement_plan
+  (tenant_id, id, project_id, revision, title, total_value_vnd, legal_basis, status, created_by, updated_by)
+  values ($1, $2, $3, 1, $4, 100, 'Isolation fixture legal basis', 'DRAFT', $5, $5) on conflict do nothing`;
+
+const INSERT_PLAN_PACKAGE = `insert into machvon.procurement_package
+  (tenant_id, id, project_id, code, budget_vnd, method, revision, status, plan_id, title, contract_type, bidding_form, allocation_line_id, planned_start_period, duration_days, created_by)
+  values ($1, $2, $3, $4, 100, 'OPEN_BIDDING', 1, 'DRAFT', $5, $6, 'LUMP_SUM', 'ONLINE', $7, '2026-Q4', 30, $8) on conflict do nothing`;
 
 const INSERT_CONTRACT = `insert into machvon.contract
   (tenant_id, id, project_id, package_id, contractor_id, code, title, type, currency, status, version, contract_value_vnd, estimate_ceiling_vnd, created_by, updated_by)
@@ -510,6 +589,21 @@ const INSERT_APPRAISAL = `insert into machvon.project_appraisal
   (tenant_id, id, project_id, round, criteria_set_version_id, appraiser_membership_id, scores_json, total_score, recommendation, status, created_by, updated_by)
   values ($1, $2, $3, 1, $4, $5, '[{"criterion_code":"A","score":3}]'::jsonb, 60, 'ADMIT', 'SUBMITTED', $5, $5) on conflict do nothing`;
 
+const INSERT_SECTION = `insert into machvon.land_handover_section
+  (tenant_id, id, project_id, code, name, required_area_m2, status, version, created_by, updated_by)
+  values ($1, $2, $3, $4, 'Isolation fixture section', 30000, 'NOT_READY', 1, $5, $5) on conflict do nothing`;
+
+const INSERT_PARCEL = `insert into machvon.land_parcel
+  (tenant_id, id, project_id, owner_unit_id, parcel_code, land_use_group, area_total_m2, area_affected_m2, status, version, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, 'AGRICULTURAL', 100, 50, 'SURVEYED', 1, $6, $6) on conflict do nothing`;
+
+const INSERT_ACCOUNTABILITY = `insert into machvon.project_accountability
+  (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 'DEPUTY_LEADER', '2026-01-01', 'ACTIVE', $5, $5) on conflict do nothing`;
+const INSERT_TASK_FORCE = `insert into machvon.task_force
+  (tenant_id, id, code, name, purpose, lead_membership_id, scope_unit_id, valid_from, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 'Isolation fixture task force', $5, $6, '2026-01-01', 'ACTIVE', $7, $7) on conflict do nothing`;
+
 const INSERT_REGISTER = `insert into machvon.document_number_register
   (tenant_id, id, register_code, name, direction, organization_unit_id, year, created_by, updated_by)
   values ($1, $2, $3, 'Isolation fixture register', 'OUTGOING', $4, 2026, $5, $5) on conflict do nothing`;
@@ -537,6 +631,9 @@ const INSERT_MNE_REPORT = `insert into machvon.mne_report
 const INSERT_OUTGOING = `insert into machvon.outgoing_document
   (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, created_by, updated_by)
   values ($1, $2, $3, $4, 'SUBMITTED', $5, $6, $6, $6, $6) on conflict do nothing`;
+const INSERT_DISTRIBUTION = `insert into machvon.document_distribution
+  (tenant_id, id, outgoing_document_id, recipient_kind, recipient_name, channel, status, sent_at, attempts, created_by, updated_by)
+  values ($1, $2, $3, 'EXTERNAL_AGENCY', 'Isolation fixture recipient', 'PAPER_HANDOVER', 'SENT', now(), 1, $4, $4) on conflict do nothing`;
 const INSERT_SIGNING_SESSION = `insert into machvon.doc_signing_session
   (tenant_id, id, outgoing_document_id, role, signer_user_id, signing_certificate_id, adapter_code, adapter_status, status, base_version_id, digest_hex, byte_range, provider_txn_ref, expires_at, created_by, updated_by)
   values ($1, $2, $3, 'LEADER', $4, null, 'MOCK', 'MOCK', 'AWAITING_SIGNER', $5, repeat('a', 64), '[0,1,2,3]'::jsonb, 'isolation-session', now() + interval '1 day', $4, $4) on conflict do nothing`;
@@ -581,6 +678,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CHANNEL_ACCOUNT, [tenantId, attempt.accountId, `isolation-account-${tenant}`]);
     await client.query(INSERT_EMAIL_TEMPLATE, [tenantId, attempt.templateId, ACTOR_ID]);
     await client.query(INSERT_DELIVERY_ATTEMPT, [tenantId, attempt.id, notification.id, attempt.accountId, attempt.providerMessageId, attempt.templateId]);
+    await client.query(INSERT_CONSENT, [tenantId, CONSENT_FIXTURES[tenant].id, MEMBERSHIP_ID]);
     await client.query(INSERT_AUDIT_EVENT, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id, MEMBERSHIP_ID, AUDIT_EVENT_FIXTURES[tenant].action]);
     await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);
     const certificate = CERTIFICATE_FIXTURES[tenant];
@@ -619,8 +717,14 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const project = PROJECT_FIXTURES[tenant];
     await client.query(INSERT_PROJECT, [tenantId, project.id, project.code, project.name, home, master.versionId, ACTOR_ID]);
     await client.query(INSERT_APPRAISAL, [tenantId, APPRAISAL_FIXTURES[tenant].id, project.id, master.versionId, MEMBERSHIP_ID]);
+    await client.query(INSERT_SECTION, [tenantId, SECTION_FIXTURES[tenant].id, project.id, SECTION_FIXTURES[tenant].code, ACTOR_ID]);
+    await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
+    const accountability = ACCOUNTABILITY_FIXTURES[tenant];
+    await client.query(INSERT_ACCOUNTABILITY, [tenantId, accountability.assignmentId, project.id, MEMBERSHIP_ID, ACTOR_ID]);
+    await client.query(INSERT_TASK_FORCE, [tenantId, accountability.taskForceId, accountability.taskForceCode, accountability.taskForceName, MEMBERSHIP_ID, home, ACTOR_ID]);
     const issue = ISSUE_FIXTURES[tenant];
     await client.query(INSERT_ISSUE, [tenantId, issue.id, issue.code, project.id, master.versionId, issue.title, home, slaPolicy.id, ACTOR_ID]);
+    await client.query(INSERT_ESCALATION, [tenantId, ESCALATION_FIXTURES[tenant].id, issue.id, home, ACTOR_ID]);
     const permit = PERMIT_FIXTURES[tenant];
     await client.query(INSERT_PERMIT_DOSSIER, [tenantId, permit.dossierId, project.id, home, ACTOR_ID]);
     await client.query(INSERT_PERMIT, [tenantId, permit.permitId, permit.dossierId, permitType.id, permit.authority, ACTOR_ID]);
@@ -629,6 +733,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_TREASURY_TRANSACTION, [tenantId, treasury.transactionId, project.id, treasury.externalId, treasury.importId, treasury.documentNo, MEMBERSHIP_ID]);
     const dataset = DATASET_FIXTURES[tenant];
     await client.query(INSERT_DATASET, [tenantId, dataset.id, dataset.datasetCode, dataset.title, MEMBERSHIP_ID, ACTOR_ID]);
+    const quality = QUALITY_FIXTURES[tenant];
+    await client.query(INSERT_QUALITY_CONTRACT, [tenantId, quality.contractId, dataset.datasetCode, MEMBERSHIP_ID, dataset.id]);
+    await client.query(INSERT_QUALITY_RULE, [tenantId, quality.ruleId, quality.contractId, dataset.id, quality.ruleCode, ACTOR_ID]);
+    await client.query(INSERT_QUALITY_RUN, [tenantId, quality.runId, quality.contractId, quality.ruleId, dataset.id]);
     const term = GLOSSARY_FIXTURES[tenant];
     await client.query(INSERT_GLOSSARY_TERM, [tenantId, term.termId, term.termCode, term.definition, MEMBERSHIP_ID, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];
@@ -640,6 +748,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CAPITAL_PLAN, [tenantId, plan.id, plan.planCode, home, ACTOR_ID]);
     await client.query(INSERT_PLAN_VERSION, [tenantId, plan.versionId, project.id, plan.id, ACTOR_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
+    const procurement = PROCUREMENT_PLAN_FIXTURES[tenant];
+    await client.query(INSERT_PROCUREMENT_PLAN, [tenantId, procurement.id, project.id, procurement.title, ACTOR_ID]);
+    await client.query(INSERT_PLAN_PACKAGE, [tenantId, procurement.packageId, project.id, procurement.packageCode, procurement.id, procurement.packageTitle, plan.lineId, ACTOR_ID]);
     const contractor = CONTRACTOR_FIXTURES[tenant];
     await client.query(INSERT_CONTRACTOR, [tenantId, contractor.id, contractor.taxIdentifier, contractor.legalName, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
@@ -662,13 +773,14 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_MNE_REPORT, [tenantId, mne.reportId, mne.formId, mne.ruleId, home, ACTOR_ID]);
     await client.query(INSERT_OUTGOING, [tenantId, documents.outgoingId, documents.documentId, documents.layoutProfileId, home, MEMBERSHIP_ID]);
     await client.query(INSERT_SIGNING_SESSION, [tenantId, documents.sessionId, documents.outgoingId, MEMBERSHIP_ID, documents.versionId]);
+    await client.query(INSERT_DISTRIBUTION, [tenantId, documents.distributionId, documents.outgoingId, MEMBERSHIP_ID]);
     await client.query('commit');
   } finally {
     await client.end();
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'procurement_package', 'contract', 'contract_revision', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'contract', 'contract_revision', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

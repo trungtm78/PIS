@@ -19,6 +19,11 @@ export const READER = ['issue.read'];
 export const REPORTER = ['issue.read', 'issue.create', 'issue.work'];
 export const COORDINATOR = ['issue.read', 'issue.assign', 'issue.work'];
 export const WORKER = ['issue.read', 'issue.work'];
+/** The people of the end of an issue: the one who confirms and closes (and may give the result back), the one who extends deadlines, the handler who holds the permissions and is stopped by independence. */
+export const VERIFIER = ['issue.read', 'issue.close', 'issue.reopen', 'issue.assign'];
+export const EXTENDER = ['issue.read', 'issue.extend'];
+export const ESCALATOR = ['issue.read', 'issue.escalate', 'organization_unit.read'];
+export const HANDLER = ['issue.read', 'issue.work', 'issue.close', 'issue.extend', 'issue.reopen'];
 
 export const routeOf = (id: string, req: string) => ({ ...baseRoute(id, req), module: 'ISS', path: `/iss/${id.toLowerCase()}` });
 
@@ -126,11 +131,41 @@ export const detail = (n: number, overrides: Record<string, unknown> = {}) => ({
   resolved_at: null,
   verifier: null,
   sla: { policy_id: uuid('a1', 1), policy_code: 'SLA-GPMB-HIGH', policy_revision: 2, calendar_code: 'WORKDAY_VN', response_hours: 4, resolve_hours: 72, require_evidence: true, require_independent_verifier: true },
+  extensions: { used: 0, limit: 2 },
+  reopen_window_days: 30,
+  escalations: [],
+  active_task_force: null,
   geo_consent: false,
   geo: null,
   events: [event(1, 'CREATED', { to_status: 'OPEN' })],
   next_cursor: null,
   as_of: '2026-10-24T01:00:00.000Z',
+  ...overrides,
+});
+
+/** A line of the board of escalations (ISS-10), in the shape the server writes it. */
+export const breach = (n: number, overrides: Record<string, unknown> = {}) => ({
+  escalation_id: uuid('b2', n),
+  issue_id: uuid('a2', n),
+  issue_code: `VM-2026-00000${n}`,
+  issue_title: `Chậm bàn giao mặt bằng số ${n}`,
+  issue_status: 'ESCALATED',
+  severity: 'HIGH',
+  project_code: 'DA-2026-001',
+  owner_unit_name: 'Ủy ban nhân dân 1',
+  level: 2,
+  trigger: 'SLA_AUTO',
+  target_unit: { id: uuid('d1', 1), name: 'Ủy ban nhân dân 1' },
+  task_force: null,
+  accept_due_at: '2999-01-01T10:00:00.000Z',
+  status: 'OPEN',
+  accepted_by: null,
+  accepted_at: null,
+  created_at: '2026-10-20T02:00:00.000Z',
+  issue_due_at: '2026-10-19T02:00:00.000Z',
+  overdue_since: '2026-10-19T02:00:00.000Z',
+  overdue_days: 3,
+  acceptable: false,
   ...overrides,
 });
 
@@ -142,6 +177,8 @@ export interface World {
   details: Array<Record<string, unknown>>;
   projects: Array<Record<string, unknown>>;
   members: Array<Record<string, unknown>>;
+  /** The escalations of the board (ISS-10), in the shape the server writes them. */
+  breaches: Array<Record<string, unknown>>;
   /** Operations whose read fails. */
   failing: Set<string>;
   /** The pages of a timeline that a read of one issue answers after the first, by cursor. */
@@ -156,6 +193,7 @@ export function world(overrides: Partial<World> = {}): World {
     details: [],
     projects: [project(1)],
     members: [member(1), member(2)],
+    breaches: [],
     failing: new Set(),
     pages: new Map(),
     ...overrides,
@@ -187,6 +225,8 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.projects);
       case 'listIssueAssignees':
         return Promise.resolve(state.members);
+      case 'listIssueSlaBreaches':
+        return Promise.resolve(state.breaches);
       default:
         return Promise.reject(new Error(`unexpected readAll ${operation}`));
     }

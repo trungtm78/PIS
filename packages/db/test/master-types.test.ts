@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'CALENDAR', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'RETENTION_POLICY']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'RETENTION_POLICY']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -345,5 +345,44 @@ describe('rule data (BR-MDM-09)', () => {
     expect(await problem('APPRAISAL_CRITERIA', 'APPR-CRIT-2026r1', rule({ criteria: ['x'], pass_threshold: 60 }))).toEqual(invalid('attributes.criteria'));
     expect(await problem('APPRAISAL_CRITERIA', 'APPR-CRIT-2026r1', rule({ criteria: [], pass_threshold: 60 }))).toEqual(invalid('attributes.criteria'));
     expect(await problem('APPRAISAL_CRITERIA', 'APPR-CRIT-2026r1', rule({ criteria, pass_threshold: 0 }))).toEqual(invalid('attributes.pass_threshold'));
+  });
+});
+
+describe('the timers of land clearance (BR-LND-01, rule type LND_TIMER)', () => {
+  const timer = (attributes: Record<string, unknown>) =>
+    content({ owner_module: 'LND', days: 90, day_count: 'CALENDAR', ...attributes }, { legalBasis: 'Luật Đất đai 2024' });
+
+  it('is a rule type that LND owns', () => {
+    expect(isRuleType('LND_TIMER')).toBe(true);
+  });
+
+  it('takes the five timers by their key, with a number of days and the way they are counted', async () => {
+    expect(await problem('LND_TIMER', 'NOTICE_AGRICULTURAL_90', timer({}))).toBeUndefined();
+    expect(await problem('LND_TIMER', 'NOTICE_NON_AGRICULTURAL_180', timer({ days: 180 }))).toBeUndefined();
+    expect(await problem('LND_TIMER', 'PLAN_POSTING_30', timer({ days: 30 }))).toBeUndefined();
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30 }))).toBeUndefined();
+    expect(await problem('LND_TIMER', 'COMPLAINT_RESOLUTION', timer({ days: 45 }))).toBeUndefined();
+    expect(await problem('LND_TIMER', 'SOMETHING_ELSE', timer({}))).toEqual(invalid('business_key'));
+  });
+
+  it('keeps the notice to the two lengths a parcel can carry and every number of days within a year', async () => {
+    expect(await problem('LND_TIMER', 'NOTICE_AGRICULTURAL_90', timer({ days: 60 }))).toEqual(invalid('attributes.days'));
+    expect(await problem('LND_TIMER', 'NOTICE_NON_AGRICULTURAL_180', timer({ days: 0 }))).toEqual(invalid('attributes.days'));
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 367 }))).toEqual(invalid('attributes.days'));
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30.5 }))).toEqual(invalid('attributes.days'));
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: undefined }))).toEqual(invalid('attributes.days'));
+  });
+
+  it('names the working calendar exactly when the days are working days', async () => {
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, day_count: 'WORKING', calendar_code: 'WORKDAY_VN' }))).toBeUndefined();
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, day_count: 'WORKING' }))).toEqual(invalid('attributes.calendar_code'));
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, day_count: 'CALENDAR', calendar_code: 'WORKDAY_VN' }))).toEqual(invalid('attributes.calendar_code'));
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, day_count: 'HOURS' }))).toEqual(invalid('attributes.day_count'));
+  });
+
+  it('belongs to LND, carries its legal basis and takes no attribute it does not define', async () => {
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, owner_module: 'PAY' }))).toEqual(invalid('attributes.owner_module'));
+    expect(await problem('LND_TIMER', 'PAYMENT_30', content({ owner_module: 'LND', days: 30, day_count: 'CALENDAR' }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
+    expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, extra: 1 }))).toEqual(invalid('attributes.extra'));
   });
 });

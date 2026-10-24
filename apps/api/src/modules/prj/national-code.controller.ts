@@ -11,6 +11,7 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { FileService } from '../files';
 import { SHARED_PIPELINE_CACHE } from './pipeline-cache';
 import type { PipelineCache } from './pipeline-cache';
@@ -100,6 +101,9 @@ export class NationalCodeController {
   @Command({ operation: 'importNationalProjectCodes' })
   async import(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['PrjImportRequest']): Promise<Record<string, unknown>> {
     const now = new Date();
+    // The file spans every project of the tenant and its hash is used once: applying it is for whoever holds the right on the whole tenant. A unit-scoped
+    // officer who applied it would quarantine the rows of the projects outside the scope and shut the tenant-wide officer out with IMPORT_FILE_ALREADY_APPLIED.
+    if (!body.dry_run && !holdsOnWholeTenant(access, PERMISSIONS.importNationalProjectCodes)) throw new DomainError('SCOPE_DENIED', 403);
     // The layout of the file is versioned: a caller that names another layout than the one the adapter reads is refused before the file is opened.
     if (body.mapping_version !== undefined && body.mapping_version !== NATIONAL_CODE_FORMAT_VERSION) throw new DomainError('VALIDATION_FAILED', 422, 'mapping_version');
     const bytes = await this.bytesOf(scope.tenant, body.file_object_key, body.file_sha256);

@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import IssueWorkspaceScreen from './IssueWorkspaceScreen';
-import { COORDINATOR, READER, SELF_MEMBERSHIP, WORKER, client, detail, event, member, mountIssue, person, routeOf, unit, world } from './test-support';
+import { COORDINATOR, EXTENDER, READER, SELF_MEMBERSHIP, VERIFIER, WORKER, client, detail, event, member, mountIssue, person, routeOf, unit, world } from './test-support';
 import type { World } from './test-support';
 
 const ROUTE = routeOf('ISS-03', 'FR-ISS-03');
@@ -266,6 +266,52 @@ describe('IssueWorkspaceScreen (ISS-03): the workspace of one issue', () => {
       mountIssue(<IssueWorkspaceScreen route={ROUTE} />, client(world({ details: [detail(2)] })), { permissions: COORDINATOR, mode: 'READ_ONLY', path: `/iss/iss-03?id=${String(detail(2).id)}` });
       await ready();
       expect(screen.getByTestId('read-only').textContent).toBe(vi_['iss.workspace.actions.frozen.notice']);
+    });
+  });
+  describe('the next steps (ISS-04 and ISS-07)', () => {
+    const links = (): string[] => within(screen.getByTestId('more-actions')).getAllByRole('link').map((link) => link.getAttribute('href') ?? '');
+
+    it('leads the handler of a working issue to the report of the result, and the coordinator who extends to the extension', async () => {
+      open(detail(1, { status: 'IN_PROGRESS', assignee: person(1) }), ['issue.read', 'issue.work', 'issue.extend']);
+      await ready();
+      expect(links()).toEqual([`/iss/iss-07?id=${String(detail(1).id)}`, `/iss/iss-04?id=${String(detail(1).id)}`]);
+    });
+
+    it('leads the verifier of an issue that waits for its confirmation to the closing, and the one who may reopen to the reopening, and nobody to the extension of those', async () => {
+      open(detail(1, { status: 'PENDING_VERIFICATION', assignee: person(2) }), VERIFIER);
+      await ready();
+      expect(links()).toEqual([`/iss/iss-07?id=${String(detail(1).id)}`]);
+      cleanup();
+      open(detail(2, { status: 'CLOSED', assignee: person(2) }), VERIFIER);
+      await ready();
+      expect(links()).toEqual([`/iss/iss-07?id=${String(detail(2).id)}`]);
+      expect(screen.queryByTestId('read-only')).toBeNull();
+    });
+
+    it('leads a reader of an escalated issue to the board of escalations, and the one who may only escalate to ISS-04 while the issue can be raised', async () => {
+      const escalation = { id: 'e1', level: 2, trigger: 'SLA_AUTO', status: 'OPEN', target_unit: { id: 'u1', name: 'Unit 1' }, task_force: null, reason: 'SLA_L2_THRESHOLD_REACHED', accept_due_at: '2999-01-01T00:00:00.000Z', accepted_by: null, accepted_at: null, created_at: '2026-10-20T00:00:00.000Z' };
+      open(detail(1, { status: 'ESCALATED', assignee: person(2), escalations: [escalation] }), READER);
+      await ready();
+      expect(links()).toEqual(['/iss/iss-10']);
+      expect(screen.queryByTestId('read-only')).toBeNull();
+      cleanup();
+      open(detail(2, { status: 'IN_PROGRESS', assignee: person(2) }), ['issue.read', 'issue.escalate']);
+      await ready();
+      expect(links()).toEqual([`/iss/iss-04?id=${String(detail(2).id)}`]);
+      cleanup();
+      open(detail(3, { status: 'OPEN' }), ['issue.read', 'issue.escalate']);
+      await ready();
+      expect(screen.queryByTestId('more-actions')).toBeNull();
+    });
+
+    it('leads the one who extends deadlines to the extension of an open issue, and offers nothing to a reader', async () => {
+      open(detail(1), EXTENDER);
+      await ready();
+      expect(links()).toEqual([`/iss/iss-04?id=${String(detail(1).id)}`]);
+      cleanup();
+      open(detail(2), READER);
+      await ready();
+      expect(screen.queryByTestId('more-actions')).toBeNull();
     });
   });
 });

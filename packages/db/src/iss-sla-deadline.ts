@@ -13,6 +13,9 @@ import type { WorkCalendarRow } from './work-calendar-store.ts';
  */
 export const ISS_WORKING_INTERVALS: readonly WorkingInterval[] = [{ from: '07:30', to: '17:00' }];
 
+/** The published calendars a pass has already read, by calendar code and year: a job that counts thousands of thresholds reads each calendar once. */
+export type CalendarCache = Map<string, WorkCalendarRow | undefined>;
+
 /** The calendar years after the year of the start that a deadline may need: a policy lasts at most 2400 working hours. */
 const YEARS_AHEAD = 3;
 
@@ -58,10 +61,35 @@ export class IssSlaDeadlines {
       on: vietnamDateOf(request.startAt),
     });
     if (policy === undefined) throw new DomainError('SLA_POLICY_MISSING', 422);
-    const firstYear = Number(vietnamDateOf(request.startAt).slice(0, 4));
+    const { source, used } = await this.sourceFrom(tx, policy.calendarCode, request.startAt);
+    const responseDueAt = addWorkingTime(source, request.startAt, { hours: policy.responseHours }, this.intervals);
+    const dueAt = addWorkingTime(source, request.startAt, { hours: policy.resolveHours }, this.intervals);
+    return { policy, calendarVersionIds: [...used], responseDueAt, dueAt };
+  }
+
+  /**
+   * The instant at which `minutes` of working time have passed since `from`, on the published calendar of `calendarCode` and in the working window of
+   * ISS. Used for the thresholds of an escalation, the longest extension of a deadline and the time a recipient has to accept: the arithmetic exists
+   * once (addWorkingTime), and a year without a published calendar fails with 422 CALENDAR_NOT_EFFECTIVE, never with a guessed day.
+   */
+  async addMinutes(tx: TenantTx, calendarCode: string, from: Date, minutes: number, cache?: CalendarCache): Promise<Date> {
+    const { source } = await this.sourceFrom(tx, calendarCode, from, cache);
+    return addWorkingTime(source, from, { minutes }, this.intervals);
+  }
+
+  /** The published calendars of the years a count from `start` can pass through, and the versions that the count read. */
+  private async sourceFrom(tx: TenantTx, calendarCode: string, start: Date, cache?: CalendarCache): Promise<{ source: WorkCalendarSource; used: Set<string> }> {
+    const firstYear = Number(vietnamDateOf(start).slice(0, 4));
     const byYear = new Map<number, WorkCalendarRow>();
     for (let year = firstYear; year <= firstYear + YEARS_AHEAD; year += 1) {
-      const row = await this.calendars.published(tx, policy.calendarCode, year);
+      const key = `${calendarCode}:${year}`;
+      let row: WorkCalendarRow | undefined;
+      if (cache?.has(key) === true) {
+        row = cache.get(key);
+      } else {
+        row = await this.calendars.published(tx, calendarCode, year);
+        cache?.set(key, row);
+      }
       if (row !== undefined) byYear.set(year, row);
     }
     const used = new Set<string>();
@@ -72,8 +100,6 @@ export class IssSlaDeadlines {
         return row?.content;
       },
     };
-    const responseDueAt = addWorkingTime(source, request.startAt, { hours: policy.responseHours }, this.intervals);
-    const dueAt = addWorkingTime(source, request.startAt, { hours: policy.resolveHours }, this.intervals);
-    return { policy, calendarVersionIds: [...used], responseDueAt, dueAt };
+    return { source, used };
   }
 }

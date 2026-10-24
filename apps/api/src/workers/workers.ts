@@ -1,4 +1,4 @@
-import { AuditSealJob, AuditWriter, BASELINE_PACK, CertificateStore, CtrGuaranteeExpiry, DisPeriodAutoclose, DisReopenExpiry,IdempotencyStore, IntegrationInboxProcessor, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, PmtPermitTypeStore, RetentionJob, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AuditSealJob, AuditWriter, BASELINE_PACK, CertificateStore, CtrGuaranteeExpiry, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry,IdempotencyStore, IntegrationInboxProcessor, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, PmtPermitTypeStore, RetentionJob, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, MetricsSink, TenantContext, TimerPort } from '@machvon/kernel';
@@ -75,6 +75,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const disReopens = new DisReopenExpiry(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const permitTypes = new PmtPermitTypeStore();
   const guaranteeExpiry = new CtrGuaranteeExpiry(audit);
+  const issueSla = new IssSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
+  const dgvQuality = new DgvQualityRunJob(deps.tenants, audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const handlers = standardJobs({
@@ -99,9 +101,11 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     disReopens: { expire: (ctx) => deps.tenants.withTenant(ctx, (tx) => disReopens.run(tx, ctx.membershipId, new Date())) },
     retention: { run: (ctx, now) => retention.run(ctx, now) },
     guaranteeExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => guaranteeExpiry.run(tx, ctx.membershipId, now)) },
+    issueSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => issueSla.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),
     ...(deps.notificationDelivery === undefined ? {} : { notificationDelivery: deps.notificationDelivery }),
     ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }),
+    dgvQuality: { run: (ctx) => dgvQuality.runPending(ctx) },
     accessCache: deps.accessCache,
   });
 

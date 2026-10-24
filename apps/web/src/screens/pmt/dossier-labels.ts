@@ -100,6 +100,10 @@ export function permitProblemMessage(t: Translate, problem: PermitProblem): stri
       return t('pmt.permit.problem.typeNotEffective.error');
     case 'dossierExists':
       return t('pmt.permit.problem.dossierExists.error');
+    case 'selfApproval':
+      return t('pmt.permit.problem.selfApproval.error');
+    case 'exemptionNotAllowed':
+      return t('pmt.permit.problem.exemptionNotAllowed.error');
     case 'validation':
       return t('pmt.permit.problem.validation.error');
     case 'denied':

@@ -11,7 +11,7 @@ const t = ((key: string, params?: Record<string, string | number>) => vi(key, pa
 describe('the words of the planning screens', () => {
   it('names the kinds, statuses and buckets, each in both languages', () => {
     expect(PLAN_KINDS.map((kind) => kindLabel(t, kind))).toEqual(['Kế hoạch năm', 'Kế hoạch trung hạn']);
-    expect(PLAN_STATUSES.map((status) => planStatusLabel(t, status))).toEqual(['Nháp', 'Chờ duyệt', 'Đã duyệt', 'Đã công bố', 'Đã thay thế', 'Bị từ chối']);
+    expect(PLAN_STATUSES.map((status) => planStatusLabel(t, status))).toEqual(['Nháp', 'Chờ duyệt', 'Đã duyệt', 'Đã công bố', 'Kế hoạch đã bị thay thế', 'Bị từ chối']);
     expect(BUCKETS.map((bucket) => bucketLabel(t, bucket))).toEqual(['Vốn năm', 'Vốn kéo dài', 'Khác']);
     expect(en['cap.planStatus.inReview.label']).toBe('In review');
   });

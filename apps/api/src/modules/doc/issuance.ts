@@ -10,6 +10,12 @@ export interface IssuedFile {
   fileSha256: string;
 }
 
+/** The written reason of a person who may confirm templates, for issuing a document whose template is not yet confirmed (BR-DOC-10). */
+export interface TemplateOverride {
+  reason: string;
+  by: string;
+}
+
 /**
  * The step that makes a sealed document the issued one (DOC.md F7, state ISSUED): the document is in force, the request of the source module (if it came
  * from one) is ISSUED, the status history gets its row and `doc.issued.v1` goes out once, carrying the number, the symbol, the hash of the content and the
@@ -22,10 +28,10 @@ export class OutgoingIssuance {
   private readonly drafts = new OutgoingDraftStore();
   private readonly requests = new DocIssueRequestStore();
 
-  /** SEALED to ISSUED in the transaction of the command. */
-  async issue(scope: CommandScope, document: OutgoingDocumentRecord, file: IssuedFile, now: Date): Promise<OutgoingDocumentRecord> {
+  /** SEALED to ISSUED in the transaction of the command; `override` is kept with the document when its template is not yet confirmed. */
+  async issue(scope: CommandScope, document: OutgoingDocumentRecord, file: IssuedFile, now: Date, override?: TemplateOverride): Promise<OutgoingDocumentRecord> {
     const actor = scope.tenant.membershipId;
-    const issued = await this.outgoing.markIssued(scope.tx, document.id, { expectedVersion: document.version, issuedAt: now, actor });
+    const issued = await this.outgoing.markIssued(scope.tx, document.id, { expectedVersion: document.version, issuedAt: now, actor, override });
     await this.requests.markIssued(scope.tx, document.id, actor);
     await this.drafts.appendEvent(scope.tx, {
       outgoingDocumentId: document.id,
@@ -35,7 +41,7 @@ export class OutgoingIssuance {
       actor,
       documentVersion: issued.version,
       occurredAt: now,
-      details: { number: issued.documentNumber, symbol: issued.symbol, file_sha256: file.fileSha256, version_id: file.versionId },
+      details: { number: issued.documentNumber, symbol: issued.symbol, file_sha256: file.fileSha256, version_id: file.versionId, ...(override === undefined ? {} : { template_override: true }) },
     });
     await this.announce(scope, issued, file, now);
     return issued;
@@ -47,7 +53,16 @@ export class OutgoingIssuance {
       action: 'outgoing_document.issue',
       resourceType: OUTGOING_TYPE,
       resourceId: issued.id,
-      diff: { route: issued.route, number: issued.documentNumber, symbol: issued.symbol, issued_on: issued.issuedOn, file_sha256: file.fileSha256, version_id: file.versionId },
+      diff: {
+        route: issued.route,
+        number: issued.documentNumber,
+        symbol: issued.symbol,
+        issued_on: issued.issuedOn,
+        file_sha256: file.fileSha256,
+        version_id: file.versionId,
+        // The reason is the legal record of why a document with a watermark went out (BR-DOC-10): the audit row keeps it as written.
+        ...(issued.unconfirmedOverrideReason === null ? {} : { unconfirmed_override_reason: issued.unconfirmedOverrideReason, unconfirmed_override_by: issued.unconfirmedOverrideBy }),
+      },
     });
     await scope.emit({
       aggregateType: OUTGOING_TYPE,
@@ -71,6 +86,8 @@ export class OutgoingIssuance {
         document_version_id: file.versionId,
         file_sha256: file.fileSha256,
         route: issued.route,
+        // A reference copy: the template was not confirmed when the document was issued (the file keeps its watermark).
+        template_unconfirmed: issued.unconfirmedOverrideReason !== null,
       },
       // One issue, one event: a retry that reaches this point again emits nothing new.
       eventKey: `${OUTGOING_TYPE}:${issued.id}:issued`,

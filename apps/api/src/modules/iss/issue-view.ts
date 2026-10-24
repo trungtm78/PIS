@@ -1,5 +1,5 @@
-import { LOW_ACCURACY_METRES } from '@machvon/db';
-import type { IssueDetail, IssueEventRow, IssueLine } from '@machvon/db';
+import { ISSUE_MAX_EXTENSIONS, ISSUE_REOPEN_WINDOW_DAYS, LOW_ACCURACY_METRES } from '@machvon/db';
+import type { EscalationRow, IssueDetail, IssueEventRow, IssueLine, TaskForceRef } from '@machvon/db';
 
 /** Who is reading, and what that person is allowed to see of an issue beyond its place in the work. */
 export interface IssueViewer {
@@ -58,7 +58,17 @@ export function issueLineView(line: IssueLine, overdueDays: number | null, viewe
 const PAYLOAD_KEYS: Readonly<Record<string, readonly string[]>> = {
   CREATED: ['sla_policy_id', 'sla_policy_code', 'sla_policy_revision', 'calendar_version_ids', 'response_due_at', 'due_at'],
   TRANSFERRED: ['from_unit_id', 'to_unit_id'],
+  ESCALATED: ['escalation_id', 'level', 'trigger', 'target_unit_id', 'task_force_id'],
+  ESCALATION_ACCEPTED: ['escalation_id', 'level'],
+  SLA_BREACHED: ['overdue_since', 'due_at'],
+  REASSIGNED: ['outcome'],
+  VERIFICATION_REQUESTED: ['evidence_document_version_ids'],
+  CLOSED: ['closed_at'],
+  REOPENED: ['reopen_count', 'closed_at'],
+  EXTENDED: ['previous_due_at', 'new_due_at', 'extension_number', 'extension_limit'],
 };
+
+const withoutDocuments = (payload: Record<string, unknown>): Record<string, unknown> => Object.fromEntries(Object.entries(payload).filter(([key]) => key !== 'evidence_document_version_ids'));
 
 function payloadView(kind: string, payload: Record<string, unknown>): Record<string, unknown> {
   const shown: Record<string, unknown> = {};
@@ -87,7 +97,8 @@ export function issueEventView(event: IssueEventRow, viewer: IssueViewer, rights
     note: noteShown ? event.note : null,
     document_version_id: viewer.guest && !own(event.createdBy) ? null : event.documentVersionId,
     actor: named(event.createdBy, event.actorName),
-    payload: payloadView(event.kind, event.payload),
+    // The documents named as evidence are shown to staff, and to a guest only on their own request.
+    payload: viewer.guest && !own(event.createdBy) ? payloadView(event.kind, withoutDocuments(event.payload)) : payloadView(event.kind, event.payload),
     created_at: event.createdAt,
   };
 }
@@ -97,7 +108,31 @@ export function issueEventView(event: IssueEventRow, viewer: IssueViewer, rights
  * of the person who reported it: it is shown only with the consent that stored it, only to staff, and the accuracy carries the warning
  * of BR-ISS-06. The description of an issue from a land complaint is shown only to those who may read the household.
  */
-export function issueDetailView(detail: IssueDetail, overdueDays: number | null, viewer: IssueViewer, rights: DetailRights): Record<string, unknown> {
+/** What the workspace shows of the escalations of an issue, and of the task force it could be raised to by hand. */
+export interface EscalationExtras {
+  escalations: readonly EscalationRow[];
+  /** The task force that answers for the issue today, only for a reader who may escalate. */
+  taskForce: TaskForceRef | undefined;
+}
+
+function escalationView(row: EscalationRow, mayReadText: boolean): Record<string, unknown> {
+  return {
+    id: row.id,
+    level: row.level,
+    trigger: row.trigger,
+    status: row.status,
+    target_unit: row.targetUnitId === null ? null : { id: row.targetUnitId, name: row.targetUnitName },
+    task_force: row.taskForceId === null ? null : { id: row.taskForceId, code: row.taskForceCode, name: row.taskForceName },
+    // The reason of an automatic escalation is a code; the one a person wrote is free text and follows the rule of the notes.
+    reason: row.trigger === 'SLA_AUTO' || mayReadText ? row.reason : null,
+    accept_due_at: row.dueAt,
+    accepted_by: row.acceptedBy === null ? null : { membership_id: row.acceptedBy },
+    accepted_at: row.acceptedAt,
+    created_at: row.createdAt,
+  };
+}
+
+export function issueDetailView(detail: IssueDetail, overdueDays: number | null, viewer: IssueViewer, rights: DetailRights, extras: EscalationExtras): Record<string, unknown> {
   const mayReadText = (detail.sourceModule !== 'LND' || rights.land) && (!viewer.guest || detail.reportedBy === viewer.membershipId);
   const hasPosition = detail.geoLat !== null && detail.geoLng !== null;
   const accuracy = detail.geoAccuracyM === null ? null : Number(detail.geoAccuracyM);
@@ -116,6 +151,11 @@ export function issueDetailView(detail: IssueDetail, overdueDays: number | null,
       require_evidence: detail.policy.requireEvidence,
       require_independent_verifier: detail.policy.requireIndependentVerifier,
     },
+    // A guest contractor is told the level the issue has reached (the line has it) and not who answers for it.
+    escalations: viewer.guest ? [] : extras.escalations.map((row) => escalationView(row, mayReadText)),
+    active_task_force: viewer.guest || extras.taskForce === undefined ? null : { id: extras.taskForce.id, code: extras.taskForce.code, name: extras.taskForce.name },
+    extensions: { used: detail.extensionCount, limit: ISSUE_MAX_EXTENSIONS },
+    reopen_window_days: ISSUE_REOPEN_WINDOW_DAYS,
     geo_consent: detail.geoConsent,
     geo:
       viewer.guest || !hasPosition

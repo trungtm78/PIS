@@ -4,6 +4,11 @@ import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 const UNIQUE_VIOLATION = '23505';
+/** The reserved system of the alias a tenant sets on an entry of the platform: the one thing it may override of a locked entry (ST-MDM-002). */
+export const TENANT_ALIAS_SYSTEM = 'TENANT_ALIAS';
+export const ALIAS_KINDS = ['LABEL', 'ORDER'] as const;
+export type AliasKind = (typeof ALIAS_KINDS)[number];
+const ORDER_DIGITS = /^[0-9]{1,6}$/;
 const MAX_SYSTEM = 50;
 const MAX_CODE = 100;
 
@@ -94,6 +99,16 @@ const toRow = (row: SqlRow): CrosswalkRow => ({
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
+/** The alias as it is stored: a label as the trimmed text, an order as the whole number without leading zeros; nothing else is an alias. */
+function aliasOf(input: CrosswalkInput, externalType: string, externalCode: string): { externalType: AliasKind; externalCode: string } {
+  const kind = (ALIAS_KINDS as readonly string[]).includes(externalType) ? (externalType as AliasKind) : undefined;
+  if (kind === undefined) throw invalid('external_type');
+  if (input.matchMethod !== 'MANUAL') throw invalid('match_method');
+  if (input.confidence !== undefined) throw invalid('confidence');
+  if (kind === 'ORDER' && !ORDER_DIGITS.test(externalCode)) throw invalid('external_code');
+  return { externalType: kind, externalCode: kind === 'ORDER' ? String(Number(externalCode)) : externalCode };
+}
+
 /** A name or a code as it is stored: trimmed, not empty, without control characters, within its length. */
 function textOf(value: string, field: string, max: number): string {
   const text = value.trim();
@@ -138,14 +153,18 @@ export class MasterCrosswalkStore {
   /** Maps a code of another system to an entry; one entry for one code, so a second ACTIVE mapping of the same code is refused. */
   async create(tx: TenantTx, input: CrosswalkInput, actor: string): Promise<{ id: string; version: number }> {
     const sourceSystem = textOf(input.sourceSystem, 'source_system', MAX_SYSTEM);
-    const externalType = textOf(input.externalType, 'external_type', MAX_SYSTEM);
-    const externalCode = textOf(input.externalCode, 'external_code', MAX_CODE);
+    const typed = textOf(input.externalType, 'external_type', MAX_SYSTEM);
+    const coded = textOf(input.externalCode, 'external_code', MAX_CODE);
+    const isAlias = sourceSystem === TENANT_ALIAS_SYSTEM;
+    const { externalType, externalCode } = isAlias ? aliasOf(input, typed, coded) : { externalType: typed, externalCode: coded };
     if (input.confidence !== undefined && !(input.confidence >= 0 && input.confidence <= 1)) throw invalid('confidence');
-    const record = await tx.query<{ status: string }>('select status from machvon.master_record where id = $1::uuid', [input.masterRecordId]);
+    const record = await tx.query<{ status: string; namespace: string }>('select status, namespace from machvon.master_record where id = $1::uuid', [input.masterRecordId]);
     // An entry of another tenant is indistinguishable from one that does not exist.
     if (record[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     // A merged entry no longer stands for anything: the code belongs to the entry it was merged into.
     if (record[0].status === 'MERGED') throw invalid('master_record_id');
+    // An alias is the one override a tenant has on an entry of the platform; an entry of the tenant is edited through its own change requests.
+    if (isAlias && record[0].namespace !== 'PLATFORM') throw invalid('master_record_id');
     const id = randomUUID();
     try {
       await tx.query(

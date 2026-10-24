@@ -134,8 +134,15 @@ export {
   DELIVERY_LATENCY_METRIC,
   DeliveryEngine,
   OUT_OF_ORDER_METRIC,
+  QUIET_HOURS_OVERRIDE_METRIC,
 } from './delivery-engine.ts';
 export type { CallbackInput, CancelInput, CancelResult, ClaimOutcome, ClaimedSend, DeliveryEngineOptions, ReplayInput, ReplayResult, ResultNext } from './delivery-engine.ts';
+export { DeliveryGate, QUIET_HOURS_CODE } from './delivery-gate.ts';
+export type { GateDecision, SuppressionReason } from './delivery-gate.ts';
+export { ContactConsentStore } from './contact-consent-store.ts';
+export type { CaptureMethod, ConsentGrantInput, ConsentPage, ConsentRow, ConsentStatus } from './contact-consent-store.ts';
+export { NotificationPreferenceStore } from './notification-preference-store.ts';
+export type { DigestMode, LockedChannel, PreferenceInput, PreferenceItem, PreferenceSnapshot } from './notification-preference-store.ts';
 export { InMemoryEntitlementCache } from './entitlement-cache.ts';
 export type { EntitlementCache, EntitlementSnapshot } from './entitlement-cache.ts';
 export { ENTITLEMENT_CHANGED_EVENT, EntitlementStore } from './entitlement-store.ts';
@@ -192,7 +199,7 @@ export type {
   VersionPageAnchor,
   VersionStage,
 } from './document-store.ts';
-export { DocumentTemplateStore } from './document-template-store.ts';
+export { DocumentTemplateStore, rendersWatermarked } from './document-template-store.ts';
 export type {
   ClosedRevision,
   ConfirmationStatus,
@@ -264,11 +271,22 @@ export type {
   OutgoingFilters,
   OutgoingPage,
   OutgoingStatus,
+  RevocationDue,
   SessionStatus,
   SigningCertificateOption,
   SigningRole,
   SigningSessionRecord,
 } from './outgoing-document-store.ts';
+export { DocumentDistributionStore } from './document-distribution-store.ts';
+export type {
+  DistributionChannel,
+  DistributionOutcome,
+  DistributionRecipientKind,
+  DistributionRecord,
+  DistributionStatus,
+  DistributionTally,
+  NewDistribution,
+} from './document-distribution-store.ts';
 export { SecurityPolicyStore } from './security-policy-store.ts';
 export type { PolicyPageAnchor, PolicyStatus, SecurityPolicyRow } from './security-policy-store.ts';
 export { WorkCalendarStore } from './work-calendar-store.ts';
@@ -315,6 +333,12 @@ export type { SuccessionKind } from './master-succession.ts';
 export { BidContractorStore, RESTRICTION_KINDS } from './bid-contractor-store.ts';
 export type { CallerContractor, ContractorRow, DuplicateTaxId, LookupOutcome, LookupRecord, RegisterInput, RestrictionInput, RestrictionKind, RestrictionRow, RestrictionSource, VerificationBasis, VerificationDecision, VerificationStatus, VerifyInput } from './bid-contractor-store.ts';
 export { maskTaxIdentifier, normaliseTaxIdentifier } from './bid-tax-identifier.ts';
+export { BIDDING_FORMS, CONTRACT_TYPES as PACKAGE_CONTRACT_TYPES, MAX_PACKAGES, SELECTION_METHODS, readPackages } from './bid-plan-input.ts';
+export type { BiddingForm, NewPlanInput, PackageContractType, PackageInput, SelectionMethod } from './bid-plan-input.ts';
+export { BidPlanStore, PLAN_DECISIONS, PLAN_STATUSES as BID_PLAN_STATUSES, PLANNABLE_PROJECT_STATUSES } from './bid-plan-store.ts';
+export type { BidAllocationUse, BidCreatedPackage, BidCreatedPlan, BidDecidedPlan, BidDecisionInput, PlanDecision, PlanStatus as BidPlanStatus, BidSubmittedPlan } from './bid-plan-store.ts';
+export { BidPlanReads, bidReadScope } from './bid-plan-reads.ts';
+export type { BidReadScope, LastDecision, PackageLine, PlanFilter as BidPlanFilter, PlanLine, ProjectLabel } from './bid-plan-reads.ts';
 export { MasterCrosswalkStore } from './master-crosswalk-store.ts';
 export type { CrosswalkFilter, CrosswalkInput, CrosswalkMethod, CrosswalkRow, CrosswalkStatus, CrosswalkTarget } from './master-crosswalk-store.ts';
 export { DISBURSEMENT_DOMAIN, DISBURSEMENT_TERMS, GLOSSARY_STATUSES, GlossaryStore } from './glossary-store.ts';
@@ -340,7 +364,24 @@ export type { ProjectPlace, ReopenDecision, ReopenOutcome, ReopenRecord, ReopenR
 export { DisReopenExpiry } from './dis-reopen-expiry.ts';
 export type { ReopenExpiryOptions, ReopenExpiryResult } from './dis-reopen-expiry.ts';
 export { DATASET_CLASSIFICATIONS, DgvDatasetStore } from './dgv-dataset-store.ts';
-export type { DatasetClassification, DatasetFilter, DatasetInput, DatasetRow, DatasetStatus, DatasetViewer, OwnershipChange, OwnershipResult, QualityBadge } from './dgv-dataset-store.ts';
+export type { CatalogSummary, DatasetClassification, DatasetFilter, DatasetInput, DatasetRow, DatasetStatus, DatasetViewer, OwnershipChange, OwnershipResult, QualityBadge } from './dgv-dataset-store.ts';
+export { DgvQualityRuleStore, QUALITY_RULE_STATUSES } from './dgv-quality-rule-store.ts';
+export type { QualityRuleApproval, QualityRuleDraft, QualityRuleDraftInput, QualityRuleFilter, QualityRuleRow, QualityRuleStatus } from './dgv-quality-rule-store.ts';
+export { DgvQualityRunStore, QUALITY_RUN_TRIGGERS, dimensionsOf } from './dgv-quality-run-store.ts';
+export type { QualityRunFilter, QualityRunRow, QualityRunStatus, QualityRunTrigger, QualityScorecard, QualityScorecardDimension, QualityScorecardRule, RequestedQualityRun } from './dgv-quality-run-store.ts';
+export {
+  DGV_HARD_FAIL_METRIC,
+  DGV_NOT_ASSESSED_GAUGE,
+  DGV_QUALITY_SCORE_GAUGE,
+  DgvQualityRunJob,
+  MAX_RUN_ATTEMPTS,
+  QUALITY_INCIDENT_OPENED_EVENT,
+  QUALITY_RUN_COMPLETED_EVENT,
+  QualityRunsBroken,
+} from './dgv-quality-run-job.ts';
+export type { QualityPassSummary } from './dgv-quality-run-job.ts';
+export { DIS_PERIOD_SNAPSHOT_SOURCE, loadSnapshot, qualitySourceOf } from './dgv-quality-source.ts';
+export type { QualitySource, SnapshotState } from './dgv-quality-source.ts';
 export { MAX_STORED_ERRORS, MasterImportStore, checkMapping } from './master-import-store.ts';
 export type { ImportBatchRow, ImportMapping, ImportMode, ImportPlan, ImportStatus, PublishedRecord, RowError } from './master-import-store.ts';
 export { ISSUE_CATEGORY_TYPE, IssSlaPolicyStore, MAX_ESCALATE_PCT, MAX_SLA_HOURS, SLA_SEVERITIES } from './iss-sla-policy-store.ts';
@@ -365,6 +406,17 @@ export type {
   NewIssue,
   TransferredIssue,
 } from './iss-issue-store.ts';
+export { ISSUE_MAX_EXTENSIONS, ISSUE_REOPEN_WINDOW_DAYS, IssIssueClosure, MAX_EVIDENCE_DOCUMENTS } from './iss-issue-closure.ts';
+export { AUTO_ESCALATION_REASONS, ESCALATION_ACCEPT_HOURS, ESCALATION_ACCEPT_PERMISSION, IssEscalationStore } from './iss-escalation-store.ts';
+export type { AcceptedEscalation, BreachLine, EscalationInput, EscalationLevel, EscalationRow, EscalationStatus, EscalationTrigger, RaisedEscalation } from './iss-escalation-store.ts';
+export { ISSUE_ESCALATED_EVENT, escalatedEventKey, escalatedPayload } from './iss-escalation-event.ts';
+export { OPEN_ISSUES_GAUGE, PENDING_ESCALATIONS_GAUGE, SLA_BREACH_METRIC, SLA_PASS_LIMIT, IssSlaJob } from './iss-sla-job.ts';
+export type { SlaPassResult } from './iss-sla-job.ts';
+export { INTAKE_CATEGORY_KEYS, INTAKE_EVENT_TYPES, INTAKE_SPECS, IssIntake, PERSONAL_MEMBERS, intakeOperationId, readIntake } from './iss-intake.ts';
+export type { IntakeOutcome, IntakeReading, IntakeRequest, IntakeSpec } from './iss-intake.ts';
+export { TaskForceDirectory } from './iss-task-force-directory.ts';
+export type { TaskForcePlace, TaskForceRef, TaskForceVerdict } from './iss-task-force-directory.ts';
+export type { ClosedIssue, ExtendedIssue, ReopenedIssue, VerificationRequested } from './iss-issue-closure.ts';
 export { MNE_EXPORT_FORMATS, MNE_REPORT_KINDS, MneFormStore } from './mne-form-store.ts';
 export type { MneExportFormat, MneFormFilter, MneFormInput, MneFormPackEntry, MneFormPackResult, MneFormPage, MneFormRow, MneOrigin, MneReportKind, MneRevisionStatus } from './mne-form-store.ts';
 export { MNE_REPORTING_ROLES, MneObligationRuleStore } from './mne-obligation-rule-store.ts';
@@ -404,6 +456,8 @@ export type {
   PermitChange,
   RenewalChange,
   RenewalInput,
+  ExemptionChange,
+  ExemptionInput,
   RevocationChange,
   RevocationInput,
 } from './pmt-permit-store.ts';
@@ -419,6 +473,16 @@ export { ledgerReport, readLedgerCatalog } from './ledger-lint.ts';
 export type { LedgerCatalog, LedgerCatalogTable, LedgerCheck, LedgerFailure, LedgerFailureReason, LedgerReport, LedgerUniqueIndex } from './ledger-lint.ts';
 export { PROJECT_STATUSES, PrjProjectStore, projectScope, wholeVnd } from './prj-project-store.ts';
 export type { CreatedProject, FieldChange, GroupSuggestion, MasterLabel, NewProject, ProfileChange, ProfileUpdate, ProjectClassification, ProjectDetail, ProjectLeader, ProjectListRow, ProjectStatus, UpdateScopes } from './prj-project-store.ts';
+export { LndLandSource, WARD_MASTER_TYPES } from './lnd-land-source.ts';
+export type { LandProjectRef } from './lnd-land-source.ts';
+export { LndSectionStore } from './lnd-section-store.ts';
+export type { CreatedLandSection, LandSectionRow, LandSectionStatus, NewLandSection } from './lnd-section-store.ts';
+export { LndParcelStore, PARCEL_STATUSES, parcelCodeOf, parcelScope } from './lnd-parcel-store.ts';
+export type { CreatedLandParcel, DeadlineStatus, NewLandParcel, ParcelDeadlineView, ParcelFilter, ParcelPlace, ParcelRow, ParcelStatus, RecordedDecision, RecordedNotice } from './lnd-parcel-store.ts';
+export { LAND_PARCEL_CONNECTOR_PREFIX, LAND_PARCEL_FORMAT_VERSION, LndParcelImportStore, PARCEL_COLUMNS, PARCEL_FIELDS, REQUIRED_PARCEL_FIELDS, checkParcelLayout, connectorOf, createParcelFileAdapter, createParcelFileFormat } from './lnd-parcel-import.ts';
+export type { LandParcelFileRow, ParcelAdapterOptions, ParcelField, ParcelImportCounts, ParcelImportInput, ParcelImportResult, ParcelLayoutCheck } from './lnd-parcel-import.ts';
+export { LAND_TIMER_RULE_TYPE, LndTimerRules } from './lnd-timer-rules.ts';
+export type { ResolvedLandTimer } from './lnd-timer-rules.ts';
 export { PLAN_PUBLISHED_EVENT, SETTLEMENT_CLOSED_EVENT, STAGE_COMMANDS, STAGE_SEQUENCE, STAGE_TRANSITIONS, TERMINAL_STAGES, commandEdgesFrom, edgeBy, isTransitionAllowed, stagesAfter } from './prj-stage-machine.ts';
 export type { StageCommand, StageTransition } from './prj-stage-machine.ts';
 export { PRJ_STAGE_TRANSITION_METRIC, PrjStageStore, SqlProjectObligations, checkedPipelineFilter, stageChangeRecord } from './prj-stage-store.ts';
@@ -458,6 +522,10 @@ export type {
 export type { AppraisalCriteriaSet, AppraisalCriterionRule } from './master-rules.ts';
 export { NationalCodeGate, NationalCodeImportAdapter, PrjNationalCodeStore, hasCodeFormat, nationalCodeOf } from './prj-national-code-store.ts';
 export type { AssignedNationalCode, CodeGateReading, ImportOutcome, NationalCodeAssignRequest, NationalCodeImportContext } from './prj-national-code-store.ts';
+export { ACCOUNTABILITY_ROLES, LEADER_ASSIGNED_EVENT, LEADER_UNASSIGNED_EVENT, PrjAccountabilityStore, assignmentEndedRecord, assignmentMadeRecord } from './prj-accountability-store.ts';
+export type { AccountabilityRole, AssignmentChange, AssignmentFilter, AssignmentLine, AssignmentStatus } from './prj-accountability-store.ts';
+export { PrjTaskForceStore, TASK_FORCE_CREATED_EVENT, TASK_FORCE_DISSOLVED_EVENT, TASK_FORCE_MEMBER_ROLES, memberAddedRecord, taskForceCreatedRecord, taskForceDissolvedRecord, taskForceScope } from './prj-task-force-store.ts';
+export type { MemberAdded, TaskForceChange, TaskForceLine, TaskForceMemberLine, TaskForceMemberRole, TaskForceStatus } from './prj-task-force-store.ts';
 export { previewFileImport } from './file-import-preview.ts';
 export type { FileImportPreview, PreviewCounts, PreviewRow, PreviewStatus, PreviewableAdapter } from './file-import-preview.ts';
 export { APPROPRIATION_ORIGINS, APPROPRIATION_STATUSES, BUDGET_LEVELS, CapAppropriationStore } from './cap-appropriation-store.ts';
@@ -506,6 +574,11 @@ export type {
   NewPlan,
   PublicationFacts,
 } from './cap-plan-store.ts';
+export { CAP_PLAN_DECISIONS, CapPlanApprovalStore } from './cap-plan-approval-store.ts';
+export type { CapPlanDecision, DecideResult, PlanAuthorizer, SubmitResult } from './cap-plan-approval-store.ts';
+export { BalanceDriftError, CapPlanPublicationStore } from './cap-plan-publication-store.ts';
+export type { BalanceDrift, CapPublishInput, LedgerPosting, PostedEntryType, PublishResult } from './cap-plan-publication-store.ts';
+export type { AllocatedMove } from './cap-plan-locks.ts';
 export { ADVANCE_CATEGORIES, CONTRACT_STATUSES, CONTRACT_TYPES, CtrContractStore, calendarDate, contractScope, partiesCheck, wholeAmount } from './ctr-contract-store.ts';
 export type {
   AdvanceCategory,

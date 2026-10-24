@@ -161,6 +161,8 @@ export { MNE_EVENTS, MNE_FREQUENCIES, eventDueDate, nextWorkingDay, parseDueRule
 export type { DueRule, EventRule, FixedDateRule, MneEvent, MneFrequency, ReportPeriod, WeeklyRule, WorkingDayTest } from './mne-due-rule.ts';
 export { DEFAULT_WORKING_INTERVALS, WORKING_TIME_ZONE, addWorkingTime, calendarFindings, isWorkingDay, singleYear, validateWorkCalendar } from './working-time.ts';
 export type { CalendarFinding, Holiday, WorkCalendarContent, WorkCalendarSource, WorkingDuration, WorkingInterval } from './working-time.ts';
+export { LAND_DAY_COUNTS, LAND_TIMER_CODES, LAND_USE_GROUPS, MAX_TIMER_DAYS, NOTICE_DAYS, addCalendarDays, addWorkingDays, noticeTimerOf } from './land-timers.ts';
+export type { LandDayCount, LandTimerCode, LandTimerRule, LandUseGroup } from './land-timers.ts';
 export {
   draftFindings,
   headerFindings,
@@ -251,3 +253,56 @@ export {
 export type { AppraisalCriterion, AppraisalRecommendation, AppraisalScoreInput } from './appraisal-score.ts';
 export { NATIONAL_CODE_ADAPTER_STATUS, NATIONAL_CODE_CONNECTOR, NATIONAL_CODE_FORMAT_VERSION, NATIONAL_CODE_MAX_LENGTH, nationalCodeFileFormat } from './national-code-file.ts';
 export type { NationalCodeRow } from './national-code-file.ts';
+export {
+  CONSENT_CHANNELS,
+  CONSENT_DECISION_TABLE,
+  CONSENT_PURPOSES,
+  DEFAULT_QUIET_END,
+  DEFAULT_QUIET_START,
+  DEFAULT_TIME_ZONE,
+  PREFERENCE_CHANNELS,
+  consentAllows,
+  consentPurposeOf,
+  consentRequirement,
+  eventCategoryOf,
+  isQuietHoursChannel,
+  isValidTimeZone,
+  parseClock,
+  preferenceChannelOf,
+  quietHoursAt,
+} from './notification-policy.ts';
+export type { ConsentChannel, ConsentPurpose, ConsentRequirement, ConsentState, PreferenceChannel, QuietHours, QuietVerdict } from './notification-policy.ts';
+export {
+  ACTIONS_ON_FAIL,
+  COMPARATORS,
+  CRITICALITY_WEIGHT_MAX,
+  CRITICALITY_WEIGHT_MIN,
+  FULL_RATE,
+  INCIDENT_SLA_HOURS,
+  QUALITY_DIMENSIONS,
+  RATE_SCALE,
+  RULE_RESULTS,
+  RULE_SEVERITIES,
+  formatRate,
+  judgeRun,
+  parseQualityThreshold,
+  passRateMicro,
+  ruleVerdict,
+  validateQualityExpression,
+  weightedScore,
+} from './quality-rule.ts';
+export type {
+  ActionOnFail,
+  Comparator,
+  FieldType,
+  QualityDimension,
+  QualityExpr,
+  QualitySourceShape,
+  QualityThreshold,
+  RuleOutcome,
+  RuleResult,
+  RuleSeverity,
+  RunOverall,
+  RunVerdict,
+  ValidatedExpression,
+} from './quality-rule.ts';

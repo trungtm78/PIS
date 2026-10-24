@@ -22,6 +22,14 @@ export type TemplateStatus = 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED' | 'SUPERSEDED' 
 export type ConfirmationStatus = 'CONFIRMED' | 'PENDING_CONFIRMATION';
 export type TemplateOrigin = 'PLATFORM_PACK' | 'TENANT';
 
+/**
+ * Whether a render from this template carries the watermark (BR-DOC-10): the template or its layout profile still waits for its legal confirmation. A document
+ * made from it can be issued only with the written override of a person who may confirm.
+ */
+export function rendersWatermarked(template: { confirmationStatus: ConfirmationStatus; layoutConfirmationStatus: ConfirmationStatus | null }): boolean {
+  return template.confirmationStatus !== 'CONFIRMED' || template.layoutConfirmationStatus !== 'CONFIRMED';
+}
+
 /** One revision of a template as the library lists it (no body). */
 export interface TemplateSummary {
   id: string;

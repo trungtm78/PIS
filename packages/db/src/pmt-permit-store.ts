@@ -68,6 +68,11 @@ export interface RenewalInput {
   documentVersionId: string;
 }
 
+export interface ExemptionInput {
+  basis: string;
+  decisionDocumentVersionId: string;
+}
+
 export interface RevocationInput {
   reason: string;
   decisionDocumentVersionId: string;
@@ -113,6 +118,11 @@ export interface RenewalChange extends PermitChange {
   documentVersionId: string;
 }
 
+export interface ExemptionChange extends PermitChange {
+  decisionDocumentVersionId: string;
+  exemptedOn: string;
+}
+
 export interface RevocationChange extends PermitChange {
   reason: string;
   revocationDocumentVersionId: string;
@@ -151,6 +161,9 @@ interface PermitSql {
   submitted_on: string | null;
   expected_decision_on: string | null;
   document_version_id: string | null;
+  exemption_allowed: boolean;
+  created_by: string;
+  updated_by: string;
 }
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
@@ -401,6 +414,35 @@ export class PmtPermitStore {
     return { ...changeOf(permit, 'REVOKED', permit.status, Number(permit.version) + 1), reason, revocationDocumentVersionId: documentVersionId, readiness };
   }
 
+  /**
+   * Declares an exemption from a permit (PMT 4, BR-PMT-04, CXN-EXE-02): a planned or submitted permit of a type that allows it becomes EXEMPTED on a written
+   * basis and the document that decided it, and counts as covering its type (the readiness of the dossier is counted again). The approver is not the
+   * proposer: whoever created the permit or last changed it (the person who proposed it) cannot declare its exemption (403 SELF_APPROVAL_DENIED). A type that
+   * does not allow it is 422 EXEMPTION_NOT_ALLOWED, a permit in another state 409 PERMIT_STATE_INVALID, a type that already has a current permit in the dossier
+   * 409 PERMIT_ALREADY_CURRENT. The decision is recorded as a milestone too, with the document.
+   */
+  async exempt(tx: TenantTx, permitId: string, expectedVersion: number, input: ExemptionInput, actor: string): Promise<ExemptionChange> {
+    const permit = await this.lock(tx, permitId, expectedVersion);
+    if (permit.status !== 'PLANNED' && permit.status !== 'SUBMITTED') throw stateInvalid();
+    if (!permit.exemption_allowed) throw new DomainError('EXEMPTION_NOT_ALLOWED', 422);
+    if (actor === permit.created_by || actor === permit.updated_by) throw new DomainError('SELF_APPROVAL_DENIED', 403);
+    const basis = textOf(input.basis, 'exemption_basis', MAX_TEXT);
+    const documentVersionId = input.decisionDocumentVersionId.toLowerCase();
+    await this.assertDocument(tx, documentVersionId, 'exemption_decision_document_version_id');
+    await this.assertNoCurrent(tx, permit);
+    await withUniqueClaim(tx, { constraint: CURRENT_CONSTRAINTS, code: 'PERMIT_ALREADY_CURRENT' }, () =>
+      tx.query(
+        `update machvon.permit set status = 'EXEMPTED', exemption_basis = $2, exemption_decision_document_version_id = $3::uuid, updated_at = now(), updated_by = $4::uuid, version = version + 1
+          where id = $1::uuid`,
+        [permitId, basis, documentVersionId, actor],
+      ),
+    );
+    const exemptedOn = this.dossiers.currentDate();
+    await this.writeDecisionMilestone(tx, permitId, exemptedOn, null, documentVersionId, actor);
+    const readiness = await this.dossiers.refreshReadiness(tx, permit.dossier_id, actor);
+    return { ...changeOf(permit, 'EXEMPTED', permit.status, Number(permit.version) + 1), decisionDocumentVersionId: documentVersionId, exemptedOn, readiness };
+  }
+
   // ---- helpers -------------------------------------------------------------------------------------------------
 
   /** Serialises the commands on one dossier: the checks of a command read what a sibling is about to write. */
@@ -418,7 +460,7 @@ export class PmtPermitStore {
       `select x.id, x.dossier_id, x.permit_type_id, t.code as type_code, t.revision as type_revision, t.default_validity_months, t.default_processing_days,
               x.status, x.version::text as version, x.permit_no, x.issued_on::text as issued_on, x.valid_from::text as valid_from, x.valid_until::text as valid_until,
               x.no_expiry, x.is_required, x.authority_name, x.responsible_membership_id, x.submitted_on::text as submitted_on,
-              x.expected_decision_on::text as expected_decision_on, x.document_version_id
+              x.expected_decision_on::text as expected_decision_on, x.document_version_id, t.exemption_allowed, x.created_by, x.updated_by
          from machvon.permit x join machvon.permit_type t on t.tenant_id = x.tenant_id and t.id = x.permit_type_id
         where x.id = $1::uuid for update of x`,
       [permitId],

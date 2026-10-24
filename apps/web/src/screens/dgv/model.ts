@@ -29,6 +29,15 @@ export interface DatasetView {
   contractRevision: number | null;
   status: DatasetStatus;
   qualityBadge: QualityBadge;
+  /** The score of the latest finished run, null when none has finished: the dataset was not measured, which is not a score of 0. */
+  qualityScore: string | null;
+  qualityHardFail: boolean | null;
+  /** When the latest finished run finished (ISO instant). */
+  qualityRunAt: string | null;
+  /** The working contract that rules and runs are written against, null while the dataset has none. */
+  workingContractId: string | null;
+  openIncidents: number;
+  overdueIncidents: number;
   version: number;
 }
 
@@ -83,6 +92,12 @@ export function toDataset(raw: unknown): DatasetView | undefined {
     contractRevision: whole(row.contract_revision) ?? null,
     status,
     qualityBadge,
+    qualityScore: nullableText(row.quality_score),
+    qualityHardFail: typeof row.quality_hard_fail === 'boolean' ? row.quality_hard_fail : null,
+    qualityRunAt: nullableText(row.quality_run_at),
+    workingContractId: nullableText(row.working_contract_id),
+    openIncidents: whole(row.open_incidents) ?? 0,
+    overdueIncidents: whole(row.overdue_incidents) ?? 0,
     version,
   };
 }

@@ -1,0 +1,22 @@
+/* NOT-03: the preference matrix. It reuses the shared card, table and callout classes. */
+.not-preferences .card {
+  display: grid;
+  gap: 12px;
+}
+
+.not-preferences td input[type='checkbox'] {
+  margin-right: 4px;
+}
+
+.not-preferences .field.inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.not-preferences .agree {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}

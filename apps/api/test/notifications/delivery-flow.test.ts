@@ -133,6 +133,12 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     }
     await fixture.harness.owner(TENANT_A, [
       [
+        // The recipient consented to e-mail (BR-NOT-07): without a consent no send is taken up.
+        `insert into machvon.contact_consent (tenant_id, id, membership_id, channel, purpose, status, evidence_reference, effective_at, consent_text_version, capture_method)
+         values ($1, gen_random_uuid(), $2, 'EMAIL', 'OPERATIONAL', 'Granted', 'in-app:test', now(), 'v1', 'IN_APP')`,
+        [TENANT_A, memberId(RECIPIENT)],
+      ],
+      [
         `insert into machvon.notification_event_type (id, event_type, owning_module, schema_version, payload_schema, allowed_purposes, data_classification, status)
          values (gen_random_uuid(), 'report.overdue', 'DIS', 1, '{"type":"object"}'::jsonb, '{OPERATIONAL}', 'INTERNAL', 'Active')`,
       ],

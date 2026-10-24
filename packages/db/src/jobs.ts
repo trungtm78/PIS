@@ -1,9 +1,13 @@
 import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
+import { DGV_NOT_ASSESSED_GAUGE } from './dgv-quality-run-job.ts';
 import type { AuditSealJob } from './audit-seal-job.ts';
 import type { ControlDatabase } from './control-database.ts';
 import { PLATFORM_TENANT_ID } from './control-database.ts';
 import type { IdempotencyStore } from './idempotency-store.ts';
 import type { JobHandler } from './job-runner.ts';
+import { OPEN_ISSUES_GAUGE, PENDING_ESCALATIONS_GAUGE } from './iss-sla-job.ts';
+import type { SlaPassResult } from './iss-sla-job.ts';
+import { SLA_SEVERITIES } from './iss-sla-policy-store.ts';
 import { RETENTION_PENDING_GAUGE } from './retention-job.ts';
 import { NOOP_METRICS } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
@@ -28,11 +32,15 @@ export const JOB_INTERVAL_SECONDS = {
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the guarantee reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-CTR-003).
   'guarantee-expiry': 3600,
   // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
+  // Every 15 minutes: an issue that reaches 100 or 150 percent of its SLA is escalated within a quarter of an hour; the pass is idempotent (ST-ISS-004).
+  'issue-sla': 900,
   'integration-inbox': 60,
   // Every 5 seconds, like the outbox relay: a retry on the schedule of 30 seconds is taken up within seconds of its time (ST-NOT-002, BR-NOT-03); the pass is idempotent.
   'notification-dispatch': 5,
   // Every 5 minutes: a send whose result was lost is found, and an Unknown one is asked about at its provider for a day (BR-NOT-04).
   'notification-reconcile': 300,
+  // Every 10 seconds: a requested quality run is executed within seconds of its request; a run is executed once, whoever asks and however often (ST-DGV-002).
+  'dgv-quality-run': 10,
   'access-cache-expiry': 60,
 } as const;
 
@@ -107,6 +115,11 @@ export interface StandardJobDeps {
   guaranteeExpiry?: {
     run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ expiring: Readonly<Record<number, number>>; advanceAtRisk: number }>;
   };
+  /**
+   * The pass over the issues of a tenant that are being worked (ST-ISS-004): writes the day an issue became overdue and raises the escalations whose threshold the
+   * working time has reached; tells how many issues are open and how many escalations wait, for the gauges.
+   */
+  issueSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaPassResult> };
   /** Takes up the inbound provider events that are due and have an adapter, and retries the failed ones when their wait is over (ST-ADM-018). */
   inbox?: { processDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
   /** Sends the notifications that are due on each channel, and reconciles the sends whose result was lost (ST-NOT-002); the API process has the adapters. */
@@ -114,6 +127,8 @@ export interface StandardJobDeps {
     dispatchDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown>;
     reconcile(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown>;
   };
+  /** Executes the quality runs that are waiting (ST-DGV-002); tells how many datasets of the tenant have no finished run, for the gauge. */
+  dgvQuality?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<{ notAssessed: number }> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -249,6 +264,29 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     });
   }
+  const sla = deps.issueSla;
+  if (sla !== undefined) {
+    handlers.push({
+      name: 'issue-sla',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        const open: Record<string, number> = Object.fromEntries(SLA_SEVERITIES.map((severity) => [severity, 0]));
+        let pending = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            const pass = await sla.run(workerContext(tenantId), now);
+            for (const [severity, count] of Object.entries(pass.open)) open[severity] = (open[severity] ?? 0) + count;
+            pending += pass.pending;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
+          for (const [severity, count] of Object.entries(open)) metrics.gauge(OPEN_ISSUES_GAUGE, count, { severity });
+          metrics.gauge(PENDING_ESCALATIONS_GAUGE, pending);
+        }
+      },
+    });
+  }
   if (inbox !== undefined) {
     handlers.push({ name: 'integration-inbox', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await inbox.processDue(workerContext(tenantId)))) });
   }
@@ -256,6 +294,24 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
   if (delivery !== undefined) {
     handlers.push({ name: 'notification-dispatch', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await delivery.dispatchDue(workerContext(tenantId)))) });
     handlers.push({ name: 'notification-reconcile', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await delivery.reconcile(workerContext(tenantId)))) });
+  }
+  const dgvQuality = deps.dgvQuality;
+  if (dgvQuality !== undefined) {
+    handlers.push({
+      name: 'dgv-quality-run',
+      run: async () => {
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let notAssessed = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            notAssessed += (await dgvQuality.run(workerContext(tenantId))).notAssessed;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(DGV_NOT_ASSESSED_GAUGE, notAssessed);
+        }
+      },
+    });
   }
   if (accessCache !== undefined) handlers.push({ name: 'access-cache-expiry', run: async () => void accessCache.expire() });
   return handlers;

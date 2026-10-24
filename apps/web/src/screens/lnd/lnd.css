@@ -1,0 +1,35 @@
+.lnd-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(0, 1fr));
+  align-items: end;
+  margin-bottom: 12px;
+}
+.lnd-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.lnd-badge.warning {
+  border-color: var(--shell-warning, #b45309);
+}
+.lnd-dialog-body {
+  padding: 16px;
+}
+.lnd-dialog-body .formgrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+@media (max-width: 640px) {
+  .lnd-dialog-body .formgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.lnd-numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

@@ -4,6 +4,8 @@ import { ApiError } from '@machvon/api-client';
 export const MANAGE_PERMISSION = 'permit.manage';
 export const RECORD_PERMISSION = 'permit.record';
 export const READ_PERMISSION = 'permit.read';
+/** The permission that declares the exemption of a permit (PMT 2): the leader, who is never the person who proposed it. */
+export const EXEMPT_PERMISSION = 'permit.exempt';
 
 export const DOSSIER_PATH = '/pmt/pmt-01';
 export const PERMIT_PATH = '/pmt/pmt-02';
@@ -303,14 +305,17 @@ export interface PermitActionSet {
   decide: boolean;
   renew: boolean;
   revoke: boolean;
+  /** A planned or submitted permit of a type that allows an exemption (CXN-EXE-02). */
+  exempt: boolean;
 }
 
-export function actionsFor(permit: Pick<PermitLineView, 'status' | 'noExpiry'>): PermitActionSet {
+export function actionsFor(permit: Pick<PermitLineView, 'status' | 'noExpiry' | 'exemptionAllowed'>): PermitActionSet {
   return {
     steps: stepsFor(permit.status),
     decide: permit.status === 'IN_APPRAISAL',
     renew: (permit.status === 'ISSUED' || permit.status === 'EXPIRED') && !permit.noExpiry,
     revoke: permit.status === 'ISSUED',
+    exempt: (permit.status === 'PLANNED' || permit.status === 'SUBMITTED') && permit.exemptionAllowed,
   };
 }
 
@@ -519,6 +524,30 @@ export interface RevocationBody {
 
 export const toRevocationBody = (form: RevocationForm): RevocationBody => ({ reason: form.reason.trim(), decision_document_version_id: form.decisionDocumentVersionId.trim() });
 
+export interface ExemptionForm {
+  basis: string;
+  decisionDocumentVersionId: string;
+}
+export type ExemptionField = keyof ExemptionForm;
+export const EMPTY_EXEMPTION: ExemptionForm = { basis: '', decisionDocumentVersionId: '' };
+
+/** The legal basis and the decision document are both needed before anything is sent (BR-PMT-04); the server judges the rest. */
+export function validateExemption(form: ExemptionForm): FormErrors<ExemptionField> {
+  const errors: FormErrors<ExemptionField> = {};
+  const basis = textProblem(form.basis, true, MAX_TEXT);
+  if (basis !== undefined) errors.basis = basis;
+  const document = idProblem(form.decisionDocumentVersionId, true);
+  if (document !== undefined) errors.decisionDocumentVersionId = document;
+  return errors;
+}
+
+export interface ExemptionBody {
+  exemption_basis: string;
+  exemption_decision_document_version_id: string;
+}
+
+export const toExemptionBody = (form: ExemptionForm): ExemptionBody => ({ exemption_basis: form.basis.trim(), exemption_decision_document_version_id: form.decisionDocumentVersionId.trim() });
+
 // ---- adding a permit and opening a dossier ------------------------------------------------------------------
 
 export interface AddPermitForm {
@@ -589,6 +618,8 @@ export type ProblemReason =
   | 'documentRequired'
   | 'typeNotEffective'
   | 'dossierExists'
+  | 'selfApproval'
+  | 'exemptionNotAllowed'
   | 'validation'
   | 'denied'
   | 'notFound'
@@ -602,6 +633,8 @@ const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
   PERMIT_DOCUMENT_REQUIRED: 'documentRequired',
   PERMIT_TYPE_NOT_EFFECTIVE: 'typeNotEffective',
   DOSSIER_EXISTS: 'dossierExists',
+  SELF_APPROVAL_DENIED: 'selfApproval',
+  EXEMPTION_NOT_ALLOWED: 'exemptionNotAllowed',
   VALIDATION_FAILED: 'validation',
   FIELD_NOT_ALLOWED: 'validation',
   INVALID_REQUEST: 'validation',

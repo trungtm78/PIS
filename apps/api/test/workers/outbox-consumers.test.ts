@@ -19,6 +19,8 @@ import { Pool } from 'pg';
 import { MockInvitationMailer } from '../../src/modules/adm/invitation-mailer';
 import { ENTITLEMENT_CONSUMER } from '../../src/entitlements/entitlement-consumer';
 import { EnvironmentLicenseKeyStore } from '../../src/modules/sas/license-signer';
+import { ISS_INTAKE_CONSUMER } from '../../src/modules/iss/intake.consumer';
+import { DGV_SNAPSHOT_FROZEN_CONSUMER } from '../../src/modules/dgv/snapshot-frozen.consumer';
 import { PRJ_PLAN_PUBLISHED_CONSUMER } from '../../src/modules/prj/plan-published.consumer';
 import { TENANT_STATUS_CONSUMER } from '../../src/modules/sas/tenant-status-consumer';
 import { NOTIFICATION_CONSUMER } from '../../src/notifications/consumer';
@@ -103,7 +105,7 @@ describe('the consumers of the outbox (ST-KERNEL-022)', () => {
   });
 
   it('names the consumers of the repository, one each', () => {
-    expect(consumersOnTheSharedSink().map((consumer) => consumer.name)).toEqual([PROVISIONING_CONSUMER, ENTITLEMENT_CONSUMER, TENANT_STATUS_CONSUMER, PRJ_PLAN_PUBLISHED_CONSUMER, NOTIFICATION_CONSUMER]);
+    expect(consumersOnTheSharedSink().map((consumer) => consumer.name)).toEqual([PROVISIONING_CONSUMER, ENTITLEMENT_CONSUMER, TENANT_STATUS_CONSUMER, PRJ_PLAN_PUBLISHED_CONSUMER, ISS_INTAKE_CONSUMER, DGV_SNAPSHOT_FROZEN_CONSUMER, NOTIFICATION_CONSUMER]);
   });
 
   it.each([

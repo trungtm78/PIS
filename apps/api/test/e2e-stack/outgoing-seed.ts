@@ -76,7 +76,7 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
   const documents = new DocumentStore();
   const registers = new NumberRegisterStore();
   const context = { tenantId: input.tenantId, membershipId: ACTOR, scopeVersion: 1 };
-  const { layoutProfileId } = await input.tenants.withTenant(context, async (tx) => {
+  const { layoutProfileId, templateId } = await input.tenants.withTenant(context, async (tx) => {
     const seeded = await documents.seedDefaults(tx, ACTOR);
     await documents.defineDocType(tx, {
       code: 'QD',
@@ -168,7 +168,145 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
   const uploadSubmitted = await insert('Quyet dinh cho lanh dao ky ben ngoai', false);
   const selfDrafted = await insert('Quyet dinh do van thu soan', false, input.clerkMembershipId);
   await writeSignedSamples({ rendered, leaderSigned, organization, tsa, now, uploadSubmitted, selfDrafted });
+  await seedIssueDocuments({ input, files, store: documents, context, layoutProfileId, templateId, leaderSigned, organization, tsa, now });
   return { files, signing, trust, documents: { visualSubmitted, flowSubmitted, visualSigned, uploadSubmitted, selfDrafted } };
+}
+
+interface IssueSeed {
+  input: OutgoingSeedInput;
+  files: MockDocumentFilePort;
+  store: DocumentStore;
+  context: { tenantId: string; membershipId: string; scopeVersion: number };
+  layoutProfileId: string;
+  templateId: string;
+  leaderSigned: Buffer;
+  organization: Parameters<typeof signField>[1]['identity'];
+  tsa: MockTimestampAuthority;
+  now: Date;
+}
+
+/** The titles of the documents the issue and distribution flows (DOC-08) work on; the specs find them by title. */
+export const ISSUE_TITLES = {
+  confirmed: 'Quyet dinh cho phat hanh (mau da xac nhan)',
+  override: 'Quyet dinh phat hanh kem ly do (mau chua xac nhan)',
+  tampered: 'Quyet dinh bi sua sau khi dong dau',
+  distribute: 'Quyet dinh dang phan phoi',
+  visualSealed: 'Quyet dinh hien thi cho phat hanh',
+  visualIssued: 'Quyet dinh hien thi da phan phoi',
+  resend: 'Quyet dinh gui lai qua thu dien tu',
+} as const;
+
+const RECIPIENTS = [
+  { kind: 'INTERNAL_UNIT', name: 'Phong Ke hoach' },
+  { kind: 'EXTERNAL_AGENCY', name: 'So Tai chinh', code: 'SKHDT' },
+];
+
+interface DistributionSeed {
+  name: string;
+  kind: 'INTERNAL_UNIT' | 'EXTERNAL_AGENCY';
+  channel: 'INTERNAL' | 'EMAIL' | 'PAPER_HANDOVER';
+  status: 'SENT' | 'DELIVERED' | 'FAILED';
+}
+
+/**
+ * Documents that the issue gate and the distribution can be shown on (DOC-08): sealed ones whose file really carries the two signatures (one with its
+ * template unconfirmed, one whose bytes were changed after the seal) and issued ones with their rows. They are written the way the commands leave them, so a
+ * flow starts from the state a clerk would find.
+ */
+async function seedIssueDocuments(seed: IssueSeed): Promise<void> {
+  const { input, store, files } = seed;
+  const owner = new Client({ connectionString: input.database.urlFor('machvon_owner') });
+  await owner.connect();
+  await owner.query("select set_config('app.tenant_id', $1, false)", [input.tenantId]);
+  const [year, month, day] = seed.now.toISOString().slice(0, 10).split('-');
+  let counter = 900;
+  const build = async (title: string, options: { status: 'SEALED' | 'ISSUED'; template?: boolean; tamper?: boolean; rows?: DistributionSeed[] }): Promise<void> => {
+    counter += 1;
+    const symbol = `${counter}/QD-UBND`;
+    const numbered = applyNumbering(seed.leaderSigned, { docNumber: String(counter), docSymbol: symbol, docDate: `${day}/${month}/${year}` }).pdf;
+    let sealed = await signField(numbered, { field: 'sig_org', identity: seed.organization, signingTime: new Date(seed.now.getTime() + 60_000), timestamps: seed.tsa });
+    if (options.tamper === true) {
+      sealed = Buffer.from(sealed);
+      // One byte inside the first stream of the file, which both signatures cover.
+      const at = sealed.indexOf('stream' + String.fromCharCode(10)) + 'stream'.length + 6;
+      sealed[at] = sealed[at] === 0x44 ? 0x45 : 0x44;
+    }
+    const documentId = await input.tenants.withTenant(seed.context, async (tx) => {
+      const anchor = await store.insertDocument(tx, { docKind: 'OUTGOING', docTypeCode: 'QD', title, classification: 'INTERNAL', createdBy: ACTOR, issuerUnitId: input.draftingUnitId });
+      const key = `tenants/${input.tenantId}/documents/${anchor.id}-sealed.pdf`;
+      await files.put(key, sealed, 'application/pdf');
+      const version = await store.appendVersion(tx, {
+        documentId: anchor.id,
+        objectKey: key,
+        checksum: createHash('sha256').update(sealed).digest('hex'),
+        mime: 'application/pdf',
+        pageCount: 1,
+        classification: 'INTERNAL',
+        stage: 'ORG_SEALED',
+        byteLength: sealed.length,
+        createdBy: ACTOR,
+      });
+      await store.setScanResult(tx, version.id, 'CLEAN');
+      return anchor.id;
+    });
+    const issued = options.status === 'ISSUED';
+    await owner.query('update machvon.document set symbol = $2, issued_on = $3::date, document_number = $4, number_year = $5, effect_status = $6 where id = $1::uuid', [
+      documentId,
+      symbol,
+      `${year}-${month}-${day}`,
+      counter,
+      Number(year),
+      issued ? 'EFFECTIVE' : 'PENDING',
+    ]);
+    const outgoingId = randomUUID();
+    const recipients = RECIPIENTS.map((recipient) => (recipient.kind === 'INTERNAL_UNIT' ? { ...recipient, unit_id: input.draftingUnitId } : recipient));
+    await owner.query(
+      `insert into machvon.outgoing_document
+         (tenant_id, id, document_id, layout_profile_id, template_id, status, drafting_unit_id, drafter_user_id, signer_user_id, signer_title, allocation_id, recipients,
+          leader_signed_at, numbered_at, sealed_at, issued_at, created_by, updated_by)
+       values ($1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::uuid, $6, $7::uuid, $8::uuid, $9::uuid, 'Giam doc', gen_random_uuid(), $10::jsonb,
+          $11::timestamptz, $11::timestamptz, $11::timestamptz, $12::timestamptz, $8::uuid, $8::uuid)`,
+      [input.tenantId, outgoingId, documentId, seed.layoutProfileId, options.template === true ? seed.templateId : null, options.status, input.draftingUnitId, input.drafterMembershipId, input.signerMembershipId, JSON.stringify(recipients), seed.now.toISOString(), issued ? seed.now.toISOString() : null],
+    );
+    for (const row of options.rows ?? []) {
+      await owner.query(
+        `insert into machvon.document_distribution
+           (tenant_id, id, outgoing_document_id, recipient_kind, recipient_unit_id, recipient_name, recipient_code, channel, status, sent_at, delivered_at, attempts, error_code, created_by, updated_by)
+         values ($1::uuid, gen_random_uuid(), $2::uuid, $3, $4::uuid, $5, $6, $7, $8, $9::timestamptz, $10::timestamptz, 1, $11, $12::uuid, $12::uuid)`,
+        [
+          input.tenantId,
+          outgoingId,
+          row.kind,
+          row.kind === 'INTERNAL_UNIT' ? input.draftingUnitId : null,
+          row.name,
+          row.kind === 'EXTERNAL_AGENCY' ? 'SKHDT' : null,
+          row.channel,
+          row.status,
+          row.status === 'FAILED' ? null : seed.now.toISOString(),
+          row.status === 'DELIVERED' ? seed.now.toISOString() : null,
+          row.status === 'FAILED' ? 'PROVIDER_UNAVAILABLE' : null,
+          input.clerkMembershipId,
+        ],
+      );
+    }
+  };
+  try {
+    await build(ISSUE_TITLES.confirmed, { status: 'SEALED' });
+    await build(ISSUE_TITLES.override, { status: 'SEALED', template: true });
+    await build(ISSUE_TITLES.tampered, { status: 'SEALED', tamper: true });
+    await build(ISSUE_TITLES.distribute, { status: 'ISSUED' });
+    await build(ISSUE_TITLES.visualSealed, { status: 'SEALED' });
+    await build(ISSUE_TITLES.visualIssued, {
+      status: 'ISSUED',
+      rows: [
+        { name: 'Phong Ke hoach', kind: 'INTERNAL_UNIT', channel: 'INTERNAL', status: 'DELIVERED' },
+        { name: 'So Tai chinh', kind: 'EXTERNAL_AGENCY', channel: 'PAPER_HANDOVER', status: 'SENT' },
+      ],
+    });
+    await build(ISSUE_TITLES.resend, { status: 'ISSUED', rows: [{ name: 'So Tai chinh', kind: 'EXTERNAL_AGENCY', channel: 'EMAIL', status: 'FAILED' }] });
+  } finally {
+    await owner.end();
+  }
 }
 
 /** The folder the browser flow of DOC-09 reads its files from (the spec and the stack agree on the name). */

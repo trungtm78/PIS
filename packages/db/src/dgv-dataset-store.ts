@@ -39,6 +39,17 @@ export interface DatasetRow {
   contractRevision: number | null;
   status: DatasetStatus;
   qualityBadge: QualityBadge;
+  /** The score of the latest finished run (hundredths of a percent, a decimal string), null when no run has finished: never 0 for "not measured". */
+  qualityScore: string | null;
+  /** Whether the latest finished run was a hard fail; null when no run has finished. */
+  qualityHardFail: boolean | null;
+  /** When the latest finished run finished (ISO instant), null when none has. */
+  qualityRunAt: string | null;
+  /** The working contract of the dataset (its highest revision), which rules and runs are written against; null while the dataset has none. */
+  workingContractId: string | null;
+  /** The incidents of the quality runs of the dataset that are not closed, and the ones among them past their due time (BR-DGV-05). */
+  openIncidents: number;
+  overdueIncidents: number;
   version: number;
 }
 
@@ -60,6 +71,22 @@ export interface DatasetFilter {
   query?: string | undefined;
   domain?: string | undefined;
   classification?: DatasetClassification | undefined;
+}
+
+/** The picture of a set of datasets by badge (DGV-01); see `DgvDatasetStore.summarize`. */
+export interface CatalogSummary {
+  total: number;
+  notAssessed: number;
+  passed: number;
+  warning: number;
+  failed: number;
+  stale: number;
+  hardFail: number;
+  /** The incidents not closed on these datasets, and the ones past their due time. */
+  openIncidents: number;
+  overdueIncidents: number;
+  /** The average of the latest scores of the datasets that have one, hundredths as a decimal string; null when none has. */
+  averageScore: string | null;
 }
 
 export interface OwnershipChange {
@@ -92,7 +119,26 @@ interface SqlRow {
   contract_revision: number | null;
   status: DatasetStatus;
   quality_badge: QualityBadge;
+  quality_score: string | null;
+  quality_hard_fail: boolean | null;
+  quality_run_at: string | null;
+  working_contract_id: string | null;
+  open_incidents: string;
+  overdue_incidents: string;
   version: string;
+}
+
+interface SummaryRow {
+  total: string;
+  not_assessed: string;
+  passed: string;
+  warning: string;
+  failed: string;
+  stale: string;
+  hard_fail: string;
+  open_incidents: string;
+  overdue_incidents: string;
+  average_score: string | null;
 }
 
 interface LockedRow {
@@ -108,24 +154,44 @@ interface LockedRow {
  * roles allowed to see it is seen by those roles; a dataset that names none is seen by every catalogue reader when it is PUBLIC or
  * INTERNAL, and by nobody else. $1 is the membership of the viewer, $2 the codes of the roles it holds.
  */
-const VISIBLE = `(d.owner_user_id = $1::uuid or d.steward_user_id = $1::uuid or d.created_by = $1::uuid
+export const DATASET_VISIBLE = `(d.owner_user_id = $1::uuid or d.steward_user_id = $1::uuid or d.created_by = $1::uuid
   or (cardinality(d.allowed_role_codes) > 0 and d.allowed_role_codes && $2::text[])
   or (cardinality(d.allowed_role_codes) = 0 and d.classification in ('PUBLIC', 'INTERNAL')))`;
+
+/**
+ * The latest finished run of the dataset `d`, as the join `run`. A run that is still RUNNING or that FAILED to be measured is not a result:
+ * a dataset whose only runs are those has no run here, and so no badge but NOT_ASSESSED.
+ */
+export const LATEST_RUN_JOIN = `left join lateral (select r.id, r.finished_at, r.overall_result, r.score, r.hard_fail, r.certified_blocked, r.snapshot_id, r.trigger
+                      from machvon.quality_run r
+                      where r.tenant_id = d.tenant_id and r.dataset_id = d.id and r.status = 'COMPLETED'
+                      order by r.finished_at desc, r.id desc limit 1) run on true`;
+
+/** The incidents of the quality runs of the dataset `d` that are not closed (`open_incidents`) and the ones past their due time (`overdue_incidents`). */
+const INCIDENT_COUNTS_SQL = `(select count(*) filter (where i.status <> 'CLOSED') from machvon.quality_incident i join machvon.quality_run ir on ir.tenant_id = i.tenant_id and ir.id = i.run_id where ir.dataset_id = d.id)::text as open_incidents,
+  (select count(*) filter (where i.status <> 'CLOSED' and i.due_at < now()) from machvon.quality_incident i join machvon.quality_run ir on ir.tenant_id = i.tenant_id and ir.id = i.run_id where ir.dataset_id = d.id)::text as overdue_incidents`;
+
+/**
+ * The badge of BR-DGV-04: NOT_ASSESSED without a finished run, STALE when the run is older than the freshness SLO of the dataset, otherwise the
+ * verdict of the run. The one definition that the catalogue, the dashboard and the scorecard all use.
+ */
+export const QUALITY_BADGE_SQL = `case when run.finished_at is null then 'NOT_ASSESSED'
+       when run.finished_at + d.freshness_slo_seconds * interval '1 second' < now() then 'STALE'
+       else coalesce(run.overall_result, 'NOT_ASSESSED') end`;
 
 const SELECT = `select d.id, d.dataset_code, d.title, d.domain, d.grain, d.producer_module, d.owner_user_id, od.display_name as owner_name,
   d.steward_user_id, sd.display_name as steward_name, d.classification, d.is_critical, d.freshness_slo_seconds::text as freshness_slo_seconds,
   cv.revision as contract_revision, d.status,
-  case when run.finished_at is null then 'NOT_ASSESSED'
-       when run.finished_at + d.freshness_slo_seconds * interval '1 second' < now() then 'STALE'
-       else coalesce(run.overall_result, 'NOT_ASSESSED') end as quality_badge,
+  ${QUALITY_BADGE_SQL} as quality_badge, run.score::text as quality_score, run.hard_fail as quality_hard_fail,
+  to_char(run.finished_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as quality_run_at,
+  (select c.id from machvon.dataset_contract c where c.tenant_id = d.tenant_id and c.dataset_id = d.id order by c.revision desc limit 1) as working_contract_id,
+  ${INCIDENT_COUNTS_SQL},
   d.version::text as version
   from machvon.dataset d
   left join machvon.tenant_user_directory od on od.tenant_id = d.tenant_id and od.membership_id = d.owner_user_id
   left join machvon.tenant_user_directory sd on sd.tenant_id = d.tenant_id and sd.membership_id = d.steward_user_id
   left join machvon.data_contract_version cv on cv.tenant_id = d.tenant_id and cv.id = d.current_contract_version_id
-  left join lateral (select r.finished_at, r.overall_result from machvon.quality_run r
-                      where r.tenant_id = d.tenant_id and r.dataset_id = d.id and r.status = 'COMPLETED'
-                      order by r.finished_at desc, r.id desc limit 1) run on true`;
+  ${LATEST_RUN_JOIN}`;
 
 const toRow = (row: SqlRow): DatasetRow => ({
   id: row.id,
@@ -144,6 +210,12 @@ const toRow = (row: SqlRow): DatasetRow => ({
   contractRevision: row.contract_revision,
   status: row.status,
   qualityBadge: row.quality_badge,
+  qualityScore: row.quality_score,
+  qualityHardFail: row.quality_hard_fail,
+  qualityRunAt: row.quality_run_at,
+  workingContractId: row.working_contract_id,
+  openIncidents: Number(row.open_incidents),
+  overdueIncidents: Number(row.overdue_incidents),
   version: Number(row.version),
 });
 
@@ -203,7 +275,7 @@ export class DgvDatasetStore {
 
   /** The dataset with this id when the viewer may see it, with the readable names of its owner and steward. */
   async find(tx: TenantTx, id: string, viewer: DatasetViewer): Promise<DatasetRow | undefined> {
-    const rows = await tx.query<SqlRow>(`${SELECT} where d.id = $3::uuid and ${VISIBLE}`, [viewer.membershipId, [...viewer.roleCodes], id]);
+    const rows = await tx.query<SqlRow>(`${SELECT} where d.id = $3::uuid and ${DATASET_VISIBLE}`, [viewer.membershipId, [...viewer.roleCodes], id]);
     return rows[0] === undefined ? undefined : toRow(rows[0]);
   }
 
@@ -211,7 +283,7 @@ export class DgvDatasetStore {
   async search(tx: TenantTx, viewer: DatasetViewer, filter: DatasetFilter, request: { limit: number; after: { code: string; id: string } | undefined }): Promise<DatasetRow[]> {
     const rows = await tx.query<SqlRow>(
       `${SELECT}
-        where ${VISIBLE} and ${this.matching()}
+        where ${DATASET_VISIBLE} and ${this.matching()}
           and ($6::text is null or (d.dataset_code, d.id) > ($6::text, $7::uuid))
         order by d.dataset_code, d.id limit $8`,
       [...this.filterParams(viewer, filter), request.after?.code ?? null, request.after?.id ?? null, request.limit],
@@ -221,8 +293,46 @@ export class DgvDatasetStore {
 
   /** How many visible datasets match the filter: a dataset the viewer may not see is not in the number. */
   async count(tx: TenantTx, viewer: DatasetViewer, filter: DatasetFilter): Promise<number> {
-    const rows = await tx.query<{ total: string }>(`select count(*)::text as total from machvon.dataset d where ${VISIBLE} and ${this.matching()}`, this.filterParams(viewer, filter));
+    const rows = await tx.query<{ total: string }>(`select count(*)::text as total from machvon.dataset d where ${DATASET_VISIBLE} and ${this.matching()}`, this.filterParams(viewer, filter));
     return Number(rows[0]?.total ?? 0);
+  }
+
+  /**
+   * The picture of the visible datasets that match the filter (DGV-01): how many carry each badge, how many are hard fails, and the average
+   * score. The average is over the datasets that have a finished run - a NOT_ASSESSED dataset has no score and is left out of it, never counted
+   * as 0 or as passed - truncated to hundredths, and null when no dataset has a score. A STALE dataset keeps its last score in the average and is
+   * counted separately, so the reader sees how much of the average is old.
+   */
+  async summarize(tx: TenantTx, viewer: DatasetViewer, filter: DatasetFilter): Promise<CatalogSummary> {
+    const rows = await tx.query<SummaryRow>(
+      `select count(*)::text as total,
+              (count(*) filter (where x.badge = 'NOT_ASSESSED'))::text as not_assessed,
+              (count(*) filter (where x.badge = 'PASSED'))::text as passed,
+              (count(*) filter (where x.badge = 'WARNING'))::text as warning,
+              (count(*) filter (where x.badge = 'FAILED'))::text as failed,
+              (count(*) filter (where x.badge = 'STALE'))::text as stale,
+              (count(*) filter (where x.hard_fail))::text as hard_fail,
+              coalesce(sum(x.open_incidents::bigint), 0)::text as open_incidents,
+              coalesce(sum(x.overdue_incidents::bigint), 0)::text as overdue_incidents,
+              trunc(avg(x.score) filter (where x.badge <> 'NOT_ASSESSED'), 2)::text as average_score
+         from (select ${QUALITY_BADGE_SQL} as badge, run.score as score, coalesce(run.hard_fail, false) as hard_fail, ${INCIDENT_COUNTS_SQL}
+                 from machvon.dataset d ${LATEST_RUN_JOIN}
+                where ${DATASET_VISIBLE} and ${this.matching()}) x`,
+      this.filterParams(viewer, filter),
+    );
+    const row = rows[0];
+    return {
+      total: Number(row?.total ?? 0),
+      notAssessed: Number(row?.not_assessed ?? 0),
+      passed: Number(row?.passed ?? 0),
+      warning: Number(row?.warning ?? 0),
+      failed: Number(row?.failed ?? 0),
+      stale: Number(row?.stale ?? 0),
+      hardFail: Number(row?.hard_fail ?? 0),
+      openIncidents: Number(row?.open_incidents ?? 0),
+      overdueIncidents: Number(row?.overdue_incidents ?? 0),
+      averageScore: row?.average_score ?? null,
+    };
   }
 
   /**
@@ -231,7 +341,7 @@ export class DgvDatasetStore {
    */
   async assignOwnership(tx: TenantTx, id: string, expectedVersion: number, change: OwnershipChange, viewer: DatasetViewer): Promise<OwnershipResult> {
     const rows = await tx.query<LockedRow>(
-      `select d.owner_user_id, d.steward_user_id, d.is_critical, d.status, d.version::text as version from machvon.dataset d where d.id = $3::uuid and ${VISIBLE} for update of d`,
+      `select d.owner_user_id, d.steward_user_id, d.is_critical, d.status, d.version::text as version from machvon.dataset d where d.id = $3::uuid and ${DATASET_VISIBLE} for update of d`,
       [viewer.membershipId, [...viewer.roleCodes], id],
     );
     const locked = rows[0];

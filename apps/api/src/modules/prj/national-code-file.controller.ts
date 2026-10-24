@@ -28,10 +28,11 @@ export class NationalCodeFileController {
     // What the file is comes first (its bytes, not its name), then whether it is a table with the two columns of the layout.
     const verdict = validateUpload({ declaredType: file.contentType, bytes: file.bytes, purpose: 'import' });
     if (!verdict.ok) throw new DomainError(verdict.code, verdict.status);
-    const table = readTabularFile(file.bytes);
     const stored = await this.files.upload(scope.tenant, { purpose: 'import', declaredType: file.contentType, bytes: file.bytes });
     if (stored.scanStatus === 'INFECTED') throw new DomainError('FILE_NOT_CLEAN', 422);
     if (stored.scanStatus !== 'CLEAN') throw new DomainError('SCAN_PENDING', 409);
+    // The table reader is a parser of the sender's bytes (it inflates a workbook): it reads only a file the scan found clean.
+    const table = readTabularFile(file.bytes);
     // The layout is checked on the whole file once it is known to be clean: an unreadable or empty file, or one without the columns, is 422 IMPORT_SCHEMA_INVALID or IMPORT_EMPTY.
     planFileImport(nationalCodeFileFormat, file.bytes);
     await scope.audit({

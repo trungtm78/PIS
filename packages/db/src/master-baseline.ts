@@ -269,7 +269,20 @@ const ENTRIES: readonly BaselineEntry[] = [
   ),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES]);
+const LAND_LAW = 'Luật Đất đai 2024 và Nghị định 88/2024/NĐ-CP — số ngày chờ xác nhận văn bản gốc [CXN-12]';
+const landTimer = (key: string, label: string, days: number): BaselineEntry =>
+  entry('LND_TIMER', key, label, { owner_module: 'LND', awaiting_confirmation: true, cxn: 'CXN-12', days, day_count: 'CALENDAR' }, { legalBasis: LAND_LAW });
+
+/** The timers of land clearance (BR-LND-01): calendar days, flagged with the confirmation they wait for. */
+const LAND_TIMERS: readonly BaselineEntry[] = [
+  landTimer('NOTICE_AGRICULTURAL_90', 'Thông báo thu hồi đất nông nghiệp trước 90 ngày', 90),
+  landTimer('NOTICE_NON_AGRICULTURAL_180', 'Thông báo thu hồi đất phi nông nghiệp trước 180 ngày', 180),
+  landTimer('PLAN_POSTING_30', 'Niêm yết phương án bồi thường tối thiểu 30 ngày', 30),
+  landTimer('PAYMENT_30', 'Chi trả bồi thường trong 30 ngày kể từ phê duyệt', 30),
+  landTimer('COMPLAINT_RESOLUTION', 'Hạn giải quyết khiếu nại về bồi thường', 30),
+];
+
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS]);
 
 export interface BaselineResult {
   created: number;

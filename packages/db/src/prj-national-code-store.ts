@@ -185,7 +185,10 @@ export class NationalCodeImportAdapter implements FileImportAdapter<NationalCode
     if (project === undefined) return { code: 'PROJECT_NOT_FOUND', field: 'internal_code' };
     if (FROZEN.includes(project.status)) return { code: 'PROJECT_STAGE_LOCKED', field: 'internal_code' };
     if (!hasCodeFormat(this.context.rule, entry.record.nationalCode)) return { code: 'NATIONAL_CODE_FORMAT_INVALID', field: 'national_project_code' };
-    const holder = await tx.query<{ id: string }>('select id from machvon.project where national_project_code = $1 and id <> $2::uuid', [entry.record.nationalCode, project.id]);
+    // Only a project the caller may see can hold the code against the row: a code held outside the scope is not revealed by a dry run. The apply is made
+    // on the whole tenant (the command requires it), so it judges every project.
+    const visible = this.context.scope(3);
+    const holder = await tx.query<{ id: string }>(`select p.id from ${SCOPE_FROM} where p.national_project_code = $1 and p.id <> $2::uuid and ${visible.sql}`, [entry.record.nationalCode, project.id, ...visible.params]);
     if (holder[0] !== undefined) return { code: 'NATIONAL_CODE_DUPLICATE', field: 'national_project_code' };
     return undefined;
   }

@@ -95,7 +95,12 @@ export interface World {
   failing: Set<string>;
   /** The answer of the read of one project when it is not in `details`. */
   missing?: Error;
+  /** The grants of the caller as `getMyEffectiveAccess` lists them; by default one grant on the whole tenant that carries every project permission. */
+  grants?: Array<Record<string, unknown>>;
 }
+
+export const WHOLE_TENANT_GRANT = { role_code: 'PLANNER', scope_kind: 'TENANT', permissions: ['project.*'], state: 'ACTIVE' };
+export const UNIT_GRANT = { role_code: 'PLANNER', scope_kind: 'UNIT_SUBTREE', permissions: ['project.*'], state: 'ACTIVE' };
 
 export function world(overrides: Partial<World> = {}): World {
   return {
@@ -124,6 +129,7 @@ export function client(state: World, command: (operation: string, input: unknown
       const id = (input as { path?: { id?: string } } | undefined)?.path?.id;
       return state.details.find((item) => item.id === id) ?? state.missing ?? new Error('not found');
     }
+    if (operation === 'getMyEffectiveAccess') return { membership_id: TENANT.membershipId, scope_version: 1, grants: state.grants ?? [WHOLE_TENANT_GRANT] };
     return new Error(`unexpected read ${operation}`);
   }, command);
   (h.client as unknown as { readAll: (operation: string, input?: { query?: Record<string, string> }) => Promise<unknown[]> }).readAll = vi.fn((operation: string, input?: { query?: Record<string, string> }) => {

@@ -538,11 +538,15 @@ export class CapPlanStore {
     return rows.map(toExisting);
   }
 
-  /** The stage of each project, for the projects in the scope of the write; a project outside it, or of another tenant, does not exist. */
+  /**
+   * The stage of each project, for the projects in the scope of the write; a project outside it, or of another tenant, does not exist. The rows
+   * are read `FOR SHARE` (in the order of their ids), so a command that moves a project at this very moment (a cancellation locks the row `FOR UPDATE`)
+   * is waited for and its stage is the one judged, and the project cannot leave the stages that take capital before the line is written.
+   */
   private async projectsInScope(tx: TenantTx, projectIds: readonly string[], scope: ScopeBuilder): Promise<Map<string, string>> {
     if (projectIds.length === 0) return new Map();
     const predicate = scope(2);
-    const rows = await tx.query<{ id: string; status: string }>(`select p.id, p.status from ${SCOPE_FROM} where p.id = any($1::uuid[]) and ${predicate.sql}`, [[...projectIds], ...predicate.params]);
+    const rows = await tx.query<{ id: string; status: string }>(`select p.id, p.status from ${SCOPE_FROM} where p.id = any($1::uuid[]) and ${predicate.sql} order by p.id for share of p`, [[...projectIds], ...predicate.params]);
     if (rows.length !== projectIds.length) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return new Map(rows.map((row) => [row.id, row.status]));
   }

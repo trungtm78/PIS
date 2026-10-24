@@ -159,6 +159,9 @@ describe('master data bulk import commands and reads (ST-MDM-006)', () => {
       expect([(await upload(IMPORTER, png, { type: 'image/png' })).status, (await upload(IMPORTER, png, { type: 'image/png' })).json.code]).toEqual([422, 'FILE_TYPE_NOT_ALLOWED']);
       const infected = await upload(IMPORTER, eicarBytes());
       expect([infected.status, infected.json.code]).toEqual([422, 'FILE_NOT_CLEAN']);
+      // The table reader parses the sender's bytes, so it comes after the scan: an infected file that is no table is infected, not unreadable.
+      const infectedSheet = await upload(IMPORTER, new Uint8Array([0x50, 0x4b, 0x03, 0x04, 1, 2, 3, 4, ...eicarBytes()]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', name: 'catalogue.xlsx' });
+      expect([infectedSheet.status, infectedSheet.json.code]).toEqual([422, 'FILE_NOT_CLEAN']);
       const unreadable = await upload(IMPORTER, new TextEncoder().encode('a,a\n1,2\n'));
       expect([unreadable.status, unreadable.json.code]).toEqual([422, 'VALIDATION_FAILED']);
       expect((await upload(IMPORTER, new Uint8Array())).status).toBe(422);

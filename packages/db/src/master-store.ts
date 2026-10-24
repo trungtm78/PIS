@@ -65,6 +65,7 @@ export const MASTER_REFERENCES: readonly MasterReference[] = [
   version('land_parcel', 'ward_master_version_id'),
   version('asset_record', 'asset_class_master_version_id'),
   record('contractor', 'master_record_id'),
+  record('treasury_transaction', 'treasury_office_record_id'),
   record('master_crosswalk', 'master_record_id'),
   record('master_merge', 'survivor_record_id'),
   record('master_merge', 'merged_record_id'),
@@ -112,6 +113,7 @@ export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; reti
   NATIONAL_CODE_REQUIRED: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   NATIONAL_CODE_FORMAT: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   APPRAISAL_CRITERIA: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  LND_TIMER: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   CALENDAR: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   UNIT: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: true },
   CURRENCY: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
@@ -220,6 +222,12 @@ export interface MasterSearchRow {
   parentRecordId: string | null;
   legalBasis: string | null;
   attributes: Record<string, unknown> | null;
+  /** What the tenant set on an entry of the platform through its alias (ST-MDM-002), in force on the date of the search. */
+  aliasLabel: string | null;
+  aliasOrder: number | null;
+  /** The label the tenant sees: its alias when it has one, the label of the version in force otherwise. */
+  displayLabel: string | null;
+  displayOrder: number | null;
 }
 
 export interface MasterUsage {
@@ -548,12 +556,20 @@ export class MasterStore {
       parent_id: string | null;
       legal_basis: string | null;
       attributes: Record<string, unknown> | null;
+      alias_label: string | null;
+      alias_order: string | null;
       sort_key: string;
     }>(
       `select r.id, r.namespace, r.master_type, r.business_key, r.status, r.version::text as version,
               v.label, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.id as version_id,
               v.revision, v.parent_id, v.legal_basis, v.attributes,
-              c.id as open_change_request_id, r.master_type || ':' || r.business_key as sort_key
+              c.id as open_change_request_id, r.master_type || ':' || r.business_key as sort_key,
+              (select a.external_code from machvon.master_crosswalk a
+                where a.master_record_id = r.id and a.source_system = 'TENANT_ALIAS' and a.external_type = 'LABEL' and a.status = 'ACTIVE'
+                  and a.valid_from <= $4::date and (a.valid_until is null or a.valid_until > $4::date) limit 1) as alias_label,
+              (select a.external_code from machvon.master_crosswalk a
+                where a.master_record_id = r.id and a.source_system = 'TENANT_ALIAS' and a.external_type = 'ORDER' and a.status = 'ACTIVE'
+                  and a.valid_from <= $4::date and (a.valid_until is null or a.valid_until > $4::date) limit 1) as alias_order
          from machvon.master_record r
          left join lateral (
            select * from machvon.master_record_version x
@@ -588,6 +604,10 @@ export class MasterStore {
       parentRecordId: row.parent_id,
       legalBasis: row.legal_basis,
       attributes: row.attributes,
+      aliasLabel: row.alias_label,
+      aliasOrder: row.alias_order === null ? null : Number(row.alias_order),
+      displayLabel: row.alias_label ?? row.label,
+      displayOrder: row.alias_order === null ? null : Number(row.alias_order),
     }));
   }
 

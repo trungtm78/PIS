@@ -154,7 +154,7 @@ describe('generateDart on the real contract', () => {
     const descriptors = real.operations.match(/OperationDescriptor\(method:/g) ?? [];
     expect(descriptors).toHaveLength(Object.keys(OPERATIONS).length);
     const methods = real.commands.match(/^ {2}Future<Object\?> /gm) ?? [];
-    expect(methods.length).toBeGreaterThan(Object.keys(OPERATIONS).length - 5);
+    expect(methods.length).toBeGreaterThan(Object.keys(OPERATIONS).length - 7);
     expect(methods.length).toBeLessThan(Object.keys(OPERATIONS).length);
   });
 

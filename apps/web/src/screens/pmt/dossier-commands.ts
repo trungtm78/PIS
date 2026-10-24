@@ -3,7 +3,7 @@ import { useApiClient } from '../../api/ApiClientContext';
 import { useSession } from '../../session/SessionContext';
 import { pmtRoot, useCommand } from './hooks';
 import { toProjectOption } from './dossier-model';
-import type { AddPermitBody, DecisionBody, MilestoneBody, OpenDossierBody, ProjectOption, RenewalBody, RevocationBody } from './dossier-model';
+import type { AddPermitBody, DecisionBody, ExemptionBody, MilestoneBody, OpenDossierBody, ProjectOption, RenewalBody, RevocationBody } from './dossier-model';
 
 /** What a command of the dossier answers: the record it acted on (a renewal answers the new permit). */
 export interface CommandAnswer {
@@ -58,6 +58,13 @@ export function useRenewPermit() {
   const client = useApiClient();
   return useCommand<PermitCommand<RenewalBody>, CommandAnswer>((input, attempt) =>
     client.command('renewPermit', { path: { id: input.permitId }, body: input.body, ifMatchVersion: input.version, attempt }),
+  );
+}
+
+export function useDeclareExemption() {
+  const client = useApiClient();
+  return useCommand<PermitCommand<ExemptionBody>, CommandAnswer>((input, attempt) =>
+    client.command('declarePermitExemption', { path: { id: input.permitId }, body: input.body, ifMatchVersion: input.version, attempt }),
   );
 }
 

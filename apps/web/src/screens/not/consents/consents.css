@@ -1,0 +1,47 @@
+/* NOT-17: the consent history. It reuses the shared card, table, pill and callout classes. */
+.not-consents .card {
+  margin-bottom: 16px;
+}
+
+.not-consents .locked-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.not-consents .locked-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.not-consents .locked-list small {
+  display: block;
+  color: var(--muted, #6b6570);
+}
+
+.not-consents .grant-form {
+  display: grid;
+  gap: 12px;
+}
+
+.not-consents .agree {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.not-consents .more {
+  margin-top: 12px;
+}
+
+.not-consents .replay-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--line, #d9d4dc);
+  border-radius: 8px;
+}

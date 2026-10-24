@@ -303,11 +303,13 @@ export class PrjAppraisalStore {
       request.scores.map((entry, index) => ({ criterion_code: entry.criterionCode, score: entry.score, ...((evidence[index] ?? []).length === 0 ? {} : { evidence_ids: evidence[index] }) })),
     );
     const existing = (
-      await tx.query<{ id: string; version: string; total_score: string }>(
-        `select id, version::text as version, total_score::text as total_score from machvon.project_appraisal where project_id = $1::uuid and round = $2 and appraiser_membership_id = $3::uuid for update`,
+      await tx.query<{ id: string; version: string; total_score: string; criteria_set_version_id: string }>(
+        `select id, version::text as version, total_score::text as total_score, criteria_set_version_id from machvon.project_appraisal where project_id = $1::uuid and round = $2 and appraiser_membership_id = $3::uuid for update`,
         [locked.id, round, request.actor],
       )
     )[0];
+    // A sheet keeps the set of criteria it was scored against for good (the database holds it too): scoring again against another set is a fault of the request.
+    if (existing !== undefined && existing.criteria_set_version_id !== setId) throw invalid('criteria_set_version_id');
     let id: string;
     let version: number;
     if (existing === undefined) {
@@ -481,12 +483,15 @@ export class PrjAppraisalStore {
     const submitted = rows.filter((row) => row.status === 'SUBMITTED' || row.status === 'DECIDED');
     const named = rows[0]?.criteria_set_version_id;
     const set = named !== undefined ? await this.rules.appraisalCriteriaVersion(tx, named) : open ? await this.rules.appraisalCriteria(tx, viewer.today) : undefined;
-    const visible = viewer.canDecide ? rows : rows.filter((row) => row.appraiser_membership_id.toLowerCase() === viewer.actor.toLowerCase());
+    // Blind scoring: the proposer reads no sheet of an open round even when they hold the right to decide (they may not decide on their own proposal), so
+    // they cannot weigh on the appraisers with the scores in front of them; the sheets are theirs to read once the round is decided.
+    const readsAll = viewer.canDecide && !(open && viewerIsProposer);
+    const visible = readsAll ? rows : rows.filter((row) => row.appraiser_membership_id.toLowerCase() === viewer.actor.toLowerCase());
     const canRecord = viewer.canAppraise && open && !viewerIsProposer;
     const canDecide = viewer.canDecide && open && !viewerIsProposer && submitted.some((row) => row.status === 'SUBMITTED');
     let summary: AppraisalOverview['summary'] = null;
     let decisionTarget: AppraisalOverview['decisionTarget'] = null;
-    if (viewer.canDecide) {
+    if (readsAll) {
       const mean = submitted.length === 0 || set === undefined ? null : meanAppraisalScore(submitted.map((row) => row.total_score));
       const recommendations = submitted.map((row) => row.recommendation);
       summary = {
@@ -516,10 +521,18 @@ export class PrjAppraisalStore {
     return proposers;
   }
 
-  /** The round of the appraisal the project is in: how many times it was sent to appraisal (a project placed in APPRAISAL without being sent is in round 1). */
+  /**
+   * The round of the appraisal the project is in: how many times it was sent to appraisal (a project placed in APPRAISAL without being sent is in
+   * round 1), and always after the last round that was decided, so that a project of the old shape which was returned and sent again does not open a
+   * round over sheets that are decided and never change.
+   */
   async currentRound(tx: TenantTx, projectId: string): Promise<number> {
-    const rows = await tx.query<{ n: string }>(`select count(*)::text as n from machvon.project_stage_change where project_id = $1::uuid and operation = $2`, [projectId, SUBMIT_OPERATION]);
-    return Math.max(1, Number(rows[0]?.n ?? 0));
+    const rows = await tx.query<{ sent: string; decided: string }>(
+      `select (select count(*) from machvon.project_stage_change where project_id = $1::uuid and operation = $2)::text as sent,
+              coalesce((select max(round) from machvon.project_appraisal where project_id = $1::uuid and status = 'DECIDED'), 0)::text as decided`,
+      [projectId, SUBMIT_OPERATION],
+    );
+    return Math.max(1, Number(rows[0]?.sent ?? 0), Number(rows[0]?.decided ?? 0) + 1);
   }
 
   private async assertNotProposer(tx: TenantTx, project: LockedProject, actor: string): Promise<void> {

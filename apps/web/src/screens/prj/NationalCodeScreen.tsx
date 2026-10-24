@@ -13,6 +13,7 @@ import { stageLabel } from './labels';
 import { EMPTY_FILTER, filterProjects, workspaceLink } from './model';
 import type { ListFilter, ProjectLine } from './model';
 import { useAssignNationalCode } from './national-code-hooks';
+import { useWholeTenantAuthority } from './national-code-import-hooks';
 import { NationalCodeImportPanel } from './NationalCodeImportPanel';
 import { assignProblemMessage, reconcileProblemMessage, reconcileStateLabel } from './national-code-labels';
 import { EMPTY_ASSIGN, MANAGE_PERMISSION, assignBody, canAssign, describeReconcileProblem, missingCount, needsEvidence, reconcileState, validateAssign } from './national-code-model';
@@ -38,6 +39,10 @@ function NationalCodeContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const projects = useProjects();
+  const mayImport = (permissions === undefined || permissions.includes(MANAGE_PERMISSION)) && mode !== 'READ_ONLY';
+  // Applying the file is for whoever holds the permission on the whole tenant; a caller whose permissions are not known is judged by the server.
+  const authority = useWholeTenantAuthority(MANAGE_PERMISSION, mayImport && permissions !== undefined);
+  const wholeTenant = permissions === undefined ? true : authority;
   const [filter, setFilter] = useState<ListFilter>({ ...EMPTY_FILTER, missingNationalCode: true });
   const [editing, setEditing] = useState<ProjectLine | undefined>(undefined);
   const state = useScreenState({ isLoading: projects.isLoading, error: projects.error, data: projects.data });
@@ -63,7 +68,7 @@ function NationalCodeContent({ route }: ScreenProps) {
           {t('prj.reconcile.adapter.note')}
         </p>
       </article>
-      <NationalCodeImportPanel canImport={(permissions === undefined || permissions.includes(MANAGE_PERMISSION)) && mode !== 'READ_ONLY'} />
+      <NationalCodeImportPanel canImport={mayImport} wholeTenant={wholeTenant} />
       <StateBoundary state={state} onRetry={() => void projects.refetch()}>
         <div className="card">
           <p data-testid="missing-count" role="status">

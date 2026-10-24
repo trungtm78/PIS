@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { AssignForm, CommentForm, StartForm, TransferForm } from './IssueActions';
+import { closureRightsOf, extensionLink, verificationLink } from './closure-model';
 import { useIssue, useUnits } from './hooks';
 import { BackLink, DueBadge, PersonText, SeverityBadge, StatusBadge, Timeline, useMoment } from './issue-components';
 import { sourceLabel } from './issue-labels';
-import { ISSUE_ASSIGN_PERMISSION, ISSUE_WORK_PERMISSION, LIST_PATH, actionsOf, hasPermission } from './issue-model';
+import { ESCALATION_BOARD_PATH, ISSUE_ASSIGN_PERMISSION, ISSUE_WORK_PERMISSION, LIST_PATH, actionsOf, hasPermission } from './issue-model';
 import type { IssueView } from './issue-model';
 import './iss.css';
 
@@ -77,7 +78,12 @@ function Workspace({ issue, onReload }: { issue: IssueView; onReload: () => void
     return (unitId: string | null): string => (unitId === null ? t('iss.value.none.text') : (names.get(unitId) ?? unitId));
   }, [units.data, t]);
   const none = t('iss.value.none.text');
-  const nothingToDo = !actions.assign && !actions.start && !actions.comment && !actions.transfer;
+  const closure = closureRightsOf(permissions, live);
+  const verificationOffered = (closure.work && issue.status === 'IN_PROGRESS') || (closure.close && issue.status === 'PENDING_VERIFICATION') || (closure.reopen && issue.status === 'CLOSED');
+  const extensionOffered =
+    (closure.extend && issue.status !== 'CLOSED' && issue.status !== 'PENDING_VERIFICATION') || (closure.escalate && (issue.status === 'ASSIGNED' || issue.status === 'IN_PROGRESS'));
+  const boardOffered = issue.escalations.length > 0;
+  const nothingToDo = !actions.assign && !actions.start && !actions.comment && !actions.transfer && !verificationOffered && !extensionOffered && !boardOffered;
   const now = new Date();
 
   return (
@@ -181,6 +187,28 @@ function Workspace({ issue, onReload }: { issue: IssueView; onReload: () => void
           {actions.assign ? <AssignForm issue={issue} onReload={onReload} /> : null}
           {actions.comment ? <CommentForm issue={issue} onReload={onReload} /> : null}
           {actions.transfer ? <TransferForm issue={issue} onReload={onReload} /> : null}
+          {verificationOffered || extensionOffered || boardOffered ? (
+            <nav className="card" aria-label={t('iss.workspace.more.title')} data-testid="more-actions">
+              <h2>{t('iss.workspace.more.title')}</h2>
+              <ul>
+                {verificationOffered ? (
+                  <li>
+                    <Link to={verificationLink(issue.id)}>{t('iss.workspace.more.verification.link')}</Link>
+                  </li>
+                ) : null}
+                {extensionOffered ? (
+                  <li>
+                    <Link to={extensionLink(issue.id)}>{t('iss.workspace.more.extension.link')}</Link>
+                  </li>
+                ) : null}
+                {boardOffered ? (
+                  <li>
+                    <Link to={ESCALATION_BOARD_PATH}>{t('iss.workspace.more.board.link')}</Link>
+                  </li>
+                ) : null}
+              </ul>
+            </nav>
+          ) : null}
         </div>
       </div>
     </>

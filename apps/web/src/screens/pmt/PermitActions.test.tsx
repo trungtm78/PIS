@@ -14,9 +14,9 @@ afterEach(cleanup);
 const problem = (code: string, status = 409) => new ApiError({ status, code, correlationId: 'c', retryAfterSeconds: undefined, detail: undefined, extensions: {} });
 const OK = { operation_id: 'o', status: 'OK', resource_version: 2, resource_id: permitId(9) };
 const permit = (overrides: Record<string, unknown> = {}): PermitDetailView => toPermitDetail(permitDetail(1, { version: 3, ...overrides })) as PermitDetailView;
-const show = (view: PermitDetailView, options: { mayManage?: boolean; mayRecord?: boolean; command?: (operation: string, input: unknown) => unknown } = {}) => {
+const show = (view: PermitDetailView, options: { mayManage?: boolean; mayRecord?: boolean; mayExempt?: boolean; command?: (operation: string, input: unknown) => unknown } = {}) => {
   const h = client(world(), options.command ?? (() => OK));
-  mount(<PermitActions permit={view} today={TODAY} mayManage={options.mayManage ?? true} mayRecord={options.mayRecord ?? true} />, h, { permissions: OFFICER });
+  mount(<PermitActions permit={view} today={TODAY} mayManage={options.mayManage ?? true} mayRecord={options.mayRecord ?? true} mayExempt={options.mayExempt ?? true} />, h, { permissions: OFFICER });
   return h;
 };
 const set = (label: string, value: string): void => {
@@ -30,6 +30,7 @@ const click = (form: HTMLElement, name: string) => userEvent.setup().click(withi
 const milestoneForm = () => screen.getByRole('form', { name: vi_['pmt.permit.milestone.aria'] });
 const decisionForm = () => screen.getByRole('form', { name: vi_['pmt.permit.decision.aria'] });
 const renewForm = () => screen.getByRole('form', { name: vi_['pmt.permit.renew.aria'] });
+const exemptForm = () => screen.getByRole('form', { name: vi_['pmt.permit.exempt.aria'] });
 const revokeForm = () => screen.getByRole('form', { name: vi_['pmt.permit.revoke.aria'] });
 const forms = (): string[] => screen.queryAllByRole('form').map((form) => form.getAttribute('aria-label') ?? '');
 
@@ -154,7 +155,7 @@ describe('PermitActions (PMT-02): what can be done with a permit now', () => {
     function Moving() {
       const [view, setView] = useState(issued);
       move = () => setView(superseded);
-      return <PermitActions permit={view} today={TODAY} mayManage mayRecord />;
+      return <PermitActions permit={view} today={TODAY} mayManage mayRecord mayExempt />;
     }
     const h = client(world(), () => {
       move();
@@ -210,5 +211,62 @@ describe('PermitActions (PMT-02): what can be done with a permit now', () => {
     show(permit({ status }));
     expect(forms()).toEqual([]);
     expect(screen.getByTestId('no-actions').textContent).toBe(vi_['pmt.permit.actions.none.text']);
+  });
+
+  describe('the exemption of a permit (AC-ST-PMT-003-1, UAT-AC372)', () => {
+    const exemptable = (overrides: Record<string, unknown> = {}): PermitDetailView => permit({ status: 'PLANNED', exemption_allowed: true, ...overrides });
+
+    it('is offered for a planned or submitted permit of a type that allows it, to someone who may approve, next to the other forms they may use', () => {
+      show(exemptable());
+      expect(forms()).toEqual([vi_['pmt.permit.milestone.aria'], vi_['pmt.permit.exempt.aria']]);
+      expect(screen.getByText(vi_['pmt.permit.exempt.hint.text'])).toBeTruthy();
+      cleanup();
+      show(exemptable({ status: 'SUBMITTED' }), { mayManage: false, mayRecord: false });
+      expect(forms()).toEqual([vi_['pmt.permit.exempt.aria']]);
+    });
+
+    it('is not offered when the type does not allow it, when the permit is past that stage, or to someone who may not approve', () => {
+      show(permit({ status: 'PLANNED', exemption_allowed: false }));
+      expect(forms()).toEqual([vi_['pmt.permit.milestone.aria']]);
+      cleanup();
+      show(exemptable({ status: 'IN_APPRAISAL' }));
+      expect(forms()).not.toContain(vi_['pmt.permit.exempt.aria']);
+      cleanup();
+      show(exemptable(), { mayExempt: false });
+      expect(forms()).toEqual([vi_['pmt.permit.milestone.aria']]);
+      cleanup();
+      show(exemptable(), { mayManage: false, mayRecord: false, mayExempt: false });
+      expect(screen.getByTestId('actions-readonly')).toBeTruthy();
+    });
+
+    it('asks for the basis and the decision document, then sends both with the version that was read and tells what was done', async () => {
+      const h = show(exemptable({ version: 3 }));
+      await click(exemptForm(), vi_['pmt.permit.exempt.save.action']);
+      expect(within(exemptForm()).getAllByText(vi_['pmt.permit.field.required.error'])).toHaveLength(2);
+      expect(h.command).not.toHaveBeenCalled();
+      set(vi_['pmt.permit.exempt.basis.label'], '  Exempt under the construction law, article 89  ');
+      set(vi_['pmt.permit.exempt.scan.label'], DOCUMENT);
+      await click(exemptForm(), vi_['pmt.permit.exempt.save.action']);
+      expect((await screen.findByTestId('exempt-saved')).textContent).toBe(vi_['pmt.permit.exempt.saved.notice']);
+      expect(h.command).toHaveBeenCalledTimes(1);
+      expect(h.command.mock.calls[0]?.[0]).toBe('declarePermitExemption');
+      expect(h.command.mock.calls[0]?.[1]).toMatchObject({
+        path: { id: permitId(1) },
+        ifMatchVersion: 3,
+        body: { exemption_basis: 'Exempt under the construction law, article 89', exemption_decision_document_version_id: DOCUMENT },
+      });
+    });
+
+    it.each([
+      ['SELF_APPROVAL_DENIED', 403, 'pmt.permit.problem.selfApproval.error'],
+      ['EXEMPTION_NOT_ALLOWED', 422, 'pmt.permit.problem.exemptionNotAllowed.error'],
+      ['PERMIT_STATE_INVALID', 409, 'pmt.permit.problem.stateInvalid.error'],
+    ] as const)('says in words why the server refused: %s', async (code, status, key) => {
+      show(exemptable(), { command: () => problem(code, status) });
+      set(vi_['pmt.permit.exempt.basis.label'], 'Article 89');
+      set(vi_['pmt.permit.exempt.scan.label'], DOCUMENT);
+      await click(exemptForm(), vi_['pmt.permit.exempt.save.action']);
+      expect((await within(exemptForm()).findByRole('alert')).textContent).toBe(vi_[key]);
+    });
   });
 });

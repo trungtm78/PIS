@@ -90,6 +90,9 @@ describe('the upload door of the national code reconciliation file (ST-PRJ-004)'
     expect([refusedType.status, refusedType.json.code]).toEqual([422, 'FILE_TYPE_NOT_ALLOWED']);
     const infected = await upload(ADMIN, eicarBytes());
     expect([infected.status, infected.json.code]).toEqual([422, 'FILE_NOT_CLEAN']);
+    // The table reader parses the sender's bytes, so it must come after the scan: an infected file that is no table is infected, not a bad layout.
+    const infectedSheet = await upload(ADMIN, new Uint8Array([0x50, 0x4b, 0x03, 0x04, 1, 2, 3, 4, ...eicarBytes()]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    expect([infectedSheet.status, infectedSheet.json.code]).toEqual([422, 'FILE_NOT_CLEAN']);
     const layout = await upload(ADMIN, new TextEncoder().encode('name,code\nA,1\n'));
     expect([layout.status, layout.json.code]).toEqual([422, 'IMPORT_SCHEMA_INVALID']);
     const empty = await upload(ADMIN, csv());

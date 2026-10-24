@@ -82,6 +82,11 @@ function searchViewOf(row: MasterSearchRow): Record<string, unknown> {
     parent_record_id: row.parentRecordId,
     legal_basis: row.legalBasis,
     attributes: row.attributes,
+    // What the tenant set on an entry of the platform through its alias: `label` stays the label of the platform, `display_label` is what the tenant sees.
+    alias_label: row.aliasLabel,
+    alias_order: row.aliasOrder,
+    display_label: row.displayLabel,
+    display_order: row.displayOrder,
   };
 }
 

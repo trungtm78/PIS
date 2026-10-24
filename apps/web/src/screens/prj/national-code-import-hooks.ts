@@ -1,10 +1,10 @@
 import { uploadFile } from '@machvon/api-client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useScopeKey } from './hooks';
-import { toImportResult, toUploadedFile } from './national-code-import-model';
+import { holdsOnWholeTenant, toGrantAuthority, toImportResult, toUploadedFile } from './national-code-import-model';
 import type { ImportResult, UploadedFile } from './national-code-import-model';
 
 /** Puts the file into the shared upload pipeline (judged by its bytes, scanned); the answer names its key, its hash and what it holds. */
@@ -44,4 +44,20 @@ export function useImportNationalCodes() {
     },
     onError: (error) => attempts.current.ended(error),
   });
+}
+
+/**
+ * Whether the caller holds the permission on the whole tenant, which the apply of the national file needs (the dry run does not). Undefined while the
+ * grants are being read; a grant list that cannot be read counts as no authority on the whole tenant, so the apply stays closed.
+ */
+export function useWholeTenantAuthority(permission: string, enabled: boolean): boolean | undefined {
+  const client = useApiClient();
+  const key = useScopeKey();
+  const authority = useQuery<boolean>({
+    queryKey: [...key, 'authority', permission],
+    queryFn: async () => holdsOnWholeTenant(toGrantAuthority(await client.read('getMyEffectiveAccess')), permission),
+    enabled: enabled && key[1] !== undefined,
+    retry: false,
+  });
+  return authority.isError ? false : authority.data;
 }

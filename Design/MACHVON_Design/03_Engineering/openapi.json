@@ -59921,6 +59921,79 @@
           }
         },
         "x-audit-action": "notification.preferences_updated"
+      },
+      "get": {
+        "operationId": "getMyNotificationPreferences",
+        "summary": "Tuy chon kenh, gio yen lang va khoa kenh bat buoc cua toi (NOT-03)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "notification.self",
+        "x-exposure": "dto",
+        "x-plane": "tenant",
+        "responses": {
+          "200": {
+            "description": "The preferences of the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED / SIGNATURE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND within authorized scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
       }
     },
     "/me/consents": {
@@ -84371,6 +84444,139 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listLandSections",
+        "summary": "Các đoạn bàn giao mặt bằng của một dự án trong phạm vi người gọi, theo mã đoạn",
+        "tags": [
+          "LND"
+        ],
+        "x-permission": "land.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, lọc theo phạm vi dự án).",
+        "x-read-model": true
       }
     },
     "/land-sections/{id}/handover": {
@@ -84655,6 +84861,167 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listLandParcels",
+        "summary": "Thửa đất của một dự án trong phạm vi người gọi, theo số hiệu; không có chủ sử dụng",
+        "tags": [
+          "LND"
+        ],
+        "x-permission": "land.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "section_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SURVEYED",
+                "INVENTORIED",
+                "PLAN_DRAFTED",
+                "PLAN_POSTED",
+                "PLAN_APPROVED",
+                "PAID",
+                "HANDED_OVER",
+                "DISPUTED",
+                "ENFORCEMENT"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, thửa đất không có dữ liệu cá nhân, lọc theo đơn vị phụ trách hoặc dự án).",
+        "x-read-model": true
       }
     },
     "/land-parcels/import": {
@@ -119134,6 +119501,484 @@
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
       }
+    },
+    "/land-parcels/files": {
+      "post": {
+        "operationId": "uploadLandParcelFile",
+        "summary": "Đưa tệp danh sách thửa (CSV hoặc XLSX) vào đường tải chung, quét mã độc và kiểm tra cột; tệp có cột về chủ sử dụng bị từ chối và không được giữ lại",
+        "tags": [
+          "LND"
+        ],
+        "x-permission": "land.manage",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The file is stored and clean; its columns and rows are read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LndParcelFile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "FILE_TYPE_NOT_ALLOWED",
+          "FILE_NOT_CLEAN",
+          "PAYLOAD_TOO_LARGE",
+          "SCAN_PENDING",
+          "IMPORT_SCHEMA_INVALID",
+          "IMPORT_EMPTY"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-note": "A file whose columns are not those of the layout answers 422 IMPORT_SCHEMA_INVALID with extensions {unknown_columns: [...], missing_columns: [...]} and is removed again."
+      }
+    },
+    "/resources/project_accountability": {
+      "get": {
+        "operationId": "get_resources_project_accountability",
+        "summary": "Phân công lãnh đạo/đầu mối của các dự án trong phạm vi người gọi, kèm lịch sử (PRJ-17)",
+        "x-permission": "project.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "ENDED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "snapshot_id": {
+                      "type": "string"
+                    },
+                    "as_of": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / license / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Budget / rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Provider unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-contract-maturity": "reference-scaffolding",
+        "x-implementation-gate": "Review action DTO allowlist, object scope, state invariants and error contract before exposing. No arbitrary state/role/tenant updates.",
+        "x-exposure": "dto",
+        "x-exposure-reason": "Allowlist DTO: tên lãnh đạo lấy từ tenant_user_directory; lọc theo cây đơn vị của dự án",
+        "tags": [
+          "PRJ"
+        ]
+      }
+    },
+    "/resources/task_force": {
+      "get": {
+        "operationId": "get_resources_task_force",
+        "summary": "Tổ công tác đôn đốc giải ngân có phạm vi đơn vị trong phạm vi người gọi, kèm nhiệm kỳ thành viên (PRJ-18)",
+        "x-permission": "taskforce.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "DISSOLVED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "snapshot_id": {
+                      "type": "string"
+                    },
+                    "as_of": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / license / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Budget / rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Provider unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-contract-maturity": "reference-scaffolding",
+        "x-implementation-gate": "Review action DTO allowlist, object scope, state invariants and error contract before exposing. No arbitrary state/role/tenant updates.",
+        "x-exposure": "dto",
+        "x-exposure-reason": "Allowlist DTO: thành viên kèm tên và dự án theo dõi; lọc theo cây đơn vị của phạm vi tổ",
+        "tags": [
+          "PRJ"
+        ]
+      }
     }
   },
   "components": {
@@ -126186,7 +127031,9 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": [],
+              "required": [
+                "version"
+              ],
               "properties": {
                 "id": {
                   "type": "string",
@@ -126211,6 +127058,11 @@
                 },
                 "consent_text_version": {
                   "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "The number withdrawMyConsent is made under (If-Match)."
                 }
               }
             }
@@ -136405,6 +137257,150 @@
           "row_count": {
             "type": "integer",
             "minimum": 0
+          }
+        }
+      },
+      "LndParcelFile": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_id",
+          "file_sha256",
+          "size_bytes",
+          "format",
+          "columns",
+          "row_count"
+        ],
+        "properties": {
+          "file_object_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "CSV",
+              "XLSX"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "PreferenceView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "is_default",
+          "quiet_start",
+          "quiet_end",
+          "time_zone",
+          "items",
+          "locked"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The ETag a PUT is made under; 0 for a person who never saved."
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "quiet_start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-2][0-9]:[0-5][0-9]$",
+            "description": "null: the person turned quiet hours off."
+          },
+          "quiet_end": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+          },
+          "time_zone": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "event_category",
+                "channel",
+                "enabled",
+                "digest_mode"
+              ],
+              "properties": {
+                "event_category": {
+                  "type": "string"
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "IN_APP",
+                    "EMAIL",
+                    "PUSH",
+                    "SMS",
+                    "ZALO",
+                    "WHATSAPP"
+                  ]
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "digest_mode": {
+                  "type": "string",
+                  "enum": [
+                    "IMMEDIATE",
+                    "HOURLY",
+                    "DAILY"
+                  ]
+                }
+              }
+            }
+          },
+          "locked": {
+            "type": "array",
+            "description": "The channels the person cannot switch off: the inbox of the categories that hold a CRITICAL or HIGH event.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "event_category",
+                "channel"
+              ],
+              "properties": {
+                "event_category": {
+                  "type": "string"
+                },
+                "channel": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }

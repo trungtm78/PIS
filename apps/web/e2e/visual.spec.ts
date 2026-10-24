@@ -124,7 +124,7 @@ const TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 40 };
 const BACKLINK_TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 75 };
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10' | 'ADM-11' | 'ADM-12' | 'ADM-15'| 'ADM-03' | 'ADM-17' | 'BID-01' | 'BID-02' | 'DGV-03' | 'DGV-04' | 'DOC-02' | 'DOC-03' | 'DOC-04' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-09' | 'DOC-10' | 'DOC-14' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'ISS-01' | 'ISS-02' | 'ISS-03' | 'ISS-09' | 'MDM-01' | 'MDM-02' | 'MDM-03' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'MDM-34' | 'MDM-37' | 'MNE-01' | 'MNE-02' | 'NOT-01' | 'NOT-02' | 'NOT-11' | 'NOT-12' | 'NOT-13' | 'PMT-01' | 'PMT-02' | 'PMT-03' | 'PRJ-01' | 'PRJ-02' | 'PRJ-03' | 'PRJ-09' | 'PRJ-10' | 'PRJ-14' | 'PRJ-15' | 'PRJ-21' | 'PAY-13' | 'CAP-01' | 'CAP-02' | 'CAP-03' | 'CAP-04' | 'CAP-06' | 'CAP-14' | 'CAP-16' | 'CTR-04' | 'CTR-05' | 'DIS-14' | 'DIS-22' | 'SAS-01' |'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10' | 'ADM-11' | 'ADM-12' | 'ADM-15'| 'ADM-03' | 'ADM-17' | 'BID-01' | 'BID-02' | 'BID-03' | 'BID-15' | 'BID-16' | 'DGV-01' | 'DGV-03' | 'DGV-04' | 'DGV-06' | 'DGV-07' | 'DOC-02' | 'DOC-03' | 'DOC-04' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-08' | 'DOC-09' | 'DOC-10' | 'DOC-14' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'LND-02' | 'ISS-01' | 'ISS-02' | 'ISS-03' | 'ISS-04' | 'ISS-07' | 'ISS-09' | 'ISS-10' | 'MDM-01' | 'MDM-02' | 'MDM-03' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'MDM-34' | 'MDM-37' | 'MNE-01' | 'MNE-02' | 'NOT-01' | 'NOT-02' | 'NOT-03' | 'NOT-11' | 'NOT-12' | 'NOT-13' | 'NOT-17' | 'PMT-01' | 'PMT-02' | 'PMT-03' | 'PRJ-01' | 'PRJ-02' | 'PRJ-03' | 'PRJ-09' | 'PRJ-10' | 'PRJ-14' | 'PRJ-15' | 'PRJ-17' | 'PRJ-18' | 'PRJ-21' | 'PAY-13' | 'CAP-01' | 'CAP-02' | 'CAP-03' | 'CAP-04' | 'CAP-05' | 'CAP-06' | 'CAP-10' | 'CAP-14' | 'CAP-16' | 'CTR-04' | 'CTR-05' | 'DIS-14' | 'DIS-22' | 'SAS-01' |'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -201,8 +201,42 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10
     // The back link and the title, without the generic subtitle of the mockup (the open profile shows the name of the contractor as its title).
     heading: { x: 286, y: 85, width: 520, height: 75 },
   },
+  // BID-03 (packages), BID-15 (procurement plans) and BID-16 (plan editor): the mockups keep the generic subtitle of the prototype and a sample table or form; the
+  // application states the rule of the plan and shows the real plans, so the frame and the title are compared.
+  'BID-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'BID-15': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'BID-16': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    // The back link and the title, without the generic subtitle of the mockup.
+    heading: { x: 286, y: 85, width: 520, height: 75 },
+  },
   // DGV-03 (owners and stewards) and DGV-04 (data catalogue): the mockups keep the generic subtitle of the prototype; the application states the rule of the pair
   // and of the visibility, so only the title is compared with the frame.
+  // DGV-01 (control dashboard), DGV-06 (quality rules) and DGV-07 (profiling and score): the frame and the title; the application adds the rule of what is not assessed.
+  'DGV-01': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'DGV-06': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'DGV-07': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   'DGV-03': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -256,6 +290,13 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: NOTIFICATION_HEADING,
+  },
+  // DOC-08 (issue and distribution): the mockup is the generic table page (a sample table of recipients and channels); the application shows the document picker, the issue
+  // form, the dispatch form and the real table of distributions, so only the frame and the title are compared (the subtitle of the mockup is sample text).
+  'DOC-08': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
   },
   // DOC-09 (documents signed outside the system): the mockup is the generic import page (a drop zone, a mapping step, sample rows); the application shows the real file
   // picker, the verdict of the signatures and the two ways to attach the file, so only the frame and the title are compared; it starts with a back link above the title
@@ -324,8 +365,25 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10
     topbar: TOPBAR,
     heading: BACKLINK_TITLE_ONLY,
   },
+  // ISS-04 (escalation and extension) and ISS-07 (verification and closing): like ISS-03, looked at without an issue named, with the back link above the title.
+  'ISS-04': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: BACKLINK_TITLE_ONLY,
+  },
+  'ISS-07': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: BACKLINK_TITLE_ONLY,
+  },
   // ISS-09 (SLA policies): like MDM-24, the mockup keeps the generic subtitle of the prototype, so only the title is compared.
   'ISS-09': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // ISS-10 (escalation board): the board lists live escalations, so the frame and the title are compared; the subtitle states what each screen is.
+  'ISS-10': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: TITLE_ONLY,
@@ -545,6 +603,20 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10
     topbar: TOPBAR,
     heading: TITLE_ONLY,
   },
+  // NOT-03 (preferences): the mockup is the generic prototype page with the field names of the screen as a checklist; the application shows the real matrix of channels, the
+  // digest modes and the quiet hours, so only the title is compared.
+  'NOT-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // NOT-17 (the consent history): the mockup is the generic prototype page with the field names of the screen as a checklist; the application shows the locked inbox, the form
+  // that gives a consent and the real history, so only the title is compared.
+  'NOT-17': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   // PMT-01 (legal dossier of a project) and PMT-02 (a permit with its milestone timeline): the mockups are the generic prototype pages with a checklist of the field names and a preview card; the application shows the real dossiers and the real permit, and states what each screen is in its subtitle, so only the title is compared. PMT-02 starts with a back link above the title (its region covers it); it is looked at without a permit named, so its title is the name of the screen.
   'PMT-01': {
     sidebar: SIDEBAR,
@@ -600,9 +672,29 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10
     topbar: TOPBAR,
     heading: TITLE_ONLY,
   },
+  // PRJ-17 (leaders in charge) and PRJ-18 (task forces): the mockups are the generic prototype table and list with sample rows; the application shows the form
+  // of the office that administers assignments and the register or the forces with their terms, and states what the screen is in its subtitle, so only the
+  // frame and the title are compared.
+  'PRJ-17': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'PRJ-18': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   // PRJ-21 (national project codes): the mockup is the generic prototype page with a reconciliation checklist; the application shows the adapter badge, the
   // projects with their codes and the assignment dialog, and states what the screen is in its subtitle, so only the frame and the title are compared.
   'PRJ-21': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // LND-02 (parcels and boundaries): the mockup is the generic map page of the prototype; the application asks for a project first and then lists its parcels with
+  // the timer of the notice, so only the frame and the title are compared.
+  'LND-02': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: TITLE_ONLY,
@@ -644,7 +736,19 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10
     topbar: TOPBAR,
     heading: TITLE_ONLY,
   },
+  // CAP-05 (capital decisions) and CAP-10 (plan approval): the mockups keep the generic subtitle of the prototype and sample rows; the application lists the decisions
+  // and the revision of the tenant and says in a sentence what each screen holds, so the frame and the title are compared.
+  'CAP-05': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   'CAP-06': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'CAP-10': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: TITLE_ONLY,
@@ -750,7 +854,7 @@ const queryOf = (id: string): string => {
   return id === 'SAS-03' || id === 'SAS-04' || id === 'SAS-22' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-02', 'ADM-07', 'ADM-09', 'ADM-10', 'ADM-11', 'ADM-12', 'ADM-15','ADM-03', 'ADM-17', 'BID-01', 'BID-02', 'DGV-03', 'DGV-04', 'DOC-02', 'DOC-03', 'DOC-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-09', 'DOC-10', 'DOC-14', 'DOC-21', 'IAM-04', 'IAM-09', 'ISS-01', 'ISS-02', 'ISS-03', 'ISS-09', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'NOT-11', 'NOT-12', 'NOT-13', 'PMT-01', 'PMT-02', 'PMT-03', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'PRJ-09', 'PRJ-10', 'PRJ-14', 'PRJ-15', 'PRJ-21', 'PAY-13', 'CAP-01', 'CAP-02', 'CAP-03', 'CAP-04', 'CAP-06', 'CAP-14', 'CAP-16', 'CTR-04', 'CTR-05', 'DIS-14', 'DIS-22', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-02', 'ADM-07', 'ADM-09', 'ADM-10', 'ADM-11', 'ADM-12', 'ADM-15','ADM-03', 'ADM-17', 'BID-01', 'BID-02', 'BID-03', 'BID-15', 'BID-16', 'DGV-01', 'DGV-03', 'DGV-04', 'DGV-06', 'DGV-07', 'DOC-02', 'DOC-03', 'DOC-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-08', 'DOC-09', 'DOC-10', 'DOC-14', 'DOC-21', 'IAM-04', 'IAM-09', 'LND-02', 'ISS-01', 'ISS-02', 'ISS-03', 'ISS-04', 'ISS-07', 'ISS-09', 'ISS-10', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'NOT-03', 'NOT-11', 'NOT-12', 'NOT-13', 'NOT-17', 'PMT-01', 'PMT-02', 'PMT-03', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'PRJ-09', 'PRJ-10', 'PRJ-14', 'PRJ-15', 'PRJ-17', 'PRJ-18', 'PRJ-21', 'PAY-13', 'CAP-01', 'CAP-02', 'CAP-03', 'CAP-04', 'CAP-05', 'CAP-06', 'CAP-10', 'CAP-14', 'CAP-16', 'CTR-04', 'CTR-05', 'DIS-14', 'DIS-22', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

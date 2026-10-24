@@ -52,3 +52,17 @@
   gap: 4px 16px;
   margin: 8px 0 0;
 }
+.bid-package-row {
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+}
+.bid-package-row legend {
+  padding: 0 6px;
+  font-size: 12px;
+}
+.table .num {
+  text-align: right;
+  white-space: nowrap;
+}

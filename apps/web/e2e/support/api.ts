@@ -19,9 +19,9 @@ function tokenOf(user: string): string {
   return `${payload}.${createHmac('sha256', Buffer.from(key, 'base64')).update(payload).digest('base64url')}`;
 }
 
-export async function apiCall(user: string, method: 'GET' | 'POST', path: string, options: { body?: unknown; version?: number } = {}): Promise<ApiReply> {
+export async function apiCall(user: string, method: 'GET' | 'POST' | 'PUT', path: string, options: { body?: unknown; version?: number } = {}): Promise<ApiReply> {
   const headers: Record<string, string> = { authorization: `Bearer ${tokenOf(user)}`, 'content-type': 'application/json' };
-  if (method === 'POST') headers['idempotency-key'] = `e2e-${randomUUID()}`;
+  if (method !== 'GET') headers['idempotency-key'] = `e2e-${randomUUID()}`;
   if (options.version !== undefined) headers['if-match'] = `"${options.version}"`;
   const response = await fetch(`http://127.0.0.1:${stackInfo().apiPort}${path}`, {
     method,

@@ -27,6 +27,8 @@ const FIELD_PROBLEMS: Readonly<Record<string, Readonly<Record<string, string>>>>
   createMneObligationRule: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
   publishPermitType: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
   registerAppropriation: { decision_document_id: 'DECISION_REQUIRED' },
+  // A plan is published on a decision document (ST-CAP-003 AC-1).
+  post_plans_id_publish: { decision_document_id: 'DECISION_REQUIRED' },
   // A reopening without a reason of 20 characters (ST-DIS-002 AC-1).
   requestPeriodReopen: { reason: 'REOPEN_REASON_REQUIRED' },
 };

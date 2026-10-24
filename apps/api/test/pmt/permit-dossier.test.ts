@@ -20,6 +20,9 @@ const READER = 3; // permit.read only
 const NOBODY = 4;
 const OTHER_BRANCH_OFFICER = 5; // all three permissions on another branch (unit 3)
 const PROJECT_OFFICER = 6; // all three permissions on one project only
+const LEADER = 7; // permit.exempt and permit.read on the subtree of the department: the person who approves an exemption
+const LEADER_OTHER_BRANCH = 8; // the same on another branch (unit 3)
+const MAKER_CHECKER = 9; // permit.manage, permit.exempt and permit.read: can both propose and approve, so the server must refuse the same person twice
 const OTHER_TENANT_OFFICER = 1; // of tenant B
 const DAY_MS = 86_400_000;
 const FAMILY = 0x94;
@@ -138,19 +141,24 @@ describe('permit dossier commands (ST-PMT-002)', () => {
         { n: 3, path: '/u3/' },
       ]);
     }
-    for (const n of [OFFICER, MANAGER_ONLY, READER, NOBODY, OTHER_BRANCH_OFFICER, PROJECT_OFFICER]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [OFFICER, MANAGER_ONLY, READER, NOBODY, OTHER_BRANCH_OFFICER, PROJECT_OFFICER, LEADER, LEADER_OTHER_BRANCH, MAKER_CHECKER]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, OTHER_TENANT_OFFICER, 1);
     const all = ['permit.manage', 'permit.record', 'permit.read'];
     await harness.seedRole(TENANT_A, 1, 'PROJECT_LEGAL', all, 40);
     await harness.seedRole(TENANT_A, 2, 'PERMIT_MANAGER', ['permit.manage', 'permit.read'], 30);
     await harness.seedRole(TENANT_A, 3, 'PERMIT_READER', ['permit.read'], 20);
-    await harness.seedRole(TENANT_B, 1, 'PROJECT_LEGAL', all, 40);
+    await harness.seedRole(TENANT_A, 4, 'PERMIT_LEADER', ['permit.exempt', 'permit.read'], 50);
+    await harness.seedRole(TENANT_A, 5, 'PERMIT_MAKER_CHECKER', ['permit.manage', 'permit.exempt', 'permit.read'], 50);
+    await harness.seedRole(TENANT_B, 1, 'PROJECT_LEGAL', [...all, 'permit.exempt'], 40);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: OFFICER, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 2, member: MANAGER_ONLY, role: 2, kind: 'TENANT' },
       { n: 3, member: READER, role: 3, kind: 'TENANT' },
       { n: 4, member: OTHER_BRANCH_OFFICER, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(3)] },
       { n: 5, member: PROJECT_OFFICER, role: 1, kind: 'PROJECT', refs: [GRANTED_PROJECT] },
+      { n: 6, member: LEADER, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 7, member: LEADER_OTHER_BRANCH, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(3)] },
+      { n: 8, member: MAKER_CHECKER, role: 5, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: OTHER_TENANT_OFFICER, role: 1, kind: 'TENANT' }]);
     const admin = new Client({ connectionString: harness.database.adminUrl });
@@ -173,11 +181,12 @@ describe('permit dossier commands (ST-PMT-002)', () => {
         for (const [typeId, code, rule, months] of [
           [id(FAMILY, 51), 'API_EVERY', {}, 12],
           [id(FAMILY, 52), 'API_OPTIONAL', { project_group_keys: ['C'] }, 6],
+          [id(FAMILY, 59), 'API_EXEMPTABLE', { project_group_keys: ['A'] }, 12],
         ] as const) {
           await admin.query(
             `insert into machvon.permit_type (tenant_id, id, code, name, category, authority_text, legal_basis, effective_from, applies_to_rule, default_validity_months, exemption_allowed, status, created_by, updated_by)
-             values ($1, $2, $3, $3, 'OTHER', 'The authority', 'API fixture legal basis', date '2026-01-01', $4::jsonb, $5, false, 'PUBLISHED', $6, $6)`,
-            [tenant, typeId, code, JSON.stringify(rule), months, memberId(OFFICER)],
+             values ($1, $2, $3, $3, 'OTHER', 'The authority', 'API fixture legal basis', date '2026-01-01', $4::jsonb, $5, $7, 'PUBLISHED', $6, $6)`,
+            [tenant, typeId, code, JSON.stringify(rule), months, memberId(OFFICER), code === 'API_EXEMPTABLE'],
           );
         }
       }
@@ -511,6 +520,106 @@ describe('permit dossier commands (ST-PMT-002)', () => {
       expect(await rows("select id from machvon.outbox_event where aggregate_id = $1::uuid and type = 'pmt.permit.revoked.v1'", [issued.permit])).toHaveLength(1);
       const again = await post(`/permits/${issued.permit}/revoke`, { member: OFFICER, ifMatch: `"${issued.version + 1}"`, body: { reason: 'Again', decision_document_version_id: DOCUMENT } });
       expect([again.status, again.json.code]).toEqual([409, 'PERMIT_STATE_INVALID']);
+    });
+  });
+
+  describe('declarePermitExemption (ST-PMT-003)', () => {
+    const BASIS = 'Exempt from a construction permit under article 89 of the Construction Law';
+    const exempt = (permitId: string, member: number, version: number | string, body: Record<string, unknown> = {}, key?: string): Promise<Reply> =>
+      post(`/permits/${permitId}/exempt`, {
+        member,
+        ifMatch: typeof version === 'number' ? `"${version}"` : version,
+        body: { exemption_basis: BASIS, exemption_decision_document_version_id: DOCUMENT, ...body },
+        ...(key === undefined ? {} : { key }),
+      });
+    /** A dossier of a group A project (it needs a permit of the type that allows an exemption), opened by the officer, who is its proposer. */
+    async function exemptable(): Promise<{ dossier: string; permit: string; optional: string }> {
+      const project = await freshProject({ group: 'A' });
+      const dossier = idOf(await openDossier(OFFICER, project));
+      return { dossier, permit: (await permitIn(dossier, 'API_EXEMPTABLE')).id, optional: (await permitIn(dossier, 'API_EVERY')).id };
+    }
+
+    it('exempts a permit on its basis and decision by someone other than the proposer, and it counts as covering the type; audited and announced once (AC-ST-PMT-003-1, UAT-AC372)', async () => {
+      const { dossier, permit } = await exemptable();
+      const key = `key-${randomUUID()}`;
+      const done = await exempt(permit, LEADER, 1, { exemption_basis: `  ${BASIS}  ` }, key);
+      expect(done.status).toBe(200);
+      expect(done.json).toMatchObject({ status: 'EXEMPTED', resource_version: 2 });
+      expect(await rows('select status, exemption_basis, exemption_decision_document_version_id, updated_by, created_by from machvon.permit where id = $1::uuid', [permit])).toEqual([
+        { status: 'EXEMPTED', exemption_basis: BASIS, exemption_decision_document_version_id: DOCUMENT, updated_by: memberId(LEADER), created_by: memberId(OFFICER) },
+      ]);
+      expect(await rows('select readiness_pct::text as readiness_pct from machvon.permit_dossier where id = $1::uuid', [dossier])).toEqual([{ readiness_pct: '50.00' }]);
+      const audit = await rows<{ safe_diff: Record<string, unknown> }>("select safe_diff from machvon.audit_event where resource_id = $1::uuid and action = 'pmt.permit_exempted'", [permit]);
+      expect(audit).toHaveLength(1);
+      expect(audit[0]?.safe_diff).toMatchObject({ from_status: 'PLANNED', to_status: 'EXEMPTED', exemption_decision_document_version_id: DOCUMENT, readiness_pct: '50.00' });
+      expect(JSON.stringify(audit)).not.toContain('Construction Law');
+      const events = await rows<{ payload: Record<string, unknown> }>("select payload from machvon.outbox_event where aggregate_id = $1::uuid and type = 'pmt.permit.exempted.v1'", [permit]);
+      expect(events).toHaveLength(1);
+      expect(events[0]?.payload).toMatchObject({ permit_type_code: 'API_EXEMPTABLE', status: 'EXEMPTED', actor_id: memberId(LEADER), exemption_decision_document_version_id: DOCUMENT });
+      // A retry with the same key is answered with the first answer and writes nothing again.
+      const retry = await exempt(permit, LEADER, 1, { exemption_basis: `  ${BASIS}  ` }, key);
+      expect([retry.status, retry.json.resource_id]).toEqual([200, permit]);
+      expect(await rows("select id from machvon.audit_event where resource_id = $1::uuid and action = 'pmt.permit_exempted'", [permit])).toHaveLength(1);
+      expect((await exempt(permit, LEADER, 2)).json.code).toBe('PERMIT_STATE_INVALID');
+    });
+
+    it('refuses the proposer with 403 SELF_APPROVAL_DENIED even when they hold the right to approve, and a type that does not allow an exemption with 422 EXEMPTION_NOT_ALLOWED (UAT-AC372)', async () => {
+      const project = await freshProject({ group: 'A' });
+      const opened = await post(`/projects/${project}/permit-dossiers`, { member: MAKER_CHECKER, body: { owner_unit_id: unitId(2) } });
+      expect(opened.status).toBe(200);
+      const permit = (await permitIn(idOf(opened), 'API_EXEMPTABLE')).id;
+      const own = await exempt(permit, MAKER_CHECKER, 1);
+      expect([own.status, own.json.code]).toEqual([403, 'SELF_APPROVAL_DENIED']);
+      expect(await rows('select status from machvon.permit where id = $1::uuid', [permit])).toEqual([{ status: 'PLANNED' }]);
+      expect((await exempt(permit, LEADER, 1)).status).toBe(200);
+
+      const { optional } = await exemptable();
+      const notAllowed = await exempt(optional, LEADER, 1);
+      expect([notAllowed.status, notAllowed.json.code]).toEqual([422, 'EXEMPTION_NOT_ALLOWED']);
+      expect(await rows('select status, exemption_basis from machvon.permit where id = $1::uuid', [optional])).toEqual([{ status: 'PLANNED', exemption_basis: null }]);
+    });
+
+    it('needs a basis and a decision document: what the contract requires is a 400, a basis of blanks or a document that cannot be read is a 422 naming the field', async () => {
+      const { permit } = await exemptable();
+      const noBasis = await post(`/permits/${permit}/exempt`, { member: LEADER, ifMatch: '"1"', body: { exemption_decision_document_version_id: DOCUMENT } });
+      const noDocument = await post(`/permits/${permit}/exempt`, { member: LEADER, ifMatch: '"1"', body: { exemption_basis: BASIS } });
+      expect([noBasis.status, noDocument.status]).toEqual([400, 400]);
+      const blank = await exempt(permit, LEADER, 1, { exemption_basis: '   ' });
+      expect([blank.status, blank.json.code, blank.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'exemption_basis']);
+      const unreadable = await exempt(permit, LEADER, 1, { exemption_decision_document_version_id: randomUUID() });
+      expect([unreadable.status, unreadable.json.code, unreadable.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'exemption_decision_document_version_id']);
+      const extra = await exempt(permit, LEADER, 1, { status: 'ISSUED' });
+      expect(extra.status).toBe(400);
+      expect(await rows('select status, version::text as version from machvon.permit where id = $1::uuid', [permit])).toEqual([{ status: 'PLANNED', version: '1' }]);
+    });
+
+    it('needs the version the caller saw, and a permit that is planned or submitted', async () => {
+      const { permit } = await exemptable();
+      const bare = await post(`/permits/${permit}/exempt`, { member: LEADER, body: { exemption_basis: BASIS, exemption_decision_document_version_id: DOCUMENT } });
+      expect(bare.status).toBe(428);
+      const stale = await exempt(permit, LEADER, 5);
+      expect([stale.status, stale.json.code]).toEqual([409, 'VERSION_CONFLICT']);
+      const issued = await issueFresh();
+      const late = await exempt(issued.permit, LEADER, issued.version);
+      expect([late.status, late.json.code]).toEqual([409, 'PERMIT_STATE_INVALID']);
+    });
+
+    it('is permitted by permit.exempt within its scope only: the officer who proposes, a reader, a stranger and a leader of another branch are refused', async () => {
+      const { permit } = await exemptable();
+      for (const member of [OFFICER, READER, NOBODY, MANAGER_ONLY]) expect((await exempt(permit, member, 1)).status).toBe(403);
+      const elsewhere = await exempt(permit, LEADER_OTHER_BRANCH, 1);
+      expect([elsewhere.status, elsewhere.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect(await rows('select status from machvon.permit where id = $1::uuid', [permit])).toEqual([{ status: 'PLANNED' }]);
+    });
+
+    it('does not reach a permit of another tenant: 404 and nothing changes there (AC-ST-PMT-002-2)', async () => {
+      const reply = await post(`/permits/${FOREIGN_PERMIT}/exempt`, {
+        member: LEADER,
+        ifMatch: '"1"',
+        body: { exemption_basis: BASIS, exemption_decision_document_version_id: DOCUMENT },
+      });
+      expect([reply.status, reply.json.code]).toEqual([404, 'RESOURCE_NOT_FOUND']);
+      expect(await rows('select status from machvon.permit where id = $1::uuid', [FOREIGN_PERMIT], TENANT_B)).toEqual([{ status: 'IN_APPRAISAL' }]);
     });
   });
 

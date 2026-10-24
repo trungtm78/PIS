@@ -3,10 +3,11 @@ import type { FormEvent, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { Field } from './components';
-import { useDecidePermit, useRecordMilestone, useRenewPermit, useRevokePermit } from './dossier-commands';
+import { useDeclareExemption, useDecidePermit, useRecordMilestone, useRenewPermit, useRevokePermit } from './dossier-commands';
 import { permitFieldMessage, permitProblemMessage, stepLabel } from './dossier-labels';
 import {
   EMPTY_DECISION,
+  EMPTY_EXEMPTION,
   EMPTY_RENEWAL,
   EMPTY_REVOCATION,
   actionsFor,
@@ -14,15 +15,17 @@ import {
   emptyMilestone,
   permitLink,
   toDecisionBody,
+  toExemptionBody,
   toMilestoneBody,
   toRenewalBody,
   toRevocationBody,
   validateDecision,
+  validateExemption,
   validateMilestone,
   validateRenewal,
   validateRevocation,
 } from './dossier-model';
-import type { DecisionField, DecisionForm, DecisionOutcome, FormErrors, MilestoneField, MilestoneForm, MilestoneStep, PermitDetailView, RenewalField, RenewalForm, RevocationField, RevocationForm } from './dossier-model';
+import type { DecisionField, DecisionForm, DecisionOutcome, ExemptionField, ExemptionForm, FormErrors, MilestoneField, MilestoneForm, MilestoneStep, PermitDetailView, RenewalField, RenewalForm, RevocationField, RevocationForm } from './dossier-model';
 import './pmt.css';
 
 const noop = (): void => undefined;
@@ -35,6 +38,8 @@ export interface PermitActionsProps {
   mayManage: boolean;
   /** `permit.record`: decide, renew, revoke. */
   mayRecord: boolean;
+  /** `permit.exempt`: declare the exemption of a permit (the server still refuses the person who proposed it). */
+  mayExempt: boolean;
 }
 
 /** The refusal of the last attempt and the notice of the last success of one form. */
@@ -72,7 +77,7 @@ function useFormState<Values extends object, Field extends string>(initial: Valu
  * appraisal, the renewal or revocation of an issued permit); the permissions decide who sees them. Every command names the version of the
  * permit that was read, so a permit that moved meanwhile is refused instead of overwritten.
  */
-type Done = { kind: 'decision' } | { kind: 'renew'; renewedId: string | undefined } | { kind: 'revoke' };
+type Done = { kind: 'decision' } | { kind: 'renew'; renewedId: string | undefined } | { kind: 'revoke' } | { kind: 'exempt' };
 
 /**
  * The notice of the last decision, renewal or revocation. It lives above the forms because the command moves the permit out of the status
@@ -84,6 +89,7 @@ function DoneNotice({ done }: { done: Done }) {
     <p className="callout" role="status" data-testid={`${done.kind}-saved`}>
       {done.kind === 'decision' ? t('pmt.permit.decision.saved.notice') : null}
       {done.kind === 'revoke' ? t('pmt.permit.revoke.saved.notice') : null}
+      {done.kind === 'exempt' ? t('pmt.permit.exempt.saved.notice') : null}
       {done.kind === 'renew' ? (
         <>
           {t('pmt.permit.renew.saved.notice')} {done.renewedId === undefined ? null : <Link to={permitLink(done.renewedId)}>{t('pmt.permit.renew.open.action')}</Link>}
@@ -93,7 +99,7 @@ function DoneNotice({ done }: { done: Done }) {
   );
 }
 
-export function PermitActions({ permit, today, mayManage, mayRecord }: PermitActionsProps) {
+export function PermitActions({ permit, today, mayManage, mayRecord, mayExempt }: PermitActionsProps) {
   const { t } = useTranslation();
   const [done, setDone] = useState<Done | undefined>(undefined);
   const actions = actionsFor(permit);
@@ -101,7 +107,8 @@ export function PermitActions({ permit, today, mayManage, mayRecord }: PermitAct
   const showDecision = mayRecord && actions.decide;
   const showRenewal = mayRecord && actions.renew;
   const showRevocation = mayRecord && actions.revoke;
-  const offered = actions.steps.length > 0 || actions.decide || actions.renew || actions.revoke;
+  const showExemption = mayExempt && actions.exempt;
+  const offered = actions.steps.length > 0 || actions.decide || actions.renew || actions.revoke || actions.exempt;
 
   if (!offered) {
     return (
@@ -113,7 +120,7 @@ export function PermitActions({ permit, today, mayManage, mayRecord }: PermitAct
       </>
     );
   }
-  if (!showMilestone && !showDecision && !showRenewal && !showRevocation) {
+  if (!showMilestone && !showDecision && !showRenewal && !showRevocation && !showExemption) {
     return (
       <p className="sub" data-testid="actions-readonly">
         {t('pmt.permit.actions.readonly.text')}
@@ -127,6 +134,7 @@ export function PermitActions({ permit, today, mayManage, mayRecord }: PermitAct
       {showDecision ? <DecisionFormView permit={permit} today={today} onDone={() => setDone({ kind: 'decision' })} /> : null}
       {showRenewal ? <RenewalFormView permit={permit} today={today} onDone={(renewedId) => setDone({ kind: 'renew', renewedId })} /> : null}
       {showRevocation ? <RevocationFormView permit={permit} onDone={() => setDone({ kind: 'revoke' })} /> : null}
+      {showExemption ? <ExemptionFormView permit={permit} onDone={() => setDone({ kind: 'exempt' })} /> : null}
     </div>
   );
 }
@@ -319,6 +327,44 @@ function RenewalFormView({ permit, today, onDone }: { permit: PermitDetailView; 
       <div className="formfooter">
         <button type="submit" className="primary" disabled={renew.isPending}>
           {t('pmt.permit.renew.save.action')}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function ExemptionFormView({ permit, onDone }: { permit: PermitDetailView; onDone: () => void }) {
+  const { t } = useTranslation();
+  const exempt = useDeclareExemption();
+  const { values, setValues, errors, setErrors, set } = useFormState<ExemptionForm, ExemptionField>(EMPTY_EXEMPTION);
+  const error = (field: ExemptionField): string | undefined => (errors[field] === undefined ? undefined : permitFieldMessage(t, errors[field]));
+
+  const send = (event: FormEvent): void => {
+    event.preventDefault();
+    if (exempt.isPending) return;
+    const found = validateExemption(values);
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+    void exempt.mutateAsync({ permitId: permit.id, version: permit.version, body: toExemptionBody(values) }).then(() => {
+      setValues(EMPTY_EXEMPTION);
+      onDone();
+    }, noop);
+  };
+
+  return (
+    <form className="card" onSubmit={send} noValidate aria-label={t('pmt.permit.exempt.aria')}>
+      <h2>{t('pmt.permit.exempt.title')}</h2>
+      <p className="sub">{t('pmt.permit.exempt.hint.text')}</p>
+      <Outcome failure={exempt.isError ? exempt.error : undefined} notice={null} testId="exempt-saved" />
+      <Field id="exempt-basis" label={t('pmt.permit.exempt.basis.label')} error={error('basis')}>
+        <textarea id="exempt-basis" value={values.basis} onChange={(event) => set('basis', event.target.value)} />
+      </Field>
+      <Field id="exempt-scan" label={t('pmt.permit.exempt.scan.label')} error={error('decisionDocumentVersionId')} hint={t('pmt.permit.scan.hint')}>
+        <input id="exempt-scan" value={values.decisionDocumentVersionId} onChange={(event) => set('decisionDocumentVersionId', event.target.value)} />
+      </Field>
+      <div className="formfooter">
+        <button type="submit" className="primary" disabled={exempt.isPending}>
+          {t('pmt.permit.exempt.save.action')}
         </button>
       </div>
     </form>

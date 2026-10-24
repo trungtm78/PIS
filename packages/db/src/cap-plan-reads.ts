@@ -61,6 +61,10 @@ export interface CapitalPlanRow {
   supersedesId: string | null;
   effectiveAt: string | null;
   publishedAt: string | null;
+  /** When the revision was last submitted and last decided, and the reason of that decision (what a planner reads when a plan is returned). */
+  submittedAt: string | null;
+  decidedAt: string | null;
+  decisionReason: string | null;
   version: number;
   /** Creation time to the microsecond (UTC): the ordering key of the list and its cursor. */
   createdAtKey: string;
@@ -138,6 +142,7 @@ export interface PlanLineRow {
   /** The balance of the line once the plan is published; null until then. */
   committedVnd: string | null;
   reservedVnd: string | null;
+  disbursedVnd: string | null;
   version: number;
   createdAtKey: string;
 }
@@ -159,6 +164,9 @@ interface PlanSql {
   supersedes_id: string | null;
   effective_at: string | null;
   published_at: string | null;
+  submitted_at: string | null;
+  decided_at: string | null;
+  decision_reason: string | null;
   version: string;
   created_at_key: string;
 }
@@ -166,7 +174,9 @@ interface PlanSql {
 const PLAN_SELECT = `select cp.id, cp.plan_code, cp.plan_kind, cp.plan_year, cp.period_from_year, cp.period_to_year, cp.scope_unit_id, su.name as scope_unit_name, cp.revision,
     cp.status, cp.decision_document_id, dd.symbol as decision_symbol, dd.issued_on::text as decision_issued_on, cp.supersedes_id,
     to_char(cp.effective_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as effective_at,
-    to_char(cp.published_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as published_at, cp.version::text as version, ${timestampKey('cp.created_at')} as created_at_key
+    to_char(cp.published_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as published_at,
+    to_char(cp.submitted_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as submitted_at,
+    to_char(cp.decided_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as decided_at, cp.decision_reason, cp.version::text as version, ${timestampKey('cp.created_at')} as created_at_key
   from machvon.capital_plan cp
   join machvon.organization_unit su on su.tenant_id = cp.tenant_id and su.id = cp.scope_unit_id
   left join machvon.document dd on dd.tenant_id = cp.tenant_id and dd.id = cp.decision_document_id`;
@@ -187,6 +197,9 @@ const toPlan = (row: PlanSql): CapitalPlanRow => ({
   supersedesId: row.supersedes_id,
   effectiveAt: row.effective_at,
   publishedAt: row.published_at,
+  submittedAt: row.submitted_at,
+  decidedAt: row.decided_at,
+  decisionReason: row.decision_reason,
   version: Number(row.version),
   createdAtKey: row.created_at_key,
 });
@@ -233,6 +246,7 @@ interface LineSql {
   previous_line_id: string | null;
   committed_vnd: string | null;
   reserved_vnd: string | null;
+  disbursed_vnd: string | null;
   version: string;
   created_at_key: string;
 }
@@ -243,7 +257,7 @@ const LINE_SELECT = `select al.id, pv.capital_plan_id, cp.plan_code, cp.status a
     (a.amount_vnd - a.allocated_total_vnd)::text as appropriation_remaining, al.bucket, al.source_year, al.amount_vnd::text as amount_vnd,
     al.ctmtqg_subset_vnd::text as ctmtqg_subset_vnd, al.budget_level, al.origin, al.is_extended, al.extended_to::text as extended_to, al.extension_document_id,
     ed.symbol as extension_symbol, ed.issued_on::text as extension_issued_on, al.program_master_version_id, pr.business_key as program_key, pvv.label as program_label,
-    al.previous_line_id, ab.committed_vnd::text as committed_vnd, ab.reserved_vnd::text as reserved_vnd, al.version::text as version, ${timestampKey('al.created_at')} as created_at_key
+    al.previous_line_id, ab.committed_vnd::text as committed_vnd, ab.reserved_vnd::text as reserved_vnd, ab.disbursed_vnd::text as disbursed_vnd, al.version::text as version, ${timestampKey('al.created_at')} as created_at_key
   from ${LINE_FROM}
   join machvon.master_record_version fv on fv.tenant_id = al.tenant_id and fv.id = al.fund_source_version_id
   join machvon.master_record fr on fr.tenant_id = fv.tenant_id and fr.id = fv.master_record_id
@@ -288,6 +302,7 @@ const toLine = (row: LineSql): PlanLineRow => ({
   previousLineId: row.previous_line_id,
   committedVnd: row.committed_vnd,
   reservedVnd: row.reserved_vnd,
+  disbursedVnd: row.disbursed_vnd,
   version: Number(row.version),
   createdAtKey: row.created_at_key,
 });

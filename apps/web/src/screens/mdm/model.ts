@@ -38,6 +38,9 @@ export interface RecordView {
   parentRecordId: string | null;
   legalBasis: string | null;
   attributes: Record<string, unknown>;
+  /** What the tenant set on an entry of the platform through its alias (ST-MDM-002): a label to show and a place in the order. */
+  aliasLabel: string | null;
+  aliasOrder: number | null;
 }
 
 export interface Impact {
@@ -116,6 +119,8 @@ export function toRecord(raw: unknown): RecordView | undefined {
     parentRecordId: nullableText(row.parent_record_id),
     legalBasis: nullableText(row.legal_basis),
     attributes: asRecord(row.attributes) ?? {},
+    aliasLabel: nullableText(row.alias_label),
+    aliasOrder: whole(row.alias_order) ?? null,
   };
 }
 
@@ -1013,3 +1018,6 @@ export function describeGlossaryProblem(error: unknown): ProblemView {
   if (error instanceof ApiError && error.code === 'SCOPE_DENIED') return { reason: 'notOwner', field: undefined };
   return describeProblem(error);
 }
+
+/** The reserved system of the alias a tenant sets on an entry of the platform: a label to show (LABEL) or a place in the order (ORDER). */
+export const TENANT_ALIAS_SYSTEM = 'TENANT_ALIAS';

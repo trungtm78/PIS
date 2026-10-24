@@ -826,6 +826,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getMyEntitlements({Map<String, Object?>? query}) =>
       execute('getMyEntitlements', query: query);
 
+  Future<Object?> getMyNotificationPreferences({Map<String, Object?>? query}) =>
+      execute('getMyNotificationPreferences', query: query);
+
   Future<Object?> getMyPublishedTheme({Map<String, Object?>? query}) =>
       execute('getMyPublishedTheme', query: query);
 
@@ -1222,6 +1225,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesProject({Map<String, Object?>? query}) =>
       execute('get_resources_project', query: query);
 
+  Future<Object?> getResourcesProjectAccountability({Map<String, Object?>? query}) =>
+      execute('get_resources_project_accountability', query: query);
+
   Future<Object?> getResourcesProjectId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_project_id', path: <String, Object?>{'id': id}, query: query);
 
@@ -1326,6 +1332,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getResourcesSupportAccessGrantId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_support_access_grant_id', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getResourcesTaskForce({Map<String, Object?>? query}) =>
+      execute('get_resources_task_force', query: query);
 
   Future<Object?> getResourcesTenant({Map<String, Object?>? query}) =>
       execute('get_resources_tenant', query: query);
@@ -1497,6 +1506,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listIssueSlaPolicies({Map<String, Object?>? query}) =>
       execute('listIssueSlaPolicies', query: query);
+
+  Future<Object?> listLandParcels({Map<String, Object?>? query}) =>
+      execute('listLandParcels', query: query);
+
+  Future<Object?> listLandSections({Map<String, Object?>? query}) =>
+      execute('listLandSections', query: query);
 
   Future<Object?> listMasterChangeRequests({Map<String, Object?>? query}) =>
       execute('listMasterChangeRequests', query: query);

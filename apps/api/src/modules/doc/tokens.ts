@@ -19,3 +19,6 @@ export const DOC_REVOCATION = Symbol('DOC_REVOCATION');
 
 /** Injection token of the `SigningPort`: the certification authority adapter, or the MOCK adapter until one exists. */
 export const DOC_SIGNING_PORT = Symbol('DOC_SIGNING_PORT');
+
+/** Injection token of the `EmailChannelPort` of the distribution; the adapter that says "no provider" is bound until a mail transport exists. */
+export const DOC_EMAIL_CHANNEL = Symbol('DOC_EMAIL_CHANNEL');

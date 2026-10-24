@@ -7,7 +7,7 @@ import { useScreenState } from '../../states/useScreenState';
 import { MilestoneTimeline } from './MilestoneTimeline';
 import { PermitActions } from './PermitActions';
 import { PermitSummary } from './PermitSummary';
-import { DOSSIER_PATH, MANAGE_PERMISSION, RECORD_PERMISSION, dossierLink } from './dossier-model';
+import { DOSSIER_PATH, EXEMPT_PERMISSION, MANAGE_PERMISSION, RECORD_PERMISSION, dossierLink } from './dossier-model';
 import { usePermit } from './hooks';
 import { vietnamToday } from './model';
 import './pmt.css';
@@ -61,7 +61,7 @@ function PermitDetailContent({ route }: ScreenProps) {
                 <PermitSummary permit={permit.data} />
                 <MilestoneTimeline milestones={permit.data.milestones} />
               </div>
-              <PermitActions permit={permit.data} today={vietnamToday()} mayManage={allowed(MANAGE_PERMISSION)} mayRecord={allowed(RECORD_PERMISSION)} />
+              <PermitActions permit={permit.data} today={vietnamToday()} mayManage={allowed(MANAGE_PERMISSION)} mayRecord={allowed(RECORD_PERMISSION)} mayExempt={allowed(EXEMPT_PERMISSION)} />
             </div>
           )}
         </StateBoundary>

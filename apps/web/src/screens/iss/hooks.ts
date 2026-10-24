@@ -3,6 +3,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
+import { toBreach } from './escalation-model';
+import type { BreachView } from './escalation-model';
 import { eventsPageOf, toIssueLine, toAssigneeOption, toIssueView, toProjectOption } from './issue-model';
 import type { CreateBody, IssueEventView, IssueLine, AssigneeOption, IssueView, ProjectOption } from './issue-model';
 import { ISSUE_CATEGORY_TYPE, toCategory, toPolicy, toUnit } from './model';
@@ -204,4 +206,113 @@ export function useTransferIssue() {
   return useCommand<TransferInput>((input, attempt) =>
     client.command('transferIssueUnit', { path: { id: input.id }, body: { target_unit_id: input.targetUnitId, reason: input.reason }, ifMatchVersion: input.version, attempt }),
   );
+}
+
+export interface RequestVerificationInput {
+  id: string;
+  version: number;
+  resultNote: string;
+  evidenceDocumentVersionIds: string[];
+}
+
+/** The handler declares the work done, with the result and the documents that show it (requestIssueVerification). */
+export function useRequestVerification() {
+  const client = useApiClient();
+  return useCommand<RequestVerificationInput>((input, attempt) =>
+    client.command('requestIssueVerification', {
+      path: { id: input.id },
+      body: { result_note: input.resultNote, evidence_document_version_ids: input.evidenceDocumentVersionIds },
+      ifMatchVersion: input.version,
+      attempt,
+    }),
+  );
+}
+
+export interface CloseInput {
+  id: string;
+  version: number;
+  verificationNote: string;
+}
+
+/** A person other than the handler confirms the result and closes the issue (closeIssue). */
+export function useCloseIssue() {
+  const client = useApiClient();
+  return useCommand<CloseInput>((input, attempt) => client.command('closeIssue', { path: { id: input.id }, body: { verification_note: input.verificationNote }, ifMatchVersion: input.version, attempt }));
+}
+
+export interface ReopenInput {
+  id: string;
+  version: number;
+  reason: string;
+}
+
+export function useReopenIssue() {
+  const client = useApiClient();
+  return useCommand<ReopenInput>((input, attempt) => client.command('reopenIssue', { path: { id: input.id }, body: { reason: input.reason }, ifMatchVersion: input.version, attempt }));
+}
+
+export interface ExtendInput {
+  id: string;
+  version: number;
+  newDueAt: string;
+  reason: string;
+}
+
+export function useExtendIssue() {
+  const client = useApiClient();
+  return useCommand<ExtendInput>((input, attempt) =>
+    client.command('extendIssueDeadline', { path: { id: input.id }, body: { new_due_at: input.newDueAt, reason: input.reason }, ifMatchVersion: input.version, attempt }),
+  );
+}
+
+export interface EscalateInput {
+  id: string;
+  version: number;
+  level: number;
+  targetUnitId?: string;
+  taskForceId?: string;
+  reason: string;
+}
+
+/** Raises an issue to a unit or to the task force by hand (escalateIssue); the issue stays open. */
+export function useEscalateIssue() {
+  const client = useApiClient();
+  return useCommand<EscalateInput>((input, attempt) =>
+    client.command('escalateIssue', {
+      path: { id: input.id },
+      body: {
+        level: input.level as 1 | 2 | 3,
+        reason: input.reason,
+        ...(input.targetUnitId === undefined ? {} : { target_unit_id: input.targetUnitId }),
+        ...(input.taskForceId === undefined ? {} : { task_force_id: input.taskForceId }),
+      },
+      ifMatchVersion: input.version,
+      attempt,
+    }),
+  );
+}
+
+export interface AcceptEscalationInput {
+  id: string;
+  note?: string;
+}
+
+/** The receiver accepts an escalation (acceptIssueEscalation). */
+export function useAcceptEscalation() {
+  const client = useApiClient();
+  return useCommand<AcceptEscalationInput>((input, attempt) =>
+    client.command('acceptIssueEscalation', { path: { id: input.id }, body: input.note === undefined ? {} : { note: input.note }, attempt }),
+  );
+}
+
+/** The escalations of the issues that are not closed that the caller may see or answer (ISS-10), at one level or all. */
+export function useBreaches(level: '' | '1' | '2' | '3') {
+  const client = useApiClient();
+  const key = useIssueKey();
+  return useQuery<BreachView[]>({
+    queryKey: [...key, 'breaches', level],
+    queryFn: async () => (await client.readAll('listIssueSlaBreaches', level === '' ? {} : { query: { level: Number(level) } })).flatMap((raw) => toBreach(raw) ?? []),
+    enabled: key[1] !== undefined,
+    retry: false,
+  });
 }

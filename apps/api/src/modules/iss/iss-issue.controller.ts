@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { IssIssueStore, issueScope } from '@machvon/db';
-import type { IssueHeader, IssuePlace, IssueScopes } from '@machvon/db';
+import type { IssuePlace, IssueScopes } from '@machvon/db';
 import { DomainError, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -11,6 +11,7 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { issueEventPayload } from './issue-event';
 
 const ISSUE_RESOURCE = 'issue';
 const CREATE_PERMISSION = PERMISSIONS.createIssue;
@@ -22,26 +23,6 @@ const READ_PERMISSION = PERMISSIONS.get_resources_issue_id;
 function scopesOf(access: EffectiveAccess, permission: string, now: Date, reporter?: string): IssueScopes {
   const options = reporter === undefined ? {} : { reporter };
   return { act: issueScope(access, permission, now, options), read: issueScope(access, READ_PERMISSION, now, options) };
-}
-
-/** What every event of an issue carries to NOT, HOME and BI: ids, the state and the dates, never the text or the position (ISS 9). */
-function eventPayload(scope: CommandScope, issue: IssueHeader, now: Date, extra: Record<string, unknown> = {}): Record<string, unknown> {
-  return {
-    tenant_id: scope.tenant.tenantId,
-    issue_id: issue.id,
-    code: issue.code,
-    project_id: issue.projectId,
-    owner_unit_id: issue.ownerUnitId,
-    severity: issue.severity,
-    status: issue.status,
-    assignee_id: issue.assigneeId,
-    escalation_level: issue.escalationLevel,
-    due_at: issue.dueAt,
-    version: issue.version,
-    actor_id: scope.tenant.membershipId,
-    occurred_at: now.toISOString(),
-    ...extra,
-  };
 }
 
 /**
@@ -112,7 +93,7 @@ export class IssIssueController {
       aggregateVersion: created.version,
       type: 'iss.issue.opened.v1',
       schemaVersion: 1,
-      payload: eventPayload(scope, created, now, { response_due_at: created.responseDueAt, sla_policy_id: created.policyId, source_module: created.sourceModule }),
+      payload: issueEventPayload(scope, created, now, { response_due_at: created.responseDueAt, sla_policy_id: created.policyId, source_module: created.sourceModule }),
       eventKey: `${ISSUE_RESOURCE}:${created.id}:${created.version}`,
     });
     return commandResult(scope, created.status, created.version, created.id);
@@ -145,7 +126,7 @@ export class IssIssueController {
       aggregateVersion: assigned.version,
       type: 'iss.issue.assigned.v1',
       schemaVersion: 1,
-      payload: eventPayload(scope, assigned, now, { previous_assignee_id: assigned.previousAssigneeId }),
+      payload: issueEventPayload(scope, assigned, now, { previous_assignee_id: assigned.previousAssigneeId }),
       eventKey: `${ISSUE_RESOURCE}:${assigned.id}:${assigned.version}`,
     });
     return commandResult(scope, assigned.status, assigned.version, assigned.id);
@@ -170,7 +151,7 @@ export class IssIssueController {
       aggregateVersion: started.version,
       type: 'iss.issue.started.v1',
       schemaVersion: 1,
-      payload: eventPayload(scope, started, now),
+      payload: issueEventPayload(scope, started, now),
       eventKey: `${ISSUE_RESOURCE}:${started.id}:${started.version}`,
     });
     return commandResult(scope, started.status, started.version, started.id);
@@ -196,7 +177,7 @@ export class IssIssueController {
       aggregateVersion: commented.version,
       type: 'iss.issue.commented.v1',
       schemaVersion: 1,
-      payload: eventPayload(scope, commented, now, { event_id: commented.eventId, document_attached: commented.attachedDocument }),
+      payload: issueEventPayload(scope, commented, now, { event_id: commented.eventId, document_attached: commented.attachedDocument }),
       eventKey: `${ISSUE_RESOURCE}:${commented.id}:comment:${commented.eventId}`,
     });
     return commandResult(scope, commented.status, commented.version, commented.id);
@@ -229,7 +210,7 @@ export class IssIssueController {
       aggregateVersion: moved.version,
       type: 'iss.issue.transferred.v1',
       schemaVersion: 1,
-      payload: eventPayload(scope, moved, now, { from_unit_id: moved.fromUnitId }),
+      payload: issueEventPayload(scope, moved, now, { from_unit_id: moved.fromUnitId }),
       eventKey: `${ISSUE_RESOURCE}:${moved.id}:${moved.version}`,
     });
     return commandResult(scope, moved.status, moved.version, moved.id);

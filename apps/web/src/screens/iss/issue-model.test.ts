@@ -77,6 +77,33 @@ describe('the readers of the issue reads', () => {
     expect(toIssueView(detail(1, { sla: { policy_code: 'X' }, geo: { lat: '1' } }))).toMatchObject({ sla: null, geo: null });
   });
 
+  it('reads the extensions, the reopening window and the evidence, the outcome and the dates that an event of the end of an issue carries (ST-ISS-003)', () => {
+    const view = toIssueView(
+      detail(1, {
+        extensions: { used: 1, limit: 2 },
+        reopen_window_days: 30,
+        events: [
+          event(1, 'VERIFICATION_REQUESTED', { payload: { evidence_document_version_ids: ['d1', 7, 'd2'] } }),
+          event(2, 'REASSIGNED', { payload: { outcome: 'VERIFICATION_REFUSED' } }),
+          event(3, 'EXTENDED', { payload: { previous_due_at: '2026-10-21T10:00:00.000Z', new_due_at: '2026-10-23T10:00:00.000Z' } }),
+        ],
+      }),
+    );
+    expect(view).toMatchObject({ extensions: { used: 1, limit: 2 }, reopenWindowDays: 30 });
+    expect(view?.events[0]).toMatchObject({ evidenceIds: ['d1', 'd2'], outcome: null, previousDueAt: null });
+    expect(view?.events[1]).toMatchObject({ evidenceIds: [], outcome: 'VERIFICATION_REFUSED' });
+    expect(view?.events[2]).toMatchObject({ previousDueAt: '2026-10-21T10:00:00.000Z', newDueAt: '2026-10-23T10:00:00.000Z' });
+    expect(toIssueView(detail(2, { extensions: undefined, reopen_window_days: undefined }))).toMatchObject({ extensions: { used: 0, limit: 0 }, reopenWindowDays: 0 });
+  });
+
+  it('maps the refusals of the end of an issue to the reasons the screens tell', () => {
+    const refusal = (code: string) => describeProblem(new ApiError({ status: 422, code, correlationId: 'c', extensions: {} })).reason;
+    expect(refusal('EVIDENCE_REQUIRED')).toBe('evidenceRequired');
+    expect(refusal('SELF_APPROVAL_DENIED')).toBe('selfApproval');
+    expect(refusal('EXTENSION_LIMIT_REACHED')).toBe('extensionLimit');
+    expect(refusal('REOPEN_WINDOW_EXPIRED')).toBe('reopenWindow');
+  });
+
   it('reads an event and the page of a timeline with its cursor', () => {
     expect(toEvent(event(1, 'ASSIGNED', { to_assignee: person(2), from_status: 'OPEN', to_status: 'ASSIGNED' }))).toMatchObject({ kind: 'ASSIGNED', toAssignee: { name: person(2).display_name }, fromStatus: 'OPEN' });
     expect(toEvent(event(1, 'EXPLODED'))).toBeUndefined();

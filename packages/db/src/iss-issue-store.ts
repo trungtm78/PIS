@@ -52,7 +52,7 @@ const LONGITUDE = /^-?\d{1,3}(\.\d{1,15})?$/;
 const ACCURACY = /^\d{1,6}(\.\d{1,15})?$/;
 const SEVERITIES: ReadonlySet<string> = new Set(SLA_SEVERITIES);
 const SOURCES: ReadonlySet<string> = new Set(ISSUE_SOURCES);
-const ASSIGNABLE: ReadonlySet<IssueStatus> = new Set(['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'REOPENED']);
+const ASSIGNABLE: ReadonlySet<IssueStatus> = new Set(['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'REOPENED', 'PENDING_VERIFICATION']);
 const MAX_OVERDUE_SCAN_DAYS = 3660;
 const DAY_MS = 86_400_000;
 
@@ -145,6 +145,8 @@ export interface IssueDetail extends IssueLine {
   geoLat: string | null;
   geoLng: string | null;
   geoAccuracyM: string | null;
+  /** How many times the deadline has been extended (ST-ISS-003). */
+  extensionCount: number;
   policy: { code: string; revision: number; responseHours: number; resolveHours: number; requireEvidence: boolean; requireIndependentVerifier: boolean };
   place: IssuePlace;
 }
@@ -276,6 +278,7 @@ interface DetailSql extends LineSql {
   geo_lat: string | null;
   geo_lng: string | null;
   geo_accuracy_m: string | null;
+  extension_count: number;
   policy_code: string;
   policy_revision: number;
   response_hours: number;
@@ -303,7 +306,8 @@ interface EventSql {
   created_at_key: string;
 }
 
-interface LockedSql {
+/** An issue row locked for update by a command: what every command of the issue module reads before it acts. */
+export interface LockedSql {
   id: string;
   code: string;
   version: string;
@@ -319,9 +323,9 @@ interface LockedSql {
   due_at: string;
 }
 
-const iso = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
+export const iso = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
 
-const SCOPE_FROM = `machvon.issue i join machvon.organization_unit ou on ou.tenant_id = i.tenant_id and ou.id = i.owner_unit_id`;
+export const SCOPE_FROM = `machvon.issue i join machvon.organization_unit ou on ou.tenant_id = i.tenant_id and ou.id = i.owner_unit_id`;
 
 const LINE_FROM = `${SCOPE_FROM}
   join machvon.project p on p.tenant_id = i.tenant_id and p.id = i.project_id
@@ -337,7 +341,7 @@ const LINE_COLUMNS = `i.id, i.code, i.title, i.project_id, p.code as project_cod
   i.reopen_count, i.sla_policy_id, i.version::text as version, pol.calendar_code`;
 
 const DETAIL_COLUMNS = `${LINE_COLUMNS}, i.description, ${iso('i.resolved_at')} as resolved_at, i.closed_by, i.verifier_id, i.geo_consent,
-  i.geo_lat::text as geo_lat, i.geo_lng::text as geo_lng, i.geo_accuracy_m::text as geo_accuracy_m, pol.code as policy_code, pol.revision as policy_revision,
+  i.geo_lat::text as geo_lat, i.geo_lng::text as geo_lng, i.geo_accuracy_m::text as geo_accuracy_m, i.extension_count, pol.code as policy_code, pol.revision as policy_revision,
   pol.response_hours, pol.resolve_hours, pol.require_evidence, pol.require_independent_verifier, ou.path as owner_unit_path`;
 
 const toLine = (row: LineSql): IssueLine => ({
@@ -464,7 +468,7 @@ function checked(input: NewIssue): CheckedIssue {
 /** What the retry of a create is compared with: everything the person asked for, so the same id with other content is not taken for a retry. */
 const requestHashOf = (issue: CheckedIssue): string => sha256Hex(canonicalJson(issue));
 
-const toHeader = (row: LockedSql, overrides: Partial<IssueHeader> = {}): IssueHeader => ({
+export const toHeader = (row: LockedSql, overrides: Partial<IssueHeader> = {}): IssueHeader => ({
   id: row.id,
   code: row.code,
   projectId: row.project_id,
@@ -478,14 +482,14 @@ const toHeader = (row: LockedSql, overrides: Partial<IssueHeader> = {}): IssueHe
   ...overrides,
 });
 
-const placeOfLocked = (row: LockedSql): IssuePlace => ({
+export const placeOfLocked = (row: LockedSql): IssuePlace => ({
   ownerUnitId: row.owner_unit_id,
   ownerUnitPath: row.owner_unit_path,
   projectId: row.project_id,
   ...(row.contract_id === null ? {} : { contractId: row.contract_id }),
 });
 
-const LOCK_COLUMNS = `i.id, i.code, i.version::text as version, i.status, i.assignee_id, i.owner_unit_id, ou.path as owner_unit_path, i.project_id, i.contract_id,
+export const LOCK_COLUMNS = `i.id, i.code, i.version::text as version, i.status, i.assignee_id, i.owner_unit_id, ou.path as owner_unit_path, i.project_id, i.contract_id,
   i.reported_by, i.severity, i.escalation_level, ${iso('i.due_at')} as due_at`;
 
 function nextDay(date: string): string {
@@ -537,6 +541,7 @@ export class IssIssueStore {
       geoLat: row.geo_lat,
       geoLng: row.geo_lng,
       geoAccuracyM: row.geo_accuracy_m,
+      extensionCount: row.extension_count,
       policy: {
         code: row.policy_code,
         revision: row.policy_revision,
@@ -683,17 +688,23 @@ export class IssIssueStore {
     };
   }
 
-  /** Gives the issue to a person who can work it (ISS 3.1 step 2); assigning again changes the person. */
+  /**
+   * Gives the issue to a person who can work it (ISS 3.1 step 2); assigning again changes the person. Giving back an issue that waits for
+   * verification is the way the verifier refuses the result (ISS 3.1 step 5): it needs the reason, and the handler's claim of being done is withdrawn.
+   */
   async assign(tx: TenantTx, id: string, expectedVersion: number, input: { assigneeId: string; note?: string | undefined }, actor: string, scopes: IssueScopes, now: Date): Promise<AssignedIssue> {
     const locked = await this.lock(tx, id, scopes);
     if (Number(locked.version) !== expectedVersion) throw versionConflict(Number(locked.version));
     if (!ASSIGNABLE.has(locked.status)) throw new DomainError('ISSUE_STATE_INVALID', 409);
     const assigneeId = uuidOf(input.assigneeId, 'assignee_id');
     const note = input.note === undefined ? null : issueText(input.note, 'note');
+    const refusal = locked.status === 'PENDING_VERIFICATION';
+    if (refusal && note === null) throw invalid('note');
     if (!(await this.assigneeHolds(tx, assigneeId, placeOfLocked(locked), now))) throw new DomainError('ASSIGNEE_OUT_OF_SCOPE', 422);
     if ((locked.status === 'ASSIGNED' || locked.status === 'IN_PROGRESS') && locked.assignee_id === assigneeId) throw invalid('assignee_id');
     await tx.query(
-      `update machvon.issue set assignee_id = $2::uuid, status = 'ASSIGNED', updated_at = $4::timestamptz, updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,
+      `update machvon.issue set assignee_id = $2::uuid, status = 'ASSIGNED', resolved_at = case when status = 'PENDING_VERIFICATION' then null else resolved_at end,
+              updated_at = $4::timestamptz, updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,
       [id, assigneeId, actor, now.toISOString()],
     );
     await this.record(tx, id, actor, {
@@ -703,6 +714,7 @@ export class IssIssueStore {
       fromAssigneeId: locked.assignee_id,
       toAssigneeId: assigneeId,
       note,
+      ...(refusal ? { payload: { outcome: 'VERIFICATION_REFUSED' } } : {}),
     });
     return { ...toHeader(locked, { status: 'ASSIGNED', assigneeId, version: Number(locked.version) + 1 }), previousAssigneeId: locked.assignee_id, previousStatus: locked.status };
   }
@@ -857,7 +869,7 @@ export class IssIssueStore {
   }
 
   /** Locks the issue for update inside the scope of the caller; one the caller can read but not act on is a refusal, not a miss. */
-  private async lock(tx: TenantTx, id: string, scopes: IssueScopes): Promise<LockedSql> {
+  async lock(tx: TenantTx, id: string, scopes: IssueScopes): Promise<LockedSql> {
     const predicate = scopes.act(2);
     const rows = await tx.query<LockedSql>(`select ${LOCK_COLUMNS} from ${SCOPE_FROM} where i.id = $1::uuid and ${predicate.sql} for update of i`, [id, ...predicate.params]);
     const row = rows[0];
@@ -867,7 +879,11 @@ export class IssIssueStore {
     throw seen[0] === undefined ? new DomainError('RESOURCE_NOT_FOUND', 404) : new DomainError('SCOPE_DENIED', 403);
   }
 
-  private async record(
+  /**
+   * Appends an event to the timeline of an issue and answers its id. The time of the event is the time of the statement, not of the transaction, so the events
+   * a job writes for one issue in one pass keep the order in which they happened.
+   */
+  async record(
     tx: TenantTx,
     issueId: string,
     actor: string,
@@ -885,8 +901,8 @@ export class IssIssueStore {
     const id = randomUUID();
     await tx.query(
       `insert into machvon.issue_event
-         (tenant_id, id, issue_id, event_kind, from_status, to_status, from_assignee_id, to_assignee_id, note, document_version_id, payload, created_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5, $6::uuid, $7::uuid, $8, $9::uuid, $10::jsonb, $11::uuid)`,
+         (tenant_id, id, issue_id, event_kind, from_status, to_status, from_assignee_id, to_assignee_id, note, document_version_id, payload, created_by, created_at)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5, $6::uuid, $7::uuid, $8, $9::uuid, $10::jsonb, $11::uuid, clock_timestamp())`,
       [
         id, issueId, event.kind, event.fromStatus ?? null, event.toStatus ?? null, event.fromAssigneeId ?? null, event.toAssigneeId ?? null, event.note ?? null,
         event.documentVersionId ?? null, JSON.stringify(event.payload ?? {}), actor,

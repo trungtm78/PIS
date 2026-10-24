@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { DocumentTemplateStore, TenantDatabase } from '@machvon/db';
+import { DocumentTemplateStore, TenantDatabase, rendersWatermarked } from '@machvon/db';
 import type { TemplateDetail, TemplateSummary } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -77,7 +77,7 @@ function summaryView(row: TemplateSummary): Record<string, unknown> {
     layout_profile_id: row.layoutProfileId,
     layout_confirmation_status: row.layoutConfirmationStatus,
     // A render carries the watermark while the template or its layout profile waits for its confirmation (BR-DOC-10).
-    renders_watermarked: row.confirmationStatus !== 'CONFIRMED' || row.layoutConfirmationStatus !== 'CONFIRMED',
+    renders_watermarked: rendersWatermarked(row),
     effective_from: row.effectiveFrom,
     effective_until: row.effectiveUntil,
     status: row.status,

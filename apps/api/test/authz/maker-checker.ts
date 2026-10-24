@@ -151,6 +151,45 @@ const SEED_APPROPRIATION = `with d as (
   values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.master_record_version where code = 'MX-CAP-FUND' limit 1), 2026, 'PM_ASSIGNED', 'CENTRAL', 1000,
           $1::uuid, 'Matrix authority', 2026, 1, 'DRAFT', $2::uuid, $2::uuid)`;
 
+/**
+ * A capital plan made by `$2` in the status `$3` (IN_REVIEW as submitted by the maker, or APPROVED as approved by a reviewer after the maker submitted it),
+ * at the root unit of the tenant. The code is made from the id.
+ */
+const SEED_CAPITAL_PLAN = `insert into machvon.capital_plan
+    (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, submitted_by, approved_by, created_by, updated_by, version)
+  values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MX-' || $1::uuid::text, 'ANNUAL', 2031, 2031, 2031,
+          (select id from machvon.organization_unit order by char_length(path), path limit 1), 1, $3::text, $2::uuid,
+          case $3::text when 'APPROVED' then '${REVIEWER}'::uuid end, $2::uuid, $2::uuid, 1)`;
+
+/**
+ * An APPROVED capital plan that can be published, made by `$2` and submitted by `$2`, approved by a reviewer: its decision document (the same id), a published
+ * appropriation of the fund source of the matrix, a BUDGETED project (the national code rule does not apply to it) and one line of 100 dong. Everything has the id `$1`.
+ */
+const SEED_PUBLISHABLE_PLAN = `with d as (
+    insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, symbol, issued_on, effect_status, classification, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'REFERENCE', 'QD', 'Matrix plan decision', 'MX-' || $1::uuid::text, '2026-01-15', 'EFFECTIVE', 'INTERNAL', $2::uuid, $2::uuid)
+  ), a as (
+    insert into machvon.appropriation
+      (tenant_id, id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, allocated_total_vnd, decision_document_id, issuing_authority, source_year, revision, status, approved_by, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.master_record_version where code = 'MX-CAP-FUND' limit 1), 2031, 'PM_ASSIGNED', 'CENTRAL', 1000, 100,
+            $1::uuid, 'Matrix authority', 2031, 1, 'PUBLISHED', '${REVIEWER}'::uuid, $2::uuid, $2::uuid)
+  ), p as (
+    insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, project_group, version, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MX-PL-' || $1::uuid::text, 'Matrix funded project', '${id(0x10, 2)}'::uuid, '${id(0x8a, 3)}'::uuid, 'INTERNAL', 1000, 'BUDGETED', 'B', 1, $2::uuid, $2::uuid)
+  ), c as (
+    insert into machvon.capital_plan
+      (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, submitted_by, approved_by, created_by, updated_by, version)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MX-' || $1::uuid::text, 'ANNUAL', 2031, 2031, 2031,
+            (select id from machvon.organization_unit order by char_length(path), path limit 1), 1, 'APPROVED', $2::uuid, '${REVIEWER}'::uuid, $2::uuid, $2::uuid, 1)
+  ), v as (
+    insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, status, capital_plan_id, created_by, updated_by, version)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, 2031, 1, 'APPROVED', $1::uuid, $2::uuid, $2::uuid, 1)
+  )
+  insert into machvon.allocation_line
+    (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin, created_by, updated_by)
+  values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, (select id from machvon.master_record_version where code = 'MX-CAP-FUND' limit 1), 'CURRENT_YEAR', 2031, 100, 0,
+          $1::uuid, $1::uuid, 'CENTRAL', 'PM_ASSIGNED', $2::uuid, $2::uuid)`;
+
 /** A request to reopen the locked period of the matrix, made by `$2`; the table keeps one row per request, so each case names its own. */
 const SEED_PERIOD_REOPEN = `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, requested_window_hours, status, created_by, updated_by)
   values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.reporting_period where code = 'MX-W2026-03'), 'PERIOD', 'Maker-checker matrix request to reopen', $2::uuid, 24, 'REQUESTED', $2::uuid, $2::uuid)`;
@@ -378,6 +417,26 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     seedMadeBy: (objectId, maker) => [SEED_APPROPRIATION, [derivedId(objectId, 'decide-appropriation'), maker]],
   },
   {
+    operationId: 'decideCapitalPlan',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/capital-plans/${derivedId(objectId, 'decide-capital-plan')}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: 'maker-checker matrix plan decision' },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_CAPITAL_PLAN, [derivedId(objectId, 'decide-capital-plan'), maker, 'IN_REVIEW']],
+  },
+  {
+    operationId: 'post_plans_id_publish',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/plans/${derivedId(objectId, 'publish-capital-plan')}/publish`,
+      ifMatch: '"1"',
+      body: { decision_document_id: derivedId(objectId, 'publish-capital-plan') },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_PUBLISHABLE_PLAN, [derivedId(objectId, 'publish-capital-plan'), maker]],
+  },
+  {
     operationId: 'decidePeriodReopen',
     build: (objectId) => ({
       method: 'POST',
@@ -407,7 +466,64 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
       [objectId, maker],
     ],
   },
+  {
+    operationId: 'decideProcurementPlan',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/procurement-plans/${derivedId(objectId, 'bid-plan')}/decision`,
+      ifMatch: '"2"',
+      body: { decision: 'APPROVE', decision_document_id: derivedId(objectId, 'bid-decision') },
+    }),
+    // The statements carry no parameter, so the driver sends them as one simple query: a transaction in which the plan, its package and the lines they rest on are written.
+    seedMadeBy: (objectId, maker) => [seedBidPlan(objectId, maker), []],
+  },
+  {
+    operationId: 'approveQualityRuleVersion',
+    build: (objectId) => ({ method: 'POST', path: `/dgv/quality-rules/${derivedId(objectId, 'quality-rule')}/approval`, ifMatch: '"1"', body: {} }),
+    seedMadeBy: (objectId, maker, checker) => [SEED_QUALITY_RULE, [derivedId(objectId, 'quality-rule'), maker, checker, derivedId(objectId, 'quality-dataset'), derivedId(objectId, 'quality-contract')]],
+  },
 ];
+
+/** A draft quality rule written by $2 on a dataset of the DIS module (owned by $2, stewarded by $3), through its working contract. */
+const SEED_QUALITY_RULE = `with d as (
+  insert into machvon.dataset (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $4::uuid, 'DS-MX-' || substr($4::uuid::text, 1, 8), 'Matrix rule dataset', 'MATRIX', 'one row per case', 'DIS', $2::uuid, $3::uuid, 'INTERNAL', false, 3600, 'DRAFT', $2::uuid, $2::uuid) returning id
+), c as (
+  insert into machvon.dataset_contract (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id)
+    select current_setting('app.tenant_id')::uuid, $5::uuid, 'DS-MX-' || substr($4::uuid::text, 1, 8), 1, $2::uuid, '{}'::jsonb, '{}'::jsonb, 3600, 'INTERNAL', 'DRAFT', d.id from d returning id
+)
+insert into machvon.quality_rule_version (tenant_id, id, contract_id, dataset_id, code, revision, expression_ast, severity, threshold_json, status, dimension, field_path, action_on_fail, criticality_weight, created_by)
+  select current_setting('app.tenant_id')::uuid, $1::uuid, c.id, $4::uuid, 'R-MX-' || substr($1::uuid::text, 1, 8), 1, '{"op":"not_null","field":"project_id"}'::jsonb, 'MEDIUM', '{"min_pass_rate_pct":"100.000000"}'::jsonb,
+         'DRAFT', 'COMPLETENESS', 'project_id', 'QUARANTINE', 1, $2::uuid from c`;
+
+/**
+ * A procurement plan IN_REVIEW (version 2; with `status` DRAFT, version 1) made and submitted by `maker`, of a project of unit 2 with a line of capital in a published plan, the
+ * one package that uses the line and the decision document in force that an approval can name. Every id is derived from the object id, so two
+ * plans of the matrix never meet on a code or a key.
+ */
+export function seedBidPlan(objectId: string, maker: string, status: 'DRAFT' | 'IN_REVIEW' = 'IN_REVIEW'): string {
+  const ids = Object.fromEntries(['project', 'capital', 'version', 'line', 'plan', 'package', 'decision'].map((purpose) => [purpose, derivedId(objectId, `bid-${purpose}`)]));
+  const tag = (ids.plan as string).slice(0, 8);
+  const tenant = "current_setting('app.tenant_id')::uuid";
+  return `
+    insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, symbol, issued_on, effect_status, created_by, updated_by)
+      values (${tenant}, '${ids.decision}', 'REFERENCE', 'QD', 'Matrix plan decision', 'INTERNAL', '45/QD-MATRIX', date '2026-10-01', 'EFFECTIVE', '${maker}', '${maker}');
+    insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+      values (${tenant}, '${ids.project}', 'MXB-${tag}', 'Matrix plan project', '${id(0x10, 2)}', '${id(0x8a, 3)}', 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B');
+    insert into machvon.capital_plan (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, decision_document_id, effective_at, created_by, updated_by)
+      values (${tenant}, '${ids.capital}', 'MXB-${tag}', 'ANNUAL', 2026, 2026, 2026, '${id(0x10, 1)}', 1, 'PUBLISHED', '${ids.decision}', now(), '${maker}', '${maker}');
+    insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at, capital_plan_id)
+      values (${tenant}, '${ids.version}', '${ids.project}', 2026, 1, '${ids.decision}', 'PUBLISHED', now(), '${ids.capital}');
+    insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id)
+      values (${tenant}, '${ids.line}', '${ids.version}', '${id(0x8c, 2)}', 'CURRENT_YEAR', 2026, 1000, 0, '${ids.project}');
+    insert into machvon.procurement_plan (tenant_id, id, project_id, revision, title, total_value_vnd, legal_basis, status, created_by, updated_by)
+      values (${tenant}, '${ids.plan}', '${ids.project}', 1, 'Matrix procurement plan', 500, 'Matrix legal basis', 'DRAFT', '${maker}', '${maker}');
+    insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status, plan_id, title, contract_type, bidding_form, allocation_line_id, planned_start_period, duration_days, created_by)
+      values (${tenant}, '${ids.package}', '${ids.project}', 'MXB-${tag}', 500, 'OPEN_BIDDING', 1, 'DRAFT', '${ids.plan}', 'Matrix package', 'LUMP_SUM', 'ONLINE', '${ids.line}', '2026-Q4', 30, '${maker}');
+${status === 'DRAFT' ? '' : `
+    update machvon.procurement_plan set status = 'IN_REVIEW', submitted_by = '${maker}', submitted_at = now(), version = 2 where id = '${ids.plan}';
+    update machvon.procurement_package set status = 'IN_REVIEW' where id = '${ids.package}';`}`;
+}
 
 export interface MakerCheckerCase {
   id: string;

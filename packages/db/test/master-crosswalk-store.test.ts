@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { vietnamDateOf } from '@machvon/kernel';
 import { MasterCrosswalkStore } from '../src/master-crosswalk-store';
 import type { CrosswalkInput } from '../src/master-crosswalk-store';
 import { MasterImportStore } from '../src/master-import-store';
@@ -181,6 +182,110 @@ describe('MasterCrosswalkStore (codes of other systems mapped to master data, ST
     });
   });
 
+  describe('the alias of a tenant on an entry of the platform (AC-ST-MDM-002-2)', () => {
+    const ALIAS = 'TENANT_ALIAS';
+    const TODAY = vietnamDateOf(new Date());
+    const alias = (masterRecordId: string, kind: string, code: string, extra: Partial<CrosswalkInput> = {}): CrosswalkInput => ({ masterRecordId, sourceSystem: ALIAS, externalType: kind, externalCode: code, validFrom: '2024-01-01', matchMethod: 'MANUAL', ...extra });
+
+    /** An entry of the platform namespace with a version in force, as the baseline leaves the national catalogues. */
+    async function platformEntry(masterType = 'FUND_SOURCE'): Promise<{ id: string; label: string }> {
+      counter += 1;
+      const recordId = randomUUID();
+      const label = `Platform entry ${counter}`;
+      await harness.owner(TENANT_A, [
+        [`insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'PLATFORM', $3, $4, 'EFFECTIVE', $5, $5)`, [TENANT_A, recordId, masterType, `PLAT-${counter}`, memberId(ACTOR)]],
+        [
+          `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+           values ($1, $2, $3, $4, $5, 1, $6, '{}'::jsonb, '2020-01-01', 'EFFECTIVE', 'PLATFORM', now(), $7, $7)`,
+          [TENANT_A, randomUUID(), recordId, masterType, `PLAT-${counter}`, label, memberId(ACTOR)],
+        ],
+      ]);
+      return { id: recordId, label };
+    }
+    const found = async (recordId: string) => (await as((tx) => masters.search(tx, { masterType: 'FUND_SOURCE', asOf: TODAY, limit: 500, after: undefined }))).find((row) => row.id === recordId);
+    const stored = (recordId: string) =>
+      owner('select r.version::text as version, r.business_key, v.label, v.code, v.revision from machvon.master_record r join machvon.master_record_version v on v.master_record_id = r.id where r.id = $1::uuid', [recordId]);
+
+    it('AC-ST-MDM-002-2: overrides the label and the order of a platform entry through the alias, and leaves the entry, its code and its name as the platform made them', async () => {
+      const record = await platformEntry();
+      const before = await stored(record.id);
+      expect(await found(record.id)).toMatchObject({ aliasLabel: null, aliasOrder: null, displayLabel: record.label, displayOrder: null });
+      const label = await create(alias(record.id, 'LABEL', '  Nguồn vốn trung ương  '));
+      const order = await create(alias(record.id, 'ORDER', '007'));
+      expect(await as((tx) => crosswalks.find(tx, label.id))).toMatchObject({ sourceSystem: ALIAS, externalType: 'LABEL', externalCode: 'Nguồn vốn trung ương', status: 'ACTIVE', matchMethod: 'MANUAL' });
+      expect(await as((tx) => crosswalks.find(tx, order.id))).toMatchObject({ externalType: 'ORDER', externalCode: '7' });
+      expect(await found(record.id)).toMatchObject({ aliasLabel: 'Nguồn vốn trung ương', aliasOrder: 7, displayLabel: 'Nguồn vốn trung ương', displayOrder: 7, label: record.label });
+      expect(await stored(record.id)).toEqual(before);
+    });
+
+    it('AC-ST-MDM-002-2: one ACTIVE alias of each kind for an entry (409 CROSSWALK_DUPLICATE), changed by retiring it and making another; other entries may use the same label and the same order', async () => {
+      const record = await platformEntry();
+      const other = await platformEntry();
+      const first = await create(alias(record.id, 'LABEL', 'Tên một'));
+      expect(await refusal(create(alias(record.id, 'LABEL', 'Tên hai')))).toEqual({ code: 'CROSSWALK_DUPLICATE', status: 409 });
+      expect((await create(alias(other.id, 'LABEL', 'Tên một'))).version).toBe(1);
+      await create(alias(record.id, 'ORDER', '10'));
+      await create(alias(other.id, 'ORDER', '10'));
+      await as((tx) => crosswalks.retire(tx, first.id, 1, memberId(ACTOR)));
+      await create(alias(record.id, 'LABEL', 'Tên hai'));
+      expect(await found(record.id)).toMatchObject({ aliasLabel: 'Tên hai', displayOrder: 10 });
+    });
+
+    it('AC-ST-MDM-002-2: an alias is not in force before its day and not after it is retired', async () => {
+      const record = await platformEntry();
+      const later = await create(alias(record.id, 'LABEL', 'Tên sau này', { validFrom: '2999-01-01' }));
+      expect(await found(record.id)).toMatchObject({ aliasLabel: null, displayLabel: record.label });
+      await as((tx) => crosswalks.retire(tx, later.id, 1, memberId(ACTOR)));
+      const now = await create(alias(record.id, 'ORDER', '3'));
+      expect(await found(record.id)).toMatchObject({ aliasOrder: 3 });
+      await as((tx) => crosswalks.retire(tx, now.id, 1, memberId(ACTOR)));
+      expect(await found(record.id)).toMatchObject({ aliasOrder: null });
+    });
+
+    it('AC-ST-MDM-002-2: only a label or an order, made by hand, on an entry of the platform; the code is never an alias', async () => {
+      const record = await platformEntry();
+      expect(await refusal(create(alias(record.id, 'CODE', 'NEW-CODE')))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'external_type' });
+      expect(await refusal(create(alias(record.id, 'NAME', 'Tên')))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'external_type' });
+      for (const bad of ['-1', '1.5', 'abc', '1234567', '١٢']) expect(await refusal(create(alias(record.id, 'ORDER', bad)))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'external_code' });
+      expect(await refusal(create(alias(record.id, 'LABEL', 'Tên', { matchMethod: 'IMPORT' })))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'match_method' });
+      expect(await refusal(create(alias(record.id, 'LABEL', 'Tên', { confidence: 0.5 })))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'confidence' });
+      // An entry the tenant owns is edited through its own change requests: an alias on it would only be a second name.
+      const own = await entry('FUND_SOURCE');
+      expect(await refusal(create(alias(own, 'LABEL', 'Tên riêng')))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'master_record_id' });
+      expect(await owner("select id from machvon.master_crosswalk where master_record_id in ($1::uuid, $2::uuid) and source_system = 'TENANT_ALIAS'", [record.id, own])).toEqual([]);
+    });
+
+    it('is kept by the database too: the kind, the order, the method and the platform namespace are checked around the commands, and one ACTIVE alias of a kind per entry', async () => {
+      const record = await platformEntry();
+      const own = await entry('FUND_SOURCE');
+      const raw = async (target: string, kind: string, code: string, method = 'MANUAL'): Promise<{ code?: string; constraint?: string }> => {
+        try {
+          await owner(
+            `insert into machvon.master_crosswalk (tenant_id, id, master_record_id, source_system, external_type, external_code, valid_from, match_method, status, created_by, updated_by)
+             values ($1, $2, $3, 'TENANT_ALIAS', $4, $5, '2024-01-01', $6, 'ACTIVE', $7, $7)`,
+            [TENANT_A, randomUUID(), target, kind, code, method, memberId(ACTOR)],
+          );
+        } catch (error) {
+          return error as { code?: string; constraint?: string };
+        }
+        return {};
+      };
+      expect((await raw(record.id, 'CODE', 'X')).constraint).toBe('master_crosswalk_alias_chk');
+      expect((await raw(record.id, 'ORDER', 'ten')).constraint).toBe('master_crosswalk_alias_chk');
+      expect((await raw(record.id, 'LABEL', 'Tên', 'RULE')).constraint).toBe('master_crosswalk_alias_chk');
+      expect((await raw(own, 'LABEL', 'Tên')).code).toBe('23514');
+      expect(await raw(record.id, 'LABEL', 'Tên một')).toEqual({});
+      expect((await raw(record.id, 'LABEL', 'Tên hai')).constraint).toBe('master_crosswalk_alias_uq');
+    });
+
+    it('keeps the code space of the other systems as it was: one ACTIVE mapping of a code, whatever an alias says', async () => {
+      const record = await platformEntry();
+      await create(alias(record.id, 'LABEL', 'KB-ALIAS'));
+      await create(input(record.id, 'KB-ALIAS'));
+      expect(await refusal(create(input(await entry(), 'KB-ALIAS')))).toEqual({ code: 'CROSSWALK_DUPLICATE', status: 409 });
+    });
+  });
+
   describe('importing codes of another system (AC-ST-MDM-007-3)', () => {
     const HEADER = 'Mã,Tên,Từ ngày,Mã cha KB,Nguồn KB,Loại,Quan hệ';
     const MAPPING: ImportMapping = {
@@ -281,6 +386,8 @@ CAT-C,Sai loại,2024-01-01,,KB-OFFICE-AS-PRIORITY,,
       expect(await bad({ source_system: SYSTEM, external_type: TYPE, fields: ['label'] })).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'mapping.crosswalk' });
       expect(await bad({ source_system: SYSTEM, external_type: TYPE, fields: ['parent_key', 'parent_key'] })).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'mapping.crosswalk' });
       expect(await bad({ source_system: '', external_type: TYPE, fields: ['parent_key'] })).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'mapping.crosswalk' });
+      // An alias is a label of the tenant, not the code of another system: it never translates the codes of a file.
+      expect(await bad({ source_system: 'TENANT_ALIAS', external_type: 'LABEL', fields: ['parent_key'] })).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'mapping.crosswalk' });
       expect(await bad({ source_system: SYSTEM, external_type: 7, fields: ['parent_key'] })).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'mapping.crosswalk' });
       expect(await bad({ source_system: SYSTEM, external_type: TYPE, fields: ['parent_key'], surprise: 1 })).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'mapping.crosswalk' });
     });

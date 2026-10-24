@@ -1,5 +1,5 @@
 import { DeliveryEngine } from '@machvon/db';
-import type { InboxHandlerRegistry } from '@machvon/db';
+import type { AuditWriter, InboxHandlerRegistry } from '@machvon/db';
 import { isProductionEnvironment } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import { dedupeKeyOf } from '../dedupe';
@@ -16,8 +16,8 @@ export function defaultChannelAdapters(environment: string | undefined): Channel
   return new ChannelAdapterRegistry(isProductionEnvironment(environment) ? [] : [inMemoryEmailAdapter()], environment);
 }
 
-export function createDeliveryEngine(metrics?: MetricsSink): DeliveryEngine {
-  return new DeliveryEngine({ dedupeKeyOf, ...(metrics === undefined ? {} : { metrics }) });
+export function createDeliveryEngine(audit: Pick<AuditWriter, 'recordInTx'>, metrics?: MetricsSink): DeliveryEngine {
+  return new DeliveryEngine({ dedupeKeyOf, audit, ...(metrics === undefined ? {} : { metrics }) });
 }
 
 /** Registers the inbox adapter of every provider that has a channel adapter; a provider without one has its receipts wait as RECEIVED, never failed. */

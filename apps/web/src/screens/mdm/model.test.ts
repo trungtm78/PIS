@@ -45,6 +45,9 @@ describe('the readers of the answers', () => {
 
   it('drops what it cannot read instead of guessing', () => {
     expect(toRecord(undefined)).toBeUndefined();
+    expect(toRecord(record(1))).toMatchObject({ aliasLabel: null, aliasOrder: null });
+    expect(toRecord({ ...record(1), alias_label: 'Vốn NSTW', alias_order: 2 })).toMatchObject({ aliasLabel: 'Vốn NSTW', aliasOrder: 2 });
+    expect(toRecord({ ...record(1), alias_label: 7, alias_order: '2' })).toMatchObject({ aliasLabel: null, aliasOrder: null });
     expect(toRecord({ ...record(1), status: 'SOMETHING' })).toBeUndefined();
     expect(toRecord({ ...record(1), version: '3' })).toBeUndefined();
     expect(toChange({ ...change(1), change_kind: 'MERGE' })).toBeUndefined();

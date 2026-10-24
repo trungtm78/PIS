@@ -72,3 +72,12 @@ The module matches `source_ref` **and** `payload_sha256` of its own record; an e
 - a document of a kind the module does not accept answers 422 `DOCUMENT_NOT_EFFECTIVE` with `reason: DOC_TYPE_NOT_ALLOWED`.
 
 The answer carries what is printed on the face of the document (kind, type, symbol, number, year, date, effect) and nothing of its content. A module calls the port before it writes any `*_document_id` column.
+
+## Issued, delivered, acknowledged (ST-DOC-010)
+
+`doc.issued.v1` is sent by `issueOutgoingDocument` (after the gate verified both signatures again) and by the registration of a document signed outside the
+system, once per document (`outgoing_document:<id>:issued`). Its payload now carries `template_unconfirmed` (true when the document was issued with the written
+reason of a legal officer while its template was not confirmed: a reference copy). A module that gets `doc.delivered.v1` (the first recipient has the document)
+or `doc.acknowledged.v1` (every recipient that had to acknowledge has) learns the same facts the document row carries: `document_id`, `outgoing_document_id`,
+`source_module`, `source_ref`, `payload_sha256`, `document_number`, `symbol`, `version` and the counts. Each is sent once, in the transaction of the command
+that moved the document.

@@ -13,7 +13,7 @@ interface ActionProps {
   onReload: () => void;
 }
 
-function Problem({ error, onReload, reset }: { error: unknown; onReload: () => void; reset: () => void }) {
+export function Problem({ error, onReload, reset }: { error: unknown; onReload: () => void; reset: () => void }) {
   const { t } = useTranslation();
   const problem = describeProblem(error);
   return (
@@ -39,7 +39,7 @@ function Problem({ error, onReload, reset }: { error: unknown; onReload: () => v
   );
 }
 
-const tooLong = (value: string): boolean => value.length > TEXT_MAX_LENGTH;
+export const tooLong = (value: string): boolean => value.length > TEXT_MAX_LENGTH;
 
 /** Gives the issue to a member of the tenant (assignIssue); the server refuses a person who cannot work it where it lies. */
 export function AssignForm({ issue, onReload }: ActionProps) {

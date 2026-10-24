@@ -489,6 +489,26 @@ describe('CapPlanStore.draft (draftCapitalAllocation)', () => {
     expect(await appropriationRow(source)).toMatchObject({ allocated: '0' });
   });
 
+  it('reads the stage of a project under a lock: a line is not drafted for a project whose cancellation is being committed meanwhile (PROJECT_STAGE_INVALID)', async () => {
+    const target = await plan();
+    const source = await appropriation({ planYear: target.year });
+    const subject = await project();
+    let cancelling!: () => void;
+    const started = new Promise<void>((resolve) => (cancelling = resolve));
+    // Another command is cancelling the project: its change is not committed yet, and the project row is locked by it until it is.
+    const cancel = as(async (tx) => {
+      await tx.query("update machvon.project set status = 'CANCELLED' where id = $1::uuid", [subject]);
+      cancelling();
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    });
+    await started;
+    const attempt = refusal(draft(target.id, [line({ project: subject, appropriation: source, year: target.year }, money(1))]));
+    await cancel;
+    expect(await attempt).toMatchObject({ code: 'PROJECT_STAGE_INVALID', status: 422, detail: 'project_id' });
+    expect(await appropriationRow(source)).toMatchObject({ allocated: '0' });
+    expect(await linesOf(target.id)).toEqual([]);
+  });
+
   it('judges the appropriation: it must exist, be published, fall in the years of the plan, keep its source year, and carry-over goes with the carry-over bucket', async () => {
     const target = await plan();
     const a = await project();

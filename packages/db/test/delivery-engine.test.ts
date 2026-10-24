@@ -1,6 +1,7 @@
 import { createHash, createHmac, randomUUID } from 'node:crypto';
 import { BODY_HMAC_SHA256_PREFIXED } from '@machvon/kernel';
 import type { ChannelSendResult, MetricsSink } from '@machvon/kernel';
+import { AuditWriter } from '../src/audit-writer';
 import { DELIVERY_ATTEMPTS_METRIC, DeliveryEngine, OUT_OF_ORDER_METRIC } from '../src/delivery-engine';
 import type { ResultNext } from '../src/delivery-engine';
 import { DeliveryStore } from '../src/delivery-store';
@@ -76,7 +77,7 @@ interface AttemptRow {
 
 describe('DeliveryEngine (ST-NOT-002)', () => {
   const metrics = new CountingMetrics();
-  const engine = new DeliveryEngine({ metrics, random: () => 0.5, dedupeKeyOf });
+  const engine = new DeliveryEngine({ metrics, random: () => 0.5, dedupeKeyOf, audit: { recordInTx: (tx, actor, entry) => new AuditWriter(harness.tenants).recordInTx(tx, actor, entry) } });
   const inTenant = <T>(work: (tx: TenantTx) => Promise<T>): Promise<T> => harness.tenants.withTenant(contextFor(TENANT_A, memberId(RECIPIENT)), work);
 
   async function owner<T extends object>(text: string, params: unknown[] = []): Promise<T[]> {
@@ -179,6 +180,19 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
          values ($1, $2, 'EMAIL', 'relay-1', 'secret://test/mail', 'v1', 'Active', now(), 'secret://test/mail-webhook'),
                 ($1, $3, 'SMS', 'sms-1', 'secret://test/sms', 'v1', 'Active', now(), 'secret://test/sms-webhook')`,
         [TENANT_A, EMAIL_ACCOUNT, SMS_ACCOUNT],
+      ],
+      [
+        // The person consented to the two personal channels of the workflow (BR-NOT-07): without a consent no send is taken up.
+        `insert into machvon.contact_consent (tenant_id, id, membership_id, channel, purpose, status, evidence_reference, effective_at, consent_text_version, capture_method)
+         values ($1, gen_random_uuid(), $2, 'EMAIL', 'OPERATIONAL', 'Granted', 'in-app:test', now(), 'v1', 'IN_APP'),
+                ($1, gen_random_uuid(), $2, 'SMS', 'OPERATIONAL', 'Granted', 'in-app:test', now(), 'v1', 'IN_APP'),
+                ($1, gen_random_uuid(), $3, 'EMAIL', 'OPERATIONAL', 'Granted', 'in-app:test', now(), 'v1', 'IN_APP')`,
+        [TENANT_A, memberId(RECIPIENT), memberId(ENDED)],
+      ],
+      // These tests send at the real clock now and then: the people have no quiet hours, so the time of day of the machine decides nothing (BR-NOT-08 is tested elsewhere).
+      [
+        'insert into machvon.notification_preference_profile (tenant_id, membership_id) values ($1, $2), ($1, $3)',
+        [TENANT_A, memberId(RECIPIENT), memberId(ENDED)],
       ],
       [
         `insert into machvon.notification_template_version (tenant_id, id, code, channel, locale, revision, content_ast, variable_schema, status, content_hash, created_by)

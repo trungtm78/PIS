@@ -19,6 +19,9 @@ import { OutgoingDraftsController } from '../../src/modules/doc/outgoing-drafts.
 import { IssueRequestsController } from '../../src/modules/doc/issue-requests.controller';
 import { DocumentFilesController } from '../../src/modules/doc/document-files.controller';
 import { SignedDocumentsController } from '../../src/modules/doc/signed-documents.controller';
+import { DocumentDistributionsController } from '../../src/modules/doc/distributions.controller';
+import { OutgoingIssuanceController } from '../../src/modules/doc/issuance.controller';
+import type { EmailChannelPort, EmailDelivery, EmailReceipt } from '../../src/modules/doc/distribution-channel';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort } from '../../src/modules/files/mock-scan';
@@ -26,7 +29,7 @@ import { DocumentIssueService } from '../../src/modules/doc/issue-request.servic
 import { RegistersController } from '../../src/modules/doc/registers.controller';
 import { MockSigningDirectory } from '../../src/modules/doc/signing-adapters';
 import { SignaturesController } from '../../src/modules/doc/signatures.controller';
-import { DOC_CLOCK, DOC_METRICS, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from '../../src/modules/doc/tokens';
+import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_METRICS, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from '../../src/modules/doc/tokens';
 import { ACTOR, AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -51,6 +54,11 @@ export const SOURCE_UNIT = 12; // the same permissions, on the subtree of unit 2
 export const REFERENCER = 13; // only checks whether a document may be relied on, on the whole tenant
 export const EXT_CLERK = 14; // takes in documents signed outside the system, for unit 2 and below
 export const EXT_OUTSIDE = 15; // the same permissions, but only on unit 1 itself: nothing drafted in unit 2 is in their reach
+export const ISSUER = 16; // issues sealed documents of unit 2 (a records clerk), without the right to distribute or to confirm templates
+export const DISTRIBUTOR = 17; // distributes issued documents of unit 2 and records the receipts
+export const LEGAL_ISSUER = 18; // issues over unit 2 and holds the right to confirm templates on the whole tenant
+export const LEGAL_UNIT = 19; // the same two rights, but the right to confirm templates only over unit 2: not a tenant-wide authority
+export const ISSUER_DISTRIBUTOR = 20; // issues and distributes in unit 2
 
 export interface Reply {
   status: number;
@@ -67,6 +75,7 @@ export class DocApp {
   readonly harness = new AuthzHarness();
   readonly files = new MockDocumentFilePort();
   readonly metrics: MetricEvent[] = [];
+  readonly gauges: Array<MetricEvent & { value: number }> = [];
   /** The trust anchors every tenant verifies against; tests set them before they verify. */
   anchors: TrustAnchor[] = [];
   /** The signing adapter: one MOCK identity per certificate, registered by the tests that sign. */
@@ -75,6 +84,9 @@ export class DocApp {
   now = NOW;
   /** What the revocation port answers when a verification asks for it. */
   revocationAnswer: RevocationAnswer = { status: 'GOOD' };
+  /** The messages the email channel was asked to send, and what it answers: a receipt, or the failure to throw. */
+  readonly emailSent: EmailDelivery[] = [];
+  emailBehaviour: EmailReceipt | Error = { outcome: 'SENT', externalRef: 'MAIL-1' };
   app!: RunningApp;
   layoutProfileId = '';
   templateId = '';
@@ -95,7 +107,7 @@ export class DocApp {
       { n: 2, path: `/${unitId(1)}/${unitId(2)}/`, parent: 1 },
     ]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: `/${unitId(1)}/` }]);
-    for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY, DRAFTER, LEADER, CLERK, MAKER, REVIEWER, BOARD, SOURCE, SOURCE_UNIT, REFERENCER, EXT_CLERK, EXT_OUTSIDE]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY, DRAFTER, LEADER, CLERK, MAKER, REVIEWER, BOARD, SOURCE, SOURCE_UNIT, REFERENCER, EXT_CLERK, EXT_OUTSIDE, ISSUER, DISTRIBUTOR, LEGAL_ISSUER, LEGAL_UNIT, ISSUER_DISTRIBUTOR]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
     const all = ['doc.render', 'doc.type.manage', 'doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.verify', 'doc.signature.read', 'doc.file.upload'];
     for (const tenant of [TENANT_A, TENANT_B]) {
@@ -112,7 +124,16 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 9, 'DOC_SOURCE', ['doc.issue.request', 'doc.reference.check'], 30);
     await harness.seedRole(TENANT_A, 10, 'DOC_REFERENCER', ['doc.reference.check'], 20);
     await harness.seedRole(TENANT_A, 11, 'DOC_EXTERNAL_CLERK', ['doc.outgoing.read', 'doc.outgoing.upload_signed', 'doc.outgoing.register_external', 'doc.file.upload', 'doc.register.read'], 30);
+    await harness.seedRole(TENANT_A, 12, 'DOC_ISSUER', ['doc.outgoing.read', 'doc.outgoing.issue', 'document_version.read'], 30);
+    await harness.seedRole(TENANT_A, 13, 'DOC_DISTRIBUTOR', ['doc.outgoing.read', 'doc.distribution.manage'], 30);
+    await harness.seedRole(TENANT_A, 14, 'DOC_LEGAL_ISSUER', ['doc.outgoing.read', 'doc.outgoing.issue', 'doc.template.confirm_legal'], 40);
+    await harness.seedRole(TENANT_A, 15, 'DOC_ISSUER_DISTRIBUTOR', ['doc.outgoing.read', 'doc.outgoing.issue', 'doc.distribution.manage'], 30);
     await harness.seedGrants(TENANT_A, [
+      { n: 15, member: ISSUER, role: 12, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 16, member: DISTRIBUTOR, role: 13, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 17, member: LEGAL_ISSUER, role: 14, kind: 'TENANT' },
+      { n: 18, member: LEGAL_UNIT, role: 14, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 19, member: ISSUER_DISTRIBUTOR, role: 15, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 2, member: UNIT_TWO_CLERK, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 7, member: MAKER, role: 6, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 8, member: REVIEWER, role: 7, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -136,7 +157,9 @@ export class DocApp {
       increment: (name, labels) => {
         this.metrics.push({ name, labels });
       },
-      gauge: () => undefined,
+      gauge: (name, value, labels) => {
+        this.gauges.push({ name, value, labels });
+      },
     };
     this.app = await startTestApp({
       signingKey: SIGNING_KEY,
@@ -144,7 +167,7 @@ export class DocApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController],
+      controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController, OutgoingIssuanceController, DocumentDistributionsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DOCUMENT_FILE_PORT, useValue: this.files },
@@ -156,6 +179,16 @@ export class DocApp {
         { provide: DOC_CLOCK, useValue: () => this.now },
         { provide: DOC_SIGNING_PORT, useValue: this.signing },
         { provide: DOC_TRUST_STORE, useValue: { forTenant: async () => ({ anchors: () => this.anchors }) } },
+        {
+          provide: DOC_EMAIL_CHANNEL,
+          useValue: {
+            send: async (request: EmailDelivery): Promise<EmailReceipt> => {
+              this.emailSent.push(request);
+              if (this.emailBehaviour instanceof Error) throw this.emailBehaviour;
+              return this.emailBehaviour;
+            },
+          } satisfies EmailChannelPort,
+        },
         { provide: DOC_REVOCATION, useValue: { check: async (): Promise<RevocationAnswer> => this.revocationAnswer } },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],

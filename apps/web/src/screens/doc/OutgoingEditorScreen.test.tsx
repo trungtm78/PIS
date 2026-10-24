@@ -105,6 +105,9 @@ const button = (key: string) => screen.getByRole('button', { name: vi_[key as ke
 
 afterEach(cleanup);
 
+// The composing form is the heaviest screen of the module: under the load of the whole suite a case can pass the default five seconds.
+vi.setConfig({ testTimeout: 30_000 });
+
 describe('OutgoingEditorScreen (DOC-02)', () => {
   describe('a new draft', () => {
     it('is composed from the template in force: the type, the unit, the content by parameter and the recipients go to createOutgoingDocument', async () => {

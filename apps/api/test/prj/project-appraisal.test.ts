@@ -213,7 +213,7 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
       expect((await submit(target)).status).toBe(200);
       const reply = await appraise(target, [4, 3, 5, 2, 4], APPRAISER, { note: 'A sound proposal' });
       expect(reply.status).toBe(200);
-      expect(reply.json).toMatchObject({ status: 'SUBMITTED', resource_version: 1, total_score: '73.00', mean_score: '73.00', sheet_count: 1, round: 1, project_id: target.id, pass_threshold: '60', threshold_recommendation: 'ADMIT' });
+      expect(reply.json).toMatchObject({ status: 'SUBMITTED', resource_version: 1, total_score: '73.00', round: 1, project_id: target.id });
       const [sheet] = await sheetRows(target.id);
       expect(sheet).toMatchObject({ id: reply.json.resource_id, total_score: '73.00', status: 'SUBMITTED', appraiser_membership_id: memberId(APPRAISER), note: 'A sound proposal' });
       const audit = await audits('project.appraisal_recorded', sheet?.id as string);
@@ -259,6 +259,31 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
       expect(audit.map((entry) => [entry.safe_diff.total_score, entry.safe_diff.previous_total_score, entry.safe_diff.replaced])).toEqual(expect.arrayContaining([['100.00', '73.00', true]]));
     });
 
+    it('a sheet keeps the set of criteria it was scored against: scoring again against another set is 422 on that field, never a database error', async () => {
+      const other = await seedVersion(TENANT_A, 'APPRAISAL_CRITERIA', `TEST-API-CRIT-${randomUUID().slice(0, 6)}`, {
+        owner_module: 'PRJ',
+        criteria: WEIGHTS.map((weight, index) => ({ code: criteria.codes[index], name: `Criterion ${index + 1}`, max_score: weight })),
+        pass_threshold: 55,
+      });
+      const target = await project();
+      await submit(target);
+      const first = await appraise(target, [4, 3, 5, 2, 4]);
+      expect(first.status).toBe(200);
+      const switched = await appraise(target, [5, 5, 5, 5, 5], APPRAISER, { criteria_set_version_id: other });
+      expect([switched.status, switched.json.code, switched.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'criteria_set_version_id']);
+      expect(await sheetRows(target.id)).toMatchObject([{ total_score: '73.00', version: '1' }]);
+    });
+
+    it('blind scoring: the answer to an appraiser carries their own total and nothing computed over the other sheets of the round', async () => {
+      const { target } = await appraised([[4, 3, 5, 2, 4]]);
+      // With two sheets, a mean and a count would give the second appraiser the first one's total to the cent (2 x mean - own).
+      const second = await appraise(target, [1, 1, 1, 1, 1], SECOND_APPRAISER);
+      expect(second.status).toBe(200);
+      expect(second.json).toMatchObject({ total_score: '20.00', round: 1 });
+      for (const aggregate of ['mean_score', 'sheet_count', 'pass_threshold', 'threshold_recommendation']) expect(second.json).not.toHaveProperty(aggregate);
+      expect(JSON.stringify(second.json)).not.toContain('73.00');
+    });
+
     it('AC-ST-PRJ-003-1: a command repeated with its key answers the first answer and writes nothing twice', async () => {
       const target = await project();
       await submit(target);
@@ -280,7 +305,7 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
       expect(sent.json).toMatchObject({ status: 'APPRAISAL', resource_version: 2, resource_id: target.id });
       const first = await appraise(target, [4, 3, 5, 2, 4]);
       const second = await appraise(target, [4, 3, 4, 3, 4], SECOND_APPRAISER);
-      expect(second.json).toMatchObject({ total_score: '72.00', mean_score: '72.50', sheet_count: 2 });
+      expect(second.json).toMatchObject({ total_score: '72.00' });
       const decision = await document();
       const decided = await decide({ id: first.json.resource_id as string, version: 1 }, DECIDER, { decision_document_id: decision, project_group: 'B' });
       expect(decided.status).toBe(200);
@@ -299,6 +324,23 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
       expect((await sheetRows(target.id)).map((sheet) => [sheet.status, sheet.decision, sheet.decided_by])).toEqual([
         ['DECIDED', 'ADMIT', memberId(DECIDER)],
         ['DECIDED', 'ADMIT', memberId(DECIDER)],
+      ]);
+    });
+
+    it('a project that was placed in APPRAISAL without being sent (the old shape) opens round 2 after a return and a new submission, not round 1 again over decided sheets', async () => {
+      const target = await project();
+      await rows("update machvon.project set status = 'APPRAISAL', version = 2 where id = $1::uuid", [target.id]);
+      const first = await appraise(target, [4, 3, 5, 2, 4]);
+      expect(first.json).toMatchObject({ round: 1 });
+      const returned = await decide({ id: first.json.resource_id as string, version: 1 }, DECIDER, { decision: 'RETURN', reason: 'Back to the proposer', override_reason: 'The proposal lacks the investment policy decision' });
+      expect(returned.status).toBe(200);
+      const sent = await submit({ id: target.id, version: returned.json.project_version as number });
+      expect(sent.status).toBe(200);
+      const second = await appraise(target, [2, 2, 2, 2, 2]);
+      expect([second.status, second.json.round, second.json.resource_version]).toEqual([200, 2, 1]);
+      expect((await sheetRows(target.id)).map((sheet) => [sheet.round, sheet.status])).toEqual([
+        [1, 'DECIDED'],
+        [2, 'SUBMITTED'],
       ]);
     });
 
@@ -457,6 +499,20 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
       expect(JSON.stringify(asReader.json)).not.toContain('73.00');
       const asProposer = await call('GET', `/projects/${target.id}/lifecycle`, { member: EVERYTHING });
       expect((asProposer.json.appraisal as Record<string, unknown>).can_record).toBe(true);
+    });
+
+    it('blind scoring: the proposer who holds the right to decide reads none of the sheets while the round is open, and the decision maker still reads all of them', async () => {
+      const target = await project({ creator: EVERYTHING });
+      const sent = await submit(target, EVERYTHING);
+      expect(sent.status).toBe(200);
+      const scored = await appraise(target, [4, 3, 5, 2, 4], APPRAISER);
+      expect(scored.status).toBe(200);
+      const mine = (await call('GET', `/projects/${target.id}/lifecycle`, { member: EVERYTHING })).json.appraisal as Record<string, unknown>;
+      expect(mine).toMatchObject({ viewer_is_proposer: true, can_decide: false, summary: null, decision_target: null, sheets: [] });
+      expect(JSON.stringify(mine)).not.toContain('73.00');
+      const theirs = (await call('GET', `/projects/${target.id}/lifecycle`, { member: DECIDER })).json.appraisal as Record<string, unknown>;
+      expect(theirs).toMatchObject({ can_decide: true, summary: { sheet_count: 1, mean_score: '73.00' } });
+      expect((theirs.sheets as unknown[]).length).toBe(1);
     });
 
     it('AC-ST-PRJ-003-3: the proposer is told they cannot score or decide, and the lifecycle of another tenant does not exist', async () => {

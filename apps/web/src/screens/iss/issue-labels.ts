@@ -131,6 +131,20 @@ export function issueProblemMessage(t: Translate, problem: ProblemView): string 
       return t('iss.issueProblem.assigneeOutOfScope.error');
     case 'documentNotClean':
       return t('iss.issueProblem.documentNotClean.error');
+    case 'evidenceRequired':
+      return t('iss.issueProblem.evidenceRequired.error');
+    case 'selfApproval':
+      return t('iss.issueProblem.selfApproval.error');
+    case 'extensionLimit':
+      return t('iss.issueProblem.extensionLimit.error');
+    case 'escalationLevel':
+      return t('iss.issueProblem.escalationLevel.error');
+    case 'taskForceNotActive':
+      return t('iss.issueProblem.taskForceNotActive.error');
+    case 'escalationState':
+      return t('iss.issueProblem.escalationState.error');
+    case 'reopenWindow':
+      return t('iss.issueProblem.reopenWindow.error');
     case 'versionConflict':
       return t('iss.issueProblem.versionConflict.error');
     case 'operationConflict':

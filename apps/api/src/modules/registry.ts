@@ -10,6 +10,7 @@ import { disModule } from './dis';
 import { docModule } from './doc';
 import { iamModule } from './iam';
 import { issModule } from './iss';
+import { lndModule } from './lnd';
 import { mdmModule } from './mdm';
 import { mneModule } from './mne';
 import { filesModule } from './files';
@@ -22,7 +23,7 @@ import { sasModule } from './sas';
 import { searchModule } from './search';
 
 /** Every business module of the API, sorted by code. A slice adds one line here (one import and one entry). */
-export const MODULES: readonly ModuleDescriptor[] = [admModule, bidModule, capModule, ctrModule, dgvModule, disModule, docModule, filesModule, iamModule, issModule, mdmModule, mneModule, notificationsModule, orchestrationModule, payModule, pmtModule, prjModule, sasModule, searchModule];
+export const MODULES: readonly ModuleDescriptor[] = [admModule, bidModule, capModule, ctrModule, dgvModule, disModule, docModule, filesModule, iamModule, issModule, lndModule, mdmModule, mneModule, notificationsModule, orchestrationModule, payModule, pmtModule, prjModule, sasModule, searchModule];
 
 function activeModules(options: AppModuleOptions, modules: readonly ModuleDescriptor[]): ModuleDescriptor[] {
   const codes = new Set<string>();

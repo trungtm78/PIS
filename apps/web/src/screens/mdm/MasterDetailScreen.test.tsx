@@ -35,6 +35,22 @@ describe('MasterDetailScreen (MDM-27)', () => {
     expect(within(screen.getByTestId('samples')).getByText('p-1', { exact: false })).toBeTruthy();
   });
 
+  it('AC-ST-MDM-002-2: shows the alias the tenant set on an entry of the platform beside the name of the platform, and says nothing when there is none', async () => {
+    const platform = record(1, { namespace: 'PLATFORM', label: 'Ngân sách trung ương', alias_label: 'Vốn NSTW', alias_order: 2 });
+    mount(<MasterDetailScreen route={ROUTE} />, client(world({ records: [platform] })), READER, `${AT}&ns=PLATFORM`);
+    await ready();
+    expect(within(screen.getByTestId('entry')).getByText('Ngân sách trung ương')).toBeTruthy();
+    expect(screen.getByTestId('alias').textContent).toBe(vi_['mdm.detail.alias.text'].replace('{label}', 'Vốn NSTW').replace('{order}', '2'));
+    cleanup();
+    mount(<MasterDetailScreen route={ROUTE} />, client(world({ records: [record(1, { alias_label: 'Chỉ tên', alias_order: null })] })), READER, AT);
+    await ready();
+    expect(screen.getByTestId('alias').textContent).toBe(vi_['mdm.detail.alias.text'].replace('{label}', 'Chỉ tên').replace('{order}', vi_['mdm.detail.alias.unset']));
+    cleanup();
+    mount(<MasterDetailScreen route={ROUTE} />, client(world()), READER, AT);
+    await ready();
+    expect(screen.queryByTestId('alias')).toBeNull();
+  });
+
   it('picks up a draft that was saved and not sent, and submits it after its impact has been read', async () => {
     const draft = change(1, { status: 'DRAFT', version: 1 });
     const state = world({ records: [record(1, { open_change_request_id: draft.id })], changes: [draft] });

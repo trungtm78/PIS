@@ -98,6 +98,14 @@ const events = (issueId: string) => owner<{ event_kind: string; from_status: str
   [issueId],
 );
 
+/** The request for verification that a closing follows (the database refuses to close an issue that no one asked to have verified). */
+const verificationRequested = (issueId: string): Promise<unknown> =>
+  owner(
+    `insert into machvon.issue_event (tenant_id, id, issue_id, event_kind, from_status, to_status, payload, created_by)
+     values ($1::uuid, gen_random_uuid(), $2::uuid, 'VERIFICATION_REQUESTED', 'IN_PROGRESS', 'PENDING_VERIFICATION', '{"evidence_document_version_ids":["${DOCUMENT_CLEAN}"]}'::jsonb, $3::uuid)`,
+    [TENANT_A, issueId, memberId(WORKER_U1)],
+  );
+
 async function seedReplica(statements: Array<[string, unknown[]]>): Promise<void> {
   const client = new Client({ connectionString: harness.database.adminUrl });
   await client.connect();
@@ -297,6 +305,7 @@ describe('IssIssueStore (create, assign, work, comment and transfer issues, ST-I
       await owner("update machvon.issue set status = 'ASSIGNED', assignee_id = $2::uuid where id = $1::uuid", [first.id, memberId(WORKER_U1)]);
       await owner("update machvon.issue set status = 'IN_PROGRESS' where id = $1::uuid", [first.id]);
       await owner("update machvon.issue set status = 'PENDING_VERIFICATION' where id = $1::uuid", [first.id]);
+      await verificationRequested(first.id);
       await owner("update machvon.issue set status = 'CLOSED', closed_at = now(), closed_by = $2::uuid, verifier_id = $2::uuid where id = $1::uuid", [first.id, memberId(ASSIGNER)]);
       expect((await open(request({ sourceModule: 'PMT', sourceRefId: source }))).status).toBe('OPEN');
     });
@@ -407,6 +416,10 @@ describe('IssIssueStore (create, assign, work, comment and transfer issues, ST-I
       expect(await assign(3, memberId(WORKER_U1))).toMatchObject({ previousStatus: 'IN_PROGRESS', status: 'ASSIGNED', version: 4 });
       await owner("update machvon.issue set status = 'IN_PROGRESS' where id = $1::uuid", [created.id]);
       await owner("update machvon.issue set status = 'PENDING_VERIFICATION' where id = $1::uuid", [created.id]);
+      await verificationRequested(created.id);
+      // The verifier gives the result back with the reason (ST-ISS-003): without a reason it is refused.
+      expect(await refusal(assign(4, memberId(WORKER_ALL)))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'note' });
+      await owner("update machvon.issue set status = 'CLOSED', closed_at = now(), closed_by = $2::uuid, verifier_id = $2::uuid where id = $1::uuid", [created.id, memberId(ASSIGNER)]);
       expect(await refusal(assign(4, memberId(WORKER_ALL)))).toEqual({ code: 'ISSUE_STATE_INVALID', status: 409 });
     });
 
@@ -505,9 +518,10 @@ describe('IssIssueStore (create, assign, work, comment and transfer issues, ST-I
       await owner("update machvon.issue set status = 'ASSIGNED', assignee_id = $2::uuid where id = $1::uuid", [created.id, memberId(WORKER_U1)]);
       await owner("update machvon.issue set status = 'IN_PROGRESS' where id = $1::uuid", [created.id]);
       await owner("update machvon.issue set status = 'PENDING_VERIFICATION' where id = $1::uuid", [created.id]);
+      await verificationRequested(created.id);
       await owner("update machvon.issue set status = 'CLOSED', closed_at = now(), closed_by = $2::uuid, verifier_id = $2::uuid where id = $1::uuid", [created.id, memberId(ASSIGNER)]);
       expect(await refusal(comment(created.id, { note: 'Too late' }, WORKER_U1, scope))).toEqual({ code: 'ISSUE_STATE_INVALID', status: 409 });
-      expect((await events(created.id)).map((event) => event.event_kind)).toEqual(['CREATED']);
+      expect((await events(created.id)).map((event) => event.event_kind)).toEqual(['CREATED', 'VERIFICATION_REQUESTED']);
     });
 
     it('lets the person who reported the issue comment on it from another unit, and nobody else outside the scope', async () => {
@@ -556,6 +570,7 @@ describe('IssIssueStore (create, assign, work, comment and transfer issues, ST-I
       expect(await refusal(transfer(created.id, 2, UNIT_1))).toEqual({ code: 'VERSION_CONFLICT', status: 409 });
       await owner("update machvon.issue set status = 'IN_PROGRESS' where id = $1::uuid", [created.id]);
       await owner("update machvon.issue set status = 'PENDING_VERIFICATION' where id = $1::uuid", [created.id]);
+      await verificationRequested(created.id);
       await owner("update machvon.issue set status = 'CLOSED', closed_at = now(), closed_by = $2::uuid, verifier_id = $2::uuid where id = $1::uuid", [created.id, memberId(ASSIGNER)]);
       expect(await refusal(transfer(created.id, 3, UNIT_1))).toEqual({ code: 'ISSUE_STATE_INVALID', status: 409 });
     });
@@ -701,7 +716,8 @@ describe('IssIssueStore (create, assign, work, comment and transfer issues, ST-I
       await as((tx) => tx.query("update machvon.issue set status = 'IN_PROGRESS' where id = $1::uuid", [created.id]));
       await as((tx) => tx.query("update machvon.issue set status = 'PENDING_VERIFICATION' where id = $1::uuid", [created.id]));
       expect((await sqlRefusal(as((tx) => tx.query("update machvon.issue set status = 'CLOSED' where id = $1::uuid", [created.id])))).message).toContain('issue_close_chk');
-      expect((await sqlRefusal(as((tx) => tx.query("update machvon.issue set verifier_id = assignee_id where id = $1::uuid", [created.id])))).message).toContain('issue_verifier_chk');
+      await verificationRequested(created.id);
+      expect((await sqlRefusal(as((tx) => tx.query("update machvon.issue set status = 'CLOSED', closed_at = now(), closed_by = assignee_id, verifier_id = assignee_id where id = $1::uuid", [created.id])))).message).toContain('issue_verifier_chk');
     });
 
     it('keeps the origin and the deadline the SLA fixed, and the day the issue became overdue', async () => {
@@ -714,8 +730,8 @@ describe('IssIssueStore (create, assign, work, comment and transfer issues, ST-I
       await owner('update machvon.issue set overdue_since = due_at where id = $1::uuid', [created.id]);
       expect((await sqlRefusal(as((tx) => tx.query('update machvon.issue set overdue_since = null where id = $1::uuid', [created.id])))).message).toContain('BR-ISS-04');
       expect((await sqlRefusal(as((tx) => tx.query("update machvon.issue set overdue_since = overdue_since + interval '1 day' where id = $1::uuid", [created.id])))).sqlstate).toBe('23514');
-      // The deadline moves only by an extension, a command with its own event: the guard leaves due_at to it.
-      await as((tx) => tx.query("update machvon.issue set due_at = due_at + interval '1 day' where id = $1::uuid", [created.id]));
+      // The deadline moves only by a counted extension, a command with its own event (ST-ISS-003, V1063).
+      expect((await sqlRefusal(as((tx) => tx.query("update machvon.issue set due_at = due_at + interval '1 day' where id = $1::uuid", [created.id])))).sqlstate).toBe('23514');
     });
 
     it('lets nobody delete an issue or rewrite and delete its timeline', async () => {

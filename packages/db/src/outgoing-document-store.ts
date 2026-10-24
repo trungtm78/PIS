@@ -68,6 +68,9 @@ export interface OutgoingDocumentRecord {
   payloadSha256: string | null;
   reviewDueOn: string | null;
   cancelReason: string | null;
+  /** The written reason a document with an unconfirmed template was issued anyway (BR-DOC-10), and who wrote it. */
+  unconfirmedOverrideReason: string | null;
+  unconfirmedOverrideBy: string | null;
 }
 
 export interface SigningSessionRecord {
@@ -161,6 +164,8 @@ interface OutgoingRow {
   payload_sha256: string | null;
   review_due_on: string | null;
   cancel_reason: string | null;
+  unconfirmed_override_reason: string | null;
+  unconfirmed_override_by: string | null;
 }
 
 interface SessionRow {
@@ -189,7 +194,8 @@ const OUTGOING_COLUMNS = `o.id, o.document_id, o.status, o.route, o.urgency, o.c
   o.signer_title, o.signing_mode, o.delegation_id, o.clerk_user_id, o.register_id, o.allocation_id, o.recipients, o.leader_signed_at, o.numbered_at,
   o.sealed_at, o.issued_at, o.version::text as version, d.title, d.doc_type_code, d.current_version_id, d.document_number, d.number_year, d.symbol,
   d.issued_on::text as issued_on, o.created_at, ${timestampKey('o.created_at')} as sort_key, o.template_id, d.effect_status, d.classification,
-  o.source_module, o.source_ref, o.issue_request_id, o.payload_sha256, o.review_due_on::text as review_due_on, o.cancel_reason`;
+  o.source_module, o.source_ref, o.issue_request_id, o.payload_sha256, o.review_due_on::text as review_due_on, o.cancel_reason,
+  o.unconfirmed_override_reason, o.unconfirmed_override_by`;
 const OUTGOING_FROM = `from machvon.outgoing_document o join machvon.document d on d.tenant_id = o.tenant_id and d.id = o.document_id`;
 const SESSION_COLUMNS = `s.id, s.outgoing_document_id, s.role, s.signer_user_id, s.signing_certificate_id, s.adapter_code, s.adapter_status, s.status,
   s.base_version_id, s.result_version_id, s.digest_hex, s.byte_range, s.provider_txn_ref, s.expires_at, s.attempts, s.error_code, s.created_at,
@@ -220,6 +226,15 @@ export interface DocumentVersionSummary {
   scanStatus: string;
   prefixSha256: string | null;
   createdAt: Date;
+}
+
+/** The sealed file of an issued document whose revocation status is due to be asked again. */
+export interface RevocationDue {
+  outgoingDocumentId: string;
+  documentId: string;
+  versionId: string;
+  objectKey: string;
+  checksum: string;
 }
 
 /** The columns of the drafting unit that scope predicates for outgoing documents are compiled against. */
@@ -268,6 +283,8 @@ function toOutgoing(row: OutgoingRow): OutgoingDocumentRecord {
     payloadSha256: row.payload_sha256,
     reviewDueOn: row.review_due_on,
     cancelReason: row.cancel_reason,
+    unconfirmedOverrideReason: row.unconfirmed_override_reason,
+    unconfirmedOverrideBy: row.unconfirmed_override_by,
   };
 }
 
@@ -573,12 +590,59 @@ export class OutgoingDocumentStore {
    * The document is issued: SEALED to ISSUED, and the document in force (EFFECTIVE). Its number and symbol are on the anchor already (the numbering wrote
    * them), so the checks of the database that ask for both hold.
    */
-  async markIssued(tx: TenantTx, id: string, input: { expectedVersion: number; issuedAt: Date; actor: string }): Promise<OutgoingDocumentRecord> {
-    const issued = await this.advance(tx, id, input.expectedVersion, 'SEALED', "status = 'ISSUED', issued_at = $3::timestamptz", [input.issuedAt.toISOString()], input.actor);
+  async markIssued(
+    tx: TenantTx,
+    id: string,
+    input: { expectedVersion: number; issuedAt: Date; actor: string; override?: { reason: string; by: string } | undefined },
+  ): Promise<OutgoingDocumentRecord> {
+    const issued =
+      input.override === undefined
+        ? await this.advance(tx, id, input.expectedVersion, 'SEALED', "status = 'ISSUED', issued_at = $3::timestamptz", [input.issuedAt.toISOString()], input.actor)
+        : await this.advance(
+            tx,
+            id,
+            input.expectedVersion,
+            'SEALED',
+            "status = 'ISSUED', issued_at = $3::timestamptz, unconfirmed_override_reason = $4, unconfirmed_override_by = $5::uuid",
+            [input.issuedAt.toISOString(), input.override.reason, input.override.by],
+            input.actor,
+          );
     await tx.query("update machvon.document set effect_status = 'EFFECTIVE', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [issued.documentId, input.actor]);
     const found = await this.find(tx, id);
     if (found === undefined) throw new Error('outgoing document vanished while it was locked');
     return found;
+  }
+
+  /**
+   * The sealed files of documents in force whose revocation was never established as good, or not since `checkedBefore`: documents with no verification
+   * at all, with a signature whose revocation status is not GOOD in the latest verification, or whose latest verification is older than the cut.
+   * Keyset pages over the version id, so a long run does not read the same row twice.
+   */
+  async issuedFilesDueForRevocationCheck(tx: TenantTx, input: { checkedBefore: Date; afterVersionId?: string | undefined; limit: number }): Promise<RevocationDue[]> {
+    const rows = await tx.query<{ outgoing_document_id: string; document_id: string; version_id: string; object_key: string; checksum: string }>(
+      `select o.id as outgoing_document_id, o.document_id, v.id as version_id, v.object_key, v.checksum
+         from machvon.outgoing_document o
+         join machvon.document_version v on v.tenant_id = o.tenant_id and v.document_id = o.document_id and v.stage = 'ORG_SEALED' and v.scan_status = 'CLEAN'
+        where o.status in ('ISSUED', 'DELIVERED', 'ACKNOWLEDGED') and ($2::uuid is null or v.id > $2::uuid)
+          and (not exists (select 1 from machvon.document_signature s where s.document_version_id = v.id)
+               or exists (select 1 from machvon.document_signature s
+                           where s.document_version_id = v.id
+                             and s.verification_no = (select max(verification_no) from machvon.document_signature where document_version_id = v.id)
+                             and (s.revocation_status <> 'GOOD' or s.verified_at <= $1::timestamptz)))
+        order by v.id limit $3`,
+      [input.checkedBefore.toISOString(), input.afterVersionId ?? null, input.limit],
+    );
+    return rows.map((row) => ({ outgoingDocumentId: row.outgoing_document_id, documentId: row.document_id, versionId: row.version_id, objectKey: row.object_key, checksum: row.checksum }));
+  }
+
+  /** At least one recipient has the document: ISSUED to DELIVERED (DOC.md F8). */
+  async markDelivered(tx: TenantTx, id: string, input: { expectedVersion: number; actor: string }): Promise<OutgoingDocumentRecord> {
+    return this.advance(tx, id, input.expectedVersion, 'ISSUED', "status = 'DELIVERED'", [], input.actor);
+  }
+
+  /** Every recipient that had to acknowledge has: DELIVERED to ACKNOWLEDGED (DOC.md F8). */
+  async markAcknowledged(tx: TenantTx, id: string, input: { expectedVersion: number; actor: string }): Promise<OutgoingDocumentRecord> {
+    return this.advance(tx, id, input.expectedVersion, 'DELIVERED', "status = 'ACKNOWLEDGED'", [], input.actor);
   }
 
   private async advance(

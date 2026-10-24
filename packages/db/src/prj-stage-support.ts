@@ -72,19 +72,23 @@ export const lockedProjectOf = (row: LockSql): LockedProject => ({
 });
 
 /** The reason as it is stored: trimmed, within its length, with line breaks but no other control character. */
-export function reasonOf(value: string): string {
+export function reasonOf(value: string, field = 'reason'): string {
   const text = value.trim();
   // eslint-disable-next-line no-control-regex
-  if (text.length < MIN_REASON || text.length > MAX_REASON || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) throw invalid('reason');
+  if (text.length < MIN_REASON || text.length > MAX_REASON || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) throw invalid(field);
   return text;
 }
 
-export function effectiveDateOf(value: string | undefined): string | null {
-  if (value === undefined) return null;
+/** A calendar date as typed (`YYYY-MM-DD`); a value that is not a date is a fault of the request named by `field`. */
+export function dateOf(value: string, field: string): string {
   const parsed = new Date(`${value}T00:00:00Z`);
   // A date that does not exist (the 30th of February) is read by the engine as a later one: only a date that reads back as typed is a date.
-  if (!DATE.test(value) || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) throw invalid('effective_date');
+  if (!DATE.test(value) || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) throw invalid(field);
   return value;
+}
+
+export function effectiveDateOf(value: string | undefined): string | null {
+  return value === undefined ? null : dateOf(value, 'effective_date');
 }
 
 /**

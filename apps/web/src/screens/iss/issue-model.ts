@@ -7,10 +7,18 @@ export const ISSUE_READ_PERMISSION = 'issue.read';
 export const ISSUE_CREATE_PERMISSION = 'issue.create';
 export const ISSUE_ASSIGN_PERMISSION = 'issue.assign';
 export const ISSUE_WORK_PERMISSION = 'issue.work';
+export const ISSUE_CLOSE_PERMISSION = 'issue.close';
+export const ISSUE_REOPEN_PERMISSION = 'issue.reopen';
+export const ISSUE_EXTEND_PERMISSION = 'issue.extend';
+export const ISSUE_ESCALATE_PERMISSION = 'issue.escalate';
+export const ISSUE_ACCEPT_ESCALATION_PERMISSION = 'issue.escalation.accept';
 
 export const LIST_PATH = '/iss/iss-01';
 export const CREATE_PATH = '/iss/iss-02';
 export const WORKSPACE_PATH = '/iss/iss-03';
+export const EXTENSION_PATH = '/iss/iss-04';
+export const VERIFICATION_PATH = '/iss/iss-07';
+export const ESCALATION_BOARD_PATH = '/iss/iss-10';
 
 export const ISSUE_STATUSES = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED', 'PENDING_VERIFICATION', 'CLOSED', 'REOPENED'] as const;
 export type IssueStatus = (typeof ISSUE_STATUSES)[number];
@@ -54,7 +62,7 @@ const asRecord = (value: unknown): Raw | undefined => (typeof value === 'object'
 const text = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined);
 const nullableText = (value: unknown): string | null => text(value) ?? null;
 const whole = (value: unknown): number | undefined => (typeof value === 'number' && Number.isInteger(value) ? value : undefined);
-const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined => allowed.find((candidate) => candidate === value);
+const oneOf = <T extends string | number>(value: unknown, allowed: readonly T[]): T | undefined => allowed.find((candidate) => candidate === value);
 
 export interface PersonView {
   id: string;
@@ -156,6 +164,13 @@ export interface IssueEventView {
   /** The unit an issue came from and went to, for a transfer. */
   fromUnitId: string | null;
   toUnitId: string | null;
+  /** The documents a request for verification named as evidence (ids of document versions). */
+  evidenceIds: string[];
+  /** How the result of a request for verification was answered, when the verifier gave the issue back. */
+  outcome: string | null;
+  /** The deadline an extension moved, and where it moved it. */
+  previousDueAt: string | null;
+  newDueAt: string | null;
 }
 
 export function toEvent(raw: unknown): IssueEventView | undefined {
@@ -178,6 +193,72 @@ export function toEvent(raw: unknown): IssueEventView | undefined {
     documentAttached: text(row.document_version_id) !== undefined,
     fromUnitId: nullableText(payload?.from_unit_id),
     toUnitId: nullableText(payload?.to_unit_id),
+    evidenceIds: Array.isArray(payload?.evidence_document_version_ids) ? payload.evidence_document_version_ids.flatMap((value) => text(value) ?? []) : [],
+    outcome: nullableText(payload?.outcome),
+    previousDueAt: nullableText(payload?.previous_due_at),
+    newDueAt: nullableText(payload?.new_due_at),
+  };
+}
+
+export type EscalationLevel = 1 | 2 | 3;
+export const ESCALATION_LEVELS: readonly EscalationLevel[] = [1, 2, 3];
+export type EscalationStatus = 'OPEN' | 'ACCEPTED' | 'RESOLVED' | 'CANCELLED';
+const ESCALATION_STATUSES: readonly EscalationStatus[] = ['OPEN', 'ACCEPTED', 'RESOLVED', 'CANCELLED'];
+export type EscalationTrigger = 'SLA_AUTO' | 'MANUAL';
+const ESCALATION_TRIGGERS: readonly EscalationTrigger[] = ['SLA_AUTO', 'MANUAL'];
+
+export interface TaskForceView {
+  id: string;
+  code: string;
+  name: string;
+}
+
+/** An escalation of an issue as the workspace shows it. */
+export interface EscalationView {
+  id: string;
+  level: EscalationLevel;
+  trigger: EscalationTrigger;
+  status: EscalationStatus;
+  targetUnit: { id: string; name: string } | null;
+  taskForce: TaskForceView | null;
+  /** The code of an automatic escalation or the words of the person; null when the reader may not read them. */
+  reason: string | null;
+  acceptDueAt: string;
+  acceptedBy: PersonView | null;
+  acceptedAt: string | null;
+  createdAt: string;
+}
+
+export function toTaskForce(value: unknown): TaskForceView | null {
+  const row = asRecord(value);
+  const id = text(row?.id);
+  const code = text(row?.code);
+  return row === undefined || id === undefined || code === undefined ? null : { id, code, name: text(row.name) ?? code };
+}
+
+export function toEscalation(raw: unknown): EscalationView | undefined {
+  const row = asRecord(raw);
+  const id = text(row?.id);
+  const level = oneOf(row?.level, ESCALATION_LEVELS);
+  const trigger = oneOf(row?.trigger, ESCALATION_TRIGGERS);
+  const status = oneOf(row?.status, ESCALATION_STATUSES);
+  const acceptDueAt = text(row?.accept_due_at);
+  const createdAt = text(row?.created_at);
+  if (row === undefined || id === undefined || level === undefined || trigger === undefined || status === undefined || acceptDueAt === undefined || createdAt === undefined) return undefined;
+  const unit = asRecord(row.target_unit);
+  const unitId = text(unit?.id);
+  return {
+    id,
+    level,
+    trigger,
+    status,
+    targetUnit: unitId === undefined ? null : { id: unitId, name: text(unit?.name) ?? '' },
+    taskForce: toTaskForce(row.task_force),
+    reason: nullableText(row.reason),
+    acceptDueAt,
+    acceptedBy: personOf(row.accepted_by),
+    acceptedAt: nullableText(row.accepted_at),
+    createdAt,
   };
 }
 
@@ -203,6 +284,14 @@ export interface IssueView extends IssueLine {
   /** Null when the reader may not read it (an issue from a land complaint, a guest). */
   description: string | null;
   sla: SlaView | null;
+  /** The extensions of the deadline used and the most the tenant allows (ST-ISS-003). */
+  extensions: { used: number; limit: number };
+  /** How many days after its closing an issue can be reopened. */
+  reopenWindowDays: number;
+  /** The escalations of the issue, newest first; empty for a reader who may not see who answers for it. */
+  escalations: EscalationView[];
+  /** The task force that answers for the issue today, for a reader who may escalate it by hand. */
+  activeTaskForce: TaskForceView | null;
   geoConsent: boolean;
   geo: GeoView | null;
   events: IssueEventView[];
@@ -239,7 +328,19 @@ export function toIssueView(raw: unknown): IssueView | undefined {
   const row = asRecord(raw);
   if (line === undefined || row === undefined) return undefined;
   const events = Array.isArray(row.events) ? row.events.flatMap((event) => toEvent(event) ?? []) : [];
-  return { ...line, description: nullableText(row.description), sla: slaOf(row.sla), geoConsent: row.geo_consent === true, geo: geoOf(row.geo), events };
+  const extensions = asRecord(row.extensions);
+  return {
+    ...line,
+    description: nullableText(row.description),
+    sla: slaOf(row.sla),
+    extensions: { used: whole(extensions?.used) ?? 0, limit: whole(extensions?.limit) ?? 0 },
+    reopenWindowDays: whole(row.reopen_window_days) ?? 0,
+    escalations: Array.isArray(row.escalations) ? row.escalations.flatMap((item) => toEscalation(item) ?? []) : [],
+    activeTaskForce: toTaskForce(row.active_task_force),
+    geoConsent: row.geo_consent === true,
+    geo: geoOf(row.geo),
+    events,
+  };
 }
 
 /** The next page of the timeline of an issue: the events and the cursor of the page after it. */
@@ -442,6 +543,13 @@ export type ProblemReason =
   | 'stateInvalid'
   | 'assigneeOutOfScope'
   | 'documentNotClean'
+  | 'evidenceRequired'
+  | 'selfApproval'
+  | 'extensionLimit'
+  | 'escalationLevel'
+  | 'taskForceNotActive'
+  | 'escalationState'
+  | 'reopenWindow'
   | 'versionConflict'
   | 'operationConflict'
   | 'validation'
@@ -455,6 +563,13 @@ const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
   ISSUE_STATE_INVALID: 'stateInvalid',
   ASSIGNEE_OUT_OF_SCOPE: 'assigneeOutOfScope',
   DOCUMENT_NOT_CLEAN: 'documentNotClean',
+  EVIDENCE_REQUIRED: 'evidenceRequired',
+  SELF_APPROVAL_DENIED: 'selfApproval',
+  EXTENSION_LIMIT_REACHED: 'extensionLimit',
+  ESCALATION_LEVEL_INVALID: 'escalationLevel',
+  TASK_FORCE_NOT_ACTIVE: 'taskForceNotActive',
+  ESCALATION_STATE_INVALID: 'escalationState',
+  REOPEN_WINDOW_EXPIRED: 'reopenWindow',
   VERSION_CONFLICT: 'versionConflict',
   IDEMPOTENCY_CONFLICT: 'operationConflict',
   VALIDATION_FAILED: 'validation',

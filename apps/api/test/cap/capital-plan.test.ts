@@ -519,7 +519,7 @@ describe('capital plan drafting commands and reads (ST-CAP-002)', () => {
       expect((narrow.json.projects as Array<Record<string, unknown>>).map((item) => item.project_id)).toEqual([mine]);
       expect(narrow.json.totals).toMatchObject({ line_count: 1, allocated_vnd: money(1) });
       expect(Object.keys(whole.json).sort()).toEqual(
-        ['decision_document', 'effective_at', 'fund_sources', 'id', 'period_from_year', 'period_to_year', 'plan_code', 'plan_kind', 'plan_year', 'projects', 'published_at', 'revision', 'scope_unit', 'status', 'supersedes_id', 'totals', 'version'].sort(),
+        ['decided_at', 'decision_document', 'decision_reason', 'effective_at', 'fund_sources', 'id', 'period_from_year', 'period_to_year', 'plan_code', 'plan_kind', 'plan_year', 'projects', 'published_at', 'revision', 'scope_unit', 'status', 'submitted_at', 'supersedes_id', 'totals', 'version'].sort(),
       );
     });
 
@@ -535,7 +535,7 @@ describe('capital plan drafting commands and reads (ST-CAP-002)', () => {
       const first = itemsOf(all).find((item) => (item.project as Record<string, unknown>).id === a && (item.appropriation as Record<string, unknown>).id === nstw) as Record<string, unknown>;
       expect(Object.keys(first).sort()).toEqual(
         [
-          'amount_vnd', 'appropriation', 'bucket', 'budget_level', 'capital_plan_id', 'committed_vnd', 'ctmtqg_subset_vnd', 'extended_to', 'extension_document', 'fund_source', 'id', 'is_extended', 'origin',
+          'amount_vnd', 'appropriation', 'bucket', 'budget_level', 'capital_plan_id', 'committed_vnd', 'ctmtqg_subset_vnd', 'disbursed_vnd', 'extended_to', 'extension_document', 'fund_source', 'id', 'is_extended', 'origin',
           'plan_code', 'plan_status', 'previous_line_id', 'program', 'project', 'reserved_vnd', 'source_year', 'version',
         ].sort(),
       );

@@ -6,6 +6,7 @@ import { Client } from 'pg';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
+import { MasterCrosswalkController } from '../../src/modules/mdm/master-crosswalk.controller';
 import { MasterDataController, MasterDataReadsController } from '../../src/modules/mdm/master-data.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -22,6 +23,7 @@ const CHECKER = 3; // master.review and master.read
 const PUBLISHER = 4; // master.publish and master.read
 const READER = 5; // master.read
 const NOBODY = 6;
+const ALIAS_ADMIN = 8; // master.crosswalk.manage and master.read
 const OTHER_TENANT_STEWARD = 1; // of tenant B
 
 interface Reply {
@@ -118,12 +120,13 @@ describe('master data commands and reads (ST-MDM-001)', () => {
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.owner(tenant, [["insert into machvon.master_type_policy (tenant_id, master_type, scope, updated_by) values ($1, 'SECTOR', 'TENANT_ONLY', $2)", [tenant, memberId(1)]]]);
     }
-    for (const n of [STEWARD, SECOND_STEWARD, CHECKER, PUBLISHER, READER, NOBODY]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [STEWARD, SECOND_STEWARD, CHECKER, PUBLISHER, READER, NOBODY, ALIAS_ADMIN]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, OTHER_TENANT_STEWARD, 1);
     await harness.seedRole(TENANT_A, 1, 'DATA_STEWARD', ['master.propose', 'master.read'], 40);
     await harness.seedRole(TENANT_A, 2, 'DATA_CHECKER', ['master.review', 'master.read'], 50);
     await harness.seedRole(TENANT_A, 3, 'DATA_PUBLISHER', ['master.publish', 'master.read'], 50);
     await harness.seedRole(TENANT_A, 4, 'DATA_READER', ['master.read', 'master_record_version.read'], 20);
+    await harness.seedRole(TENANT_A, 6, 'ALIAS_ADMIN', ['master.crosswalk.manage', 'master.read'], 40);
     await harness.seedRole(TENANT_B, 1, 'DATA_STEWARD', ['master.propose', 'master.read'], 40);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: STEWARD, role: 1, kind: 'TENANT' },
@@ -131,6 +134,7 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       { n: 3, member: CHECKER, role: 2, kind: 'TENANT' },
       { n: 4, member: PUBLISHER, role: 3, kind: 'TENANT' },
       { n: 5, member: READER, role: 4, kind: 'TENANT' },
+      { n: 6, member: ALIAS_ADMIN, role: 6, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: OTHER_TENANT_STEWARD, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -140,7 +144,7 @@ describe('master data commands and reads (ST-MDM-001)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MasterDataController, MasterDataReadsController],
+      controllers: [MasterDataController, MasterDataReadsController, MasterCrosswalkController],
       providers: [{ provide: TenantDatabase, useValue: tenants }, { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) }],
     });
   }, 180_000);
@@ -383,6 +387,41 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       expect([locked.status, locked.json.code]).toEqual([403, 'POLICY_LOCKED']);
       const extension = await propose(STEWARD, proposalBody({ master_type: 'PROGRAM' }));
       expect([extension.status, extension.json.code]).toEqual([403, 'POLICY_LOCKED']);
+    });
+
+    it('AC-ST-MDM-002-2: FUND_SOURCE NSTW in the platform namespace is locked against a change of its code or name (403 POLICY_LOCKED) and takes only the alias of the tenant, for the label and the order', async () => {
+      const platformId = randomUUID();
+      await rows(
+        `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'PLATFORM', 'FUND_SOURCE', 'NSTW-ALIAS', 'EFFECTIVE', $3, $3)`,
+        [TENANT_A, platformId, memberId(1)],
+      );
+      await rows(
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+         values ($1, $2, $3, 'FUND_SOURCE', 'NSTW-ALIAS', 1, 'Ngân sách trung ương', '{"category":"NSTW","relation":"ADDITIVE"}'::jsonb, '2020-01-01', 'EFFECTIVE', 'PLATFORM', now(), $4, $4)`,
+        [TENANT_A, randomUUID(), platformId, memberId(1)],
+      );
+      const rename = await propose(STEWARD, proposalBody({ master_type: 'FUND_SOURCE', business_key: 'NSTW-ALIAS', label: 'Tên khác của tenant' }));
+      expect([rename.status, rename.json.code]).toEqual([403, 'POLICY_LOCKED']);
+      const label = await call('POST', '/master-crosswalks', { member: ALIAS_ADMIN, body: { master_record_id: platformId, source_system: 'TENANT_ALIAS', external_type: 'LABEL', external_code: 'Vốn NSTW', valid_from: '2024-01-01', match_method: 'MANUAL' } });
+      expect(label.status).toBe(200);
+      const order = await call('POST', '/master-crosswalks', { member: ALIAS_ADMIN, body: { master_record_id: platformId, source_system: 'TENANT_ALIAS', external_type: 'ORDER', external_code: '2', valid_from: '2024-01-01', match_method: 'MANUAL' } });
+      expect(order.status).toBe(200);
+      const seen = await call('GET', '/master-records?master_type=FUND_SOURCE&business_key=NSTW-ALIAS', { member: READER });
+      expect((seen.json.items as Array<Record<string, unknown>>)[0]).toMatchObject({
+        id: platformId,
+        namespace: 'PLATFORM',
+        business_key: 'NSTW-ALIAS',
+        label: 'Ngân sách trung ương',
+        alias_label: 'Vốn NSTW',
+        alias_order: 2,
+        display_label: 'Vốn NSTW',
+        display_order: 2,
+      });
+      const second = await call('POST', '/master-crosswalks', { member: ALIAS_ADMIN, body: { master_record_id: platformId, source_system: 'TENANT_ALIAS', external_type: 'LABEL', external_code: 'Tên khác', valid_from: '2024-01-01', match_method: 'MANUAL' } });
+      expect([second.status, second.json.code]).toEqual([409, 'CROSSWALK_DUPLICATE']);
+      const code = await call('POST', '/master-crosswalks', { member: ALIAS_ADMIN, body: { master_record_id: platformId, source_system: 'TENANT_ALIAS', external_type: 'CODE', external_code: 'NSTW-2', valid_from: '2024-01-01', match_method: 'MANUAL' } });
+      expect([code.status, code.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      expect(await rows(`select code, label from machvon.master_record_version where master_record_id = $1::uuid`, [platformId])).toEqual([{ code: 'NSTW-ALIAS', label: 'Ngân sách trung ương' }]);
     });
 
     it('lists the policy of each type with the entries of each namespace, for anyone who may read master data', async () => {

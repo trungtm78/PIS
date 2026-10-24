@@ -15,7 +15,7 @@ import { ERROR_CODES_PATH, loadOpenApi, startTestApp } from '../isolation/test-a
 import type { RunningApp } from '../isolation/test-app';
 import { COMMAND_FIXTURES, evaluateGuardDenial, evaluateWrongTenant, negativeCasesFor, operationsOf } from './negative-matrix';
 import type { MatrixCase, MatrixRequest, MatrixTargets, Observation } from './negative-matrix';
-import { APPROVER_COMMANDS, SEED_APPRAISAL, STEP_UP_REPLAYS, evaluateSelfApproval, evaluateStepUpDenial, makerCheckerCasesFor, stepUpCasesFor } from './maker-checker';
+import { APPROVER_COMMANDS, SEED_APPRAISAL, STEP_UP_REPLAYS, derivedId, evaluateSelfApproval, evaluateStepUpDenial, makerCheckerCasesFor, seedBidPlan, stepUpCasesFor } from './maker-checker';
 
 const SIGNING_KEY = randomBytes(32);
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
@@ -164,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decideCapitalPlan', 'post_plans_id_publish', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy', 'decideProcurementPlan', 'approveQualityRuleVersion']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -425,6 +425,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
          values ($1, $2, $3, $4, $5, 'OPERATIONAL', $6, now() + interval '1 day', 'Delivered', 'matrix.notification', true)`,
         [TENANT_A, notificationId, id(0x72, 1), id(0x71, 1), memberId(RECIPIENT), `n1:${'a'.repeat(64)}`],
       ],
+      [
+        `insert into machvon.contact_consent (tenant_id, id, membership_id, channel, purpose, status, evidence_reference, effective_at, consent_text_version, capture_method)
+         values ($1, $2, $3, 'SMS', 'OPERATIONAL', 'Granted', 'matrix-fixture', now(), 'matrix-1', 'IN_APP')`,
+        [TENANT_A, id(0x7e, 1), memberId(RECIPIENT)],
+      ],
     ]);
     const legalHoldId = id(0x73, 1);
     await harness.owner(TENANT_A, [
@@ -468,6 +473,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const doaPendingId = id(0xa1, 2);
     const outgoingDocumentId = id(0x78, 3);
     const signingSessionId = id(0x78, 4);
+    const distributionId = id(0x78, 5);
     const layoutProfileId = (await harness.tenants.withTenant(contextFor(TENANT_A, memberId(1)), (tx) => new DocumentStore().seedDefaults(tx, ACTOR))).layoutProfileId;
     await harness.owner(TENANT_A, [
       [
@@ -506,6 +512,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         `insert into machvon.doc_signing_session (tenant_id, id, outgoing_document_id, role, signer_user_id, signing_certificate_id, adapter_code, adapter_status, status, base_version_id, digest_hex, byte_range, provider_txn_ref, expires_at, created_by, updated_by)
          values ($1, $2, $3, 'LEADER', $4, $5, 'MOCK', 'MOCK', 'AWAITING_SIGNER', $6, repeat('a', 64), '[0,1,2,3]'::jsonb, 'matrix-session', now() + interval '1 day', $4, $4)`,
         [TENANT_A, signingSessionId, outgoingDocumentId, memberId(RECIPIENT), certificateId, documentVersionId],
+      ],
+      [
+        `insert into machvon.document_distribution (tenant_id, id, outgoing_document_id, recipient_kind, recipient_name, channel, status, sent_at, attempts, created_by, updated_by)
+         values ($1, $2, $3, 'EXTERNAL_AGENCY', 'Matrix fixture recipient', 'PAPER_HANDOVER', 'SENT', now(), 1, $4, $4)`,
+        [TENANT_A, distributionId, outgoingDocumentId, memberId(RECIPIENT)],
       ],
     ]);
     const masterRecordId = id(0x79, 1);
@@ -614,6 +625,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const issueCategoryVersionId = id(0x7a, 2);
     const slaPolicyId = id(0x7a, 3);
     const issueId = id(0x7a, 4);
+    const issueEscalationId = id(0x7a, 5);
     const permitTypeId = id(0x7b, 1);
     const contractorToVerifyId = id(0x7c, 1);
     await harness.owner(TENANT_A, [
@@ -647,6 +659,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, issueId, projectId, issueCategoryVersionId, unitId(2), slaPolicyId, ACTOR],
       ],
       [
+        `insert into machvon.issue_escalation (tenant_id, id, issue_id, level, "trigger", target_unit_id, reason, due_at, created_by, updated_by)
+         values ($1, $2, $3, 2, 'SLA_AUTO', $4, 'SLA_L2_THRESHOLD_REACHED', now() + interval '8 hours', $5, $5)`,
+        [TENANT_A, issueEscalationId, issueId, unitId(2), ACTOR],
+      ],
+      [
         `insert into machvon.permit_type (tenant_id, id, code, name, category, authority_text, legal_basis, effective_from, applies_to_rule, status, created_by, updated_by)
          values ($1, $2, 'MATRIX_FIXTURE', 'Matrix fixture permit type', 'OTHER', 'Matrix authority', 'Matrix fixture legal basis', '2026-01-01', '{}'::jsonb, 'PUBLISHED', $3, $3)`,
         [TENANT_A, permitTypeId, ACTOR],
@@ -663,6 +680,30 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       [
         "insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, status, created_by, updated_by) values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $5)",
         [TENANT_A, permitId, permitDossierId, permitTypeId, ACTOR],
+      ],
+    ]);
+    // A land parcel of that project, answered for by unit 2: the notice command acts on it.
+    const parcelId = id(0xb2, 1);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.land_parcel (tenant_id, id, project_id, owner_unit_id, parcel_code, land_use_group, area_total_m2, area_affected_m2, status, version, created_by, updated_by)
+         values ($1, $2, $3, $4, 'MX-PARCEL', 'AGRICULTURAL', 100, 50, 'SURVEYED', 1, $5, $5)`,
+        [TENANT_A, parcelId, projectId, unitId(2), ACTOR],
+      ],
+    ]);
+    // Who answers for that project and a task force of its unit: the assignment commands act on them.
+    const accountabilityId = id(0xb3, 1);
+    const taskForceId = id(0xb3, 2);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.project_accountability (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
+         values ($1, $2, $3, $4, 'DEPUTY_LEADER', '2026-01-01', 'ACTIVE', $5, $5)`,
+        [TENANT_A, accountabilityId, projectId, memberId(RECIPIENT), ACTOR],
+      ],
+      [
+        `insert into machvon.task_force (tenant_id, id, code, name, purpose, lead_membership_id, scope_unit_id, valid_from, status, created_by, updated_by)
+         values ($1, $2, 'MX-TF', 'Matrix task force', 'Fixture of the authorization matrix', $3, $4, '2026-01-01', 'ACTIVE', $5, $5)`,
+        [TENANT_A, taskForceId, memberId(RECIPIENT), unitId(2), ACTOR],
       ],
     ]);
     const fundSourceRecordId = id(0x8c, 1);
@@ -769,7 +810,47 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, inboxEventId],
       ],
     ]);
+    // A DRAFT procurement plan and one IN_REVIEW of two projects of unit 2, each on a line of capital in a published plan, made by someone other than the callers.
+    const bidDraftObject = id(0xb5, 1);
+    const bidReviewObject = id(0xb5, 2);
+    await harness.owner(TENANT_A, [[seedBidPlan(bidDraftObject, ACTOR, 'DRAFT'), []], [seedBidPlan(bidReviewObject, ACTOR), []]]);
+    // A dataset of the DIS module with a working contract, a DRAFT quality rule of it made by someone other than the callers, and a frozen snapshot of the open period: the quality commands act on them.
+    const qualityDatasetId = id(0xde, 1);
+    const qualityContractId = id(0xde, 2);
+    const qualityRuleId = id(0xde, 3);
+    const qualitySnapshotId = id(0xde, 4);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.dataset (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
+         values ($1, $2, 'DS-MATRIX-QUALITY', 'Matrix quality dataset', 'MATRIX', 'one row per matrix case', 'DIS', $3, $3, 'INTERNAL', false, 3600, 'DRAFT', $3, $3)`,
+        [TENANT_A, qualityDatasetId, glossaryOwnerId],
+      ],
+      [
+        `insert into machvon.dataset_contract (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id)
+         values ($1, $2, 'DS-MATRIX-QUALITY', 1, $3, '{}'::jsonb, '{}'::jsonb, 3600, 'INTERNAL', 'DRAFT', $4)`,
+        [TENANT_A, qualityContractId, glossaryOwnerId, qualityDatasetId],
+      ],
+      [
+        `insert into machvon.quality_rule_version (tenant_id, id, contract_id, dataset_id, code, revision, expression_ast, severity, threshold_json, status, dimension, field_path, action_on_fail, criticality_weight, created_by)
+         values ($1, $2, $3, $4, 'R-MATRIX', 1, '{"op":"not_null","field":"project_id"}'::jsonb, 'MEDIUM', '{"min_pass_rate_pct":"100.000000"}'::jsonb, 'DRAFT', 'COMPLETENESS', 'project_id', 'QUARANTINE', 1, $5)`,
+        [TENANT_A, qualityRuleId, qualityContractId, qualityDatasetId, ACTOR],
+      ],
+      [
+        `insert into machvon.period_snapshot (tenant_id, id, period_id, snapshot_kind, as_of_at, as_of_date, treasury_cutoff_date, status, metric_set_version, definition_status, row_count, payload_sha256, frozen_by, frozen_at, created_by, updated_by)
+         values ($1, $2, $3, 'PERIOD_CLOSE', now(), current_date, current_date, 'FROZEN', 'v1', 'PROPOSED_PENDING_SIGNOFF', 0, repeat('c', 64), $4, now(), $4, $4)`,
+        [TENANT_A, qualitySnapshotId, periodOpenId, ACTOR],
+      ],
+    ]);
     targets = {
+      bidPlanProjectId: derivedId(bidDraftObject, 'bid-project'),
+      bidPlanLineId: derivedId(bidDraftObject, 'bid-line'),
+      bidPlanDraftId: derivedId(bidDraftObject, 'bid-plan'),
+      bidPlanInReviewId: derivedId(bidReviewObject, 'bid-plan'),
+      qualityContractId,
+      qualityRuleId,
+      qualitySnapshotId,
+      accountabilityId,
+      taskForceId,
       connectorId,
       inboxEventId,
       retentionDraftId,
@@ -785,9 +866,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       permitTypeId,
       permitDossierId,
       permitId,
+      parcelId,
       issueCategoryVersionId,
       slaPolicyId,
       issueId,
+      issueEscalationId,
       masterRecordId,
       masterDraftChangeId,
       masterReviewChangeId,
@@ -806,6 +889,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       templateId,
       layoutProfileId,
       notificationId,
+      consentId: id(0x7e, 1),
       legalHoldId,
       registerId,
       documentVersionId,
@@ -816,6 +900,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       doaPendingId,
       outgoingDocumentId,
       signingSessionId,
+      distributionId,
       unit2: unitId(2),
       unit3: unitId(3),
       customRoleId: id(0x30, CUSTOM_ROLE),

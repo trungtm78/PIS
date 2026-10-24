@@ -26,7 +26,7 @@ export type ReadByIdNeedsThePath = Expect<Equal<object extends ReadInput<'get_re
 export type RequiredQueryParametersAreRequired = Expect<Equal<object extends ReadInput<'searchGlobal'> ? true : false, false>>;
 export type RequiredQueryParametersKeepTheirShape = Expect<Equal<ReadInput<'searchGlobal'>['query']['q'], string>>;
 export type OptionalQueryParametersStayOptional = Expect<Equal<'query' extends RequiredKeys<ReadInput<'get_resources_organization_unit'>> ? true : false, false>>;
-export type MultipartOperationsAreNotCommands = Expect<Equal<['uploadSystemTenantThemeAsset' extends CommandOperation ? true : false, 'uploadMasterImportFile' extends CommandOperation ? true : false, 'uploadTreasuryStatementFile' extends CommandOperation ? true : false, 'uploadNationalCodeFile' extends CommandOperation ? true : false], [false, false, false, false]>>;
+export type MultipartOperationsAreNotCommands = Expect<Equal<['uploadSystemTenantThemeAsset' extends CommandOperation ? true : false, 'uploadMasterImportFile' extends CommandOperation ? true : false, 'uploadTreasuryStatementFile' extends CommandOperation ? true : false, 'uploadNationalCodeFile' extends CommandOperation ? true : false, 'uploadLandParcelFile' extends CommandOperation ? true : false], [false, false, false, false, false]>>;
 export type JsonCommandsRemainCommands = Expect<Equal<['createOrganizationUnit' extends CommandOperation ? true : false, 'grantRole' extends CommandOperation ? true : false], [true, true]>>;
 
 // Commands that carry no request body (the contract has no requestBody at all) are commands too: only an operation whose
@@ -41,7 +41,7 @@ export type BodylessVersionedCommandsStillRequireTheVersion = Expect<
   Equal<'ifMatchVersion' extends RequiredKeys<CommandInput<'runAllocationScenario'>> ? true : false, true>
 >;
 export type OnlyTheMultipartUploadsAreOutsideTheCommandSurface = Expect<
-  Equal<Exclude<OperationName, ReadOperation | CommandOperation>, 'uploadDocumentFile' | 'uploadMasterImportFile' | 'uploadNationalCodeFile' | 'uploadSystemTenantThemeAsset' | 'uploadTreasuryStatementFile'>
+  Equal<Exclude<OperationName, ReadOperation | CommandOperation>, 'uploadDocumentFile' | 'uploadLandParcelFile' | 'uploadMasterImportFile' | 'uploadNationalCodeFile' | 'uploadSystemTenantThemeAsset' | 'uploadTreasuryStatementFile'>
 >;
 
 describe('operation types', () => {

@@ -57,8 +57,8 @@ async function seedRun(datasetId: string, code: string, overall: 'PASSED' | 'WAR
     [TENANT_A, contractId, code, memberId(OWNER), datasetId, ++counter],
   );
   await owner(
-    `insert into machvon.quality_run (tenant_id, id, dataset_contract_id, snapshot_id, rule_version_ids, passed_count, failed_count, quarantined_count, finished_at, dataset_id, status, overall_result)
-     values ($1, $2, $3, $4, '[]'::jsonb, 1, 0, 0, $5::timestamptz, $6, 'COMPLETED', $7)`,
+    `insert into machvon.quality_run (tenant_id, id, dataset_contract_id, snapshot_id, rule_version_ids, passed_count, failed_count, quarantined_count, started_at, finished_at, dataset_id, trigger, status, overall_result, score)
+     values ($1, $2, $3, $4, jsonb_build_array(($2::uuid)::text), 1, 0, 0, $5::timestamptz, $5::timestamptz, $6, 'MANUAL', 'COMPLETED', $7, 90)`,
     [TENANT_A, randomUUID(), contractId, randomUUID(), finishedAt, datasetId, overall],
   );
 }

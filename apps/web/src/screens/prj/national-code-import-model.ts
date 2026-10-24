@@ -131,3 +131,39 @@ export function describeImportProblem(error: unknown): ImportProblem {
 }
 
 export const IMPORT_ACCEPT = '.csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+/** The part of a grant that tells where its permissions reach (getMyEffectiveAccess), read defensively. */
+export interface GrantAuthority {
+  scopeKind: string;
+  state: string;
+  permissions: string[];
+}
+
+export function toGrantAuthority(raw: unknown): GrantAuthority[] {
+  const grants = asRecord(raw)?.grants;
+  return (Array.isArray(grants) ? grants : []).map((grant) => {
+    const row = asRecord(grant);
+    return {
+      scopeKind: text(row?.scope_kind) ?? '',
+      state: text(row?.state) ?? '',
+      permissions: (Array.isArray(row?.permissions) ? (row.permissions as unknown[]) : []).filter((name): name is string => typeof name === 'string'),
+    };
+  });
+}
+
+/** Whether a held permission (an exact name or a `prefix.*` pattern) grants the required one; a bare `*` grants nothing. */
+function holds(held: string, required: string): boolean {
+  if (held === '' || held === '*') return false;
+  if (held === required) return true;
+  if (!held.endsWith('.*')) return false;
+  const prefix = held.slice(0, -1);
+  return required.startsWith(prefix) && required.length > prefix.length;
+}
+
+/**
+ * Whether a grant in force on the whole tenant carries the permission: what the server asks before it applies the national file (the file spans every
+ * project and is applied once, so a grant on a unit subtree is not enough).
+ */
+export function holdsOnWholeTenant(grants: readonly GrantAuthority[], permission: string): boolean {
+  return grants.some((grant) => grant.scopeKind === 'TENANT' && grant.state === 'ACTIVE' && grant.permissions.some((held) => holds(held, permission)));
+}

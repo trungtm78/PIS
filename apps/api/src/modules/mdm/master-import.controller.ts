@@ -71,13 +71,14 @@ export class MasterImportController {
   @OperationId('uploadMasterImportFile')
   @Command({ operation: 'uploadMasterImportFile' })
   async upload(@Scope() scope: CommandScope, @UploadedBytes() file: UploadedFile): Promise<Schemas['MdmImportFile']> {
-    // What the file is comes first (its bytes, not its name), then whether it is a table: its columns and rows are what the mapping step needs.
+    // What the file is comes first (its bytes, not its name), then the scan, and only then whether it is a table: its columns and rows are what the mapping
+    // step needs, and the table reader is a parser of the sender's bytes that reads only a file the scan found clean.
     const verdict = validateUpload({ declaredType: file.contentType, bytes: file.bytes, purpose: 'import' });
     if (!verdict.ok) throw new DomainError(verdict.code, verdict.status);
-    const table = readTabularFile(file.bytes);
     const stored = await this.files.upload(scope.tenant, { purpose: 'import', declaredType: file.contentType, bytes: file.bytes });
     if (stored.scanStatus === 'INFECTED') throw new DomainError('FILE_NOT_CLEAN', 422);
     if (stored.scanStatus !== 'CLEAN') throw new DomainError('SCAN_PENDING', 409);
+    const table = readTabularFile(file.bytes);
     await scope.audit({
       action: 'master.import_file_uploaded',
       resourceType: RESOURCE_TYPE,

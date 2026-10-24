@@ -1,4 +1,4 @@
-import { CALENDAR_TIMEZONES, DomainError, ROUNDING_MODES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
+import { CALENDAR_TIMEZONES, DomainError, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_TIMER_DAYS, NOTICE_DAYS, ROUNDING_MODES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -101,7 +101,7 @@ export const FUND_RELATIONS = ['ADDITIVE', 'SUBSET_OF'] as const;
 export const PROGRAM_KINDS = ['CTMTQG', 'NATIONAL_TARGET', 'SECTORAL', 'LOCAL'] as const;
 export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] as const;
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
-export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV'] as const;
+export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
 export const TREASURY_LEVELS = ['CENTRAL', 'PROVINCE', 'DISTRICT'] as const;
 export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
@@ -174,6 +174,18 @@ function checkCriteria(criteria: unknown, threshold: unknown): void {
   // The scores add up to the 100 points that the pass threshold is a part of.
   if (total !== 100) fail('attributes.criteria');
   if (!Number.isInteger(threshold) || (threshold as number) < 1 || (threshold as number) > 100) fail('attributes.pass_threshold');
+}
+
+/**
+ * A timer of land clearance (BR-LND-01): the key names one of the five timers, the notice before a recovery decision is 90 or 180 days (the
+ * two lengths the parcel can carry), working days name the calendar they are counted on and calendar days do not, and the owner is LND.
+ */
+function checkLandTimer(businessKey: string, attributes: Record<string, unknown>): void {
+  if (!(LAND_TIMER_CODES as readonly string[]).includes(businessKey)) fail('business_key');
+  if (attributes.owner_module !== 'LND') fail('attributes.owner_module');
+  if (businessKey.startsWith('NOTICE_') && !(NOTICE_DAYS as readonly number[]).includes(attributes.days as number)) fail('attributes.days');
+  const hasCalendar = attributes.calendar_code !== undefined && attributes.calendar_code !== null;
+  if ((attributes.day_count === 'WORKING') !== hasCalendar) fail('attributes.calendar_code');
 }
 
 const DEFINITIONS: readonly MasterTypeDefinition[] = [
@@ -432,6 +444,19 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     strict: true,
     fields: [...RULE_FIELDS, { name: 'criteria', kind: 'list', required: true, maxItems: 50 }, { name: 'pass_threshold', kind: 'integer', required: true, min: 1, max: 100 }],
     check: ({ content }) => checkCriteria(content.attributes.criteria, content.attributes.pass_threshold),
+  },
+  {
+    // BR-LND-01: the key is the timer (NOTICE_AGRICULTURAL_90...), the attributes say how many days and how they are counted.
+    masterType: 'LND_TIMER',
+    rule: true,
+    strict: true,
+    fields: [
+      ...RULE_FIELDS,
+      { name: 'days', kind: 'integer', required: true, min: 1, max: MAX_TIMER_DAYS },
+      { name: 'day_count', kind: 'choice', required: true, choices: LAND_DAY_COUNTS },
+      { name: 'calendar_code', kind: 'text', maxLength: 50, pattern: KEY },
+    ],
+    check: ({ businessKey, content }) => checkLandTimer(businessKey, content.attributes),
   },
 ];
 

@@ -1,0 +1,163 @@
+import { randomBytes, randomUUID } from 'node:crypto';
+import { WORKER_MEMBERSHIP_ID, INTAKE_CATEGORY_KEYS } from '@machvon/db';
+import type { OutboxDelivery } from '@machvon/db';
+import { signTenantContext } from '@machvon/kernel';
+import type { MetricsSink } from '@machvon/kernel';
+import { INTAKE_IGNORED_METRIC, INTAKE_OPENED_METRIC, INTAKE_REFERENCE_REPLACED_METRIC, ISS_INTAKE_CONSUMER, IssIntakeConsumer, SOURCE_DEDUPE_METRIC } from '../../src/modules/iss/intake.consumer';
+import { issueDetailView } from '../../src/modules/iss/issue-view';
+import { IssWorld, PEOPLE, PROJECT, TENANT_A, memberId } from '../../../../packages/db/test/support/iss-fixtures';
+
+const SIGNING_KEY = randomBytes(32);
+const SYSTEM = memberId(PEOPLE.SYSTEM);
+
+class Counters implements MetricsSink {
+  readonly counts = new Map<string, number>();
+  increment(name: string, labels?: Record<string, string>): void {
+    const key = labels === undefined ? name : `${name}{${Object.entries(labels).map(([k, v]) => `${k}=${v}`).join(',')}}`;
+    this.counts.set(key, (this.counts.get(key) ?? 0) + 1);
+  }
+  gauge(): void {
+    return undefined;
+  }
+}
+
+describe('the intake of automatic issues from the events of PMT, PAY, LND and CTR (ST-ISS-005, ISS-11)', () => {
+  const world = new IssWorld();
+  const metrics = new Counters();
+  const consumer = (): IssIntakeConsumer => new IssIntakeConsumer({ database: world.harness.tenants, security: { signingKey: SIGNING_KEY }, metrics });
+
+  const delivery = (type: string, payload: Record<string, unknown>, over: Partial<OutboxDelivery> = {}): OutboxDelivery => ({
+    id: randomUUID(),
+    tenantId: TENANT_A,
+    tenantContext: signTenantContext({ tenantId: TENANT_A, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, SIGNING_KEY),
+    type,
+    schemaVersion: 1,
+    aggregateType: 'complaint',
+    aggregateId: randomUUID(),
+    aggregateVersion: 1,
+    payload,
+    eventKey: `key-${randomUUID()}`,
+    correlationId: randomUUID(),
+    attempts: 0,
+    ...over,
+  });
+  const complaint = (source: string, extra: Record<string, unknown> = {}): Record<string, unknown> => ({ tenant_id: TENANT_A, source_ref_id: source, project_id: PROJECT, reference_code: 'LC-A-001', ...extra });
+  const issuesOf = (source: string) => world.owner<{ id: string; title: string; status: string; source_module: string }>('select id, title, status, source_module from machvon.issue where source_ref_id = $1::uuid', [source]);
+  const audits = (issueId: string) => world.owner<{ action: string; safe_diff: Record<string, unknown> }>('select action, safe_diff from machvon.audit_event where resource_id = $1::uuid order by seq', [issueId]);
+  const outbox = (issueId: string) => world.owner<{ type: string; payload: Record<string, unknown> }>('select type, payload from machvon.outbox_event where aggregate_id = $1::uuid order by created_at, id', [issueId]);
+  const inboxRows = (eventId: string) => world.owner('select 1 from machvon.integration_event_inbox where event_key = $1', [eventId]);
+
+  beforeAll(async () => {
+    await world.start();
+    const version = await world.seedCategory(TENANT_A, 'ISSUE_CATEGORY', INTAKE_CATEGORY_KEYS.LND);
+    await world.as((tx) =>
+      world.policies.publish(tx, { code: 'SLA-LND-MEDIUM', categoryVersionId: version, severity: 'MEDIUM', calendarCode: 'WORKDAY_VN', responseHours: 4, resolveHours: 16, validFrom: '2026-08-05' }, SYSTEM),
+    );
+    const permit = await world.seedCategory(TENANT_A, 'ISSUE_CATEGORY', INTAKE_CATEGORY_KEYS.PMT);
+    await world.as((tx) =>
+      world.policies.publish(tx, { code: 'SLA-PMT-HIGH', categoryVersionId: permit, severity: 'HIGH', calendarCode: 'WORKDAY_VN', responseHours: 4, resolveHours: 16, validFrom: '2026-08-05' }, SYSTEM),
+    );
+  }, 300_000);
+
+  afterAll(() => world.stop(), 60_000);
+
+  it('AC-ST-ISS-005-1: the same source event delivered twice, and a second event for the same source, leave exactly one open issue, one audit row and one event', async () => {
+    const source = randomUUID();
+    const first = delivery('lnd.complaint.filed.v1', complaint(source));
+    expect(await consumer().handle(first)).toBe('processed');
+    expect(await consumer().handle(first)).toBe('duplicate');
+    // Another delivery for the same source object: consumed (its inbox row is written), and it updates nothing.
+    const second = delivery('lnd.complaint.filed.v1', complaint(source, { reference_code: 'LC-A-002' }));
+    expect(await consumer().handle(second)).toBe('processed');
+    const issues = await issuesOf(source);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ title: 'Land complaint filed: LC-A-001', status: 'OPEN', source_module: 'LND' });
+    const issueId = issues[0]?.id as string;
+    expect((await audits(issueId)).map((entry) => entry.action)).toEqual(['iss.issue_opened']);
+    expect((await audits(issueId))[0]?.safe_diff).toMatchObject({ source_module: 'LND', intake_event_type: 'lnd.complaint.filed.v1', geo_recorded: false });
+    expect((await outbox(issueId)).map((event) => event.type)).toEqual(['iss.issue.opened.v1']);
+    expect((await outbox(issueId))[0]?.payload).toMatchObject({ issue_id: issueId, project_id: PROJECT, status: 'OPEN', source_module: 'LND', actor_id: WORKER_MEMBERSHIP_ID });
+    expect((await world.events(issueId)).map((event) => event.event_kind)).toEqual(['CREATED']);
+    expect(await inboxRows(second.id)).toHaveLength(1);
+    expect(metrics.counts.get(`${INTAKE_OPENED_METRIC}{source=LND}`)).toBeGreaterThanOrEqual(1);
+    expect(metrics.counts.get(`${SOURCE_DEDUPE_METRIC}{source=LND}`)).toBeGreaterThanOrEqual(1);
+  });
+
+  it('AC-ST-ISS-005-2: a land complaint that carries a household and an identity number opens an issue with only a reference code, in the issue, the timeline, the audit row and the event', async () => {
+    const source = randomUUID();
+    const event = delivery(
+      'lnd.complaint.filed.v1',
+      complaint(source, { household_name: 'Nguyen Van A', citizen_id: '079000000001', address: '12 Le Loi, Cao Bang', phone: '0901234567', content: 'The compensation is too low' }),
+    );
+    expect(await consumer().handle(event)).toBe('processed');
+    const [issue] = await issuesOf(source);
+    const everything = JSON.stringify([
+      await world.owner('select to_jsonb(i) as issue from machvon.issue i where i.id = $1::uuid', [issue?.id]),
+      await world.events(issue?.id as string),
+      await audits(issue?.id as string),
+      await outbox(issue?.id as string),
+      await world.owner('select * from machvon.integration_event_inbox where event_key = $1', [event.id]),
+    ]);
+    for (const personal of ['Nguyen Van A', '079000000001', 'Le Loi', 'Cao Bang', '0901234567', 'too low']) expect(everything).not.toContain(personal);
+    // A reference that looks like an identity number is replaced, and counted.
+    const identityLike = randomUUID();
+    expect(await consumer().handle(delivery('lnd.complaint.filed.v1', complaint(identityLike, { reference_code: '079000000001' })))).toBe('processed');
+    expect((await issuesOf(identityLike))[0]?.title).toBe(`Land complaint filed: ${identityLike.slice(0, 8)}`);
+    expect(metrics.counts.get(`${INTAKE_REFERENCE_REPLACED_METRIC}{source=LND}`)).toBe(1);
+  });
+
+  it('UAT-AC354: a reader without the right to read households sees the issue of a land complaint but not its text; a permit issue is read whole', async () => {
+    const land = randomUUID();
+    const permit = randomUUID();
+    await consumer().handle(delivery('lnd.complaint.filed.v1', complaint(land)));
+    await consumer().handle(delivery('pmt.permit.expired.v1', complaint(permit, { reference_code: 'GP-0001' })));
+    const scope = world.everything('issue.read', PEOPLE.ASSIGNER).read;
+    const viewer = { membershipId: memberId(PEOPLE.ASSIGNER), guest: false };
+    for (const [source, expected] of [[land, null], [permit, 'Permit expired: GP-0001 (PMT, PERMIT)']] as const) {
+      const [row] = await issuesOf(source);
+      const detail = await world.as((tx) => world.issues.find(tx, row?.id as string, scope));
+      const view = issueDetailView(detail as NonNullable<typeof detail>, null, viewer, { land: false }, { escalations: [], taskForce: undefined });
+      expect(view.description).toBe(expected);
+      expect(view.title).toBe(row?.title);
+    }
+  });
+
+  it('opens an issue for an expired guarantee only when an advance is still owed (CTR, ST-CTR-003)', async () => {
+    // The tenant has a category for the guarantees and no policy for them: the delivery that asks for an issue is refused to be retried, the one that does not is left alone.
+    const source = randomUUID();
+    const payload = { tenant_id: TENANT_A, project_id: PROJECT, contract_id: null, kind: 'ADVANCE', expires_on: '2026-12-01', source_module: 'CTR', source_reference: source };
+    expect(await consumer().handle(delivery('ctr.guarantee.expired.v1', { ...payload, issue_required: false }))).toBe('ignored');
+    expect(await issuesOf(source)).toEqual([]);
+    expect(metrics.counts.get(`${INTAKE_IGNORED_METRIC}{reason=not_wanted}`)).toBe(1);
+    const retried = delivery('ctr.guarantee.expired.v1', { ...payload, issue_required: true });
+    await expect(consumer().handle(retried)).rejects.toMatchObject({ code: 'VALIDATION_FAILED', detail: 'category_key' });
+    expect(await inboxRows(retried.id)).toEqual([]);
+    // The tenant defines the category and the policy: the same delivery, retried, opens the issue.
+    const version = await world.seedCategory(TENANT_A, 'ISSUE_CATEGORY', INTAKE_CATEGORY_KEYS.CTR);
+    await world.as((tx) =>
+      world.policies.publish(tx, { code: 'SLA-CTR-HIGH', categoryVersionId: version, severity: 'HIGH', calendarCode: 'WORKDAY_VN', responseHours: 4, resolveHours: 16, validFrom: '2026-08-05' }, SYSTEM),
+    );
+    expect(await consumer().handle(retried)).toBe('processed');
+    expect((await issuesOf(source))[0]).toMatchObject({ title: 'Advance guarantee expired: ADVANCE-2026-12-01', source_module: 'CTR' });
+  });
+
+  it('leaves alone what is not its event, a version it does not know, a payload that is not a request and a project that is not the tenant\'s, and counts them', async () => {
+    const before = metrics.counts.get(`${INTAKE_IGNORED_METRIC}{reason=invalid}`) ?? 0;
+    expect(await consumer().handle(delivery('prj.stage.changed.v1', complaint(randomUUID())))).toBe('ignored');
+    expect(await consumer().handle(delivery('lnd.complaint.filed.v1', complaint(randomUUID()), { schemaVersion: 2 }))).toBe('ignored');
+    expect(await consumer().handle(delivery('lnd.complaint.filed.v1', complaint('not-a-uuid')))).toBe('ignored');
+    expect(metrics.counts.get(`${INTAKE_IGNORED_METRIC}{reason=invalid}`)).toBe(before + 1);
+    const stranger = randomUUID();
+    expect(await consumer().handle(delivery('lnd.complaint.filed.v1', complaint(stranger, { project_id: randomUUID() })))).toBe('processed');
+    expect(await issuesOf(stranger)).toEqual([]);
+    expect(metrics.counts.get(`${INTAKE_IGNORED_METRIC}{reason=project_unknown}`)).toBe(1);
+    expect(consumer().name).toBe(ISS_INTAKE_CONSUMER);
+  });
+
+  it('refuses a delivery whose signed context was made with another key before it touches the database', async () => {
+    const source = randomUUID();
+    const forged = delivery('lnd.complaint.filed.v1', complaint(source), { tenantContext: signTenantContext({ tenantId: TENANT_A, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, randomBytes(32)) });
+    await expect(consumer().handle(forged)).rejects.toMatchObject({ code: 'TENANT_CONTEXT_INVALID' });
+    expect(await issuesOf(source)).toEqual([]);
+  });
+});

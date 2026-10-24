@@ -6266,7 +6266,10 @@
         "createLandSection",
         "createLandParcel",
         "importLandParcels",
-        "recordRecoveryNotice"
+        "recordRecoveryNotice",
+        "listLandParcels",
+        "listLandSections",
+        "uploadLandParcelFile"
       ],
       "tables": [
         "land_handover_section",
@@ -33145,7 +33148,8 @@
         "listMyConsents",
         "withdrawMyConsent",
         "get_resources_contact_consent",
-        "get_resources_contact_consent_id"
+        "get_resources_contact_consent_id",
+        "getMyNotificationPreferences"
       ],
       "tables": [
         "notification_preference",
@@ -37389,7 +37393,9 @@
         "endProjectLeaderAssignment",
         "createTaskForce",
         "addTaskForceMember",
-        "dissolveTaskForce"
+        "dissolveTaskForce",
+        "get_resources_project_accountability",
+        "get_resources_task_force"
       ],
       "tables": [
         "project_accountability",

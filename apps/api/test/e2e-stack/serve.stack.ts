@@ -41,7 +41,7 @@ import { UserSessionDenyList } from '../../src/session/user-session-deny-list';
 import { MockProvisioningPorts } from '../../src/provisioning/mock-ports';
 import { createProvisioningConsumer } from '../../src/provisioning/provisioning-wiring';
 import { DOCUMENT_FILE_PORT } from '../../src/modules/doc/file-port';
-import { DOC_SIGNING_PORT, DOC_TRUST_STORE } from '../../src/modules/doc/tokens';
+import { DOC_REVOCATION, DOC_SIGNING_PORT, DOC_TRUST_STORE } from '../../src/modules/doc/tokens';
 import { seedOutgoingDocuments } from './outgoing-seed';
 import type { OutgoingSeed } from './outgoing-seed';
 import { createOutboxConsumers } from '../../src/workers/outbox-consumers';
@@ -200,6 +200,21 @@ const ISSUE_ROLES = [
 ];
 
 /**
+ * The people of the end of an issue (ISS-04, ISS-07): the verifier confirms and closes and gives the result back (and reopens), the extender grants
+ * extensions, the handler holds the permissions to close and to extend as well, so that the server, not the screen, is what keeps the person who worked an
+ * issue from confirming or extending it. No system role holds the issue permissions but the owner's.
+ */
+const ISSUE_END_ROLES = [
+  { n: 400, user: 'issueVerifier', code: 'E2E_ISSUE_VERIFIER', permissions: ['issue.read', 'issue.close', 'issue.reopen', 'issue.assign', 'organization_unit.read'], rank: 40 },
+  { n: 401, user: 'issueExtender', code: 'E2E_ISSUE_EXTENDER', permissions: ['issue.read', 'issue.extend', 'organization_unit.read'], rank: 40 },
+  { n: 402, user: 'issueHandler', code: 'E2E_ISSUE_HANDLER', permissions: ['issue.read', 'issue.work', 'issue.close', 'issue.extend', 'organization_unit.read'], rank: 30 },
+  // The escalation of an issue (ISS-04, ISS-10): whoever raises it by hand, a member of the task force and a person who answers for units but is not in the task force.
+  { n: 403, user: 'issueEscalator', code: 'E2E_ISSUE_ESCALATOR', permissions: ['issue.read', 'issue.escalate', 'organization_unit.read'], rank: 40 },
+  { n: 404, user: 'issueTaskForce', code: 'E2E_ISSUE_TASK_FORCE', permissions: ['issue.read', 'issue.escalation.accept', 'organization_unit.read'], rank: 40 },
+  { n: 405, user: 'issueStranger', code: 'E2E_ISSUE_STRANGER', permissions: ['issue.read', 'issue.escalation.accept', 'organization_unit.read'], rank: 40 },
+];
+
+/**
  * The people of the project register (PRJ-01 to 03), the capital register (CAP-04, 14, 16) and the reporting period calendar (DIS-14). No system
  * role holds these permissions but the owner's, so each person gets a role of their own: the planner and the approver of the capital are two
  * people (the approver of an appropriation is never its registrant), and so are the one who soft closes a period and the one who locks it.
@@ -240,6 +255,27 @@ const STORY_ROLES = [
   { n: 131, user: 'mneReader', code: 'E2E_MNE_READER', permissions: ['mne.read'], rank: 20 },
 ];
 
+/**
+ * The people of the procurement plans (BID-03, 15, 16): the planner drafts and submits, the approver decides, the solo planner holds both rights (so the
+ * server, not the screen, refuses the approval of their own plan), the reader only reads. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const BID_PLAN_ROLES = [
+  { n: 700, user: 'bidPlanner', code: 'E2E_BID_PLANNER', permissions: ['bid.plan.manage', 'bid.read', 'procurement_package.read', 'project.read', 'allocation_line.read'], rank: 40 },
+  { n: 701, user: 'bidPlanApprover', code: 'E2E_BID_PLAN_APPROVER', permissions: ['bid.plan.approve', 'bid.read', 'procurement_package.read'], rank: 50 },
+  { n: 702, user: 'bidPlanSolo', code: 'E2E_BID_PLAN_SOLO', permissions: ['bid.plan.manage', 'bid.plan.approve', 'bid.read', 'procurement_package.read', 'project.read', 'allocation_line.read'], rank: 60 },
+  { n: 703, user: 'bidPlanReader', code: 'E2E_BID_PLAN_READER', permissions: ['bid.read', 'procurement_package.read'], rank: 20 },
+];
+
+/**
+ * The people of the data quality screens (DGV-01, 06, 07): the steward writes rules and requests runs and also holds the approval (so the
+ * server, not the screen, refuses the author's own approval), the approver is the second person, the reader only reads.
+ */
+const QUALITY_ROLES = [
+  { n: 590, user: 'qualitySteward', code: 'E2E_QUALITY_STEWARD', permissions: ['data.catalog.read', 'data.quality.manage', 'data.quality.approve', 'data.quality.run', 'data.quality.read', 'quality_rule_version.read', 'quality_run.read'], rank: 40 },
+  { n: 591, user: 'qualityApprover', code: 'E2E_QUALITY_APPROVER', permissions: ['data.catalog.read', 'data.quality.approve', 'data.quality.read', 'quality_rule_version.read', 'quality_run.read'], rank: 50 },
+  { n: 592, user: 'qualityReader', code: 'E2E_QUALITY_READER', permissions: ['data.catalog.read', 'data.quality.read', 'quality_rule_version.read', 'quality_run.read'], rank: 20 },
+];
+
 /** The people of the project bank (PRJ-14): one holds every stage permission, the other only the right to cancel. No system role holds these permissions. */
 const STAGE_ROLES = [
   { n: 170, user: 'stageManager', code: 'E2E_STAGE_MANAGER', permissions: ['project.read', 'project.stage.implement', 'project.stage.suspend', 'project.stage.complete', 'project.stage.close', 'project.stage.cancel', 'organization_unit.read'], rank: 40 },
@@ -260,13 +296,28 @@ const APPRAISAL_ROLES = [
 ];
 
 /** The planning officer who assigns the national project codes (PRJ-21). No system role holds project.national_code.manage but the owner's. */
-const NATIONAL_CODE_ROLES = [{ n: 380, user: 'nationalCodeAdmin', code: 'E2E_NATIONAL_CODE_ADMIN', permissions: ['project.read', 'project.national_code.manage', 'organization_unit.read'], rank: 40 }];
+const NATIONAL_CODE_ROLES = [{ n: 380, user: 'nationalCodeAdmin', code: 'E2E_NATIONAL_CODE_ADMIN', permissions: ['project.read', 'project.national_code.manage', 'organization_unit.read', 'session.self'], rank: 40 }];
+
+/** The people of land clearance (LND-02): the officer who declares parcels, imports lists and gives notices, and a reader. No system role holds land.manage or land.process but the owner's. */
+const LAND_ROLES = [
+  { n: 390, user: 'landOfficer', code: 'E2E_LAND_OFFICER', permissions: ['land.manage', 'land.process', 'land.read', 'project.read', 'organization_unit.read'], rank: 40 },
+  { n: 391, user: 'landReader', code: 'E2E_LAND_READER', permissions: ['land.read', 'project.read', 'organization_unit.read'], rank: 20 },
+];
+
+/** The people of the accountability screens (PRJ-17, PRJ-18): the office that assigns leaders and manages task forces on the whole tenant, and the reader. */
+const ACCOUNTABILITY_ROLES = [
+  { n: 230, user: 'accountabilityAdmin', code: 'E2E_ACCOUNTABILITY_ADMIN', permissions: ['project.accountability.assign', 'taskforce.manage', 'taskforce.read', 'project.read', 'organization_unit.read', 'membership.read', 'master.read', 'session.self'], rank: 40 },
+  { n: 231, user: 'accountabilityReader', code: 'E2E_ACCOUNTABILITY_READER', permissions: ['taskforce.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 20 },
+];
 
 /** The people of the permit dossier (PMT-01, PMT-02): the officer who keeps the file and records decisions, the manager who only keeps the file, the reader. No system role holds permit.manage or permit.record but the owner's. */
 const PERMIT_ROLES = [
   { n: 150, user: 'permitOfficer', code: 'E2E_PERMIT_OFFICER', permissions: ['permit.manage', 'permit.record', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 40 },
   { n: 151, user: 'permitManager', code: 'E2E_PERMIT_MANAGER', permissions: ['permit.manage', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 30 },
   { n: 152, user: 'permitReader', code: 'E2E_PERMIT_READER', permissions: ['permit.read'], rank: 20 },
+  // The leader approves an exemption (permit.exempt) and cannot propose; the second can do both, so that the server, not the screen, refuses the same person twice.
+  { n: 153, user: 'permitLeader', code: 'E2E_PERMIT_LEADER', permissions: ['permit.exempt', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 50 },
+  { n: 154, user: 'permitProposerLeader', code: 'E2E_PERMIT_PROPOSER_LEADER', permissions: ['permit.manage', 'permit.exempt', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 50 },
 ];
 
 /**
@@ -296,6 +347,16 @@ const DOC_DRAFT_ROLES = [
 ];
 
 /**
+ * The people of the issue and the distribution of outgoing documents (DOC-08): the clerk who issues and distributes on the subtree of unit 2, the legal officer who
+ * also holds the right to confirm templates on the whole tenant (the only one who can issue with an unconfirmed template), and the clerk who may only issue.
+ */
+const DOC_ISSUE_ROLES = [
+  { n: 450, user: 'docIssuer', code: 'E2E_DOC_ISSUER', permissions: ['doc.outgoing.read', 'doc.outgoing.issue', 'doc.distribution.manage', 'document_version.read', 'doc.signature.read', 'organization_unit.read'], rank: 30, kind: 'UNIT_SUBTREE' as const },
+  { n: 451, user: 'docLegal', code: 'E2E_DOC_LEGAL', permissions: ['doc.outgoing.read', 'doc.outgoing.issue', 'doc.distribution.manage', 'doc.template.confirm_legal', 'document_version.read', 'doc.signature.read', 'organization_unit.read'], rank: 50, kind: 'TENANT' as const },
+  { n: 452, user: 'docIssueOnly', code: 'E2E_DOC_ISSUE_ONLY', permissions: ['doc.outgoing.read', 'doc.outgoing.issue', 'document_version.read', 'organization_unit.read'], rank: 30, kind: 'UNIT_SUBTREE' as const },
+];
+
+/**
  * The people of the Treasury statement import (PAY-13) and of the confirmation by hand: the importer imports and reads, the reader only reads imports, and
  * two accountants are the maker and the checker of a confirmation (the checker is never the person who drafted or sent the request). No system role holds the
  * treasury permissions but the owner's. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
@@ -318,6 +379,11 @@ const PLAN_ROLES = [
   { n: 372, user: 'planReader', code: 'E2E_PLAN_READER', permissions: ['capital.read', 'plan_version.read', 'allocation_line.read'], rank: 20 },
   // The same rights as the first planner, on the subtree of the Project Management Board only: the projects of the rest of the Department do not exist for this person.
   { n: 373, user: 'planScoped', code: 'E2E_PLAN_SCOPED', permissions: ['capital.read', 'capital.plan.draft', 'plan_version.read', 'allocation_line.read', 'project.read', 'organization_unit.read'], rank: 40 },
+  // The approval of the plan (CAP-10): who submits, who decides, who publishes, and a person who holds every step (the four-eyes rule must still hold for them).
+  { n: 374, user: 'planSubmitter', code: 'E2E_PLAN_SUBMITTER', permissions: ['capital.read', 'capital.plan.draft', 'capital.plan.submit', 'plan_version.read', 'allocation_line.read', 'project.read', 'organization_unit.read'], rank: 40 },
+  { n: 375, user: 'planApprover', code: 'E2E_PLAN_APPROVER', permissions: ['capital.read', 'capital.plan.approve', 'plan_version.read', 'allocation_line.read'], rank: 50 },
+  { n: 376, user: 'planPublisher', code: 'E2E_PLAN_PUBLISHER', permissions: ['capital.read', 'plan.publish', 'plan_version.read', 'allocation_line.read'], rank: 50 },
+  { n: 377, user: 'planAll', code: 'E2E_PLAN_ALL', permissions: ['capital.read', 'capital.plan.draft', 'capital.plan.submit', 'capital.plan.approve', 'plan.publish', 'plan_version.read', 'allocation_line.read', 'project.read', 'organization_unit.read'], rank: 60 },
 ];
 
 interface GrantPlan {
@@ -339,6 +405,7 @@ const GRANTS: GrantPlan[] = [
   { n: 7, user: 'dataChecker', role: MASTER_ROLES[1]?.code ?? '', kind: 'TENANT', refs: [] },
   { n: 21, user: 'slaManager', role: ISS_ROLE.code, kind: 'TENANT', refs: [] },
   ...ISSUE_ROLES.map((role, index): GrantPlan => ({ n: 140 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...ISSUE_END_ROLES.map((role, index): GrantPlan => ({ n: 400 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   { n: 22, user: 'admReader', role: ADM_READER_ROLE.code, kind: 'TENANT', refs: [] },
   { n: 23, user: 'notificationReader', role: NOTIFICATION_READER_ROLE.code, kind: 'TENANT', refs: [] },
   ...STORY_ROLES.map((role, index): GrantPlan => ({ n: 60 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
@@ -347,10 +414,15 @@ const GRANTS: GrantPlan[] = [
   ...STAGE_ROLES.map((role, index): GrantPlan => ({ n: 170 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...APPRAISAL_ROLES.map((role, index): GrantPlan => ({ n: 360 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...NATIONAL_CODE_ROLES.map((role, index): GrantPlan => ({ n: 380 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...LAND_ROLES.map((role, index): GrantPlan => ({ n: 390 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...ACCOUNTABILITY_ROLES.map((role, index): GrantPlan => ({ n: 230 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PERMIT_ROLES.map((role, index): GrantPlan => ({ n: 150 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...DOC_ISSUE_ROLES.map((role, index): GrantPlan => ({ n: 460 + index, user: role.user, role: role.code, kind: role.kind, refs: role.kind === 'TENANT' ? [] : [unitId(2)] })),
   ...DOC_DRAFT_ROLES.map((role, index): GrantPlan => ({ n: 180 + index, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] })),
   ...CTR_ROLES.map((role, index): GrantPlan => ({ n: 200 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PAY_ROLES.map((role, index): GrantPlan => ({ n: 330 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...QUALITY_ROLES.map((role, index): GrantPlan => ({ n: 590 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...BID_PLAN_ROLES.map((role, index): GrantPlan => ({ n: 700 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -643,7 +715,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
@@ -1095,6 +1167,9 @@ describe('e2e API stack', () => {
         .useValue(outgoing.signing)
         .overrideProvider(DOC_TRUST_STORE)
         .useValue(outgoing.trust)
+        // No OCSP or CRL service exists in the stack: the test authority answers that none of its certificates is revoked, so the gate can be shown issuing.
+        .overrideProvider(DOC_REVOCATION)
+        .useValue({ check: async () => ({ status: 'GOOD' as const }) })
         .compile();
       app = moduleRef.createNestApplication();
       await app.listen(port, '127.0.0.1');
@@ -1125,7 +1200,7 @@ describe('e2e API stack', () => {
       workers = startWorkers(
         { tenants, control, relayPool, lockPool, signingKey, alerts, publish: createOutboxPublisher(consumers), accessCache: authzCache },
         // The job that closes and locks the periods by the calendar runs once a day here: the period flows of DIS-14 move a period by hand and must not race it.
-        { intervalSeconds: { 'outbox-relay': 1, 'dis-period-autoclose': 86_400 } },
+        { intervalSeconds: { 'issue-sla': 2, 'outbox-relay': 1, 'dis-period-autoclose': 86_400, 'dgv-quality-run': 2 } },
       );
       const listening = (app.getHttpServer().address() as AddressInfo).port;
       const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer, documents: outgoing.documents };

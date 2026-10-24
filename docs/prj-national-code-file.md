@@ -30,7 +30,7 @@ error, not a problem of the request):
 | --- | --- | --- |
 | `INTERNAL_CODE_EMPTY`, `NATIONAL_CODE_EMPTY` | the empty one | a cell is empty |
 | `CODE_INVALID` | the cell | longer than 50 characters or with a control character |
-| `NATIONAL_CODE_DUPLICATE` | `national_project_code` | the code repeats the code of an earlier row of the file, or another project of the tenant holds it |
+| `NATIONAL_CODE_DUPLICATE` | `national_project_code` | the code repeats the code of an earlier row of the file, or another project holds it (the dry run of a unit-scoped officer judges only the projects in their scope, so it never reveals a code held outside it; the apply is made on the whole tenant and judges all) |
 | `PROJECT_NOT_FOUND` | `internal_code` | no such project in the tenant, or outside the scope of the caller (the two look alike) |
 | `PROJECT_STAGE_LOCKED` | `internal_code` | the project has ended (CLOSED, REJECTED, CANCELLED) and keeps its code |
 | `NATIONAL_CODE_FORMAT_INVALID` | `national_project_code` | the code does not match the rule `NATIONAL_CODE_FORMAT` in force on the day |
@@ -44,8 +44,11 @@ that has the same code is left as it is; a project that holds **another** code i
 
 - `importNationalProjectCodes` with `dry_run: true` reads the file exactly as the apply will and writes nothing (no claim of the file, of a row,
   no quarantine): the answer is row by row `VALID` (with what would be done: `ASSIGN`, `UNCHANGED`, `MISMATCH`), `ERROR` (with its code), `DUPLICATE`
-  (the same row was applied before) or `CONFLICT` (the same project with other content), and `already_applied` when the same bytes were applied.
-- With `dry_run: false` the file is applied through the file import framework (`docs/file-import.md`), once per `(tenant, SHA-256)`: the second apply
+  (the same row was applied before) or `CONFLICT` (the same project with other content), and `already_applied` when the same bytes were applied. A holder of `project.national_code.manage` on a unit
+  subtree may dry-run the file for the projects of their units (the rows of other projects look like projects that do not exist).
+- With `dry_run: false` the command needs `project.national_code.manage` on the **whole tenant** (403 `SCOPE_DENIED` for a grant on a unit subtree or a project): the
+  file spans every project and its hash is consumed once, so a unit-scoped officer who applied it would quarantine the rows of the projects outside their scope and
+  shut the tenant-wide officer out with `IMPORT_FILE_ALREADY_APPLIED`. The file is applied through the file import framework (`docs/file-import.md`), once per `(tenant, SHA-256)`: the second apply
   is 409 `IMPORT_FILE_ALREADY_APPLIED`. The valid rows are applied and the refused rows go to the quarantine and to the answer (`errors`, at most
   500); a file none of whose rows can be taken is 422 `IMPORT_HAS_ERRORS` and nothing is written. The connector position `NATIONAL_PIM_FILE` /
   `DEFAULT` must be ACTIVE when the tenant has it (409 `STAGE_TRANSITION_DENIED` otherwise).

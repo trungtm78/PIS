@@ -1,0 +1,31 @@
+/* DOC-08: issue and distribution. The shared cards, tables, pills and callouts do the rest. */
+.field-error {
+  color: #a22b22;
+}
+
+.issue-form,
+.dispatch-form {
+  margin: 16px 0;
+}
+
+.check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.check label,
+label.check {
+  margin: 0;
+}
+
+.dispatch-form td small,
+.tablewrap td small {
+  display: block;
+  color: var(--shell-muted, #68616c);
+}
+
+.receipt-form {
+  padding: 8px 0;
+}

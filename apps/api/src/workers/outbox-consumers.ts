@@ -1,9 +1,11 @@
-import { NotificationStore } from '@machvon/db';
+import { NotificationPreferenceStore, NotificationStore } from '@machvon/db';
 import type { AuthzCache, ConsumeSecurity, ControlDatabase, DeliveryEngine, EffectiveAccessStore, EntitlementCache, TenantDatabase } from '@machvon/db';
 import { EntitlementChangedConsumer, ENTITLEMENT_CONSUMER } from '../entitlements/entitlement-consumer';
 import { InProcessEntitlementPush } from '../entitlements/entitlement-push';
 import type { EntitlementPushPort } from '../entitlements/entitlement-push';
 import { TenantStatusChangedConsumer, TENANT_STATUS_CONSUMER } from '../modules/sas/tenant-status-consumer';
+import { DGV_SNAPSHOT_FROZEN_CONSUMER, SnapshotFrozenConsumer } from '../modules/dgv/snapshot-frozen.consumer';
+import { ISS_INTAKE_CONSUMER, IssIntakeConsumer } from '../modules/iss/intake.consumer';
 import { PlanPublishedConsumer, PRJ_PLAN_PUBLISHED_CONSUMER } from '../modules/prj/plan-published.consumer';
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
@@ -51,6 +53,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     resourceAccess: new PermissionResourceAccess(),
     security,
     ...(deps.delivery === undefined ? {} : { delivery: deps.delivery }),
+    preferences: new NotificationPreferenceStore(),
   });
   const entitlements = new EntitlementChangedConsumer({
     database: tenants,
@@ -65,11 +68,15 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     security,
   });
   const planPublished = new PlanPublishedConsumer({ database: tenants, security });
+  const issIntake = new IssIntakeConsumer({ database: tenants, security });
+  const snapshotFrozen = new SnapshotFrozenConsumer({ database: tenants, security });
   return [
     { name: PROVISIONING_CONSUMER, handle: (delivery) => deps.provisioning.handle(delivery) },
     { name: ENTITLEMENT_CONSUMER, handle: (delivery) => entitlements.handle(delivery) },
     { name: TENANT_STATUS_CONSUMER, handle: (delivery) => tenantStatus.handle(delivery) },
     { name: PRJ_PLAN_PUBLISHED_CONSUMER, handle: (delivery) => planPublished.handle(delivery) },
+    { name: ISS_INTAKE_CONSUMER, handle: (delivery) => issIntake.handle(delivery) },
+    { name: DGV_SNAPSHOT_FROZEN_CONSUMER, handle: (delivery) => snapshotFrozen.handle(delivery) },
     ...(deps.docIssue === undefined ? [] : [deps.docIssue]),
     new RegisteredEventConsumer(NOTIFICATION_CONSUMER, catalog, { name: NOTIFICATION_CONSUMER, handle: (delivery) => notifications.handle(delivery) }),
   ];

@@ -21,6 +21,8 @@ export interface NotificationDefinition {
   ackRequired: boolean;
   expiresAfterMinutes: number;
   purpose: string;
+  /** NOT 3.4: the urgent message may be sent in the quiet hours of its recipient (and each time it is, an audit row says so). Only CRITICAL may. */
+  quietHoursOverride: boolean;
 }
 
 const PRIORITIES: readonly string[] = ['CRITICAL', 'HIGH', 'NORMAL', 'LOW'];
@@ -70,7 +72,7 @@ function channelsOf(value: unknown, priority: string): ChannelEntry[] {
   return inbox.length > 0 || priority === 'CRITICAL' || priority === 'HIGH' || others.length === 0 ? [{ channel: 'IN_APP' }, ...others] : others;
 }
 
-/** Reads the workflow definition with defaults (NORMAL, no acknowledgement, 7 days, OPERATIONAL); a bad value is a configuration error. */
+/** Reads the workflow definition with defaults (NORMAL, no acknowledgement, 7 days, OPERATIONAL, no override of the quiet hours); a bad value is a configuration error. */
 export function definitionOf(raw: unknown): NotificationDefinition {
   const record = typeof raw === 'object' && raw !== null && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
   const priority = record.priority ?? 'NORMAL';
@@ -81,5 +83,7 @@ export function definitionOf(raw: unknown): NotificationDefinition {
   if (typeof expiry !== 'number' || !Number.isInteger(expiry) || expiry < 1 || expiry > MAX_EXPIRY_MINUTES) throw invalid('expiresAfterMinutes');
   const purpose = record.purpose ?? 'OPERATIONAL';
   if (typeof purpose !== 'string' || purpose === '') throw invalid('purpose');
-  return { channels: channelsOf(record.channels, priority), resolver: resolverOf(record.resolver), priority: priority as NotificationPriority, ackRequired, expiresAfterMinutes: expiry, purpose };
+  const quietHoursOverride = record.quietHoursOverride ?? false;
+  if (typeof quietHoursOverride !== 'boolean' || (quietHoursOverride && priority !== 'CRITICAL')) throw invalid('quietHoursOverride');
+  return { channels: channelsOf(record.channels, priority), resolver: resolverOf(record.resolver), priority: priority as NotificationPriority, ackRequired, expiresAfterMinutes: expiry, purpose, quietHoursOverride };
 }

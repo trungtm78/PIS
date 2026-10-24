@@ -137,6 +137,23 @@ describe('CrosswalkScreen: adding a mapping', () => {
   };
   const save = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button', { name: vi_['mdm.crosswalk.save.action'] }));
 
+  it('AC-ST-MDM-002-2: explains the alias of a tenant when the system is TENANT_ALIAS, and sends it as a mapping like any other', async () => {
+    const h = client(mapped(), () => ({ operation_id: 'o', status: 'ACTIVE', resource_version: 1, resource_id: 'new' }));
+    mount(<CrosswalkScreen route={ROUTE} />, h, CROSSWALK_MANAGER, '/mdm/mdm-24');
+    await ready();
+    const user = userEvent.setup();
+    expect(screen.queryByTestId('crosswalk-alias-note')).toBeNull();
+    fill({ [vi_['mdm.crosswalk.form.system.label']]: ' TENANT_ALIAS ', [vi_['mdm.crosswalk.form.type.label']]: 'LABEL', [vi_['mdm.crosswalk.form.code.label']]: 'Vốn NSTW' });
+    expect(screen.getByTestId('crosswalk-alias-note').textContent).toBe(vi_['mdm.crosswalk.alias.note']);
+    await save(user);
+    await waitFor(() =>
+      expect(h.command).toHaveBeenCalledWith(
+        'createMasterCrosswalk',
+        expect.objectContaining({ body: { master_record_id: record(1).id, source_system: 'TENANT_ALIAS', external_type: 'LABEL', external_code: 'Vốn NSTW', valid_from: '2026-01-01', match_method: 'MANUAL' } }),
+      ),
+    );
+  });
+
   it('names the fields that are missing, and sends nothing until the form is right', async () => {
     const h = client(mapped());
     mount(<CrosswalkScreen route={ROUTE} />, h, CROSSWALK_MANAGER, '/mdm/mdm-24');

@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { DATASET_CLASSIFICATIONS, DgvDatasetStore, TenantDatabase } from '@machvon/db';
-import type { DatasetClassification, DatasetRow, DatasetViewer } from '@machvon/db';
+import type { CatalogSummary, DatasetClassification, DatasetRow } from '@machvon/db';
 import type { AuditClassification } from '@machvon/db';
-import { DomainError, activeGrants, asUuid } from '@machvon/kernel';
+import { DomainError, asUuid } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -13,7 +13,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
-import { textOf } from './inputs';
+import { textOf, viewerOf } from './inputs';
 
 const DATASET_RESOURCE = 'dataset';
 const CLASSIFICATIONS: ReadonlySet<string> = new Set(DATASET_CLASSIFICATIONS);
@@ -23,15 +23,26 @@ function auditClassificationOf(classification: DatasetClassification): AuditClas
   return classification === 'IMPORTANT_CORE' ? 'CONFIDENTIAL' : classification;
 }
 
-/** The viewer of a request: the person and the roles of the grants in force, whatever their scope (a dataset belongs to no organisation unit). */
-function viewerOf(tenant: TenantContext, access: EffectiveAccess): DatasetViewer {
-  return { membershipId: tenant.membershipId, roleCodes: [...new Set(activeGrants(access, new Date()).map((grant) => grant.roleCode))] };
-}
-
 function memberOf(value: string, field: string): string {
   const id = asUuid(value);
   if (id === undefined) throw new DomainError('VALIDATION_FAILED', 422, field);
   return id;
+}
+
+/** The picture of the datasets the filter matches, by badge; the average leaves out the datasets that were never assessed (BR-DGV-01). */
+function summaryViewOf(summary: CatalogSummary): Record<string, unknown> {
+  return {
+    total: summary.total,
+    not_assessed: summary.notAssessed,
+    passed: summary.passed,
+    warning: summary.warning,
+    failed: summary.failed,
+    stale: summary.stale,
+    hard_fail: summary.hardFail,
+    open_incidents: summary.openIncidents,
+    overdue_incidents: summary.overdueIncidents,
+    average_score: summary.averageScore,
+  };
 }
 
 function datasetViewOf(row: DatasetRow): Record<string, unknown> {
@@ -52,6 +63,12 @@ function datasetViewOf(row: DatasetRow): Record<string, unknown> {
     contract_revision: row.contractRevision,
     status: row.status,
     quality_badge: row.qualityBadge,
+    quality_score: row.qualityScore,
+    quality_hard_fail: row.qualityHardFail,
+    quality_run_at: row.qualityRunAt,
+    working_contract_id: row.workingContractId,
+    open_incidents: row.openIncidents,
+    overdue_incidents: row.overdueIncidents,
     version: row.version,
   };
 }
@@ -165,20 +182,22 @@ export class DgvCatalogController {
     @Query('classification') classification?: unknown,
     @Query('limit') limit?: unknown,
     @Query('cursor') cursor?: unknown,
-  ): Promise<{ items: Array<Record<string, unknown>>; total: number; next_cursor: string | null }> {
+  ): Promise<{ items: Array<Record<string, unknown>>; total: number; summary: Record<string, unknown>; next_cursor: string | null }> {
     const request = parsePageRequest(limit, cursor);
     if (classification !== undefined && (typeof classification !== 'string' || !CLASSIFICATIONS.has(classification))) throw new DomainError('VALIDATION_FAILED', 422, 'classification');
     const filter = { query: textOf(q, 'q'), domain: textOf(domain, 'domain'), classification: classification as DatasetClassification | undefined };
     const viewer = viewerOf(tenant, access);
-    const { rows, total } = await this.database.withTenant(tenant, async (tx) => ({
+    const { rows, total, summary } = await this.database.withTenant(tenant, async (tx) => ({
       rows: await this.datasets.search(tx, viewer, filter, { limit: request.limit + 1, after: request.after }),
       total: await this.datasets.count(tx, viewer, filter),
+      summary: await this.datasets.summarize(tx, viewer, filter),
     }));
     const shown = rows.slice(0, request.limit);
     const last = shown[shown.length - 1];
     return {
       items: shown.map(datasetViewOf),
       total,
+      summary: summaryViewOf(summary),
       next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.datasetCode, id: last.id }) : null,
     };
   }
