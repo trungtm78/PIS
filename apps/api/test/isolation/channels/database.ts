@@ -508,7 +508,7 @@ const INSERT_WORK_CALENDAR = `insert into machvon.work_calendar_version
 
 const INSERT_DOA_MATRIX = `insert into machvon.doa_matrix_version
   (tenant_id, id, revision, status, effective_from, legal_basis_ref, created_by, last_edited_by, version)
-  values ($1, $2, 1, 'Draft', date '2026-01-01', $3, $4, $4, 1) on conflict do nothing`;
+  values ($1, $2, 1, 'Draft', date '2026-01-01', $3, $4, $4, 1) on conflict (tenant_id, id) do nothing`;
 const INSERT_DOA_RULE = `insert into machvon.doa_rule
   (tenant_id, id, matrix_version_id, document_type, unit_id, amount_min_vnd, amount_max_vnd, approver_role_id)
   select $1, gen_random_uuid(), $2, $3, $4, 0, null, $5 where not exists (select 1 from machvon.doa_rule where matrix_version_id = $2)`;
@@ -682,7 +682,7 @@ const INSERT_DOCUMENT_VERSION = `insert into machvon.document_version
 
 const INSERT_LAYOUT_PROFILE = `insert into machvon.document_layout_profile
   (tenant_id, id, profile_code, revision, page_size, margins_mm, font_family, element_styles, signature_layout, number_field_layout, watermark_policy, legal_basis, confirmation_status, effective_from, status, created_by, updated_by)
-  values ($1, $2, 'ISOLATION', 1, 'A4', '{}'::jsonb, 'Tinos', '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 'isolation fixture', 'PENDING_CONFIRMATION', date '2026-01-01', 'PUBLISHED', $3, $3) on conflict do nothing`;
+  values ($1, $2, 'ISOLATION', 1, 'A4', '{}'::jsonb, 'Tinos', '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 'isolation fixture', 'PENDING_CONFIRMATION', date '2026-01-01', 'PUBLISHED', $3, $3) on conflict (tenant_id, id) do nothing`;
 const INSERT_TEMPLATE = `insert into machvon.document_template
   (tenant_id, id, template_code, revision, group_code, doc_type_code, title, layout_profile_id, body_blocks, placeholder_schema, legal_basis, watermark_text, origin, content_sha256, effective_from, status, created_by, updated_by)
   values ($1, $2, $3, 1, 'OTHER', 'QD', 'Isolation fixture template', $4, '[{"kind":"paragraph","text":"{{body}}"}]'::jsonb, '{"required":["body"]}'::jsonb, $5, 'Waiting for confirmation', 'PLATFORM_PACK', repeat('f', 64), date '2026-01-01', 'PUBLISHED', $6, $6) on conflict do nothing`;

@@ -1,0 +1,55 @@
+/* SAS-06: the plan catalogue. The shared cards, tables, pills and callouts do the rest. */
+.sas-plans .plan-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .sas-plans .plan-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sas-plans .plan-form,
+.sas-plans .plan-publish {
+  margin-top: 16px;
+}
+
+.sas-plans .plan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sas-plans .plan-cycles {
+  border: 0;
+  padding: 0;
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.sas-plans .plan-cycles legend {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sas-plans .check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.sas-plans .plan-feature-editor input,
+.sas-plans .plan-feature-editor select {
+  min-width: 96px;
+  max-width: 100%;
+}
+
+.sas-plans .field-error {
+  color: #a22b22;
+  display: block;
+}

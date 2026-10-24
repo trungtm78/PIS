@@ -174,6 +174,8 @@ export { SUSPENSION_REASONS, accessPolicyOf, assertPolicyMatchesReason, resumeTe
 export type { ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, SuspensionReason } from './tenant-state.ts';
 export { ROOT_UNIT_CODE, TENANT_OWNER_ROLE, TRIAL_DAYS, TenantBootstrapStore } from './tenant-bootstrap-store.ts';
 export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.ts';
+export { PlanStore, planInvalid } from './plan-store.ts';
+export type { ListPlansInput, PlanFeatureRow, PlanVersionRow, PlanVersionStatus, PublishPlanInput } from './plan-store.ts';
 export { LicenseStore } from './license-store.ts';
 export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
 export { LegalHoldStore } from './legal-hold-store.ts';

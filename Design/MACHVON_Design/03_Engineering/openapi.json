@@ -56496,6 +56496,96 @@
       }
     },
     "/system/plans": {
+      "get": {
+        "operationId": "listPlanVersions",
+        "summary": "Danh mục gói và các bản sửa đổi (SAS-06)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.billing.manage",
+        "parameters": [
+          {
+            "name": "plan_code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Published",
+                "Retired"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plan versions by plan code, newest revision first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanVersionPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      },
       "post": {
         "operationId": "createPlanVersion",
         "summary": "Tạo phiên bản gói + feature (SAS-06)",
@@ -138410,6 +138500,154 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "PlanVersion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "plan_code",
+          "revision",
+          "name",
+          "status",
+          "billing_cycles",
+          "base_price_vnd",
+          "vat_category",
+          "legal_terms_ref",
+          "version",
+          "features"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_code": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Published",
+              "Retired"
+            ]
+          },
+          "billing_cycles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MONTHLY",
+                "QUARTERLY",
+                "ANNUAL",
+                "CONTRACT_TERM"
+              ]
+            }
+          },
+          "base_price_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "vat_category": {
+            "type": "string",
+            "enum": [
+              "NOT_SUBJECT",
+              "VAT_0",
+              "VAT_5",
+              "VAT_8",
+              "VAT_10"
+            ]
+          },
+          "legal_terms_ref": {
+            "type": "string"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "description": "resource_version: the If-Match of publishPlanVersion"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "feature_code",
+                "limit_kind",
+                "grace_behavior",
+                "expired_behavior"
+              ],
+              "properties": {
+                "feature_code": {
+                  "type": "string"
+                },
+                "limit_kind": {
+                  "type": "string",
+                  "enum": [
+                    "BOOLEAN",
+                    "QUOTA",
+                    "METERED"
+                  ]
+                },
+                "limit_value": {
+                  "type": "string"
+                },
+                "meter": {
+                  "type": "string"
+                },
+                "grace_behavior": {
+                  "type": "string",
+                  "enum": [
+                    "ALLOW",
+                    "READ_ONLY",
+                    "DENY"
+                  ]
+                },
+                "expired_behavior": {
+                  "type": "string",
+                  "enum": [
+                    "READ_ONLY",
+                    "EXPORT_ONLY",
+                    "DENY"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "PlanVersionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanVersion"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }

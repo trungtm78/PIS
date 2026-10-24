@@ -68,6 +68,18 @@ export type { AllowedFeatureInput, EntitlementDenial, FeatureEntry, LicenseMode,
 export { licenseModeAt, licenseStatusAt, signLicenseClaims, verifyLicenseToken } from './license.ts';
 export type { LicenseClaims, LicenseRejection, LicenseRevisionState, LicenseSigner, LicenseTimeStatus, LicenseVerification } from './license.ts';
 export { FEATURE_BY_PERMISSION, RISKY_FEATURES, featureOf, isRiskyFeature } from './features.ts';
+export { MAX_PLAN_FEATURES, PLAN_FEATURE_CODES, planDraftIssues } from './plan-catalogue.ts';
+export type {
+  PlanBillingCycle,
+  PlanDraft,
+  PlanExpiredBehavior,
+  PlanFeatureDraft,
+  PlanGraceBehavior,
+  PlanIssue,
+  PlanIssueReason,
+  PlanLimitKind,
+  PlanVatCategory,
+} from './plan-catalogue.ts';
 export { TenantRateLimiter } from './tenant-rate-limit.ts';
 export type { RateLimitVerdict, TenantRateLimiterOptions } from './tenant-rate-limit.ts';
 export { buildSymbol, formatRegisterNumber, validateSymbolPattern, vietnamDateOf, vietnamYearOf } from './doc-numbering.ts';

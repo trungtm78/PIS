@@ -6522,7 +6522,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Danh mục gói và các bản sửa đổi (SAS-06) */
+        get: operations["listPlanVersions"];
         put?: never;
         /** Tạo phiên bản gói + feature (SAS-06) */
         post: operations["createPlanVersion"];
@@ -18941,6 +18942,40 @@ export interface components {
             block?: number;
             /** Format: date-time */
             as_of?: string;
+        };
+        PlanVersion: {
+            /** Format: uuid */
+            id: string;
+            plan_code: string;
+            revision: number;
+            name: string;
+            /** @enum {string} */
+            status: "Draft" | "Published" | "Retired";
+            billing_cycles: ("MONTHLY" | "QUARTERLY" | "ANNUAL" | "CONTRACT_TERM")[];
+            /** @description Integer VND as decimal string */
+            base_price_vnd: string;
+            /** @enum {string} */
+            vat_category: "NOT_SUBJECT" | "VAT_0" | "VAT_5" | "VAT_8" | "VAT_10";
+            legal_terms_ref: string;
+            /** Format: date-time */
+            published_at?: string;
+            /** @description resource_version: the If-Match of publishPlanVersion */
+            version: number;
+            features: {
+                feature_code: string;
+                /** @enum {string} */
+                limit_kind: "BOOLEAN" | "QUOTA" | "METERED";
+                limit_value?: string;
+                meter?: string;
+                /** @enum {string} */
+                grace_behavior: "ALLOW" | "READ_ONLY" | "DENY";
+                /** @enum {string} */
+                expired_behavior: "READ_ONLY" | "EXPORT_ONLY" | "DENY";
+            }[];
+        };
+        PlanVersionPage: {
+            items: components["schemas"]["PlanVersion"][];
+            next_cursor?: string | null;
         };
     };
     responses: never;
@@ -58173,6 +58208,58 @@ export interface operations {
             };
             /** @description RATE_LIMIT */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listPlanVersions: {
+        parameters: {
+            query?: {
+                plan_code?: string;
+                status?: "Draft" | "Published" | "Retired";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plan versions by plan code, newest revision first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanVersionPage"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description VALIDATION_FAILED */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -30923,6 +30923,7 @@
         "SAS-06"
       ],
       "operations": [
+        "listPlanVersions",
         "createPlanVersion",
         "publishPlanVersion"
       ],

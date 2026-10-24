@@ -520,6 +520,7 @@ export const OPERATIONS = {
   "listOutgoingDocuments": { method: "get", path: "/outgoing-documents", versioned: false, stepUp: null, permission: "doc.outgoing.read" },
   "listOverdueAdvances": { method: "get", path: "/advances/overdue", versioned: false, stepUp: null, permission: "advance.read" },
   "listPeriodSnapshotLines": { method: "get", path: "/period-snapshots/{id}/lines", versioned: false, stepUp: null, permission: "disbursement.read" },
+  "listPlanVersions": { method: "get", path: "/system/plans", versioned: false, stepUp: null, permission: "system.billing.manage" },
   "listProcurementPlans": { method: "get", path: "/procurement-plans", versioned: false, stepUp: null, permission: "bid.read" },
   "listProjectPipeline": { method: "get", path: "/project-pipeline", versioned: false, stepUp: null, permission: "project.read" },
   "listProjectRisks": { method: "get", path: "/projects/{id}/risks", versioned: false, stepUp: null, permission: "project.read" },

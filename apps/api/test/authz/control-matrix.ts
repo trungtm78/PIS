@@ -58,5 +58,8 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'uploadSystemTenantThemeAsset', permission: PERMISSIONS.uploadSystemTenantThemeAsset, method: 'POST', path: '/system/tenants/{tenantId}/theme/assets' },
   { operationId: 'listSystemTenants', permission: PERMISSIONS.listSystemTenants, method: 'GET', path: '/system/tenants' },
   { operationId: 'getSystemTenant', permission: PERMISSIONS.getSystemTenant, method: 'GET', path: '/system/tenants/{tenantId}' },
+  { operationId: 'listPlanVersions', permission: PERMISSIONS.listPlanVersions, method: 'GET', path: '/system/plans' },
+  { operationId: 'createPlanVersion', permission: PERMISSIONS.createPlanVersion, method: 'POST', path: '/system/plans' },
+  { operationId: 'publishPlanVersion', permission: PERMISSIONS.publishPlanVersion, method: 'POST', path: '/system/plans/{planVersionId}/publish' },
 ];
 

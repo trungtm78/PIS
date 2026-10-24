@@ -184,6 +184,8 @@ export function featureLabel(t: Translate, code: string): string {
       return t('sas.entitlements.feature.notificationCampaign');
     case 'member.invite':
       return t('sas.entitlements.feature.memberInvite');
+    case 'member.seats':
+      return t('sas.entitlements.feature.memberSeats');
     default:
       return code;
   }

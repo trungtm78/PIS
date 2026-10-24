@@ -893,7 +893,8 @@
         "system.tenant.read",
         "system.tenant.manage",
         "system.theme.manage",
-        "system.license.manage"
+        "system.license.manage",
+        "system.billing.manage"
       ],
       "audience": "control",
       "roles": [

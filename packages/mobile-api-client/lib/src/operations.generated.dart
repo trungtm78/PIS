@@ -522,6 +522,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listOutgoingDocuments': OperationDescriptor(method: 'GET', path: '/outgoing-documents', versioned: false, stepUp: null, permission: 'doc.outgoing.read'),
   'listOverdueAdvances': OperationDescriptor(method: 'GET', path: '/advances/overdue', versioned: false, stepUp: null, permission: 'advance.read'),
   'listPeriodSnapshotLines': OperationDescriptor(method: 'GET', path: '/period-snapshots/{id}/lines', versioned: false, stepUp: null, permission: 'disbursement.read'),
+  'listPlanVersions': OperationDescriptor(method: 'GET', path: '/system/plans', versioned: false, stepUp: null, permission: 'system.billing.manage'),
   'listProcurementPlans': OperationDescriptor(method: 'GET', path: '/procurement-plans', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProjectPipeline': OperationDescriptor(method: 'GET', path: '/project-pipeline', versioned: false, stepUp: null, permission: 'project.read'),
   'listProjectRisks': OperationDescriptor(method: 'GET', path: '/projects/{id}/risks', versioned: false, stepUp: null, permission: 'project.read'),
