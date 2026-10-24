@@ -3,7 +3,10 @@ import type { RecordView } from './model';
 /** What a cell of a catalogue table can look up: the other entries by id, and the name of a value of a closed list. */
 export interface CellContext {
   byId: ReadonlyMap<string, RecordView>;
+  /** The name of a value of a closed list (a text, a flag): its own text in the language of the screen, the value itself when it has none. */
   value(family: string, raw: unknown): string;
+  /** What a rule still waits for ("awaiting confirmation CXN-05"), or nothing once it is confirmed. */
+  awaiting(record: RecordView): string;
 }
 
 export interface CatalogueColumn {
@@ -37,7 +40,115 @@ const PARENT = column('parent', (record, { byId }) => (record.parentRecordId ===
 const VALIDITY = column('validity', (record) => (record.validFrom === null ? '' : `${record.validFrom} → ${record.validUntil ?? ''}`));
 const BASIS = column('basis', (record) => [record.revision === null ? '' : `v${record.revision}`, record.legalBasis ?? ''].filter((part) => part !== '').join(' · '));
 
+const yesNo = (name: string): CatalogueColumn['read'] => (record, { value }) => value('boolean', attribute(record, name));
+const field = (key: string, name: string): CatalogueColumn => column(key, (record) => plain(attribute(record, name)));
+const choice = (key: string, family: string, name: string): CatalogueColumn => column(key, (record, { value }) => value(family, attribute(record, name)));
+
 export const CATALOGUES: Readonly<Record<string, CatalogueConfig>> = {
+  'MDM-13': {
+    id: 'MDM-13',
+    slug: 'documentType',
+    types: ['DOCUMENT_TYPE'],
+    tree: false,
+    columns: [KEY, NAME, field('checklist', 'checklist'), field('mimeTypes', 'mime_types'), field('maxSize', 'max_size_mb')],
+    rules: [],
+  },
+  'MDM-14': {
+    id: 'MDM-14',
+    slug: 'contractType',
+    types: ['CONTRACT_TYPE'],
+    tree: false,
+    columns: [KEY, NAME, field('requiredFields', 'required_fields'), choice('versionPolicy', 'versionPolicy', 'version_policy'), column('annex', yesNo('is_annex'))],
+    rules: [],
+  },
+  'MDM-15': {
+    id: 'MDM-15',
+    slug: 'paymentType',
+    types: ['PAYMENT_TYPE'],
+    tree: false,
+    columns: [KEY, NAME, choice('paymentKind', 'paymentKind', 'kind'), field('conditions', 'conditions'), field('ruleSet', 'rule_set_key')],
+    rules: [],
+  },
+  'MDM-17': {
+    id: 'MDM-17',
+    slug: 'issueCategory',
+    types: ['ISSUE_CATEGORY'],
+    tree: true,
+    columns: [KEY, NAME, PARENT, field('handlerUnit', 'handler_unit_key'), field('slaPriority', 'sla_priority_key')],
+    rules: [],
+  },
+  'MDM-18': {
+    id: 'MDM-18',
+    slug: 'priority',
+    types: ['PRIORITY'],
+    tree: false,
+    columns: [
+      KEY,
+      NAME,
+      field('rank', 'rank'),
+      column('response', (record) => `${plain(attribute(record, 'response_hours'))} / ${plain(attribute(record, 'resolution_hours'))}`),
+      choice('calendar', 'workingCalendar', 'working_calendar'),
+      field('escalation', 'escalate_after_hours'),
+    ],
+    rules: [],
+  },
+  'MDM-19': {
+    id: 'MDM-19',
+    slug: 'contractorCriterion',
+    types: ['CONTRACTOR_CRITERION'],
+    tree: false,
+    columns: [KEY, NAME, choice('criterionCategory', 'criterionCategory', 'category'), field('scaleMax', 'scale_max'), column('evidence', yesNo('evidence_required')), BASIS],
+    rules: [],
+  },
+  'MDM-20': {
+    id: 'MDM-20',
+    slug: 'expertRole',
+    types: ['EXPERT_ROLE'],
+    tree: false,
+    columns: [KEY, NAME, field('specialty', 'specialty'), field('conditions', 'conditions'), VALIDITY],
+    rules: [],
+  },
+  'MDM-21': {
+    id: 'MDM-21',
+    slug: 'contactPurpose',
+    types: ['CONTACT_PURPOSE'],
+    tree: false,
+    columns: [KEY, NAME, choice('consent', 'consent', 'consent'), choice('securityLevel', 'securityLevel', 'security_level')],
+    rules: [],
+  },
+  'MDM-22': {
+    id: 'MDM-22',
+    slug: 'sharedText',
+    types: ['LANGUAGE', 'SHARED_TEXT'],
+    tree: false,
+    columns: [
+      column('type', (record) => record.masterType),
+      KEY,
+      NAME,
+      column('translations', (record) => {
+        const translations = attribute(record, 'translations');
+        if (record.masterType === 'LANGUAGE') return plain(attribute(record, 'native_name'));
+        return typeof translations === 'object' && translations !== null ? Object.keys(translations).sort().join(', ') : '';
+      }),
+      BASIS,
+    ],
+    rules: [],
+  },
+  'MDM-23': {
+    id: 'MDM-23',
+    slug: 'retention',
+    types: ['RETENTION_POLICY'],
+    tree: false,
+    columns: [
+      KEY,
+      NAME,
+      choice('classification', 'classification', 'classification'),
+      column('retention', (record, { value }) => (attribute(record, 'permanent') === true ? value('retention', 'PERMANENT') : plain(attribute(record, 'retention_years')))),
+      column('legalHold', yesNo('legal_hold_allowed')),
+      column('confirmation', (record, { awaiting }) => awaiting(record)),
+    ],
+    rules: [],
+  },
   'MDM-04': {
     id: 'MDM-04',
     slug: 'fundSource',

@@ -277,6 +277,40 @@ test.describe('master data: propose, review, publish, change and history', () =>
     await expect(page.getByRole('link', { name: vi['mdm.catalogue.add.action'] })).toBeVisible();
   });
 
+  test('the operational catalogues come from the baseline, and a steward adds an issue group tied to a priority', async ({ page }) => {
+    await open(page, '/mdm/mdm-18', 'steward');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.priority.page.title'] })).toBeVisible();
+    await expect(page.locator('tr[data-key="URGENT"]')).toContainText('4 / 24');
+    await open(page, '/mdm/mdm-23', 'steward');
+    await expect(page.locator('tr[data-key="MASTER_DATA"]')).toContainText(vi['mdm.value.retention.permanent']);
+    await expect(page.locator('tr[data-key="FINANCIAL_RECORD"]')).toContainText(vi['mdm.rule.awaiting.pill'].replace('{cxn}', 'CXN-05'));
+    await expect(page.getByRole('link', { name: vi['mdm.catalogue.add.action'] })).toHaveCount(0);
+    await open(page, '/mdm/mdm-13', 'steward');
+    await expect(page.locator('tr[data-key="DECISION"]')).toContainText('application/pdf');
+
+    // MDM-17: the issue groups are the tenant's own; the form offers the priorities and names the field that the server refuses.
+    await open(page, '/mdm/mdm-17', 'steward');
+    await page.getByRole('link', { name: vi['mdm.catalogue.add.action'] }).click();
+    await expect(page.getByLabel(vi['mdm.create.type.label'])).toHaveValue('ISSUE_CATEGORY');
+    const groupKey = `E2E-IG-${unique()}`;
+    await page.getByLabel(vi['mdm.create.key.label'], { exact: true }).fill(groupKey);
+    await page.getByLabel(vi['mdm.create.name.label']).fill('Nhóm vướng mắc e2e');
+    await page.getByLabel(vi['mdm.create.validFrom.label']).fill('2026-01-01');
+    await page.getByLabel(vi['mdm.create.reason.label']).fill('Issue group of the end-to-end flow');
+    await page.getByLabel(vi['mdm.attr.issueCategory.slaPriorityKey.label']).selectOption('URGENT');
+    await page.getByLabel(vi['mdm.attr.issueCategory.handlerUnitKey.label']).fill('not a key!');
+    await page.getByRole('button', { name: vi['mdm.create.save.action'] }).click();
+    await expect(page.getByRole('alert').filter({ hasText: 'attributes.handler_unit_key' })).toBeVisible();
+    await page.getByLabel(vi['mdm.attr.issueCategory.handlerUnitKey.label']).fill('LAND-UNIT');
+    await page.getByRole('button', { name: vi['mdm.create.save.action'] }).click();
+    await expect(page.getByTestId('impact')).toBeVisible();
+    const [created] = await sql<{ attributes: Record<string, string> }>(
+      'select v.attributes from machvon.master_record_version v join machvon.master_record r on r.id = v.master_record_id where r.business_key = $1',
+      [groupKey],
+    );
+    expect(created?.attributes).toEqual({ sla_priority_key: 'URGENT', handler_unit_key: 'LAND-UNIT' });
+  });
+
   test('someone without the master data permissions sees no entry and is offered no way to add one', async ({ page }) => {
     await open(page, '/mdm/mdm-01', 'auditor');
     await expect(page.getByRole('heading', { level: 1, name: vi['mdm.hub.page.title'] })).toBeVisible();

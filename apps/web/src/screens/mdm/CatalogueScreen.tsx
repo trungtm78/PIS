@@ -61,10 +61,12 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
     () => ({
       byId: new Map((entries.data ?? []).map((record) => [record.id, record])),
       value: (family, raw) => {
-        if (typeof raw !== 'string' || raw === '') return '';
-        const key = `mdm.value.${family}.${camel(raw)}`;
-        return hasMessage(key) ? t(key) : raw;
+        const named = typeof raw === 'boolean' ? String(raw) : raw;
+        if (typeof named !== 'string' || named === '') return '';
+        const key = `mdm.value.${family}.${camel(named)}`;
+        return hasMessage(key) ? t(key) : named;
       },
+      awaiting: (record) => (record.attributes.awaiting_confirmation === true ? t('mdm.rule.awaiting.pill', { cxn: String(record.attributes.cxn ?? '') }) : ''),
     }),
     [entries.data, t],
   );

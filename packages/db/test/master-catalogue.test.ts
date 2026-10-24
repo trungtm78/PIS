@@ -1,3 +1,4 @@
+import { Client } from 'pg';
 import { vietnamDateOf } from '@machvon/kernel';
 import { BASELINE_PACK, applyBaseline, packDigest, sealPack } from '../src/master-baseline';
 import type { BaselineEntry } from '../src/master-baseline';
@@ -387,6 +388,108 @@ describe('the catalogue types, the platform baseline and the rule port (ST-MDM-0
       const currencies = await as(STEWARD, (tx) => store.search(tx, { masterType: 'CURRENCY', namespace: 'PLATFORM', asOf: TODAY, limit: 50, after: undefined }));
       expect(currencies.map((row) => row.businessKey).sort()).toEqual(['EUR', 'JPY', 'USD', 'VND']);
       expect(currencies.find((row) => row.businessKey === 'VND')?.attributes).toMatchObject({ iso_code: 'VND', scale: 0 });
+    });
+  });
+
+  describe('the operational catalogues (ST-MDM-005)', () => {
+    const retention = (years: number): Partial<MasterContent> => ({
+      label: 'Chứng từ tài chính',
+      legalBasis: 'Retention of financial records [CXN-05]',
+      attributes: { owner_module: 'DGV', awaiting_confirmation: true, cxn: 'CXN-05', data_class: 'LOCAL_FINANCE', classification: 'CONFIDENTIAL', retention_years: years, legal_hold_allowed: true },
+    });
+
+    /** Statements that need the superuser: referential checks are switched off to plant a row that refers to a version. */
+    async function admin(statements: Array<[string, unknown[]?]>): Promise<void> {
+      const client = new Client({ connectionString: harness.database.adminUrl });
+      await client.connect();
+      try {
+        await client.query('set session_replication_role = replica');
+        for (const [sql, params] of statements) await client.query(sql, params);
+      } finally {
+        await client.end();
+      }
+    }
+
+    beforeAll(async () => {
+      for (const type of ['RETENTION_POLICY']) {
+        await owner("insert into machvon.master_type_policy (tenant_id, master_type, scope, updated_by) values ($1, $2, 'TENANT_ONLY', $3)", [TENANT_A, type, memberId(STEWARD)]);
+        for (const approver of [CHECKER, PUBLISHER]) {
+          await owner('insert into machvon.master_type_approver (tenant_id, master_type, membership_id, granted_by) values ($1, $2, $3, $4)', [TENANT_A, type, memberId(approver), memberId(STEWARD)]);
+        }
+      }
+    });
+
+    it('changes the retention of a class of data only through a change request with its impact: the value in force stays until it is published (AC-ST-MDM-005-1)', async () => {
+      const policy = await inForce('RETENTION_POLICY', 'LOCAL_FINANCE', retention(10));
+      const opened = await as(STEWARD, (tx) =>
+        store.createChange(tx, { kind: 'UPDATE', masterType: 'RETENTION_POLICY', masterRecordId: policy.recordId, proposed: { attributes: retention(12).attributes as Record<string, unknown> }, effectiveFrom: '2025-06-01', reason: 'Longer retention by decision' }, memberId(STEWARD)),
+      );
+      const request = await as(STEWARD, (tx) => store.findChange(tx, opened.id));
+      expect(request).toMatchObject({ status: 'DRAFT', changeKind: 'UPDATE', impact: { counts: {}, total: 0 } });
+      expect((request?.before as { attributes: { retention_years: number } }).attributes.retention_years).toBe(10);
+      expect((request?.proposed as { attributes: { retention_years: number } }).attributes.retention_years).toBe(12);
+      const record = await as(STEWARD, (tx) => store.findRecord(tx, policy.recordId));
+      const inForceNow = await as(STEWARD, (tx) => store.versionInForce(tx, policy.recordId, '2025-07-01'));
+      expect(inForceNow?.attributes.retention_years).toBe(10);
+      expect(record?.status).toBe('EFFECTIVE');
+      // Reviewed by someone else and published by a third person, the new value starts at its date and the old one still answers for the earlier dates.
+      const submitted = await as(STEWARD, (tx) => store.submit(tx, opened.id, 1, memberId(STEWARD)));
+      await as(CHECKER, (tx) => store.decide(tx, opened.id, submitted.version, 'approve', memberId(CHECKER)));
+      await as(PUBLISHER, async (tx) => store.publish(tx, policy.recordId, (await store.findRecord(tx, policy.recordId))?.version ?? 0, DECISION_DOCUMENT, memberId(PUBLISHER)));
+      expect((await as(STEWARD, (tx) => store.versionInForce(tx, policy.recordId, '2025-05-31')))?.attributes.retention_years).toBe(10);
+      expect((await as(STEWARD, (tx) => store.versionInForce(tx, policy.recordId, '2025-06-01')))?.attributes.retention_years).toBe(12);
+    });
+
+    it('refuses a retention that is neither a number of years nor for ever, and one that is both', async () => {
+      const propose = (value: Partial<MasterContent>) => as(STEWARD, (tx) => store.propose(tx, { masterType: 'RETENTION_POLICY', businessKey: 'BAD', content: content(value), reason: 'Initial entry' }, memberId(STEWARD)));
+      const base = retention(10).attributes as Record<string, unknown>;
+      expect((await refusal(propose({ ...retention(10), attributes: { ...base, retention_years: undefined } }))).detail).toBe('attributes.retention_years');
+      expect((await refusal(propose({ ...retention(10), attributes: { ...base, permanent: true } }))).detail).toBe('attributes.permanent');
+    });
+
+    it('does not retire an issue category that something uses without naming the entry that takes its place: 409 MASTER_IN_USE (AC-ST-MDM-005-2)', async () => {
+      const category = await inForce('ISSUE_CATEGORY', 'LAND-DISPUTE', { label: 'Tranh chấp đất đai', attributes: { handler_unit_key: 'LAND-UNIT' } });
+      const heir = await inForce('ISSUE_CATEGORY', 'LAND-DISPUTE-2', { label: 'Tranh chấp đất đai (mới)', attributes: {} });
+      const version = (await as(STEWARD, (tx) => store.findRecord(tx, category.recordId)))?.currentVersionId;
+      await admin([
+        [
+          `insert into machvon.issue_sla_policy (tenant_id, id, code, category_version_id, severity, response_hours, resolve_hours, valid_from, created_by, updated_by)
+           values ($1, $2, 'SLA-LAND', $3, 'HIGH', 4, 24, '2025-01-01', $4, $4)`,
+          [TENANT_A, id(0x7a, 1), version, memberId(STEWARD)],
+        ],
+      ]);
+      const retire = (successor?: string) =>
+        as(STEWARD, (tx) =>
+          store.createChange(
+            tx,
+            { kind: 'RETIRE', masterType: 'ISSUE_CATEGORY', masterRecordId: category.recordId, proposed: {}, effectiveFrom: TODAY, reason: 'Merged into the new group', ...(successor === undefined ? {} : { successorRecordId: successor }) },
+            memberId(STEWARD),
+          ),
+        );
+      expect(await refusal(retire())).toEqual({ code: 'MASTER_IN_USE', status: 409 });
+      await expect(retire(heir.recordId)).resolves.toMatchObject({ version: 1 });
+    });
+
+    it('ties a category to a priority that exists, and a priority to times that make sense', async () => {
+      const priority = (attributes: Record<string, unknown>) => as(STEWARD, (tx) => store.propose(tx, { masterType: 'PRIORITY', businessKey: 'P-X', content: content({ attributes }), reason: 'Initial entry' }, memberId(STEWARD)));
+      expect((await refusal(priority({ rank: 1, response_hours: 8, resolution_hours: 4, working_calendar: 'ALL_DAYS' }))).detail).toBe('attributes.resolution_hours');
+      expect((await refusal(priority({ rank: 1, response_hours: 2, resolution_hours: 4, working_calendar: 'ALL_DAYS', escalate_after_hours: 9 }))).detail).toBe('attributes.escalate_after_hours');
+      const category = (key: string) =>
+        as(STEWARD, (tx) => store.propose(tx, { masterType: 'ISSUE_CATEGORY', businessKey: 'CAT-P', content: content({ attributes: { sla_priority_key: key } }), reason: 'Initial entry' }, memberId(STEWARD)));
+      expect((await refusal(category('NO-SUCH-PRIORITY'))).detail).toBe('attributes.sla_priority_key');
+      // URGENT is in the baseline of the platform.
+      await expect(category('URGENT')).resolves.toMatchObject({ version: 1 });
+    });
+
+    it('carries the catalogues of the baseline with their attributes', async () => {
+      const search = (masterType: string) => as(STEWARD, (tx) => store.search(tx, { masterType, namespace: 'PLATFORM', asOf: TODAY, limit: 100, after: undefined }));
+      expect((await search('PRIORITY')).map((row) => row.businessKey).sort()).toEqual(['HIGH', 'LOW', 'NORMAL', 'URGENT']);
+      expect((await search('DOCUMENT_TYPE')).find((row) => row.businessKey === 'DECISION')?.attributes).toMatchObject({ mime_types: ['application/pdf', 'image/png', 'image/jpeg'], max_size_mb: 50 });
+      expect((await search('CONTRACT_TYPE')).find((row) => row.businessKey === 'ANNEX')?.attributes).toMatchObject({ version_policy: 'ANNEX_ONLY', is_annex: true });
+      expect((await search('LANGUAGE')).map((row) => row.businessKey).sort()).toEqual(['en', 'vi']);
+      const retentions = await search('RETENTION_POLICY');
+      expect(retentions.find((row) => row.businessKey === 'MASTER_DATA')?.attributes).toMatchObject({ permanent: true, awaiting_confirmation: true, cxn: 'CXN-05' });
+      expect(retentions.find((row) => row.businessKey === 'FINANCIAL_RECORD')?.attributes).toMatchObject({ retention_years: 10, legal_hold_allowed: true });
     });
   });
 });

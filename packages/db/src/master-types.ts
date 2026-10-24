@@ -30,6 +30,10 @@ type Field =
   | { name: string; kind: 'boolean'; required?: boolean }
   | { name: string; kind: 'choice'; required?: boolean; choices: readonly string[] }
   | { name: string; kind: 'identifiers'; required?: boolean; maxItems: number }
+  /** Media types such as application/pdf. */
+  | { name: string; kind: 'mimes'; required?: boolean; maxItems: number }
+  /** A text per language: an object whose keys are language codes and whose values are texts. */
+  | { name: string; kind: 'texts'; required?: boolean; maxItems: number }
   /** A list of structured values: the rule of the type checks what is in it, here it only has to be a list. */
   | { name: string; kind: 'list'; required?: boolean; maxItems: number }
   | { name: string; kind: 'key'; required?: boolean; refType: string }
@@ -97,13 +101,22 @@ export const FUND_RELATIONS = ['ADDITIVE', 'SUBSET_OF'] as const;
 export const PROGRAM_KINDS = ['CTMTQG', 'NATIONAL_TARGET', 'SECTORAL', 'LOCAL'] as const;
 export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] as const;
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
-export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE'] as const;
+export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
 export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
 const DEADLINE_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 /** A factor is a positive decimal string: exact, never a float (a unit converts through it to the base unit of its dimension). */
 const FACTOR = /^(?:0|[1-9]\d*)(?:\.\d{1,12})?$/;
 const CURRENCY_CODE = /^[A-Z]{3}$/;
+const MIME_TYPE = /^[a-z]+\/[a-z0-9][a-z0-9.+-]{0,60}$/;
+const LANGUAGE_CODE = /^[a-z]{2}(?:-[A-Z]{2})?$/;
+export const VERSION_POLICIES = ['NEW_REVISION', 'ANNEX_ONLY', 'LOCKED_AFTER_SIGNING'] as const;
+export const PAYMENT_KINDS = ['PAYMENT', 'ADVANCE', 'RETENTION_RELEASE'] as const;
+export const WORKING_CALENDARS = ['ALL_DAYS', 'WORKING_DAYS'] as const;
+export const CRITERION_CATEGORIES = ['QUALITY', 'SCHEDULE', 'SAFETY', 'COST', 'COMPLIANCE'] as const;
+export const CONSENTS = ['NOT_REQUIRED', 'EXPLICIT'] as const;
+export const SECURITY_LEVELS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL'] as const;
+export const CLASSIFICATIONS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED'] as const;
 
 const RULE_FIELDS: readonly Field[] = [
   { name: 'owner_module', kind: 'choice', required: true, choices: RULE_OWNER_MODULES },
@@ -163,6 +176,104 @@ function checkCriteria(criteria: unknown, threshold: unknown): void {
 }
 
 const DEFINITIONS: readonly MasterTypeDefinition[] = [
+  {
+    masterType: 'DOCUMENT_TYPE',
+    fields: [
+      { name: 'checklist', kind: 'identifiers', maxItems: 30 },
+      { name: 'mime_types', kind: 'mimes', required: true, maxItems: 20 },
+      { name: 'max_size_mb', kind: 'integer', required: true, min: 1, max: 2048 },
+    ],
+  },
+  {
+    masterType: 'CONTRACT_TYPE',
+    fields: [
+      { name: 'required_fields', kind: 'identifiers', required: true, maxItems: 30 },
+      { name: 'version_policy', kind: 'choice', required: true, choices: VERSION_POLICIES },
+      { name: 'is_annex', kind: 'boolean' },
+    ],
+  },
+  {
+    masterType: 'PAYMENT_TYPE',
+    fields: [
+      { name: 'kind', kind: 'choice', required: true, choices: PAYMENT_KINDS },
+      { name: 'conditions', kind: 'identifiers', maxItems: 30 },
+      { name: 'rule_set_key', kind: 'text', maxLength: 100, pattern: KEY },
+    ],
+  },
+  {
+    masterType: 'PRIORITY',
+    fields: [
+      { name: 'rank', kind: 'integer', required: true, min: 1, max: 10 },
+      { name: 'response_hours', kind: 'integer', required: true, min: 0, max: 8760 },
+      { name: 'resolution_hours', kind: 'integer', required: true, min: 0, max: 8760 },
+      { name: 'working_calendar', kind: 'choice', required: true, choices: WORKING_CALENDARS },
+      { name: 'escalate_after_hours', kind: 'integer', min: 0, max: 8760 },
+    ],
+    check: ({ content }) => {
+      const { response_hours: response, resolution_hours: resolution, escalate_after_hours: escalate } = content.attributes as Record<string, number | undefined>;
+      // A request is answered before it is resolved, and it is escalated while it can still be resolved in time.
+      if ((resolution as number) < (response as number)) fail('attributes.resolution_hours');
+      if (escalate !== undefined && escalate > (resolution as number)) fail('attributes.escalate_after_hours');
+    },
+  },
+  {
+    masterType: 'ISSUE_CATEGORY',
+    fields: [
+      { name: 'handler_unit_key', kind: 'text', maxLength: 100, pattern: KEY },
+      { name: 'sla_priority_key', kind: 'key', refType: 'PRIORITY' },
+    ],
+  },
+  {
+    masterType: 'CONTRACTOR_CRITERION',
+    fields: [
+      { name: 'category', kind: 'choice', required: true, choices: CRITERION_CATEGORIES },
+      { name: 'scale_max', kind: 'integer', required: true, min: 1, max: 100 },
+      { name: 'evidence_required', kind: 'boolean' },
+    ],
+  },
+  {
+    masterType: 'EXPERT_ROLE',
+    fields: [
+      { name: 'specialty', kind: 'text', required: true, maxLength: 100 },
+      { name: 'conditions', kind: 'identifiers', maxItems: 30 },
+    ],
+  },
+  {
+    masterType: 'CONTACT_PURPOSE',
+    fields: [
+      { name: 'consent', kind: 'choice', required: true, choices: CONSENTS },
+      { name: 'security_level', kind: 'choice', required: true, choices: SECURITY_LEVELS },
+    ],
+  },
+  {
+    masterType: 'LANGUAGE',
+    fields: [{ name: 'native_name', kind: 'text', required: true, maxLength: 100 }],
+    check: ({ businessKey }) => {
+      if (!LANGUAGE_CODE.test(businessKey)) fail('business_key');
+    },
+  },
+  {
+    masterType: 'SHARED_TEXT',
+    fields: [{ name: 'translations', kind: 'texts', maxItems: 20 }],
+  },
+  {
+    masterType: 'RETENTION_POLICY',
+    rule: true,
+    strict: true,
+    fields: [
+      ...RULE_FIELDS,
+      { name: 'data_class', kind: 'text', required: true, maxLength: 100, pattern: KEY },
+      { name: 'classification', kind: 'choice', required: true, choices: CLASSIFICATIONS },
+      { name: 'retention_years', kind: 'integer', min: 1, max: 100 },
+      { name: 'permanent', kind: 'boolean' },
+      { name: 'legal_hold_allowed', kind: 'boolean', required: true },
+    ],
+    check: ({ content }) => {
+      const { retention_years: years, permanent } = content.attributes;
+      // Kept for a number of years, or for ever: exactly one of the two.
+      if ((years === undefined) === (permanent !== true)) fail(years === undefined ? 'attributes.retention_years' : 'attributes.permanent');
+    },
+  },
   {
     masterType: 'CALENDAR',
     rule: true,
@@ -370,6 +481,15 @@ async function checkField(field: Field, value: unknown, input: TypeInput): Promi
     case 'identifiers':
       if (!Array.isArray(value) || value.length > field.maxItems || new Set(value).size !== value.length || !value.every((item) => typeof item === 'string' && IDENTIFIER.test(item))) fail(name);
       return;
+    case 'mimes':
+      if (!Array.isArray(value) || value.length === 0 || value.length > field.maxItems || new Set(value).size !== value.length || !value.every((item) => typeof item === 'string' && MIME_TYPE.test(item))) fail(name);
+      return;
+    case 'texts': {
+      if (!isObject(value)) return fail(name);
+      const entries = Object.entries(value);
+      if (entries.length > field.maxItems || !entries.every(([language, translated]) => LANGUAGE_CODE.test(language) && text(translated, 2000))) fail(name);
+      return;
+    }
     case 'key':
       if (typeof value !== 'string' || !KEY.test(value) || (await input.lookup.entry(field.refType, value)) === undefined) fail(name);
       return;

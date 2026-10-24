@@ -127,6 +127,58 @@ describe('CatalogueScreen: the other catalogues', () => {
     ]);
   });
 
+  const operational: Array<[string, Record<string, unknown>[], string, string[]]> = [
+    ['MDM-13', [record(1, { master_type: 'DOCUMENT_TYPE', business_key: 'DECISION', label: 'Quyết định', attributes: { checklist: ['number', 'signature'], mime_types: ['application/pdf', 'image/png'], max_size_mb: 50 } })], 'DECISION', ['DECISION', 'Quyết định', 'number, signature', 'application/pdf, image/png', '50']],
+    ['MDM-14', [record(1, { master_type: 'CONTRACT_TYPE', business_key: 'ANNEX', label: 'Phụ lục', attributes: { required_fields: ['number'], version_policy: 'ANNEX_ONLY', is_annex: true } })], 'ANNEX', ['ANNEX', 'Phụ lục', 'number', vi_['mdm.value.versionPolicy.annexOnly'], vi_['mdm.value.boolean.true']]],
+    ['MDM-15', [record(1, { master_type: 'PAYMENT_TYPE', business_key: 'ADVANCE', label: 'Tạm ứng', attributes: { kind: 'ADVANCE', conditions: ['guarantee_in_place'], rule_set_key: 'ADV-RULES' } })], 'ADVANCE', ['ADVANCE', 'Tạm ứng', vi_['mdm.value.paymentKind.advance'], 'guarantee_in_place', 'ADV-RULES']],
+    ['MDM-18', [record(1, { master_type: 'PRIORITY', business_key: 'URGENT', label: 'Khẩn cấp', attributes: { rank: 1, response_hours: 4, resolution_hours: 24, working_calendar: 'ALL_DAYS', escalate_after_hours: 12 } })], 'URGENT', ['URGENT', 'Khẩn cấp', '1', '4 / 24', vi_['mdm.value.workingCalendar.allDays'], '12']],
+    ['MDM-19', [record(1, { master_type: 'CONTRACTOR_CRITERION', business_key: 'QUALITY', label: 'Chất lượng', revision: 3, attributes: { category: 'QUALITY', scale_max: 10, evidence_required: false } })], 'QUALITY', ['QUALITY', 'Chất lượng', vi_['mdm.value.criterionCategory.quality'], '10', vi_['mdm.value.boolean.false'], 'v3']],
+    ['MDM-20', [record(1, { master_type: 'EXPERT_ROLE', business_key: 'PM', label: 'Chủ nhiệm dự án', attributes: { specialty: 'project_management', conditions: ['certificate_in_force'] } })], 'PM', ['PM', 'Chủ nhiệm dự án', 'project_management', 'certificate_in_force', '2024-01-01 → ']],
+    ['MDM-21', [record(1, { master_type: 'CONTACT_PURPOSE', business_key: 'SURVEY', label: 'Khảo sát', attributes: { consent: 'EXPLICIT', security_level: 'CONFIDENTIAL' } })], 'SURVEY', ['SURVEY', 'Khảo sát', vi_['mdm.value.consent.explicit'], vi_['mdm.value.securityLevel.confidential']]],
+    [
+      'MDM-22',
+      [
+        record(1, { master_type: 'LANGUAGE', business_key: 'en', label: 'Tiếng Anh', attributes: { native_name: 'English' } }),
+        record(2, { master_type: 'SHARED_TEXT', business_key: 'greeting', label: 'Xin chào', attributes: { translations: { en: 'Hello', fr: 'Bonjour' } } }),
+      ],
+      'greeting',
+      ['SHARED_TEXT', 'greeting', 'Xin chào', 'en, fr'],
+    ],
+    [
+      'MDM-23',
+      [
+        record(1, {
+          master_type: 'RETENTION_POLICY',
+          business_key: 'MASTER_DATA',
+          label: 'Dữ liệu chủ',
+          attributes: { owner_module: 'DGV', awaiting_confirmation: true, cxn: 'CXN-05', data_class: 'MASTER_DATA', classification: 'INTERNAL', permanent: true, legal_hold_allowed: false },
+        }),
+      ],
+      'MASTER_DATA',
+      ['MASTER_DATA', 'Dữ liệu chủ', vi_['mdm.value.classification.internal'], vi_['mdm.value.retention.permanent'], vi_['mdm.value.boolean.false'], vi_['mdm.rule.awaiting.pill'].replace('{cxn}', 'CXN-05')],
+    ],
+  ];
+
+  it.each(operational)('shows the entries of the operational catalogue %s with their own columns', async (id, records, key, cells) => {
+    mount(<CatalogueScreen route={route(id)} />, client(world({ records })), READER, `/mdm/${id.toLowerCase()}`);
+    await ready();
+    const row = document.querySelector(`tr[data-key="${key}"]`) as HTMLElement;
+    expect(Array.from(row.querySelectorAll('td')).slice(0, cells.length).map((cell) => cell.textContent)).toEqual(cells);
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBeTruthy();
+  });
+
+  it('shows the issue categories as a tree, each with its handling unit and the priority its SLA follows (MDM-17)', async () => {
+    const records = [
+      record(1, { master_type: 'ISSUE_CATEGORY', business_key: 'LAND', label: 'Đất đai', attributes: { handler_unit_key: 'LAND-UNIT', sla_priority_key: 'HIGH' } }),
+      record(2, { master_type: 'ISSUE_CATEGORY', business_key: 'LAND-COMPENSATION', label: 'Bồi thường', parent_record_id: record(1).id, attributes: { sla_priority_key: 'URGENT' } }),
+    ];
+    mount(<CatalogueScreen route={route('MDM-17')} />, client(world({ records })), READER, '/mdm/mdm-17');
+    await ready();
+    expect(keys()).toEqual(['LAND', 'LAND-COMPENSATION']);
+    expect(Array.from(document.querySelectorAll('tr[data-key="LAND-COMPENSATION"] td')).slice(0, 5).map((cell) => cell.textContent)).toEqual(['LAND-COMPENSATION', 'Bồi thường', 'LAND', '', 'URGENT']);
+    expect((document.querySelector('tr[data-key="LAND-COMPENSATION"] td') as HTMLElement).style.paddingInlineStart).toBe('16px');
+  });
+
   it('shows the units and the currencies with their factor, scale and rounding rule (MDM-12)', async () => {
     const records = [
       record(1, { master_type: 'UNIT', business_key: 'HA', label: 'Héc-ta', attributes: { dimension: 'AREA', factor: '10000', scale: 4, rounding: 'HALF_UP' } }),

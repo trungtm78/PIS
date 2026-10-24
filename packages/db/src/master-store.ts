@@ -112,6 +112,14 @@ export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; reti
   CALENDAR: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   UNIT: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: true },
   CURRENCY: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
+  DOCUMENT_TYPE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  CONTRACT_TYPE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  PAYMENT_TYPE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
+  CONTRACTOR_CRITERION: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  EXPERT_ROLE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  CONTACT_PURPOSE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  LANGUAGE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  RETENTION_POLICY: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
 };
 
 const OWN_BY_DEFAULT = { scope: 'TENANT_ONLY' as const, retireRequiresSuccessor: false };

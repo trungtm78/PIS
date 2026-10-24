@@ -190,6 +190,7 @@ function AttributeControl({ type, spec, id, attributes, records, disabled, set }
         </select>
       );
     case 'identifiers':
+    case 'words':
       return <WordsInput key={type} id={id} value={Array.isArray(current) ? current.filter((item): item is string => typeof item === 'string') : []} disabled={disabled} onChange={set} />;
     case 'ref': {
       const options = records.filter((record) => record.masterType === spec.refType && (record.status === 'EFFECTIVE' || record.businessKey === current));

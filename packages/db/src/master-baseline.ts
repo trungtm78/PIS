@@ -56,6 +56,78 @@ const unit = (key: string, label: string, dimension: string, factor: string, sca
   entry('UNIT', key, label, { dimension, factor, scale, rounding: 'HALF_UP' });
 const currency = (code: string, label: string, scale: number): BaselineEntry => entry('CURRENCY', code, label, { iso_code: code, scale, rounding: 'HALF_UP' });
 
+const PDF = 'application/pdf';
+const documentType = (key: string, label: string, checklist: string[]): BaselineEntry =>
+  entry('DOCUMENT_TYPE', key, label, { checklist, mime_types: [PDF, 'image/png', 'image/jpeg'], max_size_mb: 50 });
+const contractType = (key: string, label: string, versionPolicy: string, isAnnex = false): BaselineEntry =>
+  entry('CONTRACT_TYPE', key, label, { required_fields: ['number', 'signed_on', 'contractor', 'value'], version_policy: versionPolicy, ...(isAnnex ? { is_annex: true } : {}) });
+const paymentType = (key: string, label: string, kind: string, conditions: string[]): BaselineEntry => entry('PAYMENT_TYPE', key, label, { kind, conditions });
+const priority = (key: string, label: string, rank: number, response: number, resolution: number, calendar: string, escalate: number): BaselineEntry =>
+  entry('PRIORITY', key, label, { rank, response_hours: response, resolution_hours: resolution, working_calendar: calendar, escalate_after_hours: escalate });
+const criterion = (key: string, label: string, category: string, evidence: boolean): BaselineEntry =>
+  entry('CONTRACTOR_CRITERION', key, label, { category, scale_max: 10, evidence_required: evidence });
+const purpose = (key: string, label: string, consent: string, level: string): BaselineEntry => entry('CONTACT_PURPOSE', key, label, { consent, security_level: level });
+const retention = (key: string, label: string, classification: string, years: number | undefined, hold: boolean): BaselineEntry =>
+  entry(
+    'RETENTION_POLICY',
+    key,
+    label,
+    {
+      owner_module: 'DGV',
+      awaiting_confirmation: true,
+      cxn: 'CXN-05',
+      data_class: key,
+      classification,
+      ...(years === undefined ? { permanent: true } : { retention_years: years }),
+      legal_hold_allowed: hold,
+    },
+    { legalBasis: 'Thời hạn lưu trữ theo MDM 3.1 mục 6, chờ xác nhận văn bản gốc [CXN-05]' },
+  );
+
+/**
+ * The operational catalogues that the other modules select from (ST-MDM-005): document, contract and payment types, priorities and their
+ * response times, criteria to evaluate contractors, expert roles, contact purposes with their consent, languages and the retention of
+ * each class of data. The response times and retention periods are working assumptions until the owners confirm them (CXN-05 for the
+ * retention); a change is a new version through a change request, never an edit.
+ */
+const OPERATIONAL_CATALOGUES: readonly BaselineEntry[] = [
+  documentType('DECISION', 'Quyết định', ['number', 'issued_on', 'signature']),
+  documentType('OFFICIAL_LETTER', 'Công văn', ['number', 'issued_on']),
+  documentType('CONTRACT_FILE', 'Hồ sơ hợp đồng', ['signed_copy', 'annexes']),
+  documentType('PAYMENT_VOUCHER', 'Chứng từ thanh toán', ['request', 'acceptance', 'invoice']),
+  documentType('ACCEPTANCE_MINUTES', 'Biên bản nghiệm thu', ['signatures', 'quantities']),
+  contractType('CONSTRUCTION', 'Hợp đồng thi công xây dựng', 'NEW_REVISION'),
+  contractType('SUPPLY', 'Hợp đồng cung cấp hàng hóa', 'NEW_REVISION'),
+  contractType('CONSULTING', 'Hợp đồng tư vấn', 'NEW_REVISION'),
+  contractType('ANNEX', 'Phụ lục hợp đồng', 'ANNEX_ONLY', true),
+  paymentType('ADVANCE', 'Tạm ứng', 'ADVANCE', ['guarantee_in_place', 'contract_signed']),
+  paymentType('INTERIM', 'Thanh toán đợt', 'PAYMENT', ['acceptance_signed', 'within_contract_value']),
+  paymentType('FINAL', 'Thanh toán cuối cùng', 'PAYMENT', ['final_acceptance', 'advance_recovered']),
+  paymentType('RETENTION_RELEASE', 'Hoàn trả tiền bảo hành', 'RETENTION_RELEASE', ['warranty_period_ended']),
+  priority('URGENT', 'Khẩn cấp', 1, 4, 24, 'ALL_DAYS', 12),
+  priority('HIGH', 'Cao', 2, 8, 72, 'WORKING_DAYS', 48),
+  priority('NORMAL', 'Bình thường', 3, 24, 168, 'WORKING_DAYS', 120),
+  priority('LOW', 'Thấp', 4, 72, 336, 'WORKING_DAYS', 240),
+  criterion('QUALITY_OF_WORK', 'Chất lượng công trình', 'QUALITY', true),
+  criterion('SCHEDULE_ADHERENCE', 'Tiến độ thực hiện', 'SCHEDULE', true),
+  criterion('SAFETY_RECORD', 'An toàn lao động', 'SAFETY', true),
+  criterion('COST_DISCIPLINE', 'Kỷ luật chi phí', 'COST', false),
+  criterion('LEGAL_COMPLIANCE', 'Tuân thủ pháp luật', 'COMPLIANCE', true),
+  entry('EXPERT_ROLE', 'PROJECT_MANAGER', 'Chủ nhiệm dự án', { specialty: 'project_management', conditions: ['certificate_in_force'] }),
+  entry('EXPERT_ROLE', 'SUPERVISION_ENGINEER', 'Kỹ sư giám sát', { specialty: 'construction_supervision', conditions: ['certificate_in_force'] }),
+  entry('EXPERT_ROLE', 'COST_ESTIMATOR', 'Chuyên gia dự toán', { specialty: 'cost_estimation' }),
+  purpose('SERVICE_NOTICE', 'Thông báo dịch vụ', 'NOT_REQUIRED', 'INTERNAL'),
+  purpose('SATISFACTION_SURVEY', 'Khảo sát hài lòng', 'EXPLICIT', 'INTERNAL'),
+  purpose('SENSITIVE_FOLLOW_UP', 'Trao đổi vụ việc nhạy cảm', 'EXPLICIT', 'CONFIDENTIAL'),
+  entry('LANGUAGE', 'vi', 'Tiếng Việt', { native_name: 'Tiếng Việt' }),
+  entry('LANGUAGE', 'en', 'Tiếng Anh', { native_name: 'English' }),
+  retention('FINANCIAL_RECORD', 'Chứng từ và sổ sách tài chính', 'CONFIDENTIAL', 10, true),
+  retention('CONTRACT_RECORD', 'Hồ sơ hợp đồng', 'CONFIDENTIAL', 10, true),
+  retention('CHANGE_REQUEST', 'Đề xuất thay đổi danh mục', 'INTERNAL', 10, false),
+  retention('IMPORT_BATCH', 'Lô nhập dữ liệu', 'INTERNAL', 5, false),
+  retention('MASTER_DATA', 'Dữ liệu chủ và lịch sử phiên bản', 'INTERNAL', undefined, false),
+];
+
 /**
  * The reporting calendar, the units and the currencies (ST-MDM-004). The calendar is the D03 working assumption (weeks from Saturday to
  * Friday, due on Friday at 10:00 in Vietnam) until the owner of the capital business signs it: it is data, so another decision is a new
@@ -195,7 +267,7 @@ const ENTRIES: readonly BaselineEntry[] = [
   ),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS]);
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES]);
 
 export interface BaselineResult {
   created: number;

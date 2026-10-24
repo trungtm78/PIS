@@ -7,6 +7,8 @@ export type AttributeSpec =
   | { name: string; kind: 'boolean' }
   | { name: string; kind: 'choice'; family: string; choices: readonly string[] }
   | { name: string; kind: 'identifiers' }
+  /** A list of words (media types, ...) typed with commas. */
+  | { name: string; kind: 'words' }
   | { name: string; kind: 'ref'; refType: string }
   | { name: string; kind: 'refs'; refType: string };
 
@@ -47,13 +49,63 @@ export const TYPE_FORMS: Readonly<Record<string, readonly AttributeSpec[]>> = {
     { name: 'rounding', kind: 'choice', family: 'rounding', choices: ['HALF_UP', 'HALF_EVEN', 'DOWN', 'UP'] },
   ],
   CALENDAR: [
-    { name: 'owner_module', kind: 'choice', family: 'ownerModule', choices: ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE'] },
+    { name: 'owner_module', kind: 'choice', family: 'ownerModule', choices: ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV'] },
     { name: 'awaiting_confirmation', kind: 'boolean' },
     { name: 'cxn', kind: 'text' },
     { name: 'week_starts_on', kind: 'choice', family: 'weekday', choices: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] },
     { name: 'deadline_weekday', kind: 'choice', family: 'weekday', choices: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] },
     { name: 'deadline_time', kind: 'text' },
     { name: 'timezone', kind: 'choice', family: 'timezone', choices: ['Asia/Ho_Chi_Minh'] },
+  ],
+  DOCUMENT_TYPE: [
+    { name: 'checklist', kind: 'identifiers' },
+    { name: 'mime_types', kind: 'words' },
+    { name: 'max_size_mb', kind: 'integer' },
+  ],
+  CONTRACT_TYPE: [
+    { name: 'required_fields', kind: 'identifiers' },
+    { name: 'version_policy', kind: 'choice', family: 'versionPolicy', choices: ['NEW_REVISION', 'ANNEX_ONLY', 'LOCKED_AFTER_SIGNING'] },
+    { name: 'is_annex', kind: 'boolean' },
+  ],
+  PAYMENT_TYPE: [
+    { name: 'kind', kind: 'choice', family: 'paymentKind', choices: ['PAYMENT', 'ADVANCE', 'RETENTION_RELEASE'] },
+    { name: 'conditions', kind: 'identifiers' },
+    { name: 'rule_set_key', kind: 'text' },
+  ],
+  PRIORITY: [
+    { name: 'rank', kind: 'integer' },
+    { name: 'response_hours', kind: 'integer' },
+    { name: 'resolution_hours', kind: 'integer' },
+    { name: 'working_calendar', kind: 'choice', family: 'workingCalendar', choices: ['ALL_DAYS', 'WORKING_DAYS'] },
+    { name: 'escalate_after_hours', kind: 'integer' },
+  ],
+  ISSUE_CATEGORY: [
+    { name: 'handler_unit_key', kind: 'text' },
+    { name: 'sla_priority_key', kind: 'ref', refType: 'PRIORITY' },
+  ],
+  CONTRACTOR_CRITERION: [
+    { name: 'category', kind: 'choice', family: 'criterionCategory', choices: ['QUALITY', 'SCHEDULE', 'SAFETY', 'COST', 'COMPLIANCE'] },
+    { name: 'scale_max', kind: 'integer' },
+    { name: 'evidence_required', kind: 'boolean' },
+  ],
+  EXPERT_ROLE: [
+    { name: 'specialty', kind: 'text' },
+    { name: 'conditions', kind: 'identifiers' },
+  ],
+  CONTACT_PURPOSE: [
+    { name: 'consent', kind: 'choice', family: 'consent', choices: ['NOT_REQUIRED', 'EXPLICIT'] },
+    { name: 'security_level', kind: 'choice', family: 'securityLevel', choices: ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL'] },
+  ],
+  LANGUAGE: [{ name: 'native_name', kind: 'text' }],
+  RETENTION_POLICY: [
+    { name: 'owner_module', kind: 'choice', family: 'ownerModule', choices: ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV'] },
+    { name: 'awaiting_confirmation', kind: 'boolean' },
+    { name: 'cxn', kind: 'text' },
+    { name: 'data_class', kind: 'text' },
+    { name: 'classification', kind: 'choice', family: 'classification', choices: ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED'] },
+    { name: 'retention_years', kind: 'integer' },
+    { name: 'permanent', kind: 'boolean' },
+    { name: 'legal_hold_allowed', kind: 'boolean' },
   ],
   DECISION_AUTHORITY: [
     { name: 'agency_key', kind: 'text' },

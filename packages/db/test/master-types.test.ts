@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'CALENDAR', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'CALENDAR', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'RETENTION_POLICY']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -179,6 +179,75 @@ describe('the calendar, the units and the currencies (ST-MDM-004)', () => {
     expect(await problem('CURRENCY', 'vnd', currency({ iso_code: 'vnd' }))).toEqual(invalid('attributes.iso_code'));
     expect(await problem('CURRENCY', 'VND', currency({ scale: 5 }))).toEqual(invalid('attributes.scale'));
     expect(await problem('CURRENCY', 'VND', currency({ rounding: 'X' }))).toEqual(invalid('attributes.rounding'));
+  });
+});
+
+describe('the operational catalogues (ST-MDM-005)', () => {
+  it('takes a document type with its media types and the largest size, and nothing that is not a media type', async () => {
+    const documentType = (attributes: Record<string, unknown>) => content({ mime_types: ['application/pdf'], max_size_mb: 50, ...attributes });
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ checklist: ['number', 'issued_on'] }))).toBeUndefined();
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ mime_types: [] }))).toEqual(invalid('attributes.mime_types'));
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ mime_types: ['pdf'] }))).toEqual(invalid('attributes.mime_types'));
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ mime_types: ['application/pdf', 'application/pdf'] }))).toEqual(invalid('attributes.mime_types'));
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ mime_types: undefined }))).toEqual(invalid('attributes.mime_types'));
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ max_size_mb: 0 }))).toEqual(invalid('attributes.max_size_mb'));
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ max_size_mb: 4096 }))).toEqual(invalid('attributes.max_size_mb'));
+    expect(await problem('DOCUMENT_TYPE', 'LETTER', documentType({ checklist: ['Number'] }))).toEqual(invalid('attributes.checklist'));
+  });
+
+  it('takes a contract type with its required fields and its version policy, and a payment type with its kind', async () => {
+    expect(await problem('CONTRACT_TYPE', 'BUILD', content({ required_fields: ['number'], version_policy: 'NEW_REVISION' }))).toBeUndefined();
+    expect(await problem('CONTRACT_TYPE', 'ANNEX', content({ required_fields: ['number'], version_policy: 'ANNEX_ONLY', is_annex: true }))).toBeUndefined();
+    expect(await problem('CONTRACT_TYPE', 'BUILD', content({ required_fields: ['number'], version_policy: 'WHENEVER' }))).toEqual(invalid('attributes.version_policy'));
+    expect(await problem('CONTRACT_TYPE', 'BUILD', content({ version_policy: 'NEW_REVISION' }))).toEqual(invalid('attributes.required_fields'));
+    expect(await problem('PAYMENT_TYPE', 'ADV', content({ kind: 'ADVANCE', conditions: ['guarantee_in_place'], rule_set_key: 'ADV-RULES' }))).toBeUndefined();
+    expect(await problem('PAYMENT_TYPE', 'ADV', content({ kind: 'GIFT' }))).toEqual(invalid('attributes.kind'));
+    expect(await problem('PAYMENT_TYPE', 'ADV', content({ kind: 'ADVANCE', rule_set_key: 'has space' }))).toEqual(invalid('attributes.rule_set_key'));
+  });
+
+  it('takes a priority whose answer time does not exceed its resolution time, and an escalation that comes in time', async () => {
+    const priority = (attributes: Record<string, unknown>) => content({ rank: 1, response_hours: 4, resolution_hours: 24, working_calendar: 'ALL_DAYS', ...attributes });
+    expect(await problem('PRIORITY', 'URGENT', priority({ escalate_after_hours: 12 }))).toBeUndefined();
+    expect(await problem('PRIORITY', 'URGENT', priority({ response_hours: 25 }))).toEqual(invalid('attributes.resolution_hours'));
+    expect(await problem('PRIORITY', 'URGENT', priority({ escalate_after_hours: 25 }))).toEqual(invalid('attributes.escalate_after_hours'));
+    expect(await problem('PRIORITY', 'URGENT', priority({ working_calendar: 'WEEKENDS' }))).toEqual(invalid('attributes.working_calendar'));
+    expect(await problem('PRIORITY', 'URGENT', priority({ rank: 11 }))).toEqual(invalid('attributes.rank'));
+    expect(await problem('PRIORITY', 'URGENT', priority({ response_hours: -1 }))).toEqual(invalid('attributes.response_hours'));
+  });
+
+  it('takes the criteria, roles, purposes, languages and texts with their own attributes', async () => {
+    expect(await problem('CONTRACTOR_CRITERION', 'QUALITY', content({ category: 'QUALITY', scale_max: 10, evidence_required: true }))).toBeUndefined();
+    expect(await problem('CONTRACTOR_CRITERION', 'QUALITY', content({ category: 'LUCK', scale_max: 10 }))).toEqual(invalid('attributes.category'));
+    expect(await problem('CONTRACTOR_CRITERION', 'QUALITY', content({ category: 'QUALITY', scale_max: 0 }))).toEqual(invalid('attributes.scale_max'));
+    expect(await problem('EXPERT_ROLE', 'PM', content({ specialty: 'project_management', conditions: ['certificate_in_force'] }))).toBeUndefined();
+    expect(await problem('EXPERT_ROLE', 'PM', content({}))).toEqual(invalid('attributes.specialty'));
+    expect(await problem('CONTACT_PURPOSE', 'SURVEY', content({ consent: 'EXPLICIT', security_level: 'INTERNAL' }))).toBeUndefined();
+    expect(await problem('CONTACT_PURPOSE', 'SURVEY', content({ consent: 'MAYBE', security_level: 'INTERNAL' }))).toEqual(invalid('attributes.consent'));
+    expect(await problem('CONTACT_PURPOSE', 'SURVEY', content({ consent: 'EXPLICIT', security_level: 'SECRET' }))).toEqual(invalid('attributes.security_level'));
+    expect(await problem('LANGUAGE', 'vi', content({ native_name: 'Tiếng Việt' }))).toBeUndefined();
+    expect(await problem('LANGUAGE', 'pt-BR', content({ native_name: 'Português' }))).toBeUndefined();
+    expect(await problem('LANGUAGE', 'Vietnamese', content({ native_name: 'Tiếng Việt' }))).toEqual(invalid('business_key'));
+    expect(await problem('LANGUAGE', 'vi', content({}))).toEqual(invalid('attributes.native_name'));
+    expect(await problem('SHARED_TEXT', 'greeting', content({ translations: { en: 'Hello', 'pt-BR': 'Olá' } }))).toBeUndefined();
+    expect(await problem('SHARED_TEXT', 'greeting', content({}))).toBeUndefined();
+    expect(await problem('SHARED_TEXT', 'greeting', content({ translations: { english: 'Hello' } }))).toEqual(invalid('attributes.translations'));
+    expect(await problem('SHARED_TEXT', 'greeting', content({ translations: { en: ' ' } }))).toEqual(invalid('attributes.translations'));
+    expect(await problem('SHARED_TEXT', 'greeting', content({ translations: ['x'] }))).toEqual(invalid('attributes.translations'));
+  });
+
+  it('takes a retention policy as rule data: a class, a classification, years or for ever, and the legal hold', async () => {
+    const policy = (attributes: Record<string, unknown>, legalBasis: string | null = 'Retention rules [CXN-05]') =>
+      content({ owner_module: 'DGV', data_class: 'FINANCIAL', classification: 'CONFIDENTIAL', retention_years: 10, legal_hold_allowed: true, ...attributes }, { legalBasis });
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({}))).toBeUndefined();
+    expect(await problem('RETENTION_POLICY', 'MASTER', policy({ retention_years: undefined, permanent: true }))).toBeUndefined();
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({}, null))).toEqual(invalid('legal_basis'));
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ classification: 'TOP_SECRET' }))).toEqual(invalid('attributes.classification'));
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ retention_years: 0 }))).toEqual(invalid('attributes.retention_years'));
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ legal_hold_allowed: undefined }))).toEqual(invalid('attributes.legal_hold_allowed'));
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ retention_years: undefined }))).toEqual(invalid('attributes.retention_years'));
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ permanent: true }))).toEqual(invalid('attributes.permanent'));
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ owner_module: 'DOC' }))).toBeUndefined();
+    expect(isRuleType('RETENTION_POLICY')).toBe(true);
   });
 });
 

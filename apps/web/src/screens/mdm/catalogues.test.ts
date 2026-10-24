@@ -23,7 +23,26 @@ describe('the catalogue configuration', () => {
     for (const key of COLUMN_KEYS) {
       for (const catalogue of [vi_, en] as Array<Record<string, string>>) expect(catalogue[`mdm.catalogue.${key}.column`]).toBeTruthy();
     }
-    expect(Object.keys(CATALOGUES).sort()).toEqual(['MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-12']);
+    expect(Object.keys(CATALOGUES).sort()).toEqual([
+      'MDM-04',
+      'MDM-05',
+      'MDM-06',
+      'MDM-07',
+      'MDM-08',
+      'MDM-09',
+      'MDM-10',
+      'MDM-12',
+      'MDM-13',
+      'MDM-14',
+      'MDM-15',
+      'MDM-17',
+      'MDM-18',
+      'MDM-19',
+      'MDM-20',
+      'MDM-21',
+      'MDM-22',
+      'MDM-23',
+    ]);
   });
 
   it('has a label for each attribute of a form and a text for each value a list offers, in both languages', () => {
