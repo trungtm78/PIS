@@ -390,7 +390,7 @@ describe('BidCriteriaStore (the evaluation criteria, ST-BID-003)', () => {
       const seeded = await seedPackage();
       const created = await draft(seeded);
       await approve(created.id, 1);
-      expect(await refusal(approve(created.id, 2))).toEqual({ code: 'CRITERIA_STATE_INVALID', status: 409, detail: 'status', extensions: { status: 'APPROVED' } });
+      expect(await refusal(approve(created.id, 2))).toEqual({ code: 'CRITERIA_STATE_INVALID', status: 409, detail: 'status', extensions: { criteria_status: 'APPROVED' } });
       await seedAs([
         [
           `insert into machvon.analysis_run (tenant_id, id, proposal_id, criteria_version_id, profile_version_id, input_hash, status, budget_reservation_id)
@@ -398,7 +398,7 @@ describe('BidCriteriaStore (the evaluation criteria, ST-BID-003)', () => {
           [TENANT_A, randomUUID(), randomUUID(), created.id, randomUUID(), randomUUID()],
         ],
       ]);
-      expect(await refusal(approve(created.id, 2))).toEqual({ code: 'CRITERIA_LOCKED_BY_RUN', status: 409, detail: 'status', extensions: { status: 'APPROVED' } });
+      expect(await refusal(approve(created.id, 2))).toEqual({ code: 'CRITERIA_LOCKED_BY_RUN', status: 409, detail: 'status', extensions: { criteria_status: 'APPROVED' } });
       // The only way forward is a new revision, which an approver can approve.
       const next = await draft(seeded, { criteria: [scored('C1', 50), scored('C2', 50)] });
       expect(next.revision).toBe(2);

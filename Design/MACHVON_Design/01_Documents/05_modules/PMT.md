@@ -269,6 +269,7 @@ Mọi lệnh ghi: `Idempotency-Key` (≥16 ký tự) bắt buộc; `If-Match` b�
 | `retirePermitGateRule` | `POST /permit-gate-rules/{id}/retire` | `permit.gate.manage` | effective_until* | CommandResult | 422 VALIDATION_FAILED | bắt buộc | không |
 | `grantPermitGateWaiver` | `POST /permit-gate-waivers` | `permit.gate.waive` | project_id*, gate_code*, permit_type_id*, reason*, decision_document_version_id*, valid_until* | CommandResult | 422 WAIVER_TOO_LONG; 403 SELF_APPROVAL_DENIED; 422 DECISION_DOCUMENT_REQUIRED; 422 VALIDATION_FAILED | bắt buộc | không |
 | `revokePermitGateWaiver` | `POST /permit-gate-waivers/{id}/revoke` | `permit.gate.waive` | reason* | CommandResult | 409 WAIVER_STATE_INVALID | bắt buộc | không |
+| `get_resources_permit_gate_waiver` | `GET /resources/permit_gate_waiver` | `permit.read` | project_id, gate_code, status, limit, cursor | danh sách miễn trừ cổng của các dự án trong phạm vi (không kèm người đề xuất, người duyệt) | 422 VALIDATION_FAILED | không | không |
 | `evaluatePermitGates` | `GET /projects/{id}/permit-gates` | `permit.read` | gate_code, as_of | DTO đọc (read model) | — | — | không |
 | `get_resources_permit_gate_rule` | `GET /resources/permit_gate_rule` | `permit.read` | cursor, limit | DTO đọc (mọi phiên bản quy tắc cổng) | — | — | không |
 | `listExpiringPermits` | `GET /permits/expiring` | `permit.read` | within_days, cursor, limit | DTO đọc (read model) | — | — | không |

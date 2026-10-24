@@ -128,8 +128,10 @@ const waiverOf = async (projectId: string, gate: string, typeId: string, overrid
   const waiverId = randomUUID();
   await seedAs([
     [
-      `insert into machvon.permit_gate_waiver (tenant_id, id, project_id, gate_code, permit_type_id, reason, decision_document_version_id, valid_until, approved_by, approved_at, status, created_by, updated_by)
-       values ($1, $2, $3, $4, $5, 'The decision allows the work to begin', $6, $7::date, $8, $9::timestamptz, $10, $11, $11)`,
+      `insert into machvon.permit_gate_waiver (tenant_id, id, project_id, gate_code, permit_type_id, reason, decision_document_version_id, valid_until, approved_by, approved_at, status, created_by, updated_by,
+                                               revoked_at, revoked_by, revoked_reason)
+       values ($1, $2, $3, $4, $5, 'The decision allows the work to begin', $6, $7::date, $8, $9::timestamptz, $10, $11, $11,
+               case when $10 = 'REVOKED' then now() end, case when $10 = 'REVOKED' then $8::uuid end, case when $10 = 'REVOKED' then 'The permit was issued' end)`,
       [TENANT_A, waiverId, projectId, gate, typeId, DOCUMENT, overrides.validUntil ?? '2026-12-31', memberId(APPROVER), overrides.approvedAt ?? '2026-06-01T03:00:00Z', overrides.status ?? 'ACTIVE', memberId(ACTOR)],
     ],
   ]);

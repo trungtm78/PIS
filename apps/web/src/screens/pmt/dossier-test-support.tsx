@@ -114,6 +114,25 @@ export const permitDetail = (n: number, overrides: Record<string, unknown> = {})
 
 export const projectRow = (n: number, overrides: Record<string, unknown> = {}) => ({ id: projectId(n), code: `DA-2026-00${n}`, name: `Dự án số ${n}`, owner_unit_id: OWNER_UNIT, ...overrides });
 
+/** A waiver of a gate, in the shape the server writes it. */
+export const waiverLine = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0108', n),
+  project: { id: projectId(1), code: 'DA-2026-001', name: 'Dự án số 1' },
+  gate_code: 'START_CONSTRUCTION',
+  permit_type_id: uuid('0106', n),
+  permit_type_code: `PERMIT_${n}`,
+  permit_type_name: `Giấy phép ${n}`,
+  reason: `Cơ quan có thẩm quyền cho phép khởi công trước ${n}`,
+  decision_document_version_id: DOCUMENT,
+  valid_until: '2026-11-20',
+  granted_on: '2026-10-20',
+  status: 'ACTIVE',
+  revoked_on: null,
+  revoked_reason: null,
+  version: 1,
+  ...overrides,
+});
+
 const NOT_FOUND = new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c', retryAfterSeconds: undefined, detail: undefined, extensions: {} });
 
 export interface World {
@@ -127,6 +146,8 @@ export interface World {
   expiring?: (query: Record<string, unknown>) => Array<Record<string, unknown>>;
   /** The versions of the gate rules `get_resources_permit_gate_rule` answers. */
   gateRules?: Array<Record<string, unknown>>;
+  /** The waivers `get_resources_permit_gate_waiver` answers. */
+  waivers?: Array<Record<string, unknown>>;
   /** The answer of `evaluatePermitGates` for the project and the query it was asked with (an Error or an ApiError is thrown). */
   evaluation?: (input: { id: string; query: Record<string, unknown> }) => unknown;
   failing: Set<string>;
@@ -157,6 +178,8 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.types);
       case 'get_resources_permit_gate_rule':
         return Promise.resolve(state.gateRules ?? []);
+      case 'get_resources_permit_gate_waiver':
+        return Promise.resolve(state.waivers ?? []);
       case 'listExpiringPermits':
         return Promise.resolve(state.expiring?.(input?.query ?? {}) ?? []);
       default:

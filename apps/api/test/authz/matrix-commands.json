@@ -137,6 +137,8 @@
     "retirePermitType",
     "publishPermitGateRule",
     "retirePermitGateRule",
+    "grantPermitGateWaiver",
+    "revokePermitGateWaiver",
     "reviseContractDraft",
     "requestPeriodReopen",
     "returnOutgoingDocument",

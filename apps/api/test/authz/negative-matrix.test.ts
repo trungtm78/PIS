@@ -164,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decideCapitalPlan', 'post_plans_id_publish', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy', 'decideProcurementPlan', 'approveCriteriaVersion', 'approveQualityRuleVersion']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decideCapitalPlan', 'post_plans_id_publish', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy', 'decideProcurementPlan', 'approveCriteriaVersion', 'grantPermitGateWaiver', 'approveQualityRuleVersion']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -628,6 +628,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const issueEscalationId = id(0x7a, 5);
     const permitTypeId = id(0x7b, 1);
     const gateRuleId = id(0x7b, 2);
+    const gateWaiverId = id(0x7b, 3);
     const contractorToVerifyId = id(0x7c, 1);
     await harness.owner(TENANT_A, [
       [
@@ -673,6 +674,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         `insert into machvon.permit_gate_rule (tenant_id, id, gate_code, permit_type_id, requirement, applies_to_rule, legal_basis, effective_from, revision, status, created_by, updated_by)
          values ($1, $2, 'HANDOVER', $3, 'VALID_PERMIT', '{}'::jsonb, 'Matrix fixture gate basis', '2026-01-01', 1, 'PUBLISHED', $4, $4)`,
         [TENANT_A, gateRuleId, permitTypeId, ACTOR],
+      ],
+      [
+        `insert into machvon.permit_gate_waiver (tenant_id, id, project_id, gate_code, permit_type_id, reason, decision_document_version_id, valid_until, approved_by, status, created_by, updated_by)
+         values ($1, $2, $3, 'HANDOVER', $4, 'Matrix fixture waiver', $5, current_date + 30, $6, 'ACTIVE', $7, $6)`,
+        [TENANT_A, gateWaiverId, projectId, permitTypeId, documentVersionId, '00000000-0000-4000-8000-0000000000f2', ACTOR],
       ],
     ]);
     // The permit dossier of the CONCEPT project of unit 2 and a permit in it that is in appraisal: the permit commands act on them.
@@ -894,6 +900,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       capitalPlanId,
       permitTypeId,
       gateRuleId,
+      gateWaiverId,
       permitDossierId,
       permitId,
       parcelId,

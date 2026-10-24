@@ -6034,7 +6034,8 @@
       ],
       "operations": [
         "grantPermitGateWaiver",
-        "revokePermitGateWaiver"
+        "revokePermitGateWaiver",
+        "get_resources_permit_gate_waiver"
       ],
       "tables": [
         "permit_gate_waiver"

@@ -331,6 +331,8 @@ const PERMIT_ROLES = [
   { n: 154, user: 'permitProposerLeader', code: 'E2E_PERMIT_PROPOSER_LEADER', permissions: ['permit.manage', 'permit.exempt', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 50 },
   // The business owner of the gate rules (PMT-04): permit.gate.manage on the whole tenant, as the rules are the legal data of the tenant.
   { n: 155, user: 'permitGateManager', code: 'E2E_PERMIT_GATE_MANAGER', permissions: ['permit.gate.manage', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 40 },
+  // The leader in charge who grants and revokes the waivers of the gates (PMT-06): permit.gate.waive over the whole tenant; the decision documents are made by someone else.
+  { n: 156, user: 'permitWaiveLeader', code: 'E2E_PERMIT_WAIVE_LEADER', permissions: ['permit.gate.waive', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 50 },
 ];
 
 /**

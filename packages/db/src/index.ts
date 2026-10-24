@@ -438,8 +438,12 @@ export { PERMIT_TYPE_WORKING_ASSUMPTIONS, SEED_EFFECTIVE_FROM } from './pmt-perm
 export { EXPIRING_WITHIN_DAYS, PERMIT_STATUSES, PmtDossierStore, dossierScope } from './pmt-dossier-store.ts';
 export { DEFAULT_WITHIN_DAYS, EXPIRY_ALERT_DAYS, MAX_WITHIN_DAYS, PmtExpiringPermits, PmtPermitExpiry, alertLevelOf, thresholdOfLevel } from './pmt-permit-expiry.ts';
 export type { ExpiringPermitRow, ExpiryAlertDays, PermitExpiryResult } from './pmt-permit-expiry.ts';
+export { PmtWaiverExpiry } from './pmt-gate-waiver-expiry.ts';
+export type { WaiverExpiryResult } from './pmt-gate-waiver-expiry.ts';
 export { GATE_CODES, GATE_REQUIREMENTS, PmtGateStore } from './pmt-gate-store.ts';
 export type { GateCode, GateEvaluation, GateRequirement, GateRuleInput, GateRuleRow, GateRuleStatus, GateStatus, RuleVerdict } from './pmt-gate-store.ts';
+export { MAX_WAIVER_DAYS, PmtGateWaiverStore, WAIVER_STATUSES } from './pmt-gate-waiver-store.ts';
+export type { GrantedWaiver, RevokedWaiver, WaiverInput, WaiverRow, WaiverStatus } from './pmt-gate-waiver-store.ts';
 export type {
   DossierDetail,
   DossierLine,

@@ -400,6 +400,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'get_resources_permit_dossier': OperationDescriptor(method: 'GET', path: '/resources/permit_dossier', versioned: false, stepUp: null, permission: 'permit.read'),
   'get_resources_permit_dossier_id': OperationDescriptor(method: 'GET', path: '/resources/permit_dossier/{id}', versioned: false, stepUp: null, permission: 'permit.read'),
   'get_resources_permit_gate_rule': OperationDescriptor(method: 'GET', path: '/resources/permit_gate_rule', versioned: false, stepUp: null, permission: 'permit.read'),
+  'get_resources_permit_gate_waiver': OperationDescriptor(method: 'GET', path: '/resources/permit_gate_waiver', versioned: false, stepUp: null, permission: 'permit.read'),
   'get_resources_permit_id': OperationDescriptor(method: 'GET', path: '/resources/permit/{id}', versioned: false, stepUp: null, permission: 'permit.read'),
   'get_resources_permit_type': OperationDescriptor(method: 'GET', path: '/resources/permit_type', versioned: false, stepUp: null, permission: 'permit.read'),
   'get_resources_permit_type_id': OperationDescriptor(method: 'GET', path: '/resources/permit_type/{id}', versioned: false, stepUp: null, permission: 'permit.read'),

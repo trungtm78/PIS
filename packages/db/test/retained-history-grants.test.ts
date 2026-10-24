@@ -45,6 +45,7 @@ const KEPT_FOR_GOOD = [
   'permit',
   'permit_milestone',
   'permit_gate_rule',
+  'permit_gate_waiver',
   'issue',
   'issue_event',
   'issue_escalation',

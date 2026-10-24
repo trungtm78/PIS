@@ -868,6 +868,18 @@
       ]
     },
     {
+      "key": "permitWaiveLeader",
+      "displayName": "Lãnh đạo phụ trách cấp miễn trừ cổng",
+      "membershipId": "00000000-0000-4000-8000-000000000624",
+      "permissions": [
+        "permit.gate.waive",
+        "permit.read",
+        "project.read",
+        "organization_unit.read",
+        "master.read"
+      ]
+    },
+    {
       "key": "permitReader",
       "displayName": "Người xem hồ sơ pháp lý",
       "membershipId": "00000000-0000-4000-8000-0000000000ca",

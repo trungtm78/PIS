@@ -91,6 +91,8 @@ export interface MatrixTargets {
   permitTypeId: string;
   /** A PUBLISHED gate rule of tenant A on that permit type (version 1, open-ended). */
   gateRuleId: string;
+  /** An ACTIVE waiver of the HANDOVER gate of the CONCEPT project of unit 2 of tenant A for that permit type (version 1). */
+  gateWaiverId: string;
   /** The permit dossier of the CONCEPT project of unit 2 of tenant A (version 1) and a permit in it, IN_APPRAISAL (version 1). */
   permitDossierId: string;
   permitId: string;
@@ -737,6 +739,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/permit-gate-rules',
       body: { gate_code: 'HANDOVER', permit_type_id: t.permitTypeId, requirement: 'VALID_PERMIT', applies_to_rule: {}, legal_basis: 'Matrix legal basis', effective_from: '2999-01-01' },
     }),
+  },
+  grantPermitGateWaiver: {
+    // The project, the permit type and the decision are looked up in the caller's own tenant: one of tenant A does not exist for a caller of tenant B.
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/permit-gate-waivers',
+      body: {
+        project_id: t.projectId,
+        gate_code: 'START_CONSTRUCTION',
+        permit_type_id: t.permitTypeId,
+        reason: REASON,
+        decision_document_version_id: t.documentVersionId,
+        valid_until: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10),
+      },
+    }),
+  },
+  revokePermitGateWaiver: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/permit-gate-waivers/${t.gateWaiverId}/revoke`, body: { reason: REASON } }),
   },
   retirePermitGateRule: {
     referencesTenantIds: true,

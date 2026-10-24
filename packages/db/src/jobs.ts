@@ -33,6 +33,8 @@ export const JOB_INTERVAL_SECONDS = {
   'guarantee-expiry': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the permit reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-PMT-006).
   'permit-expiry': 3600,
+  // Hourly tick that works only in the 00:00 hour of Vietnam time, so the waivers of the permit gates whose last day has passed are ended once a night; the pass is idempotent.
+  'gate-waiver-expiry': 3600,
   // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
   // Every 15 minutes: an issue that reaches 100 or 150 percent of its SLA is escalated within a quarter of an hour; the pass is idempotent (ST-ISS-004).
   'issue-sla': 900,
@@ -60,6 +62,10 @@ export const ADVANCE_GUARANTEE_AT_RISK_GAUGE = 'ctr_advance_guarantee_at_risk';
 export const PERMIT_EXPIRY_HOUR = 6;
 /** The gauge of the permit job: the ISSUED permits within `days` days of their last day. */
 export const PERMIT_EXPIRING_GAUGE = 'pmt_permit_expiring';
+/** The hour, in Vietnam time, in which the waivers of the permit gates whose last day has passed are ended (PMT: 00:10, so the tick of the 00:00 hour). */
+export const GATE_WAIVER_EXPIRY_HOUR = 0;
+/** The gauge of the waiver job: the waivers in force. */
+export const GATE_WAIVER_ACTIVE_GAUGE = 'pmt_waiver_active';
 
 /** The hour of the day, 0 to 23, in Vietnam. */
 export const vietnamHourOf = (instant: Date): number => (instant.getUTCHours() + VIETNAM_UTC_OFFSET_HOURS) % 24;
@@ -126,6 +132,11 @@ export interface StandardJobDeps {
    * tells how many permits are within each threshold, for the gauges. Only the 06:00 hour of Vietnam time works.
    */
   permitExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ expiring: Readonly<Record<number, number>> }> };
+  /**
+   * The daily pass over the waivers of the permit gates of a tenant (ST-PMT-005): a waiver in force whose last day has passed becomes EXPIRED; tells how many are
+   * still in force, for the gauge. Only the 00:00 hour of Vietnam time works.
+   */
+  gateWaiverExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ active: number }> };
   /**
    * The pass over the issues of a tenant that are being worked (ST-ISS-004): writes the day an issue became overdue and raises the escalations whose threshold the
    * working time has reached; tells how many issues are open and how many escalations wait, for the gauges.
@@ -292,6 +303,27 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         } finally {
           // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
           for (const [days, count] of Object.entries(expiring)) metrics.gauge(PERMIT_EXPIRING_GAUGE, count, { days });
+        }
+      },
+    });
+  }
+  const waivers = deps.gateWaiverExpiry;
+  if (waivers !== undefined) {
+    handlers.push({
+      name: 'gate-waiver-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== GATE_WAIVER_EXPIRY_HOUR) return;
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let active = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            const pass = await waivers.run(workerContext(tenantId), now);
+            active += pass.active;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(GATE_WAIVER_ACTIVE_GAUGE, active);
         }
       },
     });

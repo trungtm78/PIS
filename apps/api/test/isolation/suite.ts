@@ -216,6 +216,12 @@ export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; cod
   },
 };
 
+/** An ACTIVE waiver of the HANDOVER gate of the isolation project of each tenant (the reason is distinctive; tenant legal decision). */
+export const WAIVER_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', reason: 'Alpha tenant isolation waiver reason' },
+  'TNT-B': { id: '00000000-0000-4000-b0f2-000000000001', reason: 'Beta tenant isolation waiver reason' },
+};
+
 /** The permit dossier of the isolation project of each tenant and a permit in appraisal in it (the authority is distinctive; tenant legal file). */
 export const PERMIT_FIXTURES: Readonly<Record<TenantName, { dossierId: string; permitId: string; authority: string; expiredId: string; expiredNo: string }>> = {
   'TNT-A': {
@@ -552,6 +558,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'permit type legal basis', value: PERMIT_TYPE_FIXTURES[tenant].legalBasis },
     { kind: 'permit gate rule id', value: PERMIT_TYPE_FIXTURES[tenant].gateRuleId },
     { kind: 'permit gate rule legal basis', value: PERMIT_TYPE_FIXTURES[tenant].gateBasis },
+    { kind: 'permit gate waiver id', value: WAIVER_FIXTURES[tenant].id },
+    { kind: 'permit gate waiver reason', value: WAIVER_FIXTURES[tenant].reason },
     { kind: 'permit dossier id', value: PERMIT_FIXTURES[tenant].dossierId },
     { kind: 'permit id', value: PERMIT_FIXTURES[tenant].permitId },
     { kind: 'permit authority', value: PERMIT_FIXTURES[tenant].authority },

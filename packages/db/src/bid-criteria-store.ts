@@ -122,8 +122,8 @@ export class BidCriteriaStore {
     assertFourEyes(row.created_by, actor);
     if (row.status !== 'DRAFT') {
       const used = await tx.query<{ id: string }>('select id from machvon.analysis_run where criteria_version_id = $1::uuid limit 1', [row.id]);
-      if (used.length > 0) throw new DomainError('CRITERIA_LOCKED_BY_RUN', 409, 'status', { extensions: { status: row.status } });
-      throw stateInvalid({ status: row.status });
+      if (used.length > 0) throw new DomainError('CRITERIA_LOCKED_BY_RUN', 409, 'status', { extensions: { criteria_status: row.status } });
+      throw stateInvalid({ criteria_status: row.status });
     }
     if (PACKAGE_STATUSES_WITHOUT_CRITERIA.includes(pack.status)) throw packageStateInvalid(pack.status);
     const checked = readCriteria(row.criteria_json);

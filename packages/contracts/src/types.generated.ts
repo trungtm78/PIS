@@ -14265,6 +14265,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/resources/permit_gate_waiver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Miễn trừ cổng giấy phép của các dự án trong phạm vi người gọi: lý do, văn bản, hạn và trạng thái (PMT-06) */
+        get: operations["get_resources_permit_gate_waiver"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -102714,6 +102731,113 @@ export interface operations {
     get_resources_permit_gate_rule: {
         parameters: {
             query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items?: Record<string, never>[];
+                        next_cursor?: string | null;
+                        snapshot_id?: string;
+                        /** Format: date-time */
+                        as_of?: string;
+                    };
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / license / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Budget / rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Provider unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    get_resources_permit_gate_waiver: {
+        parameters: {
+            query?: {
+                /** @description Only the waivers of this project. */
+                project_id?: string;
+                /** @description Only the waivers of this gate. */
+                gate_code?: "CONTRACT_ACTIVATION" | "START_CONSTRUCTION" | "ACCEPTANCE_COMPLETION" | "HANDOVER" | "ADVANCE_DISBURSEMENT";
+                /** @description Only the waivers in this status. */
+                status?: "ACTIVE" | "EXPIRED" | "REVOKED";
                 cursor?: string;
                 limit?: number;
             };

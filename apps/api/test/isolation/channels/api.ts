@@ -12,6 +12,7 @@ import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
+import { WAIVER_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
@@ -181,6 +182,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_permit_type_id', method: 'GET', id: PERMIT_TYPE_FIXTURES['TNT-B'].id },
   { operation: 'retirePermitType', method: 'POST', id: PERMIT_TYPE_FIXTURES['TNT-B'].id, body: { effective_until: '2999-12-31' } },
   { operation: 'retirePermitGateRule', method: 'POST', id: PERMIT_TYPE_FIXTURES['TNT-B'].gateRuleId, body: { effective_until: '2999-12-31' } },
+  { operation: 'revokePermitGateWaiver', method: 'POST', id: WAIVER_FIXTURES['TNT-B'].id, body: { reason: 'Isolation foreign revocation attempt' } },
   { operation: 'evaluatePermitGates', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'createPermitDossier', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { owner_unit_id: OWN_UNIT } },
   { operation: 'addPermit', method: 'POST', id: PERMIT_FIXTURES['TNT-B'].dossierId, body: { permit_type_id: PERMIT_TYPE_FIXTURES['TNT-B'].id } },

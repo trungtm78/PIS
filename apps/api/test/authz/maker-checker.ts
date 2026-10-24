@@ -484,6 +484,23 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     seedMadeBy: (objectId, maker) => [seedCriteriaDraft(objectId, maker), []],
   },
   {
+    operationId: 'grantPermitGateWaiver',
+    build: (objectId) => ({
+      method: 'POST',
+      path: '/permit-gate-waivers',
+      body: {
+        project_id: derivedId(objectId, 'waiver-project'),
+        gate_code: 'START_CONSTRUCTION',
+        permit_type_id: derivedId(objectId, 'waiver-type'),
+        reason: 'maker-checker matrix waiver',
+        decision_document_version_id: derivedId(objectId, 'waiver-version'),
+        valid_until: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10),
+      },
+    }),
+    // The statements carry no parameter, so the driver sends them as one simple query: the project, the permit type and the decision that `maker` made.
+    seedMadeBy: (objectId, maker) => [seedWaiverRequest(objectId, maker), []],
+  },
+  {
     operationId: 'approveQualityRuleVersion',
     build: (objectId) => ({ method: 'POST', path: `/dgv/quality-rules/${derivedId(objectId, 'quality-rule')}/approval`, ifMatch: '"1"', body: {} }),
     seedMadeBy: (objectId, maker, checker) => [SEED_QUALITY_RULE, [derivedId(objectId, 'quality-rule'), maker, checker, derivedId(objectId, 'quality-dataset'), derivedId(objectId, 'quality-contract')]],
@@ -547,6 +564,25 @@ export function seedCriteriaDraft(objectId: string, maker: string): string {
     insert into machvon.criteria_version (tenant_id, id, package_id, revision, criteria_json, legal_basis, weights_sum, status, created_by, version)
       values (${tenant}, '${ids.version}', '${ids.package}', 1, '{"criteria":[{"code":"MX1","name":"Matrix criterion","kind":"SCORED","weight":100,"max_score":10,"threshold":5,"mandatory":false,"required_evidence":[]}]}'::jsonb,
               'Matrix legal basis', 100, 'DRAFT', '${maker}', 1);`;
+}
+
+/**
+ * The things a waiver of a permit gate rests on, all made by `maker`: a project of unit 2, a permit type and the decision document version that asked for the
+ * waiver. Granting it is approving what the maker asked for. Every id is derived from the object id, so two cases never meet on a code or a key.
+ */
+export function seedWaiverRequest(objectId: string, maker: string): string {
+  const ids = Object.fromEntries(['project', 'type', 'document', 'version'].map((purpose) => [purpose, derivedId(objectId, `waiver-${purpose}`)]));
+  const tag = (ids.type as string).slice(0, 8);
+  const tenant = "current_setting('app.tenant_id')::uuid";
+  return `
+    insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+      values (${tenant}, '${ids.project}', 'MXW-${tag}', 'Matrix waiver project', '${id(0x10, 2)}', '${id(0x8a, 3)}', 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B');
+    insert into machvon.permit_type (tenant_id, id, code, name, category, authority_text, legal_basis, effective_from, applies_to_rule, status, created_by, updated_by)
+      values (${tenant}, '${ids.type}', 'MXW_${tag.toUpperCase()}', 'Matrix waiver type', 'OTHER', 'Matrix authority', 'Matrix legal basis', date '2026-01-01', '{}'::jsonb, 'PUBLISHED', '${maker}', '${maker}');
+    insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by)
+      values (${tenant}, '${ids.document}', 'REFERENCE', 'QD', 'Matrix waiver decision', 'INTERNAL', '${maker}', '${maker}');
+    insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
+      values (${tenant}, '${ids.version}', '${ids.document}', 1, 'tenants/matrix/${tag}.pdf', repeat('a', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL');`;
 }
 
 export interface MakerCheckerCase {
