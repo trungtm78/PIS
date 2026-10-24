@@ -384,6 +384,9 @@ const PLAN_ROLES = [
   { n: 375, user: 'planApprover', code: 'E2E_PLAN_APPROVER', permissions: ['capital.read', 'capital.plan.approve', 'plan_version.read', 'allocation_line.read'], rank: 50 },
   { n: 376, user: 'planPublisher', code: 'E2E_PLAN_PUBLISHER', permissions: ['capital.read', 'plan.publish', 'plan_version.read', 'allocation_line.read'], rank: 50 },
   { n: 377, user: 'planAll', code: 'E2E_PLAN_ALL', permissions: ['capital.read', 'capital.plan.draft', 'capital.plan.submit', 'capital.plan.approve', 'plan.publish', 'plan_version.read', 'allocation_line.read', 'project.read', 'organization_unit.read'], rank: 60 },
+  // The investors of the disbursement schedule (CAP-08): one on the whole tenant, one on the subtree of the Project Management Board only.
+  { n: 378, user: 'scheduleInvestor', code: 'E2E_SCHEDULE_INVESTOR', permissions: ['capital.read', 'capital.schedule.register', 'project.read'], rank: 40 },
+  { n: 379, user: 'scheduleScoped', code: 'E2E_SCHEDULE_SCOPED', permissions: ['capital.read', 'capital.schedule.register', 'project.read'], rank: 40 },
 ];
 
 interface GrantPlan {
@@ -410,7 +413,7 @@ const GRANTS: GrantPlan[] = [
   { n: 23, user: 'notificationReader', role: NOTIFICATION_READER_ROLE.code, kind: 'TENANT', refs: [] },
   ...STORY_ROLES.map((role, index): GrantPlan => ({ n: 60 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...INVESTMENT_ROLES.map((role, index): GrantPlan => ({ n: 30 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
-  ...PLAN_ROLES.map((role): GrantPlan => (role.user === 'planScoped' ? { n: role.n, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(5)] } : { n: role.n, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...PLAN_ROLES.map((role): GrantPlan => (role.user === 'planScoped' || role.user === 'scheduleScoped' ? { n: role.n, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(5)] } : { n: role.n, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...STAGE_ROLES.map((role, index): GrantPlan => ({ n: 170 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...APPRAISAL_ROLES.map((role, index): GrantPlan => ({ n: 360 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...NATIONAL_CODE_ROLES.map((role, index): GrantPlan => ({ n: 380 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),

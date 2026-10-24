@@ -39534,7 +39534,8 @@
         "CAP-08"
       ],
       "operations": [
-        "registerDisbursementSchedule"
+        "registerDisbursementSchedule",
+        "listDisbursementSchedules"
       ],
       "tables": [
         "disbursement_schedule_line"

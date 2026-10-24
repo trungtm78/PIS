@@ -16,6 +16,7 @@ import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
+import { SCHEDULE_FIXTURES } from '../suite';
 import { PERIOD_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { TREASURY_FIXTURES } from '../suite';
@@ -204,6 +205,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'submitCapitalPlan',
   'createCapitalPlanRevision',
   'getCapitalPlanAsOf',
+  'registerDisbursementSchedule',
+  'listDisbursementSchedules',
   'decideCapitalPlan',
   'post_plans_id_publish',
   'listCapitalPlanLines',
@@ -444,6 +447,10 @@ const INSERT_CAPITAL_PLAN = `insert into machvon.capital_plan
 const INSERT_PUBLISHED_CAPITAL_PLAN = `insert into machvon.capital_plan
   (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, submitted_by, approved_by, decision_document_id, effective_at, published_at, published_by, created_by, updated_by)
   values ($1, $2, $3, 'ANNUAL', 2026, 2026, 2026, $4, 1, 'PUBLISHED', $5, $7, $6, '2026-01-02T00:00:00Z', '2026-01-02T00:00:00Z', $7, $5, $5) on conflict do nothing`;
+
+const INSERT_SCHEDULE_LINE = `insert into machvon.disbursement_schedule_line
+  (tenant_id, id, project_id, plan_year, granularity, month, bucket, budget_level, kind, amount_vnd, assumption, revision, is_current, created_by, updated_by)
+  values ($1, $2, $3, 2026, 'MONTH', 6, 'CURRENT_YEAR', 'CENTRAL', 'FORECAST', 1000, $4, 1, true, $5, $5) on conflict do nothing`;
 
 const INSERT_PLAN_VERSION = `insert into machvon.plan_version
   (tenant_id, id, project_id, fiscal_year, revision, status, capital_plan_id, created_by, updated_by)
@@ -757,6 +764,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PUBLISHED_CAPITAL_PLAN, [tenantId, plan.publishedId, plan.publishedCode, home, ACTOR_ID, documents.documentId, APPROVER_ID]);
     await client.query(INSERT_PLAN_VERSION, [tenantId, plan.versionId, project.id, plan.id, ACTOR_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
+    const schedule = SCHEDULE_FIXTURES[tenant];
+    await client.query(INSERT_SCHEDULE_LINE, [tenantId, schedule.id, project.id, schedule.assumption, ACTOR_ID]);
     const procurement = PROCUREMENT_PLAN_FIXTURES[tenant];
     await client.query(INSERT_PROCUREMENT_PLAN, [tenantId, procurement.id, project.id, procurement.title, ACTOR_ID]);
     await client.query(INSERT_PLAN_PACKAGE, [tenantId, procurement.packageId, project.id, procurement.packageCode, procurement.id, procurement.packageTitle, plan.lineId, ACTOR_ID]);
@@ -789,7 +798,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'contract', 'contract_revision', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'disbursement_schedule_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'contract', 'contract_revision', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

@@ -681,6 +681,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/capital-plans/${t.capitalPlanId}/revisions`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  registerDisbursementSchedule: {
+    // The project of tenant A does not exist for a caller of tenant B (404); a caller of tenant A without the permission is refused before the project is looked at.
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/disbursement-schedules',
+      body: { project_id: t.projectId, plan_year: 2026, granularity: 'MONTH', month: 10, kind: 'REGISTERED', bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', amount_vnd: '100' },
+    }),
+  },
   draftCapitalAllocation: {
     referencesTenantIds: true,
     build: (t) => ({

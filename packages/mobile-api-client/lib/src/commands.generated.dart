@@ -1459,6 +1459,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listCapitalPlanLines({required String id, Map<String, Object?>? query}) =>
       execute('listCapitalPlanLines', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> listDisbursementSchedules({Map<String, Object?>? query}) =>
+      execute('listDisbursementSchedules', query: query);
+
   Future<Object?> listDocumentNumberRegisters({Map<String, Object?>? query}) =>
       execute('listDocumentNumberRegisters', query: query);
 

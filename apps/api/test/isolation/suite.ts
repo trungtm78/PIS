@@ -245,6 +245,12 @@ export const CAPITAL_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string; pl
   },
 };
 
+/** A forecast of each tenant's project for a month of 2026 (the assumption is distinctive: the schedule of a tenant is internal to it). */
+export const SCHEDULE_FIXTURES: Readonly<Record<TenantName, { id: string; assumption: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0fa-000000000001', assumption: 'Alpha forecast assumption 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0fa-000000000001', assumption: 'Beta forecast assumption 0001' },
+};
+
 /** A published template revision of each tenant, waiting for its legal confirmation (the code and the legal basis are distinctive). */
 export const TEMPLATE_FIXTURES: Readonly<Record<TenantName, { id: string; templateCode: string; legalBasis: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a013-000000000001', templateCode: 'ALPHA-TEMPLATE-0001', legalBasis: 'Alpha decree 0001/2026 on the shape of the alpha form' },
@@ -526,6 +532,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'published capital plan id', value: CAPITAL_PLAN_FIXTURES[tenant].publishedId },
     { kind: 'published capital plan code', value: CAPITAL_PLAN_FIXTURES[tenant].publishedCode },
     { kind: 'allocation line id', value: CAPITAL_PLAN_FIXTURES[tenant].lineId },
+    { kind: 'schedule line id', value: SCHEDULE_FIXTURES[tenant].id },
+    { kind: 'schedule assumption', value: SCHEDULE_FIXTURES[tenant].assumption },
     { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },
     { kind: 'work calendar id', value: WORK_CALENDAR_FIXTURES[tenant].id },
     { kind: 'work calendar code', value: WORK_CALENDAR_FIXTURES[tenant].calendarCode },

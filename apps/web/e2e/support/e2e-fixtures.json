@@ -357,6 +357,26 @@
       ]
     },
     {
+      "key": "scheduleInvestor",
+      "displayName": "Chủ đầu tư đăng ký giải ngân",
+      "membershipId": "00000000-0000-4000-8000-0000000003b9",
+      "permissions": [
+        "capital.read",
+        "capital.schedule.register",
+        "project.read"
+      ]
+    },
+    {
+      "key": "scheduleScoped",
+      "displayName": "Chủ đầu tư của Ban Quản lý dự án đăng ký giải ngân",
+      "membershipId": "00000000-0000-4000-8000-0000000003ba",
+      "permissions": [
+        "capital.read",
+        "capital.schedule.register",
+        "project.read"
+      ]
+    },
+    {
       "key": "periodManager",
       "displayName": "Cán bộ quản lý kỳ báo cáo",
       "membershipId": "00000000-0000-4000-8000-0000000000b6",

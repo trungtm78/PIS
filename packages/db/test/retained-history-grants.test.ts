@@ -28,6 +28,7 @@ const KEPT_FOR_GOOD = [
   'period_reopen',
   'capital_plan',
   'allocation_balance',
+  'disbursement_schedule_line',
   'capital_ledger_entry',
   'mne_report',
   'contractor',

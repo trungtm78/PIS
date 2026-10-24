@@ -53,6 +53,7 @@
     "retryDocumentDistribution",
     "submitCapitalPlan",
     "createCapitalPlanRevision",
+    "registerDisbursementSchedule",
     "decideCapitalPlan",
     "post_plans_id_publish",
     "decidePeriodReopen",

@@ -29,6 +29,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'CAP-05': () => import('../../screens/cap/DecisionDocumentsScreen'),
   'CAP-06': () => import('../../screens/cap/AllocationGridScreen'),
   'CAP-07': () => import('../../screens/cap/PlanAdjustmentScreen'),
+  'CAP-08': () => import('../../screens/cap/DisbursementScheduleScreen'),
   'CAP-10': () => import('../../screens/cap/PlanApprovalScreen'),
   'CAP-14': () => import('../../screens/cap/SupportRevenueScreen'),
   'CTR-01': () => import('../../screens/ctr/ContractListScreen'),

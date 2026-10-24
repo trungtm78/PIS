@@ -79,6 +79,8 @@ export interface PlanWorld {
   failing: Map<string, unknown>;
   /** The answer of `getCapitalPlanAsOf` for the plan and the day asked for (an Error or an ApiError is thrown). */
   asOf?: (input: { id: string; at: string | undefined }) => unknown;
+  /** The rows `listDisbursementSchedules` answers for the query it was asked with. */
+  schedules?: (query: Record<string, unknown>) => Array<Record<string, unknown>>;
 }
 
 export function planWorld(overrides: Partial<PlanWorld> = {}): PlanWorld {
@@ -153,7 +155,7 @@ export function planClient(state: PlanWorld, command: (operation: string, input:
     }
     return new Error(`unexpected read ${operation}`);
   }, command);
-  (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string) => {
+  (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string, input?: { query?: Record<string, unknown> }) => {
     if (state.failing.has(operation)) return Promise.reject(state.failing.get(operation));
     switch (operation) {
       case 'get_resources_plan_version':
@@ -164,6 +166,8 @@ export function planClient(state: PlanWorld, command: (operation: string, input:
         return Promise.resolve(state.units);
       case 'listAppropriations':
         return Promise.resolve(state.appropriations.lines);
+      case 'listDisbursementSchedules':
+        return Promise.resolve(state.schedules?.(input?.query ?? {}) ?? []);
       default:
         return Promise.reject(new Error(`unexpected readAll ${operation}`));
     }

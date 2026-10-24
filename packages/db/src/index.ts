@@ -563,6 +563,8 @@ export type {
 export { CapPlanStore, DRAFTABLE_PROJECT_STATUSES } from './cap-plan-store.ts';
 export { CapPlanRevisionStore, momentOf } from './cap-plan-revision-store.ts';
 export type { AsOfLine, PlanAsOf, RevisionCreated } from './cap-plan-revision-store.ts';
+export { ADJUSTMENT_MONTH, CapScheduleStore, SCHEDULE_GRAINS, SCHEDULE_KINDS, achievementRate } from './cap-schedule-store.ts';
+export type { ScheduleAchievement, ScheduleFilter, ScheduleGrain, ScheduleInput, ScheduleKind, ScheduleRegistered, ScheduleRow } from './cap-schedule-store.ts';
 export type {
   AllocatedDrift,
   AppropriationMove,

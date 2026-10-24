@@ -124,6 +124,7 @@ Mọi `*_id` có index `(tenant_id, col)`; FK composite; RLS ENABLE+FORCE + `ten
 | `requestAllocationExtension` / `decideAllocationExtension` | POST /allocation-lines/{id}/extensions; /allocation-extensions/{id}/decision | capital.extension.request/approve | `CapExtensionRequest` / `CapExtensionDecision` | 422 EXTENSION_NOT_ALLOWED/AMOUNT_EXCEEDS_UNDISBURSED/EXTENSION_DOCUMENT_REQUIRED | ✔ | ✔ (decision) |
 | `closeFiscalYear` / `reopenFiscalYear` | POST /fiscal-years/{year}/close, /reopen | capital.year.close/reopen | `CapYearClose` / `CapYearReopen` | 409 YEAR_STATE_INVALID; 403 SELF_APPROVAL_DENIED; 422 REOPEN_REASON_REQUIRED | ✔ | ✔ |
 | `registerDisbursementSchedule` | POST /disbursement-schedules | capital.schedule.register | `CapScheduleInput` | 422 SUBSET_EXCEEDS_PARENT; 409 PERIOD_LOCKED | ✔ | – (revision mới) |
+| `listDisbursementSchedules` | GET /disbursement-schedules | capital.read | – | 404 ngoài scope | – | – (bản hiện hành mỗi khóa; đăng ký tháng kèm giải ngân và tỷ lệ đạt) |
 | `createAllocationScenario`, `runAllocationScenario`, `promoteAllocationScenario` | POST /allocation-scenarios[/{id}/run\|promote] | capital.scenario.run / capital.reallocation.propose | `CapScenario` | 422 SCENARIO_CONSTRAINT_INFEASIBLE; 409 SCENARIO_NOT_RUN | ✔ | ✔ |
 | `getCapitalAvailability` | GET /capital/availability | capital.read | – | – | – | – |
 | `getCapitalPlanAsOf`, `listCapitalPlanLines`, `listAppropriations`, `listCapitalLedger`, `listReallocationProposals` | GET | capital.read / capital.ledger.read | – | 404 ngoài scope | – | – |
