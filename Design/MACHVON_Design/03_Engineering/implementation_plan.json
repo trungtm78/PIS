@@ -35468,7 +35468,9 @@
         "MDM-31",
         "MDM-33"
       ],
-      "operations": [],
+      "operations": [
+        "listMasterTypePolicies"
+      ],
       "tables": [],
       "nfr": [
         "NFR-TENANCY-02",

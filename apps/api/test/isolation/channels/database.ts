@@ -74,6 +74,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'searchMasterRecords',
   'getMasterRecordUsages',
   'listMasterChangeRequests',
+  'listMasterTypePolicies',
   'getMasterChangeRequest',
   'get_resources_master_record_version',
   'get_resources_master_record_version_id',

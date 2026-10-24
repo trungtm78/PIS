@@ -114,7 +114,9 @@ Index cho mọi `*_id`; RLS + `tenant_guard`. Namespace PLATFORM được nhân 
 | `stageMasterImport` / `applyMasterImport` | POST /master-imports[/{id}/apply] | master.import | `MdmImportRequest` | 409 IMPORT_FILE_ALREADY_APPLIED; 422 IMPORT_HAS_ERRORS | ✔ | ✔ (apply) |
 | `recordMasterSuccession` | POST /master-successions | master.propose | `MdmSuccession` | 422 SUCCESSION_CYCLE | ✔ | – |
 | `resetIntegrationCursor` | POST /integration-cursors/{id}/reset | integration.cursor.reset | `MdmCursorReset` | 422 VALIDATION_FAILED | ✔ | ✔ |
-| `searchMasterRecords`, `listMasterChangeRequests`, `getMasterRecordUsages`, `getMasterRecordAsOf`, `getMasterRecordSuccessors`, `getMasterChangeRequest`, `listGlossaryTerms` | GET | master.read / glossary.read | – | 404 | – | – |
+| `searchMasterRecords`, `listMasterChangeRequests`, `listMasterTypePolicies`, `getMasterRecordUsages`, `getMasterRecordAsOf`, `getMasterRecordSuccessors`, `getMasterChangeRequest`, `listGlossaryTerms` | GET | master.read / glossary.read | – | 404 | – | – |
+
+(Cập nhật — CR-MDM-03) Thêm `GET /master-type-policies` (`listMasterTypePolicies`, master.read): chính sách phạm vi từng loại danh mục và số bản ghi mỗi namespace cho MDM-33. Bảng `master_type_policy` (V1081) chỉ control-plane ghi; loại không có dòng theo baseline của platform trong mã.
 
 (Cập nhật — CR-MDM-02) Thêm `GET /master-change-requests?status&master_type` (`listMasterChangeRequests`, master.read): hàng chờ duyệt và công bố của MDM-32.
 

@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../i18n';
-import type { ChangeKind, ChangeStatus, FieldProblem, ProblemView, RecordStatus } from './model';
+import type { ChangeKind, ChangeStatus, FieldProblem, ProblemView, RecordStatus, TypeScope } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -17,6 +17,28 @@ export function recordStatusLabel(t: Translate, status: RecordStatus): string {
       return t('mdm.status.record.retired');
     case 'MERGED':
       return t('mdm.status.record.merged');
+  }
+}
+
+export function scopeLabel(t: Translate, scope: TypeScope): string {
+  switch (scope) {
+    case 'PLATFORM_ONLY':
+      return t('mdm.scope.platformOnly.label');
+    case 'PLATFORM_WITH_TENANT_EXTENSION':
+      return t('mdm.scope.extension.label');
+    case 'TENANT_ONLY':
+      return t('mdm.scope.tenantOnly.label');
+  }
+}
+
+export function scopeExplanation(t: Translate, scope: TypeScope): string {
+  switch (scope) {
+    case 'PLATFORM_ONLY':
+      return t('mdm.scope.platformOnly.text');
+    case 'PLATFORM_WITH_TENANT_EXTENSION':
+      return t('mdm.scope.extension.text');
+    case 'TENANT_ONLY':
+      return t('mdm.scope.tenantOnly.text');
   }
 }
 

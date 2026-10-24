@@ -1438,6 +1438,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listMasterChangeRequests({Map<String, Object?>? query}) =>
       execute('listMasterChangeRequests', query: query);
 
+  Future<Object?> listMasterTypePolicies({Map<String, Object?>? query}) =>
+      execute('listMasterTypePolicies', query: query);
+
   Future<Object?> listMneForms({Map<String, Object?>? query}) =>
       execute('listMneForms', query: query);
 

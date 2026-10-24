@@ -114,6 +114,10 @@ describe('master data commands and reads (ST-MDM-001)', () => {
         ],
       ]);
     }
+    // The SECTOR type of these tests is the tenant's own: a row of the control plane replaces the baseline of the platform for it.
+    for (const tenant of [TENANT_A, TENANT_B]) {
+      await harness.owner(tenant, [["insert into machvon.master_type_policy (tenant_id, master_type, scope, updated_by) values ($1, 'SECTOR', 'TENANT_ONLY', $2)", [tenant, memberId(1)]]]);
+    }
     for (const n of [STEWARD, SECOND_STEWARD, CHECKER, PUBLISHER, READER, NOBODY]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, OTHER_TENANT_STEWARD, 1);
     await harness.seedRole(TENANT_A, 1, 'DATA_STEWARD', ['master.propose', 'master.read'], 40);
@@ -332,6 +336,27 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       expect((await call('GET', '/master-change-requests?status=SOMETHING', { member: CHECKER })).status).toBe(422);
       expect((await call('GET', '/master-change-requests?master_type=QUEUE', { member: OTHER_TENANT_STEWARD, tenantId: TENANT_B })).json.items).toEqual([]);
       expect((await call('GET', '/master-change-requests', { member: NOBODY })).status).toBe(403);
+    });
+
+    it('refuses a type that only the platform publishes with 403 POLICY_LOCKED (AC-ST-MDM-002-2)', async () => {
+      const locked = await propose(STEWARD, proposalBody({ master_type: 'ADMIN_UNIT' }));
+      expect([locked.status, locked.json.code]).toEqual([403, 'POLICY_LOCKED']);
+      const extension = await propose(STEWARD, proposalBody({ master_type: 'PROGRAM' }));
+      expect([extension.status, extension.json.code]).toEqual([403, 'POLICY_LOCKED']);
+    });
+
+    it('lists the policy of each type with the entries of each namespace, for anyone who may read master data', async () => {
+      await inForce();
+      const policies = await call('GET', '/master-type-policies', { member: READER });
+      expect(policies.status).toBe(200);
+      const items = policies.json.items as Array<Record<string, unknown>>;
+      expect(items.find((item) => item.master_type === 'SECTOR')).toMatchObject({ scope: 'TENANT_ONLY', source: 'TENANT', locked: false, retire_requires_successor: false });
+      expect((items.find((item) => item.master_type === 'SECTOR')?.tenant_records as number) >= 1).toBe(true);
+      expect(items.find((item) => item.master_type === 'FUND_SOURCE')).toMatchObject({ scope: 'PLATFORM_ONLY', source: 'BASELINE', locked: true, retire_requires_successor: true });
+      expect((await call('GET', '/master-type-policies', { member: NOBODY })).status).toBe(403);
+      const other = await call('GET', '/master-type-policies', { member: OTHER_TENANT_STEWARD, tenantId: TENANT_B });
+      expect(other.status).toBe(200);
+      expect((other.json.items as Array<Record<string, unknown>>).every((item) => item.platform_records === 0)).toBe(true);
     });
 
     it('lists the versions through the generic scaffold and reads one by id', async () => {

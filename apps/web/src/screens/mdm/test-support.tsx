@@ -78,6 +78,7 @@ export interface World {
   versions: Array<Record<string, unknown>>;
   changes: Array<Record<string, unknown>>;
   usage: Record<string, unknown>;
+  policies: Array<Record<string, unknown>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
 }
@@ -88,6 +89,7 @@ export function world(overrides: Partial<World> = {}): World {
     versions: [version(1, 1)],
     changes: [],
     usage: { master_record_id: record(1).id, as_of: null, counts: {}, total: 0, samples: [] },
+    policies: [],
     failing: new Set(),
     ...overrides,
   };
@@ -103,6 +105,7 @@ export function client(state: World, command: (operation: string, input: unknown
       const path = (input as { path?: { id?: string } } | undefined)?.path;
       if (operation === 'getMasterChangeRequest') return state.changes.find((item) => item.id === path?.id) ?? new Error('not found');
       if (operation === 'getMasterRecordUsages') return state.usage;
+      if (operation === 'listMasterTypePolicies') return { items: state.policies };
       return new Error(`unexpected read ${operation}`);
     },
     command,

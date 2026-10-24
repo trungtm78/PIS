@@ -53,6 +53,38 @@ export const MASTER_REFERENCES: readonly MasterReference[] = [
   record('master_crosswalk', 'master_record_id'),
 ];
 
+export type TypeScope = 'PLATFORM_ONLY' | 'PLATFORM_WITH_TENANT_EXTENSION' | 'TENANT_ONLY';
+
+/** Who may write a master data type, and whether an entry that is retired must name its successor even when nothing uses it. */
+export interface TypePolicy {
+  masterType: string;
+  scope: TypeScope;
+  retireRequiresSuccessor: boolean;
+  /** `BASELINE`: the policy of the platform in force for every tenant; `TENANT`: a row the control plane wrote for this tenant. */
+  source: 'BASELINE' | 'TENANT';
+}
+
+export interface TypePolicySummary extends TypePolicy {
+  platformRecords: number;
+  tenantRecords: number;
+}
+
+/**
+ * The policy of the platform for the types it publishes or extends (MDM 3.1 F8): the funding sources and the administrative units are
+ * the platform's alone; the sectors, programmes, project types and areas are published by the platform and extended by a tenant with child
+ * entries; every other type is the tenant's own. A row of `master_type_policy` written by the control plane replaces the baseline.
+ */
+export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; retireRequiresSuccessor: boolean }>> = {
+  FUND_SOURCE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
+  ADMIN_UNIT: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
+  SECTOR: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  PROGRAM: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  PROJECT_TYPE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  AREA: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+};
+
+const OWN_BY_DEFAULT = { scope: 'TENANT_ONLY' as const, retireRequiresSuccessor: false };
+
 export interface ImpactPreview {
   /** Rows that refer to the entry, by `table.column`; only references that are used appear. */
   counts: Record<string, number>;
@@ -522,6 +554,45 @@ export class MasterStore {
     return { counts: usage.counts, total: usage.total, computed_at: computedAt };
   }
 
+  // ---- the policy of the types -----------------------------------------------------------------------------------
+
+  /** The policy of one type: the row of the tenant, else the baseline of the platform, else the type is the tenant's own. */
+  async policyOf(tx: TenantTx, masterType: string): Promise<TypePolicy> {
+    const rows = await tx.query<{ scope: TypeScope; retire_requires_successor: boolean }>('select scope, retire_requires_successor from machvon.master_type_policy where master_type = $1', [masterType]);
+    const row = rows[0];
+    if (row !== undefined) return { masterType, scope: row.scope, retireRequiresSuccessor: row.retire_requires_successor, source: 'TENANT' };
+    const baseline = BASELINE_POLICIES[masterType] ?? OWN_BY_DEFAULT;
+    return { masterType, ...baseline, source: 'BASELINE' };
+  }
+
+  /** Every type the tenant has or the platform governs, with its policy and how many entries of each namespace it holds. */
+  async listPolicies(tx: TenantTx): Promise<TypePolicySummary[]> {
+    const rows = await tx.query<{ master_type: string; platform_records: string; tenant_records: string }>(
+      `select t.master_type,
+              count(r.id) filter (where r.namespace = 'PLATFORM')::text as platform_records,
+              count(r.id) filter (where r.namespace = 'TENANT')::text as tenant_records
+         from (select master_type from machvon.master_record union select master_type from machvon.master_type_policy union select unnest($1::text[])) t
+         left join machvon.master_record r on r.master_type = t.master_type
+        group by t.master_type order by t.master_type`,
+      [Object.keys(BASELINE_POLICIES)],
+    );
+    const result: TypePolicySummary[] = [];
+    for (const row of rows) {
+      result.push({ ...(await this.policyOf(tx, row.master_type)), platformRecords: Number(row.platform_records), tenantRecords: Number(row.tenant_records) });
+    }
+    return result;
+  }
+
+  /** A tenant writes only what the policy of the type leaves to it; the rest is 403 POLICY_LOCKED naming the field that locks it. */
+  private async assertTenantMayAdd(tx: TenantTx, masterType: string, parentRecordId: string | null): Promise<void> {
+    const policy = await this.policyOf(tx, masterType);
+    if (policy.scope === 'PLATFORM_ONLY') throw new DomainError('POLICY_LOCKED', 403, 'master_type');
+    if (policy.scope === 'PLATFORM_WITH_TENANT_EXTENSION') {
+      const parent = parentRecordId === null ? undefined : await this.findRecord(tx, parentRecordId);
+      if (parent === undefined || parent.namespace !== 'PLATFORM') throw new DomainError('POLICY_LOCKED', 403, 'parent_record_id');
+    }
+  }
+
   // ---- commands ------------------------------------------------------------------------------------------------
 
   /** Creates the record, its first (draft) version and the CREATE change request in one step; the key is unique per type and namespace. */
@@ -533,6 +604,7 @@ export class MasterStore {
     const { content } = input;
     if (content.validUntil !== null && content.validUntil <= content.validFrom) throw new DomainError('VALIDATION_FAILED', 422, 'valid_until');
     if (content.parentRecordId !== null) await this.assertParent(tx, content.parentRecordId, input.masterType);
+    await this.assertTenantMayAdd(tx, input.masterType, content.parentRecordId);
     let recordId: string;
     try {
       const rows = await tx.query<{ id: string }>(
@@ -620,6 +692,8 @@ export class MasterStore {
     if (input.kind === 'RETIRE') {
       successor = input.successorRecordId;
       if (impact.total > 0 && successor === undefined) throw new DomainError('MASTER_IN_USE', 409);
+      // A type that keeps its history through succession (the funding sources, the units) is never retired without one.
+      if ((await this.policyOf(tx, record.masterType)).retireRequiresSuccessor && successor === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'successor_record_id');
       if (successor !== undefined) await this.assertSuccessor(tx, successor, record);
     }
     try {

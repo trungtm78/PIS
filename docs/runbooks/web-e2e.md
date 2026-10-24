@@ -233,7 +233,7 @@ organisation signature, and checks the file versions (RENDERED_FINAL, LEADER_SIG
 more cases read the signed fixture document without changing it. The real certification authority round trip is DONE_PENDING_ENV. Run them with
 `npm run test:lane -- browser npx playwright test -c apps/web/playwright.config.ts e2e/outgoing-flows.spec.ts`.
 
-## Visual regression of MDM-01, MDM-25, MDM-26, MDM-27, MDM-28 and MDM-32 (master data): what is compared
+## Visual regression of the master data screens (MDM-01, 25, 26, 27, 28, 31, 32 and 33): what is compared
 
 The mockups of the six master data screens are the generic prototype pages (cards of sample names, placeholder forms, a compare table,
 an approval card). The application shows the real catalogues, forms, usage list, version history and review queue, so only the frame is
@@ -242,8 +242,8 @@ gated, each region at the target ratio of 0.001 against the screen's own baselin
 | Region | Screens | Why it must match |
 |---|---|---|
 | sidebar, top bar | all six | the shell frame with the active item and the breadcrumb of the screen |
-| heading | MDM-01, MDM-28, MDM-32 (title and subtitle) | the title and the subtitle of the mockup, "Dữ liệu nền thống nhất cho toàn bộ nghiệp vụ." |
-| heading with the back link | MDM-25, MDM-26, MDM-27 | the link above the title ("Nhập danh mục hàng loạt", "Lịch sử thay đổi danh mục") and the title |
+| heading | MDM-01, MDM-28, MDM-32, MDM-33 (title and subtitle) | the title and the subtitle of the mockup, "Dữ liệu nền thống nhất cho toàn bộ nghiệp vụ." |
+| heading with the back link | MDM-25, MDM-26, MDM-27, MDM-31 | the link above the title ("Nhập danh mục hàng loạt", "Lịch sử thay đổi danh mục") and the title |
 
 Not compared: everything below the heading (the cards, the forms and the tables show the real data of the tenant). The whole-page ratio is
 measured and attached to the test as an informational annotation, never as a pass criterion. MDM-26, MDM-27 and MDM-28 name an entry in the

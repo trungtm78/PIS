@@ -84,6 +84,14 @@ async function publish(page: Page, changeId: string): Promise<void> {
   await expect(page.getByText(vi['mdm.approval.published.notice'])).toBeVisible();
 }
 
+/** A second entry of the same type, put in force, to be the successor of the first. */
+async function putInForce(page: Page, key: string): Promise<void> {
+  await propose(page, key);
+  const [created] = await changesOf(key);
+  await approve(page, created?.id ?? '', 'Checked against the decision of the committee');
+  await publish(page, created?.id ?? '');
+}
+
 test.describe.configure({ mode: 'serial' });
 
 test.describe('master data: propose, review, publish, change and history', () => {
@@ -145,6 +153,48 @@ test.describe('master data: propose, review, publish, change and history', () =>
     await expect(second.locator('[data-field="label"] [data-side="after"]')).toHaveText('Giao thông vận tải e2e');
     await expect(page.locator('[data-revision="1"]')).toContainText('2024-01-01 → 2025-06-01');
     expect((await recordOf(key)).status).toBe('EFFECTIVE');
+  });
+
+  test('an entry that a project uses is retired only with a successor, and the scope screen shows the type', async ({ page }) => {
+    const heir = `E2E-HEIR-${unique()}`;
+    await putInForce(page, heir);
+    const used = await recordOf(key);
+    await sql(
+      `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, sector_master_version_id, classification, total_investment_vnd, status, version)
+       select $1, $2, $3, 'Project of the e2e flow', u.id, $4, $4, 'INTERNAL', 1000, 'CONCEPT', 1 from machvon.organization_unit u where u.tenant_id = $1 limit 1`,
+      [stackInfo().tenants.A, randomUUID(), `E2E-P-${unique()}`, used.current_version_id],
+    );
+
+    await open(page, `/mdm/mdm-31?type=E2E_SECTOR&key=${key}`, 'steward');
+    await expect(page.getByTestId('in-use')).toBeVisible();
+    await page.getByLabel(vi['mdm.retire.date.label']).fill('2026-01-01');
+    await page.getByLabel(vi['mdm.retire.reason.label']).fill('Replaced by the successor of the e2e flow');
+    await page.getByRole('button', { name: vi['mdm.retire.save.action'] }).click();
+    await expect(page.getByText(vi['mdm.field.required.error'])).toBeVisible();
+    await page.getByLabel(vi['mdm.retire.successor.label']).selectOption({ label: heir + ' · Giao thông e2e' });
+    await page.getByRole('button', { name: vi['mdm.retire.save.action'] }).click();
+    await expect(page.getByTestId('impact')).toBeVisible();
+    // The project refers to the version twice (as its area and as its sector): two references, counted per column.
+    await expect(page.getByTestId('impact')).toHaveAttribute('data-impact-total', '2');
+    await page.getByRole('checkbox', { name: vi['mdm.impact.read.label'] }).check();
+    await page.getByRole('button', { name: vi['mdm.impact.submit.action'] }).click();
+    await expect(page.getByText(vi['mdm.create.submitted.notice'], { exact: false })).toBeVisible();
+
+    const retire = (await changesOf(key)).find((change) => change.change_kind === 'RETIRE');
+    expect(retire?.status).toBe('IN_REVIEW');
+    await approve(page, retire?.id ?? '', 'Checked against the decision of the committee');
+    await publish(page, retire?.id ?? '');
+    expect((await recordOf(key)).status).toBe('RETIRED');
+    const [closed] = await sql<{ valid_until: string }>("select to_char(valid_until, 'YYYY-MM-DD') as valid_until from machvon.master_record_version where id = $1", [used.current_version_id]);
+    expect(closed?.valid_until).toBe('2026-01-01');
+    // The project still refers to the version it always did.
+    const [still] = await sql<{ n: string }>('select count(*)::text as n from machvon.project where sector_master_version_id = $1', [used.current_version_id]);
+    expect(Number(still?.n)).toBe(1);
+
+    await open(page, '/mdm/mdm-33', 'steward');
+    const row = page.locator('[data-master-type="E2E_SECTOR"]');
+    await expect(row).toBeVisible();
+    await expect(row).toContainText(vi['mdm.scope.tenantOnly.label']);
   });
 
   test('a duplicate key is refused with the message of the screen and nothing is written', async ({ page }) => {

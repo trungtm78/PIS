@@ -197,6 +197,40 @@ export function toUsage(raw: unknown): UsageView | undefined {
   return { total: counts.total, counts: counts.counts, samples };
 }
 
+export type TypeScope = 'PLATFORM_ONLY' | 'PLATFORM_WITH_TENANT_EXTENSION' | 'TENANT_ONLY';
+const TYPE_SCOPES: readonly string[] = ['PLATFORM_ONLY', 'PLATFORM_WITH_TENANT_EXTENSION', 'TENANT_ONLY'];
+
+export interface PolicyView {
+  masterType: string;
+  scope: TypeScope;
+  retireRequiresSuccessor: boolean;
+  locked: boolean;
+  source: 'BASELINE' | 'TENANT';
+  platformRecords: number;
+  tenantRecords: number;
+}
+
+export function toPolicy(raw: unknown): PolicyView | undefined {
+  const row = asRecord(raw);
+  const masterType = text(row?.master_type);
+  const scope = text(row?.scope);
+  const source = text(row?.source);
+  const platformRecords = whole(row?.platform_records);
+  const tenantRecords = whole(row?.tenant_records);
+  if (
+    row === undefined ||
+    masterType === undefined ||
+    scope === undefined ||
+    !TYPE_SCOPES.includes(scope) ||
+    (source !== 'BASELINE' && source !== 'TENANT') ||
+    platformRecords === undefined ||
+    tenantRecords === undefined
+  ) {
+    return undefined;
+  }
+  return { masterType, scope: scope as TypeScope, retireRequiresSuccessor: row.retire_requires_successor === true, locked: row.locked === true, source, platformRecords, tenantRecords };
+}
+
 // ---- what changed between two versions ------------------------------------------------------------------------------
 
 export type ChangedField = 'label' | 'attributes' | 'parent' | 'validity' | 'legalBasis';
@@ -260,7 +294,10 @@ export type FormErrors<Field extends string> = Partial<Record<Field, FieldProble
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function isCalendarDate(value: string): boolean {
-  return DATE.test(value) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+  if (!DATE.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  // A month or a day that does not exist is an invalid time (month 13) or another date (February 30th rolls into March).
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
 /** The attributes text as an object, or undefined when it is not one. */
@@ -342,6 +379,26 @@ export function validateEdit(form: EditForm, currentValidFrom: string | null): F
     else if (errors.effectiveFrom === undefined && form.validUntil <= form.effectiveFrom) errors.validUntil = 'order';
   }
   if (parseAttributes(form.attributes) === undefined) errors.attributes = 'invalidJson';
+  return errors;
+}
+
+export interface RetireForm {
+  effectiveFrom: string;
+  successorRecordId: string;
+  reason: string;
+}
+
+export type RetireField = keyof RetireForm;
+
+/** A retirement needs a date after the start of the version in force, a reason, and a successor when the entry is in use or its type requires one. */
+export function validateRetire(form: RetireForm, currentValidFrom: string | null, successorRequired: boolean): FormErrors<RetireField> {
+  const errors: FormErrors<RetireField> = {};
+  if (form.effectiveFrom === '') errors.effectiveFrom = 'required';
+  else if (!isCalendarDate(form.effectiveFrom)) errors.effectiveFrom = 'invalidDate';
+  else if (currentValidFrom !== null && form.effectiveFrom <= currentValidFrom) errors.effectiveFrom = 'order';
+  const reason = checkReason(form.reason);
+  if (reason !== undefined) errors.reason = reason;
+  if (successorRequired && form.successorRecordId === '') errors.successorRecordId = 'required';
   return errors;
 }
 

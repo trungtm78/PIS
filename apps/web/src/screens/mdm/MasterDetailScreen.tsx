@@ -13,6 +13,7 @@ import type { RecordView } from './model';
 
 const EDIT_PATH = '/mdm/mdm-26';
 const HISTORY_PATH = '/mdm/mdm-28';
+const RETIRE_PATH = '/mdm/mdm-31';
 const APPROVAL_PATH = '/mdm/mdm-32';
 const NEVER_EMPTY = (): boolean => false;
 
@@ -103,6 +104,7 @@ function Detail({ record }: { record: RecordView }) {
         )}
         <div className="formfooter">
           <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey)}>{t('mdm.detail.history.action')}</Link>
+          {canEdit ? <Link to={recordLink(RETIRE_PATH, record.masterType, record.businessKey)}>{t('mdm.detail.retire.action')}</Link> : null}
           {canEdit ? (
             <Link className="button primary" to={recordLink(EDIT_PATH, record.masterType, record.businessKey)}>
               {t('mdm.detail.edit.action')}

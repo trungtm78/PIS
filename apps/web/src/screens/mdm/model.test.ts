@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { changedFields, describeProblem, fieldValue, isCalendarDate, parseAttributes, recordLink, toChange, toRecord, toUsage, toVersion, validateEdit, validateNewRecord } from './model';
+import { changedFields, describeProblem, fieldValue, isCalendarDate, parseAttributes, recordLink, toChange, toPolicy, toRecord, toUsage, toVersion, validateEdit, validateNewRecord, validateRetire } from './model';
 import type { RecordForm } from './model';
 import { change, record, version } from './test-support';
 
@@ -106,6 +106,32 @@ describe('the forms', () => {
     expect(isCalendarDate('2024-02-29')).toBe(true);
     expect(isCalendarDate('2023-02-29')).toBe(false);
     expect(isCalendarDate('24-02-29')).toBe(false);
+    expect(isCalendarDate('2026-13-01')).toBe(false);
+    expect(isCalendarDate('2026-00-10')).toBe(false);
+  });
+});
+
+describe('the scope policy and the retirement form', () => {
+  const policy = { master_type: 'SECTOR', scope: 'PLATFORM_WITH_TENANT_EXTENSION', retire_requires_successor: true, locked: false, source: 'BASELINE', platform_records: 4, tenant_records: 2 };
+
+  it('reads a policy and drops one that is not complete', () => {
+    expect(toPolicy(policy)).toEqual({ masterType: 'SECTOR', scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: true, locked: false, source: 'BASELINE', platformRecords: 4, tenantRecords: 2 });
+    expect(toPolicy({ ...policy, scope: 'EVERYONE' })).toBeUndefined();
+    expect(toPolicy({ ...policy, source: 'OTHER' })).toBeUndefined();
+    expect(toPolicy({ ...policy, platform_records: '4' })).toBeUndefined();
+    expect(toPolicy({ ...policy, retire_requires_successor: 'yes' })?.retireRequiresSuccessor).toBe(false);
+    expect(toPolicy(null)).toBeUndefined();
+  });
+
+  it('judges a retirement: the date after the start of the version in force, a reason, and a successor where one is required', () => {
+    const form = { effectiveFrom: '2026-01-01', successorRecordId: '', reason: 'No longer used' };
+    expect(validateRetire(form, '2024-01-01', false)).toEqual({});
+    expect(validateRetire(form, '2024-01-01', true)).toEqual({ successorRecordId: 'required' });
+    expect(validateRetire({ ...form, successorRecordId: 'r1' }, '2024-01-01', true)).toEqual({});
+    expect(validateRetire({ ...form, effectiveFrom: '2024-01-01' }, '2024-01-01', false).effectiveFrom).toBe('order');
+    expect(validateRetire({ ...form, effectiveFrom: '' }, null, false).effectiveFrom).toBe('required');
+    expect(validateRetire({ ...form, effectiveFrom: '2026-13-01' }, null, false).effectiveFrom).toBe('invalidDate');
+    expect(validateRetire({ ...form, reason: 'no' }, null, false).reason).toBe('tooShort');
   });
 });
 

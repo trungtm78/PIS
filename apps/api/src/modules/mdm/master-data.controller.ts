@@ -331,6 +331,23 @@ export class MasterDataReadsController {
     };
   }
 
+  @Get('master-type-policies')
+  @OperationId('listMasterTypePolicies')
+  async policies(@CurrentTenant() tenant: TenantContext): Promise<{ items: Array<Record<string, unknown>> }> {
+    const rows = await this.database.withTenant(tenant, (tx) => this.store.listPolicies(tx));
+    return {
+      items: rows.map((row) => ({
+        master_type: row.masterType,
+        scope: row.scope,
+        retire_requires_successor: row.retireRequiresSuccessor,
+        locked: row.scope === 'PLATFORM_ONLY',
+        source: row.source,
+        platform_records: row.platformRecords,
+        tenant_records: row.tenantRecords,
+      })),
+    };
+  }
+
   @Get('master-change-requests/:id')
   @OperationId('getMasterChangeRequest')
   async change(@CurrentTenant() tenant: TenantContext, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {

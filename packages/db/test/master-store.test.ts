@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Client } from 'pg';
 import { vietnamDateOf } from '@machvon/kernel';
-import { MASTER_REFERENCES, MasterStore, contentHashOf } from '../src/master-store';
+import { BASELINE_POLICIES, MASTER_REFERENCES, MasterStore, contentHashOf } from '../src/master-store';
 import type { MasterContent } from '../src/master-store';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, id, memberId } from './support/authz-fixtures';
@@ -100,6 +100,13 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
   beforeAll(async () => {
     await harness.start();
     for (const tenant of [TENANT_A, TENANT_B]) {
+      // The types these tests write are the tenant's own: a row of the control plane replaces the baseline of the platform for them.
+      await harness.owner(tenant, [
+        ...['SECTOR', 'FUND_SOURCE'].map((type): [string, unknown[]] => [
+          "insert into machvon.master_type_policy (tenant_id, master_type, scope, updated_by) values ($1, $2, 'TENANT_ONLY', $3)",
+          [tenant, type, memberId(STEWARD)],
+        ]),
+      ]);
       await harness.seedUnits(tenant, [{ n: 1, path: '/u1/' }]);
       for (const n of [STEWARD, CHECKER, PUBLISHER]) await harness.seedMembership(tenant, n, 1);
       await harness.owner(tenant, [
@@ -158,6 +165,113 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
           ),
         ),
       ).toEqual({ code: 'VALIDATION_FAILED', status: 422 });
+    });
+  });
+
+  describe('the policy of the types (ST-MDM-002)', () => {
+    /** A record with a version in force in tenant A: for the platform namespace, a read-only copy of what the platform published. */
+    async function platformRecord(masterType: string, namespace: 'PLATFORM' | 'TENANT' = 'PLATFORM'): Promise<string> {
+      const recordId = randomUUID();
+      const versionId = randomUUID();
+      const key = nextKey('PL');
+      await owner(
+        `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
+         values ($1, $2, $6, $3, $4, 'EFFECTIVE', $5, $5)`,
+        [TENANT_A, recordId, masterType, key, memberId(STEWARD), namespace],
+      );
+      await owner(
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, created_by, updated_by)
+         values ($1, $2, $3, $4, $5, 1, 'Seeded entry', '{}', '2024-01-01', 'EFFECTIVE', $7, $6, $6)`,
+        [TENANT_A, versionId, recordId, masterType, key, memberId(STEWARD), namespace],
+      );
+      await owner('update machvon.master_record set current_version_id = $2 where id = $1', [recordId, versionId]);
+      return recordId;
+    }
+
+    const proposeOf = (masterType: string, parentRecordId: string | null = null): Promise<unknown> =>
+      as(STEWARD, (tx) => store.propose(tx, { masterType, businessKey: nextKey('PO'), content: content({ parentRecordId }), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
+
+    it('keeps a type that only the platform publishes closed to a tenant, naming the field that locks it (AC-ST-MDM-002-2)', async () => {
+      const refused = await refusal(proposeOf('ADMIN_UNIT'));
+      expect(refused).toEqual({ code: 'POLICY_LOCKED', status: 403 });
+      const detail = await as(STEWARD, async (tx) => store.policyOf(tx, 'ADMIN_UNIT'));
+      expect(detail).toEqual({ masterType: 'ADMIN_UNIT', scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true, source: 'BASELINE' });
+      expect(await owner("select count(*)::text as n from machvon.master_record where master_type = 'ADMIN_UNIT'")).toEqual([{ n: '0' }]);
+    });
+
+    it('lets a tenant extend a platform type only with a child entry under an entry of the platform (AC-ST-MDM-002-2)', async () => {
+      expect(await refusal(proposeOf('PROGRAM'))).toEqual({ code: 'POLICY_LOCKED', status: 403 });
+      const own = await platformRecord('PROGRAM', 'TENANT');
+      expect(await refusal(proposeOf('PROGRAM', own))).toEqual({ code: 'POLICY_LOCKED', status: 403 });
+      const platform = await platformRecord('PROGRAM');
+      await expect(proposeOf('PROGRAM', platform)).resolves.toMatchObject({ version: 1 });
+    });
+
+    it('refuses to change an entry of the platform, whatever the type policy says (AC-ST-MDM-002-2)', async () => {
+      const platform = await platformRecord('SECTOR');
+      expect(
+        await refusal(
+          as(STEWARD, (tx) =>
+            store.createChange(tx, { kind: 'UPDATE', masterType: 'SECTOR', masterRecordId: platform, proposed: { label: 'Tampered' }, effectiveFrom: '2025-06-01', reason: 'Tenant edit of a platform entry' }, memberId(STEWARD)),
+          ),
+        ),
+      ).toEqual({ code: 'POLICY_LOCKED', status: 403 });
+    });
+
+    it('lets a row of the control plane replace the baseline, and reads the tenant row before the baseline', async () => {
+      expect(await as(STEWARD, (tx) => store.policyOf(tx, 'SECTOR'))).toEqual({ masterType: 'SECTOR', scope: 'TENANT_ONLY', retireRequiresSuccessor: false, source: 'TENANT' });
+      expect(await as(STEWARD, (tx) => store.policyOf(tx, 'NO_SUCH_TYPE'))).toEqual({ masterType: 'NO_SUCH_TYPE', scope: 'TENANT_ONLY', retireRequiresSuccessor: false, source: 'BASELINE' });
+      expect(Object.keys(BASELINE_POLICIES).sort()).toEqual(['ADMIN_UNIT', 'AREA', 'FUND_SOURCE', 'PROGRAM', 'PROJECT_TYPE', 'SECTOR']);
+    });
+
+    it('lists every type the tenant holds or the platform governs with its policy and the number of entries of each namespace', async () => {
+      await platformRecord('SECTOR');
+      const summary = await as(STEWARD, (tx) => store.listPolicies(tx));
+      const sector = summary.find((row) => row.masterType === 'SECTOR');
+      expect(sector).toMatchObject({ scope: 'TENANT_ONLY', source: 'TENANT' });
+      expect(sector?.platformRecords).toBeGreaterThanOrEqual(1);
+      expect(sector?.tenantRecords).toBeGreaterThanOrEqual(1);
+      expect(summary.find((row) => row.masterType === 'ADMIN_UNIT')).toMatchObject({ scope: 'PLATFORM_ONLY', platformRecords: 0, tenantRecords: 0 });
+      expect([...summary.map((row) => row.masterType)]).toEqual([...summary.map((row) => row.masterType)].sort());
+      // Another tenant sees its own counts and its own rows only.
+      const other = await as(STEWARD, (tx) => store.listPolicies(tx), TENANT_B);
+      expect(other.find((row) => row.masterType === 'SECTOR')).toMatchObject({ platformRecords: 0 });
+    });
+
+    it('does not let the tenant plane write its own policy', async () => {
+      await expect(as(STEWARD, (tx) => tx.query("insert into machvon.master_type_policy (tenant_id, master_type, scope, updated_by) values (current_setting('app.tenant_id')::uuid, 'X', 'TENANT_ONLY', $1::uuid)", [memberId(STEWARD)]))).rejects.toMatchObject({
+        code: '42501',
+      });
+      await expect(as(STEWARD, (tx) => tx.query("update machvon.master_type_policy set scope = 'TENANT_ONLY'"))).rejects.toMatchObject({ code: '42501' });
+    });
+
+    it('requires a successor for a type whose history is kept by succession, even when nothing uses the entry', async () => {
+      await owner("insert into machvon.master_type_policy (tenant_id, master_type, scope, retire_requires_successor, updated_by) values ($1, 'KEPT', 'TENANT_ONLY', true, $2)", [TENANT_A, memberId(STEWARD)]);
+      const kept = await inForce({}, 'KEPT');
+      const heir = await inForce({}, 'KEPT');
+      const retire = (successor?: string) =>
+        as(STEWARD, (tx) =>
+          store.createChange(tx, { kind: 'RETIRE', masterType: 'KEPT', masterRecordId: kept.recordId, proposed: {}, effectiveFrom: TODAY, reason: 'No longer needed', ...(successor === undefined ? {} : { successorRecordId: successor }) }, memberId(STEWARD)),
+        );
+      expect(await refusal(retire())).toEqual({ code: 'VALIDATION_FAILED', status: 422 });
+      await expect(retire(heir.recordId)).resolves.toMatchObject({ version: 1 });
+    });
+
+    it('reads the old name of an agency for the date of a report accepted before it was renamed and retired (AC-ST-MDM-002-3)', async () => {
+      const agency = await inForce({ label: 'Ban QLDA Huyện X', validFrom: '2024-01-01' }, 'AGENCY');
+      const rename = await as(STEWARD, (tx) =>
+        store.createChange(tx, { kind: 'UPDATE', masterType: 'AGENCY', masterRecordId: agency.recordId, proposed: { label: 'Ban QLDA Khu vực X' }, effectiveFrom: '2025-06-01', reason: 'Renamed by decision 12' }, memberId(STEWARD)),
+      );
+      await approve(rename.id);
+      await publishChange(agency.recordId);
+      const retire = await as(STEWARD, (tx) =>
+        store.createChange(tx, { kind: 'RETIRE', masterType: 'AGENCY', masterRecordId: agency.recordId, proposed: {}, effectiveFrom: TODAY, reason: 'Merged into a regional board' }, memberId(STEWARD)),
+      );
+      await approve(retire.id);
+      expect((await publishChange(agency.recordId)).record.status).toBe('RETIRED');
+      expect((await as(STEWARD, (tx) => store.versionInForce(tx, agency.recordId, '2025-03-01')))?.label).toBe('Ban QLDA Huyện X');
+      expect((await as(STEWARD, (tx) => store.versionInForce(tx, agency.recordId, '2025-07-01')))?.label).toBe('Ban QLDA Khu vực X');
+      expect(await as(STEWARD, (tx) => store.versionInForce(tx, agency.recordId, TODAY))).toBeUndefined();
     });
   });
 
@@ -323,7 +437,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
   });
 
   describe('retirement', () => {
-    it('refuses to retire an entry that is in use without a successor (409 MASTER_IN_USE), and retires it with one', async () => {
+    it('refuses to retire an entry that is in use without a successor (409 MASTER_IN_USE), and retires it with one (AC-ST-MDM-002-1)', async () => {
       const entry = await inForce();
       const successor = await inForce();
       await admin([insertProject(`R-${counter}`, entry.versionId)]);

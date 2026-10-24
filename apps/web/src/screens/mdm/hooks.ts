@@ -3,8 +3,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toChange, toRecord, toUsage, toVersion } from './model';
-import type { ChangeStatus, ChangeView, RecordView, UsageView, VersionView } from './model';
+import { toChange, toPolicy, toRecord, toUsage, toVersion } from './model';
+import type { ChangeStatus, ChangeView, PolicyView, RecordView, UsageView, VersionView } from './model';
 
 const root = (tenantId: string | undefined) => ['mdm', tenantId] as const;
 
@@ -33,6 +33,18 @@ export function useRecordByKey(masterType: string | undefined, businessKey: stri
       return found[0] ?? null;
     },
     enabled: tenant !== undefined && masterType !== undefined && businessKey !== undefined,
+    retry: false,
+  });
+}
+
+/** The scope policy of every catalogue type (what the platform locks and what the tenant owns). */
+export function useTypePolicies() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<PolicyView[]>({
+    queryKey: [...root(tenant?.id), 'policies'],
+    queryFn: async () => ((await client.read('listMasterTypePolicies')) as { items?: unknown[] }).items?.flatMap((raw) => toPolicy(raw) ?? []) ?? [],
+    enabled: tenant !== undefined,
     retry: false,
   });
 }
