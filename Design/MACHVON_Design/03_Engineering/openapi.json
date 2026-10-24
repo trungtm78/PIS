@@ -121035,6 +121035,129 @@
         "x-exposure": "dto",
         "x-exposure-reason": "Counts only, no line is named; the preview is a tenant-wide figure for the authority that writes the policy"
       }
+    },
+    "/me/usage": {
+      "get": {
+        "operationId": "getMyUsage",
+        "summary": "Mức sử dụng của tenant trong tháng: bộ đếm, ghế và hạn mức (SAS-11)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "subscription.read",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Counters of the current month with their limits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Chỉ tổng hợp theo bộ đếm; không lộ sự kiện chi tiết",
+        "x-plane": "tenant"
+      }
+    },
+    "/system/tenants/{tenantId}/usage": {
+      "get": {
+        "operationId": "getTenantUsage",
+        "summary": "Mức sử dụng của một tenant, kèm các sự kiện gần nhất (SAS-11)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Counters of the current month with their limits, and the latest events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Bộ đếm và sự kiện gần nhất của một tenant; chỉ control plane",
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      }
     }
   },
   "components": {
@@ -138648,6 +138771,147 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "UsageEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "meter",
+          "external_event_key",
+          "quantity",
+          "unit",
+          "occurred_at",
+          "source_reference",
+          "recorded_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "meter": {
+            "type": "string"
+          },
+          "external_event_key": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]{1,6})?$"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_reference": {
+            "type": "string"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UsageSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "as_of",
+          "window_start",
+          "window_end",
+          "meters",
+          "seats",
+          "guest_seats"
+        ],
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "window_start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The calendar month (UTC) the meters are counted in"
+          },
+          "window_end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "meters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "counter",
+                "unit",
+                "used"
+              ],
+              "properties": {
+                "counter": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "used": {
+                  "type": "string"
+                },
+                "limit": {
+                  "type": "string",
+                  "description": "The limit of the plan (or of the override in force) for a quota or a metered feature; absent when the counter is only reported"
+                }
+              }
+            }
+          },
+          "seats": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "used"
+            ],
+            "properties": {
+              "used": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "The lower of the licence and the plan; absent when neither limits"
+              }
+            }
+          },
+          "guest_seats": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "used"
+            ],
+            "properties": {
+              "used": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "The lower of the licence and the plan; absent when neither limits"
+              }
+            }
+          },
+          "recent_events": {
+            "type": "array",
+            "description": "Control plane only: the latest events of the tenant",
+            "items": {
+              "$ref": "#/components/schemas/UsageEvent"
+            }
           }
         }
       }

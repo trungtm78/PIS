@@ -82,6 +82,8 @@ export class GuestContractorController {
     if (unit === undefined || unit.status !== 'Active') throw new DomainError('VALIDATION_FAILED', 422, 'contract_ids');
     const validUntil = await this.validUntilOf(scope, body.valid_until, contractIds, now);
 
+    // As for staff: an invitation holds no seat, but a tenant with no guest seat free does not invite.
+    await this.members.assertSeatFree(scope.tx, 'GUEST_CONTRACTOR');
     const userAccountId = await this.members.ensureInvitedAccount(scope.tx, body.email, undefined);
     const member = await this.members.insertInvitedMember(scope.tx, {
       userAccountId,

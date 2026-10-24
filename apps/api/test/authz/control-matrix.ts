@@ -61,5 +61,6 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'listPlanVersions', permission: PERMISSIONS.listPlanVersions, method: 'GET', path: '/system/plans' },
   { operationId: 'createPlanVersion', permission: PERMISSIONS.createPlanVersion, method: 'POST', path: '/system/plans' },
   { operationId: 'publishPlanVersion', permission: PERMISSIONS.publishPlanVersion, method: 'POST', path: '/system/plans/{planVersionId}/publish' },
+  { operationId: 'getTenantUsage', permission: PERMISSIONS.getTenantUsage, method: 'GET', path: '/system/tenants/{tenantId}/usage' },
 ];
 

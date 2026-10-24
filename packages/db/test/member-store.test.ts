@@ -254,6 +254,112 @@ describe('MemberStore (members and invitations, ADM-006)', () => {
     });
   });
 
+  describe('the seats of the plan', () => {
+    const PLAN = '00000000-0000-4000-9000-000000000001';
+    let versionNo = 0;
+
+    // The plan of the tenant, as the entitlements say it: one version with the seat quota (null: a plan without it).
+    const entitle = async (quota: number | null): Promise<void> => {
+      versionNo += 1;
+      const features = [
+        { featureCode: 'reporting', limitKind: 'BOOLEAN', graceBehavior: 'ALLOW', expiredBehavior: 'READ_ONLY' },
+        ...(quota === null ? [] : [{ featureCode: 'member.seats', limitKind: 'QUOTA', limitValue: quota, graceBehavior: 'READ_ONLY', expiredBehavior: 'DENY' }]),
+      ];
+      await admin(
+        `insert into machvon.entitlement_version (tenant_id, id, version_no, plan_version_id, features_json, entitlements_hash, cause, effective_from)
+         values ($1, $2, $3, $4, $5::jsonb, $6, 'SUBSCRIPTION_CHANGE', now())`,
+        [TENANT_A, randomUUID(), 1000 + versionNo, PLAN, JSON.stringify(features), String(versionNo).padStart(64, '0')],
+      );
+    };
+    const override = (limit: number | null, status = 'Active', from = "now() - interval '1 hour'", until = "now() + interval '1 day'"): Promise<unknown[]> =>
+      admin(
+        `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, limit_value, reason, valid_from, valid_until, status, requested_by)
+         values ($1, $2, 'member.seats', true, $3, 'a reason of ten letters', ${from}, ${until}, $4, $5)`,
+        [TENANT_A, randomUUID(), limit, status, ACTOR],
+      );
+    const clearOverrides = (): Promise<unknown[]> => admin('delete from machvon.entitlement_override where tenant_id = $1', [TENANT_A]);
+
+    beforeAll(async () => {
+      await admin('delete from machvon.license_revision where tenant_id = $1', [TENANT_A]);
+    });
+
+    afterEach(async () => {
+      await clearOverrides();
+    });
+
+    it('has no plan limit for a tenant without entitlements, or whose plan has no seat quota', async () => {
+      expect(await inTenant((tx) => store.seatLimits(tx))).toEqual({ seats: null, guestSeats: null });
+      await entitle(null);
+      expect(await inTenant((tx) => store.seatLimits(tx))).toEqual({ seats: null, guestSeats: null });
+    });
+
+    it('limits the staff seats to the quota of the latest version of the plan, and a lowered quota applies at once (AC-ST-SAS-010-2)', async () => {
+      await entitle(120);
+      expect(await inTenant((tx) => store.seatLimits(tx))).toEqual({ seats: 120, guestSeats: null });
+      await entitle(100);
+      expect(await inTenant((tx) => store.seatLimits(tx))).toEqual({ seats: 100, guestSeats: null });
+    });
+
+    it('refuses a further seat when the plan was lowered below the seats in use, and takes nobody away', async () => {
+      const used = (await inTenant((tx) => store.seatsInUse(tx))).staff;
+      expect(used).toBeGreaterThanOrEqual(1);
+      await entitle(used - 1);
+      await expect(inTenant((tx) => store.assertSeatFree(tx, 'STAFF'))).rejects.toMatchObject({ code: 'QUOTA_EXCEEDED', status: 403 });
+      expect((await inTenant((tx) => store.seatsInUse(tx))).staff).toBe(used);
+      await entitle(used + 1);
+      await expect(inTenant((tx) => store.assertSeatFree(tx, 'STAFF'))).resolves.toBeUndefined();
+      await entitle(used);
+      await expect(inTenant((tx) => store.assertSeatFree(tx, 'STAFF'))).rejects.toMatchObject({ code: 'QUOTA_EXCEEDED' });
+    });
+
+    it('keeps the plan limit off the guests, who have the seats of the licence only', async () => {
+      await entitle(1);
+      await expect(inTenant((tx) => store.assertSeatFree(tx, 'GUEST_CONTRACTOR'))).resolves.toBeUndefined();
+    });
+
+    it('lets an override in force replace the number of the plan, and ignores one that is not in force', async () => {
+      await entitle(5);
+      await override(9);
+      expect((await inTenant((tx) => store.seatLimits(tx))).seats).toBe(9);
+      await clearOverrides();
+      await override(9, 'PendingApproval');
+      await override(9, 'Revoked');
+      await override(9, 'Active', "now() + interval '1 hour'", "now() + interval '2 days'");
+      await override(9, 'Active', "now() - interval '2 days'", "now() - interval '1 day'");
+      expect((await inTenant((tx) => store.seatLimits(tx))).seats).toBe(5);
+    });
+
+    it('takes the override that started last when several are in force, and the plan number when the override names none', async () => {
+      await entitle(5);
+      await override(7, 'Active', "now() - interval '3 hours'");
+      await override(11, 'Active', "now() - interval '1 hour'");
+      expect((await inTenant((tx) => store.seatLimits(tx))).seats).toBe(11);
+      await clearOverrides();
+      await override(null);
+      expect((await inTenant((tx) => store.seatLimits(tx))).seats).toBe(5);
+    });
+
+    it('uses the lower of the licence and the plan, whichever it is', async () => {
+      await entitle(8);
+      const client = new Client({ connectionString: harness.database.adminUrl });
+      await client.connect();
+      try {
+        // The licence has foreign keys to unrelated rows: the superuser seeds it with them switched off, as the licence tests do.
+        await client.query('set session_replication_role = replica');
+        await client.query(
+          `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id, seats, quota_json)
+           values ($1, $2, $3, 1, $4, now() - interval '1 day', now() + interval '1 year', now() + interval '2 years', 'Active', 'claims', 'key', 6, '{}'::jsonb)`,
+          [TENANT_A, randomUUID(), randomUUID(), randomUUID()],
+        );
+      } finally {
+        await client.end();
+      }
+      expect((await inTenant((tx) => store.seatLimits(tx))).seats).toBe(6);
+      await entitle(4);
+      expect((await inTenant((tx) => store.seatLimits(tx))).seats).toBe(4);
+    });
+  });
+
   describe('guest contractors', () => {
     const CONTRACTOR = id(0x54, 1);
     const PROJECT = id(0x50, 7);

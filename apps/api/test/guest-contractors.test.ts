@@ -587,6 +587,35 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
       });
     });
 
+    describe('the guest seats of the licence', () => {
+      it('refuses to invite a guest when no guest seat is left (403 QUOTA_EXCEEDED), writes nothing, and invites once the licence allows one', async () => {
+        const email = emailOf('no-guest-seat');
+        const members = async (): Promise<number> => Number((await admin<{ n: string }>('select count(*) as n from machvon.membership where tenant_id = $1', [T]))[0]?.n);
+        const before = await members();
+        await admin('delete from machvon.license_revision where tenant_id = $1', [T]);
+        const client = new Client({ connectionString: harness.database.adminUrl });
+        await client.connect();
+        try {
+          await client.query('set session_replication_role = replica');
+          await client.query(
+            `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id, seats, quota_json)
+             values ($1, $2, 'guest-invite-serial', 1, $3, now() - interval '1 day', now() + interval '1 year', now() + interval '2 years', 'Active', 'claims', 'key-1', 100, '{"guest_seats": 0}'::jsonb)`,
+            [T, randomUUID(), randomUUID()],
+          );
+        } finally {
+          await client.end();
+        }
+        const refused = await inviteGuest(ADMIN, guestBody({ email }));
+        expect([refused.status, refused.json.code]).toEqual([403, 'QUOTA_EXCEEDED']);
+        expect(await members()).toBe(before);
+        expect(mailer.lastTo(email)).toBeUndefined();
+
+        await admin('delete from machvon.license_revision where tenant_id = $1', [T]);
+        expect((await inviteGuest(ADMIN, guestBody({ email }))).status).toBe(201);
+        expect(await members()).toBe(before + 1);
+      });
+    });
+
     describe('the invitation of a guest is accepted like any other', () => {
       it('activates the membership, and the licence limit of guest seats applies at acceptance', async () => {
         const email = emailOf('accepting');

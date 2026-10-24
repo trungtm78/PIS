@@ -14318,6 +14318,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mức sử dụng của tenant trong tháng: bộ đếm, ghế và hạn mức (SAS-11) */
+        get: operations["getMyUsage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/tenants/{tenantId}/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mức sử dụng của một tenant, kèm các sự kiện gần nhất (SAS-11) */
+        get: operations["getTenantUsage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -18976,6 +19010,49 @@ export interface components {
         PlanVersionPage: {
             items: components["schemas"]["PlanVersion"][];
             next_cursor?: string | null;
+        };
+        UsageEvent: {
+            /** Format: uuid */
+            id: string;
+            meter: string;
+            external_event_key: string;
+            quantity: string;
+            unit: string;
+            /** Format: date-time */
+            occurred_at: string;
+            source_reference: string;
+            /** Format: date-time */
+            recorded_at: string;
+        };
+        UsageSummary: {
+            /** Format: date-time */
+            as_of: string;
+            /**
+             * Format: date-time
+             * @description The calendar month (UTC) the meters are counted in
+             */
+            window_start: string;
+            /** Format: date-time */
+            window_end: string;
+            meters: {
+                counter: string;
+                unit: string;
+                used: string;
+                /** @description The limit of the plan (or of the override in force) for a quota or a metered feature; absent when the counter is only reported */
+                limit?: string;
+            }[];
+            seats: {
+                used: number;
+                /** @description The lower of the licence and the plan; absent when neither limits */
+                limit?: number;
+            };
+            guest_seats: {
+                used: number;
+                /** @description The lower of the licence and the plan; absent when neither limits */
+                limit?: number;
+            };
+            /** @description Control plane only: the latest events of the tenant */
+            recent_events?: components["schemas"]["UsageEvent"][];
         };
     };
     responses: never;
@@ -103359,6 +103436,102 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getMyUsage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Counters of the current month with their limits */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsageSummary"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getTenantUsage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Counters of the current month with their limits, and the latest events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsageSummary"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

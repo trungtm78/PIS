@@ -832,6 +832,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getMyPublishedTheme({Map<String, Object?>? query}) =>
       execute('getMyPublishedTheme', query: query);
 
+  Future<Object?> getMyUsage({Map<String, Object?>? query}) =>
+      execute('getMyUsage', query: query);
+
   Future<Object?> getMyWork({Map<String, Object?>? query}) =>
       execute('getMyWork', query: query);
 
@@ -867,6 +870,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getTenantEntitlements({required String tenantId, Map<String, Object?>? query}) =>
       execute('getTenantEntitlements', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
+  Future<Object?> getTenantUsage({required String tenantId, Map<String, Object?>? query}) =>
+      execute('getTenantUsage', path: <String, Object?>{'tenantId': tenantId}, query: query);
 
   Future<Object?> getTreasuryImport({required String id, Map<String, Object?>? query}) =>
       execute('getTreasuryImport', path: <String, Object?>{'id': id}, query: query);

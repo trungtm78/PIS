@@ -52,6 +52,7 @@
     "draftCapitalAllocation",
     "issueOutgoingDocument",
     "recordDistributionAcknowledgement",
+    "recordUsageEvent",
     "retryDocumentDistribution",
     "recallOutgoingDocument",
     "createAvcPolicyVersion",

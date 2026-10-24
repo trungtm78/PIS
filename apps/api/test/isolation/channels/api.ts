@@ -21,7 +21,7 @@ import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { PERIOD_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
-import { TREASURY_FIXTURES } from '../suite';
+import { TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -162,6 +162,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_integration_cursor_id', method: 'GET', id: CROSSWALK_FIXTURES['TNT-B'].cursorId },
   { operation: 'getTreasuryImport', method: 'GET', id: TREASURY_FIXTURES['TNT-B'].importId },
   { operation: 'get_resources_treasury_transaction_id', method: 'GET', id: TREASURY_FIXTURES['TNT-B'].transactionId },
+  { operation: 'get_resources_usage_meter_event_id', method: 'GET', id: USAGE_FIXTURES['TNT-B'].id },
   { operation: 'getDocumentTemplate', method: 'GET', id: TEMPLATE_FIXTURES['TNT-B'].id },
   { operation: 'publishDocumentTemplate', method: 'POST', id: TEMPLATE_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   {

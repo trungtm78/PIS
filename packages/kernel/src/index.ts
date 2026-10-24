@@ -69,6 +69,8 @@ export { licenseModeAt, licenseStatusAt, signLicenseClaims, verifyLicenseToken }
 export type { LicenseClaims, LicenseRejection, LicenseRevisionState, LicenseSigner, LicenseTimeStatus, LicenseVerification } from './license.ts';
 export { FEATURE_BY_PERMISSION, RISKY_FEATURES, featureOf, isRiskyFeature } from './features.ts';
 export { MAX_PLAN_FEATURES, PLAN_FEATURE_CODES, planDraftIssues } from './plan-catalogue.ts';
+export { CORRECTION_SUFFIX, LIMITING_FEATURE, USAGE_METERS, usageMeterOf, usageWindowOf } from './usage-meter.ts';
+export type { UsageMeter, UsageWindow } from './usage-meter.ts';
 export type {
   PlanBillingCycle,
   PlanDraft,

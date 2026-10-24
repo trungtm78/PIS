@@ -1,0 +1,8 @@
+/* SAS-11: the usage of the month. The shared cards, tables, pills and callouts do the rest. */
+.sas-usage .card + .card {
+  margin-top: 16px;
+}
+
+.sas-usage td code {
+  word-break: break-all;
+}

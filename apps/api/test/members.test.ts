@@ -170,6 +170,19 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
     }
   }
 
+  /** Puts the tenant on a plan with `quota` seats of staff (the quota of a downgrade), by a new entitlement version that is the latest. */
+  async function limitPlanSeats(quota: number): Promise<void> {
+    const [{ next } = { next: '1' }] = await admin<{ next: string }>('select (coalesce(max(version_no), 0) + 1)::text as next from machvon.entitlement_version where tenant_id = $1', [T]);
+    const features = [{ featureCode: 'member.seats', limitKind: 'QUOTA', limitValue: quota, graceBehavior: 'READ_ONLY', expiredBehavior: 'DENY' }];
+    await admin(
+      `insert into machvon.entitlement_version (tenant_id, id, version_no, plan_version_id, features_json, entitlements_hash, cause, effective_from)
+       values ($1, $2, $3, '00000000-0000-4000-9000-000000000001', $4::jsonb, $5, 'SUBSCRIPTION_CHANGE', now())`,
+      [T, randomUUID(), Number(next), JSON.stringify(features), next.padStart(64, '0')],
+    );
+  }
+
+  const clearPlan = (): Promise<unknown[]> => admin('delete from machvon.entitlement_version where tenant_id = $1', [T]);
+
   const activeStaff = (): Promise<number> => countOf("select count(*) as n from machvon.membership where tenant_id = $1 and status = 'Active' and membership_type = 'STAFF'", [T]);
 
   beforeAll(async () => {
@@ -254,6 +267,40 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
   });
 
   describe('inviteMember', () => {
+    it('refuses an invitation when no seat is free (403 QUOTA_EXCEEDED), writes nothing, and invites once a seat is free (UAT-AC156)', async () => {
+      const [staff, invitations, members] = [await activeStaff(), await countOf('select count(*) as n from machvon.membership_invitation where tenant_id = $1', [T]), await countOf('select count(*) as n from machvon.membership where tenant_id = $1', [T])];
+      await limitSeats(staff);
+      try {
+        const refused = await invite(ADMIN, { email: emailOf('no-seat'), organization_unit_id: unitId(U2) });
+        expect([refused.status, refused.json.code]).toEqual([403, 'QUOTA_EXCEEDED']);
+        expect(await countOf('select count(*) as n from machvon.membership_invitation where tenant_id = $1', [T])).toBe(invitations);
+        expect(await countOf('select count(*) as n from machvon.membership where tenant_id = $1', [T])).toBe(members);
+        expect(await activeStaff()).toBe(staff);
+        await limitSeats(staff + 1);
+        expect((await invite(ADMIN, { email: emailOf('seat-free'), organization_unit_id: unitId(U2) })).status).toBe(201);
+      } finally {
+        await limitSeats(null);
+      }
+    });
+
+    it('refuses an invitation after a plan downgrade below the seats in use, and leaves every member as they were (AC-ST-SAS-010-2)', async () => {
+      const staff = await activeStaff();
+      await limitPlanSeats(staff - 1);
+      try {
+        const refused = await invite(ADMIN, { email: emailOf('downgraded'), organization_unit_id: unitId(U2) });
+        expect([refused.status, refused.json.code]).toEqual([403, 'QUOTA_EXCEEDED']);
+        expect(await activeStaff()).toBe(staff);
+        // The members the plan no longer covers keep working: nobody is taken away and no data is touched.
+        const session = await send('POST', '/me/session/tenant-selection', identityToken({ sub: `sub-${TARGET_A}` }), { tenant_id: T, membership_id: memberId(TARGET_A) });
+        expect(session.status).toBe(200);
+        expect((await membershipRow(memberId(TARGET_A))).status).toBe('Active');
+        await limitPlanSeats(staff + 1);
+        expect((await invite(ADMIN, { email: emailOf('upgraded'), organization_unit_id: unitId(U2) })).status).toBe(201);
+      } finally {
+        await clearPlan();
+      }
+    });
+
     it('creates an Invited membership with the default role and sends the token only to the person', async () => {
       const email = emailOf('first');
       const before = await events('iam.membership.invited.v1');

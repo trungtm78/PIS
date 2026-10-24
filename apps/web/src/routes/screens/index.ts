@@ -137,6 +137,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'SAS-03': () => import('../../screens/sas/TenantDetailScreen'),
   'SAS-04': () => import('../../screens/sas/theme/ThemeScreen'),
   'SAS-06': () => import('../../screens/sas/PlanCatalogueScreen'),
+  'SAS-11': () => import('../../screens/sas/UsageScreen'),
   'SAS-12': () => import('../../screens/sas/LicenseIssueScreen'),
   'SAS-13': () => import('../../screens/sas/LicenseDetailScreen'),
   'SAS-15': () => import('../../screens/sas/LicenseActionScreen'),

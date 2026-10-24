@@ -1019,6 +1019,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dgv/quality-rules/${t.qualityRuleId}/approval`, ifMatch: '"1"', body: {} }),
   },
+  // An internal-plane command: a tenant token is the wrong plane for it, so every caller of the matrix is refused, the owner (who may grant the permission to a service account) included.
+  recordUsageEvent: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/internal/usage-events',
+      body: { meter: 'notification.zns', external_event_key: 'matrix-negative', quantity: '1', occurred_at: '2026-01-01T00:00:00Z', source_reference: 'negative authorization matrix' },
+    }),
+  },
   createAvcPolicyVersion: {
     referencesTenantIds: false,
     build: () => ({

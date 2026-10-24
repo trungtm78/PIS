@@ -31273,7 +31273,9 @@
       "operations": [
         "recordUsageEvent",
         "get_resources_usage_meter_event",
-        "get_resources_usage_meter_event_id"
+        "get_resources_usage_meter_event_id",
+        "getMyUsage",
+        "getTenantUsage"
       ],
       "tables": [
         "usage_meter_event"

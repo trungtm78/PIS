@@ -64,6 +64,8 @@ export class MembersController {
     const validUntil = body.valid_until === undefined ? undefined : new Date(body.valid_until);
     if (validUntil !== undefined && validUntil.getTime() <= now.getTime()) throw new DomainError('VALIDATION_FAILED', 422, 'valid_until');
 
+    // An invitation does not hold a seat, but a tenant with no seat free does not invite (the seat is taken, and judged again, when it is accepted).
+    await this.members.assertSeatFree(scope.tx, 'STAFF');
     const userAccountId = await this.members.ensureInvitedAccount(scope.tx, body.email, body.display_name);
     const member = await this.members.insertInvitedMember(scope.tx, {
       userAccountId,

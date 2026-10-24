@@ -222,6 +222,8 @@ Bảng control plane chạy dưới role `machvon_control` (audience control); b
 | matchBillingPayment | POST /system/payments/{paymentId}/match | system.billing.manage | PaymentMatch | 422 AMOUNT_MISMATCH | có |
 | receivePaymentWebhook / receiveEInvoiceWebhook | POST /webhooks/payments/{provider}, /webhooks/einvoice/{provider} | webhook.provider (x-public, chữ ký) | ProviderWebhook → WebhookAck | 401 SIGNATURE_INVALID, REPLAY_WINDOW_EXCEEDED | — |
 | recordUsageEvent | POST /internal/usage-events | internal.usage.write | UsageEventRecord | 422 METER_UNKNOWN | không |
+| getMyUsage | GET /me/usage | subscription.read | UsageSummary (bộ đếm tháng, ghế, hạn mức) | — | — |
+| getTenantUsage | GET /system/tenants/{tenantId}/usage | system.tenant.read (control) | UsageSummary + recent_events | 404 RESOURCE_NOT_FOUND | — |
 | post_tenants_id_export | POST /tenants/{id}/export | tenant.export | TenantExportRequest → 202 | 409 EXPORT_ALREADY_RUNNING | có |
 | requestSupportAccess / post_support_access_id_approve / revokeSupportAccess | POST /support-access, /support-access/{id}/approve\|revoke | system.support.request / tenant.support.approve | SupportAccessRequest / SupportAccessApproval / ReasonOnly | 403 SELF_APPROVAL_DENIED; 409 SUPPORT_GRANT_INVALID | trừ request |
 | updateFeatureFlag | PUT /system/feature-flags/{flagKey} | system.release.manage | FeatureFlagUpdate | 422 FLAG_RULE_INVALID; 409 VERSION_CONFLICT | có |

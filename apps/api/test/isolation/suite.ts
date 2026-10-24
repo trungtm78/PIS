@@ -198,6 +198,12 @@ export const TREASURY_FIXTURES: Readonly<Record<TenantName, { importId: string; 
   'TNT-B': { importId: '00000000-0000-4000-b0aa-000000000001', fileSha256: 'b8'.repeat(32), transactionId: '00000000-0000-4000-b0aa-000000000002', documentNo: 'BETA-VOUCHER-0001', externalId: 'KBNN_FILE|BETA-VOUCHER-0001|2026-10-15|BETA-PROJECT' },
 };
 
+/** A usage event of each tenant (the key and the source are distinctive; tenant usage data, the record a tenant is billed from). */
+export const USAGE_FIXTURES: Readonly<Record<TenantName, { id: string; externalKey: string; sourceReference: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ab-000000000001', externalKey: 'alpha-usage-event-0001', sourceReference: 'alpha-campaign-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0ab-000000000001', externalKey: 'beta-usage-event-0001', sourceReference: 'beta-campaign-0001' },
+};
+
 /** A PUBLISHED permit type version of each tenant, still waiting for its legal confirmation (the code and the legal basis are distinctive; tenant legal data). */
 export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; legalBasis: string; gateRuleId: string; gateBasis: string }>> = {
   'TNT-A': {
@@ -503,6 +509,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'treasury import file hash', value: TREASURY_FIXTURES[tenant].fileSha256 },
     { kind: 'treasury transaction id', value: TREASURY_FIXTURES[tenant].transactionId },
     { kind: 'treasury voucher number', value: TREASURY_FIXTURES[tenant].documentNo },
+    { kind: 'usage event id', value: USAGE_FIXTURES[tenant].id },
+    { kind: 'usage event key', value: USAGE_FIXTURES[tenant].externalKey },
+    { kind: 'usage event source', value: USAGE_FIXTURES[tenant].sourceReference },
     { kind: 'template id', value: TEMPLATE_FIXTURES[tenant].id },
     { kind: 'template code', value: TEMPLATE_FIXTURES[tenant].templateCode },
     { kind: 'template legal basis', value: TEMPLATE_FIXTURES[tenant].legalBasis },

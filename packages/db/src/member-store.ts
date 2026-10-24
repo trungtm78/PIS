@@ -86,7 +86,10 @@ export interface ContractSummary {
   completionDue: string | null;
 }
 
-/** What the licence of the tenant allows: seats of staff members and of guest contractors (null: no limit recorded). */
+/**
+ * What the tenant may have: seats of staff members and of guest contractors (null: no limit recorded). The staff seats are the lower of the licence
+ * and the plan (the `member.seats` quota of the entitlements, an override in force replacing the plan's number); the guest seats are the licence's.
+ */
 export interface SeatLimits {
   seats: number | null;
   guestSeats: number | null;
@@ -310,24 +313,42 @@ export class MemberStore {
 
   /** Seats taken now: staff members (service accounts excluded) and guest contractors, counted apart (BR-SAS-09). */
   async seatsInUse(tx: TenantTx): Promise<{ staff: number; guests: number }> {
-    const rows = await tx.query<{ staff: string; guests: string }>(
-      `select count(*) filter (where membership_type = 'STAFF')::text as staff,
-              count(*) filter (where membership_type = 'GUEST_CONTRACTOR')::text as guests
-         from machvon.membership where status = 'Active'`,
-    );
+    // The count comes from a function that answers for the tenant the transaction acts as, so the control plane, which reads no membership, asks the same way.
+    const rows = await tx.query<{ staff: string; guests: string }>("select staff::text, guests::text from machvon.seats_in_use(nullif(current_setting('app.tenant_id', true), '')::uuid)");
     return { staff: Number(rows[0]?.staff ?? 0), guests: Number(rows[0]?.guests ?? 0) };
   }
 
-  /** The seat limits of the licence in force now (the latest valid revision that is not revoked); null when the tenant has none. */
+  /**
+   * The seat limits in force now: those of the licence (the latest valid revision that is not revoked) and the plan's quota of staff seats, whichever
+   * is lower. Lowering a quota takes nobody away, it only keeps the next one out (BR-SAS-09), so a tenant above its new limit has no free seat.
+   */
   async seatLimits(tx: TenantTx): Promise<SeatLimits> {
     const rows = await tx.query<{ seats: number | null; guest_seats: string | null }>(
       `select seats, quota_json ->> 'guest_seats' as guest_seats from machvon.license_revision
         where status in ('Issued','Active','Grace') and valid_from <= now() order by valid_from desc, revision desc limit 1`,
     );
     const row = rows[0];
-    if (row === undefined) return { seats: null, guestSeats: null };
-    const guest = row.guest_seats === null ? Number.NaN : Number(row.guest_seats);
-    return { seats: row.seats, guestSeats: Number.isFinite(guest) ? guest : null };
+    const plan = await this.planSeats(tx);
+    const licensed = row?.seats ?? null;
+    const seats = licensed === null ? plan : plan === null ? licensed : Math.min(licensed, plan);
+    const guest = row?.guest_seats === null || row?.guest_seats === undefined ? Number.NaN : Number(row.guest_seats);
+    return { seats, guestSeats: Number.isFinite(guest) ? guest : null };
+  }
+
+  /** The `member.seats` quota of the latest entitlement version, replaced by the override in force when it names a limit; null when there is none. */
+  private async planSeats(tx: TenantTx): Promise<number | null> {
+    const rows = await tx.query<{ plan_limit: string | null; has_override: boolean; override_limit: string | null }>(
+      `select (select trim_scale((f ->> 'limitValue')::numeric)::text
+                 from (select features_json from machvon.entitlement_version order by version_no desc limit 1) v, jsonb_array_elements(v.features_json) f
+                where f ->> 'featureCode' = 'member.seats') as plan_limit,
+              exists (select 1 from machvon.entitlement_override where feature_code = 'member.seats' and status = 'Active' and valid_from <= now() and now() < valid_until) as has_override,
+              (select trim_scale(limit_value)::text from machvon.entitlement_override
+                where feature_code = 'member.seats' and status = 'Active' and valid_from <= now() and now() < valid_until order by valid_from desc limit 1) as override_limit`,
+    );
+    const row = rows[0];
+    if (row === undefined) return null;
+    const limit = row.has_override ? (row.override_limit ?? row.plan_limit) : row.plan_limit;
+    return limit === null ? null : Number(limit);
   }
 
   /** Serialises seat decisions of one tenant (accept and reactivate) so two of them cannot both take the last seat. */
@@ -335,7 +356,7 @@ export class MemberStore {
     await tx.query(`select pg_advisory_xact_lock(hashtextextended('seats:' || current_setting('app.tenant_id'), 0))`);
   }
 
-  /** Refuses (403 QUOTA_EXCEEDED) when one more active member of this type would pass the seats of the licence (BR-SAS-09). */
+  /** Refuses (403 QUOTA_EXCEEDED) when one more active member of this type would pass the seats of the licence or the plan (BR-SAS-09). */
   async assertSeatFree(tx: TenantTx, membershipType: string): Promise<void> {
     await this.lockSeats(tx);
     const [limits, used] = [await this.seatLimits(tx), await this.seatsInUse(tx)];

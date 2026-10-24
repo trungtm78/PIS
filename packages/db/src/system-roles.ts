@@ -10,7 +10,8 @@ export interface SystemRole {
   guestAllowed: boolean;
 }
 
-// First segment of every permission that a tenant-plane operation of openapi.json requires (system.* is control plane).
+// First segment of every permission that a tenant-plane operation of openapi.json requires (system.* is control plane). internal.* belongs to the service accounts of a
+// tenant: its owner holds it, so that the owner can grant it (a role cannot hold what its maker does not), and the plane of the token keeps an owner from using it.
 // TENANT_OWNER holds "all tenant-plane permissions"; system-roles.test.ts proves the list covers the whole catalogue.
 const TENANT_PLANE_PREFIXES: readonly string[] = [
   'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'allocation_line', 'analysis_finding', 'analysis_run',
@@ -18,7 +19,7 @@ const TENANT_PLANE_PREFIXES: readonly string[] = [
   'capital', 'change', 'change_request', 'channel_account', 'channel_message', 'contact', 'contact_consent', 'contract', 'contract_revision',
   'contractor', 'conversation', 'criteria_version', 'dashboard_version', 'data', 'data_contract_version', 'dataset_contract',
   'delivery_attempt', 'device_registration', 'diary', 'disbursement', 'doc', 'document_version', 'drill_context', 'evaluation', 'explanation',
-  'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'inspection', 'integration', 'integration_cursor', 'invitation',
+  'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'inspection', 'integration', 'integration_cursor', 'internal', 'invitation',
   'invoice_line', 'issue', 'land', 'ledger', 'legal_hold', 'license_revision', 'llm', 'llm_attempt', 'master', 'master_record_version',
   'material', 'maturity_assessment', 'maturity_evidence', 'measurement', 'membership', 'metric_definition', 'mne', 'model_profile_version',
   'ncr', 'notification', 'notification_instance', 'notification_template_version', 'omni', 'organization_unit', 'outbox_event', 'payment',

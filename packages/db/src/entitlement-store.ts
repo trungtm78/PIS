@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, allowedFeature, entitlementsHash, licenseModeAt } from '@machvon/kernel';
+import { DomainError, activeOverride, allowedFeature, entitlementsHash, licenseModeAt } from '@machvon/kernel';
 import type { FeatureEntry, OperationKind, Override, TenantAccessPolicy, TenantContext } from '@machvon/kernel';
 import type { EntitlementCache, EntitlementSnapshot } from './entitlement-cache.ts';
 import { enqueueOutbox } from './outbox.ts';
@@ -116,6 +116,24 @@ function overrideOf(row: OverrideRow): Override {
     validUntil: row.valid_until,
     status: row.status,
   };
+}
+
+/**
+ * The limit in force of each feature that has one, as text, for the usage screens (SAS-11): the limit of the override in force when it names one, else the
+ * number of the plan for a quota or a metered feature. A switch (BOOLEAN) has no limit to show, whatever number the plan stores for it. Reads inside the
+ * transaction the caller opened for the tenant, like the control plane does.
+ */
+export async function effectiveLimits(tx: TenantTx, now: Date): Promise<ReadonlyMap<string, string>> {
+  const [version] = await tx.query<VersionRow>(LATEST_VERSION_SQL);
+  const features = version === undefined ? [] : featuresOf(version.features_json);
+  const overrides = (await tx.query<OverrideRow>(OVERRIDES_SQL)).map(overrideOf);
+  const limits = new Map<string, string>();
+  for (const code of new Set([...features.map((feature) => feature.featureCode), ...overrides.map((override) => override.featureCode)])) {
+    const entry = features.find((feature) => feature.featureCode === code);
+    const value = activeOverride(overrides, code, now)?.limitValue ?? (entry !== undefined && entry.limitKind !== 'BOOLEAN' ? entry.limitValue : undefined);
+    if (value !== undefined) limits.set(code, String(value));
+  }
+  return limits;
 }
 
 /**
