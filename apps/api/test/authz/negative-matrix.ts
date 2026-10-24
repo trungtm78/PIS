@@ -89,6 +89,8 @@ export interface MatrixTargets {
   layoutProfileId: string;
   /** A PUBLISHED permit type version of tenant A (version 1, open-ended). */
   permitTypeId: string;
+  /** A PUBLISHED gate rule of tenant A on that permit type (version 1, open-ended). */
+  gateRuleId: string;
   /** The permit dossier of the CONCEPT project of unit 2 of tenant A (version 1) and a permit in it, IN_APPRAISAL (version 1). */
   permitDossierId: string;
   permitId: string;
@@ -723,6 +725,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   retirePermitType: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/permit-types/${t.permitTypeId}/retire`, body: { effective_until: '2999-12-31' } }),
+  },
+  publishPermitGateRule: {
+    // The permit type is named in the body: it is looked up in the caller's own tenant, so there is nothing of tenant A to be told apart.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/permit-gate-rules',
+      body: { gate_code: 'HANDOVER', permit_type_id: t.permitTypeId, requirement: 'VALID_PERMIT', applies_to_rule: {}, legal_basis: 'Matrix legal basis', effective_from: '2999-01-01' },
+    }),
+  },
+  retirePermitGateRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/permit-gate-rules/${t.gateRuleId}/retire`, body: { effective_until: '2999-12-31' } }),
   },
   // The project, the dossier and the permit are looked up in the caller's own tenant: one of tenant A does not exist for a caller of tenant B (404).
   createPermitDossier: {

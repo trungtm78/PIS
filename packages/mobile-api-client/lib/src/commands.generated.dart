@@ -1195,6 +1195,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesPermitDossierId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_permit_dossier_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesPermitGateRule({Map<String, Object?>? query}) =>
+      execute('get_resources_permit_gate_rule', query: query);
+
   Future<Object?> getResourcesPermitId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_permit_id', path: <String, Object?>{'id': id}, query: query);
 

@@ -133,6 +133,8 @@
     "retireDocumentTemplate",
     "retireMasterCrosswalk",
     "retirePermitType",
+    "publishPermitGateRule",
+    "retirePermitGateRule",
     "reviseContractDraft",
     "requestPeriodReopen",
     "returnOutgoingDocument",

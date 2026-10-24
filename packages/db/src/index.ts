@@ -430,6 +430,8 @@ export { PERMIT_TYPE_WORKING_ASSUMPTIONS, SEED_EFFECTIVE_FROM } from './pmt-perm
 export { EXPIRING_WITHIN_DAYS, PERMIT_STATUSES, PmtDossierStore, dossierScope } from './pmt-dossier-store.ts';
 export { DEFAULT_WITHIN_DAYS, EXPIRY_ALERT_DAYS, MAX_WITHIN_DAYS, PmtExpiringPermits, PmtPermitExpiry, alertLevelOf, thresholdOfLevel } from './pmt-permit-expiry.ts';
 export type { ExpiringPermitRow, ExpiryAlertDays, PermitExpiryResult } from './pmt-permit-expiry.ts';
+export { GATE_CODES, GATE_REQUIREMENTS, PmtGateStore } from './pmt-gate-store.ts';
+export type { GateCode, GateEvaluation, GateRequirement, GateRuleInput, GateRuleRow, GateRuleStatus, GateStatus, RuleVerdict } from './pmt-gate-store.ts';
 export type {
   DossierDetail,
   DossierLine,

@@ -627,6 +627,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const issueId = id(0x7a, 4);
     const issueEscalationId = id(0x7a, 5);
     const permitTypeId = id(0x7b, 1);
+    const gateRuleId = id(0x7b, 2);
     const contractorToVerifyId = id(0x7c, 1);
     await harness.owner(TENANT_A, [
       [
@@ -667,6 +668,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         `insert into machvon.permit_type (tenant_id, id, code, name, category, authority_text, legal_basis, effective_from, applies_to_rule, status, created_by, updated_by)
          values ($1, $2, 'MATRIX_FIXTURE', 'Matrix fixture permit type', 'OTHER', 'Matrix authority', 'Matrix fixture legal basis', '2026-01-01', '{}'::jsonb, 'PUBLISHED', $3, $3)`,
         [TENANT_A, permitTypeId, ACTOR],
+      ],
+      [
+        `insert into machvon.permit_gate_rule (tenant_id, id, gate_code, permit_type_id, requirement, applies_to_rule, legal_basis, effective_from, revision, status, created_by, updated_by)
+         values ($1, $2, 'HANDOVER', $3, 'VALID_PERMIT', '{}'::jsonb, 'Matrix fixture gate basis', '2026-01-01', 1, 'PUBLISHED', $4, $4)`,
+        [TENANT_A, gateRuleId, permitTypeId, ACTOR],
       ],
     ]);
     // The permit dossier of the CONCEPT project of unit 2 and a permit in it that is in appraisal: the permit commands act on them.
@@ -864,6 +870,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       appropriationId,
       capitalPlanId,
       permitTypeId,
+      gateRuleId,
       permitDossierId,
       permitId,
       parcelId,

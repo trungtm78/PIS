@@ -5935,7 +5935,8 @@
       "operations": [
         "publishPermitGateRule",
         "retirePermitGateRule",
-        "evaluatePermitGates"
+        "evaluatePermitGates",
+        "get_resources_permit_gate_rule"
       ],
       "tables": [
         "permit_gate_rule"

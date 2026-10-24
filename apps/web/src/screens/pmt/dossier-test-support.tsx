@@ -125,6 +125,10 @@ export interface World {
   types: Array<Record<string, unknown>>;
   /** The rows `listExpiringPermits` answers for the window it was asked with. */
   expiring?: (query: Record<string, unknown>) => Array<Record<string, unknown>>;
+  /** The versions of the gate rules `get_resources_permit_gate_rule` answers. */
+  gateRules?: Array<Record<string, unknown>>;
+  /** The answer of `evaluatePermitGates` for the project and the query it was asked with (an Error or an ApiError is thrown). */
+  evaluation?: (input: { id: string; query: Record<string, unknown> }) => unknown;
   failing: Set<string>;
 }
 
@@ -139,6 +143,7 @@ export function client(state: World, command: (operation: string, input: unknown
     const id = (input as { path?: { id?: string } } | undefined)?.path?.id;
     if (operation === 'get_resources_permit_dossier_id') return state.dossierDetails.find((item) => item.id === id) ?? NOT_FOUND;
     if (operation === 'get_resources_permit_id') return state.permits.find((item) => item.id === id) ?? NOT_FOUND;
+    if (operation === 'evaluatePermitGates' && state.evaluation !== undefined) return state.evaluation({ id: id ?? '', query: (input as { query?: Record<string, unknown> } | undefined)?.query ?? {} });
     return new Error(`unexpected read ${operation}`);
   }, command);
   (h.client as unknown as { readAll: (operation: string, input?: { query?: Record<string, unknown> }) => Promise<unknown[]> }).readAll = vi.fn((operation: string, input?: { query?: Record<string, unknown> }) => {
@@ -150,6 +155,8 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.projects);
       case 'get_resources_permit_type':
         return Promise.resolve(state.types);
+      case 'get_resources_permit_gate_rule':
+        return Promise.resolve(state.gateRules ?? []);
       case 'listExpiringPermits':
         return Promise.resolve(state.expiring?.(input?.query ?? {}) ?? []);
       default:

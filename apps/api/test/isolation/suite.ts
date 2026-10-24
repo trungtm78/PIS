@@ -193,9 +193,21 @@ export const TREASURY_FIXTURES: Readonly<Record<TenantName, { importId: string; 
 };
 
 /** A PUBLISHED permit type version of each tenant, still waiting for its legal confirmation (the code and the legal basis are distinctive; tenant legal data). */
-export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; legalBasis: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0f1-000000000001', code: 'ALPHA_PERMIT_0001', legalBasis: 'Alpha tenant permit regulation 0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0f1-000000000001', code: 'BETA_PERMIT_0001', legalBasis: 'Beta tenant permit regulation 0001' },
+export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; legalBasis: string; gateRuleId: string; gateBasis: string }>> = {
+  'TNT-A': {
+    id: '00000000-0000-4000-a0f1-000000000001',
+    code: 'ALPHA_PERMIT_0001',
+    legalBasis: 'Alpha tenant permit regulation 0001',
+    gateRuleId: '00000000-0000-4000-a0f1-000000000002',
+    gateBasis: 'Alpha tenant gate regulation 0001',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0f1-000000000001',
+    code: 'BETA_PERMIT_0001',
+    legalBasis: 'Beta tenant permit regulation 0001',
+    gateRuleId: '00000000-0000-4000-b0f1-000000000002',
+    gateBasis: 'Beta tenant gate regulation 0001',
+  },
 };
 
 /** The permit dossier of the isolation project of each tenant and a permit in appraisal in it (the authority is distinctive; tenant legal file). */
@@ -528,6 +540,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'permit type id', value: PERMIT_TYPE_FIXTURES[tenant].id },
     { kind: 'permit type code', value: PERMIT_TYPE_FIXTURES[tenant].code },
     { kind: 'permit type legal basis', value: PERMIT_TYPE_FIXTURES[tenant].legalBasis },
+    { kind: 'permit gate rule id', value: PERMIT_TYPE_FIXTURES[tenant].gateRuleId },
+    { kind: 'permit gate rule legal basis', value: PERMIT_TYPE_FIXTURES[tenant].gateBasis },
     { kind: 'permit dossier id', value: PERMIT_FIXTURES[tenant].dossierId },
     { kind: 'permit id', value: PERMIT_FIXTURES[tenant].permitId },
     { kind: 'permit authority', value: PERMIT_FIXTURES[tenant].authority },

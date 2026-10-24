@@ -318,6 +318,8 @@ const PERMIT_ROLES = [
   // The leader approves an exemption (permit.exempt) and cannot propose; the second can do both, so that the server, not the screen, refuses the same person twice.
   { n: 153, user: 'permitLeader', code: 'E2E_PERMIT_LEADER', permissions: ['permit.exempt', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 50 },
   { n: 154, user: 'permitProposerLeader', code: 'E2E_PERMIT_PROPOSER_LEADER', permissions: ['permit.manage', 'permit.exempt', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 50 },
+  // The business owner of the gate rules (PMT-04): permit.gate.manage on the whole tenant, as the rules are the legal data of the tenant.
+  { n: 155, user: 'permitGateManager', code: 'E2E_PERMIT_GATE_MANAGER', permissions: ['permit.gate.manage', 'permit.read', 'project.read', 'organization_unit.read', 'master.read'], rank: 40 },
 ];
 
 /**

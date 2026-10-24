@@ -174,6 +174,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listIssueAssignees',
   'publishPermitType',
   'retirePermitType',
+  'publishPermitGateRule',
+  'retirePermitGateRule',
+  'get_resources_permit_gate_rule',
+  'evaluatePermitGates',
   'createPermitDossier',
   'addPermit',
   'recordPermitMilestone',
@@ -417,6 +421,10 @@ const INSERT_POLICY = `insert into machvon.security_policy_version (tenant_id, i
 const INSERT_PERMIT_TYPE = `insert into machvon.permit_type
   (tenant_id, id, code, name, category, authority_text, legal_basis, cxn_ref, effective_from, applies_to_rule, status, created_by, updated_by)
   values ($1, $2, $3, 'Isolation permit type', 'OTHER', 'Isolation authority', $4, 'CXN-EXE-03', date '2026-01-01', '{}'::jsonb, 'PUBLISHED', $5, $5) on conflict do nothing`;
+
+const INSERT_GATE_RULE = `insert into machvon.permit_gate_rule
+  (tenant_id, id, gate_code, permit_type_id, requirement, applies_to_rule, legal_basis, effective_from, revision, status, created_by, updated_by)
+  values ($1, $2, 'HANDOVER', $3, 'VALID_PERMIT', '{}'::jsonb, $4, date '2026-01-01', 1, 'PUBLISHED', $5, $5) on conflict do nothing`;
 
 const INSERT_PERMIT_DOSSIER = `insert into machvon.permit_dossier
   (tenant_id, id, project_id, owner_unit_id, created_by, updated_by)
@@ -721,6 +729,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(SET_MASTER_CURRENT, [master.recordId, master.versionId]);
     const permitType = PERMIT_TYPE_FIXTURES[tenant];
     await client.query(INSERT_PERMIT_TYPE, [tenantId, permitType.id, permitType.code, permitType.legalBasis, ACTOR_ID]);
+    await client.query(INSERT_GATE_RULE, [tenantId, PERMIT_TYPE_FIXTURES[tenant].gateRuleId, permitType.id, PERMIT_TYPE_FIXTURES[tenant].gateBasis, ACTOR_ID]);
     const period = PERIOD_FIXTURES[tenant];
     await client.query(INSERT_PERIOD, [tenantId, period.id, period.code, master.versionId, ACTOR_ID]);
     const reopen = REOPEN_FIXTURES[tenant];

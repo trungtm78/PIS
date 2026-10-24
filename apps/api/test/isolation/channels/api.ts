@@ -180,6 +180,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'extendIssueDeadline', method: 'POST', id: ISSUE_FIXTURES['TNT-B'].id, versioned: true, body: { new_due_at: '2999-01-01T00:00:00.000Z', reason: 'Isolation foreign extension attempt' } },
   { operation: 'get_resources_permit_type_id', method: 'GET', id: PERMIT_TYPE_FIXTURES['TNT-B'].id },
   { operation: 'retirePermitType', method: 'POST', id: PERMIT_TYPE_FIXTURES['TNT-B'].id, body: { effective_until: '2999-12-31' } },
+  { operation: 'retirePermitGateRule', method: 'POST', id: PERMIT_TYPE_FIXTURES['TNT-B'].gateRuleId, body: { effective_until: '2999-12-31' } },
+  { operation: 'evaluatePermitGates', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'createPermitDossier', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { owner_unit_id: OWN_UNIT } },
   { operation: 'addPermit', method: 'POST', id: PERMIT_FIXTURES['TNT-B'].dossierId, body: { permit_type_id: PERMIT_TYPE_FIXTURES['TNT-B'].id } },
   { operation: 'recordPermitMilestone', method: 'POST', id: PERMIT_FIXTURES['TNT-B'].permitId, versioned: true, body: { step_code: 'APPRAISAL_MEETING', planned_on: '2999-01-01' } },

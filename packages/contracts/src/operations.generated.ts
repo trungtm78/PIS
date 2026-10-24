@@ -397,6 +397,7 @@ export const OPERATIONS = {
   "get_resources_payment_request_id": { method: "get", path: "/resources/payment_request/{id}", versioned: false, stepUp: null, permission: "payment_request.read" },
   "get_resources_permit_dossier": { method: "get", path: "/resources/permit_dossier", versioned: false, stepUp: null, permission: "permit.read" },
   "get_resources_permit_dossier_id": { method: "get", path: "/resources/permit_dossier/{id}", versioned: false, stepUp: null, permission: "permit.read" },
+  "get_resources_permit_gate_rule": { method: "get", path: "/resources/permit_gate_rule", versioned: false, stepUp: null, permission: "permit.read" },
   "get_resources_permit_id": { method: "get", path: "/resources/permit/{id}", versioned: false, stepUp: null, permission: "permit.read" },
   "get_resources_permit_type": { method: "get", path: "/resources/permit_type", versioned: false, stepUp: null, permission: "permit.read" },
   "get_resources_permit_type_id": { method: "get", path: "/resources/permit_type/{id}", versioned: false, stepUp: null, permission: "permit.read" },

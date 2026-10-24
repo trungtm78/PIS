@@ -816,6 +816,18 @@
       ]
     },
     {
+      "key": "permitGateManager",
+      "displayName": "Chủ nghiệp vụ quy tắc cổng giấy phép",
+      "membershipId": "00000000-0000-4000-8000-000000000623",
+      "permissions": [
+        "permit.gate.manage",
+        "permit.read",
+        "project.read",
+        "organization_unit.read",
+        "master.read"
+      ]
+    },
+    {
       "key": "permitReader",
       "displayName": "Người xem hồ sơ pháp lý",
       "membershipId": "00000000-0000-4000-8000-0000000000ca",
