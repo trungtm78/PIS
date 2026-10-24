@@ -77,6 +77,8 @@ export interface PlanWorld {
   units: Array<Record<string, unknown>>;
   appropriations: AppropriationWorld;
   failing: Map<string, unknown>;
+  /** The answer of `getCapitalPlanAsOf` for the plan and the day asked for (an Error or an ApiError is thrown). */
+  asOf?: (input: { id: string; at: string | undefined }) => unknown;
 }
 
 export function planWorld(overrides: Partial<PlanWorld> = {}): PlanWorld {
@@ -144,6 +146,10 @@ export function planClient(state: PlanWorld, command: (operation: string, input:
       const found = state.plans.find((candidate) => candidate.id === id);
       const lines = state.lines[id] ?? [];
       return found === undefined ? new Error('plan not found') : { plan: found, items: lines, totals: totalsOfLines(lines), next_cursor: null, as_of: '2026-10-24T00:00:00Z' };
+    }
+    if (operation === 'getCapitalPlanAsOf' && state.asOf !== undefined) {
+      const asked = input as { path: { id: string }; query?: { at?: string } };
+      return state.asOf({ id: asked.path.id, at: asked.query?.at });
     }
     return new Error(`unexpected read ${operation}`);
   }, command);

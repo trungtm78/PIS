@@ -76,6 +76,24 @@ published revision, take revision = max + 1, and add only the difference to `all
 `supersedes_id` is not the revision in force (409 `PLAN_CHANGED_SINCE_PROPOSAL`). `previous_line_id` is provenance for the comparison screens;
 the balance moves by line identity (I1), not by `previous_line_id`.
 
+## The revision command and the plan as of a date (ST-CAP-004)
+
+`createCapitalPlanRevision` (`CapPlanRevisionStore.create`) follows the contract above in one transaction and one lock order (the source plan
+`FOR UPDATE`, no appropriation is touched): it refuses a plan that is not PUBLISHED (409 `PLAN_NOT_PUBLISHED`), a stale `If-Match`
+(409 `VERSION_CONFLICT`), a year that is LOCKED (409 `FISCAL_YEAR_LOCKED`) and a plan code that already has a revision in work (DRAFT,
+IN_REVIEW or APPROVED, 409 `REVISION_PENDING_EXISTS`; the check is repeated by the unique index and a violation is turned into the same
+answer, so two racing requests give one revision and one 409). The plan versions and the lines are copied in one statement with
+`previous_line_id`, so a revision is never half copied. The allocated total of the appropriation is not touched by the copy: the difference
+is zero until the lines are edited, and the drafting command adds the difference (rule I6).
+
+`getCapitalPlanAsOf` (`CapPlanRevisionStore.asOf`) names a plan by any of its revisions and answers the revision of the same plan code with the
+largest `effective_at` up to the moment, among PUBLISHED and SUPERSEDED ones (BR-CAP-10). The moment is `at`: an ISO instant, or a date that
+means the **end of that day in Vietnam (UTC+7)**, so "30/6" includes everything in force during 30 June; no `at` means now. A moment before the
+first revision in force is 404. Each line carries what the first revision gave the line (`initial_vnd`, found by project, appropriation,
+bucket and source year), the difference to the revision in force (`adjustment_vnd`, signed) and what had been paid by the moment
+(`as_of_disbursed_vnd`: the DISBURSE entries of the ledger posted up to the moment, less their reversals, not the running balance). Lines are
+shown in the scope of the caller (the same scope as `listCapitalPlanLines`), up to a bound with `truncated: true` beyond it.
+
 ## Evidence
 
 - `packages/db/test/cap-plan-publication.test.ts`: stores, ledger, drift, 12-loop race of two publications of one plan, 8-loop race of
@@ -83,3 +101,4 @@ the balance moves by line identity (I1), not by `previous_line_id`.
   deadlock check.
 - `apps/api/test/cap/plan-publication.test.ts`: HTTP flows, four eyes, events, PRJ consumer chain, cancel with open obligations.
 - `apps/api/test/cap/plan-approval-workflow.test.ts`: the approval as a workflow under the signed tenant context (NFR-TENANCY-08).
+- `packages/db/test/cap-plan-revision-store.test.ts` and `apps/api/test/cap/plan-revision.test.ts` (ST-CAP-004): the copy, the pending-revision race (6 loops of 4 racers), the difference-only ceiling, the as-of reads on both sides of a revision, the scope and the HTTP refusals.

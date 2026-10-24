@@ -561,6 +561,8 @@ export type {
   UnitLabel,
 } from './cap-plan-reads.ts';
 export { CapPlanStore, DRAFTABLE_PROJECT_STATUSES } from './cap-plan-store.ts';
+export { CapPlanRevisionStore, momentOf } from './cap-plan-revision-store.ts';
+export type { AsOfLine, PlanAsOf, RevisionCreated } from './cap-plan-revision-store.ts';
 export type {
   AllocatedDrift,
   AppropriationMove,

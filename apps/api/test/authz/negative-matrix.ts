@@ -676,6 +676,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/plans/${t.capitalPlanId}/publish`, ifMatch: '"1"', body: { decision_document_id: t.decisionDocumentId } }),
   },
+  createCapitalPlanRevision: {
+    // A plan of tenant A is not there for a caller of tenant B; for a caller of tenant A without the permission it is refused before the plan is looked at.
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/capital-plans/${t.capitalPlanId}/revisions`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   draftCapitalAllocation: {
     referencesTenantIds: true,
     build: (t) => ({

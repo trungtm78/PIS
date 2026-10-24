@@ -52,6 +52,7 @@
     "recordDistributionAcknowledgement",
     "retryDocumentDistribution",
     "submitCapitalPlan",
+    "createCapitalPlanRevision",
     "decideCapitalPlan",
     "post_plans_id_publish",
     "decidePeriodReopen",

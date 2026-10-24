@@ -24,6 +24,8 @@ import type { IsolationChannel, TenantName } from '../suite';
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
 const USER_ID = '00000000-0000-4000-8000-000000000061';
 const ACTOR_ID = '00000000-0000-4000-8000-0000000000f0';
+/** Whoever approved and published the fixture plan: the approver is never the submitter. */
+const APPROVER_ID = '00000000-0000-4000-8000-0000000000f2';
 
 /** The operations whose permissions the TNT-A test role holds: every id-bearing operation the isolation suite aims at TNT-B. */
 export const FULL_RIGHTS_OPERATIONS = [
@@ -200,6 +202,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'createCapitalPlan',
   'draftCapitalAllocation',
   'submitCapitalPlan',
+  'createCapitalPlanRevision',
+  'getCapitalPlanAsOf',
   'decideCapitalPlan',
   'post_plans_id_publish',
   'listCapitalPlanLines',
@@ -436,6 +440,10 @@ const INSERT_APPROPRIATION = `insert into machvon.appropriation
 const INSERT_CAPITAL_PLAN = `insert into machvon.capital_plan
   (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, created_by, updated_by)
   values ($1, $2, $3, 'ANNUAL', 2026, 2026, 2026, $4, 1, 'DRAFT', $5, $5) on conflict do nothing`;
+
+const INSERT_PUBLISHED_CAPITAL_PLAN = `insert into machvon.capital_plan
+  (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, submitted_by, approved_by, decision_document_id, effective_at, published_at, published_by, created_by, updated_by)
+  values ($1, $2, $3, 'ANNUAL', 2026, 2026, 2026, $4, 1, 'PUBLISHED', $5, $7, $6, '2026-01-02T00:00:00Z', '2026-01-02T00:00:00Z', $7, $5, $5) on conflict do nothing`;
 
 const INSERT_PLAN_VERSION = `insert into machvon.plan_version
   (tenant_id, id, project_id, fiscal_year, revision, status, capital_plan_id, created_by, updated_by)
@@ -746,6 +754,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_APPROPRIATION, [tenantId, appropriation.id, master.versionId, documents.documentId, appropriation.issuingAuthority, ACTOR_ID]);
     const plan = CAPITAL_PLAN_FIXTURES[tenant];
     await client.query(INSERT_CAPITAL_PLAN, [tenantId, plan.id, plan.planCode, home, ACTOR_ID]);
+    await client.query(INSERT_PUBLISHED_CAPITAL_PLAN, [tenantId, plan.publishedId, plan.publishedCode, home, ACTOR_ID, documents.documentId, APPROVER_ID]);
     await client.query(INSERT_PLAN_VERSION, [tenantId, plan.versionId, project.id, plan.id, ACTOR_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     const procurement = PROCUREMENT_PLAN_FIXTURES[tenant];

@@ -1,6 +1,7 @@
 import { defineModule } from '../module-descriptor';
 import { AppropriationController, AppropriationReadsController } from './appropriation.controller';
 import { CapitalPlanApprovalController } from './plan-approval.controller';
+import { CapitalPlanRevisionController } from './plan-revision.controller';
 import { AllocationLineReadsController, CapitalPlanController, CapitalPlanLinesController, PlanVersionReadsController } from './plan.controller';
 
 /**
@@ -10,7 +11,7 @@ import { AllocationLineReadsController, CapitalPlanController, CapitalPlanLinesC
  */
 export const capModule = defineModule({
   code: 'CAP',
-  controllers: [AppropriationController, AppropriationReadsController, CapitalPlanController, CapitalPlanApprovalController, CapitalPlanLinesController, PlanVersionReadsController, AllocationLineReadsController],
+  controllers: [AppropriationController, AppropriationReadsController, CapitalPlanController, CapitalPlanApprovalController, CapitalPlanRevisionController, CapitalPlanLinesController, PlanVersionReadsController, AllocationLineReadsController],
 });
 
 export { APPROVAL_STATES, CAPITAL_PLAN_APPROVAL_WORKFLOW, capitalPlanApprovalWorkflow } from './plan-approval.workflow';

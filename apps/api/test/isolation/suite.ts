@@ -222,10 +222,27 @@ export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; i
   'TNT-B': { id: '00000000-0000-4000-b0f2-000000000001', issuingAuthority: 'Beta tenant assigning authority 0001' },
 };
 
-/** A DRAFT capital plan of each tenant with one line of its project on its appropriation (the code is distinctive: the plan of a tenant is internal to it). */
-export const CAPITAL_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string; planCode: string; versionId: string; lineId: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0f8-000000000001', planCode: 'ALPHA-CAPITAL-PLAN-0001', versionId: '00000000-0000-4000-a0f8-000000000002', lineId: '00000000-0000-4000-a0f8-000000000003' },
-  'TNT-B': { id: '00000000-0000-4000-b0f8-000000000001', planCode: 'BETA-CAPITAL-PLAN-0001', versionId: '00000000-0000-4000-b0f8-000000000002', lineId: '00000000-0000-4000-b0f8-000000000003' },
+/**
+ * A DRAFT capital plan of each tenant with one line of its project on its appropriation (the code is distinctive: the plan of a tenant is internal
+ * to it), and a plan of another code that is PUBLISHED, which is the one that can be read as of a date and revised.
+ */
+export const CAPITAL_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string; planCode: string; versionId: string; lineId: string; publishedId: string; publishedCode: string }>> = {
+  'TNT-A': {
+    id: '00000000-0000-4000-a0f8-000000000001',
+    planCode: 'ALPHA-CAPITAL-PLAN-0001',
+    versionId: '00000000-0000-4000-a0f8-000000000002',
+    lineId: '00000000-0000-4000-a0f8-000000000003',
+    publishedId: '00000000-0000-4000-a0f8-000000000004',
+    publishedCode: 'ALPHA-CAPITAL-PLAN-0002',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0f8-000000000001',
+    planCode: 'BETA-CAPITAL-PLAN-0001',
+    versionId: '00000000-0000-4000-b0f8-000000000002',
+    lineId: '00000000-0000-4000-b0f8-000000000003',
+    publishedId: '00000000-0000-4000-b0f8-000000000004',
+    publishedCode: 'BETA-CAPITAL-PLAN-0002',
+  },
 };
 
 /** A published template revision of each tenant, waiting for its legal confirmation (the code and the legal basis are distinctive). */
@@ -506,6 +523,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'appropriation issuing authority', value: APPROPRIATION_FIXTURES[tenant].issuingAuthority },
     { kind: 'capital plan id', value: CAPITAL_PLAN_FIXTURES[tenant].id },
     { kind: 'capital plan code', value: CAPITAL_PLAN_FIXTURES[tenant].planCode },
+    { kind: 'published capital plan id', value: CAPITAL_PLAN_FIXTURES[tenant].publishedId },
+    { kind: 'published capital plan code', value: CAPITAL_PLAN_FIXTURES[tenant].publishedCode },
     { kind: 'allocation line id', value: CAPITAL_PLAN_FIXTURES[tenant].lineId },
     { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },
     { kind: 'work calendar id', value: WORK_CALENDAR_FIXTURES[tenant].id },

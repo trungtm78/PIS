@@ -231,6 +231,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     body: { lines: [{ project_id: PROJECT_FIXTURES['TNT-B'].id, appropriation_id: APPROPRIATION_FIXTURES['TNT-B'].id, bucket: 'CURRENT_YEAR', source_year: 2026, amount_vnd: '100' }] },
   },
   { operation: 'submitCapitalPlan', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'createCapitalPlanRevision', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].publishedId, versioned: true, body: { reason: 'Isolation foreign revision' } },
+  { operation: 'getCapitalPlanAsOf', method: 'GET', id: CAPITAL_PLAN_FIXTURES['TNT-B'].publishedId },
   { operation: 'decideCapitalPlan', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
   { operation: 'post_plans_id_publish', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: { decision_document_id: '00000000-0000-4000-b0f2-0000000000ff' } },
   { operation: 'listCapitalPlanLines', method: 'GET', id: CAPITAL_PLAN_FIXTURES['TNT-B'].id },
