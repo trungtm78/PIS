@@ -123,6 +123,8 @@ export interface World {
   permits: Array<Record<string, unknown>>;
   projects: Array<Record<string, unknown>>;
   types: Array<Record<string, unknown>>;
+  /** The rows `listExpiringPermits` answers for the window it was asked with. */
+  expiring?: (query: Record<string, unknown>) => Array<Record<string, unknown>>;
   failing: Set<string>;
 }
 
@@ -139,7 +141,7 @@ export function client(state: World, command: (operation: string, input: unknown
     if (operation === 'get_resources_permit_id') return state.permits.find((item) => item.id === id) ?? NOT_FOUND;
     return new Error(`unexpected read ${operation}`);
   }, command);
-  (h.client as unknown as { readAll: (operation: string) => Promise<unknown[]> }).readAll = vi.fn((operation: string) => {
+  (h.client as unknown as { readAll: (operation: string, input?: { query?: Record<string, unknown> }) => Promise<unknown[]> }).readAll = vi.fn((operation: string, input?: { query?: Record<string, unknown> }) => {
     if (state.failing.has(operation)) return Promise.reject(new Error(`${operation} failed`));
     switch (operation) {
       case 'get_resources_permit_dossier':
@@ -148,6 +150,8 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.projects);
       case 'get_resources_permit_type':
         return Promise.resolve(state.types);
+      case 'listExpiringPermits':
+        return Promise.resolve(state.expiring?.(input?.query ?? {}) ?? []);
       default:
         return Promise.reject(new Error(`unexpected readAll ${operation}`));
     }

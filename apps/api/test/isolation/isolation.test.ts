@@ -280,6 +280,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'get_resources_permit_id',
         'get_resources_permit_type',
         'get_resources_permit_type_id',
+        'listExpiringPermits',
         'get_resources_integration_cursor',
         'get_resources_integration_cursor_id',
         'generateReportingPeriods',

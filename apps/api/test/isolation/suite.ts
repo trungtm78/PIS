@@ -199,9 +199,21 @@ export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; cod
 };
 
 /** The permit dossier of the isolation project of each tenant and a permit in appraisal in it (the authority is distinctive; tenant legal file). */
-export const PERMIT_FIXTURES: Readonly<Record<TenantName, { dossierId: string; permitId: string; authority: string }>> = {
-  'TNT-A': { dossierId: '00000000-0000-4000-a0f3-000000000001', permitId: '00000000-0000-4000-a0f3-000000000002', authority: 'Alpha tenant permit authority 0001' },
-  'TNT-B': { dossierId: '00000000-0000-4000-b0f3-000000000001', permitId: '00000000-0000-4000-b0f3-000000000002', authority: 'Beta tenant permit authority 0001' },
+export const PERMIT_FIXTURES: Readonly<Record<TenantName, { dossierId: string; permitId: string; authority: string; expiredId: string; expiredNo: string }>> = {
+  'TNT-A': {
+    dossierId: '00000000-0000-4000-a0f3-000000000001',
+    permitId: '00000000-0000-4000-a0f3-000000000002',
+    authority: 'Alpha tenant permit authority 0001',
+    expiredId: '00000000-0000-4000-a0f3-000000000003',
+    expiredNo: 'ALPHA-EXPIRED-GP-0001',
+  },
+  'TNT-B': {
+    dossierId: '00000000-0000-4000-b0f3-000000000001',
+    permitId: '00000000-0000-4000-b0f3-000000000002',
+    authority: 'Beta tenant permit authority 0001',
+    expiredId: '00000000-0000-4000-b0f3-000000000003',
+    expiredNo: 'BETA-EXPIRED-GP-0001',
+  },
 };
 
 /** An OPEN reporting period of each tenant, past its deadline (the code is distinctive; the calendar of reporting is tenant configuration). */
@@ -519,6 +531,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'permit dossier id', value: PERMIT_FIXTURES[tenant].dossierId },
     { kind: 'permit id', value: PERMIT_FIXTURES[tenant].permitId },
     { kind: 'permit authority', value: PERMIT_FIXTURES[tenant].authority },
+    { kind: 'expired permit id', value: PERMIT_FIXTURES[tenant].expiredId },
+    { kind: 'expired permit number', value: PERMIT_FIXTURES[tenant].expiredNo },
     { kind: 'reporting period id', value: PERIOD_FIXTURES[tenant].id },
     { kind: 'reporting period code', value: PERIOD_FIXTURES[tenant].code },
     { kind: 'locked reporting period id', value: REOPEN_FIXTURES[tenant].periodId },

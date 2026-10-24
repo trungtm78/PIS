@@ -5,6 +5,8 @@ import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
 import { toDossier, toDossierLine, toPermitDetail } from './dossier-model';
+import { toExpiringPermit } from './expiry-model';
+import type { ExpiringPermitView } from './expiry-model';
 import type { DossierLineView, DossierView, PermitDetailView } from './dossier-model';
 import { toPermitType } from './model';
 import type { PermitTypeView, PublishTypeBody } from './model';
@@ -99,6 +101,18 @@ export function usePermit(permitId: string | undefined) {
     queryKey: [...pmtRoot(tenant?.id), tenant?.membershipId, 'permit', permitId ?? ''],
     queryFn: async () => orMissing(client.read('get_resources_permit_id', { path: { id: permitId ?? '' } }), toPermitDetail),
     enabled: tenant !== undefined && permitId !== undefined,
+    retry: false,
+  });
+}
+
+/** The permits that run out within `withinDays` days, and the expired ones no renewal has replaced, in the scope of the caller (the board of PMT-05). */
+export function useExpiringPermits(withinDays: number) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ExpiringPermitView[]>({
+    queryKey: [...pmtRoot(tenant?.id), tenant?.membershipId, 'expiring', withinDays],
+    queryFn: async () => (await client.readAll('listExpiringPermits', { query: { within_days: withinDays } })).flatMap((raw) => toExpiringPermit(raw) ?? []),
+    enabled: tenant !== undefined,
     retry: false,
   });
 }

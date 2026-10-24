@@ -6,6 +6,7 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
+import { ExpiringPermitsController } from '../../src/modules/pmt/expiring-permits.controller';
 import { PermitDossierReadsController, PermitReadsController } from '../../src/modules/pmt/permit-dossier-reads.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -32,6 +33,7 @@ const FOREIGN_DOSSIER = id(FAMILY, 13);
 const ISSUED = id(FAMILY, 21);
 const PLANNED = id(FAMILY, 22);
 const FOREIGN_PERMIT = id(FAMILY, 23);
+const EXPIRED = id(FAMILY, 24);
 const TYPE_ENV = id(FAMILY, 31);
 const TYPE_FIRE = id(FAMILY, 32);
 const DOCUMENT = id(FAMILY, 41);
@@ -127,6 +129,12 @@ describe('the reads of the permit dossier and the permit (ST-PMT-002, PMT-01 and
         `insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, permit_type_code, status, permit_no, created_by, updated_by) values ($1, $2, $3, $4, 'READ_ENV', 'PLANNED', 'FOREIGN-1', $5, $5)`,
         [TENANT_B, FOREIGN_PERMIT, FOREIGN_DOSSIER, TYPE_ENV, memberId(OTHER_TENANT_READER)],
       );
+      // A permit of the other branch ran out ten days ago and no renewal has replaced it: it stays on the board until one does.
+      await admin.query(
+        `insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, permit_type_code, status, permit_no, authority_name, issued_on, valid_from, valid_until, document_version_id, responsible_membership_id, alert_level_sent, created_by, updated_by)
+         values ($1, $2, $3, $4, 'READ_FIRE', 'EXPIRED', 'GP-READ-EXPIRED', 'Fire department', $5::date, $5::date, $6::date, $7, $8, 4, $8, $8)`,
+        [TENANT_A, EXPIRED, DOSSIER_BRANCH, TYPE_FIRE, inDays(-400), inDays(-10), DOCUMENT, memberId(READER)],
+      );
       const step = (stepCode: string, planned: string | null, actual: string | null, note: string | null, offset: number) =>
         admin.query(
           `insert into machvon.permit_milestone (tenant_id, id, permit_id, step_code, planned_on, actual_on, note, document_version_id, created_by, created_at)
@@ -146,7 +154,7 @@ describe('the reads of the permit dossier and the permit (ST-PMT-002, PMT-01 and
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [PermitDossierReadsController, PermitReadsController],
+      controllers: [PermitDossierReadsController, PermitReadsController, ExpiringPermitsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
@@ -158,6 +166,72 @@ describe('the reads of the permit dossier and the permit (ST-PMT-002, PMT-01 and
     if (app) await app.close();
     await harness.stop();
   }, 60_000);
+
+
+  describe('listExpiringPermits (PMT-05, ST-PMT-006)', () => {
+    it('shows the permits that run out soon, and the expired ones no renewal has replaced, the soonest first, in the shape of the read model', async () => {
+      const reply = await get('/permits/expiring', { member: TENANT_READER });
+      expect(reply.status).toBe(200);
+      expect(typeof reply.json.as_of).toBe('string');
+      expect(reply.json.next_cursor).toBeNull();
+      expect(reply.json.items).toEqual([
+        {
+          id: EXPIRED,
+          dossier_id: DOSSIER_BRANCH,
+          permit_type_code: 'READ_FIRE',
+          permit_type_name: 'Name of READ_FIRE',
+          permit_no: 'GP-READ-EXPIRED',
+          status: 'EXPIRED',
+          valid_until: inDays(-10),
+          days_left: -10,
+          alert_level: 4,
+          alert_threshold_days: 0,
+          project: { id: PROJECT_BRANCH, code: 'PRJ-R-002', name: 'Name of PRJ-R-002' },
+          responsible: { membership_id: memberId(READER), display_name: 'User 1' },
+          version: 1,
+        },
+        {
+          id: ISSUED,
+          dossier_id: DOSSIER,
+          permit_type_code: 'READ_ENV',
+          permit_type_name: 'Name of READ_ENV',
+          permit_no: 'GP-READ-1',
+          status: 'ISSUED',
+          valid_until: inDays(20),
+          days_left: 20,
+          alert_level: 2,
+          alert_threshold_days: 30,
+          project: { id: PROJECT, code: 'PRJ-R-001', name: 'Name of PRJ-R-001' },
+          responsible: { membership_id: memberId(READER), display_name: 'User 1' },
+          version: 1,
+        },
+      ]);
+    });
+
+    it('narrows to the window asked for, the last day included, and shows each caller the permits of its dossiers only', async () => {
+      const ids = async (query: string, member = TENANT_READER) => ((await get(`/permits/expiring${query}`, { member })).json.items as Array<{ id: string }>).map((item) => item.id);
+      expect(await ids('?within_days=20')).toEqual([EXPIRED, ISSUED]);
+      expect(await ids('?within_days=19')).toEqual([EXPIRED]);
+      expect(await ids('?within_days=0')).toEqual([EXPIRED]);
+      expect(await ids('', READER)).toEqual([ISSUED]);
+      expect(await ids('', OTHER_BRANCH_READER)).toEqual([EXPIRED]);
+      const foreign = await get('/permits/expiring', { member: OTHER_TENANT_READER, tenantId: TENANT_B });
+      expect(foreign.status).toBe(200);
+      expect(foreign.json.items).toEqual([]);
+    });
+
+    it('pages by the last day and the id, and refuses a caller without permit.read, a window that is not one and a cursor that is not one', async () => {
+      const first = await get('/permits/expiring?limit=1', { member: TENANT_READER });
+      expect((first.json.items as Array<{ id: string }>).map((item) => item.id)).toEqual([EXPIRED]);
+      expect(typeof first.json.next_cursor).toBe('string');
+      const second = await get(`/permits/expiring?limit=1&cursor=${encodeURIComponent(first.json.next_cursor as string)}`, { member: TENANT_READER });
+      expect((second.json.items as Array<{ id: string }>).map((item) => item.id)).toEqual([ISSUED]);
+      expect(second.json.next_cursor).toBeNull();
+      for (const member of [MANAGER_ONLY, NOBODY]) expect((await get('/permits/expiring', { member })).status).toBe(403);
+      for (const query of ['within_days=abc', 'within_days=366', 'within_days=-1', 'within_days=1.5', 'within_days=1000']) expect((await get(`/permits/expiring?${query}`, { member: TENANT_READER })).status).toBe(422);
+      expect((await get('/permits/expiring?cursor=not-a-cursor', { member: TENANT_READER })).status).toBe(422);
+    });
+  });
 
   describe('get_resources_permit_dossier', () => {
     it('lists the dossiers in the scope of the caller with the counts of the day, in the shape of the read model (PMT-01, AC-ST-PMT-002-2)', async () => {

@@ -260,7 +260,7 @@ export const PERMIT_FROM = `machvon.permit x
   left join machvon.tenant_user_directory rm on rm.tenant_id = x.tenant_id and rm.membership_id = x.responsible_membership_id`;
 
 /** What the scope of a dossier is judged by, joined to the dossier `d`: the project `p` and the units `ou`, `iu` and `du`. */
-const SCOPE_JOINS = `join machvon.project p on p.tenant_id = d.tenant_id and p.id = d.project_id
+export const SCOPE_JOINS = `join machvon.project p on p.tenant_id = d.tenant_id and p.id = d.project_id
   join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
   left join machvon.organization_unit iu on iu.tenant_id = p.tenant_id and iu.id = p.investor_unit_id
   join machvon.organization_unit du on du.tenant_id = d.tenant_id and du.id = d.owner_unit_id`;

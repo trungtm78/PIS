@@ -61,6 +61,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PAY-13': () => import('../../screens/pay/TreasuryImportScreen'),
   'PMT-01': () => import('../../screens/pmt/DossierWorkspaceScreen'),
   'PMT-02': () => import('../../screens/pmt/PermitDetailScreen'),
+  'PMT-05': () => import('../../screens/pmt/PermitExpiryScreen'),
   'PMT-03': () => import('../../screens/pmt/PermitTypeCatalogueScreen'),
   'PRJ-01': () => import('../../screens/prj/ProjectListScreen'),
   'PRJ-02': () => import('../../screens/prj/ProjectCreateScreen'),

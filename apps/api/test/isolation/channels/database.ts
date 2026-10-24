@@ -188,6 +188,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_permit_id',
   'get_resources_permit_type',
   'get_resources_permit_type_id',
+  'listExpiringPermits',
   'get_resources_integration_cursor',
   'get_resources_integration_cursor_id',
   'generateReportingPeriods',
@@ -420,6 +421,10 @@ const INSERT_PERMIT_TYPE = `insert into machvon.permit_type
 const INSERT_PERMIT_DOSSIER = `insert into machvon.permit_dossier
   (tenant_id, id, project_id, owner_unit_id, created_by, updated_by)
   values ($1, $2, $3, $4, $5, $5) on conflict do nothing`;
+const INSERT_EXPIRED_PERMIT = `insert into machvon.permit
+  (tenant_id, id, dossier_id, permit_type_id, status, permit_no, issued_on, valid_from, valid_until, created_by, updated_by)
+  values ($1, $2, $3, $4, 'EXPIRED', $5, date '2020-01-01', date '2020-01-01', date '2021-01-01', $6, $6) on conflict do nothing`;
+
 const INSERT_PERMIT = `insert into machvon.permit
   (tenant_id, id, dossier_id, permit_type_id, status, authority_name, created_by, updated_by)
   values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $6, $6) on conflict do nothing`;
@@ -743,6 +748,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const permit = PERMIT_FIXTURES[tenant];
     await client.query(INSERT_PERMIT_DOSSIER, [tenantId, permit.dossierId, project.id, home, ACTOR_ID]);
     await client.query(INSERT_PERMIT, [tenantId, permit.permitId, permit.dossierId, permitType.id, permit.authority, ACTOR_ID]);
+    await client.query(INSERT_EXPIRED_PERMIT, [tenantId, permit.expiredId, permit.dossierId, permitType.id, permit.expiredNo, ACTOR_ID]);
     const treasury = TREASURY_FIXTURES[tenant];
     await client.query(INSERT_TREASURY_IMPORT, [tenantId, treasury.importId, treasury.fileSha256, `tenants/${tenantId}/import/isolation-statement`, MEMBERSHIP_ID]);
     await client.query(INSERT_TREASURY_TRANSACTION, [tenantId, treasury.transactionId, project.id, treasury.externalId, treasury.importId, treasury.documentNo, MEMBERSHIP_ID]);

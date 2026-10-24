@@ -235,7 +235,7 @@ export type {
 } from './number-register-store.ts';
 export { JOB_FAILED_ALERT, JobRunner } from './job-runner.ts';
 export type { JobHandler, JobRunnerOptions } from './job-runner.ts';
-export { ADVANCE_GUARANTEE_AT_RISK_GAUGE, AuditChainBroken, DATABASE_JOBS, GUARANTEE_EXPIRING_GAUGE, GUARANTEE_EXPIRY_HOUR, JOB_INTERVAL_SECONDS, TenantJobsFailed, registeredTenantIds, standardJobs } from './jobs.ts';
+export { ADVANCE_GUARANTEE_AT_RISK_GAUGE, AuditChainBroken, DATABASE_JOBS, GUARANTEE_EXPIRING_GAUGE, GUARANTEE_EXPIRY_HOUR, JOB_INTERVAL_SECONDS, PERMIT_EXPIRING_GAUGE, PERMIT_EXPIRY_HOUR, TenantJobsFailed, registeredTenantIds, standardJobs } from './jobs.ts';
 export type { JobName, StandardJobDeps } from './jobs.ts';
 export { SearchProjectionStore } from './search-projection.ts';
 export type { SearchClassification, SearchDocumentInput, SearchHit, SearchPage, SearchParams } from './search-projection.ts';
@@ -428,6 +428,8 @@ export { OPEN_PERMIT_STATUSES, PERMIT_CATEGORIES, PmtPermitTypeStore } from './p
 export type { PermitCategory, PermitTypeFilter, PermitTypeInput, PermitTypeRow, PermitTypeStatus, PermitTypeStoreOptions } from './pmt-permit-type-store.ts';
 export { PERMIT_TYPE_WORKING_ASSUMPTIONS, SEED_EFFECTIVE_FROM } from './pmt-permit-type-seed.ts';
 export { EXPIRING_WITHIN_DAYS, PERMIT_STATUSES, PmtDossierStore, dossierScope } from './pmt-dossier-store.ts';
+export { DEFAULT_WITHIN_DAYS, EXPIRY_ALERT_DAYS, MAX_WITHIN_DAYS, PmtExpiringPermits, PmtPermitExpiry, alertLevelOf, thresholdOfLevel } from './pmt-permit-expiry.ts';
+export type { ExpiringPermitRow, ExpiryAlertDays, PermitExpiryResult } from './pmt-permit-expiry.ts';
 export type {
   DossierDetail,
   DossierLine,

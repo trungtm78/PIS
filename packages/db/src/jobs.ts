@@ -31,6 +31,8 @@ export const JOB_INTERVAL_SECONDS = {
   'retention-purge': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the guarantee reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-CTR-003).
   'guarantee-expiry': 3600,
+  // Hourly tick that works only in the 06:00 hour of Vietnam time, so the permit reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-PMT-006).
+  'permit-expiry': 3600,
   // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
   // Every 15 minutes: an issue that reaches 100 or 150 percent of its SLA is escalated within a quarter of an hour; the pass is idempotent (ST-ISS-004).
   'issue-sla': 900,
@@ -54,6 +56,10 @@ export const GUARANTEE_EXPIRY_HOUR = 6;
 /** The gauges of the guarantee job: the ACTIVE guarantees within `days` days of their expiry, and the advance guarantees at risk with an advance still owed. */
 export const GUARANTEE_EXPIRING_GAUGE = 'ctr_guarantee_expiring';
 export const ADVANCE_GUARANTEE_AT_RISK_GAUGE = 'ctr_advance_guarantee_at_risk';
+/** The hour of the morning, in Vietnam time, in which the permit reminders and expiries run (PMT 3.1: 06:00). */
+export const PERMIT_EXPIRY_HOUR = 6;
+/** The gauge of the permit job: the ISSUED permits within `days` days of their last day. */
+export const PERMIT_EXPIRING_GAUGE = 'pmt_permit_expiring';
 
 /** The hour of the day, 0 to 23, in Vietnam. */
 export const vietnamHourOf = (instant: Date): number => (instant.getUTCHours() + VIETNAM_UTC_OFFSET_HOURS) % 24;
@@ -115,6 +121,11 @@ export interface StandardJobDeps {
   guaranteeExpiry?: {
     run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ expiring: Readonly<Record<number, number>>; advanceAtRisk: number }>;
   };
+  /**
+   * The daily pass over the issued permits of a tenant (ST-PMT-006): the reminders at 60, 30, 15 and 0 days and the expiry of the ones past their last day;
+   * tells how many permits are within each threshold, for the gauges. Only the 06:00 hour of Vietnam time works.
+   */
+  permitExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ expiring: Readonly<Record<number, number>> }> };
   /**
    * The pass over the issues of a tenant that are being worked (ST-ISS-004): writes the day an issue became overdue and raises the escalations whose threshold the
    * working time has reached; tells how many issues are open and how many escalations wait, for the gauges.
@@ -260,6 +271,27 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
           for (const [days, count] of Object.entries(expiring)) metrics.gauge(GUARANTEE_EXPIRING_GAUGE, count, { days });
           metrics.gauge(ADVANCE_GUARANTEE_AT_RISK_GAUGE, atRisk);
+        }
+      },
+    });
+  }
+  const permits = deps.permitExpiry;
+  if (permits !== undefined) {
+    handlers.push({
+      name: 'permit-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== PERMIT_EXPIRY_HOUR) return;
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        const expiring: Record<number, number> = { 0: 0, 15: 0, 30: 0, 60: 0 };
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            const pass = await permits.run(workerContext(tenantId), now);
+            for (const [days, count] of Object.entries(pass.expiring)) expiring[Number(days)] = (expiring[Number(days)] ?? 0) + count;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
+          for (const [days, count] of Object.entries(expiring)) metrics.gauge(PERMIT_EXPIRING_GAUGE, count, { days });
         }
       },
     });
