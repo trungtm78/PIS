@@ -269,9 +269,10 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
       { name: 'legal_hold_allowed', kind: 'boolean', required: true },
     ],
     check: ({ content }) => {
-      const { retention_years: years, permanent } = content.attributes;
-      // Kept for a number of years, or for ever: exactly one of the two.
-      if ((years === undefined) === (permanent !== true)) fail(years === undefined ? 'attributes.retention_years' : 'attributes.permanent');
+      const years = content.attributes.retention_years ?? undefined;
+      const forEver = content.attributes.permanent === true;
+      // Kept for a number of years, or for ever: exactly one of the two (a null is no value).
+      if ((years === undefined) === !forEver) fail(years === undefined ? 'attributes.retention_years' : 'attributes.permanent');
     },
   },
   {
@@ -455,6 +456,29 @@ export async function entryOfRecord(tx: TenantTx, recordId: string): Promise<Ent
 }
 
 const BY_TYPE: ReadonlyMap<string, MasterTypeDefinition> = new Map(DEFINITIONS.map((definition) => [definition.masterType, definition]));
+
+/** How an entry of one type names an entry of another inside its attributes (the places that no foreign key covers). */
+export interface AttributeReference {
+  /** The type whose entries hold the reference. */
+  owner: string;
+  /** The attribute that holds it (for the table of thresholds, the attribute of its bands). */
+  field: string;
+  shape: 'key' | 'keys' | 'bandsGroup' | 'bandsSector';
+}
+
+/** Every attribute of every type that refers to an entry of `masterType` by its business key. */
+export function attributeReferencesTo(masterType: string): AttributeReference[] {
+  const found: AttributeReference[] = [];
+  for (const definition of DEFINITIONS) {
+    for (const field of definition.fields) {
+      if ((field.kind === 'key' || field.kind === 'keys') && field.refType === masterType) found.push({ owner: definition.masterType, field: field.name, shape: field.kind });
+    }
+  }
+  // The table of thresholds names project groups and sectors inside its bands.
+  if (masterType === 'PROJECT_GROUP') found.push({ owner: 'PROJECT_GROUP_THRESHOLDS', field: 'bands', shape: 'bandsGroup' });
+  if (masterType === 'SECTOR') found.push({ owner: 'PROJECT_GROUP_THRESHOLDS', field: 'bands', shape: 'bandsSector' });
+  return found;
+}
 
 export const masterTypeDefinition = (masterType: string): MasterTypeDefinition | undefined => BY_TYPE.get(masterType);
 export const isRuleType = (masterType: string): boolean => BY_TYPE.get(masterType)?.rule === true;

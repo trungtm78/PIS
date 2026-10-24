@@ -3,6 +3,7 @@ import { vietnamDateOf } from '@machvon/kernel';
 import { BASELINE_PACK, applyBaseline, packDigest, sealPack } from '../src/master-baseline';
 import type { BaselineEntry } from '../src/master-baseline';
 import { MasterRules } from '../src/master-rules';
+import { attributeReferencesTo } from '../src/master-types';
 import { MasterStore } from '../src/master-store';
 import type { MasterContent } from '../src/master-store';
 import type { TenantTx } from '../src/tenant-database';
@@ -468,6 +469,37 @@ describe('the catalogue types, the platform baseline and the rule port (ST-MDM-0
         );
       expect(await refusal(retire())).toEqual({ code: 'MASTER_IN_USE', status: 409 });
       await expect(retire(heir.recordId)).resolves.toMatchObject({ version: 1 });
+    });
+
+    it('counts the entries that name an entry by its key inside their attributes, so retiring it needs a successor', async () => {
+      const priority = await inForce('PRIORITY', 'P-USED', { label: 'Used priority', attributes: { rank: 7, response_hours: 1, resolution_hours: 2, working_calendar: 'ALL_DAYS' } });
+      const spare = await inForce('PRIORITY', 'P-SPARE', { label: 'Spare priority', attributes: { rank: 8, response_hours: 1, resolution_hours: 2, working_calendar: 'ALL_DAYS' } });
+      const category = await inForce('ISSUE_CATEGORY', 'CAT-USES-P', { label: 'Uses a priority', attributes: { sla_priority_key: 'P-USED' } });
+      const usage = await as(STEWARD, (tx) => store.usage(tx, priority.recordId));
+      expect(usage).toMatchObject({ total: 1, counts: { 'ISSUE_CATEGORY.attributes.sla_priority_key': 1 }, samples: [{ reference: 'ISSUE_CATEGORY.attributes.sla_priority_key', id: category.recordId }] });
+      expect((await as(STEWARD, (tx) => store.usage(tx, spare.recordId))).total).toBe(0);
+      const retire = (successor?: string) =>
+        as(STEWARD, (tx) =>
+          store.createChange(
+            tx,
+            { kind: 'RETIRE', masterType: 'PRIORITY', masterRecordId: priority.recordId, proposed: {}, effectiveFrom: TODAY, reason: 'Replaced by the spare priority', ...(successor === undefined ? {} : { successorRecordId: successor }) },
+            memberId(STEWARD),
+          ),
+        );
+      expect(await refusal(retire())).toEqual({ code: 'MASTER_IN_USE', status: 409 });
+      await expect(retire(spare.recordId)).resolves.toMatchObject({ version: 1 });
+      // A stage that another stage may lead to, and a group that a table of thresholds names, are used the same way.
+      const next = await inForce('PROJECT_STAGE', 'ST-NEXT', { attributes: { sequence: 5 } });
+      await inForce('PROJECT_STAGE', 'ST-FIRST', { attributes: { sequence: 4, allowed_next: ['ST-NEXT'] } });
+      expect((await as(STEWARD, (tx) => store.usage(tx, next.recordId))).counts).toEqual({ 'PROJECT_STAGE.attributes.allowed_next': 1 });
+      const groups = await as(STEWARD, (tx) => store.search(tx, { masterType: 'PROJECT_GROUP', businessKey: 'C', namespace: 'PLATFORM', asOf: TODAY, limit: 5, after: undefined }));
+      const named = await as(STEWARD, (tx) => store.usage(tx, groups[0]?.id ?? ''));
+      // The baseline table and any table of the tenant that names the group by its key.
+      expect(Object.keys(named.counts)).toEqual(['PROJECT_GROUP_THRESHOLDS.attributes.bands']);
+      expect(named.total).toBeGreaterThanOrEqual(1);
+      expect(attributeReferencesTo('PROJECT_GROUP').map((reference) => reference.shape).sort()).toEqual(['bandsGroup']);
+      expect(attributeReferencesTo('SECTOR').map((reference) => reference.shape)).toEqual(['bandsSector']);
+      expect(attributeReferencesTo('NO_SUCH_TYPE')).toEqual([]);
     });
 
     it('ties a category to a priority that exists, and a priority to times that make sense', async () => {

@@ -247,6 +247,10 @@ describe('the operational catalogues (ST-MDM-005)', () => {
     expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ retention_years: undefined }))).toEqual(invalid('attributes.retention_years'));
     expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ permanent: true }))).toEqual(invalid('attributes.permanent'));
     expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ owner_module: 'DOC' }))).toBeUndefined();
+    // A null is no value: it is neither the years nor for ever.
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ retention_years: null }))).toEqual(invalid('attributes.retention_years'));
+    expect(await problem('RETENTION_POLICY', 'MASTER', policy({ retention_years: null, permanent: true }))).toBeUndefined();
+    expect(await problem('RETENTION_POLICY', 'FINANCIAL', policy({ retention_years: 5, permanent: false }))).toBeUndefined();
     expect(isRuleType('RETENTION_POLICY')).toBe(true);
   });
 });

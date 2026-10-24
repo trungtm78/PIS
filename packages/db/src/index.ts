@@ -164,7 +164,7 @@ export { BASELINE_EVENT, BASELINE_PACK, BASELINE_SOURCE, applyBaseline, packDige
 export type { BaselineEntry, BaselinePack, BaselineResult } from './master-baseline.ts';
 export { MasterRules } from './master-rules.ts';
 export type { BoundPeriod, CalendarPeriods, NationalCodeRule, RuleReading, SuggestedGroup } from './master-rules.ts';
-export { isRuleType, masterTypeDefinition, ruleTypes, validateMasterContent } from './master-types.ts';
+export { attributeReferencesTo, isRuleType, masterTypeDefinition, ruleTypes, validateMasterContent } from './master-types.ts';
 export type { EntryRef, MasterTypeDefinition, TypeLookup } from './master-types.ts';
 export { MAX_STORED_ERRORS, MasterImportStore, checkMapping } from './master-import-store.ts';
 export type { ImportBatchRow, ImportMapping, ImportMode, ImportPlan, ImportStatus, PublishedRecord, RowError } from './master-import-store.ts';

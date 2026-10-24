@@ -1,6 +1,6 @@
 import { DomainError, assertFourEyes, canonicalJson, changeRequestNext, sha256Hex, versionConflict, vietnamDateOf } from '@machvon/kernel';
 import type { ChangeRequestAction, ChangeRequestState } from '@machvon/kernel';
-import { entryOfRecord, isRuleType, tenantLookup, validateMasterContent } from './master-types.ts';
+import { attributeReferencesTo, entryOfRecord, isRuleType, tenantLookup, validateMasterContent } from './master-types.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 const UNIQUE_VIOLATION = '23505';
@@ -592,6 +592,30 @@ export class MasterStore {
       counts[reference.key] = n;
       total += n;
       for (const row of rows.slice(0, sampleSize)) samples.push({ reference: reference.key, id: row.id });
+    }
+    // The entries that name this one by its key inside their attributes (an issue group names its priority, a programme its source).
+    const record = await this.findRecord(tx, recordId);
+    if (record !== undefined) {
+      for (const reference of attributeReferencesTo(record.masterType)) {
+        const withField = [reference.owner, record.businessKey, reference.field, recordId];
+        const withoutField = [reference.owner, record.businessKey, recordId];
+        const { condition, params } = {
+          key: { condition: 'v.attributes ->> $3 = $2 and r.id <> $4::uuid', params: withField },
+          keys: { condition: 'v.attributes -> $3 @> to_jsonb($2::text) and r.id <> $4::uuid', params: withField },
+          bandsGroup: { condition: "jsonb_path_exists(v.attributes, '$.bands[*] ? (@.group_key == $k)', jsonb_build_object('k', $2::text)) and r.id <> $3::uuid", params: withoutField },
+          bandsSector: { condition: "jsonb_path_exists(v.attributes, '$.bands[*] ? (@.sector_key == $k)', jsonb_build_object('k', $2::text)) and r.id <> $3::uuid", params: withoutField },
+        }[reference.shape];
+        const where = `r.master_type = $1 and r.status not in ('RETIRED', 'MERGED') and ${condition}`;
+        const from = `machvon.master_record r join lateral (select x.attributes from machvon.master_record_version x where x.master_record_id = r.id order by x.revision desc limit 1) v on true`;
+        const rows = await tx.query<{ id: string }>(`select r.id from ${from} where ${where} order by r.id limit ${sampleSize + 1}`, params);
+        if (rows.length === 0) continue;
+        const counted = await tx.query<{ n: string }>(`select count(*)::text as n from ${from} where ${where}`, params);
+        const key = `${reference.owner}.attributes.${reference.field}`;
+        const n = Number((counted[0] as { n: string }).n);
+        counts[key] = (counts[key] ?? 0) + n;
+        total += n;
+        for (const row of rows.slice(0, sampleSize)) samples.push({ reference: key, id: row.id });
+      }
     }
     return { masterRecordId: recordId, asOf: asOf ?? null, counts, total, samples };
   }
