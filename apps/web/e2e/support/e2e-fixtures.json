@@ -45,6 +45,27 @@
       "permissions": null
     },
     {
+      "key": "steward",
+      "displayName": "Chuyên viên danh mục",
+      "membershipId": "00000000-0000-4000-8000-0000000000e7",
+      "permissions": [
+        "master.propose",
+        "master.read",
+        "master_record_version.read"
+      ]
+    },
+    {
+      "key": "dataChecker",
+      "displayName": "Người duyệt danh mục",
+      "membershipId": "00000000-0000-4000-8000-0000000000e8",
+      "permissions": [
+        "master.review",
+        "master.publish",
+        "master.read",
+        "master_record_version.read"
+      ]
+    },
+    {
       "key": "sysAdmin",
       "displayName": "Nguyễn An",
       "initials": "AN",

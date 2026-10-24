@@ -1,0 +1,25 @@
+.mdm-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  align-items: start;
+}
+/* The mockup's back link above the title: 11px text in the line box of 12px text, one pixel lower, with the title where the baseline has it. */
+.mdm-back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+.mdm-back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
+.mdm-queues {
+  display: grid;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .mdm-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

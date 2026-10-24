@@ -167,6 +167,12 @@ const UNITS: Record<TenantName, UnitSeed[]> = {
   ],
 };
 
+/** The catalogue maker and checker of the master data flows: two roles, since no system role holds the master permissions but the owner's. */
+const MASTER_ROLES = [
+  { n: 91, code: 'E2E_MASTER_MAKER', permissions: ['master.propose', 'master.read', 'master_record_version.read'], rank: 40 },
+  { n: 92, code: 'E2E_MASTER_CHECKER', permissions: ['master.review', 'master.publish', 'master.read', 'master_record_version.read'], rank: 50 },
+];
+
 const READER_ROLE = { n: 90, code: 'E2E_READER', permissions: ['organization_unit.read', 'role_grant.read', 'membership.read', 'contract.read'], rank: 20 };
 
 interface GrantPlan {
@@ -183,6 +189,8 @@ const GRANTS: GrantPlan[] = [
   { n: 3, user: 'unitAdmin', role: READER_ROLE.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
   { n: 4, user: 'auditor', role: READER_ROLE.code, kind: 'TENANT', refs: [] },
   { n: 5, user: 'nobody', role: 'MEMBER', kind: 'TENANT', refs: [] },
+  { n: 6, user: 'steward', role: MASTER_ROLES[0]?.code ?? '', kind: 'TENANT', refs: [] },
+  { n: 7, user: 'dataChecker', role: MASTER_ROLES[1]?.code ?? '', kind: 'TENANT', refs: [] },
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -226,10 +234,12 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  statements.push([
-    "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
-    [tenantId, roleId(READER_ROLE.n), READER_ROLE.code, READER_ROLE.permissions, READER_ROLE.rank, ACTOR],
-  ]);
+  for (const role of [READER_ROLE, ...MASTER_ROLES]) {
+    statements.push([
+      "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
+      [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
+    ]);
+  }
   await asOwner(database, tenantId, statements);
 
   const roles = await asOwner<{ id: string; code: string }>(database, tenantId, [['select id, code from machvon.role_definition', []]]);

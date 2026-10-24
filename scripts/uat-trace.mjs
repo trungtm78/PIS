@@ -11,7 +11,7 @@ const OUT_RELATIVE_PATH = join('docs', 'UAT-COVERAGE.md');
 const DEFAULT_LOCALE = 'vi';
 // The generated document is part of the repository documentation, which is English.
 const DOCUMENT_LOCALE = 'en';
-const DEFAULT_RELEASES = ['R0'];
+const DEFAULT_RELEASES = ['R0', 'R1'];
 const SEARCHED_ROOTS = ['apps', 'packages', 'scripts', 'ci'];
 const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', 'coverage', '.git', 'test-results', '__diff__', '.test-locks']);
 const TEST_FILE = /\.(?:test|spec|contract)\.(?:[cm]?[jt]sx?)$|_test\.dart$/;

@@ -58,7 +58,8 @@
     "ST-SAS-003": "PARTIAL",
     "ST-SAS-004": "DONE",
     "ST-SAS-005": "DONE",
-    "ST-SAS-006": "DONE"
+    "ST-SAS-006": "DONE",
+    "ST-MDM-001": "DONE"
   },
   "externalChecks": {
     "AC-ST-DOC-004-1": "a real CA sandbox with a personal and an organisation certificate (D05), and an independent validator (pdfsig or DSS)",

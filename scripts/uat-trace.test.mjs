@@ -226,9 +226,10 @@ test('an external check that no story defines, that a live test now covers or th
 
 test('only the selected releases are listed', () => {
   const tree = scratch({});
-  assert.deepEqual(trace(tree).rows.map((row) => row.id), ['AC-ST-AAA-001-1', 'AC-ST-AAA-001-2', 'AC-ST-BBB-002-1']);
-  const both = traceCoverage({ root: tree.root, planPath: tree.plan, releases: ['R0', 'R1'] });
-  assert.equal(both.rows.length, 4);
+  assert.deepEqual(traceCoverage({ root: tree.root, planPath: tree.plan, releases: ['R0'] }).rows.map((row) => row.id), ['AC-ST-AAA-001-1', 'AC-ST-AAA-001-2', 'AC-ST-BBB-002-1']);
+  // The repository traces the foundations (R0) and the breadth (R1) by default.
+  assert.equal(trace(tree).rows.length, 4);
+  assert.equal(traceCoverage({ root: tree.root, planPath: tree.plan, releases: ['R1'] }).rows.length, 1);
 });
 
 test('an id in a title that no story defines is a typo and fails the gate', () => {
@@ -282,7 +283,7 @@ test('the document has the four columns, escapes a pipe in a title and is the sa
 test('main writes the document and exits 0 when every DONE story is covered, then leaves the bytes alone on a rerun', () => {
   const tree = scratch({ 'apps/api/test/a.test.ts': COVERING });
   const lines = [];
-  const args = ['--root', tree.root, '--plan', tree.plan, '--out', tree.out, '--locale', 'en'];
+  const args = ['--root', tree.root, '--plan', tree.plan, '--out', tree.out, '--locale', 'en', '--releases', 'R0'];
   assert.equal(main(args, { log: (line) => lines.push(line) }), 0);
   const first = readFileSync(tree.out, 'utf8');
   assert.match(lines.join('\n'), /2 of 3/);

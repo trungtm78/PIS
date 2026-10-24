@@ -233,6 +233,26 @@ organisation signature, and checks the file versions (RENDERED_FINAL, LEADER_SIG
 more cases read the signed fixture document without changing it. The real certification authority round trip is DONE_PENDING_ENV. Run them with
 `npm run test:lane -- browser npx playwright test -c apps/web/playwright.config.ts e2e/outgoing-flows.spec.ts`.
 
+## Visual regression of MDM-01, MDM-25, MDM-26, MDM-27, MDM-28 and MDM-32 (master data): what is compared
+
+The mockups of the six master data screens are the generic prototype pages (cards of sample names, placeholder forms, a compare table,
+an approval card). The application shows the real catalogues, forms, usage list, version history and review queue, so only the frame is
+gated, each region at the target ratio of 0.001 against the screen's own baseline PNG:
+
+| Region | Screens | Why it must match |
+|---|---|---|
+| sidebar, top bar | all six | the shell frame with the active item and the breadcrumb of the screen |
+| heading | MDM-01, MDM-28, MDM-32 (title and subtitle) | the title and the subtitle of the mockup, "Dữ liệu nền thống nhất cho toàn bộ nghiệp vụ." |
+| heading with the back link | MDM-25, MDM-26, MDM-27 | the link above the title ("Nhập danh mục hàng loạt", "Lịch sử thay đổi danh mục") and the title |
+
+Not compared: everything below the heading (the cards, the forms and the tables show the real data of the tenant). The whole-page ratio is
+measured and attached to the test as an informational annotation, never as a pass criterion. MDM-26, MDM-27 and MDM-28 name an entry in the
+address (`?type=SECTOR&key=GT`); the visual cases open them without one, where the screen says that no entry is chosen under the same heading.
+
+The flows (`e2e/mdm-flows.spec.ts`) use two fixture users of tenant A that hold the catalogue permissions through custom roles: `steward`
+(propose and read) and `dataChecker` (review, publish and read). They cover the proposal with its impact step, the review and the
+publication by a second person, a change from a later date with its history, and the refusal of a duplicate key.
+
 ## Why the walk is gentle on the machine
 
 - The walk opens four pages at a time. With eight, Chrome fails healthy pages with `net::ERR_INSUFFICIENT_RESOURCES`, because the Vite dev server serves every module of a page as its own request.
