@@ -16,6 +16,8 @@ export const JOB_INTERVAL_SECONDS = {
   'certificate-expiry': 86400,
   // Hourly, so a version whose date has come is in force within the hour; the pass is idempotent.
   'master-activation': 3600,
+  // Every six hours: a baseline that the platform publishes reaches a tenant within the shift; the pass is idempotent.
+  'master-baseline-sync': 21600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -60,6 +62,8 @@ export interface StandardJobDeps {
    * (ST-MDM-001); also tells how many change requests of the tenant wait for a reviewer, for the gauge below.
    */
   masterData?: { activateDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<{ changed: number; pendingReviews: number }> };
+  /** Applies the baseline pack of the platform to the tenant (ST-MDM-003): the catalogues and the rule data every tenant starts from. */
+  masterBaseline?: { apply(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
   metrics?: MetricsSink;
   /** Drops the lapsed entries of the access cache of this process. */
@@ -115,7 +119,7 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     },
   ];
-  const { relay, accessCache, certificates, masterData } = deps;
+  const { relay, accessCache, certificates, masterData, masterBaseline } = deps;
   if (relay !== undefined) handlers.push({ name: 'outbox-relay', run: async () => void (await relay.runOnce()) });
   handlers.push({
     name: 'idempotency-purge',
@@ -140,6 +144,9 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         }
       },
     });
+  }
+  if (masterBaseline !== undefined) {
+    handlers.push({ name: 'master-baseline-sync', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await masterBaseline.apply(workerContext(tenantId)))) });
   }
   if (accessCache !== undefined) handlers.push({ name: 'access-cache-expiry', run: async () => void accessCache.expire() });
   return handlers;

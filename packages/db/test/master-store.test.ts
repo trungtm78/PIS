@@ -157,7 +157,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         code: 'VALIDATION_FAILED',
         status: 422,
       });
-      const other = await inForce({}, 'FUND_SOURCE');
+      const other = await inForce({ attributes: { category: 'NSTW', relation: 'ADDITIVE' } }, 'FUND_SOURCE');
       expect(
         await refusal(
           as(STEWARD, (tx) =>
@@ -255,7 +255,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
     }
 
     const proposeOf = (masterType: string, parentRecordId: string | null = null): Promise<unknown> =>
-      as(STEWARD, (tx) => store.propose(tx, { masterType, businessKey: nextKey('PO'), content: content({ parentRecordId }), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
+      as(STEWARD, (tx) => store.propose(tx, { masterType, businessKey: nextKey('PO'), content: content({ parentRecordId, attributes: masterType === 'PROGRAM' ? { kind: 'LOCAL', period_from: 2021, period_to: 2025 } : { group: 'infrastructure' } }), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
 
     it('keeps a type that only the platform publishes closed to a tenant, naming the field that locks it (AC-ST-MDM-002-2)', async () => {
       const refused = await refusal(proposeOf('ADMIN_UNIT'));
@@ -287,7 +287,26 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
     it('lets a row of the control plane replace the baseline, and reads the tenant row before the baseline', async () => {
       expect(await as(STEWARD, (tx) => store.policyOf(tx, 'SECTOR'))).toEqual({ masterType: 'SECTOR', scope: 'TENANT_ONLY', retireRequiresSuccessor: false, source: 'TENANT' });
       expect(await as(STEWARD, (tx) => store.policyOf(tx, 'NO_SUCH_TYPE'))).toEqual({ masterType: 'NO_SUCH_TYPE', scope: 'TENANT_ONLY', retireRequiresSuccessor: false, source: 'BASELINE' });
-      expect(Object.keys(BASELINE_POLICIES).sort()).toEqual(['ADMIN_UNIT', 'AREA', 'FUND_SOURCE', 'PROGRAM', 'PROJECT_TYPE', 'SECTOR']);
+      expect(Object.keys(BASELINE_POLICIES).sort()).toEqual([
+        'ADMIN_UNIT',
+        'APPRAISAL_CRITERIA',
+        'AREA',
+        'DECISION_AUTHORITY',
+        'DECISION_TYPE',
+        'FUND_SOURCE',
+        'NATIONAL_CODE_FORMAT',
+        'NATIONAL_CODE_REQUIRED',
+        'PROGRAM',
+        'PROJECT_GROUP',
+        'PROJECT_GROUP_THRESHOLDS',
+        'PROJECT_STAGE',
+        'PROJECT_TYPE',
+        'SECTOR',
+      ]);
+      // The law and the process of the platform are its own; the rule data is never a tenant's to write by default.
+      for (const type of ['PROJECT_GROUP', 'PROJECT_STAGE', 'PROJECT_GROUP_THRESHOLDS', 'NATIONAL_CODE_REQUIRED', 'NATIONAL_CODE_FORMAT', 'APPRAISAL_CRITERIA']) {
+        expect(BASELINE_POLICIES[type]?.scope).toBe('PLATFORM_ONLY');
+      }
     });
 
     it('lists every type the tenant holds or the platform governs with its policy and the number of entries of each namespace', async () => {

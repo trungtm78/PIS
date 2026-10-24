@@ -21,6 +21,21 @@ export function useRecords(masterType: string | undefined) {
   });
 }
 
+/** The entries of several types (a catalogue screen shows its types together): every record of each, in the order of the reads. */
+export function useCatalogue(masterTypes: readonly string[]) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<RecordView[]>({
+    queryKey: [...root(tenant?.id), 'catalogue', ...masterTypes],
+    queryFn: async () => {
+      const lists = await Promise.all(masterTypes.map((masterType) => client.readAll('searchMasterRecords', { query: { master_type: masterType } })));
+      return lists.flat().flatMap((raw) => toRecord(raw) ?? []);
+    },
+    enabled: tenant !== undefined && masterTypes.length > 0,
+    retry: false,
+  });
+}
+
 /** The one record that a type, a business key and a namespace name (the tenant's unless the address says otherwise), or null when there is none. */
 export function useRecordByKey(masterType: string | undefined, businessKey: string | undefined, namespace: Namespace = 'TENANT') {
   const client = useApiClient();

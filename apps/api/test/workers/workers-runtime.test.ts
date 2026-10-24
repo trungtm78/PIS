@@ -17,8 +17,9 @@ const SEAL_DELAY = 300_000;
 const HOURLY_DELAY = 3_600_000;
 const RELAY_DELAY = 5_000;
 const CACHE_DELAY = 60_000;
+const SIX_HOURLY_DELAY = 21_600_000;
 const DAILY_DELAY = 86_400_000;
-const ALL_DELAYS = [RELAY_DELAY, CACHE_DELAY, SEAL_DELAY, HOURLY_DELAY, DAILY_DELAY];
+const ALL_DELAYS = [RELAY_DELAY, CACHE_DELAY, SEAL_DELAY, HOURLY_DELAY, SIX_HOURLY_DELAY, DAILY_DELAY];
 const TEST_TIMEOUT = 90_000;
 
 interface RaisedAlert {
@@ -183,7 +184,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
   });
 
   describe('every job, on the real database', () => {
-    it('runs each of the seven jobs once under its lock and succeeds, the certificate expiry marking an ended certificate Expired', async () => {
+    it('runs each of the eight jobs once under its lock and succeeds, the certificate expiry marking an ended certificate Expired', async () => {
       const connection = await admin();
       const placement = randomUUID();
       await connection.query("insert into machvon.placement (id, kind, region, db_cluster_ref, kms_key_ref, status) values ($1, 'POOL', 'vn-north', 'north-1', 'kms-1', 'Active')", [placement]);
@@ -215,7 +216,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
 
         const api = await start();
         for (const delay of ALL_DELAYS) timers.fire(delay);
-        await until(() => (api.workers?.history().length ?? 0) >= 7, 'the seven jobs to run once');
+        await until(() => (api.workers?.history().length ?? 0) >= 8, 'the eight jobs to run once');
         const outcomes = Object.fromEntries((api.workers?.history() ?? []).map((run) => [run.name, run.outcome]));
         expect(outcomes).toEqual({
           'outbox-relay': 'SUCCESS',
@@ -225,6 +226,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
           'idempotency-purge': 'SUCCESS',
           'certificate-expiry': 'SUCCESS',
           'master-activation': 'SUCCESS',
+          'master-baseline-sync': 'SUCCESS',
         });
         const [certificate] = await fixture.harness.owner<{ status: string }>(TENANT_A, [['select status from machvon.signing_certificate where id = $1', [registered.id]]]);
         expect(certificate?.status).toBe('Expired');
@@ -239,7 +241,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
   describe('shutdown and the switch', () => {
     it('stops every timer on stop() and a second stop is safe', async () => {
       const api = await start();
-      expect(timers.delays()).toHaveLength(7);
+      expect(timers.delays()).toHaveLength(8);
       await api.stop();
       expect(timers.delays()).toEqual([]);
       await expect(api.stop()).resolves.toBeUndefined();
@@ -321,7 +323,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
     it('starts the workers by default: an environment that does not mention the switch runs them', async () => {
       expect(fixture.configWith().workersEnabled).toBe(true);
       const api = await start();
-      expect(api.workers?.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'access-cache-expiry']);
+      expect(api.workers?.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'access-cache-expiry']);
     }, TEST_TIMEOUT);
   });
 });

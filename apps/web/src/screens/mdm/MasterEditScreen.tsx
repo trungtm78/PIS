@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { BackLink, Field, SubmitWithImpact } from './components';
+import { AttributeFields, BackLink, Field, SubmitWithImpact } from './components';
 import { useChange, useCreateChange, useHistory, useRecordByKey, useRecords } from './hooks';
 import { fieldProblemMessage, problemMessage, recordStatusLabel } from './labels';
 import { PROPOSE_PERMISSION, describeProblem, namespaceOf, parseAttributes, recordLink, validateEdit } from './model';
@@ -60,7 +60,7 @@ function EditForm({ record }: { record: RecordView }) {
   const frozen = mode === 'READ_ONLY';
   const canPropose = (permissions === undefined || permissions.includes(PROPOSE_PERMISSION)) && !frozen;
   const history = useHistory(record.id);
-  const records = useRecords(record.masterType);
+  const records = useRecords(undefined);
   const create = useCreateChange();
   const current = useMemo(() => history.data?.find((version) => version.id === record.versionId), [history.data, record.versionId]);
   const [form, setForm] = useState<EditForm | undefined>(undefined);
@@ -69,7 +69,7 @@ function EditForm({ record }: { record: RecordView }) {
   const [submitted, setSubmitted] = useState(false);
   const change = useChange(opened);
   const problem = create.isError ? describeProblem(create.error) : undefined;
-  const parents = useMemo(() => (records.data ?? []).filter((candidate) => candidate.id !== record.id && candidate.status === 'EFFECTIVE'), [records.data, record.id]);
+  const parents = useMemo(() => (records.data ?? []).filter((candidate) => candidate.masterType === record.masterType && candidate.id !== record.id && candidate.status === 'EFFECTIVE'), [records.data, record.masterType, record.id]);
 
   // The form starts from the version in force; it is filled once, when that version has been read.
   useEffect(() => {
@@ -177,9 +177,16 @@ function EditForm({ record }: { record: RecordView }) {
               <Field id="edit-legalBasis" label={t('mdm.edit.legalBasis.label')} error={error('legalBasis')}>
                 <textarea id="edit-legalBasis" rows={2} value={form.legalBasis} aria-invalid={error('legalBasis') !== undefined} onChange={(event) => setField('legalBasis', event.target.value)} />
               </Field>
-              <Field id="edit-attributes" label={t('mdm.edit.attributes.label')} error={error('attributes')}>
-                <textarea id="edit-attributes" rows={5} spellCheck={false} value={form.attributes} aria-invalid={error('attributes') !== undefined} onChange={(event) => setField('attributes', event.target.value)} />
-              </Field>
+              <AttributeFields
+                idPrefix="edit"
+                masterType={record.masterType}
+                value={form.attributes}
+                onChange={(json) => setField('attributes', json)}
+                records={records.data ?? []}
+                disabled={opened !== undefined || !canPropose}
+                label={t('mdm.edit.attributes.label')}
+                error={error('attributes')}
+              />
               <Field id="edit-reason" label={t('mdm.edit.reason.label')} error={error('reason')}>
                 <textarea id="edit-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />
               </Field>

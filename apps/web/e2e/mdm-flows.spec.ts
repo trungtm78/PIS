@@ -210,6 +210,55 @@ test.describe('master data: propose, review, publish, change and history', () =>
     expect(Number(rows[0]?.n)).toBe(1);
   });
 
+  test('the catalogues of the capital chain start from the baseline of the platform: the tree, the rules with what they wait for, and a typed form', async ({ page }) => {
+    // MDM-04: the national target programmes sit inside their budget source, and the steward is offered no new funding source (the platform's alone).
+    await open(page, '/mdm/mdm-04', 'steward');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.fundSource.page.title'] })).toBeVisible();
+    const programme = page.locator('tr[data-key="CTMTQG-NTM"]');
+    await expect(programme).toContainText('NSTW-DTPT');
+    await expect(programme).toContainText(vi['mdm.value.relation.subsetOf']);
+    await expect(programme).toContainText(vi['mdm.catalogue.platform.pill']);
+    await expect(page.getByRole('link', { name: vi['mdm.catalogue.add.action'] })).toHaveCount(0);
+
+    // MDM-07: the group thresholds say where they come from and that they wait for a confirmation; the bands are exact amounts.
+    await open(page, '/mdm/mdm-07', 'steward');
+    const rules = page.getByTestId('rules');
+    await expect(rules.locator('[data-rule-type="PROJECT_GROUP_THRESHOLDS"]')).toContainText(vi['mdm.rule.awaiting.pill'].replace('{cxn}', 'CXN-32'));
+    await expect(page.getByTestId('bands').getByRole('row')).toHaveCount(5);
+    await expect(rules.locator('[data-rule-type="APPRAISAL_CRITERIA"]')).toContainText(vi['mdm.rule.threshold.text'].replace('{score}', '60'));
+    await page.getByLabel(vi['mdm.catalogue.type.label'], { exact: true }).selectOption('PROJECT_TYPE');
+    await expect(page.locator('tr[data-key="NEW_BUILD"]')).toBeVisible();
+    await expect(page.locator('tr[data-key="A"]')).toHaveCount(0);
+
+    // MDM-08: the stage graph and the national code rule.
+    await open(page, '/mdm/mdm-08', 'steward');
+    await expect(page.locator('tr[data-key="APPRAISAL"]')).toContainText('PIPELINE, REJECTED, CONCEPT, CANCELLED');
+    await expect(page.getByTestId('national-code-mode')).toContainText('PIPELINE');
+    await expect(page.getByTestId('national-code-format')).toContainText('7654321');
+
+    // MDM-10: a tenant adds a decision type under a decision type of the platform, from the typed form, and the server judges it.
+    await open(page, '/mdm/mdm-10', 'steward');
+    await page.getByRole('link', { name: vi['mdm.catalogue.add.action'] }).click();
+    await expect(page.getByLabel(vi['mdm.create.type.label'])).toHaveValue('DECISION_TYPE');
+    const decisionKey = `E2E-DT-${unique()}`;
+    await page.getByLabel(vi['mdm.create.key.label']).fill(decisionKey);
+    await page.getByLabel(vi['mdm.create.name.label']).fill('Quyết định e2e');
+    await page.getByLabel(vi['mdm.create.validFrom.label']).fill('2026-01-01');
+    await page.getByLabel(vi['mdm.create.reason.label']).fill('Decision type of the end-to-end flow');
+    await page.getByLabel(vi['mdm.create.parent.label']).selectOption({ label: 'INVESTMENT_DECISION · Quyết định đầu tư' });
+    // Without the required fields the server refuses and the screen names the field.
+    await page.getByRole('button', { name: vi['mdm.create.save.action'] }).click();
+    await expect(page.getByRole('alert').filter({ hasText: 'attributes.required_fields' })).toBeVisible();
+    await page.getByLabel(vi['mdm.attr.decisionType.requiredFields.label']).fill('number, issued_on');
+    await page.getByRole('button', { name: vi['mdm.create.save.action'] }).click();
+    await expect(page.getByTestId('impact')).toBeVisible();
+    const [created] = await sql<{ attributes: { required_fields: string[] } }>(
+      "select v.attributes from machvon.master_record_version v join machvon.master_record r on r.id = v.master_record_id where r.business_key = $1",
+      [decisionKey],
+    );
+    expect(created?.attributes.required_fields).toEqual(['number', 'issued_on']);
+  });
+
   test('someone without the master data permissions sees no entry and is offered no way to add one', async ({ page }) => {
     await open(page, '/mdm/mdm-01', 'auditor');
     await expect(page.getByRole('heading', { level: 1, name: vi['mdm.hub.page.title'] })).toBeVisible();

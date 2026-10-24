@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
-import { BackLink, Field, SubmitWithImpact } from './components';
+import { AttributeFields, BackLink, Field, SubmitWithImpact } from './components';
 import { useChange, useProposeRecord, useRecordByKey, useRecords } from './hooks';
 import { fieldProblemMessage, problemMessage } from './labels';
 import { EMPTY_RECORD_FORM, LABEL_MAX_LENGTH, PROPOSE_PERMISSION, describeProblem, parseAttributes, recordLink, validateNewRecord } from './model';
@@ -28,7 +28,9 @@ function MasterCreateContent({ route }: ScreenProps) {
   const canPropose = (permissions === undefined || permissions.includes(PROPOSE_PERMISSION)) && !frozen;
   const records = useRecords(undefined);
   const propose = useProposeRecord();
-  const [form, setForm] = useState<RecordForm>(EMPTY_RECORD_FORM);
+  // A catalogue screen opens this form for its own type.
+  const [params] = useSearchParams();
+  const [form, setForm] = useState<RecordForm>({ ...EMPTY_RECORD_FORM, masterType: params.get('type') ?? '' });
   const [errors, setErrors] = useState<Partial<Record<RecordField, ReturnType<typeof validateNewRecord>[RecordField]>>>({});
   const [draft, setDraft] = useState<{ type: string; key: string } | undefined>(undefined);
   const [submitted, setSubmitted] = useState(false);
@@ -128,9 +130,17 @@ function MasterCreateContent({ route }: ScreenProps) {
             <Field id="record-legalBasis" label={t('mdm.create.legalBasis.label')} error={error('legalBasis')}>
               <textarea id="record-legalBasis" rows={2} value={form.legalBasis} aria-invalid={error('legalBasis') !== undefined} onChange={(event) => setField('legalBasis', event.target.value)} />
             </Field>
-            <Field id="record-attributes" label={t('mdm.create.attributes.label')} error={error('attributes')} hint={t('mdm.create.attributes.hint')}>
-              <textarea id="record-attributes" rows={4} spellCheck={false} value={form.attributes} aria-invalid={error('attributes') !== undefined} onChange={(event) => setField('attributes', event.target.value)} />
-            </Field>
+            <AttributeFields
+              idPrefix="record"
+              masterType={form.masterType}
+              value={form.attributes}
+              onChange={(json) => setField('attributes', json)}
+              records={records.data ?? []}
+              disabled={draft !== undefined || !canPropose}
+              label={t('mdm.create.attributes.label')}
+              hint={t('mdm.create.attributes.hint')}
+              error={error('attributes')}
+            />
             <Field id="record-reason" label={t('mdm.create.reason.label')} error={error('reason')}>
               <textarea id="record-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />
             </Field>

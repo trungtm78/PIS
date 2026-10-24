@@ -1,5 +1,6 @@
 import { DomainError, assertFourEyes, canonicalJson, changeRequestNext, sha256Hex, versionConflict, vietnamDateOf } from '@machvon/kernel';
 import type { ChangeRequestAction, ChangeRequestState } from '@machvon/kernel';
+import { entryOfRecord, isRuleType, tenantLookup, validateMasterContent } from './master-types.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 const UNIQUE_VIOLATION = '23505';
@@ -88,8 +89,10 @@ export interface TypePolicySummary extends TypePolicy {
 
 /**
  * The policy of the platform for the types it publishes or extends (MDM 3.1 F8): the funding sources and the administrative units are
- * the platform's alone; the sectors, programmes, project types and areas are published by the platform and extended by a tenant with child
- * entries; every other type is the tenant's own. A row of `master_type_policy` written by the control plane replaces the baseline.
+ * the platform's alone, and so are the project groups and stages and the rule data (the law and the process of the platform are not a
+ * tenant's to change); the sectors, programmes, project types, areas, decision types and decision authorities are published by the
+ * platform and extended by a tenant with child entries; every other type is the tenant's own. A row of `master_type_policy` written by
+ * the control plane replaces the baseline.
  */
 export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; retireRequiresSuccessor: boolean }>> = {
   FUND_SOURCE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
@@ -98,6 +101,14 @@ export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; reti
   PROGRAM: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
   PROJECT_TYPE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
   AREA: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  DECISION_TYPE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  DECISION_AUTHORITY: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
+  PROJECT_GROUP: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
+  PROJECT_STAGE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
+  PROJECT_GROUP_THRESHOLDS: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  NATIONAL_CODE_REQUIRED: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  NATIONAL_CODE_FORMAT: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  APPRAISAL_CRITERIA: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
 };
 
 const OWN_BY_DEFAULT = { scope: 'TENANT_ONLY' as const, retireRequiresSuccessor: false };
@@ -179,6 +190,11 @@ export interface MasterSearchRow {
   versionId: string | null;
   openChangeRequestId: string | null;
   version: number;
+  /** What the version in force says, so that a catalogue screen lists the entries with their columns in one read. */
+  revision: number | null;
+  parentRecordId: string | null;
+  legalBasis: string | null;
+  attributes: Record<string, unknown> | null;
 }
 
 export interface MasterUsage {
@@ -500,10 +516,15 @@ export class MasterStore {
       valid_until: string | null;
       version_id: string | null;
       open_change_request_id: string | null;
+      revision: number | null;
+      parent_id: string | null;
+      legal_basis: string | null;
+      attributes: Record<string, unknown> | null;
       sort_key: string;
     }>(
       `select r.id, r.namespace, r.master_type, r.business_key, r.status, r.version::text as version,
               v.label, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.id as version_id,
+              v.revision, v.parent_id, v.legal_basis, v.attributes,
               c.id as open_change_request_id, r.master_type || ':' || r.business_key as sort_key
          from machvon.master_record r
          left join lateral (
@@ -535,6 +556,10 @@ export class MasterStore {
       versionId: row.version_id,
       openChangeRequestId: row.open_change_request_id,
       version: Number(row.version),
+      revision: row.revision,
+      parentRecordId: row.parent_id,
+      legalBasis: row.legal_basis,
+      attributes: row.attributes,
     }));
   }
 
@@ -625,6 +650,7 @@ export class MasterStore {
     if (content.validUntil !== null && content.validUntil <= content.validFrom) throw new DomainError('VALIDATION_FAILED', 422, 'valid_until');
     if (content.parentRecordId !== null) await this.assertParent(tx, content.parentRecordId, input.masterType);
     await this.assertTenantMayAdd(tx, input.masterType, content.parentRecordId);
+    await this.assertContent(tx, input.masterType, input.businessKey, content);
     let recordId: string;
     try {
       const rows = await tx.query<{ id: string }>(
@@ -663,9 +689,25 @@ export class MasterStore {
     return { recordId, versionId, changeRequestId, version: 1 };
   }
 
+  /** The rules of the type (which attributes it takes, which entries it refers to) that the content has to meet before anyone can review it. */
+  private async assertContent(tx: TenantTx, masterType: string, businessKey: string, content: MasterContent): Promise<void> {
+    const parent = content.parentRecordId === null ? undefined : await entryOfRecord(tx, content.parentRecordId);
+    await validateMasterContent({ masterType, businessKey, content, parent, lookup: tenantLookup(tx) });
+  }
+
   private async assertParent(tx: TenantTx, parentRecordId: string, masterType: string): Promise<void> {
     const parent = await this.findRecord(tx, parentRecordId);
     if (parent === undefined || parent.masterType !== masterType) throw new DomainError('VALIDATION_FAILED', 422, 'parent_record_id');
+  }
+
+  /**
+   * Rule data is decided and published by the owner of the module that applies it (BR-MDM-09): the control plane names the owners of a
+   * rule type for the tenant, and a type with no owner cannot be approved by anyone.
+   */
+  private async assertRuleOwner(tx: TenantTx, masterType: string, actor: string): Promise<void> {
+    if (!isRuleType(masterType)) return;
+    const owners = await tx.query('select 1 from machvon.master_type_approver where master_type = $1 and membership_id = $2::uuid', [masterType, actor]);
+    if (owners.length === 0) throw new DomainError('SCOPE_DENIED', 403, 'master_type');
   }
 
   /** Opens an UPDATE or RETIRE change request on a record in force and stores its impact preview before anyone can submit it. */
@@ -702,6 +744,7 @@ export class MasterStore {
         if (merged.parentRecordId === record.id) throw new DomainError('VALIDATION_FAILED', 422, 'parent_record_id');
         await this.assertParent(tx, merged.parentRecordId, record.masterType);
       }
+      await this.assertContent(tx, record.masterType, record.businessKey, merged);
       // A change that leaves the content as it is (the date apart) changes nothing and is refused.
       if (contentHashOf(record.masterType, record.businessKey, { ...merged, validFrom: current.validFrom }) === current.contentSha256) throw new DomainError('VALIDATION_FAILED', 422, 'proposed');
       proposed = proposedJsonOf(merged);
@@ -801,6 +844,7 @@ export class MasterStore {
   ): Promise<{ change: ChangeRequestRow; status: ChangeStatus; version: number }> {
     const change = await this.lockChange(tx, id, expectedVersion);
     assertFourEyes(change.createdBy, reviewer);
+    await this.assertRuleOwner(tx, change.masterType, reviewer);
     if (change.status !== 'IN_REVIEW') throw new DomainError('STAGE_TRANSITION_DENIED', 409, `${change.status}->${decision}`);
     const status = decision === 'approve' ? advance(change.status, 'approve') : decision === 'reject' ? advance(change.status, 'reject') : 'DRAFT';
     if (decision === 'approve' && change.changeKind === 'CREATE' && change.masterRecordId !== null) await this.moveNewRecord(tx, change.masterRecordId, 'APPROVED', reviewer);
@@ -837,6 +881,7 @@ export class MasterStore {
     const change = rows[0] === undefined ? undefined : toChange(rows[0]);
     if (change === undefined) throw new DomainError('CHANGE_NOT_APPROVED', 409);
     assertFourEyes(change.createdBy, publisher);
+    await this.assertRuleOwner(tx, change.masterType, publisher);
     const documents = await tx.query('select 1 from machvon.document where id = $1::uuid', [decisionDocumentId]);
     if (documents.length === 0) throw new DomainError('VALIDATION_FAILED', 422, 'decision_document_id');
     advance(change.status, 'apply');

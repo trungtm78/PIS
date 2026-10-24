@@ -150,6 +150,23 @@ describe('standard jobs', () => {
     expect(gauges).toEqual([['mdm_change_pending_gauge', 5]]);
   });
 
+  it('applies the baseline of the platform to every tenant and keeps going when one fails', async () => {
+    const applied: string[] = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      masterBaseline: {
+        apply: async (ctx) => {
+          applied.push(ctx.tenantId);
+          if (ctx.tenantId === TENANT_A) throw new Error('boom');
+        },
+      },
+    });
+    await expect(handlers.find((handler) => handler.name === 'master-baseline-sync')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(applied).toEqual([TENANT_A, TENANT_B]);
+  });
+
   it('keeps going when one tenant fails to activate, reports it, and still sets the gauge for the others', async () => {
     const gauges: number[] = [];
     const handlers = standardJobs({
@@ -178,9 +195,10 @@ describe('standard jobs', () => {
       relay: { runOnce: async () => void (relayed += 1) },
       certificates: { expireDue: async () => 0 },
       masterData: { activateDue: async () => ({ changed: 0, pendingReviews: 0 }) },
+      masterBaseline: { apply: async () => undefined },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

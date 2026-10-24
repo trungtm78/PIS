@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-24T12:00+07:00 | Milestone: M2/6 | Task: M2f 23/23 xong, cổng milestone M2 đạt, đã push (origin/main 5ceb833); kế tiếp M3
+Cập nhật: 2026-10-24T14:00+07:00 | Milestone: M3/6 | Task: MDM-1 — ST-MDM-001 xong, ST-MDM-002 một phần, ST-MDM-003 xong; kế tiếp ST-MDM-004
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -34,9 +34,12 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 
 - [x] M2f (23 task, 5 lane, đã hợp nhất): vòng đời tenant (SAS-001/003/004/005/006: license ký, saga 11 bước, owner, theme), thành viên/khách (ADM-006/007, IAM-005, IAM-09), quản trị và runtime (legal hold ADM-003, chứng thư ADM-008, chính sách bảo mật ADM-009, bootstrap API thật, telemetry, cảnh báo, scheduler + relay + alert sink chạy trong tiến trình API — N1), tài liệu (DOC-001..005: số văn bản, PDF xác định, kiểm chữ ký PAdES, ký/đóng dấu), nền tảng (search/files/cache isolation, supply chain, SBOM, deploy canary, test data platform, spike R0), Task 22 (uat-trace: 156/196 tiêu chí có tên test, 37/37 của story DONE; browser.yml; gói duyệt baseline R10 24 màn), Task 23 (cổng milestone). Codex review từng commit M2f (61 commit, ~130 phát hiện) + vòng 2 trên các commit sửa (30 commit, 27 phát hiện): mọi phát hiện thật đã sửa kèm test hồi quy, phần còn lại ghi TODOS.md.
 - [x] Cổng milestone M2 (docs/m2-alignment-review.md mục 1 và 7): R0 57 story = 21 DONE, 2 DONE_UNCONFIRMED (DOC-001, DOC-003: CXN-DOC), 19 DONE_PENDING_ENV (môi trường ngoài: CA, Keycloak, Temporal, Redis, cloud, PowerSync, mô hình AI), 15 PARTIAL (DOC-002, KERNEL-013/014/025/026/027/030/031, IAM-002/005, ADM-006/007/009, SAS-001/003; phần thiếu nêu cụ thể), 0 NOT STARTED.
+- [x] M3 · MDM-1 · ST-MDM-001: bản ghi chủ có phiên bản hiệu lực, đề xuất–duyệt–công bố bốn mắt (đề xuất ≠ duyệt ≠ công bố), impact preview bắt buộc, công bố theo ngày + job master-activation; migration V1080/V1082, MasterStore, API (ghi + đọc), màn MDM-01/25/26/27/28/32, luồng trình duyệt và visual — commit 3d22352, sửa theo Codex vòng 1 commit 9b440a1
+- [x] M3 · MDM-1 · ST-MDM-002 (một phần): chính sách phạm vi theo loại (V1081), MDM-31 ngừng dùng với successor, MDM-33 phạm vi; còn alias của tenant qua crosswalk (chờ ST-MDM-007)
+- [x] M3 · MDM-1 · ST-MDM-003: định nghĩa loại và validator cho FUND_SOURCE (CTMTQG luôn là tập con: SUBSET_SOURCE_NOT_ADDITIVE), PROGRAM, SECTOR, PROJECT_GROUP/TYPE/STAGE, DECISION_TYPE/AUTHORITY và 4 loại rule (BR-MDM-09); gói baseline nền tảng có digest + job master-baseline-sync (6 giờ); cổng đọc rule MasterRules (nhóm dự án theo bảng ngưỡng hiệu lực tại ngày đề xuất, mã TTQG, cờ chờ xác nhận); người duyệt rule theo loại (V1083, đóng khi không có); MDM-04..10 trên một CatalogueScreen; form thuộc tính theo loại ở MDM-25/26 — migration V1083, 3 AC có test
 
 ## Đang làm dở
-Task: M2 đã đóng (M2a..M2f, cổng milestone đạt) — đã push lên origin/main (5ceb833); kế tiếp M3 (R1 lát rộng).
+Task: M3 · MDM-1 — ST-MDM-001 DONE, ST-MDM-002 PARTIAL, ST-MDM-003 DONE (chưa push; chờ Codex review của ST-MDM-003 rồi đẩy một lần sau khi qua cổng đầy đủ). Kế tiếp ST-MDM-004 (lịch kỳ và đơn vị đo), rồi 005..009.
 Đã làm: M2a..M2f; R0 57 story = 21 DONE / 2 DONE_UNCONFIRMED / 19 DONE_PENDING_ENV / 15 PARTIAL / 0 NOT STARTED; 24 màn hình web đã cài (ADM 6, DOC 5, IAM 2, NOT 2, SAS 9), 382 web + 72 mobile chưa làm.
 BƯỚC TIẾP THEO: M3 theo docs/superpowers/plans/2026-10-23-m3-r1-breadth-roadmap.md, lát đầu KERNEL-1, MDM-1, ISS-1 (viết plan bằng writing-plans trước). Trước lát M3 đầu tiên: quy tắc đồ thị module trong .dependency-cruiser.cjs (F9), wiring hạ tầng thật của Task 20 khi có môi trường.
 File liên quan: docs/m2-alignment-review.md (mục 1 và 7), docs/UAT-COVERAGE.md, docs/r10-baseline-approvals.md, docs/runbooks/{test-lanes,web-e2e,jobs,api-runtime,release-checklist}.md, TODOS.md
@@ -83,6 +86,11 @@ File liên quan: docs/m2-alignment-review.md (mục 1 và 7), docs/UAT-COVERAGE.
 | Trạng thái story | DONE / DONE_PENDING_ENV / DONE_UNCONFIRMED / PARTIAL; cổng `uat-trace` ép các story ba trạng thái đầu có tên test cho mọi tiêu chí (trừ kiểm tra ngoài đã khai trong `docs/story-status.json`) | KERNEL-090 phần R0 |
 | Điểm mơ hồ | Diễn giải đã chọn | Căn cứ trong spec |
 |---|---|---|
+| Loại nào tenant được ghi (MDM F8) | Nguồn vốn, nhóm và giai đoạn dự án, 4 loại rule chỉ nền tảng ghi (pháp luật và quy trình của nền tảng); lĩnh vực, chương trình, loại dự án, địa bàn, loại và thẩm quyền quyết định: tenant thêm mục con dưới mục của nền tảng; còn lại của tenant. Dòng master_type_policy do control-plane ghi thay baseline | MDM.md BR-MDM-06, F8 |
+| Ai là "owner phân hệ" duyệt rule (BR-MDM-09) | Bảng master_type_approver (control-plane ghi, tenant chỉ đọc); loại rule chưa có approver thì không ai duyệt được (đóng mặc định) | MDM.md BR-MDM-09; chưa có UI gán |
+| Giá trị seed của rule | Ngưỡng nhóm dự án (120 tỷ / 2.300 tỷ / 30.000 tỷ), tiêu chí thẩm định 5 mục tổng 100 điểm ngưỡng 60, mã TTQG 7 chữ số chặn từ PIPELINE: đều là giả định gắn cờ chờ xác nhận (CXN-32, CXN-01, ASSUMPTION-APPRAISAL-60), không phải khẳng định pháp lý | PRJ.md [CXN-01][CXN-32], story AC-ST-MDM-003 |
+| Thuộc tính loại thẩm quyền quyết định | agency_key, decision_type_key (phải có), scope ∈ {NATIONAL, MINISTRY, PROVINCE, COMMUNE}; khung do mình chọn vì catalogue chỉ nêu cột "Cơ quan, Loại quyết định, Phạm vi" | screen_catalog MDM-09 |
+| Gói baseline | Nhúng trong mã, có digest SHA-256 kiểm trước khi áp; mục có sẵn không đổi, bản mới của một mục thêm version mới bắt đầu từ ngày của nó và không viết lại lịch sử; gói ký từ control-plane thay sau | MDM.md §9 mdm.platform-baseline-sync |
 | Tenant là gì | Cơ quan chủ quản ký hợp đồng (UBND tỉnh/bộ); đơn vị con là organization_unit | R6 (người dùng chốt D9) |
 | Định nghĩa kỳ/YTD, golden data (D03), mapping nguồn (D04) | Soạn đề xuất, trạng thái CHỜ KÝ; không tự chốt | D-B04 ngoại lệ |
 | Căn cứ pháp lý thứ cấp [CXN] | Vào sổ xác nhận; slice dùng chưa được DONE khi chưa xác nhận | R4 |

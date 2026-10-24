@@ -21,6 +21,8 @@ import {
   ThemeStore,
   UserSessionStore,
   seedSystemRoles,
+  applyBaseline,
+  BASELINE_PACK,
 } from '@machvon/db';
 import type { ThemeConfig } from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
@@ -241,6 +243,8 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
     ]);
   }
   await asOwner(database, tenantId, statements);
+  // The tenant that the browser flows use starts from the baseline the platform publishes (catalogues and rule data), as a provisioned tenant does.
+  if (name === 'A') await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => applyBaseline(tx, BASELINE_PACK, ACTOR));
 
   const roles = await asOwner<{ id: string; code: string }>(database, tenantId, [['select id, code from machvon.role_definition', []]]);
   const roleByCode = new Map(roles.map((row) => [row.code, row.id]));

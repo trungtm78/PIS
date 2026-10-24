@@ -93,6 +93,10 @@ function searchViewOf(row: MasterSearchRow): Record<string, unknown> {
     version_id: row.versionId,
     open_change_request_id: row.openChangeRequestId,
     version: row.version,
+    revision: row.revision,
+    parent_record_id: row.parentRecordId,
+    legal_basis: row.legalBasis,
+    attributes: row.attributes,
   };
 }
 

@@ -1,4 +1,4 @@
-import { AuditSealJob, CertificateStore, IdempotencyStore, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AuditSealJob, BASELINE_PACK, CertificateStore, IdempotencyStore, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, JobName, OutboxDelivery, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, MetricsSink, TimerPort } from '@machvon/kernel';
@@ -74,6 +74,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
       activateDue: (ctx) =>
         deps.tenants.withTenant(ctx, async (tx) => ({ changed: await masterData.activateDue(tx, ctx.membershipId), pendingReviews: await masterData.pendingReviews(tx) })),
     },
+    masterBaseline: { apply: (ctx) => deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, BASELINE_PACK, ctx.membershipId)) },
     ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }),
     accessCache: deps.accessCache,
   });

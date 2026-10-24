@@ -33,6 +33,11 @@ export interface RecordView {
   versionId: string | null;
   openChangeRequestId: string | null;
   version: number;
+  /** What the version in force says (the catalogue screens list entries with their columns from one read). */
+  revision: number | null;
+  parentRecordId: string | null;
+  legalBasis: string | null;
+  attributes: Record<string, unknown>;
 }
 
 export interface Impact {
@@ -107,6 +112,10 @@ export function toRecord(raw: unknown): RecordView | undefined {
     versionId: nullableText(row.version_id),
     openChangeRequestId: nullableText(row.open_change_request_id),
     version,
+    revision: whole(row.revision) ?? null,
+    parentRecordId: nullableText(row.parent_record_id),
+    legalBasis: nullableText(row.legal_basis),
+    attributes: asRecord(row.attributes) ?? {},
   };
 }
 

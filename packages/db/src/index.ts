@@ -160,3 +160,9 @@ export type {
   TypePolicySummary,
   TypeScope,
 } from './master-store.ts';
+export { BASELINE_EVENT, BASELINE_PACK, BASELINE_SOURCE, applyBaseline, packDigest, sealPack } from './master-baseline.ts';
+export type { BaselineEntry, BaselinePack, BaselineResult } from './master-baseline.ts';
+export { MasterRules } from './master-rules.ts';
+export type { NationalCodeRule, RuleReading, SuggestedGroup } from './master-rules.ts';
+export { isRuleType, masterTypeDefinition, ruleTypes, validateMasterContent } from './master-types.ts';
+export type { EntryRef, MasterTypeDefinition, TypeLookup } from './master-types.ts';
