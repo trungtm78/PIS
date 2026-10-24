@@ -11,6 +11,7 @@ import { OutgoingIssuanceController } from './issuance.controller';
 import { IssueRequestsController } from './issue-requests.controller';
 import { DocumentIssueService } from './issue-request.service';
 import { OutgoingDraftsController } from './outgoing-drafts.controller';
+import { OutgoingRecallController } from './recall.controller';
 import { SignedDocumentsController } from './signed-documents.controller';
 import { PdfLibRenderer, loadRendererResources } from './pdf-renderer';
 import type { RendererResources } from './pdf-renderer';
@@ -27,11 +28,12 @@ import { StaticTrustStoreProvider, UnavailableRevocationPort, loadTrustAnchors }
  * numbering and the organisation seal (ST-DOC-005), the template library with its separated legal confirmation
  * (ST-DOC-006), the composing, review and lock of outgoing documents (ST-DOC-007) and the issue-request and document-reference ports for source
  * modules (ST-DOC-008), the documents signed outside the system (ST-DOC-009, the production path while no certification authority sandbox exists) and
- * the verify-and-issue gate with the distribution of an issued document to its recipients (ST-DOC-010). The incoming flows join it in later slices.
+ * the verify-and-issue gate with the distribution of an issued document to its recipients (ST-DOC-010) and the recall of an issued document with the voiding
+ * of the number of one that cannot be sealed (ST-DOC-012). The incoming flows join it in later slices.
  */
 export const docModule = defineModule({
   code: 'DOC',
-  controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController, DocumentTemplatesController, OutgoingIssuanceController, DocumentDistributionsController],
+  controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController, DocumentTemplatesController, OutgoingIssuanceController, DocumentDistributionsController, OutgoingRecallController],
   providers: [
     // The object storage of the platform replaces the in-memory adapter when it is bound (KERNEL-024).
     { provide: DOCUMENT_FILE_PORT, useValue: new MockDocumentFilePort() },

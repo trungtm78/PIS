@@ -181,6 +181,12 @@ export function eventLabel(t: T, kind: string): string {
       return t('doc.draft.event.numbered');
     case 'SEALED':
       return t('doc.draft.event.sealed');
+    case 'ISSUED':
+      return t('doc.draft.event.issued');
+    case 'RECALLED':
+      return t('doc.draft.event.recalled');
+    case 'NUMBER_VOIDED':
+      return t('doc.draft.event.numberVoided');
     default:
       return t('doc.draft.event.other');
   }

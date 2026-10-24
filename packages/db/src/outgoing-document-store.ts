@@ -68,6 +68,10 @@ export interface OutgoingDocumentRecord {
   payloadSha256: string | null;
   reviewDueOn: string | null;
   cancelReason: string | null;
+  /** Why an issued document was recalled, when, and by whom (ST-DOC-012). */
+  recallReason: string | null;
+  recalledAt: Date | null;
+  recalledBy: string | null;
   /** The written reason a document with an unconfirmed template was issued anyway (BR-DOC-10), and who wrote it. */
   unconfirmedOverrideReason: string | null;
   unconfirmedOverrideBy: string | null;
@@ -164,6 +168,9 @@ interface OutgoingRow {
   payload_sha256: string | null;
   review_due_on: string | null;
   cancel_reason: string | null;
+  recall_reason: string | null;
+  recalled_at: Date | null;
+  recalled_by: string | null;
   unconfirmed_override_reason: string | null;
   unconfirmed_override_by: string | null;
 }
@@ -195,7 +202,7 @@ const OUTGOING_COLUMNS = `o.id, o.document_id, o.status, o.route, o.urgency, o.c
   o.sealed_at, o.issued_at, o.version::text as version, d.title, d.doc_type_code, d.current_version_id, d.document_number, d.number_year, d.symbol,
   d.issued_on::text as issued_on, o.created_at, ${timestampKey('o.created_at')} as sort_key, o.template_id, d.effect_status, d.classification,
   o.source_module, o.source_ref, o.issue_request_id, o.payload_sha256, o.review_due_on::text as review_due_on, o.cancel_reason,
-  o.unconfirmed_override_reason, o.unconfirmed_override_by`;
+  o.recall_reason, o.recalled_at, o.recalled_by, o.unconfirmed_override_reason, o.unconfirmed_override_by`;
 const OUTGOING_FROM = `from machvon.outgoing_document o join machvon.document d on d.tenant_id = o.tenant_id and d.id = o.document_id`;
 const SESSION_COLUMNS = `s.id, s.outgoing_document_id, s.role, s.signer_user_id, s.signing_certificate_id, s.adapter_code, s.adapter_status, s.status,
   s.base_version_id, s.result_version_id, s.digest_hex, s.byte_range, s.provider_txn_ref, s.expires_at, s.attempts, s.error_code, s.created_at,
@@ -283,6 +290,9 @@ function toOutgoing(row: OutgoingRow): OutgoingDocumentRecord {
     payloadSha256: row.payload_sha256,
     reviewDueOn: row.review_due_on,
     cancelReason: row.cancel_reason,
+    recallReason: row.recall_reason,
+    recalledAt: row.recalled_at,
+    recalledBy: row.recalled_by,
     unconfirmedOverrideReason: row.unconfirmed_override_reason,
     unconfirmedOverrideBy: row.unconfirmed_override_by,
   };

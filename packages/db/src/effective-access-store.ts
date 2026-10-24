@@ -1,6 +1,6 @@
 import type { EffectiveAccess, GrantView, MetricsSink, Scope, TenantContext } from '@machvon/kernel';
 import type { AuthzCache } from './authz-cache.ts';
-import type { TenantDatabase } from './tenant-database.ts';
+import type { TenantDatabase, TenantTx } from './tenant-database.ts';
 
 const DEFAULT_TTL_SECONDS = 60;
 
@@ -60,6 +60,17 @@ export interface EffectiveAccessStoreOptions {
   /** Cache lifetime; default 60 seconds (IAM section 3.4). */
   ttlSeconds?: number;
   metrics?: MetricsSink;
+}
+
+/**
+ * The access of another member read inside the transaction of a command, without the cache: what a command that names a second person (an approver) needs to
+ * know about them. A membership that is not visible in the tenant has no grants and is not active.
+ */
+export async function loadAccessIn(tx: TenantTx, membershipId: string): Promise<EffectiveAccess> {
+  const [membership] = await tx.query<MembershipRow>(MEMBERSHIP_SQL, [membershipId]);
+  if (membership === undefined) return { membershipId, scopeVersion: 0, membershipActive: false, grants: [] };
+  const rows = await tx.query<GrantRow>(GRANTS_SQL, [membershipId]);
+  return { membershipId, scopeVersion: Number(membership.scope_version), membershipActive: membership.active, grants: rows.map(grantViewOf) };
 }
 
 /**

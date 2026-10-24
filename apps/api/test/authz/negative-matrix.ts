@@ -463,6 +463,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/review-submission`, ifMatch: '"1"', body: {} }),
   },
+  recallOutgoingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/recall`, ifMatch: '"1"', body: { reason: 'negative authorization matrix recall' } }),
+  },
+  voidOutgoingDocumentNumber: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/outgoing-documents/${t.outgoingDocumentId}/number-voiding`,
+      ifMatch: '"1"',
+      body: { reason: 'negative authorization matrix void', approver_user_id: t.recipientMembershipId },
+    }),
+  },
   decideOutgoingDocumentReview: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/review-decision`, ifMatch: '"1"', body: { decision: 'RETURN', comment: 'negative authorization matrix' } }),

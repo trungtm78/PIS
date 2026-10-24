@@ -117,8 +117,8 @@ export class FlowWorld {
     this.app.signing.approve({ provider: 'MOCK', sessionId: row.provider_txn_ref, expiresAt: row.expires_at });
   }
 
-  /** Signs as the leader, numbers as the clerk and seals as the organisation: SUBMITTED to SEALED. Returns the version of the document. */
-  async sealFrom(id: string, submittedVersion: number, registerId: string): Promise<number> {
+  /** Signs as the leader and numbers as the clerk: SUBMITTED to NUMBERED. Returns the version of the document. */
+  async numberFrom(id: string, submittedVersion: number, registerId: string): Promise<number> {
     const started = await this.call('POST', `/outgoing-documents/${id}/leader-signing-sessions`, LEADER, { version: submittedVersion, body: {} });
     if (started.status !== 202) throw new Error(`leader signing was refused: ${JSON.stringify(started.json)}`);
     const leaderSession = started.json.resource_id as string;
@@ -127,7 +127,13 @@ export class FlowWorld {
     if (signed.status !== 200) throw new Error(`the signature was refused: ${JSON.stringify(signed.json)}`);
     const numbered = await this.call('POST', `/outgoing-documents/${id}/numbering`, CLERK, { version: signed.json.document_version as number, body: { register_id: registerId } });
     if (numbered.status !== 200) throw new Error(`numbering was refused: ${JSON.stringify(numbered.json)}`);
-    const seal = await this.call('POST', `/outgoing-documents/${id}/organization-seal-sessions`, CLERK, { version: numbered.json.resource_version as number, body: {} });
+    return numbered.json.resource_version as number;
+  }
+
+  /** Signs as the leader, numbers as the clerk and seals as the organisation: SUBMITTED to SEALED. Returns the version of the document. */
+  async sealFrom(id: string, submittedVersion: number, registerId: string): Promise<number> {
+    const numberedVersion = await this.numberFrom(id, submittedVersion, registerId);
+    const seal = await this.call('POST', `/outgoing-documents/${id}/organization-seal-sessions`, CLERK, { version: numberedVersion, body: {} });
     if (seal.status !== 202) throw new Error(`the seal was refused: ${JSON.stringify(seal.json)}`);
     const sealSession = seal.json.resource_id as string;
     await this.approveSession(sealSession);

@@ -95,7 +95,7 @@ export { SYSTEM_ROLES, seedSystemRoles } from './system-roles.ts';
 export type { SystemRole } from './system-roles.ts';
 export { InMemoryAuthzCache } from './authz-cache.ts';
 export type { AuthzCache } from './authz-cache.ts';
-export { EffectiveAccessStore } from './effective-access-store.ts';
+export { EffectiveAccessStore, loadAccessIn } from './effective-access-store.ts';
 export type { EffectiveAccessStoreOptions } from './effective-access-store.ts';
 export { bumpScopeVersion, membershipsAffectedByUnits, scopePredicate } from './scope-version.ts';
 export type { ScopeBuilder, ScopePredicate, UnitColumns } from './scope-version.ts';
@@ -258,6 +258,8 @@ export type {
   Urgency,
 } from './outgoing-draft-store.ts';
 export { SignerAuthorityStore } from './signer-authority-store.ts';
+export { OutgoingRecallStore, RECALLABLE_STATUSES, VOIDABLE_STATUSES } from './outgoing-recall-store.ts';
+export type { RecallInput, RecallResult, VoidNumberInput, VoidNumberResult } from './outgoing-recall-store.ts';
 export { DocIssueRequestStore, REJECT_CODES } from './doc-issue-request-store.ts';
 export type { IssueRequestInsertion, IssueRequestRecord, IssueRequestStatus, NewIssueRequest, RejectCode } from './doc-issue-request-store.ts';
 export type { DelegationRecord, DoaBand } from './signer-authority-store.ts';

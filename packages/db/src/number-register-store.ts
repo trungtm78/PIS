@@ -94,7 +94,8 @@ export interface RegisterEntry {
   symbol: string;
   documentId: string;
   issuedOn: string;
-  status: 'ALLOCATED' | 'VOIDED';
+  /** RECALLED is the ledger's word for a number whose document was recalled: the allocation stays ALLOCATED, the number is never freed (BR-DOC-21). */
+  status: 'ALLOCATED' | 'VOIDED' | 'RECALLED';
 }
 
 export interface EntryPage {
@@ -123,7 +124,7 @@ interface EntryRow {
   symbol: string;
   document_id: string;
   issued_on: string;
-  status: 'ALLOCATED' | 'VOIDED';
+  status: 'ALLOCATED' | 'VOIDED' | 'RECALLED';
 }
 
 const REGISTER_COLUMNS = `id, register_code, name, direction, organization_unit_id, year, mode, last_number, status, closed_at, scope_policy,
@@ -349,11 +350,19 @@ export class NumberRegisterStore {
   /** The log of a register in number order, in keyset pages of the number. */
   async listEntries(tx: TenantTx, registerId: string, page: EntryPage): Promise<RegisterEntry[]> {
     const rows = await tx.query<EntryRow>(
-      `select id, number, symbol, document_id, issued_on::text as issued_on, status from machvon.document_number_allocation
-        where register_id = $1::uuid and number > $2 order by number limit $3`,
+      `select a.id, a.number, a.symbol, a.document_id, a.issued_on::text as issued_on,
+              case when a.status = 'ALLOCATED' and d.effect_status = 'RECALLED' then 'RECALLED' else a.status end as status
+         from machvon.document_number_allocation a join machvon.document d on d.tenant_id = a.tenant_id and d.id = a.document_id
+        where a.register_id = $1::uuid and a.number > $2 order by a.number limit $3`,
       [registerId, page.afterNumber ?? 0, page.limit],
     );
     return rows.map(toEntry);
+  }
+
+  /** The numbers of a register that were voided, in order: they stay in the ledger and are not gaps (BR-DOC-03). */
+  async voidedNumbers(tx: TenantTx, registerId: string): Promise<number[]> {
+    const rows = await tx.query<{ number: number }>("select number from machvon.document_number_allocation where register_id = $1::uuid and status = 'VOIDED' order by number", [registerId]);
+    return rows.map((row) => row.number);
   }
 
   /** The numbers missing from 1..last_number of a register: any answer is a serious error (BR-DOC-03). */

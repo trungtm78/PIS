@@ -53,6 +53,8 @@
     "issueOutgoingDocument",
     "recordDistributionAcknowledgement",
     "retryDocumentDistribution",
+    "recallOutgoingDocument",
+    "voidOutgoingDocumentNumber",
     "submitCapitalPlan",
     "createCapitalPlanRevision",
     "registerDisbursementSchedule",

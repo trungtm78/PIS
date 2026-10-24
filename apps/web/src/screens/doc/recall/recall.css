@@ -1,0 +1,40 @@
+/* DOC-19: recall and void. The shared cards, tables, pills and callouts do the rest. */
+.field-error {
+  color: #a22b22;
+}
+
+.doc-recall .back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+
+.doc-recall .back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
+
+.recall-form,
+.void-form {
+  margin: 16px 0;
+}
+
+.recall-banner {
+  margin: 12px 0;
+}
+
+.check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.history {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.history li {
+  margin: 6px 0;
+}

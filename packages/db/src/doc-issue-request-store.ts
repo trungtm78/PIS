@@ -178,6 +178,16 @@ export class DocIssueRequestStore {
     return toRecord(row);
   }
 
+  /** ISSUED to RECALLED, when the document it produced is recalled (ST-DOC-012); undefined when no issued request names the document. */
+  async markRecalled(tx: TenantTx, outgoingDocumentId: string, actor: string): Promise<IssueRequestRecord | undefined> {
+    const [row] = await tx.query<Row>(
+      `update machvon.doc_issue_request set status = 'RECALLED', updated_at = now(), updated_by = $2::uuid, version = version + 1
+        where outgoing_document_id = $1::uuid and status = 'ISSUED' returning ${COLUMNS}`,
+      [outgoingDocumentId, actor],
+    );
+    return row === undefined ? undefined : toRecord(row);
+  }
+
   /** ACCEPTED to ISSUED, when the document it produced is issued; undefined when no accepted request names the document. */
   async markIssued(tx: TenantTx, outgoingDocumentId: string, actor: string): Promise<IssueRequestRecord | undefined> {
     const [row] = await tx.query<Row>(

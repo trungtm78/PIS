@@ -299,6 +299,7 @@ describe('distributing an issued document and tracking the receipts (ST-DOC-010)
           'recipient_code',
           'recipient_kind',
           'recipient_name',
+          'recall_notice_at',
           'recipient_unit_id',
           'sent_at',
           'status',

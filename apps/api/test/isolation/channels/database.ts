@@ -131,6 +131,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'dispatchOutgoingDocument',
   'recordDistributionAcknowledgement',
   'retryDocumentDistribution',
+  'recallOutgoingDocument',
+  'voidOutgoingDocumentNumber',
   'proposeMasterRecord',
   'createMasterChangeRequest',
   'submitMasterChangeRequest',

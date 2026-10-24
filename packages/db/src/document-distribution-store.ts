@@ -22,6 +22,8 @@ export interface DistributionRecord {
   externalRef: string | null;
   attempts: number;
   errorCode: string | null;
+  /** The instant the notice of the recall of the document was issued for this recipient (ST-DOC-012); null while the document stands. */
+  recallNoticeAt: Date | null;
   createdAt: Date;
   createdBy: string;
   version: number;
@@ -62,13 +64,14 @@ interface Row {
   external_ref: string | null;
   attempts: number;
   error_code: string | null;
+  recall_notice_at: Date | null;
   created_at: Date;
   created_by: string;
   version: string;
 }
 
 const COLUMNS = `d.id, d.outgoing_document_id, d.recipient_kind, d.recipient_unit_id, d.recipient_name, d.recipient_code, d.channel, d.status, d.acknowledgement_required,
-  d.sent_at, d.delivered_at, d.acknowledged_at, d.external_ref, d.attempts, d.error_code, d.created_at, d.created_by, d.version::text as version`;
+  d.sent_at, d.delivered_at, d.acknowledged_at, d.external_ref, d.attempts, d.error_code, d.recall_notice_at, d.created_at, d.created_by, d.version::text as version`;
 
 function toRecord(row: Row): DistributionRecord {
   return {
@@ -87,6 +90,7 @@ function toRecord(row: Row): DistributionRecord {
     externalRef: row.external_ref,
     attempts: row.attempts,
     errorCode: row.error_code,
+    recallNoticeAt: row.recall_notice_at,
     createdAt: row.created_at,
     createdBy: row.created_by,
     version: Number(row.version),
@@ -190,6 +194,29 @@ export class DocumentDistributionStore {
     return this.reload(tx, id);
   }
 
+  /**
+   * The document was recalled (ST-DOC-012): what was not sent yet is called off (PENDING and FAILED become CANCELLED, so nothing goes out for a document
+   * that is no longer in force), and, when the issuer asked for it, every recipient who has the document (SENT, DELIVERED, ACKNOWLEDGED) gets the instant
+   * of the recall notice. The notice is written once per recipient; the channels and the notification module read it from there.
+   */
+  async applyRecall(tx: TenantTx, outgoingDocumentId: string, input: { at: Date; notify: boolean }, actor: string): Promise<{ cancelled: DistributionRecord[]; notified: DistributionRecord[] }> {
+    const cancelled = await tx.query<{ id: string }>(
+      `update machvon.document_distribution
+          set status = 'CANCELLED', error_code = null, updated_at = now(), updated_by = $2::uuid, version = version + 1
+        where outgoing_document_id = $1::uuid and status in ('PENDING', 'FAILED') returning id`,
+      [outgoingDocumentId, actor],
+    );
+    const notified = input.notify
+      ? await tx.query<{ id: string }>(
+          `update machvon.document_distribution
+              set recall_notice_at = $2::timestamptz, updated_at = now(), updated_by = $3::uuid, version = version + 1
+            where outgoing_document_id = $1::uuid and status in ('SENT', 'DELIVERED', 'ACKNOWLEDGED') and recall_notice_at is null returning id`,
+          [outgoingDocumentId, input.at.toISOString(), actor],
+        )
+      : [];
+    return { cancelled: await this.reloadAll(tx, cancelled.map((row) => row.id)), notified: await this.reloadAll(tx, notified.map((row) => row.id)) };
+  }
+
   /** The figures of one document that decide its aggregate status. */
   async tally(tx: TenantTx, outgoingDocumentId: string): Promise<DistributionTally> {
     const [row] = await tx.query<{ total: string; reached: string; required: string; required_acknowledged: string }>(
@@ -206,6 +233,12 @@ export class DocumentDistributionStore {
       required: Number(row?.required ?? 0),
       requiredAcknowledged: Number(row?.required_acknowledged ?? 0),
     };
+  }
+
+  private async reloadAll(tx: TenantTx, ids: readonly string[]): Promise<DistributionRecord[]> {
+    if (ids.length === 0) return [];
+    const rows = await tx.query<Row>(`select ${COLUMNS} from machvon.document_distribution d where d.id = any($1::uuid[]) order by d.created_at, d.id`, [ids]);
+    return rows.map(toRecord);
   }
 
   private async reload(tx: TenantTx, id: string): Promise<DistributionRecord> {

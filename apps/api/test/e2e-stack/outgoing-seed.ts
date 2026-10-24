@@ -169,6 +169,7 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
   const selfDrafted = await insert('Quyet dinh do van thu soan', false, input.clerkMembershipId);
   await writeSignedSamples({ rendered, leaderSigned, organization, tsa, now, uploadSubmitted, selfDrafted });
   await seedIssueDocuments({ input, files, store: documents, context, layoutProfileId, templateId, leaderSigned, organization, tsa, now });
+  await seedRecallDocuments({ input, store: documents, context, layoutProfileId, now });
   return { files, signing, trust, documents: { visualSubmitted, flowSubmitted, visualSigned, uploadSubmitted, selfDrafted } };
 }
 
@@ -304,6 +305,160 @@ async function seedIssueDocuments(seed: IssueSeed): Promise<void> {
       ],
     });
     await build(ISSUE_TITLES.resend, { status: 'ISSUED', rows: [{ name: 'So Tai chinh', kind: 'EXTERNAL_AGENCY', channel: 'EMAIL', status: 'FAILED' }] });
+  } finally {
+    await owner.end();
+  }
+}
+
+/** The titles of the documents the recall and the voiding of numbers (DOC-19) work on; the specs find them by title. */
+export const RECALL_TITLES = {
+  recall: 'Quyet dinh can thu hoi',
+  basis: 'Quyet dinh lam can cu thu hoi',
+  validation: 'Quyet dinh kiem tra ly do thu hoi',
+  void: 'Quyet dinh khong dong dau duoc',
+  visualIssued: 'Quyet dinh hien thi thu hoi',
+  visualRecalled: 'Quyet dinh hien thi da thu hoi',
+  visualNumbered: 'Quyet dinh hien thi huy so',
+} as const;
+
+interface RecallSeed {
+  input: OutgoingSeedInput;
+  store: DocumentStore;
+  context: { tenantId: string; membershipId: string; scopeVersion: number };
+  layoutProfileId: string;
+  now: Date;
+}
+
+interface RecallRow {
+  name: string;
+  kind: 'INTERNAL_UNIT' | 'EXTERNAL_AGENCY';
+  channel: 'INTERNAL' | 'EMAIL' | 'PAPER_HANDOVER';
+  status: 'SENT' | 'DELIVERED' | 'FAILED';
+  noticed?: boolean;
+}
+
+/**
+ * Documents that the recall can be shown on (DOC-19): issued ones with their recipients (one is the basis of a recall), one whose seal cannot be completed
+ * (NUMBERED, with a real allocation of a register by the clerk) and a recalled one with the notice of each recipient and its history. They are written the
+ * way the commands leave them, so a flow starts from the state a leader or a records manager would find. The files are not needed: a recall and a void never
+ * open the file.
+ */
+async function seedRecallDocuments(seed: RecallSeed): Promise<void> {
+  const { input, store } = seed;
+  const registers = new NumberRegisterStore();
+  const register = await input.tenants.withTenant(seed.context, (tx) =>
+    registers.openRegister(tx, {
+      registerCode: 'RCL',
+      name: 'So van ban di (thu hoi)',
+      direction: 'OUTGOING',
+      organizationUnitId: input.draftingUnitId,
+      year: seed.now.getFullYear(),
+      mode: 'MANAGED',
+      scopeDocTypes: ['QD'],
+      actor: ACTOR,
+    }),
+  );
+  const owner = new Client({ connectionString: input.database.urlFor('machvon_owner') });
+  await owner.connect();
+  await owner.query("select set_config('app.tenant_id', $1, false)", [input.tenantId]);
+  const at = (minutes: number): string => new Date(seed.now.getTime() + minutes * 60_000).toISOString();
+  const build = async (title: string, options: { status: 'NUMBERED' | 'ISSUED' | 'DELIVERED' | 'RECALLED'; rows?: RecallRow[] }): Promise<void> => {
+    const { documentId, allocationId } = await input.tenants.withTenant(seed.context, async (tx) => {
+      const anchor = await store.insertDocument(tx, { docKind: 'OUTGOING', docTypeCode: 'QD', title, classification: 'INTERNAL', createdBy: ACTOR, issuerUnitId: input.draftingUnitId });
+      const allocated = await registers.allocateNumber(tx, {
+        registerId: register.id,
+        documentId: anchor.id,
+        issuedAt: seed.now,
+        symbolPattern: '{number}/{type}-{agency}',
+        parts: { type: 'QD', agency: register.registerCode },
+        allocatedBy: input.clerkMembershipId,
+      });
+      return { documentId: anchor.id, allocationId: allocated.allocationId };
+    });
+    const numbered = options.status === 'NUMBERED';
+    const recalled = options.status === 'RECALLED';
+    await owner.query('update machvon.document set effect_status = $2 where id = $1::uuid', [documentId, numbered ? 'PENDING' : recalled ? 'RECALLED' : 'EFFECTIVE']);
+    const outgoingId = randomUUID();
+    const recipients = RECIPIENTS.map((recipient) => (recipient.kind === 'INTERNAL_UNIT' ? { ...recipient, unit_id: input.draftingUnitId } : recipient));
+    await owner.query(
+      `insert into machvon.outgoing_document
+         (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, signer_title, register_id, allocation_id, recipients,
+          leader_signed_at, numbered_at, sealed_at, issued_at, recall_reason, recalled_at, recalled_by, created_by, updated_by, created_at)
+       values ($1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6::uuid, $7::uuid, $8::uuid, 'Giam doc', $9::uuid, $10::uuid, $11::jsonb,
+          $12::timestamptz, $13::timestamptz, $14::timestamptz, $15::timestamptz, $16, $17::timestamptz, $18::uuid, $7::uuid, $7::uuid, $19::timestamptz)`,
+      [
+        input.tenantId,
+        outgoingId,
+        documentId,
+        seed.layoutProfileId,
+        options.status,
+        input.draftingUnitId,
+        input.drafterMembershipId,
+        input.signerMembershipId,
+        register.id,
+        allocationId,
+        JSON.stringify(recipients),
+        at(-30),
+        at(-20),
+        numbered ? null : at(-10),
+        numbered ? null : at(-5),
+        recalled ? 'Phat hanh nham ky bao cao' : null,
+        recalled ? at(5) : null,
+        recalled ? input.signerMembershipId : null,
+        // Older than the documents of the other screens, so their queues and lists keep the order they were written for.
+        at(-2 * 24 * 60),
+      ],
+    );
+    for (const row of options.rows ?? []) {
+      await owner.query(
+        `insert into machvon.document_distribution
+           (tenant_id, id, outgoing_document_id, recipient_kind, recipient_unit_id, recipient_name, recipient_code, channel, status, sent_at, delivered_at, attempts, error_code, recall_notice_at, created_by, updated_by)
+         values ($1::uuid, gen_random_uuid(), $2::uuid, $3, $4::uuid, $5, $6, $7, $8, $9::timestamptz, $10::timestamptz, 1, $11, $12::timestamptz, $13::uuid, $13::uuid)`,
+        [
+          input.tenantId,
+          outgoingId,
+          row.kind,
+          row.kind === 'INTERNAL_UNIT' ? input.draftingUnitId : null,
+          row.name,
+          row.kind === 'EXTERNAL_AGENCY' ? 'SKHDT' : null,
+          row.channel,
+          row.status,
+          row.status === 'FAILED' ? null : at(-4),
+          row.status === 'DELIVERED' ? at(-4) : null,
+          row.status === 'FAILED' ? 'PROVIDER_UNAVAILABLE' : null,
+          row.noticed === true ? at(5) : null,
+          input.clerkMembershipId,
+        ],
+      );
+    }
+    const event = (kind: string, from: string | null, to: string, comment: string | null, minutes: number): Promise<unknown> =>
+      owner.query(
+        `insert into machvon.outgoing_document_event (tenant_id, id, outgoing_document_id, kind, from_status, to_status, actor_id, comment, details, document_version, occurred_at)
+         values ($1::uuid, gen_random_uuid(), $2::uuid, $3, $4, $5, $6::uuid, $7, '{}'::jsonb, 1, $8::timestamptz)`,
+        [input.tenantId, outgoingId, kind, from, to, input.signerMembershipId, comment, at(minutes)],
+      );
+    if (!numbered) await event('ISSUED', 'SEALED', 'ISSUED', null, -5);
+    if (recalled) await event('RECALLED', 'DELIVERED', 'RECALLED', 'Phat hanh nham ky bao cao', 5);
+  };
+  try {
+    const delivered: RecallRow[] = [
+      { name: 'Phong Ke hoach', kind: 'INTERNAL_UNIT', channel: 'INTERNAL', status: 'DELIVERED' },
+      { name: 'So Tai chinh', kind: 'EXTERNAL_AGENCY', channel: 'PAPER_HANDOVER', status: 'SENT' },
+      { name: 'Kho bac Nha nuoc', kind: 'EXTERNAL_AGENCY', channel: 'EMAIL', status: 'FAILED' },
+    ];
+    await build(RECALL_TITLES.recall, { status: 'DELIVERED', rows: delivered });
+    await build(RECALL_TITLES.basis, { status: 'ISSUED' });
+    await build(RECALL_TITLES.validation, { status: 'ISSUED' });
+    await build(RECALL_TITLES.void, { status: 'NUMBERED' });
+    await build(RECALL_TITLES.visualIssued, { status: 'DELIVERED', rows: delivered });
+    await build(RECALL_TITLES.visualRecalled, {
+      status: 'RECALLED',
+      rows: [
+        { name: 'Phong Ke hoach', kind: 'INTERNAL_UNIT', channel: 'INTERNAL', status: 'DELIVERED', noticed: true },
+        { name: 'So Tai chinh', kind: 'EXTERNAL_AGENCY', channel: 'PAPER_HANDOVER', status: 'SENT', noticed: true },
+      ],
+    });
+    await build(RECALL_TITLES.visualNumbered, { status: 'NUMBERED' });
   } finally {
     await owner.end();
   }

@@ -115,6 +115,9 @@ function documentView(row: OutgoingDocumentRecord): Record<string, unknown> {
     payload_sha256: row.payloadSha256,
     review_due_on: row.reviewDueOn,
     cancel_reason: row.cancelReason,
+    recall_reason: row.recallReason,
+    recalled_at: iso(row.recalledAt),
+    recalled_by: row.recalledBy,
     delegation_id: row.delegationId,
   };
 }
@@ -136,6 +139,7 @@ function distributionView(row: DistributionRecord): Record<string, unknown> {
     external_ref: row.externalRef,
     attempts: row.attempts,
     error_code: row.errorCode,
+    recall_notice_at: iso(row.recallNoticeAt),
     version: row.version,
   };
 }

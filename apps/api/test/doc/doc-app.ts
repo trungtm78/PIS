@@ -21,6 +21,7 @@ import { DocumentFilesController } from '../../src/modules/doc/document-files.co
 import { SignedDocumentsController } from '../../src/modules/doc/signed-documents.controller';
 import { DocumentDistributionsController } from '../../src/modules/doc/distributions.controller';
 import { OutgoingIssuanceController } from '../../src/modules/doc/issuance.controller';
+import { OutgoingRecallController } from '../../src/modules/doc/recall.controller';
 import type { EmailChannelPort, EmailDelivery, EmailReceipt } from '../../src/modules/doc/distribution-channel';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
@@ -59,6 +60,10 @@ export const DISTRIBUTOR = 17; // distributes issued documents of unit 2 and rec
 export const LEGAL_ISSUER = 18; // issues over unit 2 and holds the right to confirm templates on the whole tenant
 export const LEGAL_UNIT = 19; // the same two rights, but the right to confirm templates only over unit 2: not a tenant-wide authority
 export const ISSUER_DISTRIBUTOR = 20; // issues and distributes in unit 2
+export const RECALLER = 21; // recalls the issued documents of unit 2 (a leader)
+export const RECORDS_MANAGER = 22; // voids the numbers of the documents of unit 2 and may approve a void
+export const SECOND_MANAGER = 23; // the same right: the second person of a void
+export const OUTSIDE_MANAGER = 24; // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
 
 export interface Reply {
   status: number;
@@ -107,7 +112,7 @@ export class DocApp {
       { n: 2, path: `/${unitId(1)}/${unitId(2)}/`, parent: 1 },
     ]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: `/${unitId(1)}/` }]);
-    for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY, DRAFTER, LEADER, CLERK, MAKER, REVIEWER, BOARD, SOURCE, SOURCE_UNIT, REFERENCER, EXT_CLERK, EXT_OUTSIDE, ISSUER, DISTRIBUTOR, LEGAL_ISSUER, LEGAL_UNIT, ISSUER_DISTRIBUTOR]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY, DRAFTER, LEADER, CLERK, MAKER, REVIEWER, BOARD, SOURCE, SOURCE_UNIT, REFERENCER, EXT_CLERK, EXT_OUTSIDE, ISSUER, DISTRIBUTOR, LEGAL_ISSUER, LEGAL_UNIT, ISSUER_DISTRIBUTOR, RECALLER, RECORDS_MANAGER, SECOND_MANAGER, OUTSIDE_MANAGER]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
     const all = ['doc.render', 'doc.type.manage', 'doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.verify', 'doc.signature.read', 'doc.file.upload'];
     for (const tenant of [TENANT_A, TENANT_B]) {
@@ -117,7 +122,7 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 2, 'DOC_CLERK', ['doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.read'], 30);
     await harness.seedRole(TENANT_A, 3, 'DOC_RENDERER', ['doc.render'], 20);
     await harness.seedRole(TENANT_A, 4, 'DOC_SIGNER', ['doc.outgoing.read', 'doc.outgoing.sign', 'document_version.read', 'doc.signature.read'], 40);
-    await harness.seedRole(TENANT_A, 5, 'DOC_SEALER', ['doc.outgoing.read', 'doc.outgoing.sign', 'doc.outgoing.number', 'doc.outgoing.seal', 'doc.register.read', 'document_version.read'], 30);
+    await harness.seedRole(TENANT_A, 5, 'DOC_SEALER', ['doc.outgoing.read', 'doc.outgoing.sign', 'doc.outgoing.number', 'doc.outgoing.seal', 'doc.outgoing.void_number', 'doc.register.read', 'document_version.read'], 30);
     await harness.seedRole(TENANT_A, 6, 'DOC_MAKER', ['doc.outgoing.read', 'doc.outgoing.create', 'doc.outgoing.edit', 'doc.outgoing.submit', 'doc.outgoing.cancel', 'doc.outgoing.review', 'doc.render'], 30);
     await harness.seedRole(TENANT_A, 7, 'DOC_REVIEWER', ['doc.outgoing.read', 'doc.outgoing.review', 'doc.outgoing.cancel', 'document_version.read'], 40);
     await harness.seedRole(TENANT_A, 8, 'DOC_BOARD', ['doc.outgoing.read', 'doc.outgoing.sign'], 50);
@@ -128,7 +133,13 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 13, 'DOC_DISTRIBUTOR', ['doc.outgoing.read', 'doc.distribution.manage'], 30);
     await harness.seedRole(TENANT_A, 14, 'DOC_LEGAL_ISSUER', ['doc.outgoing.read', 'doc.outgoing.issue', 'doc.template.confirm_legal'], 40);
     await harness.seedRole(TENANT_A, 15, 'DOC_ISSUER_DISTRIBUTOR', ['doc.outgoing.read', 'doc.outgoing.issue', 'doc.distribution.manage'], 30);
+    await harness.seedRole(TENANT_A, 16, 'DOC_RECALLER', ['doc.outgoing.read', 'doc.outgoing.recall'], 40);
+    await harness.seedRole(TENANT_A, 17, 'DOC_RECORDS_MANAGER', ['doc.outgoing.read', 'doc.outgoing.void_number', 'doc.register.read'], 40);
     await harness.seedGrants(TENANT_A, [
+      { n: 20, member: RECALLER, role: 16, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 21, member: RECORDS_MANAGER, role: 17, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 22, member: SECOND_MANAGER, role: 17, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 23, member: OUTSIDE_MANAGER, role: 17, kind: 'UNIT_ONLY', refs: [unitId(1)] },
       { n: 15, member: ISSUER, role: 12, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 16, member: DISTRIBUTOR, role: 13, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 17, member: LEGAL_ISSUER, role: 14, kind: 'TENANT' },
@@ -167,7 +178,7 @@ export class DocApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController, OutgoingIssuanceController, DocumentDistributionsController],
+      controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController, OutgoingIssuanceController, DocumentDistributionsController, OutgoingRecallController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DOCUMENT_FILE_PORT, useValue: this.files },

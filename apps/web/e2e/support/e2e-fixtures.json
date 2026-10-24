@@ -756,6 +756,36 @@
       ]
     },
     {
+      "key": "docLeader",
+      "displayName": "Lãnh đạo thu hồi văn bản",
+      "membershipId": "00000000-0000-4000-8000-000000000730",
+      "permissions": [
+        "doc.outgoing.read",
+        "doc.outgoing.recall",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "docRecordsManager",
+      "displayName": "Quản lý văn thư hủy số",
+      "membershipId": "00000000-0000-4000-8000-000000000731",
+      "permissions": [
+        "doc.outgoing.read",
+        "doc.outgoing.void_number",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "docSecondManager",
+      "displayName": "Quản lý văn thư duyệt hủy số",
+      "membershipId": "00000000-0000-4000-8000-000000000732",
+      "permissions": [
+        "doc.outgoing.read",
+        "doc.outgoing.void_number",
+        "organization_unit.read"
+      ]
+    },
+    {
       "key": "mneAdmin",
       "displayName": "Quản trị giám sát đầu tư",
       "membershipId": "00000000-0000-4000-8000-00000000006d",

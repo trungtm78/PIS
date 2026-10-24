@@ -53,3 +53,29 @@ export async function auditRegisterGaps(tx: TenantTx, deps: RegisterJobDeps = {}
     after = { code: last.registerCode, id: last.id };
   }
 }
+
+export interface RegisterVoids {
+  registerId: string;
+  registerCode: string;
+  year: number;
+  numbers: number[];
+}
+
+/**
+ * ST-DOC-012: the numbers that were voided, per register of the tenant. A voided number keeps its place in the ledger, so it is not a gap and raises nothing;
+ * the audit lists them next to the gaps so that nobody mistakes a voided number for a missing one. Returns the registers that have any.
+ */
+export async function auditRegisterVoids(tx: TenantTx, deps: Pick<RegisterJobDeps, 'store'> = {}): Promise<RegisterVoids[]> {
+  const store = deps.store ?? new NumberRegisterStore();
+  const found: RegisterVoids[] = [];
+  for (let after: { code: string; id: string } | undefined; ; ) {
+    const page = await store.listRegisters(tx, { limit: PAGE, after });
+    for (const register of page) {
+      const numbers = await store.voidedNumbers(tx, register.id);
+      if (numbers.length > 0) found.push({ registerId: register.id, registerCode: register.registerCode, year: register.year, numbers });
+    }
+    const last = page[page.length - 1];
+    if (page.length < PAGE || last === undefined) return found;
+    after = { code: last.registerCode, id: last.id };
+  }
+}

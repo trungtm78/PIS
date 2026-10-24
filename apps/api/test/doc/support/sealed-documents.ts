@@ -21,6 +21,23 @@ export const sha256 = (bytes: Uint8Array): string => createHash('sha256').update
 
 /** A document taken over the HTTP routes from a draft to SEALED: reviewed, signed by the leader, numbered and sealed by the organisation. */
 export async function sealedDocument(flow: FlowWorld, overrides: Record<string, unknown> = {}): Promise<Sealed> {
+  const made = await submittedDocument(flow, overrides);
+  const version = await flow.sealFrom(made.id, made.version, await flow.openRegister());
+  const [file] = await flow.app.harness.owner<{ id: string; object_key: string }>(TENANT_A, [
+    ["select v.id, v.object_key from machvon.document_version v where v.document_id = $1 and v.stage = 'ORG_SEALED'", [made.documentId]],
+  ]);
+  if (file === undefined) throw new Error('the sealed file is missing');
+  return { id: made.id, documentId: made.documentId, version, versionId: file.id, objectKey: file.object_key };
+}
+
+/** A document that was signed by the leader and numbered in the register, and waits for the seal of the organisation. */
+export async function numberedDocument(flow: FlowWorld, registerId: string, overrides: Record<string, unknown> = {}): Promise<{ id: string; documentId: string; version: number }> {
+  const made = await submittedDocument(flow, overrides);
+  return { id: made.id, documentId: made.documentId, version: await flow.numberFrom(made.id, made.version, registerId) };
+}
+
+/** A draft over the HTTP routes up to the review approved: the state before the leader signs. */
+async function submittedDocument(flow: FlowWorld, overrides: Record<string, unknown>): Promise<{ id: string; documentId: string; version: number }> {
   const made = await flow.create({
     doc_type_code: 'QD',
     template_code: 'QD-DEFAULT',
@@ -38,12 +55,7 @@ export async function sealedDocument(flow: FlowWorld, overrides: Record<string, 
   if (submitted.status !== 200) throw new Error(`the review request was refused: ${JSON.stringify(submitted.json)}`);
   const approved = await flow.approve(id, 2);
   if (approved.status !== 200) throw new Error(`the review was refused: ${JSON.stringify(approved.json)}`);
-  const version = await flow.sealFrom(id, approved.json.resource_version as number, await flow.openRegister());
-  const [file] = await flow.app.harness.owner<{ id: string; object_key: string }>(TENANT_A, [
-    ["select v.id, v.object_key from machvon.document_version v where v.document_id = $1 and v.stage = 'ORG_SEALED'", [documentId]],
-  ]);
-  if (file === undefined) throw new Error('the sealed file is missing');
-  return { id, documentId, version, versionId: file.id, objectKey: file.object_key };
+  return { id, documentId, version: approved.json.resource_version as number };
 }
 
 let replacements = 0;
