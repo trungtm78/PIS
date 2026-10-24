@@ -10,14 +10,14 @@ import type { ChangeStatus, ChangeView, CrosswalkMethod, CrosswalkView, CursorVi
 export const root = (tenantId: string | undefined) => ['mdm', tenantId] as const;
 
 /** Every record of the tenant (of one type when given), in the order of the read. */
-export function useRecords(masterType: string | undefined) {
+export function useRecords(masterType: string | undefined, enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<RecordView[]>({
     queryKey: [...root(tenant?.id), 'records', masterType ?? ''],
     queryFn: async () =>
       (await client.readAll('searchMasterRecords', { query: masterType === undefined ? {} : { master_type: masterType } })).flatMap((raw) => toRecord(raw) ?? []),
-    enabled: tenant !== undefined,
+    enabled: enabled && tenant !== undefined,
     retry: false,
   });
 }
