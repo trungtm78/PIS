@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { hasMessage, useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -15,13 +15,19 @@ import { calendarOf, reportingPeriods } from './reporting-calendar';
 const HISTORY_PATH = '/mdm/mdm-28';
 const EDIT_PATH = '/mdm/mdm-26';
 const CALENDAR_TYPE = 'CALENDAR';
+/** The calendar that DIS generates its periods from: the rule port reads this key and no other. */
+const CALENDAR_KEY = 'DEFAULT';
+/** The longest wait a timer takes (about 24 days); a later deadline is waited for in turns. */
+const MAX_TIMEOUT_MS = 2_147_483_647;
+/** A moment after the deadline, so that the check finds it passed. */
+const DEADLINE_MARGIN_MS = 50;
 const NEVER_EMPTY = (): boolean => false;
 const FIRST_YEAR = 2000;
 const LAST_YEAR = 2100;
 
 /** The calendar in force the way the server reads it: the platform's entry before a tenant's own. */
 function calendarRecord(records: readonly RecordView[]): RecordView | undefined {
-  const inForce = records.filter((record) => record.status === 'EFFECTIVE' && calendarOf(record.attributes) !== undefined);
+  const inForce = records.filter((record) => record.businessKey === CALENDAR_KEY && record.status === 'EFFECTIVE' && calendarOf(record.attributes) !== undefined);
   return inForce.find((record) => record.namespace === 'PLATFORM') ?? inForce[0];
 }
 
@@ -38,9 +44,12 @@ function CalendarContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const [params, setParams] = useSearchParams();
-  const now = useMemo(() => Date.now(), []);
+  const [now, setNow] = useState(() => Date.now());
   const requested = Number(params.get('year'));
   const year = Number.isInteger(requested) && requested >= FIRST_YEAR && requested <= LAST_YEAR ? requested : new Date(now).getFullYear();
+  // What is typed in the field stays as typed until it is a year; the periods follow only a year.
+  const [yearText, setYearText] = useState(String(year));
+  useEffect(() => setYearText(String(year)), [year]);
   const [all, setAll] = useState(false);
   const entries = useCatalogue([CALENDAR_TYPE]);
   const state = useScreenState({ isLoading: entries.isLoading, error: entries.error, data: entries.data, isEmpty: NEVER_EMPTY });
@@ -48,7 +57,14 @@ function CalendarContent({ route }: ScreenProps) {
   const calendar = record === undefined ? undefined : calendarOf(record.attributes);
   const canEdit = record !== undefined && record.namespace === 'TENANT' && record.openChangeRequestId === null && (permissions === undefined || permissions.includes(PROPOSE_PERMISSION)) && mode !== 'READ_ONLY';
   const periods = useMemo(() => (calendar === undefined ? [] : reportingPeriods(calendar, year)), [calendar, year]);
-  const shown = all ? periods : periods.slice(0, PREVIEW_PERIODS);
+  const shown = useMemo(() => (all ? periods : periods.slice(0, PREVIEW_PERIODS)), [all, periods]);
+  // A period turns from open to locked at its deadline even while the screen stays open: the clock moves to the next deadline of the list.
+  useEffect(() => {
+    const next = shown.map((period) => Date.parse(period.deadlineAt)).filter((deadline) => deadline > now).sort((left, right) => left - right)[0];
+    if (next === undefined) return undefined;
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(next - now + DEADLINE_MARGIN_MS, MAX_TIMEOUT_MS));
+    return () => clearTimeout(timer);
+  }, [shown, now]);
   const valueText = (family: string, raw: unknown): string => {
     const key = typeof raw === 'string' ? `mdm.value.${family}.${camel(raw)}` : '';
     return typeof raw === 'string' ? (hasMessage(key) ? t(key) : raw) : '';
@@ -118,8 +134,13 @@ function CalendarContent({ route }: ScreenProps) {
                     type="number"
                     min={FIRST_YEAR}
                     max={LAST_YEAR}
-                    value={year}
-                    onChange={(event) => setParams(event.target.value === '' ? {} : { year: event.target.value })}
+                    value={yearText}
+                    onChange={(event) => {
+                      setYearText(event.target.value);
+                      const typed = Number(event.target.value);
+                      if (event.target.value !== '' && Number.isInteger(typed) && typed >= FIRST_YEAR && typed <= LAST_YEAR) setParams({ year: String(typed) });
+                    }}
+                    onBlur={() => setYearText(String(year))}
                   />
                 </div>
                 <button type="button" aria-pressed={all} onClick={() => setAll((current) => !current)}>
