@@ -5,6 +5,8 @@ export interface CellContext {
   byId: ReadonlyMap<string, RecordView>;
   /** The name of a value of a closed list (a text, a flag): its own text in the language of the screen, the value itself when it has none. */
   value(family: string, raw: unknown): string;
+  /** The codes of another system that are mapped to the entry (an ACTIVE crosswalk of the screen's system and code type), joined. */
+  linked(record: RecordView): string;
   /** What a rule still waits for ("awaiting confirmation CXN-05"), or nothing once it is confirmed. */
   awaiting(record: RecordView): string;
 }
@@ -24,6 +26,8 @@ export interface CatalogueConfig {
   columns: readonly CatalogueColumn[];
   /** The rule data that applies to these entries, shown below them with its legal basis. */
   rules: readonly string[];
+  /** The code of another system that each entry is known by: the screen reads the mappings of this system and code type. */
+  linked?: { sourceSystem: string; externalType: string };
 }
 
 const attribute = (record: RecordView, name: string): unknown => record.attributes[name];
@@ -68,6 +72,15 @@ export const CATALOGUES: Readonly<Record<string, CatalogueConfig>> = {
     tree: false,
     columns: [KEY, NAME, choice('paymentKind', 'paymentKind', 'kind'), field('conditions', 'conditions'), field('ruleSet', 'rule_set_key')],
     rules: [],
+  },
+  'MDM-16': {
+    id: 'MDM-16',
+    slug: 'treasuryOffice',
+    types: ['TREASURY_OFFICE'],
+    tree: false,
+    columns: [KEY, NAME, column('treasuryCode', (record, { linked }) => linked(record)), field('province', 'province'), choice('level', 'treasuryLevel', 'level'), VALIDITY],
+    rules: [],
+    linked: { sourceSystem: 'TREASURY', externalType: 'AGENCY_CODE' },
   },
   'MDM-17': {
     id: 'MDM-17',

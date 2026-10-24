@@ -480,6 +480,7 @@ export const OPERATIONS = {
   "listInteropMessages": { method: "get", path: "/doc-interop-messages", versioned: false, stepUp: null, permission: "doc.interop.read" },
   "listIssueSlaBreaches": { method: "get", path: "/issues/sla-breaches", versioned: false, stepUp: null, permission: "issue.read" },
   "listMasterChangeRequests": { method: "get", path: "/master-change-requests", versioned: false, stepUp: null, permission: "master.read" },
+  "listMasterCrosswalks": { method: "get", path: "/master-crosswalks", versioned: false, stepUp: null, permission: "master.read" },
   "listMasterImports": { method: "get", path: "/master-imports", versioned: false, stepUp: null, permission: "master.read" },
   "listMasterTypePolicies": { method: "get", path: "/master-type-policies", versioned: false, stepUp: null, permission: "master.read" },
   "listMneForms": { method: "get", path: "/mne-forms", versioned: false, stepUp: null, permission: "mne.read" },

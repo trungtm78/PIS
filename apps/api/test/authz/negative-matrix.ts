@@ -36,6 +36,9 @@ export interface MatrixTargets {
   masterReviewChangeId: string;
   /** An IN_REVIEW import batch of tenant A. */
   masterImportId: string;
+  /** An ACTIVE crosswalk and a FAILED integration cursor of tenant A (both version 1). */
+  masterCrosswalkId: string;
+  integrationCursorId: string;
   /** A document of tenant A, named as the decision that authorises a publication. */
   decisionDocumentId: string;
 }
@@ -266,6 +269,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   publishMasterImport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/master-imports/${t.masterImportId}/publish`, ifMatch: '"1"', body: { decision_document_id: t.decisionDocumentId } }),
+  },
+  createMasterCrosswalk: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/master-crosswalks',
+      body: { master_record_id: t.masterRecordId, source_system: 'MATRIX', external_type: 'MATRIX_CODE', external_code: 'MX-NEW', valid_from: '2026-01-01', match_method: 'MANUAL' },
+    }),
+  },
+  retireMasterCrosswalk: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-crosswalks/${t.masterCrosswalkId}/retire`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  resetIntegrationCursor: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/integration-cursors/${t.integrationCursorId}/reset`, ifMatch: '"1"', body: { reason: REASON, cursor_json: {} } }),
   },
   markNotificationRead: {
     referencesTenantIds: true,

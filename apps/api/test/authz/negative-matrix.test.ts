@@ -423,6 +423,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const masterDraftChangeId = id(0x79, 3);
     const masterReviewChangeId = id(0x79, 5);
     const masterImportId = id(0x79, 10);
+    const masterCrosswalkId = id(0x79, 11);
+    const integrationCursorId = id(0x79, 12);
     const decisionDocumentId = id(0x78, 1);
     const impact = '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}';
     const masterRecord = (n: number, status: string): [string, unknown[]] => [
@@ -462,12 +464,24 @@ describe('negative authorization matrix against the real application (ST-IAM-004
          values ($1, $2, 'MATRIX', 'tenants/matrix/import/fixture', repeat('c', 64), '{}'::jsonb, 'ATOMIC', 'IN_REVIEW', 0, 0, '[]'::jsonb, $3, $3)`,
         [TENANT_A, masterImportId, ACTOR],
       ],
+      [
+        `insert into machvon.master_crosswalk (tenant_id, id, master_record_id, source_system, external_type, external_code, valid_from, match_method, status, created_by, updated_by)
+         values ($1, $2, $3, 'MATRIX', 'MATRIX_CODE', 'MX-OLD', '2026-01-01', 'MANUAL', 'ACTIVE', $4, $4)`,
+        [TENANT_A, masterCrosswalkId, masterRecordId, ACTOR],
+      ],
+      [
+        `insert into machvon.integration_cursor (tenant_id, id, connector_code, source_scope, cursor_json, schema_version, adapter_status, status, last_error_code)
+         values ($1, $2, 'MATRIX_FILE', 'DEFAULT', '{}'::jsonb, '1', 'PROPOSED', 'FAILED', 'FILE_REJECTED')`,
+        [TENANT_A, integrationCursorId],
+      ],
     ]);
     targets = {
       masterRecordId,
       masterDraftChangeId,
       masterReviewChangeId,
       masterImportId,
+      masterCrosswalkId,
+      integrationCursorId,
       decisionDocumentId,
       notificationId,
       legalHoldId,

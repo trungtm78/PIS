@@ -1444,6 +1444,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listMasterChangeRequests({Map<String, Object?>? query}) =>
       execute('listMasterChangeRequests', query: query);
 
+  Future<Object?> listMasterCrosswalks({Map<String, Object?>? query}) =>
+      execute('listMasterCrosswalks', query: query);
+
   Future<Object?> listMasterImports({Map<String, Object?>? query}) =>
       execute('listMasterImports', query: query);
 

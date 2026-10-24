@@ -124,6 +124,8 @@ Index cho mọi `*_id`; RLS + `tenant_guard`. Namespace PLATFORM được nhân 
 
 (Cập nhật — CR-MDM-04, CR-MDM-05) Nhập hàng loạt (MDM-29) thêm: `POST /master-imports/files` (`uploadMasterImportFile`, master.import: tải CSV hoặc XLSX qua đường tải chung, kiểm loại theo byte, quét mã độc, đọc tiêu đề cột và số dòng), `GET /master-imports` và `GET /master-imports/{id}` (`listMasterImports`, `getMasterImport`, master.read), `POST /master-imports/{id}/decision` (`decideMasterImport`, master.review) và `POST /master-imports/{id}/publish` (`publishMasterImport`, master.publish). `applyMasterImport` tạo mọi bản ghi và change request của lô trong một giao dịch rồi gửi duyệt; cả lô được duyệt và công bố cùng lúc (nguyên tử), người áp dụng không duyệt và không công bố lô của mình; sự kiện `master.import_submitted.v1` ở bước áp dụng và `master.import_applied.v1` khi lô được công bố.
 
+(Cập nhật — CR-MDM-06) Thêm `GET /master-crosswalks` (`listMasterCrosswalks`, master.read) cho MDM-24 và MDM-16. Một lệnh nhập có thể khai cột mã cấp cha là mã ngoài (hệ thống và loại mã): mã được dịch qua crosswalk ACTIVE, mã chưa ánh xạ là dòng lỗi `CROSSWALK_MISSING` và không tạo bản ghi chủ. `resetIntegrationCursor` đặt vị trí mới (`cursor_json`) kèm lý do, không đổi `adapter_status`; hai con trỏ mặc định (`NATIONAL_PIM_FILE`, `TREASURY_STATEMENT_FILE`) cùng `PROCUREMENT_FILE` và `BUDGET_CODE_FILE` được tạo bởi gói baseline với adapter PROPOSED.
+
 **GET scaffold:** `/resources/master_record_version[/{id}]` → `dto` (version hiệu lực theo policy namespace; attributes lọc theo classification); `/resources/integration_cursor[/{id}]` → `internal` (vận hành nội bộ). Không endpoint ghi chung; mọi thay đổi qua change request.
 
 ## 8. UI/UX

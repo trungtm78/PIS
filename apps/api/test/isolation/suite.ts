@@ -76,6 +76,12 @@ export const MASTER_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; f
   'TNT-B': { id: '00000000-0000-4000-b011-000000000001', fileSha256: 'b4'.repeat(32), fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000b/import/beta-catalogue-0001' },
 };
 
+/** An ACTIVE crosswalk and an integration cursor of each tenant (the external code, the connector scope and the last file hash are distinctive). */
+export const CROSSWALK_FIXTURES: Readonly<Record<TenantName, { crosswalkId: string; externalCode: string; cursorId: string; sourceScope: string; fileSha256: string }>> = {
+  'TNT-A': { crosswalkId: '00000000-0000-4000-a012-000000000001', externalCode: 'ALPHA-TREASURY-CODE-0001', cursorId: '00000000-0000-4000-a012-000000000002', sourceScope: 'ALPHA-SCOPE-0001', fileSha256: 'a5'.repeat(32) },
+  'TNT-B': { crosswalkId: '00000000-0000-4000-b012-000000000001', externalCode: 'BETA-TREASURY-CODE-0001', cursorId: '00000000-0000-4000-b012-000000000002', sourceScope: 'BETA-SCOPE-0001', fileSha256: 'b6'.repeat(32) },
+};
+
 /** An Active signing certificate of each tenant (its fingerprint and serial are distinctive; tenant administration data). */
 export const CERTIFICATE_FIXTURES: Readonly<Record<TenantName, { id: string; fingerprint: string; serial: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a00e-000000000001', fingerprint: 'a1'.repeat(32), serial: 'ALPHA0C0E71F' },
@@ -194,6 +200,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'master import id', value: MASTER_IMPORT_FIXTURES[tenant].id },
     { kind: 'master import file hash', value: MASTER_IMPORT_FIXTURES[tenant].fileSha256 },
     { kind: 'master import object key', value: MASTER_IMPORT_FIXTURES[tenant].fileObjectKey },
+    { kind: 'crosswalk id', value: CROSSWALK_FIXTURES[tenant].crosswalkId },
+    { kind: 'crosswalk external code', value: CROSSWALK_FIXTURES[tenant].externalCode },
+    { kind: 'integration cursor id', value: CROSSWALK_FIXTURES[tenant].cursorId },
+    { kind: 'integration cursor scope', value: CROSSWALK_FIXTURES[tenant].sourceScope },
+    { kind: 'integration cursor file hash', value: CROSSWALK_FIXTURES[tenant].fileSha256 },
     { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },
     { kind: 'register id', value: DOCUMENT_FIXTURES[tenant].registerId },
     { kind: 'register code', value: DOCUMENT_FIXTURES[tenant].registerCode },

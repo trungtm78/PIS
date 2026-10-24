@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../i18n';
-import type { ChangeKind, ChangeStatus, FieldProblem, ImportStatus, ProblemView, RecordStatus, TypeScope } from './model';
+import type { AdapterStatus, ChangeKind, ChangeStatus, CrosswalkMethod, CrosswalkStatus, CursorStatus, FieldProblem, ImportStatus, ProblemView, RecordStatus, TypeScope } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -116,6 +116,10 @@ export function problemMessage(t: Translate, problem: ProblemView): string {
       return t('mdm.problem.alreadyApplied.error');
     case 'fileRefused':
       return t('mdm.problem.fileRefused.error');
+    case 'duplicateCrosswalk':
+      return t('mdm.problem.duplicateCrosswalk.error');
+    case 'notFound':
+      return t('mdm.problem.notFound.error');
     case 'denied':
       return t('mdm.problem.denied.error');
     case 'general':
@@ -150,6 +154,8 @@ export function rowErrorLabel(t: Translate, code: string): string {
       return t('mdm.import.error.invalidValue.text');
     case 'POLICY_LOCKED':
       return t('mdm.import.error.policyLocked.text');
+    case 'CROSSWALK_MISSING':
+      return t('mdm.import.error.crosswalkMissing.text');
     case 'SUBSET_SOURCE_NOT_ADDITIVE':
       return t('mdm.import.error.subsetNotAdditive.text');
     default:
@@ -191,5 +197,45 @@ export function importStatusLabel(t: Translate, status: ImportStatus): string {
       return t('mdm.import.status.failed.text');
     case 'CANCELLED':
       return t('mdm.import.status.cancelled.text');
+  }
+}
+
+export function crosswalkStatusLabel(t: Translate, status: CrosswalkStatus): string {
+  return status === 'ACTIVE' ? t('mdm.crosswalk.status.active.text') : t('mdm.crosswalk.status.retired.text');
+}
+
+export function crosswalkMethodLabel(t: Translate, method: CrosswalkMethod): string {
+  switch (method) {
+    case 'MANUAL':
+      return t('mdm.crosswalk.method.manual.text');
+    case 'IMPORT':
+      return t('mdm.crosswalk.method.import.text');
+    case 'RULE':
+      return t('mdm.crosswalk.method.rule.text');
+  }
+}
+
+/** What the verdict on the adapter of a connector says: only VERIFIED is a format the agency has confirmed. */
+export function adapterLabel(t: Translate, status: AdapterStatus): string {
+  switch (status) {
+    case 'VERIFIED':
+      return t('mdm.cursor.adapter.verified.pill');
+    case 'PROPOSED':
+      return t('mdm.cursor.adapter.proposed.pill');
+    case 'MOCK':
+      return t('mdm.cursor.adapter.mock.pill');
+    case 'MISSING':
+      return t('mdm.cursor.adapter.missing.pill');
+  }
+}
+
+export function cursorStatusLabel(t: Translate, status: CursorStatus): string {
+  switch (status) {
+    case 'ACTIVE':
+      return t('mdm.cursor.status.active.text');
+    case 'PAUSED':
+      return t('mdm.cursor.status.paused.text');
+    case 'FAILED':
+      return t('mdm.cursor.status.failed.text');
   }
 }

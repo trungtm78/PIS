@@ -93,6 +93,47 @@ describe('MasterImportScreen (MDM-29): the file, the mapping and the dry run', (
     expect(screen.getByRole('button', { name: vi_['mdm.import.apply.action'] })).toBeDisabled();
   });
 
+  it('translates the parent column through the crosswalk when the system and the code type are named, and tells a code without a mapping (AC-ST-MDM-007-3)', async () => {
+    const staged = batch(1, { error_rows: 1, errors: [{ row: 3, field: 'parent_key', code: 'CROSSWALK_MISSING' }] });
+    const state = world({ records: [], imports: [] });
+    const { h } = withUpload(state, (operation) => {
+      if (operation === 'stageMasterImport') {
+        state.imports.push(staged);
+        return { operation_id: 'o1', status: 'VALIDATED', resource_version: 1, resource_id: staged.id };
+      }
+      return {};
+    });
+    mount(<MasterImportScreen route={ROUTE} />, h, IMPORTER, at());
+    await formReady();
+    const user = userEvent.setup();
+    fireEvent.change(screen.getByLabelText(vi_['mdm.import.type.label']), { target: { value: 'FUND_SOURCE' } });
+    await user.upload(screen.getByLabelText(vi_['mdm.import.file.label']), csvFile());
+    await user.click(screen.getByRole('button', { name: vi_['mdm.import.upload.action'] }));
+    await waitFor(() => expect(screen.getByTestId('mapping')).toBeTruthy());
+    // Only a column that is mapped can hold the codes of another system.
+    const box = within(screen.getByTestId('crosswalk-map'));
+    expect(box.getAllByRole('checkbox').map((checkbox) => (checkbox as HTMLInputElement).labels?.[0]?.textContent)).toEqual([vi_['mdm.import.crosswalk.parent.label']]);
+    fireEvent.change(screen.getByLabelText(vi_['mdm.import.map.attribute.label'].replace('{name}', 'category')), { target: { value: 'Loại nguồn' } });
+    expect(box.getAllByRole('checkbox').length).toBe(2);
+    expect(box.getByLabelText(vi_['mdm.import.crosswalk.attribute.label'].replace('{name}', 'category'))).toBeTruthy();
+    await user.click(box.getByLabelText(vi_['mdm.import.crosswalk.parent.label']));
+    await user.click(box.getByLabelText(vi_['mdm.import.crosswalk.attribute.label'].replace('{name}', 'category')));
+    await user.click(box.getByLabelText(vi_['mdm.import.crosswalk.attribute.label'].replace('{name}', 'category')));
+    fireEvent.change(box.getByLabelText(vi_['mdm.import.crosswalk.system.label']), { target: { value: 'TREASURY' } });
+    fireEvent.change(box.getByLabelText(vi_['mdm.import.crosswalk.type.label']), { target: { value: 'AGENCY_CODE' } });
+    await user.click(screen.getByRole('button', { name: vi_['mdm.import.check.action'] }));
+    await waitFor(() => expect(screen.getByTestId('errors')).toBeTruthy());
+    expect(h.command).toHaveBeenCalledWith(
+      'stageMasterImport',
+      expect.objectContaining({
+        body: expect.objectContaining({
+          mapping: expect.objectContaining({ crosswalk: { source_system: 'TREASURY', external_type: 'AGENCY_CODE', fields: ['parent_key'] } }),
+        }),
+      }),
+    );
+    expect(document.querySelector('[data-row="3"]')?.textContent).toBe(`3${vi_['mdm.import.field.parent.text']}${vi_['mdm.import.error.crosswalkMissing.text']}`);
+  });
+
   it('needs the three parts of an entry before the dry run, and a catalogue type', async () => {
     const { h } = withUpload(world());
     mount(<MasterImportScreen route={ROUTE} />, h, IMPORTER, at());

@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-24T14:00+07:00 | Milestone: M3/6 | Task: MDM-1 — ST-MDM-001, 003, 004, 005, 006 xong, ST-MDM-002 một phần; kế tiếp ST-MDM-007
+Cập nhật: 2026-10-24T14:00+07:00 | Milestone: M3/6 | Task: MDM-1 — ST-MDM-001, 003, 004, 005, 006, 007 xong, ST-MDM-002 một phần; kế tiếp ST-MDM-008
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -39,6 +39,7 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M3 · MDM-1 · ST-MDM-003: định nghĩa loại và validator cho FUND_SOURCE (CTMTQG luôn là tập con: SUBSET_SOURCE_NOT_ADDITIVE), PROGRAM, SECTOR, PROJECT_GROUP/TYPE/STAGE, DECISION_TYPE/AUTHORITY và 4 loại rule (BR-MDM-09); gói baseline nền tảng có digest + job master-baseline-sync (6 giờ); cổng đọc rule MasterRules (nhóm dự án theo bảng ngưỡng hiệu lực tại ngày đề xuất, mã TTQG, cờ chờ xác nhận); người duyệt rule theo loại (V1083, đóng khi không có); MDM-04..10 trên một CatalogueScreen; form thuộc tính theo loại ở MDM-25/26 — migration V1083, 3 AC có test
 - [x] M3 · MDM-1 · ST-MDM-004: loại CALENDAR (tuần bắt đầu, hạn, múi giờ Asia/Ho_Chi_Minh) là dữ liệu rule có phiên bản; kernel sinh kỳ `W<năm>-<số>` không chồng/không hở và tính trễ hạn theo phiên bản lịch đã gắn cho kỳ (không đổi hồi tố); UNIT/CURRENCY với hệ số thập phân chính xác, scale, quy tắc làm tròn (roundDecimal/convertDecimal); MDM-11 (lịch kỳ, xem trước 8 kỳ đầu trong form) và MDM-12; vector kiểm thử dùng chung kernel và web
 - [x] M3 · MDM-1 · ST-MDM-005: 11 loại danh mục vận hành (loại hồ sơ, hợp đồng, thanh toán, nhóm vướng mắc, mức ưu tiên, tiêu chí nhà thầu, vai trò chuyên gia, mục đích liên hệ, ngôn ngữ, văn bản dùng chung, chính sách lưu trữ — loại rule có căn cứ và cờ chờ CXN-05) với validator và seed baseline; MDM-13..15, 17..23 trên CatalogueScreen; sửa lưu trữ đi qua change request có impact; nhóm vướng mắc đang được dùng không ngừng được nếu thiếu successor (MASTER_IN_USE)
+- [x] M3 · MDM-1 · ST-MDM-007: crosswalk mã ngoài ↔ bản ghi chủ (một ánh xạ ACTIVE cho mỗi mã, 409 CROSSWALK_DUPLICATE, ngừng ánh xạ giữ lịch sử, dịch mã khi nhập với lỗi dòng CROSSWALK_MISSING) và con trỏ tích hợp (4 kết nối mặc định adapter PROPOSED từ baseline, đặt lại vị trí cần quyền riêng + lý do, ghi audit); loại TREASURY_OFFICE; thao tác mới listMasterCrosswalks (CR-MDM-06); màn MDM-24 (ánh xạ + kết nối kèm badge adapter) và MDM-16 (cơ quan Kho bạc + mã liên kết)
 - [x] M3 · MDM-1 · ST-MDM-006: nhập hàng loạt nguyên tử — tải CSV/XLSX qua đường tải chung (kiểm theo byte, quét mã độc), bộ đọc bảng (kernel) có giới hạn chống zip bomb, dry run từng dòng với mã lỗi, áp dụng ATOMIC hoặc PARTIAL tạo mọi bản ghi và change request trong một giao dịch, duyệt và công bố cả lô một lần (người áp dụng không duyệt, không công bố), cùng tệp không áp dụng hai lần; 5 thao tác mới (CR-MDM-04, CR-MDM-05), migration V1084, màn MDM-29
 
 ## Đang làm dở

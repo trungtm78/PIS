@@ -3,7 +3,7 @@ import type { OpenApiDocument } from '@machvon/contracts';
 import { fillPath, operationPath } from '../endpoint-enumerator';
 import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
-import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -75,6 +75,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'applyMasterImport', method: 'POST', id: MASTER_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideMasterImport', method: 'POST', id: MASTER_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
   { operation: 'publishMasterImport', method: 'POST', id: MASTER_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: { decision_document_id: DOCUMENT_FIXTURES['TNT-B'].documentId } },
+  { operation: 'retireMasterCrosswalk', method: 'POST', id: CROSSWALK_FIXTURES['TNT-B'].crosswalkId, versioned: true, body: { reason: 'Isolation foreign retire' } },
+  { operation: 'resetIntegrationCursor', method: 'POST', id: CROSSWALK_FIXTURES['TNT-B'].cursorId, versioned: true, body: { reason: 'Isolation foreign reset', cursor_json: {} } },
+  { operation: 'get_resources_integration_cursor_id', method: 'GET', id: CROSSWALK_FIXTURES['TNT-B'].cursorId },
   { operation: 'getTenantEntitlements', method: 'GET', id: TENANT_IDS['TNT-B'], expectedStatuses: [403, 404] },
   { operation: 'updateOrganizationUnit', method: 'PUT', id: FOREIGN_UNIT, versioned: true, body: { name: 'Tên đơn vị mới' } },
   {

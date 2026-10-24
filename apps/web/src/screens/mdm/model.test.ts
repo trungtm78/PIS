@@ -1,8 +1,33 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { changedFields, describeProblem, fieldValue, isCalendarDate, namespaceOf, parseAttributes, proposalRows, recordLink, toChange, toPolicy, toRecord, toUsage, toVersion, validateEdit, validateNewRecord, validateRetire } from './model';
+import {
+  EMPTY_CROSSWALK_FORM,
+  EMPTY_MAPPING,
+  changedFields,
+  describeProblem,
+  fieldValue,
+  isCalendarDate,
+  mappingBody,
+  namespaceOf,
+  parseAttributes,
+  proposalRows,
+  recordLink,
+  toChange,
+  toCrosswalk,
+  toCursor,
+  toPolicy,
+  toRecord,
+  toUsage,
+  toVersion,
+  validateCrosswalk,
+  validateCursorReset,
+  validateEdit,
+  validateNewRecord,
+  validateRetire,
+  validateRetireReason,
+} from './model';
 import type { RecordForm } from './model';
-import { change, record, version } from './test-support';
+import { change, crosswalk, cursor, record, version } from './test-support';
 
 const problem = (code: string, detail?: string) => new ApiError({ status: 409, code, correlationId: 'c', retryAfterSeconds: undefined, detail, extensions: {} });
 
@@ -183,3 +208,60 @@ describe('the problems of the commands', () => {
 function fail(): never {
   throw new Error('fixture could not be read');
 }
+
+describe('the crosswalk and the integration connectors', () => {
+  it('reads a mapping and a connector, and drops what it cannot read', () => {
+    expect(toCrosswalk(crosswalk(1, { confidence: 0.5, valid_until: '2025-01-01' }))).toMatchObject({ externalCode: 'KB-1', matchMethod: 'MANUAL', status: 'ACTIVE', confidence: 0.5, validUntil: '2025-01-01', version: 1 });
+    expect(toCrosswalk(crosswalk(1))?.confidence).toBeNull();
+    expect(toCrosswalk(undefined)).toBeUndefined();
+    expect(toCrosswalk({ ...crosswalk(1), match_method: 'GUESS' })).toBeUndefined();
+    expect(toCrosswalk({ ...crosswalk(1), status: 'PAUSED' })).toBeUndefined();
+    expect(toCrosswalk({ ...crosswalk(1), version: '1' })).toBeUndefined();
+    expect(toCrosswalk({ ...crosswalk(1), external_code: undefined })).toBeUndefined();
+    expect(toCursor(cursor(1, { cursor_json: { after: 'x' } }))).toMatchObject({ connectorCode: 'CONNECTOR_1', adapterStatus: 'PROPOSED', status: 'ACTIVE', position: { after: 'x' }, lastSuccessAt: null });
+    expect(toCursor(cursor(1))?.position).toBeNull();
+    expect(toCursor('text')).toBeUndefined();
+    expect(toCursor({ ...cursor(1), adapter_status: 'TRUSTED' })).toBeUndefined();
+    expect(toCursor({ ...cursor(1), status: 'DONE' })).toBeUndefined();
+    expect(toCursor({ ...cursor(1), version: 'x' })).toBeUndefined();
+  });
+
+  it('judges the form of a mapping', () => {
+    const valid = { masterType: 'SECTOR', businessKey: 'GT-1', sourceSystem: 'TREASURY', externalType: 'AGENCY_CODE', externalCode: 'KB-1', validFrom: '2026-01-01', matchMethod: 'MANUAL' as const };
+    expect(validateCrosswalk(valid)).toEqual({});
+    expect(Object.keys(validateCrosswalk(EMPTY_CROSSWALK_FORM)).sort()).toEqual(['businessKey', 'externalCode', 'externalType', 'masterType', 'sourceSystem', 'validFrom']);
+    expect(validateCrosswalk({ ...valid, validFrom: '2026-02-30' })).toEqual({ validFrom: 'invalidDate' });
+    expect(validateCrosswalk({ ...valid, externalCode: 'x'.repeat(101), sourceSystem: 'y'.repeat(51) })).toEqual({ externalCode: 'tooLong', sourceSystem: 'tooLong' });
+    expect(validateCrosswalk({ ...valid, businessKey: '   ' })).toEqual({ businessKey: 'required' });
+  });
+
+  it('judges the reason and the position of a reset, and the reason for ending a mapping', () => {
+    expect(validateCursorReset({ reason: 'Re-read the file of March', position: '{"after": 1}' })).toEqual({});
+    expect(validateCursorReset({ reason: 'Re-read the file of March', position: '' })).toEqual({});
+    expect(validateCursorReset({ reason: '', position: '{}' })).toEqual({ reason: 'required' });
+    expect(validateCursorReset({ reason: 'too short', position: '{}' })).toEqual({ reason: 'tooShort' });
+    expect(validateCursorReset({ reason: 'x'.repeat(2001), position: '{}' })).toEqual({ reason: 'tooLong' });
+    expect(validateCursorReset({ reason: 'Re-read the file of March', position: '[1]' })).toEqual({ position: 'invalidJson' });
+    expect(validateCursorReset({ reason: 'Re-read the file of March', position: '{broken' })).toEqual({ position: 'invalidJson' });
+    expect(validateRetireReason('')).toBe('required');
+    expect(validateRetireReason('abc')).toBe('tooShort');
+    expect(validateRetireReason('Mapped to the wrong office')).toBeUndefined();
+  });
+
+  it('names the refusals of the crosswalk', () => {
+    expect(describeProblem(problem('CROSSWALK_DUPLICATE'))).toEqual({ reason: 'duplicateCrosswalk', field: undefined });
+    expect(describeProblem(problem('RESOURCE_NOT_FOUND'))).toEqual({ reason: 'notFound', field: undefined });
+  });
+
+  it('puts the translation of the codes of another system in the mapping of an import only when it can apply', () => {
+    const base = { ...EMPTY_MAPPING, key: 'Mã', label: 'Tên', valid_from: 'Từ ngày', parent_key: 'Mã cha', attributes: { sla_priority_key: 'Ưu tiên', handler_unit_key: '' } };
+    expect(mappingBody(base)).not.toHaveProperty('crosswalk');
+    // The system and the code type go together, and a column that is not mapped is not translated.
+    expect(mappingBody({ ...base, crosswalk_system: 'TREASURY', crosswalk_fields: ['parent_key'] })).not.toHaveProperty('crosswalk');
+    expect(mappingBody({ ...base, crosswalk_system: 'TREASURY', crosswalk_type: 'AGENCY_CODE', crosswalk_fields: [] })).not.toHaveProperty('crosswalk');
+    expect(mappingBody({ ...base, crosswalk_system: ' TREASURY ', crosswalk_type: 'AGENCY_CODE', crosswalk_fields: ['parent_key', 'attributes.sla_priority_key', 'attributes.handler_unit_key', 'attributes.unknown'] })).toMatchObject({
+      crosswalk: { source_system: 'TREASURY', external_type: 'AGENCY_CODE', fields: ['parent_key', 'attributes.sla_priority_key'] },
+    });
+    expect(mappingBody({ ...base, parent_key: '', crosswalk_system: 'TREASURY', crosswalk_type: 'AGENCY_CODE', crosswalk_fields: ['parent_key'] })).not.toHaveProperty('crosswalk');
+  });
+});

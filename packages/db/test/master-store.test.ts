@@ -312,6 +312,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         'PROJECT_TYPE',
         'RETENTION_POLICY',
         'SECTOR',
+        'TREASURY_OFFICE',
         'UNIT',
       ]);
       // The law and the process of the platform are its own; the rule data is never a tenant's to write by default.

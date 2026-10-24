@@ -36044,7 +36044,8 @@
         "retireMasterCrosswalk",
         "resetIntegrationCursor",
         "get_resources_integration_cursor",
-        "get_resources_integration_cursor_id"
+        "get_resources_integration_cursor_id",
+        "listMasterCrosswalks"
       ],
       "tables": [
         "master_crosswalk",

@@ -188,6 +188,12 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'publishMasterImport',
         'listMasterImports',
         'getMasterImport',
+        'createMasterCrosswalk',
+        'retireMasterCrosswalk',
+        'listMasterCrosswalks',
+        'resetIntegrationCursor',
+        'get_resources_integration_cursor',
+        'get_resources_integration_cursor_id',
       ].sort(),
     );
   });

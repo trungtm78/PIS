@@ -434,6 +434,8 @@ export type ProblemReason =
   | 'importHasErrors'
   | 'alreadyApplied'
   | 'fileRefused'
+  | 'duplicateCrosswalk'
+  | 'notFound'
   | 'general';
 
 const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
@@ -457,6 +459,8 @@ const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
   FILE_NOT_CLEAN: 'fileRefused',
   PAYLOAD_TOO_LARGE: 'fileRefused',
   SCAN_PENDING: 'fileRefused',
+  CROSSWALK_DUPLICATE: 'duplicateCrosswalk',
+  RESOURCE_NOT_FOUND: 'notFound',
 };
 
 export interface ProblemView {
@@ -619,9 +623,14 @@ export interface ImportMappingForm {
   legal_basis: string;
   /** Attribute name → column. */
   attributes: Record<string, string>;
+  /** The system and the code type that translate the columns that hold codes of another system (both, or none). */
+  crosswalk_system: string;
+  crosswalk_type: string;
+  /** The columns that hold such codes: `parent_key` and `attributes.<name>`. */
+  crosswalk_fields: string[];
 }
 
-export const EMPTY_MAPPING: ImportMappingForm = { key: '', label: '', valid_from: '', parent_key: '', valid_until: '', legal_basis: '', attributes: {} };
+export const EMPTY_MAPPING: ImportMappingForm = { key: '', label: '', valid_from: '', parent_key: '', valid_until: '', legal_basis: '', attributes: {}, crosswalk_system: '', crosswalk_type: '', crosswalk_fields: [] };
 
 /** A name as a person writes it in a header, compared without case, accents or spacing. */
 const plainName = (value: string): string =>
@@ -646,7 +655,7 @@ const MAPPING_ALIASES: Readonly<Record<'key' | 'label' | 'valid_from' | 'valid_u
 export function suggestMapping(headers: readonly string[], attributeNames: readonly string[]): ImportMappingForm {
   const plain = headers.map((header) => [header, plainName(header)] as const);
   const find = (names: readonly string[]): string => plain.find(([, name]) => names.includes(name))?.[0] ?? '';
-  const mapping: ImportMappingForm = { ...EMPTY_MAPPING, attributes: {} };
+  const mapping: ImportMappingForm = { ...EMPTY_MAPPING, attributes: {}, crosswalk_fields: [] };
   for (const field of Object.keys(MAPPING_ALIASES) as Array<keyof typeof MAPPING_ALIASES>) mapping[field] = find(MAPPING_ALIASES[field]);
   for (const name of attributeNames) {
     const column = find([plainName(name)]);
@@ -661,7 +670,177 @@ export function mappingBody(form: ImportMappingForm): Record<string, unknown> {
   for (const field of ['parent_key', 'valid_until', 'legal_basis'] as const) if (form[field] !== '') body[field] = form[field];
   const attributes = Object.fromEntries(Object.entries(form.attributes).filter(([, column]) => column !== ''));
   if (Object.keys(attributes).length > 0) body.attributes = attributes;
+  // A column can only be translated when it is mapped; the system and the code type go together.
+  const fields = form.crosswalk_fields.filter((field) => (field === 'parent_key' ? form.parent_key !== '' : attributes[field.slice('attributes.'.length)] !== undefined));
+  if (form.crosswalk_system.trim() !== '' && form.crosswalk_type.trim() !== '' && fields.length > 0) {
+    body.crosswalk = { source_system: form.crosswalk_system.trim(), external_type: form.crosswalk_type.trim(), fields };
+  }
   return body;
 }
 
 export const mappingComplete = (form: ImportMappingForm): boolean => form.key !== '' && form.label !== '' && form.valid_from !== '';
+
+// ---- crosswalk and integration cursors (MDM-16, MDM-24) --------------------------------------------------------------------
+
+export const CROSSWALK_PERMISSION = 'master.crosswalk.manage';
+export const CURSOR_READ_PERMISSION = 'integration_cursor.read';
+export const CURSOR_RESET_PERMISSION = 'integration.cursor.reset';
+export const CURSOR_REASON_MIN_LENGTH = 10;
+export const CROSSWALK_NAME_MAX_LENGTH = 50;
+export const CROSSWALK_CODE_MAX_LENGTH = 100;
+
+export type CrosswalkStatus = 'ACTIVE' | 'RETIRED';
+export type CrosswalkMethod = 'MANUAL' | 'IMPORT' | 'RULE';
+export type AdapterStatus = 'VERIFIED' | 'PROPOSED' | 'MOCK' | 'MISSING';
+export type CursorStatus = 'ACTIVE' | 'PAUSED' | 'FAILED';
+
+const CROSSWALK_STATUSES: readonly string[] = ['ACTIVE', 'RETIRED'];
+const CROSSWALK_METHODS: readonly string[] = ['MANUAL', 'IMPORT', 'RULE'];
+const ADAPTER_STATUSES: readonly string[] = ['VERIFIED', 'PROPOSED', 'MOCK', 'MISSING'];
+const CURSOR_STATUSES: readonly string[] = ['ACTIVE', 'PAUSED', 'FAILED'];
+export const CROSSWALK_METHOD_LIST: readonly CrosswalkMethod[] = ['MANUAL', 'IMPORT', 'RULE'];
+
+export interface CrosswalkView {
+  id: string;
+  masterRecordId: string;
+  masterType: string;
+  businessKey: string;
+  sourceSystem: string;
+  externalType: string;
+  externalCode: string;
+  validFrom: string;
+  validUntil: string | null;
+  matchMethod: CrosswalkMethod;
+  confidence: number | null;
+  status: CrosswalkStatus;
+  version: number;
+}
+
+export function toCrosswalk(raw: unknown): CrosswalkView | undefined {
+  const row = asRecord(raw);
+  if (row === undefined) return undefined;
+  const id = text(row.id);
+  const masterRecordId = text(row.master_record_id);
+  const masterType = text(row.master_type);
+  const businessKey = text(row.business_key);
+  const sourceSystem = text(row.source_system);
+  const externalType = text(row.external_type);
+  const externalCode = text(row.external_code);
+  const validFrom = text(row.valid_from);
+  const method = text(row.match_method);
+  const status = text(row.status);
+  const version = whole(row.version);
+  if (
+    id === undefined || masterRecordId === undefined || masterType === undefined || businessKey === undefined || sourceSystem === undefined || externalType === undefined || externalCode === undefined ||
+    validFrom === undefined || method === undefined || !CROSSWALK_METHODS.includes(method) || status === undefined || !CROSSWALK_STATUSES.includes(status) || version === undefined
+  ) {
+    return undefined;
+  }
+  return {
+    id,
+    masterRecordId,
+    masterType,
+    businessKey,
+    sourceSystem,
+    externalType,
+    externalCode,
+    validFrom,
+    validUntil: nullableText(row.valid_until),
+    matchMethod: method as CrosswalkMethod,
+    confidence: typeof row.confidence === 'number' ? row.confidence : null,
+    status: status as CrosswalkStatus,
+    version,
+  };
+}
+
+export interface CursorView {
+  id: string;
+  connectorCode: string;
+  sourceScope: string;
+  adapterStatus: AdapterStatus;
+  status: CursorStatus;
+  lastSuccessAt: string | null;
+  lastFileSha256: string | null;
+  lastErrorCode: string | null;
+  resetReason: string | null;
+  version: number;
+  /** The position itself: only the read of one connector carries it. */
+  position: Record<string, unknown> | null;
+}
+
+export function toCursor(raw: unknown): CursorView | undefined {
+  const row = asRecord(raw);
+  if (row === undefined) return undefined;
+  const id = text(row.id);
+  const connectorCode = text(row.connector_code);
+  const sourceScope = text(row.source_scope);
+  const adapter = text(row.adapter_status);
+  const status = text(row.status);
+  const version = whole(row.version);
+  if (id === undefined || connectorCode === undefined || sourceScope === undefined || adapter === undefined || !ADAPTER_STATUSES.includes(adapter) || status === undefined || !CURSOR_STATUSES.includes(status) || version === undefined) {
+    return undefined;
+  }
+  return {
+    id,
+    connectorCode,
+    sourceScope,
+    adapterStatus: adapter as AdapterStatus,
+    status: status as CursorStatus,
+    lastSuccessAt: nullableText(row.last_success_at),
+    lastFileSha256: nullableText(row.last_file_sha256),
+    lastErrorCode: nullableText(row.last_error_code),
+    resetReason: nullableText(row.reset_reason),
+    version,
+    position: asRecord(row.cursor_json) ?? null,
+  };
+}
+
+export interface CrosswalkForm {
+  masterType: string;
+  businessKey: string;
+  sourceSystem: string;
+  externalType: string;
+  externalCode: string;
+  validFrom: string;
+  matchMethod: CrosswalkMethod;
+}
+
+export const EMPTY_CROSSWALK_FORM: CrosswalkForm = { masterType: '', businessKey: '', sourceSystem: '', externalType: '', externalCode: '', validFrom: '', matchMethod: 'MANUAL' };
+export type CrosswalkField = keyof CrosswalkForm;
+
+export function validateCrosswalk(form: CrosswalkForm): FormErrors<CrosswalkField> {
+  const errors: FormErrors<CrosswalkField> = {};
+  const required = (field: CrosswalkField, value: string, max: number): void => {
+    const problem = checkText(value.trim(), max, true);
+    if (problem !== undefined) errors[field] = problem;
+  };
+  required('masterType', form.masterType, TYPE_MAX_LENGTH);
+  required('businessKey', form.businessKey, KEY_MAX_LENGTH);
+  required('sourceSystem', form.sourceSystem, CROSSWALK_NAME_MAX_LENGTH);
+  required('externalType', form.externalType, CROSSWALK_NAME_MAX_LENGTH);
+  required('externalCode', form.externalCode, CROSSWALK_CODE_MAX_LENGTH);
+  if (form.validFrom === '') errors.validFrom = 'required';
+  else if (!isCalendarDate(form.validFrom)) errors.validFrom = 'invalidDate';
+  return errors;
+}
+
+export interface CursorResetForm {
+  reason: string;
+  position: string;
+}
+
+export type CursorResetField = keyof CursorResetForm;
+
+/** The position of a reset is a JSON object, as the connector keeps it. */
+export function validateCursorReset(form: CursorResetForm): FormErrors<CursorResetField> {
+  const errors: FormErrors<CursorResetField> = {};
+  const reason = form.reason.trim();
+  if (reason === '') errors.reason = 'required';
+  else if (reason.length < CURSOR_REASON_MIN_LENGTH) errors.reason = 'tooShort';
+  else if (reason.length > REASON_MAX_LENGTH) errors.reason = 'tooLong';
+  if (parseAttributes(form.position) === undefined) errors.position = 'invalidJson';
+  return errors;
+}
+
+/** The reason for ending a mapping: as long as the reason of any other change of master data. */
+export const validateRetireReason = (value: string): FieldProblem | undefined => checkReason(value);

@@ -4791,7 +4791,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Ánh xạ mã ngoài ↔ bản ghi chủ, lọc theo hệ thống, loại mã, bản ghi và trạng thái */
+        get: operations["listMasterCrosswalks"];
         put?: never;
         /** Ánh xạ mã ngoài ↔ bản ghi chủ */
         post: operations["createMasterCrosswalk"];
@@ -47004,6 +47005,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listMasterCrosswalks: {
+        parameters: {
+            query?: {
+                source_system?: string;
+                external_type?: string;
+                external_code?: string;
+                master_record_id?: string;
+                status?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

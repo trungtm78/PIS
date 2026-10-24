@@ -23,6 +23,7 @@ Every entry of these catalogues is a `master_record` with effective-dated `maste
 | `CONTRACTOR_CRITERION` | MDM-19 | Platform, extended by the tenant | `category` (QUALITY, SCHEDULE, SAFETY, COST, COMPLIANCE), `scale_max` (1..100), `evidence_required` | none beyond the types |
 | `EXPERT_ROLE` | MDM-20 | Platform, extended by the tenant | `specialty`, `conditions` | none beyond the types |
 | `CONTACT_PURPOSE` | MDM-21 | Platform only | `consent` (NOT_REQUIRED, EXPLICIT), `security_level` (PUBLIC, INTERNAL, CONFIDENTIAL) | none beyond the types |
+| `TREASURY_OFFICE` | MDM-16 | The tenant's own | `level` (CENTRAL, PROVINCE, DISTRICT), `province` | none beyond the types; the Treasury code of an office is not an attribute but its ACTIVE crosswalk TREASURY/AGENCY_CODE |
 | `LANGUAGE` | MDM-22 | Platform only | `native_name` | the key is a language code (`vi`, `pt-BR`) |
 | `SHARED_TEXT` | MDM-22 | The tenant's own | `translations`: a text per language code | language codes are valid, texts are not empty |
 | `DECISION_TYPE` | MDM-10 | Platform, extended by the tenant | `required_fields` (lower-case identifiers), `template` | identifiers are unique |
@@ -55,6 +56,14 @@ A catalogue is imported from a CSV file (UTF-8; comma, semicolon or tab) or the 
 | Publish (`publishMasterImport`) | every record is put in force on one decision document, or none is; the batch becomes APPLIED |
 
 Row error codes: `REQUIRED`, `INVALID_FORMAT`, `TOO_LONG`, `INVALID_DATE`, `INVALID_RANGE`, `DUPLICATE_IN_FILE`, `DUPLICATE_KEY`, `PARENT_NOT_FOUND`, `PARENT_CYCLE`, `PARENT_SKIPPED` (the parent row cannot be created), `INVALID_VALUE` (the rules of the type), `POLICY_LOCKED`, and the code of a rule of the type such as `SUBSET_SOURCE_NOT_ADDITIVE`. A cell is read by the kind of its attribute: integers and flags from their text (`true`, `yes`, `1`, `có`), lists split at `;`, `,` or `|`, structured values as JSON.
+
+## Crosswalk and integration connectors (MDM-24, MDM-16, ST-MDM-007)
+
+A code of another system (Treasury, the national investment system, procurement, budget codes) is mapped to an entry by a crosswalk: `(source_system, external_type, external_code)` has at most one ACTIVE mapping (409 `CROSSWALK_DUPLICATE`; retire the old one first, the row stays for history). A merged entry cannot be a target. `MasterCrosswalkStore.resolve` translates a list of codes at a date: a code with no ACTIVE mapping in force, or whose entry is retired or merged, is simply absent.
+
+An import mapping may name a system and a code type and the columns that hold such codes (`parent_key` and `attributes.<name>`); the codes are translated through the crosswalk and a code without a mapping is the row error `CROSSWALK_MISSING` (a code that maps to an entry of another type is `PARENT_NOT_FOUND`), so nothing is ever created from a guessed code.
+
+Each tenant has four integration connectors from the baseline: `NATIONAL_PIM_FILE`, `TREASURY_STATEMENT_FILE`, `PROCUREMENT_FILE`, `BUDGET_CODE_FILE` (scope DEFAULT, adapter `PROPOSED`: the platform never calls a format verified on its own authority). MDM-24 shows the adapter badge. `resetIntegrationCursor` (permission `integration.cursor.reset`, a reason of at least 10 characters, a JSON object position of at most 8 KiB) sets the position, makes the connector ACTIVE, clears the last error and the last file hash (so the file can be read again), keeps the verdict on the adapter, and audits the reason. A missing reason is 422 `VALIDATION_FAILED` naming `reason`.
 
 ## Reading the rules (rule port)
 

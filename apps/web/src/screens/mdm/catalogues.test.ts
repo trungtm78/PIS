@@ -35,6 +35,7 @@ describe('the catalogue configuration', () => {
       'MDM-13',
       'MDM-14',
       'MDM-15',
+      'MDM-16',
       'MDM-17',
       'MDM-18',
       'MDM-19',

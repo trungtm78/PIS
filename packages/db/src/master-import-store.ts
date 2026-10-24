@@ -1,6 +1,8 @@
 import { DomainError, assertFourEyes, readTabularFile, versionConflict } from '@machvon/kernel';
 import type { TabularFile } from '@machvon/kernel';
 import type { MasterContent, MasterNamespace } from './master-store.ts';
+import { MasterCrosswalkStore } from './master-crosswalk-store.ts';
+import type { CrosswalkTarget } from './master-crosswalk-store.ts';
 import { MasterStore } from './master-store.ts';
 import { coerceCell, entryOfRecord, tenantLookup, validateMasterContent } from './master-types.ts';
 import type { EntryRef, TypeLookup } from './master-types.ts';
@@ -27,6 +29,11 @@ export interface ImportMapping {
   valid_until?: string;
   legal_basis?: string;
   attributes?: Record<string, string>;
+  /**
+   * Columns that hold the codes of another system instead of keys of master data, and the mapping that translates them. A code without an
+   * ACTIVE mapping is the row error CROSSWALK_MISSING, never a guess. `fields` are `parent_key` and `attributes.<name>`.
+   */
+  crosswalk?: { source_system: string; external_type: string; fields: string[] };
 }
 
 /** A row that cannot be imported: its line in the file (the header is line 1), the field and a stable code the screen translates. */
@@ -138,10 +145,27 @@ const isCalendarDate = (value: string): boolean => {
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
+const CROSSWALK_NAME_MAX = 50;
+
+/** The translation of a mapping: a system and a code type, and the columns of the mapping that carry such codes (at least one, each once). */
+function checkCrosswalk(raw: unknown, mapping: ImportMapping): NonNullable<ImportMapping['crosswalk']> {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) throw invalid('mapping.crosswalk');
+  const { source_system: system, external_type: type, fields, ...rest } = raw as Record<string, unknown>;
+  const name = (value: unknown): string => {
+    if (typeof value !== 'string' || value.trim() === '' || value.trim().length > CROSSWALK_NAME_MAX) throw invalid('mapping.crosswalk');
+    return value.trim();
+  };
+  if (Object.keys(rest).length > 0 || !Array.isArray(fields) || fields.length === 0) throw invalid('mapping.crosswalk');
+  const allowed = new Set<string>([...(mapping.parent_key === undefined ? [] : ['parent_key']), ...Object.keys(mapping.attributes ?? {}).map((attribute) => `attributes.${attribute}`)]);
+  const chosen = fields.map((field) => (typeof field === 'string' && allowed.has(field) ? field : undefined));
+  if (chosen.includes(undefined) || new Set(chosen).size !== chosen.length) throw invalid('mapping.crosswalk');
+  return { source_system: name(system), external_type: name(type), fields: chosen as string[] };
+}
+
 /** The mapping the request carries, checked against the columns of the file: every name must be a column that the file has. */
 export function checkMapping(raw: unknown, headers: readonly string[]): ImportMapping {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) throw invalid('mapping');
-  const { key, label, valid_from: validFrom, parent_key: parentKey, valid_until: validUntil, legal_basis: legalBasis, attributes, ...rest } = raw as Record<string, unknown>;
+  const { key, label, valid_from: validFrom, parent_key: parentKey, valid_until: validUntil, legal_basis: legalBasis, attributes, crosswalk, ...rest } = raw as Record<string, unknown>;
   if (Object.keys(rest).length > 0) throw invalid('mapping');
   const column = (field: string, value: unknown, required: boolean): string | undefined => {
     if (value === undefined) {
@@ -167,6 +191,7 @@ export function checkMapping(raw: unknown, headers: readonly string[]): ImportMa
     }
     mapping.attributes = chosen;
   }
+  if (crosswalk !== undefined) mapping.crosswalk = checkCrosswalk(crosswalk, mapping);
   return mapping;
 }
 
@@ -178,9 +203,11 @@ export function checkMapping(raw: unknown, headers: readonly string[]): ImportMa
  */
 export class MasterImportStore {
   private readonly masters: MasterStore;
+  private readonly crosswalks: MasterCrosswalkStore;
 
-  constructor(masters: MasterStore = new MasterStore()) {
+  constructor(masters: MasterStore = new MasterStore(), crosswalks: MasterCrosswalkStore = new MasterCrosswalkStore()) {
     this.masters = masters;
+    this.crosswalks = crosswalks;
   }
 
   // ---- reads -----------------------------------------------------------------------------------------------------
@@ -238,6 +265,19 @@ export class MasterImportStore {
       errors.push({ row: line, field, code });
     };
 
+    // The codes of another system, translated in one read: a code that is not in the answer has no ACTIVE mapping in force.
+    const translated = new Set(mapping.crosswalk?.fields ?? []);
+    const codePositions = [...(translated.has('parent_key') ? [at.parent] : []), ...attributeColumns.filter(([name]) => translated.has(`attributes.${name}`)).map(([, position]) => position)];
+    const targets =
+      mapping.crosswalk === undefined
+        ? new Map<string, CrosswalkTarget>()
+        : await this.crosswalks.resolve(
+            tx,
+            mapping.crosswalk.source_system,
+            mapping.crosswalk.external_type,
+            [...new Set(table.rows.flatMap((cells) => codePositions.map((position) => (cells[position] ?? '').trim()).filter((code) => code !== '')))],
+          );
+
     interface Draft extends PlannedRow {
       parentLine: number | null;
     }
@@ -264,13 +304,31 @@ export class MasterImportStore {
       if (basis.length > LEGAL_BASIS_MAX_LENGTH) fail(line, 'legal_basis', 'TOO_LONG');
       const attributes: Record<string, unknown> = {};
       for (const [name, position] of attributeColumns) {
-        const raw = cell(position);
+        let raw = cell(position);
         if (raw === '') continue;
+        if (translated.has(`attributes.${name}`)) {
+          const target = targets.get(raw);
+          if (target === undefined) {
+            fail(line, `attributes.${name}`, 'CROSSWALK_MISSING');
+            continue;
+          }
+          raw = target.businessKey;
+        }
         const coerced = coerceCell(masterType, name, raw);
         if (coerced.ok) attributes[name] = coerced.value;
         else fail(line, `attributes.${name}`, 'INVALID_VALUE');
       }
-      const parentKey = cell(at.parent);
+      let parentKey = cell(at.parent);
+      if (parentKey !== '' && translated.has('parent_key')) {
+        const target = targets.get(parentKey);
+        if (target === undefined) {
+          fail(line, 'parent_key', 'CROSSWALK_MISSING');
+          parentKey = '';
+        } else if (target.masterType !== masterType) {
+          fail(line, 'parent_key', 'PARENT_NOT_FOUND');
+          parentKey = '';
+        } else parentKey = target.businessKey;
+      }
       drafts.push({
         line,
         businessKey: key,

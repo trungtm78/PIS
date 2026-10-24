@@ -11,28 +11,13 @@ import type { Schemas } from '../../contract-types';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { dateOf, textOf } from './inputs';
 
 const RESOURCE_TYPE = 'master_record';
 const CHANGE_RESOURCE_TYPE = 'master_change_request';
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-const MAX_TEXT = 100;
 const SUPPORTED_CHANGES = new Set(['UPDATE', 'RETIRE']);
 const CHANGE_STATUSES: ReadonlySet<string> = new Set(['DRAFT', 'IN_REVIEW', 'APPROVED', 'REJECTED', 'APPLIED', 'CANCELLED']);
 const DECISION_ACTIONS = { approve: 'master.change_approved', reject: 'master.change_rejected', return: 'master.change_returned' } as const;
-
-/** A calendar date as the contract writes it; anything else, or a date that does not exist, is 422 naming the parameter. */
-function dateOf(value: unknown, name: string): string {
-  if (typeof value !== 'string' || !DATE_PATTERN.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`)) || new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) !== value) {
-    throw new DomainError('VALIDATION_FAILED', 422, name);
-  }
-  return value;
-}
-
-function textOf(value: unknown, name: string): string | undefined {
-  if (value === undefined) return undefined;
-  if (typeof value !== 'string' || value === '' || value.length > MAX_TEXT || value.includes('\0')) throw new DomainError('VALIDATION_FAILED', 422, name);
-  return value;
-}
 
 const MAX_LABEL = 500;
 const MAX_LEGAL_BASIS = 2000;

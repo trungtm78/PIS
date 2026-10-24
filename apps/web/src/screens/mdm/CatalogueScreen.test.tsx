@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import CatalogueScreen from './CatalogueScreen';
-import { READER, STEWARD, client, mount, record, routeOf, world } from './test-support';
+import { READER, STEWARD, client, crosswalk, mount, record, routeOf, world } from './test-support';
 import type { World } from './test-support';
 
 const route = (id: string) => routeOf(id, `FR-${id}`);
@@ -314,5 +314,37 @@ describe('CatalogueScreen: the other catalogues', () => {
     expect(screen.queryByText(vi_['mdm.catalogue.add.action'])).toBeNull();
     fireEvent.change(screen.getByLabelText(vi_['mdm.catalogue.search.label']), { target: { value: 'x' } });
     expect(screen.getByTestId('empty-catalogue')).toBeTruthy();
+  });
+});
+
+describe('CatalogueScreen: the Treasury offices and their linked codes (MDM-16)', () => {
+  const office = (n: number, key: string, attributes: Record<string, unknown>, overrides: Record<string, unknown> = {}) =>
+    record(n, { master_type: 'TREASURY_OFFICE', business_key: key, label: `Kho bạc ${key}`, attributes, ...overrides });
+  const OFFICES = [office(1, 'KBNN-HN', { level: 'PROVINCE', province: 'Hà Nội' }), office(2, 'KBNN-TW', { level: 'CENTRAL' })];
+  const links = [
+    crosswalk(1, { business_key: 'KBNN-HN', external_code: '0011' }),
+    crosswalk(1, { id: '00000000-0000-4000-8000-00000000e0ff', business_key: 'KBNN-HN', external_code: '0012' }),
+    crosswalk(2, { business_key: 'KBNN-TW', external_code: 'TW-9', source_system: 'OTHER' }),
+  ];
+
+  it('shows each office with the Treasury codes that are mapped to it, its area, level and validity', async () => {
+    mount(<CatalogueScreen route={route('MDM-16')} />, client(world({ records: OFFICES, crosswalks: links })), READER, '/mdm/mdm-16');
+    await ready();
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['mdm.treasuryOffice.page.title']);
+    const cells = (key: string) => Array.from(document.querySelectorAll(`tr[data-key="${key}"] td`)).map((cell) => cell.textContent);
+    // The codes of the Treasury only: a code of another system is not a Treasury code.
+    expect(cells('KBNN-HN').slice(0, 6)).toEqual(['KBNN-HN', 'Kho bạc KBNN-HN', '0011, 0012', 'Hà Nội', vi_['mdm.value.treasuryLevel.province'], '2024-01-01 → ']);
+    expect(cells('KBNN-TW').slice(2, 5)).toEqual(['', '', vi_['mdm.value.treasuryLevel.central']]);
+  });
+
+  it('says that the mappings could not be read instead of showing offices that look unlinked, and reads them again on retry', async () => {
+    const state = world({ records: OFFICES, crosswalks: links, failing: new Set(['listMasterCrosswalks']) });
+    mount(<CatalogueScreen route={route('MDM-16')} />, client(state), READER, '/mdm/mdm-16');
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(rows().length).toBe(0);
+    state.failing = new Set();
+    await userEvent.setup().click(screen.getByRole('button', { name: vi_['states.retry.action'] }));
+    await ready();
+    expect(document.querySelector('tr[data-key="KBNN-HN"]')?.textContent).toContain('0011, 0012');
   });
 });

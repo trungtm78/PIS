@@ -9,6 +9,12 @@ import { DomainError } from '@machvon/kernel';
 const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole', 'updateCustomRole', 'grantRole', 'revokeRoleGrant']);
 
 /**
+ * Operations whose acceptance criteria answer a missing field as 422 VALIDATION_FAILED naming it
+ * (ST-MDM-007 AC-2: a reset of an integration cursor without a reason). A field of the wrong type stays 400.
+ */
+const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor']);
+
+/**
  * The problem for the issues of a request body, or undefined when there are none. The first class present wins:
  * unknown fields (400 FIELD_NOT_ALLOWED, all of them named), then a missing field or a wrong type (400
  * INVALID_REQUEST), then a broken rule (422 VALIDATION_FAILED). The detail names fields, never values.
@@ -16,8 +22,10 @@ const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole'
 export function problemOf(issues: readonly Issue[], operationId: string): DomainError | undefined {
   const unknown = issues.filter((issue) => issue.kind === 'unknown_field');
   if (unknown.length > 0) return new DomainError('FIELD_NOT_ALLOWED', 400, unknown.map((issue) => issue.path).join(', '));
-  const malformed = issues.find((issue) => issue.kind === 'missing' || issue.kind === 'type');
+  const malformed = issues.find((issue) => issue.kind === 'type' || (issue.kind === 'missing' && !MISSING_AS_VALIDATION_FAILED.has(operationId)));
   if (malformed !== undefined) return new DomainError('INVALID_REQUEST', 400, malformed.path);
+  const missing = issues.find((issue) => issue.kind === 'missing');
+  if (missing !== undefined) return new DomainError('VALIDATION_FAILED', 422, missing.path);
   const broken = issues.find((issue) => issue.kind === 'constraint');
   if (broken === undefined) return undefined;
   return RULE_AS_INVALID_REQUEST.has(operationId)

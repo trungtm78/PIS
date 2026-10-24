@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '@machvon/contracts';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
-import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -85,6 +85,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'publishMasterImport',
   'listMasterImports',
   'getMasterImport',
+  'createMasterCrosswalk',
+  'retireMasterCrosswalk',
+  'listMasterCrosswalks',
+  'resetIntegrationCursor',
+  'get_resources_integration_cursor',
+  'get_resources_integration_cursor_id',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -197,6 +203,13 @@ const INSERT_MASTER_IMPORT = `insert into machvon.master_import_batch
   (tenant_id, id, master_type, file_object_key, file_sha256, mapping_json, mode, status, total_rows, error_rows, errors_json, created_by, updated_by)
   values ($1, $2, 'ISOLATION', $3, $4, '{}'::jsonb, 'ATOMIC', 'IN_REVIEW', 0, 0, '[]'::jsonb, $5, $5) on conflict do nothing`;
 
+const INSERT_CROSSWALK = `insert into machvon.master_crosswalk
+  (tenant_id, id, master_record_id, source_system, external_type, external_code, valid_from, match_method, status, created_by, updated_by)
+  values ($1, $2, $3, 'ISOLATION', 'ISOLATION_CODE', $4, '2026-01-01', 'MANUAL', 'ACTIVE', $5, $5) on conflict do nothing`;
+const INSERT_CURSOR = `insert into machvon.integration_cursor
+  (tenant_id, id, connector_code, source_scope, cursor_json, schema_version, adapter_status, status, last_file_sha256)
+  values ($1, $2, 'ISOLATION_FILE', $3, '{}'::jsonb, '1', 'PROPOSED', 'ACTIVE', $4) on conflict do nothing`;
+
 const INSERT_REGISTER = `insert into machvon.document_number_register
   (tenant_id, id, register_code, name, direction, organization_unit_id, year, created_by, updated_by)
   values ($1, $2, $3, 'Isolation fixture register', 'OUTGOING', $4, 2026, $5, $5) on conflict do nothing`;
@@ -264,6 +277,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_MASTER_CHANGE, [tenantId, master.changeId, master.recordId, `${master.label} renamed`, ACTOR_ID]);
     const batch = MASTER_IMPORT_FIXTURES[tenant];
     await client.query(INSERT_MASTER_IMPORT, [tenantId, batch.id, batch.fileObjectKey, batch.fileSha256, ACTOR_ID]);
+    const crosswalk = CROSSWALK_FIXTURES[tenant];
+    await client.query(INSERT_CROSSWALK, [tenantId, crosswalk.crosswalkId, master.recordId, crosswalk.externalCode, ACTOR_ID]);
+    await client.query(INSERT_CURSOR, [tenantId, crosswalk.cursorId, crosswalk.sourceScope, crosswalk.fileSha256]);
     const documents = DOCUMENT_FIXTURES[tenant];
     await client.query(INSERT_REGISTER, [tenantId, documents.registerId, documents.registerCode, home, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT, [tenantId, documents.documentId, ACTOR_ID]);
@@ -277,7 +293,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'signing_certificate', 'security_policy_version', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'outgoing_document', 'doc_signing_session', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'signing_certificate', 'security_policy_version', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'outgoing_document', 'doc_signing_session', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

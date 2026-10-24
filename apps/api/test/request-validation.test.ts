@@ -43,6 +43,11 @@ describe('problemOf', () => {
     },
   );
 
+  it('answers a missing field of resetIntegrationCursor as 422 VALIDATION_FAILED naming it, and a wrong type as 400 (ST-MDM-007 AC-2)', () => {
+    expect(problemOf([issue('missing', 'reason')], 'resetIntegrationCursor')).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'reason' });
+    expect(problemOf([issue('type', 'cursor_json'), issue('missing', 'reason')], 'resetIntegrationCursor')).toMatchObject({ code: 'INVALID_REQUEST', status: 400, detail: 'cursor_json' });
+  });
+
   it('returns undefined when there is no issue', () => {
     expect(problemOf([], 'createCustomRole')).toBeUndefined();
   });

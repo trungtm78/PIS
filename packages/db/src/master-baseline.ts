@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { canonicalJson, sha256Hex, vietnamDateOf } from '@machvon/kernel';
+import { IntegrationCursorStore } from './integration-cursor-store.ts';
 import { contentHashOf } from './master-store.ts';
 import type { MasterContent } from './master-store.ts';
 import { tenantLookup, validateMasterContent } from './master-types.ts';
@@ -409,6 +410,8 @@ export async function applyBaseline(tx: TenantTx, pack: BaselinePack, actor: str
     recordIds.set(`${item.masterType}:${item.businessKey}`, recordId);
     created += 1;
   }
+  // The connectors that feed master data exist for every tenant, with their adapter still PROPOSED.
+  await new IntegrationCursorStore().ensureDefaults(tx, actor);
   if (created + superseded > 0) {
     await enqueueOutbox(tx, {
       aggregateType: 'master_baseline',

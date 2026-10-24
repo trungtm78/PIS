@@ -103,6 +103,7 @@ export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION'
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
 export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
+export const TREASURY_LEVELS = ['CENTRAL', 'PROVINCE', 'DISTRICT'] as const;
 export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
 const DEADLINE_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 /** A factor is a positive decimal string: exact, never a float (a unit converts through it to the base unit of its dimension). */
@@ -243,6 +244,13 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     fields: [
       { name: 'consent', kind: 'choice', required: true, choices: CONSENTS },
       { name: 'security_level', kind: 'choice', required: true, choices: SECURITY_LEVELS },
+    ],
+  },
+  {
+    masterType: 'TREASURY_OFFICE',
+    fields: [
+      { name: 'level', kind: 'choice', required: true, choices: TREASURY_LEVELS },
+      { name: 'province', kind: 'text', maxLength: 100 },
     ],
   },
   {

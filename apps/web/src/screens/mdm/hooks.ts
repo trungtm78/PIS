@@ -4,8 +4,8 @@ import { useApiClient } from '../../api/ApiClientContext';
 import { uploadFile } from '@machvon/api-client';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toChange, toImportBatch, toImportFile, toPolicy, toRecord, toUsage, toVersion } from './model';
-import type { ChangeStatus, ChangeView, ImportBatchView, ImportFileView, ImportMode, Namespace, PolicyView, RecordView, UsageView, VersionView } from './model';
+import { toChange, toCrosswalk, toCursor, toImportBatch, toImportFile, toPolicy, toRecord, toUsage, toVersion } from './model';
+import type { ChangeStatus, ChangeView, CrosswalkMethod, CrosswalkView, CursorView, ImportBatchView, ImportFileView, ImportMode, Namespace, PolicyView, RecordView, UsageView, VersionView } from './model';
 
 const root = (tenantId: string | undefined) => ['mdm', tenantId] as const;
 
@@ -261,4 +261,101 @@ export function usePublishImport() {
   return useCommand<PublishInput>((input, attempt) =>
     client.command('publishMasterImport', { path: { id: input.id }, body: { decision_document_id: input.decisionDocumentId }, ifMatchVersion: input.version, attempt }),
   );
+}
+
+// ---- crosswalk and integration cursors (MDM-16, MDM-24) -------------------------------------------------------------------------
+
+export interface CrosswalkFilter {
+  sourceSystem?: string | undefined;
+  externalType?: string | undefined;
+  externalCode?: string | undefined;
+  status?: 'ACTIVE' | 'RETIRED' | undefined;
+}
+
+/** The mappings of the codes of other systems, the newest first; `enabled: false` leaves a screen that does not need them without the read. */
+export function useCrosswalks(filter: CrosswalkFilter, enabled = true) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<CrosswalkView[]>({
+    queryKey: [...root(tenant?.id), 'crosswalks', filter.sourceSystem ?? '', filter.externalType ?? '', filter.externalCode ?? '', filter.status ?? ''],
+    queryFn: async () => {
+      const query = {
+        ...(filter.sourceSystem === undefined ? {} : { source_system: filter.sourceSystem }),
+        ...(filter.externalType === undefined ? {} : { external_type: filter.externalType }),
+        ...(filter.externalCode === undefined ? {} : { external_code: filter.externalCode }),
+        ...(filter.status === undefined ? {} : { status: filter.status }),
+      };
+      return (await client.readAll('listMasterCrosswalks', { query })).flatMap((raw) => toCrosswalk(raw) ?? []);
+    },
+    enabled: enabled && tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** The integration connectors and where each stands; the position itself is on the read of one connector. */
+export function useCursors(enabled = true) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<CursorView[]>({
+    queryKey: [...root(tenant?.id), 'cursors'],
+    queryFn: async () => (await client.readAll('get_resources_integration_cursor')).flatMap((raw) => toCursor(raw) ?? []),
+    enabled: enabled && tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** One connector with its position, or null when none is chosen. */
+export function useCursor(cursorId: string | null | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<CursorView | null>({
+    queryKey: [...root(tenant?.id), 'cursor', cursorId ?? ''],
+    queryFn: async () => toCursor(await client.read('get_resources_integration_cursor_id', { path: { id: cursorId ?? '' } })) ?? null,
+    enabled: tenant !== undefined && typeof cursorId === 'string',
+    retry: false,
+  });
+}
+
+export interface CreateCrosswalkBody {
+  master_record_id: string;
+  source_system: string;
+  external_type: string;
+  external_code: string;
+  valid_from: string;
+  match_method: CrosswalkMethod;
+}
+
+export function useCreateCrosswalk() {
+  const client = useApiClient();
+  return useCommand<CreateCrosswalkBody>((body, attempt) => client.command('createMasterCrosswalk', { body, attempt }));
+}
+
+export interface RetireCrosswalkInput extends VersionedInput {
+  reason: string;
+}
+
+export function useRetireCrosswalk() {
+  const client = useApiClient();
+  return useCommand<RetireCrosswalkInput>((input, attempt) => client.command('retireMasterCrosswalk', { path: { id: input.id }, body: { reason: input.reason }, ifMatchVersion: input.version, attempt }));
+}
+
+export interface ResetCursorInput extends VersionedInput {
+  reason: string;
+  position: Record<string, unknown>;
+}
+
+export function useResetCursor() {
+  const client = useApiClient();
+  return useCommand<ResetCursorInput>((input, attempt) =>
+    client.command('resetIntegrationCursor', { path: { id: input.id }, body: { reason: input.reason, cursor_json: input.position as Record<string, never> }, ifMatchVersion: input.version, attempt }),
+  );
+}
+
+/** Looks an entry up by its type and key (the tenant's own before the platform's), for a form that names the entry in words. */
+export function useFindRecord() {
+  const client = useApiClient();
+  return async (masterType: string, businessKey: string): Promise<RecordView | undefined> => {
+    const found = (await client.readAll('searchMasterRecords', { query: { master_type: masterType, business_key: businessKey } })).flatMap((raw) => toRecord(raw) ?? []);
+    return found.find((record) => record.namespace === 'TENANT') ?? found[0];
+  };
 }

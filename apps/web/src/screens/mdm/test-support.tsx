@@ -13,6 +13,7 @@ export const STEWARD = ['master.propose', 'master.read'];
 export const REVIEWER = ['master.review', 'master.read'];
 export const PUBLISHER = ['master.publish', 'master.read'];
 export const READER = ['master.read'];
+export const CROSSWALK_MANAGER = ['master.crosswalk.manage', 'master.read', 'integration_cursor.read'];
 
 export const routeOf = (id: string, req: string) => ({ ...baseRoute(id, req), module: 'MDM', path: `/mdm/${id.toLowerCase()}` });
 
@@ -95,6 +96,39 @@ export const batch = (n: number, overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+export const crosswalk = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: `00000000-0000-4000-8000-00000000e0${String(n).padStart(2, '0')}`,
+  master_record_id: record(n).id,
+  master_type: 'SECTOR',
+  business_key: `GT-${n}`,
+  source_system: 'TREASURY',
+  external_type: 'AGENCY_CODE',
+  external_code: `KB-${n}`,
+  valid_from: '2024-01-01',
+  valid_until: null,
+  match_method: 'MANUAL',
+  confidence: null,
+  status: 'ACTIVE',
+  version: 1,
+  ...overrides,
+});
+
+export const cursor = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: `00000000-0000-4000-8000-00000000f0${String(n).padStart(2, '0')}`,
+  connector_code: `CONNECTOR_${n}`,
+  source_scope: 'DEFAULT',
+  last_success_at: null,
+  schema_version: '1',
+  adapter_status: 'PROPOSED',
+  status: 'ACTIVE',
+  last_file_sha256: null,
+  last_error_code: null,
+  reset_reason: null,
+  version: 1,
+  updated_at: '2026-10-24T00:00:00.000000Z',
+  ...overrides,
+});
+
 export interface World {
   records: Array<Record<string, unknown>>;
   versions: Array<Record<string, unknown>>;
@@ -103,6 +137,10 @@ export interface World {
   policies: Array<Record<string, unknown>>;
   /** The import batches of the tenant, the newest first. */
   imports: Array<Record<string, unknown>>;
+  /** The mappings of codes of other systems, the newest first. */
+  crosswalks: Array<Record<string, unknown>>;
+  /** The integration connectors; the read of one adds its position (`cursor_json`). */
+  cursors: Array<Record<string, unknown>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
   /** Reads of the entries of these master types fail (the other types are answered). */
@@ -117,6 +155,8 @@ export function world(overrides: Partial<World> = {}): World {
     usage: { master_record_id: record(1).id, as_of: null, counts: {}, total: 0, samples: [] },
     policies: [],
     imports: [],
+    crosswalks: [],
+    cursors: [],
     failing: new Set(),
     ...overrides,
   };
@@ -134,6 +174,7 @@ export function client(state: World, command: (operation: string, input: unknown
       if (operation === 'getMasterRecordUsages') return state.usage;
       if (operation === 'listMasterTypePolicies') return { items: state.policies };
       if (operation === 'getMasterImport') return state.imports.find((item) => item.id === path?.id) ?? new Error('not found');
+      if (operation === 'get_resources_integration_cursor_id') return state.cursors.find((item) => item.id === path?.id) ?? new Error('not found');
       return new Error(`unexpected read ${operation}`);
     },
     command,
@@ -147,6 +188,17 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.records.filter((item) => (query.master_type === undefined || item.master_type === query.master_type) && (query.business_key === undefined || item.business_key === query.business_key) && (query.namespace === undefined || item.namespace === query.namespace)));
       case 'listMasterImports':
         return Promise.resolve(state.imports);
+      case 'listMasterCrosswalks':
+        return Promise.resolve(
+          state.crosswalks.filter(
+            (item) =>
+              (query.source_system === undefined || item.source_system === query.source_system) &&
+              (query.external_type === undefined || item.external_type === query.external_type) &&
+              (query.status === undefined || item.status === query.status),
+          ),
+        );
+      case 'get_resources_integration_cursor':
+        return Promise.resolve(state.cursors.map((item) => Object.fromEntries(Object.entries(item).filter(([name]) => name !== 'cursor_json'))));
       case 'listMasterChangeRequests':
         return Promise.resolve(state.changes.filter((item) => query.status === undefined || item.status === query.status));
       case 'get_resources_master_record_version':

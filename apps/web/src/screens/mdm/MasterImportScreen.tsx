@@ -77,6 +77,10 @@ function MasterImportContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: recent.isLoading, error: recent.error, data: recent.data, isEmpty: NEVER_EMPTY });
   const types = useMemo(() => [...new Set((records.data ?? []).map((record) => record.masterType))].sort(), [records.data]);
   const attributeNames = useMemo(() => (TYPE_FORMS[masterType.trim()] ?? []).map((spec) => spec.name), [masterType]);
+  // Only a column that is mapped can hold codes of another system.
+  const translatable = [...(mapping.parent_key === '' ? [] : ['parent_key']), ...attributeNames.filter((name) => (mapping.attributes[name] ?? '') !== '').map((name) => `attributes.${name}`)];
+  const toggleTranslated = (field: string): void =>
+    setMapping((previous) => ({ ...previous, crosswalk_fields: previous.crosswalk_fields.includes(field) ? previous.crosswalk_fields.filter((item) => item !== field) : [...previous.crosswalk_fields, field] }));
   const current = batch.data ?? undefined;
   const problem = [upload, stage, apply, decide, publish].flatMap((mutation) => (mutation.isError ? [describeProblem(mutation.error)] : []))[0];
 
@@ -285,6 +289,28 @@ function MasterImportContent({ route }: ScreenProps) {
                     </Field>
                   ))}
                 </div>
+                <fieldset className="mdm-crosswalk-map" data-testid="crosswalk-map">
+                  <legend>{t('mdm.import.crosswalk.title')}</legend>
+                  <p className="sub">{t('mdm.import.crosswalk.help')}</p>
+                  <div className="formgrid">
+                    <Field id="map-crosswalk-system" label={t('mdm.import.crosswalk.system.label')} error={undefined}>
+                      <input id="map-crosswalk-system" value={mapping.crosswalk_system} onChange={(event) => setMapping((previous) => ({ ...previous, crosswalk_system: event.target.value }))} />
+                    </Field>
+                    <Field id="map-crosswalk-type" label={t('mdm.import.crosswalk.type.label')} error={undefined}>
+                      <input id="map-crosswalk-type" value={mapping.crosswalk_type} onChange={(event) => setMapping((previous) => ({ ...previous, crosswalk_type: event.target.value }))} />
+                    </Field>
+                  </div>
+                  <ul className="plain">
+                    {translatable.map((field) => (
+                      <li key={field}>
+                        <label>
+                          <input type="checkbox" checked={mapping.crosswalk_fields.includes(field)} onChange={() => toggleTranslated(field)} />
+                          {field === 'parent_key' ? t('mdm.import.crosswalk.parent.label') : t('mdm.import.crosswalk.attribute.label', { name: field.slice('attributes.'.length) })}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </fieldset>
                 <div className="formfooter">
                   <button type="button" className="primary" onClick={check} disabled={!mappingComplete(mapping) || masterType.trim() === '' || stage.isPending}>
                     {t('mdm.import.check.action')}
