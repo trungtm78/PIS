@@ -97,6 +97,10 @@ export const TYPE_FORMS: Readonly<Record<string, readonly AttributeSpec[]>> = {
     { name: 'security_level', kind: 'choice', family: 'securityLevel', choices: ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL'] },
   ],
   LANGUAGE: [{ name: 'native_name', kind: 'text' }],
+  TREASURY_OFFICE: [
+    { name: 'level', kind: 'choice', family: 'treasuryLevel', choices: ['CENTRAL', 'PROVINCE', 'DISTRICT'] },
+    { name: 'province', kind: 'text' },
+  ],
   RETENTION_POLICY: [
     { name: 'owner_module', kind: 'choice', family: 'ownerModule', choices: ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV'] },
     { name: 'awaiting_confirmation', kind: 'boolean' },

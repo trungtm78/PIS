@@ -5,7 +5,7 @@ import vi from '../src/i18n/vi.json' with { type: 'json' };
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
 
 /**
- * MDM-01, MDM-25, MDM-26, MDM-27, MDM-28 and MDM-32 in a real browser against the real API and database (apps/api/test/e2e-stack):
+ * MDM-16, MDM-24, MDM-01, MDM-25, MDM-26, MDM-27, MDM-28 and MDM-32 in a real browser against the real API and database (apps/api/test/e2e-stack):
  * a catalogue steward proposes an entry, a second person reviews it, a publisher puts it in force, and the history keeps what was
  * valid before. The four-eyes rule is the real one: the proposer sees their own request as theirs and is offered no decision.
  */
@@ -50,11 +50,18 @@ async function documentFor(): Promise<string> {
   return id;
 }
 
-async function propose(page: Page, key: string): Promise<void> {
+interface EntrySeed {
+  type?: string;
+  name?: string;
+  attributes?: string;
+}
+
+async function propose(page: Page, key: string, entry: EntrySeed = {}): Promise<void> {
   await open(page, '/mdm/mdm-25', 'steward');
-  await page.getByLabel(vi['mdm.create.type.label']).fill('E2E_SECTOR');
+  await page.getByLabel(vi['mdm.create.type.label']).fill(entry.type ?? 'E2E_SECTOR');
   await page.getByLabel(vi['mdm.create.key.label']).fill(key);
-  await page.getByLabel(vi['mdm.create.name.label']).fill('Giao thông e2e');
+  await page.getByLabel(vi['mdm.create.name.label']).fill(entry.name ?? 'Giao thông e2e');
+  if (entry.attributes !== undefined) await page.getByLabel(vi['mdm.create.attributes.label'], { exact: true }).fill(entry.attributes);
   await page.getByLabel(vi['mdm.create.validFrom.label']).fill('2024-01-01');
   await page.getByLabel(vi['mdm.create.reason.label']).fill('Entry made by the end-to-end flow');
   await page.getByRole('button', { name: vi['mdm.create.save.action'] }).click();
@@ -85,9 +92,9 @@ async function publish(page: Page, changeId: string): Promise<void> {
   await expect(page.getByText(vi['mdm.approval.published.notice'])).toBeVisible();
 }
 
-/** A second entry of the same type, put in force, to be the successor of the first. */
-async function putInForce(page: Page, key: string): Promise<void> {
-  await propose(page, key);
+/** An entry put in force (by default of the e2e type, as the successor of the first one). */
+async function putInForce(page: Page, key: string, entry: EntrySeed = {}): Promise<void> {
+  await propose(page, key, entry);
   const [created] = await changesOf(key);
   await approve(page, created?.id ?? '', 'Checked against the decision of the committee');
   await publish(page, created?.id ?? '');
@@ -363,6 +370,125 @@ test.describe('master data: propose, review, publish, change and history', () =>
     await chooseFile(rows(false));
     await page.getByRole('button', { name: vi['mdm.import.check.action'] }).click();
     await expect(page.getByRole('alert').filter({ hasText: vi['mdm.problem.alreadyApplied.error'] })).toBeVisible();
+  });
+
+  test('a steward maps a Treasury code to an entry, a second mapping of the same code is refused, and the Treasury offices screen shows the code until the mapping is retired', async ({ page }) => {
+    const office = `E2E-TO-${unique()}`;
+    const external = `KB-${unique()}`;
+    await putInForce(page, office, { type: 'TREASURY_OFFICE', name: 'Kho bạc e2e', attributes: JSON.stringify({ level: 'PROVINCE', province: 'Cao Bằng' }) });
+    expect((await recordOf(office)).status).toBe('EFFECTIVE');
+
+    const fillMapping = async (): Promise<void> => {
+      const form = page.getByRole('form', { name: vi['mdm.crosswalk.form.aria'] });
+      await form.getByLabel(vi['mdm.crosswalk.form.masterType.label'], { exact: true }).fill('TREASURY_OFFICE');
+      await form.getByLabel(vi['mdm.crosswalk.form.businessKey.label'], { exact: true }).fill(office);
+      await form.getByLabel(vi['mdm.crosswalk.form.system.label'], { exact: true }).fill('TREASURY');
+      await form.getByLabel(vi['mdm.crosswalk.form.type.label'], { exact: true }).fill('AGENCY_CODE');
+      await form.getByLabel(vi['mdm.crosswalk.form.code.label'], { exact: true }).fill(external);
+      await form.getByLabel(vi['mdm.crosswalk.form.validFrom.label'], { exact: true }).fill('2024-01-01');
+      await form.getByRole('button', { name: vi['mdm.crosswalk.save.action'] }).click();
+    };
+    const mappings = async (): Promise<number> =>
+      Number((await sql<{ n: string }>("select count(*)::text as n from machvon.master_crosswalk where external_code = $1 and source_system = 'TREASURY'", [external]))[0]?.n);
+    const rowOf = () => page.locator(`tr[data-external-code="${external}"]`);
+
+    await open(page, '/mdm/mdm-24', 'steward');
+    await fillMapping();
+    await expect(page.getByTestId('crosswalk-saved')).toBeVisible();
+    await expect(rowOf()).toHaveCount(1);
+    await expect(rowOf()).toHaveAttribute('data-status', 'ACTIVE');
+    await expect(rowOf()).toContainText('TREASURY');
+    await expect(rowOf()).toContainText('AGENCY_CODE');
+    await expect(rowOf()).toContainText(office);
+    await expect(rowOf()).toContainText(vi['mdm.crosswalk.status.active.text']);
+
+    // A code stands for one entry at a time: the second mapping is refused with the message of the screen and nothing is written.
+    await fillMapping();
+    await expect(page.getByRole('alert').filter({ hasText: vi['mdm.problem.duplicateCrosswalk.error'] })).toBeVisible();
+    await expect(rowOf()).toHaveCount(1);
+    expect(await mappings()).toBe(1);
+
+    // MDM-16: the code is read from the active mapping of the system TREASURY and the code type AGENCY_CODE.
+    await open(page, '/mdm/mdm-16', 'steward');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.treasuryOffice.page.title'] })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: vi['mdm.catalogue.treasuryCode.column'] })).toBeVisible();
+    await expect(page.locator(`tr[data-key="${office}"]`)).toContainText(external);
+
+    // Retiring the mapping needs a reason, keeps the row in the table as retired, and the office has no Treasury code any more.
+    await open(page, '/mdm/mdm-24', 'steward');
+    await rowOf().getByRole('button', { name: vi['mdm.crosswalk.retire.action'] }).click();
+    const retireForm = page.getByRole('form', { name: vi['mdm.crosswalk.retire.title'].replace('{code}', external) });
+    await retireForm.getByRole('button', { name: vi['mdm.crosswalk.retire.confirm.action'] }).click();
+    await expect(retireForm.getByText(vi['mdm.field.required.error'])).toBeVisible();
+    await retireForm.getByLabel(vi['mdm.crosswalk.retire.reason.label'], { exact: true }).fill('The office was merged into another one');
+    await retireForm.getByRole('button', { name: vi['mdm.crosswalk.retire.confirm.action'] }).click();
+    await expect(rowOf()).toHaveAttribute('data-status', 'RETIRED');
+    await expect(rowOf().getByRole('button', { name: vi['mdm.crosswalk.retire.action'] })).toHaveCount(0);
+    const [stored] = await sql<{ status: string; valid_until: string | null }>("select status, valid_until::text as valid_until from machvon.master_crosswalk where external_code = $1 and source_system = 'TREASURY'", [external]);
+    expect(stored?.status).toBe('RETIRED');
+    expect(stored?.valid_until).not.toBeNull();
+
+    await open(page, '/mdm/mdm-16', 'steward');
+    await expect(page.locator(`tr[data-key="${office}"]`)).toBeVisible();
+    await expect(page.locator(`tr[data-key="${office}"]`)).not.toContainText(external);
+
+    // The retired code can be given to an entry again: only an ACTIVE mapping holds a code.
+    await open(page, '/mdm/mdm-24', 'steward');
+    await fillMapping();
+    await expect(page.getByTestId('crosswalk-saved')).toBeVisible();
+    expect(await mappings()).toBe(2);
+  });
+
+  test('the connectors show that their adapter is only proposed, and a position reset by hand needs a reason and is what the connector reads next', async ({ page }) => {
+    await open(page, '/mdm/mdm-24', 'steward');
+    const connectors = page.getByTestId('connectors');
+    for (const name of ['NATIONAL_PIM_FILE', 'TREASURY_STATEMENT_FILE', 'PROCUREMENT_FILE', 'BUDGET_CODE_FILE']) {
+      await expect(connectors.locator(`tr[data-connector="${name}"]`)).toHaveAttribute('data-adapter', 'PROPOSED');
+    }
+    const row = connectors.locator('tr[data-connector="NATIONAL_PIM_FILE"]');
+    await expect(row).toContainText(vi['mdm.cursor.adapter.proposed.pill']);
+    await expect(row).toContainText(vi['mdm.cursor.never.text']);
+
+    await row.getByRole('button', { name: vi['mdm.cursor.reset.action'] }).click();
+    const form = page.getByTestId('reset-form');
+    await expect(form).toBeVisible();
+    await expect(form.getByRole('heading', { name: vi['mdm.cursor.reset.title'].replace('{connector}', 'NATIONAL_PIM_FILE') })).toBeVisible();
+    // The reason is required and the position is a JSON object; the server is not asked until both are right.
+    await form.getByRole('button', { name: vi['mdm.cursor.reset.submit.action'] }).click();
+    await expect(form.getByText(vi['mdm.field.required.error'])).toBeVisible();
+    await form.getByLabel(vi['mdm.cursor.reset.reason.label'], { exact: true }).fill('Read again from the file of the e2e flow');
+    await form.getByLabel(vi['mdm.cursor.reset.position.label'], { exact: true }).fill('not json');
+    await form.getByRole('button', { name: vi['mdm.cursor.reset.submit.action'] }).click();
+    await expect(form).toBeVisible();
+    await form.getByLabel(vi['mdm.cursor.reset.position.label'], { exact: true }).fill(JSON.stringify({ file: 'e2e-batch.csv', offset: 42 }));
+    await form.getByRole('button', { name: vi['mdm.cursor.reset.submit.action'] }).click();
+    await expect(page.getByTestId('reset-form')).toHaveCount(0);
+
+    const [stored] = await sql<{ cursor_json: { file: string; offset: number }; reset_reason: string; status: string; version: string }>(
+      "select cursor_json, reset_reason, status, version::text as version from machvon.integration_cursor where connector_code = 'NATIONAL_PIM_FILE'",
+    );
+    expect(stored?.cursor_json).toEqual({ file: 'e2e-batch.csv', offset: 42 });
+    expect(stored?.reset_reason).toBe('Read again from the file of the e2e flow');
+    expect(stored?.status).toBe('ACTIVE');
+    expect(Number(stored?.version)).toBeGreaterThan(1);
+    // The other connectors were not touched.
+    const [others] = await sql<{ n: string }>("select count(*)::text as n from machvon.integration_cursor where connector_code <> 'NATIONAL_PIM_FILE' and reset_reason is not null");
+    expect(Number(others?.n)).toBe(0);
+
+    // Reopened (a new load of the screen), the connector offers the position it now stands at; the badge is still the proposed one.
+    await open(page, '/mdm/mdm-24', 'steward');
+    const again = page.getByTestId('connectors').locator('tr[data-connector="NATIONAL_PIM_FILE"]');
+    await expect(again).toHaveAttribute('data-adapter', 'PROPOSED');
+    await again.getByRole('button', { name: vi['mdm.cursor.reset.action'] }).click();
+    await expect(page.getByLabel(vi['mdm.cursor.reset.position.label'], { exact: true })).toHaveValue(/"offset": 42/);
+  });
+
+  test('the mappings are listed but not editable, and the connectors are not shown, to someone who may only read the catalogues', async ({ page }) => {
+    await open(page, '/mdm/mdm-24', 'dataChecker');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.crosswalk.page.title'] })).toBeVisible();
+    await expect(page.getByRole('form', { name: vi['mdm.crosswalk.form.aria'] })).toHaveCount(0);
+    await expect(page.getByTestId('connectors')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: vi['mdm.crosswalk.retire.action'] })).toHaveCount(0);
   });
 
   test('someone without the master data permissions sees no entry and is offered no way to add one', async ({ page }) => {

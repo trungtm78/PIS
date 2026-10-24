@@ -51,6 +51,9 @@
       "permissions": [
         "master.propose",
         "master.import",
+        "master.crosswalk.manage",
+        "integration_cursor.read",
+        "integration.cursor.reset",
         "master.read",
         "master_record_version.read"
       ]

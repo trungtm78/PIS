@@ -1933,6 +1933,8 @@
   "mdm.attr.contactPurpose.consent.label": "Consent",
   "mdm.attr.contactPurpose.securityLevel.label": "Security level",
   "mdm.attr.language.nativeName.label": "Native name",
+  "mdm.attr.treasuryOffice.level.label": "Level",
+  "mdm.attr.treasuryOffice.province.label": "Area",
   "mdm.attr.retentionPolicy.ownerModule.label": "Owning module",
   "mdm.attr.retentionPolicy.awaitingConfirmation.label": "Awaiting confirmation",
   "mdm.attr.retentionPolicy.cxn.label": "Reference of the confirmation",

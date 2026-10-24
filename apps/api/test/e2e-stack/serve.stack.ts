@@ -171,7 +171,7 @@ const UNITS: Record<TenantName, UnitSeed[]> = {
 
 /** The catalogue maker and checker of the master data flows: two roles, since no system role holds the master permissions but the owner's. */
 const MASTER_ROLES = [
-  { n: 91, code: 'E2E_MASTER_MAKER', permissions: ['master.propose', 'master.import', 'master.read', 'master_record_version.read'], rank: 40 },
+  { n: 91, code: 'E2E_MASTER_MAKER', permissions: ['master.propose', 'master.import', 'master.crosswalk.manage', 'integration_cursor.read', 'integration.cursor.reset', 'master.read', 'master_record_version.read'], rank: 40 },
   { n: 92, code: 'E2E_MASTER_CHECKER', permissions: ['master.review', 'master.publish', 'master.read', 'master_record_version.read'], rank: 50 },
 ];
 
