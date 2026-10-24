@@ -1459,6 +1459,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAuditRecommendations({Map<String, Object?>? query}) =>
       execute('listAuditRecommendations', query: query);
 
+  Future<Object?> listAvcPolicies({Map<String, Object?>? query}) =>
+      execute('listAvcPolicies', query: query);
+
   Future<Object?> listBiQueryRuns({Map<String, Object?>? query}) =>
       execute('listBiQueryRuns', query: query);
 
@@ -1743,6 +1746,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> postTenantsIdExport(TenantExportRequest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('post_tenants_id_export', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> previewAvcPolicy({required String id, Map<String, Object?>? query}) =>
+      execute('previewAvcPolicy', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> previewCampaignRecipients(ReasonOnly body, {required String campaignId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('previewCampaignRecipients', path: <String, Object?>{'campaignId': campaignId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

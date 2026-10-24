@@ -1,0 +1,66 @@
+/* CAP-17: the availability control policy. The shared cards, tables, badges and callouts do the rest. */
+.cap-avc .avc-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .cap-avc .avc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cap-avc .avc-form {
+  margin-top: 16px;
+}
+
+.cap-avc .field-error {
+  color: #a22b22;
+}
+
+.cap-avc .check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+/* The two thresholds as three zones of one bar; every zone is also said in words below it, so colour never carries the meaning alone. */
+.cap-avc .avc-bar {
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line, #d8d3d9);
+  border-radius: 7px;
+}
+
+.cap-avc .avc-zone {
+  display: block;
+  height: 100%;
+}
+
+.cap-avc .avc-ok {
+  background: #cfe8d9;
+}
+
+.cap-avc .avc-warn {
+  background: #f3d99a;
+  background-image: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0, 0, 0, 0.08) 4px 8px);
+}
+
+.cap-avc .avc-block {
+  background: #e8b4b0;
+  background-image: repeating-linear-gradient(-45deg, transparent 0 3px, rgba(0, 0, 0, 0.14) 3px 6px);
+}
+
+.cap-avc .avc-legend,
+.cap-avc .avc-counts {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.cap-avc .avc-bars {
+  margin: 12px 0;
+}

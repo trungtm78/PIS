@@ -124,6 +124,8 @@ export interface MatrixTargets {
   qualityContractId: string;
   qualityRuleId: string;
   qualitySnapshotId: string;
+  /** A DRAFT availability control policy of tenant A made by someone other than the callers (version 1). */
+  avcPolicyId: string;
   /** An ACTIVE deputy-leader assignment of the CONCEPT project of unit 2 of tenant A (version 1), and an ACTIVE task force scoped to unit 2 (version 1); both name RECIPIENT. */
   accountabilityId: string;
   taskForceId: string;
@@ -1016,6 +1018,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   approveQualityRuleVersion: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dgv/quality-rules/${t.qualityRuleId}/approval`, ifMatch: '"1"', body: {} }),
+  },
+  createAvcPolicyVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/avc-policies',
+      body: { policy_code: 'MX-NEGATIVE', scope_kind: 'TENANT', control_object: 'ALLOCATION_LINE', warn_pct: '90', block_pct: '100', legal_basis: 'negative authorization matrix', effective_from: '2026-01-01' },
+    }),
+  },
+  publishAvcPolicy: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/avc-policies/${t.avcPolicyId}/publish`, ifMatch: '"1"', body: {} }),
   },
   runQualityChecks: {
     referencesTenantIds: false,

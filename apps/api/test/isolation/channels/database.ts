@@ -14,6 +14,7 @@ import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
+import { AVC_POLICY_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
@@ -132,6 +133,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordDistributionAcknowledgement',
   'retryDocumentDistribution',
   'recallOutgoingDocument',
+  'createAvcPolicyVersion',
+  'publishAvcPolicy',
+  'listAvcPolicies',
+  'previewAvcPolicy',
   'voidOutgoingDocumentNumber',
   'proposeMasterRecord',
   'createMasterChangeRequest',
@@ -508,6 +513,10 @@ const INSERT_DOA_RULE = `insert into machvon.doa_rule
   (tenant_id, id, matrix_version_id, document_type, unit_id, amount_min_vnd, amount_max_vnd, approver_role_id)
   select $1, gen_random_uuid(), $2, $3, $4, 0, null, $5 where not exists (select 1 from machvon.doa_rule where matrix_version_id = $2)`;
 
+const INSERT_AVC_POLICY = `insert into machvon.avc_policy
+  (tenant_id, id, policy_code, scope_kind, control_object, warn_pct, block_pct, legal_basis, effective_from, revision, status, created_by, updated_by, version)
+  values ($1, $2, $3, 'TENANT', 'ALLOCATION_LINE', 90, 100, $4, date '2026-01-01', 1, 'DRAFT', $5, $5, 1) on conflict do nothing`;
+
 const INSERT_RETENTION_POLICY = `insert into machvon.data_retention_policy
   (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by, version)
   values ($1, $2, $3, 1, 10, 'FROM_CLOSED', $4, 'REVIEW_FOR_DESTRUCTION', date '2026-01-01', 'Draft', $5, 1) on conflict do nothing`;
@@ -747,6 +756,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const doa = DOA_FIXTURES[tenant];
     await client.query(INSERT_DOA_MATRIX, [tenantId, doa.id, doa.legalBasis, ACTOR_ID]);
     await client.query(INSERT_DOA_RULE, [tenantId, doa.id, doa.documentType, home, role.id]);
+    const avc = AVC_POLICY_FIXTURES[tenant];
+    await client.query(INSERT_AVC_POLICY, [tenantId, avc.id, avc.policyCode, avc.legalBasis, ACTOR_ID]);
     const retention = RETENTION_FIXTURES[tenant];
     await client.query(INSERT_RETENTION_POLICY, [tenantId, retention.id, retention.recordClass, retention.legalBasis, ACTOR_ID]);
     await client.query(INSERT_REVIEW_ITEM, [tenantId, retention.reviewId, retention.recordClass, retention.id]);

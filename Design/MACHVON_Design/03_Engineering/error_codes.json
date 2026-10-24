@@ -389,6 +389,22 @@
       "statusBasis": "spec",
       "source": "spec:CAP"
     },
+    "AVC_POLICY_OVERLAP": {
+      "status": 409,
+      "title": "Avc policy overlap",
+      "meaning": "Raised by publishAvcPolicy (POST /avc-policies/{id}/publish): another published policy of the same scope and control object is in force during the period of this one",
+      "module": "CAP",
+      "statusBasis": "convention",
+      "source": "spec:CAP"
+    },
+    "AVC_POLICY_STATE_INVALID": {
+      "status": 409,
+      "title": "Avc policy state invalid",
+      "meaning": "Raised by publishAvcPolicy (POST /avc-policies/{id}/publish): only a policy in DRAFT can be published",
+      "module": "CAP",
+      "statusBasis": "convention",
+      "source": "spec:CAP"
+    },
     "AVC_THRESHOLD_INVALID": {
       "status": 422,
       "title": "Avc threshold invalid",

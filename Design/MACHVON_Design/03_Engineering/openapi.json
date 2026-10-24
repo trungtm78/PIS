@@ -33962,7 +33962,8 @@
           }
         },
         "x-error-codes": [
-          "AVC_THRESHOLD_INVALID"
+          "AVC_THRESHOLD_INVALID",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -33975,6 +33976,157 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listAvcPolicies",
+        "summary": "Các phiên bản chính sách AVC (CAP-17): ngưỡng cảnh báo và chặn, phạm vi, đối tượng kiểm soát, kỳ hiệu lực và trạng thái; mới nhất trước",
+        "tags": [
+          "CAP"
+        ],
+        "x-permission": "capital.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "PUBLISHED",
+                "RETIRED"
+              ]
+            }
+          },
+          {
+            "name": "control_object",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ALLOCATION_LINE",
+                "APPROPRIATION"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ],
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist: the policies are tenant rules that every spending command is judged by, so anyone who reads capital reads them; no person data"
       }
     },
     "/avc-policies/{id}/publish": {
@@ -34108,7 +34260,9 @@
         },
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "AVC_POLICY_STATE_INVALID",
+          "AVC_POLICY_OVERLAP"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -36278,7 +36432,10 @@
           }
         },
         "x-exposure": "dto",
-        "x-exposure-reason": "Read model with DTO allowlist and object scope"
+        "x-exposure-reason": "Read model with DTO allowlist and object scope",
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/capital-plans/{id}/as-of": {
@@ -120670,6 +120827,124 @@
         "x-exposure": "dto",
         "x-exposure-reason": "Read model với DTO allowlist: người đề xuất và người duyệt nằm trong nhật ký kiểm toán, không nằm trong danh sách; phạm vi theo dự án"
       }
+    },
+    "/avc-policies/{id}/preview": {
+      "get": {
+        "operationId": "previewAvcPolicy",
+        "summary": "Xem trước chính sách AVC: số dòng vốn (hoặc nguồn vốn) đang ở mức OK, WARN và BLOCK nếu chính sách này có hiệu lực ngay (CAP-17)",
+        "tags": [
+          "CAP"
+        ],
+        "x-permission": "capital.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The counts over the whole tenant; the caller holds the right on the whole tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapAvcPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "SCOPE_DENIED"
+        ],
+        "x-exposure": "dto",
+        "x-exposure-reason": "Counts only, no line is named; the preview is a tenant-wide figure for the authority that writes the policy"
+      }
     }
   },
   "components": {
@@ -122877,6 +123152,17 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "appropriation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "avc_reason": {
+            "type": "string",
+            "enum": [
+              "ZERO_ALLOCATION",
+              "ABOVE_BLOCK"
+            ]
           }
         }
       },
@@ -138092,6 +138378,38 @@
                 }
               }
             }
+          }
+        }
+      },
+      "CapAvcPreview": {
+        "type": "object",
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "control_object": {
+            "type": "string",
+            "enum": [
+              "ALLOCATION_LINE",
+              "APPROPRIATION"
+            ]
+          },
+          "total": {
+            "type": "integer"
+          },
+          "ok": {
+            "type": "integer"
+          },
+          "warn": {
+            "type": "integer"
+          },
+          "block": {
+            "type": "integer"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

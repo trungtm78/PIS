@@ -15,6 +15,7 @@ import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
+import { AVC_POLICY_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
@@ -134,6 +135,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'dispatchOutgoingDocument', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: { recipients: [{ name: 'Isolation foreign recipient', channel: 'PAPER_HANDOVER' }] } },
   { operation: 'recordDistributionAcknowledgement', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].distributionId, versioned: true, body: { acknowledged_at: '2026-01-02T00:00:00Z' } },
   { operation: 'retryDocumentDistribution', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].distributionId, versioned: true, body: {} },
+  { operation: 'publishAvcPolicy', method: 'POST', id: AVC_POLICY_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'previewAvcPolicy', method: 'GET', id: AVC_POLICY_FIXTURES['TNT-B'].id },
   { operation: 'recallOutgoingDocument', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: { reason: 'Isolation foreign recall attempt' } },
   {
     operation: 'voidOutgoingDocumentNumber',

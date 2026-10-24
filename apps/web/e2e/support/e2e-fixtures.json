@@ -786,6 +786,44 @@
       ]
     },
     {
+      "key": "avcAdmin",
+      "displayName": "Quản trị chính sách AVC",
+      "membershipId": "00000000-0000-4000-8000-000000000740",
+      "permissions": [
+        "capital.read",
+        "capital.avc.manage",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "avcApprover",
+      "displayName": "Người công bố chính sách AVC",
+      "membershipId": "00000000-0000-4000-8000-000000000741",
+      "permissions": [
+        "capital.read",
+        "capital.avc.approve"
+      ]
+    },
+    {
+      "key": "avcSolo",
+      "displayName": "Người vừa soạn vừa công bố chính sách AVC",
+      "membershipId": "00000000-0000-4000-8000-000000000742",
+      "permissions": [
+        "capital.read",
+        "capital.avc.manage",
+        "capital.avc.approve",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "avcReader",
+      "displayName": "Người chỉ xem chính sách AVC",
+      "membershipId": "00000000-0000-4000-8000-000000000743",
+      "permissions": [
+        "capital.read"
+      ]
+    },
+    {
       "key": "mneAdmin",
       "displayName": "Quản trị giám sát đầu tư",
       "membershipId": "00000000-0000-4000-8000-00000000006d",

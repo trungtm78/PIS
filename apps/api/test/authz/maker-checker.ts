@@ -297,6 +297,16 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     ],
   },
   {
+    operationId: 'publishAvcPolicy',
+    build: (objectId) => ({ method: 'POST', path: `/avc-policies/${objectId}/publish`, ifMatch: '"1"', body: {} }),
+    // One published policy per scope and object at a time: each case drafts the policy of a scope of its own.
+    seedMadeBy: (objectId, maker) => [
+      `insert into machvon.avc_policy (tenant_id, id, policy_code, scope_kind, scope_value, control_object, warn_pct, block_pct, legal_basis, effective_from, revision, status, created_by, updated_by, version)
+       values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MX-' || $1::uuid::text, 'FUND_SOURCE', 'MX-' || $1::uuid::text, 'ALLOCATION_LINE', 90, 100, 'maker-checker matrix basis', date '2026-01-01', 1, 'DRAFT', $2::uuid, $2::uuid, 1)`,
+      [objectId, maker],
+    ],
+  },
+  {
     operationId: 'decideDoaMatrix',
     build: (objectId) => ({
       method: 'POST',

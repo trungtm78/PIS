@@ -54,6 +54,8 @@
     "recordDistributionAcknowledgement",
     "retryDocumentDistribution",
     "recallOutgoingDocument",
+    "createAvcPolicyVersion",
+    "publishAvcPolicy",
     "voidOutgoingDocumentNumber",
     "submitCapitalPlan",
     "createCapitalPlanRevision",

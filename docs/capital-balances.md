@@ -94,8 +94,18 @@ bucket and source year), the difference to the revision in force (`adjustment_vn
 (`as_of_disbursed_vnd`: the DISBURSE entries of the ledger posted up to the moment, less their reversals, not the running balance). Lines are
 shown in the scope of the caller (the same scope as `listCapitalPlanLines`), up to a bound with `truncated: true` beyond it.
 
+## Availability control (ST-CAP-005)
+
+`avc_policy` (V002, V1365) holds the thresholds; `CapAvcPolicyStore` drafts, publishes and resolves them, `evaluateAvc` (`cap-avc.ts`) is the rule, `CapAvailabilityStore` reads the figures and commits.
+
+- **I8 one door for a commitment.** A module that commits capital calls `CapitalCommitments.checkAndCommit` (or the store inside its own transaction); it never writes `committed_vnd` itself. The call locks the balance of the line (and all the balances of the appropriation when a policy controls the appropriation) with `lockLedgerRows`, reads under the lock, judges, and moves the balance with its COMMIT entry (`source_ref_kind` CONTRACT for the activation of a contract; a new fact adds its kind to the CHECK and to `COMMITMENT_SOURCE_KINDS`).
+- **I9 the rule is judged on whole numbers.** used = reserved (when the policy counts it) + committed + disbursed + the amount asked for; OK below warn, WARN from warn up to and including block, BLOCK above block; an allocation of nothing is BLOCK with ZERO_ALLOCATION. `consumption_pct` is shown rounded down to two decimals and never decides.
+- **I10 which policy.** The published policy in force on the Vietnam day of the object, the most specific scope winning (project group, unit, fund source, tenant). A line with no policy is judged by 90 and 100; an appropriation with no policy is not controlled. Two published policies of one scope and object never overlap (database trigger), so the answer never depends on an order.
+- **I11 the warning is a fact.** A WARN needs the caller to accept it; the acceptance is written on the ledger entry, in the audit row and in `capital.commitment_posted.v1`.
+
 ## Evidence
 
+- `packages/db/test/cap-avc.test.ts`, `cap-avc-policy-store.test.ts`, `cap-availability-store.test.ts` and `apps/api/test/cap/avc-policy.test.ts` (ST-CAP-005): the rule at the edges (a threshold of 100 lets exactly the allocation through), the policy versions and their guards, the resolution by specificity, the commitment through the port with its audit row and event, ZERO_ALLOCATION, the warning and its acknowledgement, the replay, and the races of two requests on one line (25 loops) and of two lines of one appropriation (15 loops).
 - `packages/db/test/cap-plan-publication.test.ts`: stores, ledger, drift, 12-loop race of two publications of one plan, 8-loop race of
   two revisions of one plan code, 15-loop race of a lowering revision against a commitment on the last of a line, opposite-order
   deadlock check.

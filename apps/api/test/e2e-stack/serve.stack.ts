@@ -267,6 +267,18 @@ const BID_PLAN_ROLES = [
 ];
 
 /**
+ * The people of the availability control policy (CAP-17): the administrator who drafts a policy, the approver who publishes it, the person who holds both rights (so the
+ * server, not the screen, refuses the publication of their own draft) and the reader who only sees the policies. All of them act on the whole tenant. The permissions are the
+ * ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const AVC_ROLES = [
+  { n: 740, user: 'avcAdmin', code: 'E2E_AVC_ADMIN', permissions: ['capital.read', 'capital.avc.manage', 'organization_unit.read'], rank: 40 },
+  { n: 741, user: 'avcApprover', code: 'E2E_AVC_APPROVER', permissions: ['capital.read', 'capital.avc.approve'], rank: 50 },
+  { n: 742, user: 'avcSolo', code: 'E2E_AVC_SOLO', permissions: ['capital.read', 'capital.avc.manage', 'capital.avc.approve', 'organization_unit.read'], rank: 50 },
+  { n: 743, user: 'avcReader', code: 'E2E_AVC_READER', permissions: ['capital.read'], rank: 20 },
+];
+
+/**
  * The people of the recall of issued documents and of the voiding of numbers (DOC-19): the leader who recalls, and two records managers who void the number of a
  * document that cannot be sealed (one executes, the other approves), all over the subtree of unit 2 where the documents are drafted. The permissions are the ones of
  * apps/web/e2e/support/e2e-fixtures.json.
@@ -465,6 +477,7 @@ const GRANTS: GrantPlan[] = [
   ...BID_CRITERIA_ROLES.map((role, index): GrantPlan => ({ n: 710 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...SUPPORT_ROLES.map((role, index): GrantPlan => ({ n: 720 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...RECALL_ROLES.map((role, index): GrantPlan => ({ n: 730 + index, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] })),
+  ...AVC_ROLES.map((role, index): GrantPlan => ({ n: 740 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -757,7 +770,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

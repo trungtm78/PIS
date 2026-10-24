@@ -339,6 +339,12 @@ export const WORK_CALENDAR_FIXTURES: Readonly<Record<TenantName, { id: string; c
   'TNT-B': { id: '00000000-0000-4000-b0c1-000000000001', calendarCode: 'BETA-CAL-0001', legalBasis: 'Beta tenant calendar notice 0001' },
 };
 
+/** An availability control policy draft of each tenant (the code and the legal basis are distinctive). */
+export const AVC_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; policyCode: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c3-000000000001', policyCode: 'ALPHA-AVC-0001', legalBasis: 'Alpha capital control resolution 0001/2026' },
+  'TNT-B': { id: '00000000-0000-4000-b0c3-000000000001', policyCode: 'BETA-AVC-0001', legalBasis: 'Beta capital control resolution 0001/2026' },
+};
+
 /** A delegation-of-authority matrix draft of each tenant (the legal basis and the document type of its rule are distinctive). */
 export const DOA_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string; documentType: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', legalBasis: 'Alpha tenant approval regulation 0001', documentType: 'ALPHA-DOC-0001' },
@@ -593,6 +599,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'work calendar id', value: WORK_CALENDAR_FIXTURES[tenant].id },
     { kind: 'work calendar code', value: WORK_CALENDAR_FIXTURES[tenant].calendarCode },
     { kind: 'work calendar legal basis', value: WORK_CALENDAR_FIXTURES[tenant].legalBasis },
+    { kind: 'avc policy id', value: AVC_POLICY_FIXTURES[tenant].id },
+    { kind: 'avc policy code', value: AVC_POLICY_FIXTURES[tenant].policyCode },
+    { kind: 'avc policy legal basis', value: AVC_POLICY_FIXTURES[tenant].legalBasis },
     { kind: 'doa matrix id', value: DOA_FIXTURES[tenant].id },
     { kind: 'doa matrix legal basis', value: DOA_FIXTURES[tenant].legalBasis },
     { kind: 'doa rule document type', value: DOA_FIXTURES[tenant].documentType },

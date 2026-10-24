@@ -39053,7 +39053,9 @@
       "operations": [
         "createAvcPolicyVersion",
         "publishAvcPolicy",
-        "getCapitalAvailability"
+        "getCapitalAvailability",
+        "listAvcPolicies",
+        "previewAvcPolicy"
       ],
       "tables": [
         "avc_policy"

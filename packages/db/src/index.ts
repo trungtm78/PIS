@@ -583,6 +583,12 @@ export type {
 export { CapPlanStore, DRAFTABLE_PROJECT_STATUSES } from './cap-plan-store.ts';
 export { CapPlanRevisionStore, momentOf } from './cap-plan-revision-store.ts';
 export type { AsOfLine, PlanAsOf, RevisionCreated } from './cap-plan-revision-store.ts';
+export { AVC_STATES, DEFAULT_BLOCK_PCT, DEFAULT_WARN_PCT, assertThresholds, evaluateAvc, hundredthsOf } from './cap-avc.ts';
+export type { AvcBlockReason, AvcFigures, AvcState, AvcThresholds, AvcVerdict } from './cap-avc.ts';
+export { AVC_CONTROL_OBJECTS, AVC_SCOPE_KINDS, AVC_STATUSES, CapAvcPolicyStore } from './cap-avc-policy-store.ts';
+export type { AvcContext, AvcControlObject, AvcPolicyFilter, AvcPolicyPage, AvcPolicyRecord, AvcPolicyStatus, AvcPreview, AvcScopeKind, NewAvcPolicy } from './cap-avc-policy-store.ts';
+export { COMMITMENT_SOURCE_KINDS, CapAvailabilityStore } from './cap-availability-store.ts';
+export type { Availability, CommitInput, CommitResult, CommitmentSourceKind } from './cap-availability-store.ts';
 export { ADJUSTMENT_MONTH, CapScheduleStore, SCHEDULE_GRAINS, SCHEDULE_KINDS, achievementRate } from './cap-schedule-store.ts';
 export type { ScheduleAchievement, ScheduleFilter, ScheduleGrain, ScheduleInput, ScheduleKind, ScheduleRegistered, ScheduleRow } from './cap-schedule-store.ts';
 export type {
