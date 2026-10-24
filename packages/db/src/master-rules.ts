@@ -1,10 +1,13 @@
-import { DomainError } from '@machvon/kernel';
+import { DomainError, isLate, periodOf, reportingPeriods } from '@machvon/kernel';
+import type { CalendarDefinition, ReportingPeriod } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
 /** One reading of a rule: the version in force on the date, with everything a screen needs to say where the rule comes from. */
 export interface RuleReading {
   ruleType: string;
   businessKey: string;
+  /** The version that was read: a period or a record that is bound to it keeps reading exactly this one. */
+  versionId: string;
   revision: number;
   validFrom: string;
   validUntil: string | null;
@@ -33,6 +36,7 @@ export interface SuggestedGroup {
 }
 
 interface RuleSqlRow {
+  id: string;
   business_key: string;
   revision: number;
   valid_from: string;
@@ -53,6 +57,7 @@ function reading(ruleType: string, row: RuleSqlRow): RuleReading {
   const { attributes } = row;
   return {
     ruleType,
+    versionId: row.id,
     businessKey: row.business_key,
     revision: row.revision,
     validFrom: row.valid_from,
@@ -63,6 +68,25 @@ function reading(ruleType: string, row: RuleSqlRow): RuleReading {
     cxn: typeof attributes.cxn === 'string' ? attributes.cxn : null,
     attributes,
   };
+}
+
+/** The reporting periods of a year from the calendar in force on a date, each bound to that version of the calendar. */
+export interface CalendarPeriods {
+  reading: RuleReading;
+  periods: Array<ReportingPeriod & { calendarVersionId: string; calendarRevision: number }>;
+}
+
+/** What an open period remembers of the calendar it was generated from. */
+export interface BoundPeriod {
+  calendarVersionId: string;
+  startsOn: string;
+}
+
+const CALENDAR_KEY = 'DEFAULT';
+
+function definitionOf(reading: RuleReading): CalendarDefinition {
+  const { week_starts_on: weekStartsOn, deadline_weekday: deadlineWeekday, deadline_time: deadlineTime, timezone } = reading.attributes;
+  return { weekStartsOn, deadlineWeekday, deadlineTime, timezone } as CalendarDefinition;
 }
 
 interface Band {
@@ -81,7 +105,7 @@ export class MasterRules {
   /** The rule of a type and key in force on `asOf`, or undefined when none is. The rules of the platform come before a tenant's own. */
   async read(tx: TenantTx, ruleType: string, businessKey: string, asOf: string): Promise<RuleReading | undefined> {
     const rows = await tx.query<RuleSqlRow>(
-      `select r.business_key, v.revision, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.legal_basis, v.attributes
+      `select v.id, r.business_key, v.revision, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.legal_basis, v.attributes
          from machvon.master_record r
          join machvon.master_record_version v on v.master_record_id = r.id
         where r.master_type = $1 and r.business_key = $2 and v.status in ('APPROVED', 'EFFECTIVE', 'RETIRED') and v.published_at is not null
@@ -122,5 +146,43 @@ export class MasterRules {
     // The edges are half open: an amount on an edge belongs to the band above it.
     const band = table.find((candidate) => cents(candidate.min_amount) <= amount && (candidate.max_amount === null || amount < cents(candidate.max_amount)));
     return band === undefined ? undefined : { groupKey: band.group_key, sectorKey, reading: rule };
+  }
+
+  /** Exactly one published version of a rule, whatever its dates: what a period or a record that was bound to it must keep reading. */
+  async readVersion(tx: TenantTx, ruleType: string, versionId: string): Promise<RuleReading | undefined> {
+    const rows = await tx.query<RuleSqlRow>(
+      `select v.id, r.business_key, v.revision, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.legal_basis, v.attributes
+         from machvon.master_record r
+         join machvon.master_record_version v on v.master_record_id = r.id
+        where r.master_type = $1 and v.id = $2::uuid and v.status in ('APPROVED', 'EFFECTIVE', 'RETIRED') and v.published_at is not null`,
+      [ruleType, versionId],
+    );
+    return rows[0] === undefined ? undefined : reading(ruleType, rows[0]);
+  }
+
+  /**
+   * The periods of a year that the reporting calendar in force on `asOf` produces (BR-MDM-08). Each period carries the version of the
+   * calendar it came from: a module that stores the period stores that version with it, and judges lateness by it for ever after.
+   */
+  async calendarPeriods(tx: TenantTx, year: number, asOf: string): Promise<CalendarPeriods | undefined> {
+    const rule = await this.read(tx, 'CALENDAR', CALENDAR_KEY, asOf);
+    if (rule === undefined) return undefined;
+    const periods = reportingPeriods(definitionOf(rule), year).map((period) => ({ ...period, calendarVersionId: rule.versionId, calendarRevision: rule.revision }));
+    return { reading: rule, periods };
+  }
+
+  /**
+   * The deadline of a period by the calendar version it was generated from, never by a newer one: publishing a new calendar changes the
+   * periods that are generated after it and none that exist (no retroactive change).
+   */
+  async boundDeadline(tx: TenantTx, bound: BoundPeriod): Promise<string> {
+    const rule = await this.readVersion(tx, 'CALENDAR', bound.calendarVersionId);
+    if (rule === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'calendar_version_id');
+    return periodOf(definitionOf(rule), bound.startsOn).deadlineAt;
+  }
+
+  /** Whether a report handed in at `at` is late for a period, by the calendar version the period is bound to. */
+  async isLate(tx: TenantTx, bound: BoundPeriod, at: Date): Promise<boolean> {
+    return isLate({ deadlineAt: await this.boundDeadline(tx, bound) }, at);
   }
 }

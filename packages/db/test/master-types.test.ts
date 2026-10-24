@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'CALENDAR', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -136,6 +136,49 @@ describe('the stages, the project groups and types, the decisions', () => {
     expect(await problem('DECISION_AUTHORITY', 'PM-APPROVAL', content({ agency_key: 'PM', decision_type_key: 'UNKNOWN', scope: 'NATIONAL' }))).toEqual(invalid('attributes.decision_type_key'));
     expect(await problem('DECISION_AUTHORITY', 'PM-APPROVAL', content({ agency_key: 'PM', decision_type_key: 'APPROVAL', scope: 'GALAXY' }))).toEqual(invalid('attributes.scope'));
     expect(await problem('DECISION_AUTHORITY', 'PM-APPROVAL', content({ agency_key: ' ', decision_type_key: 'APPROVAL', scope: 'NATIONAL' }))).toEqual(invalid('attributes.agency_key'));
+  });
+});
+
+describe('the calendar, the units and the currencies (ST-MDM-004)', () => {
+  const calendar = (attributes: Record<string, unknown>) =>
+    content({ owner_module: 'DIS', week_starts_on: 'SATURDAY', deadline_weekday: 'FRIDAY', deadline_time: '10:00', timezone: 'Asia/Ho_Chi_Minh', ...attributes }, { legalBasis: 'Assumption D03' });
+
+  it('takes a week start, a deadline day and time and the time zone of Vietnam, and nothing else', async () => {
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({}))).toBeUndefined();
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({ week_starts_on: 'FUNDAY' }))).toEqual(invalid('attributes.week_starts_on'));
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({ deadline_weekday: 'friday' }))).toEqual(invalid('attributes.deadline_weekday'));
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({ deadline_time: '24:00' }))).toEqual(invalid('attributes.deadline_time'));
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({ deadline_time: '9:00' }))).toEqual(invalid('attributes.deadline_time'));
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({ timezone: 'Europe/Paris' }))).toEqual(invalid('attributes.timezone'));
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({ timezone: undefined }))).toEqual(invalid('attributes.timezone'));
+    expect(await problem('CALENDAR', 'DEFAULT', calendar({ extra: 1 }))).toEqual(invalid('attributes.extra'));
+    expect(await problem('CALENDAR', 'DEFAULT', content({ owner_module: 'DIS', week_starts_on: 'SATURDAY', deadline_weekday: 'FRIDAY', deadline_time: '10:00', timezone: 'Asia/Ho_Chi_Minh' }))).toEqual(invalid('legal_basis'));
+    expect(isRuleType('CALENDAR')).toBe(true);
+  });
+
+  const unit = (attributes: Record<string, unknown>) => content({ dimension: 'AREA', factor: '10000', scale: 4, rounding: 'HALF_UP', ...attributes });
+
+  it('takes a unit with its dimension, an exact positive factor to the base unit, a scale and a rounding rule', async () => {
+    expect(await problem('UNIT', 'HA', unit({}))).toBeUndefined();
+    expect(await problem('UNIT', 'MM', unit({ dimension: 'LENGTH', factor: '0.001', scale: 3, rounding: 'HALF_EVEN' }))).toBeUndefined();
+    expect(await problem('UNIT', 'HA', unit({ dimension: 'TIME' }))).toEqual(invalid('attributes.dimension'));
+    expect(await problem('UNIT', 'HA', unit({ factor: '0' }))).toEqual(invalid('attributes.factor'));
+    expect(await problem('UNIT', 'HA', unit({ factor: '0.000' }))).toEqual(invalid('attributes.factor'));
+    expect(await problem('UNIT', 'HA', unit({ factor: '-1' }))).toEqual(invalid('attributes.factor'));
+    expect(await problem('UNIT', 'HA', unit({ factor: '1e3' }))).toEqual(invalid('attributes.factor'));
+    expect(await problem('UNIT', 'HA', unit({ factor: 1000 }))).toEqual(invalid('attributes.factor'));
+    expect(await problem('UNIT', 'HA', unit({ scale: 9 }))).toEqual(invalid('attributes.scale'));
+    expect(await problem('UNIT', 'HA', unit({ scale: undefined }))).toEqual(invalid('attributes.scale'));
+    expect(await problem('UNIT', 'HA', unit({ rounding: 'CEILING' }))).toEqual(invalid('attributes.rounding'));
+  });
+
+  it('takes a currency whose key is its ISO code, with its scale and rounding rule', async () => {
+    const currency = (attributes: Record<string, unknown>) => content({ iso_code: 'VND', scale: 0, rounding: 'HALF_UP', ...attributes });
+    expect(await problem('CURRENCY', 'VND', currency({}))).toBeUndefined();
+    expect(await problem('CURRENCY', 'USD', currency({}))).toEqual(invalid('attributes.iso_code'));
+    expect(await problem('CURRENCY', 'vnd', currency({ iso_code: 'vnd' }))).toEqual(invalid('attributes.iso_code'));
+    expect(await problem('CURRENCY', 'VND', currency({ scale: 5 }))).toEqual(invalid('attributes.scale'));
+    expect(await problem('CURRENCY', 'VND', currency({ rounding: 'X' }))).toEqual(invalid('attributes.rounding'));
   });
 });
 

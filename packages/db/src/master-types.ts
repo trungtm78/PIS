@@ -1,4 +1,5 @@
-import { DomainError } from '@machvon/kernel';
+import { CALENDAR_TIMEZONES, DomainError, ROUNDING_MODES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
+import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -98,6 +99,11 @@ export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION'
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
 export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
+export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
+const DEADLINE_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+/** A factor is a positive decimal string: exact, never a float (a unit converts through it to the base unit of its dimension). */
+const FACTOR = /^(?:0|[1-9]\d*)(?:\.\d{1,12})?$/;
+const CURRENCY_CODE = /^[A-Z]{3}$/;
 
 const RULE_FIELDS: readonly Field[] = [
   { name: 'owner_module', kind: 'choice', required: true, choices: RULE_OWNER_MODULES },
@@ -157,6 +163,46 @@ function checkCriteria(criteria: unknown, threshold: unknown): void {
 }
 
 const DEFINITIONS: readonly MasterTypeDefinition[] = [
+  {
+    masterType: 'CALENDAR',
+    rule: true,
+    strict: true,
+    fields: [
+      ...RULE_FIELDS,
+      { name: 'week_starts_on', kind: 'choice', required: true, choices: WEEKDAYS },
+      { name: 'deadline_weekday', kind: 'choice', required: true, choices: WEEKDAYS },
+      { name: 'deadline_time', kind: 'text', required: true, maxLength: 5, pattern: DEADLINE_TIME },
+      { name: 'timezone', kind: 'choice', required: true, choices: Object.keys(CALENDAR_TIMEZONES) },
+    ],
+    check: ({ content }) => {
+      const { week_starts_on: weekStartsOn, deadline_weekday: deadlineWeekday, deadline_time: deadlineTime, timezone } = content.attributes;
+      assertCalendar({ weekStartsOn, deadlineWeekday, deadlineTime, timezone } as CalendarDefinition);
+    },
+  },
+  {
+    masterType: 'UNIT',
+    fields: [
+      { name: 'dimension', kind: 'choice', required: true, choices: UNIT_DIMENSIONS },
+      { name: 'factor', kind: 'text', required: true, maxLength: 32, pattern: FACTOR },
+      { name: 'scale', kind: 'integer', required: true, min: 0, max: 8 },
+      { name: 'rounding', kind: 'choice', required: true, choices: ROUNDING_MODES },
+    ],
+    check: ({ content }) => {
+      if (!/[1-9]/.test(String(content.attributes.factor))) fail('attributes.factor');
+    },
+  },
+  {
+    masterType: 'CURRENCY',
+    fields: [
+      { name: 'iso_code', kind: 'text', required: true, maxLength: 3, pattern: CURRENCY_CODE },
+      { name: 'scale', kind: 'integer', required: true, min: 0, max: 4 },
+      { name: 'rounding', kind: 'choice', required: true, choices: ROUNDING_MODES },
+    ],
+    check: ({ content, businessKey }) => {
+      // The code of the entry is the ISO code: the key and the attribute never disagree.
+      if (content.attributes.iso_code !== businessKey) fail('attributes.iso_code');
+    },
+  },
   {
     masterType: 'FUND_SOURCE',
     fields: [

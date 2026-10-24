@@ -259,6 +259,24 @@ test.describe('master data: propose, review, publish, change and history', () =>
     expect(created?.attributes.required_fields).toEqual(['number', 'issued_on']);
   });
 
+  test('the reporting calendar lists the periods of a year with their deadlines, and the units and currencies come from the baseline', async ({ page }) => {
+    await open(page, '/mdm/mdm-11?year=2027', 'steward');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.calendar.page.title'] })).toBeVisible();
+    await expect(page.getByTestId('calendar-rule')).toContainText(vi['mdm.rule.awaiting.pill'].replace('{cxn}', 'ASSUMPTION-D03'));
+    await expect(page.getByTestId('calendar-locked')).toBeVisible();
+    await expect(page.locator('[data-period]')).toHaveCount(8);
+    await expect(page.locator('[data-period="W2027-01"]')).toContainText(vi['mdm.calendar.deadline.text'].replace('{when}', '2027-01-01 03:00'));
+    await page.getByRole('button', { name: vi['mdm.calendar.all.action'].replace('{count}', '53') }).click();
+    await expect(page.locator('[data-period]')).toHaveCount(53);
+    await expect(page.locator('[data-period="W2027-53"]')).toContainText('2027-12-31');
+
+    await open(page, '/mdm/mdm-12', 'steward');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.unit.page.title'] })).toBeVisible();
+    await expect(page.locator('tr[data-key="HA"]')).toContainText('10000');
+    await expect(page.locator('tr[data-key="VND"]')).toContainText(vi['mdm.value.rounding.halfUp']);
+    await expect(page.getByRole('link', { name: vi['mdm.catalogue.add.action'] })).toBeVisible();
+  });
+
   test('someone without the master data permissions sees no entry and is offered no way to add one', async ({ page }) => {
     await open(page, '/mdm/mdm-01', 'auditor');
     await expect(page.getByRole('heading', { level: 1, name: vi['mdm.hub.page.title'] })).toBeVisible();

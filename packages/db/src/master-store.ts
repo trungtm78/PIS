@@ -109,6 +109,9 @@ export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; reti
   NATIONAL_CODE_REQUIRED: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   NATIONAL_CODE_FORMAT: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   APPRAISAL_CRITERIA: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  CALENDAR: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  UNIT: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: true },
+  CURRENCY: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
 };
 
 const OWN_BY_DEFAULT = { scope: 'TENANT_ONLY' as const, retireRequiresSuccessor: false };

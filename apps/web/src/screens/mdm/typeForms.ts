@@ -35,6 +35,26 @@ export const TYPE_FORMS: Readonly<Record<string, readonly AttributeSpec[]>> = {
     { name: 'required_fields', kind: 'identifiers' },
     { name: 'template', kind: 'text' },
   ],
+  UNIT: [
+    { name: 'dimension', kind: 'choice', family: 'dimension', choices: ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] },
+    { name: 'factor', kind: 'text' },
+    { name: 'scale', kind: 'integer' },
+    { name: 'rounding', kind: 'choice', family: 'rounding', choices: ['HALF_UP', 'HALF_EVEN', 'DOWN', 'UP'] },
+  ],
+  CURRENCY: [
+    { name: 'iso_code', kind: 'text' },
+    { name: 'scale', kind: 'integer' },
+    { name: 'rounding', kind: 'choice', family: 'rounding', choices: ['HALF_UP', 'HALF_EVEN', 'DOWN', 'UP'] },
+  ],
+  CALENDAR: [
+    { name: 'owner_module', kind: 'choice', family: 'ownerModule', choices: ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE'] },
+    { name: 'awaiting_confirmation', kind: 'boolean' },
+    { name: 'cxn', kind: 'text' },
+    { name: 'week_starts_on', kind: 'choice', family: 'weekday', choices: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] },
+    { name: 'deadline_weekday', kind: 'choice', family: 'weekday', choices: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] },
+    { name: 'deadline_time', kind: 'text' },
+    { name: 'timezone', kind: 'choice', family: 'timezone', choices: ['Asia/Ho_Chi_Minh'] },
+  ],
   DECISION_AUTHORITY: [
     { name: 'agency_key', kind: 'text' },
     { name: 'decision_type_key', kind: 'ref', refType: 'DECISION_TYPE' },

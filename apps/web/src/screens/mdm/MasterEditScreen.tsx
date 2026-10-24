@@ -186,6 +186,7 @@ function EditForm({ record }: { record: RecordView }) {
                 disabled={opened !== undefined || !canPropose}
                 label={t('mdm.edit.attributes.label')}
                 error={error('attributes')}
+                effectiveFrom={form.effectiveFrom}
               />
               <Field id="edit-reason" label={t('mdm.edit.reason.label')} error={error('reason')}>
                 <textarea id="edit-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />

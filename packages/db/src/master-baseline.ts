@@ -52,6 +52,45 @@ const decisionType = (key: string, label: string, requiredFields: string[]): Bas
 const authority = (key: string, label: string, agency: string, decision: string, scope: string): BaselineEntry =>
   entry('DECISION_AUTHORITY', key, label, { agency_key: agency, decision_type_key: decision, scope }, { legalBasis: LAW });
 
+const unit = (key: string, label: string, dimension: string, factor: string, scale: number): BaselineEntry =>
+  entry('UNIT', key, label, { dimension, factor, scale, rounding: 'HALF_UP' });
+const currency = (code: string, label: string, scale: number): BaselineEntry => entry('CURRENCY', code, label, { iso_code: code, scale, rounding: 'HALF_UP' });
+
+/**
+ * The reporting calendar, the units and the currencies (ST-MDM-004). The calendar is the D03 working assumption (weeks from Saturday to
+ * Friday, due on Friday at 10:00 in Vietnam) until the owner of the capital business signs it: it is data, so another decision is a new
+ * version and no code change.
+ */
+const CALENDAR_AND_UNITS: readonly BaselineEntry[] = [
+  entry(
+    'CALENDAR',
+    'DEFAULT',
+    'Lịch kỳ báo cáo tuần',
+    {
+      owner_module: 'DIS',
+      awaiting_confirmation: true,
+      cxn: 'ASSUMPTION-D03',
+      week_starts_on: 'SATURDAY',
+      deadline_weekday: 'FRIDAY',
+      deadline_time: '10:00',
+      timezone: 'Asia/Ho_Chi_Minh',
+    },
+    { legalBasis: 'Giả định D03 chờ chủ nghiệp vụ vốn ký: tuần từ thứ Bảy đến thứ Sáu, hạn nộp thứ Sáu 10:00 (+07)' },
+  ),
+  unit('M', 'Mét', 'LENGTH', '1', 2),
+  unit('KM', 'Ki-lô-mét', 'LENGTH', '1000', 3),
+  unit('M2', 'Mét vuông', 'AREA', '1', 2),
+  unit('HA', 'Héc-ta', 'AREA', '10000', 4),
+  unit('M3', 'Mét khối', 'VOLUME', '1', 2),
+  unit('KG', 'Ki-lô-gam', 'MASS', '1', 3),
+  unit('TON', 'Tấn', 'MASS', '1000', 3),
+  unit('PCS', 'Cái, bộ', 'COUNT', '1', 0),
+  currency('VND', 'Đồng Việt Nam', 0),
+  currency('USD', 'Đô la Mỹ', 2),
+  currency('EUR', 'Euro', 2),
+  currency('JPY', 'Yên Nhật', 0),
+];
+
 /**
  * The first baseline (MDM 3.1 F8, ST-MDM-003): the funding source tree with the national target programmes inside their budget
  * source, the sectors, the project groups, types and stages (the stage graph of PRJ 3.1), the decision types and authorities, and the
@@ -156,7 +195,7 @@ const ENTRIES: readonly BaselineEntry[] = [
   ),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', ENTRIES);
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS]);
 
 export interface BaselineResult {
   created: number;

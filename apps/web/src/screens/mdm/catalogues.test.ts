@@ -23,7 +23,7 @@ describe('the catalogue configuration', () => {
     for (const key of COLUMN_KEYS) {
       for (const catalogue of [vi_, en] as Array<Record<string, string>>) expect(catalogue[`mdm.catalogue.${key}.column`]).toBeTruthy();
     }
-    expect(Object.keys(CATALOGUES)).toEqual(['MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10']);
+    expect(Object.keys(CATALOGUES).sort()).toEqual(['MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-12']);
   });
 
   it('has a label for each attribute of a form and a text for each value a list offers, in both languages', () => {
@@ -40,6 +40,8 @@ describe('the catalogue configuration', () => {
     expect(camel('NSTW')).toBe('nstw');
     expect(camel('NATIONAL_TARGET')).toBe('nationalTarget');
     expect(camel('fund_source_key')).toBe('fundSourceKey');
+    expect(camel('Asia/Ho_Chi_Minh')).toBe('asiaHoChiMinh');
+    expect(camel('HALF_EVEN')).toBe('halfEven');
   });
 });
 

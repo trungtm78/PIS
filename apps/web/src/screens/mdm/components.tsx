@@ -3,6 +3,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { useSubmitChange } from './hooks';
+import { CalendarPreview } from './CalendarPreview';
 import { camel } from './catalogues';
 import { describeProblem } from './model';
 import type { ChangeView, Impact, RecordView } from './model';
@@ -237,6 +238,8 @@ export interface AttributeFieldsProps {
   label: string;
   hint?: string;
   error: string | undefined;
+  /** The date the entry starts from: a calendar shows its first periods from it. */
+  effectiveFrom?: string;
 }
 
 /**
@@ -244,7 +247,7 @@ export interface AttributeFieldsProps {
  * screen; the JSON text below stays the single source of the value and is always there, for the attributes that no form names and for
  * the rule data. Typing in either one changes the other.
  */
-export function AttributeFields({ idPrefix, masterType, value, onChange, records, disabled, label, hint, error }: AttributeFieldsProps) {
+export function AttributeFields({ idPrefix, masterType, value, onChange, records, disabled, label, hint, error, effectiveFrom }: AttributeFieldsProps) {
   const { t } = useTranslation();
   const specs = TYPE_FORMS[masterType.trim()];
   const attributes = attributesOf(value);
@@ -264,6 +267,7 @@ export function AttributeFields({ idPrefix, masterType, value, onChange, records
           })}
         </fieldset>
       )}
+      {masterType.trim() === 'CALENDAR' && attributes !== undefined ? <CalendarPreview attributes={attributes} from={effectiveFrom ?? ''} /> : null}
       <Field id={`${idPrefix}-attributes`} label={label} error={error} hint={hint}>
         <textarea id={`${idPrefix}-attributes`} rows={4} spellCheck={false} value={value} aria-invalid={error !== undefined} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
       </Field>

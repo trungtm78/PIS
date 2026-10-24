@@ -119,3 +119,7 @@ export type { AlertAdapter, AlertChannel, AlertRule, AlertSeverity, AlertSource,
 export { ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';
 export { CHANGE_REQUEST_STATES, assertFourEyes, canTransition, changeRequestNext } from './four-eyes.ts';
 export type { ChangeRequestAction, ChangeRequestState } from './four-eyes.ts';
+export { ROUNDING_MODES, convertDecimal, roundDecimal } from './decimal.ts';
+export type { RoundingMode } from './decimal.ts';
+export { CALENDAR_TIMEZONES, WEEKDAYS, assertCalendar, isLate, periodOf, reportingPeriods } from './reporting-calendar.ts';
+export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-calendar.ts';

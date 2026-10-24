@@ -127,6 +127,18 @@ describe('CatalogueScreen: the other catalogues', () => {
     ]);
   });
 
+  it('shows the units and the currencies with their factor, scale and rounding rule (MDM-12)', async () => {
+    const records = [
+      record(1, { master_type: 'UNIT', business_key: 'HA', label: 'Héc-ta', attributes: { dimension: 'AREA', factor: '10000', scale: 4, rounding: 'HALF_UP' } }),
+      record(2, { master_type: 'CURRENCY', business_key: 'USD', label: 'Đô la Mỹ', attributes: { iso_code: 'USD', scale: 2, rounding: 'HALF_EVEN' } }),
+    ];
+    mount(<CatalogueScreen route={route('MDM-12')} />, client(world({ records })), READER, '/mdm/mdm-12');
+    await ready();
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['mdm.unit.page.title']);
+    expect(Array.from(document.querySelectorAll('tr[data-key="HA"] td')).slice(0, 7).map((cell) => cell.textContent)).toEqual(['UNIT', 'HA', 'Héc-ta', vi_['mdm.value.dimension.area'], '10000', '4', vi_['mdm.value.rounding.halfUp']]);
+    expect(Array.from(document.querySelectorAll('tr[data-key="USD"] td')).slice(0, 7).map((cell) => cell.textContent)).toEqual(['CURRENCY', 'USD', 'Đô la Mỹ', 'USD', '', '2', vi_['mdm.value.rounding.halfEven']]);
+  });
+
   it('shows the sectors under their parents (MDM-06) and the decision types and authorities (MDM-09, MDM-10)', async () => {
     const sectors = [record(1, { master_type: 'SECTOR', business_key: 'TRANSPORT', label: 'Giao thông', attributes: { sort_order: 10 } }), record(2, { master_type: 'SECTOR', business_key: 'ROADS', label: 'Đường bộ', parent_record_id: record(1).id })];
     mount(<CatalogueScreen route={route('MDM-06')} />, client(world({ records: sectors })), READER, '/mdm/mdm-06');

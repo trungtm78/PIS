@@ -320,4 +320,73 @@ describe('the catalogue types, the platform baseline and the rule port (ST-MDM-0
       expect((await suggest('60000000000', 'TRANSPORT', '2030-06-01'))?.groupKey).toBe('C');
     });
   });
+
+  describe('the reporting calendar, the units and the currencies (ST-MDM-004)', () => {
+    const calendarEntry = BASELINE_PACK.entries.find((entry) => entry.masterType === 'CALENDAR') as BaselineEntry;
+    const calendarAt = (validFrom: string, attributes: Record<string, unknown> = {}): BaselineEntry => ({ ...calendarEntry, validFrom, attributes: { ...calendarEntry.attributes, ...attributes } });
+    type Generated = { code: string; startsOn: string; endsOn: string; deadlineAt: string; calendarVersionId: string; calendarRevision: number };
+    const periodOfCode = (periods: Generated[], code: string): Generated => periods.find((period) => period.code === code) as Generated;
+
+    it('starts from the calendar of the working assumption D03: the week from Saturday to Friday, due on Friday at 10:00', async () => {
+      const found = await as(STEWARD, (tx) => rules.read(tx, 'CALENDAR', 'DEFAULT', TODAY));
+      expect(found).toMatchObject({
+        revision: 1,
+        awaitingConfirmation: true,
+        cxn: 'ASSUMPTION-D03',
+        ownerModule: 'DIS',
+        attributes: { week_starts_on: 'SATURDAY', deadline_weekday: 'FRIDAY', deadline_time: '10:00', timezone: 'Asia/Ho_Chi_Minh' },
+      });
+    });
+
+    it('keeps the deadline of the calendar version a period was generated from, when a later version is published (AC-ST-MDM-004-2)', async () => {
+      const first = await as(STEWARD, (tx) => rules.calendarPeriods(tx, 2026, '2026-09-01'));
+      const week40 = periodOfCode(first?.periods ?? [], 'W2026-40');
+      expect(week40).toMatchObject({ startsOn: '2026-09-26', deadlineAt: '2026-10-02T03:00:00.000Z', calendarRevision: 1 });
+      // Version 2 moves the deadline to 12:00 from 2026-10-01.
+      await asWorker((tx) => applyBaseline(tx, sealPack('CAL-R2', [calendarAt('2026-10-01', { deadline_time: '12:00' })]), WORKER, TODAY));
+      const bound = { calendarVersionId: week40.calendarVersionId, startsOn: week40.startsOn };
+      expect(await as(STEWARD, (tx) => rules.boundDeadline(tx, bound))).toBe('2026-10-02T03:00:00.000Z');
+      expect(await as(STEWARD, (tx) => rules.isLate(tx, bound, new Date('2026-10-02T04:00:00.000Z')))).toBe(true);
+      expect(await as(STEWARD, (tx) => rules.isLate(tx, bound, new Date('2026-10-02T03:00:00.000Z')))).toBe(false);
+      // A period generated after the publication is bound to the new version and has the new deadline.
+      const later = await as(STEWARD, (tx) => rules.calendarPeriods(tx, 2026, '2026-10-15'));
+      const week42 = periodOfCode(later?.periods ?? [], 'W2026-42');
+      expect(week42).toMatchObject({ deadlineAt: '2026-10-16T05:00:00.000Z', calendarRevision: 2 });
+      expect(week42.calendarVersionId).not.toBe(week40.calendarVersionId);
+      expect(await as(STEWARD, (tx) => rules.isLate(tx, { calendarVersionId: week42.calendarVersionId, startsOn: week42.startsOn }, new Date('2026-10-16T04:00:00.000Z')))).toBe(false);
+    });
+
+    it('generates the periods of 2027 from the calendar version in force without overlap, each due on Friday at 03:00 UTC (AC-ST-MDM-004-1)', async () => {
+      await asWorker((tx) => applyBaseline(tx, sealPack('CAL-R3', [calendarAt('2026-12-01', { deadline_time: '10:00' })]), WORKER, TODAY));
+      const generated = await as(STEWARD, (tx) => rules.calendarPeriods(tx, 2027, '2026-12-15'));
+      expect(generated?.reading).toMatchObject({ revision: 3, awaitingConfirmation: true });
+      const periods = generated?.periods ?? [];
+      expect(periods).toHaveLength(53);
+      periods.forEach((period, index) => {
+        expect(new Date(period.deadlineAt).getUTCDay()).toBe(5);
+        expect(period.deadlineAt.slice(10)).toBe('T03:00:00.000Z');
+        const next = periods[index + 1];
+        if (next !== undefined) expect(Date.parse(next.startsOn) - Date.parse(period.endsOn)).toBe(86_400_000);
+      });
+      expect(await as(STEWARD, (tx) => rules.calendarPeriods(tx, 2027, '2024-01-01'))).toBeUndefined();
+    });
+
+    it('refuses a bound version that is not a published calendar', async () => {
+      expect(await refusal(as(STEWARD, (tx) => rules.boundDeadline(tx, { calendarVersionId: id(0x7f, 1), startsOn: '2026-09-26' })))).toEqual({
+        code: 'RESOURCE_NOT_FOUND',
+        status: 404,
+        detail: 'calendar_version_id',
+      });
+      const group = await as(STEWARD, (tx) => rules.read(tx, 'PROJECT_GROUP_THRESHOLDS', 'DEFAULT', TODAY));
+      expect(await as(STEWARD, (tx) => rules.readVersion(tx, 'CALENDAR', group?.versionId ?? ''))).toBeUndefined();
+    });
+
+    it('carries the units and the currencies with their factor, scale and rounding, and the currency code is its key', async () => {
+      const units = await as(STEWARD, (tx) => store.search(tx, { masterType: 'UNIT', namespace: 'PLATFORM', asOf: TODAY, limit: 50, after: undefined }));
+      expect(units.find((row) => row.businessKey === 'HA')?.attributes).toEqual({ dimension: 'AREA', factor: '10000', scale: 4, rounding: 'HALF_UP' });
+      const currencies = await as(STEWARD, (tx) => store.search(tx, { masterType: 'CURRENCY', namespace: 'PLATFORM', asOf: TODAY, limit: 50, after: undefined }));
+      expect(currencies.map((row) => row.businessKey).sort()).toEqual(['EUR', 'JPY', 'USD', 'VND']);
+      expect(currencies.find((row) => row.businessKey === 'VND')?.attributes).toMatchObject({ iso_code: 'VND', scale: 0 });
+    });
+  });
 });

@@ -13,6 +13,8 @@ Every entry of these catalogues is a `master_record` with effective-dated `maste
 | `PROJECT_TYPE` | MDM-07 | Platform, extended by the tenant | `kind` (CAPITAL_WORKS, PROCUREMENT, PREPARATION, OTHER, optional) | none |
 | `PROJECT_STAGE` | MDM-08 | Platform only; retiring needs a successor | `sequence` (1..100), `allowed_next` (keys of other stages), `terminal` | a stage never leads to itself or to an unknown stage, lists no stage twice, and a terminal stage leads nowhere |
 | `DECISION_AUTHORITY` | MDM-09 | Platform, extended by the tenant | `agency_key`, `decision_type_key`, `scope` (NATIONAL, MINISTRY, PROVINCE, COMMUNE) | the decision type must exist |
+| `UNIT` | MDM-12 | Platform, extended by the tenant; retiring needs a successor | `dimension` (LENGTH, AREA, VOLUME, MASS, COUNT, OTHER), `factor` (positive decimal string to the base unit of the dimension), `scale` (0..8), `rounding` (HALF_UP, HALF_EVEN, DOWN, UP) | the factor is an exact decimal, never a float; zero is refused |
+| `CURRENCY` | MDM-12 | Platform only; retiring needs a successor | `iso_code` (three capital letters), `scale` (0..4), `rounding` | the key of the entry is its ISO code |
 | `DECISION_TYPE` | MDM-10 | Platform, extended by the tenant | `required_fields` (lower-case identifiers), `template` | identifiers are unique |
 
 A type without a definition (areas, agencies, ...) takes free attributes. An entry that breaks a rule is refused with 422 `VALIDATION_FAILED` naming the field (`attributes.<name>`, `parent_record_id`, `legal_basis`); nothing is written.
@@ -26,6 +28,7 @@ A rule type is a catalogue type whose attributes drive a decision of another mod
 | `PROJECT_GROUP_THRESHOLDS` (`DEFAULT`) | PRJ | `bands`: list of `{sector_key or null, group_key, min_amount, max_amount or null}`; the bands of the default (no sector) and of each sector cover every amount once, from zero to open, edges exact decimal strings | C below 120 billion VND, B to 2,300 billion, A to 30,000 billion, QTQG above (working assumption) | Law 58/2024/QH15 as amended by 90/2025; awaiting CXN-32 |
 | `NATIONAL_CODE_REQUIRED` (`DEFAULT`) | CAP | `mode` (BLOCK, WARN), `from_stage_key` | BLOCK from the stage PIPELINE | rule on the national project code; awaiting CXN-01 |
 | `NATIONAL_CODE_FORMAT` (`DEFAULT`) | CAP | `pattern` (regular expression, at most 200 characters), `example` (matches the pattern, at most 64 characters) | `^\d{7}$`, example `7654321` | as above; awaiting CXN-01. A pattern is only run against strings of at most 64 characters |
+| `CALENDAR` (`DEFAULT`) | DIS | `week_starts_on`, `deadline_weekday` (MONDAY..SUNDAY), `deadline_time` (`HH:MM` local), `timezone` (`Asia/Ho_Chi_Minh`, UTC+07 without daylight saving) | week from Saturday to Friday, due Friday 10:00 (03:00 UTC) | working assumption D03 until the owner of the capital business signs it; awaiting ASSUMPTION-D03 |
 | `APPRAISAL_CRITERIA` (`APPR-CRIT-2026r1`) | PRJ | `criteria`: list of `{code, name, max_score}` adding up to 100, `pass_threshold` (1..100) | five criteria (policy alignment 25, feasibility 25, effectiveness 20, capital readiness 20, risk 10), threshold 60 | criteria issued by the finance authority; awaiting ASSUMPTION-APPRAISAL-60 (PRJ 3.1 marks the 60-point threshold as an assumption) |
 
 ## Reading the rules (rule port)
@@ -35,5 +38,10 @@ A rule type is a catalogue type whose attributes drive a decision of another mod
 - `read(tx, ruleType, key, asOf)`: the rule with `revision`, `validFrom`, `validUntil`, `legalBasis`, `ownerModule`, `awaitingConfirmation` and `cxn`; the platform's entry wins over a tenant's.
 - `nationalCode(tx, asOf)`: `mode`, `fromStageKey`, the format when one is in force, and the reading of the rule.
 - `suggestGroup(tx, { sectorKey, totalInvestmentVnd }, asOf)`: the group of the sector's own table when the rule has one, of the default table otherwise; an amount on an edge belongs to the band above it.
+
+- `calendarPeriods(tx, year, asOf)`: the periods of a year (`W<year>-<nn>`; the year and the number are those of the last day of the week, so no day belongs to two periods or to none) from the calendar in force on `asOf`, each with the id and the revision of the calendar version it came from.
+- `boundDeadline(tx, { calendarVersionId, startsOn })` and `isLate(tx, bound, at)`: the deadline and the lateness of a period by the version of the calendar it was generated from, never by a newer one (no retroactive change). A module that stores a period stores `calendarVersionId` with it.
+
+The kernel holds the pure parts: `reportingPeriods`, `periodOf` and `isLate` (`packages/kernel/src/reporting-calendar.ts`) and the exact rounding and conversion of amounts, `roundDecimal` and `convertDecimal` (`packages/kernel/src/decimal.ts`); the web previews the periods with the same rules, held to the same answers by `packages/contracts/test-vectors/reporting-calendar.json`.
 
 A module that applies a rule shows the confirmation it waits for while `awaitingConfirmation` is true.

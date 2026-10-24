@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
@@ -109,6 +109,39 @@ describe('the attribute fields of MDM-25', () => {
     expect(JSON.parse(attributesText('record-attributes'))).toEqual({ allowed_next: ['APPRAISAL', 'CONCEPT'] });
     await user.click(screen.getByRole('checkbox', { name: 'APPRAISAL' }));
     expect(JSON.parse(attributesText('record-attributes'))).toEqual({ allowed_next: ['CONCEPT'] });
+  });
+});
+
+describe('the calendar form', () => {
+  it('previews the first eight periods from the effective date once the calendar is complete', async () => {
+    mount(<MasterCreateScreen route={CREATE} />, client(world()), STEWARD, '/mdm/mdm-25?type=CALENDAR');
+    const preview = within(screen.getByTestId('calendar-preview'));
+    expect(preview.getByText(vi_['mdm.calendar.preview.incomplete'])).toBeTruthy();
+    choose(label('calendar', 'weekStartsOn'), 'SATURDAY');
+    choose(label('calendar', 'deadlineWeekday'), 'FRIDAY');
+    fireEvent.change(screen.getByLabelText(label('calendar', 'deadlineTime')), { target: { value: '10:00' } });
+    choose(label('calendar', 'timezone'), 'Asia/Ho_Chi_Minh');
+    // Complete, but without an effective date there is nothing to start from.
+    expect(preview.getByText(vi_['mdm.calendar.preview.incomplete'])).toBeTruthy();
+    fireEvent.change(screen.getByLabelText(vi_['mdm.create.validFrom.label']), { target: { value: '2026-12-30' } });
+    expect(screen.getByTestId('calendar-preview').querySelectorAll('[data-period]')).toHaveLength(8);
+    expect(document.querySelector('[data-period="W2027-01"]')?.textContent).toContain(vi_['mdm.calendar.deadline.text'].replace('{when}', '2027-01-01 03:00'));
+    // A deadline that is not a time takes the periods away again.
+    fireEvent.change(screen.getByLabelText(label('calendar', 'deadlineTime')), { target: { value: '25:00' } });
+    expect(screen.getByTestId('calendar-preview').querySelectorAll('[data-period]')).toHaveLength(0);
+    // The other types have no preview.
+    cleanup();
+    mount(<MasterCreateScreen route={CREATE} />, client(world()), STEWARD, '/mdm/mdm-25?type=UNIT');
+    expect(screen.queryByTestId('calendar-preview')).toBeNull();
+    expect(screen.getByLabelText(label('unit', 'factor'))).toBeTruthy();
+  });
+
+  it('writes the units and the currencies the way the server reads them', async () => {
+    mount(<MasterCreateScreen route={CREATE} />, client(world()), STEWARD, '/mdm/mdm-25?type=CURRENCY');
+    fireEvent.change(screen.getByLabelText(label('currency', 'isoCode')), { target: { value: 'USD' } });
+    fireEvent.change(screen.getByLabelText(label('currency', 'scale')), { target: { value: '2' } });
+    choose(label('currency', 'rounding'), 'HALF_EVEN');
+    expect(JSON.parse(attributesText('record-attributes'))).toEqual({ iso_code: 'USD', scale: 2, rounding: 'HALF_EVEN' });
   });
 });
 

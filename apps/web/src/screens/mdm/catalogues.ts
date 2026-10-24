@@ -112,6 +112,22 @@ export const CATALOGUES: Readonly<Record<string, CatalogueConfig>> = {
     ],
     rules: [],
   },
+  'MDM-12': {
+    id: 'MDM-12',
+    slug: 'unit',
+    types: ['UNIT', 'CURRENCY'],
+    tree: false,
+    columns: [
+      column('type', (record) => record.masterType),
+      KEY,
+      NAME,
+      column('dimension', (record, { value }) => (record.masterType === 'CURRENCY' ? plain(attribute(record, 'iso_code')) : value('dimension', attribute(record, 'dimension')))),
+      column('factor', (record) => plain(attribute(record, 'factor'))),
+      column('scale', (record) => plain(attribute(record, 'scale'))),
+      column('rounding', (record, { value }) => value('rounding', attribute(record, 'rounding'))),
+    ],
+    rules: [],
+  },
   'MDM-10': {
     id: 'MDM-10',
     slug: 'decisionType',
@@ -125,9 +141,9 @@ export const CATALOGUES: Readonly<Record<string, CatalogueConfig>> = {
 /** The keys of the columns, for the check that every one of them has a heading in both languages. */
 export const COLUMN_KEYS: readonly string[] = [...new Set(Object.values(CATALOGUES).flatMap((config) => config.columns.map((item) => item.key)))];
 
-/** `SUBSET_OF` → `subsetOf`: the form of a value inside a translation key. */
+/** `SUBSET_OF` → `subsetOf`, `Asia/Ho_Chi_Minh` → `asiaHoChiMinh`: the form of a value inside a translation key. */
 export function camel(value: string): string {
-  return value.toLowerCase().replace(/_([a-z0-9])/g, (_match, letter: string) => letter.toUpperCase());
+  return value.toLowerCase().replace(/[^a-z0-9]+([a-z0-9])/g, (_match, letter: string) => letter.toUpperCase());
 }
 
 /** The entries in the order of the tree: each one under its parent, siblings by key; entries whose parent is not listed start a branch of their own. */

@@ -140,6 +140,7 @@ function MasterCreateContent({ route }: ScreenProps) {
               label={t('mdm.create.attributes.label')}
               hint={t('mdm.create.attributes.hint')}
               error={error('attributes')}
+              effectiveFrom={form.validFrom}
             />
             <Field id="record-reason" label={t('mdm.create.reason.label')} error={error('reason')}>
               <textarea id="record-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />
