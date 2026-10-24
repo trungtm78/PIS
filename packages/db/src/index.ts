@@ -444,6 +444,8 @@ export { GATE_CODES, GATE_REQUIREMENTS, PmtGateStore } from './pmt-gate-store.ts
 export type { GateCode, GateEvaluation, GateRequirement, GateRuleInput, GateRuleRow, GateRuleStatus, GateStatus, RuleVerdict } from './pmt-gate-store.ts';
 export { MAX_WAIVER_DAYS, PmtGateWaiverStore, WAIVER_STATUSES } from './pmt-gate-waiver-store.ts';
 export type { GrantedWaiver, RevokedWaiver, WaiverInput, WaiverRow, WaiverStatus } from './pmt-gate-waiver-store.ts';
+export { IamSupportTicketStore, MAX_ATTACHMENTS as MAX_TICKET_ATTACHMENTS, PRIORITY_OF_CATEGORY, SLA_ELAPSED_HOURS, SLA_WORKING_HOURS, SUPPORT_CALENDAR_CODE, TICKET_CATEGORIES, TICKET_PRIORITIES, TICKET_STATUSES } from './iam-support-ticket-store.ts';
+export type { CreatedTicket, TicketCategory, TicketInput, TicketPriority, TicketRow, TicketStatus } from './iam-support-ticket-store.ts';
 export type {
   DossierDetail,
   DossierLine,

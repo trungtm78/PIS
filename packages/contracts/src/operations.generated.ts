@@ -445,6 +445,7 @@ export const OPERATIONS = {
   "get_resources_subscription_id": { method: "get", path: "/resources/subscription/{id}", versioned: false, stepUp: null, permission: "subscription.read" },
   "get_resources_support_access_grant": { method: "get", path: "/resources/support_access_grant", versioned: false, stepUp: null, permission: "support_access_grant.read" },
   "get_resources_support_access_grant_id": { method: "get", path: "/resources/support_access_grant/{id}", versioned: false, stepUp: null, permission: "support_access_grant.read" },
+  "get_resources_support_ticket": { method: "get", path: "/resources/support_ticket", versioned: false, stepUp: null, permission: "support.ticket.read" },
   "get_resources_task_force": { method: "get", path: "/resources/task_force", versioned: false, stepUp: null, permission: "taskforce.read" },
   "get_resources_tenant": { method: "get", path: "/resources/tenant", versioned: false, stepUp: null, permission: "tenant.read" },
   "get_resources_tenant_id": { method: "get", path: "/resources/tenant/{id}", versioned: false, stepUp: null, permission: "tenant.read" },

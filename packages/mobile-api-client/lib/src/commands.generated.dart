@@ -1339,6 +1339,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesSupportAccessGrantId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_support_access_grant_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesSupportTicket({Map<String, Object?>? query}) =>
+      execute('get_resources_support_ticket', query: query);
+
   Future<Object?> getResourcesTaskForce({Map<String, Object?>? query}) =>
       execute('get_resources_task_force', query: query);
 

@@ -49,7 +49,7 @@ describe('SYSTEM_ROLES', () => {
   });
 
   it('lets every member read their own session data (getMyEntitlements needs session.self)', () => {
-    expect(SYSTEM_ROLES.find((role) => role.code === 'MEMBER')?.permissions).toEqual(expect.arrayContaining(['session.self', 'notification.self', 'profile.self', 'tenant.theme.read']));
+    expect(SYSTEM_ROLES.find((role) => role.code === 'MEMBER')?.permissions).toEqual(expect.arrayContaining(['session.self', 'notification.self', 'profile.self', 'tenant.theme.read', 'support.ticket.create', 'support.ticket.read']));
   });
 
   it('allows guests only for GUEST_CONTRACTOR and MEMBER', () => {
@@ -137,12 +137,37 @@ describe('seedSystemRoles', () => {
       await admin.query(migration);
       const after = await admin.query("select tenant_id, permissions, version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
       expect(after.rows.length).toBeGreaterThanOrEqual(2);
-      for (const row of after.rows) expect([...row.permissions].sort()).toEqual(['notification.self', 'profile.self', 'session.self', 'tenant.theme.read']);
+      for (const row of after.rows) expect([...row.permissions].sort()).toEqual(['notification.self', 'profile.self', 'session.self', 'support.ticket.create', 'support.ticket.read', 'tenant.theme.read']);
       const versions = after.rows.map((row) => row.version);
       // Running it again changes nothing, version included.
       await admin.query(migration);
       const again = await admin.query("select version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
       expect(again.rows.map((row) => row.version)).toEqual(versions);
+    } finally {
+      await admin.end();
+    }
+  });
+
+  it('backfills the support ticket permissions into MEMBER roles seeded before they joined the seed, once and only for system roles (ST-IAM-007)', async () => {
+    await tenants.withTenant(ctx(TENANT_OLD_SEED), (tx) => seedSystemRoles(tx, ACTOR));
+    const admin = new Client({ connectionString: database.adminUrl });
+    await admin.connect();
+    try {
+      // A tenant seeded by an older release: MEMBER without the support ticket permissions,.
+      await admin.query("update machvon.role_definition set permissions = array_remove(array_remove(permissions, 'support.ticket.create'), 'support.ticket.read') where code = 'MEMBER'");
+      const migration = readFileSync(join(REPO_ROOT, 'db', 'migrations', 'V1241__iam1_member_support_ticket.sql'), 'utf8');
+      expect((await admin.query("select count(*)::int as n from machvon.role_definition where code = 'MEMBER' and 'support.ticket.create' = any(permissions)")).rows[0].n).toBe(0);
+      await admin.query(migration);
+      const after = await admin.query("select permissions, version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
+      expect(after.rows.length).toBeGreaterThanOrEqual(2);
+      for (const row of after.rows) expect(row.permissions).toEqual(expect.arrayContaining(['support.ticket.create', 'support.ticket.read']));
+      const versions = after.rows.map((row) => row.version);
+      // Running it again changes nothing, version included, and the roles that are not MEMBER keep their permissions.
+      await admin.query(migration);
+      const again = await admin.query("select version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
+      expect(again.rows.map((row) => row.version)).toEqual(versions);
+      const unit = await admin.query("select permissions from machvon.role_definition where code = 'UNIT_ADMIN' limit 1");
+      expect(unit.rows[0].permissions).toEqual(['iam.member.*', 'iam.role.grant', 'iam.unit.manage']);
     } finally {
       await admin.end();
     }

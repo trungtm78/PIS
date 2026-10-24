@@ -164,6 +164,7 @@ Bất biến DB: grant không xóa (chỉ Revoked/Expired); `scope_json` giữ b
 | revokeMyDevice | POST /me/devices/{deviceId}/revoke | session.self | ReasonOnly | CommandResult | 404 | có | không |
 | acceptInvitation | POST /memberships/invitations/{invitationId}/accept | invitation.accept | InvitationAccept {token} | SessionContext | 403 INVITATION_EMAIL_MISMATCH, QUOTA_EXCEEDED; 409 INVITATION_EXPIRED | có | không |
 | createSupportTicket | POST /support-tickets | support.ticket.create | SupportTicketCreate | CommandResult 201 | 422 | có | không |
+| get_resources_support_ticket | GET /resources/support_ticket | support.ticket.read | status, limit, cursor | danh sách yêu cầu hỗ trợ: của chính người gọi, hoặc của cả tenant với người giữ `support.ticket.manage`; không kèm nội dung mô tả | 422 | không | không |
 | getMyEffectiveAccess | GET /me/effective-access | session.self | — | EffectiveAccess (x-exposure dto) | 401 | — | — |
 | searchGlobal | GET /search?q= | search.use | — | SearchPage (dto) | 401, 403 | — | — |
 

@@ -447,6 +447,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'get_resources_subscription_id': OperationDescriptor(method: 'GET', path: '/resources/subscription/{id}', versioned: false, stepUp: null, permission: 'subscription.read'),
   'get_resources_support_access_grant': OperationDescriptor(method: 'GET', path: '/resources/support_access_grant', versioned: false, stepUp: null, permission: 'support_access_grant.read'),
   'get_resources_support_access_grant_id': OperationDescriptor(method: 'GET', path: '/resources/support_access_grant/{id}', versioned: false, stepUp: null, permission: 'support_access_grant.read'),
+  'get_resources_support_ticket': OperationDescriptor(method: 'GET', path: '/resources/support_ticket', versioned: false, stepUp: null, permission: 'support.ticket.read'),
   'get_resources_task_force': OperationDescriptor(method: 'GET', path: '/resources/task_force', versioned: false, stepUp: null, permission: 'taskforce.read'),
   'get_resources_tenant': OperationDescriptor(method: 'GET', path: '/resources/tenant', versioned: false, stepUp: null, permission: 'tenant.read'),
   'get_resources_tenant_id': OperationDescriptor(method: 'GET', path: '/resources/tenant/{id}', versioned: false, stepUp: null, permission: 'tenant.read'),

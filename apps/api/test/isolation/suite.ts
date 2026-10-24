@@ -216,6 +216,12 @@ export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; cod
   },
 };
 
+/** A support ticket of the isolation member in each tenant (the subject is distinctive; tenant data of a person). */
+export const TICKET_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; subject: string; description: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0f3-000000000001', code: 'SUP-2026-900001', subject: 'Alpha tenant isolation support ticket', description: 'Alpha tenant isolation ticket description' },
+  'TNT-B': { id: '00000000-0000-4000-b0f3-000000000001', code: 'SUP-2026-900002', subject: 'Beta tenant isolation support ticket', description: 'Beta tenant isolation ticket description' },
+};
+
 /** An ACTIVE waiver of the HANDOVER gate of the isolation project of each tenant (the reason is distinctive; tenant legal decision). */
 export const WAIVER_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', reason: 'Alpha tenant isolation waiver reason' },
@@ -559,6 +565,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'permit gate rule id', value: PERMIT_TYPE_FIXTURES[tenant].gateRuleId },
     { kind: 'permit gate rule legal basis', value: PERMIT_TYPE_FIXTURES[tenant].gateBasis },
     { kind: 'permit gate waiver id', value: WAIVER_FIXTURES[tenant].id },
+    { kind: 'support ticket id', value: TICKET_FIXTURES[tenant].id },
+    { kind: 'support ticket subject', value: TICKET_FIXTURES[tenant].subject },
+    { kind: 'support ticket description', value: TICKET_FIXTURES[tenant].description },
     { kind: 'permit gate waiver reason', value: WAIVER_FIXTURES[tenant].reason },
     { kind: 'permit dossier id', value: PERMIT_FIXTURES[tenant].dossierId },
     { kind: 'permit id', value: PERMIT_FIXTURES[tenant].permitId },

@@ -27188,7 +27188,8 @@
         "IAM-08"
       ],
       "operations": [
-        "createSupportTicket"
+        "createSupportTicket",
+        "get_resources_support_ticket"
       ],
       "tables": [
         "support_ticket"

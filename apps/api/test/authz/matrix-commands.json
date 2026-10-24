@@ -38,6 +38,7 @@
     "createOutgoingDocument",
     "createIntegrationConnector",
     "createCriteriaVersion",
+    "createSupportTicket",
     "createProcurementPlan",
     "createProject",
     "createTaskForce",

@@ -8,6 +8,7 @@ import { TEMPLATE_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
+import { TICKET_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
@@ -181,6 +182,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'grantPermitGateWaiver',
   'revokePermitGateWaiver',
   'get_resources_permit_gate_waiver',
+  'createSupportTicket',
+  'get_resources_support_ticket',
   'get_resources_permit_gate_rule',
   'evaluatePermitGates',
   'createPermitDossier',
@@ -434,6 +437,12 @@ const INSERT_PERMIT_TYPE = `insert into machvon.permit_type
 const INSERT_GATE_RULE = `insert into machvon.permit_gate_rule
   (tenant_id, id, gate_code, permit_type_id, requirement, applies_to_rule, legal_basis, effective_from, revision, status, created_by, updated_by)
   values ($1, $2, 'HANDOVER', $3, 'VALID_PERMIT', '{}'::jsonb, $4, date '2026-01-01', 1, 'PUBLISHED', $5, $5) on conflict do nothing`;
+
+const INSERT_SUPPORT_TICKET = `insert into machvon.support_ticket
+  (tenant_id, id, ticket_code, requester_membership_id, category, subject, description_ref, priority, status, sla_due_at)
+  values ($1, $2, $3, $4, 'OTHER', $5, $6, 'P4', 'Open', now() + interval '10 days') on conflict do nothing`;
+
+const INSERT_SUPPORT_TICKET_BODY = `insert into machvon.support_ticket_body (tenant_id, ticket_id, description) values ($1, $2, $3) on conflict do nothing`;
 
 const INSERT_GATE_WAIVER = `insert into machvon.permit_gate_waiver
   (tenant_id, id, project_id, gate_code, permit_type_id, reason, decision_document_version_id, valid_until, approved_by, status, created_by, updated_by)
@@ -810,6 +819,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const contractor = CONTRACTOR_FIXTURES[tenant];
     await client.query(INSERT_CONTRACTOR, [tenantId, contractor.id, contractor.taxIdentifier, contractor.legalName, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
+    const ticket = TICKET_FIXTURES[tenant];
+    await client.query(INSERT_SUPPORT_TICKET, [tenantId, ticket.id, ticket.code, MEMBERSHIP_ID, ticket.subject, `support_ticket_body:${ticket.id}`]);
+    await client.query(INSERT_SUPPORT_TICKET_BODY, [tenantId, ticket.id, ticket.description]);
     const waiver = WAIVER_FIXTURES[tenant];
     await client.query(INSERT_GATE_WAIVER, [tenantId, waiver.id, project.id, PERMIT_TYPE_FIXTURES[tenant].id, waiver.reason, documents.versionId, APPROVER_ID, ACTOR_ID]);
     const draft = CONTRACT_FIXTURES[tenant];

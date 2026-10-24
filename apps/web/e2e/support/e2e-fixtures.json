@@ -729,6 +729,33 @@
       ]
     },
     {
+      "key": "supportMember",
+      "displayName": "Thành viên gửi yêu cầu hỗ trợ",
+      "membershipId": "00000000-0000-4000-8000-000000000720",
+      "permissions": [
+        "support.ticket.create",
+        "support.ticket.read"
+      ]
+    },
+    {
+      "key": "supportOther",
+      "displayName": "Thành viên khác gửi yêu cầu hỗ trợ",
+      "membershipId": "00000000-0000-4000-8000-000000000721",
+      "permissions": [
+        "support.ticket.create",
+        "support.ticket.read"
+      ]
+    },
+    {
+      "key": "supportManager",
+      "displayName": "Người quản lý hỗ trợ của tenant",
+      "membershipId": "00000000-0000-4000-8000-000000000722",
+      "permissions": [
+        "support.ticket.read",
+        "support.ticket.manage"
+      ]
+    },
+    {
       "key": "mneAdmin",
       "displayName": "Quản trị giám sát đầu tư",
       "membershipId": "00000000-0000-4000-8000-00000000006d",

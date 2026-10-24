@@ -149,7 +149,8 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
     // The Problem filter reads the same header, so the id in the answer finds the audit row.
     request.headers['x-correlation-id'] = correlationId;
-    if (decision.status === 403 && Reflect.getMetadata(COMMAND_METADATA_KEY, handler) !== undefined) {
+    // A refused command is audited; so is a call of the wrong plane, whatever it asks: an operator of the platform who reaches for the business data of a tenant leaves a trace even when it only reads (IAM 3.6, NFR-PRIVACY-02).
+    if (decision.status === 403 && (Reflect.getMetadata(COMMAND_METADATA_KEY, handler) !== undefined || decision.reason === 'PLANE')) {
       await this.recordDenied(principal.tenant, operationId, decision.reason, correlationId);
     }
     // The reason of an entitlement denial (FEATURE_OFF, LICENSE_GRACE, ...) is safe to show: it names no data of anyone.

@@ -271,6 +271,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'grantPermitGateWaiver',
         'revokePermitGateWaiver',
         'get_resources_permit_gate_waiver',
+        'createSupportTicket',
+        'get_resources_support_ticket',
         'get_resources_permit_gate_rule',
         'evaluatePermitGates',
         'createPermitDossier',

@@ -267,6 +267,16 @@ const BID_PLAN_ROLES = [
 ];
 
 /**
+ * The people of the support tickets (IAM-08): two members who raise and read their own tickets, and the manager of support of the tenant who reads every ticket.
+ * The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const SUPPORT_ROLES = [
+  { n: 720, user: 'supportMember', code: 'E2E_SUPPORT_MEMBER', permissions: ['support.ticket.create', 'support.ticket.read'], rank: 5 },
+  { n: 721, user: 'supportOther', code: 'E2E_SUPPORT_OTHER', permissions: ['support.ticket.create', 'support.ticket.read'], rank: 5 },
+  { n: 722, user: 'supportManager', code: 'E2E_SUPPORT_MANAGER', permissions: ['support.ticket.read', 'support.ticket.manage'], rank: 50 },
+];
+
+/**
  * The people of the evaluation criteria (BID-04): the planner drafts, the approver approves and locks, the solo planner holds both rights (so the server,
  * not the screen, refuses the approval of their own draft), the reader only reads. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
@@ -442,6 +452,7 @@ const GRANTS: GrantPlan[] = [
   ...QUALITY_ROLES.map((role, index): GrantPlan => ({ n: 590 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...BID_PLAN_ROLES.map((role, index): GrantPlan => ({ n: 700 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...BID_CRITERIA_ROLES.map((role, index): GrantPlan => ({ n: 710 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...SUPPORT_ROLES.map((role, index): GrantPlan => ({ n: 720 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -734,7 +745,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

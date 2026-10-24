@@ -78,6 +78,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PRJ-21': () => import('../../screens/prj/NationalCodeScreen'),
   'LND-02': () => import('../../screens/lnd/ParcelScreen'),
   'IAM-04': () => import('../../screens/iam/TenantChooserScreen'),
+  'IAM-08': () => import('../../screens/iam/SupportScreen'),
   'IAM-09': () => import('../../screens/iam/EffectiveAccessScreen'),
   'MDM-01': () => import('../../screens/mdm/MasterHubScreen'),
   'MDM-02': () => import('../../screens/mdm/StructureScreen'),

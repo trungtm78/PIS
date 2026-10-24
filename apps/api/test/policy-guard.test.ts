@@ -285,6 +285,13 @@ describe('policy guard (ST-IAM-004)', () => {
     expect((await call('GET', '/policy/read', { member: FULL, tenantId: TENANT_B })).status).toBe(403);
   });
 
+  it('audits a read that an operator of the control plane makes on the tenant plane, because the plane is wrong whatever it asks (AC-ST-IAM-007-2)', async () => {
+    const before = await count("select count(*) as n from machvon.audit_event where action = 'authz.denied:test_read' and outcome = 'DENIED'");
+    const denied = await call('GET', '/policy/read', { member: FULL, claims: { aud: 'control', roles: ['SupportOperator'] } });
+    expect([denied.status, denied.json.code]).toEqual([403, 'SCOPE_DENIED']);
+    expect(await count("select count(*) as n from machvon.audit_event where action = 'authz.denied:test_read' and outcome = 'DENIED'")).toBe(before + 1);
+  });
+
   it('requires aal2 within 15 minutes for a step-up command (AC-ST-IAM-004-2)', async () => {
     const minutesAgo = (minutes: number): string => new Date(Date.now() - minutes * 60_000).toISOString();
     const aal1 = await call('POST', '/policy/stepup', { member: FULL });

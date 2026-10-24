@@ -1106,6 +1106,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  createSupportTicket: {
+    // The ticket names nothing of tenant A: a caller of tenant B who holds the right raises a ticket of their own.
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/support-tickets', body: { category: 'OTHER', subject: 'Negative authorization matrix', description: 'A ticket raised by the negative authorization matrix.' } }),
+  },
   createCriteriaVersion: {
     referencesTenantIds: true,
     build: (t) => ({
