@@ -46,6 +46,12 @@ describe('MasterEditScreen (MDM-26)', () => {
     expect(h.command).not.toHaveBeenCalled();
   });
 
+  it('keeps the end date of the version in force unless it is changed', async () => {
+    mount(<MasterEditScreen route={ROUTE} />, client(world({ versions: [version(1, 1, { valid_until: '2030-12-31' })] })), STEWARD, AT);
+    await formReady();
+    expect((screen.getByLabelText(vi_['mdm.edit.validUntil.label']) as HTMLInputElement).value).toBe('2030-12-31');
+  });
+
   it('opens the change request from the new date, shows its stored impact and submits it after it has been read', async () => {
     const state = world({ versions: [version(1, 1)] });
     const log: Array<[string, unknown]> = [];
@@ -93,7 +99,7 @@ describe('MasterEditScreen (MDM-26)', () => {
     expect(await screen.findByTestId('not-in-force')).toBeTruthy();
     cleanup();
     mount(<MasterEditScreen route={ROUTE} />, client(world({ records: [record(1, { open_change_request_id: 'c1' })] })), STEWARD, AT);
-    expect(await screen.findByTestId('change-open')).toBeTruthy();
+    expect((await screen.findByTestId('change-open')).querySelector('a')?.getAttribute('href')).toBe('/mdm/mdm-27?type=SECTOR&key=GT-1');
   });
 
   it('says that no entry is chosen or found, and shows the error state when the entry cannot be read', async () => {

@@ -1,8 +1,9 @@
 import { cleanup, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import MasterDetailScreen from './MasterDetailScreen';
-import { READER, STEWARD, client, mount, record, routeOf, version, world } from './test-support';
+import { READER, STEWARD, change, client, mount, record, routeOf, version, world } from './test-support';
 
 const ROUTE = routeOf('MDM-27', 'FR-MDM-27');
 const AT = '/mdm/mdm-27?type=SECTOR&key=GT-1';
@@ -32,6 +33,47 @@ describe('MasterDetailScreen (MDM-27)', () => {
     await waitFor(() => expect(screen.getByTestId('impact').getAttribute('data-impact-total')).toBe('3'));
     expect(document.querySelector('[data-reference="project.sector_master_version_id"]')?.textContent).toContain('2');
     expect(within(screen.getByTestId('samples')).getByText('p-1', { exact: false })).toBeTruthy();
+  });
+
+  it('picks up a draft that was saved and not sent, and submits it after its impact has been read', async () => {
+    const draft = change(1, { status: 'DRAFT', version: 1 });
+    const state = world({ records: [record(1, { open_change_request_id: draft.id })], changes: [draft] });
+    const h = client(state, () => ({ operation_id: 'o', status: 'IN_REVIEW', resource_version: 2, resource_id: draft.id }));
+    mount(<MasterDetailScreen route={ROUTE} />, h, STEWARD, AT);
+    await ready();
+    const user = userEvent.setup();
+    await waitFor(() => expect(screen.getByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeTruthy());
+    expect(screen.getByTestId('pending').textContent).toContain(vi_['mdm.detail.draft.notice']);
+    await user.click(screen.getByRole('checkbox', { name: vi_['mdm.impact.read.label'] }));
+    await user.click(screen.getByRole('button', { name: vi_['mdm.impact.submit.action'] }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('submitMasterChangeRequest', expect.objectContaining({ path: { id: draft.id }, ifMatchVersion: 1 })));
+    await waitFor(() => expect(screen.queryByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeNull());
+  });
+
+  it('does not offer to submit a request that is already with the reviewers, or to someone who may not propose', async () => {
+    const waiting = change(1, { status: 'IN_REVIEW' });
+    mount(<MasterDetailScreen route={ROUTE} />, client(world({ records: [record(1, { open_change_request_id: waiting.id })], changes: [waiting] })), STEWARD, AT);
+    await ready();
+    await waitFor(() => expect(screen.getByTestId('pending').textContent).toContain(vi_['mdm.detail.pending.notice']));
+    expect(screen.queryByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeNull();
+    cleanup();
+    const draft = change(1, { status: 'DRAFT', version: 1 });
+    mount(<MasterDetailScreen route={ROUTE} />, client(world({ records: [record(1, { open_change_request_id: draft.id })], changes: [draft] })), READER, AT);
+    await ready();
+    await waitFor(() => expect(screen.getByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeTruthy());
+    expect(screen.queryByRole('button', { name: vi_['mdm.impact.submit.action'] })).toBeNull();
+  });
+
+  it('opens the entry of the platform that the address names, not the entry of the tenant with the same key', async () => {
+    const state = world({ records: [record(1, { label: 'Của tenant' }), record(1, { namespace: 'PLATFORM', label: 'Của nền tảng' })] });
+    mount(<MasterDetailScreen route={ROUTE} />, client(state), STEWARD, `${AT}&ns=PLATFORM`);
+    await ready();
+    expect(within(screen.getByTestId('entry')).getByText('Của nền tảng')).toBeTruthy();
+    expect(screen.getByText(vi_['mdm.detail.history.action']).getAttribute('href')).toBe('/mdm/mdm-28?type=SECTOR&key=GT-1&ns=PLATFORM');
+    cleanup();
+    mount(<MasterDetailScreen route={ROUTE} />, client(state), STEWARD, AT);
+    await ready();
+    expect(within(screen.getByTestId('entry')).getByText('Của tenant')).toBeTruthy();
   });
 
   it('says so when nothing refers to the entry, and when the places cannot be read', async () => {

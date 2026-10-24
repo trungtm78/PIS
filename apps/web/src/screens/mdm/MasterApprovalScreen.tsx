@@ -9,8 +9,8 @@ import { useScreenState } from '../../states/useScreenState';
 import { Field, ImpactTable } from './components';
 import { useDecideChange, usePublishRecord, useQueue } from './hooks';
 import { changeKindLabel, problemMessage } from './labels';
-import { PUBLISH_PERMISSION, REASON_MAX_LENGTH, REASON_MIN_LENGTH, REVIEW_PERMISSION, describeProblem, recordLink } from './model';
-import type { ChangeView } from './model';
+import { PUBLISH_PERMISSION, REASON_MAX_LENGTH, REASON_MIN_LENGTH, REVIEW_PERMISSION, describeProblem, proposalRows, recordLink } from './model';
+import type { ChangeView, ProposalField } from './model';
 
 const DETAIL_PATH = '/mdm/mdm-27';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -18,6 +18,23 @@ const NEVER_EMPTY = (): boolean => false;
 
 type Decision = 'approve' | 'reject' | 'return';
 const DECISIONS: readonly Decision[] = ['approve', 'reject', 'return'];
+
+function proposalFieldName(t: ReturnType<typeof useTranslation>['t'], field: ProposalField): string {
+  switch (field) {
+    case 'label':
+      return t('mdm.history.field.label.text');
+    case 'attributes':
+      return t('mdm.history.field.attributes.text');
+    case 'parent':
+      return t('mdm.history.field.parent.text');
+    case 'validUntil':
+      return t('mdm.approval.proposal.validUntil.text');
+    case 'legalBasis':
+      return t('mdm.history.field.legalBasis.text');
+    case 'successor':
+      return t('mdm.approval.proposal.successor.text');
+  }
+}
 
 function decisionLabel(t: ReturnType<typeof useTranslation>['t'], decision: Decision): string {
   switch (decision) {
@@ -104,7 +121,7 @@ function MasterApprovalContent({ route }: ScreenProps) {
           {change.businessKey === null ? (
             change.masterType
           ) : (
-            <Link to={recordLink(DETAIL_PATH, change.masterType, change.businessKey)}>
+            <Link to={recordLink(DETAIL_PATH, change.masterType, change.businessKey, change.namespace)}>
               {change.masterType} · {change.businessKey}
             </Link>
           )}
@@ -136,6 +153,25 @@ function MasterApprovalContent({ route }: ScreenProps) {
             <ImpactTable impact={change.impact} />
           </>
         )}
+        <h3>{t('mdm.approval.proposal.title')}</h3>
+        <table className="table" data-testid="proposal">
+          <thead>
+            <tr>
+              <th>{t('mdm.approval.proposal.col.field')}</th>
+              <th>{t('mdm.approval.proposal.col.before')}</th>
+              <th>{t('mdm.approval.proposal.col.after')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {proposalRows(change.before, change.proposed).map((item) => (
+              <tr key={item.field} data-field={item.field}>
+                <th scope="row">{proposalFieldName(t, item.field)}</th>
+                <td>{item.before ?? ''}</td>
+                <td>{item.after}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         <p className="sub">{change.reason}</p>
         {stage === 'review' ? (
           <form noValidate aria-label={t('mdm.approval.review.action')} onSubmit={(event) => event.preventDefault()}>

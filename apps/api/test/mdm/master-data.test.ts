@@ -262,6 +262,46 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       expect(usages.json).toMatchObject({ master_record_id: recordId, total: 0, counts: {} });
     });
 
+    it('judges the fields of a change that the contract leaves as a free object, and normalises the parent id', async () => {
+      const { recordId } = await inForce();
+      const update = (proposed: Record<string, unknown>): Promise<Reply> =>
+        call('POST', '/master-change-requests', { member: STEWARD, body: { change_kind: 'UPDATE', master_type: 'SECTOR', master_record_id: recordId, proposed, effective_from: '2025-06-01', reason: 'Checking the fields' } });
+      for (const [proposed, field] of [
+        [{ valid_until: 'not-a-date' }, 'proposed.valid_until'],
+        [{ valid_until: 7 }, 'proposed.valid_until'],
+        [{ label: '' }, 'proposed.label'],
+        [{ label: 5 }, 'proposed.label'],
+        [{ attributes: [1] }, 'proposed.attributes'],
+        [{ parent_record_id: 'nope' }, 'proposed.parent_record_id'],
+        [{ legal_basis: 'x'.repeat(2001) }, 'proposed.legal_basis'],
+      ] as const) {
+        const reply = await update(proposed);
+        expect([reply.status, reply.json.code, reply.json.detail]).toEqual([422, 'VALIDATION_FAILED', field]);
+      }
+      // The record cannot be its own parent, whatever the letter case of its id.
+      const self = await update({ parent_record_id: recordId.toUpperCase() });
+      expect([self.status, self.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      expect(Number((await rows<{ n: string }>('select count(*)::text as n from machvon.master_change_request where master_record_id = $1 and change_kind = \'UPDATE\'', [recordId]))[0]?.n)).toBe(0);
+    });
+
+    it('sends one event for each publication, also one that waits for its date and leaves the record version as it was', async () => {
+      const { recordId } = await inForce();
+      for (const label of ['A later change']) {
+        const created = await call('POST', '/master-change-requests', {
+          member: STEWARD,
+          body: { change_kind: 'UPDATE', master_type: 'SECTOR', master_record_id: recordId, proposed: { label }, effective_from: '2998-01-01', reason: 'Later change' },
+        });
+        expect(created.status).toBe(200);
+        const submitted = await submit(STEWARD, idOf(created));
+        expect((await decide(CHECKER, idOf(created), 'approve', versionOf(submitted))).status).toBe(200);
+        const record = (await rows<{ version: string }>('select version::text as version from machvon.master_record where id = $1', [recordId]))[0];
+        expect((await publish(PUBLISHER, recordId, Number(record?.version))).status).toBe(200);
+      }
+      const events = await rows<{ event_key: string }>("select event_key from machvon.outbox_event where type = 'master.published.v1' and aggregate_id = $1", [recordId]);
+      expect(events).toHaveLength(2);
+      expect(new Set(events.map((event) => event.event_key)).size).toBe(2);
+    });
+
     it('refuses RESTRUCTURE and SUCCESSION until the succession step exists, a malformed date, and a record of another tenant', async () => {
       const { recordId } = await inForce();
       const restructure = await call('POST', '/master-change-requests', {
@@ -329,7 +369,7 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       const queue = await call('GET', '/master-change-requests?status=IN_REVIEW&master_type=QUEUE', { member: CHECKER });
       expect(queue.status).toBe(200);
       expect((queue.json.items as Array<{ id: string; status: string; impact: unknown }>).map((item) => [item.id, item.status])).toEqual([[change.id, 'IN_REVIEW']]);
-      expect((queue.json.items as Array<Record<string, unknown>>)[0]).toMatchObject({ business_key: proposalKeyOf(proposed), master_record_version: expect.any(Number), master_record_status: 'IN_REVIEW' });
+      expect((queue.json.items as Array<Record<string, unknown>>)[0]).toMatchObject({ business_key: proposalKeyOf(proposed), master_record_version: expect.any(Number), master_record_status: 'IN_REVIEW', master_record_namespace: 'TENANT' });
       expect(queue.json.next_cursor).toBeNull();
       const paged = await call('GET', '/master-change-requests?master_type=QUEUE&limit=1', { member: CHECKER });
       expect((paged.json.items as unknown[]).length).toBe(1);

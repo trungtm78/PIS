@@ -1530,7 +1530,6 @@
   "mdm.edit.noRecord.notice": "No entry is chosen or it was not found. Open it from its detail page.",
   "mdm.edit.notInForce.notice": "The entry is \"{status}\" and cannot be changed yet.",
   "mdm.edit.changeOpen.notice": "The entry already has a request in progress.",
-  "mdm.edit.queue.link": "Open the review queue",
   "mdm.edit.form.title": "Change entry {key}",
   "mdm.edit.form.aria": "Form to change an entry",
   "mdm.edit.form.hint": "The change is in force only after it is approved and published.",
@@ -1664,5 +1663,13 @@
   "mdm.retire.draft.saved.notice": "The retirement request is saved. Read the impact, then submit it.",
   "mdm.retire.footer.reference": "Screen {id} · {req}",
   "mdm.hub.scope.link": "Catalogue scope",
-  "mdm.detail.retire.action": "Retire"
+  "mdm.detail.retire.action": "Retire",
+  "mdm.detail.draft.notice": "The entry has a draft request that has not been submitted.",
+  "mdm.edit.detail.link": "Open the entry",
+  "mdm.approval.proposal.title": "Proposed content",
+  "mdm.approval.proposal.col.field": "Field",
+  "mdm.approval.proposal.col.before": "In force",
+  "mdm.approval.proposal.col.after": "Proposed",
+  "mdm.approval.proposal.validUntil.text": "Valid until",
+  "mdm.approval.proposal.successor.text": "Replacement entry"
 }

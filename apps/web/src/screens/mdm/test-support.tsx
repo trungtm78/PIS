@@ -54,6 +54,7 @@ export const change = (n: number, overrides: Record<string, unknown> = {}) => ({
   business_key: `GT-${n}`,
   master_record_version: 3,
   master_record_status: 'EFFECTIVE',
+  master_record_namespace: 'TENANT',
   change_kind: 'UPDATE',
   master_type: 'SECTOR',
   master_record_id: record(n).id,
@@ -115,7 +116,7 @@ export function client(state: World, command: (operation: string, input: unknown
     const query = input?.query ?? {};
     switch (operation) {
       case 'searchMasterRecords':
-        return Promise.resolve(state.records.filter((item) => (query.master_type === undefined || item.master_type === query.master_type) && (query.business_key === undefined || item.business_key === query.business_key)));
+        return Promise.resolve(state.records.filter((item) => (query.master_type === undefined || item.master_type === query.master_type) && (query.business_key === undefined || item.business_key === query.business_key) && (query.namespace === undefined || item.namespace === query.namespace)));
       case 'listMasterChangeRequests':
         return Promise.resolve(state.changes.filter((item) => query.status === undefined || item.status === query.status));
       case 'get_resources_master_record_version':

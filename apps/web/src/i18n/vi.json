@@ -1530,7 +1530,6 @@
   "mdm.edit.noRecord.notice": "Chưa chọn bản ghi hoặc không tìm thấy bản ghi. Mở từ trang chi tiết.",
   "mdm.edit.notInForce.notice": "Bản ghi đang ở trạng thái \"{status}\" nên chưa sửa được.",
   "mdm.edit.changeOpen.notice": "Bản ghi đã có một đề xuất đang xử lý.",
-  "mdm.edit.queue.link": "Mở hàng chờ duyệt",
   "mdm.edit.form.title": "Sửa bản ghi {key}",
   "mdm.edit.form.aria": "Biểu mẫu sửa bản ghi",
   "mdm.edit.form.hint": "Thay đổi chỉ có hiệu lực sau khi được duyệt và công bố.",
@@ -1664,5 +1663,13 @@
   "mdm.retire.draft.saved.notice": "Đã lưu đề xuất ngừng dùng. Xem độ ảnh hưởng rồi gửi duyệt.",
   "mdm.retire.footer.reference": "Màn hình {id} · {req}",
   "mdm.hub.scope.link": "Phạm vi danh mục",
-  "mdm.detail.retire.action": "Ngừng dùng"
+  "mdm.detail.retire.action": "Ngừng dùng",
+  "mdm.detail.draft.notice": "Bản ghi có một đề xuất nháp chưa gửi duyệt.",
+  "mdm.edit.detail.link": "Mở chi tiết bản ghi",
+  "mdm.approval.proposal.title": "Nội dung đề xuất",
+  "mdm.approval.proposal.col.field": "Trường",
+  "mdm.approval.proposal.col.before": "Hiện hành",
+  "mdm.approval.proposal.col.after": "Đề xuất",
+  "mdm.approval.proposal.validUntil.text": "Hết hiệu lực",
+  "mdm.approval.proposal.successor.text": "Bản ghi thay thế"
 }

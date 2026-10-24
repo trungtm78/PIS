@@ -117,8 +117,8 @@ function MasterHubContent({ route }: ScreenProps) {
                   </td>
                   <td>{record.validFrom === null ? '' : `${record.validFrom} → ${record.validUntil ?? ''}`}</td>
                   <td className="row-actions">
-                    <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey)}>{t('mdm.hub.open.action')}</Link>
-                    <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey)}>{t('mdm.hub.history.action')}</Link>
+                    <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.hub.open.action')}</Link>
+                    <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.hub.history.action')}</Link>
                   </td>
                 </tr>
               ))}

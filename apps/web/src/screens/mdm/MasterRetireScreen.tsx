@@ -9,7 +9,7 @@ import { useScreenState } from '../../states/useScreenState';
 import { BackLink, Field, ImpactTable, SubmitWithImpact } from './components';
 import { useChange, useCreateChange, useHistory, useRecordByKey, useRecords, useTypePolicies, useUsage } from './hooks';
 import { fieldProblemMessage, problemMessage, recordStatusLabel } from './labels';
-import { PROPOSE_PERMISSION, describeProblem, recordLink, validateRetire } from './model';
+import { PROPOSE_PERMISSION, describeProblem, namespaceOf, recordLink, validateRetire } from './model';
 import type { RecordView, RetireField, RetireForm } from './model';
 
 const APPROVAL_PATH = '/mdm/mdm-32';
@@ -28,7 +28,7 @@ function MasterRetireContent({ route }: ScreenProps) {
   const [params] = useSearchParams();
   const masterType = params.get('type') ?? undefined;
   const businessKey = params.get('key') ?? undefined;
-  const record = useRecordByKey(masterType, businessKey);
+  const record = useRecordByKey(masterType, businessKey, namespaceOf(params.get('ns')));
   const state = useScreenState({ isLoading: record.isLoading, error: record.error, data: masterType === undefined || businessKey === undefined ? undefined : (record.data ?? undefined), isEmpty: NEVER_EMPTY });
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -116,7 +116,7 @@ function Retire({ record }: { record: RecordView }) {
   if (record.openChangeRequestId !== null && opened === undefined) {
     return (
       <p className="callout warning" role="status" data-testid="change-open">
-        {t('mdm.edit.changeOpen.notice')} <Link to={APPROVAL_PATH}>{t('mdm.edit.queue.link')}</Link>
+        {t('mdm.edit.changeOpen.notice')} <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.edit.detail.link')}</Link>
       </p>
     );
   }
@@ -191,7 +191,7 @@ function Retire({ record }: { record: RecordView }) {
             {change.data === undefined || change.data === null || submitted ? null : <SubmitWithImpact change={change.data} canSubmit={canPropose} onSubmitted={() => setSubmitted(true)} />}
             {submitted ? (
               <p className="callout" role="status">
-                {t('mdm.create.submitted.notice')} <Link to={APPROVAL_PATH}>{t('mdm.create.queue.link')}</Link> · <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey)}>{t('mdm.create.detail.link')}</Link>
+                {t('mdm.create.submitted.notice')} <Link to={APPROVAL_PATH}>{t('mdm.create.queue.link')}</Link> · <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.create.detail.link')}</Link>
               </p>
             ) : null}
           </>

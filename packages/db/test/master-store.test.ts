@@ -168,6 +168,72 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
     });
   });
 
+  describe('what approval alone does not do', () => {
+    it('does not put an approved record that is not published in force, nor let the activation job do it', async () => {
+      const created = await as(STEWARD, (tx) => store.propose(tx, { masterType: 'SECTOR', businessKey: nextKey(), content: content(), reason: 'Initial catalogue entry' }, memberId(STEWARD)));
+      await approve(created.changeRequestId);
+      expect(await as(STEWARD, (tx) => store.findRecord(tx, created.recordId))).toMatchObject({ status: 'APPROVED', currentVersionId: null });
+      expect(await as(STEWARD, (tx) => store.versionInForce(tx, created.recordId, TODAY))).toBeUndefined();
+      const found = await as(STEWARD, (tx) => store.search(tx, { masterType: 'SECTOR', asOf: TODAY, limit: 500, after: undefined }));
+      expect(found.find((row) => row.id === created.recordId)).toMatchObject({ status: 'APPROVED', label: null, versionId: null });
+      await as(STEWARD, (tx) => store.activateDue(tx, memberId(STEWARD), TODAY));
+      await as(STEWARD, (tx) => store.activateDue(tx, memberId(STEWARD), FUTURE));
+      expect(await as(STEWARD, (tx) => store.findRecord(tx, created.recordId))).toMatchObject({ status: 'APPROVED', currentVersionId: null });
+      await publishChange(created.recordId);
+      expect(await as(STEWARD, (tx) => store.findRecord(tx, created.recordId))).toMatchObject({ status: 'EFFECTIVE' });
+    });
+  });
+
+  describe('a change is judged again when it is published', () => {
+    it('refuses a retirement that something started to use after it was requested, and one whose successor was retired meanwhile', async () => {
+      const entry = await inForce();
+      const heir = await inForce();
+      const plain = await change(entry.recordId, 'RETIRE', {}, TODAY);
+      await approve(plain.id);
+      await admin([insertProject(`LATE-${counter}`, (await as(STEWARD, (tx) => store.findRecord(tx, entry.recordId)))?.currentVersionId ?? '')]);
+      const record = await as(PUBLISHER, (tx) => store.findRecord(tx, entry.recordId));
+      expect(await refusal(as(PUBLISHER, (tx) => store.publish(tx, entry.recordId, record?.version ?? 0, DECISION_DOCUMENT, memberId(PUBLISHER))))).toEqual({ code: 'MASTER_IN_USE', status: 409 });
+      expect((await as(STEWARD, (tx) => store.findRecord(tx, entry.recordId)))?.status).toBe('EFFECTIVE');
+
+      const other = await inForce();
+      const withHeir = await change(other.recordId, 'RETIRE', {}, TODAY, { successorRecordId: heir.recordId });
+      await approve(withHeir.id);
+      await owner("update machvon.master_record set status = 'RETIRED' where id = $1", [heir.recordId]);
+      const otherRecord = await as(PUBLISHER, (tx) => store.findRecord(tx, other.recordId));
+      expect(await refusal(as(PUBLISHER, (tx) => store.publish(tx, other.recordId, otherRecord?.version ?? 0, DECISION_DOCUMENT, memberId(PUBLISHER))))).toEqual({ code: 'VALIDATION_FAILED', status: 422 });
+    });
+
+    it('moves the version of the record with every publication, also one that waits for its date, so each has an identity', async () => {
+      const entry = await inForce();
+      const before = await as(STEWARD, (tx) => store.findRecord(tx, entry.recordId));
+      const opened = await change(entry.recordId, 'UPDATE', { label: 'From a later date' }, FUTURE);
+      await approve(opened.id);
+      const published = await publishChange(entry.recordId);
+      expect(published.active).toBe(false);
+      expect(published.version).toBeGreaterThan(before?.version ?? 0);
+      expect(published.record.currentVersionId).toBe(before?.currentVersionId);
+    });
+  });
+
+  describe('the end date of a version', () => {
+    it('is kept by a change that does not name it, and removed only when the change says null', async () => {
+      const entry = await inForce({ validUntil: '2031-01-01' });
+      const rename = await change(entry.recordId, 'UPDATE', { label: 'Renamed, same end' }, '2025-06-01');
+      await approve(rename.id);
+      const first = await publishChange(entry.recordId);
+      expect(await as(STEWARD, (tx) => store.findVersion(tx, first.versionId))).toMatchObject({ validFrom: '2025-06-01', validUntil: '2031-01-01' });
+      const open = await change(entry.recordId, 'UPDATE', { label: 'Renamed, no end', validUntil: null }, '2025-07-01');
+      await approve(open.id);
+      const second = await publishChange(entry.recordId);
+      expect(await as(STEWARD, (tx) => store.findVersion(tx, second.versionId))).toMatchObject({ validUntil: null });
+    });
+
+    it('refuses a kept end date that the new start has already passed', async () => {
+      const entry = await inForce({ validFrom: '2024-01-01', validUntil: '2030-01-01' });
+      expect(await refusal(change(entry.recordId, 'UPDATE', { label: 'Too late' }, '2031-01-01'))).toEqual({ code: 'VALIDATION_FAILED', status: 422 });
+    });
+  });
+
   describe('the policy of the types (ST-MDM-002)', () => {
     /** A record with a version in force in tenant A: for the platform namespace, a read-only copy of what the platform published. */
     async function platformRecord(masterType: string, namespace: 'PLATFORM' | 'TENANT' = 'PLATFORM'): Promise<string> {
@@ -354,14 +420,28 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
       expect((await as(STEWARD, (tx) => store.findChange(tx, opened.id)))?.status).toBe('DRAFT');
     });
 
-    it('lists every referencing column of the schema, each of them a real table and column', async () => {
+    it('lists every referencing column of the schema, each of them a real table and column with an id to sample', async () => {
       for (const reference of MASTER_REFERENCES) {
         const columns = await owner<{ n: string }>(
-          "select count(*)::text as n from information_schema.columns where table_schema = 'machvon' and table_name = $1 and column_name = $2",
+          "select count(*)::text as n from information_schema.columns where table_schema = 'machvon' and table_name = $1 and column_name in ($2, 'id')",
           [reference.table, reference.column],
         );
-        expect(Number(columns[0]?.n)).toBe(1);
+        expect(Number(columns[0]?.n)).toBe(2);
       }
+    });
+
+    it('lists exactly the foreign keys that point at a master record or one of its versions from outside the master data tables', async () => {
+      const keys = await owner<{ key: string }>(
+        `select distinct c.conrelid::regclass::text || '.' || a.attname as key
+           from pg_constraint c
+           join pg_attribute a on a.attrelid = c.conrelid and a.attnum = any(c.conkey) and a.attname <> 'tenant_id'
+          where c.contype = 'f' and c.confrelid in ('machvon.master_record'::regclass, 'machvon.master_record_version'::regclass)
+            and c.conrelid not in ('machvon.master_change_request'::regclass)
+            and not (c.conrelid = 'machvon.master_record_version'::regclass and a.attname in ('master_record_id', 'supersedes_id'))
+            and not (c.conrelid = 'machvon.master_record'::regclass and a.attname = 'current_version_id')`,
+      );
+      const found = keys.map((row) => row.key.replace(/^machvon\./, '')).sort();
+      expect(found).toEqual(MASTER_REFERENCES.map((reference) => reference.key).sort());
     });
   });
 

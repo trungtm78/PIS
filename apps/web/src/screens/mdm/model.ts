@@ -19,8 +19,11 @@ const RECORD_STATUSES: readonly string[] = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'E
 const CHANGE_STATUSES: readonly string[] = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'REJECTED', 'APPLIED', 'CANCELLED'];
 const CHANGE_KINDS: readonly string[] = ['CREATE', 'UPDATE', 'RETIRE'];
 
+export type Namespace = 'PLATFORM' | 'TENANT';
+
 export interface RecordView {
   id: string;
+  namespace: Namespace;
   masterType: string;
   businessKey: string;
   status: RecordStatus;
@@ -42,6 +45,7 @@ export interface ChangeView {
   changeKind: ChangeKind;
   masterType: string;
   businessKey: string | null;
+  namespace: Namespace;
   masterRecordId: string | null;
   recordVersion: number | null;
   status: ChangeStatus;
@@ -93,6 +97,7 @@ export function toRecord(raw: unknown): RecordView | undefined {
   if (id === undefined || masterType === undefined || businessKey === undefined || status === undefined || !RECORD_STATUSES.includes(status) || version === undefined) return undefined;
   return {
     id,
+    namespace: row.namespace === 'PLATFORM' ? 'PLATFORM' : 'TENANT',
     masterType,
     businessKey,
     status: status as RecordStatus,
@@ -141,6 +146,7 @@ export function toChange(raw: unknown): ChangeView | undefined {
     changeKind: kind as ChangeKind,
     masterType,
     businessKey: nullableText(row.business_key),
+    namespace: row.master_record_namespace === 'PLATFORM' ? 'PLATFORM' : 'TENANT',
     masterRecordId: nullableText(row.master_record_id),
     recordVersion: whole(row.master_record_version) ?? null,
     status: status as ChangeStatus,
@@ -446,7 +452,48 @@ export function describeProblem(error: unknown): ProblemView {
   return { reason: REASON_BY_CODE[error.code] ?? 'general', field: error.detail };
 }
 
-/** The record that a link names: the type and the business key travel in the address, the id is looked up. */
-export function recordLink(path: string, masterType: string, businessKey: string): string {
-  return `${path}?${new URLSearchParams({ type: masterType, key: businessKey }).toString()}`;
+/**
+ * The record that a link names: the type and the business key travel in the address, the id is looked up. The same type and key can
+ * exist in both namespaces (identity includes the namespace), so a link to an entry of the platform says so; without `ns` it is the tenant's.
+ */
+export function recordLink(path: string, masterType: string, businessKey: string, namespace: Namespace = 'TENANT'): string {
+  const params = new URLSearchParams({ type: masterType, key: businessKey });
+  if (namespace === 'PLATFORM') params.set('ns', 'PLATFORM');
+  return `${path}?${params.toString()}`;
+}
+
+/** The namespace an address names: the platform's only when it says so. */
+export function namespaceOf(value: string | null): Namespace {
+  return value === 'PLATFORM' ? 'PLATFORM' : 'TENANT';
+}
+
+export type ProposalField = 'label' | 'attributes' | 'parent' | 'validUntil' | 'legalBasis' | 'successor';
+
+export interface ProposalRow {
+  field: ProposalField;
+  before: string | null;
+  after: string;
+}
+
+const PROPOSAL_KEYS: ReadonlyArray<readonly [ProposalField, string]> = [
+  ['label', 'label'],
+  ['attributes', 'attributes'],
+  ['parent', 'parent_record_id'],
+  ['validUntil', 'valid_until'],
+  ['legalBasis', 'legal_basis'],
+  ['successor', 'successor_record_id'],
+];
+
+const shown = (value: unknown): string => (value === undefined || value === null ? '' : typeof value === 'string' ? value : JSON.stringify(sortKeys(value)));
+
+/** What a change request would change, field by field: the values of the version in force beside the ones it proposes (all of them for a new entry). */
+export function proposalRows(before: Record<string, unknown> | null, proposed: Record<string, unknown>): ProposalRow[] {
+  return PROPOSAL_KEYS.flatMap(([field, key]) => {
+    // A field the proposal does not name stays as it is; one it names as null is cleared.
+    if (before !== null && proposed[key] === undefined) return [];
+    const after = shown(proposed[key]);
+    const was = before === null ? null : shown(before[key]);
+    if (before === null ? after === '' : was === after) return [];
+    return [{ field, before: was, after }];
+  });
 }

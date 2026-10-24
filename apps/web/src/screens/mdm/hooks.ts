@@ -4,7 +4,7 @@ import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
 import { toChange, toPolicy, toRecord, toUsage, toVersion } from './model';
-import type { ChangeStatus, ChangeView, PolicyView, RecordView, UsageView, VersionView } from './model';
+import type { ChangeStatus, ChangeView, Namespace, PolicyView, RecordView, UsageView, VersionView } from './model';
 
 const root = (tenantId: string | undefined) => ['mdm', tenantId] as const;
 
@@ -21,14 +21,14 @@ export function useRecords(masterType: string | undefined) {
   });
 }
 
-/** The one record that a type and a business key name, or undefined when there is none. */
-export function useRecordByKey(masterType: string | undefined, businessKey: string | undefined) {
+/** The one record that a type, a business key and a namespace name (the tenant's unless the address says otherwise), or null when there is none. */
+export function useRecordByKey(masterType: string | undefined, businessKey: string | undefined, namespace: Namespace = 'TENANT') {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<RecordView | null>({
-    queryKey: [...root(tenant?.id), 'record', masterType ?? '', businessKey ?? ''],
+    queryKey: [...root(tenant?.id), 'record', masterType ?? '', businessKey ?? '', namespace],
     queryFn: async () => {
-      const found = (await client.readAll('searchMasterRecords', { query: { master_type: masterType ?? '', business_key: businessKey ?? '' } })).flatMap((raw) => toRecord(raw) ?? []);
+      const found = (await client.readAll('searchMasterRecords', { query: { master_type: masterType ?? '', business_key: businessKey ?? '', namespace } })).flatMap((raw) => toRecord(raw) ?? []);
       // The query library does not accept undefined as an answer: no such entry is null.
       return found[0] ?? null;
     },

@@ -7,7 +7,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useChange, useHistory, useRecordByKey } from './hooks';
 import { changeKindLabel, changeStatusLabel } from './labels';
-import { changedFields, fieldValue, recordLink } from './model';
+import { changedFields, fieldValue, namespaceOf, recordLink } from './model';
 import type { ChangedField, RecordView, VersionView } from './model';
 
 const DETAIL_PATH = '/mdm/mdm-27';
@@ -40,7 +40,7 @@ function MasterHistoryContent({ route }: ScreenProps) {
   const [params] = useSearchParams();
   const masterType = params.get('type') ?? undefined;
   const businessKey = params.get('key') ?? undefined;
-  const record = useRecordByKey(masterType, businessKey);
+  const record = useRecordByKey(masterType, businessKey, namespaceOf(params.get('ns')));
   const state = useScreenState({ isLoading: record.isLoading, error: record.error, data: masterType === undefined || businessKey === undefined ? undefined : record.data ?? undefined, isEmpty: NEVER_EMPTY });
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -139,7 +139,7 @@ function History({ record }: { record: RecordView }) {
         </table>
       )}
       <div className="formfooter">
-        <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey)}>{t('mdm.history.detail.link')}</Link>
+        <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.history.detail.link')}</Link>
       </div>
     </article>
   );

@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { BackLink, ImpactTable } from './components';
-import { useHistory, useRecordByKey, useUsage } from './hooks';
+import { BackLink, ImpactTable, SubmitWithImpact } from './components';
+import { useChange, useHistory, useRecordByKey, useUsage } from './hooks';
 import { recordStatusLabel } from './labels';
-import { PROPOSE_PERMISSION, recordLink } from './model';
+import { PROPOSE_PERMISSION, namespaceOf, recordLink } from './model';
 import type { RecordView } from './model';
 
 const EDIT_PATH = '/mdm/mdm-26';
@@ -28,11 +28,12 @@ function MasterDetailContent({ route }: ScreenProps) {
   const [params] = useSearchParams();
   const masterType = params.get('type') ?? undefined;
   const businessKey = params.get('key') ?? undefined;
-  const record = useRecordByKey(masterType, businessKey);
+  const namespace = namespaceOf(params.get('ns'));
+  const record = useRecordByKey(masterType, businessKey, namespace);
   const state = useScreenState({ isLoading: record.isLoading, error: record.error, data: masterType === undefined || businessKey === undefined ? undefined : record.data ?? undefined, isEmpty: NEVER_EMPTY });
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
-      <BackLink to={masterType === undefined || businessKey === undefined ? HISTORY_PATH : recordLink(HISTORY_PATH, masterType, businessKey)}>{t('mdm.back.history.link')}</BackLink>
+      <BackLink to={masterType === undefined || businessKey === undefined ? HISTORY_PATH : recordLink(HISTORY_PATH, masterType, businessKey, namespace)}>{t('mdm.back.history.link')}</BackLink>
       <div className="heading">
         <div>
           <h1 id="screen-title">{t('mdm.detail.page.title')}</h1>
@@ -59,6 +60,11 @@ function Detail({ record }: { record: RecordView }) {
   const canEdit = (permissions === undefined || permissions.includes(PROPOSE_PERMISSION)) && mode !== 'READ_ONLY' && record.status === 'EFFECTIVE' && record.openChangeRequestId === null;
   const usage = useUsage(record.id);
   const history = useHistory(record.id);
+  const open = useChange(record.openChangeRequestId ?? undefined);
+  const [submitted, setSubmitted] = useState(false);
+  const canPropose = (permissions === undefined || permissions.includes(PROPOSE_PERMISSION)) && mode !== 'READ_ONLY';
+  // A draft that was saved and not sent (the page was left, the session ended) is picked up here: its impact is read and it can be submitted.
+  const draft = open.data !== undefined && open.data !== null && open.data.status === 'DRAFT' && !submitted ? open.data : undefined;
   const current = useMemo(() => history.data?.find((version) => version.id === record.versionId), [history.data, record.versionId]);
   return (
     <div className="mdm-grid">
@@ -99,14 +105,15 @@ function Detail({ record }: { record: RecordView }) {
         )}
         {record.openChangeRequestId === null ? null : (
           <p className="callout" role="status" data-testid="pending">
-            {t('mdm.detail.pending.notice')} <Link to={APPROVAL_PATH}>{t('mdm.detail.pending.link')}</Link>
+            {draft === undefined ? t('mdm.detail.pending.notice') : t('mdm.detail.draft.notice')} <Link to={APPROVAL_PATH}>{t('mdm.detail.pending.link')}</Link>
           </p>
         )}
+        {draft === undefined ? null : <SubmitWithImpact change={draft} canSubmit={canPropose} onSubmitted={() => setSubmitted(true)} />}
         <div className="formfooter">
-          <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey)}>{t('mdm.detail.history.action')}</Link>
-          {canEdit ? <Link to={recordLink(RETIRE_PATH, record.masterType, record.businessKey)}>{t('mdm.detail.retire.action')}</Link> : null}
+          <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.detail.history.action')}</Link>
+          {canEdit ? <Link to={recordLink(RETIRE_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.detail.retire.action')}</Link> : null}
           {canEdit ? (
-            <Link className="button primary" to={recordLink(EDIT_PATH, record.masterType, record.businessKey)}>
+            <Link className="button primary" to={recordLink(EDIT_PATH, record.masterType, record.businessKey, record.namespace)}>
               {t('mdm.detail.edit.action')}
             </Link>
           ) : null}

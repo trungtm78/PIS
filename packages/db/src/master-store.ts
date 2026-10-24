@@ -38,19 +38,36 @@ export interface MasterReference {
 const version = (table: string, column: string): MasterReference => ({ key: `${table}.${column}`, table, column, kind: 'byVersion' });
 const record = (table: string, column: string): MasterReference => ({ key: `${table}.${column}`, table, column, kind: 'byRecord' });
 
-/** Every column of the schema that refers to a master record or to one of its versions. */
+/**
+ * Every column of the schema that refers to a master record or to one of its versions, from outside the master data tables (the
+ * request of a change and the versions of the record itself do not count as use). A test compares this list with the foreign keys of
+ * the migrated database, so a column added by a later slice cannot be left out.
+ */
 export const MASTER_REFERENCES: readonly MasterReference[] = [
   version('project', 'area_master_version_id'),
   version('project', 'sector_master_version_id'),
   version('project', 'project_type_master_version_id'),
   version('project', 'program_master_version_id'),
+  version('project_appraisal', 'criteria_set_version_id'),
   version('project_risk', 'category_master_version_id'),
+  version('appropriation', 'fund_source_version_id'),
   version('appropriation', 'program_master_version_id'),
+  version('allocation_line', 'fund_source_version_id'),
   version('allocation_line', 'program_master_version_id'),
+  version('funding_snapshot_line', 'fund_source_version_id'),
+  version('period_snapshot_line', 'fund_source_version_id'),
+  version('issue_sla_policy', 'category_version_id'),
+  version('issue', 'category_version_id'),
   version('land_parcel', 'ward_master_version_id'),
   version('asset_record', 'asset_class_master_version_id'),
   record('contractor', 'master_record_id'),
   record('master_crosswalk', 'master_record_id'),
+  record('master_merge', 'survivor_record_id'),
+  record('master_merge', 'merged_record_id'),
+  record('master_succession', 'predecessor_record_id'),
+  record('master_succession', 'successor_record_id'),
+  record('master_record', 'merged_into_id'),
+  record('master_record_version', 'parent_id'),
 ];
 
 export type TypeScope = 'PLATFORM_ONLY' | 'PLATFORM_WITH_TENANT_EXTENSION' | 'TENANT_ONLY';
@@ -145,6 +162,7 @@ export interface ChangeRequestDetail extends ChangeRequestRow {
   businessKey: string | null;
   recordVersion: number | null;
   recordStatus: MasterRecordStatus | null;
+  recordNamespace: MasterNamespace | null;
   /** Creation time to the microsecond (UTC): the ordering key of the queue and its cursor. */
   createdAtKey: string;
 }
@@ -235,7 +253,7 @@ const CHANGE_COLUMNS = CHANGE_COLUMN_LIST.join(', ');
 const KEY_FORMAT = `'YYYY-MM-DD"T"HH24:MI:SS.US'`;
 // A change request with the entry it is about (the key and the version a publication names in If-Match).
 const DETAIL_SELECT = `select ${CHANGE_COLUMN_LIST.map((column) => `c.${column}`).join(', ')},
-  r.business_key as record_business_key, r.version::text as record_version, r.status as record_status,
+  r.business_key as record_business_key, r.version::text as record_version, r.status as record_status, r.namespace as record_namespace,
   to_char(c.created_at at time zone 'UTC', ${KEY_FORMAT}) as created_at_key
   from machvon.master_change_request c left join machvon.master_record r on r.id = c.master_record_id`;
 
@@ -294,6 +312,7 @@ interface DetailRow extends ChangeRow {
   record_business_key: string | null;
   record_version: string | null;
   record_status: MasterRecordStatus | null;
+  record_namespace: MasterNamespace | null;
   created_at_key: string;
 }
 
@@ -302,6 +321,7 @@ const toDetail = (row: DetailRow): ChangeRequestDetail => ({
   businessKey: row.record_business_key,
   recordVersion: row.record_version === null ? null : Number(row.record_version),
   recordStatus: row.record_status,
+  recordNamespace: row.record_namespace,
   createdAtKey: row.created_at_key,
 });
 
@@ -456,7 +476,7 @@ export class MasterStore {
   async versionInForce(tx: TenantTx, recordId: string, asOf: string): Promise<MasterVersionRow | undefined> {
     const rows = await tx.query<VersionSqlRow>(
       `select ${VERSION_COLUMNS} from machvon.master_record_version v
-        where v.master_record_id = $1::uuid and v.status in ('APPROVED', 'EFFECTIVE', 'RETIRED')
+        where v.master_record_id = $1::uuid and v.status in ('APPROVED', 'EFFECTIVE', 'RETIRED') and v.published_at is not null
           and v.valid_from <= $2::date and (v.valid_until is null or v.valid_until > $2::date)
         order by v.revision desc limit 1`,
       [recordId, asOf],
@@ -488,7 +508,7 @@ export class MasterStore {
          from machvon.master_record r
          left join lateral (
            select * from machvon.master_record_version x
-            where x.master_record_id = r.id and x.status in ('APPROVED', 'EFFECTIVE', 'RETIRED')
+            where x.master_record_id = r.id and x.status in ('APPROVED', 'EFFECTIVE', 'RETIRED') and x.published_at is not null
               and x.valid_from <= $4::date and (x.valid_until is null or x.valid_until > $4::date)
             order by x.revision desc limit 1
          ) v on true
@@ -673,7 +693,8 @@ export class MasterStore {
         attributes: input.proposed.attributes ?? before.attributes,
         parentRecordId: input.proposed.parentRecordId === undefined ? before.parentRecordId : input.proposed.parentRecordId,
         validFrom: input.effectiveFrom,
-        validUntil: input.proposed.validUntil === undefined ? null : input.proposed.validUntil,
+        // The end date is kept unless the request names it (null removes it): a rename must not make an entry that expires last for ever.
+        validUntil: input.proposed.validUntil === undefined ? before.validUntil : input.proposed.validUntil,
         legalBasis: input.proposed.legalBasis === undefined ? before.legalBasis : input.proposed.legalBasis,
       };
       if (merged.validUntil !== null && merged.validUntil <= merged.validFrom) throw new DomainError('VALIDATION_FAILED', 422, 'valid_until');
@@ -819,6 +840,7 @@ export class MasterStore {
     const documents = await tx.query('select 1 from machvon.document where id = $1::uuid', [decisionDocumentId]);
     if (documents.length === 0) throw new DomainError('VALIDATION_FAILED', 422, 'decision_document_id');
     advance(change.status, 'apply');
+    if (change.changeKind === 'RETIRE') await this.revalidateRetirement(tx, record, change);
 
     const effective = change.effectiveFrom <= today();
     let versionId: string;
@@ -834,8 +856,22 @@ export class MasterStore {
         where id = $1::uuid`,
       [change.id, publisher, decisionDocumentId],
     );
-    const next = await this.findRecord(tx, recordId);
-    return { record: next as MasterRecordRow, change, versionId, version: (next as MasterRecordRow).version, active: effective };
+    let next = (await this.findRecord(tx, recordId)) as MasterRecordRow;
+    // A publication that waits for its date leaves the record as it was; its version still advances, so each publication has an identity of its own.
+    if (next.version === record.version) {
+      await tx.query('update machvon.master_record set updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid', [recordId, publisher]);
+      next = (await this.findRecord(tx, recordId)) as MasterRecordRow;
+    }
+    return { record: next, change, versionId, version: next.version, active: effective };
+  }
+
+  /** What was true when the retirement was requested may not be true now: something may use the entry, or the successor may be gone. */
+  private async revalidateRetirement(tx: TenantTx, record: MasterRecordRow, change: ChangeRequestRow): Promise<void> {
+    const successor = typeof change.proposed.successor_record_id === 'string' ? change.proposed.successor_record_id : undefined;
+    const usage = await this.usage(tx, record.id, undefined, 0);
+    if (usage.total > 0 && successor === undefined) throw new DomainError('MASTER_IN_USE', 409);
+    if ((await this.policyOf(tx, record.masterType)).retireRequiresSuccessor && successor === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'successor_record_id');
+    if (successor !== undefined) await this.assertSuccessor(tx, successor, record);
   }
 
   private async apply(tx: TenantTx, record: MasterRecordRow, change: ChangeRequestRow, effective: boolean, publisher: string): Promise<string> {
@@ -923,7 +959,7 @@ export class MasterStore {
   async activateDue(tx: TenantTx, actor: string, on = today()): Promise<number> {
     let changed = 0;
     const due = await tx.query<{ id: string; master_record_id: string }>(
-      `select id, master_record_id from machvon.master_record_version where status = 'APPROVED' and valid_from <= $1::date
+      `select id, master_record_id from machvon.master_record_version where status = 'APPROVED' and published_at is not null and valid_from <= $1::date
         and master_record_id in (select id from machvon.master_record where status in ('APPROVED', 'EFFECTIVE')) order by valid_from, revision`,
       [on],
     );

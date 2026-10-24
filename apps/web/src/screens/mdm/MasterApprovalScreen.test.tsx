@@ -40,6 +40,18 @@ describe('MasterApprovalScreen (MDM-32)', () => {
     expect(publication.getAllByRole('row')).toHaveLength(2);
   });
 
+  it('shows what the request would change beside the version in force, and keeps the namespace of the entry in the link', async () => {
+    const changed = change(1, { master_record_namespace: 'PLATFORM', proposed: { label: 'Giao thông vận tải', valid_until: '2030-01-01' }, before: { label: 'Giao thông', valid_until: null } });
+    mount(<MasterApprovalScreen route={ROUTE} />, client(world({ changes: [changed] })), REVIEWER);
+    await ready();
+    expect(within(rowOf(changed.id)).getByText('SECTOR · GT-1').getAttribute('href')).toBe('/mdm/mdm-27?type=SECTOR&key=GT-1&ns=PLATFORM');
+    await userEvent.setup().click(within(rowOf(changed.id)).getByRole('button', { name: vi_['mdm.approval.review.action'] }));
+    const proposal = within(screen.getByTestId('proposal'));
+    expect(proposal.getByText(vi_['mdm.history.field.label.text']).closest('tr')?.textContent).toContain('Giao thôngGiao thông vận tải');
+    expect(proposal.getByText(vi_['mdm.approval.proposal.validUntil.text']).closest('tr')?.textContent).toContain('2030-01-01');
+    expect(proposal.queryByText(vi_['mdm.history.field.attributes.text'])).toBeNull();
+  });
+
   it('does not let a reviewer decide on their own request, and offers the decision on the others', async () => {
     mount(<MasterApprovalScreen route={ROUTE} />, client(world({ changes: QUEUE })), REVIEWER);
     await ready();

@@ -34,6 +34,41 @@ function textOf(value: unknown, name: string): string | undefined {
   return value;
 }
 
+const MAX_LABEL = 500;
+const MAX_LEGAL_BASIS = 2000;
+
+/**
+ * The fields of a change that the contract leaves as a free object, judged here: a field that is present must be of its own kind
+ * (a date is a calendar date, a parent is a UUID in its lower-case form, a label is not empty), and a field that the change does not
+ * name stays as the version in force has it. A RETIRE names none.
+ */
+function proposedOf(kind: string, proposed: Record<string, unknown>): Parameters<MasterStore['createChange']>[1]['proposed'] {
+  if (kind === 'RETIRE') return {};
+  const result: Parameters<MasterStore['createChange']>[1]['proposed'] = {};
+  if (proposed.label !== undefined) {
+    if (typeof proposed.label !== 'string' || proposed.label.trim() === '' || proposed.label.length > MAX_LABEL) throw new DomainError('VALIDATION_FAILED', 422, 'proposed.label');
+    result.label = proposed.label;
+  }
+  if (proposed.attributes !== undefined) {
+    if (typeof proposed.attributes !== 'object' || proposed.attributes === null || Array.isArray(proposed.attributes)) throw new DomainError('VALIDATION_FAILED', 422, 'proposed.attributes');
+    result.attributes = proposed.attributes as Record<string, unknown>;
+  }
+  if (proposed.parent_record_id !== undefined) {
+    const parent = proposed.parent_record_id === null ? null : asUuid(proposed.parent_record_id);
+    if (parent === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'proposed.parent_record_id');
+    result.parentRecordId = parent;
+  }
+  if (proposed.valid_until !== undefined) {
+    if (proposed.valid_until !== null) dateOf(proposed.valid_until, 'proposed.valid_until');
+    result.validUntil = proposed.valid_until as string | null;
+  }
+  if (proposed.legal_basis !== undefined) {
+    if (proposed.legal_basis !== null && (typeof proposed.legal_basis !== 'string' || proposed.legal_basis.length > MAX_LEGAL_BASIS)) throw new DomainError('VALIDATION_FAILED', 422, 'proposed.legal_basis');
+    result.legalBasis = proposed.legal_basis;
+  }
+  return result;
+}
+
 function contentOf(body: Schemas['MdmRecordProposal']): MasterContent {
   return {
     label: body.label,
@@ -67,6 +102,7 @@ function changeViewOf(row: ChangeRequestDetail): Record<string, unknown> {
     business_key: row.businessKey,
     master_record_version: row.recordVersion,
     master_record_status: row.recordStatus,
+    master_record_namespace: row.recordNamespace,
     change_kind: row.changeKind,
     master_type: row.masterType,
     master_record_id: row.masterRecordId,
@@ -152,13 +188,7 @@ export class MasterDataController {
         kind: body.change_kind as 'UPDATE' | 'RETIRE',
         masterType: body.master_type,
         masterRecordId: body.master_record_id.toLowerCase(),
-        proposed: {
-          ...(typeof proposed.label === 'string' ? { label: proposed.label } : {}),
-          ...(typeof proposed.attributes === 'object' && proposed.attributes !== null && !Array.isArray(proposed.attributes) ? { attributes: proposed.attributes as Record<string, unknown> } : {}),
-          ...(typeof proposed.parent_record_id === 'string' || proposed.parent_record_id === null ? { parentRecordId: proposed.parent_record_id } : {}),
-          ...(typeof proposed.valid_until === 'string' || proposed.valid_until === null ? { validUntil: proposed.valid_until } : {}),
-          ...(typeof proposed.legal_basis === 'string' || proposed.legal_basis === null ? { legalBasis: proposed.legal_basis } : {}),
-        },
+        proposed: proposedOf(body.change_kind, proposed),
         effectiveFrom: body.effective_from,
         reason: body.reason,
         evidenceDocumentId: body.evidence_document_id?.toLowerCase(),
@@ -252,7 +282,8 @@ export class MasterDataController {
         change_kind: published.change.changeKind,
         effective_from: published.change.effectiveFrom,
       },
-      eventKey: `${RESOURCE_TYPE}:${id}:${published.version}`,
+      // One event per publication: the key names the change request, so a second publication of the entry is never taken for the first.
+      eventKey: `${RESOURCE_TYPE}:${id}:${published.change.id}`,
     });
     return commandResult(scope, published.record.status, published.version, id);
   }

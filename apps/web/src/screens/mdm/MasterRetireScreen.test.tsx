@@ -119,7 +119,7 @@ describe('MasterRetireScreen (MDM-31)', () => {
     expect(await screen.findByTestId('not-in-force')).toBeTruthy();
     cleanup();
     mount(<MasterRetireScreen route={ROUTE} />, client(world({ records: [record(1, { open_change_request_id: 'c1' })] })), STEWARD, AT);
-    expect(await screen.findByTestId('change-open')).toBeTruthy();
+    expect((await screen.findByTestId('change-open')).querySelector('a')?.getAttribute('href')).toBe('/mdm/mdm-27?type=SECTOR&key=GT-1');
   });
 
   it('says that no entry is chosen or found, and is read-only for someone without the permission', async () => {

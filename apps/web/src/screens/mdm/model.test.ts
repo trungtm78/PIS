@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { changedFields, describeProblem, fieldValue, isCalendarDate, parseAttributes, recordLink, toChange, toPolicy, toRecord, toUsage, toVersion, validateEdit, validateNewRecord, validateRetire } from './model';
+import { changedFields, describeProblem, fieldValue, isCalendarDate, namespaceOf, parseAttributes, proposalRows, recordLink, toChange, toPolicy, toRecord, toUsage, toVersion, validateEdit, validateNewRecord, validateRetire } from './model';
 import type { RecordForm } from './model';
 import { change, record, version } from './test-support';
 
@@ -148,8 +148,35 @@ describe('the problems of the commands', () => {
     expect(describeProblem(new Error('lost')).reason).toBe('general');
   });
 
-  it('puts the type and the key of a record in a link', () => {
+  it('puts the type and the key of a record in a link, and the namespace when it is the platform', () => {
     expect(recordLink('/mdm/mdm-27', 'SECTOR', 'GT 1/2')).toBe('/mdm/mdm-27?type=SECTOR&key=GT+1%2F2');
+    expect(recordLink('/mdm/mdm-27', 'SECTOR', 'GT', 'TENANT')).toBe('/mdm/mdm-27?type=SECTOR&key=GT');
+    expect(recordLink('/mdm/mdm-27', 'SECTOR', 'GT', 'PLATFORM')).toBe('/mdm/mdm-27?type=SECTOR&key=GT&ns=PLATFORM');
+    expect(namespaceOf('PLATFORM')).toBe('PLATFORM');
+    expect(namespaceOf('TENANT')).toBe('TENANT');
+    expect(namespaceOf('other')).toBe('TENANT');
+    expect(namespaceOf(null)).toBe('TENANT');
+  });
+
+  it('reads the namespace of a record and of the entry a change is about', () => {
+    expect(toRecord(record(1))?.namespace).toBe('TENANT');
+    expect(toRecord(record(1, { namespace: 'PLATFORM' }))?.namespace).toBe('PLATFORM');
+    expect(toChange(change(1, { master_record_namespace: 'PLATFORM' }))?.namespace).toBe('PLATFORM');
+    expect(toChange(change(1))?.namespace).toBe('TENANT');
+  });
+
+  it('lists what a proposal changes against the version in force, field by field', () => {
+    const before = { label: 'Giao thông', attributes: { b: 1, a: 2 }, parent_record_id: null, valid_until: null, legal_basis: 'Decision 1' };
+    expect(proposalRows(before, { label: 'Giao thông vận tải', attributes: { a: 2, b: 1 }, parent_record_id: null, valid_until: '2030-01-01', legal_basis: 'Decision 1' })).toEqual([
+      { field: 'label', before: 'Giao thông', after: 'Giao thông vận tải' },
+      { field: 'validUntil', before: '', after: '2030-01-01' },
+    ]);
+    expect(proposalRows(before, { successor_record_id: 'r2' })).toEqual([{ field: 'successor', before: '', after: 'r2' }]);
+    expect(proposalRows(before, {})).toEqual([]);
+    expect(proposalRows(null, { label: 'New', attributes: { a: 1 }, valid_until: null })).toEqual([
+      { field: 'label', before: null, after: 'New' },
+      { field: 'attributes', before: null, after: '{"a":1}' },
+    ]);
   });
 });
 
