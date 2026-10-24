@@ -47,7 +47,7 @@ describe('loadSelectionFacts', () => {
         [TENANT_A, MEMBER(2), USER, UNIT(2)],
       ],
       [
-        "insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_until) values ($1, $2, $3, $4, 'Active', now() - interval '1 day')",
+        "insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until) values ($1, $2, $3, $4, 'Active', now() - interval '2 days', now() - interval '1 day')",
         [TENANT_A, MEMBER(3), USER, UNIT(3)],
       ],
       ["insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, 'LEADER', 'Leader', '{approval.decide}', 60, 'Active', $3)", [TENANT_A, ROLE(1), ACTOR]],

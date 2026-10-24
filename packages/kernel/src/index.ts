@@ -156,6 +156,8 @@ export type { CommandOutcome, LoopOptions, LoopRound } from './concurrency-harne
 export { CALENDAR_TIMEZONES, WEEKDAYS, assertCalendar, isLate, periodOf, reportingPeriods } from './reporting-calendar.ts';
 export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-calendar.ts';
 export { isIsoDate, periodsOverlap, shiftDays } from './effective-period.ts';
+export { assertRuleVersions, resolveRule, ruleOfRevision } from './rule-resolver.ts';
+export type { DatedRule, ResolvedRule, RuleConfirmation } from './rule-resolver.ts';
 export type { EffectivePeriod } from './effective-period.ts';
 export { MNE_EVENTS, MNE_FREQUENCIES, eventDueDate, nextWorkingDay, parseDueRule, periodicDueDate, reportPeriodOf, weeklyDueDate } from './mne-due-rule.ts';
 export type { DueRule, EventRule, FixedDateRule, MneEvent, MneFrequency, ReportPeriod, WeeklyRule, WorkingDayTest } from './mne-due-rule.ts';

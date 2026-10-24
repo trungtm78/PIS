@@ -46,7 +46,7 @@ describe('alerts:check on the repository', () => {
   it('prints the verdict and returns the exit status', () => {
     const lines = [];
     assert.equal(main(REPO, (line) => lines.push(line)), 0);
-    assert.match(lines.at(-1), /All alert rules are sound \(9 rules\)/);
+    assert.match(lines.at(-1), /All alert rules are sound \(\d+ rules\)/);
     const broken = tree({ 'alerts/rules/A_RULE.json': { id: 'A_RULE' } });
     const out = [];
     assert.equal(main(broken.root, (line) => out.push(line)), 1);

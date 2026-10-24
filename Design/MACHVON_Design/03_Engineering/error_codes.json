@@ -3561,6 +3561,14 @@
       "statusBasis": "convention",
       "source": "spec:AUD"
     },
+    "RULE_RANGE_OVERLAP": {
+      "status": 409,
+      "title": "Rule range overlap",
+      "meaning": "Two versions of one legal rule or template cover the same day: a law change is a new version that starts where the old one ends (ST-KERNEL-060)",
+      "module": "KERNEL",
+      "statusBasis": "convention",
+      "source": "spec:KERNEL"
+    },
     "RECALL_BASIS_REQUIRED": {
       "status": 422,
       "title": "Recall basis required",

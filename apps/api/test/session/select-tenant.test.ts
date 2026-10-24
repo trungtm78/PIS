@@ -192,7 +192,7 @@ describe('selectTenantContext, session binding and revocation (ST-IAM-003)', () 
       await harness.owner(tenantId, [
         ["insert into machvon.organization_unit (tenant_id, id, code, name, valid_from, path, depth) values ($1, $2, $3, $3, date '2026-01-01', $4, 0)", [tenantId, unit(n), `U${n}`, `/${unit(n)}/`]],
         [
-          'insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until, scope_version) values ($1, $2, $3, $4, $5, coalesce($6::timestamptz, now() - interval \'1 day\'), $7, 7)',
+          'insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until, scope_version) values ($1, $2, $3, $4, $5, coalesce($6::timestamptz, $7::timestamptz - make_interval(days => 365), now() - make_interval(days => 1)), $7, 7)',
           [tenantId, member(n), user(owner), unit(n), status, from, until],
         ],
       ]);

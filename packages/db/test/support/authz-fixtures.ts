@@ -94,7 +94,7 @@ export class AuthzHarness {
         [id(0x60, n), `sub-${n}`, `user${n}@example.test`, `User ${n}`],
       ],
       [
-        'insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until) values ($1, $2, $3, $4, $5, coalesce($6::timestamptz, now()), $7)',
+        'insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until) values ($1, $2, $3, $4, $5, coalesce($6::timestamptz, $7::timestamptz - make_interval(days => 365), now()), $7)',
         [tenantId, memberId(n), id(0x60, n), unitId(organization), options.status ?? 'Active', options.validFrom ?? null, options.validUntil ?? null],
       ],
     ]);

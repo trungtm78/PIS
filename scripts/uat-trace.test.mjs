@@ -197,7 +197,7 @@ test('the gate also holds DONE_PENDING_ENV and DONE_UNCONFIRMED stories, and say
   }
 });
 
-test('a DONE_PENDING_ENV story may declare the ids that only an external system proves; no other status may', () => {
+test('a DONE_PENDING_ENV or DONE_UNCONFIRMED story may declare the ids that only an external system proves; no other status may', () => {
   const external = { 'AC-ST-AAA-001-2': 'a real CA sandbox' };
   const files = { 'apps/api/test/a.test.ts': "it('AC-ST-AAA-001-1', () => {});" };
   const pending = scratch(files, { status: { stories: { 'ST-AAA-001': 'DONE_PENDING_ENV' }, externalChecks: external } });
@@ -208,7 +208,10 @@ test('a DONE_PENDING_ENV story may declare the ids that only an external system 
   assert.equal(result.summary.gatedExternal, 1);
   assert.match(renderCoverage(result), /## External checks[\s\S]*\| AC-ST-AAA-001-2 \| ST-AAA-001 \| a real CA sandbox \|/);
 
-  for (const status of ['DONE', 'DONE_UNCONFIRMED', 'PARTIAL']) {
+  const unconfirmed = scratch(files, { status: { stories: { 'ST-AAA-001': 'DONE_UNCONFIRMED' }, externalChecks: external } });
+  assert.deepEqual(traceCoverage({ root: unconfirmed.root, planPath: unconfirmed.plan }).failures, []);
+
+  for (const status of ['DONE', 'PARTIAL']) {
     const tree = scratch(files, { status: { stories: { 'ST-AAA-001': status }, externalChecks: external } });
     const codes = trace(tree).failures.map((failure) => [failure.code, failure.id]);
     assert.ok(codes.some(([code, id]) => code === 'EXTERNAL_MISPLACED' && id === 'AC-ST-AAA-001-2'), status);

@@ -1,0 +1,8 @@
+{
+  "note": "The critical areas of the UAT evidence report (ST-KERNEL-090): a test is critical when it covers a requirement that starts with one of the prefixes of an area. The product owner changes this list; the report shows the PASS count of the critical tests and no waiver counts there.",
+  "areas": {
+    "money": ["NFR-SECURITY-04", "NFR-SECURITY-09", "NFR-SECURITY-10"],
+    "isolation": ["NFR-TENANCY-"],
+    "restore": ["NFR-AVAILABILITY-02", "NFR-AVAILABILITY-03", "NFR-OPERABILITY-03"]
+  }
+}
