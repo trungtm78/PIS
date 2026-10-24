@@ -206,7 +206,7 @@ const toPackage = (row: PackageSql): PackageLine => ({
 });
 
 /** Parameters numbered as they are added, so a query can be put together from optional parts. */
-class SqlParams {
+export class SqlParams {
   readonly values: unknown[] = [];
 
   add(value: unknown): string {

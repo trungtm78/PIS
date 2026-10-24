@@ -973,6 +973,14 @@
       "statusBasis": "spec",
       "source": "spec:BID"
     },
+    "CRITERIA_STATE_INVALID": {
+      "status": 409,
+      "title": "Criteria state invalid",
+      "meaning": "Raised by approveCriteriaVersion (POST /criteria-versions/{id}/approval) for a version that is not a draft and that no analysis run has used",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
     "CRITERIA_VERSION_MISMATCH": {
       "status": 422,
       "title": "Criteria version mismatch",

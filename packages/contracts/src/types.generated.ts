@@ -25489,6 +25489,10 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Only the versions of this package. */
+                package_id?: string;
+                /** @description Only the versions in this status; a draft is seen by those who draft and approve criteria. */
+                status?: "DRAFT" | "APPROVED" | "SUPERSEDED";
             };
             header?: never;
             path?: never;

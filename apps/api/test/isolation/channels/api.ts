@@ -7,7 +7,7 @@ import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_
 import { WORK_CALENDAR_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, PROCUREMENT_PLAN_FIXTURES } from '../suite';
+import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
@@ -246,6 +246,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'submitProcurementPlan', method: 'POST', id: PROCUREMENT_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideProcurementPlan', method: 'POST', id: PROCUREMENT_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'RETURN', comment: 'Isolation foreign decision attempt' } },
   { operation: 'get_resources_procurement_package_id', method: 'GET', id: PROCUREMENT_PLAN_FIXTURES['TNT-B'].packageId },
+  { operation: 'approveCriteriaVersion', method: 'POST', id: CRITERIA_FIXTURES['TNT-B'].draftId, versioned: true, body: {} },
+  { operation: 'get_resources_criteria_version_id', method: 'GET', id: CRITERIA_FIXTURES['TNT-B'].approvedId },
   { operation: 'get_resources_contract_id', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_contract_revision_id', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].revisionId },
   { operation: 'reviseContractDraft', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { title: 'Isolation foreign rename attempt' } },

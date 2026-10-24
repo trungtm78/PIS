@@ -339,6 +339,14 @@ export { BidPlanStore, PLAN_DECISIONS, PLAN_STATUSES as BID_PLAN_STATUSES, PLANN
 export type { BidAllocationUse, BidCreatedPackage, BidCreatedPlan, BidDecidedPlan, BidDecisionInput, PlanDecision, PlanStatus as BidPlanStatus, BidSubmittedPlan } from './bid-plan-store.ts';
 export { BidPlanReads, bidReadScope } from './bid-plan-reads.ts';
 export type { BidReadScope, LastDecision, PackageLine, PlanFilter as BidPlanFilter, PlanLine, ProjectLabel } from './bid-plan-reads.ts';
+export { CRITERION_KINDS, MAX_CRITERIA, TOTAL_WEIGHT, readCriteria } from './bid-criteria-input.ts';
+export type { CheckedCriteria, Criterion, CriterionKind, NewCriteriaInput } from './bid-criteria-input.ts';
+export { PROHIBITED_RULES, prohibitedRuleOf } from './bid-criteria-rules.ts';
+export type { ProhibitedRule } from './bid-criteria-rules.ts';
+export { BidCriteriaStore, CRITERIA_STATUSES, PACKAGE_STATUSES_WITHOUT_CRITERIA } from './bid-criteria-store.ts';
+export type { BidApprovedCriteria, BidCreatedCriteria, CriteriaStatus } from './bid-criteria-store.ts';
+export { BidCriteriaReads, criteriaReadScope } from './bid-criteria-reads.ts';
+export type { CriteriaFilter, CriteriaLine, CriteriaReadScope } from './bid-criteria-reads.ts';
 export { MasterCrosswalkStore } from './master-crosswalk-store.ts';
 export type { CrosswalkFilter, CrosswalkInput, CrosswalkMethod, CrosswalkRow, CrosswalkStatus, CrosswalkTarget } from './master-crosswalk-store.ts';
 export { DISBURSEMENT_DOMAIN, DISBURSEMENT_TERMS, GLOSSARY_STATUSES, GlossaryStore } from './glossary-store.ts';

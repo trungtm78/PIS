@@ -11,6 +11,7 @@ import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PARCEL_FIXTURES, PROJECT_F
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
+import { CRITERIA_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
@@ -282,6 +283,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listProcurementPlans',
   'get_resources_procurement_package',
   'get_resources_procurement_package_id',
+  'createCriteriaVersion',
+  'approveCriteriaVersion',
+  'get_resources_criteria_version',
+  'get_resources_criteria_version_id',
   'registerContractor',
   'verifyContractor',
   'recordContractorRestriction',
@@ -585,6 +590,12 @@ const INSERT_PLAN_PACKAGE = `insert into machvon.procurement_package
   (tenant_id, id, project_id, code, budget_vnd, method, revision, status, plan_id, title, contract_type, bidding_form, allocation_line_id, planned_start_period, duration_days, created_by)
   values ($1, $2, $3, $4, 100, 'OPEN_BIDDING', 1, 'DRAFT', $5, $6, 'LUMP_SUM', 'ONLINE', $7, '2026-Q4', 30, $8) on conflict do nothing`;
 
+const INSERT_CRITERIA = `insert into machvon.criteria_version
+  (tenant_id, id, package_id, revision, criteria_json, legal_basis, weights_sum, status, created_by, version)
+  values ($1, $2, $3, $4, jsonb_build_object('criteria', jsonb_build_array(jsonb_build_object('code', 'ISO1', 'name', $5::text, 'kind', 'SCORED', 'weight', 100, 'max_score', 10, 'threshold', 5, 'mandatory', false, 'required_evidence', jsonb_build_array()))), $6, 100, 'DRAFT', $7, 1) on conflict do nothing`;
+
+const APPROVE_CRITERIA = `update machvon.criteria_version set status = 'APPROVED', approved_by = $2, effective_at = now(), version = 2 where tenant_id = $1 and id = $3 and status = 'DRAFT'`;
+
 const INSERT_CONTRACT = `insert into machvon.contract
   (tenant_id, id, project_id, package_id, contractor_id, code, title, type, currency, status, version, contract_value_vnd, estimate_ceiling_vnd, created_by, updated_by)
   values ($1, $2, $3, $4, $5, $6, $7, 'LUMP_SUM', 'VND', 'DRAFT', 1, 1000, 1000, $8, $8) on conflict do nothing`;
@@ -784,6 +795,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const procurement = PROCUREMENT_PLAN_FIXTURES[tenant];
     await client.query(INSERT_PROCUREMENT_PLAN, [tenantId, procurement.id, project.id, procurement.title, ACTOR_ID]);
     await client.query(INSERT_PLAN_PACKAGE, [tenantId, procurement.packageId, project.id, procurement.packageCode, procurement.id, procurement.packageTitle, plan.lineId, ACTOR_ID]);
+    const criteria = CRITERIA_FIXTURES[tenant];
+    await client.query(INSERT_CRITERIA, [tenantId, criteria.approvedId, procurement.packageId, 1, criteria.criterionName, criteria.legalBasis, ACTOR_ID]);
+    await client.query(APPROVE_CRITERIA, [tenantId, APPROVER_ID, criteria.approvedId]);
+    await client.query(INSERT_CRITERIA, [tenantId, criteria.draftId, procurement.packageId, 2, criteria.criterionName, criteria.legalBasis, ACTOR_ID]);
     const contractor = CONTRACTOR_FIXTURES[tenant];
     await client.query(INSERT_CONTRACTOR, [tenantId, contractor.id, contractor.taxIdentifier, contractor.legalName, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);

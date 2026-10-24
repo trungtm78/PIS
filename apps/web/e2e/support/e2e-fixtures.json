@@ -689,6 +689,46 @@
       ]
     },
     {
+      "key": "criteriaPlanner",
+      "displayName": "Chuyên viên soạn tiêu chí đánh giá",
+      "membershipId": "00000000-0000-4000-8000-000000000710",
+      "permissions": [
+        "bid.criteria.manage",
+        "criteria_version.read",
+        "procurement_package.read"
+      ]
+    },
+    {
+      "key": "criteriaApprover",
+      "displayName": "Người duyệt tiêu chí đánh giá",
+      "membershipId": "00000000-0000-4000-8000-000000000711",
+      "permissions": [
+        "bid.criteria.approve",
+        "criteria_version.read",
+        "procurement_package.read"
+      ]
+    },
+    {
+      "key": "criteriaSolo",
+      "displayName": "Chuyên viên kiêm người duyệt tiêu chí",
+      "membershipId": "00000000-0000-4000-8000-000000000712",
+      "permissions": [
+        "bid.criteria.manage",
+        "bid.criteria.approve",
+        "criteria_version.read",
+        "procurement_package.read"
+      ]
+    },
+    {
+      "key": "criteriaReader",
+      "displayName": "Người xem tiêu chí đánh giá",
+      "membershipId": "00000000-0000-4000-8000-000000000713",
+      "permissions": [
+        "criteria_version.read",
+        "procurement_package.read"
+      ]
+    },
+    {
       "key": "mneAdmin",
       "displayName": "Quản trị giám sát đầu tư",
       "membershipId": "00000000-0000-4000-8000-00000000006d",

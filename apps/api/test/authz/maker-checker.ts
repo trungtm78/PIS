@@ -478,6 +478,12 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     seedMadeBy: (objectId, maker) => [seedBidPlan(objectId, maker), []],
   },
   {
+    operationId: 'approveCriteriaVersion',
+    build: (objectId) => ({ method: 'POST', path: `/criteria-versions/${derivedId(objectId, 'criteria-version')}/approval`, ifMatch: '"1"', body: {} }),
+    // The statements carry no parameter, so the driver sends them as one simple query: the project, the package of its approved plan and the draft of its criteria.
+    seedMadeBy: (objectId, maker) => [seedCriteriaDraft(objectId, maker), []],
+  },
+  {
     operationId: 'approveQualityRuleVersion',
     build: (objectId) => ({ method: 'POST', path: `/dgv/quality-rules/${derivedId(objectId, 'quality-rule')}/approval`, ifMatch: '"1"', body: {} }),
     seedMadeBy: (objectId, maker, checker) => [SEED_QUALITY_RULE, [derivedId(objectId, 'quality-rule'), maker, checker, derivedId(objectId, 'quality-dataset'), derivedId(objectId, 'quality-contract')]],
@@ -523,6 +529,24 @@ export function seedBidPlan(objectId: string, maker: string, status: 'DRAFT' | '
 ${status === 'DRAFT' ? '' : `
     update machvon.procurement_plan set status = 'IN_REVIEW', submitted_by = '${maker}', submitted_at = now(), version = 2 where id = '${ids.plan}';
     update machvon.procurement_package set status = 'IN_REVIEW' where id = '${ids.package}';`}`;
+}
+
+/**
+ * A draft of the criteria of a package (version 1) made by `maker`, for a package of an approved plan in a project of unit 2. Every id is derived
+ * from the object id, so two drafts of the matrix never meet on a code or a key.
+ */
+export function seedCriteriaDraft(objectId: string, maker: string): string {
+  const ids = Object.fromEntries(['project', 'package', 'version'].map((purpose) => [purpose, derivedId(objectId, `criteria-${purpose}`)]));
+  const tag = (ids.version as string).slice(0, 8);
+  const tenant = "current_setting('app.tenant_id')::uuid";
+  return `
+    insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+      values (${tenant}, '${ids.project}', 'MXC-${tag}', 'Matrix criteria project', '${id(0x10, 2)}', '${id(0x8a, 3)}', 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B');
+    insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status, title)
+      values (${tenant}, '${ids.package}', '${ids.project}', 'MXC-${tag}', 500, 'OPEN_BIDDING', 1, 'PLANNED', 'Matrix criteria package');
+    insert into machvon.criteria_version (tenant_id, id, package_id, revision, criteria_json, legal_basis, weights_sum, status, created_by, version)
+      values (${tenant}, '${ids.version}', '${ids.package}', 1, '{"criteria":[{"code":"MX1","name":"Matrix criterion","kind":"SCORED","weight":100,"max_score":10,"threshold":5,"mandatory":false,"required_evidence":[]}]}'::jsonb,
+              'Matrix legal basis', 100, 'DRAFT', '${maker}', 1);`;
 }
 
 export interface MakerCheckerCase {

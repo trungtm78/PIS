@@ -9554,6 +9554,28 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "package_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Only the versions of this package."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "APPROVED",
+                "SUPERSEDED"
+              ]
+            },
+            "description": "Only the versions in this status; a draft is seen by those who draft and approve criteria."
           }
         ],
         "responses": {
@@ -103961,6 +103983,7 @@
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
           "CRITERIA_LOCKED_BY_RUN",
+          "CRITERIA_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",

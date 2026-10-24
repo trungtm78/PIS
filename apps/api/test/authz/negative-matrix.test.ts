@@ -164,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decideCapitalPlan', 'post_plans_id_publish', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy', 'decideProcurementPlan', 'approveQualityRuleVersion']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decideCapitalPlan', 'post_plans_id_publish', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy', 'decideProcurementPlan', 'approveCriteriaVersion', 'approveQualityRuleVersion']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -820,6 +820,27 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const bidDraftObject = id(0xb5, 1);
     const bidReviewObject = id(0xb5, 2);
     await harness.owner(TENANT_A, [[seedBidPlan(bidDraftObject, ACTOR, 'DRAFT'), []], [seedBidPlan(bidReviewObject, ACTOR), []]]);
+    // A package of an approved plan in the CONCEPT project of unit 2 and a draft of its criteria: the criteria commands act on them.
+    const criteriaPackageId = id(0xb6, 1);
+    const criteriaDraftId = id(0xb6, 2);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status, title)
+         values ($1, $2, $3, 'MX-CRIT-PKG', 1000, 'OPEN_BIDDING', 1, 'PLANNED', 'Matrix criteria package')`,
+        [TENANT_A, criteriaPackageId, projectId],
+      ],
+      [
+        `insert into machvon.criteria_version (tenant_id, id, package_id, revision, criteria_json, legal_basis, weights_sum, status, created_by, version)
+         values ($1, $2, $3, 1, $4::jsonb, 'Matrix legal basis', 100, 'DRAFT', $5, 1)`,
+        [
+          TENANT_A,
+          criteriaDraftId,
+          criteriaPackageId,
+          JSON.stringify({ criteria: [{ code: 'MX1', name: 'Matrix criterion', kind: 'SCORED', weight: 100, max_score: 10, threshold: 5, mandatory: false, required_evidence: [] }] }),
+          ACTOR,
+        ],
+      ],
+    ]);
     // A dataset of the DIS module with a working contract, a DRAFT quality rule of it made by someone other than the callers, and a frozen snapshot of the open period: the quality commands act on them.
     const qualityDatasetId = id(0xde, 1);
     const qualityContractId = id(0xde, 2);
@@ -852,6 +873,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       bidPlanLineId: derivedId(bidDraftObject, 'bid-line'),
       bidPlanDraftId: derivedId(bidDraftObject, 'bid-plan'),
       bidPlanInReviewId: derivedId(bidReviewObject, 'bid-plan'),
+      criteriaPackageId,
+      criteriaDraftId,
       qualityContractId,
       qualityRuleId,
       qualitySnapshotId,

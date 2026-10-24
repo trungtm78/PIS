@@ -156,6 +156,12 @@ export const PROCUREMENT_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string
   'TNT-B': { id: '00000000-0000-4000-b0c6-000000000001', packageId: '00000000-0000-4000-b0c6-000000000002', title: 'Beta tenant isolation procurement plan', packageCode: 'BETA-PKG-0001', packageTitle: 'Beta tenant isolation package' },
 };
 
+/** The criteria of the package of that plan: a version in force (revision 1) and a draft after it (revision 2); the name of the criterion and the legal basis are distinctive (tenant procurement rules). */
+export const CRITERIA_FIXTURES: Readonly<Record<TenantName, { approvedId: string; draftId: string; criterionName: string; legalBasis: string }>> = {
+  'TNT-A': { approvedId: '00000000-0000-4000-a0c7-000000000001', draftId: '00000000-0000-4000-a0c7-000000000002', criterionName: 'Alpha tenant isolation criterion', legalBasis: 'Alpha tenant isolation criteria basis' },
+  'TNT-B': { approvedId: '00000000-0000-4000-b0c7-000000000001', draftId: '00000000-0000-4000-b0c7-000000000002', criterionName: 'Beta tenant isolation criterion', legalBasis: 'Beta tenant isolation criteria basis' },
+};
+
 /** A dataset of the catalogue of each tenant (its code and its title are distinctive; tenant data). */
 export const DATASET_FIXTURES: Readonly<Record<TenantName, { id: string; datasetCode: string; title: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d1-000000000001', datasetCode: 'ALPHA-DATASET-0001', title: 'Alpha tenant isolation dataset' },
@@ -524,6 +530,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'procurement package id', value: PROCUREMENT_PLAN_FIXTURES[tenant].packageId },
     { kind: 'procurement package code', value: PROCUREMENT_PLAN_FIXTURES[tenant].packageCode },
     { kind: 'procurement package title', value: PROCUREMENT_PLAN_FIXTURES[tenant].packageTitle },
+    { kind: 'approved criteria version id', value: CRITERIA_FIXTURES[tenant].approvedId },
+    { kind: 'draft criteria version id', value: CRITERIA_FIXTURES[tenant].draftId },
+    { kind: 'criterion name', value: CRITERIA_FIXTURES[tenant].criterionName },
+    { kind: 'criteria legal basis', value: CRITERIA_FIXTURES[tenant].legalBasis },
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },

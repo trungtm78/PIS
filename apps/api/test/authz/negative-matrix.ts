@@ -115,6 +115,9 @@ export interface MatrixTargets {
   bidPlanLineId: string;
   bidPlanDraftId: string;
   bidPlanInReviewId: string;
+  /** A package of an approved plan in a project of unit 2 of tenant A, and a DRAFT version of criteria (version 1) for it, made by the actor of the seed. */
+  criteriaPackageId: string;
+  criteriaDraftId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1080,6 +1083,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
         ],
       },
     }),
+  },
+  createCriteriaVersion: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/criteria-versions',
+      body: {
+        package_id: t.criteriaPackageId,
+        criteria_json: { criteria: [{ code: 'MX1', name: 'Matrix criterion', kind: 'SCORED', weight: 100, max_score: 10, threshold: 5, mandatory: false, required_evidence: [] }] },
+        legal_basis: 'Matrix legal basis',
+      },
+    }),
+  },
+  approveCriteriaVersion: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/criteria-versions/${t.criteriaDraftId}/approval`, ifMatch: '"1"', body: {} }),
   },
   submitProcurementPlan: {
     referencesTenantIds: true,

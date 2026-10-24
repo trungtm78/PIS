@@ -131,7 +131,7 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `submitProcurementPlan` | POST /procurement-plans/{id}/submit | bid.plan.manage | – | PLAN_STATE_INVALID, PACKAGE_BUDGET_EXCEEDS_ALLOCATION | ✔ | ✔ |
 | `decideProcurementPlan` | POST /procurement-plans/{id}/decision | bid.plan.approve | `BidPlanDecision` | SELF_APPROVAL_DENIED, DECISION_DOCUMENT_NOT_EFFECTIVE, PLAN_STATE_INVALID | ✔ | ✔ |
 | `createCriteriaVersion` | POST /criteria-versions | bid.criteria.manage | `BidCriteriaDraft` | CRITERIA_WEIGHT_INVALID, PROHIBITED_CRITERION, PACKAGE_STATE_INVALID | ✔ | – |
-| `approveCriteriaVersion` | POST /criteria-versions/{id}/approval | bid.criteria.approve | – | SELF_APPROVAL_DENIED, CRITERIA_LOCKED_BY_RUN | ✔ | ✔ |
+| `approveCriteriaVersion` | POST /criteria-versions/{id}/approval | bid.criteria.approve | – | SELF_APPROVAL_DENIED, CRITERIA_LOCKED_BY_RUN, CRITERIA_STATE_INVALID, VERSION_CONFLICT | ✔ | ✔ |
 | `registerContractor` | POST /contractors | bid.contractor.manage | `BidContractorRegister` | TAX_ID_INVALID, CONTRACTOR_ALREADY_VERIFIED | ✔ | – |
 | `verifyContractor` | POST /contractors/{id}/verification | bid.contractor.verify | `BidContractorVerify` | SELF_APPROVAL_DENIED, TAX_ID_DUPLICATE_VERIFIED | ✔ | ✔ |
 | `recordContractorRestriction` | POST /contractors/{id}/restrictions | bid.contractor.verify | `BidRestriction` | DECISION_DOCUMENT_NOT_EFFECTIVE | ✔ | – |
