@@ -5,15 +5,18 @@ import { DomainError } from './errors.ts';
 export const VND_SCALE = 0;
 
 const NON_NEGATIVE_DECIMAL = /^(0|[1-9]\d*)(\.\d+)?$/;
+/** Every amount column of the ledgers is numeric(24, scale): digits before and after the point together. */
+export const MAX_AMOUNT_DIGITS = 24;
 
 /**
  * Checks that a string is a positive amount with at most `scale` digits after the point and returns it unchanged. An amount
  * is never rounded on its way into a ledger: a value the column cannot hold exactly is refused, so no cent is created or lost.
+ * An amount with more digits than the column holds is refused here too, so it is a 422 and not a numeric overflow of the database.
  */
 export function requirePositiveAmount(amount: string, scale: number = VND_SCALE): string {
   if (typeof amount !== 'string' || !NON_NEGATIVE_DECIMAL.test(amount)) throw new DomainError('VALIDATION_FAILED', 422, 'amount');
-  const fraction = amount.split('.')[1] ?? '';
-  if (fraction.length > scale || compareDecimal(amount, '0') <= 0) throw new DomainError('VALIDATION_FAILED', 422, 'amount');
+  const [whole = '', fraction = ''] = amount.split('.');
+  if (fraction.length > scale || whole.length + scale > MAX_AMOUNT_DIGITS || compareDecimal(amount, '0') <= 0) throw new DomainError('VALIDATION_FAILED', 422, 'amount');
   return amount;
 }
 
@@ -27,7 +30,10 @@ export function debitAmount(balance: string, amount: string, scale: number = VND
 /** The balance after receiving `amount`. */
 export function creditAmount(balance: string, amount: string, scale: number = VND_SCALE): string {
   requirePositiveAmount(amount, scale);
-  return addDecimal(balance, amount);
+  const total = addDecimal(balance, amount);
+  // The sum must fit the column too, or the update would fail as a numeric overflow of the database.
+  if ((total.split('.')[0] ?? '').length + scale > MAX_AMOUNT_DIGITS) throw new DomainError('VALIDATION_FAILED', 422, 'amount');
+  return total;
 }
 
 /** A row that a command locks: `rank` orders the tables of one transaction, `key` the rows of one table. */

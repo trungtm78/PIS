@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import type { AdapterStatus } from '../../mdm/model';
 
 /** Permission of both commands of ADM-09 (x-permission in openapi.json). */
+export const READ_INTEGRATION_PERMISSION = 'adm.integration.read';
 export const MANAGE_CONNECTOR_PERMISSION = 'adm.integration.manage';
 export const REASON_MIN_LENGTH = 10;
 export const REASON_MAX_LENGTH = 2000;

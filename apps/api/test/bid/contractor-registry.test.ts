@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { Logger } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { BidContractorStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
@@ -262,6 +263,25 @@ describe('contractor registry commands and reads (ST-BID-002)', () => {
       expect(await rows('select verification_basis, lookup_adapter_status, lookup_outcome from machvon.contractor where id = $1', [idOf(made)])).toEqual([
         { verification_basis: 'EVIDENCE_DOCUMENT', lookup_adapter_status: 'VERIFIED', lookup_outcome: 'UNAVAILABLE' },
       ]);
+    });
+
+    it('does not write the tax id to the log when the register fails with an error that quotes it', async () => {
+      const made = await register();
+      const [stored] = await rows<{ tax_identifier: string }>('select tax_identifier from machvon.contractor where id = $1', [idOf(made)]);
+      const taxIdentifier = stored?.tax_identifier ?? '';
+      expect(taxIdentifier).toMatch(/^\d{10}$/);
+      // A real adapter fails with the request it made: its message names the number it asked about.
+      const lookup = jest.spyOn(identity, 'lookup').mockRejectedValueOnce(new Error(`GET https://register.example/tax/${taxIdentifier} failed with 502`));
+      const logged = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+      try {
+        expect((await verify(VERIFIER, idOf(made), 1)).status).toBe(200);
+        expect(logged).toHaveBeenCalled();
+        const written = JSON.stringify(logged.mock.calls.map((call) => call.map((argument) => (argument instanceof Error ? { name: argument.name, message: argument.message, stack: argument.stack } : argument))));
+        expect(written).not.toContain(taxIdentifier);
+      } finally {
+        logged.mockRestore();
+        lookup.mockRestore();
+      }
     });
 
     it('rejects a contractor without asking the register, and leaves it rejected for good', async () => {

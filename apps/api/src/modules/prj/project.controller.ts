@@ -57,7 +57,9 @@ export class ProjectController {
   @Command({ operation: 'createProject' })
   async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['PrjProjectCreate']): Promise<CommandResult> {
     const now = new Date();
-    const unit = await this.projects.unitRef(scope.tx, body.owner_unit_id);
+    // The owner unit travels on as the lower-case text the database writes: the audit row and the event are matched against ids as strings.
+    const ownerUnitId = body.owner_unit_id.toLowerCase();
+    const unit = await this.projects.unitRef(scope.tx, ownerUnitId);
     // A unit of another tenant is indistinguishable from one that does not exist.
     if (unit === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (!reaches(access, CREATE_PERMISSION, unit, now)) throw new DomainError('SCOPE_DENIED', 403);
@@ -66,7 +68,7 @@ export class ProjectController {
       {
         code: body.code,
         name: body.name,
-        ownerUnitId: body.owner_unit_id,
+        ownerUnitId,
         investorUnitId: body.investor_unit_id,
         decisionAuthorityUnitId: body.decision_authority_unit_id,
         areaMasterVersionId: body.area_master_version_id,
@@ -86,7 +88,7 @@ export class ProjectController {
       resourceType: RESOURCE_TYPE,
       resourceId: created.id,
       classification: created.classification,
-      diff: { code: body.code, owner_unit_id: body.owner_unit_id, status: created.status, group_suggestion: created.groupSuggestion?.groupKey ?? null },
+      diff: { code: created.code, owner_unit_id: ownerUnitId, status: created.status, group_suggestion: created.groupSuggestion?.groupKey ?? null },
     });
     await scope.emit({
       aggregateType: RESOURCE_TYPE,
@@ -100,9 +102,9 @@ export class ProjectController {
         version: created.version,
         actor_id: scope.tenant.membershipId,
         occurred_at: now.toISOString(),
-        code: body.code,
+        code: created.code,
         status: created.status,
-        owner_unit_id: body.owner_unit_id,
+        owner_unit_id: ownerUnitId,
       },
       eventKey: `${RESOURCE_TYPE}:${created.id}:${created.version}`,
     });

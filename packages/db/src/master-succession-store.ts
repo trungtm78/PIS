@@ -145,6 +145,7 @@ interface OpenChange {
   status: string;
   proposed_json: Record<string, unknown>;
   version: string;
+  created_by: string;
 }
 
 /**
@@ -180,7 +181,7 @@ export class MasterSuccessionStore {
     await assertEdgeAllowed(tx, this.masters, predecessor, input.successorRecordId, input.effectiveDate);
 
     const open = await tx.query<OpenChange>(
-      `select id, change_kind, status, proposed_json, version::text as version from machvon.master_change_request
+      `select id, change_kind, status, proposed_json, version::text as version, created_by from machvon.master_change_request
         where master_record_id = $1::uuid and status in ('DRAFT', 'IN_REVIEW', 'APPROVED') for update`,
       [predecessor.id],
     );
@@ -199,9 +200,10 @@ export class MasterSuccessionStore {
       return { changeRequestId: (rows[0] as { id: string }).id, version: 1, edges: 1 };
     }
 
-    // Only a draft split takes another successor; any other open request of the entry has to be decided first.
+    // Only a draft split takes another successor, and only from the one who opened it: a second person who wrote part of it could then review
+    // it as "someone other than its author" (four-eyes judges the creator). Any other open request of the entry has to be decided first.
     const draft = existing.change_kind === 'SUCCESSION' && existing.status === 'DRAFT' ? proposalOf(existing.proposed_json) : undefined;
-    if (draft === undefined || draft.kind !== 'SPLIT' || input.kind !== 'SPLIT' || draft.effectiveDate !== input.effectiveDate) {
+    if (draft === undefined || existing.created_by.toLowerCase() !== actor.toLowerCase() || draft.kind !== 'SPLIT' || input.kind !== 'SPLIT' || draft.effectiveDate !== input.effectiveDate) {
       throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'a change request is already open');
     }
     if (draft.legalBasis !== legalBasis) throw invalid('legal_basis');

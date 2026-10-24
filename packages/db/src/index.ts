@@ -48,6 +48,8 @@ export {
 } from './retention-job.ts';
 export type { PayloadRemover, RetentionJobOptions, RetentionRunResult } from './retention-job.ts';
 export { BUSINESS_SOURCES } from './retention-sources.ts';
+export { RetentionReviewStore } from './retention-review-store.ts';
+export type { ReviewItemRow, ReviewPageAnchor } from './retention-review-store.ts';
 export { IntegrationConnectorStore } from './integration-connector-store.ts';
 export type { ConnectorChange, ConnectorPageAnchor, ConnectorRow, NewConnector } from './integration-connector-store.ts';
 export { INBOX_STATUSES, IntegrationInboxStore, REPLAYABLE } from './integration-inbox-store.ts';
@@ -280,7 +282,7 @@ export type { SlaDeadline, SlaDeadlineRequest } from './iss-sla-deadline.ts';
 export { MNE_EXPORT_FORMATS, MNE_REPORT_KINDS, MneFormStore } from './mne-form-store.ts';
 export type { MneExportFormat, MneFormFilter, MneFormInput, MneFormPackEntry, MneFormPackResult, MneFormPage, MneFormRow, MneOrigin, MneReportKind, MneRevisionStatus } from './mne-form-store.ts';
 export { MNE_REPORTING_ROLES, MneObligationRuleStore } from './mne-obligation-rule-store.ts';
-export type { MneReportingRole, MneRuleInput, MneRulePackEntry, MneRulePackResult, MneRuleRow } from './mne-obligation-rule-store.ts';
+export type { MneReportingRole, MneRuleFilter, MneRuleInput, MneRulePackEntry, MneRulePackResult, MneRulePage, MneRuleRow } from './mne-obligation-rule-store.ts';
 export { MNE_UNIT_COLUMNS, MneObligationStore } from './mne-obligation-store.ts';
 export type { MneGenerateRequest, MneGenerateResult, MneObligationFilter, MneObligationPage, MneObligationRow } from './mne-obligation-store.ts';
 export type { ClosedRevision as MneClosedRevision } from './mne-revision-table.ts';

@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { ADMIN, AUTHOR, BLOCKS, LEGAL, NOBODY, READER, RENDERER, SECOND_LEGAL, TENANT_A, TENANT_B, TemplateApp, memberId } from './template-app';
+import { ADMIN, AUTHOR, BLOCKS, BRANCH, LEGAL, NOBODY, READER, RENDERER, SECOND_LEGAL, TENANT_A, TENANT_B, TemplateApp, memberId } from './template-app';
 import type { Reply } from './template-app';
 import { pageTexts } from './support/pdf-pages-text';
 
@@ -202,6 +202,24 @@ describe('document template library API (ST-DOC-006)', () => {
         expect((await detail(id, member)).status).toBe(403);
       }
       expect((await detail(id)).json).toMatchObject({ status: 'DRAFT', version: 1 });
+    });
+  });
+
+  describe('the scope of the library', () => {
+    it('keeps every step of the library from a grant on a branch of the tree: the templates belong to the whole tenant (DOC 2)', async () => {
+      const own = await draft({ template_code: 'API-BRANCH-SCOPE' });
+      expect(own.status).toBe(200);
+      const id = own.json.resource_id as string;
+      const drafted = await draft({}, BRANCH);
+      expect([drafted.status, drafted.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      const published = await publish(id, 1, BRANCH);
+      expect([published.status, published.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect((await publish(id, 1)).status).toBe(200);
+      const confirmed = await confirm(id, 2, BRANCH);
+      expect([confirmed.status, confirmed.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      const retired = await retire(id, 2, BRANCH);
+      expect([retired.status, retired.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect((await detail(id)).json).toMatchObject({ status: 'PUBLISHED', confirmation_status: 'PENDING_CONFIRMATION', version: 2 });
     });
   });
 

@@ -71,7 +71,8 @@ function matchingKeyId(input: VerifyCallbackInput, scheme: ProviderSignatureSche
   const given = scheme.encoding === 'hex' ? signature.toLowerCase() : signature;
   let matched: string | undefined;
   for (const key of input.keys) {
-    if (sameText(given, digestOf(scheme, key, timestampSeconds, input.rawBody))) matched ??= key.keyId;
+    // An empty secret is a vault that answered nothing: HMAC accepts it, so anybody could sign with it. It verifies nothing.
+    if (key.secret.length > 0 && sameText(given, digestOf(scheme, key, timestampSeconds, input.rawBody))) matched ??= key.keyId;
   }
   return matched;
 }

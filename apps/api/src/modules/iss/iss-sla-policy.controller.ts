@@ -1,13 +1,24 @@
 import { Body, Controller, HttpCode, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { PERMISSIONS } from '@machvon/contracts';
 import { IssSlaPolicyStore } from '@machvon/db';
+import { DomainError } from '@machvon/kernel';
+import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
+import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 
 const POLICY_RESOURCE = 'issue_sla_policy';
+const MANAGE_PERMISSION = PERMISSIONS.upsertIssueSlaPolicy;
+
+/** ISS 2 gives issue.sla.manage to the SLA administrator on the whole tenant: a policy decides the deadlines of every unit, so a grant on a subtree does not reach it. */
+function assertHolds(access: EffectiveAccess): void {
+  if (!holdsOnWholeTenant(access, MANAGE_PERMISSION)) throw new DomainError('SCOPE_DENIED', 403);
+}
 
 /**
  * The SLA policies of the issue module (ST-ISS-001, ISS 3.1, BR-ISS-02). A policy is written for a category, a severity and optionally a
@@ -22,7 +33,8 @@ export class IssSlaPolicyController {
   @HttpCode(200)
   @OperationId('upsertIssueSlaPolicy')
   @Command({ operation: 'upsertIssueSlaPolicy' })
-  async publish(@Scope() scope: CommandScope, @Body() body: Schemas['IssUpsertIssueSlaPolicy']): Promise<CommandResult> {
+  async publish(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['IssUpsertIssueSlaPolicy']): Promise<CommandResult> {
+    assertHolds(access);
     const published = await this.policies.publish(
       scope.tx,
       {
@@ -75,7 +87,13 @@ export class IssSlaPolicyController {
   @HttpCode(200)
   @OperationId('retireIssueSlaPolicy')
   @Command({ operation: 'retireIssueSlaPolicy' })
-  async retire(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['IssRetireIssueSlaPolicy']): Promise<CommandResult> {
+  async retire(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Schemas['IssRetireIssueSlaPolicy'],
+  ): Promise<CommandResult> {
+    assertHolds(access);
     const retired = await this.policies.retire(scope.tx, id, body.valid_until, scope.tenant.membershipId);
     await scope.audit({
       action: 'iss.sla_policy_retired',

@@ -7,6 +7,7 @@ import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { ReportingPeriodController, ReportingPeriodReadsController } from '../../src/modules/dis/reporting-period.controller';
 import { DIS_CLOCK } from '../../src/modules/dis/tokens';
+import { encodeCursor } from '../../src/pagination';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -20,6 +21,7 @@ const READER = 3; // reporting_period.read only
 const NOBODY = 4;
 const OTHER_TENANT_MANAGER = 1; // of tenant B
 const MAKER = 5; // a maker of reports: reads the calendar, manages nothing
+const UNIT_MANAGER = 6; // period.manage and period.lock on one subtree only
 
 interface Reply {
   status: number;
@@ -63,7 +65,7 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       const tenants = harness.tenants as TenantDatabase;
       await tenants.withTenant({ tenantId: tenant, membershipId: WORKER, scopeVersion: 0 }, (tx) => applyBaseline(tx, BASELINE_PACK, WORKER));
     }
-    for (const n of [MANAGER, PLANNER, READER, NOBODY, MAKER]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [MANAGER, PLANNER, READER, NOBODY, MAKER, UNIT_MANAGER]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, OTHER_TENANT_MANAGER, 1);
     await harness.seedRole(TENANT_A, 1, 'PERIOD_MANAGER', ['period.manage', 'period.lock', 'reporting_period.read'], 40);
     await harness.seedRole(TENANT_A, 2, 'PERIOD_PLANNER', ['period.manage', 'reporting_period.read'], 30);
@@ -74,6 +76,7 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       { n: 2, member: PLANNER, role: 2, kind: 'TENANT' },
       { n: 3, member: READER, role: 3, kind: 'TENANT' },
       { n: 4, member: MAKER, role: 3, kind: 'TENANT' },
+      { n: 5, member: UNIT_MANAGER, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(1)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: OTHER_TENANT_MANAGER, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -153,6 +156,28 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       expect(await rows('select id from machvon.reporting_period')).toEqual([]);
       expect((await rows<{ n: string }>('select count(*)::text as n from machvon.reporting_period', [], TENANT_B))[0]?.n).toBe('53');
       await reset(TENANT_B);
+    });
+  });
+
+  describe('scope of the period commands (DIS 2: the period manager acts on the whole tenant)', () => {
+    beforeEach(async () => {
+      now = new Date('2026-12-15T00:00:00Z');
+      await reset();
+    });
+
+    it('refuses a caller who holds the permissions only on a subtree: nothing is generated, closed or locked', async () => {
+      const refused = await generate(UNIT_MANAGER, 2027);
+      expect([refused.status, refused.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect(await rows('select id from machvon.reporting_period')).toEqual([]);
+      expect((await generate(MANAGER, 2027)).status).toBe(200);
+      const id = await periodId('W2027-01');
+      now = new Date('2027-02-01T00:00:00Z');
+      const closing = await softClose(UNIT_MANAGER, id, 1);
+      expect([closing.status, closing.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect((await softClose(MANAGER, id, 1)).status).toBe(200);
+      const locking = await lock(UNIT_MANAGER, id, 2);
+      expect([locking.status, locking.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect(await rows<{ status: string }>('select status from machvon.reporting_period where id = $1::uuid', [id])).toEqual([{ status: 'SOFT_CLOSED' }]);
     });
   });
 
@@ -282,6 +307,12 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       }
       const forged = Buffer.from(JSON.stringify(['not-a-date', randomUUID()])).toString('base64url');
       expect((await get(`/resources/reporting_period?cursor=${forged}`, READER)).status).toBe(422);
+      // Shaped like a date and not a date: it must be refused as a cursor, not reach the database as a failing cast.
+      for (const impossible of ['2027-13-45', '2027-02-30', '0000-00-00']) {
+        const cursor = encodeCursor({ code: impossible, id: randomUUID() });
+        const reply = await get(`/resources/reporting_period?cursor=${cursor}`, READER);
+        expect([impossible, reply.status, reply.json.code, reply.json.detail]).toEqual([impossible, 422, 'VALIDATION_FAILED', 'cursor']);
+      }
       expect((await get('/resources/reporting_period', NOBODY)).status).toBe(403);
       expect((await get(`/resources/reporting_period/${randomUUID()}`, READER)).status).toBe(404);
       const theirs = await get('/resources/reporting_period', OTHER_TENANT_MANAGER, TENANT_B);

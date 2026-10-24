@@ -371,6 +371,23 @@ describe('MNE report forms and obligation rules (ST-MNE-001, MNE F1, BR-MNE-01)'
       expect(await inWindow('2029-01-01', '2030-01-01')).toEqual([]);
     });
 
+    it('lists the revisions newest first, narrowed by role, form code and status, and pages by the creation time', async () => {
+      const form = await publishedForm();
+      const first = await publishedRule(form.id, { ruleCode: nextCode('RLIST'), reportingRole: 'INVESTOR' });
+      const second = await draftRule(form.id, { ruleCode: nextCode('RLIST'), reportingRole: 'PROVINCIAL_PEOPLE_COMMITTEE' });
+      const mine = (rows: MneRuleRow[]): string[] => rows.filter((row) => row.formCode === form.formCode).map((row) => row.id);
+      expect(mine(await as(MAKER, (tx) => rules.list(tx, {}, { limit: 200 })))).toEqual([second.id, first.id]);
+      expect(mine(await as(MAKER, (tx) => rules.list(tx, { reportingRole: 'INVESTOR', formCode: form.formCode }, { limit: 200 })))).toEqual([first.id]);
+      expect(mine(await as(MAKER, (tx) => rules.list(tx, { status: 'DRAFT', formCode: form.formCode }, { limit: 200 })))).toEqual([second.id]);
+      expect(await as(MAKER, (tx) => rules.list(tx, { formCode: form.formCode, status: 'RETIRED' }, { limit: 200 }))).toEqual([]);
+      const head = await as(MAKER, (tx) => rules.list(tx, { formCode: form.formCode }, { limit: 1 }));
+      expect(head.map((row) => row.id)).toEqual([second.id]);
+      const tail = await as(MAKER, (tx) => rules.list(tx, { formCode: form.formCode }, { limit: 5, after: { createdAtKey: (head[0] as MneRuleRow).createdAtKey, id: (head[0] as MneRuleRow).id } }));
+      expect(tail.map((row) => row.id)).toEqual([first.id]);
+      expect(await refusal(as(MAKER, (tx) => rules.list(tx, {}, { limit: 5, after: { createdAtKey: 'yesterday', id: randomUUID() } })))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'cursor' });
+      expect(await as(MAKER, (tx) => rules.list(tx, {}, { limit: 200 }), TENANT_B)).toEqual([]);
+    });
+
     it('refuses to publish a rule twice, with a stale version, or for an unknown id', async () => {
       const rule = (await publishRule(await draftRule((await publishedForm()).id))).record;
       expect(await refusal(publishRule(rule, THIRD))).toEqual({ code: 'REPORT_STATE_INVALID', status: 409, detail: 'status' });

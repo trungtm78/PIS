@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, isIsoDate, periodsOverlap, shiftDays, vietnamDateOf } from '@machvon/kernel';
+import type { AuditWriter } from './audit-writer.ts';
 import { timestampKey } from './keyset.ts';
+import { enqueueOutbox } from './outbox.ts';
 import { checkApplicability } from './pmt-permit-applicability.ts';
 import { PERMIT_TYPE_WORKING_ASSUMPTIONS } from './pmt-permit-type-seed.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -314,16 +316,58 @@ export class PmtPermitTypeStore {
   /**
    * Publishes the starting catalogue of working assumptions for the codes the tenant has no version of yet (a code that exists in any
    * status is left alone, so a tenant that confirmed or retired a type is never given the assumption back). Returns the codes it added.
+   * With an audit writer, every type given leaves the audit row and the announcement that publishing it by command leaves (a job has no
+   * request, but legal data does not appear without a trace).
    */
-  async seedWorkingAssumptions(tx: TenantTx, actor: string): Promise<string[]> {
+  async seedWorkingAssumptions(tx: TenantTx, actor: string, audit?: Pick<AuditWriter, 'recordInTx'>): Promise<string[]> {
     const present = new Set((await tx.query<{ code: string }>('select distinct code from machvon.permit_type')).map((row) => row.code));
     const added: string[] = [];
     for (const type of PERMIT_TYPE_WORKING_ASSUMPTIONS) {
       if (present.has(type.code)) continue;
-      await this.publish(tx, type, actor);
+      const published = await this.publish(tx, type, actor);
+      if (audit !== undefined) await this.trace(tx, audit, published, type, actor);
       added.push(type.code);
     }
     return added;
+  }
+
+  private async trace(tx: TenantTx, audit: Pick<AuditWriter, 'recordInTx'>, published: { id: string; revision: number; version: number }, type: PermitTypeInput, actor: string): Promise<void> {
+    const correlationId = randomUUID();
+    await audit.recordInTx(tx, actor, {
+      action: 'pmt.permit_type_published',
+      resourceType: 'permit_type',
+      resourceId: published.id,
+      diff: {
+        code: type.code,
+        revision: published.revision,
+        category: type.category,
+        legal_basis: type.legalBasis,
+        cxn_ref: type.cxnRef ?? null,
+        effective_from: type.effectiveFrom,
+        effective_until: type.effectiveUntil ?? null,
+        superseded_permit_type_id: null,
+      },
+      correlationId,
+      requestId: randomUUID(),
+    });
+    await enqueueOutbox(tx, {
+      aggregateType: 'permit_type',
+      aggregateId: published.id,
+      aggregateVersion: published.version,
+      type: 'pmt.permit_type.published.v1',
+      schemaVersion: 1,
+      payload: {
+        permit_type_id: published.id,
+        code: type.code,
+        revision: published.revision,
+        effective_from: type.effectiveFrom,
+        effective_until: type.effectiveUntil ?? null,
+        awaiting_confirmation: type.cxnRef !== undefined,
+        superseded_permit_type_id: null,
+      },
+      eventKey: `permit_type:${published.id}:${published.version}`,
+      correlationId,
+    });
   }
 
   /** Whether a permit written under the version is still on its way and could be decided after the version's last day. */

@@ -1006,6 +1006,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesDataContractVersionId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_data_contract_version_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesDataRetentionPolicy({Map<String, Object?>? query}) =>
+      execute('get_resources_data_retention_policy', query: query);
+
+  Future<Object?> getResourcesDataRetentionPolicyId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_data_retention_policy_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesDatasetContract({Map<String, Object?>? query}) =>
       execute('get_resources_dataset_contract', query: query);
 
@@ -1060,11 +1066,23 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesHandoverId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_handover_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesIntegrationConnector({Map<String, Object?>? query}) =>
+      execute('get_resources_integration_connector', query: query);
+
+  Future<Object?> getResourcesIntegrationConnectorId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_integration_connector_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesIntegrationCursor({Map<String, Object?>? query}) =>
       execute('get_resources_integration_cursor', query: query);
 
   Future<Object?> getResourcesIntegrationCursorId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_integration_cursor_id', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getResourcesIntegrationEventInbox({Map<String, Object?>? query}) =>
+      execute('get_resources_integration_event_inbox', query: query);
+
+  Future<Object?> getResourcesIntegrationEventInboxId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_integration_event_inbox_id', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getResourcesInvoiceLine({Map<String, Object?>? query}) =>
       execute('get_resources_invoice_line', query: query);
@@ -1245,6 +1263,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getResourcesReportingPeriodId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_reporting_period_id', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getResourcesRetentionReviewItem({Map<String, Object?>? query}) =>
+      execute('get_resources_retention_review_item', query: query);
+
+  Future<Object?> getResourcesRetentionReviewItemId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_retention_review_item_id', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getResourcesRoleDefinition({Map<String, Object?>? query}) =>
       execute('get_resources_role_definition', query: query);
@@ -1476,6 +1500,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listMneForms({Map<String, Object?>? query}) =>
       execute('listMneForms', query: query);
+
+  Future<Object?> listMneObligationRules({Map<String, Object?>? query}) =>
+      execute('listMneObligationRules', query: query);
 
   Future<Object?> listMneObligations({Map<String, Object?>? query}) =>
       execute('listMneObligations', query: query);

@@ -21,11 +21,15 @@ export type Answer = Array<Record<string, unknown>> | Error;
  * A client whose commands are answered by `command` and whose catalogue read (`readAll` of `listMneForms`, which follows the cursors) is answered by
  * `rows`: a list of rows, or a failure. `readAll` is the spy to look at the filters the screen sent.
  */
-export function formsClient(rows: (query: unknown) => Answer, command: (operation: string, input: unknown) => unknown = () => ({})): Harness & { readAll: ReturnType<typeof vi.fn> } {
+export function formsClient(
+  rows: (query: unknown) => Answer,
+  command: (operation: string, input: unknown) => unknown = () => ({}),
+  rules: () => Answer = () => [],
+): Harness & { readAll: ReturnType<typeof vi.fn> } {
   const h = harness((operation) => new Error(`unexpected read ${operation}`), command);
   const readAll = vi.fn((operation: string, input?: { query?: unknown }) => {
-    if (operation !== 'listMneForms') return Promise.reject(new Error(`unexpected readAll ${operation}`));
-    const answer = rows(input?.query);
+    if (operation !== 'listMneForms' && operation !== 'listMneObligationRules') return Promise.reject(new Error(`unexpected readAll ${operation}`));
+    const answer = operation === 'listMneForms' ? rows(input?.query) : rules();
     return answer instanceof Error ? Promise.reject(answer) : Promise.resolve(answer);
   });
   (h.client as unknown as { readAll: typeof readAll }).readAll = readAll;
@@ -45,6 +49,8 @@ export const MANAGE_CALENDAR = 'mne.calendar.manage';
 export const READER = [READ];
 export const FORM_ADMIN = [READ, MANAGE_FORMS, APPROVE_FORMS];
 export const PLANNER = [READ, MANAGE_CALENDAR];
+export const APPROVE_CALENDAR = 'mne.calendar.approve';
+export const RULE_ADMIN = [READ, MANAGE_CALENDAR, APPROVE_CALENDAR];
 
 export function routeOf(id: string, req: string): WebRoute {
   return { id, path: `/mne/${id.toLowerCase()}`, title: id, kind: 'table', area: 'insights', module: 'MNE', group: 'Calendar and forms', role: 'workspace', parent: null, req };
@@ -107,6 +113,32 @@ export const formRow = (n: number, overrides: Record<string, unknown> = {}) => (
   status: 'PUBLISHED',
   origin: 'PLATFORM_PACK',
   pack_version: '2026.10.1',
+  version: 2,
+  created_by: OTHER,
+  approved_by: null,
+  ...overrides,
+});
+
+/** A row of `listMneObligationRules`, in the shape the server writes it. */
+export const ruleRow = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid(600 + n),
+  rule_code: `OVERALL_RULE_${n}`,
+  revision: 1,
+  form_id: uuid(100 + n),
+  form_code: 'TT44-M02',
+  reporting_role: 'INVESTOR',
+  recipient: 'Sở Tài chính',
+  frequency: 'SEMIANNUAL',
+  due_rule_json: { period: 'H1', month: 7, day: 10 },
+  legal_basis: 'Thông tư 44/2026/TT-BTC, trước ngày 10 tháng 7 [CXN-10]',
+  legal_confirmation_ref: null,
+  awaiting_confirmation: true,
+  cxn_refs: ['CXN-10'],
+  effective_from: '2026-01-01',
+  effective_until: null,
+  status: 'PUBLISHED',
+  origin: 'TENANT',
+  pack_version: null,
   version: 2,
   created_by: OTHER,
   approved_by: null,

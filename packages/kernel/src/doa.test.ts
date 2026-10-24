@@ -57,6 +57,14 @@ describe('resolveDoa (BR-ADM-03, UAT-AC126)', () => {
     expect(resolveDoa([broken], pathsOf(), { documentType: 'FX', amountVnd: '5', unitId: 'province', businessDate: '2026-03-01' }).ruleId).toBe('c');
   });
 
+  it('holds the end date of a version exclusive: the last day is the day before it, and the end day itself is not covered', () => {
+    const ending = { ...(vectors.matrices.current as DoaMatrixRecord), status: 'Superseded', effectiveUntil: '2027-01-01' };
+    const ask = (businessDate: string): DoaResolution => resolveDoa([ending], pathsOf(), { documentType: 'FX', amountVnd: '1', unitId: 'province', businessDate });
+    expect(ask('2026-12-31').matrixVersionId).toBe('matrix-2');
+    expect(problem(() => ask('2027-01-01'))).toMatchObject({ code: 'DOA_RULE_NOT_FOUND', status: 422, detail: 'business_date' });
+    expect(problem(() => ask('2025-12-31'))).toMatchObject({ code: 'DOA_RULE_NOT_FOUND', detail: 'business_date' });
+  });
+
   it('takes the matrix that began last when two cover the same day', () => {
     const older = { ...(vectors.matrices.current as DoaMatrixRecord), id: 'older', effectiveFrom: '2025-06-01' };
     const answer = resolveDoa([older, vectors.matrices.current as DoaMatrixRecord], pathsOf(), { documentType: 'FX', amountVnd: '1', unitId: 'province', businessDate: '2026-03-01' });

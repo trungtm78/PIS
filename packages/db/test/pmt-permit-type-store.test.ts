@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Client } from 'pg';
+import { AuditWriter } from '../src/audit-writer';
 import { PmtPermitTypeStore } from '../src/pmt-permit-type-store';
 import type { PermitTypeInput, PermitTypeRow } from '../src/pmt-permit-type-store';
 import { PERMIT_TYPE_WORKING_ASSUMPTIONS } from '../src/pmt-permit-type-seed';
@@ -418,6 +419,26 @@ describe('PmtPermitTypeStore (the permit type catalogue as dated legal data, ST-
       expect(seeded.every((type) => type.status === 'PUBLISHED' && /^CXN-EXE-0[23]$/.test(type.cxn_ref) && type.legal_basis.includes(type.cxn_ref) && type.default_validity_months === null)).toBe(true);
       expect(seeded.find((type) => type.code === 'BUILDING_PERMIT')?.cxn_ref).toBe('CXN-EXE-02');
       expect(await as((tx) => types.seedWorkingAssumptions(tx, ACTOR), TENANT_B)).toEqual([]);
+    });
+
+    it('leaves the audit row and the announcement of every type it gives, like the command that publishes one', async () => {
+      await owner('delete from machvon.permit_type', [], TENANT_B);
+      const added = await as((tx) => types.seedWorkingAssumptions(tx, ACTOR, new AuditWriter(harness.tenants)), TENANT_B);
+      expect(added).toHaveLength(8);
+      const audits = await owner<{ resource_id: string; actor_id: string; safe_diff: Record<string, unknown> }>(
+        "select resource_id, actor_id, safe_diff from machvon.audit_event where action = 'pmt.permit_type_published' order by safe_diff->>'code'",
+        [],
+        TENANT_B,
+      );
+      expect(audits.map((entry) => entry.safe_diff.code)).toEqual([...added].sort());
+      expect(audits.every((entry) => entry.actor_id === ACTOR && entry.safe_diff.revision === 1 && typeof entry.safe_diff.cxn_ref === 'string')).toBe(true);
+      const events = await owner<{ aggregate_id: string; payload: Record<string, unknown> }>(
+        "select aggregate_id, payload from machvon.outbox_event where type = 'pmt.permit_type.published.v1' order by payload->>'code'",
+        [],
+        TENANT_B,
+      );
+      expect(events.map((event) => event.aggregate_id)).toEqual(audits.map((entry) => entry.resource_id));
+      expect(events.every((event) => event.payload.awaiting_confirmation === true && event.payload.superseded_permit_type_id === null)).toBe(true);
     });
 
     it('leaves alone a code the tenant already confirmed with a revision of its own', async () => {

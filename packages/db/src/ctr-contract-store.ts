@@ -171,6 +171,9 @@ export interface CreatedContract {
   revisionId: string;
   version: number;
   status: 'DRAFT';
+  /** The code as stored (trimmed) and the value as stored (whole VND without leading zeros): what the audit trail and the event of the command carry. */
+  code: string;
+  contractValueVnd: string;
   estimateCeilingVnd: string;
 }
 
@@ -542,15 +545,22 @@ export class CtrContractStore {
     const value = this.positiveValue(input.contractValueVnd);
     const completionDue = input.completionDue === undefined ? null : calendarDate(input.completionDue, 'completion_due');
     const requested = input.estimateCeilingVnd === undefined ? undefined : wholeAmount(input.estimateCeilingVnd, 'estimate_ceiling_vnd');
-    const facts = await this.source.packageFacts(tx, input.packageId);
-    if (facts === undefined || facts.projectId !== input.projectId) throw invalid('package_id');
+    // Identifiers are compared as the lower-case text the database writes: a uuid in capitals is the same uuid.
+    const { projectId, packageId, contractorId, documentVersionId } = {
+      projectId: input.projectId.toLowerCase(),
+      packageId: input.packageId.toLowerCase(),
+      contractorId: input.contractorId.toLowerCase(),
+      documentVersionId: input.documentVersionId.toLowerCase(),
+    };
+    const facts = await this.source.packageFacts(tx, packageId);
+    if (facts === undefined || facts.projectId !== projectId) throw invalid('package_id');
     if (facts.award === null) throw new DomainError('PACKAGE_NOT_AWARDED', 422, 'package_id');
-    if (facts.award.contractorId !== input.contractorId) throw invalid('contractor_id');
+    if (facts.award.contractorId !== contractorId) throw invalid('contractor_id');
     const ceiling = this.ceilingOf(facts.budgetVnd, requested);
     this.assertWithinCeiling(value, ceiling);
-    if (!(await this.source.hasApprovedCapitalPlan(tx, input.projectId))) throw new DomainError('CAPITAL_PLAN_NOT_APPROVED', 422, 'project_id');
-    await this.assertContractorMayContract(tx, input.contractorId, today);
-    await this.assertDocument(tx, input.documentVersionId);
+    if (!(await this.source.hasApprovedCapitalPlan(tx, projectId))) throw new DomainError('CAPITAL_PLAN_NOT_APPROVED', 422, 'project_id');
+    await this.assertContractorMayContract(tx, contractorId, today);
+    await this.assertDocument(tx, documentVersionId);
     const id = randomUUID();
     const revisionId = randomUUID();
     try {
@@ -562,9 +572,9 @@ export class CtrContractStore {
             $10::boolean, $11::numeric, $12::numeric, $13::date, $14::uuid, $14::uuid)`,
         [
           id,
-          input.projectId,
-          input.packageId,
-          input.contractorId,
+          projectId,
+          packageId,
+          contractorId,
           code,
           input.type,
           title,
@@ -587,9 +597,9 @@ export class CtrContractStore {
       `insert into machvon.contract_revision
          (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, version, created_by, updated_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, 1, $3::numeric, $4::uuid, $5::date, 'DRAFT', 'BASE', 1, $6::uuid, $6::uuid)`,
-      [revisionId, id, value, input.documentVersionId, today, actor],
+      [revisionId, id, value, documentVersionId, today, actor],
     );
-    return { id, revisionId, version: 1, status: 'DRAFT', estimateCeilingVnd: ceiling };
+    return { id, revisionId, version: 1, status: 'DRAFT', code, contractValueVnd: value, estimateCeilingVnd: ceiling };
   }
 
   /**
@@ -626,18 +636,19 @@ export class CtrContractStore {
     if (ceiling !== null) this.assertWithinCeiling(value, ceiling);
     set('contract_value_vnd', 'contract_value_vnd', locked.contractValueVnd, value, '::numeric');
     set('estimate_ceiling_vnd', 'estimate_ceiling_vnd', locked.estimateCeilingVnd, ceiling, '::numeric');
-    if (change.documentVersionId !== undefined) {
+    const documentVersionId = change.documentVersionId?.toLowerCase();
+    if (documentVersionId !== undefined) {
       const draft = await this.draftRevision(tx, id);
-      if (draft.documentVersionId !== change.documentVersionId) {
-        await this.assertDocument(tx, change.documentVersionId);
-        changes.push({ field: 'document_version_id', before: draft.documentVersionId, after: change.documentVersionId });
+      if (draft.documentVersionId !== documentVersionId) {
+        await this.assertDocument(tx, documentVersionId);
+        changes.push({ field: 'document_version_id', before: draft.documentVersionId, after: documentVersionId });
       }
     }
     if (changes.length === 0) return { version: locked.version, status: locked.status, changes };
     params.push(actor);
     assignments.push('updated_at = now()', `updated_by = $${params.length}::uuid`, 'version = version + 1');
     await tx.query(`update machvon.contract set ${assignments.join(', ')} where id = $1::uuid`, params);
-    await this.syncDraftRevision(tx, id, value, change.documentVersionId, actor);
+    await this.syncDraftRevision(tx, id, value, documentVersionId, actor);
     return { version: locked.version + 1, status: locked.status, changes };
   }
 

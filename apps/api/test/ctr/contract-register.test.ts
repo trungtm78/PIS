@@ -261,6 +261,43 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
       expect((await create(MAKER, { project_id: ABSENT })).status).toBe(404);
     });
 
+    it('reads an identifier in capitals as the identifier it is: the package, the project and the winner are matched as uuids, not as strings', async () => {
+      // Identifiers with letters in them, so that capitals differ from the way the database writes them.
+      const [project, pack, contractor] = [id(FAMILY, 0xa1), id(FAMILY, 0xa2), id(FAMILY, 0xa3)];
+      await seedAs([
+        [`insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id) values ($1, $2, '0100000777', 'Capital Builders', 'VERIFIED', $3)`, [TENANT_A, contractor, id(FAMILY, 40)]],
+        [
+          `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, investor_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+           values ($1, $2, 'PRJ-A-0A1', 'Project in capitals', $3, $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
+          [TENANT_A, project, unitId(DEPARTMENT), unitId(ROOT), id(FAMILY, 42)],
+        ],
+        [`insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2026, 1, $4, 'APPROVED', now())`, [TENANT_A, id(FAMILY, 0xa4), project, id(FAMILY, 44)]],
+        [`insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status) values ($1, $2, $3, 'PKG-A-0A2', 2000000000, 'OPEN', 1, 'AWARDED')`, [TENANT_A, pack, project]],
+        [
+          `insert into machvon.procurement_result (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, outcome, status, decision_document_id, submitted_by, approved_by, approved_at, created_by, updated_by)
+           values ($1, $2, $3, $4, 1000, 'AWARDED', 'APPROVED', $5, $6, $7, now(), $6, $6)`,
+          [TENANT_A, id(FAMILY, 0xa5), pack, contractor, id(FAMILY, 47), memberId(MAKER), memberId(DEPARTMENT_MAKER)],
+        ],
+      ]);
+      const made = await create(MAKER, { code: 'HD-UPPER-1', project_id: project.toUpperCase(), package_id: pack.toUpperCase(), contractor_id: contractor.toUpperCase(), contract_value_vnd: '2000000000', document_version_id: DOCUMENT.toUpperCase() });
+      expect(made.status).toBe(200);
+      expect(await rows('select project_id, package_id, contractor_id from machvon.contract where id = $1', [idOf(made)])).toEqual([{ project_id: project, package_id: pack, contractor_id: contractor }]);
+      // The document of the draft is already that version: naming it again in capitals changes nothing and costs no version.
+      const same = await revise(MAKER, idOf(made), 1, { document_version_id: DOCUMENT.toUpperCase() });
+      expect(same.json).toMatchObject({ status: 'DRAFT', resource_version: 1 });
+      expect(await auditActions(idOf(made))).toEqual(['contract.created', 'contract.draft_unchanged']);
+    });
+
+    it('tells the audit trail and the other modules what was stored, not what was typed: the code trimmed, the money without leading zeros', async () => {
+      const made = await create(MAKER, { code: '  HD-STORED-1  ', contract_value_vnd: '010200000000' });
+      expect(made.status).toBe(200);
+      expect(await rows('select code, contract_value_vnd::text as value from machvon.contract where id = $1', [idOf(made)])).toEqual([{ code: 'HD-STORED-1', value: '10200000000' }]);
+      const event = await rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1', [idOf(made)]);
+      expect(event[0]?.payload).toMatchObject({ code: 'HD-STORED-1', contract_value_vnd: '10200000000', estimate_ceiling_vnd: '10200000000' });
+      const audit = await rows<{ safe_diff: Record<string, unknown> }>("select safe_diff from machvon.audit_event where resource_id = $1 and action = 'contract.created'", [idOf(made)]);
+      expect(audit[0]?.safe_diff).toMatchObject({ code: 'HD-STORED-1', contract_value_vnd: '10200000000' });
+    });
+
     it('names the field of a refusal that is a fault of the request', async () => {
       const refused = async (extra: Record<string, unknown>) => (await create(MAKER, extra)).json;
       expect(await refused({ package_id: PACKAGE_NO_PLAN })).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'package_id' });
@@ -463,6 +500,19 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
       expect((await call('GET', `/resources/contract_revision/${mine?.id as string}`, { member: B_MAKER, tenantId: TENANT_B })).status).toBe(404);
       expect((await call('GET', `/resources/contract_revision/${randomUUID()}`, { member: REVISION_READER })).status).toBe(404);
       expect((await call('GET', '/resources/contract_revision', { member: MAKER })).status).toBe(403);
+    });
+
+    it('keeps the reason a draft was cancelled for from the guest contractor, as it keeps the history (CTR section 7: no reasons behind the status for a guest)', async () => {
+      // Last of the reads: it changes the contract the guest holds.
+      const cancelled = await cancel(MAKER, guestContract, 1, 'Contractor under review for collusion');
+      expect(cancelled.status).toBe(200);
+      const staff = await call('GET', `/resources/contract/${guestContract}`, { member: MAKER });
+      expect(staff.json).toMatchObject({ status: 'CANCELLED', status_reason: 'Contractor under review for collusion' });
+      const guest = await call('GET', `/resources/contract/${guestContract}`, { member: GUEST });
+      expect(guest.status).toBe(200);
+      expect(guest.json).toMatchObject({ status: 'CANCELLED' });
+      expect(guest.json).not.toHaveProperty('status_reason');
+      expect(JSON.stringify(guest.json)).not.toContain('collusion');
     });
   });
 });

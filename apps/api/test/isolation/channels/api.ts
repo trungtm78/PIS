@@ -69,6 +69,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_work_calendar_version_id', method: 'GET', id: WORK_CALENDAR_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_doa_matrix_version_id', method: 'GET', id: DOA_FIXTURES['TNT-B'].id },
   { operation: 'publishWorkCalendar', method: 'POST', id: WORK_CALENDAR_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign publish attempt' } },
+  { operation: 'get_resources_data_retention_policy_id', method: 'GET', id: RETENTION_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_retention_review_item_id', method: 'GET', id: RETENTION_FIXTURES['TNT-B'].reviewId },
+  { operation: 'get_resources_integration_connector_id', method: 'GET', id: INTEGRATION_FIXTURES['TNT-B'].connectorId },
+  { operation: 'get_resources_integration_event_inbox_id', method: 'GET', id: INTEGRATION_FIXTURES['TNT-B'].eventId },
   { operation: 'releaseLegalHold', method: 'POST', id: LEGAL_HOLD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign release attempt' } },
   { operation: 'publishRetentionPolicy', method: 'POST', id: RETENTION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign publish attempt' } },
   { operation: 'updateIntegrationConnector', method: 'PUT', id: INTEGRATION_FIXTURES['TNT-B'].connectorId, versioned: true, body: { reason: 'Isolation foreign update attempt', status: 'Disabled' } },
@@ -216,7 +220,7 @@ async function get(baseUrl: string, path: string, token: string): Promise<{ stat
   return { status: response.status, body: await response.text() };
 }
 
-async function attempt(options: ApiChannelOptions, spec: ForeignAttemptSpec, user: TenantName): Promise<ForeignAttempt> {
+export async function attempt(options: ApiChannelOptions, spec: ForeignAttemptSpec, user: TenantName): Promise<ForeignAttempt> {
   const headers: Record<string, string> = {
     [TENANT_HEADER]: tokenFor(user, options.signingKey),
     // Step-up commands (revokeRoleGrant) need a fresh aal2.

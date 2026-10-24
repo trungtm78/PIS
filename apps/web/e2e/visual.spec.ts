@@ -124,7 +124,7 @@ const TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 40 };
 const BACKLINK_TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 75 };
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-15'| 'ADM-03' | 'ADM-17' | 'BID-01' | 'BID-02' | 'DGV-03' | 'DGV-04' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-10' | 'DOC-14' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'ISS-09' | 'MDM-01' | 'MDM-02' | 'MDM-03' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'MDM-34' | 'MDM-37' | 'MNE-01' | 'MNE-02' | 'NOT-01' | 'NOT-02' | 'PMT-03' | 'PRJ-01' | 'PRJ-02' | 'PRJ-03' | 'CAP-04' | 'CAP-14' | 'CAP-16' | 'DIS-14' | 'SAS-01' |'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-09' | 'ADM-10' | 'ADM-11' | 'ADM-12' | 'ADM-15'| 'ADM-03' | 'ADM-17' | 'BID-01' | 'BID-02' | 'DGV-03' | 'DGV-04' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-10' | 'DOC-14' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'ISS-09' | 'MDM-01' | 'MDM-02' | 'MDM-03' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'MDM-34' | 'MDM-37' | 'MNE-01' | 'MNE-02' | 'NOT-01' | 'NOT-02' | 'PMT-03' | 'PRJ-01' | 'PRJ-02' | 'PRJ-03' | 'CAP-04' | 'CAP-14' | 'CAP-16' | 'DIS-14' | 'SAS-01' |'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -148,6 +148,28 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-15'| 'ADM-03'
     heading: TITLE_ONLY,
   },
   'ADM-15': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // ADM-09 (connectors), ADM-10 (sync monitor), ADM-11 (audit log) and ADM-12 (retention rules): the mockups keep the generic subtitle of the prototype and
+  // a generic form or list; the application states what the screen is and shows the real rows, so the frame and the title (no subtitle) are compared.
+  'ADM-09': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'ADM-10': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'ADM-11': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'ADM-12': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: TITLE_ONLY,
@@ -577,7 +599,7 @@ const queryOf = (id: string): string => {
   return id === 'SAS-03' || id === 'SAS-04' || id === 'SAS-22' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-02', 'ADM-07', 'ADM-15','ADM-03', 'ADM-17', 'BID-01', 'BID-02', 'DGV-03', 'DGV-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-10', 'DOC-14', 'DOC-21', 'IAM-04', 'IAM-09', 'ISS-09', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'PMT-03', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'CAP-04', 'CAP-14', 'CAP-16', 'DIS-14', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-02', 'ADM-07', 'ADM-09', 'ADM-10', 'ADM-11', 'ADM-12', 'ADM-15','ADM-03', 'ADM-17', 'BID-01', 'BID-02', 'DGV-03', 'DGV-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-10', 'DOC-14', 'DOC-21', 'IAM-04', 'IAM-09', 'ISS-09', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'PMT-03', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'CAP-04', 'CAP-14', 'CAP-16', 'DIS-14', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

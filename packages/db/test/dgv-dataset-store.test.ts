@@ -138,7 +138,7 @@ describe('DgvDatasetStore (dataset catalogue with owner and steward, ST-DGV-001)
       const policyId = randomUUID();
       await owner(
         `insert into machvon.data_retention_policy (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by)
-         values ($1, $2, 'DATASET_TEST', 1, 10, 'FROM_CREATED', 'test', 'REVIEW_FOR_DESTRUCTION', '2026-01-01', 'Published', $3)`,
+         values ($1, $2, 'dataset_test', 1, 10, 'FROM_CREATED', 'Fixture legal basis', 'REVIEW_FOR_DESTRUCTION', '2026-01-01', 'Draft', $3)`,
         [TENANT_A, policyId, memberId(REGISTRAR)],
       );
       const created = await register(input({ retentionPolicyId: policyId }));
@@ -260,7 +260,7 @@ describe('DgvDatasetStore (dataset catalogue with owner and steward, ST-DGV-001)
       const policyId = randomUUID();
       await owner(
         `insert into machvon.data_retention_policy (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by)
-         values ($1, $2, 'DATASET_CONTRACT_TEST', 1, 10, 'FROM_CREATED', 'test', 'REVIEW_FOR_DESTRUCTION', '2026-01-01', 'Published', $3)`,
+         values ($1, $2, 'dataset_contract_test', 1, 10, 'FROM_CREATED', 'Fixture legal basis', 'REVIEW_FOR_DESTRUCTION', '2026-01-01', 'Draft', $3)`,
         [TENANT_A, policyId, memberId(REGISTRAR)],
       );
       await owner(

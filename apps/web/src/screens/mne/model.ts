@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { EXPORT_FORMATS } from './types';
-import type { ExportFormat, FormView, ObligationView, ReportKind } from './types';
+import type { ExportFormat, Frequency, FormView, ObligationView, ReportKind, ReportingRole } from './types';
 
 const DAY_MS = 86_400_000;
 const OFFSET_MS = 7 * 3_600_000;
@@ -50,7 +50,8 @@ export interface ActionContext {
   approve: string;
 }
 
-export function actionsFor(form: FormView, context: ActionContext): FormActions {
+/** The same rule for a form revision and for a rule revision: a draft is published by a person other than its maker. */
+export function actionsFor(form: Pick<FormView, 'status' | 'createdBy'>, context: ActionContext): FormActions {
   if (context.frozen || form.status !== 'DRAFT') return { publish: false, publishNeedsOther: false };
   if (context.permissions !== undefined && !context.permissions.includes(context.approve)) return { publish: false, publishNeedsOther: false };
   const own = context.membershipId !== undefined && form.createdBy.toLowerCase() === context.membershipId.toLowerCase();
@@ -173,9 +174,98 @@ export function revisionBody(values: RevisionValues) {
   };
 }
 
+// ---- the form of a new rule revision (createMneObligationRule) ----
+
+export interface RuleValues {
+  ruleCode: string;
+  formId: string;
+  reportingRole: ReportingRole | '';
+  recipient: string;
+  frequency: Frequency | '';
+  /** The formula of the deadline as JSON text. */
+  dueRuleText: string;
+  legalBasis: string;
+  legalConfirmationRef: string;
+  effectiveFrom: string;
+  effectiveUntil: string;
+}
+
+export const EMPTY_RULE: RuleValues = {
+  ruleCode: '',
+  formId: '',
+  reportingRole: '',
+  recipient: '',
+  frequency: '',
+  dueRuleText: '{}',
+  legalBasis: '',
+  legalConfirmationRef: '',
+  effectiveFrom: '',
+  effectiveUntil: '',
+};
+
+export type RuleErrors = Partial<Record<keyof RuleValues, FieldProblem>>;
+
+const MAX_RECIPIENT = 300;
+const MIN_RECIPIENT = 2;
+
+/** Checks what the server checks first (shape and length); the formula itself is evaluated by the server, which names the field it refuses. */
+export function validateRule(values: RuleValues): RuleErrors {
+  const errors: RuleErrors = {};
+  if (values.ruleCode.trim() === '') errors.ruleCode = 'required';
+  else if (!FORM_CODE.test(values.ruleCode.trim())) errors.ruleCode = 'format';
+  if (values.formId === '') errors.formId = 'required';
+  if (values.reportingRole === '') errors.reportingRole = 'required';
+  const recipient = lengthProblem(values.recipient, MIN_RECIPIENT, MAX_RECIPIENT);
+  if (recipient !== undefined) errors.recipient = recipient;
+  if (values.frequency === '') errors.frequency = 'required';
+  if (schemaOf(values.dueRuleText) === undefined) errors.dueRuleText = 'json';
+  const legalBasis = lengthProblem(values.legalBasis, MIN.legalBasis, MAX.legalBasis);
+  if (legalBasis !== undefined) errors.legalBasis = legalBasis;
+  if (values.legalConfirmationRef.trim().length > MAX.reference) errors.legalConfirmationRef = 'tooLong';
+  if (values.effectiveFrom === '') errors.effectiveFrom = 'required';
+  else if (!isRealDate(values.effectiveFrom)) errors.effectiveFrom = 'date';
+  if (values.effectiveUntil !== '') {
+    if (!isRealDate(values.effectiveUntil)) errors.effectiveUntil = 'date';
+    else if (errors.effectiveFrom === undefined && values.effectiveUntil <= values.effectiveFrom) errors.effectiveUntil = 'order';
+  }
+  return errors;
+}
+
+/** The request body of `createMneObligationRule` for values that passed `validateRule`. */
+export function ruleBody(values: RuleValues) {
+  const reference = values.legalConfirmationRef.trim();
+  return {
+    rule_code: values.ruleCode.trim(),
+    form_id: values.formId,
+    reporting_role: values.reportingRole as ReportingRole,
+    recipient: values.recipient.trim(),
+    frequency: values.frequency as Frequency,
+    due_rule_json: schemaOf(values.dueRuleText) ?? {},
+    legal_basis: values.legalBasis.trim(),
+    ...(reference === '' ? {} : { legal_confirmation_ref: reference }),
+    effective_from: values.effectiveFrom,
+    ...(values.effectiveUntil === '' ? {} : { effective_until: values.effectiveUntil }),
+  };
+}
+
+/** The keys of a formula in the order a person reads it: what the report is about, then the day, then the shift. The server keeps JSON keys in its own order. */
+const FORMULA_ORDER = ['period', 'weekly', 'event', 'month', 'day', 'year_offset', 'days_after', 'time', 'shift_on_holiday', 'calendar_code'];
+
+/** The formula of a deadline in a line the table can show: `period=H1 month=7 day=10`. */
+export function formulaText(rule: Record<string, unknown>): string {
+  const rank = (key: string): number => {
+    const index = FORMULA_ORDER.indexOf(key);
+    return index === -1 ? FORMULA_ORDER.length : index;
+  };
+  return Object.entries(rule)
+    .sort(([left], [right]) => rank(left) - rank(right) || left.localeCompare(right))
+    .map(([key, value]) => `${key}=${String(value)}`)
+    .join(' ');
+}
+
 // ---- why a command failed ----
 
-export type ProblemReason = 'conflict' | 'selfApproval' | 'stateInvalid' | 'rangeOverlap' | 'templateMissing' | 'invalid' | 'notFound' | 'denied' | 'session' | 'general';
+export type ProblemReason = 'conflict' | 'selfApproval' | 'stateInvalid' | 'rangeOverlap' | 'templateMissing' | 'formNotEffective' | 'invalid' | 'notFound' | 'denied' | 'session' | 'general';
 
 export interface ProblemView {
   reason: ProblemReason;
@@ -188,6 +278,8 @@ const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
   SELF_APPROVAL_DENIED: 'selfApproval',
   REPORT_STATE_INVALID: 'stateInvalid',
   FORM_RANGE_OVERLAP: 'rangeOverlap',
+  EFFECTIVE_RANGE_OVERLAP: 'rangeOverlap',
+  FORM_NOT_EFFECTIVE: 'formNotEffective',
   DOC_TEMPLATE_MISSING: 'templateMissing',
   LEGAL_BASIS_REQUIRED: 'invalid',
   VALIDATION_FAILED: 'invalid',

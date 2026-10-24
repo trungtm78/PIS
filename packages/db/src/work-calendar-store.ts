@@ -150,6 +150,12 @@ export class WorkCalendarStore {
    */
   async publish(tx: TenantTx, draft: WorkCalendarRow, publishedBy: string): Promise<{ version: number; supersededId: string | undefined }> {
     await lockCalendarYear(tx, 'publish', draft.content.calendar_code, draft.content.year);
+    // A draft written before a revision that is or was in force would take that revision's holidays back without anyone saying so.
+    const newer = await tx.query<{ id: string }>(
+      `select id from machvon.work_calendar_version where calendar_code = $1 and year = $2::int and revision > $3::int and status in ('Published', 'Superseded') limit 1`,
+      [draft.content.calendar_code, draft.content.year, draft.revision],
+    );
+    if (newer.length > 0) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'revision');
     const superseded = await tx.query<{ id: string }>(
       `update machvon.work_calendar_version set status = 'Superseded', version = version + 1
         where calendar_code = $1 and year = $2::int and status = 'Published' returning id`,

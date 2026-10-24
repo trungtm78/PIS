@@ -286,6 +286,18 @@
       ]
     },
     {
+      "key": "admReader",
+      "displayName": "Người xem quản trị",
+      "membershipId": "00000000-0000-4000-8000-0000000000f1",
+      "permissions": [
+        "adm.retention.read",
+        "adm.integration.read",
+        "audit_event.read",
+        "integration_cursor.read",
+        "legal_hold.read"
+      ]
+    },
+    {
       "key": "sysAdmin",
       "displayName": "Nguyễn An",
       "initials": "AN",

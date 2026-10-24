@@ -3,10 +3,10 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { revisionBody } from './model';
-import type { RevisionValues } from './model';
-import { toForm, toGeneration, toObligationPage } from './types';
-import type { FormView, GenerationResult, ObligationPage, ReportKind, ReportStatus } from './types';
+import { revisionBody, ruleBody } from './model';
+import type { RevisionValues, RuleValues } from './model';
+import { toForm, toGeneration, toObligationPage, toRule } from './types';
+import type { FormView, GenerationResult, ObligationPage, ReportKind, ReportStatus, RuleView } from './types';
 
 export const PAGE_SIZE = 100;
 
@@ -31,6 +31,18 @@ export function useForms(filter: FormFilter) {
           query: { ...(filter.reportKind === '' ? {} : { report_kind: filter.reportKind }), ...(filter.effectiveOn === '' ? {} : { effective_on: filter.effectiveOn }) },
         })
       ).flatMap((raw) => toForm(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** Every revision of the obligation rules of the tenant, newest first (the list holds a few dozen rules). */
+export function useRules() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<RuleView[]>({
+    queryKey: [...mneRoot(tenant?.id), 'rules'],
+    queryFn: async () => (await client.readAll('listMneObligationRules')).flatMap((raw) => toRule(raw) ?? []),
     enabled: tenant !== undefined,
     retry: false,
   });
@@ -108,6 +120,38 @@ export function useCreateForm() {
   const { attempts, settled } = useCommandSupport();
   return useMutation({
     mutationFn: (values: RevisionValues) => client.command('createMneFormVersion', { body: contractBody(values), attempt: attempts.current.forPayload(values) }),
+    onSuccess: settled,
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/**
+ * The body of createMneObligationRule in the type the generated contract gives it: `due_rule_json` is a bare `object` in openapi.json,
+ * rendered as a record of `never`, and the formula is free JSON, so it is the one field that needs the cast.
+ */
+function contractRuleBody(values: RuleValues) {
+  const body = ruleBody(values);
+  return { ...body, due_rule_json: body.due_rule_json as Record<string, never> };
+}
+
+/** Drafts the next revision of an obligation rule. */
+export function useCreateRule() {
+  const client = useApiClient();
+  const { attempts, settled } = useCommandSupport();
+  return useMutation({
+    mutationFn: (values: RuleValues) => client.command('createMneObligationRule', { body: contractRuleBody(values), attempt: attempts.current.forPayload(values) }),
+    onSuccess: settled,
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** Publishes a draft rule revision (versioned: 409 for a stale version, 403 SELF_APPROVAL_DENIED for its maker). */
+export function usePublishRule() {
+  const client = useApiClient();
+  const { attempts, settled } = useCommandSupport();
+  return useMutation({
+    mutationFn: (input: { ruleId: string; version: number }) =>
+      client.command('publishMneObligationRule', { path: { id: input.ruleId }, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
     onSuccess: settled,
     onError: (error) => attempts.current.ended(error),
   });

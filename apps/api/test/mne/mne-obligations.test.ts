@@ -190,6 +190,70 @@ describe('obligation rules and the filing calendar API (ST-MNE-001, MNE F1, F2)'
     });
   });
 
+  describe('the list of rules', () => {
+    const rules = (query = '', member = READER, tenantId?: string): Promise<Reply> => app.call('GET', `/mne-obligation-rules${query}`, { member, ...(tenantId === undefined ? {} : { tenantId }) });
+
+    it('lists every revision of the tenant newest first with its formula, its confirmation label and who made and approved it', async () => {
+      const formId = await publishedForm('TT44-M02');
+      const first = await publishedRule(formId, 'LIST-A');
+      const draft = await app.call('POST', '/mne-obligation-rules', { member: ADMIN, body: ruleBody(formId, 'LIST-B', { reporting_role: 'PROVINCIAL_PEOPLE_COMMITTEE', recipient: 'Bộ Tài chính' }) });
+      const reply = await rules('?limit=50');
+      expect(reply.status).toBe(200);
+      expect(items(reply).map((row) => [row.id, row.status])).toEqual([[draft.json.resource_id, 'DRAFT'], [first, 'PUBLISHED']]);
+      expect(items(reply)[1]).toMatchObject({
+        rule_code: 'LIST-A',
+        revision: 1,
+        form_id: formId,
+        form_code: 'TT44-M02',
+        reporting_role: 'INVESTOR',
+        frequency: 'SEMIANNUAL',
+        due_rule_json: { period: 'H1', month: 7, day: 10 },
+        legal_confirmation_ref: null,
+        awaiting_confirmation: true,
+        cxn_refs: ['CXN-10'],
+        effective_from: '2026-01-01',
+        effective_until: null,
+        origin: 'TENANT',
+        version: 2,
+      });
+      expect(items(reply)[1]?.approved_by).toEqual(expect.any(String));
+      expect(items(reply)[0]?.approved_by).toBeNull();
+      expect(reply.json.next_cursor).toBeNull();
+    });
+
+    it('narrows by reporting role, form code and status, and pages newest first with a cursor', async () => {
+      const half = await publishedForm('TT44-M02');
+      const year = await publishedForm('TT44-M03', { doc_template_code: 'MNE-TT44-M03' });
+      await publishedRule(half, 'PAGE-1');
+      await publishedRule(year, 'PAGE-2', { reporting_role: 'PROJECT_OWNER_AGENCY' });
+      await app.call('POST', '/mne-obligation-rules', { member: ADMIN, body: ruleBody(year, 'PAGE-3') });
+      expect(items(await rules('?reporting_role=PROJECT_OWNER_AGENCY')).map((row) => row.rule_code)).toEqual(['PAGE-2']);
+      expect(items(await rules('?form_code=TT44-M03')).map((row) => row.rule_code)).toEqual(['PAGE-3', 'PAGE-2']);
+      expect(items(await rules('?status=DRAFT')).map((row) => row.rule_code)).toEqual(['PAGE-3']);
+      expect(items(await rules('?status=RETIRED'))).toEqual([]);
+      const seen: string[] = [];
+      let cursor: string | null = null;
+      do {
+        const page: Reply = await rules(`?limit=1${cursor === null ? '' : `&cursor=${cursor}`}`);
+        seen.push(...items(page).map((row) => row.rule_code as string));
+        cursor = page.json.next_cursor as string | null;
+      } while (cursor !== null);
+      expect(seen).toEqual(['PAGE-3', 'PAGE-2', 'PAGE-1']);
+    });
+
+    it('refuses a malformed filter or cursor, answers nobody without the read permission and keeps the rules of a tenant out of the other', async () => {
+      await publishedRule(await publishedForm('TT44-M02'), 'TENANT-A-RULE');
+      for (const query of ['?reporting_role=MINISTER', '?status=DONE', '?form_code=has space', '?limit=0', '?cursor=not-a-cursor']) {
+        const reply = await rules(query);
+        expect([reply.status, reply.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      }
+      const forged = await rules(`?cursor=${Buffer.from(JSON.stringify(['yesterday', '00000000-0000-4000-8000-0000000000aa'])).toString('base64url')}`);
+      expect([forged.status, forged.json.detail]).toEqual([422, 'cursor']);
+      expect((await rules('', NOBODY)).status).toBe(403);
+      expect(items(await rules('', ADMIN, TENANT_B))).toEqual([]);
+    });
+  });
+
   describe('scope and tenancy', () => {
     it('lets a caller who reaches one branch generate and read that branch only, and refuses a unit outside it (403 SCOPE_DENIED)', async () => {
       await publishDesignRules();

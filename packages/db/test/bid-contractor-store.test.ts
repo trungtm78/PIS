@@ -209,6 +209,38 @@ describe('BidContractorStore (the contractor registry, ST-BID-002)', () => {
       expect(await as((tx) => contractors.find(tx, nt2.id))).toMatchObject({ verificationStatus: 'REJECTED', version: 2 });
     });
 
+    it('answers 409 TAX_ID_DUPLICATE_VERIFIED, not a raw database error, when the other claim of the tax id is verified between the check and the write (race)', async () => {
+      const taxIdentifier = freshTaxId();
+      const nt1 = await register({ taxIdentifier, legalName: 'Cty NT Mot' });
+      const nt2 = await register({ taxIdentifier, legalName: 'Cty NT Hai' });
+      const evidence = await document(false);
+      let holdOpen: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        holdOpen = resolve;
+      });
+      let firstWrote: () => void = () => undefined;
+      const wrote = new Promise<void>((resolve) => {
+        firstWrote = resolve;
+      });
+      // The first transaction verifies nt1 and stays open; the second passes its check (nothing is committed yet) and waits on the unique index.
+      const first = as(async (tx) => {
+        await contractors.verify(tx, nt1.id, 1, { decision: 'VERIFIED', evidenceDocumentId: evidence }, memberId(CHECKER));
+        firstWrote();
+        await gate;
+      }, CHECKER);
+      await wrote;
+      const second = refusal(as((tx) => contractors.verify(tx, nt2.id, 1, { decision: 'VERIFIED', evidenceDocumentId: evidence }, memberId(CHECKER)), CHECKER));
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      holdOpen();
+      await first;
+      expect(await second).toMatchObject({
+        code: 'TAX_ID_DUPLICATE_VERIFIED',
+        status: 409,
+        extensions: { merge_suggestion: { target: 'MDM', action: 'MERGE', verified_contractor_id: nt1.id, contractor_id: nt2.id } },
+      });
+      expect(await as((tx) => contractors.find(tx, nt2.id))).toMatchObject({ verificationStatus: 'UNVERIFIED', version: 1 });
+    }, 30_000);
+
     it('verifies on the evidence document by someone else: the person, the time and the evidence are kept, and the version moves', async () => {
       const created = await register();
       const evidence = await document(false);
@@ -341,6 +373,19 @@ describe('BidContractorStore (the contractor registry, ST-BID-002)', () => {
       expect(await databaseRefusal(owner('update machvon.contractor_restriction set effective_from = effective_from + 1 where id = $1', [recorded.id]))).toContain('not rewritten');
       await owner("update machvon.contractor_restriction set effective_until = '2026-06-30', note = 'Ended earlier by decision 13' where id = $1", [recorded.id]);
       expect((await as((tx) => contractors.restrictionsOf(tx, [done.id]))).get(done.id)?.[0]).toMatchObject({ effectiveUntil: '2026-06-30', note: 'Ended earlier by decision 13' });
+      // The end may only be brought forward: moving it later, or taking it away, would lift or stretch a debarment by rewriting the record.
+      expect(await databaseRefusal(owner("update machvon.contractor_restriction set effective_until = '2027-12-31' where id = $1", [recorded.id]))).toContain('only be brought forward');
+      expect(await databaseRefusal(owner('update machvon.contractor_restriction set effective_until = null where id = $1', [recorded.id]))).toContain('only be brought forward');
+      expect((await as((tx) => contractors.restrictionsOf(tx, [done.id]))).get(done.id)?.[0]).toMatchObject({ effectiveUntil: '2026-06-30' });
+    });
+
+    it('lets an open-ended restriction be given an end, once, and only earlier from then on', async () => {
+      const done = await verified(freshTaxId());
+      const decision = await document(true);
+      const recorded = await as((tx) => contractors.recordRestriction(tx, done.id, { kind: 'SUSPENSION', effectiveFrom: '2026-01-01', decisionDocumentId: decision }, memberId(CHECKER)), CHECKER);
+      await owner("update machvon.contractor_restriction set effective_until = '2026-12-31' where id = $1", [recorded.id]);
+      expect(await databaseRefusal(owner("update machvon.contractor_restriction set effective_until = '2027-01-01' where id = $1", [recorded.id]))).toContain('only be brought forward');
+      await owner("update machvon.contractor_restriction set effective_until = '2026-11-30' where id = $1", [recorded.id]);
     });
 
     it('refuses a decision that is not in force or does not exist, an unknown contractor, a kind outside the list, and dates that are not a range', async () => {

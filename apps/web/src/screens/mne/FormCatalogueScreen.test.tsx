@@ -251,11 +251,12 @@ describe('MNE-02 form catalogue (ST-MNE-001, MNE F1, BR-MNE-01)', () => {
       const h = formsClient(() => ROWS);
       mount(<FormCatalogueScreen route={ROUTE} />, h, { permissions: READER });
       await screen.findByText('TT44-M02');
-      expect(h.readAll).toHaveBeenLastCalledWith('listMneForms', { query: {} });
+      const lastFormsRead = (): unknown[] | undefined => h.readAll.mock.calls.filter((call) => call[0] === 'listMneForms').at(-1);
+      expect(lastFormsRead()).toEqual(['listMneForms', { query: {} }]);
       await user.selectOptions(screen.getByLabelText(vi_['mne.forms.filter.kind.label']), 'EVALUATION');
       fireEvent.change(screen.getByLabelText(vi_['mne.forms.filter.effectiveOn.label']), { target: { value: '2026-06-30' } });
       await user.click(screen.getByRole('button', { name: vi_['mne.forms.filter.action'] }));
-      await waitFor(() => expect(h.readAll).toHaveBeenLastCalledWith('listMneForms', { query: { report_kind: 'EVALUATION', effective_on: '2026-06-30' } }));
+      await waitFor(() => expect(lastFormsRead()).toEqual(['listMneForms', { query: { report_kind: 'EVALUATION', effective_on: '2026-06-30' } }]));
     });
   });
 

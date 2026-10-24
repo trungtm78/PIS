@@ -43,7 +43,9 @@ function balanceDeclaration(ref: BalanceRef): LedgerDeclaration {
  * until the transaction ends.
  */
 export async function lockLedgerRows(tx: TenantTx, refs: readonly LedgerRowRef[]): Promise<void> {
-  const targets = refs.map((ref) => ({ rank: declared(ref.table).lockRank, table: ref.table, key: ref.id }));
+  // A uuid is one row whatever its spelling, and the order is that of the text the database prints (small letters): a command that names
+  // a row in capitals must not lock it before a row that another command, naming both in small letters, locks first.
+  const targets = refs.map((ref) => ({ rank: declared(ref.table).lockRank, table: ref.table, key: ref.id.toLowerCase() }));
   for (const target of orderLockTargets(targets)) {
     const rows = await tx.query(`select 1 from machvon.${target.table} where ${LEDGER_LOCK_COLUMN} = $1::uuid for update`, [target.key]);
     if (rows.length === 0) throw new DomainError('RESOURCE_NOT_FOUND', 404);

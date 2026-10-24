@@ -312,6 +312,9 @@ export class BidContractorStore {
       lookup = input.lookup ?? null;
       basis = lookup?.adapterStatus === 'VERIFIED' && lookup.outcome === 'MATCH' ? 'EVIDENCE_DOCUMENT_AND_LOOKUP' : 'EVIDENCE_DOCUMENT';
     }
+    // A savepoint keeps the transaction usable when the unique index refuses the write: without it the lookup of the holder below would
+    // fail with "current transaction is aborted" instead of the 409 that names the duplicate.
+    await tx.query('savepoint contractor_verification');
     try {
       await tx.query(
         `update machvon.contractor
@@ -321,9 +324,11 @@ export class BidContractorStore {
           where id = $1::uuid`,
         [id, input.decision, basis, lookup?.adapterStatus ?? null, lookup?.outcome ?? null, lookup?.checkedAt ?? null, masterRecordId, actor, input.evidenceDocumentId],
       );
+      await tx.query('release savepoint contractor_verification');
     } catch (error) {
       if (input.decision === 'VERIFIED' && (error as { code?: string }).code === UNIQUE_VIOLATION) {
         // Another transaction verified the same tax id between the check and the write: the unique index has the last word.
+        await tx.query('rollback to savepoint contractor_verification');
         const holder = await this.verifiedHolder(tx, row.taxIdentifier);
         throw holder === undefined ? error : this.duplicate(holder, row);
       }

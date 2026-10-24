@@ -12,6 +12,7 @@ import { useForms, usePublishForm } from './hooks';
 import type { FormFilter } from './hooks';
 import { formStatusLabel, phaseLabel, problemMessage, reportKindLabel } from './labels';
 import { actionsFor, describeProblem, lastDayOf, phaseOf, vietnamToday } from './model';
+import { RulesPanel } from './RulesPanel';
 import { APPROVE_FORMS_PERMISSION, MANAGE_FORMS_PERMISSION, REPORT_KINDS } from './types';
 import type { FormView, ReportKind } from './types';
 import './mne.css';
@@ -234,6 +235,8 @@ function FormCatalogueContent({ route }: ScreenProps) {
           }}
         />
       ) : null}
+      {/* The rules are read for someone who can read the catalogue: in the states of a refusal or a failure of the catalogue there is nothing to add them to. */}
+      {state === 'default' || state === 'empty' ? <RulesPanel /> : null}
       <p className="prototype-note">{t('mne.forms.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );

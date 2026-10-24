@@ -17,6 +17,7 @@ const READER = 2; // master.read
 const OPERATOR = 3; // integration.cursor.reset and integration_cursor.read
 const CURSOR_READER = 4; // integration_cursor.read
 const NOBODY = 5;
+const BRANCH_OPERATOR = 6; // integration.cursor.reset over the units under unit 1 only
 const OTHER_TENANT_MANAGER = 1; // of tenant B
 
 interface Reply {
@@ -78,18 +79,20 @@ describe('crosswalk and integration cursor commands and reads (ST-MDM-007)', () 
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.seedUnits(tenant, [{ n: 1, path: `/${unitId(1)}/` }]);
     }
-    for (const n of [MANAGER, READER, OPERATOR, CURSOR_READER, NOBODY]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [MANAGER, READER, OPERATOR, CURSOR_READER, NOBODY, BRANCH_OPERATOR]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, OTHER_TENANT_MANAGER, 1);
     await harness.seedRole(TENANT_A, 1, 'CROSSWALK_MANAGER', ['master.crosswalk.manage', 'master.read'], 40);
     await harness.seedRole(TENANT_A, 2, 'DATA_READER', ['master.read'], 20);
     await harness.seedRole(TENANT_A, 3, 'INTEGRATION_OPERATOR', ['integration.cursor.reset', 'integration_cursor.read'], 50);
     await harness.seedRole(TENANT_A, 4, 'INTEGRATION_READER', ['integration_cursor.read'], 20);
+    await harness.seedRole(TENANT_A, 5, 'BRANCH_INTEGRATION_OPERATOR', ['integration.cursor.reset', 'integration_cursor.read'], 30);
     await harness.seedRole(TENANT_B, 1, 'CROSSWALK_MANAGER', ['master.crosswalk.manage', 'master.read', 'integration_cursor.read'], 40);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MANAGER, role: 1, kind: 'TENANT' },
       { n: 2, member: READER, role: 2, kind: 'TENANT' },
       { n: 3, member: OPERATOR, role: 3, kind: 'TENANT' },
       { n: 4, member: CURSOR_READER, role: 4, kind: 'TENANT' },
+      { n: 5, member: BRANCH_OPERATOR, role: 5, kind: 'UNIT_SUBTREE', refs: [unitId(1)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: OTHER_TENANT_MANAGER, role: 1, kind: 'TENANT' }]);
     for (const [tenant, row] of [[TENANT_A, cursorId], [TENANT_B, otherCursorId]] as const) {
@@ -197,6 +200,14 @@ describe('crosswalk and integration cursor commands and reads (ST-MDM-007)', () 
   });
 
   describe('resetIntegrationCursor and the reads of the connectors', () => {
+    it('needs the permission on the whole tenant (MDM 2: the integration operator acts on the tenant): a grant over a branch moves nothing', async () => {
+      const before = await rows('select cursor_json, status, version::int as version from machvon.integration_cursor where id = $1', [cursorId]);
+      const refused = await reset(BRANCH_OPERATOR, cursorId, 1, { cursor_json: { after_date: '2026-04-01' }, reason: 'Re-read the statements of April' });
+      expect([refused.status, refused.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect(await rows('select cursor_json, status, version::int as version from machvon.integration_cursor where id = $1', [cursorId])).toEqual(before);
+      expect(await rows("select id from machvon.audit_event where action = 'integration.cursor_reset' and actor_id = $1", [memberId(BRANCH_OPERATOR)])).toEqual([]);
+    });
+
     it('refuses a caller without the permission and a reset without a reason, then moves the position and audits the reason (AC-ST-MDM-007-2)', async () => {
       const payload = { reason: 'Re-read the statements of March', cursor_json: { after_date: '2026-03-01' } };
       expect((await reset(CURSOR_READER, cursorId, 1, payload)).status).toBe(403);

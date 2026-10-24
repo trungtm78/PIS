@@ -7,7 +7,7 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
 /**
  * MNE-02 (report form catalogue) and MNE-01 (filing calendar) in a real browser against the real API and database (apps/api/test/e2e-stack):
  * a form revision is drafted on the screen by one person and published by a second, a later revision takes over from the one in force, the
- * rules (no screen lists them in this build) are drafted and published through the API by the same two people, and the year is generated on
+ * rules are drafted and published on the same screen by the same two people (the obligation rules panel of MNE-02; the calendar test prepares its own through the API), and the year is generated on
  * MNE-01: the obligations of the investors and of the project owner agencies appear with their form, level, due date, recipient and the
  * [CXN-nn] label, a second run adds nothing, and the role that no unit holds is reported instead of invented. The four-eyes rule is checked
  * on the screen (it offers the step to someone else) and on the server (it refuses the author). What the screens changed is looked up in the
@@ -284,6 +284,174 @@ test.describe('MNE-02 report form catalogue', () => {
     await open(page, 'nobody', '/mne/mne-02');
     await expect(page.getByText(vi['states.denied.title'])).toBeVisible();
     await expect(page.locator('tr[data-form-code]')).toHaveCount(0);
+  });
+});
+
+interface RuleRevision {
+  id: string;
+  revision: number;
+  status: string;
+  created_by: string;
+  approved_by: string | null;
+  effective_from: string;
+  effective_until: string | null;
+  due: string;
+  version: string;
+}
+
+const ruleRevisionsOf = (code: string): Promise<RuleRevision[]> =>
+  sql(
+    `select id::text, revision, status, created_by::text, approved_by::text, effective_from::text, effective_until::text, due_rule_json::text as due, version::text
+       from machvon.mne_obligation_rule where rule_code = $1 order by revision`,
+    [code],
+  );
+
+const ruleRow = (page: Page, code: string, revision: number): Locator =>
+  page.locator(`tr[data-rule-code="${code}"]`).filter({ hasText: vi['mne.forms.revision.pill'].replace('{revision}', String(revision)) });
+
+test.describe('MNE-02 obligation rules', () => {
+  test('a rule is drafted on the screen with a formula the server checks, published by a second person, and a later revision takes over from the one in force (AC-ST-MNE-001-2)', async ({ page }) => {
+    const code = unique();
+    const rule = `${code}-R`;
+    // The planning agency is the level no unit holds in the data model: the rule published here is real data but gives the calendar of the other flows no obligation.
+    await publishedForm(code, 'OVERALL_SEMIANNUAL');
+    await open(page, 'mneAdmin', '/mne/mne-02');
+    await expect(page.getByRole('heading', { level: 2, name: vi['mne.rules.page.title'] })).toBeVisible();
+    await page.getByRole('button', { name: vi['mne.rules.create.open.action'] }).click();
+    const form = page.getByRole('form', { name: vi['mne.rules.create.title'] });
+    const save = form.getByRole('button', { name: vi['mne.rules.create.submit.action'] });
+    const fill = async (label: string, value: string): Promise<void> => form.getByLabel(label, { exact: true }).fill(value);
+
+    // An empty form sends nothing: every mandatory field says so and the database has nothing.
+    await save.click();
+    for (const field of ['rule-code', 'rule-form', 'rule-role', 'rule-frequency', 'rule-recipient', 'rule-from', 'rule-basis']) {
+      await expect(form.locator(`[data-field="${field}"]`).getByText(vi['mne.forms.field.required'])).toBeVisible();
+    }
+    expect(await ruleRevisionsOf(rule)).toEqual([]);
+
+    // A formula the server cannot evaluate is refused naming the field, and nothing is saved (422 VALIDATION_FAILED).
+    await fill(vi['mne.rules.create.code.label'], rule);
+    await form.getByLabel(vi['mne.rules.create.form.label'], { exact: true }).selectOption({ label: withParams(vi['mne.rules.create.form.option'], { code, revision: '1' }) });
+    await form.getByLabel(vi['mne.rules.create.role.label'], { exact: true }).selectOption('PLANNING_AGENCY');
+    await form.getByLabel(vi['mne.rules.create.frequency.label'], { exact: true }).selectOption('SEMIANNUAL');
+    await fill(vi['mne.rules.create.recipient.label'], RECIPIENT);
+    await fill(vi['mne.rules.create.from.label'], `${YEAR}-01-01`);
+    await fill(vi['mne.rules.create.basis.label'], BASIS);
+    await fill(vi['mne.rules.create.due.label'], '{"period":"H1","month":13,"day":10}');
+    await save.click();
+    await expect(form.getByRole('alert').filter({ hasText: 'due_rule_json.month' })).toBeVisible();
+    expect(await ruleRevisionsOf(rule)).toEqual([]);
+
+    // With a formula that holds it is saved; the maker holds the permission to approve, but the screen leaves the step to someone else.
+    await fill(vi['mne.rules.create.due.label'], '{"period":"H1","month":7,"day":10}');
+    await save.click();
+    await expect(page.getByRole('status').filter({ hasText: withParams(vi['mne.rules.create.done.notice'], { code: rule }) })).toBeVisible();
+    const [draft] = await ruleRevisionsOf(rule);
+    expect(draft).toMatchObject({ revision: 1, status: 'DRAFT', created_by: ADMIN, approved_by: null, effective_from: `${YEAR}-01-01`, effective_until: null, version: '1' });
+    expect(JSON.parse(draft?.due ?? '{}')).toEqual({ period: 'H1', month: 7, day: 10 });
+    const asDrafted = ruleRow(page, rule, 1);
+    await expect(asDrafted.locator('[data-lifecycle="DRAFT"]')).toHaveText(vi['mne.forms.state.draft']);
+    await expect(asDrafted).toContainText(code);
+    await expect(asDrafted).toContainText(vi['mne.calendar.role.planningAgency']);
+    await expect(asDrafted).toContainText(vi['mne.rules.frequency.semiannual']);
+    await expect(asDrafted).toContainText('period=H1 month=7 day=10');
+    await expect(asDrafted).toContainText(RECIPIENT);
+    await expect(asDrafted.locator('[data-confirmation="pending"]')).toHaveText(withParams(vi['mne.forms.confirmation.pending'], { tags: '[CXN-10]' }));
+    await expect(asDrafted.getByText(vi['mne.forms.publish.other.hint'])).toBeVisible();
+    await expect(asDrafted.getByRole('button')).toHaveCount(0);
+    const selfPublish = await apiCall('mneAdmin', 'POST', `/mne-obligation-rules/${draft?.id ?? ''}/publish`, { version: 1 });
+    expect([selfPublish.status, selfPublish.json.code]).toEqual([403, 'SELF_APPROVAL_DENIED']);
+    expect((await ruleRevisionsOf(rule))[0]).toMatchObject({ status: 'DRAFT', approved_by: null, version: '1' });
+
+    // The second person publishes it; they may publish but not draft (the screen offers them no new rule).
+    await open(page, 'mneApprover', '/mne/mne-02');
+    await expect(page.getByRole('button', { name: vi['mne.rules.create.open.action'] })).toHaveCount(0);
+    await ruleRow(page, rule, 1).getByRole('button', { name: withParams(vi['mne.rules.publish.label'], { code: rule, revision: '1' }) }).click();
+    await page.getByRole('form', { name: withParams(vi['mne.rules.publish.title'], { code: rule, revision: '1' }) }).getByRole('button', { name: vi['mne.forms.publish.confirm.action'] }).click();
+    await expect(page.getByRole('status').filter({ hasText: withParams(vi['mne.rules.publish.done.notice'], { code: rule, revision: '1' }) })).toBeVisible();
+    expect(await ruleRevisionsOf(rule)).toEqual([{ ...draft, status: 'PUBLISHED', approved_by: APPROVER, version: '2' }]);
+    await expect(ruleRow(page, rule, 1).locator('[data-lifecycle="PUBLISHED"]')).toHaveText(vi['mne.forms.state.published']);
+    await expect(ruleRow(page, rule, 1).getByRole('button')).toHaveCount(0);
+
+    // A revision that starts on the day of the one in force overlaps it: refused, nothing saved (409). Starting later it is saved.
+    await open(page, 'mneAdmin', '/mne/mne-02');
+    await page.getByRole('button', { name: vi['mne.rules.create.open.action'] }).click();
+    const next = page.getByRole('form', { name: vi['mne.rules.create.title'] });
+    const nextFill = async (label: string, value: string): Promise<void> => next.getByLabel(label, { exact: true }).fill(value);
+    await nextFill(vi['mne.rules.create.code.label'], rule);
+    await next.getByLabel(vi['mne.rules.create.form.label'], { exact: true }).selectOption({ label: withParams(vi['mne.rules.create.form.option'], { code, revision: '1' }) });
+    await next.getByLabel(vi['mne.rules.create.role.label'], { exact: true }).selectOption('PLANNING_AGENCY');
+    await next.getByLabel(vi['mne.rules.create.frequency.label'], { exact: true }).selectOption('SEMIANNUAL');
+    await nextFill(vi['mne.rules.create.recipient.label'], RECIPIENT);
+    await nextFill(vi['mne.rules.create.from.label'], `${YEAR}-01-01`);
+    await nextFill(vi['mne.rules.create.basis.label'], BASIS);
+    await nextFill(vi['mne.rules.create.due.label'], '{"period":"H1","month":7,"day":15}');
+    await next.getByRole('button', { name: vi['mne.rules.create.submit.action'] }).click();
+    await expect(next.getByRole('alert').filter({ hasText: vi['mne.forms.problem.rangeOverlap.text'] })).toBeVisible();
+    expect(await ruleRevisionsOf(rule)).toHaveLength(1);
+    await nextFill(vi['mne.rules.create.from.label'], `${YEAR}-07-01`);
+    await next.getByRole('button', { name: vi['mne.rules.create.submit.action'] }).click();
+    await expect(page.getByRole('status').filter({ hasText: withParams(vi['mne.rules.create.done.notice'], { code: rule }) })).toBeVisible();
+
+    // Published by the approver it ends the earlier revision on the day it starts.
+    await open(page, 'mneApprover', '/mne/mne-02');
+    await ruleRow(page, rule, 2).getByRole('button', { name: withParams(vi['mne.rules.publish.label'], { code: rule, revision: '2' }) }).click();
+    await page.getByRole('form', { name: withParams(vi['mne.rules.publish.title'], { code: rule, revision: '2' }) }).getByRole('button', { name: vi['mne.forms.publish.confirm.action'] }).click();
+    await expect(page.getByRole('status').filter({ hasText: withParams(vi['mne.rules.publish.done.notice'], { code: rule, revision: '2' }) })).toBeVisible();
+    const revisions = await ruleRevisionsOf(rule);
+    expect(revisions.map((row) => [row.revision, row.status, row.effective_from, row.effective_until, row.approved_by])).toEqual([
+      [1, 'RETIRED', `${YEAR}-01-01`, `${YEAR}-07-01`, APPROVER],
+      [2, 'PUBLISHED', `${YEAR}-07-01`, null, APPROVER],
+    ]);
+    await expect(ruleRow(page, rule, 1).locator('[data-lifecycle="RETIRED"]')).toHaveText(vi['mne.forms.state.retired']);
+    await expect(ruleRow(page, rule, 1)).toContainText(withParams(vi['mne.forms.period.closed'], { from: `${YEAR}-01-01`, until: `${YEAR}-06-30` }));
+    await expect(ruleRow(page, rule, 2)).toContainText('period=H1 month=7 day=15');
+    await expect(ruleRow(page, rule, 2)).toContainText(withParams(vi['mne.forms.period.open'], { from: `${YEAR}-07-01` }));
+    expect(
+      await sql("select action from machvon.audit_event where action like 'mne.obligation_rule_%' and outcome = 'SUCCESS' and resource_id = any($1::uuid[]) order by occurred_at", [revisions.map((row) => row.id)]),
+    ).toEqual([{ action: 'mne.obligation_rule_drafted' }, { action: 'mne.obligation_rule_published' }, { action: 'mne.obligation_rule_drafted' }, { action: 'mne.obligation_rule_published' }]);
+  });
+
+  test('someone who only reads sees the rules without a step, and a member without the right to read gets no panel', async ({ page }) => {
+    const code = unique();
+    const rule = `${code}-R`;
+    const formId = await publishedForm(code, 'OVERALL_ANNUAL');
+    const drafted = await apiCall('mneAdmin', 'POST', '/mne-obligation-rules', {
+      body: {
+        rule_code: rule,
+        form_id: formId,
+        reporting_role: 'PROJECT_OWNER_AGENCY',
+        recipient: RECIPIENT,
+        frequency: 'ANNUAL',
+        due_rule_json: { period: 'YEAR', month: 2, day: 10, year_offset: 1 },
+        legal_basis: BASIS,
+        effective_from: `${YEAR}-01-01`,
+      },
+    });
+    expect(drafted.status).toBe(200);
+    const before = await ruleRevisionsOf(rule);
+
+    await open(page, 'mneReader', '/mne/mne-02');
+    await expect(page.getByRole('heading', { level: 2, name: vi['mne.rules.page.title'] })).toBeVisible();
+    await expect(ruleRow(page, rule, 1)).toBeVisible();
+    await expect(ruleRow(page, rule, 1)).toContainText(vi['mne.calendar.role.projectOwnerAgency']);
+    await expect(ruleRow(page, rule, 1)).toContainText('period=YEAR month=2 day=10 year_offset=1');
+    await expect(ruleRow(page, rule, 1).getByRole('button')).toHaveCount(0);
+    await expect(ruleRow(page, rule, 1).getByText(vi['mne.forms.publish.other.hint'])).toHaveCount(0);
+    await expect(page.getByRole('button', { name: vi['mne.rules.create.open.action'] })).toHaveCount(0);
+    // The server says the same to a reader who calls the commands.
+    const refusedDraft = await apiCall('mneReader', 'POST', '/mne-obligation-rules', {
+      body: { rule_code: `${rule}-X`, form_id: formId, reporting_role: 'INVESTOR', recipient: RECIPIENT, frequency: 'ANNUAL', due_rule_json: { period: 'YEAR', month: 2, day: 10, year_offset: 1 }, legal_basis: BASIS, effective_from: `${YEAR}-01-01` },
+    });
+    expect([refusedDraft.status, refusedDraft.json.code]).toEqual([403, 'SCOPE_DENIED']);
+    const refusedPublish = await apiCall('mneReader', 'POST', `/mne-obligation-rules/${before[0]?.id ?? ''}/publish`, { version: 1 });
+    expect([refusedPublish.status, refusedPublish.json.code]).toEqual([403, 'SCOPE_DENIED']);
+    expect(await ruleRevisionsOf(rule)).toEqual(before);
+    expect(await ruleRevisionsOf(`${rule}-X`)).toEqual([]);
+
+    await open(page, 'nobody', '/mne/mne-02');
+    await expect(page.getByText(vi['states.denied.title'])).toBeVisible();
+    await expect(page.getByTestId('rules-panel')).toHaveCount(0);
   });
 });
 

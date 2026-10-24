@@ -129,6 +129,8 @@ export interface FieldChange {
 
 export interface CreatedProject {
   id: string;
+  /** The code as stored (trimmed): what the audit trail and the event of the command carry. */
+  code: string;
   version: number;
   status: 'CONCEPT';
   classification: ProjectClassification;
@@ -447,13 +449,13 @@ export class PrjProjectStore {
     const dossier = {
       code,
       name,
-      owner_unit_id: input.ownerUnitId,
-      investor_unit_id: input.investorUnitId ?? null,
-      decision_authority_unit_id: input.decisionAuthorityUnitId ?? null,
-      area_master_version_id: input.areaMasterVersionId,
-      sector_master_version_id: input.sectorMasterVersionId ?? null,
-      project_type_master_version_id: input.projectTypeMasterVersionId ?? null,
-      program_master_version_id: input.programMasterVersionId ?? null,
+      owner_unit_id: input.ownerUnitId.toLowerCase(),
+      investor_unit_id: input.investorUnitId?.toLowerCase() ?? null,
+      decision_authority_unit_id: input.decisionAuthorityUnitId?.toLowerCase() ?? null,
+      area_master_version_id: input.areaMasterVersionId.toLowerCase(),
+      sector_master_version_id: input.sectorMasterVersionId?.toLowerCase() ?? null,
+      project_type_master_version_id: input.projectTypeMasterVersionId?.toLowerCase() ?? null,
+      program_master_version_id: input.programMasterVersionId?.toLowerCase() ?? null,
       classification,
       total_investment_vnd: total,
       start_year: startYear ?? null,
@@ -467,7 +469,7 @@ export class PrjProjectStore {
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, 1, 'INITIAL', '{}'::jsonb, $3::jsonb, $4::numeric, $5, 'DRAFT', $6::uuid, $6::uuid)`,
       [randomUUID(), id, JSON.stringify(dossier), total, INITIAL_REVISION_REASON, actor],
     );
-    return { id, version: 1, status: 'CONCEPT', classification, groupSuggestion: suggestion };
+    return { id, code, version: 1, status: 'CONCEPT', classification, groupSuggestion: suggestion };
   }
 
   /**
@@ -541,13 +543,14 @@ export class PrjProjectStore {
         return classificationOf(asked as string);
       case 'investor_unit_id':
         await this.assertUnit(tx, asked as string, profile.field);
-        return asked;
+        // An identifier is compared with the one stored as the lower-case text the database writes: a uuid in capitals is the same uuid.
+        return (asked as string).toLowerCase();
       case 'start_year':
       case 'end_year':
         return yearOf(asked as number, profile.field);
       default:
         await this.assertMasterInForce(tx, profile.field, asked as string, today);
-        return asked;
+        return (asked as string).toLowerCase();
     }
   }
 

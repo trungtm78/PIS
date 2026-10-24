@@ -66,6 +66,13 @@ describe('verifyProviderCallback', () => {
     expect(() => verify(overrides)).toThrow(expect.objectContaining({ code: 'SIGNATURE_INVALID', status: 401 }));
   });
 
+  it('never trusts a key with no secret, so a vault that answered nothing does not let anyone sign', () => {
+    const empty = Buffer.alloc(0);
+    expect(() => verify({ keys: [{ keyId: 'unset', secret: empty }], signature: sign(empty, NOW, BODY) })).toThrow(expect.objectContaining({ code: 'SIGNATURE_INVALID', status: 401 }));
+    // The key that has a secret still verifies beside it.
+    expect(verify({ keys: [{ keyId: 'unset', secret: empty }, { keyId: 'k1', secret: SECRET }] })).toEqual({ keyId: 'k1' });
+  });
+
   it('refuses a signature made for another timestamp, so the timestamp cannot be swapped for a fresh one', () => {
     expect(() => verify({ signature: sign(SECRET, NOW - 3600, BODY) })).toThrow(expect.objectContaining({ code: 'SIGNATURE_INVALID' }));
   });

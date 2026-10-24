@@ -32,6 +32,15 @@ describe('amounts of a ledger (integer VND)', () => {
     expect(refusal(() => requirePositiveAmount(150 as unknown as string))).toMatchObject({ code: 'VALIDATION_FAILED' });
   });
 
+  it('refuses an amount with more digits than the numeric(24, scale) column holds, as 422 and not as a database overflow', () => {
+    expect(requirePositiveAmount('9'.repeat(24))).toBe('9'.repeat(24));
+    expect(refusal(() => requirePositiveAmount('1'.repeat(25)))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'amount' });
+    expect(refusal(() => creditAmount('0', '1'.repeat(400)))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'amount' });
+    expect(refusal(() => creditAmount('9'.repeat(24), '1'))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'amount' });
+    expect(requirePositiveAmount(`${'9'.repeat(22)}.99`, 2)).toBe(`${'9'.repeat(22)}.99`);
+    expect(refusal(() => requirePositiveAmount(`${'9'.repeat(23)}.99`, 2)).code).toBe('VALIDATION_FAILED');
+  });
+
   it('accepts as many digits after the point as the column holds, never rounding', () => {
     expect(requirePositiveAmount('12.34', 2)).toBe('12.34');
     expect(refusal(() => requirePositiveAmount('12.345', 2)).code).toBe('VALIDATION_FAILED');

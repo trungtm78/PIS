@@ -18,7 +18,7 @@ The effective date is the first day of the new structure. Publication closes the
 
 ## Flow (four eyes)
 
-1. `recordMasterSuccession` (permission `master.propose`) opens a SUCCESSION change request in DRAFT, anchored on the predecessor, with the edge in its proposal and the impact of the predecessor stored (what refers to it). A split is recorded edge by edge: a further edge of the same predecessor, date and legal basis is added to the open draft.
+1. `recordMasterSuccession` (permission `master.propose`) opens a SUCCESSION change request in DRAFT, anchored on the predecessor, with the edge in its proposal and the impact of the predecessor stored (what refers to it). A split is recorded edge by edge: a further edge of the same predecessor, date and legal basis is added to the open draft, and only by the person who opened it (otherwise a second author could review what they wrote).
 2. `submitMasterChangeRequest` sends it to review. A split goes only when its shares add up to 100 (422 `VALIDATION_FAILED`, detail `share_pct`).
 3. `decideMasterChangeRequest` by someone who is not the proposer; `post_master_records_id_publish` (on the predecessor) by someone who is not the proposer. MDM-32 lists these requests and shows the kind, date, legal basis and receiving entries.
 4. At publication the proposal is judged again against the graph as it stands, then the edges are written and the version is closed.
@@ -28,7 +28,7 @@ Rules judged at record, at submit and at publication:
 - the predecessor is the tenant's own entry (a PLATFORM entry is 403 `POLICY_LOCKED`) and is in force or already retired; the successor is of the same type and in force on the effective date;
 - the date is after the predecessor began, not after it ended by itself, and not before the predecessor itself arrived by an earlier succession;
 - no cycle, through edges in force and through requests that wait (422 `SUCCESSION_CYCLE`); an entry cannot succeed itself;
-- one open change request per entry (the existing rule of the change requests); one kind of succession per predecessor and date, and only a split has several successors (also enforced by the database).
+- one open change request per entry (the existing rule of the change requests); one kind of succession per predecessor and date, and only a split has several successors (also enforced by the database); an entry hands over once: a succession on another date than an edge it already has is 409 `STAGE_TRANSITION_DENIED` (`already handed over`).
 
 ## Reads
 

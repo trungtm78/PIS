@@ -15,6 +15,7 @@ const SIGNING_KEY = randomBytes(32);
 const MANAGER = 1; // issue.sla.manage
 const READER = 2; // issue.read only
 const NOBODY = 3;
+const UNIT_MANAGER = 4; // issue.sla.manage on one subtree only
 const OTHER_TENANT_MANAGER = 1; // of tenant B
 const DAY_MS = 86_400_000;
 
@@ -97,7 +98,7 @@ describe('SLA policy commands (ST-ISS-001)', () => {
         ]),
       );
     }
-    for (const n of [MANAGER, READER, NOBODY]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [MANAGER, READER, NOBODY, UNIT_MANAGER]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, OTHER_TENANT_MANAGER, 1);
     await harness.seedRole(TENANT_A, 1, 'SLA_MANAGER', ['issue.sla.manage', 'issue.read'], 40);
     await harness.seedRole(TENANT_A, 2, 'ISSUE_READER', ['issue.read'], 20);
@@ -105,6 +106,7 @@ describe('SLA policy commands (ST-ISS-001)', () => {
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MANAGER, role: 1, kind: 'TENANT' },
       { n: 2, member: READER, role: 2, kind: 'TENANT' },
+      { n: 3, member: UNIT_MANAGER, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(1)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: OTHER_TENANT_MANAGER, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -204,6 +206,24 @@ describe('SLA policy commands (ST-ISS-001)', () => {
       const foreign = await publish(MANAGER, payload(await category(TENANT_B)));
       expect([foreign.status, foreign.json.code, foreign.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'category_version_id']);
       expect(await rows('select id from machvon.issue_sla_policy where created_by = $1::uuid and code like $2', [memberId(READER), 'SLA-%'])).toEqual([]);
+    });
+  });
+
+  describe('scope of the SLA policy commands (ISS 2: issue.sla.manage is held on the whole tenant)', () => {
+    it('refuses a caller who holds issue.sla.manage only on a subtree, for the default of the tenant and for a unit, and writes nothing', async () => {
+      const version = await category();
+      const tenantDefault = await publish(UNIT_MANAGER, payload(version, { code: 'SLA-SUBTREE-DEFAULT' }));
+      expect([tenantDefault.status, tenantDefault.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      const forUnit = await publish(UNIT_MANAGER, payload(version, { code: 'SLA-SUBTREE-UNIT', owner_unit_id: unitId(1) }));
+      expect([forUnit.status, forUnit.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect(await rows('select id from machvon.issue_sla_policy where code like $1', ['SLA-SUBTREE-%'])).toEqual([]);
+    });
+
+    it('refuses to retire a policy for a caller who holds issue.sla.manage only on a subtree', async () => {
+      const created = await publish(MANAGER, payload(await category(), { code: 'SLA-SUBTREE-RETIRE' }));
+      const reply = await retire(UNIT_MANAGER, idOf(created), inDays(30));
+      expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect(await rows<{ status: string }>('select status from machvon.issue_sla_policy where id = $1::uuid', [idOf(created)])).toEqual([{ status: 'ACTIVE' }]);
     });
   });
 

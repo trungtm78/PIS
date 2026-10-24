@@ -1,6 +1,6 @@
 import type { Translator } from '../../i18n';
 import type { FieldProblem, GenerationProblem, Phase, ProblemView } from './model';
-import type { FormStatus, ReportKind, ReportStatus, ReportingRole } from './types';
+import type { Frequency, FormStatus, ReportKind, ReportStatus, ReportingRole } from './types';
 
 type T = Translator['t'];
 
@@ -63,6 +63,19 @@ export function roleLabel(t: T, role: ReportingRole): string {
   }
 }
 
+export function frequencyLabel(t: T, frequency: Frequency): string {
+  switch (frequency) {
+    case 'WEEKLY':
+      return t('mne.rules.frequency.weekly');
+    case 'SEMIANNUAL':
+      return t('mne.rules.frequency.semiannual');
+    case 'ANNUAL':
+      return t('mne.rules.frequency.annual');
+    case 'EVENT':
+      return t('mne.rules.frequency.event');
+  }
+}
+
 export function reportStatusLabel(t: T, status: ReportStatus): string {
   switch (status) {
     case 'DRAFT':
@@ -119,6 +132,8 @@ export function problemMessage(t: T, problem: ProblemView): string {
       return t('mne.forms.problem.rangeOverlap.text');
     case 'templateMissing':
       return t('mne.forms.problem.templateMissing.text');
+    case 'formNotEffective':
+      return t('mne.rules.problem.formNotEffective.text');
     case 'invalid':
       return t('mne.forms.problem.invalid.text');
     case 'notFound':

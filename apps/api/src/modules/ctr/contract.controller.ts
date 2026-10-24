@@ -65,16 +65,18 @@ export class ContractController {
   @Command({ operation: 'createContract' })
   async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['CtrCreateContract']): Promise<CommandResult> {
     const now = new Date();
-    const project: ProjectRef | undefined = await this.source.projectRef(scope.tx, body.project_id);
+    // Identifiers travel on as the lower-case text the database writes: the audit row and the event of this command are matched against ids as strings.
+    const [projectId, packageId, contractorId] = [body.project_id.toLowerCase(), body.package_id.toLowerCase(), body.contractor_id.toLowerCase()];
+    const project: ProjectRef | undefined = await this.source.projectRef(scope.tx, projectId);
     // A project of another tenant is indistinguishable from one that does not exist.
     if (project === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (!reaches(access, CREATE_PERMISSION, refsOf(project, project.id), now)) throw new DomainError('SCOPE_DENIED', 403);
     const created = await this.contracts.create(
       scope.tx,
       {
-        projectId: body.project_id,
-        packageId: body.package_id,
-        contractorId: body.contractor_id,
+        projectId,
+        packageId,
+        contractorId,
         code: body.code,
         title: body.title,
         type: body.type,
@@ -95,11 +97,11 @@ export class ContractController {
       resourceId: created.id,
       classification: CLASSIFICATION,
       diff: {
-        code: body.code,
-        project_id: body.project_id,
-        package_id: body.package_id,
-        contractor_id: body.contractor_id,
-        contract_value_vnd: body.contract_value_vnd,
+        code: created.code,
+        project_id: projectId,
+        package_id: packageId,
+        contractor_id: contractorId,
+        contract_value_vnd: created.contractValueVnd,
         estimate_ceiling_vnd: created.estimateCeilingVnd,
         status: created.status,
       },
@@ -117,12 +119,12 @@ export class ContractController {
         version: created.version,
         actor_id: scope.tenant.membershipId,
         occurred_at: now.toISOString(),
-        code: body.code,
+        code: created.code,
         status: created.status,
-        project_id: body.project_id,
-        package_id: body.package_id,
-        contractor_id: body.contractor_id,
-        contract_value_vnd: body.contract_value_vnd,
+        project_id: projectId,
+        package_id: packageId,
+        contractor_id: contractorId,
+        contract_value_vnd: created.contractValueVnd,
         estimate_ceiling_vnd: created.estimateCeilingVnd,
       },
       eventKey: `${RESOURCE_TYPE}:${created.id}:${created.version}`,

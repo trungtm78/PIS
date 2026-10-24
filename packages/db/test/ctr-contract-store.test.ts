@@ -438,6 +438,19 @@ describe('CtrContractStore (the contract register, ST-CTR-001)', () => {
       expect((await members(made.id)).filter((member) => member.contractor_id === SECOND)).toHaveLength(1);
     });
 
+    it('refuses a member whose validity ends before it begins, whether it names the start or takes the day of the replacement, and writes nothing', async () => {
+      const made = await venture({ code: 'HD-JV-VALID' });
+      const withValidity = (validFrom: string | undefined, validUntil: string): PartyInput[] =>
+        split(LEAD, SECOND).map((party, index) => (index === 1 ? { ...party, ...(validFrom === undefined ? {} : { validFrom }), validUntil } : party));
+      expect(await refusal(replace(made.id, 1, withValidity('2026-12-01', '2026-11-30')))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'parties.1.valid_until' });
+      // No start named: the member starts on the day of the replacement (TODAY), so an end before it is an end before the start.
+      expect(await refusal(replace(made.id, 1, withValidity(undefined, '2026-10-23')))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'parties.1.valid_until' });
+      expect(await members(made.id)).toEqual([]);
+      expect((await row(made.id))?.version).toBe('1');
+      // One day is a valid span.
+      expect(await replace(made.id, 1, withValidity('2026-12-01', '2026-12-01'))).toMatchObject({ changed: true, version: 2 });
+    });
+
     it('refuses what is not a venture: a contract of one contractor, two leads, no lead, a lead that is not the contractor of the contract, a member twice, a contractor that is not verified', async () => {
       const single = await create(input({ code: 'HD-JV-4' }));
       expect(await refusal(replace(single.id, 1, split(LEAD, SECOND)))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'parties' });

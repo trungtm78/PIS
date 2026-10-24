@@ -162,6 +162,16 @@ describe('the project register: create, profile update, list and workspace (ST-P
       expect(await rows("select count(*)::int as n from machvon.project where code = 'DA-2026-001'", [], TENANT_B)).toEqual([{ n: 1 }]);
     });
 
+    it('tells the audit trail and the other modules the code that was stored, not the one that was typed', async () => {
+      const made = await create(MAKER, { code: '  DA-STORED-1  ', total_investment_vnd: '500000000000.00' });
+      expect(made.status).toBe(200);
+      expect(await rows('select code, total_investment_vnd::text as total from machvon.project where id = $1', [idOf(made)])).toEqual([{ code: 'DA-STORED-1', total: '500000000000' }]);
+      const event = await rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1', [idOf(made)]);
+      expect(event[0]?.payload).toMatchObject({ code: 'DA-STORED-1' });
+      const audit = await rows<{ safe_diff: Record<string, unknown> }>("select safe_diff from machvon.audit_event where resource_id = $1 and action = 'project.created'", [idOf(made)]);
+      expect(audit[0]?.safe_diff).toMatchObject({ code: 'DA-STORED-1' });
+    });
+
     it('needs project.create on the owner unit, and a unit and master data that are valid', async () => {
       expect((await create(NOBODY)).status).toBe(403);
       expect((await create(READER)).status).toBe(403);
@@ -224,6 +234,20 @@ describe('the project register: create, profile update, list and workspace (ST-P
         { action: 'project.profile_unchanged', n: 1 },
       ]);
       expect(await rows("select count(*)::int as n from machvon.outbox_event where aggregate_id = $1 and type = 'project.profile_changed.v1'", [projectId])).toEqual([{ n: 1 }]);
+    });
+
+    it('reads an identifier in capitals as the identifier it is: naming the entry a project already holds, in capitals, changes nothing', async () => {
+      const made = await create(MAKER, { sector_master_version_id: versions.sector, investor_unit_id: unitId(DEPARTMENT) });
+      const projectId = idOf(made);
+      const same = await profile(MAKER, projectId, 1, { sector_master_version_id: (versions.sector as string).toUpperCase(), area_master_version_id: (versions.area as string).toUpperCase() });
+      expect(same.json).toMatchObject({ resource_version: 1, status: 'CONCEPT' });
+      expect(await row(projectId)).toMatchObject({ version: '1', sector_master_version_id: versions.sector, area_master_version_id: versions.area });
+      expect(await rows("select action from machvon.audit_event where resource_id = $1 and action like 'project.profile_%'", [projectId])).toEqual([{ action: 'project.profile_unchanged' }]);
+      // A real change in capitals is stored the way the database writes an identifier.
+      const other = await seedVersion(TENANT_A, 'SECTOR', 'EDUCATION');
+      const moved = await profile(MAKER, projectId, 1, { sector_master_version_id: other.toUpperCase() });
+      expect(moved.json).toMatchObject({ resource_version: 2 });
+      expect(await row(projectId)).toMatchObject({ sector_master_version_id: other });
     });
 
     it('locks the dossier fields after the concept stage, takes no change once the project is closed, and checks master data and years', async () => {

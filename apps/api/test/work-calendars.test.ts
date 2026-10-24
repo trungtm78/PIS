@@ -210,6 +210,20 @@ describe('working calendar commands (ST-ADM-010)', () => {
       expect(alreadyCounted).toBe(new Date('2026-05-04T15:00:00+07:00').toISOString());
     });
 
+    it('refuses to publish an older draft over a newer revision in force: the holidays of the newer one are not silently taken back', async () => {
+      const older = idOf(await draft(AUTHOR));
+      const newer = idOf(await draft(AUTHOR, { ...STD_2026, holidays: [] }));
+      expect((await publish(PUBLISHER, newer)).status).toBe(200);
+      const stale = await publish(PUBLISHER, older);
+      expect([stale.status, stale.json.code]).toEqual([409, 'STAGE_TRANSITION_DENIED']);
+      expect(await countOf("select count(*) as n from machvon.work_calendar_version where id = $1 and status = 'Draft'", [older])).toBe(1);
+      expect(await countOf("select count(*) as n from machvon.work_calendar_version where id = $1 and status = 'Published'", [newer])).toBe(1);
+      // A draft numbered after the revision in force still replaces it.
+      const latest = idOf(await draft(AUTHOR));
+      expect((await publish(PUBLISHER, latest)).status).toBe(200);
+      expect(await countOf("select count(*) as n from machvon.work_calendar_version where id = $1 and status = 'Superseded'", [newer])).toBe(1);
+    });
+
     it('answers 409 for a calendar already published and for a stale version, 404 for an unknown calendar, 428 without a version', async () => {
       const calendarId = idOf(await draft(AUTHOR));
       const stale = await publish(PUBLISHER, calendarId, '"7"');

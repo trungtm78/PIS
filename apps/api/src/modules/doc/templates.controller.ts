@@ -1,16 +1,19 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { PERMISSIONS } from '@machvon/contracts';
 import { DocumentTemplateStore, TenantDatabase } from '@machvon/db';
 import type { TemplateDetail, TemplateSummary } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
-import type { TenantContext } from '@machvon/kernel';
+import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
+import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 
 const RESOURCE_TYPE = 'document_template';
 const GROUPS: ReadonlySet<string> = new Set(['DECISION', 'OFFICIAL_LETTER', 'REPORT_DISBURSEMENT', 'REPORT_MONITORING', 'TREASURY_FORM', 'SETTLEMENT_FORM', 'AUDIT_FOLLOWUP', 'OTHER']);
@@ -19,6 +22,14 @@ const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 /** The legal confirmations a text names, as the ledger writes them: `[CXN-10]`, `[CXN-DOC-06]`. */
 const CXN_TAG = /\[(CXN-[A-Z0-9-]+)\]/g;
 const REVISION_PART = /^[1-9][0-9]{0,8}$/;
+
+/**
+ * The library belongs to the whole tenant (DOC 2: the template administrator and the legal officer act over the whole tenant): a grant on a
+ * branch of the organisation tree does not reach the drafting, publication, legal confirmation or retirement of a template.
+ */
+function assertWholeTenant(access: EffectiveAccess, permission: string): void {
+  if (!holdsOnWholeTenant(access, permission)) throw new DomainError('SCOPE_DENIED', 403);
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -130,7 +141,8 @@ export class DocumentTemplatesController {
   @HttpCode(200)
   @OperationId('createDocumentTemplateRevision')
   @Command({ operation: 'createDocumentTemplateRevision' })
-  async create(@Scope() scope: CommandScope, @Body() body: Schemas['DocTemplateRevision']): Promise<CommandResult & { revision: number }> {
+  async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['DocTemplateRevision']): Promise<CommandResult & { revision: number }> {
+    assertWholeTenant(access, PERMISSIONS.createDocumentTemplateRevision);
     const created = await this.templates.create(scope.tx, {
       templateCode: body.template_code,
       groupCode: body.group_code,
@@ -170,7 +182,8 @@ export class DocumentTemplatesController {
   @HttpCode(200)
   @OperationId('publishDocumentTemplate')
   @Command({ operation: 'publishDocumentTemplate', versioned: true })
-  async publish(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
+  async publish(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
+    assertWholeTenant(access, PERMISSIONS.publishDocumentTemplate);
     const { record, closed } = await this.templates.publish(scope.tx, id, scope.expectedVersion ?? 0, scope.tenant.membershipId);
     const closedRevisions = closed.map((revision) => ({ template_id: revision.id, revision: revision.revision, effective_until: revision.effectiveUntil }));
     await scope.audit({
@@ -195,7 +208,13 @@ export class DocumentTemplatesController {
   @HttpCode(200)
   @OperationId('confirmDocumentTemplateLegalBasis')
   @Command({ operation: 'confirmDocumentTemplateLegalBasis', versioned: true })
-  async confirm(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DocTemplateLegalConfirmation']): Promise<CommandResult> {
+  async confirm(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Schemas['DocTemplateLegalConfirmation'],
+  ): Promise<CommandResult> {
+    assertWholeTenant(access, PERMISSIONS.confirmDocumentTemplateLegalBasis);
     const confirmed = await this.templates.confirmLegalBasis(
       scope.tx,
       id,
@@ -225,7 +244,8 @@ export class DocumentTemplatesController {
   @HttpCode(200)
   @OperationId('retireDocumentTemplate')
   @Command({ operation: 'retireDocumentTemplate', versioned: true })
-  async retire(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DocReason']): Promise<CommandResult> {
+  async retire(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DocReason']): Promise<CommandResult> {
+    assertWholeTenant(access, PERMISSIONS.retireDocumentTemplate);
     const retired = await this.templates.retire(scope.tx, id, scope.expectedVersion ?? 0, body.reason, scope.tenant.membershipId);
     await scope.audit({
       action: 'document_template.retire',

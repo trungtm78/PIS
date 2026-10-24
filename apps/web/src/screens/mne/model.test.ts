@@ -2,23 +2,27 @@ import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
 import {
   EMPTY_REVISION,
+  EMPTY_RULE,
   actionsFor,
   cxnTags,
   describeGenerationProblem,
   describeProblem,
+  formulaText,
   groupByMonth,
   isOverdue,
   lastDayOf,
   phaseOf,
   revisionBody,
+  ruleBody,
   validateRevision,
+  validateRule,
   validateYear,
   vietnamToday,
   yearsAround,
 } from './model';
-import type { RevisionValues } from './model';
-import { toForm, toGeneration, toObligation, toObligationPage } from './types';
-import { formRow, obligationRow } from './test-support';
+import type { RevisionValues, RuleValues } from './model';
+import { toForm, toGeneration, toObligation, toObligationPage, toRule } from './types';
+import { formRow, obligationRow, ruleRow } from './test-support';
 
 const form = (overrides: Record<string, unknown> = {}) => {
   const view = toForm(formRow(2, overrides));
@@ -239,5 +243,82 @@ describe('why a command failed', () => {
     ['SOMETHING_NEW', 500, 'general'],
   ])('maps the generation failure %s (%i) to %s', (code, status, expected) => {
     expect(describeGenerationProblem(problem(status, code))).toBe(expected);
+  });
+});
+
+describe('the reader of the rules and the form of a new rule', () => {
+  const RULE: RuleValues = {
+    ruleCode: 'OVERALL_SEMIANNUAL',
+    formId: '00000000-0000-4000-8000-000000000102',
+    reportingRole: 'INVESTOR',
+    recipient: 'Sở Tài chính',
+    frequency: 'SEMIANNUAL',
+    dueRuleText: '{"period":"H1","month":7,"day":10}',
+    legalBasis: 'Circular 44/2026/TT-BTC [CXN-10]',
+    legalConfirmationRef: '',
+    effectiveFrom: '2026-01-01',
+    effectiveUntil: '',
+  };
+
+  it('reads a rule row and drops one it cannot trust', () => {
+    expect(toRule(ruleRow(1))).toMatchObject({ ruleCode: 'OVERALL_RULE_1', reportingRole: 'INVESTOR', frequency: 'SEMIANNUAL', dueRule: { period: 'H1', month: 7, day: 10 }, awaitingConfirmation: true, cxnRefs: ['CXN-10'], status: 'PUBLISHED', version: 2 });
+    expect(toRule({ ...ruleRow(1), awaiting_confirmation: undefined, legal_confirmation_ref: 'CXN-10-OK', due_rule_json: 'text' })).toMatchObject({ awaitingConfirmation: false, dueRule: {} });
+    expect(toRule({ ...ruleRow(1), awaiting_confirmation: undefined })?.awaitingConfirmation).toBe(true);
+    for (const bad of [null, 'x', { ...ruleRow(1), reporting_role: 'MINISTER' }, { ...ruleRow(1), frequency: 'DAILY' }, { ...ruleRow(1), status: 'LIVE' }, { ...ruleRow(1), id: '' }, { ...ruleRow(1), rule_code: '' }]) {
+      expect(toRule(bad)).toBeUndefined();
+    }
+  });
+
+  it('writes a formula in a line', () => {
+    expect(formulaText({ period: 'YEAR', month: 2, day: 10, year_offset: 1 })).toBe('period=YEAR month=2 day=10 year_offset=1');
+    expect(formulaText({})).toBe('');
+    // The server keeps the keys of a JSON column in its own order: the line reads in the order of the rule.
+    expect(formulaText({ day: 10, month: 7, period: 'H1' })).toBe('period=H1 month=7 day=10');
+    expect(formulaText({ time: '16:00', weekly: 'FRI', calendar_code: 'WORKDAY', shift_on_holiday: true, zeta: 1, alpha: 2 })).toBe('weekly=FRI time=16:00 shift_on_holiday=true calendar_code=WORKDAY alpha=2 zeta=1');
+  });
+
+  it('accepts a complete rule and writes the body of createMneObligationRule', () => {
+    expect(validateRule(RULE)).toEqual({});
+    expect(ruleBody(RULE)).toEqual({
+      rule_code: 'OVERALL_SEMIANNUAL',
+      form_id: RULE.formId,
+      reporting_role: 'INVESTOR',
+      recipient: 'Sở Tài chính',
+      frequency: 'SEMIANNUAL',
+      due_rule_json: { period: 'H1', month: 7, day: 10 },
+      legal_basis: 'Circular 44/2026/TT-BTC [CXN-10]',
+      effective_from: '2026-01-01',
+    });
+    expect(ruleBody({ ...RULE, legalConfirmationRef: ' CXN-10-OK ', effectiveUntil: '2027-01-01' })).toMatchObject({ legal_confirmation_ref: 'CXN-10-OK', effective_until: '2027-01-01' });
+  });
+
+  it('starts from an empty draft that asks for everything', () => {
+    expect(Object.keys(validateRule(EMPTY_RULE)).sort()).toEqual(['effectiveFrom', 'formId', 'frequency', 'legalBasis', 'recipient', 'reportingRole', 'ruleCode']);
+  });
+
+  it.each([
+    ['ruleCode', { ruleCode: 'has space' }, 'format'],
+    ['recipient', { recipient: 'x' }, 'tooShort'],
+    ['recipient', { recipient: 'x'.repeat(301) }, 'tooLong'],
+    ['dueRuleText', { dueRuleText: '[1]' }, 'json'],
+    ['dueRuleText', { dueRuleText: '{broken' }, 'json'],
+    ['legalBasis', { legalBasis: ' ' }, 'required'],
+    ['legalConfirmationRef', { legalConfirmationRef: 'x'.repeat(51) }, 'tooLong'],
+    ['effectiveFrom', { effectiveFrom: '2026-02-30' }, 'date'],
+    ['effectiveUntil', { effectiveUntil: '2026-13-01' }, 'date'],
+    ['effectiveUntil', { effectiveUntil: '2026-01-01' }, 'order'],
+  ] as Array<[keyof RuleValues, Partial<RuleValues>, string]>)('names the problem of %s (%j): %s', (field, overrides, expected) => {
+    expect(validateRule({ ...RULE, ...overrides })[field]).toBe(expected);
+  });
+
+  it('does not compare the end with a start that is itself wrong', () => {
+    expect(validateRule({ ...RULE, effectiveFrom: '', effectiveUntil: '2026-01-01' })).toEqual({ effectiveFrom: 'required' });
+  });
+
+  it.each([
+    ['EFFECTIVE_RANGE_OVERLAP', 409, 'rangeOverlap'],
+    ['FORM_NOT_EFFECTIVE', 422, 'formNotEffective'],
+  ])('maps %s (%i) to %s', (code, status, reason) => {
+    expect(describeProblem(problem(status, code))).toEqual({ reason, field: undefined });
   });
 });

@@ -577,6 +577,23 @@ describe('CapAppropriationStore (the appropriation register by origin, ST-CAP-00
       expect(await sqlState(write(published.id, money(4), null))).toBe('23514');
     });
 
+    it('lets a ledger entry of the capital be reversed once, whichever writer posts the reversal (docs/money-integrity.md)', async () => {
+      const year = freshYear();
+      const published = await publish({ planYear: year, amountVnd: money(10) });
+      const revision = await register({ planYear: year, supersedesId: published.id, amountVnd: money(12) });
+      await decide(revision.id, 1);
+      const original = (await owner<{ id: string }>("select id from machvon.capital_ledger_entry where appropriation_id = $1 and entry_type = 'APPROPRIATE'", [published.id]))[0]?.id as string;
+      // The publication reversed it once; a second reversal of the same entry, from any other cause, must not be possible.
+      const again = (cause: string) =>
+        owner(
+          `insert into machvon.capital_ledger_entry (tenant_id, id, appropriation_id, entry_type, amount_vnd, plan_year, source_ref_kind, source_ref_id, reversal_of_id, reason, posted_by)
+           values ($1, $2, $3, 'REVERSAL', $4::numeric, $5, 'APPROPRIATION', $6, $7, 'AGAIN', $8)`,
+          [TENANT_A, randomUUID(), published.id, money(10), year, cause, original, memberId(APPROVER)],
+        );
+      expect(await sqlState(again(randomUUID()))).toBe('23505');
+      expect(await owner('select 1 from machvon.capital_ledger_entry where reversal_of_id = $1::uuid', [original])).toHaveLength(1);
+    });
+
     it('holds the shape of an appropriation even against a writer that skips the store', async () => {
       const base = async () => {
         const id = randomUUID();

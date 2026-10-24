@@ -202,7 +202,8 @@ export class ContractorController {
       outcome = answer.outcome;
       checkedAt = answer.checkedAt;
     } catch (error) {
-      this.logger.error(error);
+      // The error of an adapter quotes its request, and the request names the tax id: the log keeps the kind of failure and the contractor, nothing it said.
+      this.logger.error(`the identity lookup of contractor ${row.id} failed (${error instanceof Error ? error.name : typeof error})`);
       outcome = 'UNAVAILABLE';
       checkedAt = new Date();
     }

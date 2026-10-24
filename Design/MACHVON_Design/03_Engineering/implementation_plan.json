@@ -29442,7 +29442,11 @@
       ],
       "operations": [
         "createRetentionPolicyVersion",
-        "publishRetentionPolicy"
+        "publishRetentionPolicy",
+        "get_resources_data_retention_policy",
+        "get_resources_data_retention_policy_id",
+        "get_resources_retention_review_item",
+        "get_resources_retention_review_item_id"
       ],
       "tables": [
         "data_retention_policy"
@@ -29562,7 +29566,11 @@
       "operations": [
         "createIntegrationConnector",
         "updateIntegrationConnector",
-        "replayInboxEvent"
+        "replayInboxEvent",
+        "get_resources_integration_connector",
+        "get_resources_integration_connector_id",
+        "get_resources_integration_event_inbox",
+        "get_resources_integration_event_inbox_id"
       ],
       "tables": [
         "integration_connector",
@@ -44138,7 +44146,8 @@
         "createMneObligationRule",
         "publishMneObligationRule",
         "generateMneObligations",
-        "listMneObligations"
+        "listMneObligations",
+        "listMneObligationRules"
       ],
       "tables": [
         "mne_report_form",

@@ -1,9 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
-import type { ConnectorBody, ConnectorStatus } from './model';
+import { toConnector } from './model';
+import type { ConnectorBody, ConnectorStatus, ConnectorView } from './model';
 
 /** The queries of the connector screens begin with this key: a command refreshes all of them. */
 export const connectorsKey = (tenantId: string | undefined) => ['adm', 'connectors', tenantId] as const;
@@ -50,5 +51,17 @@ export function useMoveConnector() {
       await queryClient.invalidateQueries({ queryKey: connectorsKey(tenant?.id) });
     },
     onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** Every connector of the tenant, by code. */
+export function useConnectors(enabled = true) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ConnectorView[]>({
+    queryKey: [...connectorsKey(tenant?.id), 'list'],
+    queryFn: async () => (await client.readAll('get_resources_integration_connector')).flatMap((raw) => toConnector(raw) ?? []),
+    enabled: enabled && tenant !== undefined,
+    retry: false,
   });
 }

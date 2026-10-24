@@ -68,7 +68,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const relay = new OutboxRelay(deps.relayPool, deps.publish, { signingKey: deps.signingKey, alerts });
   const certificates = new CertificateStore();
   const masterData = new MasterStore();
-  const disPeriods = new DisPeriodAutoclose(new AuditWriter(deps.tenants), deps.metrics === undefined ? {} : { metrics: deps.metrics });
+  const audit = new AuditWriter(deps.tenants);
+  const disPeriods = new DisPeriodAutoclose(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const permitTypes = new PmtPermitTypeStore();
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
@@ -86,7 +87,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
       apply: async (ctx) => {
         const applied = await deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, BASELINE_PACK, ctx.membershipId));
         // The permit type catalogue starts from its working assumptions (ST-PMT-001); a code the tenant already has is left alone. A separate transaction: one cannot undo the other.
-        await deps.tenants.withTenant(ctx, (tx) => permitTypes.seedWorkingAssumptions(tx, ctx.membershipId));
+        await deps.tenants.withTenant(ctx, (tx) => permitTypes.seedWorkingAssumptions(tx, ctx.membershipId, audit));
         return applied;
       },
     },

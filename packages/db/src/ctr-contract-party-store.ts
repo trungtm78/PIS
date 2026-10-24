@@ -97,6 +97,8 @@ export class CtrContractPartyStore {
     // Members belong to a joint venture: a contract of one contractor has no one else to share it with.
     if (!locked.isJointVenture) throw invalid('parties');
     this.assertShape(parties, locked.contractorId);
+    // A member that takes no start begins on the day of the replacement; its validity cannot end before it begins.
+    for (const [index, party] of parties.entries()) if (party.validUntil !== undefined && party.validUntil < (party.validFrom ?? today)) throw invalid(`parties.${index}.valid_until`);
     for (const [index, party] of parties.entries()) await this.contracts.assertContractorMayContract(tx, party.contractorId, today, `parties.${index}.contractor_id`);
     const share = parties.reduce((total, party) => addDecimal(total, party.sharePct), '0');
     if (compareDecimal(share, FULL_SHARE) !== 0) throw new DomainError('JV_SHARE_NOT_100', 422, 'parties', { extensions: { share_total: share } });

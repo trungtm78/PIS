@@ -189,9 +189,9 @@ export const DOA_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis:
 };
 
 /** A retention policy draft of each tenant (the record class and the legal basis are distinctive; tenant administration data). */
-export const RETENTION_FIXTURES: Readonly<Record<TenantName, { id: string; recordClass: string; legalBasis: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0a2-000000000001', recordClass: 'alpha_isolation_dossier', legalBasis: 'Alpha archives circular 0001/2026' },
-  'TNT-B': { id: '00000000-0000-4000-b0a2-000000000001', recordClass: 'beta_isolation_dossier', legalBasis: 'Beta archives circular 0001/2026' },
+export const RETENTION_FIXTURES: Readonly<Record<TenantName, { id: string; reviewId: string; recordClass: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0a2-000000000001', reviewId: '00000000-0000-4000-a0a2-000000000002', recordClass: 'alpha_isolation_dossier', legalBasis: 'Alpha archives circular 0001/2026' },
+  'TNT-B': { id: '00000000-0000-4000-b0a2-000000000001', reviewId: '00000000-0000-4000-b0a2-000000000002', recordClass: 'beta_isolation_dossier', legalBasis: 'Beta archives circular 0001/2026' },
 };
 
 /** A draft integration connector and a failed inbox event of each tenant (the code, the endpoint and the event key are distinctive; the payload reference must never be shown). */
@@ -368,6 +368,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'doa matrix legal basis', value: DOA_FIXTURES[tenant].legalBasis },
     { kind: 'doa rule document type', value: DOA_FIXTURES[tenant].documentType },
     { kind: 'retention policy id', value: RETENTION_FIXTURES[tenant].id },
+    { kind: 'retention review item id', value: RETENTION_FIXTURES[tenant].reviewId },
     { kind: 'retention record class', value: RETENTION_FIXTURES[tenant].recordClass },
     { kind: 'retention legal basis', value: RETENTION_FIXTURES[tenant].legalBasis },
     { kind: 'connector id', value: INTEGRATION_FIXTURES[tenant].connectorId },

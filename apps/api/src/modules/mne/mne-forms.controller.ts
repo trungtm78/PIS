@@ -1,16 +1,19 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { PERMISSIONS } from '@machvon/contracts';
 import { MNE_REPORT_KINDS, MneFormStore, TenantDatabase } from '@machvon/db';
 import type { MneFormRow } from '@machvon/db';
 import { DomainError, isIsoDate } from '@machvon/kernel';
-import type { TenantContext } from '@machvon/kernel';
+import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
+import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { formViewOf } from './mne-views';
 
 const RESOURCE_TYPE = 'mne_report_form';
@@ -38,6 +41,11 @@ function pageAnchor(cursor: ReturnType<typeof parsePageRequest>['after']): { for
   return { formCode: cursor.code.slice(0, cut), revision: Number(revision) };
 }
 
+/** The forms belong to the tenant (MNE 2: "Quản trị mẫu biểu" and "Người duyệt mẫu biểu" act on the tenant): a grant on a subtree does not reach them. */
+function assertWholeTenant(access: EffectiveAccess, permission: string): void {
+  if (!holdsOnWholeTenant(access, permission)) throw new DomainError('SCOPE_DENIED', 403);
+}
+
 const diffOf = (row: MneFormRow): Record<string, unknown> => ({
   form_code: row.formCode,
   revision: row.revision,
@@ -63,7 +71,8 @@ export class MneFormsController {
   @HttpCode(200)
   @OperationId('createMneFormVersion')
   @Command({ operation: 'createMneFormVersion' })
-  async create(@Scope() scope: CommandScope, @Body() body: Schemas['MneFormVersion']): Promise<CommandResult & { revision: number }> {
+  async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['MneFormVersion']): Promise<CommandResult & { revision: number }> {
+    assertWholeTenant(access, PERMISSIONS.createMneFormVersion);
     const created = await this.forms.create(
       scope.tx,
       {
@@ -97,7 +106,8 @@ export class MneFormsController {
   @HttpCode(200)
   @OperationId('publishMneForm')
   @Command({ operation: 'publishMneForm', versioned: true })
-  async publish(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
+  async publish(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
+    assertWholeTenant(access, PERMISSIONS.publishMneForm);
     const { record, closed } = await this.forms.publish(scope.tx, id, scope.expectedVersion ?? 0, scope.tenant.membershipId);
     const closedRevisions = closed.map((revision) => ({ form_id: revision.id, revision: revision.revision, effective_until: revision.effectiveUntil }));
     await scope.audit({ action: 'mne.form_published', resourceType: RESOURCE_TYPE, resourceId: id, diff: { ...diffOf(record), closed_revisions: closedRevisions } });

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, MNE_FREQUENCIES, assertFourEyes, isIsoDate, parseDueRule, versionConflict } from '@machvon/kernel';
+import { assertTimestampCursor, timestampKey } from './keyset.ts';
 import { MneRevisionTable } from './mne-revision-table.ts';
 import type { ClosedRevision } from './mne-revision-table.ts';
 import type { MneOrigin, MneRevisionStatus } from './mne-form-store.ts';
@@ -38,6 +39,19 @@ export interface MneRuleRow {
   version: number;
   createdBy: string;
   approvedBy: string | null;
+  /** Creation time to the microsecond (UTC): the ordering key of the list and its cursor. */
+  createdAtKey: string;
+}
+
+export interface MneRuleFilter {
+  reportingRole?: MneReportingRole | undefined;
+  formCode?: string | undefined;
+  status?: MneRevisionStatus | undefined;
+}
+
+export interface MneRulePage {
+  limit: number;
+  after?: { createdAtKey: string; id: string } | undefined;
 }
 
 export interface MneRuleInput {
@@ -86,11 +100,12 @@ interface Sql {
   version: string;
   created_by: string;
   approved_by: string | null;
+  created_at_key: string;
 }
 
 const SELECT = `select o.id, o.rule_code, o.revision, o.form_id, f.form_code, o.reporting_role, o.recipient, o.frequency, o.due_rule_json, o.legal_basis,
   o.legal_confirmation_ref, o.effective_from::text as effective_from, o.effective_until::text as effective_until, o.status, o.origin, o.pack_version,
-  o.version::text as version, o.created_by, o.approved_by
+  o.version::text as version, o.created_by, o.approved_by, ${timestampKey('o.created_at')} as created_at_key
   from machvon.mne_obligation_rule o join machvon.mne_report_form f on f.tenant_id = o.tenant_id and f.id = o.form_id`;
 
 const toRow = (row: Sql): MneRuleRow => ({
@@ -113,6 +128,7 @@ const toRow = (row: Sql): MneRuleRow => ({
   version: Number(row.version),
   createdBy: row.created_by,
   approvedBy: row.approved_by,
+  createdAtKey: row.created_at_key,
 });
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
@@ -173,6 +189,19 @@ export class MneObligationRuleStore {
   async find(tx: TenantTx, id: string, lock = false): Promise<MneRuleRow | undefined> {
     const rows = await tx.query<Sql>(`${SELECT} where o.id = $1::uuid${lock ? ' for update of o' : ''}`, [id]);
     return rows[0] === undefined ? undefined : toRow(rows[0]);
+  }
+
+  /** The revisions of the tenant, the newest first, narrowed by reporting role, form code and status (MNE F1). */
+  async list(tx: TenantTx, filter: MneRuleFilter, page: MneRulePage): Promise<MneRuleRow[]> {
+    assertTimestampCursor(page.after?.createdAtKey);
+    const rows = await tx.query<Sql>(
+      `${SELECT}
+        where ($1::text is null or o.reporting_role = $1) and ($2::text is null or f.form_code = $2) and ($3::text is null or o.status = $3)
+          and ($4::text is null or (${timestampKey('o.created_at')}, o.id) < ($4::text, $5::uuid))
+        order by o.created_at desc, o.id desc limit $6`,
+      [filter.reportingRole ?? null, filter.formCode ?? null, filter.status ?? null, page.after?.createdAtKey ?? null, page.after?.id ?? null, page.limit],
+    );
+    return rows.map(toRow);
   }
 
   /** The published rules, retired ones included, whose period meets the window `[from, until)`: what the generation of a year reads. */

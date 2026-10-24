@@ -1,16 +1,19 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { PERMISSIONS } from '@machvon/contracts';
 import { DIS_PERIOD_TRANSITION_METRIC, DisPeriodStore, PERIOD_RESOURCE, PERIOD_TYPES, periodMoveRecord, transitionLabels, TenantDatabase } from '@machvon/db';
 import type { PeriodFilter, PeriodMove, PeriodReopenRow, PeriodRow, PeriodStatus, PeriodType } from '@machvon/db';
 import { DomainError, NOOP_METRICS } from '@machvon/kernel';
-import type { MetricsSink, TenantContext } from '@machvon/kernel';
+import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
+import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { DIS_CLOCK, DIS_METRICS } from './tokens';
 
 const PERIOD_STATUSES: ReadonlySet<string> = new Set(['OPEN', 'SOFT_CLOSED', 'LOCKED']);
@@ -19,6 +22,17 @@ const YEAR = /^\d{4}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_CALENDAR_CODE = 50;
 const MIN_REASON = 5;
+
+/** The period manager acts on the whole tenant (DIS 2): a period belongs to no organisation unit, so a grant on a subtree does not reach it. */
+function assertHolds(access: EffectiveAccess, permission: string): void {
+  if (!holdsOnWholeTenant(access, permission)) throw new DomainError('SCOPE_DENIED', 403);
+}
+
+/** A calendar date as the period cursor carries it: the shape alone lets `2027-13-45` through to a failing cast in the database. */
+function isCalendarDate(value: string): boolean {
+  const parsed = Date.parse(`${value}T00:00:00Z`);
+  return DATE.test(value) && !Number.isNaN(parsed) && new Date(parsed).toISOString().slice(0, 10) === value;
+}
 
 const reopenViewOf = (row: PeriodReopenRow): Record<string, unknown> => ({
   id: row.id,
@@ -92,7 +106,8 @@ export class ReportingPeriodController {
   @HttpCode(200)
   @OperationId('generateReportingPeriods')
   @Command({ operation: 'generateReportingPeriods' })
-  async generate(@Scope() scope: CommandScope, @Body() body: Schemas['DisPeriodGenerate']): Promise<CommandResult> {
+  async generate(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['DisPeriodGenerate']): Promise<CommandResult> {
+    assertHolds(access, PERMISSIONS.generateReportingPeriods);
     const generated = await this.periods.generate(
       scope.tx,
       { calendarCode: body.calendar_code, fiscalYear: body.fiscal_year, periodType: body.period_type },
@@ -124,7 +139,13 @@ export class ReportingPeriodController {
   @HttpCode(200)
   @OperationId('softCloseReportingPeriod')
   @Command({ operation: 'softCloseReportingPeriod', versioned: true })
-  async softClose(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DisPeriodTransition']): Promise<CommandResult> {
+  async softClose(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Schemas['DisPeriodTransition'],
+  ): Promise<CommandResult> {
+    assertHolds(access, PERMISSIONS.softCloseReportingPeriod);
     const reason = reasonOf(body.reason);
     const row = await this.periods.softClose(scope.tx, id, scope.expectedVersion ?? 0, scope.tenant.membershipId, this.clock());
     return this.recorded(scope, 'soft_close', row, reason);
@@ -134,7 +155,13 @@ export class ReportingPeriodController {
   @HttpCode(200)
   @OperationId('lockReportingPeriod')
   @Command({ operation: 'lockReportingPeriod', versioned: true })
-  async lock(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DisPeriodTransition']): Promise<CommandResult> {
+  async lock(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Schemas['DisPeriodTransition'],
+  ): Promise<CommandResult> {
+    assertHolds(access, PERMISSIONS.lockReportingPeriod);
     const reason = reasonOf(body.reason);
     const row = await this.periods.lock(scope.tx, id, scope.expectedVersion ?? 0, scope.tenant.membershipId, this.clock());
     return this.recorded(scope, 'lock', row, reason);
@@ -169,7 +196,7 @@ export class ReportingPeriodReadsController {
   ): Promise<{ items: Array<Record<string, unknown>>; next_cursor: string | null; as_of: string }> {
     const request = parsePageRequest(limit, cursor);
     const filter = filterOf({ fiscal_year: fiscalYear, status, period_type: periodType, calendar_code: calendarCode });
-    if (request.after !== undefined && !DATE.test(request.after.code)) throw new DomainError('VALIDATION_FAILED', 422, 'cursor');
+    if (request.after !== undefined && !isCalendarDate(request.after.code)) throw new DomainError('VALIDATION_FAILED', 422, 'cursor');
     const { rows, reopens } = await this.database.withTenant(tenant, async (tx) => {
       const found = await this.periods.list(tx, filter, { limit: request.limit + 1, after: request.after });
       return { rows: found, reopens: await this.periods.reopens(tx, found.slice(0, request.limit).map((row) => row.id)) };

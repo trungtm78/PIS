@@ -159,6 +159,10 @@ export async function assertEdgeAllowed(
   if (predecessor.status !== 'EFFECTIVE' && predecessor.status !== 'RETIRED') throw new DomainError('STAGE_TRANSITION_DENIED', 409, `${predecessor.status}->SUCCESSION`);
   const current = predecessor.currentVersionId === null ? undefined : await lookups.findVersion(tx, predecessor.currentVersionId);
   if (current === undefined) throw new DomainError('STAGE_TRANSITION_DENIED', 409, `${predecessor.status}->SUCCESSION`);
+  // An entry hands over once: it ends on that date, so a second hand-over on another date would leave two successors that both claim all of
+  // it (the edges of one split share a date, and an edge repeated on the same date is the unique index's to refuse).
+  const handedOver = await tx.query('select 1 from machvon.master_succession where predecessor_record_id = $1::uuid and effective_date <> $2::date limit 1', [predecessor.id, effectiveDate]);
+  if (handedOver.length > 0) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'already handed over');
   // The version in force is closed on the date: the date comes after it began, and not after it ended by itself.
   if (effectiveDate <= current.validFrom || (current.validUntil !== null && current.validUntil < effectiveDate)) throw invalid('effective_date');
   const later = await tx.query('select 1 from machvon.master_record_version where master_record_id = $1::uuid and revision > $2', [predecessor.id, current.revision]);

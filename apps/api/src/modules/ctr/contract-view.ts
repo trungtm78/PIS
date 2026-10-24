@@ -94,13 +94,13 @@ export function contractDetailView(detail: ContractDetail, rights: ContractRight
     requires_quality_acceptance: detail.requiresQualityAcceptance,
     signed_on: detail.signedOn,
     effective_from: detail.effectiveFrom,
-    status_reason: detail.statusReason,
     created_at: detail.createdAt,
     updated_at: detail.updatedAt,
     revisions: detail.revisions.map(revisionView),
     parties: detail.parties.map(partyView),
     parties_check: checkView(detail.partiesCheck),
-    ...(rights.internal ? { created_by: detail.createdBy, status_changes: detail.statusChanges.map(statusChangeView) } : {}),
+    // The reason behind a status is typed by the staff for the staff (a cancellation, later a suspension or a termination): the guest sees the status only.
+    ...(rights.internal ? { status_reason: detail.statusReason, created_by: detail.createdBy, status_changes: detail.statusChanges.map(statusChangeView) } : {}),
     ...(rights.ledger
       ? {
           accepted_total_vnd: detail.ledger.acceptedTotalVnd,

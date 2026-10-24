@@ -50,6 +50,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_audit_event_id',
   'get_resources_legal_hold',
   'get_resources_legal_hold_id',
+  'get_resources_data_retention_policy',
+  'get_resources_data_retention_policy_id',
+  'get_resources_retention_review_item',
+  'get_resources_retention_review_item_id',
+  'get_resources_integration_connector',
+  'get_resources_integration_connector_id',
+  'get_resources_integration_event_inbox',
+  'get_resources_integration_event_inbox_id',
   'registerSigningCertificate',
   'revokeSigningCertificate',
   'get_resources_signing_certificate',
@@ -172,6 +180,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listMneForms',
   'createMneObligationRule',
   'publishMneObligationRule',
+  'listMneObligationRules',
   'generateMneObligations',
   'listMneObligations',
 ] as const;
@@ -298,7 +307,11 @@ const INSERT_RETENTION_POLICY = `insert into machvon.data_retention_policy
   (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by, version)
   values ($1, $2, $3, 1, 10, 'FROM_CLOSED', $4, 'REVIEW_FOR_DESTRUCTION', date '2026-01-01', 'Draft', $5, 1) on conflict do nothing`;
 
-const INSERT_CONNECTOR = `insert into machvon.integration_connector
+const INSERT_REVIEW_ITEM = `insert into machvon.retention_review_item
+  (tenant_id, id, record_class, resource_type, resource_id, policy_id, basis_date, due_on, end_action)
+  values ($1, $2, $3, 'project', gen_random_uuid(), $4, date '2015-01-01', date '2025-01-01', 'REVIEW_FOR_DESTRUCTION') on conflict do nothing`;
+
+const INSERT_CONNECTOR =`insert into machvon.integration_connector
   (tenant_id, id, connector_code, adapter_status, mode, config_json, status, version)
   values ($1, $2, $3, 'PROPOSED', 'FILE_IMPORT', jsonb_build_object('endpoint', $4::text), 'Draft', 1) on conflict do nothing`;
 const INSERT_INBOX_EVENT = `insert into machvon.integration_event_inbox
@@ -437,6 +450,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_DOA_RULE, [tenantId, doa.id, doa.documentType, home, role.id]);
     const retention = RETENTION_FIXTURES[tenant];
     await client.query(INSERT_RETENTION_POLICY, [tenantId, retention.id, retention.recordClass, retention.legalBasis, ACTOR_ID]);
+    await client.query(INSERT_REVIEW_ITEM, [tenantId, retention.reviewId, retention.recordClass, retention.id]);
     const integration = INTEGRATION_FIXTURES[tenant];
     await client.query(INSERT_CONNECTOR, [tenantId, integration.connectorId, integration.connectorCode, integration.endpoint]);
     await client.query(INSERT_INBOX_EVENT, [tenantId, integration.eventId, integration.eventKey, integration.payloadReference]);
@@ -489,7 +503,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'doc_signing_session', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'glossary_term', 'dataset', 'project', 'project_revision', 'contractor', 'contractor_restriction', 'appropriation', 'procurement_package', 'contract', 'contract_revision', 'mne_report_form', 'mne_obligation_rule', 'mne_report'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'doc_signing_session', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'glossary_term', 'dataset', 'project', 'project_revision', 'contractor', 'contractor_restriction', 'appropriation', 'procurement_package', 'contract', 'contract_revision', 'mne_report_form', 'mne_obligation_rule', 'mne_report'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

@@ -1,16 +1,19 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { PERMISSIONS } from '@machvon/contracts';
 import { IntegrationCursorStore, MasterCrosswalkStore, TenantDatabase } from '@machvon/db';
 import type { CrosswalkRow, CursorRow } from '@machvon/db';
 import { DomainError, asUuid } from '@machvon/kernel';
-import type { TenantContext } from '@machvon/kernel';
+import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
+import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { dateOf, textOf } from './inputs';
 
 const CROSSWALK_RESOURCE = 'master_crosswalk';
@@ -111,7 +114,14 @@ export class MasterCrosswalkController {
   @HttpCode(200)
   @OperationId('resetIntegrationCursor')
   @Command({ operation: 'resetIntegrationCursor', versioned: true })
-  async reset(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['MdmCursorReset']): Promise<CommandResult> {
+  async reset(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Schemas['MdmCursorReset'],
+  ): Promise<CommandResult> {
+    // The position of a connector decides what the whole tenant reads next (MDM 2: the integration operator acts on the tenant): a grant on a subtree does not reach it.
+    if (!holdsOnWholeTenant(access, PERMISSIONS.resetIntegrationCursor)) throw new DomainError('SCOPE_DENIED', 403);
     const done = await this.cursors.reset(scope.tx, id, scope.expectedVersion ?? 0, { reason: body.reason, cursor: body.cursor_json as Record<string, unknown> }, scope.tenant.membershipId);
     await scope.audit({
       action: 'integration.cursor_reset',

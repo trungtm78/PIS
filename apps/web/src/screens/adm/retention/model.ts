@@ -1,6 +1,8 @@
 import { ApiError } from '@machvon/api-client';
 
-/** Permissions of the two commands of ADM-12 (x-permission in openapi.json): a version is drafted by one person and published by another. */
+/** Permissions of ADM-12 (x-permission in openapi.json): a version is drafted by one person and published by another; the reads need no more than the read permission. */
+export const READ_RETENTION_PERMISSION = 'adm.retention.read';
+export const READ_HOLD_PERMISSION = 'legal_hold.read';
 export const MANAGE_RETENTION_PERMISSION = 'adm.retention.manage';
 export const APPROVE_RETENTION_PERMISSION = 'adm.retention.approve';
 export const REASON_MIN_LENGTH = 10;

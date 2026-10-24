@@ -8,9 +8,11 @@ import { GuestContractorController } from './guest-contractor.controller';
 import { INVITATION_MAILER, MockInvitationMailer } from './invitation-mailer';
 import { IntegrationConnectorsController } from './integration-connector.controller';
 import { IntegrationInboxController } from './integration-inbox.controller';
+import { IntegrationConnectorReadsController, IntegrationInboxReadsController } from './integration-reads.controller';
 import { LegalHoldReadsController, LegalHoldsController } from './legal-holds.controller';
 import { MembersController } from './members.controller';
 import { RetentionPoliciesController } from './retention-policy.controller';
+import { RetentionPolicyReadsController, RetentionReviewReadsController } from './retention-reads.controller';
 import { SecurityPoliciesController, SecurityPolicyReadsController } from './security-policy.controller';
 import { ADM_ENVIRONMENT, ADM_INBOX_HANDLERS, ADM_INBOX_PROCESSOR } from './tokens';
 import { WorkCalendarReadsController, WorkCalendarsController } from './work-calendar.controller';
@@ -27,8 +29,12 @@ export const admModule = defineModule({
     LegalHoldsController,
     LegalHoldReadsController,
     RetentionPoliciesController,
+    RetentionPolicyReadsController,
+    RetentionReviewReadsController,
     IntegrationConnectorsController,
+    IntegrationConnectorReadsController,
     IntegrationInboxController,
+    IntegrationInboxReadsController,
     MembersController,
     GuestContractorController,
     SigningCertificatesController,

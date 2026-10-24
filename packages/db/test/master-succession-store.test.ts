@@ -342,6 +342,35 @@ describe('MasterSuccessionStore (administrative succession and the as-of reads, 
     });
   });
 
+  describe('an entry hands over once, and a draft belongs to the one who opened it', () => {
+    it('refuses a second succession of an entry that has handed over (or will) on another date, as a published retirement is refused', async () => {
+      const a = await area();
+      const b = await area();
+      const c = await area();
+      await succeed(a, b, { effectiveDate: FUTURE });
+      // a will be gone on FUTURE: it cannot also hand over to c on an earlier date, and the reads would name both.
+      expect(await refusal(record(input(a.recordId, c.recordId, { effectiveDate: REFORM })))).toEqual({ code: 'STAGE_TRANSITION_DENIED', status: 409, detail: 'already handed over' });
+      const d = await area();
+      const e = await area();
+      const f = await area();
+      await succeed(d, e);
+      expect(await refusal(record(input(d.recordId, f.recordId, { effectiveDate: '2025-06-15' })))).toEqual({ code: 'STAGE_TRANSITION_DENIED', status: 409, detail: 'already handed over' });
+      expect((await asOf(d.recordId, TODAY))?.targets.map((target) => target.businessKey)).toEqual([e.key]);
+    });
+
+    it('lets only the one who opened a draft split add a successor to it, so that nobody reviews what they wrote', async () => {
+      const a = await area();
+      const b = await area();
+      const c = await area();
+      await record(input(a.recordId, b.recordId, { kind: 'SPLIT', sharePct: '40' }));
+      const other = (): ReturnType<typeof successions.record> =>
+        as(CHECKER, (tx) => successions.record(tx, input(a.recordId, c.recordId, { kind: 'SPLIT', sharePct: '60' }), memberId(CHECKER)));
+      expect(await refusal(other())).toEqual({ code: 'STAGE_TRANSITION_DENIED', status: 409, detail: 'a change request is already open' });
+      const own = await record(input(a.recordId, c.recordId, { kind: 'SPLIT', sharePct: '60' }));
+      expect(own.edges).toBe(2);
+    });
+  });
+
   describe('four-eyes and publication', () => {
     it('is decided by someone other than the one who recorded it and published by a third person, and the impact names what refers to the entry', async () => {
       const a = await area();

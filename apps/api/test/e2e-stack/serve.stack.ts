@@ -180,6 +180,9 @@ const READER_ROLE = { n: 90, code: 'E2E_READER', permissions: ['organization_uni
 /** The second person of the delegation-of-authority flow: the owner writes the matrix, this role approves it (no system role holds adm.doa.approve but the administrators'). */
 const DOA_CHECKER_ROLE = { n: 96, code: 'E2E_DOA_CHECKER', permissions: ['adm.doa.approve', 'adm.doa.read', 'organization_unit.read', 'role_grant.read'], rank: 50 };
 
+/** The person who only reads the governance screens (ADM-09, ADM-10, ADM-11, ADM-12): no system role holds these read permissions but the administrators'. */
+const ADM_READER_ROLE = { n: 98, code: 'E2E_ADM_READER', permissions: ['adm.retention.read', 'adm.integration.read', 'audit_event.read', 'integration_cursor.read', 'legal_hold.read'], rank: 20 };
+
 /** The manager of the SLA policies of the issue module (ISS-09): no system role holds issue.sla.manage but the owner's. */
 const ISS_ROLE = { n: 97, code: 'E2E_SLA_MANAGER', permissions: ['issue.sla.manage', 'issue.read', 'master.read', 'organization_unit.read'], rank: 40 };
 
@@ -239,6 +242,7 @@ const GRANTS: GrantPlan[] = [
   { n: 6, user: 'steward', role: MASTER_ROLES[0]?.code ?? '', kind: 'TENANT', refs: [] },
   { n: 7, user: 'dataChecker', role: MASTER_ROLES[1]?.code ?? '', kind: 'TENANT', refs: [] },
   { n: 21, user: 'slaManager', role: ISS_ROLE.code, kind: 'TENANT', refs: [] },
+  { n: 22, user: 'admReader', role: ADM_READER_ROLE.code, kind: 'TENANT', refs: [] },
   ...STORY_ROLES.map((role, index): GrantPlan => ({ n: 60 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...INVESTMENT_ROLES.map((role, index): GrantPlan => ({ n: 30 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
@@ -323,6 +327,82 @@ function investmentFixtures(tenantId: string): Array<[string, unknown[]]> {
   return statements;
 }
 
+/**
+ * What the governance screens (ADM-09, ADM-10, ADM-11, ADM-12) show before a flow touches anything: three audit rows (one of each outcome),
+ * a published and a draft retention rule written by other people than the owner (so the owner may publish the draft), a record that waits for
+ * review, an active legal hold, a connector of each adapter status that matters and inbound events (one still held, one whose payload is purged).
+ */
+function governanceFixtures(tenantId: string): Array<[string, unknown[]]> {
+  const nobody = userKey('nobody').membershipId;
+  const owner = userKey('owner').membershipId;
+  const published = fixtureId(0x7b, 1);
+  const statements: Array<[string, unknown[]]> = [];
+  for (const [n, action, outcome, actor, diff] of [
+    [1, 'e2e.seed.read', 'SUCCESS', nobody, { field: 'value' }],
+    [2, 'e2e.seed.refused', 'DENIED', nobody, {}],
+    [3, 'e2e.seed.crashed', 'FAILED', owner, {}],
+  ] as const) {
+    statements.push([
+      `insert into machvon.audit_event (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, request_id, occurred_at, outcome)
+       values ($1, $2, $3, $4, 'e2e_seed', $2, $5::jsonb, $2, $2, timestamptz '2026-03-02T09:15:00Z' + $6::int * interval '1 minute', $7)`,
+      [tenantId, fixtureId(0x7a, n), actor, action, JSON.stringify(diff), n, outcome],
+    ]);
+  }
+  statements.push(
+    [
+      `insert into machvon.data_retention_policy
+         (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by, approved_by, published_at, version)
+       values ($1, $2, 'payment_dossier', 1, 10, 'FROM_CLOSED', 'Luật Lưu trữ 2011 [E2E-RET-01]', 'REVIEW_FOR_DESTRUCTION', date '2026-01-01', 'Published', $3, $4, timestamptz '2026-01-02T00:00:00Z', 2)`,
+      [tenantId, published, ACTOR, fixtureId(0x7b, 9)],
+    ],
+    [
+      `insert into machvon.data_retention_policy
+         (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by, version)
+       values ($1, $2, 'contract_dossier', 1, 15, 'FROM_CONTRACT_END', 'Luật Lưu trữ 2011 [E2E-RET-02]', 'ARCHIVE_TRANSFER', date '2026-01-01', 'Draft', $3, 1)`,
+      [tenantId, fixtureId(0x7b, 2), ACTOR],
+    ],
+    [
+      `insert into machvon.retention_review_item (tenant_id, id, record_class, resource_type, resource_id, policy_id, basis_date, due_on, end_action)
+       values ($1, $2, 'payment_dossier', 'payment_request', $3, $4, date '2015-03-01', date '2025-03-01', 'REVIEW_FOR_DESTRUCTION')`,
+      [tenantId, fixtureId(0x7b, 3), fixtureId(0x7b, 4), published],
+    ],
+    [
+      `insert into machvon.legal_hold (tenant_id, id, resource_scope, authority_reference, reason, effective_at, hold_kind, status, placed_by, version)
+       values ($1, $2, '{"kind":"TENANT","ids":[]}'::jsonb, 'Quyết định thanh tra E2E-01', 'Thanh tra chuyên đề e2e', timestamptz '2026-02-01T00:00:00Z', 'INSPECTION', 'Active', $3, 1)`,
+      [tenantId, fixtureId(0x7b, 5), owner],
+    ],
+  );
+  for (const [n, code, adapter, mode] of [
+    [1, 'e2e-verified-file', 'VERIFIED', 'FILE_IMPORT'],
+    [2, 'e2e-mock-gateway', 'MOCK', 'LGSP'],
+    [3, 'e2e-proposed-api', 'PROPOSED', 'API'],
+  ] as const) {
+    statements.push([
+      `insert into machvon.integration_connector (tenant_id, id, connector_code, adapter_status, mode, config_json, credential_secret_ref, mapping_version, status, last_test_result)
+       values ($1, $2, $3, $4, $5, '{"directory":"/e2e/inbox"}'::jsonb, 'secret://e2e/connectors/' || $3::text, 'v1', 'Draft', 'NOT_TESTED')`,
+      [tenantId, fixtureId(0x7c, n), code, adapter, mode],
+    ]);
+  }
+  for (const [n, key, status, attempts, kept] of [
+    [1, 'e2e-evt-failed', 'FAILED', 3, true],
+    [2, 'e2e-evt-dead', 'DEAD', 10, false],
+    [3, 'e2e-evt-done', 'PROCESSED', 1, true],
+  ] as const) {
+    statements.push([
+      `insert into machvon.integration_event_inbox
+         (tenant_id, id, provider, event_key, payload_hash, payload_reference, received_at, status, signature_key_id, attempts, error_code, payload_purged_at)
+       values ($1, $2, 'E2E_TREASURY', $3, repeat('d', 64), $4::text, timestamptz '2026-10-24T09:00:00Z', $5, 'k1', $6, case when $5 in ('FAILED', 'DEAD') then 'PROVIDER_DOWN' end, case when $4::text is null then now() end)`,
+      [tenantId, fixtureId(0x7d, n), key, kept ? `tenants/${tenantId}/webhook/E2E-SECRET-PAYLOAD-${key}` : null, status, attempts],
+    ]);
+  }
+  statements.push([
+    `insert into machvon.integration_cursor (tenant_id, id, connector_code, source_scope, cursor_json, schema_version, adapter_status, status, last_file_sha256)
+     values ($1, $2, 'E2E_TREASURY_FILE', 'DEFAULT', '{}'::jsonb, '1', 'PROPOSED', 'ACTIVE', repeat('e', 64))`,
+    [tenantId, fixtureId(0x7e, 1)],
+  ]);
+  return statements;
+}
+
 async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: TenantName): Promise<void> {
   const tenantId = fixtures.tenants[name];
   await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => seedSystemRoles(tx, ACTOR));
@@ -346,13 +426,13 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ISS_ROLE, ...INVESTMENT_ROLES, ...STORY_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, ISS_ROLE, ...INVESTMENT_ROLES, ...STORY_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
     ]);
   }
-  if (name === 'A') statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId));
+  if (name === 'A') statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId));
   // The units that owe the reports of the investors in the monitoring calendar (MNE-01): the Office and the Project Management Board of the Department.
   if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, ['CB-SKHDT-VP', 'CB-SKHDT-QLDA']]]);
   await asOwner(database, tenantId, statements);

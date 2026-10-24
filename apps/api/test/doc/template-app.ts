@@ -26,6 +26,7 @@ export const READER = 4; // reads templates only
 export const RENDERER = 5; // renders documents
 export const NOBODY = 6; // no grant
 export const SECOND_LEGAL = 7; // holds every template permission: used to prove that nobody takes two steps on one revision
+export const BRANCH = 8; // holds every template permission, but only over a branch of the organisation tree (the library belongs to the whole tenant)
 
 export interface Reply {
   status: number;
@@ -52,7 +53,7 @@ export class TemplateApp {
     await harness.start();
     await harness.seedUnits(TENANT_A, [{ n: 1, path: `/${unitId(1)}/` }]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: `/${unitId(1)}/` }]);
-    for (const n of [ADMIN, AUTHOR, LEGAL, READER, RENDERER, NOBODY, SECOND_LEGAL]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [ADMIN, AUTHOR, LEGAL, READER, RENDERER, NOBODY, SECOND_LEGAL, BRANCH]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
     await harness.seedRole(TENANT_A, 1, 'TEMPLATE_ADMIN', ['doc.template.manage', 'doc.template.approve', 'doc.template.read'], 60);
     await harness.seedRole(TENANT_A, 2, 'TEMPLATE_PUBLISHER', ['doc.template.approve', 'doc.template.read'], 50);
@@ -68,6 +69,7 @@ export class TemplateApp {
       { n: 4, member: READER, role: 4, kind: 'TENANT' },
       { n: 5, member: RENDERER, role: 5, kind: 'TENANT' },
       { n: 6, member: SECOND_LEGAL, role: 6, kind: 'TENANT' },
+      { n: 7, member: BRANCH, role: 6, kind: 'UNIT_SUBTREE', refs: [unitId(1)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: ADMIN, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;

@@ -42,6 +42,33 @@ export function formViewOf(row: MneFormRow): Record<string, unknown> {
   };
 }
 
+/** A rule revision as the list of rules shows it (MNE-02): the formula as data, the confirmation it waits for, and who made and approved it. */
+export function ruleViewOf(row: MneRuleRow): Record<string, unknown> {
+  return {
+    id: row.id,
+    rule_code: row.ruleCode,
+    revision: row.revision,
+    form_id: row.formId,
+    form_code: row.formCode,
+    reporting_role: row.reportingRole,
+    recipient: row.recipient,
+    frequency: row.frequency,
+    due_rule_json: row.dueRuleJson,
+    legal_basis: row.legalBasis,
+    legal_confirmation_ref: row.legalConfirmationRef,
+    awaiting_confirmation: row.legalConfirmationRef === null,
+    cxn_refs: cxnRefsOf(row.legalBasis),
+    effective_from: row.effectiveFrom,
+    effective_until: row.effectiveUntil,
+    status: row.status,
+    origin: row.origin,
+    pack_version: row.packVersion,
+    version: row.version,
+    created_by: row.createdBy,
+    approved_by: row.approvedBy,
+  };
+}
+
 /** An obligation rule revision as the audit trail and the events describe it. */
 export function ruleDiffOf(row: MneRuleRow): Record<string, unknown> {
   return {
