@@ -228,6 +228,21 @@ describe('MasterCrosswalkStore (codes of other systems mapped to master data, ST
       expect(await owner("select 1 from machvon.master_record where business_key = 'IMP-F'")).toEqual([]);
     });
 
+    it('attaches the child to the very record that the code is mapped to, not to a row of the file that shares its key', async () => {
+      const parent = await entry();
+      const parentKey = (await owner<{ business_key: string }>('select business_key from machvon.master_record where id = $1::uuid', [parent]))[0]?.business_key as string;
+      await create(input(parent, 'KB-PINNED'));
+      const lines = [`${parentKey},Trùng khóa với cha,2024-01-01,,,NSTW,ADDITIVE`, 'PIN-B,Con,2024-01-01,KB-PINNED,,NSTW,ADDITIVE'];
+      const batch = await stage(lines);
+      // The first row is the fault (the key is held); the second has its parent and is not skipped because of it.
+      expect(batch.errors).toEqual([{ row: 2, field: 'business_key', code: 'DUPLICATE_KEY' }]);
+      const bytes = new TextEncoder().encode([HEADER, ...lines, ''].join('\n'));
+      const applied = await as((tx) => imports.apply(tx, batch.id, batch.version, bytes, memberId(ACTOR)));
+      expect(applied).toMatchObject({ created: 1, skipped: 1 });
+      const child = await owner<{ parent_id: string | null }>("select v.parent_id from machvon.master_record_version v join machvon.master_record r on r.id = v.master_record_id where r.business_key = 'PIN-B'");
+      expect(child).toEqual([{ parent_id: parent }]);
+    });
+
     it('translates an attribute that refers to an entry, and refuses a mapping of the translation that is not well formed', async () => {
       const priority = await as((tx) =>
         masters.propose(tx, { masterType: 'PRIORITY', businessKey: 'URGENT-KB', content: { label: 'Urgent', attributes: { rank: 1, response_hours: 1, resolution_hours: 4, working_calendar: 'ALL_DAYS' }, parentRecordId: null, validFrom: '2024-01-01', validUntil: null, legalBasis: null }, reason: 'Initial entry' }, memberId(ACTOR)),
@@ -247,6 +262,18 @@ CAT-B,Có,2024-01-01,,KB-PRIORITY-1,,
       const batch = await as((tx) => imports.stage(tx, { masterType: 'ISSUE_CATEGORY', fileObjectKey: `tenants/${TENANT_A}/import/${randomUUID()}`, fileSha256: shaOf(bytes), mapping: mapped, mode: 'PARTIAL', bytes }, memberId(ACTOR)));
       expect(batch.errors).toEqual([{ row: 2, field: 'attributes.sla_priority_key', code: 'CROSSWALK_MISSING' }]);
       expect(batch.errorRows).toBe(1);
+      // A code that stands for an entry of another type is not the priority that happens to share its key.
+      const office = await entry('TREASURY_OFFICE');
+      await create(input(office, 'KB-OFFICE-AS-PRIORITY'));
+      const officeKey = (await owner<{ business_key: string }>('select business_key from machvon.master_record where id = $1::uuid', [office]))[0]?.business_key as string;
+      await as((tx) =>
+        masters.propose(tx, { masterType: 'PRIORITY', businessKey: officeKey, content: { label: 'Same key', attributes: { rank: 2, response_hours: 1, resolution_hours: 4, working_calendar: 'ALL_DAYS' }, parentRecordId: null, validFrom: '2024-01-01', validUntil: null, legalBasis: null }, reason: 'Initial entry' }, memberId(ACTOR)),
+      );
+      const wrong = new TextEncoder().encode(`${HEADER}
+CAT-C,Sai loại,2024-01-01,,KB-OFFICE-AS-PRIORITY,,
+`);
+      const refused = await as((tx) => imports.stage(tx, { masterType: 'ISSUE_CATEGORY', fileObjectKey: `tenants/${TENANT_A}/import/${randomUUID()}`, fileSha256: shaOf(wrong), mapping: mapped, mode: 'PARTIAL', bytes: wrong }, memberId(ACTOR)));
+      expect(refused.errors).toEqual([{ row: 2, field: 'attributes.sla_priority_key', code: 'INVALID_VALUE' }]);
 
       const bad = (crosswalk: unknown) => refusal(stage(['IMP-X,X,2024-01-01,,,NSTW,ADDITIVE'], { ...MAPPING, crosswalk }));
       expect(await bad('x')).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'mapping.crosswalk' });

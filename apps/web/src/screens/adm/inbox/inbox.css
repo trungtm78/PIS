@@ -1,0 +1,15 @@
+/* ADM-10: the sync monitor. The mockup's cards, tables and pills do the rest. */
+.adm-sync .field-error {
+  color: #a03e3e;
+}
+.adm-sync .replay-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.adm-sync .row-actions {
+  white-space: nowrap;
+}
+.adm-sync textarea {
+  min-height: 70px;
+}

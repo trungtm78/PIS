@@ -632,7 +632,8 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
       const { status, items } = await contracts(ADMIN, '?limit=200');
       expect(status).toBe(200);
       expect(codesOf(items)).toEqual(['GC-A1', 'GC-A2', 'GC-B1', 'GC-C', 'GC-D', 'GC-E', 'GC-X']);
-      expect(items[0]).toEqual({
+      // The register of CTR (ST-CTR-001) took the read over from the picker: the fields the picker read are all still there.
+      expect(items[0]).toMatchObject({
         id: CT_A1,
         code: 'GC-A1',
         status: 'ACTIVE',
@@ -663,10 +664,10 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
       expect(items.every((item) => item.owner_unit_id === unitId(U2))).toBe(true);
     });
 
-    it('shows nothing to a reader whose grants are bound to a contract, as every scoped read does', async () => {
+    it('shows a reader whose grants are bound to a contract that contract and no other (ST-CTR-001: a contract grant reaches its contract)', async () => {
       const { status, items } = await contracts(CONTRACT_GUEST_ADMIN);
       expect(status).toBe(200);
-      expect(items).toEqual([]);
+      expect(codesOf(items)).toEqual(['GC-A1']);
     });
 
     it('refuses a caller without contract.read, and a malformed page request', async () => {

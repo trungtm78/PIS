@@ -1,0 +1,17 @@
+/* ADM-09: the integration connectors. The mockup's cards, tables and pills do the rest. */
+.adm-connectors .field-error {
+  color: #a03e3e;
+}
+.adm-connectors .move-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.adm-connectors .row-actions {
+  white-space: nowrap;
+}
+.adm-connectors textarea {
+  min-height: 90px;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+}

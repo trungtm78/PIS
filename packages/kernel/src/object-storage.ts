@@ -113,7 +113,7 @@ export function verifyUrl(grant: PresignedGrant, secret: Uint8Array | string, no
   return secondsOf(now) >= grant.expires ? 'EXPIRED' : 'OK';
 }
 
-export type UploadPurpose = 'document' | 'logo' | 'import';
+export type UploadPurpose = 'document' | 'logo' | 'import' | 'audit_export';
 
 interface TypeRule {
   /** Whether the first bytes are a signature of this type. */
@@ -169,6 +169,8 @@ export const UPLOAD_PURPOSES: Readonly<Record<UploadPurpose, { allowed: readonly
   },
   logo: { allowed: IMAGES, maxBytes: 2 * MEBIBYTE },
   import: { allowed: [SPREADSHEET, 'text/csv'], maxBytes: 25 * MEBIBYTE },
+  // The sealed export of the audit trail (ST-ADM-016): CSV, or JSON lines which travel as plain text.
+  audit_export: { allowed: ['text/csv', 'text/plain'], maxBytes: 64 * MEBIBYTE },
 };
 
 export type UploadVerdict = { ok: true; contentType: string } | { ok: false; code: 'FILE_TYPE_NOT_ALLOWED' | 'PAYLOAD_TOO_LARGE'; status: 422 | 413 };

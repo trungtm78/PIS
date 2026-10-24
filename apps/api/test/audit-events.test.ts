@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
-import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { AuditSealJob, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { AuditEventsController } from '../src/modules/adm/audit-events.controller';
 import { PolicyModule } from '../src/policy.module';
@@ -95,7 +95,7 @@ describe('audit reads (ST-ADM-002, ADM-11)', () => {
     expect(reply.json.next_cursor).toBeNull();
     const [first] = reply.json.items as Array<Record<string, unknown>>;
     expect(Object.keys(first ?? {}).sort()).toEqual(
-      ['action', 'actor_id', 'classification', 'correlation_id', 'id', 'impersonator_id', 'occurred_at', 'on_behalf_of_id', 'outcome', 'reason', 'request_id', 'resource_id', 'resource_type', 'safe_diff', 'seq'].sort(),
+      ['action', 'actor_id', 'classification', 'correlation_id', 'id', 'impersonator_id', 'occurred_at', 'on_behalf_of_id', 'outcome', 'reason', 'request_id', 'resource_id', 'resource_type', 'safe_diff', 'seal_hash', 'seq'].sort(),
     );
     expect(first).toMatchObject({ id: EVENT(6), actor_id: memberId(AUDITOR), action: 'widget.change.6', outcome: 'SUCCESS', occurred_at: '2026-03-01T10:00:06.123Z', safe_diff: { name: 'six' } });
     expect(typeof first?.seq).toBe('number');
@@ -162,5 +162,75 @@ describe('audit reads (ST-ADM-002, ADM-11)', () => {
 
   it('refuses a malformed id', async () => {
     expect((await get('/resources/audit_event/not-a-uuid', AUDITOR)).status).toBe(422);
+  });
+  describe('filters, seals and the verdict of the verification (ST-ADM-016, ADM-11)', () => {
+    const seal = (windowRows = 3) => new AuditSealJob(harness.tenants as TenantDatabase, { windowRows }).seal({ tenantId: TENANT_A, membershipId: memberId(AUDITOR), scopeVersion: 1 });
+    const verify = () => new AuditSealJob(harness.tenants as TenantDatabase).verify({ tenantId: TENANT_A, membershipId: memberId(AUDITOR), scopeVersion: 1 });
+    const itemsOf = (reply: Reply): Array<Record<string, unknown>> => reply.json.items as Array<Record<string, unknown>>;
+
+    it('narrows the trail by actor, action, resource and period, and never beyond the scope of the caller', async () => {
+      expect(idsOf(await get(`/resources/audit_event?actor_id=${memberId(SUBTREE_AUDITOR)}`, AUDITOR))).toEqual([5, 2].map(EVENT));
+      expect(idsOf(await get('/resources/audit_event?action=widget.change.3', AUDITOR))).toEqual([EVENT(3)]);
+      expect(idsOf(await get(`/resources/audit_event?resource_type=widget&resource_id=${id(0x61, 4)}`, AUDITOR))).toEqual([EVENT(4)]);
+      expect(idsOf(await get('/resources/audit_event?from=2026-03-01T10:00:02.123Z&to=2026-03-01T10:00:05.123Z', AUDITOR))).toEqual([4, 3, 2].map(EVENT));
+      expect(idsOf(await get(`/resources/audit_event?actor_id=${memberId(AUDITOR)}`, SUBTREE_AUDITOR))).toEqual([]);
+      expect(idsOf(await get('/resources/audit_event?resource_type=gadget', AUDITOR))).toEqual([]);
+    });
+
+    it('finds the denied commands by outcome, with the diff redacted and without the rows that succeeded (AC-ST-ADM-016-2)', async () => {
+      await harness.owner(TENANT_A, [
+        [
+          `insert into machvon.audit_event
+             (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, request_id, occurred_at, outcome)
+           values ($1, $2, $3, 'authz.denied:placeLegalHold', 'operation', $4, $5::jsonb, $4, $4, '2026-03-02T09:00:00Z', 'DENIED')`,
+          [TENANT_A, EVENT(8), memberId(NOBODY), id(0x61, 8), JSON.stringify({ reason: 'MISSING_PERMISSION', api_key: 'k-denied-1' })],
+        ],
+      ]);
+      const reply = await get('/resources/audit_event?outcome=DENIED', AUDITOR);
+      expect(idsOf(reply)).toEqual([EVENT(8)]);
+      expect(itemsOf(reply)[0]).toMatchObject({ outcome: 'DENIED', actor_id: memberId(NOBODY), safe_diff: { reason: 'MISSING_PERMISSION', api_key: REDACTED_MARKER } });
+      expect(reply.text).not.toContain('k-denied-1');
+      expect(idsOf(await get('/resources/audit_event?outcome=SUCCESS', AUDITOR))).not.toContain(EVENT(8));
+    });
+
+    it.each([
+      ['actor_id=not-a-uuid', 'actor_id'],
+      ['resource_id=12', 'resource_id'],
+      ['outcome=MAYBE', 'outcome'],
+      ['from=2026-03-01', 'from'],
+      ['to=yesterday', 'to'],
+      ['from=2026-03-02T00:00:00Z&to=2026-03-01T00:00:00Z', 'to'],
+      ['action=a&action=b', 'action'],
+      [`resource_type=${'x'.repeat(201)}`, 'resource_type'],
+      ['action=', 'action'],
+    ])('refuses the filter %s with 422 naming %s', async (query) => {
+      const reply = await get(`/resources/audit_event?${query}`, AUDITOR);
+      expect([reply.status, reply.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+    });
+
+    it('names the seal that covers each event (null while it waits) and carries the verdict of the verification for the banner (AC-ST-ADM-016-3, UAT-AC139)', async () => {
+      const before = await get('/resources/audit_event', AUDITOR);
+      expect(before.json.seal).toEqual({ status: 'UNKNOWN', checked_at: null, seals: null, broken: null });
+      expect(itemsOf(before).every((item) => item.seal_hash === null)).toBe(true);
+
+      await seal(3);
+      const sealed = await get('/resources/audit_event', AUDITOR);
+      const hashes = itemsOf(sealed).map((item) => item.seal_hash as string);
+      expect(hashes.every((hash) => /^[0-9a-f]{64}$/.test(hash))).toBe(true);
+      expect(new Set(hashes).size).toBe(3);
+      expect((await get(`/resources/audit_event/${EVENT(8)}`, AUDITOR)).json.seal_hash).toBe(itemsOf(sealed).find((item) => item.id === EVENT(8))?.seal_hash);
+
+      await harness.owner(TENANT_A, [[`insert into machvon.audit_event (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, request_id, occurred_at)
+        values ($1, $2, $3, 'widget.late', 'widget', $4, '{}', $4, $4, '2026-03-03T00:00:00Z')`, [TENANT_A, EVENT(9), memberId(AUDITOR), id(0x61, 9)]]]);
+      expect(itemsOf(await get('/resources/audit_event', AUDITOR))[0]).toMatchObject({ id: EVENT(9), seal_hash: null });
+
+      await verify();
+      expect((await get('/resources/audit_event', AUDITOR)).json.seal).toMatchObject({ status: 'OK', seals: 3, broken: null });
+
+      await harness.owner(TENANT_A, [["update machvon.audit_event set action = 'tampered' where id = $1", [EVENT(2)]]]);
+      await verify();
+      const broken = await get('/resources/audit_event', SUBTREE_AUDITOR);
+      expect(broken.json.seal).toMatchObject({ status: 'BROKEN', broken: { reason: 'ROOT_MISMATCH', seal_id: expect.any(String), from_seq: expect.any(Number), to_seq: expect.any(Number) } });
+    });
   });
 });

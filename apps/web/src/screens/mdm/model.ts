@@ -13,11 +13,11 @@ export const LEGAL_BASIS_MAX_LENGTH = 2000;
 
 export type RecordStatus = 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'EFFECTIVE' | 'RETIRED' | 'MERGED';
 export type ChangeStatus = 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'APPLIED' | 'CANCELLED';
-export type ChangeKind = 'CREATE' | 'UPDATE' | 'RETIRE';
+export type ChangeKind = 'CREATE' | 'UPDATE' | 'RETIRE' | 'SUCCESSION';
 
 const RECORD_STATUSES: readonly string[] = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'EFFECTIVE', 'RETIRED', 'MERGED'];
 const CHANGE_STATUSES: readonly string[] = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'REJECTED', 'APPLIED', 'CANCELLED'];
-const CHANGE_KINDS: readonly string[] = ['CREATE', 'UPDATE', 'RETIRE'];
+const CHANGE_KINDS: readonly string[] = ['CREATE', 'UPDATE', 'RETIRE', 'SUCCESSION'];
 
 export type Namespace = 'PLATFORM' | 'TENANT';
 
@@ -86,10 +86,10 @@ export interface UsageView {
   samples: Array<{ reference: string; id: string }>;
 }
 
-const asRecord = (value: unknown): Record<string, unknown> | undefined => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined);
-const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
-const nullableText = (value: unknown): string | null => (typeof value === 'string' ? value : null);
-const whole = (value: unknown): number | undefined => (typeof value === 'number' && Number.isInteger(value) ? value : undefined);
+export const asRecord = (value: unknown): Record<string, unknown> | undefined => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined);
+export const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
+export const nullableText = (value: unknown): string | null => (typeof value === 'string' ? value : null);
+export const whole = (value: unknown): number | undefined => (typeof value === 'number' && Number.isInteger(value) ? value : undefined);
 
 export function toRecord(raw: unknown): RecordView | undefined {
   const row = asRecord(raw);
@@ -289,7 +289,7 @@ export function fieldValue(version: VersionView, field: ChangedField): string {
 
 // ---- forms ----------------------------------------------------------------------------------------------------------
 
-export type FieldProblem = 'required' | 'tooLong' | 'tooShort' | 'invalidDate' | 'order' | 'invalidJson';
+export type FieldProblem = 'required' | 'tooLong' | 'tooShort' | 'invalidDate' | 'order' | 'invalidJson' | 'invalidCode' | 'invalidId' | 'definitionTooShort';
 
 export interface RecordForm {
   masterType: string;
@@ -432,10 +432,14 @@ export type ProblemReason =
   | 'validation'
   | 'denied'
   | 'importHasErrors'
+  | 'importEmpty'
   | 'alreadyApplied'
   | 'fileRefused'
   | 'duplicateCrosswalk'
+  | 'duplicateTerm'
+  | 'notOwner'
   | 'notFound'
+  | 'successionCycle'
   | 'general';
 
 const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
@@ -454,13 +458,16 @@ const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
   SCOPE_DENIED: 'denied',
   PERMISSION_DENIED: 'denied',
   IMPORT_HAS_ERRORS: 'importHasErrors',
+  IMPORT_EMPTY: 'importEmpty',
   IMPORT_FILE_ALREADY_APPLIED: 'alreadyApplied',
   FILE_TYPE_NOT_ALLOWED: 'fileRefused',
   FILE_NOT_CLEAN: 'fileRefused',
   PAYLOAD_TOO_LARGE: 'fileRefused',
   SCAN_PENDING: 'fileRefused',
   CROSSWALK_DUPLICATE: 'duplicateCrosswalk',
+  GLOSSARY_TERM_DUPLICATE: 'duplicateTerm',
   RESOURCE_NOT_FOUND: 'notFound',
+  SUCCESSION_CYCLE: 'successionCycle',
 };
 
 export interface ProblemView {
@@ -553,6 +560,8 @@ export interface ImportBatchView {
   errorRows: number;
   errors: RowErrorView[];
   appliedAt: string | null;
+  /** Who applied the batch (null until it is applied): the person who may neither review nor publish it. */
+  appliedBy: string | null;
   reviewedBy: string | null;
   createdBy: string;
   version: number;
@@ -606,6 +615,7 @@ export function toImportBatch(raw: unknown): ImportBatchView | undefined {
     errorRows,
     errors,
     appliedAt: nullableText(row.applied_at),
+    appliedBy: nullableText(row.applied_by),
     reviewedBy: nullableText(row.reviewed_by),
     createdBy,
     version,
@@ -682,6 +692,7 @@ export const mappingComplete = (form: ImportMappingForm): boolean => form.key !=
 
 // ---- crosswalk and integration cursors (MDM-16, MDM-24) --------------------------------------------------------------------
 
+export const MASTER_READ_PERMISSION = 'master.read';
 export const CROSSWALK_PERMISSION = 'master.crosswalk.manage';
 export const CURSOR_READ_PERMISSION = 'integration_cursor.read';
 export const CURSOR_RESET_PERMISSION = 'integration.cursor.reset';
@@ -844,3 +855,161 @@ export function validateCursorReset(form: CursorResetForm): FormErrors<CursorRes
 
 /** The reason for ending a mapping: as long as the reason of any other change of master data. */
 export const validateRetireReason = (value: string): FieldProblem | undefined => checkReason(value);
+
+// ---- glossary of business terms (MDM-34) -------------------------------------------------------------------------------------
+
+export const GLOSSARY_READ_PERMISSION = 'glossary.read';
+export const GLOSSARY_PROPOSE_PERMISSION = 'glossary.propose';
+export const GLOSSARY_APPROVE_PERMISSION = 'glossary.approve';
+export const DISBURSEMENT_DOMAIN = 'DISBURSEMENT';
+/** The terms the disbursement figures stand on (DIS BR-DIS-03, 05, 06, 12): the definitions are signed (D03) when every one has a published revision. */
+export const DISBURSEMENT_REQUIRED_TERMS: readonly string[] = ['GIAI_NGAN_PERIOD', 'GIAI_NGAN_YTD', 'GIAI_NGAN_PTD', 'MAU_SO_KH_TTG_GIAO', 'MAU_SO_KH_TONG'];
+
+export const GLOSSARY_CODE_MAX_LENGTH = 80;
+export const GLOSSARY_DOMAIN_MAX_LENGTH = 50;
+export const GLOSSARY_TERM_MAX_LENGTH = 300;
+export const GLOSSARY_DEFINITION_MIN_LENGTH = 20;
+export const GLOSSARY_DEFINITION_MAX_LENGTH = 2000;
+export const GLOSSARY_FORMULA_MAX_LENGTH = 120;
+const GLOSSARY_CODE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
+const MEMBERSHIP_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export type GlossaryStatus = 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'PUBLISHED' | 'DEPRECATED' | 'REJECTED';
+export const GLOSSARY_STATUS_LIST: readonly GlossaryStatus[] = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'DEPRECATED', 'REJECTED'];
+
+export interface GlossaryTermView {
+  id: string;
+  termCode: string;
+  termVi: string;
+  definition: string;
+  formulaRef: string | null;
+  domain: string;
+  ownerMembershipId: string;
+  legalBasis: string | null;
+  revision: number;
+  status: GlossaryStatus;
+  effectiveFrom: string | null;
+  supersedesId: string | null;
+  createdBy: string;
+  decisionReason: string | null;
+  version: number;
+}
+
+export function toGlossaryTerm(raw: unknown): GlossaryTermView | undefined {
+  const row = asRecord(raw);
+  if (row === undefined) return undefined;
+  const id = text(row.id);
+  const termCode = text(row.term_code);
+  const termVi = text(row.term_vi);
+  const definition = text(row.definition);
+  const domain = text(row.domain);
+  const owner = text(row.owner_membership_id);
+  const revision = whole(row.revision);
+  const status = text(row.status);
+  const createdBy = text(row.created_by);
+  const version = whole(row.version);
+  if (
+    id === undefined || termCode === undefined || termVi === undefined || definition === undefined || domain === undefined || owner === undefined || revision === undefined ||
+    status === undefined || !GLOSSARY_STATUS_LIST.includes(status as GlossaryStatus) || createdBy === undefined || version === undefined
+  ) {
+    return undefined;
+  }
+  return {
+    id,
+    termCode,
+    termVi,
+    definition,
+    formulaRef: nullableText(row.formula_ref),
+    domain,
+    ownerMembershipId: owner,
+    legalBasis: nullableText(row.legal_basis),
+    revision,
+    status: status as GlossaryStatus,
+    effectiveFrom: nullableText(row.effective_from),
+    supersedesId: nullableText(row.supersedes_id),
+    createdBy,
+    decisionReason: nullableText(row.decision_reason),
+    version,
+  };
+}
+
+/** Whether the definitions of a domain are signed: the domain has required terms and every one of them has a PUBLISHED revision. */
+export interface DefinitionState {
+  signed: boolean;
+  /** The required terms that have no PUBLISHED revision. */
+  missing: string[];
+}
+
+/** Only the disbursement domain has a sign-off (D03); any other domain has nothing to sign. */
+export function definitionState(terms: readonly GlossaryTermView[], domain: string): DefinitionState | undefined {
+  if (domain !== DISBURSEMENT_DOMAIN) return undefined;
+  const published = new Set(terms.filter((term) => term.domain === domain && term.status === 'PUBLISHED').map((term) => term.termCode));
+  const missing = DISBURSEMENT_REQUIRED_TERMS.filter((code) => !published.has(code));
+  return { signed: missing.length === 0, missing };
+}
+
+export interface GlossaryForm {
+  termCode: string;
+  termVi: string;
+  definition: string;
+  formulaRef: string;
+  domain: string;
+  ownerMembershipId: string;
+  legalBasis: string;
+}
+
+export const EMPTY_GLOSSARY_FORM: GlossaryForm = { termCode: '', termVi: '', definition: '', formulaRef: '', domain: '', ownerMembershipId: '', legalBasis: '' };
+export type GlossaryField = keyof GlossaryForm;
+
+/** The form of the next revision of a published term: its words as they stand, to be changed; the code and the domain stay (the server holds them). */
+export function reviseForm(term: GlossaryTermView): GlossaryForm {
+  return {
+    termCode: term.termCode,
+    termVi: term.termVi,
+    definition: term.definition,
+    formulaRef: term.formulaRef ?? '',
+    domain: term.domain,
+    ownerMembershipId: term.ownerMembershipId,
+    legalBasis: term.legalBasis ?? '',
+  };
+}
+
+export function validateGlossary(form: GlossaryForm): FormErrors<GlossaryField> {
+  const errors: FormErrors<GlossaryField> = {};
+  const code = (field: 'termCode' | 'domain', value: string, max: number): void => {
+    const trimmed = value.trim();
+    if (trimmed === '') errors[field] = 'required';
+    else if (trimmed.length > max) errors[field] = 'tooLong';
+    else if (!GLOSSARY_CODE_PATTERN.test(trimmed)) errors[field] = 'invalidCode';
+  };
+  const optional = (field: GlossaryField, value: string, max: number): void => {
+    const problem = checkText(value, max, false);
+    if (problem !== undefined) errors[field] = problem;
+  };
+  code('termCode', form.termCode, GLOSSARY_CODE_MAX_LENGTH);
+  code('domain', form.domain, GLOSSARY_DOMAIN_MAX_LENGTH);
+  const term = checkText(form.termVi, GLOSSARY_TERM_MAX_LENGTH, true);
+  if (term !== undefined) errors.termVi = term;
+  const definition = form.definition.trim();
+  if (definition === '') errors.definition = 'required';
+  else if (definition.length < GLOSSARY_DEFINITION_MIN_LENGTH) errors.definition = 'definitionTooShort';
+  else if (definition.length > GLOSSARY_DEFINITION_MAX_LENGTH) errors.definition = 'tooLong';
+  optional('formulaRef', form.formulaRef, GLOSSARY_FORMULA_MAX_LENGTH);
+  optional('legalBasis', form.legalBasis, LEGAL_BASIS_MAX_LENGTH);
+  const owner = form.ownerMembershipId.trim();
+  if (owner === '') errors.ownerMembershipId = 'required';
+  else if (!MEMBERSHIP_ID_PATTERN.test(owner)) errors.ownerMembershipId = 'invalidId';
+  return errors;
+}
+
+/** The reason of a decision on a term: as long as the reason of any other decision of master data. */
+export const validateDecisionReason = (value: string): FieldProblem | undefined => checkReason(value);
+
+/**
+ * What a command on a term refuses with. A person who holds the permission to decide but is not the owner named on the term is refused with
+ * SCOPE_DENIED; on this screen that is a sentence of its own (the owner of the term decides it), not the general lack of permission.
+ */
+export function describeGlossaryProblem(error: unknown): ProblemView {
+  if (error instanceof ApiError && error.code === 'SCOPE_DENIED') return { reason: 'notOwner', field: undefined };
+  return describeProblem(error);
+}

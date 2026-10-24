@@ -269,6 +269,14 @@
       "statusBasis": "spec",
       "source": "spec:CAP"
     },
+    "APPROPRIATION_DUPLICATE": {
+      "status": 409,
+      "title": "Appropriation duplicate",
+      "meaning": "The decision document already assigns the same fund source, program, plan year, origin and budget level; one decision line is registered once (ST-CAP-001).",
+      "module": "CAP",
+      "statusBasis": "plan",
+      "source": "plan:ST-CAP-001"
+    },
     "APPROPRIATION_EXCEEDED": {
       "status": 422,
       "title": "Appropriation exceeded",
@@ -1988,6 +1996,14 @@
       "module": "MDM",
       "statusBasis": "spec",
       "source": "spec:MDM"
+    },
+    "IMPORT_EMPTY": {
+      "status": 422,
+      "title": "Import has nothing to apply",
+      "meaning": "The file of an import batch has no row that can be created (a header only, or every row in error in PARTIAL mode), so there is nothing to review or publish (ST-MDM-006).",
+      "module": "MDM",
+      "statusBasis": "plan",
+      "source": "plan:ST-MDM-006"
     },
     "IMPORT_FILE_ALREADY_APPLIED": {
       "status": 409,

@@ -83,3 +83,42 @@ export function convertDecimal(value: string, fromFactor: string, toFactor: stri
   const rounded = roundDown(widened, exact ? guard : guard + 1, mode);
   return render(amount.negative, rounded, scale);
 }
+
+interface Aligned {
+  left: bigint;
+  right: bigint;
+  scale: number;
+}
+
+/** Writes both operands as signed integers over one common power of ten, so that sums and comparisons are exact. */
+function align(a: string, b: string): Aligned {
+  const x = parse(a);
+  const y = parse(b);
+  const scale = Math.max(x.scale, y.scale);
+  const left = x.units * 10n ** BigInt(scale - x.scale);
+  const right = y.units * 10n ** BigInt(scale - y.scale);
+  return { left: x.negative ? -left : left, right: y.negative ? -right : right, scale };
+}
+
+function renderSigned(value: bigint, scale: number): string {
+  return render(value < 0n, value < 0n ? -value : value, scale);
+}
+
+/** Exact sum of two decimal strings, written with the larger of the two scales. */
+export function addDecimal(a: string, b: string): string {
+  const { left, right, scale } = align(a, b);
+  return renderSigned(left + right, scale);
+}
+
+/** Exact difference `a - b` of two decimal strings, written with the larger of the two scales. */
+export function subtractDecimal(a: string, b: string): string {
+  const { left, right, scale } = align(a, b);
+  return renderSigned(left - right, scale);
+}
+
+/** -1, 0 or 1 as `a` is less than, equal to or greater than `b`; scales do not matter (`1.0` equals `1`). */
+export function compareDecimal(a: string, b: string): -1 | 0 | 1 {
+  const { left, right } = align(a, b);
+  if (left === right) return 0;
+  return left < right ? -1 : 1;
+}

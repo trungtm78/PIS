@@ -15,13 +15,32 @@ const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole'
 const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor']);
 
 /**
+ * Fields whose absence or empty value has a code of its own in the operation catalogue (422, the field named): a legal
+ * confirmation without a reference is CONFIRMATION_REF_REQUIRED and a template revision without a legal basis is
+ * LEGAL_BASIS_REQUIRED (ST-DOC-006 AC-1, DOC F12).
+ */
+const FIELD_PROBLEMS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  confirmDocumentTemplateLegalBasis: { legal_confirmation_ref: 'CONFIRMATION_REF_REQUIRED' },
+  createDocumentTemplateRevision: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
+  createMneFormVersion: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
+  createMneObligationRule: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
+  publishPermitType: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
+  registerAppropriation: { decision_document_id: 'DECISION_REQUIRED' },
+};
+
+/**
  * The problem for the issues of a request body, or undefined when there are none. The first class present wins:
- * unknown fields (400 FIELD_NOT_ALLOWED, all of them named), then a missing field or a wrong type (400
- * INVALID_REQUEST), then a broken rule (422 VALIDATION_FAILED). The detail names fields, never values.
+ * unknown fields (400 FIELD_NOT_ALLOWED, all of them named), then a field with a code of its own that is missing or
+ * breaks its rule (422), then a missing field or a wrong type (400 INVALID_REQUEST), then a broken rule (422
+ * VALIDATION_FAILED). The detail names fields, never values.
  */
 export function problemOf(issues: readonly Issue[], operationId: string): DomainError | undefined {
   const unknown = issues.filter((issue) => issue.kind === 'unknown_field');
   if (unknown.length > 0) return new DomainError('FIELD_NOT_ALLOWED', 400, unknown.map((issue) => issue.path).join(', '));
+  for (const issue of issues) {
+    const code = issue.kind === 'type' ? undefined : FIELD_PROBLEMS[operationId]?.[issue.path];
+    if (code !== undefined) return new DomainError(code, 422, issue.path);
+  }
   const malformed = issues.find((issue) => issue.kind === 'type' || (issue.kind === 'missing' && !MISSING_AS_VALIDATION_FAILED.has(operationId)));
   if (malformed !== undefined) return new DomainError('INVALID_REQUEST', 400, malformed.path);
   const missing = issues.find((issue) => issue.kind === 'missing');

@@ -2,17 +2,26 @@ import type { Provider, Type } from '@nestjs/common';
 import type { AppModuleOptions } from '../app.module';
 import type { ModuleDescriptor } from './module-descriptor';
 import { admModule } from './adm';
+import { bidModule } from './bid';
+import { capModule } from './cap';
+import { ctrModule } from './ctr';
+import { dgvModule } from './dgv';
+import { disModule } from './dis';
 import { docModule } from './doc';
 import { iamModule } from './iam';
+import { issModule } from './iss';
 import { mdmModule } from './mdm';
+import { mneModule } from './mne';
 import { filesModule } from './files';
 import { notificationsModule } from './notifications';
 import { orchestrationModule } from './orchestration';
+import { pmtModule } from './pmt';
+import { prjModule } from './prj';
 import { sasModule } from './sas';
 import { searchModule } from './search';
 
 /** Every business module of the API, sorted by code. A slice adds one line here (one import and one entry). */
-export const MODULES: readonly ModuleDescriptor[] = [admModule, docModule, filesModule, iamModule, mdmModule, notificationsModule, orchestrationModule, sasModule, searchModule];
+export const MODULES: readonly ModuleDescriptor[] = [admModule, bidModule, capModule, ctrModule, dgvModule, disModule, docModule, filesModule, iamModule, issModule, mdmModule, mneModule, notificationsModule, orchestrationModule, pmtModule, prjModule, sasModule, searchModule];
 
 function activeModules(options: AppModuleOptions, modules: readonly ModuleDescriptor[]): ModuleDescriptor[] {
   const codes = new Set<string>();

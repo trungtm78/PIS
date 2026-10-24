@@ -1,0 +1,124 @@
+/* ADM-07: the working calendar, in the language of the shared screen classes. */
+.adm-calendar {
+  display: grid;
+  gap: 22px;
+}
+
+.adm-calendar .field {
+  min-width: 0;
+}
+
+.adm-calendar .field-error {
+  color: #a22b22;
+}
+
+.adm-calendar .row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.adm-calendar .scope-types {
+  border: 1px solid var(--border, #e8e3e5);
+  border-radius: 9px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.adm-calendar .scope-types .check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.cal-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 12px 0;
+}
+
+.cal-month {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.cal-month caption {
+  text-align: left;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 2px 0 4px;
+}
+
+.cal-month th {
+  font-weight: 500;
+  color: var(--muted, #6b6468);
+  text-align: center;
+}
+
+.cal-month td {
+  padding: 1px;
+  text-align: center;
+}
+
+/* A worked day is plain, a day off is dimmed, a holiday is filled and struck through, a compensated day is outlined: the
+   shapes differ as well as the colours, so the calendar reads in greyscale. */
+.cal-day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+}
+
+button.cal-day {
+  cursor: pointer;
+}
+
+.cal-day.off {
+  color: var(--muted, #8a8286);
+  background: #f3f0f1;
+}
+
+.cal-day.holiday {
+  background: #f9dcd9;
+  color: #8a1f17;
+  text-decoration: line-through;
+}
+
+.cal-day.compensated {
+  border: 2px solid #1d6b3a;
+  color: #1d6b3a;
+  font-weight: 600;
+}
+
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  list-style: none;
+  padding: 0;
+  margin: 6px 0;
+}
+
+.cal-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-legend .cal-day {
+  width: 18px;
+  height: 18px;
+}

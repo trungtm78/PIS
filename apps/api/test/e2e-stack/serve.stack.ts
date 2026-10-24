@@ -171,11 +171,55 @@ const UNITS: Record<TenantName, UnitSeed[]> = {
 
 /** The catalogue maker and checker of the master data flows: two roles, since no system role holds the master permissions but the owner's. */
 const MASTER_ROLES = [
-  { n: 91, code: 'E2E_MASTER_MAKER', permissions: ['master.propose', 'master.import', 'master.crosswalk.manage', 'integration_cursor.read', 'integration.cursor.reset', 'master.read', 'master_record_version.read'], rank: 40 },
-  { n: 92, code: 'E2E_MASTER_CHECKER', permissions: ['master.review', 'master.publish', 'master.read', 'master_record_version.read'], rank: 50 },
+  { n: 91, code: 'E2E_MASTER_MAKER', permissions: ['master.propose', 'master.import', 'master.crosswalk.manage', 'integration_cursor.read', 'integration.cursor.reset', 'glossary.propose', 'glossary.approve', 'glossary.read', 'master.read', 'master_record_version.read'], rank: 40 },
+  { n: 92, code: 'E2E_MASTER_CHECKER', permissions: ['master.review', 'master.publish', 'glossary.approve', 'glossary.read', 'master.read', 'master_record_version.read'], rank: 50 },
 ];
 
 const READER_ROLE = { n: 90, code: 'E2E_READER', permissions: ['organization_unit.read', 'role_grant.read', 'membership.read', 'contract.read'], rank: 20 };
+
+/** The second person of the delegation-of-authority flow: the owner writes the matrix, this role approves it (no system role holds adm.doa.approve but the administrators'). */
+const DOA_CHECKER_ROLE = { n: 96, code: 'E2E_DOA_CHECKER', permissions: ['adm.doa.approve', 'adm.doa.read', 'organization_unit.read', 'role_grant.read'], rank: 50 };
+
+/** The manager of the SLA policies of the issue module (ISS-09): no system role holds issue.sla.manage but the owner's. */
+const ISS_ROLE = { n: 97, code: 'E2E_SLA_MANAGER', permissions: ['issue.sla.manage', 'issue.read', 'master.read', 'organization_unit.read'], rank: 40 };
+
+/**
+ * The people of the project register (PRJ-01 to 03), the capital register (CAP-04, 14, 16) and the reporting period calendar (DIS-14). No system
+ * role holds these permissions but the owner's, so each person gets a role of their own: the planner and the approver of the capital are two
+ * people (the approver of an appropriation is never its registrant), and so are the one who soft closes a period and the one who locks it.
+ * The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
+ */
+const INVESTMENT_ROLES = [
+  { n: 110, user: 'projectManager', code: 'E2E_PROJECT_MANAGER', permissions: ['project.read', 'project.create', 'project.update', 'organization_unit.read', 'master.read'], rank: 40 },
+  { n: 111, user: 'projectViewer', code: 'E2E_PROJECT_VIEWER', permissions: ['project.read', 'organization_unit.read', 'master.read'], rank: 20 },
+  { n: 112, user: 'capPlanner', code: 'E2E_CAPITAL_PLANNER', permissions: ['capital.read', 'capital.appropriation.manage', 'master.read'], rank: 40 },
+  { n: 113, user: 'capApprover', code: 'E2E_CAPITAL_APPROVER', permissions: ['capital.read', 'capital.appropriation.approve'], rank: 50 },
+  { n: 114, user: 'capReader', code: 'E2E_CAPITAL_READER', permissions: ['capital.read'], rank: 20 },
+  { n: 115, user: 'periodManager', code: 'E2E_PERIOD_MANAGER', permissions: ['period.manage', 'reporting_period.read'], rank: 40 },
+  { n: 116, user: 'periodLocker', code: 'E2E_PERIOD_LOCKER', permissions: ['period.lock', 'reporting_period.read'], rank: 50 },
+  { n: 117, user: 'periodReader', code: 'E2E_PERIOD_READER', permissions: ['reporting_period.read'], rank: 20 },
+];
+
+/**
+ * The people of the dataset catalogue (DGV-03, 04), the template library (DOC-14: the drafter and publisher, the publisher who must not confirm
+ * their own work, the legal officer) and the contractor registry (BID-01, 02: the manager who may both register and verify, the verifier, the reader
+ * who sees the tax id covered). The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
+ */
+const STORY_ROLES = [
+  { n: 120, user: 'dgvSteward', code: 'E2E_DGV_STEWARD', permissions: ['data.catalog.manage', 'data.catalog.read', 'membership.read'], rank: 40 },
+  { n: 121, user: 'dgvReader', code: 'E2E_DGV_READER', permissions: ['data.catalog.read'], rank: 20 },
+  { n: 122, user: 'templateAdmin', code: 'E2E_TEMPLATE_ADMIN', permissions: ['doc.template.manage', 'doc.template.approve', 'doc.template.read'], rank: 60 },
+  { n: 123, user: 'templatePublisher', code: 'E2E_TEMPLATE_PUBLISHER', permissions: ['doc.template.approve', 'doc.template.confirm_legal', 'doc.template.read'], rank: 50 },
+  { n: 124, user: 'legalOfficer', code: 'E2E_LEGAL_OFFICER', permissions: ['doc.template.confirm_legal', 'doc.template.read'], rank: 50 },
+  { n: 125, user: 'templateReader', code: 'E2E_TEMPLATE_READER', permissions: ['doc.template.read'], rank: 20 },
+  { n: 126, user: 'bidManager', code: 'E2E_BID_MANAGER', permissions: ['bid.contractor.manage', 'bid.contractor.verify', 'bid.contractor.read', 'contractor.read'], rank: 40 },
+  { n: 127, user: 'bidVerifier', code: 'E2E_BID_VERIFIER', permissions: ['bid.contractor.verify', 'bid.contractor.read', 'contractor.read'], rank: 50 },
+  { n: 128, user: 'bidReader', code: 'E2E_BID_READER', permissions: ['contractor.read'], rank: 20 },
+  // The monitoring calendar (MNE-01) and the form catalogue (MNE-02): the administrator drafts forms and rules and generates the year and also holds the approvals (so the server, not the screen, refuses the author's own publication), the approver is the second person, the reader only reads.
+  { n: 129, user: 'mneAdmin', code: 'E2E_MNE_ADMIN', permissions: ['mne.form.manage', 'mne.form.approve', 'mne.calendar.manage', 'mne.calendar.approve', 'mne.read'], rank: 60 },
+  { n: 130, user: 'mneApprover', code: 'E2E_MNE_APPROVER', permissions: ['mne.form.approve', 'mne.calendar.approve', 'mne.read'], rank: 50 },
+  { n: 131, user: 'mneReader', code: 'E2E_MNE_READER', permissions: ['mne.read'], rank: 20 },
+];
 
 interface GrantPlan {
   n: number;
@@ -190,9 +234,13 @@ const GRANTS: GrantPlan[] = [
   { n: 2, user: 'unitAdmin', role: 'UNIT_ADMIN', kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
   { n: 3, user: 'unitAdmin', role: READER_ROLE.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
   { n: 4, user: 'auditor', role: READER_ROLE.code, kind: 'TENANT', refs: [] },
+  { n: 20, user: 'doaChecker', role: DOA_CHECKER_ROLE.code, kind: 'TENANT', refs: [] },
   { n: 5, user: 'nobody', role: 'MEMBER', kind: 'TENANT', refs: [] },
   { n: 6, user: 'steward', role: MASTER_ROLES[0]?.code ?? '', kind: 'TENANT', refs: [] },
   { n: 7, user: 'dataChecker', role: MASTER_ROLES[1]?.code ?? '', kind: 'TENANT', refs: [] },
+  { n: 21, user: 'slaManager', role: ISS_ROLE.code, kind: 'TENANT', refs: [] },
+  ...STORY_ROLES.map((role, index): GrantPlan => ({ n: 60 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...INVESTMENT_ROLES.map((role, index): GrantPlan => ({ n: 30 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -211,6 +259,68 @@ async function asOwner<T extends object = Record<string, unknown>>(
   } finally {
     await client.end();
   }
+}
+
+/**
+ * What the SLA policy screen (ISS-09) needs and no screen of this build makes: two issue categories in force, and the published working
+ * calendar WORKDAY_VN of this year and the next one (a policy may begin in the days to come, and a calendar is published by ADM-07).
+ */
+function issueFixtures(tenantId: string): Array<[string, unknown[]]> {
+  const statements: Array<[string, unknown[]]> = [];
+  for (const n of [1, 2]) {
+    const record = fixtureId(0x5a, n * 2 - 1);
+    const version = fixtureId(0x5a, n * 2);
+    statements.push(
+      [
+        "insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'ISSUE_CATEGORY', $3, 'EFFECTIVE', $4, $4)",
+        [tenantId, record, `E2E_ISSUE_CATEGORY_${n}`, ACTOR],
+      ],
+      [
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+         values ($1, $2, $3, 'ISSUE_CATEGORY', $4, 1, $5, '{}', '2024-01-01', 'EFFECTIVE', 'TENANT', now(), $6, $6)`,
+        [tenantId, version, record, `E2E_ISSUE_CATEGORY_${n}`, n === 1 ? 'Giải phóng mặt bằng' : 'Chất lượng công trình', ACTOR],
+      ],
+      ['update machvon.master_record set current_version_id = $2 where id = $1', [record, version]],
+    );
+  }
+  const year = new Date().getUTCFullYear();
+  [year, year + 1].forEach((calendarYear, index) => {
+    statements.push([
+      `insert into machvon.work_calendar_version (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, published_by, published_at)
+       values ($1, $2, 'WORKDAY_VN', $3, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, 'Labour Code 2019, Article 112', 'Published', $4, $4, now())`,
+      [tenantId, fixtureId(0x5b, index + 1), calendarYear, ACTOR],
+    ]);
+  });
+  return statements;
+}
+
+/**
+ * What the project register (PRJ-02) and the capital register (CAP-16) need and no screen of this build makes: one area in force, which is the
+ * area the seeded project DA-01 already names (the version fixtureId(0x52, 1)), and three documents of the tenant that can back a decision on
+ * capital. The fund sources, the sectors and the group thresholds come from the baseline the tenant applies.
+ */
+function investmentFixtures(tenantId: string): Array<[string, unknown[]]> {
+  const record = fixtureId(0x5c, 1);
+  const statements: Array<[string, unknown[]]> = [
+    [
+      "insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'AREA', 'E2E_AREA_1', 'EFFECTIVE', $3, $3)",
+      [tenantId, record, ACTOR],
+    ],
+    [
+      `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+       values ($1, $2, $3, 'AREA', 'E2E_AREA_1', 1, 'Thành phố Cao Bằng', '{}', '2024-01-01', 'EFFECTIVE', 'TENANT', now(), $4, $4)`,
+      [tenantId, fixtureId(0x52, 1), record, ACTOR],
+    ],
+    ['update machvon.master_record set current_version_id = $2 where id = $1', [record, fixtureId(0x52, 1)]],
+  ];
+  for (const n of [1, 2, 3, 4]) {
+    statements.push([
+      `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, symbol, issued_on, effect_status, classification, created_by, updated_by)
+       values ($1, $2, 'REFERENCE', 'QD', $3, $4, '2026-01-15', 'EFFECTIVE', 'INTERNAL', $5, $5)`,
+      [tenantId, fixtureId(0x5d, n), `Quyết định giao vốn e2e ${n}`, `QD-E2E-${n}/2026`, ACTOR],
+    ]);
+  }
+  return statements;
 }
 
 async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: TenantName): Promise<void> {
@@ -236,12 +346,15 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ISS_ROLE, ...INVESTMENT_ROLES, ...STORY_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
     ]);
   }
+  if (name === 'A') statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId));
+  // The units that owe the reports of the investors in the monitoring calendar (MNE-01): the Office and the Project Management Board of the Department.
+  if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, ['CB-SKHDT-VP', 'CB-SKHDT-QLDA']]]);
   await asOwner(database, tenantId, statements);
   // The tenant that the browser flows use starts from the baseline the platform publishes (catalogues and rule data), as a provisioned tenant does.
   if (name === 'A') await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => applyBaseline(tx, BASELINE_PACK, ACTOR));
@@ -614,7 +727,8 @@ describe('e2e API stack', () => {
       const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning });
       workers = startWorkers(
         { tenants, control, relayPool, lockPool, signingKey, alerts, publish: createOutboxPublisher(consumers), accessCache: authzCache },
-        { intervalSeconds: { 'outbox-relay': 1 } },
+        // The job that closes and locks the periods by the calendar runs once a day here: the period flows of DIS-14 move a period by hand and must not race it.
+        { intervalSeconds: { 'outbox-relay': 1, 'dis-period-autoclose': 86_400 } },
       );
       const listening = (app.getHttpServer().address() as AddressInfo).port;
       const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer, documents: outgoing.documents };

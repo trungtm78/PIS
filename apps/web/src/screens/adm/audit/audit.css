@@ -1,0 +1,30 @@
+/* ADM-11: the audit viewer. The mockup's pills, callouts and tables do the rest. */
+.adm-audit .callout.sealbroken {
+  background: #fcebec;
+  border-color: #a03e3e;
+  color: #5a1f1f;
+}
+.adm-audit .hash {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 11px;
+}
+.adm-audit .diff {
+  margin: 8px 0 0;
+  max-height: 220px;
+  overflow: auto;
+  font-size: 11px;
+  background: #f3f7f7;
+  padding: 8px;
+  border-radius: 6px;
+}
+.adm-audit .diff-toggle summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--teal);
+}
+.adm-audit .export-panel .formgrid {
+  margin-bottom: 14px;
+}
+.adm-audit .field-error {
+  color: #a03e3e;
+}

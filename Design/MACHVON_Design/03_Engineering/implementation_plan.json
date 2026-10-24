@@ -4138,7 +4138,8 @@
       ],
       "operations": [
         "upsertIssueSlaPolicy",
-        "retireIssueSlaPolicy"
+        "retireIssueSlaPolicy",
+        "listIssueSlaPolicies"
       ],
       "tables": [
         "issue_sla_policy"
@@ -5659,7 +5660,9 @@
       ],
       "operations": [
         "publishPermitType",
-        "retirePermitType"
+        "retirePermitType",
+        "get_resources_permit_type",
+        "get_resources_permit_type_id"
       ],
       "tables": [
         "permit_type"
@@ -28525,7 +28528,9 @@
       ],
       "operations": [
         "createWorkCalendarVersion",
-        "publishWorkCalendar"
+        "publishWorkCalendar",
+        "get_resources_work_calendar_version",
+        "get_resources_work_calendar_version_id"
       ],
       "tables": [
         "work_calendar_version"
@@ -28648,7 +28653,9 @@
         "createDoaMatrixDraft",
         "updateDoaMatrixDraft",
         "submitDoaMatrix",
-        "decideDoaMatrix"
+        "decideDoaMatrix",
+        "get_resources_doa_matrix_version",
+        "get_resources_doa_matrix_version_id"
       ],
       "tables": [
         "doa_matrix_version",

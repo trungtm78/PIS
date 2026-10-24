@@ -147,11 +147,15 @@ function MasterImportContent({ route }: ScreenProps) {
   })();
   const steps = [t('mdm.import.step.file.title'), t('mdm.import.step.mapping.title'), t('mdm.import.step.dryRun.title'), t('mdm.import.step.errors.title'), t('mdm.import.step.approval.title')];
 
-  const mine = current !== undefined && current.createdBy === tenant?.membershipId;
+  // Four-eyes is judged on the person who applied the batch (the author of its change requests), who may not be the one who staged the file;
+  // a batch that records no applier is judged on the person who staged it.
+  const mine = current !== undefined && (current.appliedBy ?? current.createdBy) === tenant?.membershipId;
   const approved = current !== undefined && current.status === 'IN_REVIEW' && current.reviewedBy !== null;
   const pendingReview = current !== undefined && current.status === 'IN_REVIEW' && current.reviewedBy === null;
   const blocked = current !== undefined && current.mode === 'ATOMIC' && current.errorRows > 0;
-  const readyToApply = current !== undefined && current.status === 'VALIDATED' && !blocked && (current.errorRows === 0 || sawSkipped);
+  // A file with no valid row (a header only, or every row in error) has nothing to review or publish: the server refuses it, so it is not offered.
+  const nothingToApply = current !== undefined && current.totalRows - current.errorRows <= 0;
+  const readyToApply = current !== undefined && current.status === 'VALIDATED' && !blocked && !nothingToApply && (current.errorRows === 0 || sawSkipped);
 
   const batchSummary = (item: ImportBatchView) => (
     <dl data-testid="batch">
@@ -362,6 +366,11 @@ function MasterImportContent({ route }: ScreenProps) {
                     {blocked ? (
                       <p className="callout warning" role="status" data-testid="blocked">
                         {t('mdm.import.apply.blocked.notice')}
+                      </p>
+                    ) : null}
+                    {nothingToApply && !blocked ? (
+                      <p className="callout warning" role="status" data-testid="empty">
+                        {t('mdm.import.apply.empty.notice')}
                       </p>
                     ) : null}
                     {current.mode === 'PARTIAL' && current.errorRows > 0 ? (

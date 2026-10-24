@@ -5,7 +5,7 @@ import vi from '../src/i18n/vi.json' with { type: 'json' };
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
 
 /**
- * MDM-16, MDM-24, MDM-01, MDM-25, MDM-26, MDM-27, MDM-28 and MDM-32 in a real browser against the real API and database (apps/api/test/e2e-stack):
+ * MDM-37, MDM-03, MDM-34, MDM-16, MDM-24, MDM-01, MDM-25, MDM-26, MDM-27, MDM-28 and MDM-32 in a real browser against the real API and database (apps/api/test/e2e-stack):
  * a catalogue steward proposes an entry, a second person reviews it, a publisher puts it in force, and the history keeps what was
  * valid before. The four-eyes rule is the real one: the proposer sees their own request as theirs and is offered no decision.
  */
@@ -489,6 +489,216 @@ test.describe('master data: propose, review, publish, change and history', () =>
     await expect(page.getByRole('form', { name: vi['mdm.crosswalk.form.aria'] })).toHaveCount(0);
     await expect(page.getByTestId('connectors')).toHaveCount(0);
     await expect(page.getByRole('button', { name: vi['mdm.crosswalk.retire.action'] })).toHaveCount(0);
+  });
+
+  test('a steward proposes a term, the proposer and a holder who does not own it are refused, and the owner approves and publishes it and then its next revision', async ({ page }) => {
+    const code = `E2E_TERM_${unique()}`;
+    const owner = membershipOf('dataChecker');
+    const rowOf = (status: string) => page.locator(`tr[data-term-code="${code}"][data-status="${status}"]`);
+    const termsOf = (): Promise<Array<{ id: string; revision: number; status: string; supersedes_id: string | null; effective_from: string | null }>> =>
+      sql("select id, revision, status, supersedes_id, effective_from::text as effective_from from machvon.glossary_term where term_code = $1 order by revision", [code]);
+    const decideAs = async (user: string, status: string, reason: string): Promise<void> => {
+      await open(page, '/mdm/mdm-34', user);
+      await rowOf(status).getByRole('button', { name: vi['mdm.glossary.decide.action'] }).click();
+      const panel = page.getByRole('form', { name: vi['mdm.glossary.decide.title'].replace('{code}', code) });
+      await panel.getByLabel(vi['mdm.approval.reason.label']).fill(reason);
+      await panel.getByRole('button', { name: vi['mdm.approval.decision.approve.action'] }).click();
+    };
+    const form = page.getByRole('form', { name: vi['mdm.glossary.form.aria'] });
+    const fillTerm = async (definition: string): Promise<void> => {
+      await form.getByLabel(vi['mdm.glossary.form.definition.label'], { exact: true }).fill(definition);
+      await form.getByRole('button', { name: vi['mdm.glossary.save.action'] }).click();
+      await expect(page.getByTestId('glossary-saved')).toBeVisible();
+    };
+
+    await open(page, '/mdm/mdm-34', 'steward');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.glossary.page.title'] })).toBeVisible();
+    // No disbursement term of the tenant is published, so the D03 definitions await sign-off.
+    await expect(page.getByTestId('definition-badge')).toHaveAttribute('data-state', 'PENDING');
+    await expect(page.getByTestId('definition-badge')).toContainText(vi['mdm.glossary.badge.pending.pill']);
+
+    // The form names what is missing before the server is asked.
+    await form.getByRole('button', { name: vi['mdm.glossary.save.action'] }).click();
+    await expect(form.getByText(vi['mdm.field.required.error']).first()).toBeVisible();
+    await form.getByLabel(vi['mdm.glossary.form.code.label'], { exact: true }).fill(code);
+    await form.getByLabel(vi['mdm.glossary.form.term.label'], { exact: true }).fill('Giải ngân e2e');
+    await form.getByLabel(vi['mdm.glossary.form.domain.label'], { exact: true }).fill('E2E_GLOSSARY');
+    await form.getByLabel(vi['mdm.glossary.form.owner.label'], { exact: true }).fill(owner);
+    await form.getByLabel(vi['mdm.glossary.form.formula.label'], { exact: true }).fill('e2e = SUM(paid)');
+    await fillTerm('Giải ngân tính theo ngày Kho bạc thanh toán, bản của luồng e2e.');
+    await expect(rowOf('DRAFT')).toHaveCount(1);
+    await expect(rowOf('DRAFT')).toContainText('e2e = SUM(paid)');
+
+    await rowOf('DRAFT').getByRole('button', { name: vi['mdm.glossary.submit.action'] }).click();
+    await expect(rowOf('IN_REVIEW')).toHaveCount(1);
+
+    // The steward holds the permission to decide and is the proposer: the server refuses and the term stays in review.
+    await decideAs('steward', 'IN_REVIEW', 'Approved by its own proposer');
+    await expect(page.getByRole('alert').filter({ hasText: vi['mdm.problem.selfApproval.error'] })).toBeVisible();
+    expect((await termsOf())[0]?.status).toBe('IN_REVIEW');
+
+    // The tenant owner holds the permission too, but the owner named on the term is someone else.
+    await decideAs('owner', 'IN_REVIEW', 'Approved by someone who does not own the term');
+    await expect(page.getByRole('alert').filter({ hasText: vi['mdm.problem.notOwner.error'] })).toBeVisible();
+    expect((await termsOf())[0]?.status).toBe('IN_REVIEW');
+
+    await decideAs('dataChecker', 'IN_REVIEW', 'Checked against the decision of the committee');
+    await expect(rowOf('APPROVED')).toHaveCount(1);
+    await rowOf('APPROVED').getByRole('button', { name: vi['mdm.glossary.publish.action'] }).click();
+    await expect(rowOf('PUBLISHED')).toHaveCount(1);
+    const [first] = await termsOf();
+    expect(first).toMatchObject({ revision: 1, status: 'PUBLISHED', supersedes_id: null });
+    expect(first?.effective_from).not.toBeNull();
+    const events = await sql<{ n: string }>("select count(*)::text as n from machvon.outbox_event where type = 'glossary.published.v1' and aggregate_id = $1", [first?.id]);
+    expect(Number(events[0]?.n)).toBe(1);
+
+    // A published term is not edited: the steward proposes the next revision from its words, and publishing it replaces the first.
+    await open(page, '/mdm/mdm-34', 'steward');
+    await rowOf('PUBLISHED').getByRole('button', { name: vi['mdm.glossary.revise.action'] }).click();
+    await expect(page.getByRole('heading', { level: 2, name: vi['mdm.glossary.revise.title'].replace('{code}', code).replace('{revision}', '1') })).toBeVisible();
+    await expect(form.getByLabel(vi['mdm.glossary.form.code.label'], { exact: true })).toHaveValue(code);
+    await fillTerm('Giải ngân tính theo ngày Kho bạc thanh toán, bản hai của luồng e2e.');
+    await expect(rowOf('DRAFT')).toHaveAttribute('data-revision', '2');
+    await rowOf('DRAFT').getByRole('button', { name: vi['mdm.glossary.submit.action'] }).click();
+    await expect(rowOf('IN_REVIEW')).toHaveCount(1);
+    await decideAs('dataChecker', 'IN_REVIEW', 'Checked against the decision of the committee');
+    await expect(rowOf('APPROVED')).toHaveCount(1);
+    await rowOf('APPROVED').getByRole('button', { name: vi['mdm.glossary.publish.action'] }).click();
+    await expect(rowOf('PUBLISHED')).toHaveAttribute('data-revision', '2');
+    await expect(rowOf('DEPRECATED')).toHaveAttribute('data-revision', '1');
+    const stored = await termsOf();
+    expect(stored.map((row) => [row.revision, row.status])).toEqual([[1, 'DEPRECATED'], [2, 'PUBLISHED']]);
+    expect(stored[1]?.supersedes_id).toBe(first?.id);
+  });
+
+  test('someone who may not propose is offered no form for a term, and someone without the glossary permissions is told so', async ({ page }) => {
+    await open(page, '/mdm/mdm-34', 'dataChecker');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.glossary.page.title'] })).toBeVisible();
+    await expect(page.getByRole('form', { name: vi['mdm.glossary.form.aria'] })).toHaveCount(0);
+    await open(page, '/mdm/mdm-34', 'auditor');
+    await expect(page.getByText(vi['states.denied.title'])).toBeVisible();
+    await expect(page.getByRole('form', { name: vi['mdm.glossary.form.aria'] })).toHaveCount(0);
+  });
+
+  test('a steward records the merger of two agencies, a second person approves and publishes it, and the inheritance tree and the agency screen show it (MDM-37, MDM-03)', async ({ page }) => {
+    const suffix = unique();
+    const [left, right, merged, other] = ['A', 'B', 'Y', 'Z'].map((part) => `E2E-AG-${part}-${suffix}`) as [string, string, string, string];
+    for (const entry of [left, right, merged, other]) await putInForce(page, entry, { type: 'AGENCY', name: `Agency ${entry}` });
+
+    const successionOf = async (key: string): Promise<string> => {
+      const [row] = await sql<{ id: string }>(
+        `select c.id from machvon.master_change_request c join machvon.master_record r on r.id = c.master_record_id
+          where r.business_key = $1 and c.change_kind = 'SUCCESSION' order by c.created_at desc limit 1`,
+        [key],
+      );
+      return row?.id ?? '';
+    };
+    /** Opens MDM-37 on the agencies, fills the form for one edge and saves the draft; with `submit` it also reads the impact and sends it to review. */
+    const record = async (from: string, to: string, options: { kind?: string; share?: string; date?: string; submit?: boolean } = {}): Promise<void> => {
+      await open(page, '/mdm/mdm-37', 'steward');
+      await page.getByLabel(vi['mdm.succession.type.label'], { exact: true }).selectOption('AGENCY');
+      const form = page.getByRole('form', { name: vi['mdm.succession.form.aria'] });
+      if (options.kind !== undefined) await form.getByLabel(vi['mdm.succession.kind.label'], { exact: true }).selectOption(options.kind);
+      await form.getByLabel(vi['mdm.succession.predecessor.label'], { exact: true }).selectOption((await recordOf(from)).id);
+      await form.getByLabel(vi['mdm.succession.successor.label'], { exact: true }).selectOption((await recordOf(to)).id);
+      if (options.date !== undefined) await form.getByLabel(vi['mdm.succession.effective.label'], { exact: true }).fill(options.date);
+      if (options.share !== undefined) await form.getByLabel(vi['mdm.succession.shareField.label'], { exact: true }).fill(options.share);
+      await form.getByLabel(vi['mdm.succession.basis.label'], { exact: true }).fill('Decision of the 2025 reform (working assumption awaiting CXN-34)');
+      await form.getByLabel(vi['mdm.succession.reason.label'], { exact: true }).fill('Recorded by the end-to-end flow');
+      await form.getByRole('button', { name: vi['mdm.succession.save.action'] }).click();
+      if (options.submit !== true) return;
+      await expect(page.getByTestId('succession-saved')).toBeVisible();
+      await expect(page.getByTestId('impact')).toBeVisible();
+      await page.getByRole('checkbox', { name: vi['mdm.impact.read.label'] }).check();
+      await page.getByRole('button', { name: vi['mdm.impact.submit.action'] }).click();
+      await expect(page.getByTestId('succession-submitted')).toBeVisible();
+    };
+
+    await record(left, merged, { submit: true });
+    await record(right, merged, { submit: true });
+    const leftRequest = await successionOf(left);
+    const rightRequest = await successionOf(right);
+    expect((await changesOf(left)).map((row) => [row.change_kind, row.status])).toEqual([['CREATE', 'APPLIED'], ['SUCCESSION', 'IN_REVIEW']]);
+
+    // The reviewer reads the kind, the date, the legal basis and the receiving entry of the proposal before deciding.
+    await open(page, '/mdm/mdm-32', 'dataChecker');
+    const reviewRow = page.locator(`[data-stage="review"][data-change-id="${leftRequest}"]`);
+    await expect(reviewRow).toContainText(vi['mdm.kind.change.succession']);
+    await reviewRow.getByRole('button', { name: vi['mdm.approval.review.action'] }).click();
+    const proposal = page.locator(`[data-panel-for="${leftRequest}"]`).getByTestId('proposal');
+    await expect(proposal).toContainText(`MERGE · ${vi['mdm.value.successionKind.merge']}`);
+    await expect(proposal).toContainText('2025-07-01');
+    await expect(proposal).toContainText(merged);
+    // Nothing is a fact before it is published.
+    expect(Number((await sql<{ n: string }>('select count(*)::text as n from machvon.master_succession where predecessor_record_id = $1', [(await recordOf(left)).id]))[0]?.n)).toBe(0);
+
+    for (const request of [leftRequest, rightRequest]) {
+      await approve(page, request, 'Checked against the decision of the committee');
+      await publish(page, request);
+    }
+    const edges = await sql<{ predecessor: string; successor: string; succession_kind: string; effective_date: string }>(
+      `select r.business_key as predecessor, q.business_key as successor, s.succession_kind, s.effective_date::text as effective_date
+         from machvon.master_succession s join machvon.master_record r on r.id = s.predecessor_record_id join machvon.master_record q on q.id = s.successor_record_id
+        where q.business_key = $1 order by r.business_key`,
+      [merged],
+    );
+    expect(edges).toEqual([left, right].sort().map((predecessor) => ({ predecessor, successor: merged, succession_kind: 'MERGE', effective_date: '2025-07-01' })));
+    expect((await recordOf(left)).status).toBe('RETIRED');
+    expect((await recordOf(merged)).status).toBe('EFFECTIVE');
+    // History is not rewritten: the retired agency keeps its one revision, closed on the date of the succession.
+    const versions = await sql<{ revision: number; valid_until: string }>('select revision, valid_until::text as valid_until from machvon.master_record_version where master_record_id = $1', [(await recordOf(left)).id]);
+    expect(versions).toEqual([{ revision: 1, valid_until: '2025-07-01' }]);
+
+    // MDM-37: the tree joins the two agencies before the date to the merged one after it, with the kind on the connector.
+    await open(page, '/mdm/mdm-37', 'steward');
+    await page.getByLabel(vi['mdm.succession.type.label'], { exact: true }).selectOption('AGENCY');
+    const connector = page.locator('[data-testid="connector-row"]', { has: page.locator(`[data-side="before"] [data-key="${left}"]`) });
+    await expect(connector).toHaveCount(1);
+    await expect(connector.locator('[data-side="before"] li')).toHaveCount(2);
+    await expect(connector.locator('[data-side="after"] li')).toHaveCount(1);
+    await expect(connector.locator('[data-side="after"] [data-key]').first()).toHaveAttribute('data-key', merged);
+    await expect(connector.locator('.pill[data-kind="MERGE"]')).toHaveText('MERGE');
+    await expect(page.getByRole('heading', { level: 2, name: vi['mdm.succession.before.title'].replace('{date}', '2025-07-01') })).toBeVisible();
+    // Another date: nothing takes effect on it. The first date again: the connector is back.
+    await page.getByLabel(vi['mdm.succession.date.label'], { exact: true }).fill('2025-08-01');
+    await expect(page.getByTestId('no-succession')).toContainText('2025-08-01');
+    await page.getByLabel(vi['mdm.succession.date.label'], { exact: true }).fill('2025-07-01');
+    await expect(connector).toHaveCount(1);
+
+    // MDM-03: on a date after it, the agency shows who succeeded it; the structure of the entry is read on the date.
+    await open(page, '/mdm/mdm-03', 'steward');
+    await expect(page.getByRole('heading', { level: 1, name: vi['mdm.agency.page.title'] })).toBeVisible();
+    const agency = page.locator(`tr[data-key="${left}"]`);
+    await expect(agency).toHaveAttribute('data-state', 'SUCCEEDED');
+    await expect(agency.locator('td[data-column="successor"]')).toHaveText(merged);
+    await expect(agency.locator('td[data-column="legalName"]')).toHaveText(`Agency ${left}`);
+    await agency.getByRole('button', { name: vi['mdm.structure.inspect.action'] }).click();
+    await expect(page.getByTestId('inspect-state')).toHaveText(vi['mdm.structure.state.succeeded']);
+    await expect(page.getByTestId('inspect-structure-date')).toHaveText('2025-07-01');
+    await expect(page.getByTestId('inspect-targets')).toContainText(merged);
+    // Before the date the same agency is in force and has no successor yet.
+    await page.getByLabel(vi['mdm.structure.date.label'], { exact: true }).fill('2025-06-30');
+    await expect(agency).toHaveAttribute('data-state', 'IN_FORCE');
+    await expect(agency.locator('td[data-column="successor"]')).toHaveText('');
+
+    // A ring is refused even when the first request is still waiting; a share outside 0..100 never leaves the form.
+    await record(other, merged, { submit: false });
+    await expect(page.getByTestId('succession-saved')).toBeVisible();
+    await record(merged, other, { date: '2025-08-01' });
+    await expect(page.getByTestId('record-problem')).toHaveText(vi['mdm.problem.successionCycle.error']);
+    await expect(page.getByTestId('succession-saved')).toHaveCount(0);
+    await open(page, '/mdm/mdm-37', 'steward');
+    await page.getByLabel(vi['mdm.succession.type.label'], { exact: true }).selectOption('AGENCY');
+    const splitForm = page.getByRole('form', { name: vi['mdm.succession.form.aria'] });
+    await splitForm.getByLabel(vi['mdm.succession.kind.label'], { exact: true }).selectOption('SPLIT');
+    await splitForm.getByLabel(vi['mdm.succession.shareField.label'], { exact: true }).fill('100');
+    await splitForm.getByRole('button', { name: vi['mdm.succession.save.action'] }).click();
+    await expect(splitForm.getByText(vi['mdm.succession.invalidShare.error'])).toBeVisible();
+    expect(Number((await sql<{ n: string }>('select count(*)::text as n from machvon.master_succession where predecessor_record_id = $1', [(await recordOf(merged)).id]))[0]?.n)).toBe(0);
+
+    // Someone who may not propose reads the tree and is offered no way to record a succession.
+    await open(page, '/mdm/mdm-37', 'dataChecker');
+    await expect(page.getByRole('form', { name: vi['mdm.succession.form.aria'] }).getByRole('button', { name: vi['mdm.succession.save.action'] })).toHaveCount(0);
   });
 
   test('someone without the master data permissions sees no entry and is offered no way to add one', async ({ page }) => {

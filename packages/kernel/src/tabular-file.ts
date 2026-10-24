@@ -9,6 +9,17 @@ export interface TabularFile {
   headers: string[];
   /** The rows after the header, as text; a short row is padded with empty cells to the width of the header. */
   rows: string[][];
+  /**
+   * The line of the source of each row, in the order of `rows` (the first line of the file is 1): the line a CSV row starts on, even when a
+   * quoted cell runs over several, and the number of the row in the worksheet. Blank lines are dropped from `rows` but always counted.
+   */
+  lines: number[];
+}
+
+/** A row of the source with the line it starts on. */
+interface SourceRow {
+  cells: string[];
+  line: number;
 }
 
 /** What a file may weigh before it is read: the framework answers a file beyond these with 422, never runs out of memory on it. */
@@ -51,10 +62,12 @@ function delimiterOf(text: string): string {
   return best;
 }
 
-/** RFC 4180 rows: quoted cells may hold the delimiter, line breaks and doubled quotes. Blank lines are skipped. */
-function csvRows(text: string, limits: TabularLimits): string[][] {
+/** RFC 4180 rows: quoted cells may hold the delimiter, line breaks and doubled quotes. Blank lines are skipped, but counted. */
+function csvRows(text: string, limits: TabularLimits): SourceRow[] {
   const delimiter = delimiterOf(text);
-  const rows: string[][] = [];
+  const rows: SourceRow[] = [];
+  let line = 1;
+  let startLine = 1;
   let row: string[] = [];
   let cell = '';
   let quoted = false;
@@ -67,7 +80,7 @@ function csvRows(text: string, limits: TabularLimits): string[][] {
   const endRow = (): void => {
     endCell();
     if (row.length > limits.maxColumns) throw unreadable();
-    if (touched || row.some((value) => value !== '')) rows.push(row);
+    if (touched || row.some((value) => value !== '')) rows.push({ cells: row, line: startLine });
     if (rows.length > limits.maxRows + 1) throw unreadable();
     row = [];
     touched = false;
@@ -75,8 +88,11 @@ function csvRows(text: string, limits: TabularLimits): string[][] {
   for (let index = 0; index < text.length; index += 1) {
     const character = text.charAt(index);
     if (quoted) {
-      if (character !== '"') cell += character;
-      else if (text.charAt(index + 1) === '"') {
+      if (character !== '"') {
+        cell += character;
+        // A line break inside a quoted cell is a line of the file too (a CRLF is one).
+        if (character === '\n' || (character === '\r' && text.charAt(index + 1) !== '\n')) line += 1;
+      } else if (text.charAt(index + 1) === '"') {
         cell += '"';
         index += 1;
       } else quoted = false;
@@ -91,6 +107,8 @@ function csvRows(text: string, limits: TabularLimits): string[][] {
     } else if (character === '\r' || character === '\n') {
       if (character === '\r' && text.charAt(index + 1) === '\n') index += 1;
       endRow();
+      line += 1;
+      startLine = line;
     } else cell += character;
   }
   if (quoted) throw unreadable();
@@ -98,7 +116,7 @@ function csvRows(text: string, limits: TabularLimits): string[][] {
   return rows;
 }
 
-function csvTable(bytes: Uint8Array, limits: TabularLimits): string[][] {
+function csvTable(bytes: Uint8Array, limits: TabularLimits): SourceRow[] {
   let text: string;
   try {
     text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
@@ -195,11 +213,84 @@ function columnIndex(reference: string): number {
   return index - 1;
 }
 
-function sheetRows(xml: string, strings: readonly string[], limits: TabularLimits): string[][] {
-  const rows: string[][] = [];
-  for (const found of xml.matchAll(/<row(?:\s[^>]*)?>([\s\S]*?)<\/row>|<row(?:\s[^>]*)?\/>/g)) {
+// ---- dates: a date in a worksheet is a number, and only its style says that it is a date ------------------------------------
+
+function range(from: number, to: number): number[] {
+  return Array.from({ length: to - from + 1 }, (_unused, index) => from + index);
+}
+
+/** The formats of the standard that show a date or a time (ECMA-376 18.8.30): 14 to 22, 27 to 36, 45 to 47 and 50 to 58. */
+const BUILT_IN_DATE_FORMATS: ReadonlySet<number> = new Set([...range(14, 22), ...range(27, 36), ...range(45, 47), ...range(50, 58)]);
+
+/** A custom format shows a date when a day, month, year, hour or second token is left once the escapes, the quoted text and the [bracket] parts are removed. */
+function isDateFormat(code: string): boolean {
+  return /[dmyhs]/i.test(code.replace(/\\./g, '').replace(/"[^"]*"/g, '').replace(/\[[^\]]*\]/g, '').replace(/[_*]./g, ''));
+}
+
+interface WorkbookDates {
+  /** The indexes of the cell formats (the `s` of a cell) that show a date or a time. */
+  styles: ReadonlySet<number>;
+  /** The workbook counts its days from 1904-01-01 instead of 1899-12-30. */
+  date1904: boolean;
+}
+
+function workbookDates(styles: string | undefined, workbook: string): WorkbookDates {
+  const date1904 = /<workbookPr\b[^>]*\sdate1904="(?:1|true)"/i.test(workbook);
+  if (styles === undefined) return { styles: new Set(), date1904 };
+  const custom = new Map<number, string>();
+  for (const tag of styles.matchAll(/<numFmt\b[^>]*>/g)) {
+    const id = /\snumFmtId="(\d+)"/.exec(tag[0])?.[1];
+    const code = /\sformatCode="([^"]*)"/.exec(tag[0])?.[1];
+    if (id !== undefined && code !== undefined) custom.set(Number(id), decodeXml(code));
+  }
+  const formats = /<cellXfs\b[^>]*>([\s\S]*?)<\/cellXfs>/.exec(styles)?.[1] ?? '';
+  const dates = new Set<number>();
+  [...formats.matchAll(/<xf\b[^>]*>/g)].forEach((tag, index) => {
+    const id = Number(/\snumFmtId="(\d+)"/.exec(tag[0])?.[1] ?? 0);
+    const code = custom.get(id);
+    if (code === undefined ? BUILT_IN_DATE_FORMATS.has(id) : isDateFormat(code)) dates.add(index);
+  });
+  return { styles: dates, date1904 };
+}
+
+const DAY_MS = 86_400_000;
+const SECONDS_PER_DAY = 86_400;
+const LAST_DAY_MS = Date.UTC(9999, 11, 31);
+const two = (value: number): string => String(value).padStart(2, '0');
+
+/**
+ * The text of a serial number that a date style marks: yyyy-mm-dd, yyyy-mm-ddThh:mm:ss when the serial has a time of day, hh:mm:ss when it
+ * has nothing but a time. The 1900 system counts a 29 February 1900 that never was (serial 60), so from serial 61 on the day zero is
+ * 1899-12-30; the serial 60, the serial 0 and what is not a day of the calendar stay as they are, for the module that reads the file to refuse.
+ */
+function serialDate(raw: string, date1904: boolean): string {
+  const serial = Number(raw);
+  if (raw.trim() === '' || !Number.isFinite(serial) || serial < 0) return raw;
+  const total = Math.round(serial * SECONDS_PER_DAY);
+  const day = Math.floor(total / SECONDS_PER_DAY);
+  const rest = total - day * SECONDS_PER_DAY;
+  const time = `${two(Math.floor(rest / 3600))}:${two(Math.floor((rest % 3600) / 60))}:${two(rest % 60)}`;
+  if (day === 0 && rest > 0) return time;
+  let base: number;
+  if (date1904) base = Date.UTC(1904, 0, 1);
+  else if (day === 0 || day === 60) return raw;
+  else base = day < 60 ? Date.UTC(1899, 11, 31) : Date.UTC(1899, 11, 30);
+  const at = base + day * DAY_MS;
+  if (at > LAST_DAY_MS) return raw;
+  const date = new Date(at).toISOString().slice(0, 10);
+  return rest === 0 ? date : `${date}T${time}`;
+}
+
+function sheetRows(xml: string, strings: readonly string[], dates: WorkbookDates, limits: TabularLimits): SourceRow[] {
+  const rows: SourceRow[] = [];
+  let previous = 0;
+  for (const found of xml.matchAll(/<row((?:\s[^>]*)?)(?<!\/)>([\s\S]*?)<\/row>|<row((?:\s[^>]*)?)\/>/g)) {
+    // The row number of the sheet; a row without one (or one that goes back) follows the row before it.
+    const declared = Number(/\sr="(\d+)"/.exec(found[1] ?? found[3] ?? '')?.[1] ?? Number.NaN);
+    const line = Number.isInteger(declared) && declared > previous ? declared : previous + 1;
+    previous = line;
     const cells: string[] = [];
-    for (const cell of (found[1] ?? '').matchAll(/<c((?:\s[^>]*)?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
+    for (const cell of (found[2] ?? '').matchAll(/<c((?:\s[^>]*)?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
       const attributes = cell[1] ?? '';
       const reference = /\sr="([A-Z]+)\d+"/.exec(attributes)?.[1];
       const type = /\st="([^"]*)"/.exec(attributes)?.[1];
@@ -207,20 +298,24 @@ function sheetRows(xml: string, strings: readonly string[], limits: TabularLimit
       let value = '';
       if (type === 's') value = strings[Number(/<v>([\s\S]*?)<\/v>/.exec(body)?.[1] ?? Number.NaN)] ?? '';
       else if (type === 'inlineStr') value = textOf(/<is(?:\s[^>]*)?>([\s\S]*?)<\/is>/.exec(body)?.[1] ?? '');
-      else value = decodeXml(/<v>([\s\S]*?)<\/v>/.exec(body)?.[1] ?? '');
+      else {
+        value = decodeXml(/<v>([\s\S]*?)<\/v>/.exec(body)?.[1] ?? '');
+        const style = /\ss="(\d+)"/.exec(attributes)?.[1];
+        if ((type === undefined || type === 'n') && style !== undefined && dates.styles.has(Number(style))) value = serialDate(value, dates.date1904);
+      }
       const index = reference === undefined ? cells.length : columnIndex(reference);
       if (index < 0 || index >= limits.maxColumns) throw unreadable();
       if (value.length > limits.maxCellLength) throw unreadable();
       while (cells.length < index) cells.push('');
       cells[index] = value;
     }
-    if (cells.some((value) => value !== '')) rows.push(cells);
+    if (cells.some((value) => value !== '')) rows.push({ cells, line });
     if (rows.length > limits.maxRows + 1) throw unreadable();
   }
   return rows;
 }
 
-function xlsxTable(bytes: Uint8Array, limits: TabularLimits): string[][] {
+function xlsxTable(bytes: Uint8Array, limits: TabularLimits): SourceRow[] {
   const buffer = Buffer.from(bytes);
   const entries = zipEntries(buffer, limits);
   const read = (name: string): string | undefined => {
@@ -237,7 +332,7 @@ function xlsxTable(bytes: Uint8Array, limits: TabularLimits): string[][] {
   if (path === undefined) throw unreadable();
   const sheet = read(path.startsWith('/') ? path.slice(1) : `xl/${path}`);
   if (sheet === undefined) throw unreadable();
-  return sheetRows(sheet, sharedStrings(read('xl/sharedStrings.xml')), limits);
+  return sheetRows(sheet, sharedStrings(read('xl/sharedStrings.xml')), workbookDates(read('xl/styles.xml'), workbook), limits);
 }
 
 /**
@@ -251,7 +346,7 @@ export function readTabularFile(bytes: Uint8Array, limits: TabularLimits = DEFAU
   const table = format === 'XLSX' ? xlsxTable(bytes, limits) : csvTable(bytes, limits);
   const [head, ...body] = table;
   if (head === undefined) throw unreadable();
-  const headers = head.map((name) => name.trim());
+  const headers = head.cells.map((name) => name.trim());
   if (headers.every((name) => name === '') || new Set(headers.filter((name) => name !== '')).size !== headers.filter((name) => name !== '').length) throw unreadable();
-  return { format, headers, rows: body.map((row) => headers.map((_name, index) => row[index] ?? '')) };
+  return { format, headers, rows: body.map((row) => headers.map((_name, index) => row.cells[index] ?? '')), lines: body.map((row) => row.line) };
 }

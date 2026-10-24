@@ -4,6 +4,7 @@ import type { ControlDatabase } from './control-database.ts';
 import { PLATFORM_TENANT_ID } from './control-database.ts';
 import type { IdempotencyStore } from './idempotency-store.ts';
 import type { JobHandler } from './job-runner.ts';
+import { RETENTION_PENDING_GAUGE } from './retention-job.ts';
 import { NOOP_METRICS } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 
@@ -18,10 +19,23 @@ export const JOB_INTERVAL_SECONDS = {
   'master-activation': 3600,
   // Every six hours: a baseline that the platform publishes reaches a tenant within the shift; the pass is idempotent.
   'master-baseline-sync': 21600,
+  // Every 15 minutes: a period is soft closed within a quarter of an hour after its deadline; the pass is idempotent (ST-DIS-001).
+  'dis-period-autoclose': 900,
+  // Hourly tick that works only in the 01:00 hour of Vietnam time, so the retention run happens once a night at a fixed hour wherever the process started (ST-ADM-017).
+  'retention-purge': 3600,
+  // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
+  'integration-inbox': 60,
   'access-cache-expiry': 60,
 } as const;
 
 export type JobName = keyof typeof JOB_INTERVAL_SECONDS;
+
+/** The hour of the night, in Vietnam time (UTC+7, no daylight saving), in which the retention run works (ADM 3.12: daily at 01:00). */
+export const RETENTION_HOUR = 1;
+const VIETNAM_UTC_OFFSET_HOURS = 7;
+
+/** The hour of the day, 0 to 23, in Vietnam. */
+export const vietnamHourOf = (instant: Date): number => (instant.getUTCHours() + VIETNAM_UTC_OFFSET_HOURS) % 24;
 
 /** The jobs that need only the database, so a command line can run them on their own. */
 export const DATABASE_JOBS: readonly JobName[] = ['audit-seal', 'audit-verify', 'idempotency-purge'];
@@ -64,6 +78,17 @@ export interface StandardJobDeps {
   masterData?: { activateDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<{ changed: number; pendingReviews: number }> };
   /** Applies the baseline pack of the platform to the tenant (ST-MDM-003): the catalogues and the rule data every tenant starts from. */
   masterBaseline?: { apply(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
+  /** Soft-closes the reporting periods past their deadline and locks them three working days later, by the same moves as the commands (ST-DIS-001). */
+  disPeriods?: { autoclose(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
+  /**
+   * The nightly retention run of a tenant (ST-ADM-017): removes the technical data that has outlived its period and puts the expired business
+   * records on the review list, never deleting them; tells how many items wait, for the gauge below. Only the 01:00 hour of Vietnam time works.
+   */
+  retention?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ pending: number }> };
+  /** Takes up the inbound provider events that are due and have an adapter, and retries the failed ones when their wait is over (ST-ADM-018). */
+  inbox?: { processDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
+  /** The clock of the jobs that depend on the time of day; default: the system clock. */
+  clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
   metrics?: MetricsSink;
   /** Drops the lapsed entries of the access cache of this process. */
@@ -119,7 +144,7 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     },
   ];
-  const { relay, accessCache, certificates, masterData, masterBaseline } = deps;
+  const { relay, accessCache, certificates, masterData, masterBaseline, disPeriods, retention, inbox } = deps;
   if (relay !== undefined) handlers.push({ name: 'outbox-relay', run: async () => void (await relay.runOnce()) });
   handlers.push({
     name: 'idempotency-purge',
@@ -147,6 +172,31 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
   }
   if (masterBaseline !== undefined) {
     handlers.push({ name: 'master-baseline-sync', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await masterBaseline.apply(workerContext(tenantId)))) });
+  }
+  if (disPeriods !== undefined) {
+    handlers.push({ name: 'dis-period-autoclose', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await disPeriods.autoclose(workerContext(tenantId)))) });
+  }
+  if (retention !== undefined) {
+    handlers.push({
+      name: 'retention-purge',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== RETENTION_HOUR) return;
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let pending = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            pending += (await retention.run(workerContext(tenantId), now)).pending;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(RETENTION_PENDING_GAUGE, pending);
+        }
+      },
+    });
+  }
+  if (inbox !== undefined) {
+    handlers.push({ name: 'integration-inbox', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await inbox.processDue(workerContext(tenantId)))) });
   }
   if (accessCache !== undefined) handlers.push({ name: 'access-cache-expiry', run: async () => void accessCache.expire() });
   return handlers;

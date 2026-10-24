@@ -3,7 +3,19 @@ import type { OpenApiDocument } from '@machvon/contracts';
 import { fillPath, operationPath } from '../endpoint-enumerator';
 import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
-import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { WORK_CALENDAR_FIXTURES } from '../suite';
+import { PROJECT_FIXTURES } from '../suite';
+import { CONTRACTOR_FIXTURES } from '../suite';
+import { CONTRACT_FIXTURES } from '../suite';
+import { TEMPLATE_FIXTURES } from '../suite';
+import { MNE_FIXTURES } from '../suite';
+import { PERMIT_TYPE_FIXTURES } from '../suite';
+import { DOA_FIXTURES } from '../suite';
+import { RETENTION_FIXTURES } from '../suite';
+import { INTEGRATION_FIXTURES } from '../suite';
+import { APPROPRIATION_FIXTURES } from '../suite';
+import { PERIOD_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -41,7 +53,26 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'revokeSigningCertificate', method: 'POST', id: CERTIFICATE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign revoke attempt' } },
   { operation: 'get_resources_security_policy_version_id', method: 'GET', id: POLICY_FIXTURES['TNT-B'].id },
   { operation: 'publishSecurityPolicy', method: 'POST', id: POLICY_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign publish attempt' } },
+  {
+    operation: 'updateDoaMatrixDraft',
+    method: 'PUT',
+    id: DOA_FIXTURES['TNT-B'].id,
+    versioned: true,
+    body: {
+      effective_from: '2026-01-01',
+      legal_basis_ref: 'Isolation foreign update attempt',
+      rules: [{ document_type: 'ISOLATION', unit_id: FOREIGN_UNIT, amount_min_vnd: '0', approver_role_id: ROLE_FIXTURES['TNT-B'].id }],
+    },
+  },
+  { operation: 'submitDoaMatrix', method: 'POST', id: DOA_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign submit attempt' } },
+  { operation: 'decideDoaMatrix', method: 'POST', id: DOA_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision', evidence_ids: [] } },
+  { operation: 'get_resources_work_calendar_version_id', method: 'GET', id: WORK_CALENDAR_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_doa_matrix_version_id', method: 'GET', id: DOA_FIXTURES['TNT-B'].id },
+  { operation: 'publishWorkCalendar', method: 'POST', id: WORK_CALENDAR_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign publish attempt' } },
   { operation: 'releaseLegalHold', method: 'POST', id: LEGAL_HOLD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign release attempt' } },
+  { operation: 'publishRetentionPolicy', method: 'POST', id: RETENTION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign publish attempt' } },
+  { operation: 'updateIntegrationConnector', method: 'PUT', id: INTEGRATION_FIXTURES['TNT-B'].connectorId, versioned: true, body: { reason: 'Isolation foreign update attempt', status: 'Disabled' } },
+  { operation: 'replayInboxEvent', method: 'POST', id: INTEGRATION_FIXTURES['TNT-B'].eventId, versioned: true, body: { reason: 'Isolation foreign replay attempt' } },
   { operation: 'get_resources_document_version_id', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },
   { operation: 'getDocumentVersionDownload', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },
   { operation: 'getDocumentSignatureReport', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },
@@ -67,6 +98,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'startOrganizationSeal', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: {} },
   { operation: 'getMasterChangeRequest', method: 'GET', id: MASTER_FIXTURES['TNT-B'].changeId },
   { operation: 'getMasterRecordUsages', method: 'GET', id: MASTER_FIXTURES['TNT-B'].recordId },
+  { operation: 'getMasterRecordAsOf', method: 'GET', id: MASTER_FIXTURES['TNT-B'].recordId },
+  { operation: 'getMasterRecordSuccessors', method: 'GET', id: MASTER_FIXTURES['TNT-B'].recordId },
   { operation: 'get_resources_master_record_version_id', method: 'GET', id: MASTER_FIXTURES['TNT-B'].versionId },
   { operation: 'submitMasterChangeRequest', method: 'POST', id: MASTER_FIXTURES['TNT-B'].changeId, versioned: true, body: {} },
   { operation: 'decideMasterChangeRequest', method: 'POST', id: MASTER_FIXTURES['TNT-B'].changeId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
@@ -78,6 +111,62 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'retireMasterCrosswalk', method: 'POST', id: CROSSWALK_FIXTURES['TNT-B'].crosswalkId, versioned: true, body: { reason: 'Isolation foreign retire' } },
   { operation: 'resetIntegrationCursor', method: 'POST', id: CROSSWALK_FIXTURES['TNT-B'].cursorId, versioned: true, body: { reason: 'Isolation foreign reset', cursor_json: {} } },
   { operation: 'get_resources_integration_cursor_id', method: 'GET', id: CROSSWALK_FIXTURES['TNT-B'].cursorId },
+  { operation: 'getDocumentTemplate', method: 'GET', id: TEMPLATE_FIXTURES['TNT-B'].id },
+  { operation: 'publishDocumentTemplate', method: 'POST', id: TEMPLATE_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  {
+    operation: 'confirmDocumentTemplateLegalBasis',
+    method: 'POST',
+    id: TEMPLATE_FIXTURES['TNT-B'].id,
+    versioned: true,
+    body: { legal_confirmation_ref: 'CXN-ISOLATION', evidence_document_id: DOCUMENT_FIXTURES['TNT-B'].documentId },
+  },
+  { operation: 'retireDocumentTemplate', method: 'POST', id: TEMPLATE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign retire attempt' } },
+  { operation: 'softCloseReportingPeriod', method: 'POST', id: PERIOD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign soft close' } },
+  { operation: 'lockReportingPeriod', method: 'POST', id: PERIOD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign lock' } },
+  { operation: 'get_resources_reporting_period_id', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
+  { operation: 'retireIssueSlaPolicy', method: 'POST', id: SLA_POLICY_FIXTURES['TNT-B'].id, body: { valid_until: '2999-12-31' } },
+  { operation: 'get_resources_permit_type_id', method: 'GET', id: PERMIT_TYPE_FIXTURES['TNT-B'].id },
+  { operation: 'retirePermitType', method: 'POST', id: PERMIT_TYPE_FIXTURES['TNT-B'].id, body: { effective_until: '2999-12-31' } },
+  {
+    operation: 'assignDatasetOwnership',
+    method: 'POST',
+    id: DATASET_FIXTURES['TNT-B'].id,
+    versioned: true,
+    body: { owner_user_id: '00000000-0000-4000-8000-0000000000f1', steward_user_id: '00000000-0000-4000-8000-0000000000f1', reason: 'Isolation foreign ownership change' },
+  },
+  { operation: 'submitGlossaryTerm', method: 'POST', id: GLOSSARY_FIXTURES['TNT-B'].termId, versioned: true, body: {} },
+  { operation: 'decideGlossaryTerm', method: 'POST', id: GLOSSARY_FIXTURES['TNT-B'].termId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
+  { operation: 'publishGlossaryTerm', method: 'POST', id: GLOSSARY_FIXTURES['TNT-B'].termId, versioned: true, body: {} },
+  { operation: 'get_resources_project_id', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'decideAppropriation', method: 'POST', id: APPROPRIATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
+  { operation: 'publishMneForm', method: 'POST', id: MNE_FIXTURES['TNT-B'].formId, versioned: true, body: {} },
+  { operation: 'publishMneObligationRule', method: 'POST', id: MNE_FIXTURES['TNT-B'].ruleId, versioned: true, body: {} },
+  { operation: 'get_resources_contractor_id', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_contract_id', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_contract_revision_id', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].revisionId },
+  { operation: 'reviseContractDraft', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { title: 'Isolation foreign rename attempt' } },
+  {
+    operation: 'replaceContractParties',
+    method: 'POST',
+    id: CONTRACT_FIXTURES['TNT-B'].id,
+    versioned: true,
+    body: { parties: [{ contractor_id: CONTRACTOR_FIXTURES['TNT-B'].id, role: 'LEAD', share_pct: '60', work_value_vnd: '600' }, { contractor_id: CONTRACTOR_FIXTURES['TNT-A'].id, role: 'MEMBER', share_pct: '40', work_value_vnd: '400' }] },
+  },
+  { operation: 'cancelContractDraft', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancel attempt' } },
+  {
+    operation: 'verifyContractor',
+    method: 'POST',
+    id: CONTRACTOR_FIXTURES['TNT-B'].id,
+    versioned: true,
+    body: { decision: 'VERIFIED', verification_evidence_document_id: DOCUMENT_FIXTURES['TNT-B'].documentId },
+  },
+  {
+    operation: 'recordContractorRestriction',
+    method: 'POST',
+    id: CONTRACTOR_FIXTURES['TNT-B'].id,
+    body: { kind: 'WARNING', effective_from: '2026-01-01', decision_document_id: DOCUMENT_FIXTURES['TNT-B'].documentId },
+  },
+  { operation: 'updateProjectProfile', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, versioned: true, body: { name: 'Isolation foreign rename attempt' } },
   { operation: 'getTenantEntitlements', method: 'GET', id: TENANT_IDS['TNT-B'], expectedStatuses: [403, 404] },
   { operation: 'updateOrganizationUnit', method: 'PUT', id: FOREIGN_UNIT, versioned: true, body: { name: 'Tên đơn vị mới' } },
   {

@@ -9,6 +9,7 @@ import { useScreenState } from '../../states/useScreenState';
 import { Field, ImpactTable } from './components';
 import { useDecideChange, usePublishRecord, useQueue } from './hooks';
 import { changeKindLabel, problemMessage } from './labels';
+import { SuccessionProposal } from './SuccessionProposal';
 import { PUBLISH_PERMISSION, REASON_MAX_LENGTH, REASON_MIN_LENGTH, REVIEW_PERMISSION, describeProblem, proposalRows, recordLink } from './model';
 import type { ChangeView, ProposalField } from './model';
 
@@ -108,6 +109,7 @@ function MasterApprovalContent({ route }: ScreenProps) {
 
   const summary = (change: ChangeView): string => {
     const label = typeof change.proposed.label === 'string' ? change.proposed.label : '';
+    if (change.changeKind === 'SUCCESSION') return t('mdm.approval.succession.summary');
     return change.changeKind === 'RETIRE' ? t('mdm.approval.retire.summary') : label;
   };
 
@@ -154,24 +156,28 @@ function MasterApprovalContent({ route }: ScreenProps) {
           </>
         )}
         <h3>{t('mdm.approval.proposal.title')}</h3>
-        <table className="table" data-testid="proposal">
-          <thead>
-            <tr>
-              <th>{t('mdm.approval.proposal.col.field')}</th>
-              <th>{t('mdm.approval.proposal.col.before')}</th>
-              <th>{t('mdm.approval.proposal.col.after')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {proposalRows(change.before, change.proposed).map((item) => (
-              <tr key={item.field} data-field={item.field}>
-                <th scope="row">{proposalFieldName(t, item.field)}</th>
-                <td>{item.before ?? ''}</td>
-                <td>{item.after}</td>
+        {change.changeKind === 'SUCCESSION' ? (
+          <SuccessionProposal change={change} />
+        ) : (
+          <table className="table" data-testid="proposal">
+            <thead>
+              <tr>
+                <th>{t('mdm.approval.proposal.col.field')}</th>
+                <th>{t('mdm.approval.proposal.col.before')}</th>
+                <th>{t('mdm.approval.proposal.col.after')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {proposalRows(change.before, change.proposed).map((item) => (
+                <tr key={item.field} data-field={item.field}>
+                  <th scope="row">{proposalFieldName(t, item.field)}</th>
+                  <td>{item.before ?? ''}</td>
+                  <td>{item.after}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
         <p className="sub">{change.reason}</p>
         {stage === 'review' ? (
           <form noValidate aria-label={t('mdm.approval.review.action')} onSubmit={(event) => event.preventDefault()}>

@@ -229,6 +229,13 @@ describe('upload validation', () => {
     expect(UPLOAD_PURPOSES.logo.maxBytes).toBeLessThan(limit);
   });
 
+  it('takes the sealed audit export as CSV or plain text (JSON lines) and nothing else (ST-ADM-016)', () => {
+    expect(verdict('text/csv', ascii('record_type,seq\nEVENT,1\n'), 'audit_export')).toEqual({ ok: true, contentType: 'text/csv' });
+    expect(verdict('text/plain', ascii('{"record_type":"MANIFEST"}\n'), 'audit_export')).toEqual({ ok: true, contentType: 'text/plain' });
+    expect(verdict('application/pdf', PDF, 'audit_export')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
+    expect(UPLOAD_PURPOSES.audit_export.maxBytes).toBeGreaterThan(UPLOAD_PURPOSES.document.maxBytes);
+  });
+
   it('refuses a purpose it does not know', () => {
     expect(() => validateUpload({ declaredType: 'application/pdf', bytes: PDF, purpose: 'nothing' as never })).toThrow(/purpose/);
   });

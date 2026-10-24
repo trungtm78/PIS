@@ -79,3 +79,40 @@
   border: 0;
   padding: 0;
 }
+.mdm-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 8px 0 12px;
+}
+.mdm-succession {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 12rem) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+.mdm-succession-head {
+  border-bottom: 1px solid var(--shell-line, #e4e0e6);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+.mdm-succession-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+}
+.mdm-succession-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border-top: 2px solid var(--shell-line, #e4e0e6);
+  padding-top: 4px;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .mdm-succession {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

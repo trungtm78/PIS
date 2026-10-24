@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../i18n';
-import type { AdapterStatus, ChangeKind, ChangeStatus, CrosswalkMethod, CrosswalkStatus, CursorStatus, FieldProblem, ImportStatus, ProblemView, RecordStatus, TypeScope } from './model';
+import type { AdapterStatus, ChangeKind, ChangeStatus, CrosswalkMethod, CrosswalkStatus, CursorStatus, FieldProblem, GlossaryStatus, ImportStatus, ProblemView, RecordStatus, TypeScope } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -67,6 +67,8 @@ export function changeKindLabel(t: Translate, kind: ChangeKind): string {
       return t('mdm.kind.change.update');
     case 'RETIRE':
       return t('mdm.kind.change.retire');
+    case 'SUCCESSION':
+      return t('mdm.kind.change.succession');
   }
 }
 
@@ -84,6 +86,12 @@ export function fieldProblemMessage(t: Translate, problem: FieldProblem): string
       return t('mdm.field.order.error');
     case 'invalidJson':
       return t('mdm.field.invalidJson.error');
+    case 'invalidCode':
+      return t('mdm.field.invalidCode.error');
+    case 'invalidId':
+      return t('mdm.field.invalidId.error');
+    case 'definitionTooShort':
+      return t('mdm.field.definitionTooShort.error');
   }
 }
 
@@ -112,14 +120,22 @@ export function problemMessage(t: Translate, problem: ProblemView): string {
       return problem.field === undefined ? t('mdm.problem.validation.error') : t('mdm.problem.validationField.error', { field: problem.field });
     case 'importHasErrors':
       return t('mdm.problem.importHasErrors.error');
+    case 'importEmpty':
+      return t('mdm.problem.importEmpty.error');
     case 'alreadyApplied':
       return t('mdm.problem.alreadyApplied.error');
     case 'fileRefused':
       return t('mdm.problem.fileRefused.error');
     case 'duplicateCrosswalk':
       return t('mdm.problem.duplicateCrosswalk.error');
+    case 'duplicateTerm':
+      return t('mdm.problem.duplicateTerm.error');
+    case 'notOwner':
+      return t('mdm.problem.notOwner.error');
     case 'notFound':
       return t('mdm.problem.notFound.error');
+    case 'successionCycle':
+      return t('mdm.problem.successionCycle.error');
     case 'denied':
       return t('mdm.problem.denied.error');
     case 'general':
@@ -150,6 +166,8 @@ export function rowErrorLabel(t: Translate, code: string): string {
       return t('mdm.import.error.parentCycle.text');
     case 'PARENT_SKIPPED':
       return t('mdm.import.error.parentSkipped.text');
+    case 'REFERENCE_SKIPPED':
+      return t('mdm.import.error.referenceSkipped.text');
     case 'INVALID_VALUE':
       return t('mdm.import.error.invalidValue.text');
     case 'POLICY_LOCKED':
@@ -226,6 +244,23 @@ export function adapterLabel(t: Translate, status: AdapterStatus): string {
       return t('mdm.cursor.adapter.mock.pill');
     case 'MISSING':
       return t('mdm.cursor.adapter.missing.pill');
+  }
+}
+
+export function glossaryStatusLabel(t: Translate, status: GlossaryStatus): string {
+  switch (status) {
+    case 'DRAFT':
+      return t('mdm.glossary.status.draft.text');
+    case 'IN_REVIEW':
+      return t('mdm.glossary.status.inReview.text');
+    case 'APPROVED':
+      return t('mdm.glossary.status.approved.text');
+    case 'PUBLISHED':
+      return t('mdm.glossary.status.published.text');
+    case 'DEPRECATED':
+      return t('mdm.glossary.status.deprecated.text');
+    case 'REJECTED':
+      return t('mdm.glossary.status.rejected.text');
   }
 }
 

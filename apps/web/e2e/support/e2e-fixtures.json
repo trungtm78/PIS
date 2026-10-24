@@ -54,6 +54,9 @@
         "master.crosswalk.manage",
         "integration_cursor.read",
         "integration.cursor.reset",
+        "glossary.propose",
+        "glossary.approve",
+        "glossary.read",
         "master.read",
         "master_record_version.read"
       ]
@@ -65,8 +68,221 @@
       "permissions": [
         "master.review",
         "master.publish",
+        "glossary.approve",
+        "glossary.read",
         "master.read",
         "master_record_version.read"
+      ]
+    },
+    {
+      "key": "slaManager",
+      "displayName": "Quản lý chính sách SLA",
+      "membershipId": "00000000-0000-4000-8000-0000000000d3",
+      "permissions": [
+        "issue.sla.manage",
+        "issue.read",
+        "master.read",
+        "organization_unit.read"
+      ]
+    },
+    {
+      "key": "projectManager",
+      "displayName": "Cán bộ quản lý dự án",
+      "membershipId": "00000000-0000-4000-8000-0000000000b1",
+      "permissions": [
+        "project.read",
+        "project.create",
+        "project.update",
+        "organization_unit.read",
+        "master.read"
+      ]
+    },
+    {
+      "key": "projectViewer",
+      "displayName": "Người xem dự án",
+      "membershipId": "00000000-0000-4000-8000-0000000000b2",
+      "permissions": [
+        "project.read",
+        "organization_unit.read",
+        "master.read"
+      ]
+    },
+    {
+      "key": "capPlanner",
+      "displayName": "Cán bộ lập kế hoạch vốn",
+      "membershipId": "00000000-0000-4000-8000-0000000000b3",
+      "permissions": [
+        "capital.read",
+        "capital.appropriation.manage",
+        "master.read"
+      ]
+    },
+    {
+      "key": "capApprover",
+      "displayName": "Người duyệt nguồn vốn",
+      "membershipId": "00000000-0000-4000-8000-0000000000b4",
+      "permissions": [
+        "capital.read",
+        "capital.appropriation.approve"
+      ]
+    },
+    {
+      "key": "capReader",
+      "displayName": "Người xem nguồn vốn",
+      "membershipId": "00000000-0000-4000-8000-0000000000b5",
+      "permissions": [
+        "capital.read"
+      ]
+    },
+    {
+      "key": "periodManager",
+      "displayName": "Cán bộ quản lý kỳ báo cáo",
+      "membershipId": "00000000-0000-4000-8000-0000000000b6",
+      "permissions": [
+        "period.manage",
+        "reporting_period.read"
+      ]
+    },
+    {
+      "key": "periodLocker",
+      "displayName": "Người khóa sổ kỳ báo cáo",
+      "membershipId": "00000000-0000-4000-8000-0000000000b7",
+      "permissions": [
+        "period.lock",
+        "reporting_period.read"
+      ]
+    },
+    {
+      "key": "periodReader",
+      "displayName": "Người xem kỳ báo cáo",
+      "membershipId": "00000000-0000-4000-8000-0000000000b8",
+      "permissions": [
+        "reporting_period.read"
+      ]
+    },
+    {
+      "key": "dgvSteward",
+      "displayName": "Quản trị danh mục dữ liệu",
+      "membershipId": "00000000-0000-4000-8000-0000000000a1",
+      "permissions": [
+        "data.catalog.manage",
+        "data.catalog.read",
+        "membership.read"
+      ]
+    },
+    {
+      "key": "dgvReader",
+      "displayName": "Người xem danh mục dữ liệu",
+      "membershipId": "00000000-0000-4000-8000-0000000000a2",
+      "permissions": [
+        "data.catalog.read"
+      ]
+    },
+    {
+      "key": "templateAdmin",
+      "displayName": "Quản trị mẫu văn bản",
+      "membershipId": "00000000-0000-4000-8000-0000000000a3",
+      "permissions": [
+        "doc.template.manage",
+        "doc.template.approve",
+        "doc.template.read"
+      ]
+    },
+    {
+      "key": "templatePublisher",
+      "displayName": "Người công bố mẫu",
+      "membershipId": "00000000-0000-4000-8000-0000000000a4",
+      "permissions": [
+        "doc.template.approve",
+        "doc.template.confirm_legal",
+        "doc.template.read"
+      ]
+    },
+    {
+      "key": "legalOfficer",
+      "displayName": "Cán bộ pháp chế",
+      "membershipId": "00000000-0000-4000-8000-0000000000a5",
+      "permissions": [
+        "doc.template.confirm_legal",
+        "doc.template.read"
+      ]
+    },
+    {
+      "key": "templateReader",
+      "displayName": "Người xem mẫu văn bản",
+      "membershipId": "00000000-0000-4000-8000-0000000000a6",
+      "permissions": [
+        "doc.template.read"
+      ]
+    },
+    {
+      "key": "bidManager",
+      "displayName": "Quản lý nhà thầu",
+      "membershipId": "00000000-0000-4000-8000-0000000000a7",
+      "permissions": [
+        "bid.contractor.manage",
+        "bid.contractor.verify",
+        "bid.contractor.read",
+        "contractor.read"
+      ]
+    },
+    {
+      "key": "bidVerifier",
+      "displayName": "Người xác minh nhà thầu",
+      "membershipId": "00000000-0000-4000-8000-0000000000a8",
+      "permissions": [
+        "bid.contractor.verify",
+        "bid.contractor.read",
+        "contractor.read"
+      ]
+    },
+    {
+      "key": "bidReader",
+      "displayName": "Người xem nhà thầu",
+      "membershipId": "00000000-0000-4000-8000-0000000000a9",
+      "permissions": [
+        "contractor.read"
+      ]
+    },
+    {
+      "key": "mneAdmin",
+      "displayName": "Quản trị giám sát đầu tư",
+      "membershipId": "00000000-0000-4000-8000-00000000006d",
+      "permissions": [
+        "mne.form.manage",
+        "mne.form.approve",
+        "mne.calendar.manage",
+        "mne.calendar.approve",
+        "mne.read"
+      ]
+    },
+    {
+      "key": "mneApprover",
+      "displayName": "Người công bố mẫu giám sát",
+      "membershipId": "00000000-0000-4000-8000-00000000006e",
+      "permissions": [
+        "mne.form.approve",
+        "mne.calendar.approve",
+        "mne.read"
+      ]
+    },
+    {
+      "key": "mneReader",
+      "displayName": "Người xem lịch giám sát",
+      "membershipId": "00000000-0000-4000-8000-00000000006f",
+      "permissions": [
+        "mne.read"
+      ]
+    },
+    {
+      "key": "doaChecker",
+      "displayName": "Người duyệt ma trận",
+      "membershipId": "00000000-0000-4000-8000-0000000000d2",
+      "permissions": [
+        "adm.doa.approve",
+        "adm.doa.read",
+        "organization_unit.read",
+        "role_grant.read"
       ]
     },
     {

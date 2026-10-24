@@ -82,6 +82,88 @@ export const CROSSWALK_FIXTURES: Readonly<Record<TenantName, { crosswalkId: stri
   'TNT-B': { crosswalkId: '00000000-0000-4000-b012-000000000001', externalCode: 'BETA-TREASURY-CODE-0001', cursorId: '00000000-0000-4000-b012-000000000002', sourceScope: 'BETA-SCOPE-0001', fileSha256: 'b6'.repeat(32) },
 };
 
+/** A glossary term in review of each tenant (its code and its wording are distinctive; tenant data). */
+export const GLOSSARY_FIXTURES: Readonly<Record<TenantName, { termId: string; termCode: string; definition: string }>> = {
+  'TNT-A': { termId: '00000000-0000-4000-a013-000000000001', termCode: 'ALPHA_ISOLATION_TERM', definition: 'Alpha tenant definition of the isolation glossary term.' },
+  'TNT-B': { termId: '00000000-0000-4000-b013-000000000001', termCode: 'BETA_ISOLATION_TERM', definition: 'Beta tenant definition of the isolation glossary term.' },
+};
+
+/** A CONCEPT project of each tenant (its code and its name are distinctive; tenant data). */
+export const PROJECT_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; name: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c1-000000000001', code: 'ALPHA-PROJECT-0001', name: 'Alpha tenant isolation project' },
+  'TNT-B': { id: '00000000-0000-4000-b0c1-000000000001', code: 'BETA-PROJECT-0001', name: 'Beta tenant isolation project' },
+};
+
+/** An UNVERIFIED contractor of each tenant (its tax id and its name are distinctive; the tax id is personal data when the contractor is a sole trader). */
+export const CONTRACTOR_FIXTURES: Readonly<Record<TenantName, { id: string; taxIdentifier: string; legalName: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', taxIdentifier: '0111111111', legalName: 'Alpha tenant isolation contractor' },
+  'TNT-B': { id: '00000000-0000-4000-b0c2-000000000001', taxIdentifier: '0122222222', legalName: 'Beta tenant isolation contractor' },
+};
+
+/** A DRAFT contract of each tenant under an awarded package, with its first revision (the code and the title are distinctive; tenant financial data). */
+export const CONTRACT_FIXTURES: Readonly<Record<TenantName, { id: string; revisionId: string; packageId: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c3-000000000001', revisionId: '00000000-0000-4000-a0c3-000000000002', packageId: '00000000-0000-4000-a0c3-000000000003', code: 'ALPHA-CONTRACT-0001', title: 'Alpha tenant isolation contract' },
+  'TNT-B': { id: '00000000-0000-4000-b0c3-000000000001', revisionId: '00000000-0000-4000-b0c3-000000000002', packageId: '00000000-0000-4000-b0c3-000000000003', code: 'BETA-CONTRACT-0001', title: 'Beta tenant isolation contract' },
+};
+
+/** A dataset of the catalogue of each tenant (its code and its title are distinctive; tenant data). */
+export const DATASET_FIXTURES: Readonly<Record<TenantName, { id: string; datasetCode: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d1-000000000001', datasetCode: 'ALPHA-DATASET-0001', title: 'Alpha tenant isolation dataset' },
+  'TNT-B': { id: '00000000-0000-4000-b0d1-000000000001', datasetCode: 'BETA-DATASET-0001', title: 'Beta tenant isolation dataset' },
+};
+
+/** An ACTIVE SLA policy of each tenant (its code is distinctive; tenant configuration). */
+export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0e1-000000000001', code: 'ALPHA-SLA-POLICY-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0e1-000000000001', code: 'BETA-SLA-POLICY-0001' },
+};
+
+/** A PUBLISHED permit type version of each tenant, still waiting for its legal confirmation (the code and the legal basis are distinctive; tenant legal data). */
+export const PERMIT_TYPE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0f1-000000000001', code: 'ALPHA_PERMIT_0001', legalBasis: 'Alpha tenant permit regulation 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0f1-000000000001', code: 'BETA_PERMIT_0001', legalBasis: 'Beta tenant permit regulation 0001' },
+};
+
+/** An OPEN reporting period of each tenant, past its deadline (the code is distinctive; the calendar of reporting is tenant configuration). */
+export const PERIOD_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0b5-000000000001', code: 'ALPHA-PERIOD-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0b5-000000000001', code: 'BETA-PERIOD-0001' },
+};
+
+/** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
+export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0f2-000000000001', issuingAuthority: 'Beta tenant assigning authority 0001' },
+};
+
+/** A published template revision of each tenant, waiting for its legal confirmation (the code and the legal basis are distinctive). */
+export const TEMPLATE_FIXTURES: Readonly<Record<TenantName, { id: string; templateCode: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a013-000000000001', templateCode: 'ALPHA-TEMPLATE-0001', legalBasis: 'Alpha decree 0001/2026 on the shape of the alpha form' },
+  'TNT-B': { id: '00000000-0000-4000-b013-000000000001', templateCode: 'BETA-TEMPLATE-0001', legalBasis: 'Beta circular 0001/2026 on the shape of the beta form' },
+};
+
+/** A published report form, an obligation rule of it and the obligation (report shell) generated from them, per tenant (the codes and the legal text are distinctive). */
+export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCode: string; formLegalBasis: string; ruleId: string; ruleCode: string; ruleRecipient: string; reportId: string }>> = {
+  'TNT-A': {
+    formId: '00000000-0000-4000-a0d6-000000000001',
+    formCode: 'ALPHA-FORM-0001',
+    formLegalBasis: 'Alpha circular 0001/2026 on the alpha monitoring form',
+    ruleId: '00000000-0000-4000-a0d6-000000000002',
+    ruleCode: 'ALPHA-RULE-0001',
+    ruleRecipient: 'Alpha recipient agency 0001',
+    reportId: '00000000-0000-4000-a0d6-000000000003',
+  },
+  'TNT-B': {
+    formId: '00000000-0000-4000-b0d6-000000000001',
+    formCode: 'BETA-FORM-0001',
+    formLegalBasis: 'Beta circular 0001/2026 on the beta monitoring form',
+    ruleId: '00000000-0000-4000-b0d6-000000000002',
+    ruleCode: 'BETA-RULE-0001',
+    ruleRecipient: 'Beta recipient agency 0001',
+    reportId: '00000000-0000-4000-b0d6-000000000003',
+  },
+};
+
 /** An Active signing certificate of each tenant (its fingerprint and serial are distinctive; tenant administration data). */
 export const CERTIFICATE_FIXTURES: Readonly<Record<TenantName, { id: string; fingerprint: string; serial: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a00e-000000000001', fingerprint: 'a1'.repeat(32), serial: 'ALPHA0C0E71F' },
@@ -92,6 +174,44 @@ export const CERTIFICATE_FIXTURES: Readonly<Record<TenantName, { id: string; fin
 export const POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; address: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a00f-000000000001', address: '198.51.100.11' },
   'TNT-B': { id: '00000000-0000-4000-b00f-000000000001', address: '203.0.113.222' },
+};
+
+/** A working calendar draft of each tenant (the calendar code and the legal basis are distinctive; PUBLIC data of the tenant, still tenant-bound). */
+export const WORK_CALENDAR_FIXTURES: Readonly<Record<TenantName, { id: string; calendarCode: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c1-000000000001', calendarCode: 'ALPHA-CAL-0001', legalBasis: 'Alpha tenant calendar notice 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0c1-000000000001', calendarCode: 'BETA-CAL-0001', legalBasis: 'Beta tenant calendar notice 0001' },
+};
+
+/** A delegation-of-authority matrix draft of each tenant (the legal basis and the document type of its rule are distinctive). */
+export const DOA_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string; documentType: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', legalBasis: 'Alpha tenant approval regulation 0001', documentType: 'ALPHA-DOC-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0c2-000000000001', legalBasis: 'Beta tenant approval regulation 0001', documentType: 'BETA-DOC-0001' },
+};
+
+/** A retention policy draft of each tenant (the record class and the legal basis are distinctive; tenant administration data). */
+export const RETENTION_FIXTURES: Readonly<Record<TenantName, { id: string; recordClass: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0a2-000000000001', recordClass: 'alpha_isolation_dossier', legalBasis: 'Alpha archives circular 0001/2026' },
+  'TNT-B': { id: '00000000-0000-4000-b0a2-000000000001', recordClass: 'beta_isolation_dossier', legalBasis: 'Beta archives circular 0001/2026' },
+};
+
+/** A draft integration connector and a failed inbox event of each tenant (the code, the endpoint and the event key are distinctive; the payload reference must never be shown). */
+export const INTEGRATION_FIXTURES: Readonly<Record<TenantName, { connectorId: string; connectorCode: string; endpoint: string; eventId: string; eventKey: string; payloadReference: string }>> = {
+  'TNT-A': {
+    connectorId: '00000000-0000-4000-a0a3-000000000001',
+    connectorCode: 'alpha-treasury-file',
+    endpoint: 'https://alpha-treasury.example.invalid/outbox',
+    eventId: '00000000-0000-4000-a0a3-000000000002',
+    eventKey: 'alpha-event-key-0001',
+    payloadReference: 'tenants/00000000-0000-4000-8000-00000000000a/webhook/alpha-secret-payload-0001',
+  },
+  'TNT-B': {
+    connectorId: '00000000-0000-4000-b0a3-000000000001',
+    connectorCode: 'beta-treasury-file',
+    endpoint: 'https://beta-treasury.example.invalid/outbox',
+    eventId: '00000000-0000-4000-b0a3-000000000002',
+    eventKey: 'beta-event-key-0001',
+    payloadReference: 'tenants/00000000-0000-4000-8000-00000000000b/webhook/beta-secret-payload-0001',
+  },
 };
 
 /** A number register and a stored document version of each tenant (the register code and the object key are distinctive). */
@@ -205,7 +325,57 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'integration cursor id', value: CROSSWALK_FIXTURES[tenant].cursorId },
     { kind: 'integration cursor scope', value: CROSSWALK_FIXTURES[tenant].sourceScope },
     { kind: 'integration cursor file hash', value: CROSSWALK_FIXTURES[tenant].fileSha256 },
+    { kind: 'template id', value: TEMPLATE_FIXTURES[tenant].id },
+    { kind: 'template code', value: TEMPLATE_FIXTURES[tenant].templateCode },
+    { kind: 'template legal basis', value: TEMPLATE_FIXTURES[tenant].legalBasis },
+    { kind: 'report form id', value: MNE_FIXTURES[tenant].formId },
+    { kind: 'report form code', value: MNE_FIXTURES[tenant].formCode },
+    { kind: 'report form legal basis', value: MNE_FIXTURES[tenant].formLegalBasis },
+    { kind: 'obligation rule id', value: MNE_FIXTURES[tenant].ruleId },
+    { kind: 'obligation rule code', value: MNE_FIXTURES[tenant].ruleCode },
+    { kind: 'obligation rule recipient', value: MNE_FIXTURES[tenant].ruleRecipient },
+    { kind: 'obligation report id', value: MNE_FIXTURES[tenant].reportId },
+    { kind: 'glossary term id', value: GLOSSARY_FIXTURES[tenant].termId },
+    { kind: 'glossary term code', value: GLOSSARY_FIXTURES[tenant].termCode },
+    { kind: 'glossary term definition', value: GLOSSARY_FIXTURES[tenant].definition },
+    { kind: 'project id', value: PROJECT_FIXTURES[tenant].id },
+    { kind: 'project code', value: PROJECT_FIXTURES[tenant].code },
+    { kind: 'project name', value: PROJECT_FIXTURES[tenant].name },
+    { kind: 'contractor id', value: CONTRACTOR_FIXTURES[tenant].id },
+    { kind: 'contractor tax id', value: CONTRACTOR_FIXTURES[tenant].taxIdentifier },
+    { kind: 'contractor name', value: CONTRACTOR_FIXTURES[tenant].legalName },
+    { kind: 'contract id', value: CONTRACT_FIXTURES[tenant].id },
+    { kind: 'contract revision id', value: CONTRACT_FIXTURES[tenant].revisionId },
+    { kind: 'contract code', value: CONTRACT_FIXTURES[tenant].code },
+    { kind: 'contract title', value: CONTRACT_FIXTURES[tenant].title },
+    { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
+    { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
+    { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },
+    { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
+    { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
+    { kind: 'permit type id', value: PERMIT_TYPE_FIXTURES[tenant].id },
+    { kind: 'permit type code', value: PERMIT_TYPE_FIXTURES[tenant].code },
+    { kind: 'permit type legal basis', value: PERMIT_TYPE_FIXTURES[tenant].legalBasis },
+    { kind: 'reporting period id', value: PERIOD_FIXTURES[tenant].id },
+    { kind: 'reporting period code', value: PERIOD_FIXTURES[tenant].code },
+    { kind: 'appropriation id', value: APPROPRIATION_FIXTURES[tenant].id },
+    { kind: 'appropriation issuing authority', value: APPROPRIATION_FIXTURES[tenant].issuingAuthority },
     { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },
+    { kind: 'work calendar id', value: WORK_CALENDAR_FIXTURES[tenant].id },
+    { kind: 'work calendar code', value: WORK_CALENDAR_FIXTURES[tenant].calendarCode },
+    { kind: 'work calendar legal basis', value: WORK_CALENDAR_FIXTURES[tenant].legalBasis },
+    { kind: 'doa matrix id', value: DOA_FIXTURES[tenant].id },
+    { kind: 'doa matrix legal basis', value: DOA_FIXTURES[tenant].legalBasis },
+    { kind: 'doa rule document type', value: DOA_FIXTURES[tenant].documentType },
+    { kind: 'retention policy id', value: RETENTION_FIXTURES[tenant].id },
+    { kind: 'retention record class', value: RETENTION_FIXTURES[tenant].recordClass },
+    { kind: 'retention legal basis', value: RETENTION_FIXTURES[tenant].legalBasis },
+    { kind: 'connector id', value: INTEGRATION_FIXTURES[tenant].connectorId },
+    { kind: 'connector code', value: INTEGRATION_FIXTURES[tenant].connectorCode },
+    { kind: 'connector endpoint', value: INTEGRATION_FIXTURES[tenant].endpoint },
+    { kind: 'inbox event id', value: INTEGRATION_FIXTURES[tenant].eventId },
+    { kind: 'inbox event key', value: INTEGRATION_FIXTURES[tenant].eventKey },
+    { kind: 'inbox payload reference', value: INTEGRATION_FIXTURES[tenant].payloadReference },
     { kind: 'register id', value: DOCUMENT_FIXTURES[tenant].registerId },
     { kind: 'register code', value: DOCUMENT_FIXTURES[tenant].registerCode },
     { kind: 'document version id', value: DOCUMENT_FIXTURES[tenant].versionId },

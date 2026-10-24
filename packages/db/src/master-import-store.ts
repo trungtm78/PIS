@@ -1,17 +1,20 @@
 import { DomainError, assertFourEyes, readTabularFile, versionConflict } from '@machvon/kernel';
 import type { TabularFile } from '@machvon/kernel';
-import type { MasterContent, MasterNamespace } from './master-store.ts';
+import type { BatchAccess, MasterContent, MasterNamespace } from './master-store.ts';
 import { MasterCrosswalkStore } from './master-crosswalk-store.ts';
 import type { CrosswalkTarget } from './master-crosswalk-store.ts';
 import { MasterStore } from './master-store.ts';
-import { coerceCell, entryOfRecord, tenantLookup, validateMasterContent } from './master-types.ts';
+import { coerceCell, entryOfRecord, masterTypeDefinition, tenantLookup, validateMasterContent } from './master-types.ts';
 import type { EntryRef, TypeLookup } from './master-types.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 const UNIQUE_VIOLATION = '23505';
+/** The batch decides and publishes the change requests it owns; no other command may (see MasterStore). */
+const BATCH_ACCESS: BatchAccess = { viaImportBatch: true };
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const KEY = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
 const ATTRIBUTE_NAME = /^[a-z][a-z0-9_]*$/;
+const ATTRIBUTE_FIELD = 'attributes.';
 const LABEL_MAX_LENGTH = 500;
 const LEGAL_BASIS_MAX_LENGTH = 2000;
 /** The errors that a batch keeps for the screen; the count of the rows with an error is kept whole. */
@@ -71,6 +74,8 @@ export interface ImportBatchRow {
   errorRows: number;
   errors: RowError[];
   appliedAt: string | null;
+  /** Who applied the batch (created its change requests): four-eyes is judged on this person, who may differ from the one who staged the file. Null until applied. */
+  appliedBy: string | null;
   reviewedBy: string | null;
   publishedBy: string | null;
   decisionDocumentId: string | null;
@@ -104,6 +109,7 @@ interface BatchSqlRow {
   error_rows: number;
   errors_json: RowError[];
   applied_at: string | null;
+  applied_by: string | null;
   reviewed_by: string | null;
   published_by: string | null;
   decision_document_id: string | null;
@@ -114,7 +120,7 @@ interface BatchSqlRow {
 
 const KEY_FORMAT = `'YYYY-MM-DD"T"HH24:MI:SS.US'`;
 const BATCH_SELECT = `select id, master_type, file_object_key, file_sha256, mapping_json, mode, status, total_rows, error_rows, errors_json, applied_at::text as applied_at,
-  reviewed_by, published_by, decision_document_id, created_by, version::text as version, to_char(created_at at time zone 'UTC', ${KEY_FORMAT}) as created_at_key
+  applied_by, reviewed_by, published_by, decision_document_id, created_by, version::text as version, to_char(created_at at time zone 'UTC', ${KEY_FORMAT}) as created_at_key
   from machvon.master_import_batch`;
 
 const toBatch = (row: BatchSqlRow): ImportBatchRow => ({
@@ -129,6 +135,7 @@ const toBatch = (row: BatchSqlRow): ImportBatchRow => ({
   errorRows: row.error_rows,
   errors: row.errors_json,
   appliedAt: row.applied_at,
+  appliedBy: row.applied_by,
   reviewedBy: row.reviewed_by,
   publishedBy: row.published_by,
   decisionDocumentId: row.decision_document_id,
@@ -142,6 +149,12 @@ const isCalendarDate = (value: string): boolean => {
   const parsed = new Date(`${value}T00:00:00.000Z`);
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 };
+
+/** The attribute that names the key (alone or in a list of keys); the row as a whole when none does. */
+function fieldReferring(attributes: Record<string, unknown>, key: string): string {
+  const name = Object.entries(attributes).find(([, value]) => value === key || (Array.isArray(value) && value.includes(key)))?.[0];
+  return name === undefined ? 'row' : `attributes.${name}`;
+}
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
@@ -280,11 +293,14 @@ export class MasterImportStore {
 
     interface Draft extends PlannedRow {
       parentLine: number | null;
+      /** The parent that a crosswalk named: the very record, whatever other entries share its key. */
+      pinned: { id: string } | null;
     }
     const drafts: Draft[] = [];
     const lineOfKey = new Map<string, number>();
     table.rows.forEach((cells, index) => {
-      const line = index + 2;
+      // The line of the source, not the place in the list: blank lines and cells that run over several lines are not rows.
+      const line = table.lines[index] as number;
       const cell = (position: number): string => (position < 0 ? '' : (cells[position] ?? '').trim());
       const key = cell(at.key);
       if (key === '') fail(line, 'business_key', 'REQUIRED');
@@ -312,6 +328,13 @@ export class MasterImportStore {
             fail(line, `attributes.${name}`, 'CROSSWALK_MISSING');
             continue;
           }
+          // The code stands for an entry of one type: the attribute must refer to that type, or the key would pick another entry that happens to share it.
+          const declared = masterTypeDefinition(masterType)?.fields.find((candidate) => candidate.name === name);
+          const referred = declared !== undefined && (declared.kind === 'key' || declared.kind === 'keys') ? declared.refType : undefined;
+          if (referred !== target.masterType) {
+            fail(line, `attributes.${name}`, 'INVALID_VALUE');
+            continue;
+          }
           raw = target.businessKey;
         }
         const coerced = coerceCell(masterType, name, raw);
@@ -319,6 +342,7 @@ export class MasterImportStore {
         else fail(line, `attributes.${name}`, 'INVALID_VALUE');
       }
       let parentKey = cell(at.parent);
+      let pinned: Draft['pinned'] = null;
       if (parentKey !== '' && translated.has('parent_key')) {
         const target = targets.get(parentKey);
         if (target === undefined) {
@@ -327,13 +351,17 @@ export class MasterImportStore {
         } else if (target.masterType !== masterType) {
           fail(line, 'parent_key', 'PARENT_NOT_FOUND');
           parentKey = '';
-        } else parentKey = target.businessKey;
+        } else {
+          parentKey = target.businessKey;
+          pinned = { id: target.recordId };
+        }
       }
       drafts.push({
         line,
         businessKey: key,
         parentKey: parentKey === '' ? null : parentKey,
         parentLine: null,
+        pinned,
         content: { label, attributes, parentRecordId: null, validFrom: from, validUntil: until === '' ? null : until, legalBasis: basis === '' ? null : basis },
       });
     });
@@ -348,6 +376,7 @@ export class MasterImportStore {
 
     // Parents: another row of the file, or an entry that exists; a parent that is nowhere is an error, a ring of parents is an error for each of its rows.
     const parents = new Map<string, { id: string; namespace: MasterNamespace; entry: EntryRef } | null>();
+    const pinnedParents = new Map<number, { id: string; namespace: MasterNamespace; entry: EntryRef }>();
     const existingParent = async (key: string): Promise<{ id: string; namespace: MasterNamespace; entry: EntryRef } | null> => {
       const known = parents.get(key);
       if (known !== undefined) return known;
@@ -364,6 +393,17 @@ export class MasterImportStore {
     };
     for (const draft of drafts) {
       if (draft.parentKey === null || draft.businessKey === '') continue;
+      if (draft.pinned !== null) {
+        const entry = await entryOfRecord(tx, draft.pinned.id);
+        const namespaces = await tx.query<{ namespace: MasterNamespace }>('select namespace from machvon.master_record where id = $1::uuid', [draft.pinned.id]);
+        const namespace = namespaces[0]?.namespace;
+        if (entry === undefined || namespace === undefined) fail(draft.line, 'parent_key', 'PARENT_NOT_FOUND');
+        else {
+          pinnedParents.set(draft.line, { id: draft.pinned.id, namespace, entry });
+          draft.content.parentRecordId = draft.pinned.id;
+        }
+        continue;
+      }
       const inFile = lineOfKey.get(draft.parentKey);
       if (inFile !== undefined) {
         draft.parentLine = inFile;
@@ -397,16 +437,26 @@ export class MasterImportStore {
     };
     for (const draft of drafts) visit(draft);
 
-    // The rules of the type, with the entries of the file visible to each other (a programme may name a source of the same file).
+    // The rules of the type, with the entries of the file visible to each other (a programme may name a source of the same file, a stage
+    // the stage that follows it, wherever it stands in the file). Which rows of the file a row refers to is kept: if one of them is left out,
+    // the row cannot be created either.
     const inFile = new Map<string, EntryRef>();
     for (const draft of ordered) if (!failed.has(draft.line)) inFile.set(draft.businessKey, { masterType, businessKey: draft.businessKey, attributes: draft.content.attributes });
     const database = tenantLookup(tx);
-    const lookup: TypeLookup = {
-      entry: async (type, key) => (type === masterType ? inFile.get(key) : undefined) ?? (await database.entry(type, key)),
-    };
+    const referred = new Map<number, Set<string>>();
     const rowsOk = new Set<number>();
     for (const draft of ordered) {
       if (failed.has(draft.line)) continue;
+      const used = new Set<string>();
+      referred.set(draft.line, used);
+      const lookup: TypeLookup = {
+        entry: async (type, key) => {
+          const own = type === masterType ? inFile.get(key) : undefined;
+          if (own === undefined) return database.entry(type, key);
+          used.add(key);
+          return own;
+        },
+      };
       // A row whose parent is in the file is judged after the parent: if the parent failed, the row cannot be created either.
       const parentRow = draft.parentLine === null ? undefined : byLine.get(draft.parentLine);
       if (parentRow !== undefined && !rowsOk.has(parentRow.line)) {
@@ -414,9 +464,9 @@ export class MasterImportStore {
         continue;
       }
       const parentEntry =
-        draft.parentKey === null ? undefined : parentRow !== undefined ? inFile.get(parentRow.businessKey) : parents.get(draft.parentKey)?.entry;
+        draft.parentKey === null ? undefined : parentRow !== undefined ? inFile.get(parentRow.businessKey) : (pinnedParents.get(draft.line) ?? parents.get(draft.parentKey))?.entry;
       // Under a type that a tenant only extends, the parent must be an entry of the platform.
-      if (policy.scope === 'PLATFORM_WITH_TENANT_EXTENSION' && (draft.parentKey === null || parentRow !== undefined || parents.get(draft.parentKey)?.namespace !== 'PLATFORM')) {
+      if (policy.scope === 'PLATFORM_WITH_TENANT_EXTENSION' && (draft.parentKey === null || parentRow !== undefined || (pinnedParents.get(draft.line) ?? parents.get(draft.parentKey))?.namespace !== 'PLATFORM')) {
         fail(draft.line, 'parent_key', 'POLICY_LOCKED');
         continue;
       }
@@ -426,14 +476,33 @@ export class MasterImportStore {
       } catch (error) {
         if (!(error instanceof DomainError)) throw error;
         // The parent is named by its key in a file: the field of a row is the column that holds it.
-        fail(draft.line, error.detail === 'parent_record_id' ? 'parent_key' : (error.detail ?? 'row'), error.code === 'VALIDATION_FAILED' ? 'INVALID_VALUE' : error.code);
+        // A reference to a row of the file that is itself in error is not a wrong value: the other row is the fault.
+        const named = error.detail?.startsWith(ATTRIBUTE_FIELD) ? draft.content.attributes[error.detail.slice(ATTRIBUTE_FIELD.length)] : undefined;
+        const toLeftOut = (Array.isArray(named) ? named : [named]).some((key) => typeof key === 'string' && failed.has(lineOfKey.get(key) ?? -1));
+        const code = toLeftOut ? 'REFERENCE_SKIPPED' : error.code === 'VALIDATION_FAILED' ? 'INVALID_VALUE' : error.code;
+        fail(draft.line, error.detail === 'parent_record_id' ? 'parent_key' : (error.detail ?? 'row'), code);
+      }
+    }
+
+    // A row that was judged right while a row it refers to was still standing is not right once that row is left out (the rows that refer to
+    // it follow, until nothing changes): it is told here, never found out when the records are created.
+    for (let changed = true; changed; ) {
+      changed = false;
+      for (const draft of ordered) {
+        if (failed.has(draft.line)) continue;
+        const gone = [...(referred.get(draft.line) ?? [])].find((key) => failed.has(lineOfKey.get(key) as number));
+        if (gone !== undefined) fail(draft.line, fieldReferring(draft.content.attributes, gone), 'REFERENCE_SKIPPED');
+        else if (draft.parentLine !== null && failed.has(draft.parentLine)) fail(draft.line, 'parent_key', 'PARENT_SKIPPED');
+        else continue;
+        changed = true;
       }
     }
 
     errors.sort((left, right) => left.row - right.row || left.field.localeCompare(right.field));
     return {
       total: table.rows.length,
-      valid: ordered.filter((draft) => !failed.has(draft.line)),
+      // A pinned parent is created against its record id: the key of the parent is not looked up again among the rows of the file.
+      valid: ordered.filter((draft) => !failed.has(draft.line)).map((draft) => (draft.pinned === null ? draft : { ...draft, parentKey: null })),
       errors: errors.slice(0, MAX_STORED_ERRORS),
       errorRows: failed.size,
     };
@@ -466,17 +535,23 @@ export class MasterImportStore {
     const table = readTabularFile(bytes);
     const plan = await this.plan(tx, batch.masterType, table, checkMapping(batch.mapping, table.headers));
     if (batch.mode === 'ATOMIC' && plan.errorRows > 0) throw new DomainError('IMPORT_HAS_ERRORS', 422, undefined, { extensions: { error_rows: plan.errorRows } });
+    // A batch with no record to create has nothing to review or publish: it would wait in review for ever.
+    if (plan.valid.length === 0) throw new DomainError('IMPORT_EMPTY', 422);
+    // The records are created in one transaction, parents first, and refer to each other as the plan judged them: against the file.
+    const database = tenantLookup(tx);
+    const entries = new Map(plan.valid.map((row) => [row.businessKey, { masterType: batch.masterType, businessKey: row.businessKey, attributes: row.content.attributes }] as const));
+    const lookup: TypeLookup = { entry: async (type, key) => (type === batch.masterType ? entries.get(key) : undefined) ?? (await database.entry(type, key)) };
     const created = new Map<string, string>();
     const reason = `Imported from the file ${batch.fileSha256.slice(0, 12)}`;
     for (const row of plan.valid) {
       const parentId = row.parentKey === null ? row.content.parentRecordId : (created.get(row.parentKey) ?? row.content.parentRecordId);
-      const proposed = await this.masters.propose(tx, { masterType: batch.masterType, businessKey: row.businessKey, content: { ...row.content, parentRecordId: parentId }, reason }, actor);
+      const proposed = await this.masters.propose(tx, { masterType: batch.masterType, businessKey: row.businessKey, content: { ...row.content, parentRecordId: parentId }, reason }, actor, lookup);
       created.set(row.businessKey, proposed.recordId);
       await tx.query('update machvon.master_change_request set import_batch_id = $2::uuid where id = $1::uuid', [proposed.changeRequestId, batch.id]);
-      await this.masters.submit(tx, proposed.changeRequestId, proposed.version, actor);
+      await this.masters.submit(tx, proposed.changeRequestId, proposed.version, actor, BATCH_ACCESS);
     }
     await tx.query(
-      `update machvon.master_import_batch set status = 'IN_REVIEW', total_rows = $2, error_rows = $3, errors_json = $4::jsonb, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid`,
+      `update machvon.master_import_batch set status = 'IN_REVIEW', total_rows = $2, error_rows = $3, errors_json = $4::jsonb, applied_by = $5::uuid, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid`,
       [batch.id, plan.total, plan.errorRows, JSON.stringify(plan.errors), actor],
     );
     return { batch: (await this.find(tx, batch.id)) as ImportBatchRow, created: plan.valid.length, skipped: plan.errorRows };
@@ -498,10 +573,10 @@ export class MasterImportStore {
     const changes = await this.openChanges(tx, id);
     const first = changes[0];
     if (first === undefined) throw new DomainError('STAGE_TRANSITION_DENIED', 409, `${batch.status}->${decision}`);
-    assertFourEyes(first.createdBy, reviewer);
+    assertFourEyes(batch.appliedBy ?? first.createdBy, reviewer);
     for (const change of changes) {
       if (change.status !== 'IN_REVIEW') throw new DomainError('STAGE_TRANSITION_DENIED', 409, `${change.status}->${decision}`);
-      await this.masters.decide(tx, change.id, change.version, decision, reviewer);
+      await this.masters.decide(tx, change.id, change.version, decision, reviewer, BATCH_ACCESS);
     }
     await tx.query(
       `update machvon.master_import_batch set status = $2, reviewed_by = $3::uuid, reviewed_at = now(), updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,
@@ -525,12 +600,12 @@ export class MasterImportStore {
     if (batch.status !== 'IN_REVIEW' || batch.reviewedBy === null) throw new DomainError('CHANGE_NOT_APPROVED', 409);
     const changes = await this.openChanges(tx, id);
     if (changes.length === 0 || changes.some((change) => change.status !== 'APPROVED')) throw new DomainError('CHANGE_NOT_APPROVED', 409);
-    assertFourEyes((changes[0] as { createdBy: string }).createdBy, publisher);
+    assertFourEyes(batch.appliedBy ?? (changes[0] as { createdBy: string }).createdBy, publisher);
     const published: PublishedRecord[] = [];
     for (const change of changes) {
       const record = await this.masters.findRecord(tx, change.masterRecordId, true);
       if (record === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-      const result = await this.masters.publish(tx, record.id, record.version, decisionDocumentId, publisher);
+      const result = await this.masters.publish(tx, record.id, record.version, decisionDocumentId, publisher, BATCH_ACCESS);
       published.push({ recordId: record.id, businessKey: record.businessKey, changeId: result.change.id, versionId: result.versionId, recordVersion: result.version, validFrom: result.change.effectiveFrom, active: result.active });
     }
     try {

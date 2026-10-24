@@ -29,11 +29,12 @@ const DEFAULT_WINDOW_ROWS = 1000;
 const SEAL_PAGE_SIZE = 100;
 
 // occurred_at keeps microseconds only as text; the same expression is used when sealing and verifying.
-const ROW_COLUMNS = `id, seq, actor_id, action, resource_type, resource_id, safe_diff, reason, correlation_id, request_id,
+export const AUDIT_ROW_COLUMNS = `id, seq, actor_id, action, resource_type, resource_id, safe_diff, reason, correlation_id, request_id,
   outcome, classification, impersonator_id, on_behalf_of_id, ip_hash, schema_version,
   to_char(occurred_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as occurred_at`;
 
-interface AuditRow {
+/** One audit row as the sealer reads it: the columns of AUDIT_ROW_COLUMNS, whose canonical JSON is the Merkle leaf. */
+export interface AuditRow {
   id: string;
   seq: string;
   [column: string]: unknown;
@@ -48,7 +49,7 @@ interface SealRow {
   seal_hash: string;
 }
 
-const leafOf = (row: AuditRow): string => auditLeafHash(canonicalJson({ ...row, seq: Number(row.seq) }));
+export const leafOf = (row: AuditRow): string => auditLeafHash(canonicalJson({ ...row, seq: Number(row.seq) }));
 const rootOf = (rows: readonly AuditRow[]): string => merkleRoot(rows.map(leafOf));
 
 /** Seals the audit rows of one tenant into chained Merkle windows and verifies the chain. */
@@ -77,7 +78,7 @@ export class AuditSealJob {
       const outcome: SealOutcome = { sealed: 0, seals: 0 };
       for (;;) {
         const rows = await tx.query<AuditRow>(
-          `select ${ROW_COLUMNS} from machvon.audit_event where seq > $1 order by seq limit $2`,
+          `select ${AUDIT_ROW_COLUMNS} from machvon.audit_event where seq > $1 order by seq limit $2`,
           [afterSeq, this.windowRows],
         );
         const first = rows[0];
@@ -99,13 +100,17 @@ export class AuditSealJob {
     });
   }
 
-  /** Walks the seals in order and reports the first window that fails; a failure raises AUDIT_CHAIN_BROKEN. */
+  /**
+   * Walks the seals in order and reports the first window that fails; a failure raises AUDIT_CHAIN_BROKEN. The verdict is
+   * then kept (audit_seal_check) for the audit viewer, after the alert: a failure to keep it can never hide the failure.
+   */
   async verify(ctx: TenantContext): Promise<VerifyOutcome> {
     const outcome = await this.database.withTenant(ctx, (tx) => this.walk(tx));
     if (!outcome.ok) {
       this.metrics.increment('audit_seal_failures_total', { tenant_id: ctx.tenantId });
       this.alerts.raise('AUDIT_CHAIN_BROKEN', { tenantId: ctx.tenantId, ...outcome.brokenAt });
     }
+    await this.database.withTenant(ctx, (tx) => recordVerdict(tx, outcome));
     return outcome;
   }
 
@@ -136,7 +141,7 @@ export class AuditSealJob {
       Number(seal.from_seq),
     ]);
     if (Number(gap[0]?.n) > 0) return 'UNSEALED_ROW_IN_GAP';
-    const rows = await tx.query<AuditRow>(`select ${ROW_COLUMNS} from machvon.audit_event where seq between $1 and $2 order by seq`, [
+    const rows = await tx.query<AuditRow>(`select ${AUDIT_ROW_COLUMNS} from machvon.audit_event where seq between $1 and $2 order by seq`, [
       Number(seal.from_seq),
       Number(seal.to_seq),
     ]);
@@ -144,4 +149,58 @@ export class AuditSealJob {
     if (sealHashOf(seal.prev_seal_hash, seal.merkle_root, Number(seal.to_seq)) !== seal.seal_hash) return 'SEAL_HASH_MISMATCH';
     return undefined;
   }
+}
+
+/** Replaces the kept verdict of the tenant of the transaction with this run's. */
+async function recordVerdict(tx: TenantTx, outcome: VerifyOutcome): Promise<void> {
+  const broken = outcome.ok ? undefined : outcome.brokenAt;
+  await tx.query(
+    `insert into machvon.audit_seal_check (tenant_id, checked_at, ok, seals, broken_seal, broken_from_seq, broken_to_seq, broken_reason)
+     values (nullif(current_setting('app.tenant_id', true), '')::uuid, now(), $1, $2, $3, $4, $5, $6)
+     on conflict (tenant_id) do update
+       set checked_at = excluded.checked_at, ok = excluded.ok, seals = excluded.seals, broken_seal = excluded.broken_seal,
+           broken_from_seq = excluded.broken_from_seq, broken_to_seq = excluded.broken_to_seq, broken_reason = excluded.broken_reason`,
+    [outcome.ok, outcome.seals, broken?.sealId ?? null, broken?.fromSeq ?? null, broken?.toSeq ?? null, broken?.reason ?? null],
+  );
+}
+
+/** The verdict of the last run of the seal verification of a tenant (ST-ADM-016). */
+export interface SealCheck {
+  /** `UNKNOWN`: never verified; `STALE`: the last run is older than three runs of the hourly job; otherwise the verdict of that run. */
+  status: 'OK' | 'BROKEN' | 'STALE' | 'UNKNOWN';
+  checkedAt: string | null;
+  seals: number | null;
+  broken: { sealId: string; fromSeq: number; toSeq: number; reason: BrokenReason } | null;
+}
+
+/** The verifier runs hourly (JOB_INTERVAL_SECONDS 'audit-verify'); a verdict older than this has missed three runs. */
+export const SEAL_CHECK_STALE_SECONDS = 3 * 3600;
+
+interface CheckRow {
+  checked_at: string;
+  ok: boolean;
+  seals: number;
+  broken_seal: string | null;
+  broken_from_seq: string | null;
+  broken_to_seq: string | null;
+  broken_reason: BrokenReason | null;
+  age_seconds: number;
+}
+
+/** Reads the kept verdict of the tenant of the transaction. A broken chain is reported even when the verdict is old. */
+export async function readSealCheck(tx: TenantTx): Promise<SealCheck> {
+  const rows = await tx.query<CheckRow>(
+    `select to_char(checked_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as checked_at, ok, seals, broken_seal,
+            broken_from_seq::text as broken_from_seq, broken_to_seq::text as broken_to_seq, broken_reason,
+            extract(epoch from (now() - checked_at))::float8 as age_seconds
+       from machvon.audit_seal_check`,
+  );
+  const row = rows[0];
+  if (row === undefined) return { status: 'UNKNOWN', checkedAt: null, seals: null, broken: null };
+  const broken =
+    row.ok || row.broken_seal === null || row.broken_from_seq === null || row.broken_to_seq === null || row.broken_reason === null
+      ? null
+      : { sealId: row.broken_seal, fromSeq: Number(row.broken_from_seq), toSeq: Number(row.broken_to_seq), reason: row.broken_reason };
+  const status = !row.ok ? 'BROKEN' : row.age_seconds > SEAL_CHECK_STALE_SECONDS ? 'STALE' : 'OK';
+  return { status, checkedAt: row.checked_at, seals: row.seals, broken };
 }

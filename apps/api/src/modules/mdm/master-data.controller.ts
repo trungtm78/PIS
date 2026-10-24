@@ -167,7 +167,8 @@ export class MasterDataController {
   @OperationId('createMasterChangeRequest')
   @Command({ operation: 'createMasterChangeRequest' })
   async createChange(@Scope() scope: CommandScope, @Body() body: Schemas['MdmChangeRequest']): Promise<CommandResult> {
-    // RESTRUCTURE and SUCCESSION go through the succession step (MDM-009), which has its own validation.
+    // A SUCCESSION is opened by recordMasterSuccession (ST-MDM-009), which judges the edge against the graph; it is then submitted, decided and
+    // published through the operations below like any other change. A RESTRUCTURE is an UPDATE of the parent.
     if (!SUPPORTED_CHANGES.has(body.change_kind)) throw new DomainError('VALIDATION_FAILED', 422, 'change_kind');
     if (body.master_record_id === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'master_record_id');
     const proposed = body.proposed as Record<string, unknown>;

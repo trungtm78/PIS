@@ -1,7 +1,9 @@
 import { DomainError, assertFourEyes, canonicalJson, changeRequestNext, sha256Hex, versionConflict, vietnamDateOf } from '@machvon/kernel';
 import type { ChangeRequestAction, ChangeRequestState } from '@machvon/kernel';
 import { attributeReferencesTo, entryOfRecord, isRuleType, tenantLookup, validateMasterContent } from './master-types.ts';
+import { assertComplete, assertEdgeAllowed, insertEdges, lockSuccessionGraph, proposalOf } from './master-succession.ts';
 import type { TenantTx } from './tenant-database.ts';
+import type { TypeLookup } from './master-types.ts';
 
 const UNIQUE_VIOLATION = '23505';
 const EXCLUSION_VIOLATION = '23P01';
@@ -59,6 +61,7 @@ export const MASTER_REFERENCES: readonly MasterReference[] = [
   version('period_snapshot_line', 'fund_source_version_id'),
   version('issue_sla_policy', 'category_version_id'),
   version('issue', 'category_version_id'),
+  version('reporting_period', 'calendar_version_id'),
   version('land_parcel', 'ward_master_version_id'),
   version('asset_record', 'asset_class_master_version_id'),
   record('contractor', 'master_record_id'),
@@ -160,6 +163,14 @@ export interface MasterVersionRow {
   changeRequestId: string | null;
 }
 
+/**
+ * What the bulk import passes when it acts on the change requests of its own batch. A change request that a batch owns is decided and
+ * published only as part of the batch (all of it or none of it), so every other caller is refused (409 STAGE_TRANSITION_DENIED, `import_batch`).
+ */
+export interface BatchAccess {
+  viaImportBatch: true;
+}
+
 export interface ChangeRequestRow {
   id: string;
   changeKind: ChangeKind;
@@ -177,6 +188,8 @@ export interface ChangeRequestRow {
   decidedAt: string | null;
   publishedBy: string | null;
   decisionDocumentId: string | null;
+  /** The import batch that created the request; null for a request opened one by one. */
+  importBatchId: string | null;
   version: number;
 }
 
@@ -255,6 +268,7 @@ interface ChangeRow {
   decided_at: string | null;
   published_by: string | null;
   decision_document_id: string | null;
+  import_batch_id: string | null;
   version: string;
 }
 
@@ -275,6 +289,7 @@ const CHANGE_COLUMN_LIST = [
   'decided_at::text as decided_at',
   'published_by',
   'decision_document_id',
+  'import_batch_id',
   'version::text as version',
 ];
 const CHANGE_COLUMNS = CHANGE_COLUMN_LIST.join(', ');
@@ -333,6 +348,7 @@ const toChange = (row: ChangeRow): ChangeRequestRow => ({
   decidedAt: row.decided_at,
   publishedBy: row.published_by,
   decisionDocumentId: row.decision_document_id,
+  importBatchId: row.import_batch_id,
   version: Number(row.version),
 });
 
@@ -628,7 +644,8 @@ export class MasterStore {
     return { sql: `${reference.column} = $1::uuid`, params: [versions] };
   }
 
-  private async impactOf(tx: TenantTx, recordId: string | null): Promise<ImpactPreview> {
+  /** What refers to the entry now: the preview a reviewer reads before a change (ST-MDM-001) or a succession (ST-MDM-009) is decided. */
+  async impactOf(tx: TenantTx, recordId: string | null): Promise<ImpactPreview> {
     const computedAt = new Date().toISOString();
     if (recordId === null) return { counts: {}, total: 0, computed_at: computedAt };
     const usage = await this.usage(tx, recordId, undefined, 0);
@@ -676,17 +693,22 @@ export class MasterStore {
 
   // ---- commands ------------------------------------------------------------------------------------------------
 
-  /** Creates the record, its first (draft) version and the CREATE change request in one step; the key is unique per type and namespace. */
+  /**
+   * Creates the record, its first (draft) version and the CREATE change request in one step; the key is unique per type and namespace.
+   * The references of the content are judged against the database, or against `lookup` when the caller creates a set of entries that
+   * refer to each other in one transaction (the bulk import, which has already judged the set as a whole).
+   */
   async propose(
     tx: TenantTx,
     input: NewMasterRecord,
     actor: string,
+    lookup: TypeLookup = tenantLookup(tx),
   ): Promise<{ recordId: string; versionId: string; changeRequestId: string; version: number }> {
     const { content } = input;
     if (content.validUntil !== null && content.validUntil <= content.validFrom) throw new DomainError('VALIDATION_FAILED', 422, 'valid_until');
     if (content.parentRecordId !== null) await this.assertParent(tx, content.parentRecordId, input.masterType);
     await this.assertTenantMayAdd(tx, input.masterType, content.parentRecordId);
-    await this.assertContent(tx, input.masterType, input.businessKey, content);
+    await this.assertContent(tx, input.masterType, input.businessKey, content, lookup);
     let recordId: string;
     try {
       const rows = await tx.query<{ id: string }>(
@@ -726,9 +748,14 @@ export class MasterStore {
   }
 
   /** The rules of the type (which attributes it takes, which entries it refers to) that the content has to meet before anyone can review it. */
-  private async assertContent(tx: TenantTx, masterType: string, businessKey: string, content: MasterContent): Promise<void> {
+  private async assertContent(tx: TenantTx, masterType: string, businessKey: string, content: MasterContent, lookup: TypeLookup = tenantLookup(tx)): Promise<void> {
     const parent = content.parentRecordId === null ? undefined : await entryOfRecord(tx, content.parentRecordId);
-    await validateMasterContent({ masterType, businessKey, content, parent, lookup: tenantLookup(tx) });
+    await validateMasterContent({ masterType, businessKey, content, parent, lookup });
+  }
+
+  /** A change request of an import batch is acted on only through the batch, whose decision and publication are all or nothing. */
+  private assertNotBatchOwned(change: ChangeRequestRow, access: BatchAccess | undefined): void {
+    if (change.importBatchId !== null && access?.viaImportBatch !== true) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'import_batch');
   }
 
   private async assertParent(tx: TenantTx, parentRecordId: string, masterType: string): Promise<void> {
@@ -758,7 +785,7 @@ export class MasterStore {
     // A change that is already published for a later date has closed the version in force at that date: the next one waits for it.
     const waiting = await tx.query(
       `select 1 from machvon.master_record_version where master_record_id = $1::uuid and revision > $2
-        union all select 1 from machvon.master_change_request where master_record_id = $1::uuid and change_kind = 'RETIRE' and status = 'APPLIED' and effective_from > $3::date`,
+        union all select 1 from machvon.master_change_request where master_record_id = $1::uuid and change_kind in ('RETIRE', 'SUCCESSION') and status = 'APPLIED' and effective_from > $3::date`,
       [record.id, current.revision, today()],
     );
     if (waiting.length > 0) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'a published change is waiting for its date');
@@ -839,12 +866,15 @@ export class MasterStore {
   }
 
   /** Draft → In review. The impact preview must exist; it is computed again, since the references may have changed since it was stored. */
-  async submit(tx: TenantTx, id: string, expectedVersion: number, actor: string): Promise<{ change: ChangeRequestRow; version: number; impact: ImpactPreview }> {
+  async submit(tx: TenantTx, id: string, expectedVersion: number, actor: string, access?: BatchAccess): Promise<{ change: ChangeRequestRow; version: number; impact: ImpactPreview }> {
     const change = await this.lockChange(tx, id, expectedVersion);
+    this.assertNotBatchOwned(change, access);
     const status = advance(change.status, 'submit');
     if (change.impact === null) throw new DomainError('IMPACT_NOT_COMPUTED', 422);
     const impact = await this.impactOf(tx, change.masterRecordId);
     if (change.changeKind === 'RETIRE' && impact.total > 0 && typeof change.proposed.successor_record_id !== 'string') throw new DomainError('MASTER_IN_USE', 409);
+    // A succession goes to review only when it is whole (the shares of a split add up to 100) and still fits the graph.
+    if (change.changeKind === 'SUCCESSION') await this.revalidateSuccession(tx, change);
     const rows = await tx.query<{ version: string }>(
       `update machvon.master_change_request set status = $2, impact_json = $3::jsonb, updated_at = now(), updated_by = $4::uuid, version = version + 1
         where id = $1::uuid returning version::text as version`,
@@ -877,8 +907,10 @@ export class MasterStore {
     expectedVersion: number,
     decision: MasterDecision,
     reviewer: string,
+    access?: BatchAccess,
   ): Promise<{ change: ChangeRequestRow; status: ChangeStatus; version: number }> {
     const change = await this.lockChange(tx, id, expectedVersion);
+    this.assertNotBatchOwned(change, access);
     assertFourEyes(change.createdBy, reviewer);
     await this.assertRuleOwner(tx, change.masterType, reviewer);
     if (change.status !== 'IN_REVIEW') throw new DomainError('STAGE_TRANSITION_DENIED', 409, `${change.status}->${decision}`);
@@ -906,6 +938,7 @@ export class MasterStore {
     expectedVersion: number,
     decisionDocumentId: string,
     publisher: string,
+    access?: BatchAccess,
   ): Promise<{ record: MasterRecordRow; change: ChangeRequestRow; versionId: string; version: number; active: boolean }> {
     const record = await this.findRecord(tx, recordId, true);
     if (record === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -916,12 +949,14 @@ export class MasterStore {
     );
     const change = rows[0] === undefined ? undefined : toChange(rows[0]);
     if (change === undefined) throw new DomainError('CHANGE_NOT_APPROVED', 409);
+    this.assertNotBatchOwned(change, access);
     assertFourEyes(change.createdBy, publisher);
     await this.assertRuleOwner(tx, change.masterType, publisher);
     const documents = await tx.query('select 1 from machvon.document where id = $1::uuid', [decisionDocumentId]);
     if (documents.length === 0) throw new DomainError('VALIDATION_FAILED', 422, 'decision_document_id');
     advance(change.status, 'apply');
     if (change.changeKind === 'RETIRE') await this.revalidateRetirement(tx, record, change);
+    if (change.changeKind === 'SUCCESSION') await this.revalidateSuccession(tx, change);
 
     const effective = change.effectiveFrom <= today();
     let versionId: string;
@@ -955,6 +990,16 @@ export class MasterStore {
     if (successor !== undefined) await this.assertSuccessor(tx, successor, record);
   }
 
+  /** What was true when the succession was recorded may not be true now: the proposal must still be whole and every edge must still fit the graph. */
+  private async revalidateSuccession(tx: TenantTx, change: ChangeRequestRow): Promise<void> {
+    const proposal = proposalOf(change.proposed);
+    assertComplete(proposal);
+    await lockSuccessionGraph(tx);
+    const predecessor = change.masterRecordId === null ? undefined : await this.findRecord(tx, change.masterRecordId);
+    if (predecessor === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    for (const edge of proposal.edges) await assertEdgeAllowed(tx, this, predecessor, edge.successorRecordId, proposal.effectiveDate);
+  }
+
   private async apply(tx: TenantTx, record: MasterRecordRow, change: ChangeRequestRow, effective: boolean, publisher: string): Promise<string> {
     if (change.changeKind === 'CREATE') {
       const first = await tx.query<{ id: string }>(
@@ -978,7 +1023,9 @@ export class MasterStore {
         publisher,
       ]);
     }
-    if (change.changeKind === 'RETIRE') {
+    // A retirement and a succession end the version in force the same way; a succession also records who took over (history is not rewritten: no new version).
+    if (change.changeKind === 'RETIRE' || change.changeKind === 'SUCCESSION') {
+      if (change.changeKind === 'SUCCESSION') await insertEdges(tx, change, record.id, proposalOf(change.proposed), publisher);
       if (effective) {
         await tx.query("update machvon.master_record_version set status = 'RETIRED' where id = $1::uuid", [current.id]);
         await this.setRecord(tx, record.id, 'RETIRED', current.id, publisher);

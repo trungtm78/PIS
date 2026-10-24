@@ -13,3 +13,5 @@ One rule per file in `alerts/rules`; one runbook per rule here. `npm run alerts:
 - [AUTHZ_DENY_SPIKE](AUTHZ_DENY_SPIKE.md) · warning · security-oncall
 - [PROVISIONING_FAILED](PROVISIONING_FAILED.md) · critical · platform-oncall
 - [LICENSE_EXPIRING](LICENSE_EXPIRING.md) · warning · platform-oncall
+- [INTEGRATION_INBOX_DEAD](INTEGRATION_INBOX_DEAD.md) · warning · platform-oncall
+- [RETENTION_REVIEW_BACKLOG](RETENTION_REVIEW_BACKLOG.md) · warning · platform-oncall

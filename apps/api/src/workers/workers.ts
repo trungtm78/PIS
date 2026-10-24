@@ -1,5 +1,5 @@
-import { AuditSealJob, BASELINE_PACK, CertificateStore, IdempotencyStore, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
-import type { ControlDatabase, JobName, OutboxDelivery, TenantDatabase } from '@machvon/db';
+import { AuditSealJob, AuditWriter, BASELINE_PACK, CertificateStore, DisPeriodAutoclose, IdempotencyStore, IntegrationInboxProcessor, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, PmtPermitTypeStore, RetentionJob, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, MetricsSink, TimerPort } from '@machvon/kernel';
 import type { Pool } from 'pg';
@@ -22,6 +22,10 @@ export interface WorkersDeps {
   accessCache: { expire(): number };
   /** Receives the gauges of the jobs (`mdm_change_pending_gauge`); default: dropped until the exporter exists (KERNEL-050). */
   metrics?: MetricsSink;
+  /** Removes the stored payload files of the inbox events that the retention job purges (the object store of the FILES module). */
+  payloads?: PayloadRemover;
+  /** The adapters that process inbound provider events, by provider; without any, the inbox job is not scheduled (ST-ADM-018). */
+  inboxHandlers?: InboxHandlerRegistry;
 }
 
 export interface WorkersOptions {
@@ -64,6 +68,10 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const relay = new OutboxRelay(deps.relayPool, deps.publish, { signingKey: deps.signingKey, alerts });
   const certificates = new CertificateStore();
   const masterData = new MasterStore();
+  const disPeriods = new DisPeriodAutoclose(new AuditWriter(deps.tenants), deps.metrics === undefined ? {} : { metrics: deps.metrics });
+  const permitTypes = new PmtPermitTypeStore();
+  const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
+  const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const handlers = standardJobs({
     tenantIds: () => registeredTenantIds(deps.control),
     seal: new AuditSealJob(deps.tenants, { alerts }),
@@ -74,7 +82,17 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
       activateDue: (ctx) =>
         deps.tenants.withTenant(ctx, async (tx) => ({ changed: await masterData.activateDue(tx, ctx.membershipId), pendingReviews: await masterData.pendingReviews(tx) })),
     },
-    masterBaseline: { apply: (ctx) => deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, BASELINE_PACK, ctx.membershipId)) },
+    masterBaseline: {
+      apply: async (ctx) => {
+        const applied = await deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, BASELINE_PACK, ctx.membershipId));
+        // The permit type catalogue starts from its working assumptions (ST-PMT-001); a code the tenant already has is left alone. A separate transaction: one cannot undo the other.
+        await deps.tenants.withTenant(ctx, (tx) => permitTypes.seedWorkingAssumptions(tx, ctx.membershipId));
+        return applied;
+      },
+    },
+    disPeriods: { autoclose: (ctx) => deps.tenants.withTenant(ctx, (tx) => disPeriods.run(tx, ctx.membershipId, new Date())) },
+    retention: { run: (ctx, now) => retention.run(ctx, now) },
+    ...(inbox === undefined ? {} : { inbox }),
     ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }),
     accessCache: deps.accessCache,
   });

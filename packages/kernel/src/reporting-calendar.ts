@@ -7,7 +7,7 @@ export type Weekday = (typeof WEEKDAYS)[number];
 export const CALENDAR_TIMEZONES: Readonly<Record<string, number>> = { 'Asia/Ho_Chi_Minh': 7 * 60 };
 
 const DEADLINE_TIME = /^([01]\d|2[0-3]):([0-5]\d)$/;
-const DAY_MS = 86_400_000;
+export const DAY_MS = 86_400_000;
 const WEEK_DAYS = 7;
 /** 1970-01-01 was a Thursday: with Monday as day 0, day 0 of the epoch is day 3 of the week. */
 const EPOCH_WEEKDAY = 3;
@@ -34,12 +34,13 @@ export interface ReportingPeriod {
 }
 
 const pad = (value: number, length = 2): string => String(value).padStart(length, '0');
-const isoOf = (day: number): string => new Date(day * DAY_MS).toISOString().slice(0, 10);
-const dayOf = (date: string): number => {
+/** Day arithmetic shared with the working-time calendar of ADM (days since 1970-01-01, Monday as weekday 0). */
+export const isoOf = (day: number): string => new Date(day * DAY_MS).toISOString().slice(0, 10);
+export const dayOf = (date: string): number => {
   const [year, month, dayOfMonth] = date.split('-').map(Number) as [number, number, number];
   return Math.floor(Date.UTC(year, month - 1, dayOfMonth) / DAY_MS);
 };
-const weekdayOf = (day: number): number => (((day + EPOCH_WEEKDAY) % WEEK_DAYS) + WEEK_DAYS) % WEEK_DAYS;
+export const weekdayOf = (day: number): number => (((day + EPOCH_WEEKDAY) % WEEK_DAYS) + WEEK_DAYS) % WEEK_DAYS;
 const dayOfYear = (day: number): number => day - Math.floor(Date.UTC(new Date(day * DAY_MS).getUTCFullYear(), 0, 1) / DAY_MS) + 1;
 
 /** Refuses a definition that cannot produce a calendar (an unknown weekday or zone, a time that is not `HH:MM`). */

@@ -1,0 +1,14 @@
+{
+  "id": "RETENTION_REVIEW_BACKLOG",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/RETENTION_REVIEW_BACKLOG.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "retention_review_pending_gauge",
+    "above": 1000
+  },
+  "summary": "More than a thousand expired business records wait for a decision on the review list."
+}

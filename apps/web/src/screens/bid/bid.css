@@ -1,0 +1,54 @@
+.bid-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(0, 1fr));
+  align-items: end;
+  margin-bottom: 12px;
+}
+.bid-back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+.bid-back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
+.bid-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.bid-badge.ok {
+  border-color: var(--shell-success, #15803d);
+}
+.bid-badge.warning {
+  border-color: var(--shell-warning, #b45309);
+}
+.bid-badge.danger {
+  border-color: var(--shell-danger, #b91c1c);
+}
+.bid-basis {
+  display: block;
+  margin-top: 2px;
+}
+.bid-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .bid-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.bid-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 8px 0 0;
+}

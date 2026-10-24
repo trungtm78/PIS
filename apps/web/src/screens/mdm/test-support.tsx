@@ -14,6 +14,10 @@ export const REVIEWER = ['master.review', 'master.read'];
 export const PUBLISHER = ['master.publish', 'master.read'];
 export const READER = ['master.read'];
 export const CROSSWALK_MANAGER = ['master.crosswalk.manage', 'master.read', 'integration_cursor.read'];
+export const GLOSSARY_READER = ['glossary.read'];
+export const GLOSSARY_STEWARD = ['glossary.read', 'glossary.propose'];
+export const GLOSSARY_OWNER = ['glossary.read', 'glossary.approve'];
+export const GLOSSARY_ALL = ['glossary.read', 'glossary.propose', 'glossary.approve'];
 
 export const routeOf = (id: string, req: string) => ({ ...baseRoute(id, req), module: 'MDM', path: `/mdm/${id.toLowerCase()}` });
 
@@ -87,6 +91,7 @@ export const batch = (n: number, overrides: Record<string, unknown> = {}) => ({
   error_rows: 0,
   errors: [],
   applied_at: null,
+  applied_by: null,
   reviewed_by: null,
   published_by: null,
   decision_document_id: null,
@@ -129,6 +134,31 @@ export const cursor = (n: number, overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+export const glossaryTerm = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: `00000000-0000-4000-8000-00000000a1${String(n).padStart(2, '0')}`,
+  term_code: `TERM_${n}`,
+  term_vi: `Thuật ngữ ${n}`,
+  definition: `Định nghĩa của thuật ngữ số ${n} trong bộ từ điển.`,
+  formula_ref: null,
+  domain: 'GENERAL',
+  owner_membership_id: OTHER,
+  legal_basis: null,
+  revision: 1,
+  status: 'DRAFT',
+  approved_by: null,
+  effective_from: null,
+  supersedes_id: null,
+  created_by: ME,
+  created_at: '2026-10-24T00:00:00.000000Z',
+  decided_by: null,
+  decided_at: null,
+  decision_reason: null,
+  published_by: null,
+  published_at: null,
+  version: 1,
+  ...overrides,
+});
+
 export interface World {
   records: Array<Record<string, unknown>>;
   versions: Array<Record<string, unknown>>;
@@ -141,6 +171,13 @@ export interface World {
   crosswalks: Array<Record<string, unknown>>;
   /** The integration connectors; the read of one adds its position (`cursor_json`). */
   cursors: Array<Record<string, unknown>>;
+  /** The glossary terms of the tenant, the newest first. */
+  glossary: Array<Record<string, unknown>>;
+  /** The answers of getMasterRecordAsOf and getMasterRecordSuccessors by entry id (the date is not looked at: a test sets the answer it wants). */
+  asOf?: Record<string, Record<string, unknown>>;
+  successors?: Record<string, Record<string, unknown>>;
+  /** The entries a search answers for a date (`as_of`), by date; a date that is not here is answered with `records`. */
+  recordsOn?: Record<string, Array<Record<string, unknown>>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
   /** Reads of the entries of these master types fail (the other types are answered). */
@@ -157,6 +194,7 @@ export function world(overrides: Partial<World> = {}): World {
     imports: [],
     crosswalks: [],
     cursors: [],
+    glossary: [],
     failing: new Set(),
     ...overrides,
   };
@@ -172,6 +210,8 @@ export function client(state: World, command: (operation: string, input: unknown
       const path = (input as { path?: { id?: string } } | undefined)?.path;
       if (operation === 'getMasterChangeRequest') return state.changes.find((item) => item.id === path?.id) ?? new Error('not found');
       if (operation === 'getMasterRecordUsages') return state.usage;
+      if (operation === 'getMasterRecordAsOf') return state.asOf?.[path?.id ?? ''] ?? new Error('not found');
+      if (operation === 'getMasterRecordSuccessors') return state.successors?.[path?.id ?? ''] ?? new Error('not found');
       if (operation === 'listMasterTypePolicies') return { items: state.policies };
       if (operation === 'getMasterImport') return state.imports.find((item) => item.id === path?.id) ?? new Error('not found');
       if (operation === 'get_resources_integration_cursor_id') return state.cursors.find((item) => item.id === path?.id) ?? new Error('not found');
@@ -184,8 +224,12 @@ export function client(state: World, command: (operation: string, input: unknown
     const query = input?.query ?? {};
     if (operation === 'searchMasterRecords' && query.master_type !== undefined && state.failingTypes?.has(query.master_type) === true) return Promise.reject(new Error(`${operation} failed for ${query.master_type}`));
     switch (operation) {
-      case 'searchMasterRecords':
-        return Promise.resolve(state.records.filter((item) => (query.master_type === undefined || item.master_type === query.master_type) && (query.business_key === undefined || item.business_key === query.business_key) && (query.namespace === undefined || item.namespace === query.namespace)));
+      case 'searchMasterRecords': {
+        const source = (query.as_of === undefined ? undefined : state.recordsOn?.[query.as_of]) ?? state.records;
+        return Promise.resolve(
+          source.filter((item) => (query.master_type === undefined || item.master_type === query.master_type) && (query.business_key === undefined || item.business_key === query.business_key) && (query.namespace === undefined || item.namespace === query.namespace)),
+        );
+      }
       case 'listMasterImports':
         return Promise.resolve(state.imports);
       case 'listMasterCrosswalks':
@@ -199,6 +243,8 @@ export function client(state: World, command: (operation: string, input: unknown
         );
       case 'get_resources_integration_cursor':
         return Promise.resolve(state.cursors.map((item) => Object.fromEntries(Object.entries(item).filter(([name]) => name !== 'cursor_json'))));
+      case 'listGlossaryTerms':
+        return Promise.resolve(state.glossary);
       case 'listMasterChangeRequests':
         return Promise.resolve(state.changes.filter((item) => query.status === undefined || item.status === query.status));
       case 'get_resources_master_record_version':

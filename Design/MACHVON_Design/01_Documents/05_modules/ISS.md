@@ -108,6 +108,7 @@ Bất biến DB:
 - CHECK `issue_sla_policy_resolve_chk`: resolve_hours >= response_hours
 - UNIQUE INDEX `issue_sla_policy_rev_uq` (tenant_id, code, revision)
 - UNIQUE INDEX `issue_sla_policy_active_uq` (tenant_id, category_version_id, severity, owner_unit_id) NULLS NOT DISTINCT WHERE status = 'ACTIVE'
+- Bổ sung khi triển khai ST-ISS-001 (migration V1060): cột `category_record_id` (uuid, trigger `issue_sla_policy_category` lấy từ phiên bản nhóm khi ghi, người ghi không tự cung cấp) — chính sách đi theo bản ghi nhóm chứ không theo một phiên bản của nó (đổi tên nhóm tạo phiên bản MDM mới, chính sách vẫn được tìm thấy), `category_version_id` giữ làm bằng chứng nhóm được gọi là gì lúc công bố; CHECK `issue_sla_policy_period_chk` (valid_until > valid_from) và `issue_sla_policy_status_period_chk` (RETIRED có ngày kết thúc, ACTIVE không có); EXCLUDE `issue_sla_policy_no_overlap` (không chồng khoảng hiệu lực theo nhóm × mức độ × đơn vị); trigger `issue_sla_policy_guard` (nội dung phiên bản không đổi, chỉ được kết thúc một lần) và không cấp DELETE. `valid_until` là ngày đầu tiên chính sách không còn áp dụng. Công bố cùng `code` là phiên bản kế tiếp, kết thúc phiên bản đang áp dụng đúng vào `valid_from` của nó; khác `code` mà chồng thời gian là 409 `SLA_POLICY_OVERLAP`.
 
 Chỉ mục: `issue_sla_policy_category_version_id_idx`, `issue_sla_policy_owner_unit_id_idx`.
 

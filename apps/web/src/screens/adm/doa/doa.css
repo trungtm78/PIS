@@ -1,0 +1,76 @@
+/* ADM-15: the delegation-of-authority matrix, in the language of the shared screen classes. */
+.adm-doa {
+  display: grid;
+  gap: 22px;
+}
+
+.adm-doa .field {
+  min-width: 0;
+}
+
+.adm-doa .field-error {
+  color: #a22b22;
+}
+
+.adm-doa .row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.adm-doa .doa-rules input,
+.adm-doa .doa-rules select {
+  width: 100%;
+  min-width: 90px;
+}
+
+.doa-chart {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.doa-row-head {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.doa-bar {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* The segments are in order, not to scale. A band is solid, a gap is dashed and says so in words, an overlap is double-ruled and
+   says so in words: the chart reads in greyscale. */
+.doa-seg {
+  flex: 1 1 140px;
+  padding: 6px 8px;
+  border: 1px solid var(--border, #cfc8cb);
+  border-radius: 6px;
+  background: #f6f3f4;
+  font-size: 12px;
+}
+
+.doa-seg.gap {
+  border-style: dashed;
+  background: #fdf0c8;
+  color: #6b4b00;
+}
+
+.doa-seg.overlap {
+  border: 3px double #8a1f17;
+  background: #f9dcd9;
+  color: #8a1f17;
+}
+
+.doa-role {
+  font-weight: 600;
+}

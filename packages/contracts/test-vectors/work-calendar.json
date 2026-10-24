@@ -1,0 +1,117 @@
+{
+  "note": "Golden answers of addWorkingTime (ST-ADM-010, BR-ADM-08, XM-ADM-01). Holiday dates are placeholders until the official notice of the year is signed (CXN-CAL-01); working hours are 08:00-12:00 and 13:00-17:00 in Asia/Ho_Chi_Minh. Any module that counts a deadline in working time must give these answers.",
+  "calendars": {
+    "VN-STD-2026": {
+      "calendar_code": "VN-STD",
+      "year": 2026,
+      "working_days": [1, 2, 3, 4, 5],
+      "holidays": [
+        { "date": "2026-01-01", "name": "New Year" },
+        { "date": "2026-04-27", "name": "Hung Kings (observed)" },
+        { "date": "2026-04-30", "name": "Reunification Day" },
+        { "date": "2026-05-01", "name": "Labour Day" },
+        { "date": "2026-09-01", "name": "National Day" },
+        { "date": "2026-09-02", "name": "National Day" }
+      ],
+      "compensated_workdays": ["2026-05-09"],
+      "legal_basis_ref": "Labour Code 2019 art. 112; placeholder notice 2026"
+    },
+    "VN-STD-2027": {
+      "calendar_code": "VN-STD",
+      "year": 2027,
+      "working_days": [1, 2, 3, 4, 5],
+      "holidays": [{ "date": "2027-01-01", "name": "New Year" }],
+      "compensated_workdays": [],
+      "legal_basis_ref": "Labour Code 2019 art. 112; placeholder notice 2027"
+    }
+  },
+  "additions": [
+    {
+      "name": "the acceptance example: 8 working hours from 29 April 15:00 across two holidays and a weekend",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-04-29T15:00:00+07:00",
+      "duration": { "hours": 8 },
+      "expected": "2026-05-04T15:00:00+07:00"
+    },
+    {
+      "name": "a start before the working day begins at the first interval",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-04-29T06:00:00+07:00",
+      "duration": { "hours": 1 },
+      "expected": "2026-04-29T09:00:00+07:00"
+    },
+    {
+      "name": "a start in the lunch break begins at the afternoon interval",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-04-29T12:30:00+07:00",
+      "duration": { "hours": 1 },
+      "expected": "2026-04-29T14:00:00+07:00"
+    },
+    {
+      "name": "a start after hours on a Friday skips the weekend and the observed holiday",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-04-24T18:00:00+07:00",
+      "duration": { "hours": 1 },
+      "expected": "2026-04-28T09:00:00+07:00"
+    },
+    {
+      "name": "a duration that ends exactly where an interval ends falls due at that moment",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-06-01T08:00:00+07:00",
+      "duration": { "hours": 4 },
+      "expected": "2026-06-01T12:00:00+07:00"
+    },
+    {
+      "name": "a duration across the lunch break",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-06-01T11:00:00+07:00",
+      "duration": { "hours": 3 },
+      "expected": "2026-06-01T15:00:00+07:00"
+    },
+    {
+      "name": "minutes are added to hours",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-06-01T16:30:00+07:00",
+      "duration": { "hours": 0, "minutes": 45 },
+      "expected": "2026-06-02T08:15:00+07:00"
+    },
+    {
+      "name": "a compensated Saturday is worked",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-05-08T16:00:00+07:00",
+      "duration": { "hours": 2 },
+      "expected": "2026-05-09T09:00:00+07:00"
+    },
+    {
+      "name": "a deadline that runs into the next year uses the calendar of that year",
+      "calendars": ["VN-STD-2026", "VN-STD-2027"],
+      "start": "2026-12-31T16:00:00+07:00",
+      "duration": { "hours": 2 },
+      "expected": "2027-01-04T09:00:00+07:00"
+    },
+    {
+      "name": "a caller with its own working window (the issue SLA works 07:30 to 17:00 without a break)",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-06-05T16:00:00+07:00",
+      "duration": { "hours": 4 },
+      "intervals": [{ "from": "07:30", "to": "17:00" }],
+      "expected": "2026-06-08T10:30:00+07:00"
+    },
+    {
+      "name": "a zero duration is the start itself, even outside working hours",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-05-02T10:00:00+07:00",
+      "duration": { "hours": 0 },
+      "expected": "2026-05-02T10:00:00+07:00"
+    }
+  ],
+  "refused": [
+    {
+      "name": "a deadline that runs into a year without a calendar is refused, never guessed",
+      "calendars": ["VN-STD-2026"],
+      "start": "2026-12-31T16:00:00+07:00",
+      "duration": { "hours": 2 },
+      "code": "CALENDAR_NOT_EFFECTIVE"
+    }
+  ]
+}

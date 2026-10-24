@@ -16,6 +16,7 @@ import {
   ThemeStore,
   UserSessionStore,
 } from '@machvon/db';
+import type { InboxHandlerRegistry } from '@machvon/db';
 import { ConsoleSpanExporter, NoopSpanExporter, OtlpHttpSpanExporter, Tracer, loadErrorRegistry } from '@machvon/kernel';
 import type { AlertSink, SpanExporter, TimerPort } from '@machvon/kernel';
 import { Pool } from 'pg';
@@ -31,6 +32,8 @@ import { HealthController, READINESS_PROBE } from './health/health.controller';
 import type { ReadinessProbe } from './health/health.controller';
 import { INVITATION_MAILER } from './modules/adm/invitation-mailer';
 import type { InvitationMailer } from './modules/adm/invitation-mailer';
+import { ADM_INBOX_HANDLERS } from './modules/adm/tokens';
+import { FileService } from './modules/files';
 import { EnvironmentLicenseKeyStore } from './modules/sas/license-signer';
 import { operationIdOf } from './operation-id.decorator';
 import { MockProvisioningPorts } from './provisioning/mock-ports';
@@ -220,7 +223,20 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
       });
       const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning });
       workers = startWorkers(
-        { tenants, control, relayPool: pools.relay, lockPool: pools.locks, signingKey: config.outboxSigningKey, alerts, publish: createOutboxPublisher(consumers), accessCache: authzCache },
+        {
+          tenants,
+          control,
+          relayPool: pools.relay,
+          lockPool: pools.locks,
+          signingKey: config.outboxSigningKey,
+          alerts,
+          publish: createOutboxPublisher(consumers),
+          accessCache: authzCache,
+          // The retention job removes the stored payloads of expired inbox events through the same object store the API serves (ST-ADM-017).
+          payloads: app.get(FileService, { strict: false }),
+          // The adapters that modules register for their inbound provider events are served by the inbox job (ST-ADM-018).
+          inboxHandlers: app.get<InboxHandlerRegistry>(ADM_INBOX_HANDLERS, { strict: false }),
+        },
         { ...(overrides.timers === undefined ? {} : { timers: overrides.timers }), ...(overrides.workerLog === undefined ? {} : { log: overrides.workerLog }) },
       );
     }

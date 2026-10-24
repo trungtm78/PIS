@@ -4,10 +4,10 @@ import { useApiClient } from '../../api/ApiClientContext';
 import { uploadFile } from '@machvon/api-client';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toChange, toCrosswalk, toCursor, toImportBatch, toImportFile, toPolicy, toRecord, toUsage, toVersion } from './model';
-import type { ChangeStatus, ChangeView, CrosswalkMethod, CrosswalkView, CursorView, ImportBatchView, ImportFileView, ImportMode, Namespace, PolicyView, RecordView, UsageView, VersionView } from './model';
+import { toChange, toCrosswalk, toCursor, toGlossaryTerm, toImportBatch, toImportFile, toPolicy, toRecord, toUsage, toVersion } from './model';
+import type { ChangeStatus, ChangeView, CrosswalkMethod, CrosswalkView, CursorView, GlossaryTermView, ImportBatchView, ImportFileView, ImportMode, Namespace, PolicyView, RecordView, UsageView, VersionView } from './model';
 
-const root = (tenantId: string | undefined) => ['mdm', tenantId] as const;
+export const root = (tenantId: string | undefined) => ['mdm', tenantId] as const;
 
 /** Every record of the tenant (of one type when given), in the order of the read. */
 export function useRecords(masterType: string | undefined) {
@@ -136,7 +136,7 @@ export interface ChangeBody {
 }
 
 /** One mutation hook: one idempotency attempt per intention, the cached reads of the tenant refreshed on success. */
-function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<unknown>) {
+export function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegistry['forPayload']>) => Promise<unknown>) {
   const queryClient = useQueryClient();
   const { tenant } = useSession();
   const attempts = useRef(new AttemptRegistry());
@@ -358,4 +358,51 @@ export function useFindRecord() {
     const found = (await client.readAll('searchMasterRecords', { query: { master_type: masterType, business_key: businessKey } })).flatMap((raw) => toRecord(raw) ?? []);
     return found.find((record) => record.namespace === 'TENANT') ?? found[0];
   };
+}
+
+// ---- glossary of business terms (MDM-34) -------------------------------------------------------------------------------------
+
+/** Every term of the tenant, the newest first; the screen filters them itself, so the badge of a domain is always read from all of its terms. */
+export function useGlossaryTerms() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<GlossaryTermView[]>({
+    queryKey: [...root(tenant?.id), 'glossary'],
+    queryFn: async () => (await client.readAll('listGlossaryTerms')).flatMap((raw) => toGlossaryTerm(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+export interface ProposeTermBody {
+  term_code: string;
+  term_vi: string;
+  definition: string;
+  formula_ref?: string;
+  domain: string;
+  owner_membership_id: string;
+  legal_basis?: string;
+  supersedes_id?: string;
+}
+
+export function useProposeTerm() {
+  const client = useApiClient();
+  return useCommand<ProposeTermBody>((body, attempt) => client.command('proposeGlossaryTerm', { body, attempt }));
+}
+
+export function useSubmitTerm() {
+  const client = useApiClient();
+  return useCommand<VersionedInput>((input, attempt) => client.command('submitGlossaryTerm', { path: { id: input.id }, ifMatchVersion: input.version, attempt }));
+}
+
+export function useDecideTerm() {
+  const client = useApiClient();
+  return useCommand<DecideInput>((input, attempt) =>
+    client.command('decideGlossaryTerm', { path: { id: input.id }, body: { decision: input.decision, reason: input.reason }, ifMatchVersion: input.version, attempt }),
+  );
+}
+
+export function usePublishTerm() {
+  const client = useApiClient();
+  return useCommand<VersionedInput>((input, attempt) => client.command('publishGlossaryTerm', { path: { id: input.id }, ifMatchVersion: input.version, attempt }));
 }

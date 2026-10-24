@@ -263,6 +263,54 @@ describe('MasterImportScreen (MDM-29): applying, reviewing and publishing the ba
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('publishMasterImport', expect.objectContaining({ path: { id: batch(5).id }, body: { decision_document_id: DOCUMENT }, ifMatchVersion: 4 })));
   });
 
+  it('says that a file with nothing to apply was refused, and tells a row left out because of the row it refers to (Codex findings 2 and 3)', async () => {
+    const state = world({ imports: [batch(20, { mode: 'PARTIAL', total_rows: 3, error_rows: 1, errors: [{ row: 3, field: 'attributes.allowed_next', code: 'REFERENCE_SKIPPED' }] })] });
+    const { h } = withUpload(state, () => {
+      throw problem('IMPORT_EMPTY');
+    });
+    mount(<MasterImportScreen route={ROUTE} />, h, IMPORTER, at(batch(20).id));
+    await ready();
+    expect(within(screen.getByTestId('errors')).getByText(vi_['mdm.import.error.referenceSkipped.text'])).toBeTruthy();
+    await userEvent.setup().click(screen.getByRole('checkbox', { name: vi_['mdm.import.apply.skipped.label'].replace('{count}', '1') }));
+    await userEvent.setup().click(screen.getByRole('button', { name: vi_['mdm.import.apply.action'] }));
+    expect((await screen.findByText(vi_['mdm.problem.importEmpty.error'])).closest('[role="alert"]')).not.toBeNull();
+  });
+
+  it('does not offer to apply a file with no valid row, even when the person has seen the rows that are left out (Codex finding 3)', async () => {
+    open(batch(14, { total_rows: 0, error_rows: 0 }), IMPORTER);
+    await ready();
+    expect(screen.getByTestId('empty').textContent).toBe(vi_['mdm.import.apply.empty.notice']);
+    expect(screen.getByRole('button', { name: vi_['mdm.import.apply.action'] })).toBeDisabled();
+    cleanup();
+    open(batch(15, { mode: 'PARTIAL', total_rows: 2, error_rows: 2, errors: [{ row: 2, field: 'label', code: 'REQUIRED' }, { row: 3, field: 'valid_from', code: 'INVALID_DATE' }] }), IMPORTER);
+    await ready();
+    await userEvent.setup().click(screen.getByRole('checkbox', { name: vi_['mdm.import.apply.skipped.label'].replace('{count}', '2') }));
+    expect(screen.getByTestId('empty')).toBeTruthy();
+    expect(screen.getByRole('button', { name: vi_['mdm.import.apply.action'] })).toBeDisabled();
+    cleanup();
+    // A batch with rows left out and rows to apply says nothing of the kind.
+    open(batch(16, { mode: 'PARTIAL', total_rows: 4, error_rows: 2, errors: [{ row: 2, field: 'label', code: 'REQUIRED' }] }), IMPORTER);
+    await ready();
+    expect(screen.queryByTestId('empty')).toBeNull();
+  });
+
+  it('judges who may review and publish on the person who applied the batch, who may differ from the one who staged it (Codex finding 4)', async () => {
+    open(batch(17, { status: 'IN_REVIEW', created_by: ME, applied_by: OTHER }), [...REVIEWER, ...PUBLISHER]);
+    await ready();
+    expect(screen.queryByTestId('own-batch')).toBeNull();
+    expect(screen.getByRole('button', { name: vi_['mdm.import.review.approve.action'] })).toBeTruthy();
+    cleanup();
+    open(batch(18, { status: 'IN_REVIEW', reviewed_by: OTHER, created_by: OTHER, applied_by: ME }), PUBLISHER);
+    await ready();
+    expect(screen.getByTestId('own-batch')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: vi_['mdm.import.publish.action'] })).toBeNull();
+    cleanup();
+    open(batch(19, { status: 'IN_REVIEW', created_by: OTHER, applied_by: ME }), REVIEWER);
+    await ready();
+    expect(screen.getByTestId('own-batch')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: vi_['mdm.import.review.approve.action'] })).toBeNull();
+  });
+
   it('offers nothing to the person who applied the batch, and waits for the right person when someone else may', async () => {
     open(batch(6, { status: 'IN_REVIEW', created_by: ME }), [...REVIEWER, ...PUBLISHER]);
     await ready();

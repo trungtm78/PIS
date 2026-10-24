@@ -164,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'decideAppropriation', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -219,6 +219,12 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.legal_hold where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.signing_certificate where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.security_policy_version where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.work_calendar_version where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.doa_matrix_version where tenant_id = $1),
+    (select count(*)::text from machvon.doa_rule where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.data_retention_policy where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.integration_connector where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || attempts::text, ',' order by id) from machvon.integration_event_inbox where tenant_id = $1),
     (select string_agg(id::text || status || version::text || last_number::text, ',' order by id) from machvon.document_number_register where tenant_id = $1),
     (select count(*)::text from machvon.document where tenant_id = $1),
     (select string_agg(id::text || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.doc_type where tenant_id = $1),
@@ -226,6 +232,13 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_record_version where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_change_request where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_import_batch where tenant_id = $1),
+    (select string_agg(id::text || status || confirmation_status || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.document_template where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.reporting_period where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_obligation_rule where tenant_id = $1),
+    (select count(*)::text from machvon.mne_report where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || contract_value_vnd::text, ',' order by id) from machvon.contract where tenant_id = $1),
+    (select count(*)::text from machvon.contract_party where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1),
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
@@ -317,6 +330,54 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     }
   }
 
+  /**
+   * What the contract commands act on: the package of the project above awarded to its contractor under an approved capital plan, a second
+   * verified contractor, and a DRAFT joint-venture contract of value 1000 with its first revision (foreign keys to unrelated modules are off).
+   */
+  async function seedDraftContract(contractorId: string, draftId: string, memberId_: string): Promise<void> {
+    const seeder = new Client({ connectionString: harness.database.adminUrl });
+    await seeder.connect();
+    try {
+      await seeder.query('set session_replication_role = replica');
+      const project = id(0x77, 4);
+      const pkg = id(0x77, 6);
+      const statements: Array<[string, unknown[]]> = [
+        [
+          `insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id)
+           values ($1, $2, '0100000078', 'Matrix Partners', 'VERIFIED', $3)`,
+          [TENANT_A, memberId_, id(0x77, 3)],
+        ],
+        [`update machvon.project set status = 'IMPLEMENTATION', project_group = 'B' where id = $1`, [project]],
+        [
+          `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status) values ($1, $2, $3, 'MX-PKG', 1000, 'OPEN', 1, 'AWARDED')`,
+          [TENANT_A, pkg, project],
+        ],
+        [
+          `insert into machvon.procurement_result (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, outcome, status, decision_document_id, submitted_by, approved_by, approved_at, created_by, updated_by)
+           values ($1, $2, $3, $4, 1000, 'AWARDED', 'APPROVED', $5, $6, $7, now(), $6, $6)`,
+          [TENANT_A, id(0x77, 11), pkg, contractorId, id(0x78, 1), memberId(RECIPIENT), memberId(SECOND_OWNER)],
+        ],
+        [
+          `insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2026, 1, $4, 'APPROVED', now())`,
+          [TENANT_A, id(0x77, 12), project, id(0x78, 1)],
+        ],
+        [
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, title, is_joint_venture, contract_value_vnd, estimate_ceiling_vnd, created_by)
+           values ($1, $2, $3, $4, $5, 'MX-DRAFT', 'LUMP_SUM', 'VND', 'DRAFT', 1, 'Matrix draft', true, 1000, 1000, $6)`,
+          [TENANT_A, draftId, project, pkg, contractorId, ACTOR],
+        ],
+        [
+          `insert into machvon.contract_revision (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, version, created_by)
+           values ($1, $2, $3, 1, 1000, $4, date '2026-01-01', 'DRAFT', 'BASE', 1, $5)`,
+          [TENANT_A, id(0x77, 9), draftId, id(0x78, 2), ACTOR],
+        ],
+      ];
+      for (const [sql, params] of statements) await seeder.query(sql, params);
+    } finally {
+      await seeder.end();
+    }
+  }
+
   beforeAll(async () => {
     await harness.start();
     admin = new Client({ connectionString: harness.database.adminUrl });
@@ -392,8 +453,14 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const contractorId = id(0x77, 1);
     const contractId = id(0x77, 2);
     await seedContract(contractorId, contractId);
+    const draftContractId = id(0x77, 8);
+    const contractMemberId = id(0x77, 10);
+    await seedDraftContract(contractorId, draftContractId, contractMemberId);
     const certificateId = id(0x75, 1);
     const policyId = id(0x76, 1);
+    const workCalendarId = id(0xa0, 1);
+    const doaDraftId = id(0xa1, 1);
+    const doaPendingId = id(0xa1, 2);
     const outgoingDocumentId = id(0x78, 3);
     const signingSessionId = id(0x78, 4);
     const layoutProfileId = (await harness.tenants.withTenant(contextFor(TENANT_A, memberId(1)), (tx) => new DocumentStore().seedDefaults(tx, ACTOR))).layoutProfileId;
@@ -408,6 +475,23 @@ describe('negative authorization matrix against the real application (ST-IAM-004
          values ($1, $2, 1, '{"mfa_required_roles":[],"session_idle_minutes":30,"session_max_hours":8}'::jsonb, 'Draft', $3, 1)`,
         [TENANT_A, policyId, ACTOR],
       ],
+      [
+        `insert into machvon.work_calendar_version (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, version)
+         values ($1, $2, 'MATRIX-FIXTURE', 2026, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, 'Matrix fixture notice', 'Draft', $3, 1)`,
+        [TENANT_A, workCalendarId, ACTOR],
+      ],
+      [
+        `insert into machvon.doa_matrix_version (tenant_id, id, revision, status, effective_from, legal_basis_ref, created_by, last_edited_by, version)
+         values ($1, $2, 1, 'Draft', date '2026-01-01', 'Matrix fixture regulation', $3, $3, 1), ($1, $4, 2, 'Draft', date '2026-01-01', 'Matrix fixture regulation', $3, $3, 1)`,
+        [TENANT_A, doaDraftId, ACTOR, doaPendingId],
+      ],
+      [
+        `insert into machvon.doa_rule (tenant_id, id, matrix_version_id, document_type, unit_id, amount_min_vnd, amount_max_vnd, approver_role_id)
+         select $1, gen_random_uuid(), matrix_id, 'MATRIX', $3, 0, null, (select id from machvon.role_definition where code = 'MEMBER')
+           from unnest(array[$2::uuid, $4::uuid]) as matrix_id`,
+        [TENANT_A, doaDraftId, unitId(2), doaPendingId],
+      ],
+      ["update machvon.doa_matrix_version set status = 'PendingApproval' where id = $1", [doaPendingId]],
       [
         `insert into machvon.outgoing_document (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, created_by, updated_by)
          values ($1, $2, $3, $4, 'SUBMITTED', $5, $6, $6, $6, $6)`,
@@ -425,7 +509,22 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const masterImportId = id(0x79, 10);
     const masterCrosswalkId = id(0x79, 11);
     const integrationCursorId = id(0x79, 12);
+    const datasetId = id(0x79, 16);
+    const glossaryDraftTermId = id(0x79, 13);
+    const glossaryReviewTermId = id(0x79, 14);
+    const glossaryApprovedTermId = id(0x79, 15);
+    const glossaryOwnerId = memberId(RECIPIENT);
+    const glossaryTerm = (termId: string, status: string): [string, unknown[]] => [
+      `insert into machvon.glossary_term
+         (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, approved_by, decided_by, decided_at, created_by, updated_by)
+       values ($1, $2, $3, 'Thuật ngữ ma trận', 'Định nghĩa của thuật ngữ do ma trận phân quyền tạo ra.', 'MATRIX', $4, 1, $5,
+               case $5::text when 'APPROVED' then $6::uuid end, case $5::text when 'APPROVED' then $6::uuid end, case $5::text when 'APPROVED' then now() end, $7, $7)`,
+      [TENANT_A, termId, `MATRIX_TERM_${status}`, glossaryOwnerId, status, memberId(SECOND_OWNER), ACTOR],
+    ];
+    const projectId = id(0x8a, 1);
+    const projectAreaVersionId = id(0x8a, 3);
     const decisionDocumentId = id(0x78, 1);
+    const templateId = id(0x7a, 1);
     const impact = '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}';
     const masterRecord = (n: number, status: string): [string, unknown[]] => [
       `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
@@ -460,6 +559,20 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       masterCurrent(8, 9),
       masterChange(5, 8, 'IN_REVIEW'),
       [
+        `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'AREA', 'MX-AREA', 'EFFECTIVE', $3, $3)`,
+        [TENANT_A, id(0x8a, 2), ACTOR],
+      ],
+      [
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+         values ($1, $2, $3, 'AREA', 'MX-AREA', 1, 'Matrix area', '{}', '2020-01-01', 'EFFECTIVE', 'TENANT', now(), $4, $4)`,
+        [TENANT_A, projectAreaVersionId, id(0x8a, 2), ACTOR],
+      ],
+      [
+        `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version)
+         values ($1, $2, 'MX-PRJ', 'Matrix register project', $3, $4, 'INTERNAL', 1000, 'CONCEPT', 1)`,
+        [TENANT_A, projectId, unitId(2), projectAreaVersionId],
+      ],
+      [
         `insert into machvon.master_import_batch (tenant_id, id, master_type, file_object_key, file_sha256, mapping_json, mode, status, total_rows, error_rows, errors_json, created_by, updated_by)
          values ($1, $2, 'MATRIX', 'tenants/matrix/import/fixture', repeat('c', 64), '{}'::jsonb, 'ATOMIC', 'IN_REVIEW', 0, 0, '[]'::jsonb, $3, $3)`,
         [TENANT_A, masterImportId, ACTOR],
@@ -474,21 +587,176 @@ describe('negative authorization matrix against the real application (ST-IAM-004
          values ($1, $2, 'MATRIX_FILE', 'DEFAULT', '{}'::jsonb, '1', 'PROPOSED', 'FAILED', 'FILE_REJECTED')`,
         [TENANT_A, integrationCursorId],
       ],
+      [
+        `insert into machvon.dataset (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
+         values ($1, $2, 'DS-MATRIX', 'Matrix dataset', 'MATRIX', 'one row per matrix case', 'PAY', $3, $3, 'INTERNAL', false, 3600, 'DRAFT', $3, $3)`,
+        [TENANT_A, datasetId, glossaryOwnerId],
+      ],
+      [
+        `insert into machvon.document_template (tenant_id, id, template_code, revision, group_code, doc_type_code, title, layout_profile_id, body_blocks, placeholder_schema,
+           legal_basis, watermark_text, origin, content_sha256, effective_from, status, created_by, updated_by)
+         values ($1, $2, 'MATRIX-FIXTURE', 1, 'OTHER', 'QD', 'Matrix fixture template', $3, '[{"kind":"paragraph","text":"{{body}}"}]'::jsonb, '{"required":["body"]}'::jsonb,
+           'Matrix fixture legal basis', 'Waiting for confirmation', 'TENANT', repeat('d', 64), '2026-01-01', 'DRAFT', $4, $4)`,
+        [TENANT_A, templateId, layoutProfileId, ACTOR],
+      ],
+      glossaryTerm(glossaryDraftTermId, 'DRAFT'),
+      glossaryTerm(glossaryReviewTermId, 'IN_REVIEW'),
+      glossaryTerm(glossaryApprovedTermId, 'APPROVED'),
+    ]);
+    const issueCategoryRecordId = id(0x7a, 1);
+    const issueCategoryVersionId = id(0x7a, 2);
+    const slaPolicyId = id(0x7a, 3);
+    const permitTypeId = id(0x7b, 1);
+    const contractorToVerifyId = id(0x7c, 1);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id, created_by, updated_by)
+         values ($1, $2, '0100000066', 'Matrix unverified contractor', 'UNVERIFIED', $3, $4, $4)`,
+        [TENANT_A, contractorToVerifyId, decisionDocumentId, ACTOR],
+      ],
+    ]);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
+         values ($1, $2, 'TENANT', 'ISSUE_CATEGORY', 'MX-ISSUE-CATEGORY', 'EFFECTIVE', $3, $3)`,
+        [TENANT_A, issueCategoryRecordId, ACTOR],
+      ],
+      [
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, created_by, updated_by)
+         values ($1, $2, $3, 'ISSUE_CATEGORY', 'MX-ISSUE-CATEGORY', 1, 'Matrix issue category', '{}', '2026-01-01', 'EFFECTIVE', 'TENANT', $4, $4)`,
+        [TENANT_A, issueCategoryVersionId, issueCategoryRecordId, ACTOR],
+      ],
+      ['update machvon.master_record set current_version_id = $2 where id = $1', [issueCategoryRecordId, issueCategoryVersionId]],
+      [
+        `insert into machvon.issue_sla_policy (tenant_id, id, code, revision, category_version_id, category_record_id, severity, calendar_code, response_hours, resolve_hours, valid_from, status, created_by, updated_by)
+         values ($1, $2, 'MX-SLA', 1, $3, $4, 'HIGH', 'WORKDAY_VN', 4, 8, '2026-01-01', 'ACTIVE', $5, $5)`,
+        [TENANT_A, slaPolicyId, issueCategoryVersionId, issueCategoryRecordId, ACTOR],
+      ],
+      [
+        `insert into machvon.permit_type (tenant_id, id, code, name, category, authority_text, legal_basis, effective_from, applies_to_rule, status, created_by, updated_by)
+         values ($1, $2, 'MATRIX_FIXTURE', 'Matrix fixture permit type', 'OTHER', 'Matrix authority', 'Matrix fixture legal basis', '2026-01-01', '{}'::jsonb, 'PUBLISHED', $3, $3)`,
+        [TENANT_A, permitTypeId, ACTOR],
+      ],
+    ]);
+    const fundSourceRecordId = id(0x8c, 1);
+    const fundSourceVersionId = id(0x8c, 2);
+    const appropriationId = id(0x8c, 3);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
+         values ($1, $2, 'TENANT', 'FUND_SOURCE', 'MX-CAP-FUND', 'EFFECTIVE', $3, $3)`,
+        [TENANT_A, fundSourceRecordId, ACTOR],
+      ],
+      [
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+         values ($1, $2, $3, 'FUND_SOURCE', 'MX-CAP-FUND', 1, 'Matrix fund source', '{"category":"NSTW","relation":"ADDITIVE"}', '2020-01-01', 'EFFECTIVE', 'TENANT', now(), $4, $4)`,
+        [TENANT_A, fundSourceVersionId, fundSourceRecordId, ACTOR],
+      ],
+      [
+        `insert into machvon.appropriation (tenant_id, id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, decision_document_id, issuing_authority, source_year, revision, status, created_by, updated_by)
+         values ($1, $2, $3, 2026, 'LOCAL_ADDED', 'LOCAL', 1000, $4, 'Matrix authority', 2026, 1, 'DRAFT', $5, $5)`,
+        [TENANT_A, appropriationId, fundSourceVersionId, decisionDocumentId, ACTOR],
+      ],
+    ]);
+    // Two periods of 2026 whose deadline has passed: one OPEN (it could be soft closed) and one SOFT_CLOSED (it could be locked).
+    const periodOpenId = id(0xd5, 1);
+    const periodSoftClosedId = id(0xd5, 2);
+    const matrixPeriod = (periodId: string, code: string, start: string, end: string, status: string): [string, unknown[]] => [
+      `insert into machvon.reporting_period
+         (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, soft_closed_at, calendar_version_id, created_by, updated_by)
+       values ($1, $2, $3, 1, $4::date, $5::date, $5::date + interval '3 hours', 'DEFAULT', 'WEEK', 2026, $6,
+               case $6::text when 'OPEN' then null else $5::date + interval '4 hours' end, $7, $8, $8)`,
+      [TENANT_A, periodId, code, start, end, status, id(0x79, 2), ACTOR],
+    ];
+    await harness.owner(TENANT_A, [
+      matrixPeriod(periodOpenId, 'MX-W2026-01', '2026-01-03', '2026-01-09', 'OPEN'),
+      matrixPeriod(periodSoftClosedId, 'MX-W2026-02', '2026-01-10', '2026-01-16', 'SOFT_CLOSED'),
+    ]);
+    // A DRAFT report form and a DRAFT obligation rule of it, made by someone other than the callers: the MNE commands act on them.
+    const mneFormId = id(0xd6, 1);
+    const mneRuleId = id(0xd6, 2);
+    await harness.owner(TENANT_A, [
+      // The DOC template that the forms above name, published by the platform pack: a form is published only while its template is in force.
+      [
+        `insert into machvon.document_template (tenant_id, id, template_code, revision, group_code, doc_type_code, title, layout_profile_id, body_blocks, placeholder_schema,
+           legal_basis, watermark_text, origin, content_sha256, effective_from, status, published_at, created_by, updated_by)
+         values ($1, $2, 'MX-TEMPLATE', 1, 'REPORT_MONITORING', 'BC', 'Matrix monitoring template', $3, '[{"kind":"paragraph","text":"{{body}}"}]'::jsonb, '{"required":["body"]}'::jsonb,
+           'Matrix legal basis', 'Waiting for confirmation', 'PLATFORM_PACK', repeat('e', 64), '2026-01-01', 'PUBLISHED', now(), $4, $4)`,
+        [TENANT_A, id(0xd6, 3), layoutProfileId, ACTOR],
+      ],
+      [
+        `insert into machvon.mne_report_form (tenant_id, id, form_code, title, report_kind, legal_basis, effective_from, schema_json, doc_template_code, export_formats, revision, status, created_by, updated_by)
+         values ($1, $2, 'MX-FORM', 'Matrix report form', 'OVERALL_SEMIANNUAL', 'Matrix legal basis', '2026-01-01', '{}'::jsonb, 'MX-TEMPLATE', array['XLSX'], 1, 'DRAFT', $3, $3)`,
+        [TENANT_A, mneFormId, ACTOR],
+      ],
+      [
+        `insert into machvon.mne_obligation_rule (tenant_id, id, rule_code, form_id, reporting_role, recipient, frequency, due_rule_json, legal_basis, effective_from, revision, status, created_by, updated_by)
+         values ($1, $2, 'MX-RULE', $3, 'INVESTOR', 'Matrix recipient', 'SEMIANNUAL', '{"period":"H1","month":7,"day":10}'::jsonb, 'Matrix legal basis', '2026-01-01', 1, 'DRAFT', $4, $4)`,
+        [TENANT_A, mneRuleId, mneFormId, ACTOR],
+      ],
+    ]);
+    // A DRAFT retention policy version made by someone other than the callers: the publication acts on it.
+    const retentionDraftId = id(0xa2, 1);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.data_retention_policy (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by, version)
+         values ($1, $2, 'matrix_fixture_dossier', 1, 10, 'FROM_CLOSED', 'Matrix fixture legal basis', 'REVIEW_FOR_DESTRUCTION', date '2026-01-01', 'Draft', $3, 1)`,
+        [TENANT_A, retentionDraftId, ACTOR],
+      ],
+    ]);
+    // A draft connector and a failed inbox event: the connector update and the replay act on them.
+    const connectorId = id(0xa3, 1);
+    const inboxEventId = id(0xa3, 2);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.integration_connector (tenant_id, id, connector_code, adapter_status, mode, config_json, status, version)
+         values ($1, $2, 'matrix-fixture', 'PROPOSED', 'FILE_IMPORT', '{}'::jsonb, 'Draft', 1)`,
+        [TENANT_A, connectorId],
+      ],
+      [
+        `insert into machvon.integration_event_inbox (tenant_id, id, provider, event_key, payload_hash, payload_reference, received_at, status, signature_key_id, attempts, error_code)
+         values ($1, $2, 'MATRIX', 'matrix-event-1', repeat('a', 64), 'tenants/matrix/webhook/fixture', now(), 'FAILED', 'k1', 3, 'PROVIDER_DOWN')`,
+        [TENANT_A, inboxEventId],
+      ],
     ]);
     targets = {
+      connectorId,
+      inboxEventId,
+      retentionDraftId,
+      mneFormId,
+      mneRuleId,
+      periodOpenId,
+      periodSoftClosedId,
+      fundSourceVersionId,
+      appropriationId,
+      permitTypeId,
+      issueCategoryVersionId,
+      slaPolicyId,
       masterRecordId,
       masterDraftChangeId,
       masterReviewChangeId,
       masterImportId,
       masterCrosswalkId,
       integrationCursorId,
+      projectId,
+      projectAreaVersionId,
+      datasetId,
+      glossaryOwnerId,
+      glossaryDraftTermId,
+      glossaryReviewTermId,
+      glossaryApprovedTermId,
       decisionDocumentId,
+      templateId,
+      layoutProfileId,
       notificationId,
       legalHoldId,
       registerId,
       documentVersionId,
       certificateId,
       policyId,
+      workCalendarId,
+      doaDraftId,
+      doaPendingId,
       outgoingDocumentId,
       signingSessionId,
       unit2: unitId(2),
@@ -497,7 +765,12 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       memberRoleId: await roleId(TENANT_A, 'MEMBER'),
       guestRoleId: await roleId(TENANT_A, 'GUEST_CONTRACTOR'),
       contractorId,
+      contractorToVerifyId,
       contractId,
+      contractProjectId: id(0x77, 4),
+      contractPackageId: id(0x77, 6),
+      draftContractId,
+      contractMemberId,
       recipientMembershipId: memberId(RECIPIENT),
       grantToRevoke: grantId(ONE_GRANT_TO_REVOKE),
     };
@@ -574,7 +847,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       // Another holder of this command's permission: a member of one of its roles, or the second owner (who holds every tenant permission).
       const checker = [...makerCases.filter((other) => other.operationId === makerCase.operationId).map((other) => roleMember(other.roleCode)), SECOND_OWNER].find((member) => member !== maker) ?? -1;
       const objectId = id(MAKER_BASE, maker);
-      await harness.owner(TENANT_A, [command.seedMadeBy(objectId, memberId(maker))]);
+      await harness.owner(TENANT_A, [command.seedMadeBy(objectId, memberId(maker), memberId(checker))]);
       const request = command.build(objectId);
 
       const stateBefore = await fingerprint();

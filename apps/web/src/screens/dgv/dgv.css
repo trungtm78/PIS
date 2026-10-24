@@ -1,0 +1,15 @@
+.dgv-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(0, 1fr));
+  align-items: end;
+  margin-bottom: 12px;
+}
+.dgv-filters .formfooter {
+  grid-column: 1 / -1;
+}
+.dgv-code {
+  display: block;
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}

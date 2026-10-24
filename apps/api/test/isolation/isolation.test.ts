@@ -139,6 +139,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'getTenantEntitlements',
         'get_resources_audit_event',
         'get_resources_audit_event_id',
+        'exportAuditLog',
         'get_resources_legal_hold',
         'get_resources_legal_hold_id',
         'registerSigningCertificate',
@@ -149,6 +150,21 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'publishSecurityPolicy',
         'get_resources_security_policy_version',
         'get_resources_security_policy_version_id',
+        'get_resources_work_calendar_version',
+        'get_resources_work_calendar_version_id',
+        'get_resources_doa_matrix_version',
+        'get_resources_doa_matrix_version_id',
+        'createWorkCalendarVersion',
+        'publishWorkCalendar',
+        'createDoaMatrixDraft',
+        'updateDoaMatrixDraft',
+        'submitDoaMatrix',
+        'decideDoaMatrix',
+        'createRetentionPolicyVersion',
+        'publishRetentionPolicy',
+        'createIntegrationConnector',
+        'updateIntegrationConnector',
+        'replayInboxEvent',
         'placeLegalHold',
         'releaseLegalHold',
         'searchGlobal',
@@ -176,6 +192,9 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'post_master_records_id_publish',
         'searchMasterRecords',
         'getMasterRecordUsages',
+        'recordMasterSuccession',
+        'getMasterRecordAsOf',
+        'getMasterRecordSuccessors',
         'listMasterChangeRequests',
         'listMasterTypePolicies',
         'getMasterChangeRequest',
@@ -192,8 +211,60 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'retireMasterCrosswalk',
         'listMasterCrosswalks',
         'resetIntegrationCursor',
+        'upsertIssueSlaPolicy',
+        'retireIssueSlaPolicy',
+        'listIssueSlaPolicies',
+        'publishPermitType',
+        'retirePermitType',
+        'get_resources_permit_type',
+        'get_resources_permit_type_id',
         'get_resources_integration_cursor',
         'get_resources_integration_cursor_id',
+        'generateReportingPeriods',
+        'softCloseReportingPeriod',
+        'lockReportingPeriod',
+        'get_resources_reporting_period',
+        'get_resources_reporting_period_id',
+        'registerAppropriation',
+        'decideAppropriation',
+        'listAppropriations',
+        'listDocumentTemplates',
+        'getDocumentTemplate',
+        'createDocumentTemplateRevision',
+        'publishDocumentTemplate',
+        'confirmDocumentTemplateLegalBasis',
+        'retireDocumentTemplate',
+        'registerDataset',
+        'assignDatasetOwnership',
+        'searchCatalog',
+        'proposeGlossaryTerm',
+        'submitGlossaryTerm',
+        'decideGlossaryTerm',
+        'publishGlossaryTerm',
+        'listGlossaryTerms',
+        'createProject',
+        'updateProjectProfile',
+        'get_resources_project',
+        'get_resources_project_id',
+        'registerContractor',
+        'verifyContractor',
+        'recordContractorRestriction',
+        'get_resources_contractor',
+        'get_resources_contractor_id',
+        'createContract',
+        'reviseContractDraft',
+        'replaceContractParties',
+        'cancelContractDraft',
+        'get_resources_contract_id',
+        'get_resources_contract_revision',
+        'get_resources_contract_revision_id',
+        'createMneFormVersion',
+        'publishMneForm',
+        'listMneForms',
+        'createMneObligationRule',
+        'publishMneObligationRule',
+        'generateMneObligations',
+        'listMneObligations',
       ].sort(),
     );
   });
@@ -217,7 +288,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     } finally {
       await standard.cleanup();
     }
-  });
+  }, 120_000);
 
   describe('API', () => {
     const foreign = UNIT_FIXTURES['TNT-B'][0];
@@ -371,13 +442,13 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       });
       apps.push(copy);
       const operations = idBearingOf(copy);
-      expect(operations).toEqual([...API_FOREIGN_ID_CASES, 'get_resources_project_id'].sort());
+      expect(operations).toEqual([...API_FOREIGN_ID_CASES, 'get_resources_drill_context_id'].sort());
       const report = await runIsolationSuite({
         channels: [apiChannel(copy)],
         idBearingOperations: operations,
         foreignIdCases: API_FOREIGN_ID_CASES,
       });
-      expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['get_resources_project_id'] });
+      expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['get_resources_drill_context_id'] });
     });
   });
 });

@@ -319,6 +319,16 @@ describe('CrosswalkScreen: the integration connectors', () => {
     expect(screen.queryByRole('button', { name: vi_['mdm.cursor.reset.action'] })).toBeNull();
   });
 
+  it('shows the connectors to an operator who may not read the mappings, without asking for the mappings', async () => {
+    const h = client(connectors());
+    mount(<CrosswalkScreen route={ROUTE} />, h, ['integration.cursor.reset', 'integration_cursor.read'], '/mdm/mdm-24');
+    await screen.findByRole('table', { name: vi_['mdm.cursor.table.aria'] });
+    expect(screen.queryByRole('table', { name: vi_['mdm.crosswalk.table.aria'] })).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(h.client.readAll).not.toHaveBeenCalledWith('listMasterCrosswalks', expect.anything());
+    expect(screen.getAllByRole('button', { name: vi_['mdm.cursor.reset.action'] }).length).toBe(4);
+  });
+
   it('starts over when the tenant changes, so a reset of one tenant is never sent to another', async () => {
     const view = mountInSession(<CrosswalkScreen route={ROUTE} />, client(connectors()), { permissions: ALL });
     await ready();

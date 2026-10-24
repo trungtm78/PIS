@@ -37,6 +37,7 @@ function batchViewOf(batch: ImportBatchRow): Record<string, unknown> {
     error_rows: batch.errorRows,
     errors: batch.errors,
     applied_at: batch.appliedAt,
+    applied_by: batch.appliedBy,
     reviewed_by: batch.reviewedBy,
     published_by: batch.publishedBy,
     decision_document_id: batch.decisionDocumentId,

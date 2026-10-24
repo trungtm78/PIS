@@ -1,0 +1,78 @@
+.cap-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+  margin-bottom: 12px;
+}
+.cap-form {
+  margin-bottom: 16px;
+}
+.cap-exact {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.cap-scroll {
+  overflow-x: auto;
+}
+.cap-table .cap-number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* The fund source and the plan year stay in view while the amounts are scrolled. */
+.cap-table .cap-pin {
+  position: sticky;
+  background: white;
+  z-index: 1;
+}
+.cap-table .cap-pin-1 {
+  left: 0;
+  min-width: 160px;
+}
+.cap-table .cap-pin-2 {
+  left: 160px;
+  min-width: 72px;
+}
+.cap-actions {
+  white-space: nowrap;
+}
+.cap-actions button + button {
+  margin-left: 4px;
+}
+.cap-decision {
+  display: grid;
+  gap: 8px;
+}
+.cap-decision textarea {
+  min-height: 72px;
+}
+.cap-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.cap-badge.warning {
+  border-color: #d69a30;
+}
+.cap-tree,
+.cap-tree ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 20px;
+}
+.cap-tree {
+  padding-left: 0;
+}
+.cap-tree summary {
+  cursor: pointer;
+  padding: 4px 0;
+}
+.cap-grand {
+  margin: 12px 0 0;
+  font-weight: 600;
+}

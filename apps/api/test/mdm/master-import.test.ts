@@ -11,6 +11,7 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
+import { MasterDataController } from '../../src/modules/mdm/master-data.controller';
 import { MasterImportController, MasterImportReadsController } from '../../src/modules/mdm/master-import.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -126,7 +127,7 @@ describe('master data bulk import commands and reads (ST-MDM-006)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MasterImportController, MasterImportReadsController],
+      controllers: [MasterImportController, MasterImportReadsController, MasterDataController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
@@ -228,6 +229,40 @@ describe('master data bulk import commands and reads (ST-MDM-006)', () => {
       const rejected = await decide(CHECKER, idOf(staged), versionOf(applied), 'reject');
       expect(rejected.json).toMatchObject({ status: 'CANCELLED' });
       expect(await rows('select status from machvon.master_record where business_key like $1', [`${file.prefix}-%`])).toEqual([{ status: 'DRAFT' }, { status: 'DRAFT' }, { status: 'DRAFT' }]);
+    });
+
+    it('tells who applied the batch in its view, and refuses a file with nothing to apply (Codex findings 3 and 4)', async () => {
+      const staged = await stage(IMPORTER, fileOf().bytes);
+      const before = await call('GET', `/master-imports/${idOf(staged)}`, { member: READER });
+      expect(before.json).toMatchObject({ created_by: memberId(IMPORTER), applied_by: null });
+      await apply(IMPORTER, idOf(staged), 1);
+      const after = await call('GET', `/master-imports/${idOf(staged)}`, { member: READER });
+      expect(after.json).toMatchObject({ status: 'IN_REVIEW', applied_by: memberId(IMPORTER) });
+      expect(((await call('GET', '/master-imports?status=IN_REVIEW', { member: READER })).json.items as Array<Record<string, unknown>>).find((item) => item.id === idOf(staged))).toMatchObject({ applied_by: memberId(IMPORTER) });
+
+      const empty = await stage(IMPORTER, csv([]));
+      expect(empty.status).toBe(200);
+      expect((await call('GET', `/master-imports/${idOf(empty)}`, { member: READER })).json).toMatchObject({ status: 'VALIDATED', total_rows: 0, error_rows: 0 });
+      const refused = await apply(IMPORTER, idOf(empty), 1);
+      expect([refused.status, refused.json.code]).toEqual([422, 'IMPORT_EMPTY']);
+    });
+
+    it('refuses the individual decision and publication of a change request that the batch owns, and the batch still goes through (Codex finding 1)', async () => {
+      const file = fileOf();
+      const staged = await stage(IMPORTER, file.bytes);
+      const applied = await apply(IMPORTER, idOf(staged), 1);
+      const change = (await rows<{ id: string; version: string; master_record_id: string }>('select id, version::text as version, master_record_id from machvon.master_change_request where import_batch_id = $1 order by id limit 1', [idOf(staged)]))[0];
+      const denied = await call('POST', `/master-change-requests/${change?.id}/decision`, { member: CHECKER, ifMatch: `"${change?.version}"`, body: { decision: 'approve', reason: 'Checked against the decision' } });
+      expect([denied.status, denied.json.code]).toEqual([409, 'STAGE_TRANSITION_DENIED']);
+      expect(await rows('select status from machvon.master_change_request where id = $1', [change?.id])).toEqual([{ status: 'IN_REVIEW' }]);
+
+      const approved = await decide(CHECKER, idOf(staged), versionOf(applied));
+      expect(approved.status).toBe(200);
+      const record = (await rows<{ version: string }>('select version::text as version from machvon.master_record where id = $1', [change?.master_record_id]))[0];
+      const alone = await call('POST', `/master-records/${change?.master_record_id}/publish`, { member: PUBLISHER, ifMatch: `"${record?.version}"`, body: { decision_document_id: DECISION_DOCUMENT } });
+      expect([alone.status, alone.json.code]).toEqual([409, 'STAGE_TRANSITION_DENIED']);
+      expect((await rows<{ status: string }>('select status from machvon.master_record where business_key like $1', [`${file.prefix}-%`])).map((row) => row.status)).toEqual(['APPROVED', 'APPROVED', 'APPROVED']);
+      expect((await publish(PUBLISHER, idOf(staged), versionOf(approved))).json).toMatchObject({ status: 'APPLIED' });
     });
 
     it('answers a stale version with 409 VERSION_CONFLICT and one that does not exist with 404', async () => {

@@ -1,0 +1,48 @@
+/* MNE-01 and MNE-02: the filing calendar and the form catalogue, in the language of the shared screen classes. */
+.mne .field-error {
+  color: #a22b22;
+}
+
+.mne-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.mne-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.mne-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.mne-legal {
+  max-width: 340px;
+}
+
+.mne-legal .sub {
+  overflow-wrap: anywhere;
+}
+
+.mne-formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.mne-month {
+  margin: 16px 0 6px;
+}
+
+tr.mne-late td:first-child {
+  border-left: 3px solid #a22b22;
+}

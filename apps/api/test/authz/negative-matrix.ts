@@ -21,12 +21,24 @@ export interface MatrixTargets {
   guestRoleId: string;
   contractorId: string;
   contractId: string;
+  /** A project of unit 2 of tenant A with an approved capital plan, a package of it awarded to `contractorId`, a DRAFT joint-venture contract of value 1000 under that package (version 1) and a second verified contractor to share it. */
+  contractProjectId: string;
+  contractPackageId: string;
+  draftContractId: string;
+  contractMemberId: string;
+  /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
+  contractorToVerifyId: string;
   /** A clean PDF version of tenant A: the signature verification names it in the path. */
   documentVersionId: string;
   /** An Active signing certificate of tenant A (version 1). */
   certificateId: string;
   /** A security policy draft of tenant A made by someone other than the callers (version 1). */
   policyId: string;
+  /** A working calendar draft of tenant A (version 1). */
+  workCalendarId: string;
+  /** A DoA matrix draft and one waiting for approval of tenant A, both made by someone other than the callers (version 1). */
+  doaDraftId: string;
+  doaPendingId: string;
   /** An outgoing document of tenant A in SUBMITTED (version 1) and an open leader signing session of it (version 1). */
   outgoingDocumentId: string;
   signingSessionId: string;
@@ -39,8 +51,40 @@ export interface MatrixTargets {
   /** An ACTIVE crosswalk and a FAILED integration cursor of tenant A (both version 1). */
   masterCrosswalkId: string;
   integrationCursorId: string;
+  /** The version in force of an issue category of tenant A, and an ACTIVE SLA policy written for it (version 1). */
+  issueCategoryVersionId: string;
+  slaPolicyId: string;
+  /** A DRAFT dataset of tenant A (version 1). */
+  datasetId: string;
+  /** A DRAFT retention policy version of tenant A made by someone other than the callers (version 1). */
+  retentionDraftId: string;
+  /** A draft integration connector and a FAILED inbox event of tenant A (both version 1). */
+  connectorId: string;
+  inboxEventId: string;
+  /** An active member of tenant A who owns the glossary terms below, and a DRAFT, an IN_REVIEW and an APPROVED term of it (all version 1). */
+  glossaryOwnerId: string;
+  glossaryDraftTermId: string;
+  glossaryReviewTermId: string;
+  glossaryApprovedTermId: string;
+  /** A CONCEPT project of unit 2 of tenant A (version 1) and the area version in force that it names. */
+  projectId: string;
+  projectAreaVersionId: string;
   /** A document of tenant A, named as the decision that authorises a publication. */
   decisionDocumentId: string;
+  /** A DRAFT template revision of tenant A made by someone other than the callers (version 1), and the published layout profile it uses. */
+  templateId: string;
+  layoutProfileId: string;
+  /** A PUBLISHED permit type version of tenant A (version 1, open-ended). */
+  permitTypeId: string;
+  /** The version in force of a fund source of tenant A, and a DRAFT appropriation of it made by someone other than the callers (version 1). */
+  fundSourceVersionId: string;
+  appropriationId: string;
+  /** Reporting periods of tenant A past their deadline: one OPEN and one SOFT_CLOSED (both version 1). */
+  periodOpenId: string;
+  periodSoftClosedId: string;
+  /** A DRAFT report form and a DRAFT obligation rule of it in tenant A, made by someone other than the callers (both version 1). */
+  mneFormId: string;
+  mneRuleId: string;
 }
 
 export interface MatrixRequest {
@@ -113,6 +157,28 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/role-grants/${t.grantToRevoke}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  // The profile document is looked up in the caller's own tenant: one of another tenant is refused as 422 naming the field, like one that does not exist.
+  registerContractor: {
+    referencesTenantIds: false,
+    build: (t) => ({ method: 'POST', path: '/contractors', body: { tax_identifier: '0100000088', legal_name: 'Matrix new contractor', profile_document_id: t.decisionDocumentId } }),
+  },
+  verifyContractor: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/contractors/${t.contractorToVerifyId}/verification`,
+      ifMatch: '"1"',
+      body: { decision: 'VERIFIED', verification_evidence_document_id: t.decisionDocumentId },
+    }),
+  },
+  recordContractorRestriction: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/contractors/${t.contractorId}/restrictions`,
+      body: { kind: 'WARNING', effective_from: '2026-01-01', decision_document_id: t.decisionDocumentId },
+    }),
+  },
   inviteGuestContractor: {
     referencesTenantIds: true,
     build: (t) => ({
@@ -145,6 +211,37 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { hold_kind: 'AUDIT', resource_scope: { kind: 'TENANT', ids: [] }, authority_reference: 'MATRIX-HOLD-REF', reason: REASON },
     }),
   },
+  exportAuditLog: {
+    // An export names no id: it works inside the caller's own tenant, and only there.
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/audit-exports', body: { from: '2026-01-01T00:00:00Z', to: '2026-02-01T00:00:00Z', format: 'JSONL' } }),
+  },
+  createIntegrationConnector: {
+    // A connector names no id: it works inside the caller's own tenant, and only there.
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/integration-connectors', body: { connector_code: 'matrix-connector', mode: 'FILE_IMPORT', adapter_status: 'PROPOSED', config: {} } }),
+  },
+  updateIntegrationConnector: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'PUT', path: `/integration-connectors/${t.connectorId}`, ifMatch: '"1"', body: { reason: REASON, status: 'Disabled' } }),
+  },
+  replayInboxEvent: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/integration-inbox/${t.inboxEventId}/replay`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createRetentionPolicyVersion: {
+    // A policy names no id: it works inside the caller's own tenant, and only there.
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/retention-policies',
+      body: { record_class: 'project_dossier', retention_years: 10, retention_basis: 'FROM_CLOSED', legal_basis_ref: 'Matrix fixture basis', end_action: 'REVIEW_FOR_DESTRUCTION', effective_from: '2026-01-01' },
+    }),
+  },
+  publishRetentionPolicy: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/retention-policies/${t.retentionDraftId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   releaseLegalHold: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/legal-holds/${t.legalHoldId}/release`, ifMatch: '"1"', body: { reason: REASON } }),
@@ -168,6 +265,52 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   publishSecurityPolicy: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/security-policies/${t.policyId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createDoaMatrixDraft: {
+    // A unit or role that does not exist in the caller's tenant is a 422 (like a missing reference of any command), not a 404.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/doa-matrices',
+      body: {
+        effective_from: '2026-01-01',
+        legal_basis_ref: 'Matrix regulation 01',
+        rules: [{ document_type: 'MATRIX', unit_id: t.unit2, amount_min_vnd: '0', approver_role_id: t.memberRoleId }],
+      },
+    }),
+  },
+  updateDoaMatrixDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'PUT',
+      path: `/doa-matrices/${t.doaDraftId}`,
+      ifMatch: '"1"',
+      body: {
+        effective_from: '2026-01-01',
+        legal_basis_ref: 'Matrix regulation 02',
+        rules: [{ document_type: 'MATRIX', unit_id: t.unit2, amount_min_vnd: '0', approver_role_id: t.memberRoleId }],
+      },
+    }),
+  },
+  submitDoaMatrix: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/doa-matrices/${t.doaDraftId}/submit`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  decideDoaMatrix: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/doa-matrices/${t.doaPendingId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
+  },
+  createWorkCalendarVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/work-calendars',
+      body: { calendar_code: 'MATRIX-CAL', year: 2026, working_days: [1, 2, 3, 4, 5], holidays: [{ date: '2026-05-01', name: 'Labour Day' }], legal_basis_ref: 'Labour Code 2019 art. 112' },
+    }),
+  },
+  publishWorkCalendar: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/work-calendars/${t.workCalendarId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   openDocumentNumberRegister: {
     // A unit that does not exist in the caller's tenant is a 422 (like a missing reference of any command), not a 404.
@@ -234,6 +377,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { change_kind: 'UPDATE', master_type: 'MATRIX', master_record_id: t.masterRecordId, proposed: { label: 'Renamed by matrix' }, effective_from: '2026-06-01', reason: REASON },
     }),
   },
+  recordMasterSuccession: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/master-successions',
+      body: { predecessor_record_id: t.masterRecordId, successor_record_id: t.masterCrosswalkId, succession_kind: 'MERGE', effective_date: '2025-07-01', legal_basis: 'Matrix legal basis', reason: REASON },
+    }),
+  },
   submitMasterChangeRequest: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/master-change-requests/${t.masterDraftChangeId}/submit`, ifMatch: '"1"', body: {} }),
@@ -282,9 +433,265 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/master-crosswalks/${t.masterCrosswalkId}/retire`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  publishPermitType: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/permit-types',
+      body: {
+        code: 'MATRIX_PERMIT',
+        name: 'Matrix permit type',
+        category: 'OTHER',
+        authority_text: 'Matrix authority',
+        legal_basis: 'Matrix legal basis',
+        effective_from: '2026-01-01',
+        applies_to_rule: {},
+      },
+    }),
+  },
+  registerAppropriation: {
+    // The fund source and the document of tenant A do not exist for a caller of tenant B: a 422 (a missing reference of any command), not a 404.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/appropriations',
+      body: {
+        fund_source_version_id: t.fundSourceVersionId,
+        plan_year: 2026,
+        origin: 'PM_ASSIGNED',
+        budget_level: 'CENTRAL',
+        amount_vnd: '1000',
+        decision_document_id: t.decisionDocumentId,
+        issuing_authority: 'Matrix authority',
+        source_year: 2026,
+      },
+    }),
+  },
+  decideAppropriation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/appropriations/${t.appropriationId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  generateReportingPeriods: {
+    // The reporting calendar is the caller's own: a caller of another tenant generates for that tenant (or is told it has no calendar) and never touches tenant A.
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/reporting-periods/generate', body: { calendar_code: 'DEFAULT', fiscal_year: 2031, period_type: 'WEEK' } }),
+  },
+  softCloseReportingPeriod: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodOpenId}/soft-close`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  lockReportingPeriod: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodSoftClosedId}/lock`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  retirePermitType: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/permit-types/${t.permitTypeId}/retire`, body: { effective_until: '2999-12-31' } }),
+  },
+  createDocumentTemplateRevision: {
+    // The layout profile of tenant A does not exist for a caller of tenant B: a 422 (a missing reference of any command), not a 404.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/document-templates',
+      body: {
+        template_code: 'MATRIX-TEMPLATE',
+        group_code: 'OTHER',
+        doc_type_code: 'QD',
+        title: 'Matrix template',
+        layout_profile_id: t.layoutProfileId,
+        body_blocks: { blocks: [{ kind: 'paragraph', text: '{{body}}' }] },
+        placeholder_schema: { required: ['body'] },
+        legal_basis: 'Matrix legal basis',
+        effective_from: '2026-01-01',
+      },
+    }),
+  },
+  publishDocumentTemplate: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-templates/${t.templateId}/publish`, ifMatch: '"1"', body: {} }),
+  },
+  confirmDocumentTemplateLegalBasis: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/document-templates/${t.templateId}/legal-confirmation`,
+      ifMatch: '"1"',
+      body: { legal_confirmation_ref: 'CXN-MATRIX', evidence_document_id: t.decisionDocumentId },
+    }),
+  },
+  retireDocumentTemplate: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-templates/${t.templateId}/retirement`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  // The DOC template named in the body is looked up in the caller's own tenant: a caller of another tenant is refused as 422 DOC_TEMPLATE_MISSING.
+  createMneFormVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/mne-forms',
+      body: {
+        form_code: 'MATRIX-FORM',
+        title: 'Matrix report form',
+        report_kind: 'OVERALL_SEMIANNUAL',
+        legal_basis: 'Matrix legal basis',
+        effective_from: '2026-01-01',
+        schema_json: {},
+        doc_template_code: 'MATRIX-NO-SUCH-TEMPLATE',
+        export_formats: ['XLSX'],
+      },
+    }),
+  },
+  publishMneForm: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-forms/${t.mneFormId}/publish`, ifMatch: '"1"', body: {} }),
+  },
+  // The form named in the body belongs to the caller's own tenant: one of another tenant is refused as 422 naming the field, like one that does not exist.
+  createMneObligationRule: {
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/mne-obligation-rules',
+      body: {
+        rule_code: 'MATRIX-RULE',
+        form_id: t.mneFormId,
+        reporting_role: 'INVESTOR',
+        recipient: 'Matrix recipient',
+        frequency: 'SEMIANNUAL',
+        due_rule_json: { period: 'H1', month: 7, day: 10 },
+        legal_basis: 'Matrix legal basis',
+        effective_from: '2026-01-01',
+      },
+    }),
+  },
+  publishMneObligationRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-obligation-rules/${t.mneRuleId}/publish`, ifMatch: '"1"', body: {} }),
+  },
+  // The rules in force and the units are the caller's own: a caller of another tenant has no rule (422 NO_EFFECTIVE_RULE) and never touches tenant A.
+  generateMneObligations: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/mne-obligations/generate', body: { report_year: 2026 } }),
+  },
+  // The category named in the body is looked up in the caller's own tenant: one of another tenant is refused as 422 naming the field, like one that does not exist.
+  upsertIssueSlaPolicy: {
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/issue-sla-policies',
+      body: { code: 'MATRIX-SLA', category_version_id: t.issueCategoryVersionId, severity: 'LOW', calendar_code: 'WORKDAY_VN', response_hours: 4, resolve_hours: 8, valid_from: '2999-01-01' },
+    }),
+  },
+  retireIssueSlaPolicy: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/issue-sla-policies/${t.slaPolicyId}/retire`, body: { valid_until: '2999-12-31' } }),
+  },
+  // The members named in the body are checked as members of the caller's own tenant: another tenant's member is refused as 422 naming the field, like one that does not exist.
+  registerDataset: {
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/dgv/datasets',
+      body: {
+        dataset_code: 'DS-MATRIX-NEW',
+        title: 'Matrix dataset',
+        domain: 'MATRIX',
+        grain: 'one row per matrix case',
+        producer_module: 'PAY',
+        owner_user_id: t.recipientMembershipId,
+        steward_user_id: t.recipientMembershipId,
+        classification: 'INTERNAL',
+        is_critical: false,
+        freshness_slo_seconds: 3600,
+      },
+    }),
+  },
+  assignDatasetOwnership: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/datasets/${t.datasetId}/ownership`, ifMatch: '"1"', body: { owner_user_id: t.recipientMembershipId, steward_user_id: t.recipientMembershipId, reason: REASON } }),
+  },
+  createProject: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/projects',
+      body: { code: 'MX-NEW-PRJ', name: 'Matrix new project', owner_unit_id: t.unit2, area_master_version_id: t.projectAreaVersionId, total_investment_vnd: '1000' },
+    }),
+  },
+  updateProjectProfile: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/profile`, ifMatch: '"1"', body: { name: 'Renamed by matrix' } }),
+  },
+  createContract: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/contracts',
+      body: {
+        project_id: t.contractProjectId,
+        package_id: t.contractPackageId,
+        contractor_id: t.contractorId,
+        code: 'MX-NEW-CONTRACT',
+        title: 'Matrix new contract',
+        type: 'LUMP_SUM',
+        advance_category: 'CONSTRUCTION',
+        contract_value_vnd: '1000',
+        document_version_id: t.documentVersionId,
+      },
+    }),
+  },
+  reviseContractDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/draft`, ifMatch: '"1"', body: { title: 'Renamed by matrix' } }),
+  },
+  replaceContractParties: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.draftContractId}/parties`,
+      ifMatch: '"1"',
+      body: {
+        parties: [
+          { contractor_id: t.contractorId, role: 'LEAD', share_pct: '60', work_value_vnd: '600' },
+          { contractor_id: t.contractMemberId, role: 'MEMBER', share_pct: '40', work_value_vnd: '400' },
+        ],
+      },
+    }),
+  },
+  cancelContractDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   resetIntegrationCursor: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/integration-cursors/${t.integrationCursorId}/reset`, ifMatch: '"1"', body: { reason: REASON, cursor_json: {} } }),
+  },
+  proposeGlossaryTerm: {
+    // The owner is a member of tenant A: another tenant's caller is refused as 422 (no such owner for it), never told whose owner it is.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/glossary-terms',
+      body: {
+        term_code: 'MATRIX_TERM_NEW',
+        term_vi: 'Thuật ngữ ma trận',
+        definition: 'Định nghĩa của thuật ngữ do ma trận phân quyền tạo ra.',
+        domain: 'MATRIX',
+        owner_membership_id: t.glossaryOwnerId,
+      },
+    }),
+  },
+  submitGlossaryTerm: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/glossary-terms/${t.glossaryDraftTermId}/submit`, ifMatch: '"1"', body: {} }),
+  },
+  decideGlossaryTerm: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/glossary-terms/${t.glossaryReviewTermId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  publishGlossaryTerm: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/glossary-terms/${t.glossaryApprovedTermId}/publish`, ifMatch: '"1"', body: {} }),
   },
   markNotificationRead: {
     referencesTenantIds: true,

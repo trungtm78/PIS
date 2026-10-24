@@ -1,0 +1,30 @@
+/* DOC-14: the template library, in the language of the shared screen classes. */
+.field-error {
+  color: #a22b22;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+tr.selected {
+  background: #fbf3f5;
+}
+
+.template-legal {
+  max-width: 340px;
+}
+
+.template-legal .sub {
+  overflow-wrap: anywhere;
+}
+
+.template-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}

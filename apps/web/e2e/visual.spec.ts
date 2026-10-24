@@ -118,11 +118,13 @@ const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // "Lưu / Tiếp tục") are not, because choosing a tenant is done on each card. The sidebar is compared above and below the shortcut list of
 // the open "Tài khoản & hỗ trợ" group: the baseline lists one shortcut (the prototype filters them to the screens it had), while
 // navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
-// MDM-24 (cross-system code mapping): the mockup keeps the generic subtitle of the prototype, the application states what a mapping is in two lines, so only the title (no subtitle) is compared.
+// MDM-24 (cross-system code mapping) and MDM-34 (business glossary): the mockups keep the generic subtitle of the prototype, the application states what the screen is in a sentence or two, so only the title (no subtitle) is compared.
 const TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 40 };
+// A detail screen whose subtitle differs from the mockup's generic one: the back link above the title and the title are compared, the subtitle is not.
+const BACKLINK_TITLE_ONLY: Region = { x: 286, y: 85, width: 520, height: 75 };
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'MDM-01' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-07' | 'ADM-15'| 'ADM-03' | 'ADM-17' | 'BID-01' | 'BID-02' | 'DGV-03' | 'DGV-04' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-10' | 'DOC-14' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'ISS-09' | 'MDM-01' | 'MDM-02' | 'MDM-03' | 'MDM-04' | 'MDM-05' | 'MDM-06' | 'MDM-07' | 'MDM-08' | 'MDM-09' | 'MDM-10' | 'MDM-11' | 'MDM-12' | 'MDM-13' | 'MDM-14' | 'MDM-15' | 'MDM-16' | 'MDM-17' | 'MDM-18' | 'MDM-19' | 'MDM-20' | 'MDM-21' | 'MDM-22' | 'MDM-23' | 'MDM-24' | 'MDM-25' | 'MDM-29' | 'MDM-26' | 'MDM-27' | 'MDM-28' | 'MDM-31' | 'MDM-32' | 'MDM-33' | 'MDM-34' | 'MDM-37' | 'MNE-01' | 'MNE-02' | 'NOT-01' | 'NOT-02' | 'PMT-03' | 'PRJ-01' | 'PRJ-02' | 'PRJ-03' | 'CAP-04' | 'CAP-14' | 'CAP-16' | 'DIS-14' | 'SAS-01' |'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -137,6 +139,19 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05
     topbar: TOPBAR,
     heading: HEADING,
   },
+  // ADM-07 (working calendar) and ADM-15 (approval authority matrix): the mockups keep the generic subtitle of the prototype and a
+  // sample list; the application states what the screen is, shows the month grids and the real versions, so the frame and the title
+  // (no subtitle) are compared.
+  'ADM-07': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'ADM-15': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   'ADM-17': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -149,6 +164,32 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05
     'left-card-title': { x: 287, y: 177, width: 692, height: 60 },
     'right-card-title': { x: 999, y: 177, width: 407, height: 60 },
     'right-card-note': { x: 999, y: 177, width: 407, height: 140 },
+  },
+  // BID-01 (contractor list) and BID-02 (contractor profile): the mockups keep the generic subtitle of the prototype and a sample list or card; the application
+  // states what the registry is and shows the real contractors, verification and restrictions, so the frame and the title are compared. BID-02 opens without a
+  // contractor (the address names none) and says so; its title is the one of the mockup, under the back link to the list.
+  'BID-01': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'BID-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    // The back link and the title, without the generic subtitle of the mockup (the open profile shows the name of the contractor as its title).
+    heading: { x: 286, y: 85, width: 520, height: 75 },
+  },
+  // DGV-03 (owners and stewards) and DGV-04 (data catalogue): the mockups keep the generic subtitle of the prototype; the application states the rule of the pair
+  // and of the visibility, so only the title is compared with the frame.
+  'DGV-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'DGV-04': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
   },
   // DOC-05 (leader digital signature): the mockup is the generic documents page (an upload box, six check rows with the sample state "Chờ kiểm tra", a preview
   // paper); the application keeps the two card titles and shows the real picker, the real checks and the real preview below them, so the frame, the heading and
@@ -185,6 +226,13 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05
     topbar: TOPBAR,
     heading: HEADING,
   },
+  // DOC-14 (template library): the mockup is the generic prototype page with a filter bar and sample rows; the application states the three separate steps in its
+  // subtitle and shows the real revisions, so only the frame and the title are compared.
+  'DOC-14': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   'DOC-21': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -210,10 +258,27 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05
   // placeholder fields, a detail card, a compare table, an approval card); the application shows the real catalogues, forms, usage list, version
   // history and review queue, so only the shell frame and the heading are compared. MDM-25, 26 and 27 are detail screens: their heading starts at the
   // back link above the title. The screens that name an entry open without one and say so, which the mockup never shows.
+  // ISS-09 (SLA policies): like MDM-24, the mockup keeps the generic subtitle of the prototype, so only the title is compared.
+  'ISS-09': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   'MDM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: HEADING,
+  },
+  // MDM-02 and MDM-03 (areas and agencies with their successors): the subtitle names the date the structure is read at, so only the title is compared with the frame.
+  'MDM-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'MDM-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
   },
   // MDM-04 to MDM-10 (the catalogues of the capital chain): the mockups hold one sample form or table; the application shows the real entries and
   // rules, so the shell frame and the heading (title, subtitle, actions) are compared.
@@ -363,6 +428,30 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05
     topbar: TOPBAR,
     heading: HEADING,
   },
+  'MDM-34': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // MDM-37 (inheritance tree of the 2025 reform): the mockup keeps the generic subtitle of the prototype; the application states what the two columns are,
+  // so only the title is compared with the frame.
+  'MDM-37': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // MNE-01 (filing calendar) and MNE-02 (report form catalogue): the mockups are the generic prototype pages with a sample calendar or table; the application states
+  // what the calendar and the catalogue are (dated legal data, the CXN label) in its subtitle and shows the real obligations and revisions, so only the title is compared.
+  'MNE-01': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'MNE-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
   'NOT-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -372,6 +461,54 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: NOTIFICATION_HEADING,
+  },
+  // PMT-03 (permit type catalogue): the mockup is the generic prototype page with a checklist of the field names and a preview card; the application shows the real catalogue and the publishing form. Like MDM-24, only the title is compared: the subtitle states what the catalogue is (dated legal data) instead of the generic one.
+  'PMT-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // PRJ-01 (project register), PRJ-02 (create a project) and PRJ-03 (project workspace): the mockups are the generic prototype pages with sample rows or
+  // placeholder fields; the application shows the real register, the form with the suggested group and the profile, and states what each screen is in
+  // its subtitle, so only the title is compared. PRJ-02 and PRJ-03 start with a back link above the title (their region covers it). PRJ-03 is looked at
+  // without a project named, so its title is the name of the screen; with one it is the code and the name of the project.
+  'PRJ-01': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'PRJ-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: BACKLINK_TITLE_ONLY,
+  },
+  'PRJ-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: BACKLINK_TITLE_ONLY,
+  },
+  // CAP-04 (fund source tree), CAP-14 (support and revenue increase) and CAP-16 (appropriation book): the mockups keep the generic subtitle of the
+  // prototype, the application states what the screen holds, so only the title is compared with the frame.
+  'CAP-04': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'CAP-14': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  'CAP-16': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
+  },
+  // DIS-14 (reporting period calendar): the mockup keeps the generic subtitle of the prototype, so only the title is compared with the frame.
+  'DIS-14': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: TITLE_ONLY,
   },
   'SAS-01': {
     sidebar: SIDEBAR,
@@ -440,7 +577,7 @@ const queryOf = (id: string): string => {
   return id === 'SAS-03' || id === 'SAS-04' || id === 'SAS-22' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-02', 'ADM-03', 'ADM-17', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'MDM-01', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-02', 'ADM-07', 'ADM-15','ADM-03', 'ADM-17', 'BID-01', 'BID-02', 'DGV-03', 'DGV-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-10', 'DOC-14', 'DOC-21', 'IAM-04', 'IAM-09', 'ISS-09', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'PMT-03', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'CAP-04', 'CAP-14', 'CAP-16', 'DIS-14', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

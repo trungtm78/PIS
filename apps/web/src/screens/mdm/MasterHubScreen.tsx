@@ -15,6 +15,7 @@ const DETAIL_PATH = '/mdm/mdm-27';
 const HISTORY_PATH = '/mdm/mdm-28';
 const APPROVAL_PATH = '/mdm/mdm-32';
 const SCOPE_PATH = '/mdm/mdm-33';
+const SUCCESSION_PATH = '/mdm/mdm-37';
 
 interface TypeCard {
   masterType: string;
@@ -62,6 +63,7 @@ function MasterHubContent({ route }: ScreenProps) {
         </div>
         <div className="row-actions">
           <Link to={SCOPE_PATH}>{t('mdm.hub.scope.link')}</Link>
+          <Link to={SUCCESSION_PATH}>{t('mdm.hub.succession.link')}</Link>
           <Link to={APPROVAL_PATH} data-testid="queue-link">
             {t('mdm.hub.queue.link', { count: waiting.data?.length ?? 0 })}
           </Link>

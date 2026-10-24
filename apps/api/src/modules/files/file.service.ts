@@ -80,6 +80,14 @@ export class FileService {
     return stored;
   }
 
+  /**
+   * Removes a stored file of this tenant for good: the purge of an expired inbox payload (ST-ADM-017). False when the tenant has no such
+   * file, which is how a file of another tenant looks too. Only a job that has checked the legal hold may call it.
+   */
+  remove(tenant: TenantContext, key: string): Promise<boolean> {
+    return this.storage.remove(tenant, key);
+  }
+
   /** A link to download one CLEAN file, valid for at most five minutes. */
   async presignDownload(tenant: TenantContext, key: string, ttlSeconds: number = MAX_PRESIGN_TTL_SECONDS): Promise<PresignedGrant> {
     await this.open(tenant, key);

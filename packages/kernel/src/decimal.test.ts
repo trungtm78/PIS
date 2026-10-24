@@ -1,4 +1,4 @@
-import { ROUNDING_MODES, convertDecimal, roundDecimal } from './decimal.ts';
+import { ROUNDING_MODES, addDecimal, compareDecimal, convertDecimal, roundDecimal, subtractDecimal } from './decimal.ts';
 import type { RoundingMode } from './decimal.ts';
 
 const problem = (work: () => unknown): { code: string; detail: string | undefined } | undefined => {
@@ -98,5 +98,29 @@ describe('conversion between units of one dimension', () => {
     expect(problem(() => convertDecimal('1', '1', '1', 99, 'HALF_UP'))).toEqual({ code: 'VALIDATION_FAILED', detail: 'rounding' });
     expect(problem(() => convertDecimal('1', '1', '1', 0, 'X' as never))).toEqual({ code: 'VALIDATION_FAILED', detail: 'rounding' });
     expect(problem(() => convertDecimal('abc', '1', '1', 0, 'HALF_UP'))).toEqual({ code: 'VALIDATION_FAILED', detail: 'amount' });
+  });
+});
+
+describe('exact decimal sums and comparisons', () => {
+  it('adds and subtracts without a float, keeping the larger scale', () => {
+    expect(addDecimal('0.1', '0.2')).toBe('0.3');
+    expect(addDecimal('200000000', '-150000000')).toBe('50000000');
+    expect(addDecimal('1.50', '2')).toBe('3.50');
+    expect(subtractDecimal('1', '1.25')).toBe('-0.25');
+    expect(subtractDecimal('0', '0')).toBe('0');
+    expect(subtractDecimal('0', '-7')).toBe('7');
+    expect(addDecimal('99999999999999999999.999999999', '0.000000001')).toBe('100000000000000000000.000000000');
+  });
+
+  it('compares by value whatever the scale', () => {
+    expect(compareDecimal('1.0', '1')).toBe(0);
+    expect(compareDecimal('-0', '0')).toBe(0);
+    expect(compareDecimal('2', '10')).toBe(-1);
+    expect(compareDecimal('0.001', '-5')).toBe(1);
+  });
+
+  it('refuses text that is not a decimal', () => {
+    expect(problem(() => addDecimal('1,5', '1'))).toEqual({ code: 'VALIDATION_FAILED', detail: 'amount' });
+    expect(problem(() => compareDecimal('1', ''))).toEqual({ code: 'VALIDATION_FAILED', detail: 'amount' });
   });
 });

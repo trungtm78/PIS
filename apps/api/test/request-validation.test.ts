@@ -48,6 +48,38 @@ describe('problemOf', () => {
     expect(problemOf([issue('type', 'cursor_json'), issue('missing', 'reason')], 'resetIntegrationCursor')).toMatchObject({ code: 'INVALID_REQUEST', status: 400, detail: 'cursor_json' });
   });
 
+  it('answers a missing or empty reference of a legal confirmation, and a missing legal basis of a template, with the code of their own, 422 (ST-DOC-006 AC-ST-DOC-006-1)', () => {
+    expect(problemOf([issue('constraint', 'legal_confirmation_ref')], 'confirmDocumentTemplateLegalBasis')).toMatchObject({ code: 'CONFIRMATION_REF_REQUIRED', status: 422, detail: 'legal_confirmation_ref' });
+    expect(problemOf([issue('missing', 'legal_confirmation_ref'), issue('missing', 'evidence_document_id')], 'confirmDocumentTemplateLegalBasis')).toMatchObject({ code: 'CONFIRMATION_REF_REQUIRED', status: 422 });
+    expect(problemOf([issue('missing', 'legal_basis')], 'createDocumentTemplateRevision')).toMatchObject({ code: 'LEGAL_BASIS_REQUIRED', status: 422, detail: 'legal_basis' });
+    // A wrong type, another field and another operation keep the general classes.
+    expect(problemOf([issue('type', 'legal_confirmation_ref')], 'confirmDocumentTemplateLegalBasis')).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+    expect(problemOf([issue('missing', 'evidence_document_id')], 'confirmDocumentTemplateLegalBasis')).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+    expect(problemOf([issue('constraint', 'legal_confirmation_ref')], 'createOrganizationUnit')).toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+    expect(problemOf([issue('unknown_field', 'other'), issue('missing', 'legal_basis')], 'createDocumentTemplateRevision')).toMatchObject({ code: 'FIELD_NOT_ALLOWED', status: 400 });
+  });
+
+  it('answers a missing or empty legal basis of a permit type with LEGAL_BASIS_REQUIRED, 422, and a wrong type with the general class (AC-ST-PMT-001-1)', () => {
+    expect(problemOf([issue('missing', 'legal_basis')], 'publishPermitType')).toMatchObject({ code: 'LEGAL_BASIS_REQUIRED', status: 422, detail: 'legal_basis' });
+    expect(problemOf([issue('constraint', 'legal_basis')], 'publishPermitType')).toMatchObject({ code: 'LEGAL_BASIS_REQUIRED', status: 422, detail: 'legal_basis' });
+    expect(problemOf([issue('type', 'legal_basis')], 'publishPermitType')).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+    expect(problemOf([issue('missing', 'name')], 'publishPermitType')).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+  });
+
+  it('answers a missing or empty legal basis of a report form or an obligation rule with LEGAL_BASIS_REQUIRED, 422 (BR-MNE-01)', () => {
+    for (const operation of ['createMneFormVersion', 'createMneObligationRule']) {
+      expect(problemOf([issue('missing', 'legal_basis')], operation)).toMatchObject({ code: 'LEGAL_BASIS_REQUIRED', status: 422, detail: 'legal_basis' });
+      expect(problemOf([issue('constraint', 'legal_basis')], operation)).toMatchObject({ code: 'LEGAL_BASIS_REQUIRED', status: 422, detail: 'legal_basis' });
+      expect(problemOf([issue('type', 'legal_basis')], operation)).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+    }
+  });
+
+  it('answers a missing decision document of an appropriation with DECISION_REQUIRED, 422, and any other missing field with the general class (ST-CAP-001)', () => {
+    expect(problemOf([issue('missing', 'decision_document_id')], 'registerAppropriation')).toMatchObject({ code: 'DECISION_REQUIRED', status: 422, detail: 'decision_document_id' });
+    expect(problemOf([issue('type', 'decision_document_id')], 'registerAppropriation')).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+    expect(problemOf([issue('missing', 'amount_vnd')], 'registerAppropriation')).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+  });
+
   it('returns undefined when there is no issue', () => {
     expect(problemOf([], 'createCustomRole')).toBeUndefined();
   });

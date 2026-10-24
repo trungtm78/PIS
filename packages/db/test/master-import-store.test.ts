@@ -55,6 +55,9 @@ function sources(prefix: string, options: { brokenRow?: boolean } = {}): string[
   ];
 }
 
+const STAGE_MAPPING: ImportMapping = { key: 'Mã', label: 'Tên', valid_from: 'Từ ngày', attributes: { sequence: 'Thứ tự', allowed_next: 'Kế tiếp' } };
+const stageBytesOf = (lines: readonly string[]): Uint8Array => new TextEncoder().encode(`Mã,Tên,Từ ngày,Thứ tự,Kế tiếp\n${lines.join('\n')}\n`);
+
 describe('MasterImportStore (atomic bulk import with row-level errors, ST-MDM-006)', () => {
   const owner = <R extends object = Record<string, unknown>>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
 
@@ -77,6 +80,7 @@ describe('MasterImportStore (atomic bulk import with row-level errors, ST-MDM-00
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.owner(tenant, [
         ["insert into machvon.master_type_policy (tenant_id, master_type, scope, updated_by) values ($1, 'FUND_SOURCE', 'TENANT_ONLY', $2)", [tenant, memberId(IMPORTER)]],
+        ["insert into machvon.master_type_policy (tenant_id, master_type, scope, updated_by) values ($1, 'PROJECT_STAGE', 'TENANT_ONLY', $2)", [tenant, memberId(IMPORTER)]],
       ]);
       await harness.seedUnits(tenant, [{ n: 1, path: '/u1/' }]);
       for (const n of [IMPORTER, CHECKER, PUBLISHER]) await harness.seedMembership(tenant, n, 1);
@@ -305,6 +309,159 @@ describe('MasterImportStore (atomic bulk import with row-level errors, ST-MDM-00
       await decide(first.id, 'approve');
       await publish(first.id);
       expect(await refusal(apply(second.id, bytes))).toEqual({ code: 'IMPORT_FILE_ALREADY_APPLIED', status: 409 });
+    });
+  });
+
+  describe('rows that refer to each other (Codex finding 2)', () => {
+    const stageStages = (lines: readonly string[], mode: ImportMode = 'ATOMIC') => {
+      const bytes = stageBytesOf(lines);
+      counter += 1;
+      return as(IMPORTER, (tx) => imports.stage(tx, { masterType: 'PROJECT_STAGE', fileObjectKey: `tenants/${TENANT_A}/import/stages-${counter}`, fileSha256: shaOf(bytes), mapping: STAGE_MAPPING, mode, bytes }, memberId(IMPORTER)));
+    };
+
+    it('creates rows that name rows below them or each other: the references are judged against the file at apply, as they were at the dry run', async () => {
+      const lines = ['FWD-1,One,2024-01-01,1,FWD-2|FWD-3', 'FWD-2,Two,2024-01-01,2,FWD-3', 'FWD-3,Three,2024-01-01,3,FWD-1'];
+      const staged = await stageStages(lines);
+      expect(staged).toMatchObject({ status: 'VALIDATED', totalRows: 3, errorRows: 0 });
+      const applied = await apply(staged.id, stageBytesOf(lines));
+      expect(applied).toMatchObject({ created: 3, skipped: 0, batch: { status: 'IN_REVIEW' } });
+      expect((await recordsOf('FWD')).map((record) => record.status)).toEqual(['IN_REVIEW', 'IN_REVIEW', 'IN_REVIEW']);
+    });
+
+    it('still refuses a reference to an entry that is neither in the file nor held by the tenant', async () => {
+      const staged = await stageStages(['GHO-1,One,2024-01-01,1,GHO-NOWHERE'], 'PARTIAL');
+      expect(staged.errors).toEqual([{ row: 2, field: 'attributes.allowed_next', code: 'INVALID_VALUE' }]);
+    });
+
+    it('reports a row that names a row left out, and the rows that name that row, instead of failing at apply', async () => {
+      const lines = ['SKP-1,One,2024-01-01,1,SKP-2', 'SKP-2,Two,2024-01-01,not-a-number,', 'SKP-3,Three,2024-01-01,3,SKP-1', 'SKP-4,Four,2024-01-01,4,'];
+      const staged = await stageStages(lines, 'PARTIAL');
+      expect(staged.errors).toEqual([
+        { row: 2, field: 'attributes.allowed_next', code: 'REFERENCE_SKIPPED' },
+        { row: 3, field: 'attributes.sequence', code: 'INVALID_VALUE' },
+        { row: 4, field: 'attributes.allowed_next', code: 'REFERENCE_SKIPPED' },
+      ]);
+      expect(staged.errorRows).toBe(3);
+      const applied = await apply(staged.id, stageBytesOf(lines));
+      expect(applied).toMatchObject({ created: 1, skipped: 3 });
+      expect((await recordsOf('SKP')).map((record) => record.business_key)).toEqual(['SKP-4']);
+    });
+
+    it('refuses the whole ATOMIC file when a row names a row that fails', async () => {
+      const lines = ['ATR-1,One,2024-01-01,1,ATR-2', 'ATR-2,Two,2024-01-01,0,'];
+      const staged = await stageStages(lines);
+      expect(staged.errorRows).toBe(2);
+      expect(await refusal(apply(staged.id, stageBytesOf(lines)))).toEqual({ code: 'IMPORT_HAS_ERRORS', status: 422 });
+    });
+  });
+
+  describe('the parents of a file', () => {
+    it('hangs a row under an entry the tenant already holds, and refuses one that is nowhere', async () => {
+      await as(IMPORTER, (tx) => store.propose(tx, { masterType: 'FUND_SOURCE', businessKey: 'PAR-ROOT', content: { label: 'Root', attributes: { category: 'NSTW', relation: 'ADDITIVE' }, parentRecordId: null, validFrom: '2024-01-01', validUntil: null, legalBasis: null }, reason: 'Initial entry' }, memberId(IMPORTER)));
+      const lines = ['PAR-1,Under the root,2024-01-01,PAR-ROOT,,,NSTW,ADDITIVE', 'PAR-2,Under nothing,2024-01-01,PAR-NOWHERE,,,NSTW,ADDITIVE'];
+      const staged = await stage(lines, 'PARTIAL');
+      expect(staged.errors).toEqual([{ row: 3, field: 'parent_key', code: 'PARENT_NOT_FOUND' }]);
+      await apply(staged.id, bytesOf(lines));
+      expect(await owner("select p.business_key as parent from machvon.master_record r join machvon.master_record_version v on v.master_record_id = r.id join machvon.master_record p on p.id = v.parent_id where r.business_key = 'PAR-1'")).toEqual([{ parent: 'PAR-ROOT' }]);
+    });
+
+    it('lets a tenant that only extends a type hang rows under the entries of the platform alone', async () => {
+      await owner("update machvon.master_type_policy set scope = 'PLATFORM_WITH_TENANT_EXTENSION' where master_type = 'FUND_SOURCE'");
+      try {
+        const staged = await stage(['EXT-1,No parent,2024-01-01,,,,NSTW,ADDITIVE', 'EXT-2,Under a row that is left out,2024-01-01,EXT-1,,,NSTW,ADDITIVE'], 'PARTIAL');
+        expect(staged.errors).toEqual([
+          { row: 2, field: 'parent_key', code: 'POLICY_LOCKED' },
+          { row: 3, field: 'parent_key', code: 'PARENT_SKIPPED' },
+        ]);
+      } finally {
+        await owner("update machvon.master_type_policy set scope = 'TENANT_ONLY' where master_type = 'FUND_SOURCE'");
+      }
+    });
+  });
+
+  describe('a file with nothing to apply (Codex finding 3)', () => {
+    it('is refused at apply, whatever the mode, and stays a dry run that creates nothing', async () => {
+      const headerOnly = bytesOf([]);
+      counter += 1;
+      const empty = await as(IMPORTER, (tx) => imports.stage(tx, { masterType: 'FUND_SOURCE', fileObjectKey: `tenants/${TENANT_A}/import/empty-${counter}`, fileSha256: shaOf(headerOnly), mapping: MAPPING, mode: 'ATOMIC', bytes: headerOnly }, memberId(IMPORTER)));
+      expect(empty).toMatchObject({ status: 'VALIDATED', totalRows: 0, errorRows: 0, errors: [] });
+      expect(await refusal(apply(empty.id, headerOnly))).toEqual({ code: 'IMPORT_EMPTY', status: 422 });
+
+      const lines = ['NIL-1,No category,2024-01-01,,,,LOTTERY,ADDITIVE', 'NIL-2,No date,,,,,NSTW,ADDITIVE'];
+      const partial = await stage(lines, 'PARTIAL');
+      expect(partial).toMatchObject({ status: 'VALIDATED', totalRows: 2, errorRows: 2 });
+      expect(await refusal(apply(partial.id, bytesOf(lines)))).toEqual({ code: 'IMPORT_EMPTY', status: 422 });
+      // ATOMIC keeps saying what is wrong with the rows.
+      const atomic = await stage(lines, 'ATOMIC');
+      expect(await refusal(apply(atomic.id, bytesOf(lines)))).toEqual({ code: 'IMPORT_HAS_ERRORS', status: 422 });
+
+      for (const batch of [empty, partial, atomic]) {
+        expect((await as(CHECKER, (tx) => imports.find(tx, batch.id)))?.status).toBe('VALIDATED');
+        expect(await owner('select count(*)::int as n from machvon.master_change_request where import_batch_id = $1', [batch.id])).toEqual([{ n: 0 }]);
+      }
+      expect(await recordsOf('NIL')).toEqual([]);
+    });
+  });
+
+  describe('the lines of the source (Codex finding 5)', () => {
+    it('names the line of the file for a row in error: blank lines and a cell that runs over two lines count', async () => {
+      const text = `${HEADER}\nSRC-1,Right,2024-01-01,,,,NSTW,ADDITIVE\n\nSRC-2,"Two\nlines",2024-13-45,,,,NSTW,ADDITIVE\nSRC-3,No date,,,,,NSTW,ADDITIVE\n`;
+      const bytes = new TextEncoder().encode(text);
+      counter += 1;
+      const staged = await as(IMPORTER, (tx) => imports.stage(tx, { masterType: 'FUND_SOURCE', fileObjectKey: `tenants/${TENANT_A}/import/lines-${counter}`, fileSha256: shaOf(bytes), mapping: MAPPING, mode: 'PARTIAL', bytes }, memberId(IMPORTER)));
+      expect(staged.errors).toEqual([
+        { row: 4, field: 'valid_from', code: 'INVALID_DATE' },
+        { row: 6, field: 'valid_from', code: 'REQUIRED' },
+      ]);
+    });
+  });
+
+  describe('who applied the batch (Codex finding 4)', () => {
+    it('keeps the person who applied it, who may be another than the one who staged it, and judges four-eyes on that person', async () => {
+      const lines = sources('APB');
+      const bytes = bytesOf(lines);
+      counter += 1;
+      const staged = await as(PUBLISHER, (tx) => imports.stage(tx, { masterType: 'FUND_SOURCE', fileObjectKey: `tenants/${TENANT_A}/import/applier-${counter}`, fileSha256: shaOf(bytes), mapping: MAPPING, mode: 'ATOMIC', bytes }, memberId(PUBLISHER)));
+      expect(staged).toMatchObject({ createdBy: memberId(PUBLISHER), appliedBy: null });
+      const applied = await apply(staged.id, bytes, IMPORTER);
+      expect(applied.batch).toMatchObject({ createdBy: memberId(PUBLISHER), appliedBy: memberId(IMPORTER), status: 'IN_REVIEW' });
+      expect((await refusal(decide(staged.id, 'approve', IMPORTER))).code).toBe('SELF_APPROVAL_DENIED');
+      // The person who staged the file did not create the change requests: they may decide the batch.
+      const approved = await decide(staged.id, 'approve', PUBLISHER);
+      expect(approved.batch).toMatchObject({ reviewedBy: memberId(PUBLISHER), appliedBy: memberId(IMPORTER) });
+      expect((await refusal(publish(staged.id, IMPORTER))).code).toBe('SELF_APPROVAL_DENIED');
+      const published = await publish(staged.id, CHECKER);
+      expect(published.batch).toMatchObject({ status: 'APPLIED', appliedBy: memberId(IMPORTER) });
+      expect((await as(CHECKER, (tx) => imports.list(tx, { status: 'APPLIED', limit: 100, after: undefined }))).find((row) => row.id === staged.id)?.appliedBy).toBe(memberId(IMPORTER));
+    });
+  });
+
+  describe('change requests that a batch owns (Codex finding 1)', () => {
+    it('are decided and published only through the batch: the individual commands refuse them, and the batch still works afterwards', async () => {
+      const prefix = 'OWN';
+      const lines = sources(prefix);
+      const staged = await stage(lines);
+      await apply(staged.id, bytesOf(lines));
+      const denied = { code: 'STAGE_TRANSITION_DENIED', status: 409, detail: 'import_batch' };
+      const change = (await owner<{ id: string; version: string; master_record_id: string }>('select id, version::text as version, master_record_id from machvon.master_change_request where import_batch_id = $1 order by id limit 1', [staged.id]))[0] as {
+        id: string;
+        version: string;
+        master_record_id: string;
+      };
+      for (const decision of ['approve', 'reject', 'return'] as const) {
+        expect(await refusal(as(CHECKER, (tx) => store.decide(tx, change.id, Number(change.version), decision, memberId(CHECKER))))).toEqual(denied);
+      }
+      expect(await refusal(as(IMPORTER, (tx) => store.submit(tx, change.id, Number(change.version), memberId(IMPORTER))))).toEqual(denied);
+      expect(await owner('select status from machvon.master_change_request where id = $1', [change.id])).toEqual([{ status: 'IN_REVIEW' }]);
+
+      await decide(staged.id, 'approve');
+      const record = (await owner<{ version: string }>('select version::text as version from machvon.master_record where id = $1', [change.master_record_id]))[0] as { version: string };
+      expect(await refusal(as(PUBLISHER, (tx) => store.publish(tx, change.master_record_id, Number(record.version), DECISION_DOCUMENT, memberId(PUBLISHER))))).toEqual(denied);
+      expect(new Set((await recordsOf(prefix)).map((row) => row.status))).toEqual(new Set(['APPROVED']));
+
+      const published = await publish(staged.id);
+      expect(published.published).toHaveLength(10);
+      expect(new Set((await recordsOf(prefix)).map((row) => row.status))).toEqual(new Set(['EFFECTIVE']));
     });
   });
 

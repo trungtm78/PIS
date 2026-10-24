@@ -14,6 +14,34 @@ export { formatEtag, parseIfMatch, versionConflict } from './if-match.ts';
 export { auditLeafHash, merkleRoot, sealHashOf } from './audit-seal.ts';
 export { OUTBOX_BATCH_SIZE, OUTBOX_LAG_ALERT_SECONDS, OUTBOX_MAX_ATTEMPTS, outboxDelaySeconds } from './outbox-policy.ts';
 export { safeDiff } from './redact.ts';
+export {
+  ADAPTER_STATUSES,
+  CONNECTOR_MODES,
+  PRODUCTION_ENVIRONMENTS,
+  activationBlock,
+  assertActivatable,
+  assertConnectorSettings,
+  isProductionEnvironment,
+  isVaultReference,
+  mayMove,
+  secretKeysIn,
+} from './connector.ts';
+export type { ActivationBlock, AdapterStatus, ConnectorMode, ConnectorStatus } from './connector.ts';
+export { inboxRetryDelaySeconds } from './inbox-policy.ts';
+export {
+  END_ACTIONS,
+  RETENTION_BASES,
+  TECHNICAL_CLASSES,
+  TECHNICAL_RETENTION_DAYS,
+  addYears,
+  isCalendarDate,
+  recordKindOf,
+  retentionFinding,
+  retentionFindings,
+  technicalCutoff,
+  validateRetentionPolicy,
+} from './retention.ts';
+export type { EndAction, RecordKind, RetentionBasis, RetentionFinding, RetentionFindingCode, RetentionPolicyContent, TechnicalClass } from './retention.ts';
 export { NOOP_ALERTS, NOOP_METRICS } from './ports.ts';
 export type { AlertSink, MetricsSink } from './ports.ts';
 export { assertAllowedFields } from './allowlist.ts';
@@ -119,9 +147,44 @@ export type { AlertAdapter, AlertChannel, AlertRule, AlertSeverity, AlertSource,
 export { ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';
 export { CHANGE_REQUEST_STATES, assertFourEyes, canTransition, changeRequestNext } from './four-eyes.ts';
 export type { ChangeRequestAction, ChangeRequestState } from './four-eyes.ts';
-export { ROUNDING_MODES, convertDecimal, roundDecimal } from './decimal.ts';
+export { ROUNDING_MODES, addDecimal, compareDecimal, convertDecimal, roundDecimal, subtractDecimal } from './decimal.ts';
 export type { RoundingMode } from './decimal.ts';
+export { VND_SCALE, creditAmount, debitAmount, entriesInForce, netOfEntries, orderLockTargets, requirePositiveAmount, reversalCancels, reverseEntry } from './money-ledger.ts';
+export type { LedgerEntry, LockTarget } from './money-ledger.ts';
+export { assertOneWinner, outcomeLabel, outcomeOfError, runConcurrently, runLoops, succeeded, tallyOutcomes } from './concurrency-harness.ts';
+export type { CommandOutcome, LoopOptions, LoopRound } from './concurrency-harness.ts';
 export { CALENDAR_TIMEZONES, WEEKDAYS, assertCalendar, isLate, periodOf, reportingPeriods } from './reporting-calendar.ts';
 export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-calendar.ts';
+export { isIsoDate, periodsOverlap, shiftDays } from './effective-period.ts';
+export type { EffectivePeriod } from './effective-period.ts';
+export { MNE_EVENTS, MNE_FREQUENCIES, eventDueDate, nextWorkingDay, parseDueRule, periodicDueDate, reportPeriodOf, weeklyDueDate } from './mne-due-rule.ts';
+export type { DueRule, EventRule, FixedDateRule, MneEvent, MneFrequency, ReportPeriod, WeeklyRule, WorkingDayTest } from './mne-due-rule.ts';
+export { DEFAULT_WORKING_INTERVALS, WORKING_TIME_ZONE, addWorkingTime, calendarFindings, isWorkingDay, singleYear, validateWorkCalendar } from './working-time.ts';
+export type { CalendarFinding, Holiday, WorkCalendarContent, WorkCalendarSource, WorkingDuration, WorkingInterval } from './working-time.ts';
+export {
+  draftFindings,
+  headerFindings,
+  notAfterCurrentFinding,
+  parseVnd,
+  refuseDoa,
+  resolveDoa,
+  submitFindings,
+  unknownReferenceFinding,
+  validateDoaDraft,
+  validateDoaForSubmit,
+} from './doa.ts';
+export type { DoaFinding, DoaMatrixRecord, DoaQuery, DoaResolution, DoaRuleContent, DoaRuleRecord } from './doa.ts';
+export type { RuleFinding } from './rule-findings.ts';
 export { DEFAULT_TABULAR_LIMITS, readTabularFile } from './tabular-file.ts';
 export type { TabularFile, TabularFormat, TabularLimits } from './tabular-file.ts';
+export {
+  BODY_HMAC_SHA256_PREFIXED,
+  DEFAULT_REPLAY_WINDOW_SECONDS,
+  SIGNATURE_FAILURE_METRIC,
+  TIMESTAMPED_HMAC_SHA256,
+  parseCallbackTimestamp,
+  verifyProviderCallback,
+} from './provider-signature.ts';
+export type { ProviderSignatureScheme, ProviderSigningKey, VerifyCallbackInput } from './provider-signature.ts';
+export { UNCERTAIN_STATUS, defineStatusTable, reduceStatus } from './provider-status.ts';
+export type { ReduceOutcome, StatusTable } from './provider-status.ts';

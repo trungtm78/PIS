@@ -1,0 +1,13 @@
+{
+  "id": "INTEGRATION_INBOX_DEAD",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/INTEGRATION_INBOX_DEAD.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "INTEGRATION_INBOX_DEAD"
+  },
+  "summary": "An inbound provider event gave up after its tenth attempt."
+}

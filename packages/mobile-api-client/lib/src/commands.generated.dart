@@ -1024,6 +1024,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesDeviceRegistrationId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_device_registration_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesDoaMatrixVersion({Map<String, Object?>? query}) =>
+      execute('get_resources_doa_matrix_version', query: query);
+
+  Future<Object?> getResourcesDoaMatrixVersionId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_doa_matrix_version_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesDocumentVersion({Map<String, Object?>? query}) =>
       execute('get_resources_document_version', query: query);
 
@@ -1162,6 +1168,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesPaymentRequestId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_payment_request_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesPermitType({Map<String, Object?>? query}) =>
+      execute('get_resources_permit_type', query: query);
+
+  Future<Object?> getResourcesPermitTypeId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_permit_type_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesPlanVersion({Map<String, Object?>? query}) =>
       execute('get_resources_plan_version', query: query);
 
@@ -1299,6 +1311,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getResourcesUsageMeterEventId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_usage_meter_event_id', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getResourcesWorkCalendarVersion({Map<String, Object?>? query}) =>
+      execute('get_resources_work_calendar_version', query: query);
+
+  Future<Object?> getResourcesWorkCalendarVersionId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_work_calendar_version_id', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getResourcesWorkflowInstance({Map<String, Object?>? query}) =>
       execute('get_resources_workflow_instance', query: query);
@@ -1440,6 +1458,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listIssueSlaBreaches({Map<String, Object?>? query}) =>
       execute('listIssueSlaBreaches', query: query);
+
+  Future<Object?> listIssueSlaPolicies({Map<String, Object?>? query}) =>
+      execute('listIssueSlaPolicies', query: query);
 
   Future<Object?> listMasterChangeRequests({Map<String, Object?>? query}) =>
       execute('listMasterChangeRequests', query: query);

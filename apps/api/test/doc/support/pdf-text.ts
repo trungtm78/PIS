@@ -10,13 +10,13 @@ export interface TextRun {
   text: string;
 }
 
-function decoded(document: PDFDocument, reference: unknown): string {
+export function decoded(document: PDFDocument, reference: unknown): string {
   const stream = document.context.lookup(reference as PDFRef) as PDFRawStream;
   return Buffer.from(decodePDFRawStream(stream).decode()).toString('latin1');
 }
 
 /** The glyph-to-character table (ToUnicode) of every font of a page, by resource name. */
-function unicodeMaps(document: PDFDocument, resources: PDFDict): Map<string, Map<string, string>> {
+export function unicodeMaps(document: PDFDocument, resources: PDFDict): Map<string, Map<string, string>> {
   const maps = new Map<string, Map<string, string>>();
   const fonts = document.context.lookup(resources.get(PDFName.of('Font'))) as PDFDict;
   for (const [name, reference] of fonts.entries()) {

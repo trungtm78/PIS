@@ -1,0 +1,77 @@
+{
+  "note": "Golden answers of the delegation-of-authority matrix (ST-ADM-011, BR-ADM-03, BR-ADM-04). Shared by the kernel (resolveDoa, the findings of a draft and of a submission) and the web (the band chart and the 'who approves' preview): both must give these answers. Amounts are whole VND written as strings; thresholds are placeholders, the real ones are tenant data (CXN-DOA-01).",
+  "unitPaths": {
+    "province": "/province/",
+    "department": "/province/department/",
+    "board": "/province/department/board/",
+    "boardChild": "/province/department/board/child/",
+    "elsewhere": "/province/other/"
+  },
+  "matrices": {
+    "current": {
+      "id": "matrix-2",
+      "status": "Published",
+      "effectiveFrom": "2026-01-01",
+      "effectiveUntil": null,
+      "rules": [
+        { "id": "r1", "document_type": "FX", "unit_id": "province", "include_subtree": true, "amount_min_vnd": "0", "amount_max_vnd": "5000000000", "approver_role_id": "LEADER_BQLGT", "approval_levels": 1, "requires_distinct_approvers": true },
+        { "id": "r2", "document_type": "FX", "unit_id": "province", "include_subtree": true, "amount_min_vnd": "5000000000", "amount_max_vnd": "25000000000", "approver_role_id": "LEADER_STC", "approval_levels": 1, "requires_distinct_approvers": true },
+        { "id": "r3", "document_type": "FX", "unit_id": "province", "include_subtree": true, "amount_min_vnd": "25000000000", "amount_max_vnd": null, "approver_role_id": "LEADER_UBND", "approval_levels": 2, "requires_distinct_approvers": true },
+        { "id": "r4", "document_type": "FX", "unit_id": "board", "include_subtree": false, "amount_min_vnd": "0", "amount_max_vnd": null, "approver_role_id": "BOARD_HEAD", "approval_levels": 1, "requires_distinct_approvers": false },
+        { "id": "r5", "document_type": "PAY", "unit_id": "department", "include_subtree": true, "amount_min_vnd": "0", "amount_max_vnd": null, "approver_role_id": "DEPARTMENT_HEAD" }
+      ]
+    },
+    "previous": {
+      "id": "matrix-1",
+      "status": "Superseded",
+      "effectiveFrom": "2025-01-01",
+      "effectiveUntil": "2026-01-01",
+      "rules": [{ "id": "o1", "document_type": "FX", "unit_id": "province", "include_subtree": true, "amount_min_vnd": "0", "amount_max_vnd": null, "approver_role_id": "LEADER_OLD", "approval_levels": 1, "requires_distinct_approvers": true }]
+    },
+    "draft": {
+      "id": "matrix-3",
+      "status": "Draft",
+      "effectiveFrom": "2026-06-01",
+      "effectiveUntil": null,
+      "rules": [{ "id": "d1", "document_type": "FX", "unit_id": "province", "include_subtree": true, "amount_min_vnd": "0", "amount_max_vnd": null, "approver_role_id": "LEADER_DRAFT", "approval_levels": 1, "requires_distinct_approvers": true }]
+    }
+  },
+  "resolutions": [
+    { "name": "one VND under the first threshold is the first band", "matrices": ["current", "previous"], "query": { "documentType": "FX", "amountVnd": "4999999999", "unitId": "department", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r1", "ruleUnitId": "province", "approverRoleId": "LEADER_BQLGT", "approvalLevels": 1, "requiresDistinctApprovers": true } },
+    { "name": "exactly the first threshold is the second band: a band includes its lower end and excludes its upper end", "matrices": ["current", "previous"], "query": { "documentType": "FX", "amountVnd": "5000000000", "unitId": "department", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r2", "ruleUnitId": "province", "approverRoleId": "LEADER_STC", "approvalLevels": 1, "requiresDistinctApprovers": true } },
+    { "name": "the last band has no upper end and needs two distinct approval levels", "matrices": ["current", "previous"], "query": { "documentType": "FX", "amountVnd": "25000000000", "unitId": "department", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r3", "ruleUnitId": "province", "approverRoleId": "LEADER_UBND", "approvalLevels": 2, "requiresDistinctApprovers": true } },
+    { "name": "one VND under the second threshold is still the second band", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "24999999999", "unitId": "province", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r2", "ruleUnitId": "province", "approverRoleId": "LEADER_STC", "approvalLevels": 1, "requiresDistinctApprovers": true } },
+    { "name": "a document without an amount is judged as 0", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": null, "unitId": "province", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r1", "ruleUnitId": "province", "approverRoleId": "LEADER_BQLGT", "approvalLevels": 1, "requiresDistinctApprovers": true } },
+    { "name": "amounts beyond a double's exact range are compared exactly", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "24999999999999999999", "unitId": "province", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r3", "ruleUnitId": "province", "approverRoleId": "LEADER_UBND", "approvalLevels": 2, "requiresDistinctApprovers": true } },
+    { "name": "the rule of the nearest unit wins over the rule of a unit above it", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "30000000000", "unitId": "board", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r4", "ruleUnitId": "board", "approverRoleId": "BOARD_HEAD", "approvalLevels": 1, "requiresDistinctApprovers": false } },
+    { "name": "a rule without its subtree does not reach the units below, which fall back to the unit above", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "30000000000", "unitId": "boardChild", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r3", "ruleUnitId": "province", "approverRoleId": "LEADER_UBND", "approvalLevels": 2, "requiresDistinctApprovers": true } },
+    { "name": "a rule with its subtree reaches a unit in another branch below the same unit", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "1", "unitId": "elsewhere", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r1", "ruleUnitId": "province", "approverRoleId": "LEADER_BQLGT", "approvalLevels": 1, "requiresDistinctApprovers": true } },
+    { "name": "a rule that leaves the optional fields out means one level and distinct approvers", "matrices": ["current"], "query": { "documentType": "PAY", "amountVnd": "1000", "unitId": "board", "businessDate": "2026-03-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r5", "ruleUnitId": "department", "approverRoleId": "DEPARTMENT_HEAD", "approvalLevels": 1, "requiresDistinctApprovers": true } },
+    { "name": "the day before the new matrix begins is judged by the superseded one", "matrices": ["current", "previous"], "query": { "documentType": "FX", "amountVnd": "30000000000", "unitId": "department", "businessDate": "2025-12-31" }, "expected": { "matrixVersionId": "matrix-1", "ruleId": "o1", "ruleUnitId": "province", "approverRoleId": "LEADER_OLD", "approvalLevels": 1, "requiresDistinctApprovers": true } },
+    { "name": "the first day of the new matrix is judged by the new one", "matrices": ["current", "previous"], "query": { "documentType": "FX", "amountVnd": "30000000000", "unitId": "department", "businessDate": "2026-01-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r3", "ruleUnitId": "province", "approverRoleId": "LEADER_UBND", "approvalLevels": 2, "requiresDistinctApprovers": true } },
+    { "name": "a draft never decides", "matrices": ["current", "draft"], "query": { "documentType": "FX", "amountVnd": "1", "unitId": "department", "businessDate": "2026-07-01" }, "expected": { "matrixVersionId": "matrix-2", "ruleId": "r1", "ruleUnitId": "province", "approverRoleId": "LEADER_BQLGT", "approvalLevels": 1, "requiresDistinctApprovers": true } }
+  ],
+  "refused": [
+    { "name": "a kind of document no rule names", "matrices": ["current"], "query": { "documentType": "ZZ", "amountVnd": "1", "unitId": "department", "businessDate": "2026-03-01" }, "code": "DOA_RULE_NOT_FOUND", "detail": "amount_vnd" },
+    { "name": "a day before any matrix", "matrices": ["current", "previous"], "query": { "documentType": "FX", "amountVnd": "1", "unitId": "department", "businessDate": "2024-12-31" }, "code": "DOA_RULE_NOT_FOUND", "detail": "business_date" },
+    { "name": "no matrix at all", "matrices": [], "query": { "documentType": "FX", "amountVnd": "1", "unitId": "department", "businessDate": "2026-03-01" }, "code": "DOA_RULE_NOT_FOUND", "detail": "business_date" },
+    { "name": "a unit outside the tree of the rules", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "1", "unitId": "department", "businessDate": "2026-03-01" }, "pathsWithout": "department", "code": "VALIDATION_FAILED", "detail": "unit_id" },
+    { "name": "an amount that is not whole VND", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "12.5", "unitId": "department", "businessDate": "2026-03-01" }, "code": "VALIDATION_FAILED", "detail": "amount_vnd" },
+    { "name": "a negative amount", "matrices": ["current"], "query": { "documentType": "FX", "amountVnd": "-1", "unitId": "department", "businessDate": "2026-03-01" }, "code": "VALIDATION_FAILED", "detail": "amount_vnd" }
+  ],
+  "drafts": [
+    { "name": "three bands from 0 to no end", "rules": [["FX", "province", "0", "5000000000"], ["FX", "province", "5000000000", "25000000000"], ["FX", "province", "25000000000", null]], "draft": [], "submit": [] },
+    { "name": "bands given out of order are the same bands", "rules": [["FX", "province", "5000000000", null], ["FX", "province", "0", "5000000000"]], "draft": [], "submit": [] },
+    { "name": "a gap between two bands is allowed in a draft and refused on submission", "rules": [["FX", "province", "0", "5000000000"], ["FX", "province", "6000000000", null]], "draft": [], "submit": ["rules[1].amount_min_vnd:GAP"] },
+    { "name": "an overlap is refused in a draft and on submission", "rules": [["FX", "province", "0", "6000000000"], ["FX", "province", "5000000000", null]], "draft": ["rules[1].amount_min_vnd:OVERLAP"], "submit": ["rules[1].amount_min_vnd:OVERLAP"] },
+    { "name": "a band with no end overlaps every band above it", "rules": [["FX", "province", "0", null], ["FX", "province", "5000000000", null]], "draft": ["rules[1].amount_min_vnd:OVERLAP"], "submit": ["rules[1].amount_min_vnd:OVERLAP"] },
+    { "name": "two bands that begin at the same amount overlap", "rules": [["FX", "province", "0", "5000000000"], ["FX", "province", "0", null]], "draft": ["rules[1].amount_min_vnd:OVERLAP"], "submit": ["rules[1].amount_min_vnd:OVERLAP"] },
+    { "name": "bands that do not begin at 0", "rules": [["FX", "province", "1", null]], "draft": [], "submit": ["rules[0].amount_min_vnd:NOT_FROM_ZERO"] },
+    { "name": "bands that do not run to no end", "rules": [["FX", "province", "0", "5000000000"]], "draft": [], "submit": ["rules[0].amount_max_vnd:NOT_TO_INFINITY"] },
+    { "name": "each document type and each unit is checked on its own", "rules": [["FX", "province", "0", null], ["PAY", "province", "0", "10"], ["FX", "department", "0", null], ["FX", "department", "10", null]], "draft": ["rules[3].amount_min_vnd:OVERLAP"], "submit": ["rules[1].amount_max_vnd:NOT_TO_INFINITY", "rules[3].amount_min_vnd:OVERLAP"] },
+    { "name": "an amount that is not whole VND", "rules": [["FX", "province", "1.5", null], ["FX", "department", "0", "-5"], ["FX", "board", "", null]], "draft": ["rules[0].amount_min_vnd:AMOUNT_INVALID", "rules[1].amount_max_vnd:AMOUNT_INVALID", "rules[2].amount_min_vnd:AMOUNT_INVALID"], "submit": ["rules[0].amount_min_vnd:AMOUNT_INVALID", "rules[1].amount_max_vnd:AMOUNT_INVALID", "rules[2].amount_min_vnd:AMOUNT_INVALID"] },
+    { "name": "a band whose end is not above its start", "rules": [["FX", "province", "5", "5"], ["FX", "department", "10", "3"]], "draft": ["rules[0].amount_max_vnd:RANGE_INVALID", "rules[1].amount_max_vnd:RANGE_INVALID"], "submit": ["rules[0].amount_max_vnd:RANGE_INVALID", "rules[1].amount_max_vnd:RANGE_INVALID"] },
+    { "name": "no rule at all", "rules": [], "draft": [], "submit": ["rules:NO_RULES"] },
+    { "name": "a rule without a kind of document", "rules": [["  ", "province", "0", null]], "draft": ["rules[0].document_type:DOCUMENT_TYPE_REQUIRED"], "submit": ["rules[0].document_type:DOCUMENT_TYPE_REQUIRED"] }
+  ]
+}
