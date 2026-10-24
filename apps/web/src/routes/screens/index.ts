@@ -42,6 +42,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'MDM-26': () => import('../../screens/mdm/MasterEditScreen'),
   'MDM-27': () => import('../../screens/mdm/MasterDetailScreen'),
   'MDM-28': () => import('../../screens/mdm/MasterHistoryScreen'),
+  'MDM-29': () => import('../../screens/mdm/MasterImportScreen'),
   'MDM-31': () => import('../../screens/mdm/MasterRetireScreen'),
   'MDM-32': () => import('../../screens/mdm/MasterApprovalScreen'),
   'MDM-33': () => import('../../screens/mdm/MasterScopeScreen'),

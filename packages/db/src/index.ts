@@ -166,3 +166,5 @@ export { MasterRules } from './master-rules.ts';
 export type { BoundPeriod, CalendarPeriods, NationalCodeRule, RuleReading, SuggestedGroup } from './master-rules.ts';
 export { isRuleType, masterTypeDefinition, ruleTypes, validateMasterContent } from './master-types.ts';
 export type { EntryRef, MasterTypeDefinition, TypeLookup } from './master-types.ts';
+export { MAX_STORED_ERRORS, MasterImportStore, checkMapping } from './master-import-store.ts';
+export type { ImportBatchRow, ImportMapping, ImportMode, ImportPlan, ImportStatus, PublishedRecord, RowError } from './master-import-store.ts';

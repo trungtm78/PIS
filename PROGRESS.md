@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-24T14:00+07:00 | Milestone: M3/6 | Task: MDM-1 — ST-MDM-001, 003, 004, 005 xong, ST-MDM-002 một phần; kế tiếp ST-MDM-006
+Cập nhật: 2026-10-24T14:00+07:00 | Milestone: M3/6 | Task: MDM-1 — ST-MDM-001, 003, 004, 005, 006 xong, ST-MDM-002 một phần; kế tiếp ST-MDM-007
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -39,9 +39,10 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M3 · MDM-1 · ST-MDM-003: định nghĩa loại và validator cho FUND_SOURCE (CTMTQG luôn là tập con: SUBSET_SOURCE_NOT_ADDITIVE), PROGRAM, SECTOR, PROJECT_GROUP/TYPE/STAGE, DECISION_TYPE/AUTHORITY và 4 loại rule (BR-MDM-09); gói baseline nền tảng có digest + job master-baseline-sync (6 giờ); cổng đọc rule MasterRules (nhóm dự án theo bảng ngưỡng hiệu lực tại ngày đề xuất, mã TTQG, cờ chờ xác nhận); người duyệt rule theo loại (V1083, đóng khi không có); MDM-04..10 trên một CatalogueScreen; form thuộc tính theo loại ở MDM-25/26 — migration V1083, 3 AC có test
 - [x] M3 · MDM-1 · ST-MDM-004: loại CALENDAR (tuần bắt đầu, hạn, múi giờ Asia/Ho_Chi_Minh) là dữ liệu rule có phiên bản; kernel sinh kỳ `W<năm>-<số>` không chồng/không hở và tính trễ hạn theo phiên bản lịch đã gắn cho kỳ (không đổi hồi tố); UNIT/CURRENCY với hệ số thập phân chính xác, scale, quy tắc làm tròn (roundDecimal/convertDecimal); MDM-11 (lịch kỳ, xem trước 8 kỳ đầu trong form) và MDM-12; vector kiểm thử dùng chung kernel và web
 - [x] M3 · MDM-1 · ST-MDM-005: 11 loại danh mục vận hành (loại hồ sơ, hợp đồng, thanh toán, nhóm vướng mắc, mức ưu tiên, tiêu chí nhà thầu, vai trò chuyên gia, mục đích liên hệ, ngôn ngữ, văn bản dùng chung, chính sách lưu trữ — loại rule có căn cứ và cờ chờ CXN-05) với validator và seed baseline; MDM-13..15, 17..23 trên CatalogueScreen; sửa lưu trữ đi qua change request có impact; nhóm vướng mắc đang được dùng không ngừng được nếu thiếu successor (MASTER_IN_USE)
+- [x] M3 · MDM-1 · ST-MDM-006: nhập hàng loạt nguyên tử — tải CSV/XLSX qua đường tải chung (kiểm theo byte, quét mã độc), bộ đọc bảng (kernel) có giới hạn chống zip bomb, dry run từng dòng với mã lỗi, áp dụng ATOMIC hoặc PARTIAL tạo mọi bản ghi và change request trong một giao dịch, duyệt và công bố cả lô một lần (người áp dụng không duyệt, không công bố), cùng tệp không áp dụng hai lần; 5 thao tác mới (CR-MDM-04, CR-MDM-05), migration V1084, màn MDM-29
 
 ## Đang làm dở
-Task: M3 · MDM-1 — ST-MDM-001/003/004/005 DONE, ST-MDM-002 PARTIAL (chưa push; đẩy một lần sau khi qua cổng đầy đủ). Kế tiếp ST-MDM-006 (nhập hàng loạt nguyên tử), rồi 007..009.
+Task: M3 · MDM-1 — ST-MDM-001/003/004/005/006 DONE, ST-MDM-002 PARTIAL (chưa push; đẩy một lần sau khi qua cổng đầy đủ). Kế tiếp ST-MDM-007 (crosswalk và con trỏ tích hợp), rồi 008, 009.
 Đã làm: M2a..M2f; R0 57 story = 21 DONE / 2 DONE_UNCONFIRMED / 19 DONE_PENDING_ENV / 15 PARTIAL / 0 NOT STARTED; 24 màn hình web đã cài (ADM 6, DOC 5, IAM 2, NOT 2, SAS 9), 382 web + 72 mobile chưa làm.
 BƯỚC TIẾP THEO: M3 theo docs/superpowers/plans/2026-10-23-m3-r1-breadth-roadmap.md, lát đầu KERNEL-1, MDM-1, ISS-1 (viết plan bằng writing-plans trước). Trước lát M3 đầu tiên: quy tắc đồ thị module trong .dependency-cruiser.cjs (F9), wiring hạ tầng thật của Task 20 khi có môi trường.
 File liên quan: docs/m2-alignment-review.md (mục 1 và 7), docs/UAT-COVERAGE.md, docs/r10-baseline-approvals.md, docs/runbooks/{test-lanes,web-e2e,jobs,api-runtime,release-checklist}.md, TODOS.md
@@ -93,6 +94,7 @@ File liên quan: docs/m2-alignment-review.md (mục 1 và 7), docs/UAT-COVERAGE.
 | Giá trị seed của rule | Ngưỡng nhóm dự án (120 tỷ / 2.300 tỷ / 30.000 tỷ), tiêu chí thẩm định 5 mục tổng 100 điểm ngưỡng 60, mã TTQG 7 chữ số chặn từ PIPELINE: đều là giả định gắn cờ chờ xác nhận (CXN-32, CXN-01, ASSUMPTION-APPRAISAL-60), không phải khẳng định pháp lý | PRJ.md [CXN-01][CXN-32], story AC-ST-MDM-003 |
 | Thuộc tính loại thẩm quyền quyết định | agency_key, decision_type_key (phải có), scope ∈ {NATIONAL, MINISTRY, PROVINCE, COMMUNE}; khung do mình chọn vì catalogue chỉ nêu cột "Cơ quan, Loại quyết định, Phạm vi" | screen_catalog MDM-09 |
 | Gói baseline | Nhúng trong mã, có digest SHA-256 kiểm trước khi áp; mục có sẵn không đổi, bản mới của một mục thêm version mới bắt đầu từ ngày của nó và không viết lại lịch sử; gói ký từ control-plane thay sau | MDM.md §9 mdm.platform-baseline-sync |
+| Duyệt lô nhập | Hợp đồng chỉ có stage và apply nên thêm duyệt và công bố cả lô (CR-MDM-05): từng đề xuất của hàng nghìn dòng không dùng được, và ATOMIC phải đúng cả khi công bố; người áp dụng không duyệt và không công bố lô của mình; PARTIAL làm luôn (story ghi là sau) vì cùng cơ chế | MDM.md F7, BR-MDM-10 |
 | Số liệu mẫu của danh mục vận hành | Mức ưu tiên (khẩn cấp 4/24 giờ, cao 8/72, bình thường 24/168, thấp 72/336), kích thước tệp 50 MB, thời hạn lưu 10/10/10/5 năm và vĩnh viễn cho dữ liệu chủ: giả định chờ chủ nghiệp vụ xác nhận (lưu trữ: CXN-05); mọi thay đổi là phiên bản mới qua change request | story ST-MDM-005, MDM.md mục 6 |
 | Đánh số kỳ báo cáo | Năm và số thứ tự của kỳ lấy theo ngày cuối tuần (kỳ 1 kết thúc trong 7 ngày đầu của năm); không ngày nào thuộc hai kỳ hoặc không kỳ nào. Lịch D03 (thứ Bảy→thứ Sáu, hạn thứ Sáu 10:00 +07) là giả định chờ ký | MDM.md BR-MDM-08, story AC-ST-MDM-004 |
 | Tenant là gì | Cơ quan chủ quản ký hợp đồng (UBND tỉnh/bộ); đơn vị con là organization_unit | R6 (người dùng chốt D9) |

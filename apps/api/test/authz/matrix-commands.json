@@ -1,6 +1,7 @@
 {
   "commands": [
     "acknowledgeNotification",
+    "applyMasterImport",
     "assignOutgoingDocumentNumber",
     "closeDocumentNumberRegister",
     "completeSigningSession",
@@ -9,6 +10,7 @@
     "createOrganizationUnit",
     "createSecurityPolicyVersion",
     "decideMasterChangeRequest",
+    "decideMasterImport",
     "defineDocumentType",
     "endMembership",
     "grantRole",
@@ -20,6 +22,7 @@
     "placeLegalHold",
     "post_master_records_id_publish",
     "proposeMasterRecord",
+    "publishMasterImport",
     "publishSecurityPolicy",
     "reactivateMembership",
     "registerSigningCertificate",
@@ -28,11 +31,13 @@
     "revokeRoleGrant",
     "revokeSigningCertificate",
     "startLeaderSigning",
+    "stageMasterImport",
     "startOrganizationSeal",
     "submitMasterChangeRequest",
     "suspendMembership",
     "updateCustomRole",
     "updateOrganizationUnit",
+    "uploadMasterImportFile",
     "verifyDocumentSignatures"
   ],
   "controlCommands": [

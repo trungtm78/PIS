@@ -55,3 +55,27 @@
   flex-wrap: wrap;
   gap: 4px 16px;
 }
+.mdm-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.mdm-steps li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--shell-line, #e4e0e6);
+}
+.mdm-step-panel {
+  margin-top: 16px;
+}
+.mdm-modes {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0;
+  border: 0;
+  padding: 0;
+}

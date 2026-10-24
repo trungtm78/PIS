@@ -35925,7 +35925,12 @@
       ],
       "operations": [
         "stageMasterImport",
-        "applyMasterImport"
+        "applyMasterImport",
+        "uploadMasterImportFile",
+        "getMasterImport",
+        "listMasterImports",
+        "decideMasterImport",
+        "publishMasterImport"
       ],
       "tables": [
         "master_import_batch"

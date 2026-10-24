@@ -544,6 +544,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> decideMasterChangeRequest(MdmDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideMasterChangeRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> decideMasterImport(MdmDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideMasterImport', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> decideMneEvaluation(MneDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideMneEvaluation', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -798,6 +801,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getMasterChangeRequest({required String id, Map<String, Object?>? query}) =>
       execute('getMasterChangeRequest', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getMasterImport({required String id, Map<String, Object?>? query}) =>
+      execute('getMasterImport', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getMasterRecordAsOf({required String id, Map<String, Object?>? query}) =>
       execute('getMasterRecordAsOf', path: <String, Object?>{'id': id}, query: query);
@@ -1438,6 +1444,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listMasterChangeRequests({Map<String, Object?>? query}) =>
       execute('listMasterChangeRequests', query: query);
 
+  Future<Object?> listMasterImports({Map<String, Object?>? query}) =>
+      execute('listMasterImports', query: query);
+
   Future<Object?> listMasterTypePolicies({Map<String, Object?>? query}) =>
       execute('listMasterTypePolicies', query: query);
 
@@ -1695,6 +1704,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> publishGlossaryTerm({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('publishGlossaryTerm', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> publishMasterImport(CapApplyDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('publishMasterImport', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> publishMaturityRubric({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('publishMaturityRubric', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);

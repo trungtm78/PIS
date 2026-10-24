@@ -530,3 +530,40 @@ export async function validateMasterContent(input: TypeInput): Promise<void> {
   }
   await definition.check?.(input);
 }
+
+const SPLIT = /[;,|]/;
+const YES = new Set(['true', 'yes', '1', 'có', 'co']);
+const NO = new Set(['false', 'no', '0', 'không', 'khong']);
+
+/**
+ * The value that a cell of a file stands for in an attribute of a type: numbers and flags are read from their text, lists are split
+ * at `;`, `,` or `|`, structured values (a list of objects, a text per language) are JSON. A cell that does not read as its kind is
+ * `{ ok: false }`; an attribute that the type does not define stays text. An empty cell is no value (the caller leaves the attribute out).
+ */
+export function coerceCell(masterType: string, name: string, raw: string): { ok: true; value: unknown } | { ok: false } {
+  const cell = raw.trim();
+  const field = BY_TYPE.get(masterType)?.fields.find((candidate) => candidate.name === name);
+  if (field === undefined) return { ok: true, value: cell };
+  switch (field.kind) {
+    case 'integer':
+      return /^-?\d+$/.test(cell) ? { ok: true, value: Number(cell) } : { ok: false };
+    case 'boolean': {
+      const word = cell.toLowerCase();
+      if (YES.has(word)) return { ok: true, value: true };
+      return NO.has(word) ? { ok: true, value: false } : { ok: false };
+    }
+    case 'identifiers':
+    case 'mimes':
+    case 'keys':
+      return { ok: true, value: cell.split(SPLIT).map((word) => word.trim()).filter((word) => word !== '') };
+    case 'list':
+    case 'texts':
+      try {
+        return { ok: true, value: JSON.parse(cell) as unknown };
+      } catch {
+        return { ok: false };
+      }
+    default:
+      return { ok: true, value: cell };
+  }
+}

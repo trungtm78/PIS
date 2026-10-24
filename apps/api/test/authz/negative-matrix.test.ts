@@ -164,9 +164,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideMasterChangeRequest', 'post_master_records_id_publish']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -225,6 +225,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text || coalesce(current_version_id::text, ''), ',' order by id) from machvon.master_record where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_record_version where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_change_request where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_import_batch where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1),
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
@@ -421,6 +422,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const masterRecordId = id(0x79, 1);
     const masterDraftChangeId = id(0x79, 3);
     const masterReviewChangeId = id(0x79, 5);
+    const masterImportId = id(0x79, 10);
     const decisionDocumentId = id(0x78, 1);
     const impact = '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}';
     const masterRecord = (n: number, status: string): [string, unknown[]] => [
@@ -455,11 +457,17 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       masterVersion(9, 8, 'EFFECTIVE'),
       masterCurrent(8, 9),
       masterChange(5, 8, 'IN_REVIEW'),
+      [
+        `insert into machvon.master_import_batch (tenant_id, id, master_type, file_object_key, file_sha256, mapping_json, mode, status, total_rows, error_rows, errors_json, created_by, updated_by)
+         values ($1, $2, 'MATRIX', 'tenants/matrix/import/fixture', repeat('c', 64), '{}'::jsonb, 'ATOMIC', 'IN_REVIEW', 0, 0, '[]'::jsonb, $3, $3)`,
+        [TENANT_A, masterImportId, ACTOR],
+      ],
     ]);
     targets = {
       masterRecordId,
       masterDraftChangeId,
       masterReviewChangeId,
+      masterImportId,
       decisionDocumentId,
       notificationId,
       legalHoldId,

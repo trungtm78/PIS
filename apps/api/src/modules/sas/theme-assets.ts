@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { Injectable, createParamDecorator } from '@nestjs/common';
-import type { CanActivate, ExecutionContext } from '@nestjs/common';
+import type { CanActivate, ExecutionContext, Type } from '@nestjs/common';
 import { DomainError } from '@machvon/kernel';
 
 /** A logo is at most 1 MiB (`tenant_theme_asset` CHECK, AC-ST-SAS-005-4: a 1.5 MB image is refused). */
@@ -92,20 +92,32 @@ interface UploadRequest extends AsyncIterable<Buffer | string> {
  * the end. The body the pipeline hashes for idempotency is the description of the file (its type, size and SHA-256), so the
  * same key with another file is IDEMPOTENCY_CONFLICT, and the bytes travel on the request for the handler.
  */
-@Injectable()
-export class SingleFileUploadGuard implements CanActivate {
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<UploadRequest>();
-    const length = Number(request.headers['content-length']);
-    const limit = MAX_THEME_ASSET_BYTES + ENVELOPE_ALLOWANCE;
-    if (Number.isFinite(length) && length > limit) throw new DomainError('PAYLOAD_TOO_LARGE', 413);
-    const contentType = request.headers['content-type'];
-    const file = parseSingleFile(typeof contentType === 'string' ? contentType : undefined, await readBounded(request, limit));
-    request[UPLOAD_KEY] = file;
-    request.body = { file: { content_type: file.contentType, size: file.bytes.length, sha256: file.sha256 } };
-    return true;
+function guardFor(maxBytes: number): Type<CanActivate> {
+  @Injectable()
+  class UploadGuard implements CanActivate {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+      const request = context.switchToHttp().getRequest<UploadRequest>();
+      const length = Number(request.headers['content-length']);
+      const limit = maxBytes + ENVELOPE_ALLOWANCE;
+      if (Number.isFinite(length) && length > limit) throw new DomainError('PAYLOAD_TOO_LARGE', 413);
+      const contentType = request.headers['content-type'];
+      const file = parseSingleFile(typeof contentType === 'string' ? contentType : undefined, await readBounded(request, limit));
+      // The envelope allowance is for the boundary lines; the file itself is judged against the limit of the purpose.
+      if (file.bytes.length > maxBytes) throw new DomainError('PAYLOAD_TOO_LARGE', 413);
+      request[UPLOAD_KEY] = file;
+      request.body = { file: { content_type: file.contentType, size: file.bytes.length, sha256: file.sha256 } };
+      return true;
+    }
   }
+  return UploadGuard;
 }
+
+/** The guard of the logo of a theme: one file of at most 1 MiB. */
+export const SingleFileUploadGuard = guardFor(MAX_THEME_ASSET_BYTES);
+
+/** The guard of a file of a bulk import: one file of at most 10 MiB, read by the import framework afterwards. */
+export const MAX_IMPORT_FILE_BYTES = 10 * 1024 * 1024;
+export const ImportFileUploadGuard = guardFor(MAX_IMPORT_FILE_BYTES);
 
 /** The file that `SingleFileUploadGuard` read from the request. */
 export const UploadedBytes = createParamDecorator((_data: unknown, context: ExecutionContext): UploadedFile => {

@@ -34,6 +34,8 @@ export interface MatrixTargets {
   masterRecordId: string;
   masterDraftChangeId: string;
   masterReviewChangeId: string;
+  /** An IN_REVIEW import batch of tenant A. */
+  masterImportId: string;
   /** A document of tenant A, named as the decision that authorises a publication. */
   decisionDocumentId: string;
 }
@@ -240,6 +242,30 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   post_master_records_id_publish: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/master-records/${t.masterRecordId}/publish`, ifMatch: '"1"', body: { decision_document_id: t.decisionDocumentId } }),
+  },
+  uploadMasterImportFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/master-imports/files', body: {} }),
+  },
+  stageMasterImport: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/master-imports',
+      body: { master_type: 'MATRIX', file_object_key: 'tenants/matrix/import/none', file_sha256: 'a'.repeat(64), mapping: { key: 'code', label: 'name', valid_from: 'from' }, mode: 'ATOMIC' },
+    }),
+  },
+  applyMasterImport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-imports/${t.masterImportId}/apply`, ifMatch: '"1"', body: {} }),
+  },
+  decideMasterImport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-imports/${t.masterImportId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  publishMasterImport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-imports/${t.masterImportId}/publish`, ifMatch: '"1"', body: { decision_document_id: t.decisionDocumentId } }),
   },
   markNotificationRead: {
     referencesTenantIds: true,

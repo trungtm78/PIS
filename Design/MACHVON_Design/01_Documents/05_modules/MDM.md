@@ -122,6 +122,8 @@ Index cho mọi `*_id`; RLS + `tenant_guard`. Namespace PLATFORM được nhân 
 
 (Cập nhật — CR-MDM-01) `GET /resources/master_record_version` nhận thêm tham số tùy chọn `master_record_id` để màn lịch sử (MDM-28) đọc các version của một bản ghi.
 
+(Cập nhật — CR-MDM-04, CR-MDM-05) Nhập hàng loạt (MDM-29) thêm: `POST /master-imports/files` (`uploadMasterImportFile`, master.import: tải CSV hoặc XLSX qua đường tải chung, kiểm loại theo byte, quét mã độc, đọc tiêu đề cột và số dòng), `GET /master-imports` và `GET /master-imports/{id}` (`listMasterImports`, `getMasterImport`, master.read), `POST /master-imports/{id}/decision` (`decideMasterImport`, master.review) và `POST /master-imports/{id}/publish` (`publishMasterImport`, master.publish). `applyMasterImport` tạo mọi bản ghi và change request của lô trong một giao dịch rồi gửi duyệt; cả lô được duyệt và công bố cùng lúc (nguyên tử), người áp dụng không duyệt và không công bố lô của mình; sự kiện `master.import_submitted.v1` ở bước áp dụng và `master.import_applied.v1` khi lô được công bố.
+
 **GET scaffold:** `/resources/master_record_version[/{id}]` → `dto` (version hiệu lực theo policy namespace; attributes lọc theo classification); `/resources/integration_cursor[/{id}]` → `internal` (vận hành nội bộ). Không endpoint ghi chung; mọi thay đổi qua change request.
 
 ## 8. UI/UX

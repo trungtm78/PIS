@@ -11,6 +11,7 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
  */
 
 const unique = (): string => Date.now().toString(36).toUpperCase();
+const NEWLINE = String.fromCharCode(10);
 
 async function open(page: Page, path: string, user: string): Promise<void> {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -309,6 +310,59 @@ test.describe('master data: propose, review, publish, change and history', () =>
       [groupKey],
     );
     expect(created?.attributes).toEqual({ sla_priority_key: 'URGENT', handler_unit_key: 'LAND-UNIT' });
+  });
+
+  test('a steward imports a catalogue file: the dry run names the row in error, the fixed file is applied, and a checker approves and publishes the whole batch', async ({ page }) => {
+    const prefix = `IMP${unique()}`;
+    const header = 'Mã,Tên,Từ ngày,Mã cha';
+    const rows = (broken: boolean): string =>
+      [header, `${prefix}-1,Giao thông,2024-01-01,`, `${prefix}-2,${broken ? '' : 'Đường bộ'},2024-01-01,${prefix}-1`, `${prefix}-3,Đường sắt,2024-01-01,${prefix}-1`].join(NEWLINE) + NEWLINE;
+    const chooseFile = async (content: string): Promise<void> => {
+      await page.locator('#import-file').setInputFiles({ name: 'catalogue.csv', mimeType: 'text/csv', buffer: Buffer.from(content, 'utf8') });
+      await page.getByRole('button', { name: vi['mdm.import.upload.action'] }).click();
+      await expect(page.getByTestId('mapping')).toBeVisible();
+    };
+    await open(page, '/mdm/mdm-29', 'steward');
+    await page.getByLabel(vi['mdm.import.type.label']).fill('E2E_SECTOR');
+    await chooseFile(rows(true));
+    // The columns are found by their names; the dry run says which row is wrong.
+    await expect(page.getByLabel(vi['mdm.import.map.key.label'], { exact: true })).toHaveValue('Mã');
+    await page.getByRole('button', { name: vi['mdm.import.check.action'] }).click();
+    await expect(page.getByTestId('errors')).toBeVisible();
+    await expect(page.locator('[data-row="3"]')).toContainText(vi['mdm.import.error.required.text']);
+    await expect(page.getByTestId('blocked')).toBeVisible();
+    await expect(page.getByRole('button', { name: vi['mdm.import.apply.action'] })).toBeDisabled();
+    expect(Number((await sql<{ n: string }>('select count(*)::text as n from machvon.master_record where business_key like $1', [`${prefix}-%`]))[0]?.n)).toBe(0);
+
+    // The fixed file is a new upload: no error, and applying it creates every record together for review.
+    await open(page, '/mdm/mdm-29', 'steward');
+    await page.getByLabel(vi['mdm.import.type.label']).fill('E2E_SECTOR');
+    await chooseFile(rows(false));
+    await page.getByRole('button', { name: vi['mdm.import.check.action'] }).click();
+    await expect(page.getByTestId('no-errors')).toBeVisible();
+    await page.getByRole('button', { name: vi['mdm.import.apply.action'] }).click();
+    await expect(page.getByTestId('own-batch')).toBeVisible();
+    const [applied] = await sql<{ id: string; status: string }>("select id, status from machvon.master_import_batch where total_rows = 3 and error_rows = 0 and status = 'IN_REVIEW' order by created_at desc limit 1");
+    expect(applied?.status).toBe('IN_REVIEW');
+    expect(Number((await sql<{ n: string }>("select count(*)::text as n from machvon.master_change_request where import_batch_id = $1 and status = 'IN_REVIEW'", [applied?.id]))[0]?.n)).toBe(3);
+
+    // The checker decides the whole batch, then publishes it on a decision document: all three records are in force.
+    await open(page, `/mdm/mdm-29?batch=${applied?.id}`, 'dataChecker');
+    await page.getByLabel(vi['mdm.approval.reason.label']).fill('Checked against the decision of the committee');
+    await page.getByRole('button', { name: vi['mdm.import.review.approve.action'] }).click();
+    const document = await documentFor();
+    await page.getByLabel(vi['mdm.approval.document.label']).fill(document);
+    await page.getByRole('button', { name: vi['mdm.import.publish.action'] }).click();
+    await expect(page.getByText(vi['mdm.import.applied.notice'])).toBeVisible();
+    const records = await sql<{ business_key: string; status: string }>('select business_key, status from machvon.master_record where business_key like $1 order by business_key', [`${prefix}-%`]);
+    expect(records.map((record) => record.status)).toEqual(['EFFECTIVE', 'EFFECTIVE', 'EFFECTIVE']);
+
+    // The same file is never applied again.
+    await open(page, '/mdm/mdm-29', 'steward');
+    await page.getByLabel(vi['mdm.import.type.label']).fill('E2E_SECTOR');
+    await chooseFile(rows(false));
+    await page.getByRole('button', { name: vi['mdm.import.check.action'] }).click();
+    await expect(page.getByRole('alert').filter({ hasText: vi['mdm.problem.alreadyApplied.error'] })).toBeVisible();
   });
 
   test('someone without the master data permissions sees no entry and is offered no way to add one', async ({ page }) => {

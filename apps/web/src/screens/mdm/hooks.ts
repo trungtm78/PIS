@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
+import { uploadFile } from '@machvon/api-client';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toChange, toPolicy, toRecord, toUsage, toVersion } from './model';
-import type { ChangeStatus, ChangeView, Namespace, PolicyView, RecordView, UsageView, VersionView } from './model';
+import { toChange, toImportBatch, toImportFile, toPolicy, toRecord, toUsage, toVersion } from './model';
+import type { ChangeStatus, ChangeView, ImportBatchView, ImportFileView, ImportMode, Namespace, PolicyView, RecordView, UsageView, VersionView } from './model';
 
 const root = (tenantId: string | undefined) => ['mdm', tenantId] as const;
 
@@ -190,5 +191,74 @@ export function usePublishRecord() {
   const client = useApiClient();
   return useCommand<PublishInput>((input, attempt) =>
     client.command('post_master_records_id_publish', { path: { id: input.id }, body: { decision_document_id: input.decisionDocumentId }, ifMatchVersion: input.version, attempt }),
+  );
+}
+
+// ---- bulk import (MDM-29) ----------------------------------------------------------------------------------------------------
+
+/** The batches of the tenant, the newest first. */
+export function useImportBatches() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ImportBatchView[]>({
+    queryKey: [...root(tenant?.id), 'imports'],
+    queryFn: async () => (await client.readAll('listMasterImports')).flatMap((raw) => toImportBatch(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** One batch with its row errors and the state of its change requests; null when none is chosen. */
+export function useImportBatch(batchId: string | null | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ImportBatchView | null>({
+    queryKey: [...root(tenant?.id), 'import', batchId ?? ''],
+    queryFn: async () => toImportBatch(await client.read('getMasterImport', { path: { id: batchId ?? '' } })) ?? null,
+    enabled: tenant !== undefined && typeof batchId === 'string',
+    retry: false,
+  });
+}
+
+/** Uploads the file; the answer names its columns and rows, which the mapping step needs. */
+export function useUploadImportFile() {
+  const client = useApiClient();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation<ImportFileView | undefined, unknown, File>({
+    mutationFn: async (file) => toImportFile(await uploadFile(client, 'uploadMasterImportFile', { file, attempt: attempts.current.forPayload({ name: file.name, size: file.size, type: file.type, modified: file.lastModified }) })),
+    onSuccess: () => attempts.current.done(),
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface StageImportBody {
+  master_type: string;
+  file_object_key: string;
+  file_sha256: string;
+  mapping: Record<string, unknown>;
+  mode: ImportMode;
+}
+
+export function useStageImport() {
+  const client = useApiClient();
+  return useCommand<StageImportBody>((body, attempt) => client.command('stageMasterImport', { body: { ...body, mapping: body.mapping as Record<string, never> }, attempt }));
+}
+
+export function useApplyImport() {
+  const client = useApiClient();
+  return useCommand<VersionedInput>((input, attempt) => client.command('applyMasterImport', { path: { id: input.id }, ifMatchVersion: input.version, attempt }));
+}
+
+export function useDecideImport() {
+  const client = useApiClient();
+  return useCommand<DecideInput>((input, attempt) =>
+    client.command('decideMasterImport', { path: { id: input.id }, body: { decision: input.decision, reason: input.reason }, ifMatchVersion: input.version, attempt }),
+  );
+}
+
+export function usePublishImport() {
+  const client = useApiClient();
+  return useCommand<PublishInput>((input, attempt) =>
+    client.command('publishMasterImport', { path: { id: input.id }, body: { decision_document_id: input.decisionDocumentId }, ifMatchVersion: input.version, attempt }),
   );
 }

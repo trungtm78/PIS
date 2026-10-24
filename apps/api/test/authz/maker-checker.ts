@@ -70,8 +70,19 @@ export function derivedId(objectId: string, purpose: string): string {
 const IMPACT = '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}';
 const REVIEWER = '00000000-0000-4000-8000-0000000000e1';
 
-/** A new master record with its first version and its CREATE change request, all made by `$2`, the request in the status `$3`. */
-const SEED_MASTER = `with r as (
+/**
+ * A new master record with its first version and its CREATE change request, all made by `$2`, the request in the status `$3`; with
+ * `batch`, the request belongs to an import batch of the same id, which is in review (and reviewed once the request is approved).
+ */
+function seedMaster(batch: boolean): string {
+  const batchRow = batch
+    ? `b as (
+    insert into machvon.master_import_batch (tenant_id, id, master_type, file_object_key, file_sha256, mapping_json, mode, status, total_rows, error_rows, errors_json, reviewed_by, reviewed_at, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MATRIX', 'tenants/matrix/import/' || $1::uuid::text, repeat('d', 64), '{}'::jsonb, 'ATOMIC', 'IN_REVIEW', 1, 0, '[]'::jsonb,
+            case $3::text when 'APPROVED' then '${REVIEWER}'::uuid end, case $3::text when 'APPROVED' then now() end, $2::uuid, $2::uuid)
+  ), `
+    : '';
+  return `with ${batchRow}r as (
     insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
     values (current_setting('app.tenant_id')::uuid, $1::uuid, 'TENANT', 'MATRIX', 'MX-' || $1::uuid::text, $3::text, $2::uuid, $2::uuid)
   ), v as (
@@ -81,9 +92,13 @@ const SEED_MASTER = `with r as (
     insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by)
     values (current_setting('app.tenant_id')::uuid, $1::uuid, 'INCOMING', 'CV', 'Matrix decision', 'INTERNAL', $2::uuid, $2::uuid)
   )
-  insert into machvon.master_change_request (tenant_id, id, change_kind, master_type, master_record_id, proposed_json, reason, impact_json, effective_from, status, reviewed_by, decided_at, created_by, updated_by)
+  insert into machvon.master_change_request (tenant_id, id, change_kind, master_type, master_record_id, proposed_json, reason, impact_json, effective_from, status, reviewed_by, decided_at, created_by, updated_by${batch ? ', import_batch_id' : ''})
   values (current_setting('app.tenant_id')::uuid, $1::uuid, 'CREATE', 'MATRIX', $1::uuid, '{"label":"Matrix entry"}'::jsonb, 'maker-checker matrix', '${IMPACT}'::jsonb, '2026-01-01', $3::text,
-          case $3::text when 'APPROVED' then '${REVIEWER}'::uuid end, case $3::text when 'APPROVED' then now() end, $2::uuid, $2::uuid)`;
+          case $3::text when 'APPROVED' then '${REVIEWER}'::uuid end, case $3::text when 'APPROVED' then now() end, $2::uuid, $2::uuid${batch ? ', $1::uuid' : ''})`;
+}
+
+const SEED_MASTER = seedMaster(false);
+const SEED_MASTER_IMPORT = seedMaster(true);
 
 export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
   {
@@ -123,6 +138,26 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
       body: { decision_document_id: derivedId(objectId, 'publish') },
     }),
     seedMadeBy: (objectId, maker) => [SEED_MASTER, [derivedId(objectId, 'publish'), maker, 'APPROVED']],
+  },
+  {
+    operationId: 'decideMasterImport',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/master-imports/${derivedId(objectId, 'decide-batch')}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: 'maker-checker matrix batch decision' },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_MASTER_IMPORT, [derivedId(objectId, 'decide-batch'), maker, 'IN_REVIEW']],
+  },
+  {
+    operationId: 'publishMasterImport',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/master-imports/${derivedId(objectId, 'publish-batch')}/publish`,
+      ifMatch: '"1"',
+      body: { decision_document_id: derivedId(objectId, 'publish-batch') },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_MASTER_IMPORT, [derivedId(objectId, 'publish-batch'), maker, 'APPROVED']],
   },
 ];
 

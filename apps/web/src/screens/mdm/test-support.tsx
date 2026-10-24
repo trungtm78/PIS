@@ -74,12 +74,35 @@ export const change = (n: number, overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+export const batch = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: `00000000-0000-4000-8000-00000000d0${String(n).padStart(2, '0')}`,
+  master_type: 'FUND_SOURCE',
+  file_object_key: `tenants/t/import/${n}`,
+  file_sha256: 'a'.repeat(64),
+  mapping: {},
+  mode: 'ATOMIC',
+  status: 'VALIDATED',
+  total_rows: 10,
+  error_rows: 0,
+  errors: [],
+  applied_at: null,
+  reviewed_by: null,
+  published_by: null,
+  decision_document_id: null,
+  created_by: OTHER,
+  version: 1,
+  changes: {},
+  ...overrides,
+});
+
 export interface World {
   records: Array<Record<string, unknown>>;
   versions: Array<Record<string, unknown>>;
   changes: Array<Record<string, unknown>>;
   usage: Record<string, unknown>;
   policies: Array<Record<string, unknown>>;
+  /** The import batches of the tenant, the newest first. */
+  imports: Array<Record<string, unknown>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
   /** Reads of the entries of these master types fail (the other types are answered). */
@@ -93,6 +116,7 @@ export function world(overrides: Partial<World> = {}): World {
     changes: [],
     usage: { master_record_id: record(1).id, as_of: null, counts: {}, total: 0, samples: [] },
     policies: [],
+    imports: [],
     failing: new Set(),
     ...overrides,
   };
@@ -109,6 +133,7 @@ export function client(state: World, command: (operation: string, input: unknown
       if (operation === 'getMasterChangeRequest') return state.changes.find((item) => item.id === path?.id) ?? new Error('not found');
       if (operation === 'getMasterRecordUsages') return state.usage;
       if (operation === 'listMasterTypePolicies') return { items: state.policies };
+      if (operation === 'getMasterImport') return state.imports.find((item) => item.id === path?.id) ?? new Error('not found');
       return new Error(`unexpected read ${operation}`);
     },
     command,
@@ -120,6 +145,8 @@ export function client(state: World, command: (operation: string, input: unknown
     switch (operation) {
       case 'searchMasterRecords':
         return Promise.resolve(state.records.filter((item) => (query.master_type === undefined || item.master_type === query.master_type) && (query.business_key === undefined || item.business_key === query.business_key) && (query.namespace === undefined || item.namespace === query.namespace)));
+      case 'listMasterImports':
+        return Promise.resolve(state.imports);
       case 'listMasterChangeRequests':
         return Promise.resolve(state.changes.filter((item) => query.status === undefined || item.status === query.status));
       case 'get_resources_master_record_version':

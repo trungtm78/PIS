@@ -13390,14 +13390,5 @@
     ],
     "cr": "CR-DATA-01",
     "reason": "Constraints (CHECK, nullability, keys) and annotations appended to baseline column definitions per the owning module spec; no column removed."
-  },
-  {
-    "collection": "operations",
-    "key": "listMasterTypePolicies",
-    "fields": [
-      "operation"
-    ],
-    "cr": "CR-MDM-03",
-    "reason": "Read of the scope policy of each catalogue type so the scope screen (MDM-33) can show what the platform locks and what the tenant owns; read-only, additive, no operation changed."
   }
 ]

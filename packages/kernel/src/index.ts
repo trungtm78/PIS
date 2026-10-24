@@ -123,3 +123,5 @@ export { ROUNDING_MODES, convertDecimal, roundDecimal } from './decimal.ts';
 export type { RoundingMode } from './decimal.ts';
 export { CALENDAR_TIMEZONES, WEEKDAYS, assertCalendar, isLate, periodOf, reportingPeriods } from './reporting-calendar.ts';
 export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-calendar.ts';
+export { DEFAULT_TABULAR_LIMITS, readTabularFile } from './tabular-file.ts';
+export type { TabularFile, TabularFormat, TabularLimits } from './tabular-file.ts';

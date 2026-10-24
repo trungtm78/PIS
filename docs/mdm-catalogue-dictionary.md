@@ -42,6 +42,20 @@ A rule type is a catalogue type whose attributes drive a decision of another mod
 | `CALENDAR` (`DEFAULT`) | DIS | `week_starts_on`, `deadline_weekday` (MONDAY..SUNDAY), `deadline_time` (`HH:MM` local), `timezone` (`Asia/Ho_Chi_Minh`, UTC+07 without daylight saving) | week from Saturday to Friday, due Friday 10:00 (03:00 UTC) | working assumption D03 until the owner of the capital business signs it; awaiting ASSUMPTION-D03 |
 | `APPRAISAL_CRITERIA` (`APPR-CRIT-2026r1`) | PRJ | `criteria`: list of `{code, name, max_score}` adding up to 100, `pass_threshold` (1..100) | five criteria (policy alignment 25, feasibility 25, effectiveness 20, capital readiness 20, risk 10), threshold 60 | criteria issued by the finance authority; awaiting ASSUMPTION-APPRAISAL-60 (PRJ 3.1 marks the 60-point threshold as an assumption) |
 
+## Bulk import (MDM-29, ST-MDM-006)
+
+A catalogue is imported from a CSV file (UTF-8; comma, semicolon or tab) or the first sheet of an XLSX file, at most 10 MB and 5,000 rows, a header in the first row. The type of the file is told by its bytes, the file is scanned, and its hash is kept: a file whose content was applied before is never applied again (409 `IMPORT_FILE_ALREADY_APPLIED`).
+
+| Step | What happens |
+|---|---|
+| Upload (`uploadMasterImportFile`) | stored under the tenant prefix, scanned, read as a table; the answer names the columns and the number of rows |
+| Stage (`stageMasterImport`) | the mapping (a column for the code, the name, the effective date, and optionally the parent, the end date, the legal basis and each attribute) is checked against the columns; every row is judged and the errors are kept (row, field, code); nothing else is written |
+| Apply (`applyMasterImport`) | the file is read again and judged again; ATOMIC with one row in error changes nothing (422 `IMPORT_HAS_ERRORS`); PARTIAL leaves the rows in error out and lists them; the records and their change requests are created together and submitted |
+| Decide (`decideMasterImport`) | the whole batch is approved or rejected by someone who did not apply it |
+| Publish (`publishMasterImport`) | every record is put in force on one decision document, or none is; the batch becomes APPLIED |
+
+Row error codes: `REQUIRED`, `INVALID_FORMAT`, `TOO_LONG`, `INVALID_DATE`, `INVALID_RANGE`, `DUPLICATE_IN_FILE`, `DUPLICATE_KEY`, `PARENT_NOT_FOUND`, `PARENT_CYCLE`, `PARENT_SKIPPED` (the parent row cannot be created), `INVALID_VALUE` (the rules of the type), `POLICY_LOCKED`, and the code of a rule of the type such as `SUBSET_SOURCE_NOT_ADDITIVE`. A cell is read by the kind of its attribute: integers and flags from their text (`true`, `yes`, `1`, `có`), lists split at `;`, `,` or `|`, structured values as JSON.
+
 ## Reading the rules (rule port)
 
 `MasterRules` (`packages/db/src/master-rules.ts`) returns the version in force on a business date, never the latest:

@@ -70,6 +70,12 @@ export const MASTER_FIXTURES: Readonly<Record<TenantName, { recordId: string; ve
   'TNT-B': { recordId: '00000000-0000-4000-b010-000000000001', versionId: '00000000-0000-4000-b010-000000000002', changeId: '00000000-0000-4000-b010-000000000003', businessKey: 'BETA-SECTOR-0001', label: 'Beta sector label' },
 };
 
+/** A bulk import batch of each tenant, waiting for its review (the file hash and the object key are distinctive). */
+export const MASTER_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; fileSha256: string; fileObjectKey: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a011-000000000001', fileSha256: 'a3'.repeat(32), fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000a/import/alpha-catalogue-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b011-000000000001', fileSha256: 'b4'.repeat(32), fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000b/import/beta-catalogue-0001' },
+};
+
 /** An Active signing certificate of each tenant (its fingerprint and serial are distinctive; tenant administration data). */
 export const CERTIFICATE_FIXTURES: Readonly<Record<TenantName, { id: string; fingerprint: string; serial: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a00e-000000000001', fingerprint: 'a1'.repeat(32), serial: 'ALPHA0C0E71F' },
@@ -185,6 +191,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'master change request id', value: MASTER_FIXTURES[tenant].changeId },
     { kind: 'master business key', value: MASTER_FIXTURES[tenant].businessKey },
     { kind: 'master label', value: MASTER_FIXTURES[tenant].label },
+    { kind: 'master import id', value: MASTER_IMPORT_FIXTURES[tenant].id },
+    { kind: 'master import file hash', value: MASTER_IMPORT_FIXTURES[tenant].fileSha256 },
+    { kind: 'master import object key', value: MASTER_IMPORT_FIXTURES[tenant].fileObjectKey },
     { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },
     { kind: 'register id', value: DOCUMENT_FIXTURES[tenant].registerId },
     { kind: 'register code', value: DOCUMENT_FIXTURES[tenant].registerCode },

@@ -431,6 +431,9 @@ export type ProblemReason =
   | 'stageDenied'
   | 'validation'
   | 'denied'
+  | 'importHasErrors'
+  | 'alreadyApplied'
+  | 'fileRefused'
   | 'general';
 
 const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
@@ -448,6 +451,12 @@ const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
   INVALID_REQUEST: 'validation',
   SCOPE_DENIED: 'denied',
   PERMISSION_DENIED: 'denied',
+  IMPORT_HAS_ERRORS: 'importHasErrors',
+  IMPORT_FILE_ALREADY_APPLIED: 'alreadyApplied',
+  FILE_TYPE_NOT_ALLOWED: 'fileRefused',
+  FILE_NOT_CLEAN: 'fileRefused',
+  PAYLOAD_TOO_LARGE: 'fileRefused',
+  SCAN_PENDING: 'fileRefused',
 };
 
 export interface ProblemView {
@@ -506,3 +515,153 @@ export function proposalRows(before: Record<string, unknown> | null, proposed: R
     return [{ field, before: was, after }];
   });
 }
+
+// ---- bulk import (MDM-29) ----------------------------------------------------------------------------------------------------
+
+export const IMPORT_PERMISSION = 'master.import';
+export type ImportMode = 'ATOMIC' | 'PARTIAL';
+export type ImportStatus = 'STAGED' | 'VALIDATED' | 'IN_REVIEW' | 'APPLIED' | 'FAILED' | 'CANCELLED';
+const IMPORT_STATUSES: readonly string[] = ['STAGED', 'VALIDATED', 'IN_REVIEW', 'APPLIED', 'FAILED', 'CANCELLED'];
+
+/** The file that was uploaded and read: where it is kept, its hash, and what the mapping step can choose from. */
+export interface ImportFileView {
+  fileObjectKey: string;
+  fileSha256: string;
+  sizeBytes: number;
+  format: 'CSV' | 'XLSX';
+  columns: string[];
+  rowCount: number;
+}
+
+export interface RowErrorView {
+  row: number;
+  field: string;
+  code: string;
+}
+
+export interface ImportBatchView {
+  id: string;
+  masterType: string;
+  fileSha256: string;
+  mode: ImportMode;
+  status: ImportStatus;
+  totalRows: number;
+  errorRows: number;
+  errors: RowErrorView[];
+  appliedAt: string | null;
+  reviewedBy: string | null;
+  createdBy: string;
+  version: number;
+  /** The change requests of the batch by status (only the read of one batch carries them). */
+  changes: Record<string, number>;
+}
+
+export function toImportFile(raw: unknown): ImportFileView | undefined {
+  const row = asRecord(raw);
+  if (row === undefined) return undefined;
+  const key = text(row.file_object_key);
+  const sha = text(row.file_sha256);
+  const size = whole(row.size_bytes);
+  const rows = whole(row.row_count);
+  const format = row.format === 'XLSX' ? 'XLSX' : row.format === 'CSV' ? 'CSV' : undefined;
+  if (key === undefined || sha === undefined || size === undefined || rows === undefined || format === undefined || !Array.isArray(row.columns)) return undefined;
+  return { fileObjectKey: key, fileSha256: sha, sizeBytes: size, format, columns: row.columns.filter((column): column is string => typeof column === 'string'), rowCount: rows };
+}
+
+export function toImportBatch(raw: unknown): ImportBatchView | undefined {
+  const row = asRecord(raw);
+  if (row === undefined) return undefined;
+  const id = text(row.id);
+  const masterType = text(row.master_type);
+  const sha = text(row.file_sha256);
+  const status = text(row.status);
+  const totalRows = whole(row.total_rows);
+  const errorRows = whole(row.error_rows);
+  const version = whole(row.version);
+  const createdBy = text(row.created_by);
+  if (id === undefined || masterType === undefined || sha === undefined || status === undefined || !IMPORT_STATUSES.includes(status) || totalRows === undefined || errorRows === undefined || version === undefined || createdBy === undefined) {
+    return undefined;
+  }
+  const errors = Array.isArray(row.errors)
+    ? row.errors.flatMap((item): RowErrorView[] => {
+        const error = asRecord(item);
+        const line = whole(error?.row);
+        const field = text(error?.field);
+        const code = text(error?.code);
+        return line === undefined || field === undefined || code === undefined ? [] : [{ row: line, field, code }];
+      })
+    : [];
+  const changes = Object.fromEntries(Object.entries(asRecord(row.changes) ?? {}).flatMap(([name, count]) => (whole(count) === undefined ? [] : [[name, count as number]])));
+  return {
+    id,
+    masterType,
+    fileSha256: sha,
+    mode: row.mode === 'PARTIAL' ? 'PARTIAL' : 'ATOMIC',
+    status: status as ImportStatus,
+    totalRows,
+    errorRows,
+    errors,
+    appliedAt: nullableText(row.applied_at),
+    reviewedBy: nullableText(row.reviewed_by),
+    createdBy,
+    version,
+    changes,
+  };
+}
+
+/** The columns of the file named for each part of an entry (an empty text: not used). */
+export interface ImportMappingForm {
+  key: string;
+  label: string;
+  valid_from: string;
+  parent_key: string;
+  valid_until: string;
+  legal_basis: string;
+  /** Attribute name → column. */
+  attributes: Record<string, string>;
+}
+
+export const EMPTY_MAPPING: ImportMappingForm = { key: '', label: '', valid_from: '', parent_key: '', valid_until: '', legal_basis: '', attributes: {} };
+
+/** A name as a person writes it in a header, compared without case, accents or spacing. */
+const plainName = (value: string): string =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+
+const MAPPING_ALIASES: Readonly<Record<'key' | 'label' | 'valid_from' | 'valid_until' | 'parent_key' | 'legal_basis', readonly string[]>> = {
+  key: ['code', 'key', 'ma', 'business key', 'business_key', 'ma danh muc'],
+  label: ['name', 'label', 'ten', 'ten danh muc'],
+  valid_from: ['valid from', 'effective from', 'start', 'tu ngay', 'hieu luc tu'],
+  valid_until: ['valid until', 'effective until', 'end', 'den ngay', 'hieu luc den'],
+  parent_key: ['parent', 'parent key', 'ma cha', 'cap cha'],
+  legal_basis: ['legal basis', 'basis', 'can cu', 'can cu phap ly'],
+};
+
+/** A first guess of the mapping from the headers of the file: the names that are usually used, and the names of the attributes of the type. */
+export function suggestMapping(headers: readonly string[], attributeNames: readonly string[]): ImportMappingForm {
+  const plain = headers.map((header) => [header, plainName(header)] as const);
+  const find = (names: readonly string[]): string => plain.find(([, name]) => names.includes(name))?.[0] ?? '';
+  const mapping: ImportMappingForm = { ...EMPTY_MAPPING, attributes: {} };
+  for (const field of Object.keys(MAPPING_ALIASES) as Array<keyof typeof MAPPING_ALIASES>) mapping[field] = find(MAPPING_ALIASES[field]);
+  for (const name of attributeNames) {
+    const column = find([plainName(name)]);
+    if (column !== '') mapping.attributes[name] = column;
+  }
+  return mapping;
+}
+
+/** The mapping as the request carries it: the parts that are not used are left out. */
+export function mappingBody(form: ImportMappingForm): Record<string, unknown> {
+  const body: Record<string, unknown> = { key: form.key, label: form.label, valid_from: form.valid_from };
+  for (const field of ['parent_key', 'valid_until', 'legal_basis'] as const) if (form[field] !== '') body[field] = form[field];
+  const attributes = Object.fromEntries(Object.entries(form.attributes).filter(([, column]) => column !== ''));
+  if (Object.keys(attributes).length > 0) body.attributes = attributes;
+  return body;
+}
+
+export const mappingComplete = (form: ImportMappingForm): boolean => form.key !== '' && form.label !== '' && form.valid_from !== '';
