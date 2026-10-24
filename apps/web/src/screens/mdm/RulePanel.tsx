@@ -11,8 +11,11 @@ const text = (value: unknown): string => (typeof value === 'string' || typeof va
 export function amountText(amount: string, locale: string): string {
   const [whole = '', fraction] = amount.split('.');
   if (!/^\d+$/.test(whole)) return amount;
-  const grouped = new Intl.NumberFormat(locale).format(BigInt(whole));
-  return fraction === undefined ? grouped : `${grouped}.${fraction}`;
+  const format = new Intl.NumberFormat(locale);
+  const grouped = format.format(BigInt(whole));
+  // The cents keep their exact digits; only the separator is the language's own.
+  const separator = format.formatToParts(1.1).find((part) => part.type === 'decimal')?.value ?? '.';
+  return fraction === undefined ? grouped : `${grouped}${separator}${fraction}`;
 }
 
 function Thresholds({ bands }: { bands: Row[] }) {

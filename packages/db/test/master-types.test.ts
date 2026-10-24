@@ -1,4 +1,4 @@
-import { isRuleType, masterTypeDefinition, ruleTypes, validateMasterContent } from '../src/master-types';
+import { isRuleType, masterTypeDefinition, ruleTypes, safePattern, validateMasterContent } from '../src/master-types';
 import type { EntryRef, TypeLookup } from '../src/master-types';
 import type { MasterContent } from '../src/master-store';
 
@@ -195,6 +195,27 @@ describe('rule data (BR-MDM-09)', () => {
     expect(await problem('NATIONAL_CODE_FORMAT', 'DEFAULT', rule({ pattern: '(', example: '1' }))).toEqual(invalid('attributes.pattern'));
     expect(await problem('NATIONAL_CODE_FORMAT', 'DEFAULT', rule({ pattern: 'x'.repeat(201), example: 'x' }))).toEqual(invalid('attributes.pattern'));
     expect(await problem('NATIONAL_CODE_FORMAT', 'DEFAULT', rule({ pattern: '^a$', example: 'a'.repeat(65) }))).toEqual(invalid('attributes.example'));
+  });
+
+  it('takes a code format only from the safe subset: anchored, bounded atoms, no group, alternation, star or plus', async () => {
+    const format = (pattern: string, example: string) => problem('NATIONAL_CODE_FORMAT', 'DEFAULT', rule({ pattern, example }));
+    expect(await format('^[A-Z]{2}-\\d{4,6}$', 'VN-12345')).toBeUndefined();
+    expect(await format('^a?a?a?a?$', 'aa')).toBeUndefined();
+    for (const unsafe of ['^(a+)+$', '^a*$', '^a+$', '^a|b$', '^(a)$', '^\\d{7}', '\\d{7}$', '^$', '^a{3,2}$', '^a{99}$', '^[^a]$', '^a?a?a?a?a?$', '^\\1$', `^${'a'.repeat(41)}$`]) {
+      expect(await format(unsafe, 'a')).toEqual(invalid('attributes.pattern'));
+    }
+    // The classic exponential pattern is refused before it is ever run.
+    const started = Date.now();
+    expect(await format('^(a+)+$', `${'a'.repeat(63)}!`)).toEqual(invalid('attributes.pattern'));
+    expect(Date.now() - started).toBeLessThan(200);
+    expect(safePattern('^\\d{7}$')?.test('7654321')).toBe(true);
+    expect(safePattern('^\\d{7}$')?.test('765432')).toBe(false);
+  });
+
+  it('does not take a null where a confirmation reference is due', async () => {
+    const required = { mode: 'BLOCK', from_stage_key: 'EXECUTION', awaiting_confirmation: true };
+    expect(await problem('NATIONAL_CODE_REQUIRED', 'DEFAULT', rule({ ...required, cxn: null }))).toEqual(invalid('attributes.cxn'));
+    expect(await problem('NATIONAL_CODE_REQUIRED', 'DEFAULT', rule({ ...required, cxn: 7 }))).toEqual(invalid('attributes.cxn'));
   });
 
   it('wants criteria that add up to 100 points and a pass threshold inside them', async () => {

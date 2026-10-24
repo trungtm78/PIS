@@ -52,6 +52,39 @@ const KEY = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
 /** A format pattern is only ever run against a string of at most this many characters, which bounds what a careless pattern can cost. */
 export const NATIONAL_CODE_SAMPLE_LIMIT = 64;
 
+/** One atom of a code format: a literal, a class of characters (never negated), or \d \w \s; a quantifier is optional. */
+const ATOM = /^(?:\\[dws./-]|\[(?:\\[dws]|[A-Za-z0-9]-[A-Za-z0-9]|[A-Za-z0-9._-])+\]|[A-Za-z0-9 _./-])(\?|\{(\d{1,2})(?:,(\d{1,2}))?\})?/;
+const MAX_FORMAT_ATOMS = 40;
+/** Atoms that can match in more than one way are what makes backtracking grow: few of them, and the engine stays fast on a short sample. */
+const MAX_VARIABLE_ATOMS = 4;
+
+/**
+ * A code format is a small, safe subset of regular expressions: anchored at both ends, a sequence of atoms (a character, a class such
+ * as [A-Z0-9], \d, \w, \s) each with an optional `?` or `{n}` or `{n,m}`. There is no group, alternation, star, plus or back-reference, and
+ * only a few atoms can vary, so no input can make the match take more than a moment. Anything else is not a format.
+ */
+export function safePattern(pattern: string): RegExp | undefined {
+  if (!pattern.startsWith('^') || !pattern.endsWith('$') || pattern.length < 3) return undefined;
+  let rest = pattern.slice(1, -1);
+  let atoms = 0;
+  let variable = 0;
+  while (rest !== '') {
+    const found = ATOM.exec(rest);
+    if (found === null) return undefined;
+    atoms += 1;
+    if (found[1] !== undefined) {
+      const low = found[2] === undefined ? undefined : Number(found[2]);
+      const high = found[3] === undefined ? undefined : Number(found[3]);
+      if (found[1] === '?' || (low !== undefined && high !== undefined && high !== low)) variable += 1;
+      if (low !== undefined && high !== undefined && high < low) return undefined;
+      if ((high ?? low ?? 0) > NATIONAL_CODE_SAMPLE_LIMIT) return undefined;
+    }
+    rest = rest.slice(found[0].length);
+  }
+  if (atoms === 0 || atoms > MAX_FORMAT_ATOMS || variable > MAX_VARIABLE_ATOMS) return undefined;
+  return new RegExp(pattern);
+}
+
 const fail = (field: string): never => {
   throw new DomainError('VALIDATION_FAILED', 422, field);
 };
@@ -222,12 +255,8 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     fields: [...RULE_FIELDS, { name: 'pattern', kind: 'text', required: true, maxLength: 200 }, { name: 'example', kind: 'text', required: true, maxLength: NATIONAL_CODE_SAMPLE_LIMIT }],
     check: ({ content }) => {
       const { pattern, example } = content.attributes as { pattern: string; example: string };
-      let expression: RegExp;
-      try {
-        expression = new RegExp(pattern);
-      } catch {
-        return fail('attributes.pattern');
-      }
+      const expression = safePattern(pattern);
+      if (expression === undefined) return fail('attributes.pattern');
       if (!expression.test(example)) fail('attributes.example');
     },
   },
@@ -319,7 +348,7 @@ export async function validateMasterContent(input: TypeInput): Promise<void> {
   if (definition.rule === true) {
     // BR-MDM-09: a rule without its legal basis, or one that waits for a confirmation without saying which, is not a rule.
     if (legalBasis === null || legalBasis.trim() === '') fail('legal_basis');
-    if (attributes.awaiting_confirmation === true && attributes.cxn === undefined) fail('attributes.cxn');
+    if (attributes.awaiting_confirmation === true && typeof attributes.cxn !== 'string') fail('attributes.cxn');
   }
   const known = new Set(definition.fields.map((field) => field.name));
   if (definition.strict === true) {

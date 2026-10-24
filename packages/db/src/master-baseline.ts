@@ -217,7 +217,8 @@ async function supersede(tx: TenantTx, recordId: string, item: BaselineEntry, co
     ],
   );
   if (inForce) {
-    await tx.query("update machvon.master_record_version set status = 'RETIRED' where id = $1::uuid and status = 'EFFECTIVE'", [latest.id]);
+    // Every earlier version ends here, one that never became active too: the activation job would otherwise put it back in force.
+    await tx.query("update machvon.master_record_version set status = 'RETIRED' where master_record_id = $1::uuid and revision < $2 and status in ('EFFECTIVE', 'APPROVED')", [recordId, latest.revision + 1]);
     await tx.query('update machvon.master_record set current_version_id = $2::uuid, status = $3, updated_at = now(), updated_by = $4::uuid, version = version + 1 where id = $1::uuid', [
       recordId,
       (created[0] as { id: string }).id,

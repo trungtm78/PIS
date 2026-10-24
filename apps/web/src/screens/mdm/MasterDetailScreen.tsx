@@ -61,10 +61,11 @@ function Detail({ record }: { record: RecordView }) {
   const usage = useUsage(record.id);
   const history = useHistory(record.id);
   const open = useChange(record.openChangeRequestId ?? undefined);
-  const [submitted, setSubmitted] = useState(false);
+  // The version of the request that was submitted from here: a request that comes back as a draft has a new version and is offered again.
+  const [submitted, setSubmitted] = useState<number | undefined>(undefined);
   const canPropose = (permissions === undefined || permissions.includes(PROPOSE_PERMISSION)) && mode !== 'READ_ONLY';
   // A draft that was saved and not sent (the page was left, the session ended) is picked up here: its impact is read and it can be submitted.
-  const draft = open.data !== undefined && open.data !== null && open.data.status === 'DRAFT' && !submitted ? open.data : undefined;
+  const draft = open.data !== undefined && open.data !== null && open.data.status === 'DRAFT' && open.data.version !== submitted ? open.data : undefined;
   const current = useMemo(() => history.data?.find((version) => version.id === record.versionId), [history.data, record.versionId]);
   return (
     <div className="mdm-grid">
@@ -108,7 +109,7 @@ function Detail({ record }: { record: RecordView }) {
             {draft === undefined ? t('mdm.detail.pending.notice') : t('mdm.detail.draft.notice')} <Link to={APPROVAL_PATH}>{t('mdm.detail.pending.link')}</Link>
           </p>
         )}
-        {draft === undefined ? null : <SubmitWithImpact change={draft} canSubmit={canPropose} onSubmitted={() => setSubmitted(true)} />}
+        {draft === undefined ? null : <SubmitWithImpact change={draft} canSubmit={canPropose} onSubmitted={() => setSubmitted(draft.version)} />}
         <div className="formfooter">
           <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.detail.history.action')}</Link>
           {canEdit ? <Link to={recordLink(RETIRE_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.detail.retire.action')}</Link> : null}

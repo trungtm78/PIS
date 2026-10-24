@@ -82,6 +82,8 @@ export interface World {
   policies: Array<Record<string, unknown>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
+  /** Reads of the entries of these master types fail (the other types are answered). */
+  failingTypes?: Set<string>;
 }
 
 export function world(overrides: Partial<World> = {}): World {
@@ -114,6 +116,7 @@ export function client(state: World, command: (operation: string, input: unknown
   (h.client as unknown as { readAll: (operation: string, input?: { query?: Query }) => Promise<unknown[]> }).readAll = vi.fn((operation: string, input?: { query?: Query }) => {
     if (state.failing.has(operation)) return Promise.reject(new Error(`${operation} failed`));
     const query = input?.query ?? {};
+    if (operation === 'searchMasterRecords' && query.master_type !== undefined && state.failingTypes?.has(query.master_type) === true) return Promise.reject(new Error(`${operation} failed for ${query.master_type}`));
     switch (operation) {
       case 'searchMasterRecords':
         return Promise.resolve(state.records.filter((item) => (query.master_type === undefined || item.master_type === query.master_type) && (query.business_key === undefined || item.business_key === query.business_key) && (query.namespace === undefined || item.namespace === query.namespace)));

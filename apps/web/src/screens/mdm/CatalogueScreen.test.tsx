@@ -217,6 +217,18 @@ describe('CatalogueScreen: the other catalogues', () => {
     expect(screen.getByText(vi_['mdm.rule.awaiting.pill'].replace('{cxn}', 'CXN-01'))).toBeTruthy();
   });
 
+  it('says that the rules could not be read, with a retry, instead of showing an empty list of rules', async () => {
+    const stage = record(1, { master_type: 'PROJECT_STAGE', business_key: 'CONCEPT', attributes: { sequence: 1 } });
+    const state = world({ records: [stage], failingTypes: new Set(['NATIONAL_CODE_REQUIRED']) });
+    mount(<CatalogueScreen route={route('MDM-08')} />, client(state), READER, '/mdm/mdm-08');
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(screen.queryByText(vi_['mdm.rule.empty.text'])).toBeNull();
+    state.failingTypes = new Set();
+    await userEvent.setup().click(screen.getByRole('button', { name: vi_['states.retry.action'] }));
+    await ready();
+    expect(screen.getByText(vi_['mdm.rule.empty.text'])).toBeTruthy();
+  });
+
   it('says that no rule is in force, and refuses a route that is not a catalogue', async () => {
     mount(<CatalogueScreen route={route('MDM-08')} />, client(world({ records: [record(1, { master_type: 'PROJECT_STAGE', business_key: 'CONCEPT', attributes: { sequence: 1 } })] })), READER, '/mdm/mdm-08');
     await ready();

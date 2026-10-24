@@ -50,7 +50,8 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
   const entries = useCatalogue(config.types);
   const rules = useCatalogue(config.rules);
   const policies = useTypePolicies();
-  const state = useScreenState({ isLoading: entries.isLoading, error: entries.error, data: entries.data, isEmpty: NEVER_EMPTY });
+  // The rules are part of the screen: a rule that could not be read is an error with a retry, never an empty list that looks like no rule.
+  const state = useScreenState({ isLoading: entries.isLoading || rules.isLoading, error: entries.error ?? rules.error, data: entries.data, isEmpty: NEVER_EMPTY });
   const canPropose = (permissions === undefined || permissions.includes(PROPOSE_PERMISSION)) && mode !== 'READ_ONLY';
   const target = type === '' ? (config.types[0] ?? '') : type;
   const policy = policies.data?.find((candidate) => candidate.masterType === target);
@@ -101,7 +102,7 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
           ) : null}
         </div>
       </div>
-      <StateBoundary state={state} onRetry={() => void entries.refetch()}>
+      <StateBoundary state={state} onRetry={() => void Promise.all([entries.refetch(), rules.refetch()])}>
         <div className="card">
           <form className="mdm-filters" role="search" onSubmit={(event) => event.preventDefault()} aria-label={t('mdm.catalogue.filter.title')}>
             <div className="field">

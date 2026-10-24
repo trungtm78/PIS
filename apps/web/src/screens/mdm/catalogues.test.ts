@@ -110,6 +110,9 @@ describe('the amounts of a threshold table', () => {
     expect(amountText('120000000000', 'en')).toBe('120,000,000,000');
     expect(amountText('1234.50', 'en')).toBe('1,234.50');
     expect(amountText('0', 'en')).toBe('0');
+    // The separator of the cents is the language's own: Vietnamese groups with dots and has a comma before the cents.
+    expect(amountText('1234.50', 'vi')).toBe('1.234,50');
+    expect(amountText('120000000000', 'vi')).toBe('120.000.000.000');
     expect(amountText('12345678901234567890', 'en')).toBe('12,345,678,901,234,567,890');
     expect(amountText('not an amount', 'en')).toBe('not an amount');
   });

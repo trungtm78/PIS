@@ -50,6 +50,30 @@ describe('MasterDetailScreen (MDM-27)', () => {
     await waitFor(() => expect(screen.queryByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeNull());
   });
 
+  it('offers the request again when a reviewer returns it to a draft while the screen stays open', async () => {
+    const draft = change(1, { status: 'DRAFT', version: 1 });
+    const state = world({ records: [record(1, { open_change_request_id: draft.id })], changes: [draft] });
+    const h = client(state, () => {
+      state.changes[0] = change(1, { status: 'IN_REVIEW', version: 2 });
+      return { operation_id: 'o', status: 'IN_REVIEW', resource_version: 2, resource_id: draft.id };
+    });
+    const view = mount(<MasterDetailScreen route={ROUTE} />, h, STEWARD, AT);
+    await ready();
+    const user = userEvent.setup();
+    await waitFor(() => expect(screen.getByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeTruthy());
+    await user.click(screen.getByRole('checkbox', { name: vi_['mdm.impact.read.label'] }));
+    await user.click(screen.getByRole('button', { name: vi_['mdm.impact.submit.action'] }));
+    await waitFor(() => expect(screen.queryByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeNull());
+    await view.queries.invalidateQueries();
+    await waitFor(() => expect(screen.getByTestId('pending').textContent).toContain(vi_['mdm.detail.pending.notice']));
+    expect(screen.queryByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeNull();
+    // The reviewer returns it: a draft again, with a new version.
+    state.changes[0] = change(1, { status: 'DRAFT', version: 3 });
+    await view.queries.invalidateQueries();
+    await waitFor(() => expect(screen.getByRole('form', { name: vi_['mdm.impact.step.title'] })).toBeTruthy());
+    expect(screen.getByTestId('pending').textContent).toContain(vi_['mdm.detail.draft.notice']);
+  });
+
   it('does not offer to submit a request that is already with the reviewers, or to someone who may not propose', async () => {
     const waiting = change(1, { status: 'IN_REVIEW' });
     mount(<MasterDetailScreen route={ROUTE} />, client(world({ records: [record(1, { open_change_request_id: waiting.id })], changes: [waiting] })), STEWARD, AT);

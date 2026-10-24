@@ -112,6 +112,21 @@ describe('the attribute fields of MDM-25', () => {
   });
 });
 
+describe('the list of words', () => {
+  it('shows the list that the JSON text now holds, and keeps what is being typed while the two agree', async () => {
+    mount(<MasterCreateScreen route={CREATE} />, client(world()), STEWARD, '/mdm/mdm-25?type=DECISION_TYPE');
+    const user = userEvent.setup();
+    const words = screen.getByLabelText(label('decisionType', 'requiredFields')) as HTMLInputElement;
+    await user.type(words, 'number, ');
+    // A trailing comma and space stay while the person types.
+    expect(words.value).toBe('number, ');
+    fireEvent.change(screen.getByLabelText(vi_['mdm.create.attributes.label']), { target: { value: '{"required_fields":["issued_on","amount"]}' } });
+    expect(words.value).toBe('issued_on, amount');
+    await user.type(words, ', extra');
+    expect(JSON.parse(attributesText('record-attributes'))).toEqual({ required_fields: ['issued_on', 'amount', 'extra'] });
+  });
+});
+
 describe('the attribute fields of MDM-26', () => {
   it('starts from the attributes of the version in force and keeps the ones that no field names', async () => {
     const stage = record(1, { master_type: 'PROJECT_STAGE', business_key: 'CONCEPT', label: 'Ý tưởng' });

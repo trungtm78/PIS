@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -126,6 +126,10 @@ export function SubmitWithImpact({ change, canSubmit, onSubmitted }: { change: C
 /** A list of words typed with commas: the text is kept as typed, the list is what the form stores. */
 function WordsInput({ id, value, disabled, onChange }: { id: string; value: readonly string[]; disabled: boolean; onChange: (words: string[]) => void }) {
   const [text, setText] = useState(value.join(', '));
+  // The JSON text is the source: when it changes the list some other way, the input shows that list; what is being typed stays as typed.
+  useEffect(() => {
+    setText((typed) => (JSON.stringify(wordsOf(typed)) === JSON.stringify(value) ? typed : value.join(', ')));
+  }, [value]);
   return (
     <input
       id={id}

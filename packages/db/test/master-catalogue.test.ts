@@ -256,6 +256,25 @@ describe('the catalogue types, the platform baseline and the rule port (ST-MDM-0
     });
   });
 
+  describe('versions that wait for their date', () => {
+    it('retires a version that never became active when a newer one is already in force, so the activation job cannot put it back', async () => {
+      const entry = (label: string, validFrom: string): BaselineEntry => ({ masterType: 'SECTOR', businessKey: 'LATE', label, attributes: {}, validFrom });
+      // The first version waits for 2027-01-01; the second arrives when both dates are past.
+      await asWorker((tx) => applyBaseline(tx, sealPack('PENDING-1', [entry('first', '2027-01-01')]), WORKER, '2026-06-01'), TENANT_B);
+      expect(await owner("select status from machvon.master_record where business_key = 'LATE'", [], TENANT_B)).toEqual([{ status: 'APPROVED' }]);
+      await asWorker((tx) => applyBaseline(tx, sealPack('PENDING-2', [entry('second', '2027-06-01')]), WORKER, '2028-01-01'), TENANT_B);
+      expect(await asWorker((tx) => store.activateDue(tx, WORKER, '2028-01-01'), TENANT_B)).toBe(0);
+      const current = await owner<{ label: string; status: string }>(
+        "select v.label, v.status from machvon.master_record r join machvon.master_record_version v on v.id = r.current_version_id where r.business_key = 'LATE'",
+        [],
+        TENANT_B,
+      );
+      expect(current).toEqual([{ label: 'second', status: 'EFFECTIVE' }]);
+      const all = await owner<{ revision: number; status: string }>("select revision, status from machvon.master_record_version where code = 'LATE' order by revision", [], TENANT_B);
+      expect(all).toEqual([{ revision: 1, status: 'RETIRED' }, { revision: 2, status: 'EFFECTIVE' }]);
+    });
+  });
+
   describe('the rule port', () => {
     it('returns the national code rule with its legal basis and the confirmation it waits for (AC-ST-MDM-003-3)', async () => {
       const rule = await as(STEWARD, (tx) => rules.nationalCode(tx, TODAY));
