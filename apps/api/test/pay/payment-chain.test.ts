@@ -34,7 +34,7 @@ interface Reply {
   json: Record<string, unknown>;
 }
 
-describe('the trace of a payment over HTTP (ST-PAY-010, PAY-17, UAT-AC67)', () => {
+describe('the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67)', () => {
   const fixtures = new AcceptanceWorld();
   const harness = fixtures.harness;
   let app: RunningApp;

@@ -37,7 +37,7 @@ const read = (input: { projectId: string; contractId?: string }, scope: ScopeBui
 const typesOf = (chain: PaymentChain): string[] => chain.nodes.map((node) => node.type);
 const nodeOf = (chain: PaymentChain, type: string, id?: string) => chain.nodes.find((node) => node.type === type && (id === undefined || node.id === id));
 
-describe('the trace of a payment, from the project to its settlement (ST-PAY-010, UAT-AC67)', () => {
+describe('the trace of a payment, from the project to its settlement (ST-PAY-010, AC-ST-PAY-010-1, UAT-AC67)', () => {
   beforeAll(async () => {
     await fixtures.start();
     for (const member of [MATCHER]) await fixtures.harness.seedMembership(TENANT_A, member, 1);
