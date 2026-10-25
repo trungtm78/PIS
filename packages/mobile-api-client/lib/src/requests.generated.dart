@@ -7762,13 +7762,16 @@ final class PayCreatePaymentRequest implements RequestModel {
 final class PayGeneratePaymentForms implements RequestModel {
   const PayGeneratePaymentForms({
     required this.formCodes,
+    required this.place,
   });
 
   final List<String> formCodes;
+  final String place;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'form_codes': formCodes,
+        'place': place,
       };
 }
 

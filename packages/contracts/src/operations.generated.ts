@@ -529,6 +529,7 @@ export const OPERATIONS = {
   "listMyNotifications": { method: "get", path: "/me/notifications", versioned: false, stepUp: null, permission: "notification.self" },
   "listOutgoingDocuments": { method: "get", path: "/outgoing-documents", versioned: false, stepUp: null, permission: "doc.outgoing.read" },
   "listOverdueAdvances": { method: "get", path: "/advances/overdue", versioned: false, stepUp: null, permission: "advance.read" },
+  "listPaymentForms": { method: "get", path: "/payment-requests/{id}/forms", versioned: false, stepUp: null, permission: "payment_request.read" },
   "listPeriodSnapshotLines": { method: "get", path: "/period-snapshots/{id}/lines", versioned: false, stepUp: null, permission: "disbursement.read" },
   "listPlanVersions": { method: "get", path: "/system/plans", versioned: false, stepUp: null, permission: "system.billing.manage" },
   "listProcurementExternalLinks": { method: "get", path: "/procurement-external-links", versioned: false, stepUp: null, permission: "bid.read" },

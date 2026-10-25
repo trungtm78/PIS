@@ -30,6 +30,8 @@ const PERMISSIONS_OF_ACTIONS: PaymentPermissions = {
   submit: PERMISSIONS.post_payment_requests_id_submit,
   verify: PERMISSIONS.verifyPaymentRequest,
   return: PERMISSIONS.returnPaymentRequest,
+  generateForms: PERMISSIONS.generatePaymentForms,
+  sendTreasury: PERMISSIONS.markPaymentSentToTreasury,
   override: OVERRIDE_PERMISSION,
 };
 

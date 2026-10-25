@@ -3285,7 +3285,8 @@
       ],
       "operations": [
         "generatePaymentForms",
-        "markPaymentSentToTreasury"
+        "markPaymentSentToTreasury",
+        "listPaymentForms"
       ],
       "tables": [
         "payment_form_instance"

@@ -413,6 +413,8 @@ export { WORK_ACCEPTANCE_COMMANDS, WORK_ACCEPTANCE_STATUSES, assertWithinContrac
 export type { WorkAcceptanceCommand, WorkAcceptanceStatus } from './ctr-acceptance.ts';
 export { LEDGER_ENTRY_KINDS, LEDGER_RULES, REVERSAL_OF, ZERO_BALANCE, ZERO_DELTA, advanceOutstanding, applyDelta, assertEntryShape, assertLedgerInvariants, brokenRule, dong, isReversal, negate, totalOf as totalOfLedger } from './pay-ledger.ts';
 export type { LedgerBalance, LedgerDelta, LedgerEntryKind, LedgerRule } from './pay-ledger.ts';
+export { PAYMENT_FORM_CODES, formPayload, formsAskedFor, formsMissing, groupedVnd, isPaymentFormCode } from './pay-forms.ts';
+export type { FormFacts, PaymentFormCode } from './pay-forms.ts';
 export { ADVANCE_CATEGORIES, ADVANCE_KINDS, ADVANCE_STATUSES, COUNTED_STATUSES, RECOVERY_BASES, advanceCap, assertRecoverable, capPercentFor, gpmbDeadline, recoveryPlan } from './pay-advance.ts';
 export type { AdvanceCategory, AdvanceKind, AdvanceStatus, CapTier, RecoveryBasis, RecoveryMilestone, RecoveryPlan, RecoveryPlanInput } from './pay-advance.ts';
 export { allocateLargestRemainder, computeDraftMoney, groupForLedger, linesMatchHeader, partyRecovery, percentScaled, recoverFromTranches, retentionOf, roundedDivision, signedDong, targetRecovered, wholeVnd } from './pay-money.ts';

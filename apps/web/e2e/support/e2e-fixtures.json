@@ -1755,6 +1755,8 @@
         "payment.document.attach",
         "payment.cancel",
         "payment.submit",
+        "payment.forms.generate",
+        "payment.treasury.send",
         "contract.read",
         "acceptance.read",
         "allocation_line.read",

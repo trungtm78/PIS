@@ -152,6 +152,28 @@ export class AcceptanceWorld {
     return { id, checksum };
   }
 
+  /**
+   * Puts a request that is checked with the Treasury the way the commands of PAY do: a standing form of each of the four kinds, then the day it was sent and the person who sent it. For the tests
+   * that need a request in SENT_TREASURY and are not about the forms.
+   */
+  async sendToTreasury(requestId: string): Promise<void> {
+    for (const code of ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']) {
+      const version = await this.documentVersion();
+      await this.owner(
+        `insert into machvon.payment_form_instance
+           (tenant_id, id, subject_kind, payment_request_id, form_code, template_version_id, template_code, template_revision, document_id, document_version_id, file_sha256, payload_sha256, input_sha256,
+            legal_basis, status, generated_at, generated_by, created_by, updated_by)
+         select $1, gen_random_uuid(), 'PAYMENT_REQUEST', $2::uuid, $3, gen_random_uuid(), $4, 1, v.document_id, v.id, repeat('a', 64), repeat('b', 64), repeat('c', 64), 'Fixture appendix', 'GENERATED', now(), $5, $5, $5
+           from machvon.document_version v where v.id = $6::uuid`,
+        [TENANT_A, requestId, code, `FIXTURE-${code}`, memberId(CREATOR), version.id],
+      );
+    }
+    await this.owner(
+      `update machvon.payment_request set status = 'SENT_TREASURY', treasury_submitted_on = date '2026-07-26', treasury_sent_by = $2::uuid, treasury_sent_at = now() where id = $1::uuid`,
+      [requestId, memberId(CREATOR)],
+    );
+  }
+
   /** An approved measurement of an item (by position in the BOQ). */
   async measured(contract: SeededContract, item: 0 | 1 | 2, quantity: string, party = false): Promise<string> {
     this.counter += 1;

@@ -291,6 +291,17 @@ describe('PaymentDetailScreen (PAY-03): a payment request and its documents', ()
     expect(screen.getByTestId('done').textContent).toContain(vi_['pay.payment.done.returned']);
   });
 
+  it('UI-PAY-03: leads to the Treasury forms once the request is checked, and not before', async () => {
+    open(world({ payments: [payment(1, { status: 'VERIFIED', actions: actions({ revise: false, attach_document: false, cancel: false }) })] }));
+    const link = (await screen.findByTestId('forms')) as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe(`/pay/pay-14?request=${paymentId(1)}`);
+    expect(link.textContent).toBe(vi_['pay.payment.detail.forms']);
+    cleanup();
+    open(world());
+    await screen.findByTestId('request-no');
+    expect(screen.queryByTestId('forms')).toBeNull();
+  });
+
   it('shows the states of a request that is not there, of a refusal and of a failed read, and never half a request', async () => {
     open(world({ payments: [] }));
     expect(await screen.findByText(vi_['states.error.title'])).toBeTruthy();

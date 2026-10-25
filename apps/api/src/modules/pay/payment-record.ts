@@ -23,7 +23,13 @@ export function answer(scope: CommandScope, done: PaymentResult): PaymentCommand
 }
 
 /** The audit row and the event of a command on a payment request: identifiers, amounts, the year and the status; never the words of a reason beyond the row that keeps them. */
-export async function recordPayment(scope: CommandScope, done: PaymentResult, action: string, type: string, now: Date, reason?: string): Promise<void> {
+/** What a command adds to the audit row and the event beyond the figures of the request, and the key of the event when the version of the request did not move. */
+export interface RecordExtra {
+  facts?: Record<string, unknown>;
+  eventKey?: string;
+}
+
+export async function recordPayment(scope: CommandScope, done: PaymentResult, action: string, type: string, now: Date, reason?: string, extra: RecordExtra = {}): Promise<void> {
   const facts = {
     contract_id: done.contractId,
     contract_code: done.contractCode,
@@ -39,6 +45,7 @@ export async function recordPayment(scope: CommandScope, done: PaymentResult, ac
     tax_adjustment_vnd: done.taxAdjustmentVnd,
     net_vnd: done.netVnd,
     line_count: done.lineCount,
+    ...(extra.facts ?? {}),
   };
   await scope.audit({
     action,
@@ -55,6 +62,6 @@ export async function recordPayment(scope: CommandScope, done: PaymentResult, ac
     type,
     schemaVersion: 1,
     payload: { tenant_id: scope.tenant.tenantId, payment_request_id: done.id, ...facts, status: done.status, from_status: done.fromStatus, version: done.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
-    eventKey: `${RESOURCE_TYPE}:${done.id}:${done.version}`,
+    eventKey: extra.eventKey ?? `${RESOURCE_TYPE}:${done.id}:${done.version}`,
   });
 }

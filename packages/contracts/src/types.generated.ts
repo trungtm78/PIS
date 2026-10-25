@@ -8532,7 +8532,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các biểu mẫu Kho bạc của một đề nghị thanh toán (cả bản đã bị thay) */
+        get: operations["listPaymentForms"];
         put?: never;
         /** Yêu cầu DOC sinh biểu mẫu Kho bạc 03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT [CXN-08] */
         post: operations["generatePaymentForms"];
@@ -16844,7 +16845,9 @@ export interface components {
             reason: string;
         };
         PayGeneratePaymentForms: {
-            form_codes: string[];
+            form_codes: ("03.a/TT" | "04.a/TT" | "04.b/TT" | "05.a/TT")[];
+            /** @description Nơi lập biểu mẫu (dòng địa danh và ngày tháng) */
+            place: string;
         };
         PayMarkPaymentSentToTreasury: {
             /** Format: date */
@@ -20456,6 +20459,8 @@ export interface components {
                 submit: boolean;
                 verify: boolean;
                 return: boolean;
+                generate_forms: boolean;
+                send_treasury: boolean;
             };
             version: number;
             /** Format: uuid */
@@ -20465,6 +20470,10 @@ export interface components {
             /** Format: uuid */
             verified_by?: string | null;
             verification_note?: string | null;
+            /** Format: date */
+            treasury_submitted_on?: string | null;
+            treasury_ref?: string | null;
+            forms_standing?: string[];
         };
         PayPaymentRequestPage: {
             items: components["schemas"]["PayPaymentRequest"][];
@@ -20598,6 +20607,53 @@ export interface components {
             /** @description Số nguyên VND không âm, dạng chuỗi */
             outstanding_vnd: string;
             warnings: components["schemas"]["PayAdvanceWarning"][];
+        };
+        PayPaymentForm: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            payment_request_id: string;
+            form_code: string;
+            /** @enum {string} */
+            status: "REQUESTED" | "GENERATED" | "FAILED" | "SUPERSEDED";
+            template_code: string | null;
+            template_revision: number | null;
+            legal_basis: string;
+            /** Format: uuid */
+            document_id: string | null;
+            /** Format: uuid */
+            document_version_id: string | null;
+            file_sha256: string | null;
+            payload_sha256: string | null;
+            /** Format: date-time */
+            generated_at: string | null;
+            /** Format: uuid */
+            generated_by: string | null;
+        };
+        PayPaymentFormPage: {
+            items: components["schemas"]["PayPaymentForm"][];
+        };
+        /** @description Kết quả sinh biểu mẫu Kho bạc: kết quả lệnh của đề nghị thanh toán kèm các biểu mẫu vừa sinh */
+        PayGeneratedPaymentForms: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            gross_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_recovery_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            retention_vnd: string;
+            /** @description Số tiền VND nguyên có dấu, dạng chuỗi */
+            tax_adjustment_vnd: string;
+            /** @description Số tiền VND nguyên có dấu, dạng chuỗi */
+            net_vnd: string;
+            plan_year?: number | null;
+            warnings: components["schemas"]["PayPaymentWarning"][];
+            forms: components["schemas"]["PayPaymentForm"][];
         };
     };
     responses: never;
@@ -71410,6 +71466,91 @@ export interface operations {
             };
         };
     };
+    listPaymentForms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayPaymentFormPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     generatePaymentForms: {
         parameters: {
             query?: never;
@@ -71433,7 +71574,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayGeneratedPaymentForms"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -71535,7 +71676,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

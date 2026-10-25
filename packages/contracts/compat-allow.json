@@ -202,6 +202,20 @@
       "location": "query:limit",
       "reason": "the read of one payment request is not paged",
       "change_request": "ST-PAY-002"
+    },
+    {
+      "operation": "generatePaymentForms",
+      "kind": "ENUM_TIGHTENED",
+      "location": "form_codes[]",
+      "reason": "the request names the four Treasury forms (03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT) instead of any text; the operation had no client",
+      "change_request": "ST-PAY-005"
+    },
+    {
+      "operation": "generatePaymentForms",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "place",
+      "reason": "the forms are made out in a place (the place-and-date line of a state document); the operation had no client",
+      "change_request": "ST-PAY-005"
     }
   ]
 }

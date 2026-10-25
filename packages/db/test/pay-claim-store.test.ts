@@ -428,7 +428,7 @@ describe('sending, checking and returning a payment request (ST-PAY-003)', () =>
       const sentOn = await ready();
       await submit(sentOn);
       await verify(sentOn.id, sentOn.version + 1);
-      await owner(`update machvon.payment_request set status = 'SENT_TREASURY' where id = $1::uuid`, [sentOn.id]);
+      await fixtures.sendToTreasury(sentOn.id);
       expect(await refusal(giveBack(sentOn.id, sentOn.version + 2))).toMatchObject({ code: 'PAYMENT_STATE_INVALID', extensions: { status: 'SENT_TREASURY' } });
       expect(await giveBack(sentOn.id, sentOn.version + 2, 'The Treasury rejected the form.', { treasury: true })).toMatchObject({ status: 'RETURNED', fromStatus: 'SENT_TREASURY' });
       expect((await owner<{ returned_by_treasury: boolean }>('select returned_by_treasury from machvon.payment_request where id = $1::uuid', [sentOn.id]))[0]?.returned_by_treasury).toBe(true);

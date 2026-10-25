@@ -1490,6 +1490,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  // The Treasury forms of a checked request and the record that the file was sent.
+  generatePaymentForms: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/forms`, body: { form_codes: ['03.a/TT'], place: 'Cao Bằng' } }),
+  },
+  markPaymentSentToTreasury: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/send-treasury`, ifMatch: '"1"', body: { treasury_submitted_on: '2026-10-25', form_instance_ids: [t.paymentRequestId] } }),
+  },
   // The advance of a contract: asked for, cancelled and recovered outside the payments.
   requestAdvance: {
     referencesTenantIds: true,

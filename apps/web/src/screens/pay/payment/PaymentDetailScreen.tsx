@@ -10,6 +10,7 @@ import { AttachDialog, CancelDialog, ReturnDialog, ReviseDialog, SubmitDialog, V
 import { usePayment } from './hooks';
 import { docKindLabel, kindLabel, statusLabel, warningMessage } from './labels';
 import { listLink, signedAmountText, valuationLink } from './model';
+import { formsLink } from '../forms/model';
 import type { PaymentAnswer, PaymentRequest, WarningCode } from './model';
 import '../pay.css';
 
@@ -134,6 +135,11 @@ function Detail({ request }: { request: PaymentRequest }) {
           <Link className="button" to={valuationLink(request.id)} data-testid="valuation">
             {t('pay.payment.detail.valuation')}
           </Link>
+          {request.status === 'VERIFIED' || request.status === 'SENT_TREASURY' ? (
+            <Link className="button" to={formsLink(request.id)} data-testid="forms">
+              {t('pay.payment.detail.forms')}
+            </Link>
+          ) : null}
           {writable && request.actions.revise ? (
             <button type="button" onClick={() => setDialog('revise')} data-action="revise">
               {t('pay.payment.detail.revise')}

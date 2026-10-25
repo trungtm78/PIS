@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
-import { useScopeKey } from '../../ctr/hooks';
+import { useScopeKey } from '../hooks';
 import { toAdvance, toAnswer, toPlan } from './model';
 import type { Advance, AdvanceAnswer, AdvancePlan, RecoveryBody } from './model';
 

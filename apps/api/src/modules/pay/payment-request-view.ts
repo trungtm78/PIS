@@ -1,6 +1,6 @@
 import type { PaymentRequestView } from '@machvon/db';
 import type { EffectiveAccess } from '@machvon/kernel';
-import { isEditable } from '@machvon/kernel';
+import { formsMissing, isEditable } from '@machvon/kernel';
 import { placeRefs, reaches } from '../ctr/contract.controller';
 
 export interface PaymentPermissions {
@@ -10,6 +10,8 @@ export interface PaymentPermissions {
   submit: string;
   verify: string;
   return: string;
+  generateForms: string;
+  sendTreasury: string;
   /** The right to approve an exception, which is what lets a duplicate invoice through. */
   override: string;
 }
@@ -22,6 +24,8 @@ export interface PaymentActions {
   submit: boolean;
   verify: boolean;
   return: boolean;
+  generate_forms: boolean;
+  send_treasury: boolean;
 }
 
 /**
@@ -42,6 +46,9 @@ export function paymentActionsOf(view: PaymentRequestView, access: EffectiveAcce
     // Whoever drew a request up or sent it does not check it (the server refuses them anyway).
     verify: view.status === 'SUBMITTED' && reaches(access, permissions.verify, refs, now) && !mine && !is(view.submittedBy),
     return: (view.status === 'SUBMITTED' || view.status === 'VERIFIED') && reaches(access, permissions.return, refs, now),
+    generate_forms: view.status === 'VERIFIED' && reaches(access, permissions.generateForms, refs, now),
+    // The file goes to the Treasury with a standing form of each of the four kinds; the server judges it again.
+    send_treasury: view.status === 'VERIFIED' && formsMissing(view.formsStanding).length === 0 && reaches(access, permissions.sendTreasury, refs, now),
   };
 }
 
@@ -78,6 +85,9 @@ export function paymentView(view: PaymentRequestView, actions: PaymentActions, g
     submitted_at: view.submittedAt,
     verified_by: guest ? null : view.verifiedBy,
     verification_note: guest ? null : view.verificationNote,
+    treasury_submitted_on: view.treasurySubmittedOn,
+    treasury_ref: guest ? null : view.treasuryRef,
+    forms_standing: view.formsStanding,
     created_at: view.createdAt,
     updated_at: view.updatedAt,
     lines: view.lines.map((line) => ({

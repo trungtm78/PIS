@@ -84,6 +84,8 @@ export interface PaymentActions {
   submit: boolean;
   verify: boolean;
   return: boolean;
+  generateForms: boolean;
+  sendTreasury: boolean;
 }
 
 export interface PaymentRequest {
@@ -108,6 +110,11 @@ export interface PaymentRequest {
   otherDrafts: number | null;
   returnReason: string | null;
   verificationNote: string | null;
+  /** The day the file went to the Treasury and the number the Treasury gave it, as they were entered. */
+  treasurySubmittedOn: string | null;
+  treasuryRef: string | null;
+  /** The codes of the Treasury forms that stand for the request. */
+  formsStanding: string[];
   cancelReason: string | null;
   createdAt: string;
   lines: PaymentLine[];
@@ -218,10 +225,13 @@ export function toPaymentRequest(value: unknown): PaymentRequest | undefined {
     returnReason: nullableText(row.return_reason),
     cancelReason: nullableText(row.cancel_reason),
     verificationNote: nullableText(row.verification_note),
+    treasurySubmittedOn: nullableText(row.treasury_submitted_on),
+    treasuryRef: nullableText(row.treasury_ref),
+    formsStanding: (Array.isArray(row.forms_standing) ? row.forms_standing : []).flatMap((code) => text(code) ?? []),
     createdAt: text(row.created_at) ?? '',
     lines: (Array.isArray(row.lines) ? row.lines : []).flatMap((line) => toLine(line) ?? []),
     documents: (Array.isArray(row.documents) ? row.documents : []).flatMap((document) => toDocument(document) ?? []),
-    actions: { revise: actions?.revise === true, attachDocument: actions?.attach_document === true, cancel: actions?.cancel === true, overrideDuplicate: actions?.override_duplicate === true, submit: actions?.submit === true, verify: actions?.verify === true, return: actions?.return === true },
+    actions: { revise: actions?.revise === true, attachDocument: actions?.attach_document === true, cancel: actions?.cancel === true, overrideDuplicate: actions?.override_duplicate === true, submit: actions?.submit === true, verify: actions?.verify === true, return: actions?.return === true, generateForms: actions?.generate_forms === true, sendTreasury: actions?.send_treasury === true },
     version,
   };
 }

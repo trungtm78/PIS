@@ -73285,11 +73285,13 @@
           "TEMPLATE_NOT_EFFECTIVE",
           "TEMPLATE_UNCONFIRMED",
           "PAYMENT_STATE_INVALID",
-          "PROVIDER_UNAVAILABLE"
+          "PROVIDER_UNAVAILABLE",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "pay.payment_form.requested.v1"
+          "pay.payment_form.generated.v1"
         ],
         "responses": {
           "200": {
@@ -73297,7 +73299,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayGeneratedPaymentForms"
                 }
               }
             }
@@ -73384,6 +73386,113 @@
           }
         },
         "x-note": "Cross-module: DOC.generateDocumentFromTemplate"
+      },
+      "get": {
+        "operationId": "listPaymentForms",
+        "summary": "Các biểu mẫu Kho bạc của một đề nghị thanh toán (cả bản đã bị thay)",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "payment_request.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "x-error-codes": [
+          "SCOPE_DENIED"
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPaymentFormPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/payment-requests/{id}/send-treasury": {
@@ -73436,7 +73545,9 @@
         "x-error-codes": [
           "FORMS_NOT_GENERATED",
           "PAYMENT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -73449,7 +73560,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -131388,19 +131499,32 @@
       "PayGeneratePaymentForms": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "form_codes",
+          "place"
+        ],
         "properties": {
           "form_codes": {
             "type": "array",
+            "minItems": 1,
+            "maxItems": 4,
             "items": {
               "type": "string",
-              "minLength": 1,
-              "maxLength": 2000
+              "enum": [
+                "03.a/TT",
+                "04.a/TT",
+                "04.b/TT",
+                "05.a/TT"
+              ]
             }
+          },
+          "place": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Nơi lập biểu mẫu (dòng địa danh và ngày tháng)"
           }
-        },
-        "required": [
-          "form_codes"
-        ]
+        }
       },
       "PayMarkPaymentSentToTreasury": {
         "type": "object",
@@ -144490,7 +144614,9 @@
               "override_duplicate",
               "submit",
               "verify",
-              "return"
+              "return",
+              "generate_forms",
+              "send_treasury"
             ],
             "properties": {
               "revise": {
@@ -144512,6 +144638,12 @@
                 "type": "boolean"
               },
               "return": {
+                "type": "boolean"
+              },
+              "generate_forms": {
+                "type": "boolean"
+              },
+              "send_treasury": {
                 "type": "boolean"
               }
             }
@@ -144545,6 +144677,25 @@
               "string",
               "null"
             ]
+          },
+          "treasury_submitted_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "treasury_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "forms_standing": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -145032,6 +145183,196 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PayAdvanceWarning"
+            }
+          }
+        }
+      },
+      "PayPaymentForm": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "payment_request_id",
+          "form_code",
+          "status",
+          "template_code",
+          "template_revision",
+          "legal_basis",
+          "document_id",
+          "document_version_id",
+          "file_sha256",
+          "payload_sha256",
+          "generated_at",
+          "generated_by"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "payment_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "form_code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "GENERATED",
+              "FAILED",
+              "SUPERSEDED"
+            ]
+          },
+          "template_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "template_revision": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "legal_basis": {
+            "type": "string"
+          },
+          "document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "file_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "payload_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "generated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "generated_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "PayPaymentFormPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentForm"
+            }
+          }
+        }
+      },
+      "PayGeneratedPaymentForms": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Kết quả sinh biểu mẫu Kho bạc: kết quả lệnh của đề nghị thanh toán kèm các biểu mẫu vừa sinh",
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "gross_vnd",
+          "advance_recovery_vnd",
+          "retention_vnd",
+          "tax_adjustment_vnd",
+          "net_vnd",
+          "warnings",
+          "forms"
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gross_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "advance_recovery_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "retention_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "tax_adjustment_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu, dạng chuỗi"
+          },
+          "net_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu, dạng chuỗi"
+          },
+          "plan_year": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentWarning"
+            }
+          },
+          "forms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentForm"
             }
           }
         }

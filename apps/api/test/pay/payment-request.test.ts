@@ -204,7 +204,7 @@ describe('the draft of a payment request over HTTP (ST-PAY-002)', () => {
       net_vnd: '2100000000',
       other_drafts: 0,
       created_by: memberId(MAKER),
-      actions: { revise: false, attach_document: false, cancel: false, override_duplicate: false, submit: false, verify: false, return: false },
+      actions: { revise: false, attach_document: false, cancel: false, override_duplicate: false, submit: false, verify: false, return: false, generate_forms: false, send_treasury: false },
       version: 1,
     });
     const lines = read.json.lines as Array<Record<string, unknown>>;
@@ -212,8 +212,8 @@ describe('the draft of a payment request over HTTP (ST-PAY-002)', () => {
       ['B01', '2000000000', '500000000', '100000000', '1400000000'],
       ['B02', '1000000000', '250000000', '50000000', '700000000'],
     ]);
-    expect((await call('GET', `/resources/payment_request/${id}`, { member: MAKER })).json.actions).toEqual({ revise: true, attach_document: true, cancel: true, override_duplicate: false, submit: false, verify: false, return: false });
-    expect((await call('GET', `/resources/payment_request/${id}`, { member: APPROVER })).json.actions).toEqual({ revise: false, attach_document: true, cancel: false, override_duplicate: true, submit: false, verify: false, return: false });
+    expect((await call('GET', `/resources/payment_request/${id}`, { member: MAKER })).json.actions).toEqual({ revise: true, attach_document: true, cancel: true, override_duplicate: false, submit: false, verify: false, return: false, generate_forms: false, send_treasury: false });
+    expect((await call('GET', `/resources/payment_request/${id}`, { member: APPROVER })).json.actions).toEqual({ revise: false, attach_document: true, cancel: false, override_duplicate: true, submit: false, verify: false, return: false, generate_forms: false, send_treasury: false });
     expect(await call('GET', `/resources/payment_request/${id}`, { member: NOBODY })).toMatchObject({ status: 403 });
     expect(await call('GET', `/resources/payment_request/${id}`, { member: ELSEWHERE })).toMatchObject({ status: 404 });
     expect(await call('GET', `/resources/payment_request/${randomUUID()}`, { member: READER })).toMatchObject({ status: 404 });

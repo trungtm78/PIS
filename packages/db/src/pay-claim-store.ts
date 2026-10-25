@@ -132,6 +132,8 @@ export class PayClaimStore {
         where id = $1::uuid`,
       [id, reason, actor, byTreasury],
     );
+    // The forms drawn for the figures of this request are no longer the forms of the request that comes back: they are superseded, and drawn again when it has been corrected and checked.
+    await tx.query("update machvon.payment_form_instance set status = 'SUPERSEDED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where payment_request_id = $1::uuid and status = 'GENERATED'", [id, actor]);
     if (held.request_kind !== 'ADVANCE') {
       const outstanding = await this.moveTotals(tx, held, -1, actor);
       await this.ledger.releaseRequest(tx, { paymentRequestId: id, requestId: input.requestId, actor, advanceOutstandingVnd: outstanding });

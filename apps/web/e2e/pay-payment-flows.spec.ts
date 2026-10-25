@@ -207,6 +207,36 @@ async function attachInvoice(page: Page, seeded: Seeded, invoiceNo: string): Pro
 const ledgerOf = (contractId: string) =>
   sql<{ requested: string; entries: string }>('select coalesce(sum(requested_vnd), 0)::text as requested, (select count(*)::text from machvon.cumulative_ledger_entry where contract_id = $1) as entries from machvon.cumulative_ledger where contract_id = $1', [contractId]);
 
+/** Four confirmed templates of the Treasury forms, on a layout profile that is confirmed, for the tenant of the stack (once). The platform ships none of them: they await the appendix of the decree (CXN-08). */
+async function treasuryTemplates(): Promise<void> {
+  const tenant = stackInfo().tenants.A;
+  const [have] = await sql<{ count: string }>("select count(*)::text as count from machvon.document_template where tenant_id = $1 and template_code like 'E2E-PAY-FORM-%'", [tenant]);
+  if (have?.count === '4') return;
+  const [profile] = await sql<{ id: string }>("select id from machvon.document_layout_profile where tenant_id = $1 and profile_code = 'E2E-PAY-FORMS'", [tenant]);
+  let profileId = profile?.id;
+  if (profileId === undefined) {
+    const [created] = await sql<{ id: string }>(
+      `insert into machvon.document_layout_profile
+         select (jsonb_populate_record(null::machvon.document_layout_profile, to_jsonb(p) || jsonb_build_object('id', gen_random_uuid(), 'profile_code', 'E2E-PAY-FORMS', 'confirmation_status', 'CONFIRMED', 'legal_confirmation_ref', 'CXN-DOC-01'))).*
+           from machvon.document_layout_profile p where p.tenant_id = $1 and p.status = 'PUBLISHED' order by p.created_at limit 1
+         returning id`,
+      [tenant],
+    );
+    profileId = created?.id;
+  }
+  if (profileId === undefined) throw new Error('the layout profile of the stack is missing');
+  for (const code of ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']) {
+    await sql(
+      `insert into machvon.document_template
+         (tenant_id, id, template_code, revision, group_code, doc_type_code, form_code, title, layout_profile_id, body_blocks, placeholder_schema, legal_basis, confirmation_status, legal_confirmation_ref, legal_confirmed_by,
+          legal_confirmed_at, origin, content_sha256, effective_from, status, approved_by, created_by, updated_by)
+       values ($1, gen_random_uuid(), $2, 1, 'OTHER', 'QD', $3, $4, $5::uuid, '[{"kind":"paragraph","text":"Hợp đồng {{contract_code}}: đề nghị thanh toán {{net_text}} đồng."}]'::jsonb, '{"required":["contract_code","net_text"]}'::jsonb,
+               'Nghị định 254/2025/NĐ-CP, phụ lục (mẫu thử)', 'CONFIRMED', 'CXN-08', $6, now(), 'PLATFORM_PACK', repeat('e', 64), date '2026-01-01', 'PUBLISHED', $6, $7, $7)`,
+      [tenant, `E2E-PAY-FORM-${code.replace(/\W/g, '')}`, code, `Giấy đề nghị thanh toán ${code}`, profileId, membershipOf('lifecycleActivator'), OWNER],
+    );
+  }
+}
+
 test.describe('the payment request', () => {
   test('the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60)', async ({ page }) => {
     const seeded = await seed();
@@ -387,5 +417,80 @@ test.describe('the payment request', () => {
     expect((await ledgerOf(seeded.contractId))[0]).toMatchObject({ requested: '0' });
     expect(await auditsOf(sent!.id, 'payment_request.verified')).toEqual([{ actor_id: membershipOf('paymentApprover') }]);
     expect(await auditsOf(sent!.id, 'payment_request.returned')).toEqual([{ actor_id: membershipOf('paymentApprover') }]);
+  });
+
+  test('the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337)', async ({ page }) => {
+    await treasuryTemplates();
+    const seeded = await seed();
+    const stamp = `${Date.now().toString(36).toUpperCase()}-${counter}`;
+    await draw(page, seeded, `DNTT-E2E-F-${stamp}`);
+    await page.getByTestId('open-request').click();
+    await attachInvoice(page, seeded, `HD-E2E-F-${stamp}`);
+    await page.locator('button[data-action="submit"]').click();
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.submitted']);
+    const [made] = await requestsOf(seeded.contractId);
+    await open(page, `/pay/pay-03?request=${made!.id}`, 'paymentApprover');
+    await page.locator('button[data-action="verify"]').click();
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.verify.submit'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.verified']);
+
+    // The board shows the request waiting for its forms; the forms are drawn from the confirmed templates, with the place the accountant writes.
+    await open(page, '/pay/pay-04', 'paymentAccountant');
+    const row = page.locator(`tr[data-request="${made!.id}"]`);
+    await expect(row.getByTestId('forms')).toHaveText(vi['pay.board.forms'].replace('{count}', '0').replace('{total}', '4'));
+    await row.getByTestId('open').click();
+    await expect(page.getByRole('heading', { level: 1, name: vi['pay.forms.title'] })).toBeVisible();
+    await expect(page.getByTestId('missing')).toHaveText(vi['pay.forms.missing'].replace('{forms}', '03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT'));
+    await expect(page.locator('button[data-action="send"]')).toHaveCount(0);
+    await page.locator('button[data-action="generate-all"]').click();
+    await page.locator('#generate-place').fill('Cao Bằng');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.generate.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.generated']);
+    for (const code of ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']) {
+      const form = page.locator(`tr[data-form="${code}"]`);
+      await expect(form).toHaveAttribute('data-state', 'standing');
+      await expect(form.getByTestId('basis')).toContainText('254/2025');
+      await expect(form.getByTestId('hash')).toHaveText(/^[0-9a-f]{16}$/);
+    }
+    const stored = await sql<{ form_code: string; status: string; file_sha256: string; version_checksum: string; mime: string }>(
+      `select f.form_code, f.status, f.file_sha256, v.checksum as version_checksum, v.mime from machvon.payment_form_instance f join machvon.document_version v on v.id = f.document_version_id where f.payment_request_id = $1 order by f.form_code`,
+      [made!.id],
+    );
+    expect(stored.map((form) => [form.form_code, form.status, form.mime])).toEqual([
+      ['03.a/TT', 'GENERATED', 'application/pdf'],
+      ['04.a/TT', 'GENERATED', 'application/pdf'],
+      ['04.b/TT', 'GENERATED', 'application/pdf'],
+      ['05.a/TT', 'GENERATED', 'application/pdf'],
+    ]);
+    expect(stored.every((form) => form.file_sha256 === form.version_checksum)).toBe(true);
+    expect(await eventsOf(made!.id, 'pay.payment_form.generated.v1')).toHaveLength(1);
+
+    // One form drawn again replaces the one before: the old one is kept as superseded.
+    await page.locator('tr[data-form="03.a/TT"] button[data-action="generate"]').click();
+    await page.locator('#generate-place').fill('Cao Bằng');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.generate.submit'] }).click();
+    await expect(page.getByTestId('history')).toContainText(vi['pay.forms.status.superseded']);
+    expect((await sql<{ status: string }>("select status from machvon.payment_form_instance where payment_request_id = $1 and form_code = '03.a/TT' order by created_at", [made!.id])).map((form) => form.status)).toEqual(['SUPERSEDED', 'GENERATED']);
+
+    // The file goes to the Treasury by hand; the day and the number are recorded.
+    await page.locator('button[data-action="send"]').click();
+    await page.locator('#send-day').fill('2026-07-24');
+    await page.locator('#send-ref').fill('KB-2026-0001');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.send.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.sent']);
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.sentTreasury']);
+    await expect(page.getByTestId('sent-on')).toHaveText('2026-07-24');
+    await expect(page.getByTestId('ref')).toHaveText('KB-2026-0001');
+    expect(await sql<{ status: string; treasury_ref: string; treasury_sent_by: string }>('select status, treasury_ref, treasury_sent_by from machvon.payment_request where id = $1', [made!.id])).toEqual([
+      { status: 'SENT_TREASURY', treasury_ref: 'KB-2026-0001', treasury_sent_by: membershipOf('paymentAccountant') },
+    ]);
+    expect(await auditsOf(made!.id, 'payment_request.sent_treasury')).toEqual([{ actor_id: membershipOf('paymentAccountant') }]);
+    expect(await eventsOf(made!.id, 'pay.payment_request.sent_treasury.v1')).toHaveLength(1);
+
+    await open(page, '/pay/pay-04', 'paymentReader');
+    await expect(page.locator(`tr[data-request="${made!.id}"]`).getByTestId('ref')).toHaveText('KB-2026-0001');
+    await page.locator(`tr[data-request="${made!.id}"]`).getByTestId('open').click();
+    await expect(page.locator('button[data-action]')).toHaveCount(0);
   });
 });

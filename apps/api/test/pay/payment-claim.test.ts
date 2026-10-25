@@ -213,7 +213,7 @@ describe('sending, checking and returning a payment request over HTTP (ST-PAY-00
     expect(await ledger(target.contract.contractId)).toMatchObject({ requested: '3000000000' });
     // A request the Treasury sent back is given back only as the Treasury's.
     expect((await verify(CHECKER, id, 'current')).status).toBe(200);
-    await fixtures.owner("update machvon.payment_request set status = 'SENT_TREASURY' where id = $1::uuid", [id]);
+    await fixtures.sendToTreasury(id);
     expect(await giveBack(CHECKER, id, 'current')).toMatchObject({ status: 409, json: { code: 'PAYMENT_STATE_INVALID' } });
     expect(await giveBack(CHECKER, id, 'current', { reason: 'Rejected by the Treasury.', returned_by_treasury: true })).toMatchObject({ status: 200, json: { status: 'RETURNED' } });
     expect(await ledger(target.contract.contractId)).toMatchObject({ requested: '0' });
