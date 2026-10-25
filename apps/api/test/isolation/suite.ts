@@ -160,6 +160,12 @@ export const CONTRACT_FIXTURES: Readonly<Record<TenantName, { id: string; revisi
   'TNT-B': { id: '00000000-0000-4000-b0c3-000000000001', revisionId: '00000000-0000-4000-b0c3-000000000002', packageId: '00000000-0000-4000-b0c3-000000000003', code: 'BETA-CONTRACT-0001', title: 'Beta tenant isolation contract' },
 };
 
+/** The tiers of the chain of changes of the project of each tenant and a change event of its draft contract (the reason is distinctive; tenant financial data). */
+export const CHANGE_FIXTURES: Readonly<Record<TenantName, { configId: string; id: string; reason: string }>> = {
+  'TNT-A': { configId: '00000000-0000-4000-a0c8-000000000001', id: '00000000-0000-4000-a0c8-000000000002', reason: 'ALPHA-CHANGE-REASON-0001' },
+  'TNT-B': { configId: '00000000-0000-4000-b0c8-000000000001', id: '00000000-0000-4000-b0c8-000000000002', reason: 'BETA-CHANGE-REASON-0001' },
+};
+
 /**
  * A BOQ line of each tenant under that draft revision with its stable item, and two guarantees of the contract (a PENDING_VERIFICATION one and an
  * ACTIVE one), each with a distinctive key, wording, number and issuer (tenant financial data).
@@ -598,6 +604,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contract revision id', value: CONTRACT_FIXTURES[tenant].revisionId },
     { kind: 'contract code', value: CONTRACT_FIXTURES[tenant].code },
     { kind: 'contract title', value: CONTRACT_FIXTURES[tenant].title },
+    { kind: 'change chain config id', value: CHANGE_FIXTURES[tenant].configId },
+    { kind: 'change request id', value: CHANGE_FIXTURES[tenant].id },
+    { kind: 'change request reason', value: CHANGE_FIXTURES[tenant].reason },
     { kind: 'boq item id', value: BOQ_FIXTURES[tenant].itemId },
     { kind: 'boq line id', value: BOQ_FIXTURES[tenant].lineId },
     { kind: 'boq business key', value: BOQ_FIXTURES[tenant].businessKey },

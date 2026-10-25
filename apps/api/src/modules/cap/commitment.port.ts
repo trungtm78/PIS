@@ -16,6 +16,11 @@ const RESOURCE_TYPE = 'allocation_line';
 export class CapitalCommitments {
   private readonly availability = new CapAvailabilityStore();
 
+  /** Whether the line can take the amount under its availability policy (the evaluation of a change that adds to a contract asks it); nothing is committed, and a refusal is 422 `ALLOCATION_UNAVAILABLE`. */
+  assertCanAbsorb(scope: CommandScope, allocationLineId: string, amountVnd: string): Promise<void> {
+    return this.availability.assertCanAbsorb(scope.tx, allocationLineId, amountVnd);
+  }
+
   async checkAndCommit(scope: CommandScope, input: CommitInput, now: Date = new Date()): Promise<CommitResult> {
     const result = await this.availability.checkAndCommit(scope.tx, input, scope.tenant.membershipId);
     if (result.replayed) return result;

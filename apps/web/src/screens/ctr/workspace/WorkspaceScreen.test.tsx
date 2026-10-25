@@ -285,6 +285,34 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
     });
   });
 
+  describe('the change of a contract', () => {
+    it('links to CTR-07 for the staff of a contract that is being performed or suspended, and to nothing for any other', async () => {
+      for (const status of ['ACTIVE', 'SUSPENDED']) {
+        open({ summary: summary(status) });
+        await screen.findByTestId('facts');
+        expect(screen.getByTestId('change-link').getAttribute('href')).toBe(`/ctr/ctr-07?contract=${contractId(1)}`);
+        expect(screen.getByTestId('change-link').textContent).toBe(vi_['ctr.workspace.change.action']);
+        cleanup();
+      }
+      for (const status of ['DRAFT', 'IN_REVIEW', 'SIGNED', 'TERMINATED', 'COMPLETED']) {
+        open({ summary: summary(status) });
+        await screen.findByTestId('facts');
+        expect(screen.queryByTestId('change-link')).toBeNull();
+        cleanup();
+      }
+    });
+
+    it('does not link for a guest contractor, who has no readiness to read, or in a read-only session', async () => {
+      open({ summary: summary('ACTIVE', { readiness: undefined }) });
+      await screen.findByTestId('facts');
+      expect(screen.queryByTestId('change-link')).toBeNull();
+      cleanup();
+      open({ summary: summary('ACTIVE') }, { mode: 'READ_ONLY' });
+      await screen.findByTestId('facts');
+      expect(screen.queryByTestId('change-link')).toBeNull();
+    });
+  });
+
   describe('the commands that stop a contract', () => {
     it('links to CTR-22 for someone who may suspend, resume or terminate, and says no command applies only when nothing is offered at all', async () => {
       open({ summary: summary('ACTIVE', { actions: { ...noActions, suspend: true } }) });

@@ -26,7 +26,7 @@ const RESOURCE_TYPE = 'contract';
 const CLASSIFICATION = 'INTERNAL';
 
 /** The places a contract lies in for the permission test: the units that own and invest in its project, each with the project and the contract. */
-function refsOf(project: { ownerUnit: { id: string; path: string }; investorUnit: { id: string; path: string } | null }, projectId: string, contractId?: string): ResourceRef[] {
+export function refsOf(project: { ownerUnit: { id: string; path: string }; investorUnit: { id: string; path: string } | null }, projectId: string, contractId?: string): ResourceRef[] {
   const units = project.investorUnit === null ? [project.ownerUnit] : [project.ownerUnit, project.investorUnit];
   return units.map((unit) => ({ ownerUnitPath: unit.path, ownerUnitId: unit.id, projectId, ...(contractId === undefined ? {} : { contractId }) }));
 }

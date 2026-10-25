@@ -31,6 +31,8 @@ export interface MatrixTargets {
   /** The DRAFT base revision of that contract (version 1, amount 1000) and a PENDING_VERIFICATION guarantee of it made by someone other than the callers (version 1). */
   draftRevisionId: string;
   guaranteeId: string;
+  /** A SUBMITTED change event (CE-001, version 1) of that contract, raised by someone other than the callers. */
+  changeRequestId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
   contractorToVerifyId: string;
   /** A clean PDF version of tenant A: the signature verification names it in the path. */
@@ -1344,6 +1346,27 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   terminateContract: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/terminate`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' } }),
+  },
+  // The chain of changes: a caller that is refused sets no tiers, raises no request and moves none along the chain.
+  setChangeChainTiers: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.contractProjectId}/change-chain-config`, body: { tier_count: 2 } }),
+  },
+  createChangeRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/change-requests`, body: { stage: 'EVENT', baseline_revision_id: t.draftRevisionId, reason: REASON } }),
+  },
+  promoteChangeRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/promote`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  evaluateChangeRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/evaluate`, ifMatch: '"1"', body: { evaluated_delta_vnd: '0', schedule_impact_days: 0, funding_impact_note: REASON } }),
+  },
+  withdrawChangeRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   post_contracts_id_activate: {
     referencesTenantIds: true,

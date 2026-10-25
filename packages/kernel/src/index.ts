@@ -311,6 +311,24 @@ export type { SectionHandoverStatus } from './land-handover.ts';
 export { MAX_RESULT_COMMENT, PACKAGE_STATUS_AFTER_RESULT, RESULT_DECISIONS, RESULT_DOA_DOCUMENT_TYPE, RESULT_OUTCOMES, RESULT_STATUSES, assertPriceWithinBudget, assertResultShape } from './bid-result.ts';
 export type { ResultDecision, ResultOutcome, ResultStatus } from './bid-result.ts';
 export {
+  CHANGEABLE_CONTRACT_STATUSES,
+  CHANGE_EVENT_KINDS,
+  CHANGE_STAGES,
+  CHANGE_STATUSES,
+  EVALUATED_STAGES,
+  MAX_SCHEDULE_DAYS,
+  OPEN_CHANGE_STATUSES,
+  TIER_COUNTS,
+  changeCode,
+  nextStageOf,
+  scheduleDays,
+  signedVnd,
+  stagesOf,
+  startStageOf,
+  tierCountOf,
+} from './change-chain.ts';
+export type { ChangeEventKind, ChangeStage, ChangeStatus, TierCount } from './change-chain.ts';
+export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,
   CONSENT_PURPOSES,

@@ -1450,6 +1450,51 @@
       ]
     },
     {
+      "key": "changeOwner",
+      "displayName": "Chủ nghiệp vụ cấu hình số tầng thay đổi",
+      "membershipId": "00000000-0000-4000-8000-000000000802",
+      "permissions": [
+        "change.tiers.configure",
+        "change.read",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "changeOfficer",
+      "displayName": "Chuyên viên hợp đồng lập và nâng tầng yêu cầu thay đổi",
+      "membershipId": "00000000-0000-4000-8000-000000000803",
+      "permissions": [
+        "change.manage",
+        "change.read",
+        "contract.read",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "changeEvaluator",
+      "displayName": "Cán bộ thẩm định yêu cầu thay đổi",
+      "membershipId": "00000000-0000-4000-8000-000000000804",
+      "permissions": [
+        "change.evaluate",
+        "change.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "changeReader",
+      "displayName": "Người xem chuỗi thay đổi",
+      "membershipId": "00000000-0000-4000-8000-000000000805",
+      "permissions": [
+        "change.read",
+        "change_request.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

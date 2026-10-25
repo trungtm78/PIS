@@ -2663,12 +2663,14 @@ final class CtrEvaluateChangeRequest implements RequestModel {
     required this.scheduleImpactDays,
     required this.fundingImpactNote,
     this.allocationLineId,
+    this.scopeImpactNote,
   });
 
   final String evaluatedDeltaVnd;
   final int scheduleImpactDays;
   final String fundingImpactNote;
   final String? allocationLineId;
+  final String? scopeImpactNote;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -2676,6 +2678,7 @@ final class CtrEvaluateChangeRequest implements RequestModel {
         'schedule_impact_days': scheduleImpactDays,
         'funding_impact_note': fundingImpactNote,
         if (allocationLineId != null) 'allocation_line_id': allocationLineId,
+        if (scopeImpactNote != null) 'scope_impact_note': scopeImpactNote,
       };
 }
 

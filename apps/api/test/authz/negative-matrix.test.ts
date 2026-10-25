@@ -239,6 +239,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select count(*)::text from machvon.mne_report where tenant_id = $1),
     (select string_agg(id::text || status || version::text || contract_value_vnd::text, ',' order by id) from machvon.contract where tenant_id = $1),
     (select count(*)::text from machvon.contract_party where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || coalesce(evaluated_delta_vnd::text, ''), ',' order by id) from machvon.change_request where tenant_id = $1),
+    (select string_agg(id::text || tier_count::text || version::text || coalesce(locked_at::text, ''), ',' order by id) from machvon.change_chain_config where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1),
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
@@ -375,6 +377,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           `insert into machvon.guarantee (tenant_id, id, contract_id, kind, issuer, guarantee_no, amount_vnd, expires_at, verification_status, status, valid_from, document_version_id, created_by, updated_by)
            values ($1, $2, $3, 'PERFORMANCE', 'Matrix bank', 'MX-GUARANTEE', 1000, now() + interval '1 year', 'UNVERIFIED', 'PENDING_VERIFICATION', date '2026-01-01', $4, $5, $5)`,
           [TENANT_A, id(0x77, 13), draftId, id(0x78, 2), ACTOR],
+        ],
+        [
+          `insert into machvon.change_request (tenant_id, id, contract_id, baseline_revision_id, amount_delta_vnd, schedule_impact_days, reason, status, version, code, stage, submitted_by, created_by, updated_by)
+           values ($1, $2, $3, $4, 0, 0, 'Matrix change event', 'SUBMITTED', 1, 'CE-001', 'EVENT', $5, $5, $5)`,
+          [TENANT_A, id(0x77, 14), draftId, id(0x77, 9), memberId(RECIPIENT)],
         ],
       ];
       for (const [sql, params] of statements) await seeder.query(sql, params);
@@ -995,6 +1002,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       contractMemberId,
       draftRevisionId: id(0x77, 9),
       guaranteeId: id(0x77, 13),
+      changeRequestId: id(0x77, 14),
       recipientMembershipId: memberId(RECIPIENT),
       grantToRevoke: grantId(ONE_GRANT_TO_REVOKE),
     };

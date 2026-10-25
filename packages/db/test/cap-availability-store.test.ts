@@ -215,3 +215,19 @@ describe('CapAvailabilityStore.checkAndCommit (AC-ST-CAP-005-1)', () => {
     expect(posted?.posted_by).toBe(ACTOR);
   });
 });
+
+describe('CapAvailabilityStore.assertCanAbsorb (the evaluation of a change that adds to a contract)', () => {
+  it('lets an amount through that the policy would allow or only warn about, and commits nothing', async () => {
+    const line = await world.publishedLine({ allocated: '1000' });
+    await world.as((tx) => availability.assertCanAbsorb(tx, line.lineId, '400'));
+    await world.as((tx) => availability.assertCanAbsorb(tx, line.lineId, '950'));
+    expect((await world.balanceOf(line.balanceId)).committed).toBe('0');
+    expect(await entriesOf(line.lineId)).toEqual([]);
+  });
+
+  it('refuses an amount the policy blocks, and a line that is not in force', async () => {
+    const line = await world.publishedLine({ allocated: '1000' });
+    expect(await refusal(world.as((tx) => availability.assertCanAbsorb(tx, line.lineId, '1001')))).toMatchObject({ code: 'ALLOCATION_UNAVAILABLE', status: 422, detail: 'allocation_line_id', extensions: { reason: 'ABOVE_BLOCK' } });
+    expect(await refusal(world.as((tx) => availability.assertCanAbsorb(tx, randomUUID(), '1')))).toMatchObject({ code: 'ALLOCATION_UNAVAILABLE', status: 422, extensions: { reason: 'NOT_IN_FORCE' } });
+  });
+});

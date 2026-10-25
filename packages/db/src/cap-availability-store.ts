@@ -109,6 +109,21 @@ export class CapAvailabilityStore {
     return { allocationLineId: row.line_id, appropriationId: row.appropriation_id, figures, thresholds, verdict: evaluateAvc(figures, thresholds), asOf: new Date() };
   }
 
+  /**
+   * Whether a line in force can take `amountVnd` more under its availability policy, asked without committing anything (the evaluation of a change that adds to a contract asks it
+   * before the change is decided). A line that is not the line in force of a published plan, or one the policy would block for that amount, is 422 `ALLOCATION_UNAVAILABLE`; a
+   * warning is not a refusal, and the commitment itself will ask for it to be accepted.
+   */
+  async assertCanAbsorb(tx: TenantTx, lineId: string, amountVnd: string, today: string = vietnamDateOf(new Date())): Promise<void> {
+    const availability = await this.ofLine(tx, lineId, today);
+    if (availability === undefined) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'NOT_IN_FORCE' } });
+    if (availability.thresholds === undefined) return;
+    const verdict = evaluateAvc(availability.figures, availability.thresholds, amountVnd);
+    if (verdict.state === 'BLOCK') {
+      throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: verdict.reason, available_vnd: verdict.availableVnd, consumption_pct: verdict.consumptionPct } });
+    }
+  }
+
   /** The figures of a published appropriation (its amount against what its lines have reserved, committed and disbursed); the verdict only when a policy controls the appropriation. */
   async ofAppropriation(tx: TenantTx, appropriationId: string, today: string = vietnamDateOf(new Date())): Promise<Availability | undefined> {
     const [row] = await tx.query<{ amount: string; fund_key: string; reserved: string; committed: string; disbursed: string }>(

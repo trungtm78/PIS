@@ -12,7 +12,7 @@ import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
+import { BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
 import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES } from '../suite';
@@ -343,6 +343,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'suspendContract',
   'resumeContract',
   'terminateContract',
+  'setChangeChainTiers',
+  'createChangeRequest',
+  'promoteChangeRequest',
+  'evaluateChangeRequest',
+  'withdrawChangeRequest',
+  'getChangeChain',
+  'get_resources_change_request',
+  'get_resources_change_request_id',
   'get_resources_contract',
   'get_resources_contract_id',
   'get_resources_contract_revision',
@@ -687,6 +695,14 @@ const INSERT_CONTRACT_REVISION = `insert into machvon.contract_revision
   (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, version, created_by, updated_by)
   values ($1, $2, $3, 1, 1000, $4, date '2026-01-01', 'DRAFT', 'BASE', 1, $5, $5) on conflict do nothing`;
 
+const INSERT_CHANGE_CONFIG = `insert into machvon.change_chain_config
+  (tenant_id, id, project_id, tier_count, created_by, updated_by, version)
+  values ($1, $2, $3, 3, $4, $4, 1) on conflict do nothing`;
+
+const INSERT_CHANGE_REQUEST = `insert into machvon.change_request
+  (tenant_id, id, contract_id, baseline_revision_id, amount_delta_vnd, schedule_impact_days, reason, status, version, code, stage, submitted_by, created_by, updated_by)
+  values ($1, $2, $3, $4, 0, 0, $5, 'SUBMITTED', 1, 'CE-001', 'EVENT', $6, $6, $6) on conflict do nothing`;
+
 const INSERT_BOQ_ITEM = `insert into machvon.boq_item
   (tenant_id, id, contract_id, business_key, description, unit_code, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 'M3', $6, $6) on conflict do nothing`;
@@ -940,6 +956,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PACKAGE, [tenantId, draft.packageId, project.id, `${draft.code}-PKG`]);
     await client.query(INSERT_CONTRACT, [tenantId, draft.id, project.id, draft.packageId, contractor.id, draft.code, draft.title, ACTOR_ID]);
     await client.query(INSERT_CONTRACT_REVISION, [tenantId, draft.revisionId, draft.id, documents.versionId, ACTOR_ID]);
+    const change = CHANGE_FIXTURES[tenant];
+    await client.query(INSERT_CHANGE_CONFIG, [tenantId, change.configId, project.id, ACTOR_ID]);
+    await client.query(INSERT_CHANGE_REQUEST, [tenantId, change.id, draft.id, draft.revisionId, change.reason, ACTOR_ID]);
     const boq = BOQ_FIXTURES[tenant];
     await client.query(INSERT_BOQ_ITEM, [tenantId, boq.itemId, draft.id, boq.businessKey, boq.description, ACTOR_ID]);
     await client.query(INSERT_BOQ_LINE, [tenantId, boq.lineId, draft.revisionId, draft.id, boq.itemId, boq.businessKey, boq.description, ACTOR_ID]);
@@ -962,7 +981,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'disbursement_schedule_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'contract', 'contract_revision', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'disbursement_schedule_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'contract', 'contract_revision', 'change_chain_config', 'change_request', 'boq_item', 'boq_line', 'boq_import', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

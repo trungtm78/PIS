@@ -16551,8 +16551,12 @@ export interface components {
             evaluated_delta_vnd: string;
             schedule_impact_days: number;
             funding_impact_note: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The line of capital the increase is paid from; required when evaluated_delta_vnd is above zero, and the availability control of CAP is asked for the increase
+             */
             allocation_line_id?: string;
+            scope_impact_note?: string;
         };
         CtrContractChangeDecision: {
             /** @enum {string} */
@@ -19554,6 +19558,91 @@ export interface components {
         };
         BidResultList: {
             items: components["schemas"]["BidResultLine"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description A request of the chain. A guest contractor reads only the id, code, stage, status, contract, dates and version; the assessment of the owner is for the staff */
+        CtrChangeRequestLine: {
+            /** Format: uuid */
+            id: string;
+            code: string | null;
+            /** @enum {string} */
+            stage: "EVENT" | "PCO" | "CO";
+            /** @enum {string} */
+            status: "DRAFT" | "SUBMITTED" | "EVALUATED" | "APPROVED" | "REJECTED" | "WITHDRAWN" | "PROMOTED";
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+            };
+            /** Format: uuid */
+            project_id?: string;
+            /** Format: uuid */
+            parent_id?: string | null;
+            /** @enum {string|null} */
+            event_kind?: "OWNER_INSTRUCTION" | "DESIGN_CHANGE" | "SITE_CONDITION" | "FORCE_MAJEURE" | "LEGAL_CHANGE" | "QUANTITY_VARIANCE" | "OTHER" | null;
+            /** Format: uuid */
+            baseline_revision_id?: string;
+            reason?: string;
+            status_reason?: string | null;
+            estimated_delta_vnd?: string | null;
+            evaluated_delta_vnd?: string | null;
+            approved_delta_vnd?: string | null;
+            schedule_impact_days?: number;
+            funding_impact_note?: string | null;
+            scope_impact_note?: string | null;
+            /** Format: uuid */
+            allocation_line_id?: string | null;
+            /** Format: date */
+            effective_on?: string | null;
+            /** Format: uuid */
+            submitted_by?: string | null;
+            /** Format: uuid */
+            evaluated_by?: string | null;
+            /** Format: uuid */
+            decided_by?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            evaluated_at?: string | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            /** @description What the caller may do with the request as it stands (staff only); the server judges each command again */
+            actions?: {
+                promote: boolean;
+                evaluate: boolean;
+                withdraw: boolean;
+            };
+            version: number;
+        };
+        CtrChangeChainConfig: {
+            /** @enum {integer} */
+            tier_count: 1 | 2 | 3;
+            /** @description The tiers of the chain, in order: 3 is EVENT, PCO, CO; 2 is PCO, CO; 1 is CO */
+            stages: ("EVENT" | "PCO" | "CO")[];
+            locked: boolean;
+            /** Format: date-time */
+            locked_at?: string | null;
+            /** @description The first request of the project, which fixed the number of tiers */
+            locked_by_change?: {
+                /** Format: uuid */
+                id?: string;
+                code?: string | null;
+            } | null;
+            /** Format: uuid */
+            set_by?: string | null;
+            version: number;
+        };
+        CtrChangeChainView: {
+            /** Format: uuid */
+            project_id: string;
+            config?: components["schemas"]["CtrChangeChainConfig"];
+            requests: components["schemas"]["CtrChangeRequestLine"][];
+            actions: {
+                configure: boolean;
+                open: boolean;
+            };
             /** Format: date-time */
             as_of: string;
         };
@@ -69562,6 +69651,7 @@ export interface operations {
     getChangeChain: {
         parameters: {
             query?: {
+                /** @description Only the requests of this contract */
                 contract_id?: string;
             };
             header?: never;
@@ -69578,9 +69668,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["CtrChangeChainView"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

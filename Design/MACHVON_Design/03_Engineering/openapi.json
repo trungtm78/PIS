@@ -69364,7 +69364,8 @@
         "x-error-codes": [
           "CHANGE_STAGE_NOT_ALLOWED",
           "CONTRACT_STATE_INVALID",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -69514,6 +69515,9 @@
         "x-error-codes": [
           "CHANGE_STAGE_NOT_ALLOWED",
           "CHANGE_STATE_INVALID",
+          "CONTRACT_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -69663,8 +69667,12 @@
           }
         },
         "x-error-codes": [
+          "CHANGE_STAGE_NOT_ALLOWED",
           "CHANGE_STATE_INVALID",
+          "CONTRACT_STATE_INVALID",
           "ALLOCATION_UNAVAILABLE",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -69815,6 +69823,8 @@
         },
         "x-error-codes": [
           "CHANGE_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -72088,7 +72098,8 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "description": "Only the requests of this contract"
           }
         ],
         "x-read-model": true,
@@ -72100,8 +72111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/CtrChangeChainView"
                 }
               }
             }
@@ -72166,7 +72176,10 @@
               }
             }
           }
-        }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/guarantees/expiring": {
@@ -130123,7 +130136,13 @@
           },
           "allocation_line_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The line of capital the increase is paid from; required when evaluated_delta_vnd is above zero, and the availability control of CAP is asked for the increase"
+          },
+          "scope_impact_note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
           }
         },
         "required": [
@@ -141189,6 +141208,343 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BidResultLine"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CtrChangeRequestLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "stage",
+          "status",
+          "contract",
+          "created_at",
+          "version"
+        ],
+        "description": "A request of the chain. A guest contractor reads only the id, code, stage, status, contract, dates and version; the assessment of the owner is for the staff",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "EVENT",
+              "PCO",
+              "CO"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "EVALUATED",
+              "APPROVED",
+              "REJECTED",
+              "WITHDRAWN",
+              "PROMOTED"
+            ]
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "event_kind": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "OWNER_INSTRUCTION",
+              "DESIGN_CHANGE",
+              "SITE_CONDITION",
+              "FORCE_MAJEURE",
+              "LEGAL_CHANGE",
+              "QUANTITY_VARIANCE",
+              "OTHER",
+              null
+            ]
+          },
+          "baseline_revision_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "estimated_delta_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+$"
+          },
+          "evaluated_delta_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+$"
+          },
+          "approved_delta_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+$"
+          },
+          "schedule_impact_days": {
+            "type": "integer"
+          },
+          "funding_impact_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scope_impact_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "allocation_line_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "effective_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "submitted_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "evaluated_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "decided_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evaluated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "What the caller may do with the request as it stands (staff only); the server judges each command again",
+            "required": [
+              "promote",
+              "evaluate",
+              "withdraw"
+            ],
+            "properties": {
+              "promote": {
+                "type": "boolean"
+              },
+              "evaluate": {
+                "type": "boolean"
+              },
+              "withdraw": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrChangeChainConfig": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tier_count",
+          "stages",
+          "locked",
+          "version"
+        ],
+        "properties": {
+          "tier_count": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "EVENT",
+                "PCO",
+                "CO"
+              ]
+            },
+            "description": "The tiers of the chain, in order: 3 is EVENT, PCO, CO; 2 is PCO, CO; 1 is CO"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "locked_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "locked_by_change": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "description": "The first request of the project, which fixed the number of tiers",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "set_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrChangeChainView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "requests",
+          "actions",
+          "as_of"
+        ],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "config": {
+            "$ref": "#/components/schemas/CtrChangeChainConfig"
+          },
+          "requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrChangeRequestLine"
+            }
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "configure",
+              "open"
+            ],
+            "properties": {
+              "configure": {
+                "type": "boolean"
+              },
+              "open": {
+                "type": "boolean"
+              }
             }
           },
           "as_of": {

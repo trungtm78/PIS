@@ -7,6 +7,7 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, StatusBadge } from '../components';
 import { LIST_PATH, amountText, haltLink } from '../model';
+import { CHANGEABLE_CONTRACT_STATUSES, requestLink } from '../change/model';
 import { useSummary } from './hooks';
 import { statusText } from '../labels';
 import { checkLabel, checkState, commandLabel, gateLabel } from './labels';
@@ -99,6 +100,8 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
   const gate = summary.readiness?.permitGate;
   // The commands that stop a contract, let it go on or end it are asked on their own screen.
   const haltable = !readOnly && HALT_ACTIONS.some((action) => summary.halts?.[action] === true);
+  // A contract that is being performed can take a change; whoever reads the staff view of it (the readiness is theirs alone) is offered the form that raises one.
+  const changeable = !readOnly && summary.readiness !== undefined && CHANGEABLE_CONTRACT_STATUSES.includes(contract.status);
 
   return (
     <>
@@ -115,6 +118,11 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
               {commandLabel(t, command)}
             </button>
           ))}
+          {changeable ? (
+            <Link className="button" to={requestLink(contract.id)} data-testid="change-link">
+              {t('ctr.workspace.change.action')}
+            </Link>
+          ) : null}
           {haltable ? (
             <Link className="button" to={haltLink(contract.id)} data-testid="halt-link">
               {t('ctr.workspace.halt.action')}
