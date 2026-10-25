@@ -68,6 +68,10 @@ export function formProblemMessage(t: Translate, problem: FormProblem): string {
       return t('ctr.workspace.problem.tooLong');
     case 'evidence':
       return t('ctr.workspace.problem.evidence');
+    case 'extension':
+      return t('ctr.workspace.problem.extension');
+    case 'confirm':
+      return t('ctr.workspace.problem.confirm');
   }
 }
 
@@ -85,6 +89,10 @@ function baseMessage(t: Translate, problem: Problem): string {
       return t('ctr.workspace.error.noRule');
     case 'guaranteeMissing':
       return t('ctr.workspace.error.guaranteeMissing');
+    case 'decisionDocument':
+      return t('ctr.workspace.error.decisionDocument');
+    case 'noGuarantee':
+      return t('ctr.workspace.error.noGuarantee');
     case 'gateBlocked':
       return t('ctr.workspace.error.gateBlocked');
     case 'fundFailed':

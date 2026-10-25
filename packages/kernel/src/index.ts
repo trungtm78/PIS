@@ -304,6 +304,8 @@ export {
   withinDelegation,
 } from './contract-lifecycle.ts';
 export type { ConflictVerdict, ContractCommand, ContractStatus, LifecycleActors } from './contract-lifecycle.ts';
+export { GUARANTEE_ACTIONS, MAX_EXTENSION_DAYS, NEW_WORK_STATUSES, acceptsNewWork, assertDayBetween, assertNotProposer, guaranteeActionOf, terminationSuggestion } from './contract-halt.ts';
+export type { GuaranteeAction, TerminationSuggestion } from './contract-halt.ts';
 export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,

@@ -281,6 +281,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'recordContractSigning', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { signed_on: '2026-10-25', signed_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
   { operation: 'post_contracts_id_activate', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign activation attempt', evidence_ids: [], effective_from: '2026-10-25' } },
   { operation: 'getContractSummary', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
+  { operation: 'suspendContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign suspension attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, suspended_from: '2026-10-25' } },
+  { operation: 'resumeContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign resumption attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, resumed_on: '2026-10-25' } },
+  { operation: 'terminateContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign termination attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' } },
   {
     operation: 'importBoqLines',
     method: 'POST',

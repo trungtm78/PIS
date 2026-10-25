@@ -29,6 +29,10 @@ const FIELD_PROBLEMS: Readonly<Record<string, Readonly<Record<string, string>>>>
   registerAppropriation: { decision_document_id: 'DECISION_REQUIRED' },
   // A plan is published on a decision document (ST-CAP-003 AC-1).
   post_plans_id_publish: { decision_document_id: 'DECISION_REQUIRED' },
+  // The suspension, the resumption and the termination of a contract rest on a decision document (ST-CTR-005 AC-1).
+  suspendContract: { decision_document_version_id: 'DECISION_DOCUMENT_REQUIRED' },
+  resumeContract: { decision_document_version_id: 'DECISION_DOCUMENT_REQUIRED' },
+  terminateContract: { decision_document_version_id: 'DECISION_DOCUMENT_REQUIRED' },
   // A reopening without a reason of 20 characters (ST-DIS-002 AC-1).
   requestPeriodReopen: { reason: 'REOPEN_REASON_REQUIRED' },
 };

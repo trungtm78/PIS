@@ -61,6 +61,12 @@ describe('toSummary', () => {
     });
   });
 
+  it('reads what the caller may do to stop, resume or end the contract', () => {
+    expect(toSummary(summary('ACTIVE', { actions: { ...noActions, suspend: true, terminate: true } }))?.halts).toEqual({ suspend: true, resume: false, terminate: true });
+    expect(toSummary(summary('ACTIVE', { actions: noActions }))?.halts).toEqual({ suspend: false, resume: false, terminate: false });
+    expect(toSummary(summary('ACTIVE', { actions: 'x' }))?.halts).toBeUndefined();
+  });
+
   it('reads an action that is not true as false', () => {
     expect(toSummary(summary('DRAFT', { actions: { submit: 'yes' } }))?.actions).toEqual(noActions);
     expect(toSummary(summary('DRAFT', { actions: 'x' }))?.actions).toBeUndefined();
@@ -173,6 +179,13 @@ describe('describeProblem', () => {
     expect(describeProblem(problem('PERMIT_GATE_BLOCKED'))).toEqual({ problem: 'gateBlocked', detail: [] });
     expect(describeProblem(problem('FUND_COMMIT_FAILED', { cause: 'AVC_BLOCKED' }))).toEqual({ problem: 'fundFailed', detail: ['AVC_BLOCKED'] });
     expect(describeProblem(problem('FUND_COMMIT_FAILED'))).toEqual({ problem: 'fundFailed', detail: [] });
+  });
+
+  it('names the decision document that is missing and the guarantee that is not there to call', () => {
+    expect(describeProblem(problem('DECISION_DOCUMENT_REQUIRED')).problem).toBe('decisionDocument');
+    expect(describeProblem(problem('VALIDATION_FAILED', { reason: 'NO_ACTIVE_GUARANTEE' })).problem).toBe('noGuarantee');
+    expect(describeProblem(problem('VALIDATION_FAILED', { reason: 'OTHER' })).problem).toBe('validation');
+    expect(describeProblem(problem('VALIDATION_FAILED')).problem).toBe('validation');
   });
 
   it('maps every other code of the commands to its sentence, and the rest to the general one', () => {

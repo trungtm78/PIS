@@ -1383,6 +1383,27 @@
       ]
     },
     {
+      "key": "haltLeader",
+      "displayName": "Lãnh đạo tạm dừng và chấm dứt hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000797",
+      "permissions": [
+        "contract.read",
+        "contract.suspend",
+        "contract.terminate",
+        "session.self"
+      ]
+    },
+    {
+      "key": "haltProposer",
+      "displayName": "Cán bộ đề xuất chấm dứt hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000798",
+      "permissions": [
+        "contract.read",
+        "contract.terminate",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

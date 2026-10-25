@@ -1,21 +1,27 @@
 import { randomUUID } from 'node:crypto';
 import {
   DomainError,
+  MAX_EXTENSION_DAYS,
   MAX_LIFECYCLE_TEXT,
   assertContractTransition,
+  assertDayBetween,
   assertNotMaker,
+  assertNotProposer,
   compareDecimal,
+  guaranteeActionOf,
   requiresPerformanceGuarantee,
   requiresPermitGate,
   signingConflict,
+  terminationSuggestion,
   versionConflict,
 } from '@machvon/kernel';
-import type { ContractStatus } from '@machvon/kernel';
+import type { ContractStatus, GuaranteeAction, TerminationSuggestion } from '@machvon/kernel';
 import { BidConflictStore } from './bid-conflict-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
 import { CtrContractStore, SCOPE_FROM, calendarDate, partiesCheck, textOf } from './ctr-contract-store.ts';
 import type { ContractScopes } from './ctr-contract-store.ts';
 import { CtrGuaranteeStore } from './ctr-guarantee-store.ts';
+import type { GuaranteeMove } from './ctr-guarantee-store.ts';
 import { PmtGateStore } from './pmt-gate-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -28,6 +34,9 @@ const SUBMIT_COMMAND = 'submitContractForReview';
 const RETURN_COMMAND = 'returnContractDraft';
 const SIGN_COMMAND = 'recordContractSigning';
 const ACTIVATE_COMMAND = 'activateContract';
+const SUSPEND_COMMAND = 'suspendContract';
+const RESUME_COMMAND = 'resumeContract';
+const TERMINATE_COMMAND = 'terminateContract';
 const DEFAULT_SUBMIT_REASON = 'Sent to review';
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
@@ -69,6 +78,54 @@ export interface ActivateInput {
   effectiveFrom: string;
   reason: string;
   evidenceIds: readonly string[];
+}
+
+export interface ContractSuspendInput {
+  reason: string;
+  /** Absent when the request names none: refused as 422 `DECISION_DOCUMENT_REQUIRED`. */
+  decisionDocumentVersionId?: string | undefined;
+  /** `YYYY-MM-DD`. */
+  suspendedFrom: string;
+}
+
+export interface ContractResumeInput {
+  reason: string;
+  decisionDocumentVersionId?: string | undefined;
+  /** `YYYY-MM-DD`. */
+  resumedOn: string;
+  /** A request to extend the schedule by this many days; the due date moves only through an approved extension revision. */
+  extensionDays?: number | undefined;
+}
+
+export interface ContractTerminateInput {
+  reason: string;
+  decisionDocumentVersionId?: string | undefined;
+  /** `YYYY-MM-DD`. */
+  terminatedOn: string;
+  guaranteeAction: string;
+}
+
+export interface ContractSuspendResult extends LifecycleResult {
+  suspendedFrom: string;
+  decisionDocumentVersionId: string;
+}
+
+export interface ContractResumeResult extends LifecycleResult {
+  resumedOn: string;
+  extensionDays: number | null;
+  decisionDocumentVersionId: string;
+}
+
+export interface ContractTerminateResult extends LifecycleResult {
+  terminatedOn: string;
+  guaranteeAction: GuaranteeAction;
+  /** The performance guarantees the termination called or released. */
+  guarantees: GuaranteeMove[];
+  /** The violation suggested for the contractor. */
+  violationId: string;
+  /** The advance that is still owed: it stays on the contract for the settlement. */
+  advanceOutstandingVnd: string;
+  decisionDocumentVersionId: string;
 }
 
 export interface SignResult extends LifecycleResult {
@@ -286,6 +343,89 @@ export class CtrContractLifecycleStore {
     };
   }
 
+  /**
+   * ACTIVE to SUSPENDED (CTR 3.2). The reason, the decision document and the day the suspension begins are the record of it (the CHECK `contract_status_reason_chk` holds the first two).
+   * New quantities and new advances stop while the contract is suspended (`acceptsNewWork`); what the payments may still do is the matrix of PAY (BR-PAY-09), which reads
+   * `suspended_from`. The day is not before the contract took effect and not in the future.
+   */
+  async suspend(tx: TenantTx, id: string, expectedVersion: number, input: ContractSuspendInput, actor: string, scopes: ContractScopes, today: string): Promise<ContractSuspendResult> {
+    const reason = textOf(input.reason, 'reason', MAX_LIFECYCLE_TEXT);
+    const contract = await this.hold(tx, id, expectedVersion, scopes);
+    await this.assertFree(tx, actor, contract, 'ACTOR');
+    const to = assertContractTransition(SUSPEND_COMMAND, contract.status);
+    const decision = await this.decision(tx, input.decisionDocumentVersionId);
+    const suspendedFrom = calendarDate(input.suspendedFrom, 'suspended_from');
+    const standing = await this.standing(tx, id);
+    assertDayBetween('suspended_from', suspendedFrom, standing.effectiveFrom, today);
+    await tx.query(
+      `update machvon.contract
+          set status = $2, status_reason = $3, status_decision_document_version_id = $4::uuid, suspended_from = $5::date, updated_at = now(), updated_by = $6::uuid, version = version + 1
+        where id = $1::uuid`,
+      [id, to, reason, decision.versionId, suspendedFrom, actor],
+    );
+    await this.record(tx, id, contract.status, to, reason, suspendedFrom, SUSPEND_COMMAND, actor, decision.versionId);
+    return { ...this.result(contract, to, reason), suspendedFrom, decisionDocumentVersionId: decision.versionId };
+  }
+
+  /**
+   * SUSPENDED back to ACTIVE, on a document. The extension of the schedule that may come with it is a request and nothing more: the due date moves only through an approved
+   * extension revision of the contract (CTR 3.2), so `extension_days` is kept in the history and the event and `completion_due` is left as it is.
+   */
+  async resume(tx: TenantTx, id: string, expectedVersion: number, input: ContractResumeInput, actor: string, scopes: ContractScopes, today: string): Promise<ContractResumeResult> {
+    const reason = textOf(input.reason, 'reason', MAX_LIFECYCLE_TEXT);
+    const contract = await this.hold(tx, id, expectedVersion, scopes);
+    await this.assertFree(tx, actor, contract, 'ACTOR');
+    const to = assertContractTransition(RESUME_COMMAND, contract.status);
+    const decision = await this.decision(tx, input.decisionDocumentVersionId);
+    const resumedOn = calendarDate(input.resumedOn, 'resumed_on');
+    const extensionDays = input.extensionDays;
+    if (extensionDays !== undefined && (!Number.isInteger(extensionDays) || extensionDays < 1 || extensionDays > MAX_EXTENSION_DAYS)) throw invalid('extension_days');
+    const standing = await this.standing(tx, id);
+    assertDayBetween('resumed_on', resumedOn, standing.suspendedFrom ?? standing.effectiveFrom, today);
+    await tx.query(
+      `update machvon.contract
+          set status = $2, status_reason = null, status_decision_document_version_id = null, suspended_from = null, updated_at = now(), updated_by = $3::uuid, version = version + 1
+        where id = $1::uuid`,
+      [id, to, actor],
+    );
+    const note = extensionDays === undefined ? reason : `${reason} (extension of ${extensionDays} days requested)`;
+    await this.record(tx, id, contract.status, to, note, resumedOn, RESUME_COMMAND, actor, decision.versionId);
+    return { ...this.result(contract, to, reason), resumedOn, extensionDays: extensionDays ?? null, decisionDocumentVersionId: decision.versionId };
+  }
+
+  /**
+   * SIGNED, ACTIVE or SUSPENDED to TERMINATED, for good (CTR 3.2). The end is proposed by one person and decided by another: whoever made the decision document, drafted the contract or
+   * sent it to review is refused (403 `SELF_APPROVAL_DENIED`), and the approver is within the delegation limit of the matrix like the signer. The performance guarantee is called,
+   * released or held as the decision says; the advance that is still owed stays on the contract for the settlement; and one violation is suggested for the contractor (RECORDED, for a
+   * person to confirm with a decision), once for the contract.
+   */
+  async terminate(tx: TenantTx, id: string, expectedVersion: number, input: ContractTerminateInput, actor: string, scopes: ContractScopes, today: string, hooks: Pick<LifecycleHooks, 'authorise'>): Promise<ContractTerminateResult> {
+    const reason = textOf(input.reason, 'reason', MAX_LIFECYCLE_TEXT);
+    const contract = await this.hold(tx, id, expectedVersion, scopes);
+    await this.assertFree(tx, actor, contract, 'ACTOR');
+    const to = assertContractTransition(TERMINATE_COMMAND, contract.status);
+    const decision = await this.decision(tx, input.decisionDocumentVersionId);
+    assertNotProposer(actor, [decision.maker, contract.createdBy, contract.submittedBy]);
+    await hooks.authorise(contract);
+    const terminatedOn = calendarDate(input.terminatedOn, 'terminated_on');
+    const action = guaranteeActionOf(input.guaranteeAction);
+    if (action === undefined) throw invalid('guarantee_action');
+    const standing = await this.standing(tx, id);
+    const earliest = [contract.signedOn, standing.suspendedFrom].filter((day): day is string => day !== null).sort().at(-1) ?? null;
+    assertDayBetween('terminated_on', terminatedOn, earliest, today);
+    const guarantees = await this.guarantees.settle(tx, id, action, { documentVersionId: decision.versionId, reason }, actor, new Date(`${today}T00:00:00+07:00`));
+    await tx.query(
+      `update machvon.contract
+          set status = $2, status_reason = $3, status_decision_document_version_id = $4::uuid, terminated_on = $5::date, terminated_by = $6::uuid,
+              updated_at = now(), updated_by = $6::uuid, version = version + 1
+        where id = $1::uuid`,
+      [id, to, reason, decision.versionId, terminatedOn, actor],
+    );
+    await this.record(tx, id, contract.status, to, reason, terminatedOn, TERMINATE_COMMAND, actor, decision.versionId);
+    const violationId = await this.suggestViolation(tx, contract, terminationSuggestion({ contractId: id, terminatedOn, reason, decisionDocumentVersionId: decision.versionId }), actor);
+    return { ...this.result(contract, to, reason), terminatedOn, guaranteeAction: action, guarantees, violationId, advanceOutstandingVnd: standing.advanceOutstandingVnd, decisionDocumentVersionId: decision.versionId };
+  }
+
   /** The version of a contract inside a scope, without taking the row: what a cached summary is keyed by. Undefined outside the scope. */
   async versionIn(tx: TenantTx, id: string, scope: ContractScopes['read']): Promise<number | undefined> {
     const predicate = scope(2);
@@ -403,6 +543,59 @@ export class CtrContractLifecycleStore {
     // A sealed bid is not a signed contract, and what is not a file of the tenant is not a file at all.
     if (row === undefined || row.sealed) throw invalid('signed_document_version_id');
     if (row.scan_status !== 'CLEAN') throw new DomainError('DOCUMENT_NOT_CLEAN', 422, 'signed_document_version_id', { extensions: { scan_status: row.scan_status } });
+  }
+
+  /**
+   * The decision document a suspension, a resumption or a termination rests on: a version of a file of the tenant that is not infected and not a sealed bid. Without one, or with one that
+   * is none of these, the command is refused with 422 `DECISION_DOCUMENT_REQUIRED`. `maker` is whoever made the document: one of the people who proposed what it decides.
+   */
+  private async decision(tx: TenantTx, versionId: string | undefined): Promise<{ versionId: string; maker: string }> {
+    if (versionId === undefined) throw new DomainError('DECISION_DOCUMENT_REQUIRED', 422, 'decision_document_version_id');
+    const rows = await tx.query<{ created_by: string; scan_status: string; sealed: boolean }>(
+      `select d.created_by, v.scan_status, (d.subject_module = 'BID_PROPOSAL') as sealed
+         from machvon.document_version v join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id where v.id = $1::uuid`,
+      [versionId.toLowerCase()],
+    );
+    const row = rows[0];
+    if (row === undefined || row.sealed || row.scan_status === 'INFECTED') throw new DomainError('DECISION_DOCUMENT_REQUIRED', 422, 'decision_document_version_id');
+    return { versionId: versionId.toLowerCase(), maker: row.created_by };
+  }
+
+  /** The days and the figures of a contract that the suspension, the resumption and the termination are judged on, read under the lock the command holds. */
+  private async standing(tx: TenantTx, id: string): Promise<{ effectiveFrom: string | null; suspendedFrom: string | null; advanceOutstandingVnd: string }> {
+    const rows = await tx.query<{ effective_from: string | null; suspended_from: string | null; advance_outstanding_vnd: string }>(
+      'select effective_from::text as effective_from, suspended_from::text as suspended_from, advance_outstanding_vnd::text as advance_outstanding_vnd from machvon.contract where id = $1::uuid',
+      [id],
+    );
+    const row = rows[0];
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return { effectiveFrom: row.effective_from, suspendedFrom: row.suspended_from, advanceOutstandingVnd: row.advance_outstanding_vnd };
+  }
+
+  /** Writes the violation a termination suggests: RECORDED, resting on the decision document, with no penalty amount; a person confirms it with a decision of their own. */
+  private async suggestViolation(tx: TenantTx, contract: LockedRow, suggestion: TerminationSuggestion, actor: string): Promise<string> {
+    const violationId = randomUUID();
+    await tx.query(
+      `insert into machvon.contractor_violation
+         (tenant_id, id, contract_id, contractor_id, violation_kind, severity, occurred_on, description, penalty_kind, penalty_amount_vnd, decision_document_version_id, source_module, source_ref_id, status, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4, $5, $6::date, $7, $8, $9::numeric, $10::uuid, $11, $12::uuid, 'RECORDED', $13::uuid, $13::uuid)`,
+      [
+        violationId,
+        contract.id,
+        contract.contractorId,
+        suggestion.violationKind,
+        suggestion.severity,
+        suggestion.occurredOn,
+        suggestion.description,
+        suggestion.penaltyKind,
+        suggestion.penaltyAmountVnd,
+        suggestion.decisionDocumentVersionId,
+        suggestion.sourceModule,
+        suggestion.sourceRefId,
+        actor,
+      ],
+    );
+    return violationId;
   }
 
   private async assertDocuments(tx: TenantTx, ids: readonly string[]): Promise<void> {

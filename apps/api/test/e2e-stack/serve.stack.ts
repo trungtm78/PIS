@@ -337,6 +337,9 @@ const LIFECYCLE_ROLES = [
   { n: 794, user: 'lifecycleMaker', code: 'E2E_LIFECYCLE_MAKER', permissions: ['contract.read', 'contract.update', 'contract.review.submit', 'session.self'], rank: 30 },
   { n: 795, user: 'lifecycleReviewer', code: 'E2E_LIFECYCLE_REVIEWER', permissions: ['contract.read', 'contract.review.decide', 'contract.sign', 'session.self'], rank: 50 },
   { n: 796, user: 'lifecycleActivator', code: 'E2E_LIFECYCLE_ACTIVATOR', permissions: ['contract.read', 'contract.activate', 'session.self'], rank: 50 },
+  // The leader who suspends, resumes and terminates, and the one who proposed a termination (drafted the contract) and so may not approve it.
+  { n: 797, user: 'haltLeader', code: 'E2E_HALT_LEADER', permissions: ['contract.read', 'contract.suspend', 'contract.terminate', 'session.self'], rank: 50 },
+  { n: 798, user: 'haltProposer', code: 'E2E_HALT_PROPOSER', permissions: ['contract.read', 'contract.terminate', 'session.self'], rank: 50 },
 ];
 
 /**

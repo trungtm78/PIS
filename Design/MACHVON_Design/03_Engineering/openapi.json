@@ -67715,9 +67715,11 @@
           }
         },
         "x-error-codes": [
+          "CONFLICT_OF_INTEREST_BLOCKED",
           "CONTRACT_STATE_INVALID",
           "DECISION_DOCUMENT_REQUIRED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -67866,9 +67868,11 @@
           }
         },
         "x-error-codes": [
+          "CONFLICT_OF_INTEREST_BLOCKED",
           "CONTRACT_STATE_INVALID",
           "DECISION_DOCUMENT_REQUIRED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -68017,10 +68021,14 @@
           }
         },
         "x-error-codes": [
+          "CONFLICT_OF_INTEREST_BLOCKED",
+          "SELF_APPROVAL_DENIED",
+          "SCOPE_DENIED",
+          "DOA_RULE_NOT_FOUND",
           "CONTRACT_STATE_INVALID",
           "DECISION_DOCUMENT_REQUIRED",
-          "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [

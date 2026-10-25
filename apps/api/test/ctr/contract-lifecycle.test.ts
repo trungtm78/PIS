@@ -41,14 +41,14 @@ const BIG_VALUE = '25000000000';
 const REASON = 'The bill of quantities has to be corrected.';
 const TODAY = new Date().toISOString().slice(0, 10);
 
-const LIFE = ['contract.review.submit', 'contract.review.decide', 'contract.sign', 'contract.activate', 'contract.update', 'contract.read'];
+const LIFE = ['contract.review.submit', 'contract.review.decide', 'contract.sign', 'contract.activate', 'contract.suspend', 'contract.terminate', 'contract.update', 'contract.read'];
 
 interface Reply {
   status: number;
   json: Record<string, unknown>;
 }
 
-describe('the review, the signing and the activation of a contract over HTTP (ST-CTR-004)', () => {
+describe('the life of a contract over HTTP (ST-CTR-004, ST-CTR-005)', () => {
   const world = new CapWorld();
   const harness = world.harness;
   const gates = new PmtGateStore();
@@ -170,12 +170,20 @@ describe('the review, the signing and the activation of a contract over HTTP (ST
     sign: () => ({ signed_on: TODAY, signed_document_version_id: cleanVersion }),
     activate: () => ({ decision: 'approve', reason: 'All the conditions are met.', evidence_ids: [], effective_from: TODAY }),
     cancel: { reason: 'The draft was a mistake.' },
+    suspend: () => SUSPENSION(),
+    resume: () => RESUMPTION(),
+    terminate: () => ({ reason: 'The contractor abandoned the site.', decision_document_version_id: cleanVersion, terminated_on: TODAY, guarantee_action: 'HOLD' }),
   };
-  const send = (member: number, command: 'submit' | 'return' | 'sign' | 'activate' | 'cancel', target: Contract, version: number | string = 1, override?: unknown): Promise<Reply> => {
-    const path = { submit: 'submit-review', return: 'return', sign: 'sign', activate: 'activate', cancel: 'cancel' }[command];
+  const send = (member: number, command: 'submit' | 'return' | 'sign' | 'activate' | 'cancel' | 'suspend' | 'resume' | 'terminate', target: Contract, version: number | string = 1, override?: unknown): Promise<Reply> => {
+    const path = { submit: 'submit-review', return: 'return', sign: 'sign', activate: 'activate', cancel: 'cancel', suspend: 'suspend', resume: 'resume', terminate: 'terminate' }[command];
     const payload = override ?? (typeof body[command] === 'function' ? (body[command] as () => unknown)() : body[command]);
     return call('POST', `/contracts/${target.id}/${path}`, { member, ifMatch: `"${version}"`, body: payload });
   };
+
+  const post = (member: number, target: Contract, path: 'suspend' | 'resume' | 'terminate', payload: unknown, version: number | string = 1): Promise<Reply> =>
+    call('POST', `/contracts/${target.id}/${path}`, { member, ifMatch: `"${version}"`, body: payload });
+  const SUSPENSION = () => ({ reason: 'The site is closed by the decision.', decision_document_version_id: cleanVersion, suspended_from: TODAY });
+  const RESUMPTION = (extra: Record<string, unknown> = {}) => ({ reason: 'The site is open again.', decision_document_version_id: cleanVersion, resumed_on: TODAY, ...extra });
 
   beforeAll(async () => {
     await world.start();
@@ -185,12 +193,12 @@ describe('the review, the signing and the activation of a contract over HTTP (ST
       [1, 'CTR_DRAFTER', ['contract.update', 'contract.read'], 20],
       [2, 'CTR_SUBMITTER', ['contract.review.submit', 'contract.read'], 20],
       [3, 'CTR_REVIEWER', ['contract.review.decide', 'contract.read'], 30],
-      [4, 'BAN_LEADER', ['contract.sign', 'contract.activate', 'contract.read'], 50],
-      [5, 'LOWER_LEADER', ['contract.sign', 'contract.activate', 'contract.read'], 40],
-      [6, 'PROVINCE_LEADER', ['contract.sign', 'contract.activate', 'contract.read'], 60],
+      [4, 'BAN_LEADER', ['contract.sign', 'contract.activate', 'contract.suspend', 'contract.terminate', 'contract.read'], 50],
+      [5, 'LOWER_LEADER', ['contract.sign', 'contract.activate', 'contract.suspend', 'contract.terminate', 'contract.read'], 40],
+      [6, 'PROVINCE_LEADER', ['contract.sign', 'contract.activate', 'contract.suspend', 'contract.terminate', 'contract.read'], 60],
       [7, 'CTR_READER', ['contract.read'], 10],
       [8, 'CTR_OMNI', [...LIFE, 'ledger.read'], 70],
-      [9, 'CTR_SELF', ['contract.update', 'contract.sign', 'contract.activate', 'contract.review.submit', 'contract.read'], 50],
+      [9, 'CTR_SELF', ['contract.update', 'contract.sign', 'contract.activate', 'contract.suspend', 'contract.terminate', 'contract.review.submit', 'contract.read'], 50],
       [10, 'CTR_CONFLICTED', ['contract.review.submit', 'contract.sign', 'contract.read'], 50],
     ];
     for (const [n, code, permissions, rank] of roles) await harness.seedRole(TENANT_A, 60 + n, code, permissions, rank);
@@ -450,7 +458,7 @@ describe('the review, the signing and the activation of a contract over HTTP (ST
 
   describe('the table of the states (AC-ST-CTR-004-4, UAT-AC300)', () => {
     const STATES = ['DRAFT', 'IN_REVIEW', 'SIGNED', 'ACTIVE', 'SUSPENDED', 'TERMINATED', 'COMPLETED', 'CLOSED', 'CANCELLED'];
-    const COMMANDS = ['submit', 'return', 'sign', 'activate', 'cancel'] as const;
+    const COMMANDS = ['submit', 'return', 'sign', 'activate', 'cancel', 'suspend', 'resume', 'terminate'] as const;
     const VALID: ReadonlyArray<readonly [string, string, string]> = [
       ['DRAFT', 'submit', 'IN_REVIEW'],
       ['IN_REVIEW', 'return', 'DRAFT'],
@@ -458,9 +466,14 @@ describe('the review, the signing and the activation of a contract over HTTP (ST
       ['SIGNED', 'activate', 'ACTIVE'],
       ['DRAFT', 'cancel', 'CANCELLED'],
       ['IN_REVIEW', 'cancel', 'CANCELLED'],
+      ['ACTIVE', 'suspend', 'SUSPENDED'],
+      ['SUSPENDED', 'resume', 'ACTIVE'],
+      ['SIGNED', 'terminate', 'TERMINATED'],
+      ['ACTIVE', 'terminate', 'TERMINATED'],
+      ['SUSPENDED', 'terminate', 'TERMINATED'],
     ];
 
-    it('lets exactly the valid pairs through with a leader who holds every right, answers every other pair 409 CONTRACT_STATE_INVALID without a change, and writes one row of the history per valid move', async () => {
+    it('lets exactly the valid pairs through (eight commands over nine statuses) with a leader who holds every right, answers every other pair 409 CONTRACT_STATE_INVALID without a change, and writes one row of the history per valid move', async () => {
       const line = await capital(100);
       for (const state of STATES) {
         for (const command of COMMANDS) {
@@ -488,6 +501,154 @@ describe('the review, the signing and the activation of a contract over HTTP (ST
     });
   });
 
+  describe('suspendContract and resumeContract (ST-CTR-005)', () => {
+    it('AC-ST-CTR-005-1, UAT-AC303: refuses a suspension without the decision document (422 DECISION_DOCUMENT_REQUIRED), suspends with it, then resumes with an extension that does not move the due date', async () => {
+      const target = await contract(await capital(), { status: 'ACTIVE' });
+      await rows("update machvon.contract set completion_due = date '2027-03-31' where id = $1::uuid", [target.id]);
+      const withoutDocument: Record<string, unknown> = { ...SUSPENSION() };
+      delete withoutDocument.decision_document_version_id;
+      expect(await post(BAN, target, 'suspend', withoutDocument)).toMatchObject({ status: 422, json: { code: 'DECISION_DOCUMENT_REQUIRED' } });
+      expect(await post(BAN, target, 'suspend', { ...SUSPENSION(), decision_document_version_id: randomUUID() })).toMatchObject({ status: 422, json: { code: 'DECISION_DOCUMENT_REQUIRED' } });
+      expect(await stateOf(target.id)).toEqual({ status: 'ACTIVE', version: '1' });
+
+      const suspended = await post(BAN, target, 'suspend', SUSPENSION());
+      expect(suspended).toMatchObject({ status: 200, json: { status: 'SUSPENDED', resource_version: 2, resource_id: target.id } });
+      const [stored] = await rows<{ status: string; status_reason: string; status_decision_document_version_id: string; suspended_from: string }>(
+        'select status, status_reason, status_decision_document_version_id, suspended_from::text from machvon.contract where id = $1::uuid',
+        [target.id],
+      );
+      expect(stored).toEqual({ status: 'SUSPENDED', status_reason: 'The site is closed by the decision.', status_decision_document_version_id: cleanVersion, suspended_from: TODAY });
+      const [audit] = await audits(target.id, 'contract.suspended');
+      expect(audit).toMatchObject({ actor_id: memberId(BAN), reason: 'The site is closed by the decision.', safe_diff: { from_status: 'ACTIVE', to_status: 'SUSPENDED', suspended_from: TODAY, decision_document_version_id: cleanVersion } });
+      const [suspension] = await events(target.id, 'ctr.contract.suspended.v1');
+      expect(suspension?.payload).toMatchObject({ contract_id: target.id, status: 'SUSPENDED', from_status: 'ACTIVE', version: 2, suspended_from: TODAY, actor_id: memberId(BAN) });
+
+      // A suspended contract cannot be suspended again, nor activated or signed: it waits for a resumption.
+      expect(await post(BAN, target, 'suspend', SUSPENSION(), 2)).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID' } });
+      expect(await send(BAN, 'activate', target, 2)).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID' } });
+
+      const resumed = await post(BAN, target, 'resume', RESUMPTION({ extension_days: 20 }), 2);
+      expect(resumed).toMatchObject({ status: 200, json: { status: 'ACTIVE', resource_version: 3 } });
+      const [after] = await rows<{ status: string; status_reason: string | null; suspended_from: string | null; completion_due: string }>('select status, status_reason, suspended_from::text, completion_due::text from machvon.contract where id = $1::uuid', [target.id]);
+      expect(after).toEqual({ status: 'ACTIVE', status_reason: null, suspended_from: null, completion_due: '2027-03-31' });
+      expect(await statusRows(target.id)).toEqual([
+        { from_status: 'ACTIVE', to_status: 'SUSPENDED', command: 'suspendContract', created_by: memberId(BAN) },
+        { from_status: 'SUSPENDED', to_status: 'ACTIVE', command: 'resumeContract', created_by: memberId(BAN) },
+      ]);
+      const [resumption] = await events(target.id, 'ctr.contract.resumed.v1');
+      expect(resumption?.payload).toMatchObject({ status: 'ACTIVE', from_status: 'SUSPENDED', resumed_on: TODAY, extension_days_requested: 20, decision_document_version_id: cleanVersion });
+    });
+
+    it('rests on the permission of the scope: a reader and a member without a grant are refused, and a leader of another branch does not see the contract', async () => {
+      const target = await contract(await capital(), { status: 'ACTIVE' });
+      for (const member of [READER, NOBODY]) expect((await post(member, target, 'suspend', SUSPENSION())).status).toBe(403);
+      // A leader who holds the permission over another branch does not see this contract at all.
+      expect((await post(ELSEWHERE, target, 'suspend', SUSPENSION())).status).toBe(404);
+      expect(await stateOf(target.id)).toEqual({ status: 'ACTIVE', version: '1' });
+    });
+
+    it('judges the body: unknown fields are 400, a missing reason is 400, a day that is in the future or not a day is 422, an extension that is not whole days is refused', async () => {
+      const line = await capital();
+      const active = await contract(line, { status: 'ACTIVE' });
+      expect(await post(BAN, active, 'suspend', { ...SUSPENSION(), status: 'ACTIVE' })).toMatchObject({ status: 400, json: { code: 'FIELD_NOT_ALLOWED' } });
+      expect(await post(BAN, active, 'suspend', { decision_document_version_id: cleanVersion, suspended_from: TODAY })).toMatchObject({ status: 400, json: { code: 'INVALID_REQUEST' } });
+      expect(await post(BAN, active, 'suspend', { ...SUSPENSION(), suspended_from: '2999-01-01' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await post(BAN, active, 'suspend', { ...SUSPENSION(), suspended_from: '2026-02-30' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      const suspended = await contract(line, { status: 'SUSPENDED' });
+      for (const days of [0, 1.5, 4000]) expect([400, 422]).toContain((await post(BAN, suspended, 'resume', RESUMPTION({ extension_days: days }))).status);
+      expect(await post(BAN, suspended, 'resume', RESUMPTION({ extension_days: 'twenty' }))).toMatchObject({ status: 400, json: { code: 'INVALID_REQUEST' } });
+      expect(await stateOf(suspended.id)).toEqual({ status: 'SUSPENDED', version: '1' });
+    });
+
+    it('blocks a leader who declared a relation with the contractor, and keeps the attempt in the audit trail', async () => {
+      const target = await contract(await capital(), { status: 'ACTIVE' });
+      await world.owner(
+        `insert into machvon.bid_conflict_declaration (tenant_id, id, package_id, user_id, has_conflict, relation_text, contractor_id, created_by, updated_by)
+         values ($1, gen_random_uuid(), $2, $3, true, 'A relation.', $4, $3, $3)`,
+        [TENANT_A, target.packageId, memberId(BAN), contractor],
+      );
+      expect(await post(BAN, target, 'suspend', SUSPENSION())).toMatchObject({ status: 409, json: { code: 'CONFLICT_OF_INTEREST_BLOCKED' } });
+      expect(await audits(target.id, 'contract.conflict_blocked', 'DENIED')).toHaveLength(1);
+      expect(await stateOf(target.id)).toEqual({ status: 'ACTIVE', version: '1' });
+    });
+  });
+
+  describe('terminateContract (ST-CTR-005)', () => {
+    const terminate = (member: number, target: Contract, payload: Record<string, unknown> = {}, version: number | string = 1): Promise<Reply> =>
+      call('POST', `/contracts/${target.id}/terminate`, {
+        member,
+        ifMatch: `"${version}"`,
+        body: { reason: 'The contractor abandoned the site.', decision_document_version_id: cleanVersion, terminated_on: TODAY, guarantee_action: 'CALL', ...payload },
+      });
+    const guaranteeRows = (contractId: string) => rows<{ kind: string; status: string }>('select kind, status from machvon.guarantee where contract_id = $1::uuid order by kind', [contractId]);
+
+    it('AC-ST-CTR-005-2, UAT-AC304: refuses the proposer and a leader below the band, then the approver ends the contract, calls the guarantee and suggests a violation; nothing brings it back and the advance stays', async () => {
+      const target = await contract(await capital(), { status: 'ACTIVE', createdBy: SELF });
+      await guarantee(target.id);
+      await rows("update machvon.contract set advance_paid_vnd = 1250000000 where id = $1::uuid", [target.id]);
+
+      expect(await terminate(SELF, target)).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+      expect(await terminate(LOWER, target)).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+      expect(await terminate(READER, target)).toMatchObject({ status: 403 });
+      expect(await terminate(BAN, target, { decision_document_version_id: undefined })).toMatchObject({ status: 422, json: { code: 'DECISION_DOCUMENT_REQUIRED' } });
+      expect([400, 422]).toContain((await terminate(BAN, target, { guarantee_action: 'WAIT' })).status);
+      expect(await stateOf(target.id)).toEqual({ status: 'ACTIVE', version: '1' });
+      expect(await guaranteeRows(target.id)).toEqual([{ kind: 'PERFORMANCE', status: 'ACTIVE' }]);
+
+      const done = await terminate(BAN, target);
+      expect(done).toMatchObject({ status: 200, json: { status: 'TERMINATED', resource_version: 2, resource_id: target.id } });
+      const [stored] = await rows<{ status: string; terminated_on: string; terminated_by: string; status_reason: string; status_decision_document_version_id: string; advance_outstanding_vnd: string }>(
+        'select status, terminated_on::text, terminated_by, status_reason, status_decision_document_version_id, advance_outstanding_vnd::text from machvon.contract where id = $1::uuid',
+        [target.id],
+      );
+      expect(stored).toEqual({
+        status: 'TERMINATED',
+        terminated_on: TODAY,
+        terminated_by: memberId(BAN),
+        status_reason: 'The contractor abandoned the site.',
+        status_decision_document_version_id: cleanVersion,
+        advance_outstanding_vnd: '1250000000',
+      });
+      expect(await guaranteeRows(target.id)).toEqual([{ kind: 'PERFORMANCE', status: 'CALLED' }]);
+      const violations = await rows<{ status: string; penalty_kind: string; source_module: string; source_ref_id: string }>(
+        'select status, penalty_kind, source_module, source_ref_id from machvon.contractor_violation where contract_id = $1::uuid',
+        [target.id],
+      );
+      expect(violations).toEqual([{ status: 'RECORDED', penalty_kind: 'TERMINATION', source_module: 'CTR', source_ref_id: target.id }]);
+
+      const [audit] = await audits(target.id, 'contract.terminated');
+      expect(audit).toMatchObject({ actor_id: memberId(BAN), reason: 'The contractor abandoned the site.', safe_diff: { from_status: 'ACTIVE', to_status: 'TERMINATED', guarantee_action: 'CALL', advance_outstanding_vnd: '1250000000' } });
+      const [event] = await events(target.id, 'ctr.contract.terminated.v1');
+      expect(event?.payload).toMatchObject({ status: 'TERMINATED', from_status: 'ACTIVE', terminated_on: TODAY, guarantee_action: 'CALL', advance_outstanding_vnd: '1250000000', actor_id: memberId(BAN) });
+      expect(event?.payload.guarantees).toEqual([expect.objectContaining({ kind: 'PERFORMANCE', from_status: 'ACTIVE', to_status: 'CALLED' })]);
+      expect(event?.payload.violation_id).toEqual(expect.any(String));
+      expect(await rows<{ action: string }>("select action from machvon.audit_event where action = 'guarantee.called' and safe_diff->>'contract_id' = $1", [target.id])).toEqual([{ action: 'guarantee.called' }]);
+
+      // It does not go back, and the advance stays on the contract for the settlement.
+      expect(await post(BAN, target, 'resume', RESUMPTION(), 2)).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID' } });
+      expect(await send(PROVINCE, 'activate', target, 2)).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID' } });
+      expect(await terminate(BAN, target, {}, 2)).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID' } });
+      expect((await rows<{ advance_outstanding_vnd: string }>('select advance_outstanding_vnd::text from machvon.contract where id = $1::uuid', [target.id]))[0]?.advance_outstanding_vnd).toBe('1250000000');
+    });
+
+    it('holds the delegation limit of the value: a contract above 20 billion is ended by the leaders of the province only', async () => {
+      const target = await contract(await capital(120), { status: 'ACTIVE', value: BIG_VALUE });
+      expect(await terminate(BAN, target, { guarantee_action: 'HOLD' })).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+      expect(await terminate(PROVINCE, target, { guarantee_action: 'HOLD' })).toMatchObject({ status: 200, json: { status: 'TERMINATED' } });
+    });
+
+    it('blocks an approver who declared a relation with the contractor', async () => {
+      const target = await contract(await capital(), { status: 'ACTIVE' });
+      await world.owner(
+        `insert into machvon.bid_conflict_declaration (tenant_id, id, package_id, user_id, has_conflict, relation_text, contractor_id, created_by, updated_by)
+         values ($1, gen_random_uuid(), $2, $3, true, 'A relation.', $4, $3, $3)`,
+        [TENANT_A, target.packageId, memberId(BAN), contractor],
+      );
+      expect(await terminate(BAN, target, { guarantee_action: 'HOLD' })).toMatchObject({ status: 409, json: { code: 'CONFLICT_OF_INTEREST_BLOCKED' } });
+      expect(await stateOf(target.id)).toEqual({ status: 'ACTIVE', version: '1' });
+    });
+  });
+
   describe('getContractSummary', () => {
     it('shows the staff what stands before the activation and what they may do now, a reader the same with nothing to do, and a guest contractor the contract alone', async () => {
       const line = await capital();
@@ -507,12 +668,12 @@ describe('the review, the signing and the activation of a contract over HTTP (ST
           capital: { allocation_line_id: line.lineId },
           project: { status: 'IMPLEMENTATION', in_implementation: true },
         },
-        actions: { submit: false, return: false, sign: false, activate: true, cancel: false },
+        actions: { submit: false, return: false, sign: false, activate: true, cancel: false, suspend: false, resume: false, terminate: true },
       });
       expect(await call('GET', `/contracts/${target.id}/summary`, { member: SELF })).toMatchObject({ json: { actions: { activate: false } } });
       const reader = await call('GET', `/contracts/${target.id}/summary`, { member: READER });
       expect(reader.status).toBe(200);
-      expect(reader.json).toMatchObject({ id: target.id, status: 'SIGNED', actions: { submit: false, return: false, sign: false, activate: false, cancel: false } });
+      expect(reader.json).toMatchObject({ id: target.id, status: 'SIGNED', actions: { submit: false, return: false, sign: false, activate: false, cancel: false, suspend: false, resume: false, terminate: false } });
       expect(reader.json).not.toHaveProperty('accepted_total_vnd');
       // The contractor of the contract sees it, and nothing of how the staff judge it.
       await world.owner("update machvon.membership set membership_type = 'GUEST_CONTRACTOR', contractor_id = $2::uuid, valid_until = now() + interval '1 year' where id = $1::uuid", [memberId(GUEST), contractor]);

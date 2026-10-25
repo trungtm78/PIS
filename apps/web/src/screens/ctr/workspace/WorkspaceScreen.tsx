@@ -6,11 +6,11 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, StatusBadge } from '../components';
-import { LIST_PATH, amountText } from '../model';
+import { LIST_PATH, amountText, haltLink } from '../model';
 import { useSummary } from './hooks';
 import { statusText } from '../labels';
 import { checkLabel, checkState, commandLabel, gateLabel } from './labels';
-import { BEFORE_ACTIVATION, checksOf, vietnamToday } from './model';
+import { BEFORE_ACTIVATION, HALT_ACTIONS, checksOf, vietnamToday } from './model';
 import type { Command, Summary } from './model';
 import { ActivateDialog, NoteDialog, SignDialog } from './WorkspaceDialogs';
 import '../ctr.css';
@@ -97,6 +97,8 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
   const may = (command: Command): boolean => !readOnly && summary.actions?.[command] === true;
   const buttons = ORDER.filter(may);
   const gate = summary.readiness?.permitGate;
+  // The commands that stop a contract, let it go on or end it are asked on their own screen.
+  const haltable = !readOnly && HALT_ACTIONS.some((action) => summary.halts?.[action] === true);
 
   return (
     <>
@@ -113,9 +115,14 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
               {commandLabel(t, command)}
             </button>
           ))}
+          {haltable ? (
+            <Link className="button" to={haltLink(contract.id)} data-testid="halt-link">
+              {t('ctr.workspace.halt.action')}
+            </Link>
+          ) : null}
         </div>
       </div>
-      {summary.actions !== undefined && buttons.length === 0 ? (
+      {summary.actions !== undefined && buttons.length === 0 && !haltable ? (
         <p className="callout" role="status" data-testid="no-command">
           {readOnly ? t('ctr.workspace.readOnly.notice') : t('ctr.workspace.noCommand.notice')}
         </p>

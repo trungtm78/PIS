@@ -20,6 +20,11 @@ export const COMMANDS = ['submit', 'return', 'sign', 'activate', 'cancel'] as co
 export type Command = (typeof COMMANDS)[number];
 export type Actions = Record<Command, boolean>;
 
+/** The commands of CTR-22: they stop the work of a contract, let it go on, or end it for good. */
+export const HALT_ACTIONS = ['suspend', 'resume', 'terminate'] as const;
+export type HaltAction = (typeof HALT_ACTIONS)[number];
+export type HaltActions = Record<HaltAction, boolean>;
+
 export type GateStatus = 'NOT_REQUIRED' | 'PASSED' | 'PASSED_WITH_WAIVER' | 'BLOCKED';
 const GATE_STATUSES: readonly GateStatus[] = ['NOT_REQUIRED', 'PASSED', 'PASSED_WITH_WAIVER', 'BLOCKED'];
 
@@ -45,6 +50,8 @@ export interface Summary {
   effectiveFrom: string | null;
   readiness: Readiness | undefined;
   actions: Actions | undefined;
+  /** What the caller may do to stop, resume or end the contract now; undefined for someone who sees the contract alone. */
+  halts: HaltActions | undefined;
 }
 
 function toReadiness(raw: unknown): Readiness | undefined {
@@ -72,6 +79,12 @@ function toActions(raw: unknown): Actions | undefined {
   return { submit: row.submit === true, return: row.return === true, sign: row.sign === true, activate: row.activate === true, cancel: row.cancel === true };
 }
 
+function toHalts(raw: unknown): HaltActions | undefined {
+  const row = isRecord(raw) ? raw : undefined;
+  if (row === undefined) return undefined;
+  return { suspend: row.suspend === true, resume: row.resume === true, terminate: row.terminate === true };
+}
+
 export function toSummary(raw: unknown): Summary | undefined {
   const contract = toContractView(raw);
   const row = isRecord(raw) ? raw : undefined;
@@ -88,6 +101,7 @@ export function toSummary(raw: unknown): Summary | undefined {
     effectiveFrom: text(row.effective_from) ?? null,
     readiness: toReadiness(row.readiness),
     actions: toActions(row.actions),
+    halts: toHalts(row.actions),
   };
 }
 
@@ -113,6 +127,8 @@ export const BEFORE_ACTIVATION: readonly string[] = ['DRAFT', 'IN_REVIEW', 'SIGN
 
 // ---- the forms -----------------------------------------------------------------------------------------------------------------
 
+export const isUuid = (value: string): boolean => UUID.test(value.trim());
+
 export const isDate = (value: string): boolean => {
   const match = DATE.exec(value.trim());
   if (match === null) return false;
@@ -120,7 +136,7 @@ export const isDate = (value: string): boolean => {
   return moment.toISOString().slice(0, 10) === value.trim();
 };
 
-export type FormProblem = 'required' | 'date' | 'future' | 'beforeSigning' | 'uuid' | 'tooLong' | 'evidence';
+export type FormProblem = 'required' | 'date' | 'future' | 'beforeSigning' | 'uuid' | 'tooLong' | 'evidence' | 'extension' | 'confirm';
 
 export interface NoteForm {
   text: string;
@@ -208,6 +224,8 @@ export type Problem =
   | 'delegation'
   | 'noRule'
   | 'guaranteeMissing'
+  | 'decisionDocument'
+  | 'noGuarantee'
   | 'gateBlocked'
   | 'fundFailed'
   | 'projectStage'
@@ -270,7 +288,10 @@ export function describeProblem(error: unknown): ProblemView {
       return { problem: 'stateInvalid', detail: [] };
     case 'VERSION_CONFLICT':
       return { problem: 'versionConflict', detail: [] };
+    case 'DECISION_DOCUMENT_REQUIRED':
+      return { problem: 'decisionDocument', detail: [] };
     case 'VALIDATION_FAILED':
+      return { problem: extensions.reason === 'NO_ACTIVE_GUARANTEE' ? 'noGuarantee' : 'validation', detail: [] };
     case 'INVALID_REQUEST':
     case 'FIELD_NOT_ALLOWED':
       return { problem: 'validation', detail: [] };

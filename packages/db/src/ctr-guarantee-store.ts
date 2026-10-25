@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, assertFourEyes, compareDecimal, vietnamDateOf, versionConflict } from '@machvon/kernel';
+import type { GuaranteeAction } from '@machvon/kernel';
 import { SCOPE_FROM, TIMESTAMP, calendarDate, textOf, wholeAmount } from './ctr-contract-store.ts';
 import type { ContractPlace, ContractScopes } from './ctr-contract-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
@@ -391,6 +392,40 @@ export class CtrGuaranteeStore {
       [id, evidence, isoOf(now), actor, reason],
     );
     return this.moveOf(held, 'RELEASED', held.version + 1, held.status, null);
+  }
+
+  /**
+   * What the termination of a contract does with its performance guarantees that are still ACTIVE (CTR 3.2): CALL moves each to CALLED, RELEASE releases each against the decision
+   * document by a person other than the one who registered it, and HOLD leaves them as they are until the settlement. The advance guarantees are not touched by any of the three: the
+   * advance still owed stays with the contract for the settlement. A call with nothing to call is a fault of the request (422 VALIDATION_FAILED on guarantee_action). The contract is
+   * already locked, in its scope, by the command that ends it.
+   */
+  async settle(tx: TenantTx, contractId: string, action: GuaranteeAction, decision: { documentVersionId: string; reason: string }, actor: string, now: Date): Promise<GuaranteeMove[]> {
+    if (action === 'HOLD') return [];
+    const rows = await tx.query<RowSql>(
+      `select ${COLUMNS}, '' as key, 0 as days_left ${FROM} where g.contract_id = $1::uuid and g.kind = 'PERFORMANCE' and g.status = 'ACTIVE' order by g.created_at, g.id for update of g`,
+      [contractId],
+    );
+    if (rows.length === 0 && action === 'CALL') throw new DomainError('VALIDATION_FAILED', 422, 'guarantee_action', { extensions: { reason: 'NO_ACTIVE_GUARANTEE' } });
+    const moves: GuaranteeMove[] = [];
+    for (const row of rows) {
+      const held = toRow(row);
+      if (action === 'CALL') {
+        await tx.query("update machvon.guarantee set status = 'CALLED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [held.id, actor]);
+        moves.push(this.moveOf(held, 'CALLED', held.version + 1, held.status, null));
+        continue;
+      }
+      if (held.registeredBy !== null) assertFourEyes(held.registeredBy, actor);
+      await tx.query(
+        `update machvon.guarantee
+            set status = 'RELEASED', release_evidence_id = $2::uuid, released_at = $3::timestamptz, released_by = $4::uuid, release_reason = $5,
+                updated_at = now(), updated_by = $4::uuid, version = version + 1
+          where id = $1::uuid`,
+        [held.id, decision.documentVersionId, isoOf(now), actor, decision.reason],
+      );
+      moves.push(this.moveOf(held, 'RELEASED', held.version + 1, held.status, null));
+    }
+    return moves;
   }
 
   /** Locks a guarantee for update inside the scope of the caller; one the caller can read but not change is a refusal, not a miss. */

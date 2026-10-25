@@ -35,6 +35,10 @@ const PENDING = id(FAMILY, 32);
 const INFECTED = id(FAMILY, 33);
 const SEALED = id(FAMILY, 34);
 const EVIDENCE = id(FAMILY, 35);
+/** The decision document of the suspension and the termination tests: made by the proposer, a member who never approves. */
+const DECISION = id(FAMILY, 38);
+const DECISION_DOCUMENT = id(FAMILY, 39);
+const PROPOSER = 5;
 
 const as = <T>(work: (tx: TenantTx) => Promise<T>, member = CHECKER): Promise<T> => harness.tenants.withTenant(contextFor(TENANT_A, memberId(member)), work);
 const owner = <R extends object = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<R[]> => harness.owner<R>(TENANT_A, [[sql, params]]);
@@ -72,6 +76,10 @@ interface Options {
   withAllocation?: boolean;
   signedBy?: number;
   signedOn?: string;
+  /** The day an ACTIVE, SUSPENDED or later contract took effect; defaults to the 5th of October. */
+  effectiveFrom?: string;
+  advancePaid?: string;
+  suspendedFrom?: string;
 }
 
 interface Seeded {
@@ -90,6 +98,7 @@ async function seedContract(options: Options = {}): Promise<Seeded> {
   const status = options.status ?? 'DRAFT';
   const code = `HD-${String(counter).padStart(4, '0')}`;
   const signed = !['DRAFT', 'IN_REVIEW', 'CANCELLED'].includes(status);
+  const started = ['ACTIVE', 'SUSPENDED', 'COMPLETED', 'CLOSED'].includes(status);
   await seedAs(harness, [
     [
       `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status, title, allocation_line_id, created_by, version)
@@ -99,8 +108,10 @@ async function seedContract(options: Options = {}): Promise<Seeded> {
     [
       `insert into machvon.contract
          (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, title, advance_category, is_joint_venture, requires_quality_acceptance,
-          contract_value_vnd, estimate_ceiling_vnd, created_by, updated_by, submitted_by, signed_on, signed_by, signed_document_version_id)
-       values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 'Contract', $8, $9, true, $10, 20000000000, $11, $11, $12, $13::date, $14, $15)`,
+          contract_value_vnd, estimate_ceiling_vnd, created_by, updated_by, submitted_by, signed_on, signed_by, signed_document_version_id,
+          effective_from, advance_paid_vnd, suspended_from, status_reason, status_decision_document_version_id)
+       values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 'Contract', $8, $9, true, $10, 20000000000, $11, $11, $12, $13::date, $14, $15,
+               $16::date, $17::numeric, $18::date, $19, $20)`,
       [
         TENANT_A,
         contractId,
@@ -117,6 +128,11 @@ async function seedContract(options: Options = {}): Promise<Seeded> {
         signed ? (options.signedOn ?? '2026-10-01') : null,
         signed ? memberId(options.signedBy ?? SIGNER) : null,
         signed ? CLEAN : null,
+        started ? (options.effectiveFrom ?? '2026-10-05') : null,
+        options.advancePaid ?? '0',
+        status === 'SUSPENDED' ? (options.suspendedFrom ?? '2026-10-10') : null,
+        status === 'SUSPENDED' ? 'Suspended by the decision.' : null,
+        status === 'SUSPENDED' ? DECISION : null,
       ],
     ],
     [
@@ -199,7 +215,7 @@ describe('the review, the signing and the activation of a contract (ST-CTR-004)'
       { n: PROVINCE, path: '/u1/' },
       { n: DEPARTMENT, path: '/u1/u2/', parent: PROVINCE },
     ]);
-    for (const n of [DRAFTER, SUBMITTER, CHECKER, SIGNER, 9]) await harness.seedMembership(TENANT_A, n, PROVINCE);
+    for (const n of [DRAFTER, SUBMITTER, CHECKER, SIGNER, PROPOSER, 9]) await harness.seedMembership(TENANT_A, n, PROVINCE);
     await seedAs(harness, [
       [
         `insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id)
@@ -241,6 +257,15 @@ describe('the review, the signing and the activation of a contract (ST-CTR-004)'
       [
         `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by) values ($1, $2, 'REFERENCE', 'EVIDENCE', 'Evidence', 'INTERNAL', $3, $3)`,
         [TENANT_A, EVIDENCE, memberId(DRAFTER)],
+      ],
+      [
+        `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by) values ($1, $2, 'REFERENCE', 'QD', 'Decision', 'INTERNAL', $3, $3)`,
+        [TENANT_A, DECISION_DOCUMENT, memberId(PROPOSER)],
+      ],
+      [
+        `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
+         values ($1, $2, $3, 1, 'tenants/ctr/decision.pdf', repeat('f', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL')`,
+        [TENANT_A, DECISION, DECISION_DOCUMENT],
       ],
     ]);
   }, 240_000);
@@ -592,6 +617,281 @@ describe('the review, the signing and the activation of a contract (ST-CTR-004)'
     it('keeps the state machine as the last word: the runtime role cannot write a status that is off the edges', async () => {
       const closed = await seedContract({ status: 'CANCELLED' });
       expect(await databaseRefusal(as((tx) => tx.query(`update machvon.contract set status = 'ACTIVE' where id = $1::uuid`, [closed.id])))).toContain('CONTRACT_STATE_INVALID');
+    });
+  });
+
+  describe('suspendContract, resumeContract (ST-CTR-005)', () => {
+    const suspend = (seeded: Seeded, version = 1, input: Partial<Parameters<CtrContractLifecycleStore['suspend']>[3]> = {}, member = CHECKER, scopes = everything) =>
+      as((tx) => lifecycle.suspend(tx, seeded.id, version, { reason: 'The site is closed by the decision.', decisionDocumentVersionId: DECISION, suspendedFrom: '2026-10-12', ...input }, memberId(member), scopes, TODAY), member);
+    const resume = (seeded: Seeded, version = 1, input: Partial<Parameters<CtrContractLifecycleStore['resume']>[3]> = {}, member = CHECKER) =>
+      as((tx) => lifecycle.resume(tx, seeded.id, version, { reason: 'The site is open again.', decisionDocumentVersionId: DECISION, resumedOn: '2026-10-20', ...input }, memberId(member), everything, TODAY), member);
+    const state = async (contractId: string) =>
+      (
+        await owner<{ status: string; status_reason: string | null; status_decision_document_version_id: string | null; suspended_from: string | null; completion_due: string | null; version: string }>(
+          'select status, status_reason, status_decision_document_version_id, suspended_from::text, completion_due::text, version::text from machvon.contract where id = $1::uuid',
+          [contractId],
+        )
+      )[0];
+
+    it('AC-ST-CTR-005-1, UAT-AC303: refuses a suspension without the decision document, then suspends with it and keeps the reason, the document and the day', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      expect(await refusal(suspend(active, 1, { decisionDocumentVersionId: undefined }))).toMatchObject({ code: 'DECISION_DOCUMENT_REQUIRED', status: 422, detail: 'decision_document_version_id' });
+      expect((await state(active.id))?.status).toBe('ACTIVE');
+
+      const done = await suspend(active);
+      expect(done).toMatchObject({ fromStatus: 'ACTIVE', status: 'SUSPENDED', version: 2, suspendedFrom: '2026-10-12', decisionDocumentVersionId: DECISION, reason: 'The site is closed by the decision.' });
+      expect(await state(active.id)).toMatchObject({ status: 'SUSPENDED', status_reason: 'The site is closed by the decision.', status_decision_document_version_id: DECISION, suspended_from: '2026-10-12', version: '2' });
+      expect(await changes(active.id)).toEqual([
+        { from_status: 'ACTIVE', to_status: 'SUSPENDED', reason: 'The site is closed by the decision.', command: 'suspendContract', created_by: memberId(CHECKER), decision_document_version_id: DECISION, effective_on: '2026-10-12' },
+      ]);
+    });
+
+    it('refuses what is not an active contract, a stale version, a contract outside the scope, and a decision that is not a usable file', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      for (const status of ['DRAFT', 'IN_REVIEW', 'SIGNED', 'SUSPENDED']) {
+        const other = await seedContract({ status });
+        expect(await refusal(suspend(other))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409, extensions: { contract_status: status, command: 'suspendContract' } });
+      }
+      expect(await refusal(suspend(active, 7))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
+      expect(await refusal(suspend(active, 1, {}, CHECKER, nothingUpdate))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
+      for (const unusable of [INFECTED, SEALED, randomUUID()]) {
+        expect(await refusal(suspend(active, 1, { decisionDocumentVersionId: unusable }))).toMatchObject({ code: 'DECISION_DOCUMENT_REQUIRED', status: 422 });
+      }
+      expect((await state(active.id))?.status).toBe('ACTIVE');
+    });
+
+    it('judges the reason and the day: a blank reason, a day before the contract took effect or in the future, a day that does not exist', async () => {
+      const active = await seedContract({ status: 'ACTIVE', effectiveFrom: '2026-10-05' });
+      expect(await refusal(suspend(active, 1, { reason: '   ' }))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'reason' });
+      expect(await refusal(suspend(active, 1, { reason: 'x'.repeat(2001) }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'reason' });
+      expect(await refusal(suspend(active, 1, { suspendedFrom: '2026-10-04' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'suspended_from', extensions: { earliest: '2026-10-05', latest: TODAY } });
+      expect(await refusal(suspend(active, 1, { suspendedFrom: '2026-10-26' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'suspended_from' });
+      expect(await refusal(suspend(active, 1, { suspendedFrom: '2026-02-30' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'suspended_from' });
+      expect((await suspend(active, 1, { suspendedFrom: '2026-10-05' })).suspendedFrom).toBe('2026-10-05');
+    });
+
+    it('blocks a caller who declared a relation with the contractor', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await declare(CHECKER, active.packageId);
+      expect(await refusal(suspend(active))).toMatchObject({ code: 'CONFLICT_OF_INTEREST_BLOCKED', status: 409 });
+      const suspended = await seedContract({ status: 'SUSPENDED' });
+      await declare(CHECKER, suspended.packageId);
+      expect(await refusal(resume(suspended, 1))).toMatchObject({ code: 'CONFLICT_OF_INTEREST_BLOCKED' });
+    });
+
+    it('AC-ST-CTR-005-1, UAT-AC303: resumes on a document with the extension kept as a request: the due date does not move and the two moves are in the history', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await owner("update machvon.contract set completion_due = date '2027-03-31' where id = $1::uuid", [active.id]);
+      await suspend(active);
+      const done = await resume(active, 2, { extensionDays: 20 });
+      expect(done).toMatchObject({ fromStatus: 'SUSPENDED', status: 'ACTIVE', version: 3, resumedOn: '2026-10-20', extensionDays: 20, decisionDocumentVersionId: DECISION });
+      expect(await state(active.id)).toMatchObject({ status: 'ACTIVE', status_reason: null, status_decision_document_version_id: null, suspended_from: null, completion_due: '2027-03-31', version: '3' });
+      const history = await changes(active.id);
+      expect(history.map((change) => [change.from_status, change.to_status, change.command, change.effective_on])).toEqual([
+        ['ACTIVE', 'SUSPENDED', 'suspendContract', '2026-10-12'],
+        ['SUSPENDED', 'ACTIVE', 'resumeContract', '2026-10-20'],
+      ]);
+      expect(history[1]).toMatchObject({ reason: 'The site is open again. (extension of 20 days requested)', decision_document_version_id: DECISION });
+    });
+
+    it('resumes without an extension, and refuses a resumption of what is not suspended, without a document, before the suspension or in the future, and an extension that is not a number of days', async () => {
+      const suspended = await seedContract({ status: 'SUSPENDED', suspendedFrom: '2026-10-10' });
+      expect(await refusal(resume(suspended, 1, { decisionDocumentVersionId: undefined }))).toMatchObject({ code: 'DECISION_DOCUMENT_REQUIRED', status: 422 });
+      expect(await refusal(resume(suspended, 1, { resumedOn: '2026-10-09' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'resumed_on', extensions: { earliest: '2026-10-10' } });
+      expect(await refusal(resume(suspended, 1, { resumedOn: '2026-10-26' }))).toMatchObject({ detail: 'resumed_on' });
+      for (const days of [0, -3, 1.5, 3651]) expect(await refusal(resume(suspended, 1, { extensionDays: days }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'extension_days' });
+      expect(await refusal(resume(await seedContract({ status: 'ACTIVE' })))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', extensions: { contract_status: 'ACTIVE', command: 'resumeContract' } });
+      const done = await resume(suspended, 1, { resumedOn: '2026-10-10' });
+      expect(done.extensionDays).toBeNull();
+      expect((await changes(suspended.id))[0]?.reason).toBe('The site is open again.');
+    });
+
+    it('can suspend again after a resumption', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await suspend(active);
+      await resume(active, 2);
+      expect((await suspend(active, 3, { suspendedFrom: '2026-10-21' })).version).toBe(4);
+      expect((await state(active.id))?.suspended_from).toBe('2026-10-21');
+    });
+  });
+
+  describe('terminateContract (ST-CTR-005)', () => {
+    const terminate = (seeded: Seeded, version = 1, input: Partial<Parameters<CtrContractLifecycleStore['terminate']>[3]> = {}, member = CHECKER, h: Pick<LifecycleHooks, 'authorise'> = hooks()) =>
+      as(
+        (tx) =>
+          lifecycle.terminate(tx, seeded.id, version, { reason: 'The contractor abandoned the site.', decisionDocumentVersionId: DECISION, terminatedOn: '2026-10-20', guaranteeAction: 'CALL', ...input }, memberId(member), everything, TODAY, h),
+        member,
+      );
+    const resumeAny = (seeded: Seeded, version: number) => as((tx) => lifecycle.resume(tx, seeded.id, version, { reason: 'Back.', decisionDocumentVersionId: DECISION, resumedOn: '2026-10-21' }, memberId(CHECKER), everything, TODAY), CHECKER);
+    const withGuarantee = (contractId: string, options: { kind?: string; status?: string; registeredBy?: number } = {}) =>
+      seedAs(harness, [
+        [
+          `insert into machvon.guarantee
+             (tenant_id, id, contract_id, kind, issuer, guarantee_no, amount_vnd, expires_at, verification_status, status, verified_by, verified_at, verification_method, verification_evidence_id, created_by)
+           values ($1, gen_random_uuid(), $2, $3, 'Bank of the Province', $4, 500000000, now() + interval '365 days', 'VERIFIED', $5, $6, now(), 'ISSUER_CONFIRMATION', $7, $8)`,
+          [TENANT_A, contractId, options.kind ?? 'PERFORMANCE', `BL-${randomUUID().slice(0, 8)}`, options.status ?? 'ACTIVE', memberId(9), EVIDENCE, memberId(options.registeredBy ?? DRAFTER)],
+        ],
+      ]);
+    const guaranteeStatuses = async (contractId: string) =>
+      owner<{ kind: string; status: string; release_evidence_id: string | null; release_reason: string | null; released_by: string | null }>(
+        'select kind, status, release_evidence_id, release_reason, released_by from machvon.guarantee where contract_id = $1::uuid order by kind',
+        [contractId],
+      );
+    const violations = (contractId: string) =>
+      owner<{ status: string; penalty_kind: string; penalty_amount_vnd: string; decision_document_version_id: string | null; source_module: string; severity: string; occurred_on: string; description: string; contractor_id: string }>(
+        'select status, penalty_kind, penalty_amount_vnd::text, decision_document_version_id, source_module, severity, occurred_on::text, description, contractor_id from machvon.contractor_violation where contract_id = $1::uuid',
+        [contractId],
+      );
+    const ended = async (contractId: string) =>
+      (
+        await owner<{ status: string; terminated_on: string | null; terminated_by: string | null; status_reason: string | null; status_decision_document_version_id: string | null; advance_outstanding_vnd: string }>(
+          'select status, terminated_on::text, terminated_by, status_reason, status_decision_document_version_id, advance_outstanding_vnd::text from machvon.contract where id = $1::uuid',
+          [contractId],
+        )
+      )[0];
+
+    it('AC-ST-CTR-005-2, UAT-AC304: refuses the people who proposed the end, then an approver ends the contract, calls the guarantee, suggests one violation and leaves the advance owed', async () => {
+      const active = await seedContract({ status: 'ACTIVE', advancePaid: '1250000000' });
+      await withGuarantee(active.id);
+      await withGuarantee(active.id, { kind: 'ADVANCE' });
+      // The maker of the decision document, the one who drafted the contract and the one who sent it to review all proposed it.
+      for (const proposer of [PROPOSER, DRAFTER, SUBMITTER]) {
+        expect(await refusal(terminate(active, 1, {}, proposer))).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });
+      }
+      expect((await ended(active.id))?.status).toBe('ACTIVE');
+      expect((await guaranteeStatuses(active.id)).map((g) => g.status)).toEqual(['ACTIVE', 'ACTIVE']);
+
+      const authorise = hooks();
+      const done = await terminate(active, 1, {}, CHECKER, authorise);
+      expect(authorise.authorise).toHaveBeenCalledTimes(1);
+      expect(done).toMatchObject({ fromStatus: 'ACTIVE', status: 'TERMINATED', version: 2, terminatedOn: '2026-10-20', guaranteeAction: 'CALL', advanceOutstandingVnd: '1250000000', decisionDocumentVersionId: DECISION });
+      expect(done.guarantees).toHaveLength(1);
+      expect(done.guarantees[0]).toMatchObject({ kind: 'PERFORMANCE', status: 'CALLED', fromStatus: 'ACTIVE' });
+      expect(await ended(active.id)).toEqual({
+        status: 'TERMINATED',
+        terminated_on: '2026-10-20',
+        terminated_by: memberId(CHECKER),
+        status_reason: 'The contractor abandoned the site.',
+        status_decision_document_version_id: DECISION,
+        advance_outstanding_vnd: '1250000000',
+      });
+      // The performance guarantee is called; the advance guarantee stays for the settlement of the advance.
+      expect((await guaranteeStatuses(active.id)).map((g) => [g.kind, g.status])).toEqual([
+        ['ADVANCE', 'ACTIVE'],
+        ['PERFORMANCE', 'CALLED'],
+      ]);
+      expect(await violations(active.id)).toEqual([
+        {
+          status: 'RECORDED',
+          penalty_kind: 'TERMINATION',
+          penalty_amount_vnd: '0',
+          decision_document_version_id: DECISION,
+          source_module: 'CTR',
+          severity: 'MAJOR',
+          occurred_on: '2026-10-20',
+          description: 'The contractor abandoned the site.',
+          contractor_id: CONTRACTOR,
+        },
+      ]);
+      expect(done.violationId).toEqual(expect.any(String));
+      expect(await changes(active.id)).toEqual([
+        { from_status: 'ACTIVE', to_status: 'TERMINATED', reason: 'The contractor abandoned the site.', command: 'terminateContract', created_by: memberId(CHECKER), decision_document_version_id: DECISION, effective_on: '2026-10-20' },
+      ]);
+
+      // It does not go back: no resumption, no activation, no second termination.
+      expect(await refusal(resumeAny(active, 2))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409 });
+      expect(await refusal(activate(active, 2))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409 });
+      expect(await refusal(terminate(active, 2))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409 });
+    });
+
+    it('releases the performance guarantee against the decision when the action is RELEASE, by someone other than the one who registered it', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await withGuarantee(active.id, { registeredBy: CHECKER });
+      expect(await refusal(terminate(active, 1, { guaranteeAction: 'RELEASE' }))).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });
+      expect((await ended(active.id))?.status).toBe('ACTIVE');
+      expect((await guaranteeStatuses(active.id))[0]?.status).toBe('ACTIVE');
+
+      const other = await seedContract({ status: 'ACTIVE' });
+      await withGuarantee(other.id, { registeredBy: SIGNER });
+      const done = await terminate(other, 1, { guaranteeAction: 'RELEASE' });
+      expect(done.guarantees.map((move) => move.status)).toEqual(['RELEASED']);
+      expect(await guaranteeStatuses(other.id)).toEqual([
+        { kind: 'PERFORMANCE', status: 'RELEASED', release_evidence_id: DECISION, release_reason: 'The contractor abandoned the site.', released_by: memberId(CHECKER) },
+      ]);
+    });
+
+    it('leaves every guarantee as it is when the action is HOLD, and calls nothing that is not there', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await withGuarantee(active.id);
+      const held = await terminate(active, 1, { guaranteeAction: 'HOLD' });
+      expect(held.guarantees).toEqual([]);
+      expect((await guaranteeStatuses(active.id)).map((g) => g.status)).toEqual(['ACTIVE']);
+
+      const bare = await seedContract({ status: 'ACTIVE' });
+      expect(await refusal(terminate(bare, 1, { guaranteeAction: 'CALL' }))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'guarantee_action', extensions: { reason: 'NO_ACTIVE_GUARANTEE' } });
+      expect((await ended(bare.id))?.status).toBe('ACTIVE');
+      expect((await terminate(bare, 1, { guaranteeAction: 'RELEASE' })).guarantees).toEqual([]);
+      expect((await violations(bare.id)).length).toBe(1);
+    });
+
+    it('ends a signed contract and a suspended one, and keeps the end after the day the suspension began', async () => {
+      const signed = await seedContract({ status: 'SIGNED', signedOn: '2026-10-01' });
+      expect((await terminate(signed, 1, { guaranteeAction: 'HOLD' })).fromStatus).toBe('SIGNED');
+      const suspended = await seedContract({ status: 'SUSPENDED', suspendedFrom: '2026-10-10' });
+      expect(await refusal(terminate(suspended, 1, { guaranteeAction: 'HOLD', terminatedOn: '2026-10-09' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'terminated_on', extensions: { earliest: '2026-10-10' } });
+      expect((await terminate(suspended, 1, { guaranteeAction: 'HOLD', terminatedOn: '2026-10-10' })).fromStatus).toBe('SUSPENDED');
+    });
+
+    it('judges the request: a state that does not allow it, the document, the day, the action and the reason', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      for (const status of ['DRAFT', 'IN_REVIEW', 'COMPLETED', 'CLOSED', 'CANCELLED']) {
+        expect(await refusal(terminate(await seedContract({ status })))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409, extensions: { contract_status: status, command: 'terminateContract' } });
+      }
+      expect(await refusal(terminate(active, 9))).toMatchObject({ code: 'VERSION_CONFLICT' });
+      expect(await refusal(terminate(active, 1, { decisionDocumentVersionId: undefined }))).toMatchObject({ code: 'DECISION_DOCUMENT_REQUIRED', status: 422 });
+      expect(await refusal(terminate(active, 1, { decisionDocumentVersionId: INFECTED }))).toMatchObject({ code: 'DECISION_DOCUMENT_REQUIRED' });
+      expect(await refusal(terminate(active, 1, { guaranteeAction: 'WAIT' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'guarantee_action' });
+      expect(await refusal(terminate(active, 1, { reason: '' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'reason' });
+      expect(await refusal(terminate(active, 1, { terminatedOn: '2026-10-26' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'terminated_on', extensions: { latest: TODAY } });
+      expect(await refusal(terminate(active, 1, { terminatedOn: '2026-09-30' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'terminated_on', extensions: { earliest: '2026-10-01' } });
+      expect((await ended(active.id))?.status).toBe('ACTIVE');
+    });
+
+    it('stops where the delegation limit stops it, and leaves nothing behind', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await withGuarantee(active.id);
+      const refused = hooks({ authorise: jest.fn(async () => Promise.reject(new DomainError('SCOPE_DENIED', 403, 'delegation'))) });
+      expect(await refusal(terminate(active, 1, {}, CHECKER, refused))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
+      expect((await ended(active.id))?.status).toBe('ACTIVE');
+      expect((await guaranteeStatuses(active.id))[0]?.status).toBe('ACTIVE');
+      expect(await violations(active.id)).toEqual([]);
+      expect(await changes(active.id)).toEqual([]);
+    });
+
+    it('blocks an approver who declared a relation with the contractor', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await declare(CHECKER, active.packageId);
+      expect(await refusal(terminate(active))).toMatchObject({ code: 'CONFLICT_OF_INTEREST_BLOCKED', status: 409 });
+    });
+
+    it('keeps the end of a contract once it is written, refuses a terminator who drafted it, and suggests the violation only once', async () => {
+      const active = await seedContract({ status: 'ACTIVE' });
+      await terminate(active, 1, { guaranteeAction: 'HOLD' });
+      for (const change of ["terminated_on = date '2026-10-21'", `terminated_by = '${memberId(SIGNER)}'`, "status_reason = 'Rewritten'", `status_decision_document_version_id = '${CLEAN}'`]) {
+        expect(await databaseRefusal(owner(`update machvon.contract set ${change} where id = $1::uuid`, [active.id]))).toContain('termination of a contract does not change');
+      }
+      const other = await seedContract({ status: 'ACTIVE' });
+      expect(await databaseRefusal(owner('update machvon.contract set terminated_by = created_by where id = $1::uuid', [other.id]))).toContain('contract_terminator_chk');
+      expect(await violations(active.id)).toHaveLength(1);
+      expect(
+        await databaseRefusal(
+          owner(
+            `insert into machvon.contractor_violation (tenant_id, id, contract_id, contractor_id, violation_kind, severity, occurred_on, description, penalty_kind, source_module, source_ref_id, status, created_by, updated_by)
+             values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, 'OTHER', 'MAJOR', date '2026-10-20', 'Again', 'TERMINATION', 'CTR', $1::uuid, 'RECORDED', $3::uuid, $3::uuid)`,
+            [active.id, CONTRACTOR, memberId(CHECKER)],
+          ),
+        ),
+      ).toContain('contractor_violation_termination_uq');
     });
   });
 });

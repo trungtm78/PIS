@@ -80,6 +80,14 @@ describe('problemOf', () => {
     expect(problemOf([issue('missing', 'amount_vnd')], 'registerAppropriation')).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
   });
 
+  it('answers a missing decision document of the suspension, the resumption and the termination of a contract with DECISION_DOCUMENT_REQUIRED, 422 (ST-CTR-005 AC-1)', () => {
+    for (const operation of ['suspendContract', 'resumeContract', 'terminateContract']) {
+      expect(problemOf([issue('missing', 'decision_document_version_id')], operation)).toMatchObject({ code: 'DECISION_DOCUMENT_REQUIRED', status: 422, detail: 'decision_document_version_id' });
+      expect(problemOf([issue('type', 'decision_document_version_id')], operation)).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+      expect(problemOf([issue('missing', 'reason')], operation)).toMatchObject({ code: 'INVALID_REQUEST', status: 400 });
+    }
+  });
+
   it('returns undefined when there is no issue', () => {
     expect(problemOf([], 'createCustomRole')).toBeUndefined();
   });

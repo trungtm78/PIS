@@ -23,6 +23,8 @@ const RETURN_PERMISSION = PERMISSIONS.returnContractDraft;
 const SIGN_PERMISSION = PERMISSIONS.recordContractSigning;
 const ACTIVATE_PERMISSION = PERMISSIONS.post_contracts_id_activate;
 const CANCEL_PERMISSION = PERMISSIONS.cancelContractDraft;
+const SUSPEND_PERMISSION = PERMISSIONS.suspendContract;
+const TERMINATE_PERMISSION = PERMISSIONS.terminateContract;
 const READ_PERMISSION = PERMISSIONS.get_resources_contract;
 const SUMMARY_PERMISSION = PERMISSIONS.getContractSummary;
 const LEDGER_PERMISSION = 'ledger.read';
@@ -56,6 +58,9 @@ export function actionsOf(detail: ContractDetail, access: EffectiveAccess, now: 
     sign: may('recordContractSigning', SIGN_PERMISSION, true),
     activate: may('activateContract', ACTIVATE_PERMISSION, true),
     cancel: may('cancelContractDraft', CANCEL_PERMISSION, false),
+    suspend: may('suspendContract', SUSPEND_PERMISSION, false),
+    resume: may('resumeContract', SUSPEND_PERMISSION, false),
+    terminate: may('terminateContract', TERMINATE_PERMISSION, true),
   };
 }
 
@@ -213,6 +218,103 @@ export class ContractLifecycleController {
       },
       eventKey: `${RESOURCE_TYPE}:${done.id}:commitment:${done.commitment.entryId}`,
     });
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
+  @Post('contracts/:id/suspend')
+  @HttpCode(200)
+  @OperationId('suspendContract')
+  @Command({ operation: 'suspendContract', versioned: true })
+  async suspend(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrSuspendContract']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.guarded(scope, 'suspendContract', id, () =>
+      this.lifecycle.suspend(
+        scope.tx,
+        id.toLowerCase(),
+        scope.expectedVersion ?? 0,
+        { reason: body.reason, decisionDocumentVersionId: body.decision_document_version_id, suspendedFrom: body.suspended_from },
+        scope.tenant.membershipId,
+        scopesFor(access, SUSPEND_PERMISSION, now),
+        vietnamDateOf(now),
+      ),
+    );
+    await this.written(scope, done, 'contract.suspended', 'ctr.contract.suspended.v1', now, { suspended_from: done.suspendedFrom, decision_document_version_id: done.decisionDocumentVersionId }, done.reason);
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
+  @Post('contracts/:id/resume')
+  @HttpCode(200)
+  @OperationId('resumeContract')
+  @Command({ operation: 'resumeContract', versioned: true })
+  async resume(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrResumeContract']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.guarded(scope, 'resumeContract', id, () =>
+      this.lifecycle.resume(
+        scope.tx,
+        id.toLowerCase(),
+        scope.expectedVersion ?? 0,
+        { reason: body.reason, decisionDocumentVersionId: body.decision_document_version_id, resumedOn: body.resumed_on, extensionDays: body.extension_days },
+        scope.tenant.membershipId,
+        scopesFor(access, SUSPEND_PERMISSION, now),
+        vietnamDateOf(now),
+      ),
+    );
+    await this.written(
+      scope,
+      done,
+      'contract.resumed',
+      'ctr.contract.resumed.v1',
+      now,
+      { resumed_on: done.resumedOn, extension_days_requested: done.extensionDays, decision_document_version_id: done.decisionDocumentVersionId },
+      done.reason,
+    );
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
+  @Post('contracts/:id/terminate')
+  @HttpCode(200)
+  @OperationId('terminateContract')
+  @Command({ operation: 'terminateContract', versioned: true })
+  async terminate(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrTerminateContract']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.guarded(scope, 'terminateContract', id, () =>
+      this.lifecycle.terminate(
+        scope.tx,
+        id.toLowerCase(),
+        scope.expectedVersion ?? 0,
+        { reason: body.reason, decisionDocumentVersionId: body.decision_document_version_id, terminatedOn: body.terminated_on, guaranteeAction: body.guarantee_action },
+        scope.tenant.membershipId,
+        scopesFor(access, TERMINATE_PERMISSION, now),
+        vietnamDateOf(now),
+        { authorise: this.delegation(scope, access, TERMINATE_PERMISSION, now) },
+      ),
+    );
+    for (const move of done.guarantees) {
+      await scope.audit({
+        action: move.status === 'CALLED' ? 'guarantee.called' : 'guarantee.released',
+        resourceType: 'guarantee',
+        resourceId: move.id,
+        classification: CLASSIFICATION,
+        reason: done.reason,
+        diff: { contract_id: move.contractId, kind: move.kind, amount_vnd: move.amountVnd, from_status: move.fromStatus, to_status: move.status, decision_document_version_id: done.decisionDocumentVersionId },
+      });
+    }
+    await this.written(
+      scope,
+      done,
+      'contract.terminated',
+      'ctr.contract.terminated.v1',
+      now,
+      {
+        terminated_on: done.terminatedOn,
+        decision_document_version_id: done.decisionDocumentVersionId,
+        guarantee_action: done.guaranteeAction,
+        guarantees: done.guarantees.map((move) => ({ id: move.id, kind: move.kind, from_status: move.fromStatus, to_status: move.status })),
+        violation_id: done.violationId,
+        advance_outstanding_vnd: done.advanceOutstandingVnd,
+      },
+      done.reason,
+    );
     return commandResult(scope, done.status, done.version, done.id);
   }
 

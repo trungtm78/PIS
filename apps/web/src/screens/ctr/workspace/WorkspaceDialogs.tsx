@@ -65,7 +65,7 @@ function Frame({ title, error, hasError, pending, submitLabel, pendingLabel, onS
   );
 }
 
-interface FieldProps {
+export interface FieldProps {
   id: string;
   label: string;
   problem: FormProblem | undefined;
@@ -73,7 +73,7 @@ interface FieldProps {
   children: ReactNode;
 }
 
-function Field({ id, label, problem, hint, children }: FieldProps) {
+export function Field({ id, label, problem, hint, children }: FieldProps) {
   const { t } = useTranslation();
   return (
     <div className="field" data-field={id}>

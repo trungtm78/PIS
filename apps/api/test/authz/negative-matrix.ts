@@ -1320,6 +1320,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/sign`, ifMatch: '"1"', body: { signed_on: '2026-10-25', signed_document_version_id: t.documentVersionId } }),
   },
+  // The suspension, the resumption and the termination of a contract rest on a decision document; a caller that is refused changes no status and calls no guarantee.
+  suspendContract: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/suspend`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, suspended_from: '2026-10-25' } }),
+  },
+  resumeContract: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/resume`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, resumed_on: '2026-10-25' } }),
+  },
+  terminateContract: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/terminate`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' } }),
+  },
   post_contracts_id_activate: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/activate`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], effective_from: '2026-10-25' } }),

@@ -285,6 +285,29 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
     });
   });
 
+  describe('the commands that stop a contract', () => {
+    it('links to CTR-22 for someone who may suspend, resume or terminate, and says no command applies only when nothing is offered at all', async () => {
+      open({ summary: summary('ACTIVE', { actions: { ...noActions, suspend: true } }) });
+      await screen.findByTestId('facts');
+      expect(screen.getByTestId('halt-link').getAttribute('href')).toBe(`/ctr/ctr-22?id=${contractId(1)}`);
+      expect(screen.getByTestId('halt-link').textContent).toBe(vi_['ctr.workspace.halt.action']);
+      expect(commandButtons()).toEqual([]);
+      expect(screen.queryByTestId('no-command')).toBeNull();
+      cleanup();
+      open({ summary: summary('ACTIVE', { actions: noActions }) });
+      await screen.findByTestId('facts');
+      expect(screen.queryByTestId('halt-link')).toBeNull();
+      expect(screen.getByTestId('no-command')).toBeTruthy();
+    });
+
+    it('does not link in a read-only session', async () => {
+      open({ summary: summary('ACTIVE', { actions: { ...noActions, terminate: true } }) }, { mode: 'READ_ONLY' });
+      await screen.findByTestId('facts');
+      expect(screen.queryByTestId('halt-link')).toBeNull();
+      expect(screen.getByTestId('no-command').textContent).toBe(vi_['ctr.workspace.readOnly.notice']);
+    });
+  });
+
   describe('who is offered what', () => {
     it('offers nothing in a read-only session, and says so', async () => {
       open({ summary: summary('DRAFT', { actions: { ...noActions, submit: true, cancel: true } }) }, { mode: 'READ_ONLY' });
