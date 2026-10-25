@@ -149,9 +149,9 @@ export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; titl
 };
 
 /** A handover of the draft contract of each tenant with one punch item (the number and the description are distinctive; tenant data). */
-export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; handoverNo: string; itemDescription: string; assetId: string; assetCode: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0d3-000000000001', itemId: '00000000-0000-4000-a0d3-000000000002', handoverNo: 'ALPHA-HANDOVER-NO-0001', itemDescription: 'ALPHA-PUNCH-ITEM-0001', assetId: '00000000-0000-4000-a0d3-000000000003', assetCode: 'ALPHA-ASSET-CODE-0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0d3-000000000001', itemId: '00000000-0000-4000-b0d3-000000000002', handoverNo: 'BETA-HANDOVER-NO-0001', itemDescription: 'BETA-PUNCH-ITEM-0001', assetId: '00000000-0000-4000-b0d3-000000000003', assetCode: 'BETA-ASSET-CODE-0001' },
+export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; handoverNo: string; itemDescription: string; assetId: string; assetCode: string; warrantyId: string; warrantyScope: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d3-000000000001', itemId: '00000000-0000-4000-a0d3-000000000002', handoverNo: 'ALPHA-HANDOVER-NO-0001', itemDescription: 'ALPHA-PUNCH-ITEM-0001', assetId: '00000000-0000-4000-a0d3-000000000003', assetCode: 'ALPHA-ASSET-CODE-0001', warrantyId: '00000000-0000-4000-a0d3-000000000004', warrantyScope: 'ALPHA-WARRANTY-SCOPE-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d3-000000000001', itemId: '00000000-0000-4000-b0d3-000000000002', handoverNo: 'BETA-HANDOVER-NO-0001', itemDescription: 'BETA-PUNCH-ITEM-0001', assetId: '00000000-0000-4000-b0d3-000000000003', assetCode: 'BETA-ASSET-CODE-0001', warrantyId: '00000000-0000-4000-b0d3-000000000004', warrantyScope: 'BETA-WARRANTY-SCOPE-0001' },
 };
 
 /** A non-conformance of the draft contract of each tenant with one corrective action (the title and the description of the action are distinctive; tenant data). */
@@ -701,6 +701,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'punch item description', value: HANDOVER_FIXTURES[tenant].itemDescription },
     { kind: 'asset id', value: HANDOVER_FIXTURES[tenant].assetId },
     { kind: 'asset code', value: HANDOVER_FIXTURES[tenant].assetCode },
+    { kind: 'warranty obligation id', value: HANDOVER_FIXTURES[tenant].warrantyId },
+    { kind: 'warranty obligation scope', value: HANDOVER_FIXTURES[tenant].warrantyScope },
     { kind: 'non-conformance id', value: NONCONFORMANCE_FIXTURES[tenant].id },
     { kind: 'non-conformance title', value: NONCONFORMANCE_FIXTURES[tenant].title },
     { kind: 'corrective action id', value: NONCONFORMANCE_FIXTURES[tenant].actionId },

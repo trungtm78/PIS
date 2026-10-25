@@ -58,6 +58,8 @@ export interface MatrixTargets {
   punchItemId: string;
   /** An asset of a handover: the command that names it in the path needs no row to be refused. */
   assetId: string;
+  /** A warranty obligation of a handover: the command that names it in the path needs no row to be refused. */
+  warrantyId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1575,6 +1577,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   transferAsset: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/asset-records/${t.assetId}/transfer`, ifMatch: '"1"', body: { transferred_on: '2026-10-25', commissioning_document_version_id: t.documentVersionId } }),
+  },
+  // The warranty of a work: a caller that is refused creates no obligation and closes none.
+  createWarrantyObligation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/warranty-obligations', body: { contract_id: t.contractId, handover_id: t.handoverId, scope_description: REASON, starts_on: '2026-10-25', period_months: 12, construction_grade: 'II', retention_amount_vnd: '1' } }),
+  },
+  closeWarrantyObligation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/warranty-obligations/${t.warrantyId}/close`, body: { note: REASON } }),
   },
   // The non-conformances of the work: a caller that is refused raises none, assigns no action, answers none, verifies none, closes none and reopens none.
   raiseNonconformance: {

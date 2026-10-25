@@ -802,3 +802,7 @@ export type { InspectionLine as QmsInspectionLine, InspectionResultView as QmsIn
 export { QmsRegimeRules, REGIME_RULE_TYPE } from './qms-regime-rules.ts';
 export type { ResolvedRegime } from './qms-regime-rules.ts';
 export { assertGateOpen } from './permit-gate-guard.ts';
+export { AstWarrantyStore } from './ast-warranty-store.ts';
+export type { CloseInput as AstCloseWarrantyInput, CreateInput as AstCreateWarrantyInput, WarrantyFilter as AstWarrantyFilter, WarrantyLine, WarrantyResult as AstWarrantyResult } from './ast-warranty-store.ts';
+export { AstWarrantyRules, WARRANTY_RULE_TYPE } from './ast-warranty-rules.ts';
+export type { ResolvedWarrantyRule } from './ast-warranty-rules.ts';

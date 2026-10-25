@@ -10545,7 +10545,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Nghĩa vụ bảo hành trong phạm vi, mới nhất trước */
+        get: operations["listWarrantyObligations"];
         put?: never;
         /** Lập nghĩa vụ bảo hành theo hạng mục từ ngày nghiệm thu hoàn thành [CXN-EXE-04] */
         post: operations["createWarrantyObligation"];
@@ -17851,6 +17852,11 @@ export interface components {
             warranty_guarantee_id?: string;
             /** @description Số nguyên VND không âm, dạng chuỗi */
             retention_amount_vnd?: string;
+            /**
+             * @description Cấp công trình; thiếu thì áp thời hạn tối thiểu cao nhất của rule AST.WARRANTY [CXN-EXE-04]
+             * @enum {string}
+             */
+            construction_grade?: "SPECIAL" | "I" | "II" | "III" | "IV";
         };
         AstFileWarrantyClaim: {
             claim_no: string;
@@ -83810,6 +83816,88 @@ export interface operations {
             };
             /** @description Domain invariant failure */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listWarrantyObligations: {
+        parameters: {
+            query?: {
+                contract_id?: string;
+                handover_id?: string;
+                status?: "ACTIVE" | "EXPIRED" | "CLOSED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

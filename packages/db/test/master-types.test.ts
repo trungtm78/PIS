@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PAY_ADVANCE_CAP', 'PAY_ADVANCE_GPMB', 'PAY_SETTLEMENT_DEADLINE', 'PROJECT_GROUP_THRESHOLDS', 'QMS_REGIME', 'RETENTION_POLICY']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'AST_WARRANTY', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PAY_ADVANCE_CAP', 'PAY_ADVANCE_GPMB', 'PAY_SETTLEMENT_DEADLINE', 'PROJECT_GROUP_THRESHOLDS', 'QMS_REGIME', 'RETENTION_POLICY']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -425,6 +425,29 @@ describe('the deadlines of the petitions of contractors (BR-BID-14, rule type BI
     expect(await problem('BID_PETITION', 'PROCESS', deadline({ owner_module: 'LND' }))).toEqual(invalid('attributes.owner_module'));
     expect(await problem('BID_PETITION', 'PROCESS', content({ owner_module: 'BID', days: 7, day_count: 'CALENDAR' }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
     expect(await problem('BID_PETITION', 'PROCESS', deadline({ extra: 1 }))).toEqual(invalid('attributes.extra'));
+  });
+});
+
+describe('the minimum term of the warranty of a work (BR-AST-03, rule type AST_WARRANTY)', () => {
+  const minimum = (attributes: Record<string, unknown>) => content({ owner_module: 'AST', awaiting_confirmation: true, cxn: 'CXN-EXE-04', min_months: 12, ...attributes }, { legalBasis: 'Nghị định 06/2021/NĐ-CP' });
+
+  it('is a rule type that AST owns', () => {
+    expect(isRuleType('AST_WARRANTY')).toBe(true);
+  });
+
+  it('takes the minimum term for each grade of work', async () => {
+    for (const grade of ['SPECIAL', 'I', 'II', 'III', 'IV']) expect(await problem('AST_WARRANTY', grade, minimum({}))).toBeUndefined();
+    expect(await problem('AST_WARRANTY', 'I', minimum({ min_months: 24 }))).toBeUndefined();
+  });
+
+  it('refuses a key that is not a grade, a term that is not a number of months and another owner', async () => {
+    expect(await problem('AST_WARRANTY', 'V', minimum({}))).toEqual(invalid('business_key'));
+    expect(await problem('AST_WARRANTY', 'I', minimum({ min_months: 0 }))).toEqual(invalid('attributes.min_months'));
+    expect(await problem('AST_WARRANTY', 'I', minimum({ min_months: 241 }))).toEqual(invalid('attributes.min_months'));
+    expect(await problem('AST_WARRANTY', 'I', minimum({ min_months: 12.5 }))).toEqual(invalid('attributes.min_months'));
+    expect(await problem('AST_WARRANTY', 'I', minimum({ min_months: undefined }))).toEqual(invalid('attributes.min_months'));
+    expect(await problem('AST_WARRANTY', 'I', minimum({ owner_module: 'QMS' }))).toEqual(invalid('attributes.owner_module'));
+    expect(await problem('AST_WARRANTY', 'I', minimum({ extra: 1 }))).toEqual(invalid('attributes.extra'));
   });
 });
 

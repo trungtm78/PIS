@@ -418,6 +418,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'transferAsset',
   'get_resources_asset_record',
   'get_resources_asset_record_id',
+  'createWarrantyObligation',
+  'closeWarrantyObligation',
+  'listWarrantyObligations',
   'getHandoverTrace',
   'get_resources_handover',
   'get_resources_handover_id',
@@ -851,6 +854,10 @@ const INSERT_ASSET = `insert into machvon.asset_record
   (tenant_id, id, project_id, handover_id, asset_code, value_vnd, recipient_unit_id, name, source_contract_id, status, registered_on, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, 1000, $6, 'Isolation asset', $7, 'REGISTERED', date '2026-12-20', $8, $8, 1) on conflict do nothing`;
 
+const INSERT_WARRANTY = `insert into machvon.warranty_obligation
+  (tenant_id, id, project_id, contract_id, handover_id, scope_description, starts_on, ends_on, period_months, retention_amount_vnd, status, created_by, updated_by, version)
+  values ($1, $2, $3, $4, $5, $6, date '2026-12-20', date '2027-12-20', 12, 1000, 'ACTIVE', $7, $7, 1) on conflict do nothing`;
+
 const INSERT_NONCONFORMANCE = `insert into machvon.quality_nonconformance
   (tenant_id, id, project_id, contract_id, severity, action_owner_id, due_at, status, closure_evidence, ncr_no, title, description, source_kind, detected_on, blocks_acceptance, created_by, updated_by)
   values ($1, $2, $3, $4, 'MAJOR', $6, '2030-01-01T00:00:00Z', 'ACTION_ASSIGNED', '{}'::jsonb, 'NCR-001', $5, $5, 'SELF_REPORT', date '2026-12-20', false, $6, $6) on conflict do nothing`;
@@ -1137,6 +1144,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_HANDOVER, [tenantId, handover.id, project.id, draft.id, home, documents.versionId, handover.handoverNo, MEMBERSHIP_ID]);
     await client.query(INSERT_PUNCH_ITEM, [tenantId, handover.itemId, handover.id, handover.itemDescription, MEMBERSHIP_ID]);
     await client.query(INSERT_ASSET, [tenantId, handover.assetId, project.id, handover.id, handover.assetCode, home, draft.id, MEMBERSHIP_ID]);
+    await client.query(INSERT_WARRANTY, [tenantId, handover.warrantyId, project.id, draft.id, handover.id, handover.warrantyScope, MEMBERSHIP_ID]);
     const ncr = NONCONFORMANCE_FIXTURES[tenant];
     await client.query(INSERT_NONCONFORMANCE, [tenantId, ncr.id, project.id, draft.id, ncr.title, MEMBERSHIP_ID]);
     await client.query(INSERT_CORRECTIVE_ACTION, [tenantId, ncr.actionId, ncr.id, ncr.actionDescription, MEMBERSHIP_ID]);
@@ -1175,7 +1183,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'disbursement_schedule_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'procurement_petition', 'contract', 'contract_revision', 'change_chain_config', 'change_request', 'boq_item', 'boq_line', 'boq_import', 'measurement', 'inspection', 'handover', 'handover_punch_item', 'asset_record', 'quality_nonconformance', 'corrective_action', 'quality_acceptance', 'qms_signature', 'acceptance', 'acceptance_line', 'cumulative_ledger', 'cumulative_ledger_entry', 'payment_request', 'payment_request_line', 'payment_document', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'settlement_revision', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'disbursement_schedule_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'procurement_petition', 'contract', 'contract_revision', 'change_chain_config', 'change_request', 'boq_item', 'boq_line', 'boq_import', 'measurement', 'inspection', 'handover', 'handover_punch_item', 'asset_record', 'warranty_obligation', 'quality_nonconformance', 'corrective_action', 'quality_acceptance', 'qms_signature', 'acceptance', 'acceptance_line', 'cumulative_ledger', 'cumulative_ledger_entry', 'payment_request', 'payment_request_line', 'payment_document', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'settlement_revision', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

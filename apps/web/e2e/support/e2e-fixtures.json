@@ -2049,6 +2049,29 @@
       ]
     },
     {
+      "key": "warrantyManager",
+      "displayName": "Ban QLDA quản lý bảo hành",
+      "membershipId": "00000000-0000-4000-8000-000000000854",
+      "permissions": [
+        "warranty.manage",
+        "warranty.read",
+        "handover.read",
+        "asset_record.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "warrantyReader",
+      "displayName": "Người xem bảo hành",
+      "membershipId": "00000000-0000-4000-8000-000000000855",
+      "permissions": [
+        "warranty.read",
+        "handover.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

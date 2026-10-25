@@ -172,6 +172,7 @@ final class AstCreateWarrantyObligation implements RequestModel {
     this.assetId,
     this.warrantyGuaranteeId,
     this.retentionAmountVnd,
+    this.constructionGrade,
   });
 
   final String contractId;
@@ -182,6 +183,7 @@ final class AstCreateWarrantyObligation implements RequestModel {
   final int periodMonths;
   final String? warrantyGuaranteeId;
   final String? retentionAmountVnd;
+  final String? constructionGrade;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -193,6 +195,7 @@ final class AstCreateWarrantyObligation implements RequestModel {
         'period_months': periodMonths,
         if (warrantyGuaranteeId != null) 'warranty_guarantee_id': warrantyGuaranteeId,
         if (retentionAmountVnd != null) 'retention_amount_vnd': retentionAmountVnd,
+        if (constructionGrade != null) 'construction_grade': constructionGrade,
       };
 }
 

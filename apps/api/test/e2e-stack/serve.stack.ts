@@ -472,6 +472,15 @@ const ASSET_ROLES = [
   { n: 853, user: 'assetOperator', code: 'E2E_ASSET_OPERATOR', permissions: ['asset.transfer', 'asset_record.read', 'session.self'], rank: 40 },
 ];
 
+/**
+ * The people of the warranty (AST-04): the project office that creates the obligations of a handover and closes them, and a reader of them, each over the whole tenant. The permissions are the ones
+ * of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const WARRANTY_ROLES = [
+  { n: 854, user: 'warrantyManager', code: 'E2E_WARRANTY_MANAGER', permissions: ['warranty.manage', 'warranty.read', 'handover.read', 'asset_record.read', 'contract.read', 'session.self'], rank: 40 },
+  { n: 855, user: 'warrantyReader', code: 'E2E_WARRANTY_READER', permissions: ['warranty.read', 'handover.read', 'session.self'], rank: 20 },
+];
+
 const CHAIN_ROLES = [{ n: 842, user: 'paymentAuditor', code: 'E2E_PAYMENT_AUDITOR', permissions: ['payment.chain.read', 'project.read', 'session.self'], rank: 20 }];
 
 /**
@@ -731,6 +740,7 @@ const GRANTS: GrantPlan[] = [
   ...COMPLETION_ROLES.map((role, index): GrantPlan => ({ n: 847 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...HANDOVER_ROLES.map((role, index): GrantPlan => ({ n: 848 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...ASSET_ROLES.map((role, index): GrantPlan => ({ n: 852 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...WARRANTY_ROLES.map((role, index): GrantPlan => ({ n: 854 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -1028,7 +1038,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

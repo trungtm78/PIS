@@ -1,4 +1,4 @@
-import { ADVANCE_CATEGORIES, CALENDAR_TIMEZONES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SETTLEMENT_DEADLINE_KEY, SETTLEMENT_PROJECT_GROUPS, SIGNER_ROLES, WEEKDAYS, assertCalendar, capPercentFor, percentScaled } from '@machvon/kernel';
+import { ADVANCE_CATEGORIES, CALENDAR_TIMEZONES, CONSTRUCTION_GRADES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SETTLEMENT_DEADLINE_KEY, SETTLEMENT_PROJECT_GROUPS, SIGNER_ROLES, WEEKDAYS, assertCalendar, capPercentFor, percentScaled } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -101,7 +101,7 @@ export const FUND_RELATIONS = ['ADDITIVE', 'SUBSET_OF'] as const;
 export const PROGRAM_KINDS = ['CTMTQG', 'NATIONAL_TARGET', 'SECTORAL', 'LOCAL'] as const;
 export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] as const;
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
-export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND', 'BID', 'QMS'] as const;
+export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND', 'BID', 'QMS', 'AST'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
 export const TREASURY_LEVELS = ['CENTRAL', 'PROVINCE', 'DISTRICT'] as const;
 export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
@@ -198,6 +198,14 @@ function checkPetitionDeadline(businessKey: string, attributes: Record<string, u
   const hasCalendar = attributes.calendar_code !== undefined && attributes.calendar_code !== null;
   if ((attributes.day_count === 'WORKING') !== hasCalendar) fail('attributes.calendar_code');
   if (attributes.filing_days !== undefined && businessKey !== 'RESULT') fail('attributes.filing_days');
+}
+
+const MAX_WARRANTY_MONTHS = 240;
+
+/** The minimum term of the warranty of a work (BR-AST-03): the key names the grade of the work and the owner is AST. */
+function checkWarrantyMinimum(businessKey: string, attributes: Record<string, unknown>): void {
+  if (!(CONSTRUCTION_GRADES as readonly string[]).includes(businessKey)) fail('business_key');
+  if (attributes.owner_module !== 'AST') fail('attributes.owner_module');
 }
 
 const MAX_CHECKLIST_ITEMS = 60;
@@ -572,6 +580,14 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
       { name: 'filing_days', kind: 'integer', min: 1, max: MAX_PETITION_DAYS },
     ],
     check: ({ businessKey, content }) => checkPetitionDeadline(businessKey, content.attributes),
+  },
+  {
+    // BR-AST-03: the key is the grade of the work (SPECIAL, I, II, III, IV); the attribute says the shortest term of the warranty in months.
+    masterType: 'AST_WARRANTY',
+    rule: true,
+    strict: true,
+    fields: [...RULE_FIELDS, { name: 'min_months', kind: 'integer', required: true, min: 1, max: MAX_WARRANTY_MONTHS }],
+    check: ({ businessKey, content }) => checkWarrantyMinimum(businessKey, content.attributes),
   },
   {
     // BR-QMS-04: the key names the regime (the decree it comes from); the dates of the version say when it applies.

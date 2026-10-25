@@ -90829,6 +90829,137 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listWarrantyObligations",
+        "summary": "Nghĩa vụ bảo hành trong phạm vi, mới nhất trước",
+        "tags": [
+          "AST"
+        ],
+        "x-permission": "warranty.read",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "handover_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "EXPIRED",
+                "CLOSED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo hợp đồng hoặc đơn vị tiếp nhận); danh sách của màn AST-04, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/warranty-obligations/{id}/claims": {
@@ -135102,6 +135233,17 @@
             "type": "string",
             "pattern": "^[0-9]+$",
             "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "construction_grade": {
+            "type": "string",
+            "enum": [
+              "SPECIAL",
+              "I",
+              "II",
+              "III",
+              "IV"
+            ],
+            "description": "Cấp công trình; thiếu thì áp thời hạn tối thiểu cao nhất của rule AST.WARRANTY [CXN-EXE-04]"
           }
         },
         "required": [

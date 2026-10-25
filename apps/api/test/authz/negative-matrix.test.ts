@@ -1074,6 +1074,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       handoverId: id(0x77, 30),
       punchItemId: id(0x77, 31),
       assetId: id(0x77, 32),
+      warrantyId: id(0x77, 33),
       boqItemId: id(0x77, 17),
       periodId: id(0x77, 18),
       recipientMembershipId: memberId(RECIPIENT),

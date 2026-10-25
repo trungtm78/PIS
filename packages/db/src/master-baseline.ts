@@ -319,6 +319,19 @@ const QMS_REGIMES: readonly BaselineEntry[] = [
   regime('ND-207-2026', 'Quy chế Nghị định 207/2026/NĐ-CP (dự kiến)', ['CONTRACTOR', 'SUPERVISOR', 'OWNER', 'DESIGNER'], '2027-01-01'),
 ];
 
+const WARRANTY_LAW = 'Nghị định 06/2021/NĐ-CP về quản lý chất lượng, thi công xây dựng và bảo trì công trình (bảo hành công trình) và văn bản thay thế dự kiến Nghị định 207/2026 — thời hạn tối thiểu theo cấp công trình là số liệu thử, không phải quy định, chờ kiểm văn bản gốc [CXN-EXE-04]';
+const warrantyMinimum = (grade: string, label: string, months: number): BaselineEntry =>
+  entry('AST_WARRANTY', grade, label, { owner_module: 'AST', awaiting_confirmation: true, cxn: 'CXN-EXE-04', min_months: months }, { legalBasis: WARRANTY_LAW });
+
+/** The shortest warranty of a work by its grade (BR-AST-03): the fixture of the acceptance tests, flagged as such — 24 months for a special work or a work of grade I, 12 months for the others. */
+const WARRANTY_MINIMUMS: readonly BaselineEntry[] = [
+  warrantyMinimum('SPECIAL', 'Bảo hành tối thiểu công trình cấp đặc biệt (số liệu thử)', 24),
+  warrantyMinimum('I', 'Bảo hành tối thiểu công trình cấp I (số liệu thử)', 24),
+  warrantyMinimum('II', 'Bảo hành tối thiểu công trình cấp II (số liệu thử)', 12),
+  warrantyMinimum('III', 'Bảo hành tối thiểu công trình cấp III (số liệu thử)', 12),
+  warrantyMinimum('IV', 'Bảo hành tối thiểu công trình cấp IV (số liệu thử)', 12),
+];
+
 const ADVANCE_LAW = 'Nghị định 254/2025/NĐ-CP về điều kiện và mức tạm ứng hợp đồng (thay Nghị định 99/2021) — mức trần và ngưỡng thu hồi là số liệu thử, không phải quy định, chờ kiểm văn bản gốc [CXN-02]';
 const advanceCap = (key: string, label: string, tiers: Array<{ min_value_vnd: string; cap_pct: string }>): BaselineEntry =>
   entry('PAY_ADVANCE_CAP', key, label, { owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-02', tiers, recovery_threshold_pct: '80' }, { legalBasis: ADVANCE_LAW });
@@ -351,7 +364,7 @@ const SETTLEMENT_DEADLINES: readonly BaselineEntry[] = [
   ),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...ADVANCE_CAPS, ...SETTLEMENT_DEADLINES]);
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...WARRANTY_MINIMUMS, ...ADVANCE_CAPS, ...SETTLEMENT_DEADLINES]);
 
 export interface BaselineResult {
   created: number;
