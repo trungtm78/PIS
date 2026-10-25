@@ -74700,7 +74700,9 @@
           "ADVANCE_OUTSTANDING_PRIOR",
           "ALLOCATION_UNAVAILABLE",
           "VALUE_EXCEEDED",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "ADVANCE_RULE_UNCONFIRMED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -74713,7 +74715,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayAdvanceCommandResult"
                 }
               }
             }
@@ -74850,7 +74852,9 @@
         },
         "x-error-codes": [
           "ADVANCE_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -74863,7 +74867,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayAdvanceCommandResult"
                 }
               }
             }
@@ -75001,7 +75005,10 @@
         "x-error-codes": [
           "ADVANCE_RECOVERY_EXCEEDED",
           "ADVANCE_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "DOCUMENT_NOT_CLEAN",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -75013,7 +75020,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayAdvanceCommandResult"
                 }
               }
             }
@@ -76404,8 +76411,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/PayAdvanceRecoveryPlan"
                 }
               }
             }
@@ -122632,6 +122638,150 @@
         },
         "x-error-codes": []
       }
+    },
+    "/advances": {
+      "get": {
+        "operationId": "listAdvances",
+        "summary": "Danh sách tạm ứng trong phạm vi của người gọi (theo hợp đồng, trạng thái)",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "advance.read",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Chỉ các khoản tạm ứng của hợp đồng này"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PLANNED",
+                "REQUESTED",
+                "PAID",
+                "RECOVERING",
+                "FULLY_RECOVERED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayAdvancePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -144422,6 +144572,467 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "PayAdvanceWarning": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "detail"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "RULE_AWAITING_CONFIRMATION"
+            ]
+          },
+          "detail": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "PayAdvance": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "contract",
+          "project_id",
+          "party",
+          "tranche_no",
+          "kind",
+          "amount_vnd",
+          "cap_vnd",
+          "cap_pct",
+          "cap_rule_version_id",
+          "cap_rule_awaiting_confirmation",
+          "cap_rule_cxn",
+          "guarantee_id",
+          "allocation_line_id",
+          "paid_vnd",
+          "recovered_vnd",
+          "outstanding_vnd",
+          "paid_on",
+          "recovery_threshold_pct",
+          "recovery_deadline",
+          "overdue_since",
+          "overdue_days",
+          "last_alert_level",
+          "created_at",
+          "updated_at",
+          "actions",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PLANNED",
+              "REQUESTED",
+              "PAID",
+              "RECOVERING",
+              "FULLY_RECOVERED",
+              "CANCELLED"
+            ]
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status",
+              "value_vnd",
+              "advance_category"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "value_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]+$",
+                "description": "Số nguyên VND không âm, dạng chuỗi"
+              },
+              "advance_category": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "party": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "role",
+              "name",
+              "work_value_vnd"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "role": {
+                "type": "string"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "work_value_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]+$",
+                "description": "Số nguyên VND không âm, dạng chuỗi"
+              }
+            }
+          },
+          "tranche_no": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "CONTRACT",
+              "GPMB"
+            ]
+          },
+          "amount_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "cap_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "cap_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cap_rule_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "cap_rule_awaiting_confirmation": {
+            "type": "boolean"
+          },
+          "cap_rule_cxn": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "guarantee_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "allocation_line_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "paid_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "recovered_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "outstanding_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "paid_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "recovery_threshold_pct": {
+            "type": "string"
+          },
+          "recovery_deadline": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "overdue_since": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "overdue_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "last_alert_level": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "cancel",
+              "record_recovery"
+            ],
+            "properties": {
+              "cancel": {
+                "type": "boolean"
+              },
+              "record_recovery": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "PayAdvancePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayAdvance"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PayAdvanceRecoveryPlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "advance",
+          "threshold_value_vnd",
+          "gross_to_date_vnd",
+          "remaining_to_threshold_vnd",
+          "target_recovered_vnd",
+          "recovered_vnd",
+          "outstanding_vnd",
+          "behind_vnd",
+          "milestones",
+          "warnings"
+        ],
+        "description": "Lịch thu hồi của một khoản tạm ứng theo công thức tuyến tính đến ngưỡng (BR-PAY-04): chỉ theo giá trị phần việc và các đề nghị của chính thành viên đó",
+        "properties": {
+          "advance": {
+            "$ref": "#/components/schemas/PayAdvance"
+          },
+          "threshold_value_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "gross_to_date_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "remaining_to_threshold_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "target_recovered_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "recovered_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "outstanding_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "behind_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "at_pct",
+                "at_gross_vnd",
+                "recovered_vnd"
+              ],
+              "properties": {
+                "at_pct": {
+                  "type": "integer"
+                },
+                "at_gross_vnd": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$",
+                  "description": "Số nguyên VND không âm, dạng chuỗi"
+                },
+                "recovered_vnd": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$",
+                  "description": "Số nguyên VND không âm, dạng chuỗi"
+                }
+              }
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayAdvanceWarning"
+            }
+          }
+        }
+      },
+      "PayAdvanceCommandResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "cap_vnd",
+          "amount_vnd",
+          "paid_vnd",
+          "recovered_vnd",
+          "outstanding_vnd",
+          "warnings"
+        ],
+        "description": "Kết quả lệnh về tạm ứng: CommandResult kèm trần máy chủ đã tính, số đã chi, đã thu hồi và còn lại, và cảnh báo",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "cap_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "cap_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cap_rule_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "paid_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "recovered_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "outstanding_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayAdvanceWarning"
+            }
           }
         }
       }

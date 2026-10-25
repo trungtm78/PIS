@@ -160,6 +160,12 @@ export const PAYMENT_FIXTURES: Readonly<Record<TenantName, { id: string; accepta
   'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', acceptanceId: '00000000-0000-4000-b0ce-000000000002', requestNo: 'BETA-PAYMENT-REQUEST-0001' },
 };
 
+/** An advance of the contract of each tenant (cancelled, so it needs no guarantee of a contract in force) and the member it was to be paid to. */
+export const ADVANCE_FIXTURES: Readonly<Record<TenantName, { id: string; partyId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0cf-000000000001', partyId: '00000000-0000-4000-a0cf-000000000002' },
+  'TNT-B': { id: '00000000-0000-4000-b0cf-000000000001', partyId: '00000000-0000-4000-b0cf-000000000002' },
+};
+
 /** The cumulative ledger of the work acceptance of each tenant, with one entry (the reason is distinctive; tenant financial data). */
 export const LEDGER_FIXTURES: Readonly<Record<TenantName, { id: string; entryId: string; entryReason: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0cd-000000000001', entryId: '00000000-0000-4000-a0cd-000000000002', entryReason: 'ALPHA-LEDGER-ENTRY-0001' },
@@ -655,6 +661,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'work acceptance number', value: WORK_ACCEPTANCE_FIXTURES[tenant].acceptanceNo },
     { kind: 'payment request id', value: PAYMENT_FIXTURES[tenant].id },
     { kind: 'payment request number', value: PAYMENT_FIXTURES[tenant].requestNo },
+    { kind: 'advance id', value: ADVANCE_FIXTURES[tenant].id },
     { kind: 'cumulative ledger id', value: LEDGER_FIXTURES[tenant].id },
     { kind: 'cumulative ledger entry id', value: LEDGER_FIXTURES[tenant].entryId },
     { kind: 'cumulative ledger entry reason', value: LEDGER_FIXTURES[tenant].entryReason },

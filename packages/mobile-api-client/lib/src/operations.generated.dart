@@ -486,6 +486,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'linkConversationResource': OperationDescriptor(method: 'POST', path: '/conversations/{conversationId}/links', versioned: true, stepUp: null, permission: 'omni.conversation.reply'),
   'linkHouseholdParcel': OperationDescriptor(method: 'POST', path: '/affected-households/{id}/parcels', versioned: false, stepUp: null, permission: 'land.household.write'),
   'linkOmPlan': OperationDescriptor(method: 'POST', path: '/asset-records/{id}/om-link', versioned: false, stepUp: null, permission: 'asset.manage'),
+  'listAdvances': OperationDescriptor(method: 'GET', path: '/advances', versioned: false, stepUp: null, permission: 'advance.read'),
   'listAffectedHouseholds': OperationDescriptor(method: 'GET', path: '/affected-households', versioned: false, stepUp: null, permission: 'land.household.read'),
   'listAiRequests': OperationDescriptor(method: 'GET', path: '/ai/requests', versioned: false, stepUp: null, permission: 'llm.audit.read'),
   'listAllocationExtensions': OperationDescriptor(method: 'GET', path: '/allocation-extensions', versioned: false, stepUp: null, permission: 'capital.read'),

@@ -1783,6 +1783,27 @@
       ]
     },
     {
+      "key": "advanceAccountant",
+      "displayName": "Kế toán theo dõi tạm ứng và thu hồi",
+      "membershipId": "00000000-0000-4000-8000-000000000830",
+      "permissions": [
+        "advance.read",
+        "advance.recover",
+        "advance.cancel",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "advanceReader",
+      "displayName": "Người xem tạm ứng",
+      "membershipId": "00000000-0000-4000-8000-000000000831",
+      "permissions": [
+        "advance.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

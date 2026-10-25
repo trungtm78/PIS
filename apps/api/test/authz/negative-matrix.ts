@@ -43,6 +43,8 @@ export interface MatrixTargets {
   paymentAcceptanceId: string;
   /** A clean version of a file of the tenant. */
   paymentDocumentVersionId: string;
+  /** An advance of the contract: the ids of the commands on it need no row to be refused. */
+  advanceId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1487,6 +1489,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   cancelPaymentRequest: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  // The advance of a contract: asked for, cancelled and recovered outside the payments.
+  requestAdvance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/advances`, body: { party_id: t.draftContractId, kind: 'GPMB', amount_vnd: '1', allocation_line_id: t.draftContractId } }),
+  },
+  cancelAdvance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/advances/${t.advanceId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  recordAdvanceRecovery: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/advances/${t.advanceId}/recoveries`, ifMatch: '"1"', body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: t.paymentDocumentVersionId } }),
   },
   // Sending a payment request, checking it and giving it back.
   post_payment_requests_id_submit: {

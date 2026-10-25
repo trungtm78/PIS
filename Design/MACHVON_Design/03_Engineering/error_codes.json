@@ -141,6 +141,14 @@
       "statusBasis": "spec",
       "source": "spec:PAY"
     },
+    "ADVANCE_RULE_UNCONFIRMED": {
+      "status": 422,
+      "title": "Advance rule unconfirmed",
+      "meaning": "No rule PAY_ADVANCE_CAP gives a cap for the category and value of the contract on the day of the request; raised by requestAdvance (POST /contracts/{id}/advances)",
+      "module": "PAY",
+      "statusBasis": "default",
+      "source": "spec:PAY"
+    },
     "ADVANCE_STATE_INVALID": {
       "status": 409,
       "title": "Advance state invalid",

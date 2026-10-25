@@ -382,6 +382,8 @@ export { CtrRevisionStore } from './ctr-revision-store.ts';
 export type { DatedPrice, PricingRevision } from './ctr-revision-store.ts';
 export { CtrAcceptanceStore } from './ctr-acceptance-store.ts';
 export { PAY_LEDGER_LOCK_WAIT_METRIC, PAY_VALUE_EXCEEDED_METRIC, PayLedgerStore, valueExceeded } from './pay-ledger-store.ts';
+export { ADVANCE_CAP_RULE, ADVANCE_GPMB_RULE, PayAdvanceStore } from './pay-advance-store.ts';
+export type { AdvanceFilter, AdvancePlan, AdvanceResult, AdvanceView, RecordRecoveryInput, RequestAdvanceInput } from './pay-advance-store.ts';
 export { PAY_CLAIM_CONFLICT_METRIC, PAY_SUBMIT_METRIC, PayClaimStore } from './pay-claim-store.ts';
 export type { SubmitPaymentInput } from './pay-claim-store.ts';
 export { PayPaymentStore } from './pay-payment-store.ts';

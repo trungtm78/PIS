@@ -484,6 +484,7 @@ export const OPERATIONS = {
   "linkConversationResource": { method: "post", path: "/conversations/{conversationId}/links", versioned: true, stepUp: null, permission: "omni.conversation.reply" },
   "linkHouseholdParcel": { method: "post", path: "/affected-households/{id}/parcels", versioned: false, stepUp: null, permission: "land.household.write" },
   "linkOmPlan": { method: "post", path: "/asset-records/{id}/om-link", versioned: false, stepUp: null, permission: "asset.manage" },
+  "listAdvances": { method: "get", path: "/advances", versioned: false, stepUp: null, permission: "advance.read" },
   "listAffectedHouseholds": { method: "get", path: "/affected-households", versioned: false, stepUp: null, permission: "land.household.read" },
   "listAiRequests": { method: "get", path: "/ai/requests", versioned: false, stepUp: null, permission: "llm.audit.read" },
   "listAllocationExtensions": { method: "get", path: "/allocation-extensions", versioned: false, stepUp: null, permission: "capital.read" },

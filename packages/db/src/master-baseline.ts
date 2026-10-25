@@ -319,7 +319,18 @@ const QMS_REGIMES: readonly BaselineEntry[] = [
   regime('ND-207-2026', 'Quy chế Nghị định 207/2026/NĐ-CP (dự kiến)', ['CONTRACTOR', 'SUPERVISOR', 'OWNER', 'DESIGNER'], '2027-01-01'),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES]);
+const ADVANCE_LAW = 'Nghị định 254/2025/NĐ-CP về điều kiện và mức tạm ứng hợp đồng (thay Nghị định 99/2021) — mức trần và ngưỡng thu hồi là số liệu thử, không phải quy định, chờ kiểm văn bản gốc [CXN-02]';
+const advanceCap = (key: string, label: string, tiers: Array<{ min_value_vnd: string; cap_pct: string }>): BaselineEntry =>
+  entry('PAY_ADVANCE_CAP', key, label, { owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-02', tiers, recovery_threshold_pct: '80' }, { legalBasis: ADVANCE_LAW });
+
+/** The caps of the advance (BR-PAY-10): the fixture of the acceptance tests, flagged as such. A category with no row cannot be advanced until its owner publishes one. */
+const ADVANCE_CAPS: readonly BaselineEntry[] = [
+  advanceCap('CONSTRUCTION', 'Trần tạm ứng hợp đồng thi công (số liệu thử)', [{ min_value_vnd: '10000000000', cap_pct: '20' }]),
+  advanceCap('CONSULTING', 'Trần tạm ứng hợp đồng tư vấn (số liệu thử)', [{ min_value_vnd: '0', cap_pct: '30' }]),
+  entry('PAY_ADVANCE_GPMB', 'GPMB', 'Hạn thu hồi tạm ứng giải phóng mặt bằng', { owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-12', recovery_days: 30 }, { legalBasis: 'Hạn thu hồi tạm ứng bồi thường, hỗ trợ, tái định cư — số ngày chờ xác nhận văn bản gốc [CXN-12]' }),
+];
+
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...ADVANCE_CAPS]);
 
 export interface BaselineResult {
   created: number;

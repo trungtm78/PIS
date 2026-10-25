@@ -27,6 +27,7 @@ export const PAY_CLAIM_CONFLICT_METRIC = 'pay_claim_conflict_total';
 const MAX_TEXT = 2000;
 const UNIQUE_VIOLATION = '23505';
 const CLAIM_CONSTRAINT = 'payment_request_active_acceptance_uq';
+const ADVANCE_CONSTRAINT = 'payment_request_active_advance_uq';
 const DEFAULT_RELEASE_CONDITION = 'COMPLETION';
 
 const invalid = (field: string, reason?: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field, reason === undefined ? undefined : { extensions: { reason } });
@@ -53,6 +54,7 @@ interface HeldSql {
   contract_id: string;
   project_id: string;
   acceptance_id: string | null;
+  advance_id: string | null;
   allocation_line_id: string | null;
   gross_vnd: string;
   advance_recovery_vnd: string;
@@ -63,7 +65,7 @@ interface HeldSql {
   returned_by_treasury: boolean;
 }
 
-const LOCK_SELECT = `select pr.id, pr.request_no, pr.request_kind, pr.status, pr.version::text as version, pr.contract_id, pr.project_id, pr.acceptance_id, pr.allocation_line_id, pr.gross_vnd::text as gross_vnd,
+const LOCK_SELECT = `select pr.id, pr.request_no, pr.request_kind, pr.status, pr.version::text as version, pr.contract_id, pr.project_id, pr.acceptance_id, pr.advance_id, pr.allocation_line_id, pr.gross_vnd::text as gross_vnd,
        pr.advance_recovery_vnd::text as advance_recovery_vnd, pr.retention_vnd::text as retention_vnd, pr.net_vnd::text as net_vnd, pr.created_by, pr.submitted_by, pr.returned_by_treasury
   from machvon.payment_request pr`;
 
@@ -135,6 +137,9 @@ export class PayClaimStore {
       await this.ledger.releaseRequest(tx, { paymentRequestId: id, requestId: input.requestId, actor, advanceOutstandingVnd: outstanding });
       await this.giveBackAdvance(tx, held, input.requestId, actor);
       await tx.query('delete from machvon.retention_hold where payment_request_id = $1::uuid', [id]);
+    } else if (held.advance_id !== null) {
+      // The advance is no longer asked for: it is planned again, and may be asked for again or cancelled.
+      await tx.query("update machvon.contract_advance set status = 'PLANNED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid and status = 'REQUESTED'", [held.advance_id, actor]);
     }
     return this.payments.resultOf(tx, id, held.status, []);
   }
@@ -187,9 +192,12 @@ export class PayClaimStore {
     } catch (error) {
       const failure = error as { code?: string; constraint?: string };
       if (failure.code === UNIQUE_VIOLATION && failure.constraint === CLAIM_CONSTRAINT) throw new DomainError('ACCEPTANCE_ALREADY_CLAIMED', 409, 'acceptance_id');
+      // Another request for the same advance is already sent: the advance is not there to be asked for twice.
+      if (failure.code === UNIQUE_VIOLATION && failure.constraint === ADVANCE_CONSTRAINT) throw new DomainError('PAYMENT_STATE_INVALID', 409, 'advance_id', { extensions: { reason: 'ADVANCE_NOT_PLANNED' } });
       throw error;
     }
-    if (held.request_kind !== 'ADVANCE') await this.putOnTheBooks(tx, held, input.requestId, actor);
+    if (held.request_kind === 'ADVANCE') await this.askForAdvance(tx, held, actor);
+    else await this.putOnTheBooks(tx, held, input.requestId, actor);
     // The line of capital comes last in the order of the locks: what it has left, less what other requests in flight are already worth, must carry this one.
     await this.assertLineHasRoom(tx, held.allocation_line_id, net, id);
     return this.payments.resultOf(tx, id, held.status, []);
@@ -208,6 +216,12 @@ export class PayClaimStore {
     );
     const room = BigInt(balance.allocated) - BigInt(balance.disbursed) - BigInt(flight?.net ?? '0');
     if (net > room) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'INSUFFICIENT', available_vnd: (room < 0n ? 0n : room).toString() } });
+  }
+
+  /** The advance a request of the ADVANCE kind is for goes from planned to asked for; one that is not planned any more (another request holds it, or it was cancelled) cannot be asked for twice. */
+  private async askForAdvance(tx: TenantTx, held: HeldSql, actor: string): Promise<void> {
+    const moved = await tx.query("update machvon.contract_advance set status = 'REQUESTED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid and status = 'PLANNED' returning id", [held.advance_id, actor]);
+    if (moved.length === 0) throw new DomainError('PAYMENT_STATE_INVALID', 409, 'advance_id', { extensions: { reason: 'ADVANCE_NOT_PLANNED' } });
   }
 
   /** The totals of the contract moved by a request (sign +1 when it is sent, -1 when it is returned); gives the advance still to recover after. */

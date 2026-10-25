@@ -1065,6 +1065,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       paymentRequestId: id(0x77, 23),
       paymentAcceptanceId: id(0x77, 22),
       paymentDocumentVersionId: id(0x78, 2),
+      advanceId: id(0x77, 24),
       boqItemId: id(0x77, 17),
       periodId: id(0x77, 18),
       recipientMembershipId: memberId(RECIPIENT),

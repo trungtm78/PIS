@@ -14527,6 +14527,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/advances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách tạm ứng trong phạm vi của người gọi (theo hợp đồng, trạng thái) */
+        get: operations["listAdvances"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -20454,6 +20471,133 @@ export interface components {
             next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
+        };
+        PayAdvanceWarning: {
+            /** @enum {string} */
+            code: "RULE_AWAITING_CONFIRMATION";
+            detail: {
+                [key: string]: unknown;
+            };
+        };
+        PayAdvance: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "PLANNED" | "REQUESTED" | "PAID" | "RECOVERING" | "FULLY_RECOVERED" | "CANCELLED";
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+                /** @description Số nguyên VND không âm, dạng chuỗi */
+                value_vnd: string;
+                advance_category: string;
+            };
+            /** Format: uuid */
+            project_id: string;
+            party: {
+                /** Format: uuid */
+                id: string;
+                role: string;
+                name: string | null;
+                /** @description Số nguyên VND không âm, dạng chuỗi */
+                work_value_vnd: string;
+            };
+            tranche_no: number;
+            /** @enum {string} */
+            kind: "CONTRACT" | "GPMB";
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            amount_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            cap_vnd: string;
+            cap_pct: string | null;
+            /** Format: uuid */
+            cap_rule_version_id: string | null;
+            cap_rule_awaiting_confirmation: boolean;
+            cap_rule_cxn: string | null;
+            /** Format: uuid */
+            guarantee_id: string | null;
+            /** Format: uuid */
+            allocation_line_id: string | null;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            paid_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            recovered_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            outstanding_vnd: string;
+            /** Format: date */
+            paid_on: string | null;
+            recovery_threshold_pct: string;
+            /** Format: date */
+            recovery_deadline: string | null;
+            /** Format: date */
+            overdue_since: string | null;
+            overdue_days: number | null;
+            last_alert_level: number;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            actions: {
+                cancel: boolean;
+                record_recovery: boolean;
+            };
+            version: number;
+        };
+        PayAdvancePage: {
+            items: components["schemas"]["PayAdvance"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description Lịch thu hồi của một khoản tạm ứng theo công thức tuyến tính đến ngưỡng (BR-PAY-04): chỉ theo giá trị phần việc và các đề nghị của chính thành viên đó */
+        PayAdvanceRecoveryPlan: {
+            advance: components["schemas"]["PayAdvance"];
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            threshold_value_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            gross_to_date_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            remaining_to_threshold_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            target_recovered_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            recovered_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            outstanding_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            behind_vnd: string;
+            milestones: {
+                at_pct: number;
+                /** @description Số nguyên VND không âm, dạng chuỗi */
+                at_gross_vnd: string;
+                /** @description Số nguyên VND không âm, dạng chuỗi */
+                recovered_vnd: string;
+            }[];
+            warnings: components["schemas"]["PayAdvanceWarning"][];
+        };
+        /** @description Kết quả lệnh về tạm ứng: CommandResult kèm trần máy chủ đã tính, số đã chi, đã thu hồi và còn lại, và cảnh báo */
+        PayAdvanceCommandResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            amount_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            cap_vnd: string;
+            cap_pct?: string | null;
+            /** Format: uuid */
+            cap_rule_version_id?: string | null;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            paid_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            recovered_vnd: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            outstanding_vnd: string;
+            warnings: components["schemas"]["PayAdvanceWarning"][];
         };
     };
     responses: never;
@@ -72286,7 +72430,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayAdvanceCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -72388,7 +72532,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayAdvanceCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -72490,7 +72634,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayAdvanceCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -73453,9 +73597,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["PayAdvanceRecoveryPlan"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -105934,6 +106076,95 @@ export interface operations {
             };
             /** @description Rate limit */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listAdvances: {
+        parameters: {
+            query?: {
+                /** @description Chỉ các khoản tạm ứng của hợp đồng này */
+                contract_id?: string;
+                status?: "PLANNED" | "REQUESTED" | "PAID" | "RECOVERING" | "FULLY_RECOVERED" | "CANCELLED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayAdvancePage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

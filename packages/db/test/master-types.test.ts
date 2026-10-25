@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'QMS_REGIME', 'RETENTION_POLICY']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PAY_ADVANCE_CAP', 'PAY_ADVANCE_GPMB', 'PROJECT_GROUP_THRESHOLDS', 'QMS_REGIME', 'RETENTION_POLICY']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -468,5 +468,52 @@ describe('the regimes of quality management (BR-QMS-04, rule type QMS_REGIME)', 
     expect(await problem('QMS_REGIME', 'R', content({ owner_module: 'QMS', required_roles: ['OWNER'], checklists }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
     expect(await problem('QMS_REGIME', 'R', regime({ extra: 1 }))).toEqual(invalid('attributes.extra'));
     expect(await problem('BID_PETITION', 'PROCESS', content({ owner_module: 'BID', days: 7, day_count: 'CALENDAR', awaiting_confirmation: true, cxn: 'CXN-BID-02' }, { legalBasis: 'Luật Đấu thầu' }))).toBeUndefined();
+  });
+});
+
+describe('the caps and the recovery of the advance of a contract (BR-PAY-10, BR-PAY-11, rule types PAY_ADVANCE_CAP and PAY_ADVANCE_GPMB)', () => {
+  const tiers = [{ min_value_vnd: '10000000000', cap_pct: '20' }];
+  const cap = (attributes: Record<string, unknown>) =>
+    content({ owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-02', tiers, recovery_threshold_pct: '80', ...attributes }, { legalBasis: 'Nghị định 254/2025/NĐ-CP' });
+  const gpmb = (attributes: Record<string, unknown>) => content({ owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-12', recovery_days: 30, ...attributes }, { legalBasis: 'Hạn thu hồi tạm ứng' });
+
+  it('are rule types that PAY owns', () => {
+    expect(isRuleType('PAY_ADVANCE_CAP')).toBe(true);
+    expect(isRuleType('PAY_ADVANCE_GPMB')).toBe(true);
+  });
+
+  it('takes the tiers of a category and the threshold of the recovery, a share with up to four decimals', async () => {
+    expect(await problem('PAY_ADVANCE_CAP', 'CONSTRUCTION', cap({}))).toBeUndefined();
+    expect(await problem('PAY_ADVANCE_CAP', 'CONSULTING', cap({ tiers: [{ min_value_vnd: '0', cap_pct: '30' }, { min_value_vnd: '5000000000', cap_pct: '12.3456' }], recovery_threshold_pct: '100' }))).toBeUndefined();
+    expect(await problem('PAY_ADVANCE_CAP', 'WIDGETS', cap({}))).toEqual(invalid('business_key'));
+  });
+
+  it('refuses tiers that are empty, repeated, not whole dong, above a hundred percent or nothing, and a threshold that is not a share', async () => {
+    const bad = (value: unknown) => problem('PAY_ADVANCE_CAP', 'CONSTRUCTION', cap({ tiers: value }));
+    expect(await bad([])).toEqual(invalid('attributes.tiers'));
+    expect(await bad('x')).toEqual(invalid('attributes.tiers'));
+    expect(await bad(['x'])).toEqual(invalid('attributes.tiers'));
+    expect(await bad(Array.from({ length: 21 }, (_, n) => ({ min_value_vnd: String(n), cap_pct: '10' })))).toEqual(invalid('attributes.tiers'));
+    expect(await bad([...tiers, ...tiers])).toEqual(invalid('attributes.tiers'));
+    expect(await bad([{ min_value_vnd: '1.5', cap_pct: '20' }])).toEqual(invalid('attributes.tiers'));
+    expect(await bad([{ min_value_vnd: 10, cap_pct: '20' }])).toEqual(invalid('attributes.tiers'));
+    expect(await bad([{ min_value_vnd: '0', cap_pct: '100.5' }])).toEqual(invalid('attributes.tiers'));
+    expect(await bad([{ min_value_vnd: '0', cap_pct: '0' }])).toEqual(invalid('attributes.tiers'));
+    expect(await bad([{ min_value_vnd: '0', cap_pct: 20 }])).toEqual(invalid('attributes.tiers'));
+    for (const threshold of ['0', '101', 'abc', 80, '12.34567']) expect(await problem('PAY_ADVANCE_CAP', 'CONSTRUCTION', cap({ recovery_threshold_pct: threshold }))).toEqual(invalid('attributes.recovery_threshold_pct'));
+  });
+
+  it('gives the days a land clearance advance may stay unrecovered, under the key GPMB only', async () => {
+    expect(await problem('PAY_ADVANCE_GPMB', 'GPMB', gpmb({}))).toBeUndefined();
+    expect(await problem('PAY_ADVANCE_GPMB', 'OTHER', gpmb({}))).toEqual(invalid('business_key'));
+    expect(await problem('PAY_ADVANCE_GPMB', 'GPMB', gpmb({ recovery_days: 0 }))).toEqual(invalid('attributes.recovery_days'));
+    expect(await problem('PAY_ADVANCE_GPMB', 'GPMB', gpmb({ recovery_days: 367 }))).toEqual(invalid('attributes.recovery_days'));
+  });
+
+  it('belongs to PAY, carries its legal basis and takes no attribute it does not define', async () => {
+    expect(await problem('PAY_ADVANCE_CAP', 'CONSTRUCTION', cap({ owner_module: 'CTR' }))).toEqual(invalid('attributes.owner_module'));
+    expect(await problem('PAY_ADVANCE_GPMB', 'GPMB', gpmb({ owner_module: 'LND' }))).toEqual(invalid('attributes.owner_module'));
+    expect(await problem('PAY_ADVANCE_CAP', 'CONSTRUCTION', content({ owner_module: 'PAY', tiers, recovery_threshold_pct: '80' }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
+    expect(await problem('PAY_ADVANCE_CAP', 'CONSTRUCTION', cap({ extra: 1 }))).toEqual(invalid('attributes.extra'));
   });
 });

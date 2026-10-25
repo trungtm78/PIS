@@ -1,4 +1,4 @@
-import { CALENDAR_TIMEZONES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SIGNER_ROLES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
+import { ADVANCE_CATEGORIES, CALENDAR_TIMEZONES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SIGNER_ROLES, WEEKDAYS, assertCalendar, capPercentFor, percentScaled } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -234,6 +234,45 @@ function checkQmsRegime(attributes: Record<string, unknown>): void {
   if (attributes.owner_module !== 'QMS') fail('attributes.owner_module');
   checkSignerRoles(attributes);
   checkChecklists(attributes.checklists);
+}
+
+const MAX_CAP_TIERS = 20;
+const MAX_ADVANCE_RECOVERY_DAYS = 366;
+
+/** Whether a share of the work is a percentage the kernel reads and a positive one, at most a hundred. */
+function isShare(value: unknown): boolean {
+  if (typeof value !== 'string') return false;
+  try {
+    const scaled = percentScaled(value, 'share');
+    return scaled > 0n && scaled <= 1_000_000n;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The cap of the advance of a contract (BR-PAY-10): the key is the category of the contract; the tiers say, from which value of the contract (whole dong, once each, with a tier that starts at
+ * zero or at the lowest value the rule covers), how much of the work of a member may be advanced; the threshold is the share of the work after which the advance is recovered in full.
+ */
+function checkAdvanceCap(businessKey: string, attributes: Record<string, unknown>): void {
+  if (!(ADVANCE_CATEGORIES as readonly string[]).includes(businessKey)) fail('business_key');
+  if (attributes.owner_module !== 'PAY') fail('attributes.owner_module');
+  if (!isShare(attributes.recovery_threshold_pct)) fail('attributes.recovery_threshold_pct');
+  const tiers = attributes.tiers;
+  if (!Array.isArray(tiers) || tiers.length === 0 || tiers.length > MAX_CAP_TIERS) return fail('attributes.tiers');
+  const minimums = new Set<string>();
+  for (const tier of tiers) {
+    if (!isObject(tier) || typeof tier.min_value_vnd !== 'string' || !/^(0|[1-9][0-9]{0,23})$/.test(tier.min_value_vnd) || minimums.has(tier.min_value_vnd) || !isShare(tier.cap_pct)) return fail('attributes.tiers');
+    minimums.add(tier.min_value_vnd);
+  }
+  // Every tier reads as the kernel reads it: a table the cap cannot be taken from is not published.
+  capPercentFor(tiers.map((tier) => ({ minValueVnd: String(tier.min_value_vnd), capPct: String(tier.cap_pct) })), '0');
+}
+
+/** The days a land clearance advance may stay unrecovered (BR-PAY-11): the key is GPMB and the owner is PAY. */
+function checkAdvanceGpmb(businessKey: string, attributes: Record<string, unknown>): void {
+  if (businessKey !== 'GPMB') fail('business_key');
+  if (attributes.owner_module !== 'PAY') fail('attributes.owner_module');
 }
 
 const DEFINITIONS: readonly MasterTypeDefinition[] = [
@@ -532,6 +571,26 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
       { name: 'checklists', kind: 'list', required: true, maxItems: INSPECTION_TYPES.length },
     ],
     check: ({ content }) => checkQmsRegime(content.attributes),
+  },
+  {
+    // BR-PAY-10: the key is the category of the contract; the tiers say how much of the work of a member may be advanced, and the threshold when the advance is recovered in full.
+    masterType: 'PAY_ADVANCE_CAP',
+    rule: true,
+    strict: true,
+    fields: [
+      ...RULE_FIELDS,
+      { name: 'tiers', kind: 'list', required: true, maxItems: MAX_CAP_TIERS },
+      { name: 'recovery_threshold_pct', kind: 'text', required: true, maxLength: 8 },
+    ],
+    check: ({ businessKey, content }) => checkAdvanceCap(businessKey, content.attributes),
+  },
+  {
+    // BR-PAY-11: the days a land clearance advance may stay unrecovered.
+    masterType: 'PAY_ADVANCE_GPMB',
+    rule: true,
+    strict: true,
+    fields: [...RULE_FIELDS, { name: 'recovery_days', kind: 'integer', required: true, min: 1, max: MAX_ADVANCE_RECOVERY_DAYS }],
+    check: ({ businessKey, content }) => checkAdvanceGpmb(businessKey, content.attributes),
   },
 ];
 

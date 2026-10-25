@@ -3153,6 +3153,7 @@
         "cancelAdvance",
         "recordAdvanceRecovery",
         "getAdvanceRecoveryPlan",
+        "listAdvances",
         "get_resources_advance_ledger_entry",
         "get_resources_advance_ledger_entry_id"
       ],

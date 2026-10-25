@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { CONTRACT_STATUSES, DomainError, assertContractTransition, activeGrants, addDecimal, compareDecimal, permissionMatches, versionConflict } from '@machvon/kernel';
-import type { ContractStatus, EffectiveAccess } from '@machvon/kernel';
+import { ADVANCE_CATEGORIES, CONTRACT_STATUSES, DomainError, assertContractTransition, activeGrants, addDecimal, compareDecimal, permissionMatches, versionConflict } from '@machvon/kernel';
+import type { AdvanceCategory, ContractStatus, EffectiveAccess } from '@machvon/kernel';
 import { BidContractorStore } from './bid-contractor-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
 import { projectScope } from './prj-project-store.ts';
@@ -22,8 +22,8 @@ export { CONTRACT_STATUSES };
 export type { ContractStatus };
 export const CONTRACT_TYPES = ['LUMP_SUM', 'UNIT_PRICE', 'ADJUSTABLE_PRICE', 'TIME_BASED', 'COST_PLUS_FEE', 'EPC', 'ESTIMATE_BASED'] as const;
 export type ContractType = (typeof CONTRACT_TYPES)[number];
-export const ADVANCE_CATEGORIES = ['CONSTRUCTION', 'EQUIPMENT', 'CONSULTING', 'EPC', 'LAND_CLEARANCE', 'OTHER'] as const;
-export type AdvanceCategory = (typeof ADVANCE_CATEGORIES)[number];
+export { ADVANCE_CATEGORIES };
+export type { AdvanceCategory };
 
 /** Where a contract lies, so the permissions of a caller can be judged for it: its project, and the units that own and invest in the project. */
 export interface ContractPlace {

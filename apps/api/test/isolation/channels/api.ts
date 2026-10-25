@@ -7,7 +7,7 @@ import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_
 import { WORK_CALENDAR_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
@@ -289,6 +289,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'verifyPaymentRequest', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign check attempt' } },
   { operation: 'returnPaymentRequest', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign return attempt' } },
   { operation: 'get_resources_payment_request_id', method: 'GET', id: PAYMENT_FIXTURES['TNT-B'].id },
+  { operation: 'cancelAdvance', method: 'POST', id: ADVANCE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },
+  { operation: 'recordAdvanceRecovery', method: 'POST', id: ADVANCE_FIXTURES['TNT-B'].id, versioned: true, body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
+  { operation: 'getAdvanceRecoveryPlan', method: 'GET', id: ADVANCE_FIXTURES['TNT-B'].id },
+  { operation: 'requestAdvance', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { party_id: ADVANCE_FIXTURES['TNT-B'].partyId, kind: 'GPMB', amount_vnd: '1', allocation_line_id: CONTRACT_FIXTURES['TNT-B'].id } },
   { operation: 'setChangeChainTiers', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { tier_count: 2 } },
   { operation: 'getChangeChain', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'createChangeRequest', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { stage: 'EVENT', baseline_revision_id: CONTRACT_FIXTURES['TNT-B'].revisionId, reason: 'Isolation foreign change attempt' } },
@@ -479,6 +483,15 @@ async function get(baseUrl: string, path: string, token: string): Promise<{ stat
   return { status: response.status, body: await response.text() };
 }
 
+/** The attempts go to the application a batch at a time: a hundred and more connections at once are refused by the listener of a loaded machine, which is not what the suite is about. */
+const ATTEMPTS_AT_ONCE = 32;
+
+async function inBatches<T, R>(items: readonly T[], size: number, work: (item: T) => Promise<R>): Promise<R[]> {
+  const done: R[] = [];
+  for (let from = 0; from < items.length; from += size) done.push(...(await Promise.all(items.slice(from, from + size).map(work))));
+  return done;
+}
+
 export async function attempt(options: ApiChannelOptions, spec: ForeignAttemptSpec, user: TenantName): Promise<ForeignAttempt> {
   const headers: Record<string, string> = {
     [TENANT_HEADER]: tokenFor(user, options.signingKey),
@@ -510,7 +523,7 @@ export function createApiChannel(options: ApiChannelOptions): IsolationChannel {
       await seedTenantAuthz(options.ownerUrl, tenant);
     },
     foreignAttempts:
-      options.attempts === true ? async (user) => Promise.all(FOREIGN_ATTEMPT_SPECS.map((spec) => attempt(options, spec, user))) : undefined,
+      options.attempts === true ? async (user) => inBatches(FOREIGN_ATTEMPT_SPECS, ATTEMPTS_AT_ONCE, (spec) => attempt(options, spec, user)) : undefined,
     readAs(user, target) {
       const targetId = UNIT_FIXTURES[target][0]?.id ?? '';
       return get(options.baseUrl, fillPath(detailPath, targetId), tokenFor(user, options.signingKey));

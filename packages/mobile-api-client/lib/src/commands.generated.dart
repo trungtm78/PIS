@@ -1456,6 +1456,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> linkOmPlan(AstLinkOmPlan body, {required String id, CommandAttempt? attempt}) =>
       execute('linkOmPlan', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
+  Future<Object?> listAdvances({Map<String, Object?>? query}) =>
+      execute('listAdvances', query: query);
+
   Future<Object?> listAffectedHouseholds({Map<String, Object?>? query}) =>
       execute('listAffectedHouseholds', query: query);
 

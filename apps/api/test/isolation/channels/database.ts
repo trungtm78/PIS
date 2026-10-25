@@ -12,7 +12,7 @@ import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
 import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES } from '../suite';
@@ -348,6 +348,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'revisePaymentDraft',
   'attachPaymentDocument',
   'cancelPaymentRequest',
+  'requestAdvance',
+  'cancelAdvance',
+  'recordAdvanceRecovery',
+  'listAdvances',
+  'getAdvanceRecoveryPlan',
   'post_payment_requests_id_submit',
   'verifyPaymentRequest',
   'returnPaymentRequest',
@@ -769,6 +774,14 @@ const INSERT_LEDGER = `insert into machvon.cumulative_ledger
   (tenant_id, id, contract_id, boq_item_id, acceptance_id, created_by, updated_by)
   values ($1, $2, $3, $4, $5, $6, $6) on conflict do nothing`;
 
+const INSERT_PARTY = `insert into machvon.contract_party
+  (tenant_id, id, contract_id, contractor_id, role, share_pct, work_value_vnd, status, valid_from, created_by, updated_by)
+  values ($1, $2, $3, $4, 'SOLE', 100, 1000000000, 'ACTIVE', date '2026-01-02', $5, $5) on conflict do nothing`;
+
+const INSERT_ADVANCE = `insert into machvon.contract_advance
+  (tenant_id, id, contract_id, party_id, tranche_no, kind, amount_vnd, cap_vnd, cap_rule_version_id, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 1, 'GPMB', 100000000, 100000000, gen_random_uuid(), 'CANCELLED', $5, $5) on conflict do nothing`;
+
 const INSERT_LEDGER_ENTRY = `insert into machvon.cumulative_ledger_entry
   (tenant_id, id, ledger_id, contract_id, boq_item_id, acceptance_id, entry_kind, advance_outstanding_after_vnd, reason, request_id, created_by)
   values ($1, $2, $3, $4, $5, $6, 'RECOGNIZE_ACCEPTANCE', 0, $7, gen_random_uuid(), $8) on conflict do nothing`;
@@ -1057,6 +1070,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const payment = PAYMENT_FIXTURES[tenant];
     await client.query(INSERT_PAYMENT_ACCEPTANCE, [tenantId, payment.acceptanceId, draft.id, measurement.id, documents.versionId, `${payment.requestNo}-NT`, period.id, APPROVER_ID, ACTOR_ID]);
     await client.query(INSERT_PAYMENT_REQUEST, [tenantId, payment.id, project.id, draft.id, payment.acceptanceId, payment.requestNo, ACTOR_ID]);
+    const advance = ADVANCE_FIXTURES[tenant];
+    await client.query(INSERT_PARTY, [tenantId, advance.partyId, draft.id, contractor.id, ACTOR_ID]);
+    await client.query(INSERT_ADVANCE, [tenantId, advance.id, draft.id, advance.partyId, ACTOR_ID]);
     const ledger = LEDGER_FIXTURES[tenant];
     await client.query(INSERT_LEDGER, [tenantId, ledger.id, draft.id, boq.itemId, workAcceptance.id, ACTOR_ID]);
     await client.query(INSERT_LEDGER_ENTRY, [tenantId, ledger.entryId, ledger.id, draft.id, boq.itemId, workAcceptance.id, ledger.entryReason, ACTOR_ID]);

@@ -59,7 +59,7 @@ async function paidAdvance(contract: SeededContract, paid: string, thresholdPct 
   await owner(
     `insert into machvon.contract_advance
        (tenant_id, id, contract_id, party_id, tranche_no, kind, amount_vnd, cap_vnd, status, paid_vnd, recovered_vnd, paid_on, recovery_threshold_pct, recovery_deadline, created_by, updated_by)
-     values ($1, $2, $3, $4, $5, 'GPMB', $6::numeric, $6::numeric, 'PAID', $6::numeric, $7::numeric, date '2026-06-01', $8::numeric, date '2026-12-31', $9, $9)`,
+     values ($1, $2, $3, $4, $5, 'GPMB', $6::numeric, $6::numeric, case when $7::numeric = 0 then 'PAID' when $7::numeric = $6::numeric then 'FULLY_RECOVERED' else 'RECOVERING' end, $6::numeric, $7::numeric, date '2026-06-01', $8::numeric, date '2026-12-31', $9, $9)`,
     [TENANT_A, id, contract.contractId, contract.partyId, trancheNo, paid, recovered, thresholdPct, memberId(ACCOUNTANT)],
   );
   return id;
@@ -268,8 +268,8 @@ describe('the draft of a payment request (ST-PAY-002)', () => {
       const contract = await fixtures.seedContract();
       const planned = randomUUID();
       await owner(
-        `insert into machvon.contract_advance (tenant_id, id, contract_id, party_id, tranche_no, kind, amount_vnd, cap_vnd, status, created_by, updated_by)
-         values ($1, $2, $3, $4, 1, 'GPMB', 500000000, 500000000, 'PLANNED', $5, $5)`,
+        `insert into machvon.contract_advance (tenant_id, id, contract_id, party_id, tranche_no, kind, amount_vnd, cap_vnd, cap_rule_version_id, status, created_by, updated_by)
+         values ($1, $2, $3, $4, 1, 'GPMB', 500000000, 500000000, gen_random_uuid(), 'PLANNED', $5, $5)`,
         [TENANT_A, planned, contract.contractId, contract.partyId, memberId(ACCOUNTANT)],
       );
       const made = await as((tx) =>
