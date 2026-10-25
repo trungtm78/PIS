@@ -281,6 +281,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'recordContractSigning', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { signed_on: '2026-10-25', signed_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
   { operation: 'post_contracts_id_activate', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign activation attempt', evidence_ids: [], effective_from: '2026-10-25' } },
   { operation: 'getContractSummary', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
+  { operation: 'getCumulativeLedger', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
   { operation: 'setChangeChainTiers', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { tier_count: 2 } },
   { operation: 'getChangeChain', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'createChangeRequest', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { stage: 'EVENT', baseline_revision_id: CONTRACT_FIXTURES['TNT-B'].revisionId, reason: 'Isolation foreign change attempt' } },

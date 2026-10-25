@@ -77,6 +77,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'DOC-14': () => import('../../screens/doc/DocumentTemplatesScreen'),
   'DOC-19': () => import('../../screens/doc/RecallScreen'),
   'DOC-21': () => import('../../screens/doc/DocumentTypesScreen'),
+  'PAY-10': () => import('../../screens/pay/ledger/LedgerScreen'),
   'PAY-13': () => import('../../screens/pay/TreasuryImportScreen'),
   'PMT-01': () => import('../../screens/pmt/DossierWorkspaceScreen'),
   'PMT-02': () => import('../../screens/pmt/PermitDetailScreen'),

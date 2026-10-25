@@ -1,0 +1,14 @@
+{
+  "id": "PAY_LEDGER_LOCK_WAIT",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/PAY_LEDGER_LOCK_WAIT.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "pay_ledger_lock_wait_seconds",
+    "above": 5
+  },
+  "summary": "A writer of the cumulative ledger waited more than 5 seconds for the lock of a contract."
+}

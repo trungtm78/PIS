@@ -37,6 +37,17 @@ export class SummaryCache<T> {
     }
   }
 
+  /** Drops every entry whose key starts with the prefix (what an event about one contract invalidates); gives the number dropped. */
+  deletePrefix(prefix: string): number {
+    let dropped = 0;
+    for (const key of [...this.entries.keys()]) {
+      if (!key.startsWith(prefix)) continue;
+      this.entries.delete(key);
+      dropped += 1;
+    }
+    return dropped;
+  }
+
   get size(): number {
     return this.entries.size;
   }

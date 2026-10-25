@@ -381,6 +381,8 @@ export type { DecideInput as CtrDecideInput, DecisionHooks as CtrDecisionHooks, 
 export { CtrRevisionStore } from './ctr-revision-store.ts';
 export type { DatedPrice, PricingRevision } from './ctr-revision-store.ts';
 export { CtrAcceptanceStore } from './ctr-acceptance-store.ts';
+export { PAY_LEDGER_LOCK_WAIT_METRIC, PAY_VALUE_EXCEEDED_METRIC, PayLedgerStore } from './pay-ledger-store.ts';
+export type { LedgerEntryView, LedgerFilter, LedgerHeaderView, LedgerLineView, LedgerOutcome, LedgerPage, PostEntryInput, PostedEntry } from './pay-ledger-store.ts';
 export type {
   AcceptanceLine as CtrAcceptanceLine,
   AcceptanceLineResult as CtrAcceptanceLineResult,

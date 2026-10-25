@@ -30,6 +30,17 @@ describe('the cache of the summary of a contract (ST-CTR-004)', () => {
     expect(cache.get('x')).toBe(2);
   });
 
+  it('drops the entries under a prefix and none of the others', () => {
+    const cache = new SummaryCache<number>(60_000, 10, () => 0);
+    cache.set('t:a:pay:ledger:c1:v1:x', 1);
+    cache.set('t:a:pay:ledger:c1:v2:y', 2);
+    cache.set('t:a:pay:ledger:c2:v1:x', 3);
+    expect(cache.deletePrefix('t:a:pay:ledger:c1:')).toBe(2);
+    expect(cache.get('t:a:pay:ledger:c1:v1:x')).toBeUndefined();
+    expect(cache.get('t:a:pay:ledger:c2:v1:x')).toBe(3);
+    expect(cache.deletePrefix('t:a:pay:ledger:c9:')).toBe(0);
+  });
+
   it('keeps the most recent entries only: the oldest leaves when the capacity is full', () => {
     const cache = new SummaryCache<number>(60_000, 2, () => 0);
     cache.set('a', 1);

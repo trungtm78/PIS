@@ -411,3 +411,5 @@ export { ACCEPTANCE_COMMANDS, ACCEPTANCE_SCOPES, ACCEPTANCE_STATUSES, SIGNATURE_
 export type { AcceptanceCommand, AcceptanceContent, AcceptanceScope, AcceptanceStatus, SignatureMethod, SignerStanding } from './qms-acceptance.ts';
 export { WORK_ACCEPTANCE_COMMANDS, WORK_ACCEPTANCE_STATUSES, assertWithinContractValue, assertWorkAcceptanceTransition, isAccepted, lineAmount, notApproved, sumAmounts } from './ctr-acceptance.ts';
 export type { WorkAcceptanceCommand, WorkAcceptanceStatus } from './ctr-acceptance.ts';
+export { LEDGER_ENTRY_KINDS, LEDGER_RULES, REVERSAL_OF, ZERO_BALANCE, ZERO_DELTA, advanceOutstanding, applyDelta, assertEntryShape, assertLedgerInvariants, brokenRule, dong, isReversal, negate, totalOf as totalOfLedger } from './pay-ledger.ts';
+export type { LedgerBalance, LedgerDelta, LedgerEntryKind, LedgerRule } from './pay-ledger.ts';

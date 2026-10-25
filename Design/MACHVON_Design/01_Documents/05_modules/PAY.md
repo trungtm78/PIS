@@ -609,7 +609,7 @@ Mọi lệnh ghi: `Idempotency-Key` (≥16 ký tự) bắt buộc; `If-Match` b�
 | `approveSettlementException` | `POST /settlements/{id}/exception-approval` | `settlement.exception.approve` | reason*, approval_document_version_id* | CommandResult | 422 NO_OUTSTANDING_TO_EXCEPT; 403 SELF_APPROVAL_DENIED; 409 SETTLEMENT_STATE_INVALID; 409 VERSION_CONFLICT | bắt buộc | có |
 | `post_settlements_id_close` | `POST /settlements/{id}/close` | `settlement.close` | decision*, reason*, evidence_ids*, decision_document_version_id* | CommandResult | 422 SETTLEMENT_HAS_OUTSTANDING; 409 SETTLEMENT_STATE_INVALID; 422 DECISION_DOCUMENT_REQUIRED; 403 SELF_APPROVAL_DENIED; 409 VERSION_CONFLICT | bắt buộc | có |
 | `generateSettlementForms` | `POST /settlements/{id}/forms` | `settlement.forms.generate` | form_codes* | CommandResult | 422 TEMPLATE_NOT_EFFECTIVE; 422 TEMPLATE_UNCONFIRMED; 409 SETTLEMENT_STATE_INVALID; 503 PROVIDER_UNAVAILABLE | bắt buộc | không |
-| `getCumulativeLedger` | `GET /contracts/{id}/cumulative-ledger` | `ledger.read` | boq_item_id, acceptance_id, cursor, limit | DTO đọc (read model) | — | — | không |
+| `getCumulativeLedger` | `GET /contracts/{id}/cumulative-ledger` | `ledger.read` | boq_item_id, acceptance_id, cursor, limit | DTO đọc (read model) | — | 422 VALIDATION_FAILED; 403 SCOPE_DENIED | không |
 | `listOverdueAdvances` | `GET /advances/overdue` | `advance.read` | level, cursor, limit | DTO đọc (read model) | — | — | không |
 | `getAdvanceRecoveryPlan` | `GET /advances/{id}/recovery-plan` | `advance.read` | (không) | DTO đọc (read model) | — | — | không |
 | `getPaymentChain` | `GET /payment-chain` | `payment.chain.read` | project_id, contract_id | DTO đọc (read model) | — | — | không |

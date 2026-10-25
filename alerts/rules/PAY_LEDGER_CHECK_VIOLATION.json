@@ -1,0 +1,13 @@
+{
+  "id": "PAY_LEDGER_CHECK_VIOLATION",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/PAY_LEDGER_CHECK_VIOLATION.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "PAY_LEDGER_CHECK_VIOLATION"
+  },
+  "summary": "A rule of the cumulative ledger was refused by the database after the application had let the entry through."
+}

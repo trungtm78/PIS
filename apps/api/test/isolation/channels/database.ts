@@ -12,7 +12,7 @@ import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
 import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES } from '../suite';
@@ -343,6 +343,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordContractSigning',
   'post_contracts_id_activate',
   'getContractSummary',
+  'getCumulativeLedger',
   'suspendContract',
   'resumeContract',
   'terminateContract',
@@ -745,6 +746,15 @@ const INSERT_WORK_ACCEPTANCE_LINE = `insert into machvon.acceptance_line
   (tenant_id, id, acceptance_id, measurement_id, boq_item_id, contract_revision_id, quantity, unit_price_snapshot, amount_vnd, active, created_by, updated_by)
   values ($1, gen_random_uuid(), $2, $3, $4, $5, 1, 1000, 1000, false, $6, $6) on conflict do nothing`;
 
+/** The balance of the work acceptance on the BOQ item (empty: the entry below recognises nothing), and its one entry. */
+const INSERT_LEDGER = `insert into machvon.cumulative_ledger
+  (tenant_id, id, contract_id, boq_item_id, acceptance_id, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, $6, $6) on conflict do nothing`;
+
+const INSERT_LEDGER_ENTRY = `insert into machvon.cumulative_ledger_entry
+  (tenant_id, id, ledger_id, contract_id, boq_item_id, acceptance_id, entry_kind, advance_outstanding_after_vnd, reason, request_id, created_by)
+  values ($1, $2, $3, $4, $5, $6, 'RECOGNIZE_ACCEPTANCE', 0, $7, gen_random_uuid(), $8) on conflict do nothing`;
+
 const INSERT_INSPECTION = `insert into machvon.inspection
   (tenant_id, id, project_id, contract_id, inspection_no, inspection_type, title, requested_by, requested_for, status, created_by, updated_by, version)
   values ($1, $2, $3, $4, 'KT-001', 'SAFETY', $5, $6, date '2026-12-31', 'REQUESTED', $6, $6, 1) on conflict do nothing`;
@@ -1026,6 +1036,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const workAcceptance = WORK_ACCEPTANCE_FIXTURES[tenant];
     await client.query(INSERT_WORK_ACCEPTANCE, [tenantId, workAcceptance.id, draft.id, measurement.id, documents.versionId, workAcceptance.acceptanceNo, period.id, ACTOR_ID]);
     await client.query(INSERT_WORK_ACCEPTANCE_LINE, [tenantId, workAcceptance.id, measurement.id, boq.itemId, draft.revisionId, ACTOR_ID]);
+    const ledger = LEDGER_FIXTURES[tenant];
+    await client.query(INSERT_LEDGER, [tenantId, ledger.id, draft.id, boq.itemId, workAcceptance.id, ACTOR_ID]);
+    await client.query(INSERT_LEDGER_ENTRY, [tenantId, ledger.entryId, ledger.id, draft.id, boq.itemId, workAcceptance.id, ledger.entryReason, ACTOR_ID]);
     const guarantee = GUARANTEE_FIXTURES[tenant];
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.id, draft.id, guarantee.issuer, guarantee.guaranteeNo, 'PENDING_VERIFICATION', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.activeId, draft.id, guarantee.issuer, guarantee.activeGuaranteeNo, 'ACTIVE', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
@@ -1045,7 +1058,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'disbursement_schedule_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'procurement_petition', 'contract', 'contract_revision', 'change_chain_config', 'change_request', 'boq_item', 'boq_line', 'boq_import', 'measurement', 'inspection', 'quality_acceptance', 'qms_signature', 'acceptance', 'acceptance_line', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'delivery_attempt', 'legal_hold', 'signing_certificate', 'security_policy_version', 'work_calendar_version', 'doa_matrix_version', 'doa_rule', 'data_retention_policy', 'retention_review_item', 'integration_connector', 'integration_event_inbox', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'document_template', 'outgoing_document', 'outgoing_document_event', 'doc_issue_request', 'doc_signing_session', 'document_distribution', 'master_record', 'master_record_version', 'master_change_request', 'master_import_batch', 'master_crosswalk', 'integration_cursor', 'reporting_period', 'issue_sla_policy', 'issue', 'issue_event', 'glossary_term', 'dataset', 'project', 'project_revision', 'project_appraisal', 'contractor', 'contractor_restriction', 'appropriation', 'capital_plan', 'plan_version', 'allocation_line', 'disbursement_schedule_line', 'procurement_package', 'procurement_plan', 'procurement_plan_event', 'procurement_petition', 'contract', 'contract_revision', 'change_chain_config', 'change_request', 'boq_item', 'boq_line', 'boq_import', 'measurement', 'inspection', 'quality_acceptance', 'qms_signature', 'acceptance', 'acceptance_line', 'cumulative_ledger', 'cumulative_ledger_entry', 'guarantee', 'mne_report_form', 'mne_obligation_rule', 'mne_report', 'treasury_import', 'treasury_import_row', 'treasury_transaction', 'reconciliation_item', 'land_handover_section', 'land_parcel', 'land_deadline'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

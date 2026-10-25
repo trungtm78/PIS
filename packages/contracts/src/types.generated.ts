@@ -20181,6 +20181,113 @@ export interface components {
             /** Format: date-time */
             as_of: string;
         };
+        /** @description Các số lũy kế của một dòng sổ hoặc của tổng các dòng */
+        PayLedgerBalance: {
+            /** @description Đã nghiệm thu */
+            accepted_vnd: string;
+            /** @description Đã đề nghị thanh toán (≤ đã nghiệm thu) */
+            requested_vnd: string;
+            /** @description Đã thanh toán (≤ đã đề nghị) */
+            paid_vnd: string;
+            /** @description Đã thu hồi tạm ứng */
+            advance_recovered_vnd: string;
+            /** @description Đang giữ lại; thu hồi tạm ứng cộng giữ lại không quá đã đề nghị */
+            retention_held_vnd: string;
+        };
+        /** @description Một bút toán của sổ lũy kế; không bao giờ sửa hay xóa, chỉ sửa sai bằng bút toán đảo */
+        PayLedgerEntry: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "RECOGNIZE_ACCEPTANCE" | "REVOKE_ACCEPTANCE" | "CLAIM" | "CLAIM_RELEASE" | "PAYMENT" | "PAYMENT_REVERSAL" | "ADVANCE_RECOVERY" | "ADVANCE_RECOVERY_REVERSAL" | "RETENTION_HOLD" | "RETENTION_RELEASE";
+            /** @description Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi */
+            accepted_delta_vnd: string;
+            /** @description Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi */
+            requested_delta_vnd: string;
+            /** @description Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi */
+            paid_delta_vnd: string;
+            /** @description Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi */
+            advance_recovery_delta_vnd: string;
+            /** @description Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi */
+            retention_delta_vnd: string;
+            /** @description Tạm ứng còn phải thu hồi của hợp đồng sau bút toán */
+            advance_outstanding_after_vnd: string;
+            /**
+             * Format: uuid
+             * @description Bút toán mà bút toán này đảo; để trống với bút toán thuận
+             */
+            reversal_of_id: string | null;
+            /** Format: uuid */
+            payment_request_id?: string | null;
+            reason?: string | null;
+            /** Format: date-time */
+            posted_at: string;
+        };
+        /** @description Số lũy kế của một dòng BOQ trong một nghiệm thu (và một bên liên danh), kèm các bút toán tạo nên nó */
+        PayLedgerLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            boq_item_id: string;
+            boq_item_key: string;
+            description?: string;
+            unit_code?: string;
+            /** Format: uuid */
+            acceptance_id: string;
+            acceptance_no?: string | null;
+            /** Format: uuid */
+            party_id?: string | null;
+            /** @description Đã nghiệm thu */
+            accepted_vnd: string;
+            /** @description Đã đề nghị thanh toán (≤ đã nghiệm thu) */
+            requested_vnd: string;
+            /** @description Đã thanh toán (≤ đã đề nghị) */
+            paid_vnd: string;
+            /** @description Đã thu hồi tạm ứng */
+            advance_recovered_vnd: string;
+            /** @description Đang giữ lại; thu hồi tạm ứng cộng giữ lại không quá đã đề nghị */
+            retention_held_vnd: string;
+            version: string;
+            entries: components["schemas"]["PayLedgerEntry"][];
+        };
+        /** @description Các tổng lũy kế ghi trên hợp đồng: tổng đề nghị ≤ tổng nghiệm thu ≤ giá trị hợp đồng (CHECK DB) */
+        PayLedgerContract: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            /** @description Phiên bản hợp đồng; đổi mỗi khi sổ có bút toán mới, nên bản lưu đệm theo phiên bản này không bao giờ cũ */
+            version: number;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            contract_value_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            accepted_total_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            requested_total_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            paid_total_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_paid_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_recovered_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_outstanding_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            retention_held_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            retention_released_vnd: string;
+        };
+        /** @description Sổ lũy kế của một hợp đồng (UC-PAY-01): chỉ nhân sự có ledger.read; bên nhà thầu (khách) không bao giờ nhận các trường này */
+        PayCumulativeLedger: {
+            contract: components["schemas"]["PayLedgerContract"];
+            items: components["schemas"]["PayLedgerLine"][];
+            /** @description Tổng các dòng khớp bộ lọc, mọi trang */
+            total: components["schemas"]["PayLedgerBalance"];
+            /** @description Tổng đã nghiệm thu trên sổ có bằng số hợp đồng ghi nhận không */
+            reconciled: boolean;
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -73034,9 +73141,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["PayCumulativeLedger"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

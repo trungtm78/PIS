@@ -1737,6 +1737,15 @@
       ]
     },
     {
+      "key": "ledgerReader",
+      "displayName": "Kế toán trưởng xem sổ lũy kế hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000826",
+      "permissions": [
+        "ledger.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

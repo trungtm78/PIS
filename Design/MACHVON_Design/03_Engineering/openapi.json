@@ -76182,8 +76182,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/PayCumulativeLedger"
                 }
               }
             }
@@ -76248,7 +76247,11 @@
               }
             }
           }
-        }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ]
       }
     },
     "/advances/overdue": {
@@ -143484,6 +143487,349 @@
             "items": {
               "$ref": "#/components/schemas/CtrAcceptanceLine"
             }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PayLedgerBalance": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accepted_vnd",
+          "requested_vnd",
+          "paid_vnd",
+          "advance_recovered_vnd",
+          "retention_held_vnd"
+        ],
+        "description": "Các số lũy kế của một dòng sổ hoặc của tổng các dòng",
+        "properties": {
+          "accepted_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã nghiệm thu"
+          },
+          "requested_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã đề nghị thanh toán (≤ đã nghiệm thu)"
+          },
+          "paid_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã thanh toán (≤ đã đề nghị)"
+          },
+          "advance_recovered_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã thu hồi tạm ứng"
+          },
+          "retention_held_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đang giữ lại; thu hồi tạm ứng cộng giữ lại không quá đã đề nghị"
+          }
+        }
+      },
+      "PayLedgerEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "accepted_delta_vnd",
+          "requested_delta_vnd",
+          "paid_delta_vnd",
+          "advance_recovery_delta_vnd",
+          "retention_delta_vnd",
+          "advance_outstanding_after_vnd",
+          "reversal_of_id",
+          "posted_at"
+        ],
+        "description": "Một bút toán của sổ lũy kế; không bao giờ sửa hay xóa, chỉ sửa sai bằng bút toán đảo",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "RECOGNIZE_ACCEPTANCE",
+              "REVOKE_ACCEPTANCE",
+              "CLAIM",
+              "CLAIM_RELEASE",
+              "PAYMENT",
+              "PAYMENT_REVERSAL",
+              "ADVANCE_RECOVERY",
+              "ADVANCE_RECOVERY_REVERSAL",
+              "RETENTION_HOLD",
+              "RETENTION_RELEASE"
+            ]
+          },
+          "accepted_delta_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi"
+          },
+          "requested_delta_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi"
+          },
+          "paid_delta_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi"
+          },
+          "advance_recovery_delta_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi"
+          },
+          "retention_delta_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi"
+          },
+          "advance_outstanding_after_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Tạm ứng còn phải thu hồi của hợp đồng sau bút toán"
+          },
+          "reversal_of_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Bút toán mà bút toán này đảo; để trống với bút toán thuận"
+          },
+          "payment_request_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "posted_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PayLedgerLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "boq_item_id",
+          "boq_item_key",
+          "acceptance_id",
+          "accepted_vnd",
+          "requested_vnd",
+          "paid_vnd",
+          "advance_recovered_vnd",
+          "retention_held_vnd",
+          "version",
+          "entries"
+        ],
+        "description": "Số lũy kế của một dòng BOQ trong một nghiệm thu (và một bên liên danh), kèm các bút toán tạo nên nó",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "boq_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "boq_item_key": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "unit_code": {
+            "type": "string"
+          },
+          "acceptance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "acceptance_no": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "party_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "accepted_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã nghiệm thu"
+          },
+          "requested_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã đề nghị thanh toán (≤ đã nghiệm thu)"
+          },
+          "paid_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã thanh toán (≤ đã đề nghị)"
+          },
+          "advance_recovered_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đã thu hồi tạm ứng"
+          },
+          "retention_held_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Đang giữ lại; thu hồi tạm ứng cộng giữ lại không quá đã đề nghị"
+          },
+          "version": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayLedgerEntry"
+            }
+          }
+        }
+      },
+      "PayLedgerContract": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "version",
+          "contract_value_vnd",
+          "accepted_total_vnd",
+          "requested_total_vnd",
+          "paid_total_vnd",
+          "advance_paid_vnd",
+          "advance_recovered_vnd",
+          "advance_outstanding_vnd",
+          "retention_held_vnd",
+          "retention_released_vnd"
+        ],
+        "description": "Các tổng lũy kế ghi trên hợp đồng: tổng đề nghị ≤ tổng nghiệm thu ≤ giá trị hợp đồng (CHECK DB)",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "description": "Phiên bản hợp đồng; đổi mỗi khi sổ có bút toán mới, nên bản lưu đệm theo phiên bản này không bao giờ cũ"
+          },
+          "contract_value_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "accepted_total_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "requested_total_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "paid_total_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "advance_paid_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "advance_recovered_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "advance_outstanding_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "retention_held_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "retention_released_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          }
+        }
+      },
+      "PayCumulativeLedger": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "items",
+          "total",
+          "reconciled",
+          "next_cursor",
+          "as_of"
+        ],
+        "description": "Sổ lũy kế của một hợp đồng (UC-PAY-01): chỉ nhân sự có ledger.read; bên nhà thầu (khách) không bao giờ nhận các trường này",
+        "properties": {
+          "contract": {
+            "$ref": "#/components/schemas/PayLedgerContract"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayLedgerLine"
+            }
+          },
+          "total": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PayLedgerBalance"
+              }
+            ],
+            "description": "Tổng các dòng khớp bộ lọc, mọi trang"
+          },
+          "reconciled": {
+            "type": "boolean",
+            "description": "Tổng đã nghiệm thu trên sổ có bằng số hợp đồng ghi nhận không"
           },
           "next_cursor": {
             "type": [

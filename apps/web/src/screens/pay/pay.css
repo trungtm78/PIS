@@ -68,3 +68,17 @@
   white-space: nowrap;
   border: 0;
 }
+.pay-amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pay-row-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.pay-entries {
+  margin: 4px 0 8px;
+  font-size: 13px;
+}
