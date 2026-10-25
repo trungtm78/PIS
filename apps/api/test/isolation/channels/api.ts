@@ -282,6 +282,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'post_contracts_id_activate', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign activation attempt', evidence_ids: [], effective_from: '2026-10-25' } },
   { operation: 'getContractSummary', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
   { operation: 'getCumulativeLedger', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
+  { operation: 'releaseRetention', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].holdId, versioned: true, body: { amount_vnd: '1', reason: 'Isolation foreign release attempt' } },
+  { operation: 'listRetentionHolds', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
   { operation: 'revisePaymentDraft', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { request_no: 'Isolation foreign revision attempt' } },
   { operation: 'attachPaymentDocument', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, body: { document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId, doc_kind: 'OTHER' } },
   { operation: 'cancelPaymentRequest', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },

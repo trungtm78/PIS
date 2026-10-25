@@ -31,6 +31,8 @@ export const JOB_INTERVAL_SECONDS = {
   'retention-purge': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the guarantee reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-CTR-003).
   'guarantee-expiry': 3600,
+  // Hourly tick that works only in the 06:00 hour of Vietnam time, so the reminders of the earliest day of a hold of retention run once a morning wherever the process started; the pass is idempotent (ST-CTR-010).
+  'retention-due': 3600,
   // Hourly: a revision of a contract whose first day has come takes over from the one in force within the hour of midnight in Vietnam (the spec says 00:05; the pass is idempotent and also makes good a missed night, ST-CTR-007).
   'revision-effective': 3600,
   // Hourly: a petition of a contractor that waits past the last day of its deadline is found, and its reminder sent once, within the hour of midnight in Vietnam; the pass is idempotent (ST-BID-007).
@@ -86,6 +88,8 @@ export const PETITION_OVERDUE_GAUGE = 'bid_petition_overdue';
 /** The gauges of the guarantee job: the ACTIVE guarantees within `days` days of their expiry, and the advance guarantees at risk with an advance still owed. */
 export const GUARANTEE_EXPIRING_GAUGE = 'ctr_guarantee_expiring';
 export const ADVANCE_GUARANTEE_AT_RISK_GAUGE = 'ctr_advance_guarantee_at_risk';
+/** The hour of the morning, in Vietnam time, in which the reminders of the earliest release day of a hold of retention run (CTR 3.5: 06:00). */
+export const RETENTION_DUE_HOUR = 6;
 /** The hour of the morning, in Vietnam time, in which the permit reminders and expiries run (PMT 3.1: 06:00). */
 export const PERMIT_EXPIRY_HOUR = 6;
 /** The gauge of the permit job: the ISSUED permits within `days` days of their last day. */
@@ -155,6 +159,10 @@ export interface StandardJobDeps {
   guaranteeExpiry?: {
     run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ expiring: Readonly<Record<number, number>>; advanceAtRisk: number }>;
   };
+  /**
+   * The daily pass over the holds of retention of a tenant (ST-CTR-010): the ones whose earliest release day has come are reminded once; tells how many reminders it sent. Only the 06:00 hour of Vietnam time works.
+   */
+  retentionDue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ reminded: number }> };
   /**
    * The pass over the revisions of the contracts of a tenant that wait for their day (ST-CTR-007): the ones whose first day has come take over from the revision in force; tells how many
    * are late by more than a day, for the gauge.
@@ -339,6 +347,19 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           for (const [days, count] of Object.entries(expiring)) metrics.gauge(GUARANTEE_EXPIRING_GAUGE, count, { days });
           metrics.gauge(ADVANCE_GUARANTEE_AT_RISK_GAUGE, atRisk);
         }
+      },
+    });
+  }
+  const retentionDue = deps.retentionDue;
+  if (retentionDue !== undefined) {
+    handlers.push({
+      name: 'retention-due',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== RETENTION_DUE_HOUR) return;
+        await eachTenant(await deps.tenantIds(), async (tenantId) => {
+          await retentionDue.run(workerContext(tenantId), now);
+        });
       },
     });
   }

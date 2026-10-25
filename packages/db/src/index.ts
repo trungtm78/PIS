@@ -751,6 +751,10 @@ export type { BoqImportMode, BoqImportRequest, BoqImportResult, BoqLineFilter, B
 export { ALERT_THRESHOLDS, CtrGuaranteeStore, GUARANTEE_KINDS, GUARANTEE_STATUSES, thresholdFor } from './ctr-guarantee-store.ts';
 export type { AlertThreshold, ExpiringRow, GuaranteeKind, GuaranteeMove, GuaranteeRow, GuaranteeStatus, GuaranteeVerification, GuaranteeVerificationStatus, GuaranteeExtension, GuaranteeRelease, NewGuarantee } from './ctr-guarantee-store.ts';
 export { CtrGuaranteeExpiry } from './ctr-guarantee-expiry.ts';
+export { CtrRetentionDue } from './ctr-retention-due.ts';
+export type { RetentionDueResult } from './ctr-retention-due.ts';
+export { CtrRetentionStore } from './ctr-retention-store.ts';
+export type { HoldFilter as CtrHoldFilter, HoldHeader as CtrHoldHeader, HoldLine as CtrHoldLine, ReleaseInput as CtrReleaseRetentionInput, ReleaseResult as CtrReleaseRetentionResult } from './ctr-retention-store.ts';
 export { CtrRevisionEffective } from './ctr-revision-effective.ts';
 export type { RevisionPass } from './ctr-revision-effective.ts';
 export type { ExpiryResult } from './ctr-guarantee-expiry.ts';

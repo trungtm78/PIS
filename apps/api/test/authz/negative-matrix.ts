@@ -60,6 +60,8 @@ export interface MatrixTargets {
   assetId: string;
   /** A warranty obligation of a handover: the command that names it in the path needs no row to be refused. */
   warrantyId: string;
+  /** A hold of retention: the command that names it in the path needs no row to be refused. */
+  retentionHoldId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1577,6 +1579,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   transferAsset: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/asset-records/${t.assetId}/transfer`, ifMatch: '"1"', body: { transferred_on: '2026-10-25', commissioning_document_version_id: t.documentVersionId } }),
+  },
+  // The retention held back from the payments: a caller that is refused releases none of it.
+  releaseRetention: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/retention-holds/${t.retentionHoldId}/release`, ifMatch: '"1"', body: { amount_vnd: '1', reason: REASON } }),
   },
   // The warranty of a work: a caller that is refused creates no obligation and closes none.
   createWarrantyObligation: {

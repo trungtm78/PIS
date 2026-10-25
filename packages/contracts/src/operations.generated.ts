@@ -544,6 +544,7 @@ export const OPERATIONS = {
   "listQualityAcceptances": { method: "get", path: "/quality-acceptances", versioned: false, stepUp: null, permission: "qacceptance.read" },
   "listReallocationProposals": { method: "get", path: "/reallocation-proposals", versioned: false, stepUp: null, permission: "capital.read" },
   "listReconciliationItems": { method: "get", path: "/reconciliation-items", versioned: false, stepUp: null, permission: "reconciliation.read" },
+  "listRetentionHolds": { method: "get", path: "/contracts/{id}/retention-holds", versioned: false, stepUp: null, permission: "ledger.read" },
   "listSystemTenantLicenses": { method: "get", path: "/system/tenants/{tenantId}/licenses", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "listSystemTenantThemeVersions": { method: "get", path: "/system/tenants/{tenantId}/theme/versions", versioned: false, stepUp: null, permission: "system.theme.manage" },
   "listSystemTenants": { method: "get", path: "/system/tenants", versioned: false, stepUp: null, permission: "system.tenant.read" },

@@ -2072,6 +2072,26 @@
       ]
     },
     {
+      "key": "retentionAccountant",
+      "displayName": "Kế toán trưởng giải tỏa giữ lại",
+      "membershipId": "00000000-0000-4000-8000-000000000856",
+      "permissions": [
+        "retention.release",
+        "ledger.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "retentionReader",
+      "displayName": "Người xem giữ lại",
+      "membershipId": "00000000-0000-4000-8000-000000000857",
+      "permissions": [
+        "ledger.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

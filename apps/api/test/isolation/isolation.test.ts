@@ -427,6 +427,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'post_contracts_id_activate',
         'getContractSummary',
         'getCumulativeLedger',
+        'releaseRetention',
+        'listRetentionHolds',
         'createPaymentRequest',
         'revisePaymentDraft',
         'attachPaymentDocument',

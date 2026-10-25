@@ -10,6 +10,7 @@ import { ctrModule } from '../../src/modules/ctr';
 import { ChangeChainController, ChangeRequestReadsController } from '../../src/modules/ctr/change.controller';
 import { CapWorld, money } from '../../../../packages/db/test/support/cap-fixtures';
 import { TENANT_A, id, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { asSuperuser } from '../../../../packages/db/test/support/ncr-fixtures';
 import { seedAs, seedContractor } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -382,7 +383,8 @@ describe('the chain of changes over HTTP (ST-CTR-006)', () => {
 
     it('stops at a contract that is no longer being performed', async () => {
       const { target, first } = await started(3);
-      await world.owner("update machvon.contract set status = 'COMPLETED' where id = $1::uuid", [target.id]);
+      // The completion names the minutes of the acceptance and the person who completed it; the minutes are not part of this test, so the foreign key is switched off.
+      await asSuperuser(world.harness.database.adminUrl, "update machvon.contract set status = 'COMPLETED', completed_on = date '2027-08-01', completion_quality_acceptance_id = gen_random_uuid(), completed_by = $2::uuid where id = $1::uuid", [target.id, memberId(OFFICER)]);
       expect(await promote(OFFICER, first)).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID' } });
     });
   });

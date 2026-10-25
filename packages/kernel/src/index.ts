@@ -497,3 +497,16 @@ export {
   warrantyEndsOn,
 } from './ast-warranty.ts';
 export type { ClaimStatus, ConstructionGrade, WarrantyClosure, WarrantyMinimums, WarrantyStatus } from './ast-warranty.ts';
+export {
+  RELEASE_BLOCKERS,
+  RELEASE_CONDITIONS,
+  RETENTION_STATUSES,
+  assertNotTheMaker,
+  assertReleasable,
+  assertReleaseAmount,
+  assertSomethingHeld,
+  releaseBlocker,
+  retentionLeft,
+  statusAfterRelease,
+} from './ctr-retention.ts';
+export type { ReleaseBlocker, ReleaseCondition, ReleaseFacts, RetentionStatus } from './ctr-retention.ts';

@@ -44,6 +44,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'CTR-02': () => import('../../screens/ctr/ContractDraftScreen'),
   'CTR-03': () => import('../../screens/ctr/workspace/WorkspaceScreen'),
   'CTR-04': () => import('../../screens/ctr/BoqScreen'),
+  'CTR-21': () => import('../../screens/ctr/retention/RetentionScreen'),
   'CTR-05': () => import('../../screens/ctr/GuaranteeScreen'),
   'CTR-07': () => import('../../screens/ctr/change/RequestScreen'),
   'CTR-08': () => import('../../screens/ctr/revision/DecisionScreen'),

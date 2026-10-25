@@ -304,7 +304,7 @@ describe('reversing a payment that was settled (ST-PAY-008)', () => {
     it('refuses to reverse a payment whose retention was already paid out', async () => {
       const target = await settled();
       const refund = await refundOf(target);
-      await owner("update machvon.retention_hold set released_vnd = 1, released_by = created_by, release_reason = 'Released by the contract office.' where payment_request_id = $1::uuid and id = (select id from machvon.retention_hold where payment_request_id = $1::uuid order by id limit 1)", [target.id]);
+      await owner("update machvon.retention_hold set released_vnd = 1, status = 'PARTIALLY_RELEASED', released_by = $2::uuid, released_at = now(), release_reason = 'Released by the contract office.' where payment_request_id = $1::uuid and id = (select id from machvon.retention_hold where payment_request_id = $1::uuid order by id limit 1)", [target.id, memberId(REVERSER)]);
       const paper = (await fixtures.documentVersion()).id;
       expect(await refusal(reverse(target, { refundTransactionId: refund, approvalDocumentVersionId: paper }))).toMatchObject({ code: 'PAYMENT_STATE_INVALID', status: 409, extensions: { reason: 'RETENTION_RELEASED' } });
       expect(await requestRow(target.id)).toMatchObject({ status: 'SETTLED' });

@@ -175,6 +175,7 @@
     "registerSigningCertificate",
     "releaseGuarantee",
     "releaseLegalHold",
+    "releaseRetention",
     "renderDocumentPreview",
     "renewPermit",
     "reopenFiscalYear",

@@ -167,9 +167,9 @@ export const WORK_ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string;
 };
 
 /** A payment request of the draft contract of each tenant, for an approved acceptance (the number is distinctive; tenant financial data). */
-export const PAYMENT_FIXTURES: Readonly<Record<TenantName, { id: string; acceptanceId: string; requestNo: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0ce-000000000001', acceptanceId: '00000000-0000-4000-a0ce-000000000002', requestNo: 'ALPHA-PAYMENT-REQUEST-0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', acceptanceId: '00000000-0000-4000-b0ce-000000000002', requestNo: 'BETA-PAYMENT-REQUEST-0001' },
+export const PAYMENT_FIXTURES: Readonly<Record<TenantName, { id: string; acceptanceId: string; requestNo: string; holdId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ce-000000000001', acceptanceId: '00000000-0000-4000-a0ce-000000000002', requestNo: 'ALPHA-PAYMENT-REQUEST-0001', holdId: '00000000-0000-4000-a0ce-000000000003' },
+  'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', acceptanceId: '00000000-0000-4000-b0ce-000000000002', requestNo: 'BETA-PAYMENT-REQUEST-0001', holdId: '00000000-0000-4000-b0ce-000000000003' },
 };
 
 /** An advance of the contract of each tenant (cancelled, so it needs no guarantee of a contract in force) and the member it was to be paid to. */
@@ -684,6 +684,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'work acceptance id', value: WORK_ACCEPTANCE_FIXTURES[tenant].id },
     { kind: 'work acceptance number', value: WORK_ACCEPTANCE_FIXTURES[tenant].acceptanceNo },
     { kind: 'payment request id', value: PAYMENT_FIXTURES[tenant].id },
+    { kind: 'retention hold id', value: PAYMENT_FIXTURES[tenant].holdId },
     { kind: 'payment request number', value: PAYMENT_FIXTURES[tenant].requestNo },
     { kind: 'advance id', value: ADVANCE_FIXTURES[tenant].id },
     { kind: 'reconciliation item id', value: RECONCILIATION_FIXTURES[tenant].id },

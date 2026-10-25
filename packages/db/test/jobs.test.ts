@@ -447,6 +447,7 @@ describe('standard jobs', () => {
       disReopens: { expire: async () => undefined },
       retention: { run: async () => ({ pending: 0 }) },
       guaranteeExpiry: { run: async () => ({ expiring: {}, advanceAtRisk: 0 }) },
+      retentionDue: { run: async () => ({ reminded: 0 }) },
       revisionEffective: { run: async () => ({ overdue: 0 }) }, petitionDue: { run: async () => ({ overdue: 0 }) },
       permitExpiry: { run: async () => ({ expiring: {} }) },
       gateWaiverExpiry: { run: async () => ({ active: 0 }) },
@@ -464,7 +465,7 @@ describe('standard jobs', () => {
       settlementDeadline: { run: async () => ({ overdue: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'land-stage-late', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'land-stage-late', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });
