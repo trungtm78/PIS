@@ -135,6 +135,8 @@ export interface MatrixTargets {
   conflictDeclarationId: string;
   /** A SUBMITTED result of that package, submitted by someone other than the callers (version 1). */
   resultId: string;
+  /** A RECEIVED petition of a contractor (version 1) on that package, logged by someone other than the callers. */
+  petitionId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1163,6 +1165,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   submitProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/procurement-results', body: { package_id: t.criteriaPackageId, outcome: 'CANCELLED', evaluation_report_id: t.documentVersionId } }),
+  },
+  // The petitions of contractors: a caller that is refused logs none and answers none.
+  receiveProcurementPetition: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/procurement-petitions',
+      body: { package_id: t.criteriaPackageId, contractor_id: t.contractorId, petition_kind: 'PROCESS', received_on: '2026-10-25', petition_document_id: t.documentVersionId },
+    }),
+  },
+  resolveProcurementPetition: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/procurement-petitions/${t.petitionId}/resolution`, ifMatch: '"1"', body: { outcome: 'RESOLVED', resolution_document_id: t.documentVersionId } }),
   },
   decideProcurementResult: {
     referencesTenantIds: true,

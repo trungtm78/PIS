@@ -1,4 +1,4 @@
-import { CALENDAR_TIMEZONES, DomainError, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_TIMER_DAYS, NOTICE_DAYS, ROUNDING_MODES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
+import { CALENDAR_TIMEZONES, DomainError, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -51,7 +51,7 @@ export interface MasterTypeDefinition {
 
 const IDENTIFIER = /^[a-z][a-z0-9_]*$/;
 /** A confirmation that a rule waits for: a number of the register of confirmations, or a named working assumption that has none yet. */
-const CXN = /^(CXN-\d{1,4}|ASSUMPTION-[A-Z0-9-]{1,30})$/;
+const CXN = /^(CXN-(?:[A-Z]{2,5}-)?\d{1,4}|ASSUMPTION-[A-Z0-9-]{1,30})$/;
 const AMOUNT = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
 const KEY = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
 /** A format pattern is only ever run against a string of at most this many characters, which bounds what a careless pattern can cost. */
@@ -101,7 +101,7 @@ export const FUND_RELATIONS = ['ADDITIVE', 'SUBSET_OF'] as const;
 export const PROGRAM_KINDS = ['CTMTQG', 'NATIONAL_TARGET', 'SECTORAL', 'LOCAL'] as const;
 export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] as const;
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
-export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND'] as const;
+export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND', 'BID'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
 export const TREASURY_LEVELS = ['CENTRAL', 'PROVINCE', 'DISTRICT'] as const;
 export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
@@ -186,6 +186,18 @@ function checkLandTimer(businessKey: string, attributes: Record<string, unknown>
   if (businessKey.startsWith('NOTICE_') && !(NOTICE_DAYS as readonly number[]).includes(attributes.days as number)) fail('attributes.days');
   const hasCalendar = attributes.calendar_code !== undefined && attributes.calendar_code !== null;
   if ((attributes.day_count === 'WORKING') !== hasCalendar) fail('attributes.calendar_code');
+}
+
+/**
+ * The deadline of a petition of a contractor (BR-BID-14): the key names the kind of petition, the owner is BID, working days name the calendar they are counted on and calendar days do
+ * not. The days within which a petition may be lodged (`filing_days`) are counted the same way and belong to the kind that is about a result.
+ */
+function checkPetitionDeadline(businessKey: string, attributes: Record<string, unknown>): void {
+  if (!(PETITION_KINDS as readonly string[]).includes(businessKey)) fail('business_key');
+  if (attributes.owner_module !== 'BID') fail('attributes.owner_module');
+  const hasCalendar = attributes.calendar_code !== undefined && attributes.calendar_code !== null;
+  if ((attributes.day_count === 'WORKING') !== hasCalendar) fail('attributes.calendar_code');
+  if (attributes.filing_days !== undefined && businessKey !== 'RESULT') fail('attributes.filing_days');
 }
 
 const DEFINITIONS: readonly MasterTypeDefinition[] = [
@@ -457,6 +469,20 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
       { name: 'calendar_code', kind: 'text', maxLength: 50, pattern: KEY },
     ],
     check: ({ businessKey, content }) => checkLandTimer(businessKey, content.attributes),
+  },
+  {
+    // BR-BID-14: the key is the kind of petition (PROCESS, RESULT), the attributes say how many days the answer may take and how they are counted.
+    masterType: 'BID_PETITION',
+    rule: true,
+    strict: true,
+    fields: [
+      ...RULE_FIELDS,
+      { name: 'days', kind: 'integer', required: true, min: 1, max: MAX_PETITION_DAYS },
+      { name: 'day_count', kind: 'choice', required: true, choices: LAND_DAY_COUNTS },
+      { name: 'calendar_code', kind: 'text', maxLength: 50, pattern: KEY },
+      { name: 'filing_days', kind: 'integer', min: 1, max: MAX_PETITION_DAYS },
+    ],
+    check: ({ businessKey, content }) => checkPetitionDeadline(businessKey, content.attributes),
   },
 ];
 

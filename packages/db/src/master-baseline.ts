@@ -282,7 +282,17 @@ const LAND_TIMERS: readonly BaselineEntry[] = [
   landTimer('COMPLAINT_RESOLUTION', 'Hạn giải quyết khiếu nại về bồi thường', 30),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS]);
+const PETITION_LAW = 'Luật Đấu thầu 22/2023/QH15 (sửa bởi Luật 90/2025/QH15) về kiến nghị trong lựa chọn nhà thầu — thời hạn chờ xác nhận văn bản gốc [CXN-BID-02]';
+const petitionDeadline = (key: string, label: string, days: number): BaselineEntry =>
+  entry('BID_PETITION', key, label, { owner_module: 'BID', awaiting_confirmation: true, cxn: 'CXN-BID-02', days, day_count: 'CALENDAR' }, { legalBasis: PETITION_LAW });
+
+/** The deadlines to answer a petition of a contractor (BR-BID-14): calendar days, the stricter reading, flagged with the confirmation they wait for. A tenant that counts working days publishes a version that names its calendar. */
+const PETITION_DEADLINES: readonly BaselineEntry[] = [
+  petitionDeadline('PROCESS', 'Hạn trả lời kiến nghị về quá trình lựa chọn nhà thầu', 7),
+  petitionDeadline('RESULT', 'Hạn trả lời kiến nghị về kết quả lựa chọn nhà thầu', 7),
+];
+
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES]);
 
 export interface BaselineResult {
   created: number;

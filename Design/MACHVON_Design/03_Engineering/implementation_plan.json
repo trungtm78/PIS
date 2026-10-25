@@ -11907,7 +11907,8 @@
       ],
       "operations": [
         "receiveProcurementPetition",
-        "resolveProcurementPetition"
+        "resolveProcurementPetition",
+        "listProcurementPetitions"
       ],
       "tables": [
         "procurement_petition"

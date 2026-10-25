@@ -234,6 +234,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.master_import_batch where tenant_id = $1),
     (select string_agg(id::text || status || confirmation_status || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.document_template where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.reporting_period where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.procurement_petition where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_obligation_rule where tenant_id = $1),
     (select count(*)::text from machvon.mne_report where tenant_id = $1),
@@ -889,6 +890,15 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, resultId, criteriaPackageId, ACTOR, id(0x78, 1)],
       ],
     ]);
+    // A RECEIVED petition of the contractor on that package, logged by the actor of the seed: the resolution command acts on it.
+    const petitionId = id(0xb6, 5);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.procurement_petition (tenant_id, id, package_id, contractor_id, petition_kind, received_on, due_on, petition_document_id, status, days_applied, rule_version_id, created_by, updated_by)
+         values ($1, $2, $3, $4, 'PROCESS', date '2026-10-20', date '2026-10-27', $5, 'RECEIVED', 7, gen_random_uuid(), $6, $6)`,
+        [TENANT_A, petitionId, criteriaPackageId, id(0x77, 1), id(0x78, 1), ACTOR],
+      ],
+    ]);
     // A dataset of the DIS module with a working contract, a DRAFT quality rule of it made by someone other than the callers, and a frozen snapshot of the open period: the quality commands act on them.
     const qualityDatasetId = id(0xde, 1);
     const qualityContractId = id(0xde, 2);
@@ -935,6 +945,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       criteriaDraftId,
       conflictDeclarationId,
       resultId,
+      petitionId,
       qualityContractId,
       qualityRuleId,
       qualitySnapshotId,

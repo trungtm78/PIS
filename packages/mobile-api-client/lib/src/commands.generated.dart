@@ -1591,6 +1591,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listProcurementMilestones({Map<String, Object?>? query}) =>
       execute('listProcurementMilestones', query: query);
 
+  Future<Object?> listProcurementPetitions({Map<String, Object?>? query}) =>
+      execute('listProcurementPetitions', query: query);
+
   Future<Object?> listProcurementPlans({Map<String, Object?>? query}) =>
       execute('listProcurementPlans', query: query);
 

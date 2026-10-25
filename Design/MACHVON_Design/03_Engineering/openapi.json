@@ -107055,11 +107055,99 @@
           }
         },
         "x-error-codes": [
-          "PETITION_OUT_OF_TIME"
+          "PETITION_OUT_OF_TIME",
+          "PETITION_STATE_INVALID",
+          "TIMER_RULE_UNCONFIRMED",
+          "CALENDAR_NOT_EFFECTIVE",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "bid.petition.received.v1"
+        ]
+      },
+      "get": {
+        "operationId": "listProcurementPetitions",
+        "summary": "Kiến nghị của nhà thầu của các gói thầu trong phạm vi, kiến nghị chờ trả lời và sắp hết hạn trước (BID-20)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.read",
+        "parameters": [
+          {
+            "name": "package_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "overdue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Only the petitions that wait past the last day to answer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidPetitionList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
         ]
       }
     },
@@ -107204,12 +107292,17 @@
         },
         "x-error-codes": [
           "PETITION_STATE_INVALID",
+          "CONFLICT_OF_INTEREST_BLOCKED",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "bid.petition.resolved.v1"
-        ]
+          "bid.petition.resolved.v1",
+          "bid.petition.escalated.v1"
+        ],
+        "x-state-guard": "RECEIVED|PROCESSING → RESOLVED|ESCALATED; ESCALATED → RESOLVED"
       }
     },
     "/procurement-packages/{id}/proposal-comparison": {
@@ -136894,11 +136987,13 @@
           },
           "received_on": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "The day the petition arrived, not after today; the last day to answer is counted from it by the rule data BID_PETITION in force that day"
           },
           "petition_document_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The paper that lodges the petition (a document of the tenant); one paper lodges one petition"
           }
         }
       },
@@ -136906,20 +137001,21 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "resolution_document_id",
           "outcome"
         ],
         "properties": {
           "resolution_document_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The reply of the procuring entity, or the letter that passes the petition on to the level above (a document of the tenant). Required: an answer without it is 422 VALIDATION_FAILED"
           },
           "outcome": {
             "type": "string",
             "enum": [
               "RESOLVED",
               "ESCALATED"
-            ]
+            ],
+            "description": "RESOLVED answers the petition; ESCALATED passes it on to the level above, which is then answered with RESOLVED"
           }
         }
       },
@@ -141845,6 +141941,186 @@
               "string",
               "null"
             ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BidPetitionLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "package",
+          "contractor",
+          "petition_kind",
+          "received_on",
+          "due_on",
+          "status",
+          "overdue",
+          "days_overdue",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contractor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "legal_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "legal_name": {
+                "type": "string"
+              }
+            }
+          },
+          "petition_kind": {
+            "type": "string",
+            "enum": [
+              "PROCESS",
+              "RESULT"
+            ]
+          },
+          "received_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "due_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The last day to answer"
+          },
+          "days_applied": {
+            "type": "integer",
+            "description": "The days the deadline was counted with, from the rule data in force on the day the petition was received"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECEIVED",
+              "PROCESSING",
+              "RESOLVED",
+              "ESCALATED",
+              "WITHDRAWN"
+            ]
+          },
+          "overdue": {
+            "type": "boolean",
+            "description": "The petition waits for an answer and the last day to answer has passed"
+          },
+          "days_overdue": {
+            "type": "integer",
+            "description": "Whole days past the last day while it is overdue, else 0"
+          },
+          "petition_document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resolution_document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "viewer_in_conflict": {
+            "type": "boolean",
+            "description": "The caller declared a conflict of interest that stands between them and this petition: another person answers it"
+          },
+          "handled_by": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "resolved_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "What the caller may do with the petition as it stands; the server judges each command again",
+            "required": [
+              "resolve"
+            ],
+            "properties": {
+              "resolve": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "BidPetitionList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidPetitionLine"
+            }
           },
           "as_of": {
             "type": "string",

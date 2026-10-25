@@ -354,6 +354,11 @@ export type { BiddingForm, NewPlanInput, PackageContractType, PackageInput, Sele
 export { BidPlanStore, PLAN_DECISIONS, PLAN_STATUSES as BID_PLAN_STATUSES, PLANNABLE_PROJECT_STATUSES } from './bid-plan-store.ts';
 export { DECISION_DOCUMENT_TYPE as BID_DECISION_DOCUMENT_TYPE, assertDecisionDocument as assertBidDecisionDocument } from './bid-decision-document.ts';
 export { BidResultStore } from './bid-result-store.ts';
+export { BidPetitionStore } from './bid-petition-store.ts';
+export type { PetitionLine as BidPetitionLine, PetitionResult as BidPetitionResult, ReceiveInput as BidPetitionReceiveInput, ResolveInput as BidPetitionResolveInput } from './bid-petition-store.ts';
+export { BidPetitionRules, PETITION_RULE_TYPE } from './bid-petition-rules.ts';
+export { BidPetitionDue } from './bid-petition-due.ts';
+export type { PetitionDueResult } from './bid-petition-due.ts';
 export type { DecidedResult as BidDecidedResult, NewResultInput as BidNewResultInput, ResultDecisionInput as BidResultDecisionInput, ResultFacts as BidResultFacts, ResultHooks as BidResultHooks, ResultLine as BidResultLine, SubmittedResult as BidSubmittedResult } from './bid-result-store.ts';
 export type { BidAllocationUse, BidCreatedPackage, BidCreatedPlan, BidDecidedPlan, BidDecisionInput, PlanDecision, PlanStatus as BidPlanStatus, BidSubmittedPlan } from './bid-plan-store.ts';
 export { BidPlanReads, bidReadScope } from './bid-plan-reads.ts';

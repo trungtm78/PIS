@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'RETENTION_POLICY']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'RETENTION_POLICY']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -384,5 +384,46 @@ describe('the timers of land clearance (BR-LND-01, rule type LND_TIMER)', () => 
     expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, owner_module: 'PAY' }))).toEqual(invalid('attributes.owner_module'));
     expect(await problem('LND_TIMER', 'PAYMENT_30', content({ owner_module: 'LND', days: 30, day_count: 'CALENDAR' }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
     expect(await problem('LND_TIMER', 'PAYMENT_30', timer({ days: 30, extra: 1 }))).toEqual(invalid('attributes.extra'));
+  });
+});
+
+describe('the deadlines of the petitions of contractors (BR-BID-14, rule type BID_PETITION)', () => {
+  const deadline = (attributes: Record<string, unknown>) =>
+    content({ owner_module: 'BID', days: 7, day_count: 'CALENDAR', ...attributes }, { legalBasis: 'Luật Đấu thầu 22/2023/QH15' });
+
+  it('is a rule type that BID owns', () => {
+    expect(isRuleType('BID_PETITION')).toBe(true);
+  });
+
+  it('takes the two kinds of petition by their key, with a number of days and the way they are counted', async () => {
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({}))).toBeUndefined();
+    expect(await problem('BID_PETITION', 'RESULT', deadline({ days: 14 }))).toBeUndefined();
+    expect(await problem('BID_PETITION', 'SOMETHING_ELSE', deadline({}))).toEqual(invalid('business_key'));
+  });
+
+  it('keeps every number of days within a year', async () => {
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({ days: 0 }))).toEqual(invalid('attributes.days'));
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({ days: 367 }))).toEqual(invalid('attributes.days'));
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({ days: 7.5 }))).toEqual(invalid('attributes.days'));
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({ days: undefined }))).toEqual(invalid('attributes.days'));
+  });
+
+  it('names the working calendar exactly when the days are working days', async () => {
+    expect(await problem('BID_PETITION', 'RESULT', deadline({ day_count: 'WORKING', calendar_code: 'WORKDAY_VN' }))).toBeUndefined();
+    expect(await problem('BID_PETITION', 'RESULT', deadline({ day_count: 'WORKING' }))).toEqual(invalid('attributes.calendar_code'));
+    expect(await problem('BID_PETITION', 'RESULT', deadline({ calendar_code: 'WORKDAY_VN' }))).toEqual(invalid('attributes.calendar_code'));
+    expect(await problem('BID_PETITION', 'RESULT', deadline({ day_count: 'HOURS' }))).toEqual(invalid('attributes.day_count'));
+  });
+
+  it('limits the days to lodge a petition to the kind that is about a result', async () => {
+    expect(await problem('BID_PETITION', 'RESULT', deadline({ filing_days: 10 }))).toBeUndefined();
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({ filing_days: 10 }))).toEqual(invalid('attributes.filing_days'));
+    expect(await problem('BID_PETITION', 'RESULT', deadline({ filing_days: 0 }))).toEqual(invalid('attributes.filing_days'));
+  });
+
+  it('belongs to BID, carries its legal basis and takes no attribute it does not define', async () => {
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({ owner_module: 'LND' }))).toEqual(invalid('attributes.owner_module'));
+    expect(await problem('BID_PETITION', 'PROCESS', content({ owner_module: 'BID', days: 7, day_count: 'CALENDAR' }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
+    expect(await problem('BID_PETITION', 'PROCESS', deadline({ extra: 1 }))).toEqual(invalid('attributes.extra'));
   });
 });

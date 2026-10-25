@@ -1,0 +1,14 @@
+{
+  "id": "BID_PETITION_OVERDUE",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "procurement-office",
+  "runbook": "docs/runbooks/alerts/BID_PETITION_OVERDUE.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "bid_petition_overdue",
+    "above": 0
+  },
+  "summary": "A petition of a contractor waits for an answer past the last day of its deadline."
+}

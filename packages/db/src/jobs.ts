@@ -33,6 +33,8 @@ export const JOB_INTERVAL_SECONDS = {
   'guarantee-expiry': 3600,
   // Hourly: a revision of a contract whose first day has come takes over from the one in force within the hour of midnight in Vietnam (the spec says 00:05; the pass is idempotent and also makes good a missed night, ST-CTR-007).
   'revision-effective': 3600,
+  // Hourly: a petition of a contractor that waits past the last day of its deadline is found, and its reminder sent once, within the hour of midnight in Vietnam; the pass is idempotent (ST-BID-007).
+  'petition-due': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the permit reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-PMT-006).
   'permit-expiry': 3600,
   // Hourly tick that works only in the 00:00 hour of Vietnam time, so the waivers of the permit gates whose last day has passed are ended once a night; the pass is idempotent.
@@ -69,6 +71,8 @@ const VIETNAM_UTC_OFFSET_HOURS = 7;
 export const GUARANTEE_EXPIRY_HOUR = 6;
 /** The gauge of the revision job: the pending revisions more than a day past their first day, which the alert `CTR_REVISION_OVERDUE` watches. */
 export const REVISION_OVERDUE_GAUGE = 'ctr_revision_overdue';
+/** The gauge of the petition job: the petitions that wait for an answer past the last day of their deadline, which the alert `BID_PETITION_OVERDUE` watches. */
+export const PETITION_OVERDUE_GAUGE = 'bid_petition_overdue';
 /** The gauges of the guarantee job: the ACTIVE guarantees within `days` days of their expiry, and the advance guarantees at risk with an advance still owed. */
 export const GUARANTEE_EXPIRING_GAUGE = 'ctr_guarantee_expiring';
 export const ADVANCE_GUARANTEE_AT_RISK_GAUGE = 'ctr_advance_guarantee_at_risk';
@@ -146,6 +150,11 @@ export interface StandardJobDeps {
    * are late by more than a day, for the gauge.
    */
   revisionEffective?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
+  /**
+   * The pass over the petitions of contractors of a tenant that wait for an answer (ST-BID-007): the first pass that finds one past the last day of its deadline sends its reminder;
+   * tells how many petitions are overdue, for the gauge.
+   */
+  petitionDue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
   /**
    * The daily pass over the issued permits of a tenant (ST-PMT-006): the reminders at 60, 30, 15 and 0 days and the expiry of the ones past their last day;
    * tells how many permits are within each threshold, for the gauges. Only the 06:00 hour of Vietnam time works.
@@ -332,6 +341,25 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         } finally {
           // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
           metrics.gauge(REVISION_OVERDUE_GAUGE, overdue);
+        }
+      },
+    });
+  }
+  const petitions = deps.petitionDue;
+  if (petitions !== undefined) {
+    handlers.push({
+      name: 'petition-due',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let overdue = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            overdue += (await petitions.run(workerContext(tenantId), now)).overdue;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(PETITION_OVERDUE_GAUGE, overdue);
         }
       },
     });

@@ -1173,16 +1173,16 @@ final class BidPetitionReceive implements RequestModel {
 
 final class BidPetitionResolve implements RequestModel {
   const BidPetitionResolve({
-    required this.resolutionDocumentId,
     required this.outcome,
+    this.resolutionDocumentId,
   });
 
-  final String resolutionDocumentId;
+  final String? resolutionDocumentId;
   final String outcome;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'resolution_document_id': resolutionDocumentId,
+        if (resolutionDocumentId != null) 'resolution_document_id': resolutionDocumentId,
         'outcome': outcome,
       };
 }

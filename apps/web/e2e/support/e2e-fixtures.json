@@ -1561,6 +1561,53 @@
       ]
     },
     {
+      "key": "petitionManager",
+      "displayName": "Chuyên viên ghi nhận kiến nghị",
+      "membershipId": "00000000-0000-4000-8000-000000000811",
+      "permissions": [
+        "bid.read",
+        "bid.petition.manage",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "petitionConflicted",
+      "displayName": "Chuyên viên có xung đột lợi ích với nhà thầu",
+      "membershipId": "00000000-0000-4000-8000-000000000812",
+      "permissions": [
+        "bid.read",
+        "bid.petition.manage",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "petitionAuthority",
+      "displayName": "Cán bộ trả lời kiến nghị",
+      "membershipId": "00000000-0000-4000-8000-000000000813",
+      "permissions": [
+        "bid.read",
+        "bid.petition.manage",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "petitionReader",
+      "displayName": "Người xem kiến nghị",
+      "membershipId": "00000000-0000-4000-8000-000000000814",
+      "permissions": [
+        "bid.read",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

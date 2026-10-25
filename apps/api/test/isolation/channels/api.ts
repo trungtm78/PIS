@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
 import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import { WORK_CALENDAR_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, MEASUREMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -401,6 +401,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'declareConflictOfInterest', method: 'POST', id: PACKAGE_FIXTURES['TNT-B'].id, body: { has_conflict: false } },
   { operation: 'decideConflictOfInterest', method: 'POST', id: PROPOSAL_FIXTURES['TNT-B'].declarationId, versioned: true, body: { decision: 'ALLOWED', decision_reason: 'Isolation foreign decision attempt' } },
   { operation: 'listConflictDeclarations', method: 'GET', id: PACKAGE_FIXTURES['TNT-B'].id },
+  { operation: 'resolveProcurementPetition', method: 'POST', id: PETITION_FIXTURES['TNT-B'].id, versioned: true, body: { outcome: 'RESOLVED', resolution_document_id: DOCUMENT_FIXTURES['TNT-B'].documentId } },
   { operation: 'decideProcurementResult', method: 'POST', id: RESULT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'REJECT', comment: 'Isolation foreign decision attempt' } },
   { operation: 'get_resources_proposal_id', method: 'GET', id: PROPOSAL_FIXTURES['TNT-B'].id },
   { operation: 'assignProjectLeader', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { leader_membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, accountability_role: 'LEADER_IN_CHARGE', valid_from: '2026-01-05' } },

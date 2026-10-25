@@ -154,8 +154,9 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `uploadProcurementFile` | POST /procurement-imports/files | bid.import | tệp CSV/XLSX | tệp được quét mã độc, lưu kho và đọc cột package_code, external_code, milestone_kind, actual_at | FILE_NOT_CLEAN, IMPORT_SCHEMA_INVALID, IMPORT_EMPTY | ✔ | – |
 | `listProcurementMilestones` | GET /procurement-milestones | bid.read | – | mốc của các gói thầu trong phạm vi, theo mã gói và thứ tự mốc | – | – | – |
 | `listProcurementExternalLinks` | GET /procurement-external-links | bid.read | – | liên kết gói thầu với mã gói ngoài, sai lệch (mốc, mã gói), chủ sở hữu sai lệch và lần nhập gần nhất | – | – | – |
-| `receiveProcurementPetition` | POST /procurement-petitions | bid.petition.manage | `BidPetitionReceive` | PETITION_OUT_OF_TIME | ✔ | – |
-| `resolveProcurementPetition` | POST /procurement-petitions/{id}/resolution | bid.petition.manage | `BidPetitionResolve` | PETITION_STATE_INVALID | ✔ | ✔ |
+| `receiveProcurementPetition` | POST /procurement-petitions | bid.petition.manage | `BidPetitionReceive` | PETITION_OUT_OF_TIME; PETITION_STATE_INVALID; TIMER_RULE_UNCONFIRMED; CALENDAR_NOT_EFFECTIVE; VALIDATION_FAILED; SCOPE_DENIED | ✔ | – |
+| `resolveProcurementPetition` | POST /procurement-petitions/{id}/resolution | bid.petition.manage | `BidPetitionResolve` | PETITION_STATE_INVALID; CONFLICT_OF_INTEREST_BLOCKED; VALIDATION_FAILED; SCOPE_DENIED; VERSION_CONFLICT | ✔ | ✔ |
+| `listProcurementPetitions` | GET /procurement-petitions | bid.read | – | `BidPetitionList` | VALIDATION_FAILED | – | – |
 | `compareProposals` | GET /procurement-packages/{id}/proposal-comparison | bid.evaluate | – | CRITERIA_VERSION_MISMATCH, CONFLICT_UNDECLARED | – | – |
 | `getContractorHistory` | GET /contractors/{id}/history | bid.contractor.read | – | – | – | – |
 | `listAnalysisFindings` | GET /analysis-runs/{id}/findings | bid.evaluate | – | CONFLICT_UNDECLARED | – | – |

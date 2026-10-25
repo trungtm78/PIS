@@ -12491,7 +12491,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Kiến nghị của nhà thầu của các gói thầu trong phạm vi, kiến nghị chờ trả lời và sắp hết hạn trước (BID-20) */
+        get: operations["listProcurementPetitions"];
         put?: never;
         /** Tiếp nhận kiến nghị của nhà thầu; hạn xử lý theo quy tắc dữ liệu */
         post: operations["receiveProcurementPetition"];
@@ -18443,15 +18444,27 @@ export interface components {
             contractor_id: string;
             /** @enum {string} */
             petition_kind: "PROCESS" | "RESULT";
-            /** Format: date */
+            /**
+             * Format: date
+             * @description The day the petition arrived, not after today; the last day to answer is counted from it by the rule data BID_PETITION in force that day
+             */
             received_on: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The paper that lodges the petition (a document of the tenant); one paper lodges one petition
+             */
             petition_document_id: string;
         };
         BidPetitionResolve: {
-            /** Format: uuid */
-            resolution_document_id: string;
-            /** @enum {string} */
+            /**
+             * Format: uuid
+             * @description The reply of the procuring entity, or the letter that passes the petition on to the level above (a document of the tenant). Required: an answer without it is 422 VALIDATION_FAILED
+             */
+            resolution_document_id?: string;
+            /**
+             * @description RESOLVED answers the petition; ESCALATED passes it on to the level above, which is then answered with RESOLVED
+             * @enum {string}
+             */
             outcome: "RESOLVED" | "ESCALATED";
         };
         BidComparison: {
@@ -19745,6 +19758,66 @@ export interface components {
         CtrMeasurementPage: {
             items: components["schemas"]["CtrMeasurementLine"][];
             next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        BidPetitionLine: {
+            /** Format: uuid */
+            id: string;
+            package: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
+            /** Format: uuid */
+            project_id?: string;
+            contractor: {
+                /** Format: uuid */
+                id: string;
+                legal_name: string;
+            };
+            /** @enum {string} */
+            petition_kind: "PROCESS" | "RESULT";
+            /** Format: date */
+            received_on: string;
+            /**
+             * Format: date
+             * @description The last day to answer
+             */
+            due_on: string;
+            /** @description The days the deadline was counted with, from the rule data in force on the day the petition was received */
+            days_applied?: number;
+            /** @enum {string} */
+            status: "RECEIVED" | "PROCESSING" | "RESOLVED" | "ESCALATED" | "WITHDRAWN";
+            /** @description The petition waits for an answer and the last day to answer has passed */
+            overdue: boolean;
+            /** @description Whole days past the last day while it is overdue, else 0 */
+            days_overdue: number;
+            /** Format: uuid */
+            petition_document_id?: string;
+            /** Format: uuid */
+            resolution_document_id?: string | null;
+            /** @description The caller declared a conflict of interest that stands between them and this petition: another person answers it */
+            viewer_in_conflict?: boolean;
+            handled_by?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            } | null;
+            /** Format: date-time */
+            resolved_at?: string | null;
+            /** Format: uuid */
+            created_by?: string;
+            /** Format: date-time */
+            created_at?: string;
+            /** @description What the caller may do with the petition as it stands; the server judges each command again */
+            actions?: {
+                resolve: boolean;
+            };
+            version: number;
+        };
+        BidPetitionList: {
+            items: components["schemas"]["BidPetitionLine"][];
             /** Format: date-time */
             as_of: string;
         };
@@ -94071,6 +94144,66 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProcurementPetitions: {
+        parameters: {
+            query?: {
+                package_id?: string;
+                /** @description Only the petitions that wait past the last day to answer */
+                overdue?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidPetitionList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

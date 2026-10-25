@@ -403,3 +403,5 @@ export type {
   RunVerdict,
   ValidatedExpression,
 } from './quality-rule.ts';
+export { MAX_PETITION_DAYS, OPEN_PETITION_STATUSES, PETITION_DAY_COUNTS, PETITION_KINDS, PETITION_OUTCOMES, PETITION_STATUSES, assertPetitionTransition, isPetitionOverdue, petitionTarget } from './bid-petition.ts';
+export type { PetitionDayCount, PetitionKind, PetitionOutcome, PetitionRule, PetitionStatus } from './bid-petition.ts';

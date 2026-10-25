@@ -529,6 +529,7 @@ export const OPERATIONS = {
   "listPlanVersions": { method: "get", path: "/system/plans", versioned: false, stepUp: null, permission: "system.billing.manage" },
   "listProcurementExternalLinks": { method: "get", path: "/procurement-external-links", versioned: false, stepUp: null, permission: "bid.read" },
   "listProcurementMilestones": { method: "get", path: "/procurement-milestones", versioned: false, stepUp: null, permission: "bid.read" },
+  "listProcurementPetitions": { method: "get", path: "/procurement-petitions", versioned: false, stepUp: null, permission: "bid.read" },
   "listProcurementPlans": { method: "get", path: "/procurement-plans", versioned: false, stepUp: null, permission: "bid.read" },
   "listProcurementResults": { method: "get", path: "/procurement-results", versioned: false, stepUp: null, permission: "bid.read" },
   "listProjectPipeline": { method: "get", path: "/project-pipeline", versioned: false, stepUp: null, permission: "project.read" },

@@ -531,6 +531,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listPlanVersions': OperationDescriptor(method: 'GET', path: '/system/plans', versioned: false, stepUp: null, permission: 'system.billing.manage'),
   'listProcurementExternalLinks': OperationDescriptor(method: 'GET', path: '/procurement-external-links', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProcurementMilestones': OperationDescriptor(method: 'GET', path: '/procurement-milestones', versioned: false, stepUp: null, permission: 'bid.read'),
+  'listProcurementPetitions': OperationDescriptor(method: 'GET', path: '/procurement-petitions', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProcurementPlans': OperationDescriptor(method: 'GET', path: '/procurement-plans', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProcurementResults': OperationDescriptor(method: 'GET', path: '/procurement-results', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProjectPipeline': OperationDescriptor(method: 'GET', path: '/project-pipeline', versioned: false, stepUp: null, permission: 'project.read'),
