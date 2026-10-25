@@ -3,6 +3,7 @@ import { DomainError } from '@machvon/kernel';
 import { IssIssueStore } from './iss-issue-store.ts';
 import type { CreatedIssue, IssueSource } from './iss-issue-store.ts';
 import { ISSUE_CATEGORY_TYPE, SLA_SEVERITIES } from './iss-sla-policy-store.ts';
+import { linkStageIssue } from './lnd-stage-progress-store.ts';
 import type { SlaSeverity } from './iss-sla-policy-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -24,6 +25,8 @@ export interface IntakeSpec {
   wanted: (payload: Record<string, unknown>) => boolean;
   sourceRefId: (payload: Record<string, unknown>) => unknown;
   referenceCode: (payload: Record<string, unknown>) => unknown;
+  /** What the source object remembers of the issue that was opened for it, in the transaction that opens it (the late stage of LND keeps the issue that holds it up). */
+  link?: (tx: TenantTx, sourceRefId: string, issueId: string) => Promise<void>;
 }
 
 const alwaysWanted = (): boolean => true;
@@ -66,6 +69,17 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
     wanted: alwaysWanted,
     sourceRefId: commonRef,
     referenceCode: commonCode,
+  },
+  {
+    eventType: 'lnd.stage.late.v1',
+    sourceModule: 'LND',
+    title: 'Land clearance stage late',
+    severity: 'MEDIUM',
+    categoryKey: INTAKE_CATEGORY_KEYS.LND,
+    wanted: alwaysWanted,
+    sourceRefId: commonRef,
+    referenceCode: commonCode,
+    link: linkStageIssue,
   },
 ];
 
@@ -180,6 +194,7 @@ export class IssIntake {
         now,
         () => undefined,
       );
+      if (!issue.replayed) await request.spec.link?.(tx, request.sourceRefId, issue.id);
       // The same delivery again (a crash between the issue and the inbox row cannot happen, they share a transaction) answers the issue that exists.
       return issue.replayed ? { kind: 'DUPLICATE' } : { kind: 'OPENED', issue };
     } catch (error) {

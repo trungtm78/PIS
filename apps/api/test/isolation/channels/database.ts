@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, SECTION_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -288,6 +288,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'uploadLandParcelFile',
   'listLandParcels',
   'listLandSections',
+  'reportLandStageProgress',
+  'getLandProgress',
   'recordRecoveryNotice',
   'getProjectLifecycle',
   'listProjectPipeline',
@@ -689,6 +691,10 @@ const INSERT_SECTION = `insert into machvon.land_handover_section
   (tenant_id, id, project_id, code, name, required_area_m2, status, version, created_by, updated_by)
   values ($1, $2, $3, $4, 'Isolation fixture section', 30000, 'NOT_READY', 1, $5, $5) on conflict do nothing`;
 
+const INSERT_STAGE = `insert into machvon.land_stage_progress
+  (tenant_id, id, project_id, section_id, stage_code, executor_kind, executor_unit_id, mode, status, blocker_note, version, created_by, updated_by)
+  values ($1, $2, $3, $4, 'SURVEY', 'LAND_FUND_CENTRE', $5, 'TRACKED_EXTERNAL', 'BLOCKED', $6, 1, $7, $7) on conflict do nothing`;
+
 const INSERT_PARCEL = `insert into machvon.land_parcel
   (tenant_id, id, project_id, owner_unit_id, parcel_code, land_use_group, area_total_m2, area_affected_m2, status, version, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 'AGRICULTURAL', 100, 50, 'SURVEYED', 1, $6, $6) on conflict do nothing`;
@@ -818,6 +824,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_APPRAISAL, [tenantId, APPRAISAL_FIXTURES[tenant].id, project.id, master.versionId, MEMBERSHIP_ID]);
     await client.query(INSERT_SECTION, [tenantId, SECTION_FIXTURES[tenant].id, project.id, SECTION_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
+    await client.query(INSERT_STAGE, [tenantId, STAGE_FIXTURES[tenant].id, project.id, SECTION_FIXTURES[tenant].id, home, STAGE_FIXTURES[tenant].note, ACTOR_ID]);
     const accountability = ACCOUNTABILITY_FIXTURES[tenant];
     await client.query(INSERT_ACCOUNTABILITY, [tenantId, accountability.assignmentId, project.id, MEMBERSHIP_ID, ACTOR_ID]);
     await client.query(INSERT_TASK_FORCE, [tenantId, accountability.taskForceId, accountability.taskForceCode, accountability.taskForceName, MEMBERSHIP_ID, home, ACTOR_ID]);

@@ -1273,6 +1273,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { project_id: t.projectId, owner_unit_id: t.unit2, parcel_code: 'MX-NEW-PARCEL', land_use_group: 'AGRICULTURAL', area_total_m2: '100', area_affected_m2: '50' },
     }),
   },
+  reportLandStageProgress: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/land-stage-progress/report',
+      body: {
+        project_id: t.projectId,
+        section_id: '00000000-0000-4000-8000-0000000000bb',
+        stage_code: 'SURVEY',
+        executor_kind: 'LAND_FUND_CENTRE',
+        executor_unit_id: t.unit2,
+        mode: 'TRACKED_EXTERNAL',
+        parcels_total: 10,
+        parcels_done: 0,
+      },
+    }),
+  },
   importLandParcels: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/land-parcels/import', body: { project_id: t.projectId, file_object_id: '00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) } }),

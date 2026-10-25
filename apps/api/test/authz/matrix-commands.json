@@ -51,6 +51,7 @@
     "closeFiscalYear",
     "reopenFiscalYear",
     "requestAllocationExtension",
+    "reportLandStageProgress",
     "declarePermitExemption",
     "dispatchOutgoingDocument",
     "draftCapitalAllocation",

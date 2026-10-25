@@ -517,6 +517,8 @@ export { LAND_PARCEL_CONNECTOR_PREFIX, LAND_PARCEL_FORMAT_VERSION, LndParcelImpo
 export type { LandParcelFileRow, ParcelAdapterOptions, ParcelField, ParcelImportCounts, ParcelImportInput, ParcelImportResult, ParcelLayoutCheck } from './lnd-parcel-import.ts';
 export { LAND_TIMER_RULE_TYPE, LndTimerRules } from './lnd-timer-rules.ts';
 export type { ResolvedLandTimer } from './lnd-timer-rules.ts';
+export { LndStageLateJob, LndStageProgressStore, STAGE_LATE_EVENT, linkStageIssue, stageLateEvent } from './lnd-stage-progress-store.ts';
+export type { ProgressOverview, ReportedStage, SectionProgress, StageLateEvent, StageLateResult, StageLine, StageReport, StageReportOptions } from './lnd-stage-progress-store.ts';
 export { PLAN_PUBLISHED_EVENT, SETTLEMENT_CLOSED_EVENT, STAGE_COMMANDS, STAGE_SEQUENCE, STAGE_TRANSITIONS, TERMINAL_STAGES, commandEdgesFrom, edgeBy, isTransitionAllowed, stagesAfter } from './prj-stage-machine.ts';
 export type { StageCommand, StageTransition } from './prj-stage-machine.ts';
 export { PRJ_STAGE_TRANSITION_METRIC, PrjStageStore, SqlProjectObligations, checkedPipelineFilter, stageChangeRecord } from './prj-stage-store.ts';

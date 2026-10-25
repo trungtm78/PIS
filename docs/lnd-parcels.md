@@ -43,6 +43,15 @@ Personal data minimisation is the point of the story. A parcel is land and nothi
 | Retention | Sections, parcels and timers are part of the project dossier: the runtime role cannot delete or truncate them. |
 | Layout of the file | A working assumption (`ASSUMED-2026.1`): the land registry gives no API and no sample (LND 7, adapter PROPOSED). |
 
+## Progress of the stages (ST-LND-010)
+
+`land_stage_progress` (V002, V1681) holds the progress of a stage of a section: the stages that an external unit executes are reported (mode `TRACKED_EXTERNAL`) and the stages that LND counts itself (mode `NATIVE`) are the parcels, counted at the moment of the read.
+
+- **P1 a report is a claim backed by a document.** A tracked stage that reports parcels done or an end carries a clean document of the tenant (`land_stage_external_evidence_chk`, 422 `DOCUMENT_NOT_CLEAN` for a document that is not clean); `parcels_done` cannot pass `parcels_total` (422 `PARCELS_DONE_EXCEEDS_TOTAL`, `land_stage_progress_done_chk`); a DONE stage has every parcel done and an end that is not in the future.
+- **P2 a stage counted by LND is not reported by hand.** Mode `NATIVE`, in the report or on the stored row, is 422 `NATIVE_STAGE_READONLY`.
+- **P3 who reports.** `land.progress.report` over the project assigns and reassigns the executor; the executing unit reports only on the stage the project gave it (403 `SCOPE_DENIED` otherwise). The identity of a stage (project, section, plan, stage code, mode) never changes (`guard_land_stage_place`), and no row is deleted by the runtime role.
+- **P4 a late stage asks for one issue.** A stage that is not done and whose planned end is before the Vietnam date is LATE once (the report that takes it there, or the hourly job `land-stage-late`); the event `lnd.stage.late.v1` carries ids and a code only, ISS opens one issue for it (BR-ISS-07) and the stage keeps `blocker_issue_id`.
+- **P5 the overview is counted, not kept.** `getLandProgress` counts sections, areas, parcels (by status, with a notice, paid, handed over), households (a count), plans posted, payments and late stages from the rows under them, for the project or one section, in the scope of `land.read` over the project (404 outside it).
 ## Pieces
 
 | Piece | File |
@@ -50,6 +59,6 @@ Personal data minimisation is the point of the story. A parcel is land and nothi
 | Timers and calendar-day / working-day counting | `packages/kernel/src/land-timers.ts` |
 | Rule type and baseline | `packages/db/src/master-types.ts`, `master-baseline.ts`, `master-store.ts` |
 | Rules reader | `packages/db/src/lnd-timer-rules.ts` |
-| Stores | `packages/db/src/lnd-section-store.ts`, `lnd-parcel-store.ts`, `lnd-parcel-import.ts`, `lnd-land-source.ts`, `lnd-values.ts` |
+| Stores | `packages/db/src/lnd-section-store.ts`, `lnd-parcel-store.ts`, `lnd-parcel-import.ts`, `lnd-land-source.ts`, `lnd-values.ts`, `lnd-stage-progress-store.ts` (reports, overview, the job `land-stage-late`) |
 | API | `apps/api/src/modules/lnd/` |
-| Screen pieces | `apps/web/src/screens/lnd/` (LND-02) |
+| Screen pieces | `apps/web/src/screens/lnd/` (LND-02), `apps/web/src/screens/lnd/progress/` (LND-01, LND-11) |

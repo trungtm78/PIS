@@ -98,8 +98,8 @@ export function world(overrides: Partial<World> = {}): World {
 }
 
 /** A client over `state`: every read is answered from it, and `command(operation, input)` answers the commands. */
-export function client(state: World, command: (operation: string, input: unknown) => unknown = () => ({})): Harness {
-  const h = baseHarness(() => new Error('unexpected read'), command);
+export function client(state: World, command: (operation: string, input: unknown) => unknown = () => ({}), answer: (operation: string, input: unknown) => unknown = () => new Error('unexpected read')): Harness {
+  const h = baseHarness(answer, command);
   (h.client as unknown as { readAll: (operation: string, input?: { query?: Record<string, string> }) => Promise<unknown[]> }).readAll = vi.fn(
     (operation: string, input?: { query?: Record<string, string> }) => {
       if (state.failing.has(operation)) return Promise.reject(new Error(`${operation} failed`));

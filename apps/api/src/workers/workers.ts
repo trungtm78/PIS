@@ -1,4 +1,4 @@
-import { AuditSealJob, AuditWriter, BASELINE_PACK, CapAllocationExtensionStore, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, MasterStore, OutboxRelay, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AuditSealJob, AuditWriter, BASELINE_PACK, CapAllocationExtensionStore, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LndStageLateJob, MasterStore, OutboxRelay, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, MetricsSink, TenantContext, TimerPort } from '@machvon/kernel';
@@ -83,6 +83,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const overrides = new EntitlementOverrideStore();
   const extensions = new CapAllocationExtensionStore();
   const fiscalYears = new CapFiscalYearStore();
+  const stageLate = new LndStageLateJob(audit);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const handlers = standardJobs({
@@ -120,6 +121,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     fiscalYearRelock: { run: async (ctx, now) => ({ years: (await deps.tenants.withTenant(ctx, (tx) => fiscalYears.relockDue(tx, now, ctx.membershipId))).years }) },
     extensionLapse: { run: async (ctx, now) => ({ lapsed: await deps.tenants.withTenant(ctx, (tx) => extensions.lapseDue(tx, vietnamDateOf(now), ctx.membershipId)) }) },
     // An override and the entitlement version it ends in belong to the tenant: the pass runs through the control role acting as that tenant, like the subscription cycle.
+    stageLate: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => stageLate.run(tx, ctx.membershipId, now)) },
     overrideExpiry: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => overrides.expireDue(tx, now)) },
     accessCache: deps.accessCache,
   });

@@ -33,3 +33,20 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+.lnd-tiles {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-bottom: 12px;
+}
+.lnd-tile {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+}
+.lnd-tile strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}

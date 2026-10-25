@@ -1,11 +1,11 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { WORKER_MEMBERSHIP_ID, INTAKE_CATEGORY_KEYS } from '@machvon/db';
+import { WORKER_MEMBERSHIP_ID, INTAKE_CATEGORY_KEYS, stageLateEvent } from '@machvon/db';
 import type { OutboxDelivery } from '@machvon/db';
 import { signTenantContext } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import { INTAKE_IGNORED_METRIC, INTAKE_OPENED_METRIC, INTAKE_REFERENCE_REPLACED_METRIC, ISS_INTAKE_CONSUMER, IssIntakeConsumer, SOURCE_DEDUPE_METRIC } from '../../src/modules/iss/intake.consumer';
 import { issueDetailView } from '../../src/modules/iss/issue-view';
-import { IssWorld, PEOPLE, PROJECT, TENANT_A, memberId } from '../../../../packages/db/test/support/iss-fixtures';
+import { IssWorld, PEOPLE, PROJECT, TENANT_A, UNIT_1, memberId } from '../../../../packages/db/test/support/iss-fixtures';
 
 const SIGNING_KEY = randomBytes(32);
 const SYSTEM = memberId(PEOPLE.SYSTEM);
@@ -104,6 +104,37 @@ describe('the intake of automatic issues from the events of PMT, PAY, LND and CT
     expect(await consumer().handle(delivery('lnd.complaint.filed.v1', complaint(identityLike, { reference_code: '079000000001' })))).toBe('processed');
     expect((await issuesOf(identityLike))[0]?.title).toBe(`Land complaint filed: ${identityLike.slice(0, 8)}`);
     expect(metrics.counts.get(`${INTAKE_REFERENCE_REPLACED_METRIC}{source=LND}`)).toBe(1);
+  });
+
+  it('AC-ST-LND-010-1, UAT-AC387: a stage of land clearance that is late opens one issue, the stage keeps the issue that holds it up, and a second late event for it changes nothing', async () => {
+    const stageId = randomUUID();
+    const sectionId = randomUUID();
+    await world.owner(
+      `insert into machvon.land_handover_section (tenant_id, id, project_id, code, name, required_area_m2, status, version, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, 'ISS-LATE-1', 'Km 0 to km 3', 30000, 'NOT_READY', 1, $3::uuid, $3::uuid)`,
+      [sectionId, PROJECT, SYSTEM],
+    );
+    await world.owner(
+      `insert into machvon.land_stage_progress (tenant_id, id, project_id, section_id, stage_code, executor_kind, executor_unit_id, mode, status, planned_end, version, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, 'NOTICE', 'LAND_FUND_CENTRE', $4::uuid, 'TRACKED_EXTERNAL', 'LATE', date '2026-08-01', 2, $5::uuid, $5::uuid)`,
+      [stageId, PROJECT, sectionId, UNIT_1, SYSTEM],
+    );
+    const late = stageLateEvent({ id: stageId, projectId: PROJECT, ownerUnitId: UNIT_1, sectionCode: 'ISS-LATE-1', stageCode: 'NOTICE', executorKind: 'LAND_FUND_CENTRE', plannedEnd: '2026-08-01', version: 2 }, TENANT_A, new Date());
+    const first = delivery(late.type, late.payload, { aggregateType: late.aggregateType, aggregateId: stageId });
+    expect(await consumer().handle(first)).toBe('processed');
+    const issues = await issuesOf(stageId);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ title: 'Land clearance stage late: ISS-LATE-1-NOTICE', status: 'OPEN', source_module: 'LND' });
+    const linked = () => world.owner<{ blocker_issue_id: string | null }>('select blocker_issue_id from machvon.land_stage_progress where id = $1::uuid', [stageId]);
+    expect(await linked()).toEqual([{ blocker_issue_id: issues[0]?.id }]);
+    // The stage is late again (a later version): the issue is still open, so there is still one issue and the stage still points at it.
+    const again = stageLateEvent({ id: stageId, projectId: PROJECT, ownerUnitId: UNIT_1, sectionCode: 'ISS-LATE-1', stageCode: 'NOTICE', executorKind: 'LAND_FUND_CENTRE', plannedEnd: '2026-08-01', version: 4 }, TENANT_A, new Date());
+    expect(await consumer().handle(delivery(again.type, again.payload, { aggregateType: again.aggregateType, aggregateId: stageId }))).toBe('processed');
+    expect(await issuesOf(stageId)).toHaveLength(1);
+    expect(await linked()).toEqual([{ blocker_issue_id: issues[0]?.id }]);
+    // The same delivery twice opens nothing more.
+    expect(await consumer().handle(first)).toBe('duplicate');
+    expect(await issuesOf(stageId)).toHaveLength(1);
   });
 
   it('UAT-AC354: a reader without the right to read households sees the issue of a land complaint but not its text; a permit issue is read whole', async () => {

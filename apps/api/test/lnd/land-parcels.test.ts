@@ -17,6 +17,7 @@ import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
 import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.controller';
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
 import { LandSectionController } from '../../src/modules/lnd/section.controller';
+import { LandStageProgressController } from '../../src/modules/lnd/stage-progress.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedLndWorld } from '../../../../packages/db/test/support/lnd-fixtures';
 import type { LndWorld } from '../../../../packages/db/test/support/lnd-fixtures';
@@ -184,7 +185,7 @@ describe('land clearance: sections, parcels without owners, the parcel import an
 
   it('is registered in the module of LND', () => {
     expect(lndModule.code).toBe('LND');
-    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController]);
+    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController]);
   });
 
   describe('createLandSection', () => {

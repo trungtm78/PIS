@@ -33,7 +33,7 @@ interface FieldProps {
   children: ReactNode;
 }
 
-function Field({ id, label, error, hint, children }: FieldProps) {
+export function Field({ id, label, error, hint, children }: FieldProps) {
   return (
     <div className="field" data-field={id}>
       <label htmlFor={id}>{label}</label>
@@ -62,7 +62,7 @@ interface DialogFrameProps {
 }
 
 /** The frame the three commands share: the title bar, the refusal of the server, the form and its two buttons. */
-function DialogFrame({ title, onClose, refusal, pending, onSubmit, children }: DialogFrameProps) {
+export function DialogFrame({ title, onClose, refusal, pending, onSubmit, children }: DialogFrameProps) {
   const { t } = useTranslation();
   const titleId = useId();
   return (

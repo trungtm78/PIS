@@ -27,7 +27,7 @@ type Delivery = Pick<OutboxDelivery, 'id' | 'tenantId' | 'tenantContext' | 'type
 
 /**
  * The system consumer of the events that ask ISS for an issue (ISS 3.1 step 8, ST-ISS-005): `ctr.guarantee.expired.v1` (when an advance is still owed),
- * `pmt.permit.expired.v1`, `pay.advance.overdue.v1`, `pay.reconciliation.overdue.v1`, `lnd.complaint.filed.v1` and `lnd.deadline.breached.v1`. Once per delivery
+ * `pmt.permit.expired.v1`, `pay.advance.overdue.v1`, `pay.reconciliation.overdue.v1`, `lnd.complaint.filed.v1`, `lnd.deadline.breached.v1` and `lnd.stage.late.v1` (the late stage of ST-LND-010, which keeps the issue it opened). Once per delivery
  * (the inbox row is written with the work), once per source object that has no issue yet (BR-ISS-07: the second event finds the first and changes nothing), and
  * without personal data: only ids and a reference code are read from the payload, and a reference that could be a person's data is replaced by the start of the source
  * id. The issue is opened in the name of the system, with its audit row and `iss.issue.opened.v1` in the same transaction.

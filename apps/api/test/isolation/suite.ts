@@ -124,6 +124,12 @@ export const SECTION_FIXTURES: Readonly<Record<TenantName, { id: string; code: s
   'TNT-B': { id: '00000000-0000-4000-b0b3-000000000001', code: 'BETA-SECTION-0001' },
 };
 
+/** A stage of land clearance reported by an external unit, in the section of each tenant (its note is distinctive; tenant data). */
+export const STAGE_FIXTURES: Readonly<Record<TenantName, { id: string; note: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0b8-000000000001', note: 'ALPHA-STAGE-BLOCKER-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0b8-000000000001', note: 'BETA-STAGE-BLOCKER-0001' },
+};
+
 /** An UNVERIFIED contractor of each tenant (its tax id and its name are distinctive; the tax id is personal data when the contractor is a sole trader). */
 export const CONTRACTOR_FIXTURES: Readonly<Record<TenantName, { id: string; taxIdentifier: string; legalName: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', taxIdentifier: '0111111111', legalName: 'Alpha tenant isolation contractor' },
@@ -552,6 +558,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'land parcel code', value: PARCEL_FIXTURES[tenant].code },
     { kind: 'land section id', value: SECTION_FIXTURES[tenant].id },
     { kind: 'land section code', value: SECTION_FIXTURES[tenant].code },
+    { kind: 'land stage id', value: STAGE_FIXTURES[tenant].id },
+    { kind: 'land stage note', value: STAGE_FIXTURES[tenant].note },
     { kind: 'assignment id', value: ACCOUNTABILITY_FIXTURES[tenant].assignmentId },
     { kind: 'task force id', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceId },
     { kind: 'task force code', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceCode },

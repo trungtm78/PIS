@@ -363,6 +363,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     body: { notice_on: '2026-07-01', notice_document_version_id: DOCUMENT_FIXTURES['TNT-B'].documentId },
   },
   { operation: 'getProjectLifecycle', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'getLandProgress', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'assignProjectLeader', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { leader_membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, accountability_role: 'LEADER_IN_CHARGE', valid_from: '2026-01-05' } },
   { operation: 'endProjectLeaderAssignment', method: 'POST', id: ACCOUNTABILITY_FIXTURES['TNT-B'].assignmentId, versioned: true, body: { valid_until: '2026-01-06', end_reason: 'Isolation foreign end attempt' } },
   { operation: 'addTaskForceMember', method: 'POST', id: ACCOUNTABILITY_FIXTURES['TNT-B'].taskForceId, body: { membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, member_role: 'SECRETARY', valid_from: '2026-01-05' } },

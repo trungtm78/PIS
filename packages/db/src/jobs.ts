@@ -53,6 +53,8 @@ export const JOB_INTERVAL_SECONDS = {
   'fiscal-year-relock': 900,
   // Every minute: an entitlement override whose window has ended stops counting and the tenant is told within the minute (ST-SAS-009, "takes effect within 60 seconds"); the pass is idempotent.
   'entitlement-override-expiry': 60,
+  // Hourly: a stage of land clearance whose planned end has passed becomes late within the hour and asks ISS for its issue (ST-LND-010); the pass is idempotent.
+  'land-stage-late': 3600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -170,6 +172,7 @@ export interface StandardJobDeps {
   fiscalYearRelock?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ years: number[] }> };
   /** The pass over the entitlement overrides of a tenant (ST-SAS-009): an override in force whose window has ended expires and the tenant gets a new entitlement version; a request that waited past its window expires. */
   overrideExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -433,6 +436,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overrides.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const lateStages = deps.stageLate;
+  if (lateStages !== undefined) {
+    handlers.push({
+      name: 'land-stage-late',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await lateStages.run(workerContext(tenantId), now)));
       },
     });
   }

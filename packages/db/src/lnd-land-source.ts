@@ -59,6 +59,12 @@ export class LndLandSource {
     if (rows[0] === undefined) throw invalid(field);
   }
 
+  /** A compensation plan is fit to be named by a stage when it exists and is a plan of the same project. */
+  async assertPlanOfProject(tx: TenantTx, planId: string, projectId: string, field: string): Promise<void> {
+    const rows = await tx.query<{ id: string }>('select id from machvon.compensation_plan where id = $1::uuid and project_id = $2::uuid', [planId, projectId]);
+    if (rows[0] === undefined) throw invalid(field);
+  }
+
   /** The section of a project that has this code; undefined when there is none. */
   async sectionByCode(tx: TenantTx, projectId: string, code: string): Promise<{ id: string } | undefined> {
     const rows = await tx.query<{ id: string }>('select id from machvon.land_handover_section where project_id = $1::uuid and code = $2', [projectId, code]);
