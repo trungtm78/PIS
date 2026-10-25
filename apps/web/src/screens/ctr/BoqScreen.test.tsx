@@ -131,6 +131,17 @@ describe('BoqScreen (CTR-04): the BOQ of a contract revision', () => {
     expect(within(screen.getByTestId('boq-grid')).getAllByTestId('boq-row')).toHaveLength(2);
   });
 
+  it('lets the BOQ of a change order that waits for its day be put right, and not that of an amendment that waits', async () => {
+    open(opened(contract({ status: 'ACTIVE' }, { kind: 'CHANGE_ORDER', status: 'PENDING_EFFECTIVE' })));
+    await ready();
+    expect(screen.getByLabelText(vi_['ctr.boq.file.label'])).toBeTruthy();
+    expect(screen.queryByTestId('read-only')).toBeNull();
+    cleanup();
+    open(opened(contract({ status: 'ACTIVE' }, { kind: 'AMENDMENT', status: 'PENDING_EFFECTIVE' })));
+    await ready();
+    expect(screen.getByTestId('read-only').textContent).toBe(vi_['ctr.boq.notDraft.notice']);
+  });
+
   it('lets a later revision of a contract in force be imported', async () => {
     open(opened(contract({ status: 'ACTIVE' }, { kind: 'CHANGE_ORDER' })));
     await ready();

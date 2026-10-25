@@ -3311,7 +3311,7 @@
     "/contract-changes/{id}/decision": {
       "post": {
         "operationId": "post_contract_changes_id_decision",
-        "summary": "Approve phụ lục; giữ baseline",
+        "summary": "Duyệt, trả lại hoặc từ chối CO đã thẩm định; duyệt tạo phiên bản hợp đồng PENDING_EFFECTIVE",
         "x-permission": "contract.change.approve",
         "parameters": [
           {
@@ -3451,15 +3451,23 @@
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
           "CHANGE_STATE_INVALID",
+          "CHANGE_STAGE_NOT_ALLOWED",
+          "CONTRACT_STATE_INVALID",
           "RETROACTIVE_NOT_ALLOWED",
+          "ACCEPTANCE_VALUE_EXCEEDS_CONTRACT",
           "DECISION_DOCUMENT_REQUIRED",
           "ALLOCATION_UNAVAILABLE",
+          "BOQ_TOTAL_MISMATCH",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "ctr.change.approved.v1",
-          "ctr.contract_revision.created.v1"
+          "ctr.contract_revision.created.v1",
+          "ctr.change.returned.v1",
+          "ctr.change.rejected.v1"
         ],
         "x-state-guard": "EVALUATED → APPROVED|REJECTED|SUBMITTED"
       }
@@ -130166,7 +130174,8 @@
           "reason": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "The reason of the decision; for a return or a rejection it is what the assessor reads"
           },
           "evidence_ids": {
             "type": "array",
@@ -130178,15 +130187,26 @@
           "approved_delta_vnd": {
             "type": "string",
             "pattern": "^-?[0-9]+$",
-            "description": "Số nguyên VND có dấu, dạng chuỗi"
+            "description": "Approval only: the signed amount the contract changes by; the assessment of the request when absent"
           },
           "effective_on": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "Approval only: the first day of the new revision, today or later; today when absent"
           },
           "decision_document_version_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Approval only, and required for it: the decision document the approval rests on"
+          },
+          "boq_lines": {
+            "type": "array",
+            "maxItems": 2000,
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Approval only: the BOQ of the new revision, as the lines of an import (REPLACE). Absent, the revision starts from a copy of the BOQ in force, which has to fit its value; a decrease says which lines shrink. A pending revision can still be put right by an import before its first day"
           }
         },
         "required": [
@@ -141417,7 +141437,8 @@
             "required": [
               "promote",
               "evaluate",
-              "withdraw"
+              "withdraw",
+              "decide"
             ],
             "properties": {
               "promote": {
@@ -141428,11 +141449,21 @@
               },
               "withdraw": {
                 "type": "boolean"
+              },
+              "decide": {
+                "type": "boolean"
               }
             }
           },
           "version": {
             "type": "integer"
+          },
+          "resulting_revision_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           }
         }
       },

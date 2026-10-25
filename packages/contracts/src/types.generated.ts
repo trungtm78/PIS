@@ -410,7 +410,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Approve phụ lục; giữ baseline
+         * Duyệt, trả lại hoặc từ chối CO đã thẩm định; duyệt tạo phiên bản hợp đồng PENDING_EFFECTIVE
          * @description Duyệt/trả/từ chối CO; duyệt tạo phiên bản hợp đồng PENDING_EFFECTIVE
          */
         post: operations["post_contract_changes_id_decision"];
@@ -16561,14 +16561,25 @@ export interface components {
         CtrContractChangeDecision: {
             /** @enum {string} */
             decision: "approve" | "return" | "reject";
+            /** @description The reason of the decision; for a return or a rejection it is what the assessor reads */
             reason: string;
             evidence_ids: string[];
-            /** @description Số nguyên VND có dấu, dạng chuỗi */
+            /** @description Approval only: the signed amount the contract changes by; the assessment of the request when absent */
             approved_delta_vnd?: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description Approval only: the first day of the new revision, today or later; today when absent
+             */
             effective_on?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Approval only, and required for it: the decision document the approval rests on
+             */
             decision_document_version_id?: string;
+            /** @description Approval only: the BOQ of the new revision, as the lines of an import (REPLACE). Absent, the revision starts from a copy of the BOQ in force, which has to fit its value; a decrease says which lines shrink. A pending revision can still be put right by an import before its first day */
+            boq_lines?: {
+                [key: string]: unknown;
+            }[];
         };
         CtrWithdrawChangeRequest: {
             reason: string;
@@ -19613,8 +19624,11 @@ export interface components {
                 promote: boolean;
                 evaluate: boolean;
                 withdraw: boolean;
+                decide: boolean;
             };
             version: number;
+            /** Format: uuid */
+            resulting_revision_id?: string | null;
         };
         CtrChangeChainConfig: {
             /** @enum {integer} */

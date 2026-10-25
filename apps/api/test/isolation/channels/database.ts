@@ -347,6 +347,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'createChangeRequest',
   'promoteChangeRequest',
   'evaluateChangeRequest',
+  'post_contract_changes_id_decision',
   'withdrawChangeRequest',
   'getChangeChain',
   'get_resources_change_request',

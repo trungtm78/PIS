@@ -1,0 +1,14 @@
+{
+  "id": "CTR_REVISION_OVERDUE",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "contract-office",
+  "runbook": "docs/runbooks/alerts/CTR_REVISION_OVERDUE.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "ctr_revision_overdue",
+    "above": 0
+  },
+  "summary": "A revision of a contract waits for its first day and is more than a day late."
+}

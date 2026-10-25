@@ -430,6 +430,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'createChangeRequest',
         'promoteChangeRequest',
         'evaluateChangeRequest',
+        'post_contract_changes_id_decision',
         'withdrawChangeRequest',
         'getChangeChain',
         'get_resources_change_request',

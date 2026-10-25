@@ -9,7 +9,7 @@ import { CapitalCommitments } from '../../src/modules/cap/commitment.port';
 import { ctrModule } from '../../src/modules/ctr';
 import { ChangeChainController, ChangeRequestReadsController } from '../../src/modules/ctr/change.controller';
 import { CapWorld, money } from '../../../../packages/db/test/support/cap-fixtures';
-import { TENANT_A, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { TENANT_A, id, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedAs, seedContractor } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -29,7 +29,8 @@ const ELSEWHERE = 16; // the rights of OFFICER over another branch
 const GUEST = 17; // the contractor of the contracts, reading the one it was invited to
 const ALL = 18; // every right of the chain
 const GUEST_OF_ONE = 19; // a guest of the same contractor, invited to the contract the resource test reads
-const MEMBERS = [OWNER, OFFICER, EVALUATOR, READER, NOBODY, ELSEWHERE, GUEST, ALL, GUEST_OF_ONE];
+const APPROVER = 20; // contract.change.approve, change.read, contract.read: decides a CO, rank 50
+const MEMBERS = [OWNER, OFFICER, EVALUATOR, READER, NOBODY, ELSEWHERE, GUEST, ALL, GUEST_OF_ONE, APPROVER];
 const OTHER_BRANCH = 5;
 const REASON = 'The owner instructed a wider footpath.';
 
@@ -120,6 +121,26 @@ describe('the chain of changes over HTTP (ST-CTR-006)', () => {
   const withdraw = (member: number, requestId: string, version: number | string = 1, reason = 'Raised in error.') => call('POST', `/change-requests/${requestId}/withdraw`, { member, ifMatch: `"${version}"`, body: { reason } });
   const chainOf = (member: number, projectId: string, query = '') => call('GET', `/projects/${projectId}/change-chain${query}`, { member });
 
+  const decide = (member: number, requestId: string, version: number | string, body: Record<string, unknown>) =>
+    call('POST', `/contract-changes/${requestId}/decision`, { member, ifMatch: `"${version}"`, body });
+  const inTenDays = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+  const approval = (overrides: Record<string, unknown> = {}) => ({ decision: 'approve', reason: 'Within the plan.', evidence_ids: [], effective_on: inTenDays, decision_document_version_id: cleanVersion, ...overrides });
+
+  /** A CO that was assessed: raised and promoted by the officer, assessed by the evaluator (an increase names the line of capital). */
+  async function assessed(delta = '500000000'): Promise<{ of: Capital; target: Contract; request: string; version: number }> {
+    const { of, target, first } = await started(3);
+    const pco = (await promote(OFFICER, first)).json.resource_id as string;
+    const co = (await promote(OFFICER, pco)).json.resource_id as string;
+    const done = await evaluate(EVALUATOR, co, 1, BigInt(delta) > 0n ? { evaluated_delta_vnd: delta, allocation_line_id: of.lineId } : { evaluated_delta_vnd: delta });
+    expect(done.status).toBe(200);
+    return { of, target, request: co, version: done.json.resource_version as number };
+  }
+  const revisionsOf = (contractId: string) =>
+    rows<{ id: string; revision: number; status: string; kind: string; amount_vnd: string; valid_from: string; change_request_id: string | null }>(
+      'select id, revision, status, kind, amount_vnd::text, valid_from::text, change_request_id from machvon.contract_revision where contract_id = $1::uuid order by revision',
+      [contractId],
+    );
+
   /** A project of three tiers with an active contract and its first request. */
   async function started(tiers = 3): Promise<{ of: Capital; target: Contract; first: string }> {
     const of = await project();
@@ -139,7 +160,9 @@ describe('the chain of changes over HTTP (ST-CTR-006)', () => {
       [2, 'CHG_OFFICER', ['change.manage', 'change.read'], 30],
       [3, 'CHG_EVALUATOR', ['change.evaluate', 'change.read'], 30],
       [4, 'CHG_READER', ['change.read', 'change_request.read'], 10],
-      [5, 'CHG_ALL', ['change.tiers.configure', 'change.manage', 'change.evaluate', 'change.read', 'change_request.read'], 50],
+      [5, 'CHG_ALL', ['change.tiers.configure', 'change.manage', 'change.evaluate', 'change.read', 'change_request.read', 'contract.change.approve'], 50],
+      [6, 'CHG_APPROVER', ['contract.change.approve', 'change.read', 'contract.read'], 50],
+      [7, 'CHG_BOSS', ['change.read'], 70],
     ];
     for (const [n, code, permissions, rank] of roles) await harness.seedRole(TENANT_A, 80 + n, code, permissions, rank);
     const grant = (n: number, member: number, role: number, extra: { kind?: 'TENANT' | 'UNIT_SUBTREE' | 'CONTRACT'; refs?: string[] } = {}) => ({ n, member, role: 80 + role, kind: extra.kind ?? 'TENANT', ...(extra.refs === undefined ? {} : { refs: extra.refs }) });
@@ -150,6 +173,7 @@ describe('the chain of changes over HTTP (ST-CTR-006)', () => {
       grant(4, READER, 4),
       grant(5, ALL, 5),
       grant(6, ELSEWHERE, 2, { kind: 'UNIT_SUBTREE', refs: [unitId(OTHER_BRANCH)] }),
+      grant(7, APPROVER, 6),
     ]);
     contractor = await seedContractor(harness);
     cleanVersion = id(FAMILY, 10);
@@ -481,6 +505,128 @@ describe('the chain of changes over HTTP (ST-CTR-006)', () => {
       expect(one.status).toBe(200);
       expect(one.json).toMatchObject({ id: first, stage: 'EVENT', status: 'SUBMITTED', code: 'CE-001' });
       for (const hidden of ['reason', 'estimated_delta_vnd', 'evaluated_delta_vnd', 'funding_impact_note', 'submitted_by', 'actions']) expect(one.json).not.toHaveProperty(hidden);
+    });
+  });
+
+  describe('post_contract_changes_id_decision (AC-ST-CTR-007-1, AC-ST-CTR-007-2, UAT-AC308)', () => {
+    it('AC-ST-CTR-007-1, UAT-AC308: the maker is refused, the approver makes revision 2 pending with the new value, and tells the world with ids and amounts only', async () => {
+      const { target, request, version } = await assessed('500000000');
+      // Whoever raised and promoted the chain is refused even when they hold the right.
+      const own = await started(3);
+      const ownPco = (await promote(ALL, own.first)).json.resource_id as string;
+      const ownCo = (await promote(ALL, ownPco)).json.resource_id as string;
+      const ownDone = await evaluate(ALL, ownCo, 1, { evaluated_delta_vnd: '-1000' });
+      expect(await decide(ALL, ownCo, ownDone.json.resource_version as number, approval())).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+      expect((await requestRow(ownCo))?.status).toBe('EVALUATED');
+
+      expect(await decide(APPROVER, request, version, approval({ decision_document_version_id: undefined }))).toMatchObject({ status: 422, json: { code: 'DECISION_DOCUMENT_REQUIRED' } });
+      const done = await decide(APPROVER, request, version, approval({ reason: ' Within the plan. ' }));
+      expect(done).toMatchObject({ status: 200, json: { status: 'APPROVED', resource_id: request, resource_version: version + 1 } });
+      expect(await revisionsOf(target.id)).toMatchObject([
+        { revision: 1, status: 'EFFECTIVE', kind: 'BASE' },
+        { revision: 2, status: 'PENDING_EFFECTIVE', kind: 'CHANGE_ORDER', amount_vnd: '10500000000', valid_from: inTenDays, change_request_id: request },
+      ]);
+      const [revision] = (await revisionsOf(target.id)).slice(1);
+      const [approved] = await audits(request, 'change.approved');
+      expect(approved).toMatchObject({ actor_id: memberId(APPROVER), reason: 'Within the plan.', safe_diff: { from_status: 'EVALUATED', to_status: 'APPROVED', approved_delta_vnd: '500000000', effective_on: inTenDays, to_value_vnd: '10500000000', revision_id: revision?.id } });
+      expect((await audits(revision?.id ?? '', 'contract.revision_created'))[0]?.safe_diff).toMatchObject({ contract_id: target.id, revision: 2, amount_vnd: '10500000000', status: 'PENDING_EFFECTIVE', change_request_id: request });
+      const [approvedEvent] = await events(request, 'ctr.change.approved.v1');
+      expect(approvedEvent?.payload).toMatchObject({ change_request_id: request, contract_id: target.id, approved_delta_vnd: '500000000', effective_on: inTenDays, revision_id: revision?.id, to_status: 'APPROVED', actor_id: memberId(APPROVER) });
+      expect(JSON.stringify(approvedEvent?.payload)).not.toContain('Within the plan');
+      expect((await events(revision?.id ?? '', 'ctr.contract_revision.created.v1'))[0]?.payload).toMatchObject({ revision: 2, kind: 'CHANGE_ORDER', supersedes_id: (await revisionsOf(target.id))[0]?.id });
+      // It is over: a second decision is refused.
+      expect(await decide(APPROVER, request, version + 1, approval())).toMatchObject({ status: 409, json: { code: 'CHANGE_STATE_INVALID' } });
+    });
+
+    it('offers the decision on the board to someone who may take it, and shows the revision it made afterwards', async () => {
+      const { of, request, version } = await assessed('100000000');
+      const board = async (member: number) => ((await chainOf(member, of.projectId)).json.requests as Array<Record<string, unknown>>).find((r) => r.id === request);
+      expect((await board(APPROVER))?.actions).toMatchObject({ decide: true });
+      expect((await board(ALL))?.actions).toMatchObject({ decide: true });
+      expect((await board(OFFICER))?.actions).toMatchObject({ decide: false });
+      expect((await board(EVALUATOR))?.actions).toMatchObject({ decide: false });
+      expect((await board(READER))?.actions).toMatchObject({ decide: false });
+      expect(await decide(APPROVER, request, version, approval())).toMatchObject({ status: 200 });
+      const after = await board(APPROVER);
+      expect(after).toMatchObject({ status: 'APPROVED', approved_delta_vnd: '100000000', effective_on: inTenDays, actions: { decide: false } });
+      expect(typeof after?.resulting_revision_id).toBe('string');
+    });
+
+    it('gives the change back to be assessed again, and rejects it, each with its reason, its audit row and its event', async () => {
+      const { request, version } = await assessed('100000000');
+      const back = await decide(APPROVER, request, version, { decision: 'return', reason: 'The funding note is thin.', evidence_ids: [] });
+      expect(back).toMatchObject({ status: 200, json: { status: 'SUBMITTED', resource_version: version + 1 } });
+      expect((await audits(request, 'change.returned'))[0]).toMatchObject({ reason: 'The funding note is thin.', safe_diff: { from_status: 'EVALUATED', to_status: 'SUBMITTED', decision: 'return' } });
+      expect((await events(request, 'ctr.change.returned.v1'))[0]?.payload).toMatchObject({ to_status: 'SUBMITTED', decision: 'return' });
+      const again = await evaluate(EVALUATOR, request, version + 1, { evaluated_delta_vnd: '90000000', allocation_line_id: (await rows<{ evaluation_allocation_line_id: string }>('select evaluation_allocation_line_id from machvon.change_request where id = $1::uuid', [request]))[0]?.evaluation_allocation_line_id });
+      expect(again.status).toBe(200);
+      const rejected = await decide(APPROVER, request, again.json.resource_version as number, { decision: 'reject', reason: 'Not needed.', evidence_ids: [] });
+      expect(rejected).toMatchObject({ status: 200, json: { status: 'REJECTED' } });
+      expect((await requestRow(request))?.status).toBe('REJECTED');
+      expect((await audits(request, 'change.rejected'))[0]).toMatchObject({ reason: 'Not needed.' });
+      expect((await events(request, 'ctr.change.rejected.v1'))[0]?.payload).toMatchObject({ to_status: 'REJECTED', decision: 'reject' });
+    });
+
+    it('judges the day, the value, the BOQ and the version, and writes nothing when it refuses', async () => {
+      const { target, request, version } = await assessed('100000000');
+      expect(await decide(APPROVER, request, version, approval({ effective_on: '2020-01-01' }))).toMatchObject({ status: 422, json: { code: 'RETROACTIVE_NOT_ALLOWED' } });
+      expect(await decide(APPROVER, request, version, approval({ effective_on: '2026-01-02' }))).toMatchObject({ status: 422, json: { code: 'RETROACTIVE_NOT_ALLOWED' } });
+      expect(await decide(APPROVER, request, version, approval({ approved_delta_vnd: '-9999999999999' }))).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await decide(APPROVER, request, version, approval({ boq_lines: [{ business_key: 'X' }] }))).toMatchObject({ status: 422 });
+      expect(await decide(APPROVER, request, version + 3, approval())).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+      expect(await decide(APPROVER, request, version, approval({ decision: 'maybe' }))).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await decide(APPROVER, request, version, approval({ tenant_id: TENANT_A, status: 'APPROVED' }))).toMatchObject({ status: 400, json: { code: 'FIELD_NOT_ALLOWED' } });
+      expect(await revisionsOf(target.id)).toHaveLength(1);
+      expect((await requestRow(request))?.status).toBe('EVALUATED');
+      // The accepted value is a floor.
+      await world.owner('update machvon.contract set accepted_total_vnd = 9000000000 where id = $1::uuid', [target.id]);
+      const lower = await started(3);
+      const lowerPco = (await promote(OFFICER, lower.first)).json.resource_id as string;
+      const lowerCo = (await promote(OFFICER, lowerPco)).json.resource_id as string;
+      const assessedLower = await evaluate(EVALUATOR, lowerCo, 1, { evaluated_delta_vnd: '-2000000000' });
+      await world.owner('update machvon.contract set accepted_total_vnd = 9000000000 where id = $1::uuid', [lower.target.id]);
+      expect(await decide(APPROVER, lowerCo, assessedLower.json.resource_version as number, approval())).toMatchObject({ status: 422, json: { code: 'ACCEPTANCE_VALUE_EXCEEDS_CONTRACT' } });
+    });
+
+    it('is for whoever holds the right over the contract: others are refused, a contract out of reach does not exist, a request that is no CO is not decided', async () => {
+      const { request, version } = await assessed('100000000');
+      for (const member of [OFFICER, EVALUATOR, READER, NOBODY, OWNER]) expect((await decide(member, request, version, approval())).status).toBe(403);
+      expect((await decide(ELSEWHERE, request, version, approval())).status).toBe(403);
+      expect((await decide(APPROVER, randomUUID(), 1, approval())).status).toBe(404);
+      const { first } = await started(3);
+      expect(await decide(APPROVER, first, 1, approval())).toMatchObject({ status: 422, json: { code: 'CHANGE_STAGE_NOT_ALLOWED' } });
+      expect((await requestRow(request))?.status).toBe('EVALUATED');
+    });
+
+    it('answers the same request with the same key once', async () => {
+      const { target, request, version } = await assessed('100000000');
+      const send = () => call('POST', `/contract-changes/${request}/decision`, { member: APPROVER, ifMatch: `"${version}"`, key: 'decide-once-for-this-key', body: approval() });
+      const first = await send();
+      expect(await send()).toEqual(first);
+      expect(await revisionsOf(target.id)).toHaveLength(2);
+    });
+  });
+
+  describe('the delegation limit of a change order', () => {
+    it('limits the approval to the bands the tenant configured: a change above the band of the approver is 403 SCOPE_DENIED, one within it goes through', async () => {
+      const matrix = id(FAMILY, 21);
+      await world.owner(
+        `insert into machvon.doa_matrix_version (tenant_id, id, revision, status, effective_from, legal_basis_ref, created_by, last_edited_by, version)
+         values ($1, $2, 901, 'Draft', date '2020-01-01', 'Fixture regulation on the approval of change orders', $3, $3, 1)`,
+        [TENANT_A, matrix, memberId(OWNER)],
+      );
+      await world.owner(
+        `insert into machvon.doa_rule (tenant_id, id, matrix_version_id, document_type, unit_id, include_subtree, amount_min_vnd, amount_max_vnd, approver_role_id, position)
+         values ($1, $2, $3, 'CTR_CHANGE', $4, true, 0, 600000000, $5, 0), ($1, $6, $3, 'CTR_CHANGE', $4, true, 600000000, null, $7, 1)`,
+        [TENANT_A, id(FAMILY, 22), matrix, unitId(ROOT), roleId(86), id(FAMILY, 23), roleId(87)],
+      );
+      await world.owner("update machvon.doa_matrix_version set status = 'PendingApproval' where id = $1", [matrix]);
+      await world.owner("update machvon.doa_matrix_version set status = 'Published', approved_by = $2, published_at = now() where id = $1", [matrix, memberId(READER)]);
+      const small = await assessed('500000000');
+      const large = await assessed('700000000');
+      expect(await decide(APPROVER, large.request, large.version, approval())).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+      expect((await requestRow(large.request))?.status).toBe('EVALUATED');
+      expect(await decide(APPROVER, small.request, small.version, approval())).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
     });
   });
 });

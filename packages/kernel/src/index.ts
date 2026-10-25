@@ -329,6 +329,17 @@ export {
 } from './change-chain.ts';
 export type { ChangeEventKind, ChangeStage, ChangeStatus, TierCount } from './change-chain.ts';
 export {
+  CHANGE_DECISIONS,
+  CHANGE_DOA_DOCUMENT_TYPE,
+  assertFollowsRevision,
+  assertNotRetroactive,
+  assertValueAboveFloor,
+  changeDecisionOf,
+  valueAfterChange,
+  valueFloorVnd,
+} from './contract-revision.ts';
+export type { ChangeDecision, ValueLedger } from './contract-revision.ts';
+export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,
   CONSENT_PURPOSES,

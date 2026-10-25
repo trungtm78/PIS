@@ -66,6 +66,7 @@ export interface RequestActions {
   promote: boolean;
   evaluate: boolean;
   withdraw: boolean;
+  decide: boolean;
 }
 
 /** What the staff of the owner read of a request beyond its place in the chain; a guest contractor does not have it. */
@@ -78,6 +79,8 @@ export interface RequestDetail {
   estimatedDeltaVnd: string | null;
   evaluatedDeltaVnd: string | null;
   approvedDeltaVnd: string | null;
+  /** The first day of the revision an approved change order made; null before the decision. */
+  effectiveOn: string | null;
   scheduleImpactDays: number;
   fundingImpactNote: string | null;
   scopeImpactNote: string | null;
@@ -96,6 +99,8 @@ export interface ChangeRequest {
   version: number;
   detail: RequestDetail | undefined;
   actions: RequestActions | undefined;
+  /** The revision of the contract that an approved change order made; null until it is approved. */
+  resultingRevisionId: string | null;
 }
 
 export interface Chain {
@@ -137,6 +142,7 @@ function toDetail(row: Raw): RequestDetail | undefined {
     estimatedDeltaVnd: nullableText(row.estimated_delta_vnd),
     evaluatedDeltaVnd: nullableText(row.evaluated_delta_vnd),
     approvedDeltaVnd: nullableText(row.approved_delta_vnd),
+    effectiveOn: nullableText(row.effective_on),
     scheduleImpactDays: whole(row.schedule_impact_days) ?? 0,
     fundingImpactNote: nullableText(row.funding_impact_note),
     scopeImpactNote: nullableText(row.scope_impact_note),
@@ -167,7 +173,8 @@ export function toRequest(raw: unknown): ChangeRequest[] {
       createdAt: text(row.created_at) ?? '',
       version,
       detail: toDetail(row),
-      actions: actions === undefined ? undefined : { promote: actions.promote === true, evaluate: actions.evaluate === true, withdraw: actions.withdraw === true },
+      actions: actions === undefined ? undefined : { promote: actions.promote === true, evaluate: actions.evaluate === true, withdraw: actions.withdraw === true, decide: actions.decide === true },
+      resultingRevisionId: nullableText(row.resulting_revision_id),
     },
   ];
 }
@@ -339,11 +346,18 @@ export function evaluateBody(form: EvaluateForm): EvaluateBody {
 // ---- refusals ------------------------------------------------------------------------------------------------------------------
 
 export type Problem =
+  | 'selfApproval'
+  | 'retroactive'
+  | 'floor'
+  | 'decisionDocument'
+  | 'boqMismatch'
+  | 'delegation'
   | 'tiersLocked'
   | 'notConfigured'
   | 'wrongStage'
   | 'lastTier'
   | 'notEvaluated'
+  | 'onlyCo'
   | 'stateInvalid'
   | 'contractState'
   | 'lineRequired'
@@ -367,10 +381,22 @@ export function describeProblem(error: unknown): ProblemView {
   const allowed = STAGES.find((candidate) => candidate === extensions.allowed_stage);
   const view = (problem: Problem): ProblemView => ({ problem, stage: allowed });
   switch (error.code) {
+    case 'SELF_APPROVAL_DENIED':
+      return view('selfApproval');
+    case 'RETROACTIVE_NOT_ALLOWED':
+      return view('retroactive');
+    case 'ACCEPTANCE_VALUE_EXCEEDS_CONTRACT':
+      return view('floor');
+    case 'DECISION_DOCUMENT_REQUIRED':
+      return view('decisionDocument');
+    case 'BOQ_TOTAL_MISMATCH':
+      return view('boqMismatch');
     case 'CHANGE_TIERS_LOCKED':
       return view('tiersLocked');
     case 'CHANGE_STAGE_NOT_ALLOWED':
       switch (extensions.reason) {
+        case 'ONLY_CO_DECIDED':
+          return view('onlyCo');
         case 'TIERS_NOT_CONFIGURED':
           return view('notConfigured');
         case 'LAST_TIER':
@@ -395,6 +421,7 @@ export function describeProblem(error: unknown): ProblemView {
     case 'RESOURCE_NOT_FOUND':
       return view('notFound');
     case 'SCOPE_DENIED':
+      return view(extensions.approver_role_id === undefined ? 'denied' : 'delegation');
     case 'ENTITLEMENT_DENIED':
       return view('denied');
     case 'SESSION_EXPIRED':

@@ -1364,6 +1364,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/evaluate`, ifMatch: '"1"', body: { evaluated_delta_vnd: '0', schedule_impact_days: 0, funding_impact_note: REASON } }),
   },
+  post_contract_changes_id_decision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contract-changes/${t.changeRequestId}/decision`, ifMatch: '"1"', body: { decision: 'return', reason: REASON, evidence_ids: [] } }),
+  },
   withdrawChangeRequest: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),

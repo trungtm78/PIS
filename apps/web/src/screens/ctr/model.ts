@@ -68,6 +68,13 @@ export interface RevisionLine {
   amountVnd: string;
   documentVersionId: string;
   validFrom: string;
+  /** The first day of the revision that took over from this one; null while it is in force or waiting for its day. */
+  validUntil: string | null;
+  /** A revision that reaches back before the day it was approved; only the adjustment of its own makes one. */
+  retroactive: boolean;
+  /** The revision this one follows, and the change order that made it; null for the first revision. */
+  supersedesId: string | null;
+  changeRequest: { id: string; code: string | null } | null;
   /** The version of the revision that a command on it (the import of its BOQ) must name. */
   version: number;
   /** What the lines of its BOQ add up to and how many there are, as the server counted them (BR-CTR-02); undefined when the answer has none. */
@@ -152,6 +159,10 @@ function toRevision(raw: unknown): RevisionLine[] {
       amountVnd: amount,
       documentVersionId: text(row.document_version_id) ?? '',
       validFrom: text(row.valid_from) ?? '',
+      validUntil: nullableText(row.valid_until),
+      retroactive: row.retroactive === true,
+      supersedesId: nullableText(row.supersedes_id),
+      changeRequest: text(row.change_request_id) === undefined ? null : { id: text(row.change_request_id) ?? '', code: nullableText(row.change_request_code) },
       version: whole(row.version) ?? 1,
       boqTotalVnd: text(row.boq_total_vnd),
       boqLineCount: whole(row.boq_line_count),

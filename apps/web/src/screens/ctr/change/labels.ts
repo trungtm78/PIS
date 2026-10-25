@@ -69,6 +69,20 @@ export function formProblemMessage(t: Translate, problem: FormProblem): string {
 
 function baseMessage(t: Translate, problem: Problem): string {
   switch (problem) {
+    case 'selfApproval':
+      return t('ctr.change.error.selfApproval');
+    case 'retroactive':
+      return t('ctr.change.error.retroactive');
+    case 'floor':
+      return t('ctr.change.error.floor');
+    case 'decisionDocument':
+      return t('ctr.change.error.decisionDocument');
+    case 'boqMismatch':
+      return t('ctr.change.error.boqMismatch');
+    case 'delegation':
+      return t('ctr.change.error.delegation');
+    case 'onlyCo':
+      return t('ctr.change.error.onlyCo');
     case 'tiersLocked':
       return t('ctr.change.error.tiersLocked');
     case 'notConfigured':

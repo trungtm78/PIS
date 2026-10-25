@@ -12,13 +12,21 @@ export interface ChangePermissions {
   promote: string;
   evaluate: string;
   withdraw: string;
+  decide: string;
 }
 
 /**
  * What the caller may do with the request as it stands: the command applies to its status and its tier, the contract is still being performed and the caller holds the permission over
  * it. A button is shown for exactly these; the server judges each command again.
  */
-export function changeActionsOf(line: CtrChangeLine, tierCount: TierCount | undefined, access: EffectiveAccess, now: Date, permissions: ChangePermissions): Record<'promote' | 'evaluate' | 'withdraw', boolean> {
+export function changeActionsOf(
+  line: CtrChangeLine,
+  tierCount: TierCount | undefined,
+  access: EffectiveAccess,
+  now: Date,
+  permissions: ChangePermissions,
+  caller: string,
+): Record<'promote' | 'evaluate' | 'withdraw' | 'decide', boolean> {
   const open = OPEN_CHANGE_STATUSES.includes(line.status);
   const changeable = CHANGEABLE_CONTRACT_STATUSES.includes(line.contract.status);
   const refs = placeRefs(line.reach);
@@ -26,6 +34,8 @@ export function changeActionsOf(line: CtrChangeLine, tierCount: TierCount | unde
     promote: open && changeable && tierCount !== undefined && nextStageOf(line.stage, tierCount) !== undefined && reaches(access, permissions.promote, refs, now),
     evaluate: open && changeable && EVALUATED_STAGES.includes(line.stage) && reaches(access, permissions.evaluate, refs, now),
     withdraw: (open || line.status === 'DRAFT') && reaches(access, permissions.withdraw, refs, now),
+    // Only an assessed CO is decided, and not by anyone who had a part in its chain (the server judges the people again, with the document and the limit).
+    decide: line.stage === 'CO' && line.status === 'EVALUATED' && changeable && reaches(access, permissions.decide, refs, now) && !line.makers.includes(caller.toLowerCase()),
   };
 }
 
@@ -57,6 +67,7 @@ export function changeRequestView(line: CtrChangeLine, rights: ChangeRights, act
     scope_impact_note: line.scopeImpactNote,
     allocation_line_id: line.allocationLineId,
     effective_on: line.effectiveOn,
+    resulting_revision_id: line.resultingRevisionId,
     submitted_by: line.submittedBy,
     evaluated_by: line.evaluatedBy,
     decided_by: line.decidedBy,

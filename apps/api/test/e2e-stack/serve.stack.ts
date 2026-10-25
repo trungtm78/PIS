@@ -347,6 +347,8 @@ const CHANGE_ROLES = [
   { n: 803, user: 'changeOfficer', code: 'E2E_CHANGE_OFFICER', permissions: ['change.manage', 'change.read', 'contract.read', 'project.read', 'session.self'], rank: 30 },
   { n: 804, user: 'changeEvaluator', code: 'E2E_CHANGE_EVALUATOR', permissions: ['change.evaluate', 'change.read', 'contract.read', 'session.self'], rank: 30 },
   { n: 805, user: 'changeReader', code: 'E2E_CHANGE_READER', permissions: ['change.read', 'change_request.read', 'contract.read', 'session.self'], rank: 10 },
+  { n: 806, user: 'changeApprover', code: 'E2E_CHANGE_APPROVER', permissions: ['contract.change.approve', 'change.read', 'contract.read', 'boq_line.read', 'project.read', 'session.self'], rank: 50 },
+  { n: 807, user: 'changeAll', code: 'E2E_CHANGE_ALL', permissions: ['change.manage', 'change.evaluate', 'contract.change.approve', 'change.read', 'contract.read', 'boq_line.read', 'project.read', 'session.self'], rank: 50 },
 ];
 
 /**

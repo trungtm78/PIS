@@ -245,7 +245,8 @@ export class CtrBoqStore {
   async importLines(tx: TenantTx, revisionId: string, expectedVersion: number, request: BoqImportRequest, actor: string, scopes: ContractScopes): Promise<BoqImportResult> {
     const revision = await this.lockRevision(tx, revisionId, scopes);
     if (revision.version !== expectedVersion) throw versionConflict(revision.version);
-    if (revision.status !== 'DRAFT') throw new DomainError('REVISION_NOT_DRAFT', 422);
+    // The BOQ of a revision is written while it is a draft, and while a change order waits for its day (the new prices are put in before it takes over).
+    if (revision.status !== 'DRAFT' && !(revision.status === 'PENDING_EFFECTIVE' && revision.kind === 'CHANGE_ORDER')) throw new DomainError('REVISION_NOT_DRAFT', 422);
     if (!(revision.kind === 'BASE' ? BASE_STATES : LATER_STATES).includes(revision.contractStatus)) throw new DomainError('CONTRACT_STATE_INVALID', 409);
     if (!MODES.includes(request.mode)) throw invalid('mode');
     const mode = request.mode as BoqImportMode;

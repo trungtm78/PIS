@@ -286,6 +286,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'createChangeRequest', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { stage: 'EVENT', baseline_revision_id: CONTRACT_FIXTURES['TNT-B'].revisionId, reason: 'Isolation foreign change attempt' } },
   { operation: 'promoteChangeRequest', method: 'POST', id: CHANGE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign promotion attempt' } },
   { operation: 'evaluateChangeRequest', method: 'POST', id: CHANGE_FIXTURES['TNT-B'].id, versioned: true, body: { evaluated_delta_vnd: '0', schedule_impact_days: 0, funding_impact_note: 'Isolation foreign evaluation attempt' } },
+  { operation: 'post_contract_changes_id_decision', method: 'POST', id: CHANGE_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign decision attempt', evidence_ids: [] } },
   { operation: 'withdrawChangeRequest', method: 'POST', id: CHANGE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign withdrawal attempt' } },
   { operation: 'get_resources_change_request_id', method: 'GET', id: CHANGE_FIXTURES['TNT-B'].id },
   { operation: 'suspendContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign suspension attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, suspended_from: '2026-10-25' } },

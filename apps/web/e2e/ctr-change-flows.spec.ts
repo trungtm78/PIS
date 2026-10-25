@@ -8,8 +8,9 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
 /**
  * CTR-20, CTR-07 and CTR-19 (the chain of changes of a project) in a real browser against the real API and database (apps/api/test/e2e-stack): the business owner sets the tiers of a
  * project, the contract officer raises the first request, which fixes them (the screen of the policy then shows them locked, and a statement that bypasses the command is refused by the
- * database), and the request is promoted from the change event to the PCO and the CO and the CO is assessed. A reader sees the board and no command. What the screens changed is looked up in
- * the database.
+ * database), and the request is promoted from the change event to the PCO and the CO and the CO is assessed. An authority who had no part in it compares the CO with the contract and approves
+ * it on a decision document: the contract gets a revision that waits for its day, and the timeline of the revisions says it is not used for payment. A reader sees the board and no command. What
+ * the screens changed is looked up in the database.
  */
 
 const MAKER = membershipOf('lifecycleMaker');
@@ -66,6 +67,18 @@ async function seed(): Promise<Seeded> {
   }
   return { projectId, contractId, code, revisionId };
 }
+
+const decisionDocument = async (): Promise<string> => {
+  const [version] = await sql<{ id: string }>("select id from machvon.document_version where object_key like 'tenants/e2e/ctr-%' order by object_key limit 1");
+  if (version === undefined) throw new Error('the documents of the stack are missing');
+  return version.id;
+};
+
+const revisionsOf = (contractId: string) =>
+  sql<{ id: string; revision: number; status: string; kind: string; amount_vnd: string; valid_from: string; valid_until: string | null; change_request_id: string | null }>(
+    'select id, revision, status, kind, amount_vnd::text, valid_from::text, valid_until::text, change_request_id from machvon.contract_revision where contract_id = $1 order by revision',
+    [contractId],
+  );
 
 const configOf = async (projectId: string) => {
   const [row] = await sql<{ tier_count: number; locked_at: string | null; locked_by_change_id: string | null }>('select tier_count, locked_at::text, locked_by_change_id from machvon.change_chain_config where project_id = $1', [projectId]);
@@ -231,5 +244,100 @@ test.describe('the chain of changes of a project', () => {
     await expect(page.locator(`[data-request="${event?.id}"] [data-testid="change-status"]`)).toHaveText(vi['ctr.change.status.withdrawn']);
     expect(await requestsOf(seeded.contractId)).toMatchObject([{ status: 'WITHDRAWN' }]);
     await expect(page.locator('[data-command]')).toHaveCount(0);
+  });
+
+  test('the one who raised the chain may not decide it; an authority compares the CO with the contract and approves it, and the revision waits for its day (UI-CTR-08, UI-CTR-26, AC-ST-CTR-007-1, AC-ST-CTR-007-2, UAT-AC308)', async ({ page }) => {
+    const seeded = await seed();
+    await open(page, `/ctr/ctr-20?project=${seeded.projectId}`, 'changeOwner');
+    await page.locator('input[data-tiers="1"]').check();
+    await page.getByRole('button', { name: vi['ctr.change.tiers.submit'] }).click();
+    await expect(page.getByTestId('done')).toBeVisible();
+    // One tier: the request starts at the CO. The same person raises it and assesses it, so they are not offered the decision.
+    await open(page, `/ctr/ctr-07?contract=${seeded.contractId}`, 'changeAll');
+    await page.locator('#request-reason').fill('Giảm khối lượng đào đắp theo thực tế.');
+    await page.getByRole('button', { name: vi['ctr.change.request.submit'] }).click();
+    await expect(page.getByTestId('done')).toBeVisible();
+    const [co] = await requestsOf(seeded.contractId);
+    await open(page, `/ctr/ctr-19?project=${seeded.projectId}`, 'changeAll');
+    await press(page, co?.id ?? '', 'evaluate');
+    await page.locator('#change-evaluated').fill('-5000');
+    await page.locator('#change-days').fill('3');
+    await page.locator('#change-funding').fill('Tiết kiệm được trên hợp đồng.');
+    await page.getByRole('dialog').getByRole('button', { name: vi['ctr.change.evaluate.submit'] }).click();
+    await expect(page.locator(`[data-request="${co?.id}"] [data-testid="change-status"]`)).toHaveText(vi['ctr.change.status.evaluated']);
+    await expect(page.locator(`[data-request="${co?.id}"] [data-testid="decision-link"]`)).toHaveText(vi['ctr.change.action.compare']);
+
+    await open(page, `/ctr/ctr-08?project=${seeded.projectId}&request=${co?.id}`, 'changeAll');
+    await expect(page.getByRole('heading', { level: 1, name: vi['ctr.revision.decision.title'] })).toBeVisible();
+    await expect(page.getByTestId('no-command')).toHaveText(vi['ctr.revision.noCommand.notice']);
+    await expect(page.locator('input[name="decision"]')).toHaveCount(0);
+
+    // The authority sets the change beside the contract and approves it.
+    await open(page, `/ctr/ctr-08?project=${seeded.projectId}&request=${co?.id}`, 'changeApprover');
+    await expect(page.getByTestId('request-code')).toHaveText('CO-001');
+    await expect(page.locator('[data-row="value"] [data-testid="after-value"]')).toContainText('995.000');
+    await expect(page.getByTestId('days')).toHaveText('3 ngày');
+    await page.locator('input[data-decision="approve"]').check();
+    await page.getByRole('button', { name: vi['ctr.revision.submit.approve'] }).click();
+    await expect(page.getByText(vi['ctr.change.problem.required']).first()).toBeVisible();
+    await page.locator('#decision-reason').fill('Phù hợp kế hoạch và thực tế thi công.');
+    await page.locator('#decision-document').fill(await decisionDocument());
+    await page.locator('#decision-day').fill('2999-08-01');
+    await page.getByRole('button', { name: vi['ctr.revision.submit.approve'] }).click();
+    await expect(page.getByTestId('done')).toContainText(vi['ctr.revision.decision.approve']);
+    expect(await requestsOf(seeded.contractId)).toMatchObject([{ status: 'APPROVED' }]);
+    const revisions = await revisionsOf(seeded.contractId);
+    expect(revisions).toMatchObject([
+      { revision: 1, status: 'EFFECTIVE', kind: 'BASE', valid_until: null },
+      { revision: 2, status: 'PENDING_EFFECTIVE', kind: 'CHANGE_ORDER', amount_vnd: '995000', valid_from: '2999-08-01', change_request_id: co?.id },
+    ]);
+    // Until its day the contract is worth what it was.
+    expect((await sql<{ contract_value_vnd: string }>('select contract_value_vnd::text from machvon.contract where id = $1', [seeded.contractId]))[0]?.contract_value_vnd).toBe(VALUE);
+
+    // The timeline says so, and a reader sees it the same.
+    await open(page, `/ctr/ctr-26?id=${seeded.contractId}`, 'changeReader');
+    await expect(page.getByRole('heading', { level: 1, name: vi['ctr.revision.versions.title'] })).toBeVisible();
+    await expect(page.locator('[data-revision]')).toHaveCount(2);
+    await expect(page.locator('[data-revision="1"] [data-testid="standing"]')).toHaveText(vi['ctr.revision.standing.inForce']);
+    await expect(page.locator('[data-revision="2"] [data-testid="standing"]')).toHaveText(vi['ctr.revision.standing.waiting']);
+    await expect(page.locator('[data-revision="2"] [data-testid="waiting-notice"]')).toContainText('2999-08-01');
+    await expect(page.locator('[data-revision="2"] [data-testid="delta"]')).toContainText('-5.000');
+    await page.locator('[data-revision="2"] [data-testid="source-link"]').click();
+    await expect(page.getByRole('heading', { level: 1, name: vi['ctr.revision.decision.title'] })).toBeVisible();
+    await expect(page.getByTestId('request-code')).toHaveText('CO-001');
+
+    // The change order is over: nobody is offered the decision again.
+    await open(page, `/ctr/ctr-08?project=${seeded.projectId}&request=${co?.id}`, 'changeApprover');
+    await expect(page.getByTestId('no-command')).toHaveText(vi['ctr.revision.notEvaluated.notice']);
+  });
+
+  test('a change order is given back to be assessed again, or rejected, with the reason (UI-CTR-08, AC-ST-CTR-007-1)', async ({ page }) => {
+    const seeded = await seed();
+    await open(page, `/ctr/ctr-20?project=${seeded.projectId}`, 'changeOwner');
+    await page.locator('input[data-tiers="1"]').check();
+    await page.getByRole('button', { name: vi['ctr.change.tiers.submit'] }).click();
+    await expect(page.getByTestId('done')).toBeVisible();
+    await open(page, `/ctr/ctr-07?contract=${seeded.contractId}`, 'changeOfficer');
+    await page.locator('#request-reason').fill('Điều chỉnh tiến độ.');
+    await page.getByRole('button', { name: vi['ctr.change.request.submit'] }).click();
+    await expect(page.getByTestId('done')).toBeVisible();
+    const [co] = await requestsOf(seeded.contractId);
+    await open(page, `/ctr/ctr-19?project=${seeded.projectId}`, 'changeEvaluator');
+    await press(page, co?.id ?? '', 'evaluate');
+    await page.locator('#change-evaluated').fill('0');
+    await page.locator('#change-days').fill('15');
+    await page.locator('#change-funding').fill('Không đổi nguồn vốn.');
+    await page.getByRole('dialog').getByRole('button', { name: vi['ctr.change.evaluate.submit'] }).click();
+    await expect(page.locator(`[data-request="${co?.id}"] [data-testid="change-status"]`)).toHaveText(vi['ctr.change.status.evaluated']);
+
+    await open(page, `/ctr/ctr-08?project=${seeded.projectId}&request=${co?.id}`, 'changeApprover');
+    await page.locator('input[data-decision="return"]').check();
+    await page.locator('#decision-reason').fill('Cần làm rõ ảnh hưởng tiến độ.');
+    await page.getByRole('button', { name: vi['ctr.revision.submit.return'] }).click();
+    await expect(page.getByTestId('done')).toBeVisible();
+    expect(await requestsOf(seeded.contractId)).toMatchObject([{ status: 'SUBMITTED' }]);
+    expect(await revisionsOf(seeded.contractId)).toHaveLength(1);
+    await page.reload();
+    await expect(page.getByTestId('no-command')).toHaveText(vi['ctr.revision.notEvaluated.notice']);
   });
 });

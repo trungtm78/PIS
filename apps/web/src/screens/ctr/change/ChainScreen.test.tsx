@@ -102,6 +102,21 @@ describe('ChainScreen (CTR-19): the chain of changes of a project', () => {
     expect(screen.getByTestId('open-link').getAttribute('href')).toBe('/ctr/ctr-07');
   });
 
+  it('links a CO to the comparison with the contract, with the words of a decision for the one who may take it, and a request that is no CO to nothing', async () => {
+    const co = (n: number, decide: boolean) => request(n, { stage: 'CO', code: `CO-00${n}`, status: 'EVALUATED', actions: { promote: false, evaluate: true, withdraw: true, decide } });
+    open(world({ chain: threeTiers([request(1), co(2, true), co(3, false)]) }));
+    await screen.findByTestId('board');
+    const link = (id: string) => within(document.querySelector(`[data-request="${id}"]`) as HTMLElement).queryByTestId('decision-link');
+    expect(link(requestId(1))).toBeNull();
+    expect(link(requestId(2))?.textContent).toBe(vi_['ctr.change.action.decide']);
+    expect(link(requestId(2))?.getAttribute('href')).toBe(`/ctr/ctr-08?project=${PROJECT}&request=${requestId(2)}`);
+    expect(link(requestId(3))?.textContent).toBe(vi_['ctr.change.action.compare']);
+    cleanup();
+    open(world({ chain: chain({ config: undefined, requests: [guestRequest(1, { stage: 'CO' })], actions: { configure: false, open: false } }) }));
+    await screen.findByTestId('board');
+    expect(screen.queryByTestId('decision-link')).toBeNull();
+  });
+
   it('says the tiers are not set when the project has none, to the owner and to a reader alike but in their own words', async () => {
     open(world({ chain: chain({ config: undefined }) }));
     expect((await screen.findByTestId('not-configured')).textContent).toBe(vi_['ctr.change.tiers.none.staff']);

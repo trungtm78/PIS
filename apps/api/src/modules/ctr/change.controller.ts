@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { BidContractorStore, CtrChangeChainStore, CtrContractSource, TenantDatabase, contractScope, projectScope } from '@machvon/db';
-import type { ContractScopes, CtrChangeResult, CtrSetTiersResult } from '@machvon/db';
-import { DomainError, asUuid } from '@machvon/kernel';
+import { BidContractorStore, CtrChangeChainStore, CtrChangeDecisionStore, CtrContractSource, DoaMatrixStore, TenantDatabase, contractScope, projectScope } from '@machvon/db';
+import type { ContractScopes, CtrChangeResult, CtrDecisionResult, CtrSetTiersResult } from '@machvon/db';
+import { CHANGE_DOA_DOCUMENT_TYPE, DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -10,6 +10,7 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
+import { assertWithinDelegation } from '../../doa-delegation';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -23,13 +24,15 @@ const CREATE_PERMISSION = PERMISSIONS.createChangeRequest;
 const PROMOTE_PERMISSION = PERMISSIONS.promoteChangeRequest;
 const EVALUATE_PERMISSION = PERMISSIONS.evaluateChangeRequest;
 const WITHDRAW_PERMISSION = PERMISSIONS.withdrawChangeRequest;
+const DECIDE_PERMISSION = PERMISSIONS.post_contract_changes_id_decision;
 const CHAIN_READ_PERMISSION = PERMISSIONS.getChangeChain;
 const REQUEST_READ_PERMISSION = PERMISSIONS.get_resources_change_request;
 const CONFIG_RESOURCE = 'change_chain_config';
+const REVISION_RESOURCE = 'contract_revision';
 const REQUEST_RESOURCE = 'change_request';
 const CLASSIFICATION = 'INTERNAL';
 
-const ACTION_PERMISSIONS: ChangePermissions = { promote: PROMOTE_PERMISSION, evaluate: EVALUATE_PERMISSION, withdraw: WITHDRAW_PERMISSION };
+const ACTION_PERMISSIONS: ChangePermissions = { promote: PROMOTE_PERMISSION, evaluate: EVALUATE_PERMISSION, withdraw: WITHDRAW_PERMISSION, decide: DECIDE_PERMISSION };
 
 const scopesFor = (access: EffectiveAccess, permission: string, now: Date): ContractScopes => ({ update: contractScope(access, permission, now), read: contractScope(access, CHAIN_READ_PERMISSION, now) });
 
@@ -37,13 +40,17 @@ const scopesFor = (access: EffectiveAccess, permission: string, now: Date): Cont
  * The chain of changes of a contract (ST-CTR-006, CTR 3.3). The business owner sets how many tiers a project uses (1, 2 or 3) until the first request is raised, which fixes the number
  * (409 `CHANGE_TIERS_LOCKED`; the database refuses a statement that bypasses the command). A request is raised at the first tier of the chain only (422 `CHANGE_STAGE_NOT_ALLOWED`
  * elsewhere) on a contract that is being performed, promoted from tier to tier, evaluated at a PCO or a CO (an increase has to fit the line of capital it is paid from, asked of CAP
- * through its port) or withdrawn. The decision of a CO and the revision it makes of the contract are another story. Status, tier, code and version are written by no body.
+ * through its port) or withdrawn. An assessed CO is decided by someone who had no part in its chain (ST-CTR-007): the approval rests on a decision document, begins today or later, keeps the
+ * value of the contract at or above what was accepted and paid, is within the delegation limit of the matrix when the tenant configured one, and makes the next revision of the contract,
+ * pending until its day. Status, tier, code and version are written by no body.
  */
 @Controller()
 export class ChangeChainController {
   private readonly source = new CtrContractSource();
   private readonly chain = new CtrChangeChainStore(this.source);
+  private readonly decisions = new CtrChangeDecisionStore(this.source);
   private readonly contractors = new BidContractorStore();
+  private readonly doa = new DoaMatrixStore();
 
   constructor(
     @Inject(TenantDatabase) private readonly database: TenantDatabase,
@@ -134,6 +141,47 @@ export class ChangeChainController {
     return commandResult(scope, done.status, done.version, done.id);
   }
 
+  @Post('contract-changes/:id/decision')
+  @HttpCode(200)
+  @OperationId('post_contract_changes_id_decision')
+  @Command({ operation: 'post_contract_changes_id_decision', versioned: true })
+  async decide(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrContractChangeDecision']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.decisions.decide(
+      scope.tx,
+      id.toLowerCase(),
+      scope.expectedVersion ?? 0,
+      {
+        decision: body.decision,
+        reason: body.reason,
+        evidenceIds: body.evidence_ids,
+        approvedDeltaVnd: body.approved_delta_vnd,
+        effectiveOn: body.effective_on,
+        decisionDocumentVersionId: body.decision_document_version_id,
+        boqLines: body.boq_lines,
+      },
+      scope.tenant.membershipId,
+      scopesFor(access, DECIDE_PERMISSION, now),
+      vietnamDateOf(now),
+      {
+        // The size of the change, whichever way it goes, against the bands the tenant configured for change orders; a tenant that configured none leaves it to the permission and its scope.
+        authorise: (facts) =>
+          assertWithinDelegation(this.doa, scope, access, {
+            documentType: CHANGE_DOA_DOCUMENT_TYPE,
+            permission: DECIDE_PERMISSION,
+            amountVnd: facts.amountVnd,
+            unitId: facts.ownerUnit.id,
+            place: { ownerUnitPath: facts.ownerUnit.path, ownerUnitId: facts.ownerUnit.id, projectId: facts.projectId, contractId: facts.contractId },
+            now,
+            unconfigured: 'ALLOW',
+          }),
+        available: (allocationLineId, amountVnd) => this.commitments.assertCanAbsorb(scope, allocationLineId, amountVnd),
+      },
+    );
+    await this.decided(scope, done, now);
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
   /** The board of a project (CTR-19) and the form of a contract (CTR-07): the tiers of the project, the requests in the scope of the caller and what the caller may do with each. */
   @Get('projects/:id/change-chain')
   @OperationId('getChangeChain')
@@ -157,7 +205,7 @@ export class ChangeChainController {
       return {
         project_id: projectId,
         ...(config === undefined ? {} : { config: tierConfigView(config) }),
-        requests: lines.map((line) => changeRequestView(line, { internal: !guest }, guest ? undefined : changeActionsOf(line, config?.tierCount, access, now, ACTION_PERMISSIONS))),
+        requests: lines.map((line) => changeRequestView(line, { internal: !guest }, guest ? undefined : changeActionsOf(line, config?.tierCount, access, now, ACTION_PERMISSIONS, tenant.membershipId))),
         actions: { configure: internal && reaches(access, CONFIGURE_PERMISSION, refs, now), open: internal && reaches(access, CREATE_PERMISSION, refs, now) },
         as_of: now.toISOString(),
       };
@@ -191,6 +239,42 @@ export class ChangeChainController {
         occurred_at: now.toISOString(),
       },
       eventKey: `${CONFIG_RESOURCE}:${done.id}:${done.version}`,
+    });
+  }
+
+  /** The audit rows and the events of a decision: ids, statuses, amounts and days, never the words of the reason beyond the row that keeps them. */
+  private async decided(scope: CommandScope, done: CtrDecisionResult, now: Date): Promise<void> {
+    const facts = { contract_id: done.contractId, contract_code: done.contractCode, project_id: done.projectId, code: done.code, evidence_ids: done.evidenceIds };
+    const moved = { from_status: done.fromStatus, to_status: done.status, decision: done.decision };
+    const approved = done.revision === undefined ? {} : { approved_delta_vnd: done.approvedDeltaVnd, effective_on: done.effectiveOn, decision_document_version_id: done.decisionDocumentVersionId, revision_id: done.revision.id, from_value_vnd: done.fromValueVnd, to_value_vnd: done.toValueVnd };
+    await scope.audit({
+      action: done.decision === 'approve' ? 'change.approved' : done.decision === 'return' ? 'change.returned' : 'change.rejected',
+      resourceType: REQUEST_RESOURCE,
+      resourceId: done.id,
+      classification: CLASSIFICATION,
+      reason: done.reason,
+      diff: { ...moved, ...facts, ...approved },
+    });
+    await scope.emit({
+      aggregateType: REQUEST_RESOURCE,
+      aggregateId: done.id,
+      aggregateVersion: done.version,
+      type: done.decision === 'approve' ? 'ctr.change.approved.v1' : done.decision === 'return' ? 'ctr.change.returned.v1' : 'ctr.change.rejected.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, change_request_id: done.id, ...facts, ...moved, ...approved, allocation_line_id: done.allocationLineId, version: done.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `${REQUEST_RESOURCE}:${done.id}:${done.version}`,
+    });
+    if (done.revision === undefined) return;
+    const revision = { revision_id: done.revision.id, contract_id: done.contractId, project_id: done.projectId, revision: done.revision.revision, kind: 'CHANGE_ORDER', amount_vnd: done.revision.amountVnd, valid_from: done.revision.validFrom, status: done.revision.status, supersedes_id: done.revision.supersedesId, change_request_id: done.id };
+    await scope.audit({ action: 'contract.revision_created', resourceType: REVISION_RESOURCE, resourceId: done.revision.id, classification: CLASSIFICATION, diff: { ...revision, boq_line_count: done.revision.boqLineCount, boq_total_vnd: done.revision.boqTotalVnd } });
+    await scope.emit({
+      aggregateType: REVISION_RESOURCE,
+      aggregateId: done.revision.id,
+      aggregateVersion: done.revision.version,
+      type: 'ctr.contract_revision.created.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, ...revision, version: done.revision.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `${REVISION_RESOURCE}:${done.revision.id}:created`,
     });
   }
 

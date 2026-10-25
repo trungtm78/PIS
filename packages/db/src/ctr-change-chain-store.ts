@@ -127,9 +127,14 @@ export interface ChangeLine {
   version: number;
   /** Where the contract lies, so the caller's permissions can be judged for it. */
   reach: ContractPlace;
+  /** Whoever raised or promoted a request of the chain of this one, and whoever assessed it: the people who may not decide it. */
+  makers: string[];
+  /** The revision of the contract that an approved change order made. */
+  resultingRevisionId: string | null;
 }
 
-interface LineSql {
+/** A request as the database holds it: the columns of the board and of the commands. */
+export interface ChangeRow {
   id: string;
   code: string | null;
   stage: ChangeStage;
@@ -166,13 +171,20 @@ const COLUMNS = `r.id, r.code, r.stage, r.status, r.contract_id, c.code as contr
   ${TIMESTAMP('r.created_at')} as created_at, ${TIMESTAMP('r.evaluated_at')} as evaluated_at, ${TIMESTAMP('r.decided_at')} as decided_at, r.version::text as version`;
 
 /** Where the contract lies: the units of its project, which the permissions of a caller are judged against. */
-const REACH_COLUMNS = 'ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path';
+const REACH_COLUMNS = `ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path, r.resulting_revision_id,
+  (with recursive chain as (
+     select q.id, q.parent_id, q.submitted_by, q.evaluated_by from machvon.change_request q where q.tenant_id = r.tenant_id and q.id = r.id
+     union all
+     select q.id, q.parent_id, q.submitted_by, q.evaluated_by from machvon.change_request q join chain on q.id = chain.parent_id where q.tenant_id = r.tenant_id
+   ) select coalesce(array_agg(distinct who::text), '{}') from chain, lateral unnest(array[chain.submitted_by, chain.evaluated_by]) as who where who is not null) as makers`;
 
-interface ReachSql extends LineSql {
+interface ReachSql extends ChangeRow {
   owner_unit_id: string;
   owner_unit_path: string;
   investor_unit_id: string | null;
   investor_unit_path: string | null;
+  resulting_revision_id: string | null;
+  makers: string[];
 }
 
 /** The contract with its project and units (the aliases of the scope builders: `c`, `p`, `ou`, `iu`) and its change requests. */
@@ -206,6 +218,8 @@ const toLine = (row: ReachSql): ChangeLine => ({
   evaluatedAt: row.evaluated_at,
   decidedAt: row.decided_at,
   version: Number(row.version),
+  makers: row.makers,
+  resultingRevisionId: row.resulting_revision_id,
   reach: {
     contractId: row.contract_id,
     projectId: row.project_id,
@@ -331,7 +345,7 @@ export class CtrChangeChainStore {
    */
   async promote(tx: TenantTx, id: string, expectedVersion: number, reasonText: string, actor: string, scopes: ContractScopes): Promise<ChangeResult> {
     const reason = textOf(reasonText, 'reason', MAX_TEXT);
-    const held = await this.hold(tx, id, expectedVersion, scopes);
+    const held = await this.lock(tx, id, expectedVersion, scopes);
     if (!OPEN_CHANGE_STATUSES.includes(held.row.status)) throw stateInvalid(held.row.status);
     if (!CHANGEABLE_CONTRACT_STATUSES.includes(held.contract.status)) throw contractStateInvalid(held.contract.status);
     const config = await this.configOf(tx, held.contract.projectId);
@@ -365,7 +379,7 @@ export class CtrChangeChainStore {
     if (input.allocationLineId !== undefined && !UUID.test(input.allocationLineId)) throw invalid('allocation_line_id');
     const line = input.allocationLineId?.toLowerCase() ?? null;
 
-    const held = await this.hold(tx, id, expectedVersion, scopes);
+    const held = await this.lock(tx, id, expectedVersion, scopes);
     if (!OPEN_CHANGE_STATUSES.includes(held.row.status)) throw stateInvalid(held.row.status);
     if (!EVALUATED_STAGES.includes(held.row.stage)) throw stageNotAllowed({ stage: held.row.stage, reason: 'STAGE_NOT_EVALUATED' });
     if (!CHANGEABLE_CONTRACT_STATUSES.includes(held.contract.status)) throw contractStateInvalid(held.contract.status);
@@ -380,18 +394,18 @@ export class CtrChangeChainStore {
         where id = $1::uuid`,
       [id, delta, days, funding, scopeNote, line, actor],
     );
-    const row: LineSql = { ...held.row, status: 'EVALUATED', evaluated_delta_vnd: delta, schedule_impact_days: days, evaluation_allocation_line_id: line, version: String(Number(held.row.version) + 1) };
+    const row: ChangeRow = { ...held.row, status: 'EVALUATED', evaluated_delta_vnd: delta, schedule_impact_days: days, evaluation_allocation_line_id: line, version: String(Number(held.row.version) + 1) };
     return this.result(row, held.contract, { from: held.row.status, tierCount: (config?.tier_count ?? 1) as TierCount, lockedTiers: false });
   }
 
   /** Withdraws a request that is still open, with the reason; the requests above it in the chain are not touched. */
   async withdraw(tx: TenantTx, id: string, expectedVersion: number, reasonText: string, actor: string, scopes: ContractScopes): Promise<ChangeResult> {
     const reason = textOf(reasonText, 'reason', MAX_TEXT);
-    const held = await this.hold(tx, id, expectedVersion, scopes);
+    const held = await this.lock(tx, id, expectedVersion, scopes);
     if (held.row.status !== 'DRAFT' && !OPEN_CHANGE_STATUSES.includes(held.row.status)) throw stateInvalid(held.row.status);
     const config = await this.configOf(tx, held.contract.projectId);
     await tx.query("update machvon.change_request set status = 'WITHDRAWN', status_reason = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid", [id, reason, actor]);
-    const row: LineSql = { ...held.row, status: 'WITHDRAWN', status_reason: reason, version: String(Number(held.row.version) + 1) };
+    const row: ChangeRow = { ...held.row, status: 'WITHDRAWN', status_reason: reason, version: String(Number(held.row.version) + 1) };
     return this.result(row, held.contract, { from: held.row.status, tierCount: (config?.tier_count ?? 1) as TierCount, lockedTiers: false });
   }
 
@@ -434,12 +448,12 @@ export class CtrChangeChainStore {
     if (rows[0] === undefined || rows[0].status !== 'EFFECTIVE') throw invalid('baseline_revision_id');
   }
 
-  /** The request held for update inside the scope of the command, with its contract held first and judged by the scope; a request the caller cannot see does not exist. */
-  private async hold(tx: TenantTx, id: string, expectedVersion: number, scopes: ContractScopes): Promise<{ row: LineSql; contract: LockedContract }> {
+  /** The request locked for update inside the scope of the command, with its contract held first and judged by the scope; a request the caller cannot see does not exist. */
+  async lock(tx: TenantTx, id: string, expectedVersion: number, scopes: ContractScopes): Promise<{ row: ChangeRow; contract: LockedContract }> {
     const peek = await tx.query<{ contract_id: string }>('select contract_id from machvon.change_request where id = $1::uuid', [id]);
     if (peek[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const contract = await this.contracts.lock(tx, peek[0].contract_id, scopes);
-    const rows = await tx.query<LineSql>(`select ${COLUMNS} from ${FROM} where r.id = $1::uuid for update of r`, [id]);
+    const rows = await tx.query<ChangeRow>(`select ${COLUMNS} from ${FROM} where r.id = $1::uuid for update of r`, [id]);
     const row = rows[0];
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (Number(row.version) !== expectedVersion) throw versionConflict(Number(row.version));
@@ -461,7 +475,7 @@ export class CtrChangeChainStore {
       actor: string;
       startingAmount?: string;
     },
-  ): Promise<LineSql> {
+  ): Promise<ChangeRow> {
     const taken = await tx.query<{ n: string }>('select count(*)::text as n from machvon.change_request where contract_id = $1::uuid and stage = $2', [contract.id, values.stage]);
     const code = changeCode(values.stage, Number(taken[0]?.n ?? '0') + 1);
     const id = randomUUID();
@@ -471,11 +485,11 @@ export class CtrChangeChainStore {
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::numeric, $5, $6, 'SUBMITTED', 1, $7, $8, $9::uuid, $10, $11::numeric, $12::uuid, $12::uuid, $12::uuid)`,
       [id, contract.id, values.baseline, values.startingAmount ?? values.estimated ?? '0', values.days, values.reason, code, values.stage, values.parentId, values.eventKind, values.estimated, values.actor],
     );
-    const rows = await tx.query<LineSql>(`select ${COLUMNS} from ${FROM} where r.id = $1::uuid`, [id]);
-    return rows[0] as LineSql;
+    const rows = await tx.query<ChangeRow>(`select ${COLUMNS} from ${FROM} where r.id = $1::uuid`, [id]);
+    return rows[0] as ChangeRow;
   }
 
-  private result(row: LineSql, contract: LockedContract, extra: { from: ChangeStatus | null; tierCount: TierCount; lockedTiers: boolean }): ChangeResult {
+  private result(row: ChangeRow, contract: LockedContract, extra: { from: ChangeStatus | null; tierCount: TierCount; lockedTiers: boolean }): ChangeResult {
     return {
       id: row.id,
       code: row.code ?? '',

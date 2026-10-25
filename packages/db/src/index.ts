@@ -371,6 +371,10 @@ export { BidProposalReads } from './bid-proposal-reads.ts';
 export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-reads.ts';
 export { BidConflictStore } from './bid-conflict-store.ts';
 export { CtrChangeChainStore } from './ctr-change-chain-store.ts';
+export { CtrChangeDecisionStore } from './ctr-change-decision-store.ts';
+export type { DecideInput as CtrDecideInput, DecisionHooks as CtrDecisionHooks, DecisionResult as CtrDecisionResult, NewRevisionResult as CtrNewRevisionResult } from './ctr-change-decision-store.ts';
+export { CtrRevisionStore } from './ctr-revision-store.ts';
+export type { DatedPrice, PricingRevision } from './ctr-revision-store.ts';
 export type { ChangeHooks as CtrChangeHooks, ChangeLine as CtrChangeLine, ChangeResult as CtrChangeResult, EvaluateInput as CtrEvaluateInput, NewChangeInput as CtrNewChangeInput, SetTiersResult as CtrSetTiersResult, TierConfig as CtrTierConfig } from './ctr-change-chain-store.ts';
 export { ACTIVATION_GATE, ACTIVATION_PROJECT_STATUS, CtrContractLifecycleStore } from './ctr-contract-lifecycle-store.ts';
 export type { ActivateInput, ActivateResult, CommitmentOutcome, ContractFacts, LifecycleHooks, LifecycleResult, ActivationReadiness, ContractResumeInput, ContractResumeResult, SignInput, SignResult, ContractSuspendInput, ContractSuspendResult, ContractTerminateInput, ContractTerminateResult } from './ctr-contract-lifecycle-store.ts';
@@ -695,6 +699,8 @@ export type { BoqImportMode, BoqImportRequest, BoqImportResult, BoqLineFilter, B
 export { ALERT_THRESHOLDS, CtrGuaranteeStore, GUARANTEE_KINDS, GUARANTEE_STATUSES, thresholdFor } from './ctr-guarantee-store.ts';
 export type { AlertThreshold, ExpiringRow, GuaranteeKind, GuaranteeMove, GuaranteeRow, GuaranteeStatus, GuaranteeVerification, GuaranteeVerificationStatus, GuaranteeExtension, GuaranteeRelease, NewGuarantee } from './ctr-guarantee-store.ts';
 export { CtrGuaranteeExpiry } from './ctr-guarantee-expiry.ts';
+export { CtrRevisionEffective } from './ctr-revision-effective.ts';
+export type { RevisionPass } from './ctr-revision-effective.ts';
 export type { ExpiryResult } from './ctr-guarantee-expiry.ts';
 export {
   DEFAULT_TREASURY_COLUMNS,

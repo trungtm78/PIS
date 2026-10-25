@@ -40,7 +40,8 @@ export const request = (n: number, overrides: Record<string, unknown> = {}) => (
   decided_by: null,
   evaluated_at: null,
   decided_at: null,
-  actions: { promote: true, evaluate: false, withdraw: true },
+  resulting_revision_id: null,
+  actions: { promote: true, evaluate: false, withdraw: true, decide: false },
   ...overrides,
 });
 
@@ -90,6 +91,8 @@ export interface World {
   contracts: Array<Record<string, unknown>>;
   details: Array<Record<string, unknown>>;
   projects: Array<Record<string, unknown>>;
+  /** The lines of the BOQs of the contract, as the register answers them. */
+  boqLines: Array<Record<string, unknown>>;
   failing: Set<string>;
 }
 
@@ -99,6 +102,7 @@ export function world(overrides: Partial<World> = {}): World {
     contracts: [line(1, { status: 'ACTIVE' }), line(2, { status: 'SUSPENDED' }), line(3, { status: 'DRAFT' }), line(4, { status: 'TERMINATED' })],
     details: [active()],
     projects: [option(PROJECT, { code: 'DA-2026-001', name: 'Dự án cầu' }), option(SECOND_PROJECT, { code: 'DA-2026-002', name: 'Dự án đường' })],
+    boqLines: [],
     failing: new Set(),
     ...overrides,
   };
@@ -122,6 +126,8 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.contracts);
       case 'get_resources_project':
         return Promise.resolve(state.projects);
+      case 'get_resources_boq_line':
+        return Promise.resolve(state.boqLines);
       default:
         return Promise.reject(new Error(`unexpected readAll ${operation}`));
     }

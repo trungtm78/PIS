@@ -509,7 +509,8 @@ describe('the chain of changes of a contract (ST-CTR-006)', () => {
       expect((await insert('Reason', 'SUBMITTED', 'EVENT', null)).message).toContain('change_request_submitted_chk');
       expect((await insert(' padded ', 'SUBMITTED', 'EVENT', memberId(MAKER))).message).toContain('change_request_text_chk');
       expect((await insert('', 'SUBMITTED', 'EVENT', memberId(MAKER))).message).toContain('change_request_text_chk');
-      expect((await insert('Reason', 'REJECTED', 'PCO', memberId(MAKER))).message).toContain('change_request_stage_status_chk');
+      // Only a CO is decided; a rejection also says who decided and why, and either check may speak first.
+      expect((await insert('Reason', 'REJECTED', 'PCO', memberId(MAKER))).message).toMatch(/change_request_(stage_status|decided)_chk/);
     });
   });
 

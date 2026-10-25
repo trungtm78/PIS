@@ -12,6 +12,7 @@ import { ChangeBadge, Figures, ProjectPicker } from './components';
 import { useChain } from './hooks';
 import { stageLabel } from './labels';
 import { STAGES, inStage, requestLink, tiersLink } from './model';
+import { decisionLink } from '../revision/model';
 import type { Chain, ChangeRequest } from './model';
 import '../ctr.css';
 
@@ -171,6 +172,13 @@ function Card({ request, locale, readOnly, onOpen }: CardProps) {
           {statusReason}
         </p>
       )}
+      {request.stage === 'CO' && request.detail !== undefined ? (
+        <p>
+          <Link to={decisionLink(request.projectId, request.id)} data-testid="decision-link">
+            {request.actions?.decide === true ? t('ctr.change.action.decide') : t('ctr.change.action.compare')}
+          </Link>
+        </p>
+      ) : null}
       {buttons.length === 0 ? null : (
         <div className="ctr-row-actions" data-testid="request-actions">
           {buttons.map((kind) => (

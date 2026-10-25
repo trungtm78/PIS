@@ -1,4 +1,4 @@
-import { AuditSealJob, AuditWriter, BASELINE_PACK, CapAllocationExtensionStore, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LndStageLateJob, MasterStore, OutboxRelay, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AuditSealJob, AuditWriter, BASELINE_PACK, CapAllocationExtensionStore, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LndStageLateJob, MasterStore, OutboxRelay, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, MetricsSink, TenantContext, TimerPort } from '@machvon/kernel';
@@ -75,6 +75,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const disReopens = new DisReopenExpiry(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const permitTypes = new PmtPermitTypeStore();
   const guaranteeExpiry = new CtrGuaranteeExpiry(audit);
+  const revisionEffective = new CtrRevisionEffective(audit);
   const permitExpiry = new PmtPermitExpiry(audit);
   const waiverExpiry = new PmtWaiverExpiry(audit);
   const issueSla = new IssSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
@@ -108,6 +109,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     disReopens: { expire: (ctx) => deps.tenants.withTenant(ctx, (tx) => disReopens.run(tx, ctx.membershipId, new Date())) },
     retention: { run: (ctx, now) => retention.run(ctx, now) },
     guaranteeExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => guaranteeExpiry.run(tx, ctx.membershipId, now)) },
+    revisionEffective: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => revisionEffective.run(tx, ctx.membershipId, now)) },
     permitExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => permitExpiry.run(tx, ctx.membershipId, now)) },
     gateWaiverExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => waiverExpiry.run(tx, ctx.membershipId, now)) },
     issueSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => issueSla.run(tx, ctx.membershipId, now)) },

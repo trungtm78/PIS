@@ -2519,6 +2519,7 @@ final class CtrContractChangeDecision implements RequestModel {
     this.approvedDeltaVnd,
     this.effectiveOn,
     this.decisionDocumentVersionId,
+    this.boqLines,
   });
 
   final String decision;
@@ -2527,6 +2528,7 @@ final class CtrContractChangeDecision implements RequestModel {
   final String? approvedDeltaVnd;
   final String? effectiveOn;
   final String? decisionDocumentVersionId;
+  final List<Map<String, Object?>>? boqLines;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -2536,6 +2538,7 @@ final class CtrContractChangeDecision implements RequestModel {
         if (approvedDeltaVnd != null) 'approved_delta_vnd': approvedDeltaVnd,
         if (effectiveOn != null) 'effective_on': effectiveOn,
         if (decisionDocumentVersionId != null) 'decision_document_version_id': decisionDocumentVersionId,
+        if (boqLines != null) 'boq_lines': boqLines,
       };
 }
 

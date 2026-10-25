@@ -74,9 +74,13 @@ function pickRevision(revisions: readonly RevisionLine[], requested: string | un
   return revisions.find((revision) => revision.id === requested) ?? revisions.find((revision) => revision.status === 'DRAFT') ?? revisions[revisions.length - 1];
 }
 
-/** Whether the lines of the revision can be imported now: it is a draft, and the contract is in the state that lets that revision be drafted. */
+/**
+ * Whether the lines of the revision can be imported now: it is a draft, or a change order that waits for its day (the new prices come in before it takes over), and the contract is in the
+ * state that lets that revision be drafted.
+ */
 function importable(contract: ContractView, revision: RevisionLine): boolean {
-  return revision.status === 'DRAFT' && (revision.kind === 'BASE' ? contract.status === 'DRAFT' : LATER_REVISION_STATES.includes(contract.status));
+  const open = revision.status === 'DRAFT' || (revision.status === 'PENDING_EFFECTIVE' && revision.kind === 'CHANGE_ORDER');
+  return open && (revision.kind === 'BASE' ? contract.status === 'DRAFT' : LATER_REVISION_STATES.includes(contract.status));
 }
 
 function Boq({ contract, lines, requested }: { contract: ContractView; lines: readonly BoqLine[]; requested: string | undefined }) {

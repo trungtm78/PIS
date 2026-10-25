@@ -97,6 +97,7 @@
     "moveOrganizationUnit",
     "openDocumentNumberRegister",
     "placeLegalHold",
+    "post_contract_changes_id_decision",
     "post_contracts_id_activate",
     "post_master_records_id_publish",
     "post_notifications_id_replay",

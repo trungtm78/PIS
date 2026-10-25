@@ -285,6 +285,21 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
     });
   });
 
+  describe('the revisions of a contract', () => {
+    it('links to CTR-26 for the staff and for a guest alike, whatever the status', async () => {
+      for (const status of ['DRAFT', 'ACTIVE', 'TERMINATED']) {
+        open({ summary: summary(status) });
+        await screen.findByTestId('facts');
+        expect(screen.getByTestId('versions-link').getAttribute('href')).toBe(`/ctr/ctr-26?id=${contractId(1)}`);
+        expect(screen.getByTestId('versions-link').textContent).toBe(vi_['ctr.workspace.versions.action']);
+        cleanup();
+      }
+      open({ summary: summary('ACTIVE', { readiness: undefined, actions: undefined }) });
+      await screen.findByTestId('facts');
+      expect(screen.getByTestId('versions-link')).toBeTruthy();
+    });
+  });
+
   describe('the change of a contract', () => {
     it('links to CTR-07 for the staff of a contract that is being performed or suspended, and to nothing for any other', async () => {
       for (const status of ['ACTIVE', 'SUSPENDED']) {

@@ -20,6 +20,7 @@ import { BidConflictStore } from './bid-conflict-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
 import { CtrContractStore, SCOPE_FROM, calendarDate, partiesCheck, textOf } from './ctr-contract-store.ts';
 import type { ContractScopes } from './ctr-contract-store.ts';
+import { decisionDocument } from './ctr-decision-document.ts';
 import { CtrGuaranteeStore } from './ctr-guarantee-store.ts';
 import type { GuaranteeMove } from './ctr-guarantee-store.ts';
 import { PmtGateStore } from './pmt-gate-store.ts';
@@ -549,16 +550,8 @@ export class CtrContractLifecycleStore {
    * The decision document a suspension, a resumption or a termination rests on: a version of a file of the tenant that is not infected and not a sealed bid. Without one, or with one that
    * is none of these, the command is refused with 422 `DECISION_DOCUMENT_REQUIRED`. `maker` is whoever made the document: one of the people who proposed what it decides.
    */
-  private async decision(tx: TenantTx, versionId: string | undefined): Promise<{ versionId: string; maker: string }> {
-    if (versionId === undefined) throw new DomainError('DECISION_DOCUMENT_REQUIRED', 422, 'decision_document_version_id');
-    const rows = await tx.query<{ created_by: string; scan_status: string; sealed: boolean }>(
-      `select d.created_by, v.scan_status, (d.subject_module = 'BID_PROPOSAL') as sealed
-         from machvon.document_version v join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id where v.id = $1::uuid`,
-      [versionId.toLowerCase()],
-    );
-    const row = rows[0];
-    if (row === undefined || row.sealed || row.scan_status === 'INFECTED') throw new DomainError('DECISION_DOCUMENT_REQUIRED', 422, 'decision_document_version_id');
-    return { versionId: versionId.toLowerCase(), maker: row.created_by };
+  private decision(tx: TenantTx, versionId: string | undefined): Promise<{ versionId: string; maker: string }> {
+    return decisionDocument(tx, versionId, 'decision_document_version_id');
   }
 
   /** The days and the figures of a contract that the suspension, the resumption and the termination are judged on, read under the lock the command holds. */

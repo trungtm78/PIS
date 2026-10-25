@@ -1495,6 +1495,34 @@
       ]
     },
     {
+      "key": "changeApprover",
+      "displayName": "Người có thẩm quyền duyệt phụ lục hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000806",
+      "permissions": [
+        "contract.change.approve",
+        "change.read",
+        "contract.read",
+        "boq_line.read",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "changeAll",
+      "displayName": "Chuyên viên lập, thẩm định và duyệt thay đổi",
+      "membershipId": "00000000-0000-4000-8000-000000000807",
+      "permissions": [
+        "change.manage",
+        "change.evaluate",
+        "contract.change.approve",
+        "change.read",
+        "contract.read",
+        "boq_line.read",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

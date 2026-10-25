@@ -31,6 +31,8 @@ export const JOB_INTERVAL_SECONDS = {
   'retention-purge': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the guarantee reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-CTR-003).
   'guarantee-expiry': 3600,
+  // Hourly: a revision of a contract whose first day has come takes over from the one in force within the hour of midnight in Vietnam (the spec says 00:05; the pass is idempotent and also makes good a missed night, ST-CTR-007).
+  'revision-effective': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the permit reminders and expiries run once a morning wherever the process started; the pass is idempotent (ST-PMT-006).
   'permit-expiry': 3600,
   // Hourly tick that works only in the 00:00 hour of Vietnam time, so the waivers of the permit gates whose last day has passed are ended once a night; the pass is idempotent.
@@ -65,6 +67,8 @@ export const RETENTION_HOUR = 1;
 const VIETNAM_UTC_OFFSET_HOURS = 7;
 /** The hour of the morning, in Vietnam time, in which the guarantee reminders and expiries run (CTR 3.5: 06:00). */
 export const GUARANTEE_EXPIRY_HOUR = 6;
+/** The gauge of the revision job: the pending revisions more than a day past their first day, which the alert `CTR_REVISION_OVERDUE` watches. */
+export const REVISION_OVERDUE_GAUGE = 'ctr_revision_overdue';
 /** The gauges of the guarantee job: the ACTIVE guarantees within `days` days of their expiry, and the advance guarantees at risk with an advance still owed. */
 export const GUARANTEE_EXPIRING_GAUGE = 'ctr_guarantee_expiring';
 export const ADVANCE_GUARANTEE_AT_RISK_GAUGE = 'ctr_advance_guarantee_at_risk';
@@ -137,6 +141,11 @@ export interface StandardJobDeps {
   guaranteeExpiry?: {
     run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ expiring: Readonly<Record<number, number>>; advanceAtRisk: number }>;
   };
+  /**
+   * The pass over the revisions of the contracts of a tenant that wait for their day (ST-CTR-007): the ones whose first day has come take over from the revision in force; tells how many
+   * are late by more than a day, for the gauge.
+   */
+  revisionEffective?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
   /**
    * The daily pass over the issued permits of a tenant (ST-PMT-006): the reminders at 60, 30, 15 and 0 days and the expiry of the ones past their last day;
    * tells how many permits are within each threshold, for the gauges. Only the 06:00 hour of Vietnam time works.
@@ -304,6 +313,25 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
           for (const [days, count] of Object.entries(expiring)) metrics.gauge(GUARANTEE_EXPIRING_GAUGE, count, { days });
           metrics.gauge(ADVANCE_GUARANTEE_AT_RISK_GAUGE, atRisk);
+        }
+      },
+    });
+  }
+  const revisions = deps.revisionEffective;
+  if (revisions !== undefined) {
+    handlers.push({
+      name: 'revision-effective',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let overdue = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            overdue += (await revisions.run(workerContext(tenantId), now)).overdue;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(REVISION_OVERDUE_GAUGE, overdue);
         }
       },
     });

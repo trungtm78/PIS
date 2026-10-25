@@ -86,6 +86,9 @@ export interface RevisionRow {
   /** What the lines of the BOQ add up to (an exact decimal string in VND) and how many there are: the screens compare it with `amountVnd` (BR-CTR-02). */
   boqTotalVnd: string;
   boqLineCount: number;
+  /** The revision this one follows, and the change order that made it (a revision of kind CHANGE_ORDER); null for the first revision. */
+  supersedesId: string | null;
+  changeRequest: { id: string; code: string | null } | null;
   reach: ContractPlace;
 }
 
@@ -284,6 +287,9 @@ interface RevisionSql {
   created_at: string;
   boq_total_vnd: string;
   boq_line_count: number;
+  supersedes_id: string | null;
+  change_request_id: string | null;
+  change_request_code: string | null;
   project_id: string;
   owner_unit_id: string;
   owner_unit_path: string;
@@ -334,7 +340,8 @@ const REVISION_COLUMNS = `r.id, r.contract_id, c.code as contract_code, r.revisi
   r.valid_from::text as valid_from, r.valid_until::text as valid_until, r.retroactive, ${TIMESTAMP('r.decided_at')} as decided_at, r.version::text as version,
   ${TIMESTAMP('r.created_at')} as created_at, c.project_id, ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path,
   (select coalesce(sum(l.amount_vnd), 0)::text from machvon.boq_line l where l.tenant_id = r.tenant_id and l.contract_revision_id = r.id) as boq_total_vnd,
-  (select count(*)::int from machvon.boq_line l where l.tenant_id = r.tenant_id and l.contract_revision_id = r.id) as boq_line_count`;
+  (select count(*)::int from machvon.boq_line l where l.tenant_id = r.tenant_id and l.contract_revision_id = r.id) as boq_line_count,
+  r.supersedes_id, r.change_request_id, (select q.code from machvon.change_request q where q.tenant_id = r.tenant_id and q.id = r.change_request_id) as change_request_code`;
 
 const reachOf = (contractId: string, row: { project_id: string; owner_unit_id: string; owner_unit_path: string; investor_unit_id: string | null; investor_unit_path: string | null }): ContractPlace => ({
   contractId,
@@ -381,6 +388,8 @@ const toRevision = (row: RevisionSql): RevisionRow => ({
   createdAt: row.created_at,
   boqTotalVnd: row.boq_total_vnd,
   boqLineCount: row.boq_line_count,
+  supersedesId: row.supersedes_id,
+  changeRequest: row.change_request_id === null ? null : { id: row.change_request_id, code: row.change_request_code },
   reach: reachOf(row.contract_id, row),
 });
 
