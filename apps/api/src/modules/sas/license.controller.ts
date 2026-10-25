@@ -21,6 +21,7 @@ export const LICENSE_ISSUED_EVENT = 'sas.license.issued.v1';
 export const LICENSE_REVOKED_EVENT = 'sas.license.revoked.v1';
 export const LICENSE_SUSPENDED_EVENT = 'sas.license.suspended.v1';
 export const LICENSE_REINSTATED_EVENT = 'sas.license.reinstated.v1';
+export const LICENSE_RENEWED_EVENT = 'sas.license.renewed.v1';
 /** "Expiring" is a label of the screens, thirty days before valid_until; it changes no right (SAS 3.8). */
 const EXPIRING_DAYS = 30;
 const DAY_MS = 86_400_000;
@@ -142,6 +143,53 @@ export class LicenseController {
     const license = await this.store.reinstate(scope.tx, this.transitionOf(scope, id, body), hook);
     this.invalidateAfterCommit(scope, license);
     return commandResult(scope, 'REINSTATED', license.version, license.id);
+  }
+
+  /**
+   * renewLicense (SAS-14): revision n+1 takes the place of a live revision n, which becomes Superseded; both stay signed. The new term, the seats and the entitlement version are
+   * the request's; the edition, the quota and the binding are those of the revision it replaces. The audit row carries the reason, the two revisions and the new window, never the claims.
+   */
+  @Post(':id/renew')
+  @HttpCode(200)
+  @OperationId('renewLicense')
+  @Command({ operation: 'renewLicense', plane: 'control', versioned: true })
+  async renew(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['LicenseRenew']): Promise<CommandResult> {
+    const renewed = await this.store.renew(
+      scope.tx,
+      {
+        licenseId: id,
+        reason: body.reason,
+        expectedVersion: scope.expectedVersion ?? 0,
+        validUntil: new Date(body.valid_until),
+        graceUntil: new Date(body.grace_until),
+        seats: body.seats,
+        entitlementVersionId: body.entitlement_version_id,
+        issuedBy: scope.tenant.membershipId,
+        restoreTenantId: scope.tenant.tenantId,
+      },
+      () => this.keys.current(),
+      async ({ license, superseded }) => {
+        const record = licenseIssuedRecord(license);
+        await scope.audit({
+          action: 'license.renewed',
+          resourceType: RESOURCE_TYPE,
+          resourceId: license.id,
+          reason: body.reason.trim(),
+          diff: { ...record.diff, supersedes_id: superseded.id, superseded_revision: superseded.revision, previous_valid_until: superseded.validUntil.toISOString() },
+        });
+        await scope.emit({
+          aggregateType: RESOURCE_TYPE,
+          aggregateId: license.id,
+          aggregateVersion: license.version,
+          type: LICENSE_RENEWED_EVENT,
+          schemaVersion: 1,
+          payload: { ...record.payload, supersedes_id: superseded.id, superseded_revision: superseded.revision },
+          eventKey: `${RESOURCE_TYPE}:${license.id}:renewed`,
+        });
+      },
+    );
+    this.invalidateAfterCommit(scope, renewed.license);
+    return commandResult(scope, 'RENEWED', renewed.license.version, renewed.license.id);
   }
 
   private transitionOf(scope: CommandScope, id: string, body: Schemas['ReasonOnly']): LicenseTransitionInput {

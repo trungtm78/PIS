@@ -117,6 +117,9 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
   const reinstate = (id: string, options: { ifMatch?: string; roles?: string[]; audience?: string; payload?: unknown; key?: string } = {}): Promise<Reply> =>
     call('POST', `/licenses/${id}/reinstate`, { payload: { reason: REASON }, ...options });
 
+  const renew = (id: string, options: { ifMatch?: string; roles?: string[]; audience?: string; payload?: unknown; key?: string } = {}): Promise<Reply> =>
+    call('POST', `/licenses/${id}/renew`, { payload: { valid_until: iso(729), grace_until: iso(759), reason: REASON }, ...options });
+
   const licenseRow = async (id: string): Promise<{ status: string; status_reason: string | null; version: string; signed_claims: string; tenant_id: string } | undefined> =>
     (await harness.admin((client) => client.query('select status, status_reason, version::text as version, signed_claims, tenant_id from machvon.license_revision where id = $1', [id]))).rows[0];
 
@@ -357,7 +360,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       return { tenantId, id: reply.json.resource_id as string };
     }
 
-    it('suspends: 200 with the CommandResult, the reason on the row, an audit row with the reason, the event, and the tenant is denied afterwards', async () => {
+    it('suspends: 200 with the CommandResult, the reason on the row, an audit row with the reason, the event, and the tenant is denied afterwards (AC-ST-SAS-014-2)', async () => {
       const { tenantId, id } = await issued();
       dropped.entitlements.length = 0;
       const reply = await suspend(id, { ifMatch: '"1"' });
@@ -373,7 +376,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       expect((await entitlements.current(context)).licenseMode).toBe('SUSPENDED');
     });
 
-    it('reinstates: the tenant is allowed again, a second reinstatement is 409 LICENSE_STATE_INVALID, and the cycle can repeat with its own events', async () => {
+    it('reinstates: the tenant is allowed again, a second reinstatement is 409 LICENSE_STATE_INVALID, and the cycle can repeat with its own events (AC-ST-SAS-014-2)', async () => {
       const { tenantId, id } = await issued();
       await suspend(id, { ifMatch: '"1"' });
       const back = await reinstate(id, { ifMatch: '"2"' });
@@ -391,7 +394,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = 'license.reinstated' and reason = $2", [tenantId, REASON])).toBe(2);
     });
 
-    it('never brings a revoked license back, and refuses to suspend a license that is suspended or revoked', async () => {
+    it('never brings a revoked license back, and refuses to suspend a license that is suspended or revoked (AC-ST-SAS-014-2)', async () => {
       const { id } = await issued();
       expect((await suspend(id, { ifMatch: '"1"' })).status).toBe(200);
       const twice = await suspend(id, { ifMatch: '"2"' });
@@ -432,6 +435,128 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       const reply = await suspend(id, { ifMatch: '"1"', audience: 'tenant', roles: ['TENANT_ADMIN', 'SystemAdmin'] });
       expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
       expect((await licenseRow(id))?.status).toBe('Issued');
+    });
+  });
+
+  describe('renewLicense (ST-SAS-014)', () => {
+    async function issued(): Promise<{ tenantId: string; versionId: string; id: string }> {
+      const { tenantId, versionId } = await activeTenant();
+      const reply = await issue(tenantId, versionId);
+      return { tenantId, versionId, id: reply.json.resource_id as string };
+    }
+
+    const read = async (id: string): Promise<Record<string, unknown>> => (await call('GET', `/system/licenses/${id}`)).json;
+
+    it('AC-ST-SAS-014-1, UAT-AC160: revision 2 supersedes revision 1, which becomes Superseded, and both signatures verify', async () => {
+      const { tenantId, id } = await issued();
+      dropped.entitlements.length = 0;
+      const reply = await renew(id, { ifMatch: '"1"' });
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ status: 'RENEWED', resource_version: 1 });
+      const next = reply.json.resource_id as string;
+      expect(next).not.toBe(id);
+      const first = await read(id);
+      const second = await read(next);
+      expect(first).toMatchObject({ revision: 1, status: 'Superseded', signature_check: 'VALID', version: 2 });
+      expect(second).toMatchObject({ revision: 2, status: 'Active', signature_check: 'VALID', supersedes_id: id, serial: first.serial, edition: 'STANDARD', seats: 50, quota: { storage_gb: 100 }, entitlement_version_id: first.entitlement_version_id });
+      // The term is seamless: the new revision starts with the renewal and ends where the request says.
+      expect(Date.parse(second.valid_from as string)).toBeLessThanOrEqual(Date.now());
+      expect(Date.parse(second.valid_until as string)).toBeGreaterThan(Date.parse(first.valid_until as string));
+      expect(await harness.count("select count(*) as n from machvon.license_revision where tenant_id = $1 and serial = $2 and status in ('Issued','Active','Grace','Suspended')", [tenantId, first.serial as string])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = 'license.renewed' and outcome = 'SUCCESS' and reason = $2 and resource_id = $3", [tenantId, REASON, next])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.renewed.v1' and aggregate_id = $2", [tenantId, next])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.entitlement_version where tenant_id = $1 and cause = 'LICENSE_CHANGE'", [tenantId])).toBe(2);
+      expect(dropped.entitlements).toContain(tenantId);
+      // The tenant goes on being allowed, by the new revision.
+      const context = { tenantId, membershipId: CONTROL_MEMBER, scopeVersion: 1 };
+      expect((await entitlements.allowedFromDatabase(context, 'reporting', 'read')).allowed).toBe(true);
+      expect((await entitlements.current(context)).licenseMode).toBe('FULL');
+      // The list of the tenant shows the chain.
+      const listed = (await call('GET', `/system/tenants/${tenantId}/licenses`)).json.items as Array<Record<string, unknown>>;
+      expect(listed.map((item) => [item.revision, item.status, item.supersedes_id ?? null])).toEqual([
+        [1, 'Superseded', null],
+        [2, 'Active', id],
+      ]);
+    });
+
+    it('keeps the claims, the keys and the signature out of the audit row and the event of the renewal', async () => {
+      const { tenantId, id } = await issued();
+      const reply = await renew(id, { ifMatch: '"1"' });
+      const next = reply.json.resource_id as string;
+      const audit = await harness.admin((client) => client.query('select safe_diff from machvon.audit_event where tenant_id = $1 and action = $2 and resource_id = $3', [tenantId, 'license.renewed', next]));
+      const event = await harness.admin((client) => client.query('select payload from machvon.outbox_event where tenant_id = $1 and type = $2 and aggregate_id = $3', [tenantId, 'sas.license.renewed.v1', next]));
+      const text = JSON.stringify([audit.rows, event.rows]);
+      expect(text).toContain('supersedes_id');
+      expect(text).not.toContain((await licenseRow(next))?.signed_claims ?? 'x');
+      expect(text).not.toMatch(/signed_claims|PRIVATE KEY|public_key/);
+    });
+
+    it('renews with other seats and another entitlement version of the same tenant, and refuses the version of another tenant with 422 LICENSE_TENANT_MISMATCH', async () => {
+      const { tenantId, versionId, id } = await issued();
+      const other = await activeTenant();
+      const mismatch = await renew(id, { ifMatch: '"1"', payload: { valid_until: iso(729), grace_until: iso(759), seats: 80, entitlement_version_id: other.versionId, reason: REASON } });
+      expect([mismatch.status, mismatch.json.code]).toEqual([422, 'LICENSE_TENANT_MISMATCH']);
+      expect((await licenseRow(id))?.status).toBe('Issued');
+      const reply = await renew(id, { ifMatch: '"1"', payload: { valid_until: iso(729), grace_until: iso(759), seats: 80, entitlement_version_id: versionId, reason: REASON } });
+      expect(reply.status).toBe(200);
+      expect(await read(reply.json.resource_id as string)).toMatchObject({ seats: 80, entitlement_version_id: versionId, tenant_id: tenantId });
+    });
+
+    it('refuses an end that is not later than the current one or a grace period before the end with 422 LICENSE_RANGE_INVALID, and changes nothing', async () => {
+      const { id } = await issued();
+      const earlier = await renew(id, { ifMatch: '"1"', payload: { valid_until: iso(100), grace_until: iso(130), reason: REASON } });
+      expect([earlier.status, earlier.json.code, earlier.json.detail]).toEqual([422, 'LICENSE_RANGE_INVALID', 'valid_until']);
+      const grace = await renew(id, { ifMatch: '"1"', payload: { valid_until: iso(729), grace_until: iso(700), reason: REASON } });
+      expect([grace.status, grace.json.code, grace.json.detail]).toEqual([422, 'LICENSE_RANGE_INVALID', 'grace_until']);
+      const seats = await renew(id, { ifMatch: '"1"', payload: { valid_until: iso(729), grace_until: iso(759), seats: 0, reason: REASON } });
+      expect(seats.status).toBe(422);
+      expect((await licenseRow(id))?.status).toBe('Issued');
+    });
+
+    it('answers 409 LICENSE_STATE_INVALID for a license that is suspended, revoked or already replaced', async () => {
+      const suspended = await issued();
+      await suspend(suspended.id, { ifMatch: '"1"' });
+      const onHold = await renew(suspended.id, { ifMatch: '"2"' });
+      expect([onHold.status, onHold.json.code]).toEqual([409, 'LICENSE_STATE_INVALID']);
+      const revoked = await issued();
+      await revoke(revoked.id, { ifMatch: '"1"' });
+      const gone = await renew(revoked.id, { ifMatch: '"2"' });
+      expect([gone.status, gone.json.code]).toEqual([409, 'LICENSE_STATE_INVALID']);
+      const replaced = await issued();
+      expect((await renew(replaced.id, { ifMatch: '"1"' })).status).toBe(200);
+      const twice = await renew(replaced.id, { ifMatch: '"2"' });
+      expect([twice.status, twice.json.code]).toEqual([409, 'LICENSE_STATE_INVALID']);
+    });
+
+    it('answers 428 without If-Match, 409 VERSION_CONFLICT with the current version for a stale one, 404 for an unknown license and 422 for a short reason', async () => {
+      const { id } = await issued();
+      expect((await renew(id)).status).toBe(428);
+      const stale = await renew(id, { ifMatch: '"7"' });
+      expect([stale.status, stale.json.code, stale.json.current_version]).toEqual([409, 'VERSION_CONFLICT', 1]);
+      expect((await renew(randomUUID(), { ifMatch: '"1"' })).status).toBe(404);
+      const short = await renew(id, { ifMatch: '"1"', payload: { valid_until: iso(729), grace_until: iso(759), reason: 'too short' } });
+      expect([short.status, short.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      expect((await licenseRow(id))?.status).toBe('Issued');
+    });
+
+    it('replays the same key with the stored answer and renews once', async () => {
+      const { tenantId, id } = await issued();
+      const key = `key-${randomUUID()}`;
+      const payload = { valid_until: iso(729), grace_until: iso(759), reason: REASON };
+      const first = await renew(id, { ifMatch: '"1"', key, payload });
+      const second = await renew(id, { ifMatch: '"1"', key, payload });
+      expect([first.status, second.status]).toEqual([200, 200]);
+      expect(second.json).toEqual(first.json);
+      expect(second.headers.get('idempotency-replayed')).toBe('true');
+      expect(await licenseCount(tenantId)).toBe(2);
+    });
+
+    it('refuses a tenant-plane token with 403 SCOPE_DENIED and changes nothing', async () => {
+      const { tenantId, id } = await issued();
+      const reply = await renew(id, { ifMatch: '"1"', audience: 'tenant', roles: ['TENANT_ADMIN', 'SystemAdmin'] });
+      expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect((await licenseRow(id))?.status).toBe('Issued');
+      expect(await licenseCount(tenantId)).toBe(1);
     });
   });
 
@@ -508,13 +633,14 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       const operations = CONTROL_OPERATIONS.filter((operation) => operation.path.includes('licenses'));
       const cases = controlCasesFor(operations);
 
-      it('lists the six license operations of the registry', () => {
+      it('lists the seven license operations of the registry', () => {
         expect(operations.map((operation) => operation.operationId).sort()).toEqual([
           'getSystemLicense',
           'listSystemTenantLicenses',
           'post_licenses',
           'post_licenses_id_revoke',
           'reinstateLicense',
+          'renewLicense',
           'suspendLicense',
         ]);
       });
@@ -534,6 +660,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
         let reply: Reply;
         if (operation.operationId === 'post_licenses') reply = await issue(tenantId, versionId, {}, { roles });
         else if (operation.operationId === 'post_licenses_id_revoke') reply = await revoke(existing ?? '', { ifMatch: startVersion, roles });
+        else if (operation.operationId === 'renewLicense') reply = await renew(existing ?? '', { ifMatch: startVersion, roles });
         else if (operation.operationId === 'suspendLicense') reply = await suspend(existing ?? '', { ifMatch: startVersion, roles });
         else if (operation.operationId === 'reinstateLicense') reply = await reinstate(existing ?? '', { ifMatch: startVersion, roles });
         else if (operation.operationId === 'getSystemLicense') reply = await call('GET', `/system/licenses/${existing ?? ''}`, { roles });

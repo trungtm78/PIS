@@ -206,6 +206,7 @@
     "publishSystemTenantTheme",
     "putSystemTenantThemeDraft",
     "reinstateLicense",
+    "renewLicense",
     "requestEntitlementOverride",
     "requestTenantProvisioning",
     "resumeTenant",

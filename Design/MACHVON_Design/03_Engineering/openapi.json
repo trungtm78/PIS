@@ -58091,7 +58091,10 @@
         "x-error-codes": [
           "LICENSE_STATE_INVALID",
           "LICENSE_RANGE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "LICENSE_TENANT_MISMATCH",
+          "SIGNING_KEY_UNAVAILABLE",
+          "VALIDATION_FAILED"
         ],
         "x-plane": "control",
         "x-required-role": "SystemAdmin",
@@ -58109,7 +58112,10 @@
           "sas.license.renewed.v1",
           "sas.entitlement.changed.v1"
         ],
-        "x-audit-action": "license.renewed"
+        "x-audit-action": "license.renewed",
+        "x-domain-events": [
+          "sas.license.renewed.v1"
+        ]
       }
     },
     "/licenses/{id}/suspend": {

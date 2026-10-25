@@ -4,7 +4,7 @@ import vi from '../src/i18n/vi.json' with { type: 'json' };
 import { sql, stackInfo } from './support/stack.ts';
 
 /**
- * SAS-12, SAS-13 and SAS-15 (issue a license, read it, suspend, reinstate and revoke it) in a real browser against the real
+ * SAS-12, SAS-13, SAS-14, SAS-15 and SAS-16 (issue a license, read it, renew it, suspend, reinstate and revoke it, and read its history) in a real browser against the real
  * API and database (apps/api/test/e2e-stack). The stack signs with a key of its own that lives in the process. Every flow
  * works on a tenant of its own with an entitlement version, so the fixture tenants the other specs read keep their state.
  */
@@ -131,6 +131,69 @@ test.describe('SAS-12 issue, SAS-13 detail and SAS-15 suspend, reinstate and rev
     await page.getByRole('link', { name: vi['sas.licenseAction.done.link'] }).click();
     await expect(page.locator('[data-license-status="Revoked"]')).toHaveText(vi['sas.license.status.revoked']);
     await expect(page.getByText(vi['sas.licenseDetail.actions.none'])).toBeVisible();
+  });
+
+  test('a system administrator renews a license: revision 2 takes its place, revision 1 is kept as Superseded, both signatures verify and the history shows the chain (AC-ST-SAS-014-1, AC-ST-SAS-014-3, UAT-AC160, UI-SAS-14, UI-SAS-16)', async ({ page }) => {
+    const { id: tenantId } = await licensableTenant();
+    await issueLicense(page, tenantId);
+    await expect(page.getByText(vi['sas.licenseIssue.accepted.link'])).toBeVisible();
+    const [first] = await licensesOf(tenantId);
+    await open(page, `/sas/sas-13?license=${first?.id}`, 'sysAdmin');
+    await page.getByRole('link', { name: vi['sas.licenseDetail.actions.renew'] }).click();
+    await expect(page.getByRole('heading', { level: 1, name: vi['sas.licenseRenew.page.title'] })).toBeVisible();
+    await expect(page.getByTestId('current')).toContainText(first?.serial ?? 'missing');
+
+    // An end that is not later than the current one never leaves the browser.
+    await page.getByLabel(vi['sas.licenseRenew.field.validUntil'], { exact: true }).fill(dateIn(100));
+    await page.getByLabel(vi['sas.licenseRenew.field.graceUntil'], { exact: true }).fill(dateIn(130));
+    await page.getByLabel(vi['sas.licenseRenew.field.reason'], { exact: true }).fill(REASON);
+    await page.getByRole('button', { name: vi['sas.licenseRenew.submit.action'] }).click();
+    await expect(page.getByText(vi['sas.licenseRenew.problem.notLater'])).toBeVisible();
+    expect(await licensesOf(tenantId)).toHaveLength(1);
+
+    await page.getByLabel(vi['sas.licenseRenew.field.validUntil'], { exact: true }).fill(dateIn(730));
+    await page.getByLabel(vi['sas.licenseRenew.field.graceUntil'], { exact: true }).fill(dateIn(760));
+    await page.getByLabel(vi['sas.licenseRenew.field.seats'], { exact: true }).fill('40');
+    await page.getByRole('button', { name: vi['sas.licenseRenew.submit.action'] }).click();
+    await expect(page.getByTestId('renewed')).toContainText(vi['sas.licenseRenew.done.notice'].replace('{version}', '1'));
+    const chain = await sql<{ revision: number; status: string; supersedes_id: string | null; seats: number | null }>(
+      'select revision, status, supersedes_id, seats from machvon.license_revision where tenant_id = $1 order by revision',
+      [tenantId],
+    );
+    expect(chain).toEqual([
+      { revision: 1, status: 'Superseded', supersedes_id: null, seats: null },
+      { revision: 2, status: 'Issued', supersedes_id: first?.id, seats: 40 },
+    ]);
+    expect(await sql("select count(*)::int as n from machvon.audit_event where tenant_id = $1 and action = 'license.renewed' and outcome = 'SUCCESS' and reason = $2", [tenantId, REASON])).toEqual([{ n: 1 }]);
+    expect(await sql("select count(*)::int as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.renewed.v1'", [tenantId])).toEqual([{ n: 1 }]);
+
+    // The history: both revisions in order, the second in force and replacing the first, both signatures true.
+    await page.getByRole('link', { name: vi['sas.licenseRenew.done.link'] }).click();
+    await expect(page.getByRole('heading', { level: 1, name: vi['sas.licenseHistory.page.title'] })).toBeVisible();
+    const items = page.locator('[data-testid="chain"] li');
+    await expect(items).toHaveCount(2);
+    await expect(items.nth(0).locator('[data-license-status="Superseded"]')).toHaveText(vi['sas.license.status.superseded']);
+    await expect(items.nth(1).locator('[data-license-status="Active"]')).toHaveText(vi['sas.license.status.active']);
+    await expect(items.nth(1).getByTestId('current-mark')).toContainText(vi['sas.licenseHistory.current.label']);
+    await expect(items.nth(1).getByTestId('supersedes')).toHaveText(vi['sas.licenseHistory.supersedes.text'].replace('{revision}', '1'));
+    await expect(page.locator('[data-signature-check="VALID"]')).toHaveCount(2);
+    await expect(page.getByTestId('slo')).toContainText(vi['sas.licenseHistory.slo.text']);
+    await expect(items.nth(1).getByRole('link', { name: vi['sas.licenseHistory.renew.action'] })).toBeVisible();
+    await expect(items.nth(0).getByRole('link', { name: vi['sas.licenseHistory.renew.action'] })).toHaveCount(0);
+  });
+
+  test('a platform operator reads the history of a tenant and has no way to renew a license (UI-SAS-14, UI-SAS-16)', async ({ page }) => {
+    const { id: tenantId } = await licensableTenant();
+    await issueLicense(page, tenantId);
+    await expect(page.getByText(vi['sas.licenseIssue.accepted.link'])).toBeVisible();
+    const [license] = await licensesOf(tenantId);
+    await open(page, `/sas/sas-16?tenant=${tenantId}`, 'operator');
+    await expect(page.locator('[data-testid="chain"] li')).toHaveCount(1);
+    await expect(page.getByRole('link', { name: vi['sas.licenseHistory.renew.action'] })).toHaveCount(0);
+    await open(page, `/sas/sas-14?license=${license?.id}`, 'operator');
+    await expect(page.getByText(vi['sas.licenseRenew.readOnly.notice'])).toBeVisible();
+    await expect(page.getByRole('button', { name: vi['sas.licenseRenew.submit.action'] })).toBeDisabled();
+    expect(await licensesOf(tenantId)).toHaveLength(1);
   });
 
   test('a window that overlaps a license of the tenant is refused on its field and keeps what was typed', async ({ page }) => {

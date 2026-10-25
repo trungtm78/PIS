@@ -4,6 +4,8 @@ import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
 import { entitlementsKey, tenantsKey } from '../tenants/hooks';
+import { renewBody } from './renew';
+import type { RenewValues } from './renew';
 import { issueBody } from './rules';
 import type { IssueValues, LicenseAction } from './rules';
 import { toLicense, toLicensePage } from './types';
@@ -112,6 +114,39 @@ export function useLicenseAction() {
     onSuccess: async (_result, input) => {
       attempts.current.done();
       await refresh(input.license.tenantId, input.license.id);
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface RenewInput {
+  license: License;
+  values: RenewValues;
+  reason: string;
+}
+
+/**
+ * Renews a license with the version the screen showed (`If-Match`): the answer names the new revision. One idempotency attempt per intention, so a double click or a retry renews once;
+ * the revision, the revisions of its tenant, the entitlements and the registry are read again on success.
+ */
+export function useRenewLicense() {
+  const client = useApiClient();
+  const refresh = useRefreshLicenses();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: async (input: RenewInput) => {
+      const body = renewBody(input.values, input.reason);
+      return (await client.command('renewLicense', {
+        path: { id: input.license.id },
+        body,
+        ifMatchVersion: input.license.version,
+        attempt: attempts.current.forPayload({ id: input.license.id, version: input.license.version, body }),
+      })) as LicenseCommandResult;
+    },
+    onSuccess: async (result, input) => {
+      attempts.current.done();
+      await refresh(input.license.tenantId, input.license.id);
+      if (result.resource_id !== undefined) await refresh(input.license.tenantId, result.resource_id);
     },
     onError: (error) => attempts.current.ended(error),
   });

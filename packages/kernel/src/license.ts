@@ -124,3 +124,23 @@ export function verifyLicenseToken(token: string, publicKeys: ReadonlyMap<string
     return fail('BAD_SIGNATURE');
   }
 }
+
+export interface RenewalWindow {
+  validFrom: Date;
+  validUntil: Date;
+  graceUntil: Date;
+}
+
+export type RenewalVerdict = { ok: true; window: RenewalWindow } | { ok: false; field: 'valid_until' | 'grace_until' };
+
+/**
+ * The window of the revision that renews a license (ST-SAS-014, SAS 3.4): the renewed revision starts at the earlier of the moment of the renewal and the end of the revision it
+ * replaces, so the term is seamless whether the renewal comes before the end (the new revision takes over at once) or after it, in the grace period (it covers the days since the
+ * end). It must end later than the revision it replaces and than now, and its grace period cannot end before it does.
+ */
+export function renewalWindow(current: { validUntil: Date }, request: { validUntil: Date; graceUntil: Date }, now: Date): RenewalVerdict {
+  const currentEnd = current.validUntil.getTime();
+  if (request.validUntil.getTime() <= currentEnd || request.validUntil.getTime() <= now.getTime()) return { ok: false, field: 'valid_until' };
+  if (request.graceUntil.getTime() < request.validUntil.getTime()) return { ok: false, field: 'grace_until' };
+  return { ok: true, window: { validFrom: new Date(Math.min(now.getTime(), currentEnd)), validUntil: request.validUntil, graceUntil: request.graceUntil } };
+}

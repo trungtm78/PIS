@@ -189,7 +189,7 @@ export { MAX_CLOCK_SKEW_MS, UsageMeterStore } from './usage-meter-store.ts';
 export type { ListUsageEventsInput, RecordUsageInput, RecordedUsage, UsageCounterRow, UsageEventRow } from './usage-meter-store.ts';
 export type { ListPlansInput, PlanFeatureRow, PlanVersionRow, PlanVersionStatus, PublishPlanInput } from './plan-store.ts';
 export { LicenseStore } from './license-store.ts';
-export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
+export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RenewLicenseInput, RenewedLicense, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
 export { LegalHoldStore } from './legal-hold-store.ts';
 export type { HoldKind, HoldPageAnchor, HoldScope, HoldScopeKind, LegalHoldRow, NewLegalHold, ScopeRef } from './legal-hold-store.ts';
 export { LEGAL_HOLD_SQLSTATE, asLegalHoldViolation, assertNotOnHold, isHeld } from './purge-guard.ts';

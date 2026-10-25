@@ -8,6 +8,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useLicense, useTenantLicenses } from './license/hooks';
 import { editionLabel, signatureLabel, signatureTone, statusLabel, statusTone } from './license/labels';
+import { licenseRenewable } from './license/renew';
 import { licenseActions } from './license/rules';
 import { MANAGE_LICENSES_PERMISSION } from './license/types';
 import type { License } from './license/types';
@@ -83,6 +84,8 @@ function OneLicense({ licenseId, canManage }: { licenseId: string; canManage: bo
   const query = useLicense(licenseId, true);
   const state = useScreenState({ isLoading: query.isLoading, error: query.error, data: query.data });
   const action = routeById('SAS-15');
+  const renew = routeById('SAS-14');
+  const history = routeById('SAS-16');
   const license = query.data;
   const actions = license === undefined ? [] : licenseActions(license.status, canManage);
   return (
@@ -105,6 +108,20 @@ function OneLicense({ licenseId, canManage }: { licenseId: string; canManage: bo
                 </Link>
               </div>
             ) : null}
+            {renew !== undefined && licenseRenewable(license.status, canManage) ? (
+              <div className="lifecycle-actions">
+                <Link className="button-link" to={`${renew.path}?license=${encodeURIComponent(license.id)}`}>
+                  {t('sas.licenseDetail.actions.renew')}
+                </Link>
+              </div>
+            ) : null}
+            {history === undefined ? null : (
+              <div className="lifecycle-actions">
+                <Link className="button-link" to={`${history.path}?tenant=${encodeURIComponent(license.tenantId)}`}>
+                  {t('sas.licenseDetail.actions.history')}
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

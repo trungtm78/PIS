@@ -1,5 +1,5 @@
 import { generateKeyPairSync, sign } from 'node:crypto';
-import { STANDARD_FEATURES, allowedFeature, licenseModeAt, licenseStatusAt, signLicenseClaims, verifyLicenseToken } from '../src/index';
+import { STANDARD_FEATURES, allowedFeature, licenseModeAt, licenseStatusAt, renewalWindow, signLicenseClaims, verifyLicenseToken } from '../src/index';
 import type { LicenseClaims, LicenseRevisionState, LicenseSigner } from '../src/index';
 
 const FROM = new Date('2026-10-01T00:00:00Z');
@@ -157,5 +157,27 @@ describe('signed claims', () => {
     expect(verifyLicenseToken(`${header({ alg: 'EdDSA', kid: 'kid-2025' })}.${payload}.${signature}`, keys)).toEqual(malformed);
     expect(verifyLicenseToken(`!!!.${payload}.${signature}`, keys)).toEqual(malformed);
     expect(verifyLicenseToken(`${header({ alg: 'EdDSA', kid: 'kid-2026' })}.${Buffer.from('null').toString('base64url')}.${signature}`, keys)).toEqual(malformed);
+  });
+});
+
+describe('renewalWindow: the renewed revision is seamless and later than the one it replaces (ST-SAS-014, SAS 3.4)', () => {
+  const CURRENT = { validUntil: UNTIL };
+  const request = (validUntil: string, graceUntil: string) => ({ validUntil: at(validUntil), graceUntil: at(graceUntil) });
+
+  it('starts at the moment of the renewal when the current revision still has time, so nothing is cut and nothing is left empty', () => {
+    const verdict = renewalWindow(CURRENT, request('2028-10-01T00:00:00Z', '2028-10-31T00:00:00Z'), at('2027-08-01T00:00:00Z'));
+    expect(verdict).toEqual({ ok: true, window: { validFrom: at('2027-08-01T00:00:00Z'), validUntil: at('2028-10-01T00:00:00Z'), graceUntil: at('2028-10-31T00:00:00Z') } });
+  });
+
+  it('starts at the end of the current revision when the renewal comes in its grace period, so the days since the end are covered', () => {
+    const verdict = renewalWindow(CURRENT, request('2028-10-01T00:00:00Z', '2028-10-01T00:00:00Z'), at('2027-10-10T00:00:00Z'));
+    expect(verdict).toMatchObject({ ok: true, window: { validFrom: UNTIL } });
+  });
+
+  it('refuses an end that is not later than the current end or not in the future, and a grace period that ends before the term', () => {
+    expect(renewalWindow(CURRENT, request('2027-10-01T00:00:00Z', '2027-12-01T00:00:00Z'), at('2027-08-01T00:00:00Z'))).toEqual({ ok: false, field: 'valid_until' });
+    expect(renewalWindow(CURRENT, request('2027-09-01T00:00:00Z', '2027-12-01T00:00:00Z'), at('2027-08-01T00:00:00Z'))).toEqual({ ok: false, field: 'valid_until' });
+    expect(renewalWindow({ validUntil: at('2026-01-01T00:00:00Z') }, request('2027-05-01T00:00:00Z', '2027-06-01T00:00:00Z'), at('2027-08-01T00:00:00Z'))).toEqual({ ok: false, field: 'valid_until' });
+    expect(renewalWindow(CURRENT, request('2028-10-01T00:00:00Z', '2028-09-30T00:00:00Z'), at('2027-08-01T00:00:00Z'))).toEqual({ ok: false, field: 'grace_until' });
   });
 });

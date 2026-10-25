@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, canonicalJson, licenseStatusAt, signLicenseClaims, verifyLicenseToken, versionConflict } from '@machvon/kernel';
+import { DomainError, canonicalJson, licenseStatusAt, renewalWindow, signLicenseClaims, verifyLicenseToken, versionConflict } from '@machvon/kernel';
 import type { LicenseClaims, LicenseSigner } from '@machvon/kernel';
 import type { EntitlementStore } from './entitlement-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -61,6 +61,26 @@ export interface LicenseTransitionInput {
 }
 
 export type RevokeLicenseInput = LicenseTransitionInput;
+
+/** The input of a renewal (ST-SAS-014): the revision to replace, the new end and grace period, and what may change with them. */
+export interface RenewLicenseInput {
+  licenseId: string;
+  reason: string;
+  expectedVersion: number;
+  validUntil: Date;
+  graceUntil: Date;
+  seats?: number | undefined;
+  /** The entitlement version the new revision signs; the one of the revision it replaces when absent. */
+  entitlementVersionId?: string | undefined;
+  issuedBy: string;
+  /** The tenant the command transaction acts as outside the hook (the platform tenant). */
+  restoreTenantId: string;
+}
+
+export interface RenewedLicense {
+  license: LicenseRow;
+  superseded: LicenseRow;
+}
 
 export interface NewSigningKey {
   keyId: string;
@@ -148,12 +168,19 @@ const TENANT_SQL = 'select status from machvon.tenant where id = $1::uuid for sh
 const ENTITLEMENT_SQL = 'select entitlements_hash from machvon.entitlement_version where id = $1::uuid';
 const OVERLAP_SQL = `select 1 from machvon.license_revision
   where status not in ('Draft', 'Revoked', 'Superseded') and valid_from < $2::timestamptz and valid_until > $1::timestamptz limit 1`;
+const OVERLAP_OTHERS_SQL = `select 1 from machvon.license_revision
+  where id <> $3::uuid and status not in ('Draft', 'Revoked', 'Superseded') and valid_from < $2::timestamptz and valid_until > $1::timestamptz limit 1`;
 const SERIAL_COUNT_SQL = 'select count(distinct serial)::int as n from machvon.license_revision';
 const KEY_SQL = 'select status, not_before, not_after from machvon.license_signing_key where id = $1';
 const INSERT_SQL = `insert into machvon.license_revision
     (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id,
      edition, seats, quota_json, issuer, issued_by, issued_at, deployment_binding, offline_lease_until, version)
   values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, 1, $3, $4, $5, $6, 'Issued', $7, $8, $9, $10, $11::jsonb, $12, $13, $14, $15, $16, 1)
+  returning ${COLUMNS}`;
+const RENEWAL_INSERT_SQL = `insert into machvon.license_revision
+    (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id,
+     edition, seats, quota_json, issuer, issued_by, issued_at, deployment_binding, offline_lease_until, supersedes_id, version)
+  values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5, $6, $7, 'Issued', $8, $9, $10, $11, $12::jsonb, $13, $14, $15, $16, $17, $18, 1)
   returning ${COLUMNS}`;
 const LOCATE_SQL = 'select machvon.license_tenant_of($1::uuid) as tenant_id';
 const LOCK_ROW_SQL = `select ${COLUMNS} from machvon.license_revision where id = $1::uuid for update`;
@@ -317,6 +344,98 @@ export class LicenseStore {
   reinstate(tx: TenantTx, input: LicenseTransitionInput, whileActing: (license: LicenseRow) => Promise<void>, now: Date = new Date()): Promise<LicenseRow> {
     const back = (current: Row): LicenseStatus => (now.getTime() >= current.valid_from.getTime() ? 'Active' : 'Issued');
     return this.transition(tx, input, whileActing, (current) => (current.status === 'Suspended' ? { status: back(current), keepReason: false } : undefined), 'Reinstated');
+  }
+
+  /**
+   * Renews a live license (SAS 3.4, ST-SAS-014): revision n+1 takes the place of revision n, which becomes Superseded and changes in nothing else. Both stay signed and both signatures
+   * verify. The new revision keeps the serial, the edition, the quota and the binding of the one it replaces, starts at the earlier of now and the end of that one (`renewalWindow`), ends
+   * where the request says and signs the entitlement version the request names, or the one of the revision it replaces. Only a live revision (Issued, Active or Grace, not past its grace
+   * period) is renewed, the revision is locked and its version is the If-Match, and the new window may not overlap another revision of the tenant.
+   */
+  async renew(
+    tx: TenantTx,
+    input: RenewLicenseInput,
+    signerOf: () => Promise<LicenseSigner>,
+    whileActing: (renewed: RenewedLicense) => Promise<void>,
+    now: Date = new Date(),
+  ): Promise<RenewedLicense> {
+    const reason = input.reason.trim();
+    if (reason.length < MIN_REASON_LENGTH) throw new DomainError('VALIDATION_FAILED', 422, 'reason');
+    if (input.seats !== undefined && (!Number.isInteger(input.seats) || input.seats < 1)) throw new DomainError('VALIDATION_FAILED', 422, 'seats');
+    const tenantId = await this.tenantOf(tx, input.licenseId);
+    if (tenantId === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await actAs(tx, tenantId);
+    await tx.query(LOCK_SQL);
+    const [current] = await tx.query<Row>(LOCK_ROW_SQL, [input.licenseId]);
+    if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (Number(current.version) !== input.expectedVersion) throw versionConflict(Number(current.version));
+    if (!SUSPENDABLE.includes(current.status) || now.getTime() >= current.grace_until.getTime()) throw new DomainError('LICENSE_STATE_INVALID', 409, `${current.status}->Renewed`);
+    const verdict = renewalWindow({ validUntil: current.valid_until }, { validUntil: input.validUntil, graceUntil: input.graceUntil }, now);
+    if (!verdict.ok) throw rangeInvalid(verdict.field);
+    const { window } = verdict;
+    // The tenant boundary hides the versions of other tenants, so a version that is not the tenant's is not found: the same refusal as at the issue.
+    const versionId = input.entitlementVersionId ?? current.entitlement_version_id;
+    const [version] = await tx.query<{ entitlements_hash: string }>(ENTITLEMENT_SQL, [versionId]);
+    if (version === undefined) throw new DomainError('LICENSE_TENANT_MISMATCH', 422, 'entitlement_version_id');
+    if ((await tx.query(OVERLAP_OTHERS_SQL, [window.validFrom, window.validUntil, current.id])).length > 0) throw rangeInvalid('valid_until');
+
+    const signer = await signerOf();
+    const [key] = await tx.query<{ status: string; not_before: Date; not_after: Date }>(KEY_SQL, [signer.keyId]);
+    if (key === undefined || key.status !== 'Active' || now.getTime() < key.not_before.getTime() || now.getTime() >= key.not_after.getTime()) {
+      throw new DomainError('SIGNING_KEY_UNAVAILABLE', 503);
+    }
+
+    // The offline lease of a private deployment goes on while it lasts and never past the new grace period.
+    const lease = current.offline_lease_until !== null && current.offline_lease_until.getTime() > now.getTime() ? new Date(Math.min(current.offline_lease_until.getTime(), window.graceUntil.getTime())) : null;
+    const seats = input.seats ?? current.seats;
+    const id = randomUUID();
+    const claims: LicenseClaims = {
+      iss: current.issuer,
+      tenant_id: tenantId.toLowerCase(),
+      license_id: id,
+      serial: current.serial,
+      revision: current.revision + 1,
+      edition: current.edition,
+      valid_from: window.validFrom.toISOString(),
+      valid_until: window.validUntil.toISOString(),
+      grace_until: window.graceUntil.toISOString(),
+      entitlements_hash: version.entitlements_hash,
+      seats,
+      quota: current.quota_json,
+      ...(current.deployment_binding === null ? {} : { deployment_binding: current.deployment_binding }),
+      ...(lease === null ? {} : { offline_lease_until: lease.toISOString() }),
+      kid: signer.keyId,
+    };
+    const signedClaims = await signLicenseClaims(claims, signer);
+    // At most one revision of a serial is current (license_revision_one_current_uq): the replaced one steps aside first.
+    const [replaced] = await tx.query<Row>(TRANSITION_SQL, [current.id, 'Superseded', null]);
+    if (replaced === undefined) throw new Error('license revision was not superseded');
+    const [stored] = await tx.query<Row>(RENEWAL_INSERT_SQL, [
+      id,
+      current.serial,
+      current.revision + 1,
+      versionId,
+      window.validFrom,
+      window.validUntil,
+      window.graceUntil,
+      signedClaims,
+      signer.keyId,
+      current.edition,
+      seats,
+      JSON.stringify(current.quota_json),
+      current.issuer,
+      input.issuedBy,
+      now,
+      current.deployment_binding,
+      lease,
+      current.id,
+    ]);
+    if (stored === undefined) throw new Error('license revision was not stored');
+    const renewed: RenewedLicense = { license: toRow(stored), superseded: toRow(replaced) };
+    await this.entitlements.recordCurrent(tx, 'LICENSE_CHANGE');
+    await whileActing(renewed);
+    await actAs(tx, input.restoreTenantId);
+    return renewed;
   }
 
   /**

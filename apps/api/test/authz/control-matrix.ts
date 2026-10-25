@@ -46,6 +46,7 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'assignTenantOwner', permission: PERMISSIONS.assignTenantOwner, method: 'POST', path: '/system/tenants/{tenantId}/owners' },
   { operationId: 'post_licenses', permission: PERMISSIONS.post_licenses, method: 'POST', path: '/licenses' },
   { operationId: 'post_licenses_id_revoke', permission: PERMISSIONS.post_licenses_id_revoke, method: 'POST', path: '/licenses/{id}/revoke' },
+  { operationId: 'renewLicense', permission: PERMISSIONS.renewLicense, method: 'POST', path: '/licenses/{id}/renew' },
   { operationId: 'suspendLicense', permission: PERMISSIONS.suspendLicense, method: 'POST', path: '/licenses/{id}/suspend' },
   { operationId: 'reinstateLicense', permission: PERMISSIONS.reinstateLicense, method: 'POST', path: '/licenses/{id}/reinstate' },
   { operationId: 'getSystemLicense', permission: PERMISSIONS.getSystemLicense, method: 'GET', path: '/system/licenses/{id}' },

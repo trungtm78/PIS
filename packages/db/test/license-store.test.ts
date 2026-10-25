@@ -8,7 +8,7 @@ import { ControlDatabase, PLATFORM_TENANT_ID } from '../src/control-database';
 import { InMemoryEntitlementCache } from '../src/entitlement-cache';
 import { EntitlementStore } from '../src/entitlement-store';
 import { LicenseStore } from '../src/license-store';
-import type { IssueLicenseInput, LicenseRow } from '../src/license-store';
+import type { IssueLicenseInput, LicenseRow, RenewLicenseInput, RenewedLicense } from '../src/license-store';
 import { startMigratedTestDatabase } from '../src/migrated-test-database';
 import { TenantDatabase } from '../src/tenant-database';
 import type { TestDatabase } from '../src/test-database';
@@ -507,6 +507,147 @@ describe('licenses in the control plane (ST-SAS-003)', () => {
       await suspend(license.id, 1);
       expect((await revoke(license.id, 2)).status).toBe('Revoked');
       await expect(reinstate(license.id, 3)).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+    });
+  });
+
+  describe('renewing (ST-SAS-014)', () => {
+    const NEW_UNTIL = new Date('2028-10-01T00:00:00Z');
+    const NEW_GRACE = new Date('2028-10-31T00:00:00Z');
+    const renew = (
+      licenseId: string,
+      expectedVersion: number,
+      overrides: Partial<RenewLicenseInput> = {},
+      whileActing: (renewed: RenewedLicense) => Promise<void> = () => Promise.resolve(),
+      now = NOW,
+      signerOf: () => Promise<LicenseSigner> = () => Promise.resolve(signer),
+    ): Promise<RenewedLicense> =>
+      control.withTenantOf(PLATFORM_TENANT_ID, (tx) =>
+        store.renew(tx, { licenseId, reason: REASON, expectedVersion, validUntil: NEW_UNTIL, graceUntil: NEW_GRACE, issuedBy: ACTOR, restoreTenantId: PLATFORM_TENANT_ID, ...overrides }, signerOf, whileActing, now),
+      );
+
+    it('AC-ST-SAS-014-1: revision 2 takes the place of revision 1, which becomes Superseded with its claims untouched, and both signatures verify', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const first = await issue(tenantId, versionId);
+      const seen: RenewedLicense[] = [];
+      const renewed = await renew(first.id, 1, {}, (row) => Promise.resolve(void seen.push(row)));
+      expect(renewed.superseded).toMatchObject({ id: first.id, revision: 1, status: 'Superseded', version: 2, statusReason: null, signedClaims: first.signedClaims });
+      expect(renewed.license).toMatchObject({ revision: 2, serial: first.serial, status: 'Issued', supersedesId: first.id, edition: 'STANDARD', seats: 50, quota: { storage_gb: 100 }, version: 1, issuedBy: ACTOR, entitlementVersionId: versionId });
+      expect(seen).toHaveLength(1);
+      expect(store.verifySignature(renewed.superseded, keys)).toBe('VALID');
+      expect(store.verifySignature(renewed.license, keys)).toBe('VALID');
+      // Renewed before the end: the new revision starts with the renewal, so the term has no gap, and it ends where the request says.
+      expect(renewed.license.validFrom).toEqual(NOW);
+      expect(renewed.license.validUntil).toEqual(NEW_UNTIL);
+      expect(renewed.license.graceUntil).toEqual(NEW_GRACE);
+      expect(await versionCount(tenantId)).toBe(3);
+      expect((await licensesOf(tenantId)).map((row) => [row.revision, row.status])).toEqual([
+        [1, 'Superseded'],
+        [2, 'Issued'],
+      ]);
+    });
+
+    it('starts the renewed revision at the end of the old one when the renewal comes in the grace period, so the days since the end are covered', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const first = await issue(tenantId, versionId);
+      const inGrace = new Date('2027-10-10T00:00:00Z');
+      const renewed = await renew(first.id, 1, {}, undefined, inGrace);
+      expect(renewed.license.validFrom).toEqual(UNTIL);
+      expect(store.verifySignature(renewed.license, keys)).toBe('VALID');
+    });
+
+    it('can be renewed again: the chain grows by one revision each time and one revision of the serial is current', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const first = await issue(tenantId, versionId);
+      const second = await renew(first.id, 1);
+      const third = await renew(second.license.id, 1, { validUntil: new Date('2029-10-01T00:00:00Z'), graceUntil: new Date('2029-10-31T00:00:00Z') }, undefined, new Date('2026-12-01T00:00:00Z'));
+      expect(third.license).toMatchObject({ revision: 3, supersedesId: second.license.id });
+      expect((await licensesOf(tenantId)).map((row) => [row.revision, row.status])).toEqual([
+        [1, 'Superseded'],
+        [2, 'Superseded'],
+        [3, 'Issued'],
+      ]);
+    });
+
+    it('changes the seats and the entitlement version when the request says so, keeps the lease of a private deployment while it lasts and never past the new grace period', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const second = await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => entitlements.record(tx, { cause: 'LICENSE_CHANGE', planVersionId: PLAN, features: STANDARD_FEATURES }));
+      const next = await asAdmin((client) => client.query<{ id: string }>('select id from machvon.entitlement_version where tenant_id = $1 and id <> $2 order by version_no desc limit 1', [tenantId, versionId]));
+      const newVersion = next.rows[0]?.id ?? '';
+      expect(second).toBeDefined();
+      const first = await issue(tenantId, versionId, { edition: 'PRIVATE', deploymentBinding: 'cluster-a', offlineLeaseDays: 20 });
+      const renewed = await renew(first.id, 1, { seats: 75, entitlementVersionId: newVersion });
+      expect(renewed.license).toMatchObject({ seats: 75, entitlementVersionId: newVersion, edition: 'PRIVATE', deploymentBinding: 'cluster-a' });
+      expect(renewed.license.offlineLeaseUntil).toEqual(first.offlineLeaseUntil);
+      expect(store.verifySignature(renewed.license, keys)).toBe('VALID');
+    });
+
+    it('lets the offline lease go when it has run out, and keeps no lease for an edition that has none', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const first = await issue(tenantId, versionId, { edition: 'PRIVATE', offlineLeaseDays: 5 });
+      const later = new Date('2026-12-01T00:00:00Z');
+      expect((await renew(first.id, 1, {}, undefined, later)).license.offlineLeaseUntil).toBeNull();
+      const plain = await seedTenant();
+      const standard = await issue(plain.tenantId, plain.versionId);
+      expect((await renew(standard.id, 1)).license.offlineLeaseUntil).toBeNull();
+    });
+
+    it('refuses a revision that is not live, a stale version, an unknown license and a reason that is too short', async () => {
+      for (const status of ['Suspended', 'Revoked', 'Draft', 'Superseded']) {
+        const { tenantId, versionId } = await seedTenant();
+        const row = await issue(tenantId, versionId);
+        await asAdmin((client) => client.query("update machvon.license_revision set status = $1, status_reason = 'Set for the review of the contract.' where id = $2", [status, row.id]));
+        await expect(renew(row.id, 1)).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+      }
+      const ended = await seedTenant();
+      const old = await issue(ended.tenantId, ended.versionId);
+      await expect(renew(old.id, 1, {}, undefined, new Date('2028-01-01T00:00:00Z'))).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+      const { tenantId, versionId } = await seedTenant();
+      const row = await issue(tenantId, versionId);
+      await expect(renew(row.id, 5)).rejects.toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
+      await expect(renew('00000000-0000-4000-8000-0000000000ff', 1)).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      await expect(renew(row.id, 1, { reason: 'too short' })).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+      await expect(renew(row.id, 1, { seats: 0 })).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+      expect((await licensesOf(tenantId)).map((r) => r.status)).toEqual(['Issued']);
+    });
+
+    it('refuses an end that is not later than the current one, a grace period before the end, and a window that overlaps another revision', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const first = await issue(tenantId, versionId);
+      await expect(renew(first.id, 1, { validUntil: UNTIL })).rejects.toMatchObject({ code: 'LICENSE_RANGE_INVALID', status: 422, detail: 'valid_until' });
+      await expect(renew(first.id, 1, { graceUntil: new Date('2028-09-01T00:00:00Z') })).rejects.toMatchObject({ code: 'LICENSE_RANGE_INVALID', detail: 'grace_until' });
+      // A revision of another serial that starts inside the window of the renewal.
+      await asAdmin(async (client) => {
+        await client.query(
+          `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id, edition, issuer, version)
+           select tenant_id, gen_random_uuid(), 'LIC-OTHER-0001', 1, entitlement_version_id, timestamptz '2028-01-01', timestamptz '2028-06-01', timestamptz '2028-06-30', 'Issued', signed_claims, key_id, edition, issuer, 1
+             from machvon.license_revision where id = $1`,
+          [first.id],
+        );
+      });
+      await expect(renew(first.id, 1)).rejects.toMatchObject({ code: 'LICENSE_RANGE_INVALID', status: 422, detail: 'valid_until' });
+      expect((await licensesOf(tenantId)).filter((row) => row.serial === first.serial).map((row) => row.status)).toEqual(['Issued']);
+    });
+
+    it('refuses the entitlement version of another tenant, and asks for the key last', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const other = await seedTenant();
+      const first = await issue(tenantId, versionId);
+      await expect(renew(first.id, 1, { entitlementVersionId: other.versionId })).rejects.toMatchObject({ code: 'LICENSE_TENANT_MISMATCH', status: 422 });
+      const unavailable: LicenseSigner = { keyId: 'kid-unknown', sign: () => Promise.resolve(new Uint8Array(64)) };
+      await expect(renew(first.id, 1, {}, undefined, NOW, () => Promise.resolve(unavailable))).rejects.toMatchObject({ code: 'SIGNING_KEY_UNAVAILABLE', status: 503 });
+      expect((await licensesOf(tenantId)).map((row) => row.status)).toEqual(['Issued']);
+    });
+
+    it('lets exactly one of two concurrent renewals win, and rolls the renewal back when the hook fails', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const first = await issue(tenantId, versionId);
+      const results = await Promise.allSettled([renew(first.id, 1), renew(first.id, 1)]);
+      expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+      expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1);
+      const failing = await seedTenant();
+      const row = await issue(failing.tenantId, failing.versionId);
+      await expect(renew(row.id, 1, {}, () => Promise.reject(new Error('hook failed')))).rejects.toThrow('hook failed');
+      expect((await licensesOf(failing.tenantId)).map((r) => [r.revision, r.status])).toEqual([[1, 'Issued']]);
     });
   });
 
