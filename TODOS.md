@@ -1184,3 +1184,10 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-AST-001 (decision, who): the waiver is refused to the person who put the item on the list, the acceptance to the drafter of the handover, the verification to the person who said the item was put right (403 `SELF_APPROVAL_DENIED`). The design has no field for who "said" it other than `fixed_by`.
 - ST-AST-001 (open): the NCR link of a punch item (`nonconformance_id`) is not set by any command; the ISS consumers of the punch items that are overdue, the geotag checks of the photos and the mobile screen MOB-66 are not built; a handover that is given back or rejected emits no event (the design lists none).
 - ST-AST-001 (open): the story cites CXN-07, so it is DONE_UNCONFIRMED; the review of authorization was not run (no subagents).
+
+### ST-AST-002 (asset dossier, AST-03)
+- ST-AST-002 (decision, the value): the assets of a contract are summed over the assets that are not disposed and come from the contract of the handover; the contract row is locked first so that two registrations cannot both pass; the refusal carries `total_vnd` and `contract_value_vnd`.
+- ST-AST-002 (decision, the national code): `external_asset_id` is never generated and never looked up; it is typed by hand at the transfer and the screen says so until it is set (the integration with the national system of public assets is not part of this story).
+- ST-AST-002 (decision, the statuses): IN_OPERATION and DISPOSED are in the guard of the database and the kernel, but no command of this story moves an asset there; the stories that need them (warranty, disposal) add the commands.
+- ST-AST-002 (decision, what is shown): the value, the basis and the total under the contract are masked unless the caller holds `asset.manage` or `asset.transfer`.
+- ST-AST-002 (open): the story cites CXN-09, so it is DONE_UNCONFIRMED; the review of authorization was not run (no subagents).

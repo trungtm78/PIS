@@ -2026,6 +2026,29 @@
       ]
     },
     {
+      "key": "assetAccountant",
+      "displayName": "Kế toán ghi tài sản",
+      "membershipId": "00000000-0000-4000-8000-000000000852",
+      "permissions": [
+        "asset.manage",
+        "asset_record.read",
+        "handover.read",
+        "contract.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "assetOperator",
+      "displayName": "Đơn vị vận hành tài sản",
+      "membershipId": "00000000-0000-4000-8000-000000000853",
+      "permissions": [
+        "asset.transfer",
+        "asset_record.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

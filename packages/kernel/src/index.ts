@@ -482,3 +482,5 @@ export {
   isOpenCritical,
 } from './ast-handover.ts';
 export type { HandoverDecision, HandoverKind, HandoverStatus, PunchSeverity, PunchStatus, PunchVerification } from './ast-handover.ts';
+export { ASSET_STATUSES, VALUE_BASES, assertAssetTransfer, assertValueWithinContract, countsTowardsContract } from './ast-asset.ts';
+export type { AssetStatus, ValueBasis } from './ast-asset.ts';

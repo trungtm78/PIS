@@ -43,6 +43,7 @@ export interface HandoverLine {
   kind: HandoverKind;
   status: HandoverStatus;
   contract: { id: string; code: string; status: string };
+  projectId: string;
   recipientUnit: { id: string; code: string; name: string };
   qualityAcceptanceId: string | null;
   plannedOn: string | null;
@@ -118,6 +119,7 @@ export function toHandover(raw: unknown): HandoverLine | undefined {
     kind,
     status,
     contract: { id: contractId, code: text(contract?.code) ?? '', status: text(contract?.status) ?? '' },
+    projectId: text(row.project_id) ?? '',
     recipientUnit: { id: text(unit?.id) ?? '', code: text(unit?.code) ?? '', name: text(unit?.name) ?? '' },
     qualityAcceptanceId: nullableText(row.quality_acceptance_id),
     plannedOn: nullableText(row.planned_on),

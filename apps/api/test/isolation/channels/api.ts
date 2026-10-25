@@ -334,6 +334,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'recordInspectionResult', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, versioned: true, body: { result: 'PASS', result_note: 'Isolation foreign inspection result', checklist: [] } },
   { operation: 'cancelInspection', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },
   { operation: 'getInspection', method: 'GET', id: INSPECTION_FIXTURES['TNT-B'].id },
+  { operation: 'transferAsset', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].assetId, versioned: true, body: { transferred_on: '2026-10-25', commissioning_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
+  { operation: 'get_resources_asset_record_id', method: 'GET', id: HANDOVER_FIXTURES['TNT-B'].assetId },
   { operation: 'addPunchItem', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].id, versioned: true, body: { description: 'Isolation foreign punch item attempt', severity: 'MINOR', due_on: '2999-01-01' } },
   { operation: 'markPunchItemFixed', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].itemId, body: { evidence_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, note: 'Isolation foreign fix attempt' } },
   { operation: 'verifyPunchItem', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].itemId, body: { outcome: 'VERIFIED', note: 'Isolation foreign verification attempt' } },

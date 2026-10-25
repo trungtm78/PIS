@@ -10,10 +10,10 @@ const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole'
 
 /**
  * Operations whose acceptance criteria answer a missing field as 422 VALIDATION_FAILED naming it
- * (ST-MDM-007 AC-2: a reset of an integration cursor without a reason; ST-CTR-003 AC-1: a release of a guarantee without its evidence).
+ * (ST-MDM-007 AC-2: a reset of an integration cursor without a reason; ST-CTR-003 AC-1: a release of a guarantee without its evidence; ST-AST-002 AC-1: a transfer of an asset without the dossier of the commissioning).
  * A field of the wrong type stays 400.
  */
-const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor', 'releaseGuarantee']);
+const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor', 'releaseGuarantee', 'transferAsset']);
 
 /**
  * Fields whose absence or empty value has a code of its own in the operation catalogue (422, the field named): a legal
