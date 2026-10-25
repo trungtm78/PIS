@@ -491,7 +491,7 @@ export class QmsAcceptanceStore {
   private async signaturesOf(tx: TenantTx, ids: readonly string[]): Promise<SignatureSql[]> {
     return tx.query<SignatureSql>(
       `select subject_id, signer_role, membership_id, signer_name_snapshot, method, legal_effect, cert_serial, signed_content_hash, ${TIMESTAMP('signed_at')} as signed_at
-         from machvon.qms_signature where subject_kind = 'QUALITY_ACCEPTANCE' and subject_id = any($1::uuid[]) order by signed_at, id`,
+         from machvon.qms_signature where subject_kind = 'QUALITY_ACCEPTANCE' and subject_id = any($1::uuid[]) order by signed_at, created_at, id`,
       [ids],
     );
   }

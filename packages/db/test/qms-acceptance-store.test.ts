@@ -147,7 +147,7 @@ const rowOf = async (minutesId: string) =>
   )[0];
 const signaturesOf = (minutesId: string) =>
   owner<{ signer_role: string; membership_id: string; method: string; legal_effect: string; cert_serial: string | null; signed_content_hash: string; signer_name_snapshot: string }>(
-    "select signer_role, membership_id, method, legal_effect, cert_serial, signed_content_hash, signer_name_snapshot from machvon.qms_signature where subject_kind = 'QUALITY_ACCEPTANCE' and subject_id = $1::uuid order by signed_at, id",
+    "select signer_role, membership_id, method, legal_effect, cert_serial, signed_content_hash, signer_name_snapshot from machvon.qms_signature where subject_kind = 'QUALITY_ACCEPTANCE' and subject_id = $1::uuid order by signed_at, created_at, id",
     [minutesId],
   );
 
