@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../../i18n';
-import type { Check, Command, FormProblem, GateStatus, Problem, ProblemView } from './model';
+import type { Check, Command, CompletionCheck, FormProblem, GateStatus, Problem, ProblemView } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -13,6 +13,8 @@ export function commandLabel(t: Translate, command: Command): string {
       return t('ctr.workspace.sign.action');
     case 'activate':
       return t('ctr.workspace.activate.action');
+    case 'complete':
+      return t('ctr.workspace.complete.action');
     case 'cancel':
       return t('ctr.workspace.cancel.action');
   }
@@ -37,6 +39,17 @@ export function checkLabel(t: Translate, check: Check): string {
 export function checkState(t: Translate, check: Check): string {
   if (check.ok === undefined) return t('ctr.workspace.check.notRequired');
   return check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet');
+}
+
+export function completionCheckLabel(t: Translate, check: CompletionCheck): string {
+  switch (check.key) {
+    case 'acceptance':
+      return t('ctr.workspace.completion.acceptance');
+    case 'ncr':
+      return t('ctr.workspace.completion.ncr');
+    case 'measurement':
+      return t('ctr.workspace.completion.measurement');
+  }
 }
 
 export function gateLabel(t: Translate, status: GateStatus): string {
@@ -111,6 +124,12 @@ function baseMessage(t: Translate, problem: Problem): string {
       return t('ctr.workspace.error.contractor');
     case 'documentNotClean':
       return t('ctr.workspace.error.documentNotClean');
+    case 'completionAcceptance':
+      return t('ctr.workspace.error.completionAcceptance');
+    case 'openCriticalNcr':
+      return t('ctr.workspace.error.openCriticalNcr');
+    case 'measurementPending':
+      return t('ctr.workspace.error.measurementPending');
     case 'stateInvalid':
       return t('ctr.workspace.error.stateInvalid');
     case 'versionConflict':

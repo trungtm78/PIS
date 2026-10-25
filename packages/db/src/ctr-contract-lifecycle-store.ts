@@ -38,6 +38,8 @@ const ACTIVATE_COMMAND = 'activateContract';
 const SUSPEND_COMMAND = 'suspendContract';
 const RESUME_COMMAND = 'resumeContract';
 const TERMINATE_COMMAND = 'terminateContract';
+const COMPLETE_COMMAND = 'completeContract';
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULT_SUBMIT_REASON = 'Sent to review';
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
@@ -127,6 +129,28 @@ export interface ContractTerminateResult extends LifecycleResult {
   /** The advance that is still owed: it stays on the contract for the settlement. */
   advanceOutstandingVnd: string;
   decisionDocumentVersionId: string;
+}
+
+export interface ContractCompleteInput {
+  completionQualityAcceptanceId: string;
+  /** `YYYY-MM-DD`. */
+  completedOn: string;
+}
+
+export interface ContractCompleteResult extends LifecycleResult {
+  completedOn: string;
+  completionQualityAcceptanceId: string;
+  completionRecordNo: string;
+}
+
+/** What stands between a contract that is being performed and its completion, as it stands now (the commands judge it again). */
+export interface CompletionReadiness {
+  /** The completion acceptance minutes of the contract that are approved: the ones the completion can rest on. */
+  acceptances: Array<{ id: string; recordNo: string; approvedOn: string }>;
+  /** The serious non-conformances of the contract that are not closed. */
+  openCriticalNcrIds: string[];
+  /** The measurements of the contract that are submitted and not yet decided. */
+  pendingMeasurementIds: string[];
 }
 
 export interface SignResult extends LifecycleResult {
@@ -425,6 +449,71 @@ export class CtrContractLifecycleStore {
     await this.record(tx, id, contract.status, to, reason, terminatedOn, TERMINATE_COMMAND, actor, decision.versionId);
     const violationId = await this.suggestViolation(tx, contract, terminationSuggestion({ contractId: id, terminatedOn, reason, decisionDocumentVersionId: decision.versionId }), actor);
     return { ...this.result(contract, to, reason), terminatedOn, guaranteeAction: action, guarantees, violationId, advanceOutstandingVnd: standing.advanceOutstandingVnd, decisionDocumentVersionId: decision.versionId };
+  }
+
+  /**
+   * ACTIVE to COMPLETED (CTR 3.2, BR-CTR-09): a contract is completed on the completion acceptance minutes that were approved, and not while a serious non-conformance of the contract is open or a
+   * measurement of it waits to be decided. The guards are judged in that order, so the person is told the first thing that stands in the way (422 `COMPLETION_ACCEPTANCE_REQUIRED`, 422
+   * `OPEN_CRITICAL_NCR` with the identifiers, 422 `MEASUREMENT_PENDING` with the identifiers). The day is not before the contract took effect nor before the minutes were approved, and not in the future.
+   */
+  async complete(tx: TenantTx, id: string, expectedVersion: number, input: ContractCompleteInput, actor: string, scopes: ContractScopes, today: string): Promise<ContractCompleteResult> {
+    const contract = await this.hold(tx, id, expectedVersion, scopes);
+    await this.assertFree(tx, actor, contract, 'ACTOR');
+    const to = assertContractTransition(COMPLETE_COMMAND, contract.status);
+    const acceptanceId = input.completionQualityAcceptanceId.trim().toLowerCase();
+    if (!UUID.test(acceptanceId)) throw invalid('completion_quality_acceptance_id');
+    const completedOn = calendarDate(input.completedOn, 'completed_on');
+    const minutes = await this.completionMinutes(tx, id, acceptanceId);
+    const readiness = await this.completionReadiness(tx, id);
+    if (readiness.openCriticalNcrIds.length > 0) throw new DomainError('OPEN_CRITICAL_NCR', 422, 'id', { extensions: { nonconformance_ids: readiness.openCriticalNcrIds } });
+    if (readiness.pendingMeasurementIds.length > 0) throw new DomainError('MEASUREMENT_PENDING', 422, 'id', { extensions: { measurement_ids: readiness.pendingMeasurementIds } });
+    const standing = await this.standing(tx, id);
+    const earliest =
+      [standing.effectiveFrom, minutes.approvedOn]
+        .filter((day): day is string => day !== null)
+        .sort()
+        .at(-1) ?? null;
+    assertDayBetween('completed_on', completedOn, earliest, today);
+    const reason = `Completed on the acceptance ${minutes.recordNo}`;
+    await tx.query(
+      `update machvon.contract
+          set status = $2, completed_on = $3::date, completion_quality_acceptance_id = $4::uuid, completed_by = $5::uuid, updated_at = now(), updated_by = $5::uuid, version = version + 1
+        where id = $1::uuid`,
+      [id, to, completedOn, acceptanceId, actor],
+    );
+    await this.record(tx, id, contract.status, to, reason, completedOn, COMPLETE_COMMAND, actor, minutes.documentVersionId);
+    return { ...this.result(contract, to, reason), completedOn, completionQualityAcceptanceId: acceptanceId, completionRecordNo: minutes.recordNo };
+  }
+
+  /** The completion minutes the command names: of this contract, for the completion of the work, approved. */
+  private async completionMinutes(tx: TenantTx, contractId: string, acceptanceId: string): Promise<{ recordNo: string; documentVersionId: string; approvedOn: string }> {
+    const rows = await tx.query<{ record_no: string; document_version_id: string; acceptance_scope: string; status: string; approved_on: string | null }>(
+      `select record_no, document_version_id, acceptance_scope, status, (approved_at at time zone 'Asia/Ho_Chi_Minh')::date::text as approved_on
+         from machvon.quality_acceptance where id = $1::uuid and contract_id = $2::uuid`,
+      [acceptanceId, contractId],
+    );
+    const row = rows[0];
+    const refuse = (reason: string): DomainError => new DomainError('COMPLETION_ACCEPTANCE_REQUIRED', 422, 'completion_quality_acceptance_id', { extensions: { reason } });
+    if (row === undefined) throw refuse('MISSING');
+    if (row.acceptance_scope !== 'COMPLETION') throw refuse('NOT_COMPLETION');
+    if (row.status !== 'APPROVED' || row.approved_on === null) throw refuse('NOT_APPROVED');
+    return { recordNo: row.record_no, documentVersionId: row.document_version_id, approvedOn: row.approved_on };
+  }
+
+  /** The conditions of the completion as they stand now, read without a lock; the identifiers are the first twenty of each kind. */
+  async completionReadiness(tx: TenantTx, id: string): Promise<CompletionReadiness> {
+    const acceptances = await tx.query<{ id: string; record_no: string; approved_on: string }>(
+      `select id, record_no, (approved_at at time zone 'Asia/Ho_Chi_Minh')::date::text as approved_on from machvon.quality_acceptance
+        where contract_id = $1::uuid and acceptance_scope = 'COMPLETION' and status = 'APPROVED' order by approved_at desc, id limit 20`,
+      [id],
+    );
+    const ncrs = await tx.query<{ id: string }>("select id from machvon.quality_nonconformance where contract_id = $1::uuid and blocks_acceptance and status <> 'CLOSED' order by id limit 20", [id]);
+    const measurements = await tx.query<{ id: string }>("select id from machvon.measurement where contract_id = $1::uuid and status = 'SUBMITTED' order by id limit 20", [id]);
+    return {
+      acceptances: acceptances.map((row) => ({ id: row.id, recordNo: row.record_no, approvedOn: row.approved_on })),
+      openCriticalNcrIds: ncrs.map((row) => row.id),
+      pendingMeasurementIds: measurements.map((row) => row.id),
+    };
   }
 
   /** The version of a contract inside a scope, without taking the row: what a cached summary is keyed by. Undefined outside the scope. */

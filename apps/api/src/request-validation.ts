@@ -33,6 +33,8 @@ const FIELD_PROBLEMS: Readonly<Record<string, Readonly<Record<string, string>>>>
   suspendContract: { decision_document_version_id: 'DECISION_DOCUMENT_REQUIRED' },
   resumeContract: { decision_document_version_id: 'DECISION_DOCUMENT_REQUIRED' },
   terminateContract: { decision_document_version_id: 'DECISION_DOCUMENT_REQUIRED' },
+  // A contract is completed on the completion acceptance that was approved (ST-CTR-011 AC-1).
+  completeContract: { completion_quality_acceptance_id: 'COMPLETION_ACCEPTANCE_REQUIRED' },
   // A reopening without a reason of 20 characters (ST-DIS-002 AC-1).
   requestPeriodReopen: { reason: 'REOPEN_REASON_REQUIRED' },
 };

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { AuditWriter, BidContractorStore, CtrContractLifecycleStore, CtrContractSource, CtrContractStore, DoaMatrixStore, TenantDatabase, contractScope } from '@machvon/db';
-import type { ActivationReadiness, ContractDetail, ContractFacts, ContractScopes, LifecycleHooks, LifecycleResult } from '@machvon/db';
+import type { ActivationReadiness, CompletionReadiness, ContractDetail, ContractFacts, ContractScopes, LifecycleHooks, LifecycleResult } from '@machvon/db';
 import { CONTRACT_DOA_DOCUMENT_TYPE, DomainError, contractTransition, isMakerOf, vietnamDateOf } from '@machvon/kernel';
 import type { ContractCommand, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -26,6 +26,7 @@ const ACTIVATE_PERMISSION = PERMISSIONS.post_contracts_id_activate;
 const CANCEL_PERMISSION = PERMISSIONS.cancelContractDraft;
 const SUSPEND_PERMISSION = PERMISSIONS.suspendContract;
 const TERMINATE_PERMISSION = PERMISSIONS.terminateContract;
+const COMPLETE_PERMISSION = PERMISSIONS.completeContract;
 const READ_PERMISSION = PERMISSIONS.get_resources_contract;
 const SUMMARY_PERMISSION = PERMISSIONS.getContractSummary;
 const LEDGER_PERMISSION = 'ledger.read';
@@ -62,11 +63,21 @@ export function actionsOf(detail: ContractDetail, access: EffectiveAccess, now: 
     suspend: may('suspendContract', SUSPEND_PERMISSION, false),
     resume: may('resumeContract', SUSPEND_PERMISSION, false),
     terminate: may('terminateContract', TERMINATE_PERMISSION, true),
+    complete: may('completeContract', COMPLETE_PERMISSION, false),
+  };
+}
+
+/** What stands between a contract that is being performed and its completion: the approved completion minutes it can rest on, the serious non-conformances still open and the measurements still to be decided. */
+function completionView(completion: CompletionReadiness): Record<string, unknown> {
+  return {
+    acceptances: completion.acceptances.map((minutes) => ({ id: minutes.id, record_no: minutes.recordNo, approved_on: minutes.approvedOn })),
+    open_critical_ncr_ids: completion.openCriticalNcrIds,
+    pending_measurement_ids: completion.pendingMeasurementIds,
   };
 }
 
 /** The summary of a contract (CTR-03): the detail the other screens read, and for the staff the people behind the signature, what stands before the activation and what they may do now. */
-export function summaryView(detail: ContractDetail, rights: ContractRights, staff: { readiness: ActivationReadiness | undefined; actions: Record<string, boolean> } | undefined): Record<string, unknown> {
+export function summaryView(detail: ContractDetail, rights: ContractRights, staff: { readiness: ActivationReadiness | undefined; completion: CompletionReadiness | undefined; actions: Record<string, boolean> } | undefined): Record<string, unknown> {
   if (staff === undefined || !rights.internal) return contractDetailView(detail, rights);
   return {
     ...contractDetailView(detail, rights),
@@ -76,6 +87,7 @@ export function summaryView(detail: ContractDetail, rights: ContractRights, staf
     conflict_decision_ref: detail.conflictDecisionRef,
     activated_by: detail.activatedBy,
     ...(staff.readiness === undefined ? {} : { readiness: readinessView(staff.readiness) }),
+    ...(staff.completion === undefined ? {} : { completion: completionView(staff.completion) }),
     actions: staff.actions,
   };
 }
@@ -319,6 +331,35 @@ export class ContractLifecycleController {
     return commandResult(scope, done.status, done.version, done.id);
   }
 
+  @Post('contracts/:id/complete')
+  @HttpCode(200)
+  @OperationId('completeContract')
+  @Command({ operation: 'completeContract', versioned: true })
+  async complete(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrCompleteContract']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.guarded(scope, 'completeContract', id, () =>
+      this.lifecycle.complete(
+        scope.tx,
+        id.toLowerCase(),
+        scope.expectedVersion ?? 0,
+        { completionQualityAcceptanceId: body.completion_quality_acceptance_id, completedOn: body.completed_on },
+        scope.tenant.membershipId,
+        scopesFor(access, COMPLETE_PERMISSION, now),
+        vietnamDateOf(now),
+      ),
+    );
+    await this.written(
+      scope,
+      done,
+      'contract.completed',
+      'ctr.contract.completed.v1',
+      now,
+      { completed_on: done.completedOn, completion_quality_acceptance_id: done.completionQualityAcceptanceId, completion_record_no: done.completionRecordNo },
+      done.reason,
+    );
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
   @Get('contracts/:id/summary')
   @OperationId('getContractSummary')
   async summary(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
@@ -338,7 +379,11 @@ export class ContractLifecycleController {
       const guest = (await this.contractors.callerOf(tx, tenant.membershipId)).guest;
       const rights: ContractRights = { internal: !guest, ledger: reaches(access, LEDGER_PERMISSION, placeRefs(detail.reach), now) };
       if (guest || !reaches(access, SUMMARY_PERMISSION, placeRefs(detail.reach), now)) return summaryView(detail, rights, undefined);
-      return summaryView(detail, rights, { readiness: await this.lifecycle.readiness(tx, detail.id, vietnamDateOf(now)), actions: actionsOf(detail, access, now, tenant.membershipId) });
+      return summaryView(detail, rights, {
+        readiness: await this.lifecycle.readiness(tx, detail.id, vietnamDateOf(now)),
+        completion: detail.status === 'ACTIVE' ? await this.lifecycle.completionReadiness(tx, detail.id) : undefined,
+        actions: actionsOf(detail, access, now, tenant.membershipId),
+      });
     });
     // A contract in another tenant or outside the scope of the caller is indistinguishable from one that does not exist.
     if (view === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);

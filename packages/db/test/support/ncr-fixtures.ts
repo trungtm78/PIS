@@ -1,10 +1,11 @@
 import { Client } from 'pg';
 
 /**
- * Sets the stage of a non-conformance the way a test needs it, as the superuser with the triggers off: the guard of its status lets the commands of ST-QMS-006 move it one edge at a time, and a test of
- * something else (the acceptance that waits for it) only needs it to be open or closed.
+ * Sets the stage the way a test needs it, as the superuser with the triggers and the foreign keys off: the guards of the statuses (a non-conformance moves one edge at a time) and the
+ * records that a test of something else leans on (the acceptance that waits for a non-conformance, the contract that waits for a measurement) are written as they must be, not as the
+ * commands of other stories would have made them.
  */
-export async function ncrStatement(adminUrl: string, sql: string, params: unknown[] = []): Promise<void> {
+export async function asSuperuser(adminUrl: string, sql: string, params: unknown[] = []): Promise<void> {
   const client = new Client({ connectionString: adminUrl });
   await client.connect();
   try {
@@ -17,7 +18,7 @@ export async function ncrStatement(adminUrl: string, sql: string, params: unknow
 
 /** A non-conformance that was verified and closed by the member (who is not the owner of its action). */
 export const closeNcr = (adminUrl: string, id: string, closer: string): Promise<void> =>
-  ncrStatement(
+  asSuperuser(
     adminUrl,
     "update machvon.quality_nonconformance set status = 'CLOSED', verified_by = $2::uuid, closed_by = $2::uuid, closed_at = now(), closure_note = 'closed for the test' where id = $1::uuid",
     [id, closer],

@@ -10,7 +10,7 @@ export const UUID_A = '00000000-0000-4000-8000-0000000000a1';
 export const UUID_B = '00000000-0000-4000-8000-0000000000b2';
 export const TODAY = '2026-10-25';
 
-export const noActions = { submit: false, return: false, sign: false, activate: false, cancel: false };
+export const noActions = { submit: false, return: false, sign: false, activate: false, complete: false, cancel: false };
 
 export const readiness = (overrides: Record<string, unknown> = {}) => ({
   boq: { total_vnd: '10200000000', balanced: true },
@@ -18,6 +18,14 @@ export const readiness = (overrides: Record<string, unknown> = {}) => ({
   permit_gate: { required: true, status: 'PASSED', blocking: [] },
   capital: { allocation_line_id: UUID_A },
   project: { status: 'IMPLEMENTATION', in_implementation: true },
+  ...overrides,
+});
+
+/** The way to completion the server shows for a contract that is being performed: one approved completion acceptance and nothing in the way. */
+export const completion = (overrides: Record<string, unknown> = {}) => ({
+  acceptances: [{ id: UUID_A, record_no: 'QA-C-001', approved_on: '2026-10-20' }],
+  open_critical_ncr_ids: [],
+  pending_measurement_ids: [],
   ...overrides,
 });
 

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { useCommand, useScopeKey } from '../hooks';
 import { toSummary } from './model';
-import type { ActivateBody, SignBody, Summary } from './model';
+import type { ActivateBody, CompleteBody, SignBody, Summary } from './model';
 
 /** The summary of one contract: the contract, the people behind its signature, what stands before its activation and what the caller may do now; null when none is named. */
 export function useSummary(contractId: string | null | undefined) {
@@ -56,4 +56,15 @@ export interface ActivateInput {
 export function useActivateContract() {
   const client = useApiClient();
   return useCommand<ActivateInput>((input, attempt) => client.command('post_contracts_id_activate', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+}
+
+export interface CompleteInput {
+  id: string;
+  version: number;
+  body: CompleteBody;
+}
+
+export function useCompleteContract() {
+  const client = useApiClient();
+  return useCommand<CompleteInput>((input, attempt) => client.command('completeContract', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
 }

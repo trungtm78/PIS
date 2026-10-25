@@ -29,6 +29,7 @@
     "closeNonconformance",
     "closeProject",
     "commentIssue",
+    "completeContract",
     "completeProject",
     "completeSigningSession",
     "confirmDocumentTemplateLegalBasis",

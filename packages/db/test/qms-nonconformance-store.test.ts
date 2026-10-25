@@ -6,7 +6,7 @@ import type { TenantTx } from '../src/tenant-database';
 import { TENANT_A, contextFor, id, memberId } from './support/authz-fixtures';
 import { seedAs } from './support/bid-proposal-fixtures';
 import { CapWorld } from './support/cap-fixtures';
-import { ncrStatement } from './support/ncr-fixtures';
+import { asSuperuser } from './support/ncr-fixtures';
 
 const world = new CapWorld();
 const harness = world.harness;
@@ -444,7 +444,7 @@ describe('the non-conformances of work under a contract (ST-QMS-006)', () => {
       expect(
         await databaseRefusal(owner("update machvon.quality_nonconformance set status = 'CLOSED', closed_by = $2::uuid, closed_at = now() where id = $1::uuid", [ncrId, memberId(CLOSER)])),
       ).toMatchObject({ message: expect.stringContaining('with its note') });
-      await ncrStatement(harness.database.adminUrl, "update machvon.quality_nonconformance set status = 'CLOSED', closed_by = $2::uuid, closed_at = now(), closure_note = 'x' where id = $1::uuid", [
+      await asSuperuser(harness.database.adminUrl, "update machvon.quality_nonconformance set status = 'CLOSED', closed_by = $2::uuid, closed_at = now(), closure_note = 'x' where id = $1::uuid", [
         ncrId,
         memberId(CLOSER),
       ]);
@@ -509,8 +509,8 @@ describe('the non-conformances of work under a contract (ST-QMS-006)', () => {
     it('says when a non-conformance and its action are overdue, until they are answered or verified', async () => {
       const seeded = await seedContract();
       const { ncrId, actionId } = await withAction(seeded);
-      await ncrStatement(harness.database.adminUrl, "update machvon.quality_nonconformance set due_at = now() - interval '1 day' where id = $1::uuid", [ncrId]);
-      await ncrStatement(harness.database.adminUrl, "update machvon.corrective_action set due_at = now() - interval '1 day' where id = $1::uuid", [actionId]);
+      await asSuperuser(harness.database.adminUrl, "update machvon.quality_nonconformance set due_at = now() - interval '1 day' where id = $1::uuid", [ncrId]);
+      await asSuperuser(harness.database.adminUrl, "update machvon.corrective_action set due_at = now() - interval '1 day' where id = $1::uuid", [actionId]);
       const late = await as((tx) => ncrs.find(tx, ncrId, everything));
       expect(late).toMatchObject({ overdue: true, actions: [expect.objectContaining({ overdue: true })] });
       await respond(actionId, FIXER);

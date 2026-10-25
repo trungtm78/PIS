@@ -347,6 +347,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'getQualityAcceptance', method: 'GET', id: ACCEPTANCE_FIXTURES['TNT-B'].id },
   { operation: 'suspendContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign suspension attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, suspended_from: '2026-10-25' } },
   { operation: 'resumeContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign resumption attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, resumed_on: '2026-10-25' } },
+  { operation: 'completeContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { completion_quality_acceptance_id: DOCUMENT_FIXTURES['TNT-B'].versionId, completed_on: '2026-10-25' } },
   { operation: 'terminateContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign termination attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' } },
   {
     operation: 'importBoqLines',

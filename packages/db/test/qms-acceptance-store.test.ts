@@ -9,7 +9,7 @@ import type { TenantTx } from '../src/tenant-database';
 import { TENANT_A, contextFor, id, memberId } from './support/authz-fixtures';
 import { seedAs } from './support/bid-proposal-fixtures';
 import { CapWorld } from './support/cap-fixtures';
-import { ncrStatement } from './support/ncr-fixtures';
+import { asSuperuser } from './support/ncr-fixtures';
 
 const world = new CapWorld();
 const harness = world.harness;
@@ -176,7 +176,7 @@ const openCritical = async (seeded: Seeded, status = 'OPEN') => {
 
 /** Moves a non-conformance to a status; a closed one was verified by someone other than the owner of the action. */
 const ncrStatus = (nid: string, status: string) =>
-  ncrStatement(
+  asSuperuser(
     harness.database.adminUrl,
     `update machvon.quality_nonconformance
         set status = $2, verified_by = case when $2 = 'CLOSED' then $3::uuid end, closed_by = case when $2 = 'CLOSED' then $3::uuid end, closed_at = case when $2 = 'CLOSED' then now() end,

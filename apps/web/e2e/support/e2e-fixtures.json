@@ -1970,6 +1970,16 @@
       ]
     },
     {
+      "key": "contractCompleter",
+      "displayName": "Lãnh đạo xác nhận hoàn thành hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000847",
+      "permissions": [
+        "contract.complete",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

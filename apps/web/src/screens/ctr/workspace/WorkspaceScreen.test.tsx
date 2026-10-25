@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import WorkspaceScreen from './WorkspaceScreen';
-import { UUID_A, UUID_B, change, client, contractId, mount, noActions, readiness, routeOf, summary } from './test-support';
+import { UUID_A, UUID_B, change, client, completion, contractId, mount, noActions, readiness, routeOf, summary } from './test-support';
 import type { World } from './test-support';
 
 const ROUTE = routeOf('CTR-03', 'FR-CTR-03');
@@ -11,7 +11,8 @@ const PATH = `/ctr/ctr-03?id=${contractId(1)}`;
 const PERMISSIONS = ['contract.read'];
 const OK = { operation_id: 'o', status: 'IN_REVIEW', resource_version: 4, resource_id: contractId(1) };
 const problem = (code: string, status = 409, extensions: Record<string, unknown> = {}) => new ApiError({ status, code, correlationId: 'c', extensions });
-const text = (key: string, params: Record<string, string | number> = {}): string => Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), (vi_ as Record<string, string>)[key] ?? key);
+const text = (key: string, params: Record<string, string | number> = {}): string =>
+  Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), (vi_ as Record<string, string>)[key] ?? key);
 
 afterEach(() => {
   cleanup();
@@ -100,7 +101,10 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
       }),
     });
     await screen.findByTestId('history');
-    expect(Array.from(document.querySelectorAll('[data-testid="history"] li')).map((item) => item.getAttribute('data-from') + '>' + item.getAttribute('data-to'))).toEqual(['DRAFT>IN_REVIEW', 'IN_REVIEW>SIGNED']);
+    expect(Array.from(document.querySelectorAll('[data-testid="history"] li')).map((item) => item.getAttribute('data-from') + '>' + item.getAttribute('data-to'))).toEqual([
+      'DRAFT>IN_REVIEW',
+      'IN_REVIEW>SIGNED',
+    ]);
     expect(screen.getByText(text('ctr.workspace.history.move', { from: vi_['ctr.status.draft.label'], to: vi_['ctr.status.inReview.label'] }))).toBeTruthy();
     expect(screen.getByTestId('signed-on').textContent).toBe('2026-10-20');
     expect(screen.getByTestId('decision-ref').textContent).toBe('QD-XL-001');
@@ -135,7 +139,10 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
         ['CONTRACTOR_RESTRICTED', 'ctr.workspace.error.contractor'],
         ['CONFLICT_OF_INTEREST_BLOCKED', 'ctr.workspace.error.conflictActor'],
       ] as const) {
-        open({ summary: summary('DRAFT', { actions: { ...noActions, submit: true } }) }, { command: () => problem(code, code === 'CONFLICT_OF_INTEREST_BLOCKED' ? 409 : 422, code === 'CONFLICT_OF_INTEREST_BLOCKED' ? { conflict_of: 'ACTOR' } : {}) });
+        open(
+          { summary: summary('DRAFT', { actions: { ...noActions, submit: true } }) },
+          { command: () => problem(code, code === 'CONFLICT_OF_INTEREST_BLOCKED' ? 409 : 422, code === 'CONFLICT_OF_INTEREST_BLOCKED' ? { conflict_of: 'ACTOR' } : {}) },
+        );
         await screen.findByTestId('facts');
         press('submit');
         submitDialog(vi_['ctr.workspace.submit.submit']);
@@ -154,7 +161,12 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
       expect(h.command).not.toHaveBeenCalled();
       fireEvent.change(within(dialog()).getByLabelText(vi_['ctr.workspace.return.field']), { target: { value: 'The bill of quantities has to be corrected.' } });
       submitDialog(vi_['ctr.workspace.return.submit']);
-      await waitFor(() => expect(h.command).toHaveBeenCalledWith('returnContractDraft', expect.objectContaining({ path: { id: contractId(1) }, body: { reason: 'The bill of quantities has to be corrected.' }, ifMatchVersion: 3 })));
+      await waitFor(() =>
+        expect(h.command).toHaveBeenCalledWith(
+          'returnContractDraft',
+          expect.objectContaining({ path: { id: contractId(1) }, body: { reason: 'The bill of quantities has to be corrected.' }, ifMatchVersion: 3 }),
+        ),
+      );
     });
 
     it('cancels a draft with its reason', async () => {
@@ -252,7 +264,11 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
       await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
       expect(h.command).toHaveBeenCalledWith(
         'post_contracts_id_activate',
-        expect.objectContaining({ path: { id: contractId(1) }, ifMatchVersion: 3, body: { decision: 'approve', reason: 'All the conditions are met.', evidence_ids: [UUID_A, UUID_B], effective_from: '2026-11-01' } }),
+        expect.objectContaining({
+          path: { id: contractId(1) },
+          ifMatchVersion: 3,
+          body: { decision: 'approve', reason: 'All the conditions are met.', evidence_ids: [UUID_A, UUID_B], effective_from: '2026-11-01' },
+        }),
       );
     });
 
@@ -268,7 +284,10 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
     it('says which condition failed, naming the permit types that block the gate and the cause the capital gave', async () => {
       for (const [error, expected] of [
         [problem('PERFORMANCE_GUARANTEE_MISSING', 422), vi_['ctr.workspace.error.guaranteeMissing']],
-        [problem('PERMIT_GATE_BLOCKED', 409, { gate_code: 'CONTRACT_ACTIVATION', blocking: [{ permit_type_code: 'GPXD' }, { permit_type_code: 'PCCC' }] }), `${vi_['ctr.workspace.error.gateBlocked']} ${text('ctr.workspace.error.detail', { detail: 'GPXD, PCCC' })}`],
+        [
+          problem('PERMIT_GATE_BLOCKED', 409, { gate_code: 'CONTRACT_ACTIVATION', blocking: [{ permit_type_code: 'GPXD' }, { permit_type_code: 'PCCC' }] }),
+          `${vi_['ctr.workspace.error.gateBlocked']} ${text('ctr.workspace.error.detail', { detail: 'GPXD, PCCC' })}`,
+        ],
         [problem('FUND_COMMIT_FAILED', 422, { cause: 'AVC_BLOCKED' }), `${vi_['ctr.workspace.error.fundFailed']} ${text('ctr.workspace.error.detail', { detail: 'AVC_BLOCKED' })}`],
         [problem('PROJECT_STAGE_INVALID', 422), vi_['ctr.workspace.error.projectStage']],
         [problem('SELF_APPROVAL_DENIED', 403), vi_['ctr.workspace.error.selfApproval']],
@@ -430,5 +449,117 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
       fireEvent.click(retry);
       await screen.findByTestId('facts');
     });
+  });
+});
+
+describe('WorkspaceScreen (CTR-03): the completion of a contract', () => {
+  const active = (overrides: Record<string, unknown> = {}) => summary('ACTIVE', { readiness: undefined, completion: completion(), actions: { ...noActions, complete: true }, ...overrides });
+  const checks = (): Array<[string | null, string | null]> =>
+    Array.from(document.querySelectorAll('[data-completion]')).map((item) => [item.getAttribute('data-completion'), item.getAttribute('data-ok')]);
+
+  it('UI-CTR-03: shows what stands in the way of the completion, and offers it to whoever may complete the contract', async () => {
+    open({ summary: active() });
+    await screen.findByTestId('completion-checks');
+    expect(commandButtons()).toEqual(['complete']);
+    expect(screen.getByRole('button', { name: vi_['ctr.workspace.complete.action'] })).toBeTruthy();
+    expect(checks()).toEqual([
+      ['acceptance', 'true'],
+      ['ncr', 'true'],
+      ['measurement', 'true'],
+    ]);
+    expect(within(screen.getByTestId('completion-checks')).queryByText(/\d+ ·/)).toBeNull();
+  });
+
+  it('AC-ST-CTR-011-1, UAT-AC305: says the serious non-conformances and the measurements that stand in the way, with how many, and the lack of approved minutes', async () => {
+    open({ summary: active({ completion: completion({ acceptances: [], open_critical_ncr_ids: [UUID_A, UUID_B], pending_measurement_ids: [UUID_A] }) }) });
+    await screen.findByTestId('completion-checks');
+    expect(checks()).toEqual([
+      ['acceptance', 'false'],
+      ['ncr', 'false'],
+      ['measurement', 'false'],
+    ]);
+    expect(document.querySelector('[data-completion="ncr"]')?.textContent).toContain(text('ctr.workspace.completion.count', { count: 2 }));
+    expect(document.querySelector('[data-completion="measurement"]')?.textContent).toContain(text('ctr.workspace.completion.count', { count: 1 }));
+    expect(document.querySelector('[data-completion="acceptance"]')?.textContent).not.toContain(text('ctr.workspace.completion.count', { count: 0 }));
+  });
+
+  it('shows no way to completion for a contract that is not being performed or to whoever sees the contract alone, and no button in a read-only session', async () => {
+    open({ summary: summary('SUSPENDED', { completion: completion(), actions: { ...noActions } }) });
+    await screen.findByTestId('facts');
+    expect(screen.queryByTestId('completion-checks')).toBeNull();
+    cleanup();
+    open({ summary: summary('ACTIVE', { readiness: undefined, actions: undefined }) });
+    await screen.findByTestId('facts');
+    expect(screen.queryByTestId('completion-checks')).toBeNull();
+    cleanup();
+    open({ summary: active() }, { mode: 'READ_ONLY' });
+    await screen.findByTestId('completion-checks');
+    expect(commandButtons()).toEqual([]);
+  });
+
+  it('asks for the minutes and the day, with the only approved minutes chosen, and sends the completion once under the version shown', async () => {
+    const h = open({ summary: active() });
+    await screen.findByTestId('completion-checks');
+    press('complete');
+    expect((within(dialog()).getByLabelText(vi_['ctr.workspace.complete.acceptance']) as HTMLSelectElement).value).toBe(UUID_A);
+    expect(Array.from((within(dialog()).getByLabelText(vi_['ctr.workspace.complete.acceptance']) as HTMLSelectElement).options).map((option) => option.textContent)).toEqual([
+      vi_['ctr.workspace.complete.acceptance.choose'],
+      text('ctr.workspace.complete.acceptance.option', { recordNo: 'QA-C-001', day: '2026-10-20' }),
+    ]);
+    fireEvent.change(within(dialog()).getByLabelText(vi_['ctr.workspace.complete.completedOn']), { target: { value: '2999-01-01' } });
+    submitDialog(vi_['ctr.workspace.complete.submit']);
+    expect(within(dialog()).getByText(vi_['ctr.workspace.problem.future'])).toBeTruthy();
+    fireEvent.change(within(dialog()).getByLabelText(vi_['ctr.workspace.complete.completedOn']), { target: { value: '' } });
+    submitDialog(vi_['ctr.workspace.complete.submit']);
+    expect(within(dialog()).getByText(vi_['ctr.workspace.problem.required'])).toBeTruthy();
+    expect(h.command).not.toHaveBeenCalled();
+    fireEvent.change(within(dialog()).getByLabelText(vi_['ctr.workspace.complete.completedOn']), { target: { value: '2026-10-24' } });
+    submitDialog(vi_['ctr.workspace.complete.submit']);
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command).toHaveBeenCalledWith(
+      'completeContract',
+      expect.objectContaining({ path: { id: contractId(1) }, ifMatchVersion: 3, body: { completion_quality_acceptance_id: UUID_A, completed_on: '2026-10-24' } }),
+    );
+  });
+
+  it('asks for the minutes when there are several to choose from', async () => {
+    const several = completion({
+      acceptances: [
+        { id: UUID_A, record_no: 'QA-C-001', approved_on: '2026-10-20' },
+        { id: UUID_B, record_no: 'QA-C-002', approved_on: '2026-10-22' },
+      ],
+    });
+    const h = open({ summary: active({ completion: several }) });
+    await screen.findByTestId('completion-checks');
+    press('complete');
+    expect((within(dialog()).getByLabelText(vi_['ctr.workspace.complete.acceptance']) as HTMLSelectElement).value).toBe('');
+    submitDialog(vi_['ctr.workspace.complete.submit']);
+    expect(within(dialog()).getByText(vi_['ctr.workspace.problem.required'])).toBeTruthy();
+    expect(h.command).not.toHaveBeenCalled();
+    fireEvent.change(within(dialog()).getByLabelText(vi_['ctr.workspace.complete.acceptance']), { target: { value: UUID_B } });
+    submitDialog(vi_['ctr.workspace.complete.submit']);
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command).toHaveBeenCalledWith('completeContract', expect.objectContaining({ body: expect.objectContaining({ completion_quality_acceptance_id: UUID_B }) }));
+  });
+
+  it('says why the server refused, naming the non-conformances and the measurements', async () => {
+    for (const [error, expected] of [
+      [problem('COMPLETION_ACCEPTANCE_REQUIRED', 422, { reason: 'NOT_APPROVED' }), vi_['ctr.workspace.error.completionAcceptance']],
+      [problem('OPEN_CRITICAL_NCR', 422, { nonconformance_ids: [UUID_A] }), `${vi_['ctr.workspace.error.openCriticalNcr']} ${text('ctr.workspace.error.detail', { detail: UUID_A })}`],
+      [
+        problem('MEASUREMENT_PENDING', 422, { measurement_ids: [UUID_A, UUID_B] }),
+        `${vi_['ctr.workspace.error.measurementPending']} ${text('ctr.workspace.error.detail', { detail: `${UUID_A}, ${UUID_B}` })}`,
+      ],
+      [problem('CONTRACT_STATE_INVALID'), vi_['ctr.workspace.error.stateInvalid']],
+      [problem('VERSION_CONFLICT'), vi_['ctr.workspace.error.versionConflict']],
+    ] as const) {
+      open({ summary: active() }, { command: () => error });
+      await screen.findByTestId('completion-checks');
+      press('complete');
+      submitDialog(vi_['ctr.workspace.complete.submit']);
+      expect((await within(dialog()).findByTestId('refusal')).textContent).toBe(expected);
+      expect(screen.getByRole('dialog')).toBeTruthy();
+      cleanup();
+    }
   });
 });

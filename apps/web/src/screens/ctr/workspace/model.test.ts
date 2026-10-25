@@ -1,18 +1,22 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { UUID_A, UUID_B, noActions, readiness, summary } from './test-support';
+import { UUID_A, UUID_B, completion, noActions, readiness, summary } from './test-support';
 import {
   MAX_TEXT,
   activateBody,
   checksOf,
+  completeBody,
+  completionChecksOf,
   describeProblem,
   emptyActivate,
+  emptyComplete,
   emptySign,
   evidenceIds,
   isDate,
   signBody,
   toSummary,
   validateActivate,
+  validateComplete,
   validateNote,
   validateSign,
   vietnamToday,
@@ -75,7 +79,9 @@ describe('toSummary', () => {
 
 describe('checksOf', () => {
   it('judges the conditions in the order the activation does, and marks the ones that do not apply', () => {
-    const none = checksOf(toSummary(summary('DRAFT', { readiness: readiness({ guarantee: { required: false, held: false }, permit_gate: { required: false, status: 'NOT_REQUIRED', blocking: [] } }) }))!.readiness!);
+    const none = checksOf(
+      toSummary(summary('DRAFT', { readiness: readiness({ guarantee: { required: false, held: false }, permit_gate: { required: false, status: 'NOT_REQUIRED', blocking: [] } }) }))!.readiness!,
+    );
     expect(none.map((check) => [check.key, check.ok])).toEqual([
       ['boq', true],
       ['guarantee', undefined],
@@ -175,7 +181,10 @@ describe('describeProblem', () => {
   });
 
   it('carries the permit types that block the gate and the cause the capital gave', () => {
-    expect(describeProblem(problem('PERMIT_GATE_BLOCKED', { blocking: [{ permit_type_code: 'GPXD' }, { other: 1 }, 'x', { permit_type_code: 'PCCC' }] }))).toEqual({ problem: 'gateBlocked', detail: ['GPXD', 'PCCC'] });
+    expect(describeProblem(problem('PERMIT_GATE_BLOCKED', { blocking: [{ permit_type_code: 'GPXD' }, { other: 1 }, 'x', { permit_type_code: 'PCCC' }] }))).toEqual({
+      problem: 'gateBlocked',
+      detail: ['GPXD', 'PCCC'],
+    });
     expect(describeProblem(problem('PERMIT_GATE_BLOCKED'))).toEqual({ problem: 'gateBlocked', detail: [] });
     expect(describeProblem(problem('FUND_COMMIT_FAILED', { cause: 'AVC_BLOCKED' }))).toEqual({ problem: 'fundFailed', detail: ['AVC_BLOCKED'] });
     expect(describeProblem(problem('FUND_COMMIT_FAILED'))).toEqual({ problem: 'fundFailed', detail: [] });
@@ -212,5 +221,58 @@ describe('describeProblem', () => {
     };
     for (const [code, expected] of Object.entries(codes)) expect(describeProblem(problem(code)).problem).toBe(expected);
     expect(describeProblem(new Error('x'))).toEqual({ problem: 'general', detail: [] });
+  });
+});
+
+describe('the completion of a contract', () => {
+  const minutes = (id: string, recordNo: string) => ({ id, record_no: recordNo, approved_on: '2026-10-20' });
+
+  it('reads the way to completion from the summary and keeps what cannot be read out of it', () => {
+    const read = toSummary(
+      summary('ACTIVE', {
+        completion: completion({ acceptances: [minutes(UUID_A, 'QA-C-001'), { id: 5 }, { id: UUID_B }], open_critical_ncr_ids: [UUID_A, 7], pending_measurement_ids: 'none' }),
+        actions: { ...noActions, complete: true },
+      }),
+    );
+    expect(read?.completion).toEqual({
+      acceptances: [
+        { id: UUID_A, recordNo: 'QA-C-001', approvedOn: '2026-10-20' },
+        { id: UUID_B, recordNo: UUID_B, approvedOn: '' },
+      ],
+      openCriticalNcrIds: [UUID_A],
+      pendingMeasurementIds: [],
+    });
+    expect(read?.actions?.complete).toBe(true);
+    expect(toSummary(summary('ACTIVE', { completion: undefined }))?.completion).toBeUndefined();
+    expect(toSummary(summary('ACTIVE', { completion: { acceptances: 'none' } }))?.completion).toEqual({ acceptances: [], openCriticalNcrIds: [], pendingMeasurementIds: [] });
+  });
+
+  it('judges the checks in the order the completion does, with how many stand in the way', () => {
+    const checks = completionChecksOf({ acceptances: [], openCriticalNcrIds: [UUID_A, UUID_B], pendingMeasurementIds: [] });
+    expect(checks).toEqual([
+      { key: 'acceptance', ok: false, count: 0 },
+      { key: 'ncr', ok: false, count: 2 },
+      { key: 'measurement', ok: true, count: 0 },
+    ]);
+  });
+
+  it('chooses the minutes when there is one to choose from, asks for them and the day, and sends both', () => {
+    const one = { acceptances: [{ id: UUID_A, recordNo: 'QA-C-001', approvedOn: '2026-10-20' }], openCriticalNcrIds: [], pendingMeasurementIds: [] };
+    expect(emptyComplete('2026-10-25', one)).toEqual({ acceptanceId: UUID_A, completedOn: '2026-10-25' });
+    expect(emptyComplete('2026-10-25', { ...one, acceptances: [...one.acceptances, { id: UUID_B, recordNo: 'QA-C-002', approvedOn: '2026-10-21' }] }).acceptanceId).toBe('');
+    expect(emptyComplete('2026-10-25', undefined).acceptanceId).toBe('');
+    expect(validateComplete({ acceptanceId: '', completedOn: '' }, '2026-10-25')).toEqual({ acceptanceId: 'required', completedOn: 'required' });
+    expect(validateComplete({ acceptanceId: UUID_A, completedOn: '2026-02-30' }, '2026-10-25')).toEqual({ completedOn: 'date' });
+    expect(validateComplete({ acceptanceId: UUID_A, completedOn: '2026-10-26' }, '2026-10-25')).toEqual({ completedOn: 'future' });
+    expect(validateComplete({ acceptanceId: UUID_A, completedOn: '2026-10-25' }, '2026-10-25')).toEqual({});
+    expect(completeBody({ acceptanceId: UUID_A, completedOn: ' 2026-10-24 ' })).toEqual({ completion_quality_acceptance_id: UUID_A, completed_on: '2026-10-24' });
+  });
+
+  it('words the refusals of the completion', () => {
+    const refusal = (code: string, extensions: Record<string, unknown> = {}) => describeProblem(new ApiError({ status: 422, code, correlationId: 'c', extensions }));
+    expect(refusal('COMPLETION_ACCEPTANCE_REQUIRED', { reason: 'MISSING' })).toEqual({ problem: 'completionAcceptance', detail: [] });
+    expect(refusal('OPEN_CRITICAL_NCR', { nonconformance_ids: [UUID_A] })).toEqual({ problem: 'openCriticalNcr', detail: [UUID_A] });
+    expect(refusal('MEASUREMENT_PENDING', { measurement_ids: [UUID_A, UUID_B] })).toEqual({ problem: 'measurementPending', detail: [UUID_A, UUID_B] });
+    expect(refusal('OPEN_CRITICAL_NCR')).toEqual({ problem: 'openCriticalNcr', detail: [] });
   });
 });

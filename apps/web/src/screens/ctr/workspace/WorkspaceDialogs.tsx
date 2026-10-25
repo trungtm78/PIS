@@ -4,10 +4,24 @@ import { useTranslation } from '../../../i18n';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { errorIdOf, wireControl } from '../../field-wiring';
 import { useCancelContract } from '../hooks';
-import { useActivateContract, useReturnDraft, useSignContract, useSubmitReview } from './hooks';
+import { useActivateContract, useCompleteContract, useReturnDraft, useSignContract, useSubmitReview } from './hooks';
 import { formProblemMessage, problemMessage } from './labels';
-import { EMPTY_NOTE, MAX_TEXT, activateBody, describeProblem, emptyActivate, emptySign, signBody, validateActivate, validateNote, validateSign } from './model';
-import type { ActivateForm, FormProblem, NoteForm, SignForm, Summary } from './model';
+import {
+  EMPTY_NOTE,
+  MAX_TEXT,
+  activateBody,
+  completeBody,
+  describeProblem,
+  emptyActivate,
+  emptyComplete,
+  emptySign,
+  signBody,
+  validateActivate,
+  validateComplete,
+  validateNote,
+  validateSign,
+} from './model';
+import type { ActivateForm, CompleteForm, FormProblem, NoteForm, SignForm, Summary } from './model';
 import '../ctr.css';
 
 /** The multiplication sign on the close button of a dialog. */
@@ -140,11 +154,10 @@ export function NoteDialog({ kind, summary, onClose }: Omit<DialogProps, 'today'
       onClose={onClose}
     >
       <Field id="workspace-note" label={words.field} problem={submitted ? problems.text : undefined}>
-        {wireControl(
-          <textarea id="workspace-note" rows={4} maxLength={MAX_TEXT} value={form.text} onChange={(event) => setForm({ text: event.target.value })} />,
-          'workspace-note',
-          { hint: false, error: submitted && problems.text !== undefined },
-        )}
+        {wireControl(<textarea id="workspace-note" rows={4} maxLength={MAX_TEXT} value={form.text} onChange={(event) => setForm({ text: event.target.value })} />, 'workspace-note', {
+          hint: false,
+          error: submitted && problems.text !== undefined,
+        })}
       </Field>
     </Frame>
   );
@@ -240,14 +253,65 @@ export function ActivateDialog({ summary, today, onClose }: DialogProps) {
           )}
         </Field>
         <Field id="workspace-evidence" label={t('ctr.workspace.activate.evidence')} problem={shown('evidence')} hint={t('ctr.workspace.activate.evidence.hint')}>
-          {wireControl(
-            <textarea id="workspace-evidence" rows={3} value={form.evidence} onChange={(event) => setForm({ ...form, evidence: event.target.value })} />,
-            'workspace-evidence',
-            { hint: false, error: shown('evidence') !== undefined },
-          )}
+          {wireControl(<textarea id="workspace-evidence" rows={3} value={form.evidence} onChange={(event) => setForm({ ...form, evidence: event.target.value })} />, 'workspace-evidence', {
+            hint: false,
+            error: shown('evidence') !== undefined,
+          })}
         </Field>
       </div>
       <p className="sub">{t('ctr.workspace.activate.note')}</p>
+    </Frame>
+  );
+}
+
+/** The completion of the contract: the approved completion minutes it rests on and the day it was completed. The server judges the open non-conformances and the measurements to be decided. */
+export function CompleteDialog({ summary, today, onClose }: DialogProps) {
+  const { t } = useTranslation();
+  const complete = useCompleteContract();
+  const [form, setForm] = useState<CompleteForm>(emptyComplete(today, summary.completion));
+  const [submitted, setSubmitted] = useState(false);
+  const problems = validateComplete(form, today);
+  const shown = (field: keyof CompleteForm): FormProblem | undefined => (submitted ? problems[field] : undefined);
+  const send = (): void => {
+    setSubmitted(true);
+    if (complete.isPending || Object.keys(problems).length > 0) return;
+    complete.mutate({ id: summary.contract.id, version: summary.contract.version, body: completeBody(form) }, { onSuccess: onClose });
+  };
+  return (
+    <Frame
+      title={t('ctr.workspace.complete.title', { code: summary.contract.code })}
+      error={complete.error}
+      hasError={complete.isError}
+      pending={complete.isPending}
+      submitLabel={t('ctr.workspace.complete.submit')}
+      pendingLabel={t('ctr.workspace.dialog.pending')}
+      onSubmit={send}
+      onClose={onClose}
+    >
+      <div className="formgrid">
+        <Field id="workspace-completion-acceptance" label={t('ctr.workspace.complete.acceptance')} problem={shown('acceptanceId')} hint={t('ctr.workspace.complete.acceptance.hint')}>
+          {wireControl(
+            <select id="workspace-completion-acceptance" value={form.acceptanceId} onChange={(event) => setForm({ ...form, acceptanceId: event.target.value })}>
+              <option value="">{t('ctr.workspace.complete.acceptance.choose')}</option>
+              {(summary.completion?.acceptances ?? []).map((minutes) => (
+                <option key={minutes.id} value={minutes.id}>
+                  {t('ctr.workspace.complete.acceptance.option', { recordNo: minutes.recordNo, day: minutes.approvedOn })}
+                </option>
+              ))}
+            </select>,
+            'workspace-completion-acceptance',
+            { hint: false, error: shown('acceptanceId') !== undefined },
+          )}
+        </Field>
+        <Field id="workspace-completed-on" label={t('ctr.workspace.complete.completedOn')} problem={shown('completedOn')}>
+          {wireControl(
+            <input id="workspace-completed-on" type="date" value={form.completedOn} onChange={(event) => setForm({ ...form, completedOn: event.target.value })} />,
+            'workspace-completed-on',
+            { hint: false, error: shown('completedOn') !== undefined },
+          )}
+        </Field>
+      </div>
+      <p className="sub">{t('ctr.workspace.complete.note')}</p>
     </Frame>
   );
 }

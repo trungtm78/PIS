@@ -12,14 +12,14 @@ import { measurementLink } from '../measurement/model';
 import { versionsLink } from '../revision/model';
 import { useSummary } from './hooks';
 import { statusText } from '../labels';
-import { checkLabel, checkState, commandLabel, gateLabel } from './labels';
-import { BEFORE_ACTIVATION, HALT_ACTIONS, checksOf, vietnamToday } from './model';
+import { checkLabel, checkState, commandLabel, completionCheckLabel, gateLabel } from './labels';
+import { BEFORE_ACTIVATION, HALT_ACTIONS, checksOf, completionChecksOf, vietnamToday } from './model';
 import type { Command, Summary } from './model';
-import { ActivateDialog, NoteDialog, SignDialog } from './WorkspaceDialogs';
+import { ActivateDialog, CompleteDialog, NoteDialog, SignDialog } from './WorkspaceDialogs';
 import '../ctr.css';
 
 /** The commands in the order of the life of a contract. */
-const ORDER: readonly Command[] = ['submit', 'return', 'sign', 'activate', 'cancel'];
+const ORDER: readonly Command[] = ['submit', 'return', 'sign', 'activate', 'complete', 'cancel'];
 
 type Open = Command | undefined;
 
@@ -43,12 +43,7 @@ function WorkspaceContent({ route }: ScreenProps) {
   const contractId = search.get('id');
   const summary = useSummary(contractId);
   const [open, setOpen] = useState<Open>(undefined);
-  const state = useScreenState({
-    isLoading: summary.isLoading,
-    error: summary.error,
-    data: contractId === null ? null : summary.data,
-    isEmpty: (data) => data === null || data === undefined,
-  });
+  const state = useScreenState({ isLoading: summary.isLoading, error: summary.error, data: contractId === null ? null : summary.data, isEmpty: (data) => data === null || data === undefined });
   const today = vietnamToday(new Date());
   const close = (): void => setOpen(undefined);
 
@@ -69,15 +64,15 @@ function WorkspaceContent({ route }: ScreenProps) {
         </>
       ) : (
         <StateBoundary state={state} onRetry={() => void summary.refetch()}>
-          {summary.data === null || summary.data === undefined ? null : (
-            <Workspace summary={summary.data} locale={locale} readOnly={mode === 'READ_ONLY'} onOpen={setOpen} />
-          )}
+          {summary.data === null || summary.data === undefined ? null : <Workspace summary={summary.data} locale={locale} readOnly={mode === 'READ_ONLY'} onOpen={setOpen} />}
         </StateBoundary>
       )}
       {open === undefined || summary.data === null || summary.data === undefined ? null : open === 'sign' ? (
         <SignDialog summary={summary.data} today={today} onClose={close} />
       ) : open === 'activate' ? (
         <ActivateDialog summary={summary.data} today={today} onClose={close} />
+      ) : open === 'complete' ? (
+        <CompleteDialog summary={summary.data} today={today} onClose={close} />
       ) : (
         <NoteDialog kind={open === 'return' ? 'return' : open === 'cancel' ? 'cancel' : 'submit'} summary={summary.data} onClose={close} />
       )}
@@ -100,6 +95,7 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
   const may = (command: Command): boolean => !readOnly && summary.actions?.[command] === true;
   const buttons = ORDER.filter(may);
   const gate = summary.readiness?.permitGate;
+  const completionChecks = summary.completion !== undefined && contract.status === 'ACTIVE' ? completionChecksOf(summary.completion) : [];
   // The commands that stop a contract, let it go on or end it are asked on their own screen.
   const haltable = !readOnly && HALT_ACTIONS.some((action) => summary.halts?.[action] === true);
   // A contract that is being performed can take a change; whoever reads the staff view of it (the readiness is theirs alone) is offered the form that raises one.
@@ -116,7 +112,13 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
         </div>
         <div className="ctr-row-actions" data-testid="commands">
           {buttons.map((command) => (
-            <button key={command} type="button" className={command === 'activate' || command === 'sign' ? 'button primary' : 'button'} data-command={command} onClick={() => onOpen(command)}>
+            <button
+              key={command}
+              type="button"
+              className={command === 'activate' || command === 'sign' || command === 'complete' ? 'button primary' : 'button'}
+              data-command={command}
+              onClick={() => onOpen(command)}
+            >
               {commandLabel(t, command)}
             </button>
           ))}
@@ -187,6 +189,20 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
                     <strong>{checkLabel(t, check)}</strong> <span className={check.ok === false ? 'ctr-badge warning' : 'ctr-badge'}>{checkState(t, check)}</span>
                     {check.key === 'permitGate' && gate !== undefined && gate.required ? <span className="sub"> {gateLabel(t, gate.status)}</span> : null}
                     {check.detail.length > 0 && check.key === 'permitGate' ? <span className="sub"> {t('ctr.workspace.check.blocking', { types: check.detail.join(', ') })}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )}
+          {completionChecks.length === 0 ? null : (
+            <article className="card" aria-label={t('ctr.workspace.completion.title')}>
+              <h2>{t('ctr.workspace.completion.title')}</h2>
+              <ul className="ctr-checks" data-testid="completion-checks">
+                {completionChecks.map((check) => (
+                  <li key={check.key} data-completion={check.key} data-ok={String(check.ok)}>
+                    <strong>{completionCheckLabel(t, check)}</strong>{' '}
+                    <span className={check.ok ? 'ctr-badge' : 'ctr-badge warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</span>
+                    {check.key !== 'acceptance' && check.count > 0 ? <span className="sub"> {t('ctr.workspace.completion.count', { count: check.count })}</span> : null}
                   </li>
                 ))}
               </ul>

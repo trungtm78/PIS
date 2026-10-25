@@ -12,6 +12,7 @@ import { ContractLifecycleController } from '../../src/modules/ctr/lifecycle.con
 import { CapWorld, money } from '../../../../packages/db/test/support/cap-fixtures';
 import { TENANT_A, id, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedAs, seedContractor } from '../../../../packages/db/test/support/bid-proposal-fixtures';
+import { asSuperuser } from '../../../../packages/db/test/support/ncr-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -125,7 +126,8 @@ describe('the life of a contract over HTTP (ST-CTR-004, ST-CTR-005)', () => {
           packageId,
           options.contractorId ?? contractor,
           code,
-          status,
+          // A completed contract names the minutes it was completed on: it is made active here and completed below, as the superuser.
+          status === 'COMPLETED' ? 'ACTIVE' : status,
           options.category ?? 'CONSTRUCTION',
           value,
           memberId(options.createdBy ?? DRAFTER),
@@ -150,6 +152,9 @@ describe('the life of a contract over HTTP (ST-CTR-004, ST-CTR-005)', () => {
         [TENANT_A, revisionId, contractId, value, memberId(DRAFTER)],
       ],
     ]);
+    if (status === 'COMPLETED') {
+      await asSuperuser(harness.database.adminUrl, "update machvon.contract set status = 'COMPLETED', completed_on = date '2026-10-20', completion_quality_acceptance_id = gen_random_uuid(), completed_by = $2::uuid where id = $1::uuid", [contractId, memberId(BAN)]);
+    }
     return { id: contractId, packageId, projectId: line.projectId, code };
   }
 

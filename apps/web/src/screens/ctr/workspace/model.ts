@@ -16,7 +16,7 @@ type Raw = Record<string, unknown>;
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);
 const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
 
-export const COMMANDS = ['submit', 'return', 'sign', 'activate', 'cancel'] as const;
+export const COMMANDS = ['submit', 'return', 'sign', 'activate', 'complete', 'cancel'] as const;
 export type Command = (typeof COMMANDS)[number];
 export type Actions = Record<Command, boolean>;
 
@@ -37,6 +37,14 @@ export interface Readiness {
   project: { status: string; inImplementation: boolean };
 }
 
+/** What stands between a contract that is being performed and its completion, as the server reads it now. */
+export interface Completion {
+  /** The completion acceptance minutes that are approved: the ones the completion can rest on. */
+  acceptances: Array<{ id: string; recordNo: string; approvedOn: string }>;
+  openCriticalNcrIds: string[];
+  pendingMeasurementIds: string[];
+}
+
 /** The summary of a contract (CTR-03): the contract, the people and the document behind its signature, what stands before its activation (staff only) and what the caller may do now. */
 export interface Summary {
   contract: ContractView;
@@ -49,6 +57,8 @@ export interface Summary {
   activatedBy: string | null;
   effectiveFrom: string | null;
   readiness: Readiness | undefined;
+  /** The way to completion of a contract that is being performed; undefined for any other status and for whoever sees the contract alone. */
+  completion: Completion | undefined;
   actions: Actions | undefined;
   /** What the caller may do to stop, resume or end the contract now; undefined for someone who sees the contract alone. */
   halts: HaltActions | undefined;
@@ -73,10 +83,25 @@ function toReadiness(raw: unknown): Readiness | undefined {
   };
 }
 
+const strings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
+
+function toCompletion(raw: unknown): Completion | undefined {
+  const row = isRecord(raw) ? raw : undefined;
+  if (row === undefined) return undefined;
+  const acceptances = Array.isArray(row.acceptances)
+    ? row.acceptances.flatMap((item) => {
+        const minutes = isRecord(item) ? item : undefined;
+        const id = text(minutes?.id);
+        return id === undefined ? [] : [{ id, recordNo: text(minutes?.record_no) ?? id, approvedOn: text(minutes?.approved_on) ?? '' }];
+      })
+    : [];
+  return { acceptances, openCriticalNcrIds: strings(row.open_critical_ncr_ids), pendingMeasurementIds: strings(row.pending_measurement_ids) };
+}
+
 function toActions(raw: unknown): Actions | undefined {
   const row = isRecord(raw) ? raw : undefined;
   if (row === undefined) return undefined;
-  return { submit: row.submit === true, return: row.return === true, sign: row.sign === true, activate: row.activate === true, cancel: row.cancel === true };
+  return { submit: row.submit === true, return: row.return === true, sign: row.sign === true, activate: row.activate === true, complete: row.complete === true, cancel: row.cancel === true };
 }
 
 function toHalts(raw: unknown): HaltActions | undefined {
@@ -100,6 +125,7 @@ export function toSummary(raw: unknown): Summary | undefined {
     activatedBy: text(row.activated_by) ?? null,
     effectiveFrom: text(row.effective_from) ?? null,
     readiness: toReadiness(row.readiness),
+    completion: toCompletion(row.completion),
     actions: toActions(row.actions),
     halts: toHalts(row.actions),
   };
@@ -119,6 +145,22 @@ export function checksOf(readiness: Readiness): Check[] {
     { key: 'permitGate', ok: readiness.permitGate.required ? readiness.permitGate.status !== 'BLOCKED' : undefined, detail: readiness.permitGate.blocking },
     { key: 'capital', ok: readiness.capital.allocationLineId !== null, detail: [] },
     { key: 'project', ok: readiness.project.inImplementation, detail: [readiness.project.status] },
+  ];
+}
+
+/** A check on the way to completion: met or not, and how many stand in the way. */
+export interface CompletionCheck {
+  key: 'acceptance' | 'ncr' | 'measurement';
+  ok: boolean;
+  count: number;
+}
+
+/** The checks the workspace shows on the way to completion, in the order the completion judges them. */
+export function completionChecksOf(completion: Completion): CompletionCheck[] {
+  return [
+    { key: 'acceptance', ok: completion.acceptances.length > 0, count: completion.acceptances.length },
+    { key: 'ncr', ok: completion.openCriticalNcrIds.length === 0, count: completion.openCriticalNcrIds.length },
+    { key: 'measurement', ok: completion.pendingMeasurementIds.length === 0, count: completion.pendingMeasurementIds.length },
   ];
 }
 
@@ -213,7 +255,39 @@ export interface ActivateBody {
   effective_from: string;
 }
 
-export const activateBody = (form: ActivateForm): ActivateBody => ({ decision: 'approve', reason: form.reason.trim(), evidence_ids: [...new Set(evidenceIds(form))], effective_from: form.effectiveFrom.trim() });
+export const activateBody = (form: ActivateForm): ActivateBody => ({
+  decision: 'approve',
+  reason: form.reason.trim(),
+  evidence_ids: [...new Set(evidenceIds(form))],
+  effective_from: form.effectiveFrom.trim(),
+});
+
+export interface CompleteForm {
+  acceptanceId: string;
+  completedOn: string;
+}
+
+/** The minutes are chosen when there is only one to choose from; the day starts from today. */
+export const emptyComplete = (today: string, completion: Completion | undefined): CompleteForm => ({
+  acceptanceId: completion?.acceptances.length === 1 ? (completion.acceptances[0]?.id ?? '') : '',
+  completedOn: today,
+});
+
+export function validateComplete(form: CompleteForm, today: string): Partial<Record<keyof CompleteForm, FormProblem>> {
+  const problems: Partial<Record<keyof CompleteForm, FormProblem>> = {};
+  if (form.acceptanceId === '') problems.acceptanceId = 'required';
+  if (form.completedOn.trim() === '') problems.completedOn = 'required';
+  else if (!isDate(form.completedOn)) problems.completedOn = 'date';
+  else if (form.completedOn.trim() > today) problems.completedOn = 'future';
+  return problems;
+}
+
+export interface CompleteBody {
+  completion_quality_acceptance_id: string;
+  completed_on: string;
+}
+
+export const completeBody = (form: CompleteForm): CompleteBody => ({ completion_quality_acceptance_id: form.acceptanceId, completed_on: form.completedOn.trim() });
 
 // ---- refusals ------------------------------------------------------------------------------------------------------------------
 
@@ -235,6 +309,9 @@ export type Problem =
   | 'ceiling'
   | 'contractor'
   | 'documentNotClean'
+  | 'completionAcceptance'
+  | 'openCriticalNcr'
+  | 'measurementPending'
   | 'stateInvalid'
   | 'versionConflict'
   | 'validation'
@@ -284,6 +361,12 @@ export function describeProblem(error: unknown): ProblemView {
       return { problem: 'contractor', detail: [] };
     case 'DOCUMENT_NOT_CLEAN':
       return { problem: 'documentNotClean', detail: [] };
+    case 'COMPLETION_ACCEPTANCE_REQUIRED':
+      return { problem: 'completionAcceptance', detail: [] };
+    case 'OPEN_CRITICAL_NCR':
+      return { problem: 'openCriticalNcr', detail: strings(extensions.nonconformance_ids) };
+    case 'MEASUREMENT_PENDING':
+      return { problem: 'measurementPending', detail: strings(extensions.measurement_ids) };
     case 'CONTRACT_STATE_INVALID':
       return { problem: 'stateInvalid', detail: [] };
     case 'VERSION_CONFLICT':
@@ -308,4 +391,3 @@ export function describeProblem(error: unknown): ProblemView {
 
 /** The Vietnam calendar day of a moment: the day a signature or an activation counts by. */
 export const vietnamToday = (now: Date): string => new Date(now.getTime() + 7 * 3_600_000).toISOString().slice(0, 10);
-

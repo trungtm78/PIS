@@ -1422,6 +1422,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/terminate`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' } }),
   },
+  completeContract: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/complete`, ifMatch: '"1"', body: { completion_quality_acceptance_id: t.documentVersionId, completed_on: '2026-10-25' } }),
+  },
   // The chain of changes: a caller that is refused sets no tiers, raises no request and moves none along the chain.
   setChangeChainTiers: {
     referencesTenantIds: true,

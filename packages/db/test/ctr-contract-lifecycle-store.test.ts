@@ -7,6 +7,7 @@ import { PmtGateStore } from '../src/pmt-gate-store';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, contextFor, id, memberId, unitId } from './support/authz-fixtures';
 import { DEPARTMENT, PROVINCE, seedAs } from './support/bid-proposal-fixtures';
+import { asSuperuser } from './support/ncr-fixtures';
 
 const harness = new AuthzHarness();
 const lifecycle = new CtrContractLifecycleStore();
@@ -119,7 +120,8 @@ async function seedContract(options: Options = {}): Promise<Seeded> {
         packageId,
         options.contractor ?? CONTRACTOR,
         code,
-        status,
+        // A completed contract names the minutes it was completed on: it is made active here and completed below, as the superuser.
+        status === 'COMPLETED' ? 'ACTIVE' : status,
         options.category ?? 'CONSTRUCTION',
         options.jv ?? false,
         VALUE,
@@ -146,6 +148,9 @@ async function seedContract(options: Options = {}): Promise<Seeded> {
       [TENANT_A, revisionId, contractId, options.boqTotal ?? VALUE, memberId(DRAFTER)],
     ],
   ]);
+  if (status === 'COMPLETED') {
+    await asSuperuser(harness.database.adminUrl, "update machvon.contract set status = 'COMPLETED', completed_on = date '2026-10-20', completion_quality_acceptance_id = gen_random_uuid(), completed_by = $2::uuid where id = $1::uuid", [contractId, memberId(SIGNER)]);
+  }
   return { id: contractId, revisionId, packageId, code };
 }
 
