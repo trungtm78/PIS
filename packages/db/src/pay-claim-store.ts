@@ -56,6 +56,8 @@ export interface Reversed {
   /** The time the Treasury confirmed the refund (UTC, microseconds). */
   refundConfirmedAt: string;
   originalPaidOn: string;
+  /** The Treasury transaction that settled the payment the refund undoes. */
+  settledTransactionId: string;
   paymentEntries: number;
   advanceId: string | null;
 }
@@ -218,7 +220,7 @@ export class PayClaimStore {
     } catch (error) {
       throw this.mapReversalRefusal(error);
     }
-    return { result: await this.payments.resultOf(tx, held.id, 'SETTLED', []), refundTransactionId: refund.id, refundConfirmedAt: refund.confirmedAt, originalPaidOn: settlement.paid_on, paymentEntries, advanceId };
+    return { result: await this.payments.resultOf(tx, held.id, 'SETTLED', []), refundTransactionId: refund.id, refundConfirmedAt: refund.confirmedAt, originalPaidOn: settlement.paid_on, settledTransactionId: settlement.settled_transaction_id, paymentEntries, advanceId };
   }
 
   /** The refund the reversal stands on: a refund of the very payment that settled the request, for the same amount, confirmed by the Treasury and not yet used (422 `REFUND_NOT_CONFIRMED`, with the reason). */

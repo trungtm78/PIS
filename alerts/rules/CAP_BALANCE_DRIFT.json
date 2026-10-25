@@ -1,0 +1,14 @@
+{
+  "id": "CAP_BALANCE_DRIFT",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "capital-accounting",
+  "runbook": "docs/runbooks/alerts/CAP_BALANCE_DRIFT.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "cap_balance_drift_vnd",
+    "above": 0
+  },
+  "summary": "The balances of capital differ from what their ledger entries add up to."
+}

@@ -673,6 +673,10 @@ export type { AvcBlockReason, AvcFigures, AvcState, AvcThresholds, AvcVerdict } 
 export { AVC_CONTROL_OBJECTS, AVC_SCOPE_KINDS, AVC_STATUSES, CapAvcPolicyStore } from './cap-avc-policy-store.ts';
 export type { AvcContext, AvcControlObject, AvcPolicyFilter, AvcPolicyPage, AvcPolicyRecord, AvcPolicyStatus, AvcPreview, AvcScopeKind, NewAvcPolicy } from './cap-avc-policy-store.ts';
 export { COMMITMENT_SOURCE_KINDS, CapAvailabilityStore } from './cap-availability-store.ts';
+export { CapPaymentLedgerStore } from './cap-payment-ledger-store.ts';
+export type { DisbursementFacts, PaymentFacts, PostingOutcome, PostingResult, ReversalFacts } from './cap-payment-ledger-store.ts';
+export { CAP_BALANCE_DRIFT_EVENT, CAP_BALANCE_DRIFT_METRIC, CapBalanceReconcileJob } from './cap-balance-reconcile-job.ts';
+export type { BalanceDriftRow, BalanceReconcileResult } from './cap-balance-reconcile-job.ts';
 export type { Availability, CommitInput, CommitResult, CommitmentSourceKind } from './cap-availability-store.ts';
 export { ADJUSTMENT_MONTH, CapScheduleStore, SCHEDULE_GRAINS, SCHEDULE_KINDS, achievementRate } from './cap-schedule-store.ts';
 export type { ScheduleAchievement, ScheduleFilter, ScheduleGrain, ScheduleInput, ScheduleKind, ScheduleRegistered, ScheduleRow } from './cap-schedule-store.ts';

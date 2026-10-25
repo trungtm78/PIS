@@ -8,6 +8,7 @@ import { DGV_SNAPSHOT_FROZEN_CONSUMER, SnapshotFrozenConsumer } from '../modules
 import { ISS_INTAKE_CONSUMER, IssIntakeConsumer } from '../modules/iss/intake.consumer';
 import { PlanPublishedConsumer, PRJ_PLAN_PUBLISHED_CONSUMER } from '../modules/prj/plan-published.consumer';
 import { AcceptanceLedgerConsumer, PAY_ACCEPTANCE_LEDGER_CONSUMER } from '../modules/pay/acceptance-ledger.consumer';
+import { CAP_PAYMENT_LEDGER_CONSUMER, PaymentLedgerConsumer } from '../modules/cap/payment-ledger.consumer';
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
 import { ControlEventTypeCatalog, PayloadValidator } from '../notifications/payload-validator';
@@ -70,6 +71,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
   });
   const planPublished = new PlanPublishedConsumer({ database: tenants, security });
   const acceptanceLedger = new AcceptanceLedgerConsumer({ database: tenants, security });
+  const paymentLedger = new PaymentLedgerConsumer({ database: tenants, security });
   const issIntake = new IssIntakeConsumer({ database: tenants, security });
   const snapshotFrozen = new SnapshotFrozenConsumer({ database: tenants, security });
   return [
@@ -78,6 +80,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: TENANT_STATUS_CONSUMER, handle: (delivery) => tenantStatus.handle(delivery) },
     { name: PRJ_PLAN_PUBLISHED_CONSUMER, handle: (delivery) => planPublished.handle(delivery) },
     { name: PAY_ACCEPTANCE_LEDGER_CONSUMER, handle: (delivery) => acceptanceLedger.handle(delivery) },
+    { name: CAP_PAYMENT_LEDGER_CONSUMER, handle: (delivery) => paymentLedger.handle(delivery) },
     { name: ISS_INTAKE_CONSUMER, handle: (delivery) => issIntake.handle(delivery) },
     { name: DGV_SNAPSHOT_FROZEN_CONSUMER, handle: (delivery) => snapshotFrozen.handle(delivery) },
     ...(deps.docIssue === undefined ? [] : [deps.docIssue]),

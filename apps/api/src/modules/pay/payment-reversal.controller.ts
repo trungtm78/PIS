@@ -87,6 +87,7 @@ export class PaymentReversalController {
         payment_request_id: request.id,
         ...facts,
         amount_vnd: request.netVnd,
+        settled_transaction_id: done.settledTransactionId,
         refund_confirmed_at: done.refundConfirmedAt,
         approval_document_version_id: body.approval_document_version_id ?? null,
         actor_id: scope.tenant.membershipId,

@@ -57,7 +57,7 @@ export const LEDGER_TABLES: readonly LedgerDeclaration[] = [
     kind: 'ENTRY',
     lockRank: 30,
     nonNegative: ['amount_vnd'],
-    businessKey: { columns: ['source_ref_kind', 'source_ref_id', 'entry_type', 'allocation_line_id'] },
+    businessKey: { columns: ['source_ref_kind', 'source_ref_id', 'entry_type', 'allocation_line_id', 'source_ref_seq'] },
   },
   {
     table: 'cumulative_ledger_entry',

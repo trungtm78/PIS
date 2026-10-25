@@ -1,0 +1,13 @@
+{
+  "id": "CAP_LEDGER_CHECK_VIOLATION",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/CAP_LEDGER_CHECK_VIOLATION.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "CAP_LEDGER_CHECK_VIOLATION"
+  },
+  "summary": "A rule of the capital ledger was refused by the database after the application had let the posting through."
+}

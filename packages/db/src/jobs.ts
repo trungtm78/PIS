@@ -61,6 +61,8 @@ export const JOB_INTERVAL_SECONDS = {
   'land-stage-late': 3600,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
   'reconciliation-overdue': 3600,
+  // Hourly tick that works only in the 02:00 hour of Vietnam time, so the balances of capital are compared with their ledger once a night wherever the process started; nothing is changed by it (ST-CAP-006).
+  'capital-balance-reconcile': 3600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -71,6 +73,8 @@ export const RETENTION_HOUR = 1;
 const VIETNAM_UTC_OFFSET_HOURS = 7;
 /** The hour of the morning, in Vietnam time, in which the guarantee reminders and expiries run (CTR 3.5: 06:00). */
 export const GUARANTEE_EXPIRY_HOUR = 6;
+/** The hour of the night, in Vietnam time, in which the balances of capital are compared with their ledger (CAP: nightly, after the Treasury files of the evening are matched). */
+export const CAPITAL_RECONCILE_HOUR = 2;
 /** The gauge of the revision job: the pending revisions more than a day past their first day, which the alert `CTR_REVISION_OVERDUE` watches. */
 export const REVISION_OVERDUE_GAUGE = 'ctr_revision_overdue';
 /** The gauge of the petition job: the petitions that wait for an answer past the last day of their deadline, which the alert `BID_PETITION_OVERDUE` watches. */
@@ -195,6 +199,8 @@ export interface StandardJobDeps {
   stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** Compares the balances of capital with their ledger, once a night, and reports a difference without correcting it (ST-CAP-006). */
+  capitalBalanceReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -516,6 +522,17 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overdueItems.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const capitalBalances = deps.capitalBalanceReconcile;
+  if (capitalBalances !== undefined) {
+    handlers.push({
+      name: 'capital-balance-reconcile',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== CAPITAL_RECONCILE_HOUR) return;
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await capitalBalances.run(workerContext(tenantId), now)));
       },
     });
   }
