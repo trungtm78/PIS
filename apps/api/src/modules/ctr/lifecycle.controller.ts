@@ -2,9 +2,10 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post } f
 import { PERMISSIONS } from '@machvon/contracts';
 import { AuditWriter, BidContractorStore, CtrContractLifecycleStore, CtrContractSource, CtrContractStore, DoaMatrixStore, TenantDatabase, contractScope } from '@machvon/db';
 import type { ActivationReadiness, ContractDetail, ContractFacts, ContractScopes, LifecycleHooks, LifecycleResult } from '@machvon/db';
-import { CONTRACT_DOA_DOCUMENT_TYPE, DomainError, contractTransition, isMakerOf, vietnamDateOf, withinDelegation } from '@machvon/kernel';
+import { CONTRACT_DOA_DOCUMENT_TYPE, DomainError, contractTransition, isMakerOf, vietnamDateOf } from '@machvon/kernel';
 import type { ContractCommand, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
+import { assertWithinDelegation } from '../../doa-delegation';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
@@ -346,19 +347,16 @@ export class ContractLifecycleController {
 
   /** The delegation limit of the matrix of ADM for the value of the contract, tested against the grants of the caller: 403 `SCOPE_DENIED` above it, 422 `DOA_RULE_NOT_FOUND` when no rule applies. */
   private delegation(scope: CommandScope, access: EffectiveAccess, permission: string, now: Date): LifecycleHooks['authorise'] {
-    return async (facts: ContractFacts): Promise<void> => {
-      const resolution = await this.doa.resolve(scope.tx, {
+    return (facts: ContractFacts): Promise<void> =>
+      assertWithinDelegation(this.doa, scope, access, {
         documentType: CONTRACT_DOA_DOCUMENT_TYPE,
+        permission,
         amountVnd: facts.contractValueVnd,
         unitId: facts.ownerUnit.id,
-        businessDate: vietnamDateOf(now),
+        place: { ownerUnitPath: facts.ownerUnit.path, ownerUnitId: facts.ownerUnit.id, projectId: facts.projectId, contractId: facts.id },
+        now,
+        unconfigured: 'REFUSE',
       });
-      const roles = await scope.tx.query<{ rank: number }>('select rank from machvon.role_definition where id = $1::uuid', [resolution.approverRoleId]);
-      const rank = roles[0]?.rank;
-      if (rank === undefined) throw new DomainError('DOA_RULE_NOT_FOUND', 422, 'approver_role_id');
-      const place = { ownerUnitPath: facts.ownerUnit.path, ownerUnitId: facts.ownerUnit.id, projectId: facts.projectId, contractId: facts.id };
-      if (!withinDelegation(access, now, permission, place, rank)) throw new DomainError('SCOPE_DENIED', 403, 'delegation', { extensions: { approver_role_id: resolution.approverRoleId } });
-    };
   }
 
   /** Runs a command of the life of a contract; a refusal for a conflict of interest is kept in the audit trail in a transaction of its own, because the command rolls back. */

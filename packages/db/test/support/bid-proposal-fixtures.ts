@@ -41,7 +41,7 @@ export interface SeededPackage {
 }
 
 /** A project with one package; the package is APPROVED (open for bids) unless the options say otherwise. */
-export async function seedBidPackage(harness: AuthzHarness, options: { status?: string; projectId?: string; unit?: number } = {}): Promise<SeededPackage> {
+export async function seedBidPackage(harness: AuthzHarness, options: { status?: string; projectId?: string; unit?: number; budgetVnd?: string } = {}): Promise<SeededPackage> {
   const projectId = options.projectId ?? randomUUID();
   const projectCode = next('PRJ');
   const packageId = randomUUID();
@@ -56,8 +56,8 @@ export async function seedBidPackage(harness: AuthzHarness, options: { status?: 
   }
   statements.push([
     `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status, title, created_by, version)
-     values ($1, $2, $3, $4, 100000000, 'OPEN_BIDDING', 1, $5, 'Construction package', $6, 1)`,
-    [TENANT_A, packageId, projectId, packageCode, options.status ?? 'APPROVED', memberId(1)],
+     values ($1, $2, $3, $4, $7::numeric, 'OPEN_BIDDING', 1, $5, 'Construction package', $6, 1)`,
+    [TENANT_A, packageId, projectId, packageCode, options.status ?? 'APPROVED', memberId(1), options.budgetVnd ?? '100000000'],
   ]);
   await seedAs(harness, statements);
   return { projectId, projectCode, packageId, packageCode };

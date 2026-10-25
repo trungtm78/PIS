@@ -329,6 +329,16 @@ const PROPOSAL_ROLES = [
 ];
 
 /**
+ * The people of the result of the selection (BID-18): the proposer who submits it and the authority who approves it, over the whole tenant, and a reader. The permissions are the ones of
+ * apps/web/e2e/support/e2e-fixtures.json.
+ */
+const RESULT_ROLES = [
+  { n: 799, user: 'resultProposer', code: 'E2E_RESULT_PROPOSER', permissions: ['bid.read', 'bid.result.submit', 'contractor.read', 'procurement_package.read', 'session.self'], rank: 30 },
+  { n: 800, user: 'resultAuthority', code: 'E2E_RESULT_AUTHORITY', permissions: ['bid.read', 'bid.result.approve', 'contractor.read', 'procurement_package.read', 'session.self'], rank: 40 },
+  { n: 801, user: 'resultReader', code: 'E2E_RESULT_READER', permissions: ['bid.read', 'procurement_package.read', 'session.self'], rank: 10 },
+];
+
+/**
  * The people of the review, the signing and the activation of a contract (CTR-03): the maker who drafts and sends to review, the reviewer who gives back and signs, and the one
  * who activates, all over the whole tenant. The reviewer and the activator hold the rank of the band of the delegation-of-authority rule below. The permissions are the ones of
  * apps/web/e2e/support/e2e-fixtures.json.
@@ -550,6 +560,7 @@ const GRANTS: GrantPlan[] = [
   ...PROCUREMENT_ROLES.map((role, index): GrantPlan => ({ n: 780 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PROPOSAL_ROLES.map((role, index): GrantPlan => ({ n: 790 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...LIFECYCLE_ROLES.map((role, index): GrantPlan => ({ n: 794 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...RESULT_ROLES.map((role, index): GrantPlan => ({ n: 799 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -847,7 +858,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

@@ -308,6 +308,8 @@ export { GUARANTEE_ACTIONS, MAX_EXTENSION_DAYS, NEW_WORK_STATUSES, acceptsNewWor
 export type { GuaranteeAction, TerminationSuggestion } from './contract-halt.ts';
 export { HANDOVER_CATEGORIES, HANDOVER_READY_PARCEL_STATUSES, handedRatio, receivesSite, sectionStatusFor } from './land-handover.ts';
 export type { SectionHandoverStatus } from './land-handover.ts';
+export { MAX_RESULT_COMMENT, PACKAGE_STATUS_AFTER_RESULT, RESULT_DECISIONS, RESULT_DOA_DOCUMENT_TYPE, RESULT_OUTCOMES, RESULT_STATUSES, assertPriceWithinBudget, assertResultShape } from './bid-result.ts';
+export type { ResultDecision, ResultOutcome, ResultStatus } from './bid-result.ts';
 export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,

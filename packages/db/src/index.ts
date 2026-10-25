@@ -352,6 +352,9 @@ export { maskTaxIdentifier, normaliseTaxIdentifier } from './bid-tax-identifier.
 export { BIDDING_FORMS, CONTRACT_TYPES as PACKAGE_CONTRACT_TYPES, MAX_PACKAGES, SELECTION_METHODS, readPackages } from './bid-plan-input.ts';
 export type { BiddingForm, NewPlanInput, PackageContractType, PackageInput, SelectionMethod } from './bid-plan-input.ts';
 export { BidPlanStore, PLAN_DECISIONS, PLAN_STATUSES as BID_PLAN_STATUSES, PLANNABLE_PROJECT_STATUSES } from './bid-plan-store.ts';
+export { DECISION_DOCUMENT_TYPE as BID_DECISION_DOCUMENT_TYPE, assertDecisionDocument as assertBidDecisionDocument } from './bid-decision-document.ts';
+export { BidResultStore } from './bid-result-store.ts';
+export type { DecidedResult as BidDecidedResult, NewResultInput as BidNewResultInput, ResultDecisionInput as BidResultDecisionInput, ResultFacts as BidResultFacts, ResultHooks as BidResultHooks, ResultLine as BidResultLine, SubmittedResult as BidSubmittedResult } from './bid-result-store.ts';
 export type { BidAllocationUse, BidCreatedPackage, BidCreatedPlan, BidDecidedPlan, BidDecisionInput, PlanDecision, PlanStatus as BidPlanStatus, BidSubmittedPlan } from './bid-plan-store.ts';
 export { BidPlanReads, bidReadScope } from './bid-plan-reads.ts';
 export { BidExternalLinks, diffWithMilestone, isInSync } from './bid-external-link.ts';

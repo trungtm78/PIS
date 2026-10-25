@@ -106413,11 +106413,88 @@
           "PRICE_EXCEEDS_PACKAGE_BUDGET",
           "PLAN_NOT_APPROVED",
           "CONTRACTOR_RESTRICTED",
-          "REPORT_NOT_ISSUED"
+          "CONTRACTOR_NOT_VERIFIED",
+          "REPORT_NOT_ISSUED",
+          "RESULT_STATE_INVALID",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "bid.result.submitted.v1"
+        ]
+      },
+      "get": {
+        "operationId": "listProcurementResults",
+        "summary": "Kết quả lựa chọn nhà thầu của các gói thầu trong phạm vi, mới nhất trước (BID-18)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.read",
+        "parameters": [
+          {
+            "name": "package_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidResultList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
         ]
       }
     },
@@ -106562,9 +106639,15 @@
         },
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
+          "SCOPE_DENIED",
           "DECISION_DOCUMENT_NOT_EFFECTIVE",
           "RESULT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "PLAN_NOT_APPROVED",
+          "PRICE_EXCEEDS_PACKAGE_BUDGET",
+          "CONTRACTOR_RESTRICTED",
+          "CONTRACTOR_NOT_VERIFIED",
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -136659,7 +136742,8 @@
           },
           "evaluation_report_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The evaluation the result rests on. Until the structured evaluation report exists (ST-BID-012) it is the evaluation minutes issued through DOC: a document of the tenant that is in force"
           }
         }
       },
@@ -136684,7 +136768,8 @@
           "comment": {
             "type": "string",
             "minLength": 0,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "The reason of a rejection (required); an approval may add a note"
           }
         }
       },
@@ -140927,6 +141012,184 @@
           "may_decide": {
             "type": "boolean",
             "description": "Whether the caller may decide the declarations of the package"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BidResultLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "package",
+          "outcome",
+          "status",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "budget_vnd"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "budget_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]{1,24}$"
+              }
+            }
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "AWARDED",
+              "NO_ACCEPTABLE_BID",
+              "CANCELLED"
+            ]
+          },
+          "winner": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "legal_name": {
+                "type": "string"
+              }
+            }
+          },
+          "award_price_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,24}$"
+          },
+          "evaluation_minutes": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "document_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "decision_document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "CANCELLED"
+            ]
+          },
+          "submitted_by": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "submitted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decided_by": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "BidResultList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidResultLine"
+            }
           },
           "as_of": {
             "type": "string",

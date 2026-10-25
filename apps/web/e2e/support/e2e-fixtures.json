@@ -1416,6 +1416,40 @@
       ]
     },
     {
+      "key": "resultProposer",
+      "displayName": "Chuyên viên trình kết quả lựa chọn nhà thầu",
+      "membershipId": "00000000-0000-4000-8000-000000000799",
+      "permissions": [
+        "bid.read",
+        "bid.result.submit",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "resultAuthority",
+      "displayName": "Người có thẩm quyền phê duyệt kết quả lựa chọn",
+      "membershipId": "00000000-0000-4000-8000-000000000800",
+      "permissions": [
+        "bid.read",
+        "bid.result.approve",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "resultReader",
+      "displayName": "Người xem kết quả lựa chọn nhà thầu",
+      "membershipId": "00000000-0000-4000-8000-000000000801",
+      "permissions": [
+        "bid.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

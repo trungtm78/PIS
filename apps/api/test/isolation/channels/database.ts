@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -315,6 +315,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'declareConflictOfInterest',
   'decideConflictOfInterest',
   'listConflictDeclarations',
+  'submitProcurementResult',
+  'decideProcurementResult',
+  'listProcurementResults',
   'get_resources_proposal',
   'get_resources_proposal_id',
   'get_resources_procurement_package',
@@ -728,6 +731,10 @@ const INSERT_PROPOSAL = `insert into machvon.proposal
   (tenant_id, id, project_id, package_id, contractor_id, document_version_ids, revision, status, submitted_at, bid_price_vnd, access_released_at, classification, created_by, version)
   values ($1, $2, $3, $4, $5, '[]'::jsonb, 1, 'RECEIVED', timestamptz '2026-08-01 03:00:00+00', $6::numeric, timestamptz '2026-09-01 03:00:00+00', 'CONFIDENTIAL', $7, 1) on conflict do nothing`;
 
+const INSERT_RESULT = `insert into machvon.procurement_result
+  (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, evaluation_minutes_document_id, outcome, status, submitted_by, created_by, updated_by, version)
+  values ($1, $2, $3, $4, $5::numeric, $6, 'AWARDED', 'SUBMITTED', $7, $7, $7, 1) on conflict do nothing`;
+
 const INSERT_CONFLICT = `insert into machvon.bid_conflict_declaration
   (tenant_id, id, package_id, user_id, has_conflict, relation_text, created_by, updated_by, version)
   values ($1, $2, $3, $4, true, $5, $4, $4, 1) on conflict do nothing`;
@@ -921,6 +928,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const proposal = PROPOSAL_FIXTURES[tenant];
     await client.query(INSERT_PROPOSAL, [tenantId, proposal.id, project.id, pack.id, contractor.id, proposal.bidPrice, ACTOR_ID]);
     await client.query(INSERT_CONFLICT, [tenantId, proposal.declarationId, pack.id, ACTOR_ID, proposal.relation]);
+    const result = RESULT_FIXTURES[tenant];
+    await client.query(INSERT_RESULT, [tenantId, result.id, pack.id, contractor.id, result.awardPrice, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
     const ticket = TICKET_FIXTURES[tenant];
     await client.query(INSERT_SUPPORT_TICKET, [tenantId, ticket.id, ticket.code, MEMBERSHIP_ID, ticket.subject, `support_ticket_body:${ticket.id}`]);

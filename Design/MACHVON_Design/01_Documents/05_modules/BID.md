@@ -148,6 +148,7 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `recordClarificationAnswer` | POST /bid-clarifications/{id}/answer | bid.clarification.answer | `BidClarificationAnswer` | CLARIFICATION_EXPIRED, SCOPE_DENIED | ✔ | ✔ |
 | `submitProcurementResult` | POST /procurement-results | bid.result.submit | `BidResultSubmit` | PRICE_EXCEEDS_PACKAGE_BUDGET, PLAN_NOT_APPROVED, CONTRACTOR_RESTRICTED, REPORT_NOT_ISSUED | ✔ | – |
 | `decideProcurementResult` | POST /procurement-results/{id}/decision | bid.result.approve | `BidResultDecision` | SELF_APPROVAL_DENIED, DECISION_DOCUMENT_NOT_EFFECTIVE, RESULT_STATE_INVALID | ✔ | ✔ |
+| `listProcurementResults` | GET /procurement-results | bid.read | – | `BidResultList` | VALIDATION_FAILED | – | – |
 | `importProcurementFile` | POST /procurement-imports | bid.import | `BidImportRequest` | IMPORT_FILE_ALREADY_APPLIED, IMPORT_HAS_ERRORS, UPLOAD_NOT_ALLOWED_TYPE | ✔ | – |
 | `recordProcurementMilestone` | POST /procurement-packages/{id}/milestones | bid.plan.manage | `BidMilestone` | MILESTONE_ORDER_INVALID | ✔ | ✔ |
 | `uploadProcurementFile` | POST /procurement-imports/files | bid.import | tệp CSV/XLSX | tệp được quét mã độc, lưu kho và đọc cột package_code, external_code, milestone_kind, actual_at | FILE_NOT_CLEAN, IMPORT_SCHEMA_INVALID, IMPORT_EMPTY | ✔ | – |

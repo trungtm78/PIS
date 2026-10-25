@@ -11793,7 +11793,8 @@
       ],
       "operations": [
         "submitProcurementResult",
-        "decideProcurementResult"
+        "decideProcurementResult",
+        "listProcurementResults"
       ],
       "tables": [
         "procurement_result"

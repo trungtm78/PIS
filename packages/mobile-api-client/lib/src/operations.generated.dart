@@ -532,6 +532,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listProcurementExternalLinks': OperationDescriptor(method: 'GET', path: '/procurement-external-links', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProcurementMilestones': OperationDescriptor(method: 'GET', path: '/procurement-milestones', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProcurementPlans': OperationDescriptor(method: 'GET', path: '/procurement-plans', versioned: false, stepUp: null, permission: 'bid.read'),
+  'listProcurementResults': OperationDescriptor(method: 'GET', path: '/procurement-results', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProjectPipeline': OperationDescriptor(method: 'GET', path: '/project-pipeline', versioned: false, stepUp: null, permission: 'project.read'),
   'listProjectRisks': OperationDescriptor(method: 'GET', path: '/projects/{id}/risks', versioned: false, stepUp: null, permission: 'project.read'),
   'listReallocationProposals': OperationDescriptor(method: 'GET', path: '/reallocation-proposals', versioned: false, stepUp: null, permission: 'capital.read'),

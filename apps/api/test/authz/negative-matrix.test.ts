@@ -866,6 +866,15 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, conflictDeclarationId, criteriaPackageId, ACTOR],
       ],
     ]);
+    // A SUBMITTED result of that package, submitted by the actor of the seed: the decision command acts on it.
+    const resultId = id(0xb6, 4);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.procurement_result (tenant_id, id, package_id, outcome, status, submitted_by, evaluation_minutes_document_id, created_by, updated_by)
+         values ($1, $2, $3, 'CANCELLED', 'SUBMITTED', $4, $5, $4, $4)`,
+        [TENANT_A, resultId, criteriaPackageId, ACTOR, id(0x78, 1)],
+      ],
+    ]);
     // A dataset of the DIS module with a working contract, a DRAFT quality rule of it made by someone other than the callers, and a frozen snapshot of the open period: the quality commands act on them.
     const qualityDatasetId = id(0xde, 1);
     const qualityContractId = id(0xde, 2);
@@ -911,6 +920,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       criteriaPackageId,
       criteriaDraftId,
       conflictDeclarationId,
+      resultId,
       qualityContractId,
       qualityRuleId,
       qualitySnapshotId,

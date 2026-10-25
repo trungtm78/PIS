@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, asUuid, assertFourEyes, compareDecimal, subtractDecimal, versionConflict } from '@machvon/kernel';
+import { assertDecisionDocument } from './bid-decision-document.ts';
 import { checkedPlan, commentOf } from './bid-plan-input.ts';
 import type { CheckedPlan, NewPlanInput } from './bid-plan-input.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
@@ -7,7 +8,6 @@ import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 const UNIQUE_VIOLATION = '23505';
-const DECISION_DOCUMENT_TYPE = 'QD';
 const IN_FORCE_LINE_STATUS = 'PUBLISHED';
 
 export const PLAN_STATUSES = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'SUPERSEDED', 'CANCELLED'] as const;
@@ -189,7 +189,7 @@ export class BidPlanStore {
   }
 
   private async approve(tx: TenantTx, plan: PlanLock, asked: CheckedDecision, decider: string, base: Pick<BidDecidedPlan, 'id' | 'projectId' | 'revision' | 'version' | 'decision' | 'comment' | 'totalVnd'>): Promise<BidDecidedPlan> {
-    const documentId = await this.assertDecisionDocument(tx, asked.decisionDocumentId);
+    const documentId = await assertDecisionDocument(tx, asked.decisionDocumentId);
     await this.assertProjectStage(tx, plan.projectId);
     // The lines may have moved since the plan was submitted: the sums are judged again at the moment of the approval.
     const allocations = await this.assertWithinAllocation(tx, plan);
@@ -234,19 +234,6 @@ export class BidPlanStore {
     if (input.decisionDocumentId !== undefined) throw invalid('decision_document_id');
     if (comment === undefined) throw invalid('comment');
     return { decision: input.decision, decisionDocumentId: undefined, comment };
-  }
-
-  /**
-   * The decision document of an approval: one of the tenant, a decision (`QD`), in force. An approval without one, or on one that is not in
-   * force, is DECISION_DOCUMENT_NOT_EFFECTIVE; a document that does not exist (or belongs to another tenant) or is no decision is a fault of the request.
-   */
-  private async assertDecisionDocument(tx: TenantTx, documentId: string | undefined): Promise<string> {
-    if (documentId === undefined) throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422, 'decision_document_id');
-    const rows = await tx.query<{ effect_status: string; doc_type_code: string }>('select effect_status, doc_type_code from machvon.document where id = $1::uuid', [documentId]);
-    const document = rows[0];
-    if (document === undefined || document.doc_type_code !== DECISION_DOCUMENT_TYPE) throw invalid('decision_document_id');
-    if (document.effect_status !== 'EFFECTIVE') throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422, 'decision_document_id');
-    return documentId;
   }
 
   /** Locks the project of the plan (in the scope of the caller), then the plan; a plan outside the scope does not exist for the caller. */

@@ -131,8 +131,8 @@ async function seedTenant(tenant: string): Promise<void> {
     ],
   ]);
   const award = (packageId: string, winner: string, status: string, n: number): [string, unknown[]] => [
-    `insert into machvon.procurement_result (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, outcome, status, decision_document_id, submitted_by, approved_by, approved_at, created_by, updated_by)
-     values ($1, $2, $3, $4, 1000, 'AWARDED', $5, $6, $7, case when $5 = 'APPROVED' then $8::uuid end, case when $5 = 'APPROVED' then now() end, $7, $7)`,
+    `insert into machvon.procurement_result (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, evaluation_minutes_document_id, outcome, status, decision_document_id, submitted_by, approved_by, approved_at, created_by, updated_by)
+     values ($1, $2, $3, $4, 1000, $6, 'AWARDED', $5, $6, $7, case when $5 = 'APPROVED' then $8::uuid end, case when $5 = 'APPROVED' then now() end, $7, $7)`,
     [tenant, id(FAMILY, 50 + n), packageId, winner, status, id(FAMILY, 47), memberId(ACTOR), memberId(ACTOR + 1)],
   ];
   await seedAs([

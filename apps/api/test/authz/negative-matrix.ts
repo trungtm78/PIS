@@ -127,6 +127,8 @@ export interface MatrixTargets {
   criteriaDraftId: string;
   /** A declaration of conflict of interest of that package that is waiting for a decision (version 1), made by the actor of the seed. */
   conflictDeclarationId: string;
+  /** A SUBMITTED result of that package, submitted by someone other than the callers (version 1). */
+  resultId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1151,6 +1153,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   declareConflictOfInterest: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-packages/${t.criteriaPackageId}/conflict-declarations`, body: { has_conflict: false } }),
+  },
+  submitProcurementResult: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/procurement-results', body: { package_id: t.criteriaPackageId, outcome: 'CANCELLED', evaluation_report_id: t.documentVersionId } }),
+  },
+  decideProcurementResult: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),
   },
   decideConflictOfInterest: {
     referencesTenantIds: true,

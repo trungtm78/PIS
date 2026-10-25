@@ -12422,7 +12422,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Kết quả lựa chọn nhà thầu của các gói thầu trong phạm vi, mới nhất trước (BID-18) */
+        get: operations["listProcurementResults"];
         put?: never;
         /** Trình KQLCNT do con người đề xuất (không do AI) */
         post: operations["submitProcurementResult"];
@@ -18382,7 +18383,10 @@ export interface components {
             winner_contractor_id?: string;
             /** @description VND nguyên dạng chuỗi decimal */
             award_price_vnd?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The evaluation the result rests on. Until the structured evaluation report exists (ST-BID-012) it is the evaluation minutes issued through DOC: a document of the tenant that is in force
+             */
             evaluation_report_id: string;
         };
         BidResultDecision: {
@@ -18390,6 +18394,7 @@ export interface components {
             decision: "APPROVE" | "REJECT";
             /** Format: uuid */
             decision_document_id?: string;
+            /** @description The reason of a rejection (required); an approval may add a note */
             comment?: string;
         };
         BidImportRequest: {
@@ -19501,6 +19506,54 @@ export interface components {
             items: components["schemas"]["BidConflictDeclarationLine"][];
             /** @description Whether the caller may decide the declarations of the package */
             may_decide: boolean;
+            /** Format: date-time */
+            as_of: string;
+        };
+        BidResultLine: {
+            /** Format: uuid */
+            id: string;
+            package: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                budget_vnd: string;
+            };
+            /** @enum {string} */
+            outcome: "AWARDED" | "NO_ACCEPTABLE_BID" | "CANCELLED";
+            winner?: {
+                /** Format: uuid */
+                id?: string;
+                legal_name?: string;
+            } | null;
+            award_price_vnd?: string | null;
+            evaluation_minutes?: {
+                /** Format: uuid */
+                document_id?: string;
+                title?: string;
+            } | null;
+            /** Format: uuid */
+            decision_document_id?: string | null;
+            /** @enum {string} */
+            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "CANCELLED";
+            submitted_by?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            } | null;
+            /** Format: date-time */
+            submitted_at?: string | null;
+            decided_by?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            } | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            comment?: string | null;
+            version: number;
+        };
+        BidResultList: {
+            items: components["schemas"]["BidResultLine"][];
             /** Format: date-time */
             as_of: string;
         };
@@ -93383,6 +93436,64 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProcurementResults: {
+        parameters: {
+            query?: {
+                package_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidResultList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

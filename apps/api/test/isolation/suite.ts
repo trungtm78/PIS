@@ -136,6 +136,12 @@ export const PROPOSAL_FIXTURES: Readonly<Record<TenantName, { id: string; declar
   'TNT-B': { id: '00000000-0000-4000-b0ba-000000000001', declarationId: '00000000-0000-4000-b0ba-000000000002', bidPrice: '7772000001', relation: 'BETA-CONFLICT-RELATION-0001' },
 };
 
+/** A result of the selection of the contractor of each tenant on its package: submitted, with an award price of its own (the price is distinctive; tenant confidential data). */
+export const RESULT_FIXTURES: Readonly<Record<TenantName, { id: string; awardPrice: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0bb-000000000001', awardPrice: '8881000001' },
+  'TNT-B': { id: '00000000-0000-4000-b0bb-000000000001', awardPrice: '8882000001' },
+};
+
 /** A stage of land clearance reported by an external unit, in the section of each tenant (its note is distinctive; tenant data). */
 export const STAGE_FIXTURES: Readonly<Record<TenantName, { id: string; note: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0b8-000000000001', note: 'ALPHA-STAGE-BLOCKER-0001' },
@@ -579,6 +585,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'proposal bid price', value: PROPOSAL_FIXTURES[tenant].bidPrice },
     { kind: 'conflict declaration id', value: PROPOSAL_FIXTURES[tenant].declarationId },
     { kind: 'conflict relation text', value: PROPOSAL_FIXTURES[tenant].relation },
+    { kind: 'procurement result id', value: RESULT_FIXTURES[tenant].id },
+    { kind: 'procurement result award price', value: RESULT_FIXTURES[tenant].awardPrice },
     { kind: 'assignment id', value: ACCOUNTABILITY_FIXTURES[tenant].assignmentId },
     { kind: 'task force id', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceId },
     { kind: 'task force code', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceCode },
