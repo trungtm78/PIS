@@ -1980,6 +1980,52 @@
       ]
     },
     {
+      "key": "handoverDrafter",
+      "displayName": "Ban QLDA lập bàn giao",
+      "membershipId": "00000000-0000-4000-8000-000000000848",
+      "permissions": [
+        "handover.manage",
+        "handover.read",
+        "contract.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "handoverContractor",
+      "displayName": "Nhà thầu khắc phục tồn tại",
+      "membershipId": "00000000-0000-4000-8000-000000000849",
+      "permissions": [
+        "handover.respond",
+        "handover.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "handoverVerifier",
+      "displayName": "Người xác nhận tồn tại",
+      "membershipId": "00000000-0000-4000-8000-000000000850",
+      "permissions": [
+        "handover.verify",
+        "handover.waive",
+        "handover.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "handoverReceiver",
+      "displayName": "Đơn vị tiếp nhận bàn giao",
+      "membershipId": "00000000-0000-4000-8000-000000000851",
+      "permissions": [
+        "handover.approve",
+        "handover.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

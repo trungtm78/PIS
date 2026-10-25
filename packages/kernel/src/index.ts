@@ -463,3 +463,22 @@ export { allocateLargestRemainder, computeDraftMoney, groupForLedger, linesMatch
 export type { AdvanceTranche, ClaimGroup, DraftLine, DraftMoney, DraftMoneyInput, MoneyLine, PartyAdvance } from './pay-money.ts';
 export { DOCUMENT_KINDS, PAYMENT_KINDS, PAYMENT_STATUSES, assertContractAllows, assertPlanYear, contractRefusal, disbursementEnd, isEditable } from './pay-request.ts';
 export type { ContractFacts, DocumentKind, PaymentKind, PaymentStatus } from './pay-request.ts';
+
+export {
+  HANDOVER_DECISIONS,
+  HANDOVER_KINDS,
+  HANDOVER_STATUSES,
+  PUNCH_SEVERITIES,
+  PUNCH_STATUSES,
+  PUNCH_VERIFICATIONS,
+  assertCanAddPunchItem,
+  assertCanWaive,
+  assertHandoverApprover,
+  assertHandoverDecision,
+  assertNoOpenCritical,
+  assertPunchMove,
+  assertPunchVerifier,
+  assertPunchWaiver,
+  isOpenCritical,
+} from './ast-handover.ts';
+export type { HandoverDecision, HandoverKind, HandoverStatus, PunchSeverity, PunchStatus, PunchVerification } from './ast-handover.ts';

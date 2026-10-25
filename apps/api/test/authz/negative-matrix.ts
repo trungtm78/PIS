@@ -53,6 +53,9 @@ export interface MatrixTargets {
   /** A non-conformance and one of its corrective actions: the commands that name them in the path need no row to be refused. */
   nonconformanceId: string;
   correctiveActionId: string;
+  /** A handover and one of its punch items: the commands that name them in the path need no row to be refused. */
+  handoverId: string;
+  punchItemId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1536,6 +1539,31 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   resolveReconciliationItem: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/resolve`, ifMatch: '"1"', body: { resolution: 'EXPLAINED', note: REASON } }),
+  },
+  // The handover of a work and its punch list: a caller that is refused drafts none, lists no defect, answers none, verifies none, waives none and decides none.
+  createHandover: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/handovers', body: { project_id: t.contractProjectId, contract_id: t.draftContractId, recipient_unit_id: t.recipientMembershipId, handover_kind: 'COMPLETION', handover_no: REASON, quality_acceptance_id: t.draftContractId, document_version_id: t.documentVersionId } }),
+  },
+  addPunchItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/handovers/${t.handoverId}/punch-items`, ifMatch: '"1"', body: { description: REASON, severity: 'MINOR', due_on: '2999-01-01' } }),
+  },
+  markPunchItemFixed: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/punch-items/${t.punchItemId}/fixed`, body: { evidence_document_version_id: t.documentVersionId, note: REASON } }),
+  },
+  verifyPunchItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/punch-items/${t.punchItemId}/verify`, body: { outcome: 'VERIFIED', note: REASON } }),
+  },
+  waivePunchItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/punch-items/${t.punchItemId}/waive`, body: { waiver_reason: REASON } }),
+  },
+  post_handovers_id_decision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/handovers/${t.handoverId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], as_built_document_version_id: t.documentVersionId } }),
   },
   // The non-conformances of the work: a caller that is refused raises none, assigns no action, answers none, verifies none, closes none and reopens none.
   raiseNonconformance: {

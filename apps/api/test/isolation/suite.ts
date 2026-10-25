@@ -148,6 +148,12 @@ export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; titl
   'TNT-B': { id: '00000000-0000-4000-b0ca-000000000001', title: 'BETA-INSPECTION-TITLE-0001' },
 };
 
+/** A handover of the draft contract of each tenant with one punch item (the number and the description are distinctive; tenant data). */
+export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; handoverNo: string; itemDescription: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d3-000000000001', itemId: '00000000-0000-4000-a0d3-000000000002', handoverNo: 'ALPHA-HANDOVER-NO-0001', itemDescription: 'ALPHA-PUNCH-ITEM-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d3-000000000001', itemId: '00000000-0000-4000-b0d3-000000000002', handoverNo: 'BETA-HANDOVER-NO-0001', itemDescription: 'BETA-PUNCH-ITEM-0001' },
+};
+
 /** A non-conformance of the draft contract of each tenant with one corrective action (the title and the description of the action are distinctive; tenant data). */
 export const NONCONFORMANCE_FIXTURES: Readonly<Record<TenantName, { id: string; actionId: string; title: string; actionDescription: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d2-000000000001', actionId: '00000000-0000-4000-a0d2-000000000002', title: 'ALPHA-NCR-TITLE-0001', actionDescription: 'ALPHA-NCR-ACTION-0001' },
@@ -689,6 +695,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'cumulative ledger entry reason', value: LEDGER_FIXTURES[tenant].entryReason },
     { kind: 'inspection id', value: INSPECTION_FIXTURES[tenant].id },
     { kind: 'inspection title', value: INSPECTION_FIXTURES[tenant].title },
+    { kind: 'handover id', value: HANDOVER_FIXTURES[tenant].id },
+    { kind: 'handover number', value: HANDOVER_FIXTURES[tenant].handoverNo },
+    { kind: 'punch item id', value: HANDOVER_FIXTURES[tenant].itemId },
+    { kind: 'punch item description', value: HANDOVER_FIXTURES[tenant].itemDescription },
     { kind: 'non-conformance id', value: NONCONFORMANCE_FIXTURES[tenant].id },
     { kind: 'non-conformance title', value: NONCONFORMANCE_FIXTURES[tenant].title },
     { kind: 'corrective action id', value: NONCONFORMANCE_FIXTURES[tenant].actionId },
