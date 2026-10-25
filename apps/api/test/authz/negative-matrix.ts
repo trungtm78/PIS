@@ -35,6 +35,8 @@ export interface MatrixTargets {
   changeRequestId: string;
   /** A SUBMITTED measurement (version 1) of that contract, recorded and sent by someone other than the callers, with the item, the line and the period it was recorded against. */
   measurementId: string;
+  /** An acceptance of work in DRAFT (version 1) of that contract with one line, drafted by someone other than the callers. */
+  workAcceptanceId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1445,6 +1447,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   correctMeasurement: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/measurements/${t.measurementId}/correct`, ifMatch: '"1"', body: { quantity_period: '1', correction_reason: REASON, evidence_refs: [] } }),
+  },
+  // The acceptance of work: a caller that is refused drafts none, sends none, decides none and revokes none.
+  createAcceptance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/acceptances`, body: { measurement_ids: [t.measurementId], period_id: t.periodId, document_version_id: t.draftContractId } }),
+  },
+  submitAcceptance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/acceptances/${t.workAcceptanceId}/submit`, ifMatch: '"1"', body: { signer_refs: [{ name: 'Matrix signer' }] } }),
+  },
+  post_acceptances_id_decision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/acceptances/${t.workAcceptanceId}/decision`, ifMatch: '"1"', body: { decision: 'return', reason: REASON, evidence_ids: [] } }),
+  },
+  revokeAcceptance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/acceptances/${t.workAcceptanceId}/revoke`, ifMatch: '"1"', body: { reason: REASON, approval_document_version_id: t.draftContractId } }),
   },
   withdrawChangeRequest: {
     referencesTenantIds: true,

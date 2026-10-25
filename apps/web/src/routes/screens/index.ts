@@ -52,6 +52,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'CTR-22': () => import('../../screens/ctr/status/StatusScreen'),
   'CTR-25': () => import('../../screens/ctr/ContractPartiesScreen'),
   'CTR-10': () => import('../../screens/ctr/measurement/MeasurementScreen'),
+  'CTR-12': () => import('../../screens/ctr/acceptance/AcceptanceScreen'),
   'CTR-26': () => import('../../screens/ctr/revision/RevisionsScreen'),
   'CAP-15': () => import('../../screens/cap/PlanTrackingScreen'),
   'CAP-16': () => import('../../screens/cap/AppropriationBookScreen'),

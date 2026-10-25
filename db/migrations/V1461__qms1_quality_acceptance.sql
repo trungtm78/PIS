@@ -5,7 +5,7 @@
 -- The minutes read quality_nonconformance.blocks_acceptance (V002) to know that a serious non-conformance is still open; the rest of the non-conformance is ST-QMS-006's.
 
 ALTER TABLE machvon.quality_acceptance
-  ADD COLUMN content_hash char(64) NOT NULL,
+  ADD COLUMN content_hash char(64) NOT NULL DEFAULT repeat('0', 64),
   ADD COLUMN regime_awaiting_confirmation boolean NOT NULL DEFAULT false,
   ADD COLUMN regime_cxn text,
   ADD COLUMN rejected_at timestamptz,
@@ -13,6 +13,9 @@ ALTER TABLE machvon.quality_acceptance
   ADD COLUMN revoked_at timestamptz,
   ADD COLUMN revoked_by uuid,
   ADD COLUMN revoke_reason text;
+
+-- The hash of the minutes is always the hash of something: the placeholder that lets the column be added is taken away at once, and no row may keep it.
+ALTER TABLE machvon.quality_acceptance ALTER COLUMN content_hash DROP DEFAULT;
 
 -- The words are trimmed and bounded; the roles are a non-empty list of the four roles that sign minutes; the paper of the minutes is always named.
 ALTER TABLE machvon.quality_acceptance
@@ -26,6 +29,7 @@ ALTER TABLE machvon.quality_acceptance
     AND NOT jsonb_path_exists(required_roles, '$[*] ? (@ != "CONTRACTOR" && @ != "SUPERVISOR" && @ != "OWNER" && @ != "DESIGNER")')
   ),
   ADD CONSTRAINT quality_acceptance_document_chk CHECK (document_version_id IS NOT NULL),
+  ADD CONSTRAINT quality_acceptance_hash_chk CHECK (content_hash ~ '^[0-9a-f]{64}$' AND content_hash <> repeat('0', 64)),
   ADD CONSTRAINT quality_acceptance_regime_chk CHECK (regime_awaiting_confirmation = (regime_cxn IS NOT NULL)),
   ADD CONSTRAINT quality_acceptance_decided_chk CHECK (
     (status IN ('APPROVED', 'REJECTED', 'REVOKED')) = (decision_note IS NOT NULL)

@@ -16682,15 +16682,20 @@ export interface components {
             }[];
         };
         CtrCreateAcceptance: {
+            /** @description Chỉ khối lượng đã duyệt, cùng kỳ, chưa thuộc nghiệm thu đã duyệt nào; đơn giá mỗi dòng lấy ở phiên bản hợp đồng hiệu lực tại ngày lập */
             measurement_ids: string[];
             /** Format: uuid */
             period_id: string;
             /** Format: uuid */
             document_version_id: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Biên bản nghiệm thu chất lượng của chính hợp đồng này; nếu để trống, khi duyệt hệ thống tìm biên bản đã duyệt của kiểm tra mà khối lượng dựa vào
+             */
             quality_acceptance_id?: string;
         };
         CtrSubmitAcceptance: {
+            /** @description Những người ký biên bản nghiệm thu khối lượng */
             signer_refs: {
                 [key: string]: unknown;
             }[];
@@ -20072,6 +20077,107 @@ export interface components {
         };
         QmsAcceptanceList: {
             items: components["schemas"]["QmsAcceptanceLine"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description Một nghiệm thu khối lượng với các dòng đã chụp đơn giá. Dòng chỉ tính là đã nghiệm thu (active) khi nghiệm thu được duyệt */
+        CtrAcceptanceLine: {
+            /** Format: uuid */
+            id: string;
+            acceptance_no: string;
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+                requires_quality_acceptance?: boolean;
+                /** @description Số tiền VND nguyên, dạng chuỗi */
+                contract_value_vnd?: string;
+                /** @description Tổng đã nghiệm thu (đã duyệt) của hợp đồng */
+                accepted_total_vnd?: string;
+            };
+            /** Format: uuid */
+            project_id?: string;
+            period: {
+                id: string;
+                code: string;
+            };
+            /** Format: uuid */
+            document_version_id?: string;
+            /**
+             * Format: date
+             * @description Ngày lập: ngày lấy đơn giá của phiên bản hiệu lực
+             */
+            accepted_on?: string;
+            /** @enum {string} */
+            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "REVOKED";
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            accepted_amount_vnd: string;
+            lines: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                measurement_id: string;
+                boq_item: {
+                    /** Format: uuid */
+                    id: string;
+                    business_key: string;
+                    description: string;
+                    unit_code: string;
+                };
+                /** Format: uuid */
+                party_id?: string | null;
+                /** Format: uuid */
+                contract_revision_id?: string;
+                /** @description Số thập phân chính xác, dạng chuỗi */
+                quantity: string;
+                /** @description Đơn giá của phiên bản hiệu lực tại ngày lập, giữ nguyên */
+                unit_price_snapshot: string;
+                /** @description Số tiền VND nguyên, dạng chuỗi */
+                amount_vnd: string;
+                /** @description Số thập phân chính xác, dạng chuỗi */
+                retention_pct_snapshot?: string;
+                active: boolean;
+                reference_no?: string | null;
+            }[];
+            quality_acceptance?: {
+                /** Format: uuid */
+                id?: string;
+                record_no?: string;
+                status?: string;
+            } | null;
+            /** @description Số NCR nghiêm trọng còn mở trên khối lượng của nghiệm thu hoặc trên hợp đồng nói chung: duyệt bị chặn khi còn */
+            open_critical_ncr: number;
+            signer_refs?: {
+                [key: string]: unknown;
+            }[];
+            /** Format: uuid */
+            submitted_by?: string | null;
+            /** Format: date-time */
+            submitted_at?: string | null;
+            /** Format: uuid */
+            decided_by?: string | null;
+            /** Format: date-time */
+            approved_at?: string | null;
+            decision_reason?: string | null;
+            revoke_reason?: string | null;
+            /** Format: date-time */
+            revoked_at?: string | null;
+            /** Format: uuid */
+            created_by?: string | null;
+            /** Format: date-time */
+            created_at?: string;
+            /** @description Người gọi có thể làm gì với nghiệm thu ở trạng thái hiện tại; máy chủ xét lại từng lệnh */
+            actions: {
+                submit: boolean;
+                decide: boolean;
+                revoke: boolean;
+            };
+            version: number;
+        };
+        CtrAcceptancePage: {
+            items: components["schemas"]["CtrAcceptanceLine"][];
+            next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
         };
@@ -33221,6 +33327,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Chỉ các nghiệm thu của hợp đồng này */
+                contract_id?: string;
             };
             header?: never;
             path?: never;
@@ -33234,13 +33342,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["CtrAcceptancePage"];
                 };
             };
             /** @description Invalid request */
@@ -33319,10 +33421,7 @@ export interface operations {
     };
     get_resources_acceptance_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -33337,13 +33436,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["CtrAcceptanceLine"];
                 };
             };
             /** @description Invalid request */

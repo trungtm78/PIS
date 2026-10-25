@@ -409,3 +409,5 @@ export { CHECKLIST_OUTCOMES, INSPECTION_COMMANDS, INSPECTION_RESULTS, INSPECTION
 export type { ChecklistAnswer, ChecklistItem, ChecklistOutcome, InspectionCommand, InspectionResult, InspectionStatus, InspectionType, RegimeRule, SignerRole } from './qms-inspection.ts';
 export { ACCEPTANCE_COMMANDS, ACCEPTANCE_SCOPES, ACCEPTANCE_STATUSES, SIGNATURE_METHODS, assertAcceptanceTransition, assertSignaturesComplete, canonicalContent, legalEffectOf, missingSigners, rolesSignableBy, scopeAccepts } from './qms-acceptance.ts';
 export type { AcceptanceCommand, AcceptanceContent, AcceptanceScope, AcceptanceStatus, SignatureMethod, SignerStanding } from './qms-acceptance.ts';
+export { WORK_ACCEPTANCE_COMMANDS, WORK_ACCEPTANCE_STATUSES, assertWithinContractValue, assertWorkAcceptanceTransition, isAccepted, lineAmount, notApproved, sumAmounts } from './ctr-acceptance.ts';
+export type { WorkAcceptanceCommand, WorkAcceptanceStatus } from './ctr-acceptance.ts';

@@ -466,14 +466,14 @@ describe('the quality acceptance minutes of an inspection (ST-QMS-005)', () => {
       const acceptanceId = randomUUID();
       await seedAs(harness, [
         [
-          `insert into machvon.acceptance (tenant_id, id, contract_id, measurement_ids, document_version_id, approved_at, signer_refs, status, version, accepted_amount_vnd, quality_acceptance_id, decided_by)
-           values ($1, $2, $3, '[]'::jsonb, $4, now(), '[]'::jsonb, 'APPROVED', 1, 100, $5, $6)`,
-          [TENANT_A, acceptanceId, seeded.contractId, VERSION, approved.id, memberId(FIRST)],
+          `insert into machvon.acceptance (tenant_id, id, contract_id, measurement_ids, document_version_id, approved_at, signer_refs, status, version, accepted_amount_vnd, quality_acceptance_id, decided_by, submitted_by, submitted_at, decision_reason)
+           values ($1, $2, $3, jsonb_build_array(gen_random_uuid()::text), $4, now(), '[]'::jsonb, 'APPROVED', 1, 100, $5, $6, $7, now(), 'ok')`,
+          [TENANT_A, acceptanceId, seeded.contractId, VERSION, approved.id, memberId(FIRST), memberId(REQUESTER)],
         ],
       ]);
       expect(await refusal(revoke(approved.id, approved.version))).toMatchObject({ code: 'ACCEPTANCE_ALREADY_USED', status: 409, extensions: { acceptance_id: acceptanceId } });
       expect((await rowOf(approved.id))?.status).toBe('APPROVED');
-      await owner("update machvon.acceptance set status = 'REVOKED' where id = $1::uuid", [acceptanceId]);
+      await seedAs(harness, [["update machvon.acceptance set status = 'REVOKED', revoked_at = now(), revoked_by = $2::uuid, revoke_reason = 'Withdrawn.', revoke_approval_document_version_id = $3::uuid where id = $1::uuid", [acceptanceId, memberId(OWNER), VERSION]]]);
       expect((await revoke(approved.id, approved.version)).status).toBe('REVOKED');
     });
 

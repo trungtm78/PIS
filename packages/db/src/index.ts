@@ -380,6 +380,17 @@ export { CtrChangeDecisionStore } from './ctr-change-decision-store.ts';
 export type { DecideInput as CtrDecideInput, DecisionHooks as CtrDecisionHooks, DecisionResult as CtrDecisionResult, NewRevisionResult as CtrNewRevisionResult } from './ctr-change-decision-store.ts';
 export { CtrRevisionStore } from './ctr-revision-store.ts';
 export type { DatedPrice, PricingRevision } from './ctr-revision-store.ts';
+export { CtrAcceptanceStore } from './ctr-acceptance-store.ts';
+export type {
+  AcceptanceLine as CtrAcceptanceLine,
+  AcceptanceLineResult as CtrAcceptanceLineResult,
+  AcceptanceLineView as CtrAcceptanceLineView,
+  AcceptanceResult as CtrAcceptanceResult,
+  CreateInput as CtrCreateAcceptanceInput,
+  DecideInput as CtrDecideAcceptanceInput,
+  RevokeInput as CtrRevokeAcceptanceInput,
+  SubmitInput as CtrSubmitAcceptanceInput,
+} from './ctr-acceptance-store.ts';
 export { CtrMeasurementStore } from './ctr-measurement-store.ts';
 export type { CorrectInput as CtrCorrectMeasurementInput, DecideInput as CtrMeasurementDecideInput, MeasurementLine as CtrMeasurementLine, MeasurementResult as CtrMeasurementResult, RecordInput as CtrRecordMeasurementInput } from './ctr-measurement-store.ts';
 export type { ChangeHooks as CtrChangeHooks, ChangeLine as CtrChangeLine, ChangeResult as CtrChangeResult, EvaluateInput as CtrEvaluateInput, NewChangeInput as CtrNewChangeInput, SetTiersResult as CtrSetTiersResult, TierConfig as CtrTierConfig } from './ctr-change-chain-store.ts';

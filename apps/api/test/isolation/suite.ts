@@ -148,6 +148,12 @@ export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; titl
   'TNT-B': { id: '00000000-0000-4000-b0ca-000000000001', title: 'BETA-INSPECTION-TITLE-0001' },
 };
 
+/** An acceptance of work of the draft contract of each tenant (the number is distinctive; tenant financial data). */
+export const WORK_ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string; acceptanceNo: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0cc-000000000001', acceptanceNo: 'ALPHA-WORK-ACCEPTANCE-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0cc-000000000001', acceptanceNo: 'BETA-WORK-ACCEPTANCE-0001' },
+};
+
 /** Quality acceptance minutes of the inspection of each tenant (the record number is distinctive; tenant data). */
 export const ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string; recordNo: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0cb-000000000001', recordNo: 'ALPHA-ACCEPTANCE-NO-0001' },
@@ -633,6 +639,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'change request id', value: CHANGE_FIXTURES[tenant].id },
     { kind: 'change request reason', value: CHANGE_FIXTURES[tenant].reason },
     { kind: 'measurement id', value: MEASUREMENT_FIXTURES[tenant].id },
+    { kind: 'work acceptance id', value: WORK_ACCEPTANCE_FIXTURES[tenant].id },
+    { kind: 'work acceptance number', value: WORK_ACCEPTANCE_FIXTURES[tenant].acceptanceNo },
     { kind: 'inspection id', value: INSPECTION_FIXTURES[tenant].id },
     { kind: 'inspection title', value: INSPECTION_FIXTURES[tenant].title },
     { kind: 'quality acceptance id', value: ACCEPTANCE_FIXTURES[tenant].id },

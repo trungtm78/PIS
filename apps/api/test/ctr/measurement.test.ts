@@ -398,8 +398,8 @@ describe('the measurements over HTTP (ST-CTR-008)', () => {
       await seedAs(harness, [
         [
           `insert into machvon.acceptance (tenant_id, id, contract_id, measurement_ids, document_version_id, signer_refs, status, version, acceptance_no, accepted_amount_vnd, created_by, updated_by)
-           values ($1, $2, $3, '[]'::jsonb, $4, '[]'::jsonb, 'DRAFT', 1, 'NT-Q1', 100000000, $5, $5)`,
-          [TENANT_A, acceptanceId, target.id, cleanVersion, memberId(RECORDER)],
+           values ($1, $2, $3, jsonb_build_array($6::text), $4, '[]'::jsonb, 'DRAFT', 1, 'NT-Q1', 100000000, $5, $5)`,
+          [TENANT_A, acceptanceId, target.id, cleanVersion, memberId(RECORDER), done.id],
         ],
         [
           `insert into machvon.acceptance_line (tenant_id, id, acceptance_id, measurement_id, boq_item_id, contract_revision_id, quantity, unit_price_snapshot, amount_vnd, created_by, updated_by)

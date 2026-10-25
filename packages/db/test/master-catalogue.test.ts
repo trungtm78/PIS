@@ -187,7 +187,9 @@ describe('the catalogue types, the platform baseline and the rule port (ST-MDM-0
       const first = await asWorker((tx) => applyBaseline(tx, BASELINE_PACK, WORKER, TODAY));
       expect(first).toEqual({ created: BASELINE_PACK.entries.length, superseded: 0, unchanged: 0 });
       const rows = await owner<{ n: number; effective: number }>("select count(*)::int as n, count(*) filter (where status = 'EFFECTIVE')::int as effective from machvon.master_record where namespace = 'PLATFORM'");
-      expect(rows).toEqual([{ n: BASELINE_PACK.entries.length, effective: BASELINE_PACK.entries.length }]);
+      // An entry whose days have not come (the regime that replaces the current one from 2027) is written and waits; one whose days are over would not be in force either.
+      const inForce = BASELINE_PACK.entries.filter((entry) => entry.validFrom <= TODAY && (entry.validUntil === undefined || entry.validUntil > TODAY)).length;
+      expect(rows).toEqual([{ n: BASELINE_PACK.entries.length, effective: inForce }]);
       const versions = await owner<{ n: number }>("select count(*)::int as n from machvon.master_record_version where namespace = 'PLATFORM' and source_system = 'PLATFORM_BASELINE' and published_at is not null and content_sha256 is not null");
       expect(versions).toEqual([{ n: BASELINE_PACK.entries.length }]);
       expect(await asWorker((tx) => applyBaseline(tx, BASELINE_PACK, WORKER, TODAY))).toEqual({ created: 0, superseded: 0, unchanged: BASELINE_PACK.entries.length });
@@ -265,7 +267,11 @@ describe('the catalogue types, the platform baseline and the rule port (ST-MDM-0
       await asWorker((tx) => applyBaseline(tx, sealPack('PENDING-1', [entry('first', '2027-01-01')]), WORKER, '2026-06-01'), TENANT_B);
       expect(await owner("select status from machvon.master_record where business_key = 'LATE'", [], TENANT_B)).toEqual([{ status: 'APPROVED' }]);
       await asWorker((tx) => applyBaseline(tx, sealPack('PENDING-2', [entry('second', '2027-06-01')]), WORKER, '2028-01-01'), TENANT_B);
-      expect(await asWorker((tx) => store.activateDue(tx, WORKER, '2028-01-01'), TENANT_B)).toBe(0);
+      // What the platform's own baseline has waiting by then (a regime that starts in 2027) or ends by then is moved too; nothing else is.
+      const platformDue =
+        BASELINE_PACK.entries.filter((candidate) => candidate.validFrom > TODAY && candidate.validFrom <= '2028-01-01').length +
+        BASELINE_PACK.entries.filter((candidate) => candidate.validUntil !== undefined && candidate.validUntil > TODAY && candidate.validUntil <= '2028-01-01').length;
+      expect(await asWorker((tx) => store.activateDue(tx, WORKER, '2028-01-01'), TENANT_B)).toBe(platformDue);
       const current = await owner<{ label: string; status: string }>(
         "select v.label, v.status from machvon.master_record r join machvon.master_record_version v on v.id = r.current_version_id where r.business_key = 'LATE'",
         [],

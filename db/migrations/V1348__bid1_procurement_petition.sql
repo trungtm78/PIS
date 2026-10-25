@@ -25,6 +25,9 @@ ALTER TABLE machvon.procurement_petition
 -- A petition is lodged by one document: logging the same paper twice is one petition.
 CREATE UNIQUE INDEX procurement_petition_document_uq ON machvon.procurement_petition (tenant_id, petition_document_id) WHERE status <> 'WITHDRAWN';
 
+-- Every identifier column is indexed with the tenant (the catalogue of the schema says so); the rule a petition was counted by is one.
+CREATE INDEX procurement_petition_rule_version_id_idx ON machvon.procurement_petition (tenant_id, rule_version_id);
+
 -- The job that raises the reminder looks at the petitions that wait, by the day their time is up.
 CREATE INDEX procurement_petition_open_due_idx ON machvon.procurement_petition (tenant_id, due_on) WHERE status IN ('RECEIVED', 'PROCESSING');
 

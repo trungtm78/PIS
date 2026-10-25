@@ -104,6 +104,55 @@
       "location": "checklist[].outcome",
       "reason": "the items of the checklist of an inspection were free objects; each now names the item it answers and its outcome",
       "change_request": "ST-QMS-004"
+    },
+    {
+      "operation": "get_resources_acceptance",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of the acceptances is paged by the creation time and the id, and answers the time it was read",
+      "change_request": "ST-CTR-009"
+    },
+    {
+      "operation": "get_resources_acceptance_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one acceptance is the acceptance itself, not a page",
+      "change_request": "ST-CTR-009"
+    },
+    {
+      "operation": "get_resources_acceptance_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one acceptance is the acceptance itself, not a page",
+      "change_request": "ST-CTR-009"
+    },
+    {
+      "operation": "get_resources_acceptance_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one acceptance is the acceptance itself, not a page",
+      "change_request": "ST-CTR-009"
+    },
+    {
+      "operation": "get_resources_acceptance_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one acceptance is the acceptance itself, not a page",
+      "change_request": "ST-CTR-009"
+    },
+    {
+      "operation": "get_resources_acceptance_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:cursor",
+      "reason": "the read of one acceptance is not paged",
+      "change_request": "ST-CTR-009"
+    },
+    {
+      "operation": "get_resources_acceptance_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:limit",
+      "reason": "the read of one acceptance is not paged",
+      "change_request": "ST-CTR-009"
     }
   ]
 }

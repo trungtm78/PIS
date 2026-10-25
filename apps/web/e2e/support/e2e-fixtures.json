@@ -1692,6 +1692,51 @@
       ]
     },
     {
+      "key": "acceptanceMaker",
+      "displayName": "Chuyên viên lập và gửi nghiệm thu khối lượng",
+      "membershipId": "00000000-0000-4000-8000-000000000822",
+      "permissions": [
+        "acceptance.read",
+        "acceptance.create",
+        "acceptance.submit",
+        "measurement.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "acceptanceApprover",
+      "displayName": "Lãnh đạo duyệt nghiệm thu khối lượng",
+      "membershipId": "00000000-0000-4000-8000-000000000823",
+      "permissions": [
+        "acceptance.read",
+        "acceptance.approve",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "acceptanceRevoker",
+      "displayName": "Người thu hồi nghiệm thu khối lượng",
+      "membershipId": "00000000-0000-4000-8000-000000000824",
+      "permissions": [
+        "acceptance.read",
+        "acceptance.revoke",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "acceptanceViewer",
+      "displayName": "Người xem nghiệm thu khối lượng",
+      "membershipId": "00000000-0000-4000-8000-000000000825",
+      "permissions": [
+        "acceptance.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

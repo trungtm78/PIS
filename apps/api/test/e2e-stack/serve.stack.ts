@@ -381,6 +381,17 @@ const ACCEPTANCE_ROLES = [
 ];
 
 /**
+ * The people of the acceptance of work (CTR-12): the officer who draws up and sends an acceptance, the leader who decides it, the one who revokes an approved one, and a reader, all over the
+ * whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const WORK_ACCEPTANCE_ROLES = [
+  { n: 822, user: 'acceptanceMaker', code: 'E2E_ACCEPTANCE_MAKER', permissions: ['acceptance.read', 'acceptance.create', 'acceptance.submit', 'measurement.read', 'contract.read', 'session.self'], rank: 30 },
+  { n: 823, user: 'acceptanceApprover', code: 'E2E_ACCEPTANCE_APPROVER', permissions: ['acceptance.read', 'acceptance.approve', 'contract.read', 'session.self'], rank: 40 },
+  { n: 824, user: 'acceptanceRevoker', code: 'E2E_ACCEPTANCE_REVOKER', permissions: ['acceptance.read', 'acceptance.revoke', 'contract.read', 'session.self'], rank: 40 },
+  { n: 825, user: 'acceptanceViewer', code: 'E2E_ACCEPTANCE_VIEWER', permissions: ['acceptance.read', 'contract.read', 'session.self'], rank: 10 },
+];
+
+/**
  * The people of the chain of changes (CTR-07, CTR-19, CTR-20): the business owner who sets the tiers of a project, the contract officer who raises and promotes a request, the one who
  * assesses it, and a reader, all over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
@@ -621,6 +632,7 @@ const GRANTS: GrantPlan[] = [
   ...PETITION_ROLES.map((role, index): GrantPlan => ({ n: 811 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...INSPECTION_ROLES.map((role, index): GrantPlan => ({ n: 815 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...ACCEPTANCE_ROLES.map((role, index): GrantPlan => ({ n: 818 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...WORK_ACCEPTANCE_ROLES.map((role, index): GrantPlan => ({ n: 822 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -918,7 +930,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

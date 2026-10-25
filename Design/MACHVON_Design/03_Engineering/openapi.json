@@ -3774,7 +3774,12 @@
           "ACCEPTANCE_VALUE_EXCEEDS_CONTRACT",
           "QUALITY_ACCEPTANCE_REQUIRED",
           "OPEN_CRITICAL_NCR",
+          "MEASUREMENT_NOT_APPROVED",
+          "MEASUREMENT_ALREADY_ACCEPTED",
+          "CONTRACT_STATE_INVALID",
           "ACCEPTANCE_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -19081,6 +19086,16 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Chỉ các nghiệm thu của hợp đồng này"
           }
         ],
         "responses": {
@@ -19089,28 +19104,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CtrAcceptancePage"
                 }
               }
             }
@@ -19199,7 +19193,10 @@
         "x-contract-maturity": "reference-scaffolding",
         "x-implementation-gate": "Review action DTO allowlist, object scope, state invariants and error contract before exposing. No arbitrary state/role/tenant updates.",
         "x-exposure": "dto",
-        "x-exposure-reason": "signer_refs chỉ hiển thị tên/chức danh theo quyền; không lộ định danh ký."
+        "x-exposure-reason": "signer_refs chỉ hiển thị tên/chức danh theo quyền; không lộ định danh ký.",
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/resources/acceptance/{id}": {
@@ -19216,23 +19213,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
@@ -19241,28 +19221,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CtrAcceptanceLine"
                 }
               }
             }
@@ -70541,8 +70500,10 @@
           "MEASUREMENT_NOT_APPROVED",
           "MEASUREMENT_ALREADY_ACCEPTED",
           "QUALITY_ACCEPTANCE_REQUIRED",
+          "REVISION_NOT_EFFECTIVE",
           "CONTRACT_STATE_INVALID",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -70691,7 +70652,12 @@
         },
         "x-error-codes": [
           "ACCEPTANCE_STATE_INVALID",
+          "MEASUREMENT_NOT_APPROVED",
+          "MEASUREMENT_ALREADY_ACCEPTED",
           "QUALITY_ACCEPTANCE_REQUIRED",
+          "CONTRACT_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -70844,6 +70810,8 @@
           "ACCEPTANCE_ALREADY_CLAIMED",
           "ACCEPTANCE_STATE_INVALID",
           "SELF_APPROVAL_DENIED",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -130772,7 +130740,10 @@
             "items": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Chỉ khối lượng đã duyệt, cùng kỳ, chưa thuộc nghiệm thu đã duyệt nào; đơn giá mỗi dòng lấy ở phiên bản hợp đồng hiệu lực tại ngày lập"
           },
           "period_id": {
             "type": "string",
@@ -130784,7 +130755,8 @@
           },
           "quality_acceptance_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Biên bản nghiệm thu chất lượng của chính hợp đồng này; nếu để trống, khi duyệt hệ thống tìm biên bản đã duyệt của kiểm tra mà khối lượng dựa vào"
           }
         },
         "required": [
@@ -130802,7 +130774,10 @@
             "items": {
               "type": "object",
               "additionalProperties": true
-            }
+            },
+            "minItems": 1,
+            "maxItems": 20,
+            "description": "Những người ký biên bản nghiệm thu khối lượng"
           }
         },
         "required": [
@@ -143181,6 +143156,340 @@
             "items": {
               "$ref": "#/components/schemas/QmsAcceptanceLine"
             }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CtrAcceptanceLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "acceptance_no",
+          "contract",
+          "period",
+          "status",
+          "accepted_amount_vnd",
+          "lines",
+          "open_critical_ncr",
+          "actions",
+          "version"
+        ],
+        "description": "Một nghiệm thu khối lượng với các dòng đã chụp đơn giá. Dòng chỉ tính là đã nghiệm thu (active) khi nghiệm thu được duyệt",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "acceptance_no": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "requires_quality_acceptance": {
+                "type": "boolean"
+              },
+              "contract_value_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]+$",
+                "description": "Số tiền VND nguyên, dạng chuỗi"
+              },
+              "accepted_total_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]+$",
+                "description": "Tổng đã nghiệm thu (đã duyệt) của hợp đồng"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "period": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accepted_on": {
+            "type": "string",
+            "format": "date",
+            "description": "Ngày lập: ngày lấy đơn giá của phiên bản hiệu lực"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "REVOKED"
+            ]
+          },
+          "accepted_amount_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "measurement_id",
+                "boq_item",
+                "quantity",
+                "unit_price_snapshot",
+                "amount_vnd",
+                "active"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "measurement_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "boq_item": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "business_key",
+                    "description",
+                    "unit_code"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "business_key": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "unit_code": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "party_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "contract_revision_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "quantity": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(\\.[0-9]{1,6})?$",
+                  "description": "Số thập phân chính xác, dạng chuỗi"
+                },
+                "unit_price_snapshot": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(\\.[0-9]{1,6})?$",
+                  "description": "Đơn giá của phiên bản hiệu lực tại ngày lập, giữ nguyên"
+                },
+                "amount_vnd": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$",
+                  "description": "Số tiền VND nguyên, dạng chuỗi"
+                },
+                "retention_pct_snapshot": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(\\.[0-9]{1,6})?$",
+                  "description": "Số thập phân chính xác, dạng chuỗi"
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "reference_no": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "quality_acceptance": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "record_no": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "open_critical_ncr": {
+            "type": "integer",
+            "description": "Số NCR nghiêm trọng còn mở trên khối lượng của nghiệm thu hoặc trên hợp đồng nói chung: duyệt bị chặn khi còn"
+          },
+          "signer_refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "submitted_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "submitted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decided_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "approved_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decision_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revoke_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revoked_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Người gọi có thể làm gì với nghiệm thu ở trạng thái hiện tại; máy chủ xét lại từng lệnh",
+            "required": [
+              "submit",
+              "decide",
+              "revoke"
+            ],
+            "properties": {
+              "submit": {
+                "type": "boolean"
+              },
+              "decide": {
+                "type": "boolean"
+              },
+              "revoke": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrAcceptancePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrAcceptanceLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "as_of": {
             "type": "string",
