@@ -3615,11 +3615,16 @@
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
           "MEASUREMENT_STATE_INVALID",
+          "QUANTITY_EXCEEDS_BOQ",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "ctr.measurement.approved.v1"
+          "ctr.measurement.approved.v1",
+          "ctr.measurement.returned.v1",
+          "ctr.measurement.rejected.v1"
         ],
         "x-state-guard": "SUBMITTED → APPROVED|REJECTED|DRAFT"
       }
@@ -18827,6 +18832,16 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Chỉ các khối lượng của hợp đồng này"
           }
         ],
         "responses": {
@@ -18835,28 +18850,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CtrMeasurementPage"
                 }
               }
             }
@@ -18945,7 +18939,10 @@
         "x-contract-maturity": "reference-scaffolding",
         "x-implementation-gate": "Review action DTO allowlist, object scope, state invariants and error contract before exposing. No arbitrary state/role/tenant updates.",
         "x-exposure": "dto",
-        "x-exposure-reason": "evidence_refs chỉ trả tham chiếu có quyền đọc; ẩn bản chưa nộp của bên khác."
+        "x-exposure-reason": "evidence_refs chỉ trả tham chiếu có quyền đọc; ẩn bản chưa nộp của bên khác.",
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/resources/measurement/{id}": {
@@ -18962,23 +18959,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
@@ -18987,28 +18967,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CtrMeasurementLine"
                 }
               }
             }
@@ -70088,7 +70047,7 @@
     "/contracts/{id}/measurements": {
       "post": {
         "operationId": "recordMeasurement",
-        "summary": "Ghi nhận khối lượng kỳ theo dòng BOQ (nhà thầu khách hoặc chuyên viên)",
+        "summary": "Ghi nhận khối lượng kỳ theo hạng mục BOQ ở phiên bản hợp đồng đang hiệu lực (nhà thầu khách hoặc chuyên viên)",
         "tags": [
           "CTR"
         ],
@@ -70125,12 +70084,14 @@
         },
         "x-error-codes": [
           "MEASUREMENT_REFERENCE_DUPLICATE",
+          "MEASUREMENT_STATE_INVALID",
           "REVISION_NOT_EFFECTIVE",
           "QUANTITY_EXCEEDS_BOQ",
           "CUMULATIVE_DECREASE_WITHOUT_CORRECTION",
           "CONTRACT_STATE_INVALID",
           "PERMIT_GATE_BLOCKED",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -70280,6 +70241,8 @@
         "x-error-codes": [
           "MEASUREMENT_STATE_INVALID",
           "EVIDENCE_REQUIRED",
+          "CONTRACT_STATE_INVALID",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -70431,6 +70394,10 @@
         "x-error-codes": [
           "MEASUREMENT_IN_ACTIVE_ACCEPTANCE",
           "MEASUREMENT_STATE_INVALID",
+          "QUANTITY_EXCEEDS_BOQ",
+          "CONTRACT_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -130262,7 +130229,8 @@
         "properties": {
           "contract_revision_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Phiên bản hợp đồng đang hiệu lực (EFFECTIVE); phiên bản chờ hiệu lực chưa nhận khối lượng"
           },
           "boq_item_id": {
             "type": "string",
@@ -130279,7 +130247,7 @@
           "quantity_period": {
             "type": "string",
             "pattern": "^-?[0-9]+(\\.[0-9]{1,6})?$",
-            "description": "Số thập phân chính xác (tối đa 6 chữ số thập phân), dạng chuỗi"
+            "description": "Khối lượng của kỳ, lớn hơn 0 với tối đa 6 chữ số thập phân; số âm chỉ qua correctMeasurement"
           },
           "reference_no": {
             "type": "string",
@@ -130289,14 +130257,26 @@
           "duplicate_override_reason": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Căn cứ để dùng lại số hiệu hồ sơ đã có trong hợp đồng"
           },
           "evidence_refs": {
             "type": "array",
+            "maxItems": 50,
             "items": {
               "type": "object",
-              "additionalProperties": true
-            }
+              "additionalProperties": false,
+              "required": [
+                "document_version_id"
+              ],
+              "properties": {
+                "document_version_id": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "description": "Tham chiếu tới phiên bản tệp sạch của tenant; bắt buộc ít nhất một khi nộp"
           },
           "inspection_id": {
             "type": "string",
@@ -130319,7 +130299,8 @@
           "note": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Ghi chú khi gửi; được lưu trong nhật ký, không thay đổi khối lượng"
           }
         }
       },
@@ -130330,7 +130311,7 @@
           "quantity_period": {
             "type": "string",
             "pattern": "^-?[0-9]+(\\.[0-9]{1,6})?$",
-            "description": "Số thập phân chính xác (tối đa 6 chữ số thập phân), dạng chuỗi"
+            "description": "Khối lượng mới của kỳ (không âm); lũy kế tính lại từ phần đã duyệt không kể bản bị thay"
           },
           "correction_reason": {
             "type": "string",
@@ -130339,9 +130320,19 @@
           },
           "evidence_refs": {
             "type": "array",
+            "maxItems": 50,
             "items": {
               "type": "object",
-              "additionalProperties": true
+              "additionalProperties": false,
+              "required": [
+                "document_version_id"
+              ],
+              "properties": {
+                "document_version_id": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
             }
           }
         },
@@ -141577,6 +141568,283 @@
                 "type": "boolean"
               }
             }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CtrMeasurementLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "contract",
+          "boq_item",
+          "period",
+          "quantity_period",
+          "quantity_cumulative",
+          "revision",
+          "status",
+          "created_at",
+          "version"
+        ],
+        "description": "Một bản ghi khối lượng. Bản nháp chỉ người ghi thấy cho tới khi gửi",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract_revision_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract_revision_no": {
+            "type": "integer"
+          },
+          "boq_line_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "boq_item": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "business_key",
+              "description",
+              "unit_code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "business_key": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "unit_code": {
+                "type": "string"
+              }
+            }
+          },
+          "boq_quantity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]{1,6})?$",
+            "description": "Khối lượng của hạng mục trong phiên bản ghi nhận"
+          },
+          "remaining_quantity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]{1,6})?$",
+            "description": "Phần còn lại của hạng mục ở phiên bản hiệu lực sau mọi khối lượng đã ghi (nháp, đã gửi, đã duyệt)"
+          },
+          "party_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "period": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "quantity_period": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]{1,6})?$",
+            "description": "Số thập phân chính xác với 6 chữ số thập phân, dạng chuỗi"
+          },
+          "quantity_cumulative": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]{1,6})?$",
+            "description": "Số thập phân chính xác với 6 chữ số thập phân, dạng chuỗi"
+          },
+          "revision": {
+            "type": "integer",
+            "description": "Số thứ tự trong chuỗi điều chỉnh của hạng mục trong kỳ; 1 là bản đầu"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "SUPERSEDED"
+            ]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "document_version_id"
+              ],
+              "properties": {
+                "document_version_id": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "reference_no": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duplicate_override_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "correction_of_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "correction_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "inspection_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "submitted_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "submitted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decided_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Người gọi có thể làm gì với bản ghi ở trạng thái hiện tại; máy chủ xét lại từng lệnh",
+            "required": [
+              "submit",
+              "decide",
+              "correct"
+            ],
+            "properties": {
+              "submit": {
+                "type": "boolean"
+              },
+              "decide": {
+                "type": "boolean"
+              },
+              "correct": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrMeasurementPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrMeasurementLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "as_of": {
             "type": "string",

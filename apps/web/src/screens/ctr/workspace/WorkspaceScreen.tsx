@@ -8,6 +8,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, StatusBadge } from '../components';
 import { LIST_PATH, amountText, haltLink } from '../model';
 import { CHANGEABLE_CONTRACT_STATUSES, requestLink } from '../change/model';
+import { measurementLink } from '../measurement/model';
 import { versionsLink } from '../revision/model';
 import { useSummary } from './hooks';
 import { statusText } from '../labels';
@@ -125,6 +126,11 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
           {changeable ? (
             <Link className="button" to={requestLink(contract.id)} data-testid="change-link">
               {t('ctr.workspace.change.action')}
+            </Link>
+          ) : null}
+          {CHANGEABLE_CONTRACT_STATUSES.includes(contract.status) ? (
+            <Link className="button" to={measurementLink(contract.id)} data-testid="measurements-link">
+              {t('ctr.workspace.measurements.action')}
             </Link>
           ) : null}
           {haltable ? (

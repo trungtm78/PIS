@@ -241,6 +241,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select count(*)::text from machvon.contract_party where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(evaluated_delta_vnd::text, ''), ',' order by id) from machvon.change_request where tenant_id = $1),
     (select string_agg(id::text || tier_count::text || version::text || coalesce(locked_at::text, ''), ',' order by id) from machvon.change_chain_config where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || quantity_period::text, ',' order by id) from machvon.measurement where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1),
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
@@ -382,6 +383,12 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           `insert into machvon.change_request (tenant_id, id, contract_id, baseline_revision_id, amount_delta_vnd, schedule_impact_days, reason, status, version, code, stage, submitted_by, created_by, updated_by)
            values ($1, $2, $3, $4, 0, 0, 'Matrix change event', 'SUBMITTED', 1, 'CE-001', 'EVENT', $5, $5, $5)`,
           [TENANT_A, id(0x77, 14), draftId, id(0x77, 9), memberId(RECIPIENT)],
+        ],
+        [
+          `insert into machvon.measurement
+             (tenant_id, id, contract_id, contract_revision_id, boq_line_id, boq_item_id, period_id, quantity_period, quantity_cumulative, revision, status, evidence_refs, reference_no, submitted_by, submitted_at, created_by, updated_by, version)
+           values ($1, $2, $3, $4, $5, $6, $7, 10, 0, 1, 'SUBMITTED', jsonb_build_array(jsonb_build_object('document_version_id', $8::text)), 'MX-MEASUREMENT', $9, now(), $9, $9, 1)`,
+          [TENANT_A, id(0x77, 15), draftId, id(0x77, 9), id(0x77, 16), id(0x77, 17), id(0x77, 18), id(0x78, 2), memberId(RECIPIENT)],
         ],
       ];
       for (const [sql, params] of statements) await seeder.query(sql, params);
@@ -1003,6 +1010,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       draftRevisionId: id(0x77, 9),
       guaranteeId: id(0x77, 13),
       changeRequestId: id(0x77, 14),
+      measurementId: id(0x77, 15),
+      boqItemId: id(0x77, 17),
+      periodId: id(0x77, 18),
       recipientMembershipId: memberId(RECIPIENT),
       grantToRevoke: grantId(ONE_GRANT_TO_REVOKE),
     };

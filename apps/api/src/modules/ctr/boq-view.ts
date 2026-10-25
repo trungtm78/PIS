@@ -1,8 +1,11 @@
 import type { BoqLineRow } from '@machvon/db';
 
-/** What a reader may see of a line: the staff of the owner see the stable item that downstream ledgers refer to, a guest contractor does not. */
+/**
+ * What a reader may see of a line: the staff of the owner see the stable item that downstream ledgers refer to, and so does a guest contractor who records measurements against it (the
+ * command names the item); a guest who only reads the BOQ does not.
+ */
 export interface BoqRights {
-  internal: boolean;
+  item: boolean;
 }
 
 /**
@@ -30,6 +33,6 @@ export function boqLineView(row: BoqLineRow, rights: BoqRights): Record<string, 
     milestone_due_on: row.milestoneDueOn,
     party_contractor_id: row.partyContractorId,
     party_name: row.partyName,
-    ...(rights.internal ? { boq_item_id: row.boqItemId } : {}),
+    ...(rights.item ? { boq_item_id: row.boqItemId } : {}),
   };
 }

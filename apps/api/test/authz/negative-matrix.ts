@@ -33,6 +33,10 @@ export interface MatrixTargets {
   guaranteeId: string;
   /** A SUBMITTED change event (CE-001, version 1) of that contract, raised by someone other than the callers. */
   changeRequestId: string;
+  /** A SUBMITTED measurement (version 1) of that contract, recorded and sent by someone other than the callers, with the item, the line and the period it was recorded against. */
+  measurementId: string;
+  boqItemId: string;
+  periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
   contractorToVerifyId: string;
   /** A clean PDF version of tenant A: the signature verification names it in the path. */
@@ -1367,6 +1371,27 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   post_contract_changes_id_decision: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contract-changes/${t.changeRequestId}/decision`, ifMatch: '"1"', body: { decision: 'return', reason: REASON, evidence_ids: [] } }),
+  },
+  // The measurements: a caller that is refused records no quantity, sends none, decides none and corrects none.
+  recordMeasurement: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.draftContractId}/measurements`,
+      body: { contract_revision_id: t.draftRevisionId, boq_item_id: t.boqItemId, period_id: t.periodId, quantity_period: '1', reference_no: 'MX-REF', evidence_refs: [] },
+    }),
+  },
+  submitMeasurement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/measurements/${t.measurementId}/submit`, ifMatch: '"1"', body: {} }),
+  },
+  post_measurements_id_decision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/measurements/${t.measurementId}/decision`, ifMatch: '"1"', body: { decision: 'return', reason: REASON, evidence_ids: [] } }),
+  },
+  correctMeasurement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/measurements/${t.measurementId}/correct`, ifMatch: '"1"', body: { quantity_period: '1', correction_reason: REASON, evidence_refs: [] } }),
   },
   withdrawChangeRequest: {
     referencesTenantIds: true,

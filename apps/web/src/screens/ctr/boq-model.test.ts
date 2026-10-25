@@ -56,7 +56,9 @@ describe('the lines of a BOQ as the server answers them', () => {
       milestoneCode: 'M-1',
       milestoneDueOn: '2026-12-31',
       partyName: 'Liên danh',
+      boqItemId: null,
     });
+    expect(toBoqLine(rawLine(1, { boq_item_id: 'item-1' }))?.boqItemId).toBe('item-1');
     expect(toBoqLine(rawLine(1, { rounding_rule: 'CEILING' }))).toBeUndefined();
     expect(toBoqLine(rawLine(1, { line_no: 'one' }))).toBeUndefined();
     expect(toBoqLine({ id: 'x' })).toBeUndefined();

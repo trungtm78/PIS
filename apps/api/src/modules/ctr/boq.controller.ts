@@ -15,9 +15,11 @@ import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { BoqFileGuard, BoqFileKey } from './boq-file.guard';
 import { boqLineView } from './boq-view';
+import { placeRefs, reaches } from './contract.controller';
 
 const MANAGE_PERMISSION = PERMISSIONS.importBoqLines;
 const READ_PERMISSION = PERMISSIONS.get_resources_boq_line;
+const RECORD_PERMISSION = PERMISSIONS.recordMeasurement;
 const RESOURCE_TYPE = 'contract_revision';
 const CLASSIFICATION = 'INTERNAL';
 
@@ -140,7 +142,7 @@ export class BoqLineReadsController {
     const shown = rows.slice(0, request.limit);
     const last = shown[shown.length - 1];
     return {
-      items: shown.map((row) => boqLineView(row, { internal: !guest })),
+      items: shown.map((row) => boqLineView(row, { item: !guest || reaches(access, RECORD_PERMISSION, placeRefs(row.reach), now) })),
       next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.key, id: last.id }) : null,
       as_of: now.toISOString(),
     };
@@ -153,7 +155,8 @@ export class BoqLineReadsController {
     const view = await this.database.withTenant(tenant, async (tx) => {
       const row = await this.boq.find(tx, id, contractScope(access, READ_PERMISSION, now));
       if (row === undefined) return undefined;
-      return boqLineView(row, { internal: !(await this.contractors.callerOf(tx, tenant.membershipId)).guest });
+      const guest = (await this.contractors.callerOf(tx, tenant.membershipId)).guest;
+      return boqLineView(row, { item: !guest || reaches(access, RECORD_PERMISSION, placeRefs(row.reach), now) });
     });
     // A line in another tenant or outside the scope of the caller is indistinguishable from one that does not exist.
     if (view === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);

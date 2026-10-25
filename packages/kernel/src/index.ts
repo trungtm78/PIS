@@ -340,6 +340,17 @@ export {
 } from './contract-revision.ts';
 export type { ChangeDecision, ValueLedger } from './contract-revision.ts';
 export {
+  LIVE_MEASUREMENT_STATUSES,
+  MEASUREMENT_STATUSES,
+  assertMeasurementTransition,
+  assertNotDecrease,
+  assertWithinBoq,
+  cumulativeQuantity,
+  quantityOf,
+  remainingQuantity,
+} from './measurement.ts';
+export type { MeasurementCommand, MeasurementStatus } from './measurement.ts';
+export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,
   CONSENT_PURPOSES,

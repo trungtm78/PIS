@@ -1523,6 +1523,44 @@
       ]
     },
     {
+      "key": "measurementRecorder",
+      "displayName": "Giám sát ghi nhận khối lượng",
+      "membershipId": "00000000-0000-4000-8000-000000000808",
+      "permissions": [
+        "measurement.record",
+        "measurement.submit",
+        "measurement.read",
+        "contract.read",
+        "boq_line.read",
+        "reporting_period.read",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "measurementApprover",
+      "displayName": "Người duyệt và điều chỉnh khối lượng",
+      "membershipId": "00000000-0000-4000-8000-000000000809",
+      "permissions": [
+        "measurement.approve",
+        "measurement.correct",
+        "measurement.read",
+        "contract.read",
+        "boq_line.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "measurementReader",
+      "displayName": "Người xem khối lượng thực hiện",
+      "membershipId": "00000000-0000-4000-8000-000000000810",
+      "permissions": [
+        "measurement.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

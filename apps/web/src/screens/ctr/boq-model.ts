@@ -52,6 +52,8 @@ export interface BoqLine {
   milestoneCode: string | null;
   milestoneDueOn: string | null;
   partyName: string | null;
+  /** The stable item the line prices; the server shows it to the staff and to a guest who records measurements, and to no other guest. */
+  boqItemId: string | null;
 }
 
 const isRule = (value: string | undefined): value is RoundingRule => value !== undefined && (ROUNDING_RULES as readonly string[]).includes(value);
@@ -84,6 +86,7 @@ export function toBoqLine(raw: unknown): BoqLine | undefined {
     milestoneCode: nullableText(row.milestone_code),
     milestoneDueOn: nullableText(row.milestone_due_on),
     partyName: nullableText(row.party_name),
+    boqItemId: nullableText(row.boq_item_id),
   };
 }
 

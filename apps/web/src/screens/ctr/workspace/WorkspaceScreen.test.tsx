@@ -300,6 +300,28 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
     });
   });
 
+  describe('the measurements of a contract', () => {
+    it('links to CTR-10 for a contract that is being performed or suspended, for a guest contractor and in a read-only session too, and to nothing for any other', async () => {
+      for (const status of ['ACTIVE', 'SUSPENDED']) {
+        open({ summary: summary(status) });
+        await screen.findByTestId('facts');
+        expect(screen.getByTestId('measurements-link').getAttribute('href')).toBe(`/ctr/ctr-10?contract=${contractId(1)}`);
+        expect(screen.getByTestId('measurements-link').textContent).toBe(vi_['ctr.workspace.measurements.action']);
+        cleanup();
+      }
+      open({ summary: summary('ACTIVE', { readiness: undefined }) }, { mode: 'READ_ONLY' });
+      await screen.findByTestId('facts');
+      expect(screen.getByTestId('measurements-link')).toBeTruthy();
+      cleanup();
+      for (const status of ['DRAFT', 'IN_REVIEW', 'SIGNED', 'TERMINATED', 'COMPLETED']) {
+        open({ summary: summary(status) });
+        await screen.findByTestId('facts');
+        expect(screen.queryByTestId('measurements-link')).toBeNull();
+        cleanup();
+      }
+    });
+  });
+
   describe('the change of a contract', () => {
     it('links to CTR-07 for the staff of a contract that is being performed or suspended, and to nothing for any other', async () => {
       for (const status of ['ACTIVE', 'SUSPENDED']) {

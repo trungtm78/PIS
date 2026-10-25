@@ -7,7 +7,7 @@ import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_
 import { WORK_CALENDAR_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, PROCUREMENT_PLAN_FIXTURES } from '../suite';
+import { BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, MEASUREMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
@@ -289,6 +289,16 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'post_contract_changes_id_decision', method: 'POST', id: CHANGE_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign decision attempt', evidence_ids: [] } },
   { operation: 'withdrawChangeRequest', method: 'POST', id: CHANGE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign withdrawal attempt' } },
   { operation: 'get_resources_change_request_id', method: 'GET', id: CHANGE_FIXTURES['TNT-B'].id },
+  {
+    operation: 'recordMeasurement',
+    method: 'POST',
+    id: CONTRACT_FIXTURES['TNT-B'].id,
+    body: { contract_revision_id: CONTRACT_FIXTURES['TNT-B'].revisionId, boq_item_id: BOQ_FIXTURES['TNT-B'].itemId, period_id: PERIOD_FIXTURES['TNT-B'].id, quantity_period: '1', reference_no: 'Isolation foreign measurement attempt', evidence_refs: [] },
+  },
+  { operation: 'submitMeasurement', method: 'POST', id: MEASUREMENT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'post_measurements_id_decision', method: 'POST', id: MEASUREMENT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign measurement decision attempt', evidence_ids: [] } },
+  { operation: 'correctMeasurement', method: 'POST', id: MEASUREMENT_FIXTURES['TNT-B'].id, versioned: true, body: { quantity_period: '1', correction_reason: 'Isolation foreign correction attempt', evidence_refs: [] } },
+  { operation: 'get_resources_measurement_id', method: 'GET', id: MEASUREMENT_FIXTURES['TNT-B'].id },
   { operation: 'suspendContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign suspension attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, suspended_from: '2026-10-25' } },
   { operation: 'resumeContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign resumption attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, resumed_on: '2026-10-25' } },
   { operation: 'terminateContract', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign termination attempt', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' } },

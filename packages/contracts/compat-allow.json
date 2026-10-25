@@ -27,6 +27,69 @@
       "location": "documents[].file_sha256",
       "reason": "receiveProposal was a scaffold whose documents array had no item shape and no client; the items now name the part, the title and the clean upload",
       "change_request": "ST-BID-004"
+    },
+    {
+      "operation": "correctMeasurement",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "evidence_refs[].document_version_id",
+      "reason": "the evidence references of a measurement were free objects; each now names the clean file version it points to",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "recordMeasurement",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "evidence_refs[].document_version_id",
+      "reason": "the evidence references of a measurement were free objects; each now names the clean file version it points to",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "get_resources_measurement",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the measurement reads were scaffolds with a generic page and no client; they now return the typed measurement",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "get_resources_measurement_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one measurement is the measurement itself, not a page",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "get_resources_measurement_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one measurement is the measurement itself, not a page",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "get_resources_measurement_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one measurement is the measurement itself, not a page",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "get_resources_measurement_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one measurement is the measurement itself, not a page",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "get_resources_measurement_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:cursor",
+      "reason": "the read of one measurement is not paged",
+      "change_request": "ST-CTR-008"
+    },
+    {
+      "operation": "get_resources_measurement_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:limit",
+      "reason": "the read of one measurement is not paged",
+      "change_request": "ST-CTR-008"
     }
   ]
 }

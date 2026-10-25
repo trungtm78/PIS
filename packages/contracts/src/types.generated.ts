@@ -8143,7 +8143,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ghi nhận khối lượng kỳ theo dòng BOQ (nhà thầu khách hoặc chuyên viên) */
+        /** Ghi nhận khối lượng kỳ theo hạng mục BOQ ở phiên bản hợp đồng đang hiệu lực (nhà thầu khách hoặc chuyên viên) */
         post: operations["recordMeasurement"];
         delete?: never;
         options?: never;
@@ -16591,7 +16591,10 @@ export interface components {
             affected_acceptance_ids: string[];
         };
         CtrRecordMeasurement: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Phiên bản hợp đồng đang hiệu lực (EFFECTIVE); phiên bản chờ hiệu lực chưa nhận khối lượng
+             */
             contract_revision_id: string;
             /** Format: uuid */
             boq_item_id: string;
@@ -16599,25 +16602,30 @@ export interface components {
             party_id?: string;
             /** Format: uuid */
             period_id: string;
-            /** @description Số thập phân chính xác (tối đa 6 chữ số thập phân), dạng chuỗi */
+            /** @description Khối lượng của kỳ, lớn hơn 0 với tối đa 6 chữ số thập phân; số âm chỉ qua correctMeasurement */
             quantity_period: string;
             reference_no: string;
+            /** @description Căn cứ để dùng lại số hiệu hồ sơ đã có trong hợp đồng */
             duplicate_override_reason?: string;
+            /** @description Tham chiếu tới phiên bản tệp sạch của tenant; bắt buộc ít nhất một khi nộp */
             evidence_refs: {
-                [key: string]: unknown;
+                /** Format: uuid */
+                document_version_id: string;
             }[];
             /** Format: uuid */
             inspection_id?: string;
         };
         CtrSubmitMeasurement: {
+            /** @description Ghi chú khi gửi; được lưu trong nhật ký, không thay đổi khối lượng */
             note?: string;
         };
         CtrCorrectMeasurement: {
-            /** @description Số thập phân chính xác (tối đa 6 chữ số thập phân), dạng chuỗi */
+            /** @description Khối lượng mới của kỳ (không âm); lũy kế tính lại từ phần đã duyệt không kể bản bị thay */
             quantity_period: string;
             correction_reason: string;
             evidence_refs: {
-                [key: string]: unknown;
+                /** Format: uuid */
+                document_version_id: string;
             }[];
         };
         CtrCreateAcceptance: {
@@ -19657,6 +19665,86 @@ export interface components {
                 configure: boolean;
                 open: boolean;
             };
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description Một bản ghi khối lượng. Bản nháp chỉ người ghi thấy cho tới khi gửi */
+        CtrMeasurementLine: {
+            /** Format: uuid */
+            id: string;
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+            };
+            /** Format: uuid */
+            project_id?: string;
+            /** Format: uuid */
+            contract_revision_id?: string;
+            contract_revision_no?: number;
+            /** Format: uuid */
+            boq_line_id?: string;
+            boq_item: {
+                /** Format: uuid */
+                id: string;
+                business_key: string;
+                description: string;
+                unit_code: string;
+            };
+            /** @description Khối lượng của hạng mục trong phiên bản ghi nhận */
+            boq_quantity?: string;
+            /** @description Phần còn lại của hạng mục ở phiên bản hiệu lực sau mọi khối lượng đã ghi (nháp, đã gửi, đã duyệt) */
+            remaining_quantity?: string;
+            /** Format: uuid */
+            party_id?: string | null;
+            period: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
+            /** @description Số thập phân chính xác với 6 chữ số thập phân, dạng chuỗi */
+            quantity_period: string;
+            /** @description Số thập phân chính xác với 6 chữ số thập phân, dạng chuỗi */
+            quantity_cumulative: string;
+            /** @description Số thứ tự trong chuỗi điều chỉnh của hạng mục trong kỳ; 1 là bản đầu */
+            revision: number;
+            /** @enum {string} */
+            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "SUPERSEDED";
+            evidence_refs?: {
+                /** Format: uuid */
+                document_version_id: string;
+            }[];
+            reference_no?: string | null;
+            duplicate_override_reason?: string | null;
+            /** Format: uuid */
+            correction_of_id?: string | null;
+            correction_reason?: string | null;
+            /** Format: uuid */
+            inspection_id?: string | null;
+            /** Format: uuid */
+            created_by?: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            submitted_by?: string | null;
+            /** Format: date-time */
+            submitted_at?: string | null;
+            /** Format: uuid */
+            decided_by?: string | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            /** @description Người gọi có thể làm gì với bản ghi ở trạng thái hiện tại; máy chủ xét lại từng lệnh */
+            actions?: {
+                submit: boolean;
+                decide: boolean;
+                correct: boolean;
+            };
+            version: number;
+        };
+        CtrMeasurementPage: {
+            items: components["schemas"]["CtrMeasurementLine"][];
+            next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
         };
@@ -32615,6 +32703,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Chỉ các khối lượng của hợp đồng này */
+                contract_id?: string;
             };
             header?: never;
             path?: never;
@@ -32628,13 +32718,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["CtrMeasurementPage"];
                 };
             };
             /** @description Invalid request */
@@ -32713,10 +32797,7 @@ export interface operations {
     };
     get_resources_measurement_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -32731,13 +32812,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["CtrMeasurementLine"];
                 };
             };
             /** @description Invalid request */

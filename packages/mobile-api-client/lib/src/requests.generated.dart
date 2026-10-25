@@ -2551,13 +2551,26 @@ final class CtrCorrectMeasurement implements RequestModel {
 
   final String quantityPeriod;
   final String correctionReason;
-  final List<Map<String, Object?>> evidenceRefs;
+  final List<CtrCorrectMeasurementEvidenceRefsItem> evidenceRefs;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'quantity_period': quantityPeriod,
         'correction_reason': correctionReason,
         'evidence_refs': evidenceRefs,
+      };
+}
+
+final class CtrCorrectMeasurementEvidenceRefsItem implements RequestModel {
+  const CtrCorrectMeasurementEvidenceRefsItem({
+    required this.documentVersionId,
+  });
+
+  final String documentVersionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document_version_id': documentVersionId,
       };
 }
 
@@ -2878,7 +2891,7 @@ final class CtrRecordMeasurement implements RequestModel {
   final String quantityPeriod;
   final String referenceNo;
   final String? duplicateOverrideReason;
-  final List<Map<String, Object?>> evidenceRefs;
+  final List<CtrRecordMeasurementEvidenceRefsItem> evidenceRefs;
   final String? inspectionId;
 
   @override
@@ -2892,6 +2905,19 @@ final class CtrRecordMeasurement implements RequestModel {
         if (duplicateOverrideReason != null) 'duplicate_override_reason': duplicateOverrideReason,
         'evidence_refs': evidenceRefs,
         if (inspectionId != null) 'inspection_id': inspectionId,
+      };
+}
+
+final class CtrRecordMeasurementEvidenceRefsItem implements RequestModel {
+  const CtrRecordMeasurementEvidenceRefsItem({
+    required this.documentVersionId,
+  });
+
+  final String documentVersionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document_version_id': documentVersionId,
       };
 }
 
