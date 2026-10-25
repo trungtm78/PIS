@@ -50,6 +50,9 @@ export interface MatrixTargets {
   reconciliationItemId: string;
   /** A settlement of a project: the commands that name it in the path need no row to be refused. */
   settlementId: string;
+  /** A non-conformance and one of its corrective actions: the commands that name them in the path need no row to be refused. */
+  nonconformanceId: string;
+  correctiveActionId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1529,6 +1532,31 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   resolveReconciliationItem: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/resolve`, ifMatch: '"1"', body: { resolution: 'EXPLAINED', note: REASON } }),
+  },
+  // The non-conformances of the work: a caller that is refused raises none, assigns no action, answers none, verifies none, closes none and reopens none.
+  raiseNonconformance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/nonconformances', body: { contract_id: t.draftContractId, severity: 'MINOR', title: REASON, description: REASON, source_kind: 'SELF_REPORT', action_owner_id: t.recipientMembershipId, due_at: '2999-01-01T00:00:00Z' } }),
+  },
+  assignCorrectiveAction: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/nonconformances/${t.nonconformanceId}/corrective-actions`, ifMatch: '"1"', body: { description: REASON, owner_membership_id: t.recipientMembershipId, due_at: '2999-01-01T00:00:00Z' } }),
+  },
+  submitCorrectiveEvidence: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/corrective-actions/${t.correctiveActionId}/evidence`, body: { evidence_document_version_id: t.documentVersionId, note: REASON } }),
+  },
+  verifyCorrectiveAction: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/corrective-actions/${t.correctiveActionId}/verify`, body: { outcome: 'VERIFIED', verification_note: REASON } }),
+  },
+  closeNonconformance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/nonconformances/${t.nonconformanceId}/close`, ifMatch: '"1"', body: { closure_note: REASON } }),
+  },
+  reopenNonconformance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/nonconformances/${t.nonconformanceId}/reopen`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   // The settlement of a project: opened, read again, sent, verified, excepted and closed.
   openSettlement: {

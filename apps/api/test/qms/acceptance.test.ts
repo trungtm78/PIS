@@ -9,6 +9,7 @@ import { qmsModule } from '../../src/modules/qms';
 import { AcceptanceController, AcceptanceReadsController } from '../../src/modules/qms/acceptance.controller';
 import { InspectionController, InspectionReadsController } from '../../src/modules/qms/inspection.controller';
 import { CapWorld } from '../../../../packages/db/test/support/cap-fixtures';
+import { closeNcr } from '../../../../packages/db/test/support/ncr-fixtures';
 import { TENANT_A, contextFor, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedAs, seedContractor } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -295,7 +296,7 @@ describe('the quality acceptance minutes over HTTP (ST-QMS-005)', () => {
         ],
       ]);
       expect(await draft(DRAFTER, inspectionId)).toMatchObject({ status: 422, json: { code: 'OPEN_CRITICAL_NCR', nonconformance_ids: [nid] } });
-      await world.owner("update machvon.quality_nonconformance set status = 'CLOSED', verified_by = $2::uuid, closed_by = $2::uuid, closed_at = now() where id = $1::uuid", [nid, memberId(FIRST)]);
+      await closeNcr(harness.database.adminUrl, nid, memberId(FIRST));
       expect(await draft(DRAFTER, inspectionId, { status: 'APPROVED', required_roles: ['OWNER'] })).toMatchObject({ status: 400, json: { code: 'FIELD_NOT_ALLOWED' } });
       expect(await draft(DRAFTER, inspectionId, { acceptance_scope: 'COMPLETION' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
       expect(await draft(DRAFTER, inspectionId, { document_version_id: randomUUID() })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });

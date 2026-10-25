@@ -45,3 +45,29 @@
   margin: 0;
   padding-left: 18px;
 }
+.qms-board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: start;
+}
+.qms-lane h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+.qms-card {
+  padding: 8px 0;
+  border-top: 1px solid var(--shell-line, #e4e0e6);
+}
+.qms-card p {
+  margin: 4px 0;
+}
+.qms-actions {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+@media (max-width: 1100px) {
+  .qms-board {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

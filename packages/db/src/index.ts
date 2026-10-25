@@ -791,6 +791,8 @@ export { PayTreasuryTransactionStore, TREASURY_MANUAL_PROVIDER } from './pay-tre
 export type { ManualConfirmationInput, ManualConfirmationResult, TreasuryCallbackInput, TreasuryCallbackResult, TreasuryMatchStatus, TreasurySourceKind, TreasuryTransactionRow } from './pay-treasury-transaction-store.ts';
 export { QmsAcceptanceStore } from './qms-acceptance-store.ts';
 export type { CreateInput as QmsCreateAcceptanceInput, DecisionInput as QmsDecideAcceptanceInput, QmsAcceptanceLine, QmsAcceptanceResult, SignatureLine as QmsSignatureLine, SignInput as QmsSignAcceptanceInput } from './qms-acceptance-store.ts';
+export { QmsNonconformanceStore } from './qms-nonconformance-store.ts';
+export type { ActionLine as QmsCorrectiveActionLine, ActionResult as QmsActionResult, AssignInput as QmsAssignActionInput, EvidenceInput as QmsActionEvidenceInput, NcrFilter as QmsNonconformanceFilter, NcrLine, NcrResult as QmsNonconformanceResult, RaiseInput as QmsRaiseNonconformanceInput, VerifyInput as QmsVerifyActionInput } from './qms-nonconformance-store.ts';
 export { QmsInspectionStore } from './qms-inspection-store.ts';
 export type { InspectionLine as QmsInspectionLine, InspectionResultView as QmsInspectionResult, RecordInput as QmsRecordInspectionInput, RequestInput as QmsRequestInspectionInput, ScheduleInput as QmsScheduleInspectionInput } from './qms-inspection-store.ts';
 export { QmsRegimeRules, REGIME_RULE_TYPE } from './qms-regime-rules.ts';

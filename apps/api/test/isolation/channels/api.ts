@@ -7,7 +7,7 @@ import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_
 import { WORK_CALENDAR_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
@@ -334,6 +334,12 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'recordInspectionResult', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, versioned: true, body: { result: 'PASS', result_note: 'Isolation foreign inspection result', checklist: [] } },
   { operation: 'cancelInspection', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },
   { operation: 'getInspection', method: 'GET', id: INSPECTION_FIXTURES['TNT-B'].id },
+  { operation: 'assignCorrectiveAction', method: 'POST', id: NONCONFORMANCE_FIXTURES['TNT-B'].id, versioned: true, body: { description: 'Isolation foreign action attempt', owner_membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, due_at: '2999-01-01T00:00:00Z' } },
+  { operation: 'submitCorrectiveEvidence', method: 'POST', id: NONCONFORMANCE_FIXTURES['TNT-B'].actionId, body: { evidence_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId, note: 'Isolation foreign evidence attempt' } },
+  { operation: 'verifyCorrectiveAction', method: 'POST', id: NONCONFORMANCE_FIXTURES['TNT-B'].actionId, body: { outcome: 'VERIFIED', verification_note: 'Isolation foreign verification attempt' } },
+  { operation: 'closeNonconformance', method: 'POST', id: NONCONFORMANCE_FIXTURES['TNT-B'].id, versioned: true, body: { closure_note: 'Isolation foreign close attempt' } },
+  { operation: 'reopenNonconformance', method: 'POST', id: NONCONFORMANCE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign reopen attempt' } },
+  { operation: 'get_resources_quality_nonconformance_id', method: 'GET', id: NONCONFORMANCE_FIXTURES['TNT-B'].id },
   { operation: 'createQualityAcceptance', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, body: { acceptance_scope: 'WORK_ITEM', record_no: 'Isolation foreign draft', document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
   { operation: 'signQualityAcceptance', method: 'POST', id: ACCEPTANCE_FIXTURES['TNT-B'].id, versioned: true, body: { signer_role: 'OWNER', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
   { operation: 'decideQualityAcceptance', method: 'POST', id: ACCEPTANCE_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision attempt' } },

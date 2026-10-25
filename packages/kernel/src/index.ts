@@ -442,6 +442,23 @@ export {
   verificationTarget,
 } from './pay-project-settlement.ts';
 export type { DeadlineStage, LedgerSums, SettlementFigures, SettlementProjectGroup, SettlementScope, SettlementStatus, VerificationOutcome } from './pay-project-settlement.ts';
+export {
+  ACTION_STATUSES,
+  ACTION_VERIFICATIONS,
+  NCR_SEVERITIES,
+  NCR_SOURCE_KINDS,
+  NCR_STATUSES,
+  assertActionsVerified,
+  assertIndependentCloser,
+  assertIndependentVerifier,
+  assertNcrTransition,
+  blocksAcceptance,
+  canAssignAction,
+  canSubmitEvidence,
+  canVerify,
+  statusFromActions,
+} from './qms-nonconformance.ts';
+export type { ActionStatus, ActionVerification, NcrSeverity, NcrSourceKind, NcrStatus } from './qms-nonconformance.ts';
 export { allocateLargestRemainder, computeDraftMoney, groupForLedger, linesMatchHeader, partyRecovery, percentScaled, recoverFromTranches, retentionOf, roundedDivision, signedDong, targetRecovered, wholeVnd } from './pay-money.ts';
 export type { AdvanceTranche, ClaimGroup, DraftLine, DraftMoney, DraftMoneyInput, MoneyLine, PartyAdvance } from './pay-money.ts';
 export { DOCUMENT_KINDS, PAYMENT_KINDS, PAYMENT_STATUSES, assertContractAllows, assertPlanYear, contractRefusal, disbursementEnd, isEditable } from './pay-request.ts';

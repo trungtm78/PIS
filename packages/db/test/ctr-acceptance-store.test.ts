@@ -6,6 +6,7 @@ import type { TenantTx } from '../src/tenant-database';
 import { TENANT_A, contextFor, id, memberId } from './support/authz-fixtures';
 import { seedAs } from './support/bid-proposal-fixtures';
 import { CapWorld } from './support/cap-fixtures';
+import { closeNcr as closeNcrAs, ncrStatement } from './support/ncr-fixtures';
 
 const world = new CapWorld();
 const harness = world.harness;
@@ -245,8 +246,7 @@ async function ncr(seeded: Seeded, about: { measurementId?: string; inspectionId
   ]);
   return nid;
 }
-const closeNcr = (nid: string) =>
-  owner("update machvon.quality_nonconformance set status = 'CLOSED', verified_by = $2::uuid, closed_by = $2::uuid, closed_at = now() where id = $1::uuid", [nid, memberId(APPROVER)]);
+const closeNcr = (nid: string) => closeNcrAs(harness.database.adminUrl, nid, memberId(APPROVER));
 
 describe('the acceptance of work under a contract (ST-CTR-009)', () => {
   beforeAll(async () => {
@@ -563,7 +563,7 @@ describe('the acceptance of work under a contract (ST-CTR-009)', () => {
       const closed = await ncr(seeded, { measurementId: measurement });
       await closeNcr(closed);
       const minor = await ncr(seeded, { measurementId: measurement });
-      await owner("update machvon.quality_nonconformance set severity = 'MAJOR', blocks_acceptance = false where id = $1::uuid", [minor]);
+      await ncrStatement(harness.database.adminUrl, "update machvon.quality_nonconformance set severity = 'MAJOR', blocks_acceptance = false where id = $1::uuid", [minor]);
       const general = await ncr(seeded);
       expect(await refusal(decide(accepted, 'approve'))).toMatchObject({ code: 'OPEN_CRITICAL_NCR', extensions: { nonconformance_ids: [general] } });
       await closeNcr(general);

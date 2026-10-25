@@ -82423,7 +82423,9 @@
         "x-error-codes": [
           "EVIDENCE_REQUIRED",
           "CORRECTIVE_ACTION_STATE_INVALID",
-          "SCOPE_DENIED"
+          "SCOPE_DENIED",
+          "DOCUMENT_NOT_CLEAN",
+          "FILE_NOT_CLEAN"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [

@@ -148,6 +148,12 @@ export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; titl
   'TNT-B': { id: '00000000-0000-4000-b0ca-000000000001', title: 'BETA-INSPECTION-TITLE-0001' },
 };
 
+/** A non-conformance of the draft contract of each tenant with one corrective action (the title and the description of the action are distinctive; tenant data). */
+export const NONCONFORMANCE_FIXTURES: Readonly<Record<TenantName, { id: string; actionId: string; title: string; actionDescription: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d2-000000000001', actionId: '00000000-0000-4000-a0d2-000000000002', title: 'ALPHA-NCR-TITLE-0001', actionDescription: 'ALPHA-NCR-ACTION-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d2-000000000001', actionId: '00000000-0000-4000-b0d2-000000000002', title: 'BETA-NCR-TITLE-0001', actionDescription: 'BETA-NCR-ACTION-0001' },
+};
+
 /** An acceptance of work of the draft contract of each tenant (the number is distinctive; tenant financial data). */
 export const WORK_ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string; acceptanceNo: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0cc-000000000001', acceptanceNo: 'ALPHA-WORK-ACCEPTANCE-0001' },
@@ -683,6 +689,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'cumulative ledger entry reason', value: LEDGER_FIXTURES[tenant].entryReason },
     { kind: 'inspection id', value: INSPECTION_FIXTURES[tenant].id },
     { kind: 'inspection title', value: INSPECTION_FIXTURES[tenant].title },
+    { kind: 'non-conformance id', value: NONCONFORMANCE_FIXTURES[tenant].id },
+    { kind: 'non-conformance title', value: NONCONFORMANCE_FIXTURES[tenant].title },
+    { kind: 'corrective action id', value: NONCONFORMANCE_FIXTURES[tenant].actionId },
+    { kind: 'corrective action description', value: NONCONFORMANCE_FIXTURES[tenant].actionDescription },
     { kind: 'quality acceptance id', value: ACCEPTANCE_FIXTURES[tenant].id },
     { kind: 'quality acceptance record no', value: ACCEPTANCE_FIXTURES[tenant].recordNo },
     { kind: 'measurement reference', value: MEASUREMENT_FIXTURES[tenant].referenceNo },

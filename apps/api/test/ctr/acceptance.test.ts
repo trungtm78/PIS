@@ -8,6 +8,7 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { ctrModule } from '../../src/modules/ctr';
 import { AcceptanceController, AcceptanceReadsController } from '../../src/modules/ctr/acceptance.controller';
 import { CapWorld } from '../../../../packages/db/test/support/cap-fixtures';
+import { closeNcr } from '../../../../packages/db/test/support/ncr-fixtures';
 import { TENANT_A, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedAs, seedContractor } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -304,7 +305,7 @@ describe('the acceptance of work over HTTP (ST-CTR-009)', () => {
     ]);
     expect(await decide(APPROVER, waiting.id, waiting.version)).toMatchObject({ status: 422, json: { code: 'OPEN_CRITICAL_NCR', nonconformance_ids: [blocking] } });
     expect(await total(target.id)).toBe('0');
-    await world.owner("update machvon.quality_nonconformance set status = 'CLOSED', verified_by = $2::uuid, closed_by = $2::uuid, closed_at = now() where id = $1::uuid", [blocking, memberId(SECOND_APPROVER)]);
+    await closeNcr(harness.database.adminUrl, blocking, memberId(SECOND_APPROVER));
     const done = await decide(APPROVER, waiting.id, waiting.version);
     expect(done).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
     expect(await stored(waiting.id)).toMatchObject({ status: 'APPROVED', quality_acceptance_id: minutes });

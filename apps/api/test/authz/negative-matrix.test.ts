@@ -1069,6 +1069,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       treasuryTransactionId: id(0x77, 25),
       reconciliationItemId: id(0x77, 26),
       settlementId: id(0x77, 27),
+      nonconformanceId: id(0x77, 28),
+      correctiveActionId: id(0x77, 29),
       boqItemId: id(0x77, 17),
       periodId: id(0x77, 18),
       recipientMembershipId: memberId(RECIPIENT),

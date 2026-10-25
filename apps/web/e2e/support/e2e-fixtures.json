@@ -1924,6 +1924,52 @@
       ]
     },
     {
+      "key": "ncrRaiser",
+      "displayName": "Giám sát lập không phù hợp",
+      "membershipId": "00000000-0000-4000-8000-000000000843",
+      "permissions": [
+        "quality_nonconformance.read",
+        "ncr.raise",
+        "ncr.manage",
+        "contract.read",
+        "membership.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "ncrFixer",
+      "displayName": "Nhà thầu khắc phục",
+      "membershipId": "00000000-0000-4000-8000-000000000844",
+      "permissions": [
+        "quality_nonconformance.read",
+        "ncr.respond",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "ncrVerifier",
+      "displayName": "Người xác nhận khắc phục",
+      "membershipId": "00000000-0000-4000-8000-000000000845",
+      "permissions": [
+        "quality_nonconformance.read",
+        "ncr.verify",
+        "ncr.close",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "ncrReader",
+      "displayName": "Người chịu trách nhiệm không phù hợp",
+      "membershipId": "00000000-0000-4000-8000-000000000846",
+      "permissions": [
+        "quality_nonconformance.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",
