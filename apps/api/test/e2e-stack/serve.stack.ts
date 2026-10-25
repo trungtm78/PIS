@@ -392,6 +392,16 @@ const WORK_ACCEPTANCE_ROLES = [
 ];
 
 /**
+ * The people of the payment requests (PAY-01, PAY-02, PAY-03, CTR-13): the accountant who draws one up, attaches documents and cancels it (and reads the contracts, acceptances and lines of capital the form offers),
+ * the approver who can let a duplicate invoice through, and a reader, all over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const PAYMENT_ROLES = [
+  { n: 827, user: 'paymentAccountant', code: 'E2E_PAYMENT_ACCOUNTANT', permissions: ['payment_request.read', 'payment.create', 'payment.document.attach', 'payment.cancel', 'contract.read', 'acceptance.read', 'allocation_line.read', 'session.self'], rank: 30 },
+  { n: 828, user: 'paymentApprover', code: 'E2E_PAYMENT_APPROVER', permissions: ['payment_request.read', 'payment.document.attach', 'payment.verify', 'session.self'], rank: 40 },
+  { n: 829, user: 'paymentReader', code: 'E2E_PAYMENT_READER', permissions: ['payment_request.read', 'session.self'], rank: 10 },
+];
+
+/**
  * The person who reads the cumulative ledger of a contract (PAY-10), over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
 const LEDGER_ROLES = [{ n: 826, user: 'ledgerReader', code: 'E2E_LEDGER_READER', permissions: ['ledger.read', 'session.self'], rank: 30 }];
@@ -639,6 +649,7 @@ const GRANTS: GrantPlan[] = [
   ...ACCEPTANCE_ROLES.map((role, index): GrantPlan => ({ n: 818 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...WORK_ACCEPTANCE_ROLES.map((role, index): GrantPlan => ({ n: 822 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...LEDGER_ROLES.map((role, index): GrantPlan => ({ n: 826 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...PAYMENT_ROLES.map((role, index): GrantPlan => ({ n: 827 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -936,7 +947,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

@@ -1746,6 +1746,41 @@
       ]
     },
     {
+      "key": "paymentAccountant",
+      "displayName": "Kế toán lập đề nghị thanh toán",
+      "membershipId": "00000000-0000-4000-8000-000000000827",
+      "permissions": [
+        "payment_request.read",
+        "payment.create",
+        "payment.document.attach",
+        "payment.cancel",
+        "contract.read",
+        "acceptance.read",
+        "allocation_line.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "paymentApprover",
+      "displayName": "Kế toán trưởng duyệt ngoại lệ chứng từ",
+      "membershipId": "00000000-0000-4000-8000-000000000828",
+      "permissions": [
+        "payment_request.read",
+        "payment.document.attach",
+        "payment.verify",
+        "session.self"
+      ]
+    },
+    {
+      "key": "paymentReader",
+      "displayName": "Người xem đề nghị thanh toán",
+      "membershipId": "00000000-0000-4000-8000-000000000829",
+      "permissions": [
+        "payment_request.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

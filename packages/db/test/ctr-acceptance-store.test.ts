@@ -639,8 +639,8 @@ describe('the acceptance of work under a contract (ST-CTR-009)', () => {
       const claim = randomUUID();
       await seedAs(harness, [
         [
-          `insert into machvon.payment_request (tenant_id, id, project_id, contract_id, acceptance_id, currency, gross_vnd, advance_recovery_vnd, retention_vnd, tax_adjustment_vnd, net_vnd, status, version, claims_acceptance)
-           values ($1, $2, $3, $4, $5, 'VND', 400000000, 0, 0, 0, 400000000, 'SUBMITTED', 1, true)`,
+          `insert into machvon.payment_request (tenant_id, id, project_id, contract_id, acceptance_id, currency, gross_vnd, advance_recovery_vnd, retention_vnd, tax_adjustment_vnd, net_vnd, status, version, claims_acceptance, request_no)
+           values ($1, $2, $3, $4, $5, 'VND', 400000000, 0, 0, 0, 400000000, 'SUBMITTED', 1, true, 'DNTT-CLAIM')`,
           [TENANT_A, claim, PROJECT, seeded.contractId, approved.id],
         ],
       ]);

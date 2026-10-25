@@ -37,6 +37,12 @@ export interface MatrixTargets {
   measurementId: string;
   /** An acceptance of work in DRAFT (version 1) of that contract with one line, drafted by someone other than the callers. */
   workAcceptanceId: string;
+  /** A payment request for an approved acceptance of that contract, SUBMITTED (version 1), drawn up by someone other than the callers. */
+  paymentRequestId: string;
+  /** The approved acceptance that request is for, and that a new request is drawn from. */
+  paymentAcceptanceId: string;
+  /** A clean version of a file of the tenant. */
+  paymentDocumentVersionId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1464,6 +1470,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   revokeAcceptance: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/acceptances/${t.workAcceptanceId}/revoke`, ifMatch: '"1"', body: { reason: REASON, approval_document_version_id: t.draftContractId } }),
+  },
+  // The draft of a payment request: a caller that is refused draws none up, revises none, attaches no document and cancels none.
+  createPaymentRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/payment-requests', body: { contract_id: t.draftContractId, request_kind: 'INTERIM', acceptance_id: t.paymentAcceptanceId, allocation_line_id: t.draftContractId, request_no: 'DNTT-MX-NEW' } }),
+  },
+  revisePaymentDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/draft`, ifMatch: '"1"', body: { request_no: 'DNTT-MX-REV' } }),
+  },
+  attachPaymentDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/documents`, body: { document_version_id: t.paymentDocumentVersionId, doc_kind: 'OTHER' } }),
+  },
+  cancelPaymentRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   withdrawChangeRequest: {
     referencesTenantIds: true,

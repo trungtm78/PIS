@@ -257,7 +257,7 @@ describe('two payment requests for one acceptance (AC-ST-KERNEL-072-2)', () => {
       await withUniqueClaim(tx, CLAIM, () => insertRequest(tx, id(FAMILY, 0x20), 'first'));
       await expect(withUniqueClaim(tx, CLAIM, () => insertRequest(tx, id(FAMILY, 0x21), 'second'))).rejects.toMatchObject({ code: 'ACCEPTANCE_ALREADY_CLAIMED', status: 409 });
       expect(await tx.query('select 1 as ok')).toEqual([{ ok: 1 }]);
-      await tx.query('update machvon.payment_request set status = $2, claims_acceptance = false where id = $1', [id(FAMILY, 0x20), 'CANCELLED']);
+      await tx.query('update machvon.payment_request set status = $2, claims_acceptance = false where id = $1', [id(FAMILY, 0x20), 'RETURNED']);
       await withUniqueClaim(tx, CLAIM, () => insertRequest(tx, id(FAMILY, 0x22), 'third'));
     });
     expect(await requestsOf()).toBe(1);

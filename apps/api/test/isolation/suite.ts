@@ -154,6 +154,12 @@ export const WORK_ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string;
   'TNT-B': { id: '00000000-0000-4000-b0cc-000000000001', acceptanceNo: 'BETA-WORK-ACCEPTANCE-0001' },
 };
 
+/** A payment request of the draft contract of each tenant, for an approved acceptance (the number is distinctive; tenant financial data). */
+export const PAYMENT_FIXTURES: Readonly<Record<TenantName, { id: string; acceptanceId: string; requestNo: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ce-000000000001', acceptanceId: '00000000-0000-4000-a0ce-000000000002', requestNo: 'ALPHA-PAYMENT-REQUEST-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', acceptanceId: '00000000-0000-4000-b0ce-000000000002', requestNo: 'BETA-PAYMENT-REQUEST-0001' },
+};
+
 /** The cumulative ledger of the work acceptance of each tenant, with one entry (the reason is distinctive; tenant financial data). */
 export const LEDGER_FIXTURES: Readonly<Record<TenantName, { id: string; entryId: string; entryReason: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0cd-000000000001', entryId: '00000000-0000-4000-a0cd-000000000002', entryReason: 'ALPHA-LEDGER-ENTRY-0001' },
@@ -647,6 +653,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'measurement id', value: MEASUREMENT_FIXTURES[tenant].id },
     { kind: 'work acceptance id', value: WORK_ACCEPTANCE_FIXTURES[tenant].id },
     { kind: 'work acceptance number', value: WORK_ACCEPTANCE_FIXTURES[tenant].acceptanceNo },
+    { kind: 'payment request id', value: PAYMENT_FIXTURES[tenant].id },
+    { kind: 'payment request number', value: PAYMENT_FIXTURES[tenant].requestNo },
     { kind: 'cumulative ledger id', value: LEDGER_FIXTURES[tenant].id },
     { kind: 'cumulative ledger entry id', value: LEDGER_FIXTURES[tenant].entryId },
     { kind: 'cumulative ledger entry reason', value: LEDGER_FIXTURES[tenant].entryReason },

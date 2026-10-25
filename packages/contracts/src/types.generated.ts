@@ -16775,13 +16775,17 @@ export interface components {
             advance_id?: string;
             /** Format: uuid */
             settlement_revision_id?: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Dòng vốn của dự án, còn hiệu lực, năm kế hoạch không trước năm nghiệm thu và còn hạn giải ngân (BR-PAY-14)
+             */
             allocation_line_id: string;
+            /** @description Số hồ sơ, duy nhất trong hợp đồng; không có ngoại lệ */
             request_no: string;
             /** @description Số nguyên VND có dấu, dạng chuỗi */
             tax_adjustment_vnd?: string;
             tax_adjustment_basis?: string;
-            /** @description Số nguyên VND không âm, dạng chuỗi */
+            /** @description Thu hồi thêm ngoài công thức, trong phần tạm ứng còn lại; không vượt phần còn lại */
             advance_recovery_extra_vnd?: string;
         };
         PayRevisePaymentDraft: {
@@ -16803,6 +16807,7 @@ export interface components {
             /** Format: date */
             invoice_date?: string;
             signed?: boolean;
+            /** @description Chỉ khi số hóa đơn đã dùng trong cùng hợp đồng; người có quyền duyệt ngoại lệ, khác người lập đề nghị */
             duplicate_override_reason?: string;
         };
         PayPaymentSubmit: {
@@ -20284,6 +20289,158 @@ export interface components {
             total: components["schemas"]["PayLedgerBalance"];
             /** @description Tổng đã nghiệm thu trên sổ có bằng số hợp đồng ghi nhận không */
             reconciled: boolean;
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description Điều người gọi nên biết về một đề nghị đã được nhận; không phải lỗi */
+        PayPaymentWarning: {
+            /** @enum {string} */
+            code: "OTHER_DRAFTS_FOR_ACCEPTANCE" | "NATIONAL_CODE_MISSING" | "DUPLICATE_INVOICE_OTHER_CONTRACT";
+            detail: {
+                [key: string]: unknown;
+            };
+        };
+        /** @description Kết quả lệnh về đề nghị thanh toán: CommandResult kèm các số máy chủ đã tính (khách hàng không gửi gross/net) và cảnh báo */
+        PayPaymentCommandResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            gross_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_recovery_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            retention_vnd: string;
+            /** @description Số tiền VND nguyên có dấu, dạng chuỗi */
+            tax_adjustment_vnd: string;
+            /** @description Số tiền VND nguyên có dấu, dạng chuỗi */
+            net_vnd: string;
+            plan_year?: number | null;
+            warnings: components["schemas"]["PayPaymentWarning"][];
+        };
+        /** @description Một dòng của đề nghị: dòng nghiệm thu với số tiền máy chủ tính (BR-PAY-03..07). Tổng các dòng bằng đầu phiếu */
+        PayPaymentLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            acceptance_line_id: string;
+            boq_item: {
+                /** Format: uuid */
+                id: string;
+                business_key: string;
+                description: string;
+                unit_code: string;
+            };
+            /** Format: uuid */
+            party_id?: string | null;
+            /** @description Khối lượng đã nghiệm thu, số thập phân chính xác */
+            quantity: string;
+            /** @description Đơn giá của phiên bản hiệu lực tại ngày lập nghiệm thu */
+            unit_price_snapshot: string;
+            retention_pct_snapshot: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            gross_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_recovery_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            retention_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            net_vnd: string;
+        };
+        /** @description Chứng từ đính kèm; không bao giờ sửa hay xóa */
+        PayPaymentDocument: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            document_version_id: string;
+            /** @enum {string} */
+            doc_kind: "INVOICE" | "ACCEPTANCE_MINUTES" | "GUARANTEE" | "CONTRACT_COPY" | "TREASURY_FORM" | "OTHER";
+            checksum: string;
+            invoice_no?: string | null;
+            /** Format: date */
+            invoice_date?: string | null;
+            signed: boolean;
+            duplicate_override_reason?: string | null;
+            /** Format: uuid */
+            duplicate_override_by?: string | null;
+            /** Format: uuid */
+            created_by?: string | null;
+            /** Format: date-time */
+            created_at: string;
+        };
+        /** @description Đề nghị thanh toán (DTO): các số do máy chủ tính từ nghiệm thu và sổ. Bên nhà thầu không thấy người lập và số bản nháp khác */
+        PayPaymentRequest: {
+            /** Format: uuid */
+            id: string;
+            request_no?: string | null;
+            /** @enum {string} */
+            request_kind: "ADVANCE" | "INTERIM" | "FINAL";
+            /** @enum {string} */
+            status: "DRAFT" | "SUBMITTED" | "VERIFIED" | "SENT_TREASURY" | "SETTLED" | "RETURNED" | "CANCELLED" | "REVERSED";
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+            };
+            /** Format: uuid */
+            project_id: string;
+            acceptance?: {
+                /** Format: uuid */
+                id: string;
+                acceptance_no: string;
+                /** Format: date */
+                accepted_on: string;
+            } | null;
+            /** Format: uuid */
+            advance_id?: string | null;
+            /** Format: uuid */
+            settlement_revision_id?: string | null;
+            /** Format: uuid */
+            allocation_line_id?: string | null;
+            plan_year?: number | null;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            gross_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_recovery_vnd: string;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            retention_vnd: string;
+            /** @description Số tiền VND nguyên có dấu, dạng chuỗi */
+            tax_adjustment_vnd: string;
+            tax_adjustment_basis?: string | null;
+            /** @description Số tiền VND nguyên, dạng chuỗi */
+            advance_recovery_extra_vnd?: string;
+            /** @description Số tiền VND nguyên có dấu, dạng chuỗi */
+            net_vnd: string;
+            claims_acceptance?: boolean;
+            /** @description Số bản nháp khác của cùng nghiệm thu (cảnh báo hiển thị); trống với bên nhà thầu */
+            other_drafts?: number | null;
+            return_reason?: string | null;
+            cancel_reason?: string | null;
+            /** Format: uuid */
+            created_by?: string | null;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+            /** @description Chỉ có ở chi tiết; danh sách để trống */
+            lines: components["schemas"]["PayPaymentLine"][];
+            /** @description Chỉ có ở chi tiết; danh sách để trống */
+            documents: components["schemas"]["PayPaymentDocument"][];
+            actions: {
+                revise: boolean;
+                attach_document: boolean;
+                cancel: boolean;
+                override_duplicate: boolean;
+            };
+            version: number;
+        };
+        PayPaymentRequestPage: {
+            items: components["schemas"]["PayPaymentRequest"][];
             next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
@@ -33625,6 +33782,10 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Chỉ các đề nghị của hợp đồng này */
+                contract_id?: string;
+                status?: "DRAFT" | "SUBMITTED" | "VERIFIED" | "SENT_TREASURY" | "SETTLED" | "RETURNED" | "CANCELLED" | "REVERSED";
+                request_kind?: "ADVANCE" | "INTERIM" | "FINAL";
             };
             header?: never;
             path?: never;
@@ -33638,13 +33799,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["PayPaymentRequestPage"];
                 };
             };
             /** @description Invalid request */
@@ -33723,10 +33878,7 @@ export interface operations {
     };
     get_resources_payment_request_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -33741,13 +33893,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["PayPaymentRequest"];
                 };
             };
             /** @description Invalid request */
@@ -70525,7 +70671,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -70627,7 +70773,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -70727,7 +70873,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -71033,7 +71179,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

@@ -7,7 +7,7 @@ import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_
 import { WORK_CALENDAR_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { MNE_FIXTURES } from '../suite';
@@ -282,6 +282,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'post_contracts_id_activate', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign activation attempt', evidence_ids: [], effective_from: '2026-10-25' } },
   { operation: 'getContractSummary', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
   { operation: 'getCumulativeLedger', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
+  { operation: 'revisePaymentDraft', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { request_no: 'Isolation foreign revision attempt' } },
+  { operation: 'attachPaymentDocument', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, body: { document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId, doc_kind: 'OTHER' } },
+  { operation: 'cancelPaymentRequest', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },
+  { operation: 'get_resources_payment_request_id', method: 'GET', id: PAYMENT_FIXTURES['TNT-B'].id },
   { operation: 'setChangeChainTiers', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { tier_count: 2 } },
   { operation: 'getChangeChain', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'createChangeRequest', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { stage: 'EVENT', baseline_revision_id: CONTRACT_FIXTURES['TNT-B'].revisionId, reason: 'Isolation foreign change attempt' } },

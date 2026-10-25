@@ -238,6 +238,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.inspection where tenant_id = $1),
     (select string_agg(id::text || status || version::text || accepted_amount_vnd::text, ',' order by id) from machvon.acceptance where tenant_id = $1),
     (select string_agg(id::text || active::text || amount_vnd::text, ',' order by id) from machvon.acceptance_line where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || gross_vnd::text || net_vnd::text, ',' order by id) from machvon.payment_request where tenant_id = $1),
+    (select count(*)::text from machvon.payment_document where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.quality_acceptance where tenant_id = $1),
     (select count(*)::text from machvon.qms_signature where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
@@ -410,6 +412,16 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           `insert into machvon.acceptance_line (tenant_id, id, acceptance_id, measurement_id, boq_item_id, contract_revision_id, quantity, unit_price_snapshot, amount_vnd, active, created_by, updated_by)
            values ($1, gen_random_uuid(), $2, $3, $4, $5, 10, 1000, 10000, false, $6, $6)`,
           [TENANT_A, id(0x77, 21), id(0x77, 15), id(0x77, 17), id(0x77, 9), memberId(RECIPIENT)],
+        ],
+        [
+          `insert into machvon.acceptance (tenant_id, id, contract_id, measurement_ids, document_version_id, signer_refs, status, version, acceptance_no, period_id, accepted_amount_vnd, approved_at, decided_by, decision_reason, submitted_by, submitted_at, created_by, updated_by)
+           values ($1, $2, $3, jsonb_build_array($4::text), $5, '[]'::jsonb, 'APPROVED', 3, 'NT-MX-PAY', $6, 10000, now(), $7, 'Checked.', $8, now(), $8, $8)`,
+          [TENANT_A, id(0x77, 22), draftId, id(0x77, 15), id(0x78, 2), id(0x77, 18), ACTOR, memberId(RECIPIENT)],
+        ],
+        [
+          `insert into machvon.payment_request (tenant_id, id, project_id, contract_id, acceptance_id, currency, gross_vnd, advance_recovery_vnd, retention_vnd, tax_adjustment_vnd, net_vnd, status, version, request_kind, request_no, claims_acceptance, created_by, updated_by)
+           values ($1, $2, $3, $4, $5, 'VND', 0, 0, 0, 0, 0, 'SUBMITTED', 1, 'INTERIM', 'DNTT-MX', true, $6, $6)`,
+          [TENANT_A, id(0x77, 23), project, draftId, id(0x77, 22), memberId(RECIPIENT)],
         ],
         [
           `insert into machvon.quality_acceptance (tenant_id, id, project_id, contract_id, inspection_id, record_no, acceptance_scope, document_version_id, status, required_roles, content_hash, created_by, updated_by, version)
@@ -1050,6 +1062,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       changeRequestId: id(0x77, 14),
       measurementId: id(0x77, 15),
       workAcceptanceId: id(0x77, 21),
+      paymentRequestId: id(0x77, 23),
+      paymentAcceptanceId: id(0x77, 22),
+      paymentDocumentVersionId: id(0x78, 2),
       boqItemId: id(0x77, 17),
       periodId: id(0x77, 18),
       recipientMembershipId: memberId(RECIPIENT),

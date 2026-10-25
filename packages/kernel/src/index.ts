@@ -413,3 +413,7 @@ export { WORK_ACCEPTANCE_COMMANDS, WORK_ACCEPTANCE_STATUSES, assertWithinContrac
 export type { WorkAcceptanceCommand, WorkAcceptanceStatus } from './ctr-acceptance.ts';
 export { LEDGER_ENTRY_KINDS, LEDGER_RULES, REVERSAL_OF, ZERO_BALANCE, ZERO_DELTA, advanceOutstanding, applyDelta, assertEntryShape, assertLedgerInvariants, brokenRule, dong, isReversal, negate, totalOf as totalOfLedger } from './pay-ledger.ts';
 export type { LedgerBalance, LedgerDelta, LedgerEntryKind, LedgerRule } from './pay-ledger.ts';
+export { allocateLargestRemainder, computeDraftMoney, linesMatchHeader, partyRecovery, percentScaled, retentionOf, roundedDivision, signedDong, targetRecovered, wholeVnd } from './pay-money.ts';
+export type { AdvanceTranche, DraftLine, DraftMoney, DraftMoneyInput, MoneyLine, PartyAdvance } from './pay-money.ts';
+export { DOCUMENT_KINDS, PAYMENT_KINDS, PAYMENT_STATUSES, assertContractAllows, assertPlanYear, contractRefusal, disbursementEnd, isEditable } from './pay-request.ts';
+export type { ContractFacts, DocumentKind, PaymentKind, PaymentStatus } from './pay-request.ts';

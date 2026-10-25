@@ -19335,6 +19335,47 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Chỉ các đề nghị của hợp đồng này"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SUBMITTED",
+                "VERIFIED",
+                "SENT_TREASURY",
+                "SETTLED",
+                "RETURNED",
+                "CANCELLED",
+                "REVERSED"
+              ]
+            }
+          },
+          {
+            "name": "request_kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ADVANCE",
+                "INTERIM",
+                "FINAL"
+              ]
+            }
           }
         ],
         "responses": {
@@ -19343,28 +19384,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/PayPaymentRequestPage"
                 }
               }
             }
@@ -19453,7 +19473,10 @@
         "x-contract-maturity": "reference-scaffolding",
         "x-implementation-gate": "Review action DTO allowlist, object scope, state invariants and error contract before exposing. No arbitrary state/role/tenant updates.",
         "x-exposure": "dto",
-        "x-exposure-reason": "Trường tiền (gross, thu hồi, giữ lại, net) chỉ trả cho vai trò có payment.read; nhà thầu khách không thấy."
+        "x-exposure-reason": "Trường tiền (gross, thu hồi, giữ lại, net) chỉ trả cho vai trò có payment.read; nhà thầu khách không thấy.",
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/resources/payment_request/{id}": {
@@ -19470,23 +19493,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
@@ -19495,28 +19501,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/PayPaymentRequest"
                 }
               }
             }
@@ -72385,11 +72370,15 @@
         "x-error-codes": [
           "ACCEPTANCE_NOT_APPROVED",
           "ACCEPTANCE_ALREADY_CLAIMED",
-          "CONTRACT_STATE_INVALID",
           "PAYMENT_REFERENCE_DUPLICATE",
+          "PAYMENT_STATE_INVALID",
+          "CONTRACT_STATE_INVALID",
           "ALLOCATION_UNAVAILABLE",
           "PLAN_YEAR_MISMATCH",
-          "VALIDATION_FAILED"
+          "NATIONAL_CODE_REQUIRED",
+          "NATIONAL_CODE_FORMAT_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -72402,7 +72391,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -72541,7 +72530,15 @@
           "PAYMENT_STATE_INVALID",
           "PAYMENT_NET_MISMATCH",
           "PAYMENT_REFERENCE_DUPLICATE",
-          "VERSION_CONFLICT"
+          "ACCEPTANCE_ALREADY_CLAIMED",
+          "VERSION_CONFLICT",
+          "CONTRACT_STATE_INVALID",
+          "ALLOCATION_UNAVAILABLE",
+          "PLAN_YEAR_MISMATCH",
+          "NATIONAL_CODE_REQUIRED",
+          "NATIONAL_CODE_FORMAT_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -72554,7 +72551,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -72684,7 +72681,9 @@
           "INVOICE_DUPLICATE",
           "DOCUMENT_NOT_CLEAN",
           "PAYMENT_STATE_INVALID",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "SELF_APPROVAL_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -72696,7 +72695,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -73134,7 +73133,9 @@
         },
         "x-error-codes": [
           "PAYMENT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -73147,7 +73148,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -131060,12 +131061,14 @@
           },
           "allocation_line_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Dòng vốn của dự án, còn hiệu lực, năm kế hoạch không trước năm nghiệm thu và còn hạn giải ngân (BR-PAY-14)"
           },
           "request_no": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 100,
+            "description": "Số hồ sơ, duy nhất trong hợp đồng; không có ngoại lệ"
           },
           "tax_adjustment_vnd": {
             "type": "string",
@@ -131080,7 +131083,7 @@
           "advance_recovery_extra_vnd": {
             "type": "string",
             "pattern": "^[0-9]+$",
-            "description": "Số nguyên VND không âm, dạng chuỗi"
+            "description": "Thu hồi thêm ngoài công thức, trong phần tạm ứng còn lại; không vượt phần còn lại"
           }
         },
         "required": [
@@ -131101,7 +131104,7 @@
           "request_no": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 100
           },
           "tax_adjustment_vnd": {
             "type": "string",
@@ -131142,7 +131145,7 @@
           "invoice_no": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 100
           },
           "invoice_date": {
             "type": "string",
@@ -131154,7 +131157,8 @@
           "duplicate_override_reason": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Chỉ khi số hóa đơn đã dùng trong cùng hợp đồng; người có quyền duyệt ngoại lệ, khác người lập đề nghị"
           }
         },
         "required": [
@@ -143830,6 +143834,538 @@
           "reconciled": {
             "type": "boolean",
             "description": "Tổng đã nghiệm thu trên sổ có bằng số hợp đồng ghi nhận không"
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PayPaymentWarning": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "detail"
+        ],
+        "description": "Điều người gọi nên biết về một đề nghị đã được nhận; không phải lỗi",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "OTHER_DRAFTS_FOR_ACCEPTANCE",
+              "NATIONAL_CODE_MISSING",
+              "DUPLICATE_INVOICE_OTHER_CONTRACT"
+            ]
+          },
+          "detail": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "PayPaymentCommandResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "gross_vnd",
+          "advance_recovery_vnd",
+          "retention_vnd",
+          "tax_adjustment_vnd",
+          "net_vnd",
+          "warnings"
+        ],
+        "description": "Kết quả lệnh về đề nghị thanh toán: CommandResult kèm các số máy chủ đã tính (khách hàng không gửi gross/net) và cảnh báo",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gross_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "advance_recovery_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "retention_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "tax_adjustment_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu, dạng chuỗi"
+          },
+          "net_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu, dạng chuỗi"
+          },
+          "plan_year": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentWarning"
+            }
+          }
+        }
+      },
+      "PayPaymentLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "acceptance_line_id",
+          "boq_item",
+          "quantity",
+          "unit_price_snapshot",
+          "retention_pct_snapshot",
+          "gross_vnd",
+          "advance_recovery_vnd",
+          "retention_vnd",
+          "net_vnd"
+        ],
+        "description": "Một dòng của đề nghị: dòng nghiệm thu với số tiền máy chủ tính (BR-PAY-03..07). Tổng các dòng bằng đầu phiếu",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "acceptance_line_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "boq_item": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "business_key",
+              "description",
+              "unit_code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "business_key": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "unit_code": {
+                "type": "string"
+              }
+            }
+          },
+          "party_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "string",
+            "description": "Khối lượng đã nghiệm thu, số thập phân chính xác"
+          },
+          "unit_price_snapshot": {
+            "type": "string",
+            "description": "Đơn giá của phiên bản hiệu lực tại ngày lập nghiệm thu"
+          },
+          "retention_pct_snapshot": {
+            "type": "string"
+          },
+          "gross_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "advance_recovery_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "retention_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "net_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          }
+        }
+      },
+      "PayPaymentDocument": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "document_version_id",
+          "doc_kind",
+          "checksum",
+          "signed",
+          "created_at"
+        ],
+        "description": "Chứng từ đính kèm; không bao giờ sửa hay xóa",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "doc_kind": {
+            "type": "string",
+            "enum": [
+              "INVOICE",
+              "ACCEPTANCE_MINUTES",
+              "GUARANTEE",
+              "CONTRACT_COPY",
+              "TREASURY_FORM",
+              "OTHER"
+            ]
+          },
+          "checksum": {
+            "type": "string"
+          },
+          "invoice_no": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "invoice_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "signed": {
+            "type": "boolean"
+          },
+          "duplicate_override_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duplicate_override_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PayPaymentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "request_kind",
+          "status",
+          "contract",
+          "project_id",
+          "gross_vnd",
+          "advance_recovery_vnd",
+          "retention_vnd",
+          "tax_adjustment_vnd",
+          "net_vnd",
+          "lines",
+          "documents",
+          "actions",
+          "version"
+        ],
+        "description": "Đề nghị thanh toán (DTO): các số do máy chủ tính từ nghiệm thu và sổ. Bên nhà thầu không thấy người lập và số bản nháp khác",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_no": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "request_kind": {
+            "type": "string",
+            "enum": [
+              "ADVANCE",
+              "INTERIM",
+              "FINAL"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "VERIFIED",
+              "SENT_TREASURY",
+              "SETTLED",
+              "RETURNED",
+              "CANCELLED",
+              "REVERSED"
+            ]
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "acceptance": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "acceptance_no",
+              "accepted_on"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "acceptance_no": {
+                "type": "string"
+              },
+              "accepted_on": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          },
+          "advance_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "settlement_revision_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "allocation_line_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "plan_year": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "gross_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "advance_recovery_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "retention_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "tax_adjustment_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu, dạng chuỗi"
+          },
+          "tax_adjustment_basis": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "advance_recovery_extra_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số tiền VND nguyên, dạng chuỗi"
+          },
+          "net_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số tiền VND nguyên có dấu, dạng chuỗi"
+          },
+          "claims_acceptance": {
+            "type": "boolean"
+          },
+          "other_drafts": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Số bản nháp khác của cùng nghiệm thu (cảnh báo hiển thị); trống với bên nhà thầu"
+          },
+          "return_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cancel_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentLine"
+            },
+            "description": "Chỉ có ở chi tiết; danh sách để trống"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentDocument"
+            },
+            "description": "Chỉ có ở chi tiết; danh sách để trống"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "revise",
+              "attach_document",
+              "cancel",
+              "override_duplicate"
+            ],
+            "properties": {
+              "revise": {
+                "type": "boolean"
+              },
+              "attach_document": {
+                "type": "boolean"
+              },
+              "cancel": {
+                "type": "boolean"
+              },
+              "override_duplicate": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "PayPaymentRequestPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentRequest"
+            }
           },
           "next_cursor": {
             "type": [

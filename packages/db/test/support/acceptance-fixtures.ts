@@ -44,8 +44,9 @@ export class AcceptanceWorld {
   readonly harness = this.world.harness;
   readonly acceptances = new CtrAcceptanceStore();
   readonly memberIds = { creator: memberId(CREATOR), approver: memberId(APPROVER), revoker: memberId(REVOKER) };
-  private projectId = '';
-  private lineId = '';
+  /** The project and the line of capital of the first published plan: the contracts of the tests are of this project unless they are given another. */
+  projectId = '';
+  lineId = '';
   private periodId = '';
   private counter = 0;
 
@@ -84,7 +85,7 @@ export class AcceptanceWorld {
   }
 
   /** A contract worth nine billion under revision 1 with the three items of the BOQ and its one party. */
-  async seedContract(): Promise<SeededContract> {
+  async seedContract(options: { projectId?: string; lineId?: string } = {}): Promise<SeededContract> {
     this.counter += 1;
     const contractId = randomUUID();
     const revisionId = randomUUID();
@@ -101,14 +102,14 @@ export class AcceptanceWorld {
       [
         `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status, allocation_line_id)
          values ($1, $2, $3, $4, 100000000000, 'OPEN', 1, 'AWARDED', $5)`,
-        [TENANT_A, packageId, this.projectId, `PKG-${code}`, this.lineId],
+        [TENANT_A, packageId, options.projectId ?? this.projectId, `PKG-${code}`, options.lineId ?? this.lineId],
       ],
       [
         `insert into machvon.contract
            (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, title, advance_category, is_joint_venture, requires_quality_acceptance, contract_value_vnd,
             created_by, updated_by, signed_on, effective_from)
          values ($1, $2, $3, $4, $5, $6, 'UNIT_PRICE', 'VND', 'ACTIVE', 1, 'Contract', 'OTHER', false, false, 9000000000, $7, $7, date '2026-01-01', date '2026-01-02')`,
-        [TENANT_A, contractId, this.projectId, packageId, CONTRACTOR, code, memberId(CREATOR)],
+        [TENANT_A, contractId, options.projectId ?? this.projectId, packageId, CONTRACTOR, code, memberId(CREATOR)],
       ],
       [
         `insert into machvon.contract_revision (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, version, created_by, updated_by)
@@ -132,6 +133,21 @@ export class AcceptanceWorld {
       [`update machvon.contract set current_revision_id = $2 where id = $1::uuid`, [contractId, revisionId]],
     ]);
     return { contractId, code, revisionId, items, partyId };
+  }
+
+  /** A version of a file of the tenant, with the result of the scan given (clean by default), for the documents the tests attach. */
+  async documentVersion(scan = 'CLEAN'): Promise<{ id: string; checksum: string }> {
+    this.counter += 1;
+    const id = randomUUID();
+    const checksum = randomUUID().replace(/-/g, '') + randomUUID().replace(/-/g, '');
+    await seedAs(this.harness, [
+      [
+        `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
+         values ($1, $2, $3, $4, $5, $6, 'application/pdf', 1, 'INTERNAL', $7, '{}'::jsonb, 'RENDERED_FINAL')`,
+        [TENANT_A, id, DOCUMENT, 1000 + this.counter, `tenants/pay/doc-${this.counter}.pdf`, checksum, scan],
+      ],
+    ]);
+    return { id, checksum };
   }
 
   /** An approved measurement of an item (by position in the BOQ). */
