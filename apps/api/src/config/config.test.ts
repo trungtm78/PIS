@@ -117,6 +117,18 @@ describe('loadConfig', () => {
     }
   });
 
+  it('judges the master keys of the personal data when they are given, and runs without them when they are not', () => {
+    const key = (byte: number): string => Buffer.alloc(32, byte).toString('base64');
+    expect(() => loadConfig(GOOD, io)).not.toThrow();
+    expect(() => loadConfig({ ...GOOD, FIELD_ENCRYPTION_KEYS: `1:${key(1)}` }, io)).not.toThrow();
+    expect(() => loadConfig({ ...GOOD, FIELD_ENCRYPTION_KEYS: `1:${key(1)}, 2:${key(2)}` }, io)).not.toThrow();
+    for (const bad of ['garbage', `0:${key(1)}`, `256:${key(1)}`, `1:${Buffer.alloc(16, 1).toString('base64')}`, `1:${key(1)},1:${key(2)}`, `1:${key(1)}:x`, `one:${key(1)}`, `1:${key(1)},`, '1:']) {
+      const error = failure({ ...GOOD, FIELD_ENCRYPTION_KEYS: bad });
+      expect(error.problems).toEqual([expect.objectContaining({ name: 'FIELD_ENCRYPTION_KEYS', problem: 'malformed' })]);
+      expect(error.message).not.toContain(key(1));
+    }
+  });
+
   it('refuses a key file that is unreadable, not a key or not an EC P-256 key, without echoing the reason', () => {
     for (const path of ['/keys/missing.pem', '/keys/garbage.pem', '/keys/rsa.pem']) {
       const error = failure({ ...GOOD, TENANT_TOKEN_SIGNING_KEY_PEM_PATH: path });

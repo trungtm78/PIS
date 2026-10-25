@@ -2102,6 +2102,31 @@
       ]
     },
     {
+      "key": "householdOfficer",
+      "displayName": "Cán bộ đăng ký hộ bị ảnh hưởng",
+      "membershipId": "00000000-0000-4000-8000-000000000859",
+      "permissions": [
+        "land.household.write",
+        "land.household.read",
+        "lnd.pii.read",
+        "land.read",
+        "project.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "householdReader",
+      "displayName": "Người xem hộ bị ảnh hưởng",
+      "membershipId": "00000000-0000-4000-8000-000000000860",
+      "permissions": [
+        "land.household.read",
+        "project.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

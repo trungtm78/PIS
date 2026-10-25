@@ -760,6 +760,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'returnContractDraft': OperationDescriptor(method: 'POST', path: '/contracts/{id}/return', versioned: true, stepUp: null, permission: 'contract.review.decide'),
   'returnOutgoingDocument': OperationDescriptor(method: 'POST', path: '/outgoing-documents/{id}/return', versioned: true, stepUp: null, permission: 'doc.outgoing.review'),
   'returnPaymentRequest': OperationDescriptor(method: 'POST', path: '/payment-requests/{id}/return', versioned: true, stepUp: null, permission: 'payment.return'),
+  'revealHouseholdIdentity': OperationDescriptor(method: 'GET', path: '/affected-households/{id}/identity', versioned: false, stepUp: null, permission: 'lnd.pii.read'),
   'reverseAuditRecovery': OperationDescriptor(method: 'POST', path: '/audit-recovery-links/{id}/reversal', versioned: false, stepUp: null, permission: 'aud.recovery.record'),
   'reversePayment': OperationDescriptor(method: 'POST', path: '/payment-requests/{id}/reverse', versioned: true, stepUp: null, permission: 'payment.reverse'),
   'reviewAnalysisFinding': OperationDescriptor(method: 'POST', path: '/analysis-findings/{id}/review', versioned: true, stepUp: null, permission: 'bid.evaluate'),

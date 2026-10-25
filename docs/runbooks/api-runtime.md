@@ -15,6 +15,7 @@ connection is opened. `.env.example` lists them.
 | `OIDC_ISSUER`, `OIDC_JWKS_URI` (optional), `OIDC_IDENTITY_AUDIENCE`, `OIDC_CONTROL_AUDIENCE` | the identity provider; the key set is discovered from the issuer unless `OIDC_JWKS_URI` is given |
 | `TENANT_TOKEN_ISSUER`, `TENANT_TOKEN_SIGNING_KEY_PEM_PATH`, `TENANT_TOKEN_KEY_ID` | the EC P-256 key that signs tenant access tokens; `TENANT_TOKEN_RETIRED_KEY_*` (both or neither) keep the previous key published during a rotation |
 | `OUTBOX_SIGNING_KEY` | base64 of at least 32 bytes; signs the worker context of outbox deliveries |
+| `FIELD_ENCRYPTION_KEYS` (optional) | `id:base64` pairs separated by commas, each key of 32 bytes and each id from 1 to 255; the highest id seals the personal data of the households (ST-LND-002) and any id listed opens what it sealed. Rotating is adding a higher id and keeping the old one until nothing is sealed with it. A value that is there is judged at start (exit 78 when malformed); without it the API runs and answers 503 `PROVIDER_UNAVAILABLE` to whatever must seal or open personal data. See `docs/lnd-households.md`. |
 | `PORT` (3000), `MAX_BODY_BYTES` (1048576, at most 50 MiB), `SHUTDOWN_TIMEOUT_MS` (15000) | runtime limits |
 | `CORS_ORIGINS` | comma-separated origins; empty means no cross-origin access, `*` is refused |
 | `MIGRATIONS_DIR`, `ERROR_CODES_PATH` | where the SQL migrations and `error_codes.json` are read from (defaults point into the repository) |

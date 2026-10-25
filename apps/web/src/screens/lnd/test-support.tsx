@@ -23,6 +23,8 @@ export const TENANT: SessionTenant = {
 };
 
 export const OFFICER = ['land.manage', 'land.process', 'land.read'];
+export const HOUSEHOLD_OFFICER = ['land.household.write', 'land.household.read', 'lnd.pii.read'];
+export const HOUSEHOLD_READER = ['land.household.read'];
 export const READER = ['land.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({ id, path: `/lnd/${id.toLowerCase()}`, title: id, kind: 'map', area: 'investment', module: 'LND', group: 'Tổng quan & thửa đất', role: 'workspace', parent: null, req });
@@ -58,6 +60,30 @@ export const parcel = (n: number, overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+/** A household as the list answers it: the personal data in its masked forms only. */
+export const household = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0030', n),
+  project_id: PROJECT,
+  owner_unit_id: UNIT_XA,
+  household_code: `HH-${String(n).padStart(6, '0')}`,
+  head_name_masked: 'N***** V** A',
+  national_id_masked: '********0001',
+  phone_masked: '*******678',
+  address_masked: '***, Quận 1',
+  member_count: 4,
+  policy_beneficiary: false,
+  legal_basis: 'PUBLIC_TASK_LAND_LAW',
+  legal_basis_ref: 'Luật Đất đai 2024, Điều 87',
+  consent_record_id: null,
+  retention_until: '2036-12-31',
+  dsr_open: false,
+  status: 'REGISTERED',
+  parcels: [],
+  created_at: '2026-10-26T00:00:00.000Z',
+  version: 1,
+  ...overrides,
+});
+
 export const deadline = (overrides: Record<string, unknown> = {}) => ({
   id: uuid('0020', 1),
   timer_code: 'NOTICE_AGRICULTURAL_90',
@@ -75,6 +101,7 @@ export const deadline = (overrides: Record<string, unknown> = {}) => ({
 export interface World {
   projects: Array<Record<string, unknown>>;
   parcels: Array<Record<string, unknown>>;
+  households: Array<Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
   contracts: Array<Record<string, unknown>>;
@@ -89,6 +116,7 @@ export function world(overrides: Partial<World> = {}): World {
       { id: OTHER_PROJECT, code: 'DA-2026-002', name: 'Cầu qua sông' },
     ],
     parcels: [parcel(1), parcel(2, { land_use_group: 'NON_AGRICULTURAL_RESIDENTIAL', owner_unit_name: 'Trung tâm phát triển quỹ đất', parcel_code: 'TB-2/20', address_text: null })],
+    households: [],
     sections: [{ id: SECTION, code: 'KM-0-3', name: 'Km 0 đến km 3' }],
     units: [
       { id: UNIT_XA, code: 'XA1', name: 'UBND xã An Phú' },
@@ -111,6 +139,8 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.projects);
         case 'listLandParcels':
           return Promise.resolve(state.parcels.filter((item) => item.project_id === input?.query?.project_id));
+        case 'listAffectedHouseholds':
+          return Promise.resolve(state.households.filter((item) => item.project_id === input?.query?.project_id));
         case 'listLandSections':
           return Promise.resolve(state.sections);
         case 'get_resources_organization_unit':

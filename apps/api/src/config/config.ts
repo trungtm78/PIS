@@ -2,6 +2,20 @@ import { createPrivateKey } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+const FIELD_KEY_BYTES = 32;
+
+/** Whether the value is the list of master keys of the personal data: `id:base64` pairs, each key of 32 bytes, each id a whole number from 1 to 255 used once. */
+function validFieldKeys(value: string): boolean {
+  const ids = new Set<number>();
+  return value.split(',').every((part) => {
+    const [id, encoded, ...rest] = part.trim().split(':');
+    const number = Number(id);
+    if (rest.length > 0 || encoded === undefined || !Number.isInteger(number) || number < 1 || number > 255 || ids.has(number)) return false;
+    ids.add(number);
+    return /^[A-Za-z0-9+/_-]+={0,2}$/.test(encoded) && Buffer.from(encoded, 'base64').length === FIELD_KEY_BYTES;
+  });
+}
+
 export type TelemetryExporterKind = 'none' | 'console' | 'otlp';
 
 export interface Config {
@@ -169,6 +183,10 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
   const jwksUri = read('OIDC_JWKS_URI');
   if (jwksUri !== undefined && !urlWith(jwksUri, ['https:', 'http:'])) fail('OIDC_JWKS_URI', 'malformed', 'an http(s) URL; leave it out to discover it from the issuer');
   const outboxSigningKey = required('OUTBOX_SIGNING_KEY', `base64 of at least ${MIN_OUTBOX_KEY_BYTES} bytes`, (value) => /^[A-Za-z0-9+/_-]+={0,2}$/.test(value) && Buffer.from(value, 'base64').length >= MIN_OUTBOX_KEY_BYTES);
+
+  // The master keys of the personal data are read by the module that seals it, straight from the environment; a value that is there is judged now, so that a mistake stops the start and not the first registration.
+  const fieldKeys = read('FIELD_ENCRYPTION_KEYS');
+  if (fieldKeys !== undefined && !validFieldKeys(fieldKeys)) fail('FIELD_ENCRYPTION_KEYS', 'malformed', 'pairs id:base64 of master keys of 32 bytes (id 1 to 255), separated by commas; leave it out to run without personal data');
 
   const port = optional('PORT', DEFAULT_PORT, 'a port from 1 to 65535', (value) => integerIn(value, 1, 65_535));
   const maxBodyBytes = optional('MAX_BODY_BYTES', DEFAULT_MAX_BODY_BYTES, `a size from 1 to ${MAX_BODY_BYTES_LIMIT}`, (value) => integerIn(value, 1, MAX_BODY_BYTES_LIMIT));

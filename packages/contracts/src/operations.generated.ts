@@ -758,6 +758,7 @@ export const OPERATIONS = {
   "returnContractDraft": { method: "post", path: "/contracts/{id}/return", versioned: true, stepUp: null, permission: "contract.review.decide" },
   "returnOutgoingDocument": { method: "post", path: "/outgoing-documents/{id}/return", versioned: true, stepUp: null, permission: "doc.outgoing.review" },
   "returnPaymentRequest": { method: "post", path: "/payment-requests/{id}/return", versioned: true, stepUp: null, permission: "payment.return" },
+  "revealHouseholdIdentity": { method: "get", path: "/affected-households/{id}/identity", versioned: false, stepUp: null, permission: "lnd.pii.read" },
   "reverseAuditRecovery": { method: "post", path: "/audit-recovery-links/{id}/reversal", versioned: false, stepUp: null, permission: "aud.recovery.record" },
   "reversePayment": { method: "post", path: "/payment-requests/{id}/reverse", versioned: true, stepUp: null, permission: "payment.reverse" },
   "reviewAnalysisFinding": { method: "post", path: "/analysis-findings/{id}/review", versioned: true, stepUp: null, permission: "bid.evaluate" },

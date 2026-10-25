@@ -58,11 +58,13 @@ interface DialogFrameProps {
   refusal: string | undefined;
   pending: boolean;
   onSubmit(event: FormEvent): void;
+  /** The words of the submit button when they are not the plain 'Save'. */
+  submitLabel?: string;
   children: ReactNode;
 }
 
 /** The frame the three commands share: the title bar, the refusal of the server, the form and its two buttons. */
-export function DialogFrame({ title, onClose, refusal, pending, onSubmit, children }: DialogFrameProps) {
+export function DialogFrame({ title, onClose, refusal, pending, onSubmit, submitLabel, children }: DialogFrameProps) {
   const { t } = useTranslation();
   const titleId = useId();
   return (
@@ -87,7 +89,7 @@ export function DialogFrame({ title, onClose, refusal, pending, onSubmit, childr
                 {t('lnd.dialog.cancel.action')}
               </button>
               <button type="submit" className="primary" disabled={pending}>
-                {pending ? t('lnd.dialog.submit.pending') : t('lnd.dialog.submit.action')}
+                {pending ? t('lnd.dialog.submit.pending') : (submitLabel ?? t('lnd.dialog.submit.action'))}
               </button>
             </div>
           </form>

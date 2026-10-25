@@ -13,6 +13,7 @@ import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
 import { lndModule } from '../../src/modules/lnd';
+import { AffectedHouseholdController, AffectedHouseholdReadsController } from '../../src/modules/lnd/household.controller';
 import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
 import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.controller';
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
@@ -197,7 +198,7 @@ describe('land clearance: sections, parcels without owners, the parcel import an
 
   it('is registered in the module of LND', () => {
     expect(lndModule.code).toBe('LND');
-    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController]);
+    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController]);
   });
 
   describe('createLandSection', () => {

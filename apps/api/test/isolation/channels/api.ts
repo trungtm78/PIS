@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
 import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import { WORK_CALENDAR_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, HOUSEHOLD_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -34,6 +34,8 @@ export interface ForeignAttemptSpec {
   method: 'GET' | 'PUT' | 'POST';
   /** The TNT-B object the path names. */
   id: string;
+  /** A query string the operation asks for, so the request reaches the handler's own lookup (the reason of a reading). */
+  query?: string;
   /** Needs `If-Match` (the command is versioned). */
   versioned?: boolean;
   /** A body that is valid for the operation, so the request reaches the handler's own lookup. */
@@ -455,6 +457,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     versioned: true,
     body: { handed_area_m2: '10', handed_over_on: '2026-10-20', handover_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId },
   },
+  { operation: 'linkHouseholdParcel', method: 'POST', id: HOUSEHOLD_FIXTURES['TNT-B'].id, body: { parcel_id: PARCEL_FIXTURES['TNT-B'].id, right_kind: 'OWNER', share_pct: '10' } },
+  { operation: 'revealHouseholdIdentity', method: 'GET', id: HOUSEHOLD_FIXTURES['TNT-B'].id, query: 'reason=Isolation%20foreign%20reading%20attempt' },
   { operation: 'getProjectLifecycle', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'getLandProgress', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'recordProcurementMilestone', method: 'POST', id: PACKAGE_FIXTURES['TNT-B'].id, versioned: true, body: { milestone_kind: 'BID_OPENING', actual_at: '2026-09-01T03:00:00Z' } },
@@ -537,7 +541,7 @@ export async function attempt(options: ApiChannelOptions, spec: ForeignAttemptSp
     headers['idempotency-key'] = `isolation-${randomUUID()}`;
   }
   if (spec.versioned === true) headers['if-match'] = '"1"';
-  const path = fillPath(operationPath(options.doc, spec.operation), spec.id);
+  const path = `${fillPath(operationPath(options.doc, spec.operation), spec.id)}${spec.query === undefined ? '' : `?${spec.query}`}`;
   const response = await fetch(`${options.baseUrl}${path}`, {
     method: spec.method,
     headers,

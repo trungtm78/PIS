@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, HOUSEHOLD_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -288,6 +288,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'uploadLandParcelFile',
   'listLandParcels',
   'listLandSections',
+  'registerAffectedHousehold',
+  'linkHouseholdParcel',
+  'listAffectedHouseholds',
+  'revealHouseholdIdentity',
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
@@ -942,6 +946,11 @@ const INSERT_PARCEL = `insert into machvon.land_parcel
   (tenant_id, id, project_id, owner_unit_id, parcel_code, land_use_group, area_total_m2, area_affected_m2, status, version, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 'AGRICULTURAL', 100, 50, 'SURVEYED', 1, $6, $6) on conflict do nothing`;
 
+/** A household of the unit that owns the parcel above; the scope of its unit is put first because the policy of the table applies to the owner too. The sealed name is a stand-in the application cannot open. */
+const INSERT_HOUSEHOLD = `insert into machvon.affected_household
+  (tenant_id, id, project_id, owner_unit_id, household_code, head_name, head_name_enc, legal_basis, legal_basis_ref, retention_until, status, version, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, 'I*********', decode('00', 'hex'), 'PUBLIC_TASK_LAND_LAW', 'Isolation fixture legal basis', date '2036-12-31', 'REGISTERED', 1, $6, $6) on conflict do nothing`;
+
 const INSERT_ACCOUNTABILITY = `insert into machvon.project_accountability
   (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'DEPUTY_LEADER', '2026-01-01', 'ACTIVE', $5, $5) on conflict do nothing`;
@@ -1067,6 +1076,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_APPRAISAL, [tenantId, APPRAISAL_FIXTURES[tenant].id, project.id, master.versionId, MEMBERSHIP_ID]);
     await client.query(INSERT_SECTION, [tenantId, SECTION_FIXTURES[tenant].id, project.id, SECTION_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
+    await client.query("select set_config('app.scope_units', '*', false)");
+    await client.query(INSERT_HOUSEHOLD, [tenantId, HOUSEHOLD_FIXTURES[tenant].id, project.id, home, HOUSEHOLD_FIXTURES[tenant].code, ACTOR_ID]);
     const pack = PACKAGE_FIXTURES[tenant];
     await client.query(INSERT_PLANNED_PACKAGE, [tenantId, pack.id, project.id, pack.code, ACTOR_ID]);
     await client.query(INSERT_MILESTONE, [tenantId, pack.milestoneId, pack.id, ACTOR_ID]);

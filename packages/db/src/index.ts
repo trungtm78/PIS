@@ -810,3 +810,5 @@ export { AstWarrantyStore } from './ast-warranty-store.ts';
 export type { CloseInput as AstCloseWarrantyInput, CreateInput as AstCreateWarrantyInput, WarrantyFilter as AstWarrantyFilter, WarrantyLine, WarrantyResult as AstWarrantyResult } from './ast-warranty-store.ts';
 export { AstWarrantyRules, WARRANTY_RULE_TYPE } from './ast-warranty-rules.ts';
 export type { ResolvedWarrantyRule } from './ast-warranty-rules.ts';
+export { HOUSEHOLD_STATUSES, LEGAL_BASES, LndHouseholdStore, RIGHT_KINDS, enterScope, householdScopeUnits, unitInScope } from './lnd-household-store.ts';
+export type { HouseholdFilter, HouseholdIdentity, HouseholdLine, HouseholdLink, HouseholdStatus, LegalBasis, NewHousehold, NewHouseholdLink, RegisteredHousehold, RightKind, ScopeUnits } from './lnd-household-store.ts';

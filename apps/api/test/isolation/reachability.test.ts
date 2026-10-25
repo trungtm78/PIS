@@ -102,7 +102,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   };
   const pathOf = (operationId: string): string => listOperations(doc).find((entry) => entry.id === operationId)?.path ?? '';
   // The lists of a project name the project they read: both tenants read the project of TNT-B, so TNT-A must meet none of its rows and TNT-B all of them.
-  const PROJECT_LISTS: ReadonlySet<string> = new Set(['listLandParcels', 'listLandSections']);
+  const PROJECT_LISTS: ReadonlySet<string> = new Set(['listLandParcels', 'listLandSections', 'listAffectedHouseholds']);
   const readAs = async (tenant: 'TNT-A' | 'TNT-B', operationId: string): Promise<{ status: number; body: string }> => {
     const project = PROJECT_LISTS.has(operationId) ? `&project_id=${PROJECT_FIXTURES['TNT-B'].id}` : '';
     const response = await fetch(`${app.baseUrl}${pathOf(operationId)}?limit=200${project}`, { headers: { [TENANT_HEADER]: tokenFor(tenant, SIGNING_KEY) } });

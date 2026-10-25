@@ -512,3 +512,17 @@ export {
 export type { ReleaseBlocker, ReleaseCondition, ReleaseFacts, RetentionStatus } from './ctr-retention.ts';
 export { CLOSURE_GUARDS, assertContractClosure, unmetClosureGuards } from './contract-closure.ts';
 export type { ClosureFacts, ClosureGuard } from './contract-closure.ts';
+export {
+  FIELD_KEY_BYTES,
+  FieldCipher,
+  fieldKeysFromEnvironment,
+  maskAddress,
+  maskName,
+  maskNationalId,
+  maskPhone,
+  maskTail,
+  normalizeNationalId,
+  normalizePhone,
+  staticKeyProvider,
+} from './field-encryption.ts';
+export type { FieldKeyProvider, FieldPlace } from './field-encryption.ts';

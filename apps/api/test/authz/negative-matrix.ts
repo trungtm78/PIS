@@ -62,6 +62,8 @@ export interface MatrixTargets {
   warrantyId: string;
   /** A hold of retention: the command that names it in the path needs no row to be refused. */
   retentionHoldId: string;
+  /** A household affected by a land recovery: the command that names it in the path needs no row to be refused. */
+  householdId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1583,6 +1585,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   transferAsset: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/asset-records/${t.assetId}/transfer`, ifMatch: '"1"', body: { transferred_on: '2026-10-25', commissioning_document_version_id: t.documentVersionId } }),
+  },
+  // The households of a land recovery: a caller that is refused registers none and links none to a parcel.
+  registerAffectedHousehold: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/affected-households',
+      body: { project_id: t.projectId, owner_unit_id: t.unit2, head_name: 'Matrix head of household', legal_basis: 'PUBLIC_TASK_LAND_LAW', legal_basis_ref: REASON, retention_until: '2036-12-31' },
+    }),
+  },
+  linkHouseholdParcel: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/affected-households/${t.householdId}/parcels`, body: { parcel_id: t.parcelId, right_kind: 'OWNER' } }),
   },
   // The retention held back from the payments: a caller that is refused releases none of it.
   releaseRetention: {

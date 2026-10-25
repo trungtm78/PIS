@@ -37,6 +37,8 @@ const FIELD_PROBLEMS: Readonly<Record<string, Readonly<Record<string, string>>>>
   completeContract: { completion_quality_acceptance_id: 'COMPLETION_ACCEPTANCE_REQUIRED' },
   // A reopening without a reason of 20 characters (ST-DIS-002 AC-1).
   requestPeriodReopen: { reason: 'REOPEN_REASON_REQUIRED' },
+  // A household is registered on a legal basis for processing the personal data, and the reference to it (ST-LND-002 AC-1, UAT-AC380).
+  registerAffectedHousehold: { legal_basis: 'LEGAL_BASIS_REQUIRED', legal_basis_ref: 'LEGAL_BASIS_REQUIRED' },
 };
 
 /**

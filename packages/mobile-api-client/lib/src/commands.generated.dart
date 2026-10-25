@@ -2278,6 +2278,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> returnPaymentRequest(PayReturnPaymentRequest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('returnPaymentRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> revealHouseholdIdentity({required String id, Map<String, Object?>? query}) =>
+      execute('revealHouseholdIdentity', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> reverseAuditRecovery(AudRecoveryReversal body, {required String id, CommandAttempt? attempt}) =>
       execute('reverseAuditRecovery', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
