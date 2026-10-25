@@ -127,9 +127,9 @@ describe('usage metering over HTTP (ST-SAS-010)', () => {
     if (override === undefined) return;
     await harness.admin((client) =>
       client.query(
-        `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, limit_value, reason, valid_from, valid_until, status, requested_by)
-         values ($1, $2, $3, true, $4, 'a reason of ten letters', now() - interval '1 hour', now() + interval '1 day', 'Active', $5)`,
-        [tenantId, randomUUID(), override.feature, override.limit, ACTOR],
+        `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, limit_value, reason, valid_from, valid_until, status, requested_by, approved_by)
+         values ($1, $2, $3, true, $4, 'a reason of ten letters', now() - interval '1 hour', now() + interval '1 day', 'Active', $5, $6)`,
+        [tenantId, randomUUID(), override.feature, override.limit, ACTOR, randomUUID()],
       ),
     );
   }

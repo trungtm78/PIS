@@ -256,8 +256,8 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
   });
 
   describe('generated matrix: every control operation against every realm role', () => {
-    // The license commands need a signing key and a license to name: apps/api/test/licenses.test.ts runs the matrix for them; the theme operations need a theme (apps/api/test/theme.test.ts), the plan operations a plan (apps/api/test/plans.test.ts), the subscription operations a subscription (apps/api/test/subscriptions.test.ts) and the owner assignment a provisioned tenant (apps/api/test/tenant-owner.test.ts).
-    const tenantOperations = CONTROL_OPERATIONS.filter((operation) => !operation.path.includes('licenses') && !operation.path.includes('/theme/') && !operation.path.includes('/system/plans') && !operation.path.includes('ubscription') && !operation.path.endsWith('/owners'));
+    // The license commands need a signing key and a license to name: apps/api/test/licenses.test.ts runs the matrix for them; the theme operations need a theme (apps/api/test/theme.test.ts), the plan operations a plan (apps/api/test/plans.test.ts), the subscription operations a subscription (apps/api/test/subscriptions.test.ts), the override operations an override (apps/api/test/entitlement-overrides.test.ts) and the owner assignment a provisioned tenant (apps/api/test/tenant-owner.test.ts).
+    const tenantOperations = CONTROL_OPERATIONS.filter((operation) => !operation.path.includes('licenses') && !operation.path.includes('/theme/') && !operation.path.includes('/system/plans') && !operation.path.includes('ubscription') && !operation.path.includes('entitlement-overrides') && !operation.path.endsWith('/owners'));
     const cases = controlCasesFor(tenantOperations);
     const matrixPayload = (operationId: string): Record<string, unknown> => {
       if (operationId === 'retryTenantProvisioning') return { reason: 'Matrix case, retry after a failure.' };

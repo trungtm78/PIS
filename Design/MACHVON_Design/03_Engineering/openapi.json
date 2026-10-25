@@ -57431,6 +57431,88 @@
       }
     },
     "/system/tenants/{tenantId}/entitlement-overrides": {
+      "get": {
+        "operationId": "listTenantEntitlementOverrides",
+        "summary": "Các ghi đè quyền lợi của một tenant, ghi đè bắt đầu muộn nhất trước (SAS-25)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Keyset page of the overrides of the tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementOverridePage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Control-plane DTO of the overrides: who asked, who approved, the window and the state",
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      },
       "post": {
         "operationId": "requestEntitlementOverride",
         "summary": "Đề nghị ghi đè quyền lợi có thời hạn (SAS-25)",
@@ -139200,6 +139282,92 @@
             "items": {
               "$ref": "#/components/schemas/SubscriptionPlanChange"
             }
+          }
+        }
+      },
+      "EntitlementOverride": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "feature_code",
+          "enabled",
+          "reason",
+          "valid_from",
+          "valid_until",
+          "status",
+          "requested_by",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "feature_code": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "limit_value": {
+            "type": "string",
+            "description": "Decimal string; only with a feature that is on"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PendingApproval",
+              "Active",
+              "Revoked",
+              "Expired",
+              "Rejected"
+            ]
+          },
+          "requested_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "approved_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "description": "resource_version: the If-Match of decideEntitlementOverride and revokeEntitlementOverride"
+          }
+        }
+      },
+      "EntitlementOverridePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntitlementOverride"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }

@@ -31154,7 +31154,8 @@
       "operations": [
         "requestEntitlementOverride",
         "decideEntitlementOverride",
-        "revokeEntitlementOverride"
+        "revokeEntitlementOverride",
+        "listTenantEntitlementOverrides"
       ],
       "tables": [
         "entitlement_override"

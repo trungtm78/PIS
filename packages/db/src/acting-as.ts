@@ -19,3 +19,9 @@ export async function tenantOfSubscription(tx: TenantTx, subscriptionId: string)
   const [row] = await tx.query<{ tenant_id: string | null }>('select machvon.subscription_tenant_of($1::uuid) as tenant_id', [subscriptionId]);
   return row?.tenant_id ?? undefined;
 }
+
+/** The tenant an entitlement override belongs to, or undefined (the decision and the revocation name only the override). */
+export async function tenantOfOverride(tx: TenantTx, overrideId: string): Promise<string | undefined> {
+  const [row] = await tx.query<{ tenant_id: string | null }>('select machvon.override_tenant_of($1::uuid) as tenant_id', [overrideId]);
+  return row?.tenant_id ?? undefined;
+}

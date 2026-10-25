@@ -37,11 +37,12 @@ describe('control-plane authorization matrix generator', () => {
     expect(verdict('getSystemTenant')).toEqual(verdict('listSystemTenants'));
     expect(verdict('getTenantUsage')).toEqual(verdict('listSystemTenants'));
     expect(verdict('getTenantSubscription')).toEqual(verdict('listSystemTenants'));
-    for (const operationId of ['createSubscription', 'previewPlanChange', 'changeSubscriptionPlan', 'cancelSubscription']) expect(verdict(operationId)).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'allow', SupportOperator: 'deny' });
+    expect(verdict('listTenantEntitlementOverrides')).toEqual(verdict('listSystemTenants'));
+    for (const operationId of ['createSubscription', 'previewPlanChange', 'changeSubscriptionPlan', 'cancelSubscription', 'requestEntitlementOverride', 'decideEntitlementOverride', 'revokeEntitlementOverride']) expect(verdict(operationId)).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'allow', SupportOperator: 'deny' });
     for (const operationId of ['listPlanVersions', 'createPlanVersion', 'publishPlanVersion']) expect(verdict(operationId)).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'allow', SupportOperator: 'deny' });
   });
 
   it('derives the permission from the generated table', () => {
-    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(4).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read']);
+    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(4).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read']);
   });
 });

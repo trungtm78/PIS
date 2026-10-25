@@ -175,7 +175,9 @@ export type { ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, Su
 export { ROOT_UNIT_CODE, TENANT_OWNER_ROLE, TRIAL_DAYS, TenantBootstrapStore } from './tenant-bootstrap-store.ts';
 export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.ts';
 export { PlanStore, planInvalid } from './plan-store.ts';
-export { actingAsTenant, tenantOfSubscription } from './acting-as.ts';
+export { EntitlementOverrideStore, overrideInvalid } from './entitlement-override-store.ts';
+export type { DecideOverrideInput, OverrideCycleOutcome, OverrideDecision, OverrideRow, OverrideStatus, RequestOverrideInput } from './entitlement-override-store.ts';
+export { actingAsTenant, tenantOfOverride, tenantOfSubscription } from './acting-as.ts';
 export { LIVE_STATUSES, SubscriptionStore } from './subscription-store.ts';
 export type { ApplyPlanChangeInput, CreateSubscriptionInput, CycleOutcome, PaymentMethod, PlanChangePreview, PlanSummaryRow, PlanChangeRequest, PlanChangeRow, SubscriptionRow, SubscriptionStatus } from './subscription-store.ts';
 export { MAX_CLOCK_SKEW_MS, UsageMeterStore } from './usage-meter-store.ts';

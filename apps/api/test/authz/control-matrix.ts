@@ -67,5 +67,9 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'changeSubscriptionPlan', permission: PERMISSIONS.changeSubscriptionPlan, method: 'POST', path: '/system/subscriptions/{subscriptionId}/plan-change' },
   { operationId: 'cancelSubscription', permission: PERMISSIONS.cancelSubscription, method: 'POST', path: '/system/subscriptions/{subscriptionId}/cancel' },
   { operationId: 'getTenantSubscription', permission: PERMISSIONS.getTenantSubscription, method: 'GET', path: '/system/tenants/{tenantId}/subscription' },
+  { operationId: 'requestEntitlementOverride', permission: PERMISSIONS.requestEntitlementOverride, method: 'POST', path: '/system/tenants/{tenantId}/entitlement-overrides' },
+  { operationId: 'decideEntitlementOverride', permission: PERMISSIONS.decideEntitlementOverride, method: 'POST', path: '/system/entitlement-overrides/{overrideId}/decision' },
+  { operationId: 'revokeEntitlementOverride', permission: PERMISSIONS.revokeEntitlementOverride, method: 'POST', path: '/system/entitlement-overrides/{overrideId}/revoke' },
+  { operationId: 'listTenantEntitlementOverrides', permission: PERMISSIONS.listTenantEntitlementOverrides, method: 'GET', path: '/system/tenants/{tenantId}/entitlement-overrides' },
 ];
 

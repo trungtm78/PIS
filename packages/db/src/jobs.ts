@@ -47,6 +47,8 @@ export const JOB_INTERVAL_SECONDS = {
   'dgv-quality-run': 10,
   // Hourly: a trial that has ended, a plan that waited for its day and a billing period that has passed are dealt with within the hour (ST-SAS-008); the pass is idempotent.
   'subscription-cycle': 3600,
+  // Every minute: an entitlement override whose window has ended stops counting and the tenant is told within the minute (ST-SAS-009, "takes effect within 60 seconds"); the pass is idempotent.
+  'entitlement-override-expiry': 60,
   'access-cache-expiry': 60,
 } as const;
 
@@ -158,6 +160,8 @@ export interface StandardJobDeps {
    * that has passed gives way to the next and a subscription set to end ends. It reads the plan catalogue, so it runs through the control plane.
    */
   subscriptionCycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The pass over the entitlement overrides of a tenant (ST-SAS-009): an override in force whose window has ended expires and the tenant gets a new entitlement version; a request that waited past its window expires. */
+  overrideExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -391,6 +395,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await subscriptions.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const overrides = deps.overrideExpiry;
+  if (overrides !== undefined) {
+    handlers.push({
+      name: 'entitlement-override-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overrides.run(workerContext(tenantId), now)));
       },
     });
   }

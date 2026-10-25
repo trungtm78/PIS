@@ -70,6 +70,25 @@ describe('SAS-25 entitlements', () => {
     expect(h.read.mock.calls.some(([operation]) => operation === 'getMyEntitlements')).toBe(false);
   });
 
+  it('shows the overrides of the chosen tenant to the control plane and none to the tenant plane (UI-SAS-25)', async () => {
+    const h = harness((operation, input) => {
+      if (operation === 'listSystemTenants') return { items: [TENANT_A, TENANT_B], next_cursor: null };
+      if (operation === 'listTenantEntitlementOverrides') return { items: [], next_cursor: null };
+      return view(1, (input as { path?: { tenantId: string } }).path?.tenantId === TENANT_B.id ? 'hash-b' : 'hash-a');
+    });
+    mount(<EntitlementsScreen route={ROUTE} />, h, [...CONTROL_READER, 'system.billing.manage']);
+    expect(await screen.findByText('hash-a')).toBeTruthy();
+    expect(await screen.findByText(vi_['sas.overrides.empty'])).toBeTruthy();
+    expect(screen.getByRole('form', { name: vi_['sas.overrides.form.aria'] })).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listTenantEntitlementOverrides', { path: { tenantId: TENANT_A.id }, query: { limit: 50 } });
+    cleanup();
+    const tenantPlane = harness(() => view(3, 'abc123'));
+    mount(<EntitlementsScreen route={ROUTE} />, tenantPlane, ['session.self']);
+    await screen.findByText('abc123');
+    expect(screen.queryByTestId('overrides')).toBeNull();
+    expect(tenantPlane.read.mock.calls.some(([operation]) => operation === 'listTenantEntitlementOverrides')).toBe(false);
+  });
+
   it('opens the tenant named in the address', async () => {
     const h = harness((operation, input) => {
       if (operation === 'listSystemTenants') return { items: [TENANT_A, TENANT_B], next_cursor: null };
@@ -83,6 +102,8 @@ describe('SAS-25 entitlements', () => {
     const user = userEvent.setup();
     const h = harness((operation, input) => {
       if (operation === 'listSystemTenants') return { items: [TENANT_A, TENANT_B], next_cursor: null };
+      // The overrides of the tenant have their own part of the screen: they read fine while the table fails.
+      if (operation === 'listTenantEntitlementOverrides') return { items: [], next_cursor: null };
       const tenantId = (input as { path: { tenantId: string } }).path.tenantId;
       if (tenantId === TENANT_A.id) return { version_no: 0, entitlements_hash: '', features: [] };
       return new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' });

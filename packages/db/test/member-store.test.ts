@@ -273,11 +273,12 @@ describe('MemberStore (members and invitations, ADM-006)', () => {
     };
     const override = (limit: number | null, status = 'Active', from = "now() - interval '1 hour'", until = "now() + interval '1 day'"): Promise<unknown[]> =>
       admin(
-        `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, limit_value, reason, valid_from, valid_until, status, requested_by)
-         values ($1, $2, 'member.seats', true, $3, 'a reason of ten letters', ${from}, ${until}, $4, $5)`,
-        [TENANT_A, randomUUID(), limit, status, ACTOR],
+        `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, limit_value, reason, valid_from, valid_until, status, requested_by, approved_by)
+         values ($1, $2, 'member.seats', true, $3, 'a reason of ten letters', ${from}, ${until}, $4, $5, case when $4 = 'Active' then $6::uuid end)`,
+        [TENANT_A, randomUUID(), limit, status, ACTOR, randomUUID()],
       );
-    const clearOverrides = (): Promise<unknown[]> => admin('delete from machvon.entitlement_override where tenant_id = $1', [TENANT_A]);
+    // An override is never deleted: a test ends the ones it made by revoking them (an expired or revoked one is final already).
+    const clearOverrides = (): Promise<unknown[]> => admin("update machvon.entitlement_override set status = 'Revoked' where tenant_id = $1 and status in ('PendingApproval', 'Active')", [TENANT_A]);
 
     beforeAll(async () => {
       await admin('delete from machvon.license_revision where tenant_id = $1', [TENANT_A]);

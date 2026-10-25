@@ -72,6 +72,8 @@ export { MAX_PLAN_FEATURES, PLAN_FEATURE_CODES, planDraftIssues } from './plan-c
 export { CORRECTION_SUFFIX, LIMITING_FEATURE, USAGE_METERS, usageMeterOf, usageWindowOf } from './usage-meter.ts';
 export { addDays, addMonthsClamped, billingPeriod, billingPeriodAt, cycleMonths, daysInPeriod, prorationOf } from './billing-period.ts';
 export type { BillingPeriod, Proration } from './billing-period.ts';
+export { MAX_OVERRIDE_DAYS, MAX_OVERRIDE_LEAD_DAYS, MAX_OVERRIDE_REASON, MIN_OVERRIDE_REASON, OVERRIDE_START_SKEW_MS, overrideIssues } from './entitlement-override.ts';
+export type { OverrideIssue, OverrideIssueReason, OverrideRequest } from './entitlement-override.ts';
 export { planChangeHash, quotaViolations } from './plan-change.ts';
 export type { PlanChangeEffective, PlanChangeFacts, QuotaViolation } from './plan-change.ts';
 export type { UsageMeter, UsageWindow } from './usage-meter.ts';

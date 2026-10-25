@@ -5,18 +5,21 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { OverridesPanel } from './entitlements/OverridesPanel';
+import { MANAGE_OVERRIDES_PERMISSION } from './entitlements/model';
 import { useEntitlements, useTenantList } from './tenants/hooks';
 import { featureLabel, licenseLabel, modeLabel, modeTone, sourceLabel, toneClass } from './tenants/labels';
 import { READ_TENANTS_PERMISSION } from './tenants/types';
 import './tenants/sas.css';
 
 /**
- * SAS-25: what a tenant may do under its plan and licence, read-only. The control plane picks a tenant (the table of
- * that tenant comes from `getTenantEntitlements`); the tenant plane sees its own table (`getMyEntitlements`).
+ * SAS-25: what a tenant may do under its plan and licence. The control plane picks a tenant (the table of that tenant comes from
+ * `getTenantEntitlements`) and works on its overrides (ST-SAS-009: ask for, approve, reject and end an exception to the plan); the tenant plane sees its own table
+ * (`getMyEntitlements`), read-only.
  */
 export default function EntitlementsScreen({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, tenant } = useSession();
   const [params, setParams] = useSearchParams();
   const control = permissions?.includes(READ_TENANTS_PERMISSION) === true;
   const tenants = useTenantList(control);
@@ -110,6 +113,7 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
           )}
         </div>
       </StateBoundary>
+      {control ? <OverridesPanel tenantId={chosen} canManage={permissions?.includes(MANAGE_OVERRIDES_PERMISSION) === true} membershipId={tenant?.membershipId} /> : null}
       <p className="prototype-note">{t('sas.entitlements.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );

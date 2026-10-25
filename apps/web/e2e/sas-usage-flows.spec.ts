@@ -29,10 +29,11 @@ async function seedUsage(tenantId: string, messages: number, limit: number): Pro
      on conflict (tenant_id, feature_code, window_start) do update set used_value = excluded.used_value`,
     [tenantId, start, end, messages],
   );
-  await sql(`delete from machvon.entitlement_override where tenant_id = $1 and reason = $2`, [tenantId, MARKER]);
+  // An override is never deleted: the one of an earlier case is revoked, and this case's own is the one in force.
+  await sql(`update machvon.entitlement_override set status = 'Revoked' where tenant_id = $1 and reason = $2 and status = 'Active'`, [tenantId, MARKER]);
   await sql(
-    `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, limit_value, reason, valid_from, valid_until, status, requested_by)
-     values ($1, gen_random_uuid(), 'notification.campaign', true, $2, $3, now() - interval '1 hour', now() + interval '1 day', 'Active', gen_random_uuid())`,
+    `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, limit_value, reason, valid_from, valid_until, status, requested_by, approved_by)
+     values ($1, gen_random_uuid(), 'notification.campaign', true, $2, $3, now() - interval '1 hour', now() + interval '1 day', 'Active', gen_random_uuid(), gen_random_uuid())`,
     [tenantId, limit, MARKER],
   );
   const keys = [`e2e-zns-${unique()}`, `e2e-sms-${unique()}`];

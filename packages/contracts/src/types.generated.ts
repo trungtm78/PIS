@@ -6625,7 +6625,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các ghi đè quyền lợi của một tenant, ghi đè bắt đầu muộn nhất trước (SAS-25) */
+        get: operations["listTenantEntitlementOverrides"];
         put?: never;
         /** Đề nghị ghi đè quyền lợi có thời hạn (SAS-25) */
         post: operations["requestEntitlementOverride"];
@@ -19143,6 +19144,31 @@ export interface components {
             pending_plan?: components["schemas"]["SubscriptionPlanSummary"];
             /** @description The latest plan changes of the subscription, the latest first */
             changes: components["schemas"]["SubscriptionPlanChange"][];
+        };
+        EntitlementOverride: {
+            /** Format: uuid */
+            id: string;
+            feature_code: string;
+            enabled: boolean;
+            /** @description Decimal string; only with a feature that is on */
+            limit_value?: string;
+            reason: string;
+            /** Format: date-time */
+            valid_from: string;
+            /** Format: date-time */
+            valid_until: string;
+            /** @enum {string} */
+            status: "PendingApproval" | "Active" | "Revoked" | "Expired" | "Rejected";
+            /** Format: uuid */
+            requested_by: string;
+            /** Format: uuid */
+            approved_by?: string;
+            /** @description resource_version: the If-Match of decideEntitlementOverride and revokeEntitlementOverride */
+            version: number;
+        };
+        EntitlementOverridePage: {
+            items: components["schemas"]["EntitlementOverride"][];
+            next_cursor: string | null;
         };
     };
     responses: never;
@@ -59010,6 +59036,58 @@ export interface operations {
             };
             /** @description RATE_LIMIT */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTenantEntitlementOverrides: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Keyset page of the overrides of the tenant */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntitlementOverridePage"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

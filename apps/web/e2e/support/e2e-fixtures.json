@@ -1192,6 +1192,20 @@
       "roles": [
         "PlatformOperator"
       ]
+    },
+    {
+      "key": "billingAdmin",
+      "displayName": "Quản trị thanh toán",
+      "initials": "TT",
+      "membershipId": "00000000-0000-4000-8000-0000000000eb",
+      "permissions": [
+        "system.tenant.read",
+        "system.billing.manage"
+      ],
+      "audience": "control",
+      "roles": [
+        "BillingOperator"
+      ]
     }
   ],
   "lifecycleMembershipId": "00000000-0000-4000-8000-0000000000e6"
