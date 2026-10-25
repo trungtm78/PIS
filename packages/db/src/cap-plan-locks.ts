@@ -185,12 +185,8 @@ export async function lockAppropriationRows(tx: TenantTx, ids: readonly string[]
   return new Map(rows.map((row) => [row.id, { id: row.id, status: row.status, planYear: row.plan_year, amountVnd: row.amount_vnd, allocatedTotalVnd: row.allocated_total_vnd }]));
 }
 
-/** A year that is locked takes no new capital (ST-CAP-008 keeps the year control; a year without a control row is open). */
-export async function assertYearsOpen(tx: TenantTx, years: readonly number[]): Promise<void> {
-  if (years.length === 0) return;
-  const locked = await tx.query("select 1 from machvon.fiscal_year_control where plan_year = any($1::integer[]) and status = 'LOCKED'", [[...new Set(years)]]);
-  if (locked.length > 0) throw new DomainError('FISCAL_YEAR_LOCKED', 409, 'plan_year');
-}
+/** A year that is soft-closed or locked takes no plan command (ST-CAP-008 keeps the year control; a year without a control row is open). */
+export { assertYearsOpen } from './cap-fiscal-year-guard.ts';
 
 /** The years a plan draws on: its own year, and the years of the appropriations of its lines. */
 export function yearsOf(plan: PlanRow, appropriations: ReadonlyMap<string, LockedAppropriation>): number[] {

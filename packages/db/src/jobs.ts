@@ -49,6 +49,8 @@ export const JOB_INTERVAL_SECONDS = {
   'subscription-cycle': 3600,
   // Hourly: a request to carry capital over that nobody decided lapses within the hour of its last day (ST-CAP-007); the pass is idempotent.
   'allocation-extension-lapse': 3600,
+  // Every 15 minutes: a fiscal year whose reopening has ended is locked again and the capital that came back lapses again (ST-CAP-008); the pass is idempotent.
+  'fiscal-year-relock': 900,
   // Every minute: an entitlement override whose window has ended stops counting and the tenant is told within the minute (ST-SAS-009, "takes effect within 60 seconds"); the pass is idempotent.
   'entitlement-override-expiry': 60,
   'access-cache-expiry': 60,
@@ -164,6 +166,8 @@ export interface StandardJobDeps {
   subscriptionCycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Lets the requests to carry capital over to the next year lapse once their last day has passed (ST-CAP-007); tells how many lapsed. */
   extensionLapse?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ lapsed: number }> };
+  /** Locks again the fiscal years whose reopening has ended (ST-CAP-008); tells which years. */
+  fiscalYearRelock?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ years: number[] }> };
   /** The pass over the entitlement overrides of a tenant (ST-SAS-009): an override in force whose window has ended expires and the tenant gets a new entitlement version; a request that waited past its window expires. */
   overrideExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
@@ -409,6 +413,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await extensions.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const relock = deps.fiscalYearRelock;
+  if (relock !== undefined) {
+    handlers.push({
+      name: 'fiscal-year-relock',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await relock.run(workerContext(tenantId), now)));
       },
     });
   }

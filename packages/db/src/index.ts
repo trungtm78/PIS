@@ -177,6 +177,9 @@ export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.t
 export { PlanStore, planInvalid } from './plan-store.ts';
 export { EntitlementOverrideStore, overrideInvalid } from './entitlement-override-store.ts';
 export type { DecideOverrideInput, OverrideCycleOutcome, OverrideDecision, OverrideRow, OverrideStatus, RequestOverrideInput } from './entitlement-override-store.ts';
+export { assertYearsNotLocked, assertYearsOpen } from './cap-fiscal-year-guard.ts';
+export { CapFiscalYearStore } from './cap-fiscal-year-store.ts';
+export type { CloseYearInput, ClosedYear, FiscalYearRow, LapseSummary, RelockOutcome, ReopenYearInput } from './cap-fiscal-year-store.ts';
 export { CapAllocationExtensionStore, extensionInvalid } from './cap-allocation-extension-store.ts';
 export type { DecideExtensionInput, ExtensionApplied, ExtensionDecision, ExtensionFilter, ExtensionRow, ExtensionStatus, RequestExtensionInput } from './cap-allocation-extension-store.ts';
 export { actingAsTenant, tenantOfOverride, tenantOfSubscription } from './acting-as.ts';

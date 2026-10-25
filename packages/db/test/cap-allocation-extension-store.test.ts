@@ -95,7 +95,6 @@ const lockYear = (year: number) =>
     "insert into machvon.fiscal_year_control (tenant_id, id, plan_year, status, locked_at, created_by, updated_by) values ($3::uuid, gen_random_uuid(), $1::integer, 'LOCKED', now(), $2::uuid, $2::uuid)",
     [year, memberId(MAKER), TENANT_A],
   );
-const unlockYear = (year: number) => world.owner('delete from machvon.fiscal_year_control where plan_year = $1::integer', [year]);
 
 describe('CapAllocationExtensionStore (ST-CAP-007)', () => {
   beforeAll(async () => {
@@ -166,15 +165,13 @@ describe('CapAllocationExtensionStore (ST-CAP-007)', () => {
     });
 
     it('refuses the year that is locked, for the plan year and for the next, with 409 FISCAL_YEAR_LOCKED', async () => {
-      const line = await world.publishedLine({ allocated: money(3) });
-      for (const year of [line.year, line.year + 1]) {
-        await lockYear(year);
-        try {
-          expect(await refusal(ask(line))).toMatchObject({ code: 'FISCAL_YEAR_LOCKED', status: 409 });
-        } finally {
-          await unlockYear(year);
-        }
-      }
+      // A year that is locked stays locked: the cases use years of their own that no other case of the file uses.
+      const planYearLocked = await world.publishedLine({ allocated: money(3), year: 2010 });
+      await lockYear(2010);
+      expect(await refusal(ask(planYearLocked))).toMatchObject({ code: 'FISCAL_YEAR_LOCKED', status: 409 });
+      const nextYearLocked = await world.publishedLine({ allocated: money(3), year: 2012 });
+      await lockYear(2013);
+      expect(await refusal(ask(nextYearLocked))).toMatchObject({ code: 'FISCAL_YEAR_LOCKED', status: 409 });
     });
   });
 
@@ -352,11 +349,7 @@ describe('CapAllocationExtensionStore (ST-CAP-007)', () => {
       const asked = await ask(line, { extendedTo: `${line.year + 1}-01-31` });
       expect(await refusal(decide(asked, { today: `${line.year + 1}-02-01` }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'extended_to', extensions: { reason: 'ALREADY_ENDED' } });
       await lockYear(line.year + 1);
-      try {
-        expect(await refusal(decide(asked))).toMatchObject({ code: 'FISCAL_YEAR_LOCKED', status: 409 });
-      } finally {
-        await unlockYear(line.year + 1);
-      }
+      expect(await refusal(decide(asked))).toMatchObject({ code: 'FISCAL_YEAR_LOCKED', status: 409 });
     });
 
     it('lets exactly one of two concurrent approvals through, and moves the capital once', async () => {

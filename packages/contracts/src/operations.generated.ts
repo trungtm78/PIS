@@ -504,6 +504,7 @@ export const OPERATIONS = {
   "listExpiringPermits": { method: "get", path: "/permits/expiring", versioned: false, stepUp: null, permission: "permit.read" },
   "listExpiringWarranties": { method: "get", path: "/warranty-obligations/expiring", versioned: false, stepUp: null, permission: "warranty.read" },
   "listExplanationRequests": { method: "get", path: "/explanation-requests", versioned: false, stepUp: null, permission: "explanation.read" },
+  "listFiscalYears": { method: "get", path: "/fiscal-years", versioned: false, stepUp: null, permission: "capital.read" },
   "listGlossaryTerms": { method: "get", path: "/glossary-terms", versioned: false, stepUp: null, permission: "glossary.read" },
   "listIncomingDocuments": { method: "get", path: "/incoming-documents", versioned: false, stepUp: null, permission: "doc.incoming.read" },
   "listInteropMessages": { method: "get", path: "/doc-interop-messages", versioned: false, stepUp: null, permission: "doc.interop.read" },

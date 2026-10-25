@@ -104,3 +104,18 @@
   margin: 0;
   font-variant-numeric: tabular-nums;
 }
+
+/* CAP-11: the state of the chosen year and its facts. */
+.cap-year-facts {
+  display: grid;
+  gap: 8px 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 0 0 12px;
+}
+.cap-year-facts dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.cap-year-facts dd {
+  margin: 0;
+}

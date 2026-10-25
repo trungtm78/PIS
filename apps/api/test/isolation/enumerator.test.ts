@@ -11,12 +11,21 @@ const SYNTHETIC = doc({
   '/things/{id}': { get: { operationId: 'getThing' }, delete: { operationId: 'deleteThing' } },
   '/things/{id}/parts/{partId}': { get: { operationId: 'getPart' } },
   '/health': { get: {} },
+  '/years/{year}/close': { post: { operationId: 'closeYear', parameters: [{ name: 'year', in: 'path', schema: { type: 'integer' } }] } },
+  '/years/{year}/{id}': { post: { operationId: 'markYear', parameters: [{ name: 'year', in: 'path', schema: { type: 'integer' } }, { name: 'id', in: 'path', schema: { type: 'string' } }] } },
 });
 
 describe('enumerateIdBearingOperations', () => {
   it('returns only implemented operations whose path has a path parameter, sorted', () => {
     const implemented = new Set(['getPart', 'listThings', 'getThing', 'createThing']);
     expect(enumerateIdBearingOperations(SYNTHETIC, implemented)).toEqual(['getPart', 'getThing']);
+  });
+
+  it('does not take a calendar value in the path for the id of an object: an integer parameter names no object of another tenant', () => {
+    expect(enumerateIdBearingOperations(SYNTHETIC, new Set(['closeYear']))).toEqual([]);
+    expect(enumerateIdBearingOperations(SYNTHETIC, new Set(['closeYear', 'markYear']))).toEqual(['markYear']);
+    const real = loadOpenApi();
+    expect(enumerateIdBearingOperations(real, new Set(['closeFiscalYear', 'reopenFiscalYear', 'listFiscalYears']))).toEqual([]);
   });
 
   it('ignores id-bearing operations that are not implemented', () => {

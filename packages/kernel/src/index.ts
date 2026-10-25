@@ -72,6 +72,8 @@ export { MAX_PLAN_FEATURES, PLAN_FEATURE_CODES, planDraftIssues } from './plan-c
 export { CORRECTION_SUFFIX, LIMITING_FEATURE, USAGE_METERS, usageMeterOf, usageWindowOf } from './usage-meter.ts';
 export { addDays, addMonthsClamped, billingPeriod, billingPeriodAt, cycleMonths, daysInPeriod, prorationOf } from './billing-period.ts';
 export type { BillingPeriod, Proration } from './billing-period.ts';
+export { CLOSE_TARGETS, MAX_CLOSE_REASON, MAX_REOPEN_REASON, MAX_REOPEN_WINDOW_HOURS, MIN_CLOSE_REASON, MIN_REOPEN_REASON, MIN_REOPEN_WINDOW_HOURS, YEAR_STATUSES, closeAllowed, reopenIssues, reopenedUntil } from './fiscal-year.ts';
+export type { CloseTarget, ReopenIssue, ReopenIssueReason, YearStatus } from './fiscal-year.ts';
 export { EXTENSION_REASON_CODES, MAX_DECISION_REASON, MAX_JUSTIFICATION, MIN_DECISION_REASON, MIN_JUSTIFICATION, extensionIssues, extensionWindow, undisbursedVnd } from './allocation-extension.ts';
 export type { ExtensionIssue, ExtensionIssueReason, ExtensionReasonCode, ExtensionRequestFacts, LineFigures } from './allocation-extension.ts';
 export { MAX_OVERRIDE_DAYS, MAX_OVERRIDE_LEAD_DAYS, MAX_OVERRIDE_REASON, MIN_OVERRIDE_REASON, OVERRIDE_START_SKEW_MS, overrideIssues } from './entitlement-override.ts';

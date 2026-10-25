@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, VND_SCALE, assertFourEyes, compareDecimal, requirePositiveAmount, vietnamDateOf, versionConflict } from '@machvon/kernel';
+import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
 import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -340,7 +341,7 @@ export class CapAppropriationStore {
     const planYear = yearOf(input.planYear, 'plan_year');
     const sourceYear = yearOf(input.sourceYear, 'source_year');
     const extendedTo = this.assertOriginRules(input, planYear, sourceYear);
-    await this.assertYearOpen(tx, planYear);
+    await assertYearsOpen(tx, [planYear]);
     const fund = await this.masterInForce(tx, 'fund_source_version_id', input.fundSourceVersionId, ['FUND_SOURCE'], today);
     if (fund.attributes.relation === 'SUBSET_OF') throw new DomainError('SUBSET_SOURCE_NOT_ADDITIVE', 422, 'fund_source_version_id');
     const program = input.programMasterVersionId === undefined ? undefined : await this.masterInForce(tx, 'program_master_version_id', input.programMasterVersionId, ['PROGRAM'], today);
@@ -418,7 +419,7 @@ export class CapAppropriationStore {
       await this.move(tx, id, "status = 'REJECTED', updated_by = $2::uuid", [decider]);
       return { row: peek, status: 'REJECTED', version: draft.version + 1, supersededId: null, movedLines: 0, ledgerEntryIds: [] };
     }
-    await this.assertYearOpen(tx, draft.planYear);
+    await assertYearsOpen(tx, [draft.planYear]);
     await this.masterInForce(tx, 'fund_source_version_id', draft.fundSourceVersionId, ['FUND_SOURCE'], today);
     if (draft.programMasterVersionId !== null) await this.masterInForce(tx, 'program_master_version_id', draft.programMasterVersionId, ['PROGRAM'], today);
     await this.assertDocument(tx, draft.decisionDocumentId, 'DECISION_REQUIRED', 'decision_document_id');
@@ -456,12 +457,6 @@ export class CapAppropriationStore {
     const extendedTo = dateOf(input.extendedTo, 'extended_to');
     if (extendedTo < `${planYear}-01-01`) throw invalid('extended_to');
     return extendedTo;
-  }
-
-  /** A year that is locked takes no new capital (the year control is kept by ST-CAP-008; a year without a control row is open). */
-  private async assertYearOpen(tx: TenantTx, planYear: number): Promise<void> {
-    const locked = await tx.query("select 1 from machvon.fiscal_year_control where plan_year = $1::integer and status = 'LOCKED'", [planYear]);
-    if (locked.length > 0) throw new DomainError('FISCAL_YEAR_LOCKED', 409, 'plan_year');
   }
 
   private async assertDocument(tx: TenantTx, documentId: string, code: string, field: string): Promise<void> {

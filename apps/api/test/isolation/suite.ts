@@ -363,6 +363,12 @@ export const EXTENSION_FIXTURES: Readonly<Record<TenantName, { id: string; justi
   'TNT-B': { id: '00000000-0000-4000-b0d9-000000000001', justification: 'Beta carry-over justification 0001 for the isolation suite' },
 };
 
+/** A soft-closed fiscal year of each tenant (the reason of the closing is distinctive). */
+export const FISCAL_YEAR_FIXTURES: Readonly<Record<TenantName, { year: number; reason: string }>> = {
+  'TNT-A': { year: 2012, reason: 'Alpha year-close note 0001 for the isolation suite' },
+  'TNT-B': { year: 2013, reason: 'Beta year-close note 0001 for the isolation suite' },
+};
+
 /** A delegation-of-authority matrix draft of each tenant (the legal basis and the document type of its rule are distinctive). */
 export const DOA_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string; documentType: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', legalBasis: 'Alpha tenant approval regulation 0001', documentType: 'ALPHA-DOC-0001' },
@@ -622,6 +628,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'work calendar id', value: WORK_CALENDAR_FIXTURES[tenant].id },
     { kind: 'work calendar code', value: WORK_CALENDAR_FIXTURES[tenant].calendarCode },
     { kind: 'work calendar legal basis', value: WORK_CALENDAR_FIXTURES[tenant].legalBasis },
+    { kind: 'fiscal year close note', value: FISCAL_YEAR_FIXTURES[tenant].reason },
     { kind: 'carry-over request id', value: EXTENSION_FIXTURES[tenant].id },
     { kind: 'carry-over request justification', value: EXTENSION_FIXTURES[tenant].justification },
     { kind: 'avc policy id', value: AVC_POLICY_FIXTURES[tenant].id },

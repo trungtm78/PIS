@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { DomainError, VND_SCALE, addDecimal, asUuid, compareDecimal, requirePositiveAmount, subtractDecimal, versionConflict, vietnamDateOf } from '@machvon/kernel';
 import { CapAppropriationStore } from './cap-appropriation-store.ts';
 import type { AppropriationOrigin, BudgetLevel } from './cap-appropriation-store.ts';
+import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
 import { CapPlanReads, LINE_BUCKETS, PLAN_KINDS } from './cap-plan-reads.ts';
 import type { LineBucket, PlanKind, PlanReadScope, PlanStatus } from './cap-plan-reads.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
@@ -335,7 +336,7 @@ export class CapPlanStore {
     // A unit of another tenant is indistinguishable from one that does not exist.
     if (unit === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     authorize(unit);
-    if (planYear !== null) await this.assertYearsOpen(tx, [planYear]);
+    if (planYear !== null) await assertYearsOpen(tx, [planYear]);
     const id = randomUUID();
     await tx.query('savepoint capital_plan_create');
     try {
@@ -368,7 +369,7 @@ export class CapPlanStore {
     const plan = await this.lockPlan(tx, planId);
     if (plan.version !== expectedVersion) throw versionConflict(plan.version, await this.conflictDiff(tx, plan, scopes.read));
     if (plan.status !== 'DRAFT') throw new DomainError('PLAN_NOT_DRAFT', 409, 'status');
-    if (plan.planYear !== null) await this.assertYearsOpen(tx, [plan.planYear]);
+    if (plan.planYear !== null) await assertYearsOpen(tx, [plan.planYear]);
 
     const peeked = await this.removedLines(tx, plan.id, request.removeLineIds);
     const stages = await this.projectsInScope(tx, unique([...request.lines.map((line) => line.projectId), ...peeked.map((line) => line.projectId)]), scopes.write);
@@ -385,7 +386,7 @@ export class CapPlanStore {
     const removedIds = new Set(removed.map((line) => line.id));
     if (request.lines.some((line) => removedIds.has(existingByKey.get(keyOf(line))?.id ?? ''))) throw invalid('remove_line_ids');
 
-    await this.assertYearsOpen(tx, unique([...request.lines, ...removed].flatMap((line) => (line.appropriationId === null ? [] : [appropriations.get(line.appropriationId)?.planYear ?? plan.periodFromYear]))));
+    await assertYearsOpen(tx, unique([...request.lines, ...removed].flatMap((line) => (line.appropriationId === null ? [] : [appropriations.get(line.appropriationId)?.planYear ?? plan.periodFromYear]))));
 
     const delta = new Map<string, string>();
     const bump = (appropriationId: string, amount: string): void => void delta.set(appropriationId, addDecimal(delta.get(appropriationId) ?? '0', amount));
@@ -506,13 +507,6 @@ export class CapPlanStore {
   private async conflictDiff(tx: TenantTx, plan: PlanLock, scope: PlanReadScope): Promise<Record<string, unknown>> {
     const totals = await this.reads.lineTotals(tx, { capitalPlanId: plan.id }, scope);
     return { status: plan.status, updated_at: plan.updatedAt, line_count: totals.lineCount, allocated_vnd: totals.allocatedVnd };
-  }
-
-  /** A year that is locked takes no new capital (the year control is kept by ST-CAP-008; a year without a control row is open). */
-  private async assertYearsOpen(tx: TenantTx, years: readonly number[]): Promise<void> {
-    if (years.length === 0) return;
-    const locked = await tx.query("select 1 from machvon.fiscal_year_control where plan_year = any($1::integer[]) and status = 'LOCKED'", [[...years]]);
-    if (locked.length > 0) throw new DomainError('FISCAL_YEAR_LOCKED', 409, 'plan_year');
   }
 
   /** The lines of the plan that a draft removes, in the order they were named; one that is not a line of this plan does not exist for the caller. */

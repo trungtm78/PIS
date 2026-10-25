@@ -35413,7 +35413,8 @@
         },
         "x-error-codes": [
           "YEAR_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -35562,7 +35563,10 @@
         },
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
-          "REOPEN_REASON_REQUIRED"
+          "REOPEN_REASON_REQUIRED",
+          "YEAR_STATE_INVALID",
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -121461,6 +121465,111 @@
         "x-exposure": "dto",
         "x-exposure-reason": "Read model with DTO allowlist and object scope"
       }
+    },
+    "/fiscal-years": {
+      "get": {
+        "operationId": "listFiscalYears",
+        "summary": "Trạng thái các năm tài khóa đã có kiểm soát: mở, đóng sơ bộ, khóa (CAP-11)",
+        "tags": [
+          "CAP"
+        ],
+        "x-permission": "capital.read",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The years the control knows, the latest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiscalYearList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope"
+      }
     }
   },
   "components": {
@@ -123502,8 +123611,8 @@
         "properties": {
           "reason": {
             "type": "string",
-            "minLength": 20,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "20 to 2000 characters once trimmed: a shorter reason is refused by the domain with 422 REOPEN_REASON_REQUIRED, not by the schema"
           },
           "window_hours": {
             "type": "integer",
@@ -139640,6 +139749,88 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "FiscalYear": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "plan_year",
+          "status",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Absent for a year the control does not know yet: it is open with version 1"
+          },
+          "plan_year": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "SOFT_CLOSED",
+              "LOCKED"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "description": "resource_version: the If-Match of closeFiscalYear and reopenFiscalYear"
+          },
+          "soft_closed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "soft_closed_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "locked_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "close_reason": {
+            "type": "string"
+          },
+          "reopen_reason": {
+            "type": "string"
+          },
+          "reopened_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reopened_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The end of the window of the last reopening; the year is locked again then"
+          },
+          "reopen_approved_by": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "FiscalYearList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "The years the control knows, the latest first; a year it does not list is open",
+            "items": {
+              "$ref": "#/components/schemas/FiscalYear"
+            }
           }
         }
       }

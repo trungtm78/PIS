@@ -229,6 +229,16 @@ const SEED_EXTENSION = `with d as (
     (tenant_id, id, allocation_line_id, project_id, from_plan_year, extended_to, amount_vnd, reason_code, status, created_by, updated_by)
   values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, $1::uuid, 2031, date '2032-03-31', 50, 'GPMB_CHAM', 'REQUESTED', $2::uuid, $2::uuid)`;
 
+/**
+ * A fiscal year locked by `$2` (version 1), for the year the case names: a different holder of the right reopens it, the person who locked it is refused. The year is made from the
+ * id, so two cases never meet on the unique year of the control.
+ */
+const SEED_LOCKED_YEAR = `insert into machvon.fiscal_year_control (tenant_id, id, plan_year, status, locked_at, locked_by, created_by, updated_by, version)
+  values (current_setting('app.tenant_id')::uuid, gen_random_uuid(), $1::integer, 'LOCKED', now(), $2::uuid, $2::uuid, $2::uuid, 1)`;
+
+/** The year a case of the matrix works on: between 1990 and 2089, made from the id of the case. */
+const yearOfCase = (objectId: string): number => 1990 + (Number.parseInt(objectId.replace(/-/g, '').slice(0, 6), 16) % 100);
+
 /** A request to reopen the locked period of the matrix, made by `$2`; the table keeps one row per request, so each case names its own. */
 const SEED_PERIOD_REOPEN = `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, requested_window_hours, status, created_by, updated_by)
   values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.reporting_period where code = 'MX-W2026-03'), 'PERIOD', 'Maker-checker matrix request to reopen', $2::uuid, 24, 'REQUESTED', $2::uuid, $2::uuid)`;
@@ -474,6 +484,16 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
       body: { decision: 'approve', reason: 'maker-checker matrix extension decision', approving_document_id: derivedId(objectId, 'decide-allocation-extension') },
     }),
     seedMadeBy: (objectId, maker) => [SEED_EXTENSION, [derivedId(objectId, 'decide-allocation-extension'), maker]],
+  },
+  {
+    operationId: 'reopenFiscalYear',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/fiscal-years/${yearOfCase(derivedId(objectId, 'reopen-fiscal-year'))}/reopen`,
+      ifMatch: '"1"',
+      body: { reason: 'maker-checker matrix reopening of the year for a correction', window_hours: 24 },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_LOCKED_YEAR, [yearOfCase(derivedId(objectId, 'reopen-fiscal-year')), maker]],
   },
   {
     operationId: 'decideCapitalPlan',

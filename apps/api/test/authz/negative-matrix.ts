@@ -692,6 +692,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/allocation-extensions/${t.allocationExtensionId}/decision`, ifMatch: '"1"', body: { decision: 'reject', reason: REASON } }),
   },
+  closeFiscalYear: {
+    // The year control belongs to the tenant of the caller: a caller of another tenant works on the year of their own tenant, and never touches tenant A.
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/fiscal-years/2024/close', ifMatch: '"1"', body: { target_status: 'SOFT_CLOSED', reason: REASON } }),
+  },
+  reopenFiscalYear: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/fiscal-years/2024/reopen', ifMatch: '"1"', body: { reason: 'Matrix case, the audit found a mistake in the allocation', window_hours: 24 } }),
+  },
   createCapitalPlan: {
     // The unit of tenant A does not exist for a caller of tenant B (404).
     referencesTenantIds: true,

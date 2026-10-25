@@ -1223,6 +1223,42 @@
       ]
     },
     {
+      "key": "yearCloser",
+      "displayName": "Cán bộ khóa năm kế hoạch",
+      "membershipId": "00000000-0000-4000-8000-000000000760",
+      "permissions": [
+        "capital.read",
+        "capital.year.close"
+      ]
+    },
+    {
+      "key": "yearReopener",
+      "displayName": "Cán bộ mở lại năm kế hoạch",
+      "membershipId": "00000000-0000-4000-8000-000000000761",
+      "permissions": [
+        "capital.read",
+        "capital.year.reopen"
+      ]
+    },
+    {
+      "key": "yearSolo",
+      "displayName": "Cán bộ giữ cả quyền khóa và mở lại năm",
+      "membershipId": "00000000-0000-4000-8000-000000000762",
+      "permissions": [
+        "capital.read",
+        "capital.year.close",
+        "capital.year.reopen"
+      ]
+    },
+    {
+      "key": "yearReader",
+      "displayName": "Người xem trạng thái năm kế hoạch",
+      "membershipId": "00000000-0000-4000-8000-000000000763",
+      "permissions": [
+        "capital.read"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

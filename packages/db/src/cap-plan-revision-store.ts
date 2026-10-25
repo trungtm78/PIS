@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, addDecimal, subtractDecimal, versionConflict } from '@machvon/kernel';
+import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
 import { CapPlanReads } from './cap-plan-reads.ts';
 import type { PlanLineRow, PlanReadScope } from './cap-plan-reads.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -111,10 +112,7 @@ export class CapPlanRevisionStore {
     authorize(unit);
     if (Number(source.version) !== expectedVersion) throw versionConflict(Number(source.version));
     if (source.status !== 'PUBLISHED') throw new DomainError('PLAN_NOT_PUBLISHED', 409, 'status');
-    if (source.plan_year !== null) {
-      const locked = await tx.query("select 1 from machvon.fiscal_year_control where plan_year = $1::integer and status = 'LOCKED'", [source.plan_year]);
-      if (locked.length > 0) throw new DomainError('FISCAL_YEAR_LOCKED', 409, 'plan_year');
-    }
+    if (source.plan_year !== null) await assertYearsOpen(tx, [source.plan_year]);
     const pending = await tx.query("select 1 from machvon.capital_plan where plan_code = $1 and status in ('DRAFT', 'IN_REVIEW', 'APPROVED')", [source.plan_code]);
     if (pending.length > 0) throw new DomainError('REVISION_PENDING_EXISTS', 409, 'status');
     const next = (await tx.query<{ next: number }>('select max(revision) + 1 as next from machvon.capital_plan where plan_code = $1', [source.plan_code]))[0]?.next ?? source.revision + 1;

@@ -3,6 +3,7 @@ import { DomainError, requirePositiveAmount, vietnamDateOf } from '@machvon/kern
 import { evaluateAvc } from './cap-avc.ts';
 import type { AvcFigures, AvcThresholds, AvcVerdict } from './cap-avc.ts';
 import { CapAvcPolicyStore } from './cap-avc-policy-store.ts';
+import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
 import { creditBalance, lockLedgerRows } from './ledger-lock.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -137,6 +138,8 @@ export class CapAvailabilityStore {
     const [peek] = await tx.query<LineRow>(`${LINE_SELECT} where al.id = $1::uuid`, [input.allocationLineId]);
     if (peek === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (peek.appropriation_id === null || peek.plan_year === null) throw new DomainError('VALIDATION_FAILED', 422, 'allocation_line_id', { extensions: { reason: 'LINE_WITHOUT_APPROPRIATION' } });
+    // A year that is soft-closed or locked takes no new commitment (ST-CAP-008).
+    await assertYearsOpen(tx, [peek.plan_year]);
     const appropriationId = peek.appropriation_id;
     const lineThresholds = await this.policies.governingLine(tx, { projectGroup: peek.project_group, unitId: peek.owner_unit_id, fundSourceKey: peek.fund_key }, today);
     const appropriationThresholds = await this.policies.governing(tx, { controlObject: 'APPROPRIATION', fundSourceKey: peek.fund_key }, today);

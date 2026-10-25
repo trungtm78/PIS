@@ -506,6 +506,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listExpiringPermits': OperationDescriptor(method: 'GET', path: '/permits/expiring', versioned: false, stepUp: null, permission: 'permit.read'),
   'listExpiringWarranties': OperationDescriptor(method: 'GET', path: '/warranty-obligations/expiring', versioned: false, stepUp: null, permission: 'warranty.read'),
   'listExplanationRequests': OperationDescriptor(method: 'GET', path: '/explanation-requests', versioned: false, stepUp: null, permission: 'explanation.read'),
+  'listFiscalYears': OperationDescriptor(method: 'GET', path: '/fiscal-years', versioned: false, stepUp: null, permission: 'capital.read'),
   'listGlossaryTerms': OperationDescriptor(method: 'GET', path: '/glossary-terms', versioned: false, stepUp: null, permission: 'glossary.read'),
   'listIncomingDocuments': OperationDescriptor(method: 'GET', path: '/incoming-documents', versioned: false, stepUp: null, permission: 'doc.incoming.read'),
   'listInteropMessages': OperationDescriptor(method: 'GET', path: '/doc-interop-messages', versioned: false, stepUp: null, permission: 'doc.interop.read'),

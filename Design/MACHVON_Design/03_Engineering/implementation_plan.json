@@ -39430,7 +39430,8 @@
       ],
       "operations": [
         "closeFiscalYear",
-        "reopenFiscalYear"
+        "reopenFiscalYear",
+        "listFiscalYears"
       ],
       "tables": [
         "fiscal_year_control"

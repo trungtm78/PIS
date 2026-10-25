@@ -48,6 +48,8 @@
     "createWorkCalendarVersion",
     "decideAppropriation",
     "decideAllocationExtension",
+    "closeFiscalYear",
+    "reopenFiscalYear",
     "requestAllocationExtension",
     "declarePermitExemption",
     "dispatchOutgoingDocument",

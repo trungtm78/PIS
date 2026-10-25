@@ -4,7 +4,8 @@ import type { ExtensionIssue } from '@machvon/kernel';
 import { CapAppropriationStore } from './cap-appropriation-store.ts';
 import type { AppropriationInput } from './cap-appropriation-store.ts';
 import type { PlanAuthorizer } from './cap-plan-approval-store.ts';
-import { assertYearsOpen, unitOf, writeAllocatedTotals } from './cap-plan-locks.ts';
+import { assertYearsNotLocked, assertYearsOpen } from './cap-fiscal-year-guard.ts';
+import { unitOf, writeAllocatedTotals } from './cap-plan-locks.ts';
 import { BalanceDriftError, CapPlanPublicationStore } from './cap-plan-publication-store.ts';
 import { timestampKey } from './keyset.ts';
 import { debitBalance, lockLedgerRows } from './ledger-lock.ts';
@@ -237,7 +238,9 @@ export class CapAllocationExtensionStore {
     const peek = await this.lineContext(tx, input.allocationLineId);
     if (peek.scopeUnitId !== null) authorize(await unitOf(tx, peek.scopeUnitId));
     const year = this.assertCarryable(peek);
-    await assertYearsOpen(tx, [year, year + 1]);
+    // The plan year may be soft-closed (the adjustment period is for carrying capital over); the next year must be open to take it.
+    await assertYearsNotLocked(tx, [year]);
+    await assertYearsOpen(tx, [year + 1]);
     const issues = extensionIssues({ amountVnd: input.amountVnd, extendedTo: input.extendedTo, reasonCode: input.reasonCode, justification: input.justification, fromPlanYear: year });
     if (issues.length > 0) throw extensionInvalid(issues);
 
@@ -290,7 +293,9 @@ export class CapAllocationExtensionStore {
     await this.assertDocument(tx, input.approvingDocumentId);
     if (current.extendedTo < today) throw invalid('extended_to', 'ALREADY_ENDED');
     const year = current.fromPlanYear;
-    await assertYearsOpen(tx, [year, year + 1]);
+    // The plan year may be soft-closed (the adjustment period is for carrying capital over); the next year must be open to take it.
+    await assertYearsNotLocked(tx, [year]);
+    await assertYearsOpen(tx, [year + 1]);
     const applied = await this.apply(tx, current, context, { ...input, reason }, today);
     return { row: applied.row, applied };
   }

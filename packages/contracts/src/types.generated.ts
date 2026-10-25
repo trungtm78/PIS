@@ -14387,6 +14387,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fiscal-years": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trạng thái các năm tài khóa đã có kiểm soát: mở, đóng sơ bộ, khóa (CAP-11) */
+        get: operations["listFiscalYears"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -14946,6 +14963,7 @@ export interface components {
             reason: string;
         };
         CapYearReopen: {
+            /** @description 20 to 2000 characters once trimmed: a shorter reason is refused by the domain with 422 REOPEN_REASON_REQUIRED, not by the schema */
             reason: string;
             window_hours: number;
         };
@@ -19231,6 +19249,41 @@ export interface components {
         AllocationExtensionPage: {
             items: components["schemas"]["AllocationExtension"][];
             next_cursor: string | null;
+        };
+        FiscalYear: {
+            /**
+             * Format: uuid
+             * @description Absent for a year the control does not know yet: it is open with version 1
+             */
+            id?: string;
+            plan_year: number;
+            /** @enum {string} */
+            status: "OPEN" | "SOFT_CLOSED" | "LOCKED";
+            /** @description resource_version: the If-Match of closeFiscalYear and reopenFiscalYear */
+            version: number;
+            /** Format: date-time */
+            soft_closed_at?: string;
+            /** Format: uuid */
+            soft_closed_by?: string;
+            /** Format: date-time */
+            locked_at?: string;
+            /** Format: uuid */
+            locked_by?: string;
+            close_reason?: string;
+            reopen_reason?: string;
+            /** Format: date-time */
+            reopened_at?: string;
+            /**
+             * Format: date-time
+             * @description The end of the window of the last reopening; the year is locked again then
+             */
+            reopened_until?: string;
+            /** Format: uuid */
+            reopen_approved_by?: string;
+        };
+        FiscalYearList: {
+            /** @description The years the control knows, the latest first; a year it does not list is open */
+            items: components["schemas"]["FiscalYear"][];
         };
     };
     responses: never;
@@ -103841,6 +103894,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AllocationExtensionPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listFiscalYears: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The years the control knows, the latest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FiscalYearList"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
