@@ -70,6 +70,10 @@ export type { LicenseClaims, LicenseRejection, LicenseRevisionState, LicenseSign
 export { FEATURE_BY_PERMISSION, RISKY_FEATURES, featureOf, isRiskyFeature } from './features.ts';
 export { MAX_PLAN_FEATURES, PLAN_FEATURE_CODES, planDraftIssues } from './plan-catalogue.ts';
 export { CORRECTION_SUFFIX, LIMITING_FEATURE, USAGE_METERS, usageMeterOf, usageWindowOf } from './usage-meter.ts';
+export { addDays, addMonthsClamped, billingPeriod, billingPeriodAt, cycleMonths, daysInPeriod, prorationOf } from './billing-period.ts';
+export type { BillingPeriod, Proration } from './billing-period.ts';
+export { planChangeHash, quotaViolations } from './plan-change.ts';
+export type { PlanChangeEffective, PlanChangeFacts, QuotaViolation } from './plan-change.ts';
 export type { UsageMeter, UsageWindow } from './usage-meter.ts';
 export type {
   PlanBillingCycle,

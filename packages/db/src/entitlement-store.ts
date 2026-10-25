@@ -137,6 +137,50 @@ export async function effectiveLimits(tx: TenantTx, now: Date): Promise<Readonly
 }
 
 /**
+ * Adds the next entitlement version of the tenant of `tx` and the `sas.entitlement.changed.v1` event in the same transaction. Versions are insert-only;
+ * concurrent callers take the tenant's advisory lock, so numbers have no gap or duplicate. A function and not only a method of the store: what changes a
+ * tenant's plan (a subscription, a job of the tenant) records a version without needing the cache that the store reads through.
+ */
+export async function recordEntitlementVersion(tx: TenantTx, input: RecordEntitlementInput): Promise<{ versionNo: number; hash: string }> {
+  await tx.query(LOCK_SQL);
+  const [next] = await tx.query<{ version_no: string; tenant_id: string | null }>(NEXT_VERSION_SQL);
+  if (next === undefined || next.tenant_id === null) throw new DomainError('TENANT_CONTEXT_INVALID', 400);
+  const versionNo = Number(next.version_no);
+  const hash = entitlementsHash(input.features);
+  await tx.query(INSERT_VERSION_SQL, [versionNo, input.subscriptionId ?? null, input.planVersionId, JSON.stringify(input.features), hash, input.cause]);
+  const correlationId = input.correlationId ?? randomUUID();
+  await enqueueOutbox(tx, {
+    aggregateType: 'tenant',
+    aggregateId: next.tenant_id,
+    aggregateVersion: versionNo,
+    type: ENTITLEMENT_CHANGED_EVENT,
+    schemaVersion: 1,
+    payload: { tenant_id: next.tenant_id, version_no: versionNo, entitlements_hash: hash },
+    eventKey: `entitlement:${next.tenant_id}:${versionNo}`,
+    correlationId,
+  });
+  return { versionNo, hash };
+}
+
+/**
+ * Records a new version with the features of the latest one: the source of the change is not the plan (a license was issued or revoked, the tenant changed state,
+ * an override was decided or ended), but every such change tells the sessions of the tenant through `sas.entitlement.changed.v1`.
+ */
+export async function recordCurrentEntitlementVersion(tx: TenantTx, cause: EntitlementCause, correlationId?: string): Promise<{ versionNo: number; hash: string }> {
+  // The lock comes first: another transaction may be recording a version, and this one has to copy the version that results.
+  await tx.query(LOCK_SQL);
+  const [latest] = await tx.query<{ plan_version_id: string; subscription_id: string | null; features_json: unknown }>(LATEST_SOURCE_SQL);
+  if (latest === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+  return recordEntitlementVersion(tx, {
+    cause,
+    planVersionId: latest.plan_version_id,
+    features: featuresOf(latest.features_json),
+    ...(latest.subscription_id === null ? {} : { subscriptionId: latest.subscription_id }),
+    ...(correlationId === undefined ? {} : { correlationId }),
+  });
+}
+
+/**
  * Entitlements of a tenant: the latest `entitlement_version` plus its active overrides, the license status and the
  * tenant state, evaluated by the kernel `allowedFeature` (BR-SAS-10). Reads go through a per-tenant cache; a decision for a
  * risky command asks the database instead. A tenant with no version has no features at all, so gated features are off.
@@ -192,47 +236,14 @@ export class EntitlementStore {
     return this.judge(snapshot, feature, operationKind, now);
   }
 
-  /**
-   * Adds the next entitlement version of the tenant of `tx` and the `sas.entitlement.changed.v1` event in the same
-   * transaction. Versions are insert-only; concurrent callers take the tenant's advisory lock, so numbers have no gap or duplicate.
-   */
-  async record(tx: TenantTx, input: RecordEntitlementInput): Promise<{ versionNo: number; hash: string }> {
-    await tx.query(LOCK_SQL);
-    const [next] = await tx.query<{ version_no: string; tenant_id: string | null }>(NEXT_VERSION_SQL);
-    if (next === undefined || next.tenant_id === null) throw new DomainError('TENANT_CONTEXT_INVALID', 400);
-    const versionNo = Number(next.version_no);
-    const hash = entitlementsHash(input.features);
-    await tx.query(INSERT_VERSION_SQL, [versionNo, input.subscriptionId ?? null, input.planVersionId, JSON.stringify(input.features), hash, input.cause]);
-    const correlationId = input.correlationId ?? randomUUID();
-    await enqueueOutbox(tx, {
-      aggregateType: 'tenant',
-      aggregateId: next.tenant_id,
-      aggregateVersion: versionNo,
-      type: ENTITLEMENT_CHANGED_EVENT,
-      schemaVersion: 1,
-      payload: { tenant_id: next.tenant_id, version_no: versionNo, entitlements_hash: hash },
-      eventKey: `entitlement:${next.tenant_id}:${versionNo}`,
-      correlationId,
-    });
-    return { versionNo, hash };
+  /** See `recordEntitlementVersion`. */
+  record(tx: TenantTx, input: RecordEntitlementInput): Promise<{ versionNo: number; hash: string }> {
+    return recordEntitlementVersion(tx, input);
   }
 
-  /**
-   * Records a new version with the features of the latest one: the source of the change is not the plan (a license was issued or
-   * revoked, the tenant changed state), but every such change tells the sessions of the tenant through `sas.entitlement.changed.v1`.
-   */
-  async recordCurrent(tx: TenantTx, cause: EntitlementCause, correlationId?: string): Promise<{ versionNo: number; hash: string }> {
-    // The lock comes first: another transaction may be recording a version, and this one has to copy the version that results.
-    await tx.query(LOCK_SQL);
-    const [latest] = await tx.query<{ plan_version_id: string; subscription_id: string | null; features_json: unknown }>(LATEST_SOURCE_SQL);
-    if (latest === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return this.record(tx, {
-      cause,
-      planVersionId: latest.plan_version_id,
-      features: featuresOf(latest.features_json),
-      ...(latest.subscription_id === null ? {} : { subscriptionId: latest.subscription_id }),
-      ...(correlationId === undefined ? {} : { correlationId }),
-    });
+  /** See `recordCurrentEntitlementVersion`. */
+  recordCurrent(tx: TenantTx, cause: EntitlementCause, correlationId?: string): Promise<{ versionNo: number; hash: string }> {
+    return recordCurrentEntitlementVersion(tx, cause, correlationId);
   }
 
   private judge(snapshot: EntitlementSnapshot, feature: string, operationKind: OperationKind, now: Date): { allowed: boolean; reason?: string } {

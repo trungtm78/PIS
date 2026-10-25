@@ -121158,6 +121158,73 @@
         "x-plane": "control",
         "x-required-role": "SystemAdmin"
       }
+    },
+    "/system/tenants/{tenantId}/subscription": {
+      "get": {
+        "operationId": "getTenantSubscription",
+        "summary": "Thuê bao sống của một tenant, gói hiện tại và gói chờ, lịch sử đổi gói (SAS-07, SAS-08)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The live subscription (absent when the tenant has none) with its plans and its latest plan changes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSubscription"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Thuê bao, gói và lịch sử đổi gói của một tenant; chỉ control plane",
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      }
     }
   },
   "components": {
@@ -138911,6 +138978,227 @@
             "description": "Control plane only: the latest events of the tenant",
             "items": {
               "$ref": "#/components/schemas/UsageEvent"
+            }
+          }
+        }
+      },
+      "Subscription": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "plan_version_id",
+          "cycle",
+          "billing_anchor",
+          "status",
+          "started_at",
+          "current_period_start",
+          "current_period_end",
+          "cancel_at_period_end",
+          "payment_terms",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cycle": {
+            "type": "string",
+            "enum": [
+              "MONTHLY",
+              "QUARTERLY",
+              "ANNUAL",
+              "CONTRACT_TERM"
+            ]
+          },
+          "billing_anchor": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Trialing",
+              "Active",
+              "PastDue",
+              "Paused",
+              "Cancelled",
+              "Expired"
+            ]
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trial_ends_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current_period_start": {
+            "type": "string",
+            "format": "date"
+          },
+          "current_period_end": {
+            "type": "string",
+            "format": "date",
+            "description": "The last day of the period, which belongs to it"
+          },
+          "cancel_at_period_end": {
+            "type": "boolean"
+          },
+          "pending_plan_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pending_effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "procurement_contract_ref": {
+            "type": "string"
+          },
+          "payment_terms": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+              "due_days": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 180
+              },
+              "method": {
+                "type": "string",
+                "enum": [
+                  "BANK_TRANSFER",
+                  "TREASURY_TRANSFER",
+                  "GATEWAY"
+                ]
+              }
+            }
+          },
+          "version": {
+            "type": "integer",
+            "description": "resource_version: the If-Match of changeSubscriptionPlan and cancelSubscription"
+          }
+        }
+      },
+      "SubscriptionPlanSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "plan_code",
+          "revision",
+          "name",
+          "base_price_vnd"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_code": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "base_price_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          }
+        }
+      },
+      "SubscriptionPlanChange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "from_plan_version_id",
+          "to_plan_version_id",
+          "effective",
+          "effective_at",
+          "proration_vnd",
+          "reason",
+          "requested_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "from_plan_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to_plan_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "effective": {
+            "type": "string",
+            "enum": [
+              "NOW",
+              "NEXT_CYCLE"
+            ]
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "proration_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "applied_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "superseded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TenantSubscription": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "changes"
+        ],
+        "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/Subscription"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlanSummary"
+          },
+          "pending_plan": {
+            "$ref": "#/components/schemas/SubscriptionPlanSummary"
+          },
+          "changes": {
+            "type": "array",
+            "description": "The latest plan changes of the subscription, the latest first",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionPlanChange"
             }
           }
         }

@@ -871,6 +871,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getTenantEntitlements({required String tenantId, Map<String, Object?>? query}) =>
       execute('getTenantEntitlements', path: <String, Object?>{'tenantId': tenantId}, query: query);
 
+  Future<Object?> getTenantSubscription({required String tenantId, Map<String, Object?>? query}) =>
+      execute('getTenantSubscription', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
   Future<Object?> getTenantUsage({required String tenantId, Map<String, Object?>? query}) =>
       execute('getTenantUsage', path: <String, Object?>{'tenantId': tenantId}, query: query);
 

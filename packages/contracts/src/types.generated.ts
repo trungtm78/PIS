@@ -14352,6 +14352,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/system/tenants/{tenantId}/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Thuê bao sống của một tenant, gói hiện tại và gói chờ, lịch sử đổi gói (SAS-07, SAS-08) */
+        get: operations["getTenantSubscription"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -19053,6 +19070,79 @@ export interface components {
             };
             /** @description Control plane only: the latest events of the tenant */
             recent_events?: components["schemas"]["UsageEvent"][];
+        };
+        Subscription: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            plan_version_id: string;
+            /** @enum {string} */
+            cycle: "MONTHLY" | "QUARTERLY" | "ANNUAL" | "CONTRACT_TERM";
+            /** Format: date */
+            billing_anchor: string;
+            /** @enum {string} */
+            status: "Trialing" | "Active" | "PastDue" | "Paused" | "Cancelled" | "Expired";
+            /** Format: date-time */
+            started_at: string;
+            /** Format: date-time */
+            trial_ends_at?: string;
+            /** Format: date */
+            current_period_start: string;
+            /**
+             * Format: date
+             * @description The last day of the period, which belongs to it
+             */
+            current_period_end: string;
+            cancel_at_period_end: boolean;
+            /** Format: uuid */
+            pending_plan_version_id?: string;
+            /** Format: date-time */
+            pending_effective_at?: string;
+            procurement_contract_ref?: string;
+            payment_terms: {
+                due_days?: number;
+                /** @enum {string} */
+                method?: "BANK_TRANSFER" | "TREASURY_TRANSFER" | "GATEWAY";
+            };
+            /** @description resource_version: the If-Match of changeSubscriptionPlan and cancelSubscription */
+            version: number;
+        };
+        SubscriptionPlanSummary: {
+            /** Format: uuid */
+            id: string;
+            plan_code: string;
+            revision: number;
+            name: string;
+            /** @description Integer VND as decimal string */
+            base_price_vnd: string;
+        };
+        SubscriptionPlanChange: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            from_plan_version_id: string;
+            /** Format: uuid */
+            to_plan_version_id: string;
+            /** @enum {string} */
+            effective: "NOW" | "NEXT_CYCLE";
+            /** Format: date-time */
+            effective_at: string;
+            /** @description Integer VND as decimal string */
+            proration_vnd: string;
+            reason: string;
+            /** Format: date-time */
+            requested_at: string;
+            /** Format: date-time */
+            applied_at?: string;
+            /** Format: date-time */
+            superseded_at?: string;
+        };
+        TenantSubscription: {
+            subscription?: components["schemas"]["Subscription"];
+            plan?: components["schemas"]["SubscriptionPlanSummary"];
+            pending_plan?: components["schemas"]["SubscriptionPlanSummary"];
+            /** @description The latest plan changes of the subscription, the latest first */
+            changes: components["schemas"]["SubscriptionPlanChange"][];
         };
     };
     responses: never;
@@ -103510,6 +103600,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UsageSummary"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The live subscription (absent when the tenant has none) with its plans and its latest plan changes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantSubscription"];
                 };
             };
             /** @description SESSION_EXPIRED */

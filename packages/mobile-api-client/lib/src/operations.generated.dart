@@ -291,6 +291,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getSystemTenant': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}', versioned: false, stepUp: null, permission: 'system.tenant.read'),
   'getSystemTenantThemeDraft': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/theme/draft', versioned: false, stepUp: null, permission: 'system.theme.manage'),
   'getTenantEntitlements': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/entitlements', versioned: false, stepUp: null, permission: 'system.tenant.read'),
+  'getTenantSubscription': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/subscription', versioned: false, stepUp: null, permission: 'system.tenant.read'),
   'getTenantUsage': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/usage', versioned: false, stepUp: null, permission: 'system.tenant.read'),
   'getTreasuryImport': OperationDescriptor(method: 'GET', path: '/treasury-imports/{id}', versioned: false, stepUp: null, permission: 'treasury.import.read'),
   'get_resources_acceptance': OperationDescriptor(method: 'GET', path: '/resources/acceptance', versioned: false, stepUp: null, permission: 'acceptance.read'),

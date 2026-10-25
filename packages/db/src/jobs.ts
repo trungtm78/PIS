@@ -45,6 +45,8 @@ export const JOB_INTERVAL_SECONDS = {
   'notification-reconcile': 300,
   // Every 10 seconds: a requested quality run is executed within seconds of its request; a run is executed once, whoever asks and however often (ST-DGV-002).
   'dgv-quality-run': 10,
+  // Hourly: a trial that has ended, a plan that waited for its day and a billing period that has passed are dealt with within the hour (ST-SAS-008); the pass is idempotent.
+  'subscription-cycle': 3600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -151,6 +153,11 @@ export interface StandardJobDeps {
   };
   /** Executes the quality runs that are waiting (ST-DGV-002); tells how many datasets of the tenant have no finished run, for the gauge. */
   dgvQuality?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<{ notAssessed: number }> };
+  /**
+   * The pass over the subscription of a tenant (ST-SAS-008): a trial that has ended becomes Active, a plan change that waited for its day takes effect, a period
+   * that has passed gives way to the next and a subscription set to end ends. It reads the plan catalogue, so it runs through the control plane.
+   */
+  subscriptionCycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -374,6 +381,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
           metrics.gauge(DGV_NOT_ASSESSED_GAUGE, notAssessed);
         }
+      },
+    });
+  }
+  const subscriptions = deps.subscriptionCycle;
+  if (subscriptions !== undefined) {
+    handlers.push({
+      name: 'subscription-cycle',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await subscriptions.run(workerContext(tenantId), now)));
       },
     });
   }

@@ -1,0 +1,39 @@
+/* SAS-07 and SAS-08: the subscription of a tenant and the change of its plan. The shared cards, tables, pills and callouts do the rest. */
+.sas-subscription .card + .card,
+.sas-subscription .card + .callout {
+  margin-top: 16px;
+}
+
+.sas-subscription .subscription-actions,
+.sas-subscription .subscription-cancel,
+.sas-subscription .plan-change-apply {
+  margin-top: 16px;
+}
+
+.sas-subscription .plan-change-effective {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.sas-subscription .plan-change-effective legend {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sas-subscription .check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.sas-subscription .field-error {
+  color: #a22b22;
+  display: block;
+}
+
+.sas-subscription td code,
+.sas-subscription dd code {
+  word-break: break-all;
+}

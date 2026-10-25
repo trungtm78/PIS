@@ -50,7 +50,7 @@ const PLAN_FEATURES_SQL = `select feature_code, limit_kind, limit_value::text as
 const SUBSCRIPTION_SQL = 'select id from machvon.subscription order by id limit 1';
 const INSERT_SUBSCRIPTION_SQL = `insert into machvon.subscription
     (tenant_id, id, plan_version_id, cycle, billing_anchor, status, payment_terms, started_at, trial_ends_at, current_period_start, current_period_end)
-  values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, 'ANNUAL', $2::date, 'Trialing', '{}'::jsonb, $3::timestamptz, $4::timestamptz, $2::date, ($2::date + 365))
+  values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, 'ANNUAL', $2::date, 'Trialing', '{}'::jsonb, $3::timestamptz, $4::timestamptz, $2::date, (($2::date + interval '1 year')::date - 1))
   returning id`;
 const ROOT_UNIT_SQL = `select id from machvon.organization_unit where parent_id is null and status = 'Active' order by (code = '${ROOT_UNIT_CODE}') desc, created_at, id limit 1`;
 const INSERT_ROOT_UNIT_SQL = `insert into machvon.organization_unit (tenant_id, id, code, name, parent_id, valid_from, unit_type, path, depth, status)

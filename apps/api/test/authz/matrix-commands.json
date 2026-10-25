@@ -186,9 +186,13 @@
   ],
   "controlCommands": [
     "assignTenantOwner",
+    "cancelSubscription",
+    "changeSubscriptionPlan",
     "createPlanVersion",
+    "createSubscription",
     "post_licenses",
     "post_licenses_id_revoke",
+    "previewPlanChange",
     "publishPlanVersion",
     "publishSystemTenantTheme",
     "putSystemTenantThemeDraft",

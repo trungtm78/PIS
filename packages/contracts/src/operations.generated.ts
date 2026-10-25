@@ -289,6 +289,7 @@ export const OPERATIONS = {
   "getSystemTenant": { method: "get", path: "/system/tenants/{tenantId}", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "getSystemTenantThemeDraft": { method: "get", path: "/system/tenants/{tenantId}/theme/draft", versioned: false, stepUp: null, permission: "system.theme.manage" },
   "getTenantEntitlements": { method: "get", path: "/system/tenants/{tenantId}/entitlements", versioned: false, stepUp: null, permission: "system.tenant.read" },
+  "getTenantSubscription": { method: "get", path: "/system/tenants/{tenantId}/subscription", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "getTenantUsage": { method: "get", path: "/system/tenants/{tenantId}/usage", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "getTreasuryImport": { method: "get", path: "/treasury-imports/{id}", versioned: false, stepUp: null, permission: "treasury.import.read" },
   "get_resources_acceptance": { method: "get", path: "/resources/acceptance", versioned: false, stepUp: null, permission: "acceptance.read" },

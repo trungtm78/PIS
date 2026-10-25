@@ -62,5 +62,10 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'createPlanVersion', permission: PERMISSIONS.createPlanVersion, method: 'POST', path: '/system/plans' },
   { operationId: 'publishPlanVersion', permission: PERMISSIONS.publishPlanVersion, method: 'POST', path: '/system/plans/{planVersionId}/publish' },
   { operationId: 'getTenantUsage', permission: PERMISSIONS.getTenantUsage, method: 'GET', path: '/system/tenants/{tenantId}/usage' },
+  { operationId: 'createSubscription', permission: PERMISSIONS.createSubscription, method: 'POST', path: '/system/tenants/{tenantId}/subscriptions' },
+  { operationId: 'previewPlanChange', permission: PERMISSIONS.previewPlanChange, method: 'POST', path: '/system/subscriptions/{subscriptionId}/plan-change-previews' },
+  { operationId: 'changeSubscriptionPlan', permission: PERMISSIONS.changeSubscriptionPlan, method: 'POST', path: '/system/subscriptions/{subscriptionId}/plan-change' },
+  { operationId: 'cancelSubscription', permission: PERMISSIONS.cancelSubscription, method: 'POST', path: '/system/subscriptions/{subscriptionId}/cancel' },
+  { operationId: 'getTenantSubscription', permission: PERMISSIONS.getTenantSubscription, method: 'GET', path: '/system/tenants/{tenantId}/subscription' },
 ];
 

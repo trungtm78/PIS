@@ -23,7 +23,7 @@ import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
 import { PERIOD_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
-import { TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
+import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -344,6 +344,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getMyUsage',
   'get_resources_usage_meter_event',
   'get_resources_usage_meter_event_id',
+  'get_resources_subscription',
+  'get_resources_subscription_id',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -586,6 +588,10 @@ const INSERT_TREASURY_TRANSACTION = `insert into machvon.treasury_transaction
   (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, import_id, document_no, document_date, source_kind, row_hash, created_by)
   values ($1, $2, $3, $4, 'KBNN_FILE', 1000, '2026-10-16T00:00:00Z', repeat('c', 64), $5, $6, date '2026-10-15', 'FILE_IMPORT', repeat('c', 64), $7) on conflict do nothing`;
 
+const INSERT_SUBSCRIPTION = `insert into machvon.subscription
+  (tenant_id, id, plan_version_id, cycle, billing_anchor, status, payment_terms, current_period_start, current_period_end, procurement_contract_ref)
+  values ($1, $2, '00000000-0000-4000-9000-000000000001', 'ANNUAL', date '2026-01-01', 'Active', '{"due_days":30,"method":"BANK_TRANSFER"}'::jsonb, date '2026-01-01', date '2026-12-31', $3) on conflict (tenant_id, id) do nothing`;
+
 const INSERT_USAGE_EVENT = `insert into machvon.usage_meter_event
   (tenant_id, id, meter, external_event_key, quantity, occurred_at, source_reference, unit)
   values ($1, $2, 'notification.zns', $3, 7, '2026-10-16T00:00:00Z', $4, 'message') on conflict (tenant_id, meter, external_event_key) do nothing`;
@@ -810,6 +816,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const treasury = TREASURY_FIXTURES[tenant];
     await client.query(INSERT_TREASURY_IMPORT, [tenantId, treasury.importId, treasury.fileSha256, `tenants/${tenantId}/import/isolation-statement`, MEMBERSHIP_ID]);
     await client.query(INSERT_TREASURY_TRANSACTION, [tenantId, treasury.transactionId, project.id, treasury.externalId, treasury.importId, treasury.documentNo, MEMBERSHIP_ID]);
+    const subscription = SUBSCRIPTION_FIXTURES[tenant];
+    await client.query(INSERT_SUBSCRIPTION, [tenantId, subscription.id, subscription.contractRef]);
     const usage = USAGE_FIXTURES[tenant];
     await client.query(INSERT_USAGE_EVENT, [tenantId, usage.id, usage.externalKey, usage.sourceReference]);
     const dataset = DATASET_FIXTURES[tenant];

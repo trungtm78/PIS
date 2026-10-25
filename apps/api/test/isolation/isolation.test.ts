@@ -427,6 +427,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'getMyUsage',
         'get_resources_usage_meter_event',
         'get_resources_usage_meter_event_id',
+        'get_resources_subscription',
+        'get_resources_subscription_id',
       ].sort(),
     );
   });

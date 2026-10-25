@@ -31025,7 +31025,8 @@
         "changeSubscriptionPlan",
         "cancelSubscription",
         "get_resources_subscription",
-        "get_resources_subscription_id"
+        "get_resources_subscription_id",
+        "getTenantSubscription"
       ],
       "tables": [
         "subscription"
