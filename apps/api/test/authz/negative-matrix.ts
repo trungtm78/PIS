@@ -1107,6 +1107,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/national-code`, ifMatch: '"1"', body: { national_project_code: '9900001', evidence_document_id: t.decisionDocumentId } }),
   },
+  // The procurement milestones and the file of the national bidding system: the package of the approved plan is not touched by a caller that is refused, and no file is read.
+  recordProcurementMilestone: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/procurement-packages/${t.criteriaPackageId}/milestones`, ifMatch: '"1"', body: { milestone_kind: 'BID_OPENING', actual_at: '2026-09-01T03:00:00Z' } }),
+  },
+  importProcurementFile: {
+    referencesTenantIds: true,
+    build: () => ({
+      method: 'POST',
+      path: '/procurement-imports',
+      body: { file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/import/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64), mode: 'DRY_RUN' },
+    }),
+  },
+  uploadProcurementFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/procurement-imports/files', body: {} }),
+  },
   importNationalProjectCodes: {
     referencesTenantIds: true,
     build: () => ({

@@ -354,6 +354,14 @@ export type { BiddingForm, NewPlanInput, PackageContractType, PackageInput, Sele
 export { BidPlanStore, PLAN_DECISIONS, PLAN_STATUSES as BID_PLAN_STATUSES, PLANNABLE_PROJECT_STATUSES } from './bid-plan-store.ts';
 export type { BidAllocationUse, BidCreatedPackage, BidCreatedPlan, BidDecidedPlan, BidDecisionInput, PlanDecision, PlanStatus as BidPlanStatus, BidSubmittedPlan } from './bid-plan-store.ts';
 export { BidPlanReads, bidReadScope } from './bid-plan-reads.ts';
+export { BidExternalLinks, diffWithMilestone, isInSync } from './bid-external-link.ts';
+export type { LinkDiff, LinkRow } from './bid-external-link.ts';
+export { BidMilestoneStore, PACKAGE_STATUSES_WITHOUT_MILESTONES } from './bid-milestone-store.ts';
+export type { NewMilestone, ProcurementMilestoneLine, RecordedMilestone } from './bid-milestone-store.ts';
+export { BidProcurementImport, ProcurementImportAdapter } from './bid-procurement-import.ts';
+export type { BatchCounts, ImportedMilestone, ProcurementImportContext, ProcurementOutcome } from './bid-procurement-import.ts';
+export { BidLinkReads, LINK_DIFF_STATUSES } from './bid-link-reads.ts';
+export type { LinkDiffStatus, LinkLine } from './bid-link-reads.ts';
 export type { BidReadScope, LastDecision, PackageLine, PlanFilter as BidPlanFilter, PlanLine, ProjectLabel } from './bid-plan-reads.ts';
 export { CRITERION_KINDS, MAX_CRITERIA, TOTAL_WEIGHT, readCriteria } from './bid-criteria-input.ts';
 export type { CheckedCriteria, Criterion, CriterionKind, NewCriteriaInput } from './bid-criteria-input.ts';

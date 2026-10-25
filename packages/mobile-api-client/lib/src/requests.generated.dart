@@ -1088,17 +1088,20 @@ final class BidImportRequest implements RequestModel {
     required this.fileObjectKey,
     required this.fileSha256,
     required this.mode,
+    this.mappingVersion,
   });
 
   final String fileObjectKey;
   final String fileSha256;
   final String mode;
+  final String? mappingVersion;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'file_object_key': fileObjectKey,
         'file_sha256': fileSha256,
         'mode': mode,
+        if (mappingVersion != null) 'mapping_version': mappingVersion,
       };
 }
 

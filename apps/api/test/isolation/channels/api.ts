@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
 import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import { WORK_CALENDAR_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -364,6 +364,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   },
   { operation: 'getProjectLifecycle', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'getLandProgress', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'recordProcurementMilestone', method: 'POST', id: PACKAGE_FIXTURES['TNT-B'].id, versioned: true, body: { milestone_kind: 'BID_OPENING', actual_at: '2026-09-01T03:00:00Z' } },
   { operation: 'assignProjectLeader', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { leader_membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, accountability_role: 'LEADER_IN_CHARGE', valid_from: '2026-01-05' } },
   { operation: 'endProjectLeaderAssignment', method: 'POST', id: ACCOUNTABILITY_FIXTURES['TNT-B'].assignmentId, versioned: true, body: { valid_until: '2026-01-06', end_reason: 'Isolation foreign end attempt' } },
   { operation: 'addTaskForceMember', method: 'POST', id: ACCOUNTABILITY_FIXTURES['TNT-B'].taskForceId, body: { membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, member_role: 'SECRETARY', valid_from: '2026-01-05' } },

@@ -281,6 +281,8 @@ export {
 export type { AppraisalCriterion, AppraisalRecommendation, AppraisalScoreInput } from './appraisal-score.ts';
 export { NATIONAL_CODE_ADAPTER_STATUS, NATIONAL_CODE_CONNECTOR, NATIONAL_CODE_FORMAT_VERSION, NATIONAL_CODE_MAX_LENGTH, nationalCodeFileFormat } from './national-code-file.ts';
 export type { NationalCodeRow } from './national-code-file.ts';
+export { MILESTONE_KINDS, MILESTONE_SOURCES, PROCUREMENT_ADAPTER_STATUS, PROCUREMENT_CODE_MAX_LENGTH, PROCUREMENT_CONNECTOR, PROCUREMENT_EXTERNAL_CODE_MAX_LENGTH, PROCUREMENT_FORMAT_VERSION, PROCUREMENT_SOURCE_SYSTEM, milestoneOrderIssue, momentOf, procurementFileFormat, vietnamDayOf } from './procurement-file.ts';
+export type { MilestoneDates, MilestoneField, MilestoneKind, MilestoneOrderIssue, MilestoneSource, ProcurementRow } from './procurement-file.ts';
 export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,

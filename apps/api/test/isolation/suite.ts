@@ -124,6 +124,12 @@ export const SECTION_FIXTURES: Readonly<Record<TenantName, { id: string; code: s
   'TNT-B': { id: '00000000-0000-4000-b0b3-000000000001', code: 'BETA-SECTION-0001' },
 };
 
+/** A package of the isolation project of each tenant, with a milestone and the link to its code on the national bidding network (the code is distinctive; tenant data). */
+export const PACKAGE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; milestoneId: string; linkId: string; externalCode: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0b9-000000000001', code: 'ALPHA-PACKAGE-0001', milestoneId: '00000000-0000-4000-a0b9-000000000002', linkId: '00000000-0000-4000-a0b9-000000000003', externalCode: 'ALPHA-TBMT-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0b9-000000000001', code: 'BETA-PACKAGE-0001', milestoneId: '00000000-0000-4000-b0b9-000000000002', linkId: '00000000-0000-4000-b0b9-000000000003', externalCode: 'BETA-TBMT-0001' },
+};
+
 /** A stage of land clearance reported by an external unit, in the section of each tenant (its note is distinctive; tenant data). */
 export const STAGE_FIXTURES: Readonly<Record<TenantName, { id: string; note: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0b8-000000000001', note: 'ALPHA-STAGE-BLOCKER-0001' },
@@ -559,6 +565,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'land section id', value: SECTION_FIXTURES[tenant].id },
     { kind: 'land section code', value: SECTION_FIXTURES[tenant].code },
     { kind: 'land stage id', value: STAGE_FIXTURES[tenant].id },
+    { kind: 'procurement package id', value: PACKAGE_FIXTURES[tenant].id },
+    { kind: 'procurement package code', value: PACKAGE_FIXTURES[tenant].code },
+    { kind: 'procurement external code', value: PACKAGE_FIXTURES[tenant].externalCode },
     { kind: 'land stage note', value: STAGE_FIXTURES[tenant].note },
     { kind: 'assignment id', value: ACCOUNTABILITY_FIXTURES[tenant].assignmentId },
     { kind: 'task force id', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceId },

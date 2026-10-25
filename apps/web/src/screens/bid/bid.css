@@ -66,3 +66,28 @@
   text-align: right;
   white-space: nowrap;
 }
+.bid-dialog-body {
+  padding: 16px;
+}
+.bid-dialog-body .formgrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+@media (max-width: 640px) {
+  .bid-dialog-body .formgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.bid-milestones {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+.bid-milestones li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}

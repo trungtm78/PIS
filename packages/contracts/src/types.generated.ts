@@ -14404,6 +14404,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/procurement-imports/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tải tệp xuất từ Hệ thống mạng đấu thầu quốc gia (CSV hoặc XLSX) lên kho đối tượng, quét mã độc và kiểm tra cột package_code, external_code, milestone_kind, actual_at */
+        post: operations["uploadProcurementFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/procurement-milestones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách mốc lựa chọn nhà thầu của các gói thầu trong phạm vi (BID-17) */
+        get: operations["listProcurementMilestones"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/procurement-external-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Liên kết gói thầu với mã gói trên Hệ thống mạng đấu thầu quốc gia và sai lệch cần đối soát (BID-19) */
+        get: operations["listProcurementExternalLinks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -18323,6 +18374,8 @@ export interface components {
             file_sha256: string;
             /** @enum {string} */
             mode: "DRY_RUN" | "APPLY";
+            /** @description The layout of the file the caller means; another than the one the adapter reads is refused before the file is opened */
+            mapping_version?: string;
         };
         BidMilestone: {
             /** @enum {string} */
@@ -19284,6 +19337,86 @@ export interface components {
         FiscalYearList: {
             /** @description The years the control knows, the latest first; a year it does not list is open */
             items: components["schemas"]["FiscalYear"][];
+        };
+        BidProcurementFileUpload: {
+            file_object_key: string;
+            file_sha256: string;
+            size_bytes: number;
+            /** @enum {string} */
+            format: "CSV" | "XLSX";
+            columns: string[];
+            row_count: number;
+        };
+        BidMilestoneLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            package_id: string;
+            /** @enum {string} */
+            milestone_kind: "INVITATION_PUBLISHED" | "CLARIFICATION_DEADLINE" | "BID_CLOSING" | "BID_OPENING" | "EVALUATION_DONE" | "RESULT_APPROVED" | "RESULT_PUBLISHED" | "CONTRACT_SIGNED";
+            /** Format: date-time */
+            planned_at?: string | null;
+            /** Format: date-time */
+            actual_at?: string | null;
+            /**
+             * @description Who wrote the milestone last: a planner by hand, or a file of the national bidding system
+             * @enum {string}
+             */
+            source: "MANUAL" | "IMPORT";
+            /** Format: uuid */
+            import_batch_id?: string | null;
+            version: number;
+        };
+        BidMilestoneList: {
+            items: components["schemas"]["BidMilestoneLine"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        BidExternalLink: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            package_id: string;
+            package_code: string;
+            package_title?: string | null;
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
+            external_system: string;
+            /** @description The code of the package on the national bidding network */
+            external_code: string;
+            /** @enum {string} */
+            diff_status: "IN_SYNC" | "DIFFERENT" | "MISSING_EXTERNAL";
+            /** @description What the register and the file disagree on: milestones (the register date and the file date of each kind) and external_code (the code the register holds and the one the file gives) */
+            diff: {
+                [key: string]: unknown;
+            };
+            diff_owner?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            } | null;
+            /** @description The import that last looked at the link */
+            batch?: {
+                /** Format: uuid */
+                id?: string;
+                file_sha256?: string;
+                /** @enum {string} */
+                adapter_status?: "VERIFIED" | "PROPOSED" | "MOCK" | "MISSING";
+                /** Format: date-time */
+                applied_at?: string;
+                rows_total?: number;
+                rows_ok?: number;
+                rows_error?: number;
+            } | null;
+            version: number;
+        };
+        BidExternalLinkList: {
+            items: components["schemas"]["BidExternalLink"][];
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -104053,6 +104186,234 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    uploadProcurementFile: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The file is stored, clean and has the layout of the adapter; its columns and rows are read */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidProcurementFileUpload"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Payload too large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProcurementMilestones: {
+        parameters: {
+            query?: {
+                project_id?: string;
+                package_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidMilestoneList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProcurementExternalLinks: {
+        parameters: {
+            query?: {
+                project_id?: string;
+                diff_status?: "IN_SYNC" | "DIFFERENT" | "MISSING_EXTERNAL";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidExternalLinkList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

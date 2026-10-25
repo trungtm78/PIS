@@ -148,6 +148,9 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `decideProcurementResult` | POST /procurement-results/{id}/decision | bid.result.approve | `BidResultDecision` | SELF_APPROVAL_DENIED, DECISION_DOCUMENT_NOT_EFFECTIVE, RESULT_STATE_INVALID | ✔ | ✔ |
 | `importProcurementFile` | POST /procurement-imports | bid.import | `BidImportRequest` | IMPORT_FILE_ALREADY_APPLIED, IMPORT_HAS_ERRORS, UPLOAD_NOT_ALLOWED_TYPE | ✔ | – |
 | `recordProcurementMilestone` | POST /procurement-packages/{id}/milestones | bid.plan.manage | `BidMilestone` | MILESTONE_ORDER_INVALID | ✔ | ✔ |
+| `uploadProcurementFile` | POST /procurement-imports/files | bid.import | tệp CSV/XLSX | tệp được quét mã độc, lưu kho và đọc cột package_code, external_code, milestone_kind, actual_at | FILE_NOT_CLEAN, IMPORT_SCHEMA_INVALID, IMPORT_EMPTY | ✔ | – |
+| `listProcurementMilestones` | GET /procurement-milestones | bid.read | – | mốc của các gói thầu trong phạm vi, theo mã gói và thứ tự mốc | – | – | – |
+| `listProcurementExternalLinks` | GET /procurement-external-links | bid.read | – | liên kết gói thầu với mã gói ngoài, sai lệch (mốc, mã gói), chủ sở hữu sai lệch và lần nhập gần nhất | – | – | – |
 | `receiveProcurementPetition` | POST /procurement-petitions | bid.petition.manage | `BidPetitionReceive` | PETITION_OUT_OF_TIME | ✔ | – |
 | `resolveProcurementPetition` | POST /procurement-petitions/{id}/resolution | bid.petition.manage | `BidPetitionResolve` | PETITION_STATE_INVALID | ✔ | ✔ |
 | `compareProposals` | GET /procurement-packages/{id}/proposal-comparison | bid.evaluate | – | CRITERIA_VERSION_MISMATCH, CONFLICT_UNDECLARED | – | – |

@@ -1279,6 +1279,27 @@
       ]
     },
     {
+      "key": "procurementPlanner",
+      "displayName": "Chuyên viên kế hoạch đấu thầu",
+      "membershipId": "00000000-0000-4000-8000-000000000780",
+      "permissions": [
+        "bid.read",
+        "bid.plan.manage",
+        "bid.import",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "procurementReader",
+      "displayName": "Người xem mốc đấu thầu",
+      "membershipId": "00000000-0000-4000-8000-000000000781",
+      "permissions": [
+        "bid.read",
+        "procurement_package.read"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",
