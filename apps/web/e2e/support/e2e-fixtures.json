@@ -1914,6 +1914,16 @@
       ]
     },
     {
+      "key": "paymentAuditor",
+      "displayName": "Kiểm toán viên truy vết thanh toán",
+      "membershipId": "00000000-0000-4000-8000-000000000842",
+      "permissions": [
+        "payment.chain.read",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

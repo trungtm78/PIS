@@ -436,6 +436,9 @@ const SETTLEMENT_ROLES = [
   { n: 841, user: 'settleReader', code: 'E2E_SETTLE_READER', permissions: ['settlement_revision.read', 'session.self'], rank: 10 },
 ];
 
+/** The auditor who traces a payment (PAY-17) over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json. */
+const CHAIN_ROLES = [{ n: 842, user: 'paymentAuditor', code: 'E2E_PAYMENT_AUDITOR', permissions: ['payment.chain.read', 'project.read', 'session.self'], rank: 20 }];
+
 /**
  * The person who reads the cumulative ledger of a contract (PAY-10), over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
@@ -688,6 +691,7 @@ const GRANTS: GrantPlan[] = [
   ...ADVANCE_ROLES.map((role, index): GrantPlan => ({ n: 830 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...RECONCILE_ROLES.map((role, index): GrantPlan => ({ n: 832 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...SETTLEMENT_ROLES.map((role, index): GrantPlan => ({ n: 837 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...CHAIN_ROLES.map((role, index): GrantPlan => ({ n: 842 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -985,7 +989,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

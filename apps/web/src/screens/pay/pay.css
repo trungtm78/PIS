@@ -86,3 +86,10 @@
   margin: 8px 0 0;
   padding-left: 20px;
 }
+.pay-chain-nodes {
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
+.pay-chain-nodes li {
+  margin: 6px 0;
+}

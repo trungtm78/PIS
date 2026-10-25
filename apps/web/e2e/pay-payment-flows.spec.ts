@@ -657,5 +657,21 @@ test.describe('the payment request', () => {
     expect(await sql('select 1 from machvon.payment_request where acceptance_id = $1 and claims_acceptance', [seeded.acceptanceId])).toHaveLength(0);
     expect(await eventsOf(made!.id, 'pay.payment.reversed.v1')).toHaveLength(1);
     expect(await auditsOf(made!.id, 'payment_request.reversed')).toEqual([{ actor_id: membershipOf('paymentChief') }]);
+
+    // UAT-AC67: the auditor traces the payment from the project; the reversed payment and both Treasury transactions (the payment and its refund) are in the chain, each with its version.
+    await open(page, `/pay/pay-17?project=${project!.project_id}&contract=${seeded.contractId}`, 'paymentAuditor');
+    await expect(page.getByRole('heading', { level: 1, name: vi['pay.chain.title'] })).toBeVisible();
+    await expect(page.locator(`li[data-node="${made!.id}"]`).getByTestId('status')).toHaveText('REVERSED');
+    await expect(page.locator(`li[data-node="${made!.id}"]`).getByTestId('version')).toHaveText(/\d+$/);
+    await expect(page.locator(`li[data-node="${exact}"]`)).toHaveCount(1);
+    await expect(page.locator(`li[data-node="${refunded!.id}"]`)).toHaveCount(1);
+    await expect(page.locator(`li[data-node="${seeded.acceptanceId}"]`)).toHaveCount(1);
+    await expect(page.locator(`li[data-node="${seeded.contractId}"]`).getByTestId('version')).toContainText(vi['pay.chain.revision.of'].replace('{revision}', '1'));
+    await page.locator(`li[data-node="${made!.id}"]`).getByTestId('open').click();
+    // The link leads to the request (PAY-03); the auditor holds the right to the chain, not to the request, so the screen there says so.
+    await expect(page).toHaveURL(new RegExp(`/pay/pay-03\\?request=${made!.id}`));
+    // A person without the right reads nothing.
+    await open(page, `/pay/pay-17?project=${project!.project_id}`, 'reconcileReader');
+    await expect(page.getByTestId('no-read')).toHaveText(vi['pay.chain.read.denied']);
   });
 });

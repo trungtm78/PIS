@@ -3,27 +3,21 @@ import { Client } from 'pg';
 import { addCalendarDays } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import { AuditWriter } from '../src/audit-writer';
-import { PayClaimStore } from '../src/pay-claim-store';
 import { PayLedgerStore } from '../src/pay-ledger-store';
-import { PayPaymentStore } from '../src/pay-payment-store';
 import { PayProjectSettlementStore, settlementRefusal } from '../src/pay-project-settlement-store';
 import type { CloseSettlementInput, SettlementChange, SettlementView } from '../src/pay-project-settlement-store';
 import { PaySettlementDeadlineJob, SETTLEMENT_DEADLINE_EVENT, SETTLEMENT_OVERDUE_EVENT } from '../src/pay-settlement-deadline-job';
-import { PaySettlementStore } from '../src/pay-settlement-store';
-import type { ContractScopes } from '../src/ctr-contract-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
 import { AcceptanceWorld } from './support/acceptance-fixtures';
 import { TENANT_A, memberId } from './support/authz-fixtures';
+import { settledPayment } from './support/settled-payment';
 
 jest.setTimeout(600_000);
 
 const fixtures = new AcceptanceWorld();
 const world = fixtures.world;
 const settlements = new PayProjectSettlementStore();
-const payments = new PayPaymentStore();
-const claims = new PayClaimStore();
-const treasury = new PaySettlementStore();
 const ledgers = new PayLedgerStore();
 
 // The people of the settlement: OPENER prepared it, SENDER sent the payments, VERIFIER verifies, EXCEPTION_APPROVER and CLOSER decide.
@@ -40,7 +34,6 @@ const TODAY = '2026-10-26';
 const SUBMITTED_ON = '2026-10-01';
 const everything: ScopeBuilder = () => ({ sql: 'true', params: [] });
 const nothing: ScopeBuilder = () => ({ sql: 'false', params: [] });
-const allContracts: ContractScopes = { update: everything, read: everything };
 
 const as = <T>(work: (tx: TenantTx) => Promise<T>, member = OPENER): Promise<T> => fixtures.as(work, member);
 const owner = fixtures.owner.bind(fixtures);
@@ -96,7 +89,6 @@ async function admin(sql: string, params: unknown[] = []): Promise<void> {
 
 // ---- the world ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-let counter = 0;
 
 /** A project of its own, in the status and the group asked for, with a line of capital: a settlement of it does not meet the settlements of another test. */
 async function project(options: { status?: string; group?: string } = {}): Promise<{ projectId: string; lineId: string }> {
@@ -107,7 +99,19 @@ async function project(options: { status?: string; group?: string } = {}): Promi
 
 /** The settlement of a whole project that is complete, opened by OPENER. */
 async function opened(target: { projectId: string }, extra: Partial<{ contractId: string; scope: string; fiscalYear: number }> = {}): Promise<SettlementView> {
-  const done = await as((tx) => settlements.open(tx, { projectId: target.projectId, scope: extra.scope ?? 'PROJECT', ...(extra.contractId === undefined ? {} : { contractId: extra.contractId }), ...(extra.fiscalYear === undefined ? {} : { fiscalYear: extra.fiscalYear }) }, memberId(OPENER), everything));
+  const done = await as((tx) =>
+    settlements.open(
+      tx,
+      {
+        projectId: target.projectId,
+        scope: extra.scope ?? 'PROJECT',
+        ...(extra.contractId === undefined ? {} : { contractId: extra.contractId }),
+        ...(extra.fiscalYear === undefined ? {} : { fiscalYear: extra.fiscalYear }),
+      },
+      memberId(OPENER),
+      everything,
+    ),
+  );
   return done.view;
 }
 
@@ -115,13 +119,46 @@ const submit = (view: { id: string; version: number }, submittedOn = SUBMITTED_O
   as((tx) => settlements.submit(tx, view.id, view.version, { submittedOn }, memberId(member), everything, now), member);
 const verify = (view: { id: string; version: number }, outcome: string, member = VERIFIER, extra: { findings?: string; refs?: string[] } = {}) =>
   as(
-    (tx) => settlements.verify(tx, view.id, view.version, { outcome, findings: extra.findings ?? 'The figures agree with the ledgers.', ...(extra.refs === undefined ? {} : { auditFindingRefs: extra.refs }) }, memberId(member), everything, NOW),
+    (tx) =>
+      settlements.verify(
+        tx,
+        view.id,
+        view.version,
+        { outcome, findings: extra.findings ?? 'The figures agree with the ledgers.', ...(extra.refs === undefined ? {} : { auditFindingRefs: extra.refs }) },
+        memberId(member),
+        everything,
+        NOW,
+      ),
     member,
   );
 const approveException = (view: { id: string; version: number }, input: { reason?: string; document?: string | undefined } = {}, member = EXCEPTION_APPROVER) =>
-  as((tx) => settlements.approveException(tx, view.id, view.version, { reason: input.reason ?? 'The debt waits for the warranty guarantee.', approvalDocumentVersionId: 'document' in input ? input.document : undefined }, memberId(member), everything, NOW), member);
+  as(
+    (tx) =>
+      settlements.approveException(
+        tx,
+        view.id,
+        view.version,
+        { reason: input.reason ?? 'The debt waits for the warranty guarantee.', approvalDocumentVersionId: 'document' in input ? input.document : undefined },
+        memberId(member),
+        everything,
+        NOW,
+      ),
+    member,
+  );
 const close = (view: { id: string; version: number }, input: Partial<CloseSettlementInput> = {}, member = CLOSER) =>
-  as((tx) => settlements.close(tx, view.id, view.version, { decision: 'approve', reason: 'Approved by the decision.', evidenceIds: [], decisionDocumentVersionId: undefined, ...input }, memberId(member), everything, NOW), member);
+  as(
+    (tx) =>
+      settlements.close(
+        tx,
+        view.id,
+        view.version,
+        { decision: 'approve', reason: 'Approved by the decision.', evidenceIds: [], decisionDocumentVersionId: undefined, ...input },
+        memberId(member),
+        everything,
+        NOW,
+      ),
+    member,
+  );
 const refresh = (view: { id: string; version: number }, note?: string) => as((tx) => settlements.refresh(tx, view.id, view.version, note, memberId(OPENER), everything));
 const reload = async (id: string): Promise<SettlementView> => {
   const found = await as((tx) => settlements.find(tx, everything, id));
@@ -147,44 +184,8 @@ async function acceptAndRecognise(contract: Awaited<ReturnType<typeof fixtures.s
 // ---- a payment of 3bn that was settled: gross 3bn, advance recovery 750m, retention 150m, net 2.1bn ---------------------------------------------------------------------------
 
 async function paidContract(): Promise<{ contractId: string }> {
-  counter += 1;
-  const contract = await fixtures.seedContract();
-  await owner('update machvon.contract_party set work_value_vnd = 10000000000 where contract_id = $1::uuid', [contract.contractId]);
-  await owner('update machvon.contract set advance_paid_vnd = 2000000000 where id = $1::uuid', [contract.contractId]);
-  const advanceId = randomUUID();
-  await owner(
-    `insert into machvon.contract_advance (tenant_id, id, contract_id, party_id, tranche_no, kind, amount_vnd, cap_vnd, status, paid_vnd, paid_on, recovery_threshold_pct, recovery_deadline, created_by, updated_by)
-     values ($1, $5::uuid, $2::uuid, $3::uuid, 1, 'GPMB', 2000000000, 2000000000, 'PAID', 2000000000, date '2026-06-01', 80, date '2026-12-31', $4::uuid, $4::uuid)`,
-    [TENANT_A, contract.contractId, contract.partyId, memberId(OPENER), advanceId],
-  );
-  // The journal of the advance: the money went out on 1 June (the fixture sets the tranche as paid without the entry that records it).
-  await admin(
-    `insert into machvon.advance_ledger_entry (tenant_id, id, contract_id, payment_request_id, entry_kind, amount_vnd, posted_at, advance_id, party_id, outstanding_after_vnd, request_id)
-     values ($1, gen_random_uuid(), $2::uuid, null, 'DISBURSE', 2000000000, timestamptz '2026-06-01T03:00:00Z', $3::uuid, $4::uuid, 2000000000, gen_random_uuid())`,
-    [TENANT_A, contract.contractId, advanceId, contract.partyId],
-  );
-  const approved = await fixtures.approve(contract, [
-    { item: 0, quantity: '2000' },
-    { item: 1, quantity: '500' },
-  ]);
-  const made = await as((tx) =>
-    payments.create(tx, { contractId: contract.contractId, requestKind: 'INTERIM', acceptanceId: approved.acceptance.id, allocationLineId: fixtures.lineId, requestNo: `DNTT-S-${counter}-${randomUUID().slice(0, 6)}` }, memberId(OPENER), allContracts, '2026-07-25'),
-  );
-  const document = await fixtures.documentVersion();
-  await as((tx) => payments.attachDocument(tx, made.id, { documentVersionId: document.id, docKind: 'INVOICE', invoiceNo: `HD-S-${counter}-${randomUUID().slice(0, 6)}`, invoiceDate: '2026-07-01' }, memberId(OPENER), allContracts, { mayOverride: () => false }));
-  const sent = await as((tx) => claims.submit(tx, made.id, made.version, { expectedGrossVnd: made.grossVnd, expectedNetVnd: made.netVnd, requestId: randomUUID() }, memberId(SENDER), allContracts, '2026-07-25'), SENDER);
-  await as((tx) => claims.verify(tx, made.id, sent.version, undefined, memberId(VERIFIER), allContracts), VERIFIER);
-  await fixtures.sendToTreasury(made.id);
-  const transactionId = randomUUID();
-  await owner(
-    `insert into machvon.treasury_transaction
-       (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, row_hash, direction, document_no, document_date, source_kind, provider_event_id, match_status)
-     values ($1, $2::uuid, $3::uuid, $4, 'MOCKKB', 2100000000, timestamptz '2026-07-24T18:30:00Z', repeat('a', 64), repeat('a', 64), 'PAYMENT', $4, date '2026-07-30', 'CALLBACK_MOCK', $5, 'UNMATCHED')`,
-    [TENANT_A, transactionId, fixtures.projectId, `CT-S-${counter}`, `EVT-S-${counter}`],
-  );
-  const done = await as((tx) => treasury.match(tx, { transactionId, paymentRequestId: made.id, actor: memberId(MATCHER), requestId: randomUUID(), scopes: allContracts, now: new Date('2026-07-25T05:00:00Z') }), MATCHER);
-  if (done.kind !== 'SETTLED') throw new Error('the fixture was not settled');
-  return { contractId: contract.contractId };
+  const done = await settledPayment(fixtures, { maker: OPENER, sender: SENDER, checker: VERIFIER, matcher: MATCHER });
+  return { contractId: done.contractId };
 }
 
 const audit = new AuditWriter(world.harness.tenants);
@@ -251,7 +252,9 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       });
       expect((await opened(building, { scope: 'ANNUAL', fiscalYear: 2026 })).status).toBe('DRAFT');
       const planned = await project({ status: 'BUDGETED' });
-      expect(await refusal(as((tx) => settlements.open(tx, { projectId: planned.projectId, scope: 'ANNUAL', fiscalYear: 2026 }, memberId(OPENER), everything)))).toMatchObject({ code: 'PROJECT_STAGE_INVALID' });
+      expect(await refusal(as((tx) => settlements.open(tx, { projectId: planned.projectId, scope: 'ANNUAL', fiscalYear: 2026 }, memberId(OPENER), everything)))).toMatchObject({
+        code: 'PROJECT_STAGE_INVALID',
+      });
     });
 
     it('reads the accepted work, the payment, the retention and the advance of the contracts: owed is accepted less paid plus the retention held, unrecovered is the advance paid less recovered', async () => {
@@ -264,11 +267,15 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
 
       const forContract = await opened(target, { scope: 'CONTRACT', contractId: paid.contractId });
       expect(forContract).toMatchObject({ scope: 'CONTRACT', contractId: paid.contractId, settledAmountVnd: '3000000000', outstandingVnd: '150000000', unrecoveredAdvanceVnd: '1250000000' });
-      const accepted = (await owner<{ accepted: string }>('select coalesce(sum(accepted_vnd), 0)::text as accepted from machvon.cumulative_ledger where contract_id = $1::uuid', [idle.contractId]))[0]?.accepted ?? '0';
+      const accepted =
+        (await owner<{ accepted: string }>('select coalesce(sum(accepted_vnd), 0)::text as accepted from machvon.cumulative_ledger where contract_id = $1::uuid', [idle.contractId]))[0]?.accepted ??
+        '0';
       expect(BigInt(accepted)).toBeGreaterThan(0n);
       const whole = await opened(target);
       expect(whole).toMatchObject({ scope: 'PROJECT', settledAmountVnd: '3000000000', outstandingVnd: (150000000n + BigInt(accepted)).toString(), unrecoveredAdvanceVnd: '1250000000' });
-      expect(await refusal(as((tx) => settlements.open(tx, { projectId: fixtures.projectId, scope: 'CONTRACT', contractId: paid.contractId }, memberId(OPENER), everything)))).toMatchObject({ code: 'SETTLEMENT_OPEN_EXISTS' });
+      expect(await refusal(as((tx) => settlements.open(tx, { projectId: fixtures.projectId, scope: 'CONTRACT', contractId: paid.contractId }, memberId(OPENER), everything)))).toMatchObject({
+        code: 'SETTLEMENT_OPEN_EXISTS',
+      });
     });
 
     it('reads a year the way the year saw it: what was paid in it, and what was owed and unrecovered at its end', async () => {
@@ -305,7 +312,12 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
 
   describe('the verification deadline by project group (AC-ST-PAY-009-1, UAT-AC339)', () => {
     it('is the day of the submission plus the days of the group, kept with the rule version that gave them, and a later change of the rule does not move it', async () => {
-      for (const [group, days] of [['QTQG', 270], ['A', 270], ['B', 180], ['C', 120]] as const) {
+      for (const [group, days] of [
+        ['QTQG', 270],
+        ['A', 270],
+        ['B', 180],
+        ['C', 120],
+      ] as const) {
         const target = await project({ group });
         const sent = await submit(await opened(target));
         expect(sent.fromStatus).toBe('DRAFT');
@@ -382,9 +394,14 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       expect(await refusal(verify(sent, 'VERIFIED'))).toMatchObject({ code: 'SETTLEMENT_STATE_INVALID', status: 409 });
       expect(await refusal(verify(sent, 'VERIFYING', SENDER))).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });
       expect(await refusal(verify(sent, 'PASSED'))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'outcome' });
-      expect(await refusal(as((tx) => settlements.verify(tx, sent.id, sent.version, { outcome: 'VERIFYING', findings: ' ' }, memberId(VERIFIER), everything, NOW), VERIFIER))).toMatchObject({ detail: 'findings' });
+      expect(await refusal(as((tx) => settlements.verify(tx, sent.id, sent.version, { outcome: 'VERIFYING', findings: ' ' }, memberId(VERIFIER), everything, NOW), VERIFIER))).toMatchObject({
+        detail: 'findings',
+      });
       expect(await refusal(verify(sent, 'VERIFYING', VERIFIER, { refs: ['nope'] }))).toMatchObject({ detail: 'audit_finding_refs' });
-      expect(await refusal(verify(sent, 'VERIFYING', VERIFIER, { refs: Array.from({ length: 51 }, () => randomUUID()) }))).toMatchObject({ detail: 'audit_finding_refs', extensions: { reason: 'TOO_MANY' } });
+      expect(await refusal(verify(sent, 'VERIFYING', VERIFIER, { refs: Array.from({ length: 51 }, () => randomUUID()) }))).toMatchObject({
+        detail: 'audit_finding_refs',
+        extensions: { reason: 'TOO_MANY' },
+      });
 
       const taken = next(await verify(sent, 'VERIFYING'));
       expect(taken).toMatchObject({ status: 'VERIFYING', verificationFindings: 'The figures agree with the ledgers.', verifiedBy: null });
@@ -429,7 +446,11 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       // The reason and the document are asked for.
       expect(await refusal(approveException(verified, { reason: ' ', document: paper }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'reason' });
       expect(await refusal(approveException(verified, {}))).toMatchObject({ code: 'APPROVAL_REQUIRED', status: 422 });
-      expect(await refusal(approveException(verified, { document: randomUUID() }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'approval_document_version_id', extensions: { reason: 'NOT_FOUND' } });
+      expect(await refusal(approveException(verified, { document: randomUUID() }))).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        detail: 'approval_document_version_id',
+        extensions: { reason: 'NOT_FOUND' },
+      });
       const infected = (await fixtures.documentVersion('INFECTED')).id;
       expect(await refusal(approveException(verified, { document: infected }))).toMatchObject({ code: 'DOCUMENT_NOT_CLEAN' });
       // 3: someone else approves it.
@@ -509,7 +530,16 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       const firstPage = await list({ projectId: target.projectId, limit: 2 });
       const last = firstPage[1];
       expect(firstPage.map((row) => row.id)).toEqual([three.id, two.id]);
-      const secondPage = await list({ projectId: target.projectId, limit: 2, after: { code: (await owner<{ key: string }>(`select to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as key from machvon.settlement_revision where id = $1::uuid`, [last?.id]))[0]?.key ?? '', id: last?.id ?? '' } });
+      const secondPage = await list({
+        projectId: target.projectId,
+        limit: 2,
+        after: {
+          code:
+            (await owner<{ key: string }>(`select to_char(created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as key from machvon.settlement_revision where id = $1::uuid`, [last?.id]))[0]
+              ?.key ?? '',
+          id: last?.id ?? '',
+        },
+      });
       expect(secondPage.map((row) => row.id)).toEqual([one.id]);
       expect(await refusal(list({ status: 'DONE' }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'status' });
       expect(await refusal(list({ projectId: 'x' }))).toMatchObject({ detail: 'project_id' });
@@ -535,8 +565,26 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       expect((await databaseRefusal(update("settlement_scope = 'ANNUAL', fiscal_year = 2026"))).message).toContain('never changes');
       expect((await databaseRefusal(update('verified_by = submitted_by, status = $2', ['VERIFYING']))).sqlstate).toBe('23514');
       // A second settlement being worked for the same project and scope, however it is written.
-      expect((await databaseRefusal(owner(`insert into machvon.settlement_revision (tenant_id, id, project_id, revision, settled_amount_vnd, outstanding_vnd, unrecovered_advance_vnd, status) values ($1, gen_random_uuid(), $2::uuid, 9, 0, 0, 0, 'DRAFT')`, [TENANT_A, target.projectId]))).sqlstate).toBe('23505');
-      expect((await databaseRefusal(owner(`insert into machvon.settlement_revision (tenant_id, id, project_id, revision, settled_amount_vnd, outstanding_vnd, unrecovered_advance_vnd, status, settlement_scope, fiscal_year) values ($1, gen_random_uuid(), $2::uuid, 1, 0, 0, 0, 'SUBMITTED', 'ANNUAL', 2040)`, [TENANT_A, target.projectId]))).message).toContain('SETTLEMENT_STATE_INVALID');
+      expect(
+        (
+          await databaseRefusal(
+            owner(
+              `insert into machvon.settlement_revision (tenant_id, id, project_id, revision, settled_amount_vnd, outstanding_vnd, unrecovered_advance_vnd, status) values ($1, gen_random_uuid(), $2::uuid, 9, 0, 0, 0, 'DRAFT')`,
+              [TENANT_A, target.projectId],
+            ),
+          )
+        ).sqlstate,
+      ).toBe('23505');
+      expect(
+        (
+          await databaseRefusal(
+            owner(
+              `insert into machvon.settlement_revision (tenant_id, id, project_id, revision, settled_amount_vnd, outstanding_vnd, unrecovered_advance_vnd, status, settlement_scope, fiscal_year) values ($1, gen_random_uuid(), $2::uuid, 1, 0, 0, 0, 'SUBMITTED', 'ANNUAL', 2040)`,
+              [TENANT_A, target.projectId],
+            ),
+          )
+        ).message,
+      ).toContain('SETTLEMENT_STATE_INVALID');
       // The application role may not delete a settlement.
       expect((await databaseRefusal(as((tx) => tx.query('delete from machvon.settlement_revision where id = $1::uuid', [sent.id])))).sqlstate).toBe('42501');
 
@@ -555,7 +603,16 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       expect(refused.message).toContain('settlement_revision_close_chk');
       expect(refused.sqlstate).toBe('23514');
       // The person who opened it cannot close it, whatever the application does.
-      expect((await databaseRefusal(admin("update machvon.settlement_revision set exception_reason = 'x', exception_approved_by = created_by, exception_approved_at = now(), exception_approval_document_version_id = $2::uuid where id = $1::uuid", [owing.id, decision]))).message).toContain('settlement_revision_exception_chk');
+      expect(
+        (
+          await databaseRefusal(
+            admin(
+              "update machvon.settlement_revision set exception_reason = 'x', exception_approved_by = created_by, exception_approved_at = now(), exception_approval_document_version_id = $2::uuid where id = $1::uuid",
+              [owing.id, decision],
+            ),
+          )
+        ).message,
+      ).toContain('settlement_revision_exception_chk');
     });
   });
 
@@ -567,7 +624,14 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       expect(settlementRefusal(await raised(update("status = 'VERIFIED'")))).toMatchObject({ code: 'SETTLEMENT_STATE_INVALID', status: 409 });
       expect(settlementRefusal(await raised(update('verified_by = submitted_by, status = $2', ['VERIFYING'])))).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });
       expect(
-        settlementRefusal(await raised(owner(`insert into machvon.settlement_revision (tenant_id, id, project_id, revision, settled_amount_vnd, outstanding_vnd, unrecovered_advance_vnd, status) values ($1, gen_random_uuid(), $2::uuid, 9, 0, 0, 0, 'DRAFT')`, [TENANT_A, target.projectId]))),
+        settlementRefusal(
+          await raised(
+            owner(
+              `insert into machvon.settlement_revision (tenant_id, id, project_id, revision, settled_amount_vnd, outstanding_vnd, unrecovered_advance_vnd, status) values ($1, gen_random_uuid(), $2::uuid, 9, 0, 0, 0, 'DRAFT')`,
+              [TENANT_A, target.projectId],
+            ),
+          ),
+        ),
       ).toMatchObject({ code: 'SETTLEMENT_OPEN_EXISTS', status: 409 });
       // An error that is not a rule of the settlement is given back untouched.
       const about = await raised(update('revision = 0'));
@@ -582,7 +646,11 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
       const owing = await verifiedSettlement({ projectId: fixtures.projectId }, { scope: 'CONTRACT', contractId: paid.contractId });
       const decision = (await fixtures.documentVersion()).id;
       const closing = await raised(
-        admin("update machvon.settlement_revision set status = 'CLOSED', decision_document_version_id = $2::uuid, closed_by = $3::uuid, closed_at = now(), close_reason = 'x' where id = $1::uuid", [owing.id, decision, memberId(CLOSER)]),
+        admin("update machvon.settlement_revision set status = 'CLOSED', decision_document_version_id = $2::uuid, closed_by = $3::uuid, closed_at = now(), close_reason = 'x' where id = $1::uuid", [
+          owing.id,
+          decision,
+          memberId(CLOSER),
+        ]),
       );
       expect(settlementRefusal(closing)).toMatchObject({ code: 'SETTLEMENT_HAS_OUTSTANDING', status: 422 });
     });
@@ -591,7 +659,10 @@ describe('the settlement of a project, a year or a contract (ST-PAY-009)', () =>
   describe('the reminders of the deadline (TK-PAY-009-3)', () => {
     const run = (now: Date) => as((tx) => deadlines.run(tx, memberId(SETTLER), now), SETTLER);
     const events = (id: string) =>
-      owner<{ type: string; payload: Record<string, unknown> }>("select type, payload from machvon.outbox_event where aggregate_id = $1::uuid and type like 'pay.settlement.%' order by created_at, type", [id]);
+      owner<{ type: string; payload: Record<string, unknown> }>(
+        "select type, payload from machvon.outbox_event where aggregate_id = $1::uuid and type like 'pay.settlement.%' order by created_at, type",
+        [id],
+      );
     const dueOn = (id: string, day: string) => admin('update machvon.settlement_revision set verification_due_on = $2::date where id = $1::uuid', [id, day]);
 
     it('reminds 30 days and 7 days before the last day and reports the settlement when the day has passed, each once, and an issue is asked for only for the late one', async () => {

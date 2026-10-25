@@ -92,7 +92,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   // The reads of the caller's own access, entitlements and notification preferences answer one object, not a page of rows: they are read for leaks like the others. The preferences hold an `items` list that is empty for a person who never saved.
   const LISTS_WITHOUT_ROWS: string[] = ['getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyUsage'];
   // The capital available on a line or an appropriation names what it reads in its query (the line or the appropriation): it is not a list.
-  const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability']);
+  const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability', 'getPaymentChain']);
 
   // The isolation suite reads one list (the organization units) as the other tenant. Every other list read is a place where a missing tenant
   // predicate would show the rows of another tenant, so each one is read here as TNT-A, and what comes back is judged by the markers of TNT-B.
