@@ -177,6 +177,8 @@ export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.t
 export { PlanStore, planInvalid } from './plan-store.ts';
 export { EntitlementOverrideStore, overrideInvalid } from './entitlement-override-store.ts';
 export type { DecideOverrideInput, OverrideCycleOutcome, OverrideDecision, OverrideRow, OverrideStatus, RequestOverrideInput } from './entitlement-override-store.ts';
+export { CapAllocationExtensionStore, extensionInvalid } from './cap-allocation-extension-store.ts';
+export type { DecideExtensionInput, ExtensionApplied, ExtensionDecision, ExtensionFilter, ExtensionRow, ExtensionStatus, RequestExtensionInput } from './cap-allocation-extension-store.ts';
 export { actingAsTenant, tenantOfOverride, tenantOfSubscription } from './acting-as.ts';
 export { LIVE_STATUSES, SubscriptionStore } from './subscription-store.ts';
 export type { ApplyPlanChangeInput, CreateSubscriptionInput, CycleOutcome, PaymentMethod, PlanChangePreview, PlanSummaryRow, PlanChangeRequest, PlanChangeRow, SubscriptionRow, SubscriptionStatus } from './subscription-store.ts';

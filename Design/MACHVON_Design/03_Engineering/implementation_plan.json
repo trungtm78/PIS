@@ -39306,7 +39306,8 @@
       ],
       "operations": [
         "requestAllocationExtension",
-        "decideAllocationExtension"
+        "decideAllocationExtension",
+        "listAllocationExtensions"
       ],
       "tables": [
         "allocation_extension"

@@ -1194,6 +1194,35 @@
       ]
     },
     {
+      "key": "extPlanner",
+      "displayName": "Cán bộ kế hoạch đề nghị kéo dài vốn",
+      "membershipId": "00000000-0000-4000-8000-000000000750",
+      "permissions": [
+        "capital.read",
+        "plan_version.read",
+        "allocation_line.read",
+        "project.read",
+        "capital.extension.request"
+      ]
+    },
+    {
+      "key": "extApprover",
+      "displayName": "Người duyệt kéo dài vốn",
+      "membershipId": "00000000-0000-4000-8000-000000000751",
+      "permissions": [
+        "capital.read",
+        "capital.extension.approve"
+      ]
+    },
+    {
+      "key": "extReader",
+      "displayName": "Người xem đề nghị kéo dài vốn",
+      "membershipId": "00000000-0000-4000-8000-000000000752",
+      "permissions": [
+        "capital.read"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

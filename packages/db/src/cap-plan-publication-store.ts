@@ -174,7 +174,8 @@ export class CapPlanPublicationStore {
     const nationalCodeWarnings = await this.assertNationalCodes(tx, lines, today);
 
     const balances = await this.lockedBalances(tx, previousLines);
-    const planned = this.plan(lines, previousLines, balances);
+    const extended = await this.extendedOut(tx, previousLines);
+    const planned = this.plan(lines, previousLines, balances, extended);
 
     if (previous !== undefined) {
       await tx.query("update machvon.capital_plan set status = 'SUPERSEDED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [previous.id, publisher]);
@@ -326,12 +327,31 @@ export class CapPlanPublicationStore {
   }
 
   /**
+   * What capital has already been carried over to the next year out of each line of the revision being replaced (ST-CAP-007): the entries EXTEND_OUT of the lines that are the
+   * same line across revisions (same project, appropriation, bucket and source year), a reversal taking its entry back. The plan amount of such a line still includes that
+   * capital, but the balance no longer does, so a revision is judged against the amount less what was carried over, and is never allowed to put it back.
+   */
+  private async extendedOut(tx: TenantTx, previousLines: readonly FlowLine[]): Promise<Map<string, string>> {
+    if (previousLines.length === 0) return new Map();
+    const rows = await tx.query<{ project_id: string; appropriation_id: string; bucket: string; source_year: number; total: string }>(
+      `select l.project_id, l.appropriation_id, l.bucket, l.source_year, sum(case when e.entry_type = 'REVERSAL' then -1 else 1 end * e.amount_vnd)::text as total
+         from machvon.capital_ledger_entry e
+         left join machvon.capital_ledger_entry original on original.tenant_id = e.tenant_id and original.id = e.reversal_of_id
+         join machvon.allocation_line l on l.tenant_id = e.tenant_id and l.id = e.allocation_line_id
+        where coalesce(original.entry_type, e.entry_type) = 'EXTEND_OUT' and l.project_id = any($1::uuid[])
+        group by l.project_id, l.appropriation_id, l.bucket, l.source_year`,
+      [[...new Set(previousLines.map((line) => line.projectId))]],
+    );
+    return new Map(rows.map((row) => [`${row.project_id}|${row.appropriation_id}|${row.bucket}|${row.source_year}`, row.total]));
+  }
+
+  /**
    * What the publication does to the balances and the ledger, judged before anything is written. A line of the new revision takes the balance of the
-   * line it replaces (same project, appropriation, bucket and source year) and moves it to the new amount; a line without a predecessor starts a balance;
+   * line it replaces (same project, appropriation, bucket and source year) and moves it to the new amount, less what was carried over to the next year out of it; a line without a predecessor starts a balance;
    * a line the new revision drops is reduced to nothing. A line that would end below what is committed and disbursed on it refuses the whole publication
    * (422 REVISED_BELOW_COMMITTED), and every such line is listed.
    */
-  private plan(lines: readonly FlowLine[], previousLines: readonly FlowLine[], balances: readonly BalanceRow[]): Planned[] {
+  private plan(lines: readonly FlowLine[], previousLines: readonly FlowLine[], balances: readonly BalanceRow[], extended: ReadonlyMap<string, string>): Planned[] {
     const balanceOf = new Map(balances.map((balance) => [balance.allocationLineId, balance]));
     const previousByKey = new Map(previousLines.map((line) => [lineKey(line), line]));
     const matched = new Set<string>();
@@ -351,10 +371,16 @@ export class CapPlanPublicationStore {
         planned.push({ balance: { id: undefined, lineId: line.id, allocatedVnd: line.amountVnd, movedFromLineId: undefined }, posting: { type: 'ALLOCATE', lineId: line.id, amountVnd: line.amountVnd } });
         continue;
       }
-      if (!check(balance, line.id, line.projectId, line.amountVnd)) continue;
-      const change = compareDecimal(line.amountVnd, balance.allocatedVnd);
-      const posting = change === 0 ? undefined : { type: (change > 0 ? 'ALLOCATE' : 'REDUCE') as PostedEntryType, lineId: line.id, amountVnd: change > 0 ? subtractDecimal(line.amountVnd, balance.allocatedVnd) : subtractDecimal(balance.allocatedVnd, line.amountVnd) };
-      planned.push({ balance: { id: balance.id, lineId: line.id, allocatedVnd: line.amountVnd, movedFromLineId: balance.allocationLineId }, posting });
+      // The capital carried over to the next year is no longer on this line: the line may not end below it any more than below what is committed and disbursed.
+      const carried = extended.get(lineKey(line)) ?? '0';
+      const target = compareDecimal(line.amountVnd, carried) > 0 ? subtractDecimal(line.amountVnd, carried) : '0';
+      if (compareDecimal(line.amountVnd, carried) < 0 || !check(balance, line.id, line.projectId, target)) {
+        if (compareDecimal(line.amountVnd, carried) < 0) below.push({ lineId: line.id, projectId: line.projectId, allocatedVnd: line.amountVnd, committedVnd: balance.committedVnd, disbursedVnd: balance.disbursedVnd, minimumVnd: addDecimal(floorOf(balance), carried) });
+        continue;
+      }
+      const change = compareDecimal(target, balance.allocatedVnd);
+      const posting = change === 0 ? undefined : { type: (change > 0 ? 'ALLOCATE' : 'REDUCE') as PostedEntryType, lineId: line.id, amountVnd: change > 0 ? subtractDecimal(target, balance.allocatedVnd) : subtractDecimal(balance.allocatedVnd, target) };
+      planned.push({ balance: { id: balance.id, lineId: line.id, allocatedVnd: target, movedFromLineId: balance.allocationLineId }, posting });
     }
     for (const dropped of previousLines.filter((line) => !matched.has(line.id))) {
       const balance = balanceOf.get(dropped.id);

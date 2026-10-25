@@ -190,6 +190,45 @@ const SEED_PUBLISHABLE_PLAN = `with d as (
   values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, (select id from machvon.master_record_version where code = 'MX-CAP-FUND' limit 1), 'CURRENT_YEAR', 2031, 100, 0,
           $1::uuid, $1::uuid, 'CENTRAL', 'PM_ASSIGNED', $2::uuid, $2::uuid)`;
 
+/**
+ * A request to carry capital over to the next year made by `$2`, on a line of a PUBLISHED plan of 2031 (everything has the id `$1`: the decision document, the appropriation, the project, the plan, its
+ * version, the line and its balance of 100 dong). The request asks for 50 dong until the end of 2032; the document that allows it is the one of the same id.
+ */
+const SEED_EXTENSION = `with d as (
+    insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, symbol, issued_on, effect_status, classification, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'REFERENCE', 'QD', 'Matrix carry-over decision', 'MX-' || $1::uuid::text, '2026-01-15', 'EFFECTIVE', 'INTERNAL', $2::uuid, $2::uuid)
+  ), a as (
+    insert into machvon.appropriation
+      (tenant_id, id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, allocated_total_vnd, decision_document_id, issuing_authority, source_year, revision, status, approved_by, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.master_record_version where code = 'MX-CAP-FUND' limit 1), 2031, 'PM_ASSIGNED', 'CENTRAL', 1000, 100,
+            $1::uuid, 'Matrix authority', 2031, 1, 'PUBLISHED', '${REVIEWER}'::uuid, $2::uuid, $2::uuid)
+  ), p as (
+    insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, project_group, version, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MX-EX-' || $1::uuid::text, 'Matrix carried-over project', '${id(0x10, 2)}'::uuid, '${id(0x8a, 3)}'::uuid, 'INTERNAL', 1000, 'BUDGETED', 'B', 1, $2::uuid, $2::uuid)
+  ), c as (
+    insert into machvon.capital_plan
+      (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, decision_document_id, effective_at, submitted_by, approved_by, published_at, published_by, created_by, updated_by, version)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, 'MX-' || $1::uuid::text, 'ANNUAL', 2031, 2031, 2031,
+            (select id from machvon.organization_unit order by char_length(path), path limit 1), 1, 'PUBLISHED', $1::uuid, now(), $2::uuid, '${REVIEWER}'::uuid, now(), '${REVIEWER}'::uuid, $2::uuid, $2::uuid, 1)
+  ), v as (
+    insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at, capital_plan_id, created_by, updated_by, version)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, 2031, 1, $1::uuid, 'PUBLISHED', now(), $1::uuid, $2::uuid, $2::uuid, 1)
+  ), l as (
+    insert into machvon.allocation_line
+      (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin, created_by, updated_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, (select id from machvon.master_record_version where code = 'MX-CAP-FUND' limit 1), 'CURRENT_YEAR', 2031, 100, 0,
+            $1::uuid, $1::uuid, 'CENTRAL', 'PM_ASSIGNED', $2::uuid, $2::uuid)
+  ), b as (
+    insert into machvon.allocation_balance (tenant_id, id, allocation_line_id, allocated_vnd, reserved_vnd, committed_vnd, disbursed_vnd)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, 100, 0, 0, 0)
+  ), e as (
+    insert into machvon.capital_ledger_entry (tenant_id, id, appropriation_id, allocation_line_id, project_id, entry_type, amount_vnd, plan_year, source_ref_kind, source_ref_id, posted_by)
+    values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, $1::uuid, $1::uuid, 'ALLOCATE', 100, 2031, 'CAPITAL_PLAN', $1::uuid, $2::uuid)
+  )
+  insert into machvon.allocation_extension
+    (tenant_id, id, allocation_line_id, project_id, from_plan_year, extended_to, amount_vnd, reason_code, status, created_by, updated_by)
+  values (current_setting('app.tenant_id')::uuid, $1::uuid, $1::uuid, $1::uuid, 2031, date '2032-03-31', 50, 'GPMB_CHAM', 'REQUESTED', $2::uuid, $2::uuid)`;
+
 /** A request to reopen the locked period of the matrix, made by `$2`; the table keeps one row per request, so each case names its own. */
 const SEED_PERIOD_REOPEN = `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, reason, requested_by, requested_window_hours, status, created_by, updated_by)
   values (current_setting('app.tenant_id')::uuid, $1::uuid, (select id from machvon.reporting_period where code = 'MX-W2026-03'), 'PERIOD', 'Maker-checker matrix request to reopen', $2::uuid, 24, 'REQUESTED', $2::uuid, $2::uuid)`;
@@ -425,6 +464,16 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
       body: { decision: 'approve', reason: 'maker-checker matrix appropriation decision' },
     }),
     seedMadeBy: (objectId, maker) => [SEED_APPROPRIATION, [derivedId(objectId, 'decide-appropriation'), maker]],
+  },
+  {
+    operationId: 'decideAllocationExtension',
+    build: (objectId) => ({
+      method: 'POST',
+      path: `/allocation-extensions/${derivedId(objectId, 'decide-allocation-extension')}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: 'maker-checker matrix extension decision', approving_document_id: derivedId(objectId, 'decide-allocation-extension') },
+    }),
+    seedMadeBy: (objectId, maker) => [SEED_EXTENSION, [derivedId(objectId, 'decide-allocation-extension'), maker]],
   },
   {
     operationId: 'decideCapitalPlan',

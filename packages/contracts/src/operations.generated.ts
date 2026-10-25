@@ -484,6 +484,7 @@ export const OPERATIONS = {
   "linkOmPlan": { method: "post", path: "/asset-records/{id}/om-link", versioned: false, stepUp: null, permission: "asset.manage" },
   "listAffectedHouseholds": { method: "get", path: "/affected-households", versioned: false, stepUp: null, permission: "land.household.read" },
   "listAiRequests": { method: "get", path: "/ai/requests", versioned: false, stepUp: null, permission: "llm.audit.read" },
+  "listAllocationExtensions": { method: "get", path: "/allocation-extensions", versioned: false, stepUp: null, permission: "capital.read" },
   "listAnalysisFindings": { method: "get", path: "/analysis-runs/{id}/findings", versioned: false, stepUp: null, permission: "bid.evaluate" },
   "listAppropriations": { method: "get", path: "/appropriations", versioned: false, stepUp: null, permission: "capital.read" },
   "listAuditEngagements": { method: "get", path: "/audit-engagements", versioned: false, stepUp: null, permission: "aud.read" },

@@ -35112,7 +35112,8 @@
         },
         "x-error-codes": [
           "EXTENSION_NOT_ALLOWED",
-          "AMOUNT_EXCEEDS_UNDISBURSED"
+          "AMOUNT_EXCEEDS_UNDISBURSED",
+          "FISCAL_YEAR_LOCKED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -35259,7 +35260,11 @@
         "x-error-codes": [
           "EXTENSION_DOCUMENT_REQUIRED",
           "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "STAGE_TRANSITION_DENIED",
+          "AMOUNT_EXCEEDS_UNDISBURSED",
+          "FISCAL_YEAR_LOCKED",
+          "APPROPRIATION_DUPLICATE"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -121307,6 +121312,155 @@
         "x-plane": "control",
         "x-required-role": "SystemAdmin"
       }
+    },
+    "/allocation-extensions": {
+      "get": {
+        "operationId": "listAllocationExtensions",
+        "summary": "Các đề nghị kéo dài vốn sang năm sau, mới nhất trước (CAP-20)",
+        "tags": [
+          "CAP"
+        ],
+        "x-permission": "capital.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "REQUESTED",
+                "APPROVED",
+                "APPLIED",
+                "REJECTED",
+                "LAPSED"
+              ]
+            }
+          },
+          {
+            "name": "allocation_line_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Keyset page of the requests to carry capital over",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationExtensionPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope"
+      }
     }
   },
   "components": {
@@ -139361,6 +139515,124 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EntitlementOverride"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "AllocationExtension": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "allocation_line_id",
+          "project_id",
+          "from_plan_year",
+          "extended_to",
+          "amount_vnd",
+          "reason_code",
+          "status",
+          "requested_by",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "allocation_line_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "from_plan_year": {
+            "type": "integer"
+          },
+          "extended_to": {
+            "type": "string",
+            "format": "date",
+            "description": "The last day the carried-over capital may be disbursed"
+          },
+          "amount_vnd": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "reason_code": {
+            "type": "string",
+            "enum": [
+              "GPMB_CHAM",
+              "VUONG_MAC_PHAP_LY",
+              "THIEN_TAI_DICH_BENH",
+              "KHAC"
+            ]
+          },
+          "justification": {
+            "type": "string"
+          },
+          "approving_document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "APPROVED",
+              "APPLIED",
+              "REJECTED",
+              "LAPSED"
+            ]
+          },
+          "new_allocation_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The CARRYOVER line of the next year that an approval made"
+          },
+          "new_appropriation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The appropriation of origin CARRYOVER that line draws on"
+          },
+          "requested_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decided_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "decision_reason": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "description": "resource_version: the If-Match of decideAllocationExtension"
+          }
+        }
+      },
+      "AllocationExtensionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AllocationExtension"
             }
           },
           "next_cursor": {

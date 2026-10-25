@@ -88,3 +88,19 @@
 .cap-negative {
   color: #b3261e;
 }
+
+/* CAP-20: the figures of the line that is carried over from, side by side. */
+.cap-extension-figures {
+  display: grid;
+  gap: 8px 16px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin: 0 0 12px;
+}
+.cap-extension-figures dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.cap-extension-figures dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}

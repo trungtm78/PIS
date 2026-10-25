@@ -15,13 +15,13 @@ function useScopeKey(): readonly ['cap', string | undefined, string | undefined]
 }
 
 /** Every plan revision the caller may see, newest first (a revision in work only for the people who draft and approve). */
-export function usePlans() {
+export function usePlans(enabled = true) {
   const client = useApiClient();
   const key = useScopeKey();
   return useQuery<PlanSummary[]>({
     queryKey: [...key, 'plans'],
     queryFn: async () => (await client.readAll('get_resources_plan_version')).flatMap((raw) => toPlan(raw) ?? []),
-    enabled: key[1] !== undefined,
+    enabled: enabled && key[1] !== undefined,
     retry: false,
   });
 }

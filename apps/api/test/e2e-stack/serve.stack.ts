@@ -279,6 +279,16 @@ const AVC_ROLES = [
 ];
 
 /**
+ * The people of the extension of the disbursement of capital (CAP-20): the planner who asks (and reads the plans, their lines and the projects to choose from), the approver who decides
+ * and the reader who only sees the requests. All of them act on the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const EXTENSION_ROLES = [
+  { n: 750, user: 'extPlanner', code: 'E2E_EXT_PLANNER', permissions: ['capital.read', 'plan_version.read', 'allocation_line.read', 'project.read', 'capital.extension.request'], rank: 40 },
+  { n: 751, user: 'extApprover', code: 'E2E_EXT_APPROVER', permissions: ['capital.read', 'capital.extension.approve'], rank: 50 },
+  { n: 752, user: 'extReader', code: 'E2E_EXT_READER', permissions: ['capital.read'], rank: 20 },
+];
+
+/**
  * The people of the recall of issued documents and of the voiding of numbers (DOC-19): the leader who recalls, and two records managers who void the number of a
  * document that cannot be sealed (one executes, the other approves), all over the subtree of unit 2 where the documents are drafted. The permissions are the ones of
  * apps/web/e2e/support/e2e-fixtures.json.
@@ -478,6 +488,7 @@ const GRANTS: GrantPlan[] = [
   ...SUPPORT_ROLES.map((role, index): GrantPlan => ({ n: 720 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...RECALL_ROLES.map((role, index): GrantPlan => ({ n: 730 + index, user: role.user, role: role.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] })),
   ...AVC_ROLES.map((role, index): GrantPlan => ({ n: 740 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...EXTENSION_ROLES.map((role, index): GrantPlan => ({ n: 750 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -770,7 +781,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

@@ -101,6 +101,9 @@ export interface MatrixTargets {
   appropriationId: string;
   /** A DRAFT capital plan of tenant A, annual 2026, made by someone other than the callers (version 1). */
   capitalPlanId: string;
+  /** A line of a plan of tenant A and a request to carry capital of it over to the next year, made by someone other than the callers (version 1). */
+  allocationLineId: string;
+  allocationExtensionId: string;
   /** Reporting periods of tenant A past their deadline: one OPEN and one SOFT_CLOSED (both version 1). */
   periodOpenId: string;
   periodSoftClosedId: string;
@@ -680,6 +683,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideAppropriation: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/appropriations/${t.appropriationId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  requestAllocationExtension: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/allocation-lines/${t.allocationLineId}/extensions`, body: { amount_vnd: '100', extended_to: '2027-03-31', reason_code: 'GPMB_CHAM' } }),
+  },
+  decideAllocationExtension: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/allocation-extensions/${t.allocationExtensionId}/decision`, ifMatch: '"1"', body: { decision: 'reject', reason: REASON } }),
   },
   createCapitalPlan: {
     // The unit of tenant A does not exist for a caller of tenant B (404).

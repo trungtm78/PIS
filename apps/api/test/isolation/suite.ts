@@ -357,6 +357,12 @@ export const AVC_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; poli
   'TNT-B': { id: '00000000-0000-4000-b0c3-000000000001', policyCode: 'BETA-AVC-0001', legalBasis: 'Beta capital control resolution 0001/2026' },
 };
 
+/** A request to carry capital over to the next year of each tenant, on the line of its capital plan (the justification is distinctive). */
+export const EXTENSION_FIXTURES: Readonly<Record<TenantName, { id: string; justification: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d9-000000000001', justification: 'Alpha carry-over justification 0001 for the isolation suite' },
+  'TNT-B': { id: '00000000-0000-4000-b0d9-000000000001', justification: 'Beta carry-over justification 0001 for the isolation suite' },
+};
+
 /** A delegation-of-authority matrix draft of each tenant (the legal basis and the document type of its rule are distinctive). */
 export const DOA_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string; documentType: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0c2-000000000001', legalBasis: 'Alpha tenant approval regulation 0001', documentType: 'ALPHA-DOC-0001' },
@@ -616,6 +622,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'work calendar id', value: WORK_CALENDAR_FIXTURES[tenant].id },
     { kind: 'work calendar code', value: WORK_CALENDAR_FIXTURES[tenant].calendarCode },
     { kind: 'work calendar legal basis', value: WORK_CALENDAR_FIXTURES[tenant].legalBasis },
+    { kind: 'carry-over request id', value: EXTENSION_FIXTURES[tenant].id },
+    { kind: 'carry-over request justification', value: EXTENSION_FIXTURES[tenant].justification },
     { kind: 'avc policy id', value: AVC_POLICY_FIXTURES[tenant].id },
     { kind: 'avc policy code', value: AVC_POLICY_FIXTURES[tenant].policyCode },
     { kind: 'avc policy legal basis', value: AVC_POLICY_FIXTURES[tenant].legalBasis },

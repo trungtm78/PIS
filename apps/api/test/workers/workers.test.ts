@@ -55,8 +55,8 @@ describe('startWorkers without a reachable database', () => {
 
   it('schedules the jobs of docs/runbooks/jobs.md at their documented intervals', () => {
     const running = start(depsWith(collecting));
-    expect(running.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'dgv-quality-run', 'subscription-cycle', 'entitlement-override-expiry', 'access-cache-expiry']);
-    expect(timers.delays()).toEqual([5, 10, 60, 60, 300, 300, 900, 900, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 21_600, 86_400].map((seconds) => seconds * 1000));
+    expect(running.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'entitlement-override-expiry', 'access-cache-expiry']);
+    expect(timers.delays()).toEqual([5, 10, 60, 60, 300, 300, 900, 900, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 21_600, 86_400].map((seconds) => seconds * 1000));
   });
 
   it('takes an interval override of the caller (the end-to-end stack polls its relay faster)', () => {
@@ -114,7 +114,7 @@ describe('startWorkers without a reachable database', () => {
 
   it('stops every timer, and a second stop is safe', async () => {
     const running = start(depsWith(collecting));
-    expect(timers.delays()).toHaveLength(18);
+    expect(timers.delays()).toHaveLength(19);
     await running.stop();
     expect(timers.delays()).toEqual([]);
     await expect(running.stop()).resolves.toBeUndefined();

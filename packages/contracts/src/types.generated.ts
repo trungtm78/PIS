@@ -14370,6 +14370,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/allocation-extensions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các đề nghị kéo dài vốn sang năm sau, mới nhất trước (CAP-20) */
+        get: operations["listAllocationExtensions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -19168,6 +19185,51 @@ export interface components {
         };
         EntitlementOverridePage: {
             items: components["schemas"]["EntitlementOverride"][];
+            next_cursor: string | null;
+        };
+        AllocationExtension: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            allocation_line_id: string;
+            /** Format: uuid */
+            project_id: string;
+            from_plan_year: number;
+            /**
+             * Format: date
+             * @description The last day the carried-over capital may be disbursed
+             */
+            extended_to: string;
+            amount_vnd: components["schemas"]["Money"];
+            /** @enum {string} */
+            reason_code: "GPMB_CHAM" | "VUONG_MAC_PHAP_LY" | "THIEN_TAI_DICH_BENH" | "KHAC";
+            justification?: string;
+            /** Format: uuid */
+            approving_document_id?: string;
+            /** @enum {string} */
+            status: "REQUESTED" | "APPROVED" | "APPLIED" | "REJECTED" | "LAPSED";
+            /**
+             * Format: uuid
+             * @description The CARRYOVER line of the next year that an approval made
+             */
+            new_allocation_line_id?: string;
+            /**
+             * Format: uuid
+             * @description The appropriation of origin CARRYOVER that line draws on
+             */
+            new_appropriation_id?: string;
+            /** Format: uuid */
+            requested_by: string;
+            /** Format: uuid */
+            decided_by?: string;
+            /** Format: date-time */
+            decided_at?: string;
+            decision_reason?: string;
+            /** @description resource_version: the If-Match of decideAllocationExtension */
+            version: number;
+        };
+        AllocationExtensionPage: {
+            items: components["schemas"]["AllocationExtension"][];
             next_cursor: string | null;
         };
     };
@@ -103749,6 +103811,103 @@ export interface operations {
             };
             /** @description RESOURCE_NOT_FOUND */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listAllocationExtensions: {
+        parameters: {
+            query?: {
+                status?: "REQUESTED" | "APPROVED" | "APPLIED" | "REJECTED" | "LAPSED";
+                allocation_line_id?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Keyset page of the requests to carry capital over */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AllocationExtensionPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

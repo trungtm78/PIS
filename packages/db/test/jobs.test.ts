@@ -205,6 +205,28 @@ describe('standard jobs', () => {
     ]);
   });
 
+  it('lets the requests to carry capital over lapse in every tenant at the time of the clock and keeps going when one fails (allocation-extension-lapse, ST-CAP-007)', async () => {
+    const visited: Array<[string, string]> = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      clock: () => new Date('2026-10-25T06:00:00Z'),
+      extensionLapse: {
+        run: async (ctx, now) => {
+          visited.push([ctx.tenantId, now.toISOString()]);
+          if (ctx.tenantId === TENANT_A) throw new Error('boom');
+          return { lapsed: 1 };
+        },
+      },
+    });
+    await expect(handlers.find((handler) => handler.name === 'allocation-extension-lapse')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(visited).toEqual([
+      [TENANT_A, '2026-10-25T06:00:00.000Z'],
+      [TENANT_B, '2026-10-25T06:00:00.000Z'],
+    ]);
+  });
+
   it('lets the overrides of every tenant run out at the time of the clock and keeps going when one fails (entitlement-override-expiry, ST-SAS-009)', async () => {
     const visited: Array<[string, string]> = [];
     const handlers = standardJobs({
@@ -313,9 +335,10 @@ describe('standard jobs', () => {
       dgvQuality: { run: async () => ({ notAssessed: 0 }) },
       subscriptionCycle: { run: async () => undefined },
       overrideExpiry: { run: async () => undefined },
+      extensionLapse: { run: async () => ({ lapsed: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'entitlement-override-expiry', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'entitlement-override-expiry', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

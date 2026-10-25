@@ -47,6 +47,8 @@
     "createSecurityPolicyVersion",
     "createWorkCalendarVersion",
     "decideAppropriation",
+    "decideAllocationExtension",
+    "requestAllocationExtension",
     "declarePermitExemption",
     "dispatchOutgoingDocument",
     "draftCapitalAllocation",

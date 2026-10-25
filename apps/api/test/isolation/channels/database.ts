@@ -14,7 +14,7 @@ import { CONTRACTOR_FIXTURES } from '../suite';
 import { BOQ_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
-import { AVC_POLICY_FIXTURES } from '../suite';
+import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
@@ -137,6 +137,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'publishAvcPolicy',
   'listAvcPolicies',
   'previewAvcPolicy',
+  'requestAllocationExtension',
+  'decideAllocationExtension',
+  'listAllocationExtensions',
   'voidOutgoingDocumentNumber',
   'proposeMasterRecord',
   'createMasterChangeRequest',
@@ -508,6 +511,10 @@ const INSERT_ALLOCATION_LINE = `insert into machvon.allocation_line
   (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin, created_by, updated_by)
   values ($1, $2, $3, $4, 'CURRENT_YEAR', 2026, 100, 0, $5, $6, 'LOCAL', 'LOCAL_ADDED', $7, $7) on conflict do nothing`;
 
+const INSERT_EXTENSION = `insert into machvon.allocation_extension
+  (tenant_id, id, allocation_line_id, project_id, from_plan_year, extended_to, amount_vnd, reason_code, justification, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 2026, date '2027-03-31', 100, 'KHAC', $5, 'REQUESTED', $6, $6) on conflict do nothing`;
+
 const INSERT_WORK_CALENDAR = `insert into machvon.work_calendar_version
   (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, version)
   values ($1, $2, $3, 2026, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, $4, 'Draft', $5, 1) on conflict do nothing`;
@@ -838,6 +845,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PUBLISHED_CAPITAL_PLAN, [tenantId, plan.publishedId, plan.publishedCode, home, ACTOR_ID, documents.documentId, APPROVER_ID]);
     await client.query(INSERT_PLAN_VERSION, [tenantId, plan.versionId, project.id, plan.id, ACTOR_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
+    await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);
     const schedule = SCHEDULE_FIXTURES[tenant];
     await client.query(INSERT_SCHEDULE_LINE, [tenantId, schedule.id, project.id, schedule.assumption, ACTOR_ID]);
     const procurement = PROCUREMENT_PLAN_FIXTURES[tenant];

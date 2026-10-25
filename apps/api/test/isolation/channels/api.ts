@@ -15,7 +15,7 @@ import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
-import { AVC_POLICY_FIXTURES } from '../suite';
+import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
@@ -137,6 +137,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'retryDocumentDistribution', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].distributionId, versioned: true, body: {} },
   { operation: 'publishAvcPolicy', method: 'POST', id: AVC_POLICY_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'previewAvcPolicy', method: 'GET', id: AVC_POLICY_FIXTURES['TNT-B'].id },
+  { operation: 'requestAllocationExtension', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].lineId, body: { amount_vnd: '100', extended_to: '2027-03-31', reason_code: 'GPMB_CHAM' } },
+  { operation: 'decideAllocationExtension', method: 'POST', id: EXTENSION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign decision' } },
   { operation: 'recallOutgoingDocument', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: { reason: 'Isolation foreign recall attempt' } },
   {
     operation: 'voidOutgoingDocumentNumber',
