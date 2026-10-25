@@ -427,7 +427,8 @@ describe('the advance of a contract (ST-PAY-004)', () => {
       expect((await update("status = 'RECOVERING', paid_vnd = 1000000000, recovered_vnd = 1, paid_on = date '2026-07-25', recovery_deadline = date '2026-08-24'")).message).toContain('ADVANCE_STATE_INVALID');
       await owner("update machvon.contract_advance set status = 'PAID', paid_vnd = 1000000000, paid_on = date '2026-07-25', recovery_deadline = date '2026-08-24' where id = $1::uuid", [id]);
       expect((await update('paid_vnd = 2000000000')).message).toContain('the amount paid is set once');
-      expect((await update("status = 'PLANNED', paid_vnd = 0")).message).toContain('ADVANCE_STATE_INVALID');
+      // A paid advance goes back to planned only when its payment is reversed (V1568, ST-PAY-008); it never goes to cancelled, and its amount paid is never changed otherwise.
+      expect((await update("status = 'CANCELLED', paid_vnd = 0")).message).toContain('ADVANCE_STATE_INVALID');
       expect((await update("status = 'RECOVERING', recovered_vnd = 0")).message).toContain('contract_advance_status_amounts_chk');
       expect((await update("status = 'FULLY_RECOVERED', recovered_vnd = 5")).message).toContain('contract_advance_status_amounts_chk');
     });

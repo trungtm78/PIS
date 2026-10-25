@@ -28,6 +28,7 @@ export function treasuryTransactionView(row: TreasuryTransactionRow): Record<str
     payment_request_id: row.paymentRequestId,
     import_id: row.importId,
     plan_year: row.planYear,
+    reversal_of_id: row.reversalOfId,
   };
 }
 

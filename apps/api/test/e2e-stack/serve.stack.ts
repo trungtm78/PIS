@@ -421,6 +421,7 @@ const RECONCILE_ROLES = [
   { n: 833, user: 'reconcileOwner', code: 'E2E_RECONCILE_OWNER', permissions: ['reconciliation.read', 'reconciliation.resolve', 'session.self'], rank: 30 },
   { n: 834, user: 'reconcileApprover', code: 'E2E_RECONCILE_APPROVER', permissions: ['reconciliation.read', 'reconciliation.resolve', 'session.self'], rank: 40 },
   { n: 835, user: 'reconcileReader', code: 'E2E_RECONCILE_READER', permissions: ['reconciliation.read', 'treasury_transaction.read', 'session.self'], rank: 10 },
+  { n: 836, user: 'paymentChief', code: 'E2E_PAYMENT_CHIEF', permissions: ['payment_request.read', 'payment.reverse', 'ledger.read', 'treasury_transaction.read', 'contract.read', 'session.self'], rank: 40 },
 ];
 
 /**

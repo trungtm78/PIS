@@ -387,7 +387,7 @@ export type { FormRequest, FormView, RecordFormInput, SendToTreasuryInput } from
 export { ADVANCE_CAP_RULE, ADVANCE_GPMB_RULE, PayAdvanceStore } from './pay-advance-store.ts';
 export type { AdvanceFilter, AdvancePlan, AdvanceResult, AdvanceView, RecordRecoveryInput, RequestAdvanceInput } from './pay-advance-store.ts';
 export { PAY_CLAIM_CONFLICT_METRIC, PAY_SUBMIT_METRIC, PayClaimStore } from './pay-claim-store.ts';
-export type { SubmitPaymentInput } from './pay-claim-store.ts';
+export type { ReversePaymentInput, Reversed, SubmitPaymentInput } from './pay-claim-store.ts';
 export { PAY_MATCH_METRIC, PaySettlementStore } from './pay-settlement-store.ts';
 export type { MatchInput, MatchOutcome, Mismatch, Settled } from './pay-settlement-store.ts';
 export {

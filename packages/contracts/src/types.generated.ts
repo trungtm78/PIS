@@ -16890,10 +16890,17 @@ export interface components {
             form_instance_ids: string[];
         };
         PayReversePayment: {
-            reason: string;
-            /** Format: uuid */
-            approval_document_version_id: string;
-            /** Format: uuid */
+            /** @description Lý do đảo: bắt buộc, thiếu hoặc rỗng → 422 VALIDATION_FAILED (UAT-AC331) */
+            reason?: string;
+            /**
+             * Format: uuid
+             * @description Phiên bản văn bản phê duyệt (đã quét sạch): bắt buộc, thiếu → 422 APPROVAL_REQUIRED
+             */
+            approval_document_version_id?: string;
+            /**
+             * Format: uuid
+             * @description Giao dịch hoàn trả (REFUND) tham chiếu giao dịch đã tất toán đề nghị, cùng số tiền: bắt buộc, thiếu hoặc sai → 422 REFUND_NOT_CONFIRMED
+             */
             refund_treasury_transaction_id?: string;
         };
         PayImportTreasuryStatement: {
@@ -20514,6 +20521,12 @@ export interface components {
              * @description Ngày (giờ Việt Nam) Kho bạc xác nhận khi đề nghị đã tất toán: mốc tính giải ngân (CXN-03)
              */
             treasury_paid_on?: string | null;
+            /** Format: date-time */
+            reversed_at?: string | null;
+            /** Format: uuid */
+            refund_transaction_id?: string | null;
+            /** Format: uuid */
+            settled_transaction_id?: string | null;
         };
         PayPaymentRequestPage: {
             items: components["schemas"]["PayPaymentRequest"][];
@@ -20836,6 +20849,20 @@ export interface components {
             next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
+        };
+        /** @description Kết quả đảo thanh toán: CommandResult của đề nghị (REVERSED) kèm giao dịch hoàn trả đã dùng, ngày Kho bạc xác nhận khoản đã trả và số bút toán thanh toán đã đảo */
+        PayReversalResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** Format: uuid */
+            refund_transaction_id: string;
+            /** Format: date */
+            treasury_paid_on: string;
+            payment_entries: number;
         };
     };
     responses: never;
@@ -71960,7 +71987,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayReversalResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

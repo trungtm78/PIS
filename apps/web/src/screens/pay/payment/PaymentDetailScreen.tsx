@@ -11,6 +11,7 @@ import { usePayment } from './hooks';
 import { docKindLabel, kindLabel, statusLabel, warningMessage } from './labels';
 import { listLink, signedAmountText, valuationLink } from './model';
 import { formsLink } from '../forms/model';
+import { reversalLink } from '../reversal/model';
 import type { PaymentAnswer, PaymentRequest, WarningCode } from './model';
 import '../pay.css';
 
@@ -138,6 +139,11 @@ function Detail({ request }: { request: PaymentRequest }) {
           {request.status === 'VERIFIED' || request.status === 'SENT_TREASURY' ? (
             <Link className="button" to={formsLink(request.id)} data-testid="forms">
               {t('pay.payment.detail.forms')}
+            </Link>
+          ) : null}
+          {request.status === 'SETTLED' || request.status === 'REVERSED' ? (
+            <Link className="button" to={reversalLink(request.id)} data-testid="reversal">
+              {t('pay.payment.detail.reversal')}
             </Link>
           ) : null}
           {writable && request.actions.revise ? (

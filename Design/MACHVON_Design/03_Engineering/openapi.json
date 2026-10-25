@@ -73699,7 +73699,13 @@
           "PAYMENT_STATE_INVALID",
           "REFUND_NOT_CONFIRMED",
           "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "APPROVAL_REQUIRED",
+          "DOCUMENT_NOT_CLEAN",
+          "ADVANCE_STATE_INVALID",
+          "VALUE_EXCEEDED",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -73712,7 +73718,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayReversalResult"
                 }
               }
             }
@@ -131806,21 +131812,20 @@
           "reason": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Lý do đảo: bắt buộc, thiếu hoặc rỗng → 422 VALIDATION_FAILED (UAT-AC331)"
           },
           "approval_document_version_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Phiên bản văn bản phê duyệt (đã quét sạch): bắt buộc, thiếu → 422 APPROVAL_REQUIRED"
           },
           "refund_treasury_transaction_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Giao dịch hoàn trả (REFUND) tham chiếu giao dịch đã tất toán đề nghị, cùng số tiền: bắt buộc, thiếu hoặc sai → 422 REFUND_NOT_CONFIRMED"
           }
-        },
-        "required": [
-          "reason",
-          "approval_document_version_id"
-        ]
+        }
       },
       "PayImportTreasuryStatement": {
         "type": "object",
@@ -144951,6 +144956,27 @@
             ],
             "format": "date",
             "description": "Ngày (giờ Việt Nam) Kho bạc xác nhận khi đề nghị đã tất toán: mốc tính giải ngân (CXN-03)"
+          },
+          "reversed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "refund_transaction_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "settled_transaction_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -146150,6 +146176,47 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "PayReversalResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "refund_transaction_id",
+          "treasury_paid_on",
+          "payment_entries"
+        ],
+        "description": "Kết quả đảo thanh toán: CommandResult của đề nghị (REVERSED) kèm giao dịch hoàn trả đã dùng, ngày Kho bạc xác nhận khoản đã trả và số bút toán thanh toán đã đảo",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "refund_transaction_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "treasury_paid_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "payment_entries": {
+            "type": "integer"
           }
         }
       }

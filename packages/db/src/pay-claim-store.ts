@@ -6,12 +6,14 @@ import {
   assertNotProposer,
   groupForLedger,
   recoverFromTranches,
+  requiredNote,
   signedDong,
   versionConflict,
   wholeVnd,
 } from '@machvon/kernel';
 import type { MetricsSink, PaymentKind, PaymentStatus } from '@machvon/kernel';
 import { CtrContractStore } from './ctr-contract-store.ts';
+import { normalizeUuid } from './file-import-item-store.ts';
 import type { ContractScopes } from './ctr-contract-store.ts';
 import { PAY_LEDGER_LOCK_WAIT_METRIC, PayLedgerStore, valueExceeded } from './pay-ledger-store.ts';
 import { PayPaymentStore } from './pay-payment-store.ts';
@@ -29,6 +31,8 @@ const UNIQUE_VIOLATION = '23505';
 const CLAIM_CONSTRAINT = 'payment_request_active_acceptance_uq';
 const ADVANCE_CONSTRAINT = 'payment_request_active_advance_uq';
 const DEFAULT_RELEASE_CONDITION = 'COMPLETION';
+/** What the entries that undo a payment say: a fixed sentence, never the words of the person (those stay on the request and in the audit trail). */
+const REVERSAL_ENTRY_REASON = 'The payment was reversed.';
 
 const invalid = (field: string, reason?: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field, reason === undefined ? undefined : { extensions: { reason } });
 const textOf = (value: string, field: string): string => {
@@ -36,6 +40,25 @@ const textOf = (value: string, field: string): string => {
   if (trimmed === '' || trimmed.length > MAX_TEXT) throw invalid(field);
   return trimmed;
 };
+
+export interface ReversePaymentInput {
+  reason: string | undefined;
+  approvalDocumentVersionId: string | undefined;
+  refundTransactionId: string | undefined;
+  /** The identifier of the command, kept on the entries it posts. */
+  requestId: string;
+}
+
+/** What a reversal did: the request as it stands, the refund it stood on and the day the Treasury first confirmed the payment. */
+export interface Reversed {
+  result: PaymentResult;
+  refundTransactionId: string;
+  /** The time the Treasury confirmed the refund (UTC, microseconds). */
+  refundConfirmedAt: string;
+  originalPaidOn: string;
+  paymentEntries: number;
+  advanceId: string | null;
+}
 
 export interface SubmitPaymentInput {
   /** The gross and the net the person saw on the screen: the request is sent only if they are still what it is worth (a stale screen is refused). */
@@ -146,6 +169,127 @@ export class PayClaimStore {
     return this.payments.resultOf(tx, id, held.status, []);
   }
 
+
+  /**
+   * Reverses a payment that was settled (PAY 3.4, UAT-AC331): only against a refund the Treasury confirmed, with the reason and the document that approves it, and by someone other than whoever
+   * matched the payment or sent the file. Every effect of the payment is undone by new entries that name the ones they undo (the payment, the recovery of the advance, the hold of retention, the
+   * claim on the acceptance), once each; the totals of the contract come back; the claim on the acceptance is let go, so it can be claimed again; and the refund is matched to the request. Nothing is
+   * updated or deleted but the balances that follow the entries. A payment request for an advance gives the advance back to planned, when nothing of it was recovered.
+   */
+  async reverse(tx: TenantTx, id: string, expectedVersion: number, input: ReversePaymentInput, actor: string, scopes: ContractScopes): Promise<Reversed> {
+    const reason = requiredNote(input.reason, 'reason');
+    const held = await this.lock(tx, id, expectedVersion, scopes);
+    if (held.status !== 'SETTLED') throw new DomainError('PAYMENT_STATE_INVALID', 409, 'id', { extensions: { status: held.status } });
+    const [settlement] = await tx.query<{ settled_transaction_id: string; paid_on: string; settled_by: string; sent_by: string | null }>(
+      'select settled_transaction_id, treasury_paid_on::text as paid_on, settled_by, treasury_sent_by as sent_by from machvon.payment_request where id = $1::uuid',
+      [held.id],
+    );
+    if (settlement === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const refund = await this.confirmedRefund(tx, held, settlement.settled_transaction_id, input.refundTransactionId);
+    const approval = await this.approvalDocument(tx, input.approvalDocumentVersionId);
+    // Four eyes on the money that goes back: not the person who matched the payment, nor the one who sent the file to the Treasury.
+    assertNotProposer(actor, [settlement.settled_by, settlement.sent_by]);
+    let paymentEntries = 0;
+    let advanceId: string | null = null;
+    try {
+      if (held.request_kind === 'ADVANCE') {
+        advanceId = await this.takeAdvanceBack(tx, held, input.requestId, actor);
+      } else {
+        const outstanding = await this.moveTotals(tx, held, -1, actor, true);
+        paymentEntries = await this.ledger.reversePayments(tx, { paymentRequestId: held.id, requestId: input.requestId, actor, advanceOutstandingVnd: outstanding, reason: REVERSAL_ENTRY_REASON });
+        await this.ledger.releaseRequest(tx, { paymentRequestId: held.id, requestId: input.requestId, actor, advanceOutstandingVnd: outstanding, reason: REVERSAL_ENTRY_REASON });
+        await this.giveBackAdvance(tx, held, input.requestId, actor, REVERSAL_ENTRY_REASON);
+      }
+      await tx.query(
+        `update machvon.treasury_transaction
+            set match_status = 'MATCHED', payment_request_id = $2::uuid, contract_id = $3::uuid, allocation_line_id = $4::uuid, plan_year = $5, matched_at = now(), matched_by = $6::uuid
+          where id = $1::uuid`,
+        [refund.id, held.id, held.contract_id, held.allocation_line_id, refund.planYear, actor],
+      );
+      await tx.query(
+        `update machvon.payment_request
+            set status = 'REVERSED', claims_acceptance = false, reversed_by = $2::uuid, reversed_at = now(), reversal_reason = $3, reversal_approval_document_version_id = $4::uuid, refund_transaction_id = $5::uuid,
+                updated_at = now(), updated_by = $2::uuid, version = version + 1
+          where id = $1::uuid`,
+        [held.id, actor, reason, approval, refund.id],
+      );
+      // What was held back goes with the payment, now that the request is reversed (the database lets it go only then, and only while none of it was released).
+      if (held.request_kind !== 'ADVANCE') await tx.query('delete from machvon.retention_hold where payment_request_id = $1::uuid', [held.id]);
+    } catch (error) {
+      throw this.mapReversalRefusal(error);
+    }
+    return { result: await this.payments.resultOf(tx, held.id, 'SETTLED', []), refundTransactionId: refund.id, refundConfirmedAt: refund.confirmedAt, originalPaidOn: settlement.paid_on, paymentEntries, advanceId };
+  }
+
+  /** The refund the reversal stands on: a refund of the very payment that settled the request, for the same amount, confirmed by the Treasury and not yet used (422 `REFUND_NOT_CONFIRMED`, with the reason). */
+  private async confirmedRefund(tx: TenantTx, held: HeldSql, settledTransactionId: string, refundId: string | undefined): Promise<{ id: string; confirmedAt: string; planYear: number | null }> {
+    const refusal = (reason: string, extensions: Record<string, unknown> = {}): DomainError => new DomainError('REFUND_NOT_CONFIRMED', 422, 'refund_treasury_transaction_id', { extensions: { reason, ...extensions } });
+    if (refundId === undefined) throw refusal('MISSING');
+    const id = normalizeUuid(refundId, 'refund_treasury_transaction_id');
+    const [row] = await tx.query<{ id: string; project_id: string; direction: string; reversal_of_id: string | null; amount_vnd: string; match_status: string; confirmed_at: string; plan_year: number | null }>(
+      `select id, project_id, direction, reversal_of_id, amount_vnd::text as amount_vnd, match_status, to_char(confirmed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as confirmed_at, plan_year
+         from machvon.treasury_transaction where id = $1::uuid for update`,
+      [id],
+    );
+    if (row === undefined || row.project_id !== held.project_id) throw refusal('NOT_FOUND');
+    if (row.direction !== 'REFUND') throw refusal('NOT_A_REFUND');
+    if (row.reversal_of_id !== settledTransactionId) throw refusal('OTHER_PAYMENT');
+    if (row.amount_vnd !== held.net_vnd) throw refusal('AMOUNT', { refund_vnd: row.amount_vnd, net_vnd: held.net_vnd });
+    if (row.match_status !== 'UNMATCHED') throw refusal('ALREADY_USED');
+    return { id: row.id, confirmedAt: row.confirmed_at, planYear: row.plan_year };
+  }
+
+  /** The document that approves the reversal: needed (422 `APPROVAL_REQUIRED`), and scanned clean. */
+  private async approvalDocument(tx: TenantTx, value: string | undefined): Promise<string> {
+    if (value === undefined) throw new DomainError('APPROVAL_REQUIRED', 422, 'approval_document_version_id');
+    const id = normalizeUuid(value, 'approval_document_version_id');
+    const [document] = await tx.query<{ scan_status: string }>('select scan_status from machvon.document_version where id = $1::uuid', [id]);
+    if (document === undefined) throw invalid('approval_document_version_id', 'NOT_FOUND');
+    if (document.scan_status !== 'CLEAN') throw new DomainError('DOCUMENT_NOT_CLEAN', 422, 'approval_document_version_id');
+    return id;
+  }
+
+  /** The advance of a reversed payment request goes back to planned: what was paid is taken back by an entry that undoes the payment, and the contract no longer shows the money out. Nothing of it may have been recovered. */
+  private async takeAdvanceBack(tx: TenantTx, held: HeldSql, requestId: string, actor: string): Promise<string> {
+    if (held.advance_id === null) throw new DomainError('ADVANCE_STATE_INVALID', 409, 'advance_id');
+    const [advance] = await tx.query<{ id: string; party_id: string; status: string; paid_vnd: string; recovered_vnd: string }>(
+      'select id, party_id, status, paid_vnd::text as paid_vnd, recovered_vnd::text as recovered_vnd from machvon.contract_advance where id = $1::uuid for update',
+      [held.advance_id],
+    );
+    if (advance === undefined || advance.status !== 'PAID' || advance.recovered_vnd !== '0') {
+      throw new DomainError('ADVANCE_STATE_INVALID', 409, 'advance_id', { extensions: { status: advance?.status ?? null, recovered_vnd: advance?.recovered_vnd ?? null } });
+    }
+    const [disbursed] = await tx.query<{ id: string }>(
+      `select e.id from machvon.advance_ledger_entry e
+        where e.payment_request_id = $1::uuid and e.entry_kind = 'DISBURSE' and not exists (select 1 from machvon.advance_ledger_entry r where r.tenant_id = e.tenant_id and r.reversal_of_id = e.id)`,
+      [held.id],
+    );
+    if (disbursed === undefined) throw new DomainError('ADVANCE_STATE_INVALID', 409, 'advance_id', { extensions: { reason: 'NOT_DISBURSED' } });
+    await tx.query(
+      `insert into machvon.advance_ledger_entry (tenant_id, id, contract_id, payment_request_id, entry_kind, amount_vnd, reversal_of_id, posted_at, advance_id, party_id, outstanding_after_vnd, reason, posted_by, request_id)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, 'REVERSE_DISBURSE', $4::numeric, $5::uuid, now(), $6::uuid, $7::uuid, 0, $8, $9::uuid, $10::uuid)`,
+      [randomUUID(), held.contract_id, held.id, advance.paid_vnd, disbursed.id, advance.id, advance.party_id, REVERSAL_ENTRY_REASON, actor, requestId],
+    );
+    await tx.query("update machvon.contract_advance set status = 'PLANNED', paid_vnd = 0, paid_on = null, recovery_deadline = null, updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [advance.id, actor]);
+    await tx.query('update machvon.contract set advance_paid_vnd = advance_paid_vnd - $2::numeric, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid', [held.contract_id, advance.paid_vnd, actor]);
+    return advance.id;
+  }
+
+  /** What the database refused, in the words of the contract; anything else is not ours to explain. */
+  private mapReversalRefusal(error: unknown): unknown {
+    const broken = valueExceeded(error, this.metrics);
+    if (broken !== undefined) return broken;
+    const failure = error as { code?: string; message?: string };
+    if (failure.code === UNIQUE_VIOLATION) return new DomainError('REFUND_NOT_CONFIRMED', 422, 'refund_treasury_transaction_id', { extensions: { reason: 'ALREADY_USED' } });
+    if (failure.code !== '23514') return error;
+    const message = failure.message ?? '';
+    if (message.includes('REFUND_NOT_CONFIRMED')) return new DomainError('REFUND_NOT_CONFIRMED', 422, 'refund_treasury_transaction_id');
+    if (message.includes('ADVANCE_STATE_INVALID')) return new DomainError('ADVANCE_STATE_INVALID', 409, 'advance_id');
+    if (message.includes('PAYMENT_STATE_INVALID')) return new DomainError('PAYMENT_STATE_INVALID', 409, 'id');
+    if (message.includes('a hold of retention')) return new DomainError('PAYMENT_STATE_INVALID', 409, 'id', { extensions: { reason: 'RETENTION_RELEASED' } });
+    return error;
+  }
+
   // ---- internals ------------------------------------------------------------------------------------------------------------
 
   private async lock(tx: TenantTx, id: string, expectedVersion: number, scopes: ContractScopes): Promise<HeldSql> {
@@ -227,14 +371,14 @@ export class PayClaimStore {
   }
 
   /** The totals of the contract moved by a request (sign +1 when it is sent, -1 when it is returned); gives the advance still to recover after. */
-  private async moveTotals(tx: TenantTx, held: HeldSql, sign: 1 | -1, actor: string): Promise<string> {
+  private async moveTotals(tx: TenantTx, held: HeldSql, sign: 1 | -1, actor: string, paid = false): Promise<string> {
     try {
       const [row] = await tx.query<{ outstanding: string }>(
         `update machvon.contract
             set requested_total_vnd = requested_total_vnd + $2::numeric, advance_recovered_vnd = advance_recovered_vnd + $3::numeric, retention_held_vnd = retention_held_vnd + $4::numeric,
-                updated_at = now(), updated_by = $5::uuid, version = version + 1
+                paid_total_vnd = paid_total_vnd + $6::numeric, updated_at = now(), updated_by = $5::uuid, version = version + 1
           where id = $1::uuid returning (advance_paid_vnd - advance_recovered_vnd)::text as outstanding`,
-        [held.contract_id, (BigInt(held.gross_vnd) * BigInt(sign)).toString(), (BigInt(held.advance_recovery_vnd) * BigInt(sign)).toString(), (BigInt(held.retention_vnd) * BigInt(sign)).toString(), actor],
+        [held.contract_id, (BigInt(held.gross_vnd) * BigInt(sign)).toString(), (BigInt(held.advance_recovery_vnd) * BigInt(sign)).toString(), (BigInt(held.retention_vnd) * BigInt(sign)).toString(), actor, paid ? (BigInt(held.gross_vnd) * BigInt(sign)).toString() : '0'],
       );
       return row?.outstanding ?? '0';
     } catch (error) {
@@ -342,7 +486,7 @@ export class PayClaimStore {
   }
 
   /** Gives back what a returned request recovered from the advance, tranche by tranche, by the opposite of each entry that took it. */
-  private async giveBackAdvance(tx: TenantTx, held: HeldSql, requestId: string, actor: string): Promise<void> {
+  private async giveBackAdvance(tx: TenantTx, held: HeldSql, requestId: string, actor: string, reason = 'The payment request was returned.'): Promise<void> {
     const taken = await tx.query<{ id: string; advance_id: string; party_id: string; amount: string }>(
       `select e.id, e.advance_id, e.party_id, e.amount_vnd::text as amount from machvon.advance_ledger_entry e
         where e.payment_request_id = $1::uuid and e.entry_kind = 'RECOVER' and not exists (select 1 from machvon.advance_ledger_entry r where r.tenant_id = e.tenant_id and r.reversal_of_id = e.id)
@@ -360,8 +504,8 @@ export class PayClaimStore {
       ]);
       await tx.query(
         `insert into machvon.advance_ledger_entry (tenant_id, id, contract_id, payment_request_id, entry_kind, amount_vnd, reversal_of_id, posted_at, advance_id, party_id, outstanding_after_vnd, reason, posted_by, request_id)
-         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, 'REVERSE_RECOVER', $4::numeric, $5::uuid, now(), $6::uuid, $7::uuid, $8::numeric, 'The payment request was returned.', $9::uuid, $10::uuid)`,
-        [randomUUID(), held.contract_id, held.id, entry.amount, entry.id, entry.advance_id, entry.party_id, (BigInt(tranche.paid_vnd) - after).toString(), actor, requestId],
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, 'REVERSE_RECOVER', $4::numeric, $5::uuid, now(), $6::uuid, $7::uuid, $8::numeric, $11, $9::uuid, $10::uuid)`,
+        [randomUUID(), held.contract_id, held.id, entry.amount, entry.id, entry.advance_id, entry.party_id, (BigInt(tranche.paid_vnd) - after).toString(), actor, requestId, reason],
       );
     }
   }

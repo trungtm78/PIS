@@ -175,6 +175,7 @@
     "resetIntegrationCursor",
     "resolveProcurementPetition",
     "resolveReconciliationItem",
+    "reversePayment",
     "resumeContract",
     "resumeProject",
     "retireDocumentTemplate",

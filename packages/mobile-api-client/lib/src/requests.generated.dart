@@ -8058,19 +8058,19 @@ final class PayReturnPaymentRequest implements RequestModel {
 
 final class PayReversePayment implements RequestModel {
   const PayReversePayment({
-    required this.reason,
-    required this.approvalDocumentVersionId,
+    this.reason,
+    this.approvalDocumentVersionId,
     this.refundTreasuryTransactionId,
   });
 
-  final String reason;
-  final String approvalDocumentVersionId;
+  final String? reason;
+  final String? approvalDocumentVersionId;
   final String? refundTreasuryTransactionId;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'reason': reason,
-        'approval_document_version_id': approvalDocumentVersionId,
+        if (reason != null) 'reason': reason,
+        if (approvalDocumentVersionId != null) 'approval_document_version_id': approvalDocumentVersionId,
         if (refundTreasuryTransactionId != null) 'refund_treasury_transaction_id': refundTreasuryTransactionId,
       };
 }

@@ -58,6 +58,8 @@ export interface LedgerEntry {
   retentionDeltaVnd: string;
   advanceOutstandingAfterVnd: string;
   reversalOfId: string | null;
+  /** The payment request an entry belongs to, when it belongs to one. */
+  paymentRequestId: string | null;
   reason: string | null;
   postedAt: string;
 }
@@ -130,7 +132,7 @@ function toEntry(raw: unknown): LedgerEntry | undefined {
   ) {
     return undefined;
   }
-  return { id, kind, acceptedDeltaVnd, requestedDeltaVnd, paidDeltaVnd, advanceRecoveryDeltaVnd, retentionDeltaVnd, advanceOutstandingAfterVnd, reversalOfId: nullableText(row.reversal_of_id), reason: nullableText(row.reason), postedAt };
+  return { id, kind, acceptedDeltaVnd, requestedDeltaVnd, paidDeltaVnd, advanceRecoveryDeltaVnd, retentionDeltaVnd, advanceOutstandingAfterVnd, reversalOfId: nullableText(row.reversal_of_id), paymentRequestId: nullableText(row.payment_request_id), reason: nullableText(row.reason), postedAt };
 }
 
 function toLine(raw: unknown): LedgerLine | undefined {

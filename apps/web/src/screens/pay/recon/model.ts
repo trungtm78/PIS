@@ -162,6 +162,8 @@ export interface Transaction {
   confirmedAt: string;
   matchStatus: TransactionMatch;
   paymentRequestId: string | null;
+  /** For a refund, the payment it undoes. */
+  reversalOfId: string | null;
 }
 
 export function toTransaction(raw: unknown): Transaction | undefined {
@@ -184,6 +186,7 @@ export function toTransaction(raw: unknown): Transaction | undefined {
     confirmedAt,
     matchStatus,
     paymentRequestId: nullableText(row.payment_request_id),
+    reversalOfId: nullableText(row.reversal_of_id),
   };
 }
 

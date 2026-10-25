@@ -255,7 +255,7 @@ export class PayLedgerStore {
    * in that order (what is recovered and held is part of what is requested), each by an entry that is the opposite of the one it undoes and says so. An entry already undone is not undone twice.
    * The caller holds the lock of the contract and has moved the totals of the contract; `advanceOutstandingVnd` is the advance still to recover after the return.
    */
-  async releaseRequest(tx: TenantTx, input: { paymentRequestId: string; requestId: string; actor: string; advanceOutstandingVnd: string }): Promise<number> {
+  async releaseRequest(tx: TenantTx, input: { paymentRequestId: string; requestId: string; actor: string; advanceOutstandingVnd: string; reason?: string | undefined }): Promise<number> {
     const entries = await tx.query<{ id: string; ledger_id: string; entry_kind: LedgerEntryKind; accepted: string; requested: string; paid: string; recovered: string; retention: string }>(
       `select e.id, e.ledger_id, e.entry_kind, e.accepted_delta_vnd::text as accepted, e.requested_delta_vnd::text as requested, e.paid_delta_vnd::text as paid,
               e.advance_recovery_delta_vnd::text as recovered, e.retention_delta_vnd::text as retention
@@ -277,6 +277,37 @@ export class PayLedgerStore {
         delta: opposite,
         ...(kind === 'RETENTION_RELEASE' ? {} : { reversalOfId: entry.id }),
         paymentRequestId: input.paymentRequestId,
+        ...(input.reason === undefined ? {} : { reason: input.reason }),
+        requestId: input.requestId,
+        actor: input.actor,
+        advanceOutstandingVnd: input.advanceOutstandingVnd,
+      });
+    }
+    return entries.length;
+  }
+
+  /**
+   * Takes back the payment of a request that was settled (PAY 3.4): each entry that put the payment on a balance is undone by an entry that is its exact opposite and names it (`PAYMENT_REVERSAL`), so
+   * the paid amount comes off before the claim does. An entry already undone is not undone twice (the unique index of the reversal holds the same rule). The caller holds the lock of the contract.
+   */
+  async reversePayments(tx: TenantTx, input: { paymentRequestId: string; requestId: string; actor: string; advanceOutstandingVnd: string; reason: string }): Promise<number> {
+    const entries = await tx.query<{ id: string; ledger_id: string; accepted: string; requested: string; paid: string; recovered: string; retention: string }>(
+      `select e.id, e.ledger_id, e.accepted_delta_vnd::text as accepted, e.requested_delta_vnd::text as requested, e.paid_delta_vnd::text as paid, e.advance_recovery_delta_vnd::text as recovered,
+              e.retention_delta_vnd::text as retention
+         from machvon.cumulative_ledger_entry e
+        where e.payment_request_id = $1::uuid and e.entry_kind = 'PAYMENT' and not exists (select 1 from machvon.cumulative_ledger_entry r where r.tenant_id = e.tenant_id and r.reversal_of_id = e.id)
+        order by e.ledger_id, e.id`,
+      [input.paymentRequestId],
+    );
+    await lockLedgerRows(tx, [...new Set(entries.map((entry) => entry.ledger_id))].map((id) => ({ table: 'cumulative_ledger', id })));
+    for (const entry of entries) {
+      await this.post(tx, {
+        ledgerId: entry.ledger_id,
+        kind: 'PAYMENT_REVERSAL',
+        delta: negate({ accepted: entry.accepted, requested: entry.requested, paid: entry.paid, advanceRecovery: entry.recovered, retention: entry.retention }),
+        reversalOfId: entry.id,
+        paymentRequestId: input.paymentRequestId,
+        reason: input.reason,
         requestId: input.requestId,
         actor: input.actor,
         advanceOutstandingVnd: input.advanceOutstandingVnd,

@@ -1850,6 +1850,19 @@
       ]
     },
     {
+      "key": "paymentChief",
+      "displayName": "Kế toán trưởng đảo thanh toán",
+      "membershipId": "00000000-0000-4000-8000-000000000836",
+      "permissions": [
+        "payment_request.read",
+        "payment.reverse",
+        "ledger.read",
+        "treasury_transaction.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

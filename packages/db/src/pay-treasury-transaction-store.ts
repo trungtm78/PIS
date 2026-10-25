@@ -35,6 +35,8 @@ export interface TreasuryTransactionRow {
   paymentRequestId: string | null;
   importId: string | null;
   planYear: number | null;
+  /** For a refund, the payment it undoes. */
+  reversalOfId: string | null;
   /** The confirmation time to the microsecond (UTC): the ordering key of the list and its cursor. */
   confirmedAtKey: string;
 }
@@ -54,11 +56,12 @@ interface TransactionSql {
   payment_request_id: string | null;
   import_id: string | null;
   plan_year: number | null;
+  reversal_of_id: string | null;
   confirmed_at_key: string;
 }
 
 const COLUMNS = `t.id, t.project_id, p.code as project_code, t.provider, t.source_kind, t.direction, t.document_no, t.document_date::text as document_date, t.amount_vnd::text as amount_vnd,
-  to_char(t.confirmed_at at time zone 'UTC', ${ISO}) as confirmed_at, t.match_status, t.payment_request_id, t.import_id, t.plan_year, ${timestampKey('t.confirmed_at')} as confirmed_at_key`;
+  to_char(t.confirmed_at at time zone 'UTC', ${ISO}) as confirmed_at, t.match_status, t.payment_request_id, t.import_id, t.plan_year, t.reversal_of_id, ${timestampKey('t.confirmed_at')} as confirmed_at_key`;
 const FROM = `from ${SCOPE_FROM} join machvon.treasury_transaction t on t.tenant_id = p.tenant_id and t.project_id = p.id`;
 
 const toRow = (row: TransactionSql): TreasuryTransactionRow => ({
@@ -76,6 +79,7 @@ const toRow = (row: TransactionSql): TreasuryTransactionRow => ({
   paymentRequestId: row.payment_request_id,
   importId: row.import_id,
   planYear: row.plan_year,
+  reversalOfId: row.reversal_of_id,
   confirmedAtKey: row.confirmed_at_key,
 });
 

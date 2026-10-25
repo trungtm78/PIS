@@ -494,7 +494,7 @@ test.describe('the payment request', () => {
     await expect(page.locator('button[data-action]')).toHaveCount(0);
   });
 
-  test('the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, UAT-AC335, UAT-AC12, UAT-AC336)', async ({ page }) => {
+  test('the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331)', async ({ page }) => {
     await treasuryTemplates();
     const seeded = await seed();
     const stamp = `${Date.now().toString(36).toUpperCase()}-${counter}`;
@@ -621,5 +621,41 @@ test.describe('the payment request', () => {
     await expect(page.locator(`tr[data-item="${opened!.id}"]`).getByTestId('status')).toHaveText(vi['pay.recon.status.writtenOff']);
     await page.locator(`tr[data-item="${opened!.id}"]`).getByTestId('open').click();
     await expect(page.locator('button[data-action]')).toHaveCount(0);
+
+    // UAT-AC331: the Treasury confirms a refund of the payment; the chief accountant (neither the one who matched it nor the one who sent the file) reverses it, and every effect is undone by new entries.
+    const [refunded] = await sql<{ id: string }>(
+      `insert into machvon.treasury_transaction
+         (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, row_hash, direction, reversal_of_id, document_no, document_date, source_kind, provider_event_id, match_status)
+       values ($1, gen_random_uuid(), $2, $3, 'MOCKKB', 2100000000, timestamptz '2026-07-30T03:00:00Z', repeat('a', 64), repeat('a', 64), 'REFUND', $4, $3, date '2026-07-30', 'CALLBACK_MOCK', $3, 'UNMATCHED') returning id`,
+      [stackInfo().tenants.A, project!.project_id, `CT-E2E-${stamp}-R`, exact],
+    );
+    await open(page, `/pay/pay-03?request=${made!.id}`, 'paymentChief');
+    await page.getByTestId('reversal').click();
+    await expect(page.getByRole('heading', { level: 1, name: vi['pay.reversal.title'] })).toBeVisible();
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.settled']);
+    await expect(page.getByTestId('paid-on')).toHaveText('2026-07-25');
+    await expect(page.locator('tr[data-entry]')).toHaveCount(8);
+    await expect(page.locator('tr[data-entry][data-undone="yes"]')).toHaveCount(0);
+    await page.locator('button[data-action="reverse"]').click();
+    await page.locator('#reverse-reason').fill('Kho bạc hoàn trả do sai số tài khoản thụ hưởng');
+    await page.locator('#reverse-approval').fill(seeded.paper);
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.reversal.dialog.submit'] }).click();
+    await expect(page.getByRole('dialog').getByText(vi['pay.reversal.problem.required'])).toBeVisible();
+    await page.locator('#reverse-refund').selectOption(refunded!.id);
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.reversal.dialog.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(vi['pay.reversal.done.reversed'].replace('{entries}', '2'));
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.reversed']);
+    await expect(page.locator('tr[data-entry][data-undone="yes"]')).toHaveCount(8);
+    expect((await sql<{ status: string; claims: boolean; by: string; refund: string }>('select status, claims_acceptance as claims, reversed_by as by, refund_transaction_id as refund from machvon.payment_request where id = $1', [made!.id]))[0]).toEqual({
+      status: 'REVERSED',
+      claims: false,
+      by: membershipOf('paymentChief'),
+      refund: refunded!.id,
+    });
+    expect((await sql<{ requested: string; paid: string; recovered: string }>('select requested_total_vnd::text as requested, paid_total_vnd::text as paid, advance_recovered_vnd::text as recovered from machvon.contract where id = $1', [seeded.contractId]))[0]).toEqual({ requested: '0', paid: '0', recovered: '0' });
+    expect(await sql(`select 1 from machvon.cumulative_ledger_entry where payment_request_id = $1 and entry_kind in ('PAYMENT_REVERSAL', 'ADVANCE_RECOVERY_REVERSAL', 'CLAIM_RELEASE', 'RETENTION_RELEASE')`, [made!.id])).toHaveLength(8);
+    expect(await sql('select 1 from machvon.payment_request where acceptance_id = $1 and claims_acceptance', [seeded.acceptanceId])).toHaveLength(0);
+    expect(await eventsOf(made!.id, 'pay.payment.reversed.v1')).toHaveLength(1);
+    expect(await auditsOf(made!.id, 'payment_request.reversed')).toEqual([{ actor_id: membershipOf('paymentChief') }]);
   });
 });

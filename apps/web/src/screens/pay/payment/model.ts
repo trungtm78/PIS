@@ -115,6 +115,10 @@ export interface PaymentRequest {
   treasuryRef: string | null;
   /** The day the Treasury confirmed the payment (Vietnam time), once the request is settled. */
   treasuryPaidOn: string | null;
+  /** The Treasury transaction that settled the request, and, once it is reversed, when and against which refund. */
+  settledTransactionId: string | null;
+  reversedAt: string | null;
+  refundTransactionId: string | null;
   /** The codes of the Treasury forms that stand for the request. */
   formsStanding: string[];
   cancelReason: string | null;
@@ -229,6 +233,9 @@ export function toPaymentRequest(value: unknown): PaymentRequest | undefined {
     verificationNote: nullableText(row.verification_note),
     treasurySubmittedOn: nullableText(row.treasury_submitted_on),
     treasuryPaidOn: nullableText(row.treasury_paid_on),
+    settledTransactionId: nullableText(row.settled_transaction_id),
+    reversedAt: nullableText(row.reversed_at),
+    refundTransactionId: nullableText(row.refund_transaction_id),
     treasuryRef: nullableText(row.treasury_ref),
     formsStanding: (Array.isArray(row.forms_standing) ? row.forms_standing : []).flatMap((code) => text(code) ?? []),
     createdAt: text(row.created_at) ?? '',

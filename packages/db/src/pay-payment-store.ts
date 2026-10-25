@@ -172,6 +172,11 @@ export interface PaymentRequestView {
   treasuryRef: string | null;
   /** The day (Vietnam time) the Treasury confirmed the payment, once the request is settled: the day the disbursement counts from. */
   treasuryPaidOn: string | null;
+  /** When the payment was reversed and the refund it was reversed against, once it is. */
+  reversedAt: string | null;
+  refundTransactionId: string | null;
+  /** The Treasury transaction that settled the request. */
+  settledTransactionId: string | null;
   /** The codes of the Treasury forms that stand for the request. */
   formsStanding: string[];
   createdAt: string;
@@ -225,6 +230,9 @@ interface HeaderSql {
   treasury_submitted_on: string | null;
   treasury_ref: string | null;
   treasury_paid_on: string | null;
+  reversed_at: string | null;
+  refund_transaction_id: string | null;
+  settled_transaction_id: string | null;
   forms_standing: string[];
   created_at: string;
   updated_at: string;
@@ -239,7 +247,7 @@ const SELECT = `select pr.id, pr.request_no, pr.request_kind, pr.status, pr.vers
        pr.gross_vnd::text as gross_vnd, pr.advance_recovery_vnd::text as advance_recovery_vnd, pr.retention_vnd::text as retention_vnd, pr.tax_adjustment_vnd::text as tax_adjustment_vnd,
        pr.tax_adjustment_basis, pr.advance_recovery_extra_vnd::text as advance_recovery_extra_vnd, pr.net_vnd::text as net_vnd, pr.claims_acceptance,
        (select count(*)::text from machvon.payment_request o where o.tenant_id = pr.tenant_id and o.acceptance_id = pr.acceptance_id and o.id <> pr.id and o.status in ('DRAFT', 'RETURNED')) as other_drafts,
-       pr.return_reason, pr.cancel_reason, pr.created_by, pr.submitted_by, ${TIMESTAMP('pr.submitted_at')} as submitted_at, pr.verified_by, pr.verification_note, pr.treasury_submitted_on::text as treasury_submitted_on, pr.treasury_ref, pr.treasury_paid_on::text as treasury_paid_on,
+       pr.return_reason, pr.cancel_reason, pr.created_by, pr.submitted_by, ${TIMESTAMP('pr.submitted_at')} as submitted_at, pr.verified_by, pr.verification_note, pr.treasury_submitted_on::text as treasury_submitted_on, pr.treasury_ref, pr.treasury_paid_on::text as treasury_paid_on, ${TIMESTAMP('pr.reversed_at')} as reversed_at, pr.refund_transaction_id, pr.settled_transaction_id,
        (select coalesce(array_agg(f.form_code order by f.form_code), '{}') from machvon.payment_form_instance f where f.tenant_id = pr.tenant_id and f.payment_request_id = pr.id and f.status = 'GENERATED') as forms_standing,
        ${TIMESTAMP('pr.created_at')} as created_at, ${TIMESTAMP('pr.updated_at')} as updated_at,
        ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path
@@ -280,6 +288,9 @@ function toView(row: HeaderSql, lines: PaymentLineView[], documents: PaymentDocu
     treasurySubmittedOn: row.treasury_submitted_on,
     treasuryRef: row.treasury_ref,
     treasuryPaidOn: row.treasury_paid_on,
+    reversedAt: row.reversed_at,
+    refundTransactionId: row.refund_transaction_id,
+    settledTransactionId: row.settled_transaction_id,
     formsStanding: row.forms_standing,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

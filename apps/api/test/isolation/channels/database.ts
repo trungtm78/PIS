@@ -362,6 +362,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listReconciliationItems',
   'getReconciliationItem',
   'getTreasuryTracking',
+  'reversePayment',
   'post_payment_requests_id_submit',
   'verifyPaymentRequest',
   'returnPaymentRequest',

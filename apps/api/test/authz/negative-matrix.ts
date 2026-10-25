@@ -1528,6 +1528,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/resolve`, ifMatch: '"1"', body: { resolution: 'EXPLAINED', note: REASON } }),
   },
+  // Reversing a payment that was settled, against the refund the Treasury confirmed.
+  reversePayment: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/reverse`, ifMatch: '"1"', body: { reason: REASON, approval_document_version_id: t.paymentDocumentVersionId, refund_treasury_transaction_id: t.treasuryTransactionId } }),
+  },
   // Sending a payment request, checking it and giving it back.
   post_payment_requests_id_submit: {
     referencesTenantIds: true,

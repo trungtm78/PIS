@@ -65,6 +65,7 @@ export const transaction = (n: number, overrides: Record<string, unknown> = {}) 
   confirmed_at: '2026-07-24T18:30:00.000Z',
   match_status: 'UNMATCHED',
   payment_request_id: null,
+  reversal_of_id: null,
   import_id: null,
   plan_year: null,
   ...overrides,

@@ -218,7 +218,7 @@ describe('confirmTreasuryManually, receiveTreasuryCallback and the reads of the 
       const created = await pay.call('POST', '/integrations/treasury/callbacks', { member: SERVICE, body: pay.signedCallback(fieldsOf()) });
       const one = await pay.call('GET', `/resources/treasury_transaction/${String(created.json.resource_id)}`, { member: IMPORTER });
       expect(Object.keys(one.json).sort()).toEqual(
-        ['amount_vnd', 'confirmed_at', 'direction', 'document_date', 'document_no', 'id', 'import_id', 'match_status', 'payment_request_id', 'plan_year', 'project_code', 'project_id', 'provider', 'source_kind'].sort(),
+        ['amount_vnd', 'confirmed_at', 'direction', 'document_date', 'document_no', 'id', 'import_id', 'match_status', 'payment_request_id', 'plan_year', 'project_code', 'project_id', 'provider', 'reversal_of_id', 'source_kind'].sort(),
       );
       expect(one.json).toMatchObject({ source_kind: 'CALLBACK_MOCK', provider: PROVIDER, direction: 'PAYMENT', match_status: 'UNMATCHED', amount_vnd: '4200000', project_code: pay.worldA.projectCodeA });
     });

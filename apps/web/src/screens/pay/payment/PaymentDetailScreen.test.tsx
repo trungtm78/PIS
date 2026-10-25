@@ -302,6 +302,21 @@ describe('PaymentDetailScreen (PAY-03): a payment request and its documents', ()
     expect(screen.queryByTestId('forms')).toBeNull();
   });
 
+  it('UI-PAY-08: leads to the reversal of a payment once it is settled, and still after it was reversed, and not before', async () => {
+    const noCommands = actions({ revise: false, attach_document: false, cancel: false });
+    open(world({ payments: [payment(1, { status: 'SETTLED', actions: noCommands })] }));
+    const link = (await screen.findByTestId('reversal')) as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe(`/pay/pay-08?request=${paymentId(1)}`);
+    expect(link.textContent).toBe(vi_['pay.payment.detail.reversal']);
+    cleanup();
+    open(world({ payments: [payment(1, { status: 'REVERSED', actions: noCommands })] }));
+    expect(await screen.findByTestId('reversal')).toBeTruthy();
+    cleanup();
+    open(world({ payments: [payment(1, { status: 'SENT_TREASURY', actions: noCommands })] }));
+    await screen.findByTestId('request-no');
+    expect(screen.queryByTestId('reversal')).toBeNull();
+  });
+
   it('shows the states of a request that is not there, of a refusal and of a failed read, and never half a request', async () => {
     open(world({ payments: [] }));
     expect(await screen.findByText(vi_['states.error.title'])).toBeTruthy();
