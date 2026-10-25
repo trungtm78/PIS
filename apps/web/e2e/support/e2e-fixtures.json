@@ -2092,6 +2092,16 @@
       ]
     },
     {
+      "key": "contractCloser",
+      "displayName": "Lãnh đạo đóng hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000858",
+      "permissions": [
+        "contract.close",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

@@ -383,6 +383,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'resumeContract',
   'terminateContract',
   'completeContract',
+  'closeContract',
   'setChangeChainTiers',
   'createChangeRequest',
   'promoteChangeRequest',

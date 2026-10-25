@@ -4,24 +4,27 @@ import { useTranslation } from '../../../i18n';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { errorIdOf, wireControl } from '../../field-wiring';
 import { useCancelContract } from '../hooks';
-import { useActivateContract, useCompleteContract, useReturnDraft, useSignContract, useSubmitReview } from './hooks';
+import { useActivateContract, useCloseContract, useCompleteContract, useReturnDraft, useSignContract, useSubmitReview } from './hooks';
 import { formProblemMessage, problemMessage } from './labels';
 import {
   EMPTY_NOTE,
   MAX_TEXT,
   activateBody,
+  closeBody,
   completeBody,
   describeProblem,
   emptyActivate,
+  emptyClose,
   emptyComplete,
   emptySign,
   signBody,
   validateActivate,
+  validateClose,
   validateComplete,
   validateNote,
   validateSign,
 } from './model';
-import type { ActivateForm, CompleteForm, FormProblem, NoteForm, SignForm, Summary } from './model';
+import type { ActivateForm, CloseForm, CompleteForm, FormProblem, NoteForm, SignForm, Summary } from './model';
 import '../ctr.css';
 
 /** The multiplication sign on the close button of a dialog. */
@@ -260,6 +263,62 @@ export function ActivateDialog({ summary, today, onClose }: DialogProps) {
         </Field>
       </div>
       <p className="sub">{t('ctr.workspace.activate.note')}</p>
+    </Frame>
+  );
+}
+
+/** The closure of the contract: the settlement it rests on and a note. The server judges the settlement, the advance still owed and the retention again, and answers with the first guard that is not met. */
+export function CloseDialog({ summary, onClose }: Omit<DialogProps, 'today'>) {
+  const { t } = useTranslation();
+  const close = useCloseContract();
+  const [form, setForm] = useState<CloseForm>(emptyClose(summary.closure));
+  const [submitted, setSubmitted] = useState(false);
+  const problems = validateClose(form);
+  const shown = (field: keyof CloseForm): FormProblem | undefined => (submitted ? problems[field] : undefined);
+  const send = (): void => {
+    setSubmitted(true);
+    if (close.isPending || Object.keys(problems).length > 0) return;
+    close.mutate({ id: summary.contract.id, version: summary.contract.version, body: closeBody(form) }, { onSuccess: onClose });
+  };
+  return (
+    <Frame
+      title={t('ctr.workspace.close.title', { code: summary.contract.code })}
+      error={close.error}
+      hasError={close.isError}
+      pending={close.isPending}
+      submitLabel={t('ctr.workspace.close.submit')}
+      pendingLabel={t('ctr.workspace.dialog.pending')}
+      onSubmit={send}
+      onClose={onClose}
+    >
+      <div className="formgrid">
+        <Field id="workspace-closure-settlement" label={t('ctr.workspace.close.settlement')} problem={shown('settlementId')} hint={t('ctr.workspace.close.settlement.hint')}>
+          {wireControl(
+            <select id="workspace-closure-settlement" value={form.settlementId} onChange={(event) => setForm({ ...form, settlementId: event.target.value })}>
+              <option value="">{t('ctr.workspace.close.settlement.choose')}</option>
+              {(summary.closure?.settlements ?? []).map((settlement) => {
+                const scope = settlement.scope === 'PROJECT' ? t('ctr.workspace.close.scope.project') : t('ctr.workspace.close.scope.contract');
+                return (
+                  <option key={settlement.id} value={settlement.id}>
+                    {settlement.excepted
+                      ? t('ctr.workspace.close.settlement.excepted', { scope, revision: settlement.revision })
+                      : t('ctr.workspace.close.settlement.option', { scope, revision: settlement.revision })}
+                  </option>
+                );
+              })}
+            </select>,
+            'workspace-closure-settlement',
+            { hint: false, error: shown('settlementId') !== undefined },
+          )}
+        </Field>
+        <Field id="workspace-closure-note" label={t('ctr.workspace.close.note')} problem={shown('note')}>
+          {wireControl(<textarea id="workspace-closure-note" rows={3} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />, 'workspace-closure-note', {
+            hint: false,
+            error: shown('note') !== undefined,
+          })}
+        </Field>
+      </div>
+      <p className="sub">{t('ctr.workspace.close.explain')}</p>
     </Frame>
   );
 }

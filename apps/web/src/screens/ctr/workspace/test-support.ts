@@ -10,7 +10,7 @@ export const UUID_A = '00000000-0000-4000-8000-0000000000a1';
 export const UUID_B = '00000000-0000-4000-8000-0000000000b2';
 export const TODAY = '2026-10-25';
 
-export const noActions = { submit: false, return: false, sign: false, activate: false, complete: false, cancel: false };
+export const noActions = { submit: false, return: false, sign: false, activate: false, complete: false, close: false, cancel: false };
 
 export const readiness = (overrides: Record<string, unknown> = {}) => ({
   boq: { total_vnd: '10200000000', balanced: true },
@@ -26,6 +26,15 @@ export const completion = (overrides: Record<string, unknown> = {}) => ({
   acceptances: [{ id: UUID_A, record_no: 'QA-C-001', approved_on: '2026-10-20' }],
   open_critical_ncr_ids: [],
   pending_measurement_ids: [],
+  ...overrides,
+});
+
+/** What the server shows for a contract that was completed: one closed settlement that carries an exception, the advance owed and nothing unresolved of the retention, so only the retention stands in the way. */
+export const closure = (overrides: Record<string, unknown> = {}) => ({
+  settlements: [{ id: UUID_A, scope: 'CONTRACT', revision: 2, excepted: true }],
+  advance_outstanding_vnd: '1250000000',
+  retention: { holds: 0, unresolved_vnd: '0' },
+  unmet: [],
   ...overrides,
 });
 

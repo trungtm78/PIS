@@ -24,6 +24,7 @@
     "cancelOutgoingDocument",
     "cancelPaymentRequest",
     "cancelProject",
+    "closeContract",
     "closeDocumentNumberRegister",
     "closeFiscalYear",
     "closeIssue",

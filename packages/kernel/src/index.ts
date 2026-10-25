@@ -510,3 +510,5 @@ export {
   statusAfterRelease,
 } from './ctr-retention.ts';
 export type { ReleaseBlocker, ReleaseCondition, ReleaseFacts, RetentionStatus } from './ctr-retention.ts';
+export { CLOSURE_GUARDS, assertContractClosure, unmetClosureGuards } from './contract-closure.ts';
+export type { ClosureFacts, ClosureGuard } from './contract-closure.ts';

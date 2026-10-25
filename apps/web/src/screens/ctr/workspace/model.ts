@@ -16,7 +16,7 @@ type Raw = Record<string, unknown>;
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);
 const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
 
-export const COMMANDS = ['submit', 'return', 'sign', 'activate', 'complete', 'cancel'] as const;
+export const COMMANDS = ['submit', 'return', 'sign', 'activate', 'complete', 'close', 'cancel'] as const;
 export type Command = (typeof COMMANDS)[number];
 export type Actions = Record<Command, boolean>;
 
@@ -45,6 +45,18 @@ export interface Completion {
   pendingMeasurementIds: string[];
 }
 
+export const CLOSURE_GUARDS = ['SETTLEMENT_NOT_CLOSED', 'ADVANCE_OUTSTANDING', 'RETENTION_UNRESOLVED'] as const;
+export type ClosureGuard = (typeof CLOSURE_GUARDS)[number];
+
+/** What stands between a contract that was completed or terminated and its closure, as the server reads it now. */
+export interface Closure {
+  /** The settlements that are closed and could serve (of the contract, or of its whole project), the latest first. */
+  settlements: Array<{ id: string; scope: string; revision: number; excepted: boolean }>;
+  advanceOutstandingVnd: string;
+  retention: { holds: number; unresolvedVnd: string };
+  unmet: ClosureGuard[];
+}
+
 /** The summary of a contract (CTR-03): the contract, the people and the document behind its signature, what stands before its activation (staff only) and what the caller may do now. */
 export interface Summary {
   contract: ContractView;
@@ -59,6 +71,8 @@ export interface Summary {
   readiness: Readiness | undefined;
   /** The way to completion of a contract that is being performed; undefined for any other status and for whoever sees the contract alone. */
   completion: Completion | undefined;
+  /** The way to closure of a contract that was completed or terminated; undefined for any other status and for whoever sees the contract alone. */
+  closure: Closure | undefined;
   actions: Actions | undefined;
   /** What the caller may do to stop, resume or end the contract now; undefined for someone who sees the contract alone. */
   halts: HaltActions | undefined;
@@ -98,10 +112,39 @@ function toCompletion(raw: unknown): Completion | undefined {
   return { acceptances, openCriticalNcrIds: strings(row.open_critical_ncr_ids), pendingMeasurementIds: strings(row.pending_measurement_ids) };
 }
 
+function toClosure(raw: unknown): Closure | undefined {
+  const row = isRecord(raw) ? raw : undefined;
+  if (row === undefined) return undefined;
+  const retention = isRecord(row.retention) ? row.retention : undefined;
+  const settlements = Array.isArray(row.settlements)
+    ? row.settlements.flatMap((item) => {
+        const settlement = isRecord(item) ? item : undefined;
+        const id = text(settlement?.id);
+        return id === undefined
+          ? []
+          : [{ id, scope: text(settlement?.scope) ?? '', revision: typeof settlement?.revision === 'number' ? settlement.revision : 0, excepted: settlement?.excepted === true }];
+      })
+    : [];
+  return {
+    settlements,
+    advanceOutstandingVnd: text(row.advance_outstanding_vnd) ?? '0',
+    retention: { holds: typeof retention?.holds === 'number' ? retention.holds : 0, unresolvedVnd: text(retention?.unresolved_vnd) ?? '0' },
+    unmet: strings(row.unmet).filter((guard): guard is ClosureGuard => (CLOSURE_GUARDS as readonly string[]).includes(guard)),
+  };
+}
+
 function toActions(raw: unknown): Actions | undefined {
   const row = isRecord(raw) ? raw : undefined;
   if (row === undefined) return undefined;
-  return { submit: row.submit === true, return: row.return === true, sign: row.sign === true, activate: row.activate === true, complete: row.complete === true, cancel: row.cancel === true };
+  return {
+    submit: row.submit === true,
+    return: row.return === true,
+    sign: row.sign === true,
+    activate: row.activate === true,
+    complete: row.complete === true,
+    close: row.close === true,
+    cancel: row.cancel === true,
+  };
 }
 
 function toHalts(raw: unknown): HaltActions | undefined {
@@ -126,6 +169,7 @@ export function toSummary(raw: unknown): Summary | undefined {
     effectiveFrom: text(row.effective_from) ?? null,
     readiness: toReadiness(row.readiness),
     completion: toCompletion(row.completion),
+    closure: toClosure(row.closure),
     actions: toActions(row.actions),
     halts: toHalts(row.actions),
   };
@@ -161,6 +205,21 @@ export function completionChecksOf(completion: Completion): CompletionCheck[] {
     { key: 'acceptance', ok: completion.acceptances.length > 0, count: completion.acceptances.length },
     { key: 'ncr', ok: completion.openCriticalNcrIds.length === 0, count: completion.openCriticalNcrIds.length },
     { key: 'measurement', ok: completion.pendingMeasurementIds.length === 0, count: completion.pendingMeasurementIds.length },
+  ];
+}
+
+/** A check on the way to closure: met or not. */
+export interface ClosureCheck {
+  key: 'settlement' | 'advance' | 'retention';
+  ok: boolean;
+}
+
+/** The checks the workspace shows on the way to closure, in the order the closure judges them. */
+export function closureChecksOf(closure: Closure): ClosureCheck[] {
+  return [
+    { key: 'settlement', ok: !closure.unmet.includes('SETTLEMENT_NOT_CLOSED') },
+    { key: 'advance', ok: !closure.unmet.includes('ADVANCE_OUTSTANDING') },
+    { key: 'retention', ok: !closure.unmet.includes('RETENTION_UNRESOLVED') },
   ];
 }
 
@@ -289,6 +348,28 @@ export interface CompleteBody {
 
 export const completeBody = (form: CompleteForm): CompleteBody => ({ completion_quality_acceptance_id: form.acceptanceId, completed_on: form.completedOn.trim() });
 
+export interface CloseForm {
+  settlementId: string;
+  note: string;
+}
+
+/** The settlement is chosen when there is only one to choose from. */
+export const emptyClose = (closure: Closure | undefined): CloseForm => ({ settlementId: closure?.settlements.length === 1 ? (closure.settlements[0]?.id ?? '') : '', note: '' });
+
+export function validateClose(form: CloseForm): Partial<Record<keyof CloseForm, FormProblem>> {
+  const problems: Partial<Record<keyof CloseForm, FormProblem>> = {};
+  if (form.settlementId === '') problems.settlementId = 'required';
+  if (form.note.trim().length > MAX_TEXT) problems.note = 'tooLong';
+  return problems;
+}
+
+export interface CloseBody {
+  settlement_revision_id: string;
+  note?: string;
+}
+
+export const closeBody = (form: CloseForm): CloseBody => ({ settlement_revision_id: form.settlementId, ...(form.note.trim() === '' ? {} : { note: form.note.trim() }) });
+
 // ---- refusals ------------------------------------------------------------------------------------------------------------------
 
 export type Problem =
@@ -312,6 +393,9 @@ export type Problem =
   | 'completionAcceptance'
   | 'openCriticalNcr'
   | 'measurementPending'
+  | 'settlementNotClosed'
+  | 'advanceOutstanding'
+  | 'retentionUnresolved'
   | 'stateInvalid'
   | 'versionConflict'
   | 'validation'
@@ -367,6 +451,12 @@ export function describeProblem(error: unknown): ProblemView {
       return { problem: 'openCriticalNcr', detail: strings(extensions.nonconformance_ids) };
     case 'MEASUREMENT_PENDING':
       return { problem: 'measurementPending', detail: strings(extensions.measurement_ids) };
+    case 'SETTLEMENT_NOT_CLOSED':
+      return { problem: 'settlementNotClosed', detail: [] };
+    case 'ADVANCE_OUTSTANDING':
+      return { problem: 'advanceOutstanding', detail: [] };
+    case 'RETENTION_UNRESOLVED':
+      return { problem: 'retentionUnresolved', detail: [] };
     case 'CONTRACT_STATE_INVALID':
       return { problem: 'stateInvalid', detail: [] };
     case 'VERSION_CONFLICT':

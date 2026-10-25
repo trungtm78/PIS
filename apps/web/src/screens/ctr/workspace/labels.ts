@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../../i18n';
-import type { Check, Command, CompletionCheck, FormProblem, GateStatus, Problem, ProblemView } from './model';
+import type { Check, ClosureCheck, Command, CompletionCheck, FormProblem, GateStatus, Problem, ProblemView } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -15,6 +15,8 @@ export function commandLabel(t: Translate, command: Command): string {
       return t('ctr.workspace.activate.action');
     case 'complete':
       return t('ctr.workspace.complete.action');
+    case 'close':
+      return t('ctr.workspace.close.action');
     case 'cancel':
       return t('ctr.workspace.cancel.action');
   }
@@ -49,6 +51,17 @@ export function completionCheckLabel(t: Translate, check: CompletionCheck): stri
       return t('ctr.workspace.completion.ncr');
     case 'measurement':
       return t('ctr.workspace.completion.measurement');
+  }
+}
+
+export function closureCheckLabel(t: Translate, check: ClosureCheck): string {
+  switch (check.key) {
+    case 'settlement':
+      return t('ctr.workspace.closure.settlement');
+    case 'advance':
+      return t('ctr.workspace.closure.advance');
+    case 'retention':
+      return t('ctr.workspace.closure.retention');
   }
 }
 
@@ -130,6 +143,12 @@ function baseMessage(t: Translate, problem: Problem): string {
       return t('ctr.workspace.error.openCriticalNcr');
     case 'measurementPending':
       return t('ctr.workspace.error.measurementPending');
+    case 'settlementNotClosed':
+      return t('ctr.workspace.error.settlementNotClosed');
+    case 'advanceOutstanding':
+      return t('ctr.workspace.error.advanceOutstanding');
+    case 'retentionUnresolved':
+      return t('ctr.workspace.error.retentionUnresolved');
     case 'stateInvalid':
       return t('ctr.workspace.error.stateInvalid');
     case 'versionConflict':

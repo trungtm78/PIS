@@ -3,6 +3,7 @@ import {
   DomainError,
   MAX_EXTENSION_DAYS,
   MAX_LIFECYCLE_TEXT,
+  assertContractClosure,
   assertContractTransition,
   assertDayBetween,
   assertNotMaker,
@@ -13,9 +14,10 @@ import {
   requiresPermitGate,
   signingConflict,
   terminationSuggestion,
+  unmetClosureGuards,
   versionConflict,
 } from '@machvon/kernel';
-import type { ContractStatus, GuaranteeAction, TerminationSuggestion } from '@machvon/kernel';
+import type { ClosureFacts, ClosureGuard, ContractStatus, GuaranteeAction, TerminationSuggestion } from '@machvon/kernel';
 import { BidConflictStore } from './bid-conflict-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
 import { CtrContractStore, SCOPE_FROM, calendarDate, partiesCheck, textOf } from './ctr-contract-store.ts';
@@ -39,6 +41,7 @@ const SUSPEND_COMMAND = 'suspendContract';
 const RESUME_COMMAND = 'resumeContract';
 const TERMINATE_COMMAND = 'terminateContract';
 const COMPLETE_COMMAND = 'completeContract';
+const CLOSE_COMMAND = 'closeContract';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULT_SUBMIT_REASON = 'Sent to review';
 
@@ -141,6 +144,30 @@ export interface ContractCompleteResult extends LifecycleResult {
   completedOn: string;
   completionQualityAcceptanceId: string;
   completionRecordNo: string;
+}
+
+export interface ContractCloseInput {
+  /** The settlement of the project or of the contract that closed. */
+  settlementRevisionId: string;
+  note?: string | undefined;
+}
+
+export interface ContractCloseResult extends LifecycleResult {
+  settlementRevisionId: string;
+  /** The advance still owed when the contract was closed: nothing, or carried by the exception of the settlement. */
+  advanceOutstandingVnd: string;
+  settlementExcepted: boolean;
+}
+
+/** What stands between a contract that was completed or terminated and its closure, as it stands now (the command judges it again). */
+export interface ClosureReadiness {
+  /** The settlements that are closed and could serve (of the contract, or of its whole project), the latest first. */
+  settlements: Array<{ id: string; scope: string; revision: number; excepted: boolean }>;
+  advanceOutstandingVnd: string;
+  /** The holds of retention with something still held that nothing carries (the warranty carries what waits for its end while it runs). */
+  retention: { holds: number; unresolvedVnd: string };
+  /** The guards that are not met now, judged against the latest settlement that could serve. */
+  unmet: ClosureGuard[];
 }
 
 /** What stands between a contract that is being performed and its completion, as it stands now (the commands judge it again). */
@@ -498,6 +525,75 @@ export class CtrContractLifecycleStore {
     if (row.acceptance_scope !== 'COMPLETION') throw refuse('NOT_COMPLETION');
     if (row.status !== 'APPROVED' || row.approved_on === null) throw refuse('NOT_APPROVED');
     return { recordNo: row.record_no, documentVersionId: row.document_version_id, approvedOn: row.approved_on };
+  }
+
+  /**
+   * Closes a contract that was completed or terminated (CTR section 4, UAT-AC300): its settlement is closed, no advance is left unrecovered unless that settlement carries the exception approved for it,
+   * and the retention is resolved. The first guard that is not met is the answer (422), with the list of all of them, and the contract keeps its status.
+   */
+  async close(tx: TenantTx, id: string, expectedVersion: number, input: ContractCloseInput, actor: string, scopes: ContractScopes, today: string): Promise<ContractCloseResult> {
+    const contract = await this.hold(tx, id, expectedVersion, scopes);
+    await this.assertFree(tx, actor, contract, 'ACTOR');
+    const to = assertContractTransition(CLOSE_COMMAND, contract.status);
+    const settlementId = input.settlementRevisionId.trim().toLowerCase();
+    if (!UUID.test(settlementId)) throw invalid('settlement_revision_id');
+    const note = input.note === undefined ? null : textOf(input.note, 'note', MAX_LIFECYCLE_TEXT);
+    const settlement = await this.settlementOf(tx, contract, settlementId);
+    const facts = await this.closureFacts(tx, contract, settlement);
+    assertContractClosure(facts);
+    const reason = note ?? 'Closed after the settlement';
+    await tx.query('update machvon.contract set status = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid', [id, to, actor]);
+    await this.record(tx, id, contract.status, to, reason, today, CLOSE_COMMAND, actor);
+    return { ...this.result(contract, to, reason), settlementRevisionId: settlementId, advanceOutstandingVnd: facts.advanceOutstandingVnd, settlementExcepted: settlement?.excepted === true };
+  }
+
+  /** The settlement the command names, which has to be one that covers the contract: its own, or the one of its whole project. */
+  private async settlementOf(tx: TenantTx, contract: LockedRow, settlementId: string): Promise<{ status: string; excepted: boolean } | undefined> {
+    const rows = await tx.query<{ status: string; settlement_scope: string; contract_id: string | null; project_id: string; excepted: boolean }>(
+      'select status, settlement_scope, contract_id, project_id, (exception_approved_by is not null) as excepted from machvon.settlement_revision where id = $1::uuid',
+      [settlementId],
+    );
+    const row = rows[0];
+    const refuse = (reason: string): DomainError => new DomainError('VALIDATION_FAILED', 422, 'settlement_revision_id', { extensions: { reason } });
+    if (row === undefined) throw refuse('NOT_FOUND');
+    const covers = (row.settlement_scope === 'CONTRACT' && row.contract_id === contract.id) || (row.settlement_scope === 'PROJECT' && row.project_id === contract.projectId);
+    if (!covers) throw refuse('NOT_A_SETTLEMENT_OF_THE_CONTRACT');
+    return { status: row.status, excepted: row.excepted };
+  }
+
+  /** The facts a closure is judged on: the settlement, the advance still owed and the retention that nothing carries (a hold that waits for the end of the warranty is carried while a warranty obligation of the contract runs). */
+  private async closureFacts(tx: TenantTx, contract: Pick<LockedRow, 'id'>, settlement: ClosureFacts['settlement']): Promise<ClosureFacts> {
+    const standing = await this.standing(tx, contract.id);
+    const retention = (
+      await tx.query<{ holds: string; unresolved: string }>(
+        `select count(*)::text as holds, coalesce(sum(h.held_vnd - h.released_vnd), 0)::text as unresolved
+           from machvon.retention_hold h
+          where h.contract_id = $1::uuid and h.status in ('HELD', 'PARTIALLY_RELEASED') and h.held_vnd > h.released_vnd
+            and not (h.release_condition = 'WARRANTY_END'
+                     and exists (select 1 from machvon.warranty_obligation w where w.tenant_id = h.tenant_id and w.contract_id = h.contract_id and w.status <> 'CLOSED'))`,
+        [contract.id],
+      )
+    )[0];
+    return { settlement, advanceOutstandingVnd: standing.advanceOutstandingVnd, retention: { holds: Number(retention?.holds ?? 0), unresolvedVnd: retention?.unresolved ?? '0' } };
+  }
+
+  /** What stands between the contract and its closure, read without a lock. */
+  async closureReadiness(tx: TenantTx, id: string): Promise<ClosureReadiness> {
+    const settlements = await tx.query<{ id: string; settlement_scope: string; revision: number; excepted: boolean }>(
+      `select s.id, s.settlement_scope, s.revision, (s.exception_approved_by is not null) as excepted
+         from machvon.settlement_revision s join machvon.contract c on c.tenant_id = s.tenant_id and c.id = $1::uuid
+        where s.status = 'CLOSED' and ((s.settlement_scope = 'CONTRACT' and s.contract_id = c.id) or (s.settlement_scope = 'PROJECT' and s.project_id = c.project_id))
+        order by s.closed_at desc nulls last, s.id limit 20`,
+      [id],
+    );
+    const latest = settlements[0];
+    const facts = await this.closureFacts(tx, { id }, latest === undefined ? undefined : { status: 'CLOSED', excepted: latest.excepted });
+    return {
+      settlements: settlements.map((row) => ({ id: row.id, scope: row.settlement_scope, revision: row.revision, excepted: row.excepted })),
+      advanceOutstandingVnd: facts.advanceOutstandingVnd,
+      retention: facts.retention,
+      unmet: unmetClosureGuards(facts),
+    };
   }
 
   /** The conditions of the completion as they stand now, read without a lock; the identifiers are the first twenty of each kind. */

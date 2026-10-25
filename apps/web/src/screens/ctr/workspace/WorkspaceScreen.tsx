@@ -12,14 +12,14 @@ import { measurementLink } from '../measurement/model';
 import { versionsLink } from '../revision/model';
 import { useSummary } from './hooks';
 import { statusText } from '../labels';
-import { checkLabel, checkState, commandLabel, completionCheckLabel, gateLabel } from './labels';
-import { BEFORE_ACTIVATION, HALT_ACTIONS, checksOf, completionChecksOf, vietnamToday } from './model';
+import { checkLabel, checkState, closureCheckLabel, commandLabel, completionCheckLabel, gateLabel } from './labels';
+import { BEFORE_ACTIVATION, HALT_ACTIONS, checksOf, closureChecksOf, completionChecksOf, vietnamToday } from './model';
 import type { Command, Summary } from './model';
-import { ActivateDialog, CompleteDialog, NoteDialog, SignDialog } from './WorkspaceDialogs';
+import { ActivateDialog, CloseDialog, CompleteDialog, NoteDialog, SignDialog } from './WorkspaceDialogs';
 import '../ctr.css';
 
 /** The commands in the order of the life of a contract. */
-const ORDER: readonly Command[] = ['submit', 'return', 'sign', 'activate', 'complete', 'cancel'];
+const ORDER: readonly Command[] = ['submit', 'return', 'sign', 'activate', 'complete', 'close', 'cancel'];
 
 type Open = Command | undefined;
 
@@ -73,6 +73,8 @@ function WorkspaceContent({ route }: ScreenProps) {
         <ActivateDialog summary={summary.data} today={today} onClose={close} />
       ) : open === 'complete' ? (
         <CompleteDialog summary={summary.data} today={today} onClose={close} />
+      ) : open === 'close' ? (
+        <CloseDialog summary={summary.data} onClose={close} />
       ) : (
         <NoteDialog kind={open === 'return' ? 'return' : open === 'cancel' ? 'cancel' : 'submit'} summary={summary.data} onClose={close} />
       )}
@@ -96,6 +98,8 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
   const buttons = ORDER.filter(may);
   const gate = summary.readiness?.permitGate;
   const completionChecks = summary.completion !== undefined && contract.status === 'ACTIVE' ? completionChecksOf(summary.completion) : [];
+  const closure = summary.closure;
+  const closureChecks = closure !== undefined && (contract.status === 'COMPLETED' || contract.status === 'TERMINATED') ? closureChecksOf(closure) : [];
   // The commands that stop a contract, let it go on or end it are asked on their own screen.
   const haltable = !readOnly && HALT_ACTIONS.some((action) => summary.halts?.[action] === true);
   // A contract that is being performed can take a change; whoever reads the staff view of it (the readiness is theirs alone) is offered the form that raises one.
@@ -115,7 +119,7 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
             <button
               key={command}
               type="button"
-              className={command === 'activate' || command === 'sign' || command === 'complete' ? 'button primary' : 'button'}
+              className={command === 'activate' || command === 'sign' || command === 'complete' || command === 'close' ? 'button primary' : 'button'}
               data-command={command}
               onClick={() => onOpen(command)}
             >
@@ -203,6 +207,21 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
                     <strong>{completionCheckLabel(t, check)}</strong>{' '}
                     <span className={check.ok ? 'ctr-badge' : 'ctr-badge warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</span>
                     {check.key !== 'acceptance' && check.count > 0 ? <span className="sub"> {t('ctr.workspace.completion.count', { count: check.count })}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )}
+          {closureChecks.length === 0 || closure === undefined ? null : (
+            <article className="card" aria-label={t('ctr.workspace.closure.title')}>
+              <h2>{t('ctr.workspace.closure.title')}</h2>
+              <ul className="ctr-checks" data-testid="closure-checks">
+                {closureChecks.map((check) => (
+                  <li key={check.key} data-closure={check.key} data-ok={String(check.ok)}>
+                    <strong>{closureCheckLabel(t, check)}</strong>{' '}
+                    <span className={check.ok ? 'ctr-badge' : 'ctr-badge warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</span>
+                    {check.key === 'advance' && !check.ok ? <span className="sub"> {t('ctr.workspace.closure.amount', { amount: amountText(closure.advanceOutstandingVnd, locale) })}</span> : null}
+                    {check.key === 'retention' && !check.ok ? <span className="sub"> {t('ctr.workspace.closure.amount', { amount: amountText(closure.retention.unresolvedVnd, locale) })}</span> : null}
                   </li>
                 ))}
               </ul>

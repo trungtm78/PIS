@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { AuditWriter, BidContractorStore, CtrContractLifecycleStore, CtrContractSource, CtrContractStore, DoaMatrixStore, TenantDatabase, contractScope } from '@machvon/db';
-import type { ActivationReadiness, CompletionReadiness, ContractDetail, ContractFacts, ContractScopes, LifecycleHooks, LifecycleResult } from '@machvon/db';
+import type { ActivationReadiness, ClosureReadiness, CompletionReadiness, ContractDetail, ContractFacts, ContractScopes, LifecycleHooks, LifecycleResult } from '@machvon/db';
 import { CONTRACT_DOA_DOCUMENT_TYPE, DomainError, contractTransition, isMakerOf, vietnamDateOf } from '@machvon/kernel';
 import type { ContractCommand, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -27,6 +27,7 @@ const CANCEL_PERMISSION = PERMISSIONS.cancelContractDraft;
 const SUSPEND_PERMISSION = PERMISSIONS.suspendContract;
 const TERMINATE_PERMISSION = PERMISSIONS.terminateContract;
 const COMPLETE_PERMISSION = PERMISSIONS.completeContract;
+const CLOSE_PERMISSION = PERMISSIONS.closeContract;
 const READ_PERMISSION = PERMISSIONS.get_resources_contract;
 const SUMMARY_PERMISSION = PERMISSIONS.getContractSummary;
 const LEDGER_PERMISSION = 'ledger.read';
@@ -64,6 +65,17 @@ export function actionsOf(detail: ContractDetail, access: EffectiveAccess, now: 
     resume: may('resumeContract', SUSPEND_PERMISSION, false),
     terminate: may('terminateContract', TERMINATE_PERMISSION, true),
     complete: may('completeContract', COMPLETE_PERMISSION, false),
+    close: may('closeContract', CLOSE_PERMISSION, false),
+  };
+}
+
+/** What stands between a contract that was completed or terminated and its closure: the settlements that could serve, the advance still owed, the retention nothing carries and the guards that are not met. */
+function closureView(closure: ClosureReadiness): Record<string, unknown> {
+  return {
+    settlements: closure.settlements.map((settlement) => ({ id: settlement.id, scope: settlement.scope, revision: settlement.revision, excepted: settlement.excepted })),
+    advance_outstanding_vnd: closure.advanceOutstandingVnd,
+    retention: { holds: closure.retention.holds, unresolved_vnd: closure.retention.unresolvedVnd },
+    unmet: closure.unmet,
   };
 }
 
@@ -77,7 +89,7 @@ function completionView(completion: CompletionReadiness): Record<string, unknown
 }
 
 /** The summary of a contract (CTR-03): the detail the other screens read, and for the staff the people behind the signature, what stands before the activation and what they may do now. */
-export function summaryView(detail: ContractDetail, rights: ContractRights, staff: { readiness: ActivationReadiness | undefined; completion: CompletionReadiness | undefined; actions: Record<string, boolean> } | undefined): Record<string, unknown> {
+export function summaryView(detail: ContractDetail, rights: ContractRights, staff: { readiness: ActivationReadiness | undefined; completion: CompletionReadiness | undefined; closure: ClosureReadiness | undefined; actions: Record<string, boolean> } | undefined): Record<string, unknown> {
   if (staff === undefined || !rights.internal) return contractDetailView(detail, rights);
   return {
     ...contractDetailView(detail, rights),
@@ -88,6 +100,7 @@ export function summaryView(detail: ContractDetail, rights: ContractRights, staf
     activated_by: detail.activatedBy,
     ...(staff.readiness === undefined ? {} : { readiness: readinessView(staff.readiness) }),
     ...(staff.completion === undefined ? {} : { completion: completionView(staff.completion) }),
+    ...(staff.closure === undefined ? {} : { closure: closureView(staff.closure) }),
     actions: staff.actions,
   };
 }
@@ -360,6 +373,19 @@ export class ContractLifecycleController {
     return commandResult(scope, done.status, done.version, done.id);
   }
 
+  @Post('contracts/:id/close')
+  @HttpCode(200)
+  @OperationId('closeContract')
+  @Command({ operation: 'closeContract', versioned: true })
+  async close(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrCloseContract']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.guarded(scope, 'closeContract', id, () =>
+      this.lifecycle.close(scope.tx, id.toLowerCase(), scope.expectedVersion ?? 0, { settlementRevisionId: body.settlement_revision_id, note: body.note }, scope.tenant.membershipId, scopesFor(access, CLOSE_PERMISSION, now), vietnamDateOf(now)),
+    );
+    await this.written(scope, done, 'contract.closed', 'ctr.contract.closed.v1', now, { settlement_revision_id: done.settlementRevisionId, advance_outstanding_vnd: done.advanceOutstandingVnd, settlement_excepted: done.settlementExcepted }, done.reason);
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
   @Get('contracts/:id/summary')
   @OperationId('getContractSummary')
   async summary(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
@@ -382,6 +408,7 @@ export class ContractLifecycleController {
       return summaryView(detail, rights, {
         readiness: await this.lifecycle.readiness(tx, detail.id, vietnamDateOf(now)),
         completion: detail.status === 'ACTIVE' ? await this.lifecycle.completionReadiness(tx, detail.id) : undefined,
+        closure: detail.status === 'COMPLETED' || detail.status === 'TERMINATED' ? await this.lifecycle.closureReadiness(tx, detail.id) : undefined,
         actions: actionsOf(detail, access, now, tenant.membershipId),
       });
     });

@@ -1,14 +1,17 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { UUID_A, UUID_B, completion, noActions, readiness, summary } from './test-support';
+import { UUID_A, UUID_B, closure, completion, noActions, readiness, summary } from './test-support';
 import {
   MAX_TEXT,
   activateBody,
   checksOf,
+  closeBody,
+  closureChecksOf,
   completeBody,
   completionChecksOf,
   describeProblem,
   emptyActivate,
+  emptyClose,
   emptyComplete,
   emptySign,
   evidenceIds,
@@ -16,6 +19,7 @@ import {
   signBody,
   toSummary,
   validateActivate,
+  validateClose,
   validateComplete,
   validateNote,
   validateSign,
@@ -274,5 +278,64 @@ describe('the completion of a contract', () => {
     expect(refusal('OPEN_CRITICAL_NCR', { nonconformance_ids: [UUID_A] })).toEqual({ problem: 'openCriticalNcr', detail: [UUID_A] });
     expect(refusal('MEASUREMENT_PENDING', { measurement_ids: [UUID_A, UUID_B] })).toEqual({ problem: 'measurementPending', detail: [UUID_A, UUID_B] });
     expect(refusal('OPEN_CRITICAL_NCR')).toEqual({ problem: 'openCriticalNcr', detail: [] });
+  });
+});
+
+describe('the closure of a contract', () => {
+  it('reads the way to closure from the summary and keeps what cannot be read out of it', () => {
+    const read = toSummary(
+      summary('COMPLETED', {
+        closure: closure({
+          settlements: [{ id: UUID_A, scope: 'PROJECT', revision: 3, excepted: true }, { id: 7 }, { id: UUID_B }],
+          retention: { holds: 2, unresolved_vnd: '150000000' },
+          unmet: ['RETENTION_UNRESOLVED', 'SOMETHING', 4],
+        }),
+        actions: { ...noActions, close: true },
+      }),
+    );
+    expect(read?.closure).toEqual({
+      settlements: [
+        { id: UUID_A, scope: 'PROJECT', revision: 3, excepted: true },
+        { id: UUID_B, scope: '', revision: 0, excepted: false },
+      ],
+      advanceOutstandingVnd: '1250000000',
+      retention: { holds: 2, unresolvedVnd: '150000000' },
+      unmet: ['RETENTION_UNRESOLVED'],
+    });
+    expect(read?.actions?.close).toBe(true);
+    expect(toSummary(summary('COMPLETED', { closure: undefined }))?.closure).toBeUndefined();
+    expect(toSummary(summary('COMPLETED', { closure: { settlements: 'none', retention: null } }))?.closure).toEqual({
+      settlements: [],
+      advanceOutstandingVnd: '0',
+      retention: { holds: 0, unresolvedVnd: '0' },
+      unmet: [],
+    });
+  });
+
+  it('judges the checks in the order the closure does', () => {
+    expect(closureChecksOf({ settlements: [], advanceOutstandingVnd: '0', retention: { holds: 0, unresolvedVnd: '0' }, unmet: ['SETTLEMENT_NOT_CLOSED', 'RETENTION_UNRESOLVED'] })).toEqual([
+      { key: 'settlement', ok: false },
+      { key: 'advance', ok: true },
+      { key: 'retention', ok: false },
+    ]);
+  });
+
+  it('chooses the settlement when there is only one to choose from, asks for it, and sends it with the note when there is one', () => {
+    const one = toSummary(summary('COMPLETED', { closure: closure() }))?.closure;
+    expect(emptyClose(one)).toEqual({ settlementId: UUID_A, note: '' });
+    expect(emptyClose(one === undefined ? undefined : { ...one, settlements: [...one.settlements, { id: UUID_B, scope: 'PROJECT', revision: 1, excepted: false }] }).settlementId).toBe('');
+    expect(emptyClose(undefined).settlementId).toBe('');
+    expect(validateClose({ settlementId: '', note: '' })).toEqual({ settlementId: 'required' });
+    expect(validateClose({ settlementId: UUID_A, note: 'x'.repeat(2001) })).toEqual({ note: 'tooLong' });
+    expect(validateClose({ settlementId: UUID_A, note: ' ok ' })).toEqual({});
+    expect(closeBody({ settlementId: UUID_A, note: '   ' })).toEqual({ settlement_revision_id: UUID_A });
+    expect(closeBody({ settlementId: UUID_A, note: ' Done. ' })).toEqual({ settlement_revision_id: UUID_A, note: 'Done.' });
+  });
+
+  it('words the refusals of the closure', () => {
+    const refusal = (code: string) => describeProblem(new ApiError({ status: 422, code, correlationId: 'c' }));
+    expect(refusal('SETTLEMENT_NOT_CLOSED')).toEqual({ problem: 'settlementNotClosed', detail: [] });
+    expect(refusal('ADVANCE_OUTSTANDING')).toEqual({ problem: 'advanceOutstanding', detail: [] });
+    expect(refusal('RETENTION_UNRESOLVED')).toEqual({ problem: 'retentionUnresolved', detail: [] });
   });
 });

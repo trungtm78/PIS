@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import WorkspaceScreen from './WorkspaceScreen';
-import { UUID_A, UUID_B, change, client, completion, contractId, mount, noActions, readiness, routeOf, summary } from './test-support';
+import { UUID_A, UUID_B, change, client, closure, completion, contractId, mount, noActions, readiness, routeOf, summary } from './test-support';
 import type { World } from './test-support';
 
 const ROUTE = routeOf('CTR-03', 'FR-CTR-03');
@@ -557,6 +557,119 @@ describe('WorkspaceScreen (CTR-03): the completion of a contract', () => {
       await screen.findByTestId('completion-checks');
       press('complete');
       submitDialog(vi_['ctr.workspace.complete.submit']);
+      expect((await within(dialog()).findByTestId('refusal')).textContent).toBe(expected);
+      expect(screen.getByRole('dialog')).toBeTruthy();
+      cleanup();
+    }
+  });
+});
+
+describe('WorkspaceScreen (CTR-03): the closure of a contract', () => {
+  const completed = (overrides: Record<string, unknown> = {}) => summary('COMPLETED', { readiness: undefined, closure: closure(), actions: { ...noActions, close: true }, ...overrides });
+  const checks = (): Array<[string | null, string | null]> => Array.from(document.querySelectorAll('[data-closure]')).map((item) => [item.getAttribute('data-closure'), item.getAttribute('data-ok')]);
+
+  it('UI-CTR-03: shows what stands in the way of the closure, and offers it to whoever may close the contract', async () => {
+    open({ summary: completed() });
+    await screen.findByTestId('closure-checks');
+    expect(commandButtons()).toEqual(['close']);
+    expect(screen.getByRole('button', { name: vi_['ctr.workspace.close.action'] })).toBeTruthy();
+    expect(checks()).toEqual([
+      ['settlement', 'true'],
+      ['advance', 'true'],
+      ['retention', 'true'],
+    ]);
+  });
+
+  it('AC-ST-CTR-012-1, UAT-AC300: says the settlement, the advance and the retention that stand in the way, with what is left', async () => {
+    open({
+      summary: completed({
+        closure: closure({ settlements: [], retention: { holds: 2, unresolved_vnd: '150000000' }, unmet: ['SETTLEMENT_NOT_CLOSED', 'ADVANCE_OUTSTANDING', 'RETENTION_UNRESOLVED'] }),
+      }),
+    });
+    await screen.findByTestId('closure-checks');
+    expect(checks()).toEqual([
+      ['settlement', 'false'],
+      ['advance', 'false'],
+      ['retention', 'false'],
+    ]);
+    expect(document.querySelector('[data-closure="settlement"]')?.textContent).not.toContain('{amount}');
+    expect(document.querySelector('[data-closure="advance"]')?.textContent).toContain(new Intl.NumberFormat('vi').format(1250000000));
+    expect(document.querySelector('[data-closure="retention"]')?.textContent).toContain(new Intl.NumberFormat('vi').format(150000000));
+  });
+
+  it('shows the closure of a contract that was terminated, and none for another status, for whoever sees the contract alone, or with no button in a read-only session', async () => {
+    open({ summary: summary('TERMINATED', { readiness: undefined, closure: closure(), actions: { ...noActions, close: true } }) });
+    await screen.findByTestId('closure-checks');
+    cleanup();
+    open({ summary: summary('ACTIVE', { readiness: undefined, closure: closure(), actions: noActions }) });
+    await screen.findByTestId('facts');
+    expect(screen.queryByTestId('closure-checks')).toBeNull();
+    cleanup();
+    open({ summary: summary('COMPLETED', { readiness: undefined, closure: undefined, actions: undefined }) });
+    await screen.findByTestId('facts');
+    expect(screen.queryByTestId('closure-checks')).toBeNull();
+    cleanup();
+    open({ summary: completed() }, { mode: 'READ_ONLY' });
+    await screen.findByTestId('closure-checks');
+    expect(commandButtons()).toEqual([]);
+  });
+
+  it('AC-ST-CTR-012-1, UAT-AC300: asks for the settlement, with the only one chosen, and sends the closure once under the version shown, with the note when there is one', async () => {
+    const h = open({ summary: completed() });
+    await screen.findByTestId('closure-checks');
+    press('close');
+    expect((within(dialog()).getByLabelText(vi_['ctr.workspace.close.settlement']) as HTMLSelectElement).value).toBe(UUID_A);
+    expect(Array.from((within(dialog()).getByLabelText(vi_['ctr.workspace.close.settlement']) as HTMLSelectElement).options).map((option) => option.textContent)).toEqual([
+      vi_['ctr.workspace.close.settlement.choose'],
+      text('ctr.workspace.close.settlement.excepted', { scope: vi_['ctr.workspace.close.scope.contract'], revision: 2 }),
+    ]);
+    fireEvent.change(within(dialog()).getByLabelText(vi_['ctr.workspace.close.note']), { target: { value: 'Đã giải tỏa hết.' } });
+    submitDialog(vi_['ctr.workspace.close.submit']);
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command).toHaveBeenCalledWith(
+      'closeContract',
+      expect.objectContaining({ path: { id: contractId(1) }, ifMatchVersion: 3, body: { settlement_revision_id: UUID_A, note: 'Đã giải tỏa hết.' } }),
+    );
+  });
+
+  it('asks for the settlement when there are several to choose from, and says the scope of each', async () => {
+    const several = closure({
+      settlements: [
+        { id: UUID_A, scope: 'CONTRACT', revision: 2, excepted: false },
+        { id: UUID_B, scope: 'PROJECT', revision: 1, excepted: false },
+      ],
+    });
+    const h = open({ summary: completed({ closure: several }) });
+    await screen.findByTestId('closure-checks');
+    press('close');
+    const select = within(dialog()).getByLabelText(vi_['ctr.workspace.close.settlement']) as HTMLSelectElement;
+    expect(select.value).toBe('');
+    expect(Array.from(select.options).map((option) => option.textContent)).toEqual([
+      vi_['ctr.workspace.close.settlement.choose'],
+      text('ctr.workspace.close.settlement.option', { scope: vi_['ctr.workspace.close.scope.contract'], revision: 2 }),
+      text('ctr.workspace.close.settlement.option', { scope: vi_['ctr.workspace.close.scope.project'], revision: 1 }),
+    ]);
+    submitDialog(vi_['ctr.workspace.close.submit']);
+    expect(within(dialog()).getByText(vi_['ctr.workspace.problem.required'])).toBeTruthy();
+    expect(h.command).not.toHaveBeenCalled();
+    fireEvent.change(select, { target: { value: UUID_B } });
+    submitDialog(vi_['ctr.workspace.close.submit']);
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command).toHaveBeenCalledWith('closeContract', expect.objectContaining({ body: { settlement_revision_id: UUID_B } }));
+  });
+
+  it('AC-ST-CTR-012-1, UAT-AC300: says why the server refused, guard by guard', async () => {
+    for (const [error, expected] of [
+      [problem('SETTLEMENT_NOT_CLOSED', 422), vi_['ctr.workspace.error.settlementNotClosed']],
+      [problem('ADVANCE_OUTSTANDING', 422), vi_['ctr.workspace.error.advanceOutstanding']],
+      [problem('RETENTION_UNRESOLVED', 422), vi_['ctr.workspace.error.retentionUnresolved']],
+      [problem('CONTRACT_STATE_INVALID'), vi_['ctr.workspace.error.stateInvalid']],
+      [problem('VERSION_CONFLICT'), vi_['ctr.workspace.error.versionConflict']],
+    ] as const) {
+      open({ summary: completed() }, { command: () => error });
+      await screen.findByTestId('closure-checks');
+      press('close');
+      submitDialog(vi_['ctr.workspace.close.submit']);
       expect((await within(dialog()).findByTestId('refusal')).textContent).toBe(expected);
       expect(screen.getByRole('dialog')).toBeTruthy();
       cleanup();
