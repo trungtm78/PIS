@@ -123445,7 +123445,8 @@
         "x-error-codes": [
           "SCOPE_DENIED",
           "RESOURCE_NOT_FOUND",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "PROCESSING_RESTRICTED"
         ],
         "responses": {
           "200": {

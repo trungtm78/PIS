@@ -19,6 +19,7 @@ import { FIELD_CIPHER, LND_METRICS } from './tokens';
 const WRITE_PERMISSION = PERMISSIONS.registerAffectedHousehold;
 const READ_PERMISSION = PERMISSIONS.listAffectedHouseholds;
 const PII_PERMISSION = PERMISSIONS.revealHouseholdIdentity;
+const DSR_PERMISSION = PERMISSIONS.handleHouseholdDataRequest;
 const RESOURCE_TYPE = 'affected_household';
 const LINK_TYPE = 'household_parcel';
 const CLASSIFICATION = 'PERSONAL';
@@ -47,6 +48,8 @@ export function householdLineView(line: HouseholdLine): Record<string, unknown> 
     consent_record_id: line.consentRecordId,
     retention_until: line.retentionUntil,
     dsr_open: line.dsrOpen,
+    processing_restricted: line.processingRestricted,
+    anonymised: line.anonymised,
     status: line.status,
     parcels: line.parcels.map((parcel) => ({ id: parcel.id, parcel_id: parcel.parcelId, parcel_code: parcel.parcelCode, right_kind: parcel.rightKind, share_pct: parcel.sharePct })),
     created_at: line.createdAt,
@@ -74,6 +77,8 @@ function openedFields(identity: HouseholdIdentity): string[] {
   if (identity.addressText !== null) fields.push('address_text');
   return fields;
 }
+
+const DSR_TYPE = 'household_data_request';
 
 /**
  * The households affected by a land recovery (ST-LND-002, LND 3.5, BR-LND-07, BR-LND-09, UAT-AC379, UAT-AC380). A household is registered once, on a legal basis for processing its personal data and for as long as
@@ -150,6 +155,71 @@ export class AffectedHouseholdController {
       eventKey: `${RESOURCE_TYPE}:${created.id}:${created.version}`,
     });
     return commandResult(scope, created.status, created.version, created.id);
+  }
+
+  /**
+   * The request of a person whose data a household holds (ST-LND-003, UAT-AC381): access, rectification, withdrawal of the consent, restriction or erasure. The data protection officer says who asked (verified),
+   * what the outcome is and why. An erasure of a household that was paid is held back by the vouchers that must be kept (409 `RETENTION_LEGAL_HOLD`). The trail and the event carry the kind, the outcome and
+   * the names of the fields that were erased, never a value and never the reason, which is kept with the request.
+   */
+  @Post('affected-households/:id/data-requests')
+  @HttpCode(200)
+  @OperationId('handleHouseholdDataRequest')
+  @Command({ operation: 'handleHouseholdDataRequest' })
+  async handleRequest(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Schemas['LndHandleHouseholdDataRequest'],
+  ): Promise<CommandResult> {
+    const now = new Date();
+    const units = await householdScopeUnits(scope.tx, access, DSR_PERMISSION, now);
+    const done = await this.households.handleRequest(
+      scope.tx,
+      id,
+      { requestKind: body.request_kind, requesterVerified: body.requester_verified, outcome: body.outcome, reason: body.reason },
+      scope.tenant.membershipId,
+      units,
+    );
+    await scope.audit({
+      action: 'lnd.household_data_request_handled',
+      resourceType: RESOURCE_TYPE,
+      resourceId: done.householdId,
+      classification: CLASSIFICATION,
+      diff: {
+        request_id: done.id,
+        project_id: done.projectId,
+        owner_unit_id: done.ownerUnitId,
+        request_kind: done.requestKind,
+        outcome: done.outcome,
+        requester_verified: true,
+        erased_fields: done.erasedFields,
+        retained_payments: done.retainedPayments,
+        restricted: done.restricted,
+        anonymised: done.anonymised,
+      },
+    });
+    await scope.emit({
+      aggregateType: RESOURCE_TYPE,
+      aggregateId: done.householdId,
+      aggregateVersion: done.version,
+      type: 'lnd.household.dsr_handled.v1',
+      schemaVersion: 1,
+      payload: {
+        tenant_id: scope.tenant.tenantId,
+        household_id: done.householdId,
+        request_id: done.id,
+        project_id: done.projectId,
+        owner_unit_id: done.ownerUnitId,
+        request_kind: done.requestKind,
+        outcome: done.outcome,
+        version: done.version,
+        actor_id: scope.tenant.membershipId,
+        occurred_at: now.toISOString(),
+      },
+      eventKey: `${DSR_TYPE}:${done.id}`,
+    });
+    return commandResult(scope, done.outcome, done.version, done.householdId);
   }
 
   @Post('affected-households/:id/parcels')

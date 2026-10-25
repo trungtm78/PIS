@@ -2,7 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
-import { HOUSEHOLD_OFFICER, HOUSEHOLD_READER, PROJECT, UNIT_TTQD, UNIT_XA, client, household, mount, parcel, routeOf, world } from '../test-support';
+import { DPO, HOUSEHOLD_OFFICER, HOUSEHOLD_READER, PROJECT, UNIT_TTQD, UNIT_XA, client, household, mount, parcel, routeOf, world } from '../test-support';
 import HouseholdScreen from './HouseholdScreen';
 
 const ROUTE = routeOf('LND-03', 'FR-LND-03');
@@ -21,6 +21,8 @@ const worldOf = () =>
       household(1, { parcels: [{ id: 'link-1', parcel_id: parcel(1).id, parcel_code: 'TB-1/10', right_kind: 'OWNER', share_pct: '60.0000' }] }),
       household(2, { head_name_masked: 'T*** T** B', national_id_masked: '************', phone_masked: '************', address_masked: null, status: 'DISPUTED', dsr_open: true, legal_basis: 'CONSENT' }),
       household(3, { national_id_masked: null, phone_masked: null, status: 'CLOSED', legal_basis: 'LEGAL_OBLIGATION' }),
+      household(4, { processing_restricted: true }),
+      household(5, { anonymised: true, head_name_masked: '[erased]', national_id_masked: null, phone_masked: null, address_masked: null }),
     ],
     parcels: [parcel(1), parcel(2, { owner_unit_id: UNIT_TTQD, owner_unit_name: 'Trung tâm phát triển quỹ đất' })],
   });
@@ -38,7 +40,7 @@ describe('HouseholdScreen (LND-03): the households affected by a land recovery',
     await screen.findByRole('option', { name: /DA-2026-001/ });
     fireEvent.change(screen.getByLabelText(vi_['lnd.households.project.label']), { target: { value: PROJECT } });
     await ready();
-    expect(Array.from(document.querySelectorAll('[data-household-id]'))).toHaveLength(3);
+    expect(Array.from(document.querySelectorAll('[data-household-id]'))).toHaveLength(5);
     fireEvent.change(screen.getByLabelText(vi_['lnd.households.project.label']), { target: { value: '' } });
     expect(screen.getByTestId('choose-project')).toBeTruthy();
   });
@@ -83,7 +85,7 @@ describe('HouseholdScreen (LND-03): the households affected by a land recovery',
     fireEvent.change(screen.getByLabelText(vi_['lnd.households.query.label']), { target: { value: 'hh-000002' } });
     expect(Array.from(document.querySelectorAll('[data-household-id]')).map((tr) => tr.getAttribute('data-household-id'))).toEqual([household(2).id]);
     fireEvent.change(screen.getByLabelText(vi_['lnd.households.query.label']), { target: { value: 'quận 1' } });
-    expect(Array.from(document.querySelectorAll('[data-household-id]'))).toHaveLength(2);
+    expect(Array.from(document.querySelectorAll('[data-household-id]'))).toHaveLength(3);
     fireEvent.change(screen.getByLabelText(vi_['lnd.households.query.label']), { target: { value: '' } });
     fireEvent.change(screen.getByLabelText(vi_['lnd.households.status.label']), { target: { value: 'CLOSED' } });
     expect(Array.from(document.querySelectorAll('[data-household-id]')).map((tr) => tr.getAttribute('data-household-id'))).toEqual([household(3).id]);
@@ -99,6 +101,32 @@ describe('HouseholdScreen (LND-03): the households affected by a land recovery',
     broken.failing.add('listAffectedHouseholds');
     mount(<HouseholdScreen route={ROUTE} />, client(broken), { permissions: HOUSEHOLD_OFFICER, path: PATH });
     expect(await screen.findByRole('button', { name: /thử lại|retry/i })).toBeTruthy();
+  });
+
+  it('AC-ST-LND-003-1, UI-LND-03: says that the processing of a household is restricted or its data erased, and opens neither', async () => {
+    mount(<HouseholdScreen route={ROUTE} />, client(worldOf()), { permissions: HOUSEHOLD_OFFICER, path: PATH });
+    await ready();
+    expect(within(rowOf(4)).getByTestId('restricted').textContent).toBe(vi_['lnd.households.restricted.badge']);
+    expect(within(rowOf(5)).getByTestId('anonymised').textContent).toBe(vi_['lnd.households.anonymised.badge']);
+    for (const n of [4, 5]) expect(within(rowOf(n)).queryByRole('button', { name: vi_['lnd.households.reveal.aria'].replace('{code}', 'HH-00000' + n) })).toBeNull();
+    expect(within(rowOf(1)).queryByTestId('restricted')).toBeNull();
+    expect(within(rowOf(1)).queryByTestId('anonymised')).toBeNull();
+    expect(within(rowOf(1)).getByRole('button', { name: vi_['lnd.households.reveal.aria'].replace('{code}', 'HH-000001') })).toBeTruthy();
+  });
+
+  it('UI-LND-03: offers the handling of a request to whoever holds land.dsr.handle, to the page of the household', async () => {
+    mount(<HouseholdScreen route={ROUTE} />, client(worldOf()), { permissions: DPO, path: PATH });
+    await ready();
+    const link = within(rowOf(1)).getByRole('link', { name: vi_['lnd.households.request.aria'].replace('{code}', 'HH-000001') });
+    expect(link.getAttribute('href')).toBe('/lnd/lnd-13?project=' + PROJECT + '&household=' + household(1).id);
+    cleanup();
+    mount(<HouseholdScreen route={ROUTE} />, client(worldOf()), { permissions: HOUSEHOLD_OFFICER, path: PATH });
+    await ready();
+    expect(within(rowOf(1)).queryByRole('link')).toBeNull();
+    cleanup();
+    mount(<HouseholdScreen route={ROUTE} />, client(worldOf()), { permissions: DPO, mode: 'READ_ONLY', path: PATH });
+    await ready();
+    expect(within(rowOf(1)).queryByRole('link')).toBeNull();
   });
 
   it('shows a reader the households and no button that changes or opens them; a read-only session cannot register or link but may open', async () => {

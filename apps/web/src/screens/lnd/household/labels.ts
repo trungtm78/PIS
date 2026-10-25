@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../../i18n';
-import type { CommandProblem, FormProblem, HouseholdStatus, LegalBasis, RightKind } from './model';
+import type { CommandProblem, FormProblem, HouseholdStatus, LegalBasis, RequestKind, RequestOutcome, RightKind } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -46,6 +46,48 @@ export function rightKindLabel(t: Translate, kind: RightKind): string {
   }
 }
 
+export function requestKindLabel(t: Translate, kind: RequestKind): string {
+  switch (kind) {
+    case 'ACCESS':
+      return t('lnd.requestKind.access.label');
+    case 'RECTIFY':
+      return t('lnd.requestKind.rectify.label');
+    case 'WITHDRAW_CONSENT':
+      return t('lnd.requestKind.withdrawConsent.label');
+    case 'ERASE':
+      return t('lnd.requestKind.erase.label');
+    case 'RESTRICT':
+      return t('lnd.requestKind.restrict.label');
+  }
+}
+
+/** What a request of this kind does to the household, said before it is sent. */
+export function requestKindHelp(t: Translate, kind: RequestKind): string {
+  switch (kind) {
+    case 'ACCESS':
+      return t('lnd.requestKind.access.help');
+    case 'RECTIFY':
+      return t('lnd.requestKind.rectify.help');
+    case 'WITHDRAW_CONSENT':
+      return t('lnd.requestKind.withdrawConsent.help');
+    case 'ERASE':
+      return t('lnd.requestKind.erase.help');
+    case 'RESTRICT':
+      return t('lnd.requestKind.restrict.help');
+  }
+}
+
+export function requestOutcomeLabel(t: Translate, outcome: RequestOutcome): string {
+  switch (outcome) {
+    case 'FULFILLED':
+      return t('lnd.requestOutcome.fulfilled.label');
+    case 'PARTIAL':
+      return t('lnd.requestOutcome.partial.label');
+    case 'REFUSED':
+      return t('lnd.requestOutcome.refused.label');
+  }
+}
+
 export function formProblemMessage(t: Translate, problem: FormProblem): string {
   switch (problem) {
     case 'required':
@@ -62,6 +104,12 @@ export function formProblemMessage(t: Translate, problem: FormProblem): string {
 /** The sentence for a refusal of a command or of the reading; a problem the screen has no sentence for is the general one. */
 export function commandProblemMessage(t: Translate, problem: CommandProblem): string {
   switch (problem) {
+    case 'retentionHold':
+      return t('lnd.dataRequest.problem.retention.error');
+    case 'requesterNotVerified':
+      return t('lnd.dataRequest.problem.requester.error');
+    case 'processingRestricted':
+      return t('lnd.households.problem.restricted.error');
     case 'legalBasisRequired':
       return t('lnd.households.problem.legalBasis.error');
     case 'consentRequired':

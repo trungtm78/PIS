@@ -7,12 +7,22 @@ export const HOUSEHOLDS_PATH = '/lnd/lnd-03';
 /** The permissions that gate the buttons of this screen; the server decides again on every request (the unit of the household included). */
 export const WRITE_PERMISSION = 'land.household.write';
 export const REVEAL_PERMISSION = 'lnd.pii.read';
+export const REQUEST_PERMISSION = 'land.dsr.handle';
+
+/** LND-13: the requests of the people whose data a household holds (ST-LND-003, LND 3.5). */
+export const REQUESTS_PATH = '/lnd/lnd-13';
 
 export const LEGAL_BASES = ['PUBLIC_TASK_LAND_LAW', 'LEGAL_OBLIGATION', 'CONSENT'] as const;
 export type LegalBasis = (typeof LEGAL_BASES)[number];
 
 export const RIGHT_KINDS = ['OWNER', 'USER', 'LESSEE', 'OCCUPANT_NO_TITLE'] as const;
 export type RightKind = (typeof RIGHT_KINDS)[number];
+
+export const REQUEST_KINDS = ['ACCESS', 'RECTIFY', 'WITHDRAW_CONSENT', 'ERASE', 'RESTRICT'] as const;
+export type RequestKind = (typeof REQUEST_KINDS)[number];
+
+export const REQUEST_OUTCOMES = ['FULFILLED', 'PARTIAL', 'REFUSED'] as const;
+export type RequestOutcome = (typeof REQUEST_OUTCOMES)[number];
 
 export const HOUSEHOLD_STATUSES = ['REGISTERED', 'INVENTORIED', 'PLAN_LISTED', 'COMPENSATED', 'RESETTLED', 'CLOSED', 'DISPUTED'] as const;
 export type HouseholdStatus = (typeof HOUSEHOLD_STATUSES)[number];
@@ -59,6 +69,10 @@ export interface HouseholdLine {
   consentRecordId: string | null;
   retentionUntil: string;
   dsrOpen: boolean;
+  /** The person asked that the data not be processed: it is kept and is not opened. */
+  processingRestricted: boolean;
+  /** The personal data was erased at the request of the person; the household is an anonymous record. */
+  anonymised: boolean;
   status: HouseholdStatus;
   parcels: HouseholdParcel[];
   version: number;
@@ -105,6 +119,8 @@ export function toHouseholdLine(raw: unknown): HouseholdLine | undefined {
     consentRecordId: nullableText(row.consent_record_id),
     retentionUntil: retention,
     dsrOpen: row.dsr_open === true,
+    processingRestricted: row.processing_restricted === true,
+    anonymised: row.anonymised === true,
     status,
     parcels: Array.isArray(row.parcels) ? row.parcels.flatMap(toParcel) : [],
     version,
@@ -133,6 +149,10 @@ type Mode = 'FULL' | 'READ_ONLY' | undefined;
 
 export const canWrite = (permissions: readonly string[] | undefined, mode: Mode): boolean => (permissions === undefined || permissions.includes(WRITE_PERMISSION)) && mode !== 'READ_ONLY';
 export const canReveal = (permissions: readonly string[] | undefined): boolean => permissions === undefined || permissions.includes(REVEAL_PERMISSION);
+export const canHandleRequests = (permissions: readonly string[] | undefined, mode: Mode): boolean => (permissions === undefined || permissions.includes(REQUEST_PERMISSION)) && mode !== 'READ_ONLY';
+
+/** Whether the sealed data of a household can be opened at all: not while the processing is restricted, and not after it was erased. */
+export const isOpenable = (household: HouseholdLine): boolean => !household.processingRestricted && !household.anonymised;
 
 export interface HouseholdFilter {
   query: string;
@@ -295,7 +315,46 @@ export function linkBody(form: LinkForm): LinkBody {
   return body;
 }
 
+export interface RequestForm {
+  requestKind: '' | RequestKind;
+  requesterVerified: boolean;
+  outcome: '' | RequestOutcome;
+  reason: string;
+}
+
+export const EMPTY_REQUEST_FORM: RequestForm = { requestKind: '', requesterVerified: false, outcome: '', reason: '' };
+
+/** What is wrong with a request before it is sent: a kind, an outcome, the reason in words and the person identified; the server judges the same again. */
+export function validateRequest(form: RequestForm): Partial<Record<keyof RequestForm, FormProblem>> {
+  const problems: Partial<Record<keyof RequestForm, FormProblem>> = {};
+  if (form.requestKind === '') problems.requestKind = 'required';
+  if (form.outcome === '') problems.outcome = 'required';
+  if (!form.requesterVerified) problems.requesterVerified = 'required';
+  const reason = form.reason.trim();
+  if (reason === '') problems.reason = 'required';
+  else if (reason.length > TEXT_MAX_LENGTH) problems.reason = 'tooLong';
+  else if (CONTROL.test(reason)) problems.reason = 'invalid';
+  return problems;
+}
+
+export interface RequestBody {
+  request_kind: RequestKind;
+  requester_verified: boolean;
+  outcome: RequestOutcome;
+  reason: string;
+}
+
+export const requestBody = (form: RequestForm): RequestBody => ({
+  request_kind: form.requestKind as RequestKind,
+  requester_verified: form.requesterVerified,
+  outcome: form.outcome as RequestOutcome,
+  reason: form.reason.trim(),
+});
+
 export type CommandProblem =
+  | 'retentionHold'
+  | 'requesterNotVerified'
+  | 'processingRestricted'
   | 'legalBasisRequired'
   | 'consentRequired'
   | 'householdDuplicate'
@@ -309,6 +368,9 @@ export type CommandProblem =
   | 'general';
 
 const PROBLEM_BY_CODE: Readonly<Record<string, CommandProblem>> = {
+  RETENTION_LEGAL_HOLD: 'retentionHold',
+  REQUESTER_NOT_VERIFIED: 'requesterNotVerified',
+  PROCESSING_RESTRICTED: 'processingRestricted',
   LEGAL_BASIS_REQUIRED: 'legalBasisRequired',
   CONSENT_REQUIRED: 'consentRequired',
   HOUSEHOLD_DUPLICATE: 'householdDuplicate',

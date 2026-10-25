@@ -25,6 +25,7 @@ export const TENANT: SessionTenant = {
 export const OFFICER = ['land.manage', 'land.process', 'land.read'];
 export const HOUSEHOLD_OFFICER = ['land.household.write', 'land.household.read', 'lnd.pii.read'];
 export const HOUSEHOLD_READER = ['land.household.read'];
+export const DPO = ['land.dsr.handle', 'land.household.read'];
 export const READER = ['land.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({ id, path: `/lnd/${id.toLowerCase()}`, title: id, kind: 'map', area: 'investment', module: 'LND', group: 'Tổng quan & thửa đất', role: 'workspace', parent: null, req });
@@ -77,6 +78,8 @@ export const household = (n: number, overrides: Record<string, unknown> = {}) =>
   consent_record_id: null,
   retention_until: '2036-12-31',
   dsr_open: false,
+  processing_restricted: false,
+  anonymised: false,
   status: 'REGISTERED',
   parcels: [],
   created_at: '2026-10-26T00:00:00.000Z',

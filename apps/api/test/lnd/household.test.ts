@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { Client } from 'pg';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, WORKER_MEMBERSHIP_ID } from '@machvon/db';
 import { BASELINE_PACK, applyBaseline } from '../../../../packages/db/src/master-baseline';
@@ -27,6 +28,8 @@ const AUDITOR = 3; // reads households on the whole tenant, may not open their p
 const PROJECT_OFFICER = 4; // the same rights as the officer, on project 1 only: a grant on a project reaches no household
 const NOBODY = 5;
 const DEPARTMENT_OPENER = 6; // reads households on the whole tenant, opens personal data in the department only
+const DPO = 7; // handles the data requests of the households on the whole tenant
+const DEPARTMENT_DPO = 8; // the same on the unit tree of the department only
 const B_OFFICER = 1; // of tenant B
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -122,7 +125,7 @@ describe('the households affected by a land recovery: sealed personal data, mask
       ),
       rows<object>("select safe_diff from machvon.audit_event where resource_type in ('affected_household', 'household_parcel') and (resource_id = $1 or safe_diff::text like '%' || $1 || '%')", [householdId]),
       rows<object>("select payload from machvon.outbox_event where type like 'lnd.household.%'"),
-      rows<object>("select response_ref from machvon.idempotency_record where operation in ('registerAffectedHousehold', 'linkHouseholdParcel')"),
+      rows<object>("select response_ref from machvon.idempotency_record where operation in ('registerAffectedHousehold', 'linkHouseholdParcel', 'handleHouseholdDataRequest')"),
     ]);
     return JSON.stringify(parts);
   };
@@ -137,11 +140,12 @@ describe('the households affected by a land recovery: sealed personal data, mask
       ]);
     }
     await harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, (tx) => applyBaseline(tx, BASELINE_PACK, WORKER, '2026-10-24'));
-    for (const n of [OFFICER, DEPARTMENT_OFFICER, AUDITOR, PROJECT_OFFICER, NOBODY, DEPARTMENT_OPENER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [OFFICER, DEPARTMENT_OFFICER, AUDITOR, PROJECT_OFFICER, NOBODY, DEPARTMENT_OPENER, DPO, DEPARTMENT_DPO]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_OFFICER, ROOT);
     await harness.seedRole(TENANT_A, 1, 'HOUSEHOLD_OFFICER', ['land.manage', 'land.read', 'land.household.write', 'land.household.read', 'lnd.pii.read'], 40);
     await harness.seedRole(TENANT_A, 2, 'HOUSEHOLD_READER', ['land.household.read'], 20);
     await harness.seedRole(TENANT_A, 3, 'HOUSEHOLD_OPENER', ['lnd.pii.read'], 30);
+    await harness.seedRole(TENANT_A, 4, 'HOUSEHOLD_DPO', ['land.dsr.handle'], 30);
     await harness.seedRole(TENANT_B, 1, 'HOUSEHOLD_OFFICER', ['land.manage', 'land.read', 'land.household.write', 'land.household.read', 'lnd.pii.read'], 40);
     world = await seedLndWorld(harness.database.adminUrl, TENANT_A, FAMILY, OFFICER, DEPARTMENT, ROOT);
     worldB = await seedLndWorld(harness.database.adminUrl, TENANT_B, FAMILY_B, B_OFFICER, DEPARTMENT, ROOT);
@@ -152,6 +156,8 @@ describe('the households affected by a land recovery: sealed personal data, mask
       { n: 4, member: PROJECT_OFFICER, role: 1, kind: 'PROJECT', refs: [world.project] },
       { n: 5, member: DEPARTMENT_OPENER, role: 2, kind: 'TENANT' },
       { n: 6, member: DEPARTMENT_OPENER, role: 3, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
+      { n: 7, member: DPO, role: 4, kind: 'TENANT' },
+      { n: 8, member: DEPARTMENT_DPO, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_OFFICER, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -497,6 +503,149 @@ describe('the households affected by a land recovery: sealed personal data, mask
     });
   });
 
+  /** A payment made to a household, written as the superuser with the foreign keys off: the plan it belongs to is another story. */
+  async function pay(householdId: string, status: 'PAID' | 'PENDING', unit = DEPARTMENT): Promise<void> {
+    const client = new Client({ connectionString: harness.database.adminUrl });
+    await client.connect();
+    try {
+      await client.query('set session_replication_role = replica');
+      const paid = status === 'PAID';
+      await client.query(
+        `insert into machvon.compensation_payment
+           (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, status, created_by, updated_by)
+         values ($1, gen_random_uuid(), gen_random_uuid(), $2::uuid, $3::uuid, 1, 1000000, date '2026-10-01', $4, $5, $6, $7, $8, $8)`,
+        [TENANT_A, householdId, unitId(unit), paid ? '2026-10-10' : null, paid ? 'BANK_TRANSFER' : null, paid ? world.cleanDocument : null, status, memberId(OFFICER)],
+      );
+    } finally {
+      await client.end();
+    }
+  }
+  const DSR_REASON = 'The voucher of the payment names the head of the household';
+  const dsr = (member: number, householdId: string, body: Record<string, unknown> = {}, options: { key?: string; tenantId?: string } = {}): Promise<Reply> =>
+    call('POST', `/affected-households/${householdId}/data-requests`, {
+      member,
+      ...(options.key === undefined ? {} : { key: options.key }),
+      ...(options.tenantId === undefined ? {} : { tenantId: options.tenantId }),
+      body: { request_kind: 'ACCESS', requester_verified: true, outcome: 'FULFILLED', reason: DSR_REASON, ...body },
+    });
+  const personal = async (householdId: string) =>
+    (
+      await rows<Record<string, unknown>>(
+        `select head_name, address_text, national_id_masked, phone_masked, head_name_enc is not null as has_name, national_id_enc is not null as has_nid, phone_enc is not null as has_phone, address_enc is not null as has_address,
+                anonymised_at is not null as anonymised, processing_restricted_at is not null as restricted, version::text as version
+           from machvon.affected_household where id = $1::uuid`,
+        [householdId],
+      )
+    )[0];
+
+  describe('handleHouseholdDataRequest', () => {
+    it('AC-ST-LND-003-1, UAT-AC381: holds an erasure back while the household was paid, meets it in part with the reason, and anonymises a household that was not paid', async () => {
+      const nid = nationalId();
+      const paid = (await register(OFFICER, { national_id: nid })).json.resource_id as string;
+      await pay(paid, 'PAID');
+      const held = await dsr(DPO, paid, { request_kind: 'ERASE', outcome: 'FULFILLED' });
+      expect([held.status, held.json.code]).toEqual([409, 'RETENTION_LEGAL_HOLD']);
+      expect((await personal(paid))?.version).toBe('1');
+      expect(await rows('select 1 from machvon.household_data_request where household_id = $1::uuid', [paid])).toHaveLength(0);
+
+      const partial = await dsr(DPO, paid, { request_kind: 'ERASE', outcome: 'PARTIAL' });
+      expect(partial.status).toBe(200);
+      expect(partial.json).toMatchObject({ status: 'PARTIAL', resource_version: 2, resource_id: paid });
+      expect(await personal(paid)).toMatchObject({ has_name: true, has_nid: true, has_phone: false, has_address: false, address_text: null, phone_masked: null, anonymised: false });
+      const [request] = await rows<{ reason: string; erased_fields: string[]; retained_payments: number }>('select reason, erased_fields, retained_payments from machvon.household_data_request where household_id = $1::uuid', [paid]);
+      expect(request).toEqual({ reason: DSR_REASON, erased_fields: ['phone', 'address_text'], retained_payments: 1 });
+
+      const unpaid = (await register(OFFICER, { national_id: nationalId() })).json.resource_id as string;
+      await pay(unpaid, 'PENDING');
+      const erased = await dsr(DPO, unpaid, { request_kind: 'ERASE', outcome: 'FULFILLED' });
+      expect(erased.status).toBe(200);
+      expect(await personal(unpaid)).toMatchObject({ head_name: '[erased]', has_nid: false, has_phone: false, has_address: false, anonymised: true });
+      const [audit] = await audits(unpaid, 'lnd.household_data_request_handled');
+      expect(audit).toMatchObject({
+        outcome: 'SUCCESS',
+        actor_id: memberId(DPO),
+        classification: 'PERSONAL',
+        safe_diff: { request_kind: 'ERASE', outcome: 'FULFILLED', requester_verified: true, erased_fields: ['head_name', 'national_id', 'phone', 'address_text'], retained_payments: 0, anonymised: true },
+      });
+      const [event] = await events(unpaid, 'lnd.household.dsr_handled.v1');
+      expect(event?.payload).toMatchObject({ household_id: unpaid, request_kind: 'ERASE', outcome: 'FULFILLED', owner_unit_id: unitId(DEPARTMENT), tenant_id: TENANT_A });
+      // Neither the trail, the events, the stored answers nor the row hold a name, an address, a telephone or an identity number, and the reason lives only in the request.
+      const kept = await everythingKept(paid);
+      for (const value of [HEAD, ADDRESS, PHONE, nid, DSR_REASON]) expect(kept).not.toContain(value);
+      expect(JSON.stringify(await audits(paid, 'lnd.household_data_request_handled'))).not.toContain(DSR_REASON);
+      expect(JSON.stringify(await events(paid, 'lnd.household.dsr_handled.v1'))).not.toContain(DSR_REASON);
+    });
+
+    it('AC-ST-LND-003-1, UAT-AC381: does not serve a person who was not verified (422 REQUESTER_NOT_VERIFIED) and records nothing', async () => {
+      const mine = (await register(OFFICER)).json.resource_id as string;
+      const refused = await dsr(DPO, mine, { requester_verified: false });
+      expect([refused.status, refused.json.code, refused.json.detail]).toEqual([422, 'REQUESTER_NOT_VERIFIED', 'requester_verified']);
+      expect(await rows('select 1 from machvon.household_data_request where household_id = $1::uuid', [mine])).toHaveLength(0);
+      expect(await audits(mine, 'lnd.household_data_request_handled')).toHaveLength(0);
+      expect((await dsr(DPO, mine)).status).toBe(200);
+    });
+
+    it('serves an access, restricts the processing so that the data is no longer opened, and says so in the list', async () => {
+      const mine = (await register(OFFICER)).json.resource_id as string;
+      expect((await reveal(OFFICER, mine)).status).toBe(200);
+      expect((await dsr(DPO, mine, { request_kind: 'RESTRICT' })).json).toMatchObject({ status: 'FULFILLED', resource_version: 2 });
+      const blocked = await reveal(OFFICER, mine);
+      expect([blocked.status, blocked.json.code]).toEqual([409, 'PROCESSING_RESTRICTED']);
+      const line = ((await listOf(OFFICER)).json.items as Array<Record<string, unknown>>).find((item) => item.id === mine);
+      expect(line).toMatchObject({ processing_restricted: true, anonymised: false, dsr_open: false });
+      expect(await audits(mine, 'lnd.household_identity_revealed')).toHaveLength(1);
+    });
+
+    it('withdraws a consent only where the consent was the basis (422 VALIDATION_FAILED otherwise)', async () => {
+      const task = (await register(OFFICER)).json.resource_id as string;
+      const refused = await dsr(DPO, task, { request_kind: 'WITHDRAW_CONSENT' });
+      expect([refused.status, refused.json.code, refused.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'request_kind']);
+      const consent = (await register(OFFICER, { legal_basis: 'CONSENT', consent_record_id: randomUUID() })).json.resource_id as string;
+      expect((await dsr(DPO, consent, { request_kind: 'WITHDRAW_CONSENT' })).status).toBe(200);
+      expect(await personal(consent)).toMatchObject({ has_phone: false, has_address: false, has_name: true, has_nid: true });
+    });
+
+    it('wants the four fields of the request: 422 VALIDATION_FAILED for a missing one or a value that is not one, 400 for a field it does not know', async () => {
+      const mine = (await register(OFFICER)).json.resource_id as string;
+      for (const missing of ['request_kind', 'requester_verified', 'outcome', 'reason']) {
+        const body: Record<string, unknown> = { request_kind: 'ACCESS', requester_verified: true, outcome: 'FULFILLED', reason: DSR_REASON };
+        delete body[missing];
+        const refused = await call('POST', `/affected-households/${mine}/data-requests`, { member: DPO, body });
+        expect([refused.status, refused.json.code, refused.json.detail]).toEqual([422, 'VALIDATION_FAILED', missing]);
+      }
+      for (const bad of [{ request_kind: 'PORT' }, { outcome: 'MAYBE' }, { reason: '' }, { reason: '   ' }]) {
+        const refused = await dsr(DPO, mine, bad);
+        expect([refused.status, refused.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      }
+      const unknown = await dsr(DPO, mine, { national_id: '079000000001' });
+      expect([unknown.status, unknown.json.code]).toEqual([400, 'FIELD_NOT_ALLOWED']);
+    });
+
+    it('is handled inside the unit of the officer: a household of another unit or another tenant is not found (404), and who holds no right is turned away (403)', async () => {
+      const inside = (await register(OFFICER)).json.resource_id as string;
+      const elsewhere = (await register(OFFICER, {}, { unit: ELSEWHERE })).json.resource_id as string;
+      expect((await dsr(DEPARTMENT_DPO, inside)).status).toBe(200);
+      const hidden = await dsr(DEPARTMENT_DPO, elsewhere);
+      expect([hidden.status, hidden.json.code]).toEqual([404, 'RESOURCE_NOT_FOUND']);
+      expect((await dsr(DPO, elsewhere)).status).toBe(200);
+      expect((await dsr(OFFICER, inside)).status).toBe(403);
+      expect((await dsr(NOBODY, inside)).status).toBe(403);
+      expect((await dsr(PROJECT_OFFICER, inside)).status).toBe(403);
+      expect((await dsr(B_OFFICER, inside, {}, { tenantId: TENANT_B })).status).toBe(403);
+      expect((await dsr(DPO, randomUUID())).status).toBe(404);
+      expect(await rows('select 1 from machvon.household_data_request where household_id = any($1::uuid[])', [[inside, elsewhere]])).toHaveLength(2);
+    });
+
+    it('answers a repeated request with the first answer and handles it once', async () => {
+      const mine = (await register(OFFICER)).json.resource_id as string;
+      const key = `key-${randomUUID()}`;
+      const first = await dsr(DPO, mine, { request_kind: 'RESTRICT' }, { key });
+      const second = await dsr(DPO, mine, { request_kind: 'RESTRICT' }, { key });
+      expect(second.json).toEqual(first.json);
+      expect(await rows('select 1 from machvon.household_data_request where household_id = $1::uuid', [mine])).toHaveLength(1);
+    });
+  });
+
   it('shows a household in the allowlist and nothing else', () => {
     const view = householdLineView({
       id: 'a',
@@ -514,6 +663,8 @@ describe('the households affected by a land recovery: sealed personal data, mask
       consentRecordId: null,
       retentionUntil: '2036-01-01',
       dsrOpen: false,
+      processingRestricted: false,
+      anonymised: false,
       status: 'REGISTERED',
       parcels: [],
       createdAt: '2026-10-26T00:00:00Z',
@@ -521,7 +672,7 @@ describe('the households affected by a land recovery: sealed personal data, mask
     });
     expect(Object.keys(view).sort()).toEqual(
       [
-        'address_masked', 'consent_record_id', 'created_at', 'dsr_open', 'head_name_masked', 'household_code', 'id', 'legal_basis', 'legal_basis_ref', 'member_count', 'national_id_masked', 'owner_unit_id',
+        'address_masked', 'consent_record_id', 'created_at', 'anonymised', 'dsr_open', 'processing_restricted', 'head_name_masked', 'household_code', 'id', 'legal_basis', 'legal_basis_ref', 'member_count', 'national_id_masked', 'owner_unit_id',
         'parcels', 'phone_masked', 'policy_beneficiary', 'project_id', 'retention_until', 'status', 'version',
       ].sort(),
     );

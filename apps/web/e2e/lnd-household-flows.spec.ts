@@ -151,6 +151,59 @@ test.describe('LND-03: the households affected by a land recovery', () => {
     expect(await sql('select 1 from machvon.affected_household where project_id = $1', [project.id])).toHaveLength(1);
   });
 
+  test('the data protection officer holds an erasure back while the household was paid, meets it in part with the reason, and anonymises a household that was not paid (AC-ST-LND-003-1, UAT-AC381, UI-LND-13)', async ({ page }) => {
+    const project = await seedProject();
+    const tenant = stackInfo().tenants.A;
+    const unit = stackInfo().units.A[UNIT_CODE];
+    const stamp = Date.now();
+    const nationalIds = [`079${String(stamp).slice(-9)}`, `079${String(stamp + 1).slice(-9)}`];
+    await open(page, 'householdOfficer', `/lnd/lnd-03?project=${project.id}`);
+    for (const nationalId of nationalIds) {
+      await page.getByRole('button', { name: vi['lnd.households.register.action'] }).click();
+      await fillRegistration(page, { head: HEAD, nationalId, phone: PHONE, address: ADDRESS, basis: 'PUBLIC_TASK_LAND_LAW', basisRef: BASIS_REF, until: '2036-12-31' });
+      await page.getByRole('button', { name: vi['lnd.dialog.submit.action'] }).click();
+      await expect(page.locator('[data-household-id]')).toHaveCount(nationalIds.indexOf(nationalId) + 1);
+    }
+    const [paid, unpaid] = await sql<{ id: string }>('select id from machvon.affected_household where project_id = $1 order by household_code', [project.id]);
+    // A payment was made to the first household: the voucher of it has to be kept. The plan it belongs to is another story, so the foreign keys are off for this one row.
+    const [voucher] = await sql<{ id: string }>("select id from machvon.document_version where scan_status = 'CLEAN' limit 1");
+    await sql(`begin; set local session_replication_role = replica;
+      insert into machvon.compensation_payment (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, status, created_by, updated_by)
+      values ('${tenant}', gen_random_uuid(), gen_random_uuid(), '${paid?.id}', '${unit}', 1, 1000000, date '2026-10-01', date '2026-10-10', 'BANK_TRANSFER', '${voucher?.id}', 'PAID', '${membershipOf('householdOfficer')}', '${membershipOf('householdOfficer')}');
+      commit;`);
+
+    await open(page, 'householdDpo', `/lnd/lnd-03?project=${project.id}`);
+    await page.locator(`[data-household-id="${paid?.id}"]`).getByRole('link').click();
+    await expect(page.getByRole('heading', { level: 1, name: vi['lnd.dataRequest.page.title'] })).toBeVisible();
+    await expect(page.getByTestId('household-head')).toHaveText('N***** V** A**');
+    const send = async (kind: string, outcome: string, reason: string): Promise<void> => {
+      await page.getByLabel(vi['lnd.dataRequest.form.kind.label'], { exact: true }).selectOption(kind);
+      await page.getByLabel(vi['lnd.dataRequest.form.verified.label'], { exact: true }).check();
+      await page.getByLabel(vi['lnd.dataRequest.form.outcome.label'], { exact: true }).selectOption(outcome);
+      await page.getByLabel(vi['lnd.dataRequest.form.reason.label'], { exact: true }).fill(reason);
+      await page.getByRole('button', { name: vi['lnd.dataRequest.form.submit.action'] }).click();
+    };
+    await send('ERASE', 'FULFILLED', 'The person asked for the data to be erased');
+    await expect(page.getByTestId('refusal')).toHaveText(vi['lnd.dataRequest.problem.retention.error']);
+    await send('ERASE', 'PARTIAL', 'The voucher of the payment names the head of the household');
+    await expect(page.getByTestId('handled')).toBeVisible();
+    const [kept] = await sql<{ has_phone: boolean; has_name: boolean; erased: string[]; reason: string }>(
+      'select h.phone_enc is not null as has_phone, h.head_name_enc is not null as has_name, r.erased_fields as erased, r.reason from machvon.affected_household h join machvon.household_data_request r on r.household_id = h.id where h.id = $1',
+      [paid?.id],
+    );
+    expect(kept).toEqual({ has_phone: false, has_name: true, erased: ['phone', 'address_text'], reason: 'The voucher of the payment names the head of the household' });
+
+    await page.goto(`/lnd/lnd-13?project=${project.id}&household=${unpaid?.id}&devUser=householdDpo`);
+    await expect(page.getByTestId('household-code')).toBeVisible();
+    await send('ERASE', 'FULFILLED', 'The person asked for the data to be erased and nothing was paid');
+    await expect(page.getByTestId('household-anonymised')).toBeVisible();
+    const [erased] = await sql<{ head_name: string; has_nid: boolean; anonymised: boolean }>('select head_name, national_id_enc is not null as has_nid, anonymised_at is not null as anonymised from machvon.affected_household where id = $1', [unpaid?.id]);
+    expect(erased).toEqual({ head_name: '[erased]', has_nid: false, anonymised: true });
+    const trail = await sql<{ diff: string }>("select safe_diff::text as diff from machvon.audit_event where action = 'lnd.household_data_request_handled' and resource_id = any($1::uuid[])", [[paid?.id, unpaid?.id]]);
+    expect(trail).toHaveLength(2);
+    for (const entry of trail) for (const personal of [HEAD, ADDRESS, PHONE, 'The person asked', 'The voucher']) expect(entry.diff).not.toContain(personal);
+  });
+
   test('a reader sees the households with the identity number hidden whole and no button that changes or opens them (AC-ST-LND-002-1, UI-LND-03)', async ({ page }) => {
     const project = await seedProject();
     const nationalId = `079${String(Date.now()).slice(-9)}`;

@@ -458,6 +458,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     body: { handed_area_m2: '10', handed_over_on: '2026-10-20', handover_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId },
   },
   { operation: 'linkHouseholdParcel', method: 'POST', id: HOUSEHOLD_FIXTURES['TNT-B'].id, body: { parcel_id: PARCEL_FIXTURES['TNT-B'].id, right_kind: 'OWNER', share_pct: '10' } },
+  { operation: 'handleHouseholdDataRequest', method: 'POST', id: HOUSEHOLD_FIXTURES['TNT-B'].id, body: { request_kind: 'ACCESS', requester_verified: true, outcome: 'FULFILLED', reason: 'Isolation foreign data request attempt' } },
   { operation: 'revealHouseholdIdentity', method: 'GET', id: HOUSEHOLD_FIXTURES['TNT-B'].id, query: 'reason=Isolation%20foreign%20reading%20attempt' },
   { operation: 'getProjectLifecycle', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'getLandProgress', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },

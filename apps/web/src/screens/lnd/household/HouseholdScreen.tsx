@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -10,7 +10,7 @@ import { useParcels, useProjectOptions, useUnits } from '../read-hooks';
 import { LinkDialog, RegisterDialog, RevealDialog } from './dialogs';
 import { useHouseholds } from './hooks';
 import { householdStatusLabel, legalBasisLabel, rightKindLabel } from './labels';
-import { EMPTY_FILTER, HOUSEHOLD_STATUSES, canReveal, canWrite, filterHouseholds } from './model';
+import { EMPTY_FILTER, HOUSEHOLD_STATUSES, REQUESTS_PATH, canHandleRequests, canReveal, canWrite, filterHouseholds, isOpenable } from './model';
 import type { HouseholdFilter, HouseholdLine } from './model';
 import '../lnd.css';
 
@@ -36,6 +36,7 @@ function HouseholdContent({ route }: ScreenProps) {
   const parcels = useParcels(projectId);
   const mayWrite = canWrite(permissions, mode);
   const mayReveal = canReveal(permissions);
+  const mayRequest = canHandleRequests(permissions, mode);
   const units = useUnits(mayWrite && projectId !== undefined);
   const [filter, setFilter] = useState<HouseholdFilter>(EMPTY_FILTER);
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
@@ -130,6 +131,7 @@ function HouseholdContent({ route }: ScreenProps) {
                       household={household}
                       canLink={mayWrite}
                       canOpen={mayReveal}
+                      requestTo={mayRequest ? `${REQUESTS_PATH}?project=${projectId}&household=${household.id}` : undefined}
                       onLink={() => setDialog({ kind: 'link', household })}
                       onReveal={() => setDialog({ kind: 'reveal', household })}
                     />
@@ -152,11 +154,13 @@ interface RowProps {
   household: HouseholdLine;
   canLink: boolean;
   canOpen: boolean;
+  /** Where the request of the person is handled, when the caller may handle it. */
+  requestTo: string | undefined;
   onLink(): void;
   onReveal(): void;
 }
 
-function HouseholdRow({ household, canLink, canOpen, onLink, onReveal }: RowProps) {
+function HouseholdRow({ household, canLink, canOpen, requestTo, onLink, onReveal }: RowProps) {
   const { t } = useTranslation();
   return (
     <tr data-household-id={household.id}>
@@ -183,6 +187,16 @@ function HouseholdRow({ household, canLink, canOpen, onLink, onReveal }: RowProp
         <span className="lnd-badge" data-testid="status">
           {householdStatusLabel(t, household.status)}
         </span>
+        {household.processingRestricted ? (
+          <span className="lnd-badge warning" data-testid="restricted">
+            {t('lnd.households.restricted.badge')}
+          </span>
+        ) : null}
+        {household.anonymised ? (
+          <span className="lnd-badge warning" data-testid="anonymised">
+            {t('lnd.households.anonymised.badge')}
+          </span>
+        ) : null}
         {household.dsrOpen ? (
           <span className="lnd-badge warning" data-testid="dsr-open">
             {t('lnd.households.dsr.open')}
@@ -195,7 +209,12 @@ function HouseholdRow({ household, canLink, canOpen, onLink, onReveal }: RowProp
             {t('lnd.households.link.action')}
           </button>
         ) : null}
-        {canOpen ? (
+        {requestTo === undefined ? null : (
+          <Link className="button" to={requestTo} aria-label={t('lnd.households.request.aria', { code: household.householdCode })}>
+            {t('lnd.households.request.action')}
+          </Link>
+        )}
+        {canOpen && isOpenable(household) ? (
           <button type="button" className="button" aria-label={t('lnd.households.reveal.aria', { code: household.householdCode })} onClick={onReveal}>
             {t('lnd.households.reveal.action')}
           </button>

@@ -20,6 +20,13 @@ export const LEGAL_BASES = ['PUBLIC_TASK_LAND_LAW', 'LEGAL_OBLIGATION', 'CONSENT
 export type LegalBasis = (typeof LEGAL_BASES)[number];
 export const RIGHT_KINDS = ['OWNER', 'USER', 'LESSEE', 'OCCUPANT_NO_TITLE'] as const;
 export type RightKind = (typeof RIGHT_KINDS)[number];
+export const REQUEST_KINDS = ['ACCESS', 'RECTIFY', 'WITHDRAW_CONSENT', 'ERASE', 'RESTRICT'] as const;
+export type RequestKind = (typeof REQUEST_KINDS)[number];
+export const REQUEST_OUTCOMES = ['FULFILLED', 'PARTIAL', 'REFUSED'] as const;
+export type RequestOutcome = (typeof REQUEST_OUTCOMES)[number];
+export type ErasedField = 'head_name' | 'national_id' | 'phone' | 'address_text';
+/** What an erased name is replaced by: the household stays as a record, because the payments made to it must be kept. */
+const ERASED_NAME = '[erased]';
 export const HOUSEHOLD_STATUSES = ['REGISTERED', 'INVENTORIED', 'PLAN_LISTED', 'COMPENSATED', 'RESETTLED', 'CLOSED', 'DISPUTED'] as const;
 export type HouseholdStatus = (typeof HOUSEHOLD_STATUSES)[number];
 
@@ -54,6 +61,28 @@ export interface RegisteredHousehold {
   version: number;
   /** Which personal fields were stored sealed, never their values. */
   sealed: string[];
+}
+
+export interface HouseholdRequestInput {
+  requestKind: string;
+  requesterVerified: boolean;
+  outcome: string;
+  reason: string;
+}
+
+/** What handling a request did: ids, the kind and the outcome, the names of the fields that were erased (never their values) and the payment records that had to be kept. */
+export interface HandledRequest {
+  id: string;
+  householdId: string;
+  projectId: string;
+  ownerUnitId: string;
+  requestKind: RequestKind;
+  outcome: RequestOutcome;
+  erasedFields: ErasedField[];
+  retainedPayments: number;
+  restricted: boolean;
+  anonymised: boolean;
+  version: number;
 }
 
 export interface NewHouseholdLink {
@@ -99,6 +128,10 @@ export interface HouseholdLine {
   consentRecordId: string | null;
   retentionUntil: string;
   dsrOpen: boolean;
+  /** The processing of the data was restricted at the request of the person: the sealed data is not opened. */
+  processingRestricted: boolean;
+  /** The personal data was erased at the request of the person; the household is an anonymous record. */
+  anonymised: boolean;
   status: HouseholdStatus;
   parcels: Array<{ id: string; parcelId: string; parcelCode: string; rightKind: RightKind; sharePct: string }>;
   createdAt: string;
@@ -133,6 +166,8 @@ interface LineSql {
   consent_record_id: string | null;
   retention_until: string;
   dsr_open: boolean;
+  processing_restricted: boolean;
+  anonymised: boolean;
   status: HouseholdStatus;
   created_at: string;
   version: string;
@@ -296,7 +331,7 @@ export class LndHouseholdStore {
     await enterScope(tx, units);
     const rows = await tx.query<LineSql>(
       `select h.id, h.project_id, h.owner_unit_id, h.household_code, h.head_name, h.national_id_masked, h.phone_masked, h.address_text, h.member_count, h.policy_beneficiary, h.legal_basis, h.legal_basis_ref,
-              h.consent_record_id, h.retention_until::text as retention_until, h.dsr_open, h.status, ${timestampKey('h.created_at')} as created_at, h.version::text as version
+              h.consent_record_id, h.retention_until::text as retention_until, h.dsr_open, h.processing_restricted_at is not null as processing_restricted, h.anonymised_at is not null as anonymised, h.status, ${timestampKey('h.created_at')} as created_at, h.version::text as version
          from machvon.affected_household h
         where ($1::uuid is null or h.project_id = $1::uuid) and ($2::text is null or h.status = $2)
           and ($3::text is null or (h.household_code, h.id) > ($3::text, $4::uuid))
@@ -329,6 +364,8 @@ export class LndHouseholdStore {
       consentRecordId: row.consent_record_id,
       retentionUntil: row.retention_until,
       dsrOpen: row.dsr_open,
+      processingRestricted: row.processing_restricted,
+      anonymised: row.anonymised,
       status: row.status,
       parcels: links
         .filter((link) => link.household_id === row.id)
@@ -351,9 +388,15 @@ export class LndHouseholdStore {
         national_id_enc: Buffer | null;
         phone_enc: Buffer | null;
         address_enc: Buffer | null;
-      }>('select project_id, owner_unit_id, household_code, head_name_enc, national_id_enc, phone_enc, address_enc from machvon.affected_household where id = $1::uuid', [householdId])
+        restricted: boolean;
+      }>(
+        'select project_id, owner_unit_id, household_code, head_name_enc, national_id_enc, phone_enc, address_enc, processing_restricted_at is not null as restricted from machvon.affected_household where id = $1::uuid',
+        [householdId],
+      )
     )[0];
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    // The person asked that the data not be processed: it is kept, and it is not opened.
+    if (row.restricted) throw new DomainError('PROCESSING_RESTRICTED', 409);
     const tenantId = await this.tenantOf(tx);
     const place = (column: string) => ({ tenantId, table: TABLE, column, rowId: householdId });
     return {
@@ -365,6 +408,96 @@ export class LndHouseholdStore {
       nationalId: row.national_id_enc === null ? null : this.cipher.open(place('national_id_enc'), row.national_id_enc),
       phone: row.phone_enc === null ? null : this.cipher.open(place('phone_enc'), row.phone_enc),
       addressText: row.address_enc === null ? null : this.cipher.open(place('address_enc'), row.address_enc),
+    };
+  }
+
+  /**
+   * Handles a request of the person whose data a household holds (ST-LND-003, UAT-AC381). The person who asked has to be verified (422 `REQUESTER_NOT_VERIFIED`). Access and rectification are recorded as served; a restriction
+   * stops the sealed data being opened; the withdrawal of a consent erases the optional data (the telephone and the address) of a household registered on that consent; an erasure that is fulfilled anonymises
+   * the household, unless a payment was made to it, for which the voucher has to be kept (409 `RETENTION_LEGAL_HOLD`), and is only partly met (the optional data erased, the name and the identity kept) by the officer who says so.
+   * A request that is refused changes nothing. The reason is kept with the request.
+   */
+  async handleRequest(tx: TenantTx, householdId: string, input: HouseholdRequestInput, actor: string, units: ScopeUnits): Promise<HandledRequest> {
+    const id = lowerId(householdId);
+    const requestKind = REQUEST_KINDS.find((candidate) => candidate === input.requestKind) ?? this.badField('request_kind');
+    const outcome = REQUEST_OUTCOMES.find((candidate) => candidate === input.outcome) ?? this.badField('outcome');
+    const reason = textOf(input.reason, 'reason', 1, MAX_TEXT);
+    await enterScope(tx, units);
+    const household = (
+      await tx.query<{ project_id: string; owner_unit_id: string; legal_basis: LegalBasis; restricted: boolean; anonymised: boolean; has_nid: boolean; has_phone: boolean; has_address: boolean; version: string }>(
+        `select project_id, owner_unit_id, legal_basis, processing_restricted_at is not null as restricted, anonymised_at is not null as anonymised, national_id_enc is not null as has_nid,
+                phone_enc is not null as has_phone, address_enc is not null as has_address, version::text as version
+           from machvon.affected_household where id = $1::uuid for update`,
+        [id],
+      )
+    )[0];
+    // A household outside the scope of the caller is not there for them.
+    if (household === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (input.requesterVerified !== true) throw new DomainError('REQUESTER_NOT_VERIFIED', 422, 'requester_verified');
+    const retained = Number((await tx.query<{ n: string }>("select count(*)::text as n from machvon.compensation_payment where household_id = $1::uuid and status in ('PAID', 'DEPOSITED')", [id]))[0]?.n ?? '0');
+    let erase: 'ALL' | 'OPTIONAL' | 'NONE' = 'NONE';
+    let restrict = false;
+    if (outcome !== 'REFUSED') {
+      if (requestKind === 'ERASE') {
+        if (outcome === 'FULFILLED' && retained > 0) throw new DomainError('RETENTION_LEGAL_HOLD', 409, 'request_kind', { extensions: { retained_payments: retained } });
+        erase = outcome === 'FULFILLED' ? 'ALL' : 'OPTIONAL';
+      } else if (requestKind === 'WITHDRAW_CONSENT') {
+        if (household.legal_basis !== 'CONSENT') throw invalid('request_kind', 'NOT_CONSENT_BASED');
+        erase = 'OPTIONAL';
+      } else if (requestKind === 'RESTRICT') {
+        restrict = true;
+      }
+    }
+    const erasedFields: ErasedField[] = [];
+    if (erase !== 'NONE' && !household.anonymised) {
+      if (erase === 'ALL') erasedFields.push('head_name');
+      if (erase === 'ALL' && household.has_nid) erasedFields.push('national_id');
+      if (household.has_phone) erasedFields.push('phone');
+      if (household.has_address) erasedFields.push('address_text');
+    }
+    const anonymise = erase === 'ALL' && !household.anonymised;
+    let version = Number(household.version);
+    if (anonymise || erasedFields.length > 0 || (restrict && !household.restricted)) {
+      const tenantId = await this.tenantOf(tx);
+      const sealedName = this.cipher.seal({ tenantId, table: TABLE, column: 'head_name_enc', rowId: id }, ERASED_NAME);
+      const updated = await tx.query<{ version: string }>(
+        `update machvon.affected_household set
+            head_name = case when $2 then $3 else head_name end,
+            head_name_enc = case when $2 then $4 else head_name_enc end,
+            national_id_enc = case when $2 then null else national_id_enc end,
+            national_id_hash = case when $2 then null else national_id_hash end,
+            national_id_masked = case when $2 then null else national_id_masked end,
+            phone_enc = case when $5 then null else phone_enc end,
+            phone_masked = case when $5 then null else phone_masked end,
+            address_text = case when $6 then null else address_text end,
+            address_enc = case when $6 then null else address_enc end,
+            anonymised_at = case when $2 then now() else anonymised_at end,
+            processing_restricted_at = case when $7 then coalesce(processing_restricted_at, now()) else processing_restricted_at end,
+            updated_at = now(), updated_by = $8::uuid, version = version + 1
+          where id = $1::uuid returning version::text as version`,
+        [id, anonymise, ERASED_NAME, sealedName, erasedFields.includes('phone'), erasedFields.includes('address_text'), restrict, actor],
+      );
+      version = Number(updated[0]?.version ?? version + 1);
+    }
+    const requestId = randomUUID();
+    await tx.query(
+      `insert into machvon.household_data_request
+         (tenant_id, id, household_id, owner_unit_id, request_kind, requester_verified, outcome, reason, erased_fields, retained_payments, restricted, handled_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4, true, $5, $6, $7::text[], $8, $9, $10::uuid)`,
+      [requestId, id, household.owner_unit_id, requestKind, outcome, reason, erasedFields, retained, restrict, actor],
+    );
+    return {
+      id: requestId,
+      householdId: id,
+      projectId: household.project_id,
+      ownerUnitId: household.owner_unit_id,
+      requestKind,
+      outcome,
+      erasedFields,
+      retainedPayments: retained,
+      restricted: restrict,
+      anonymised: anonymise || household.anonymised,
+      version,
     };
   }
 

@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { FieldCipher, staticKeyProvider } from '@machvon/kernel';
 import type { EffectiveAccess, Scope } from '@machvon/kernel';
+import { Client } from 'pg';
 import { LndHouseholdStore, enterScope, householdScopeUnits, unitInScope } from '../src/lnd-household-store';
 import type { NewHousehold } from '../src/lnd-household-store';
 import { LndParcelStore } from '../src/lnd-parcel-store';
@@ -526,6 +527,225 @@ describe('the affected households, their personal data and their unit scope (ST-
       expect(seen).toEqual({ before: 0, after: 1 });
     });
   });
+
+  describe('the requests of the people whose data a household holds (ST-LND-003)', () => {
+    describe('erasing', () => {
+      it('AC-ST-LND-003-1, UAT-AC381: holds an erasure back while a payment was made to the household (409 RETENTION_LEGAL_HOLD), and changes and records nothing', async () => {
+        const paid = await register();
+        await pay(paid.id, 'PAID');
+        await pay(paid.id, 'DEPOSITED', 2);
+        const before = await stored(paid.id);
+        const held = await refusal(handle(paid.id, 'ERASE', 'FULFILLED'));
+        expect(held).toMatchObject({ code: 'RETENTION_LEGAL_HOLD', status: 409, extensions: { retained_payments: 2 } });
+        expect(await stored(paid.id)).toEqual(before);
+        expect(await requestsOf(paid.id)).toEqual([]);
+      });
+
+      it('AC-ST-LND-003-1, UAT-AC381: meets an erasure in part when the officer says so, erasing the telephone and the address and keeping the name, the identity number and the code, with the reason', async () => {
+        const paid = await register();
+        await pay(paid.id, 'PAID');
+        const done = await handle(paid.id, 'ERASE', 'PARTIAL', { reason: 'The payment voucher names the head of the household' });
+        expect(done).toMatchObject({ householdId: paid.id, requestKind: 'ERASE', outcome: 'PARTIAL', erasedFields: ['phone', 'address_text'], retainedPayments: 1, restricted: false, anonymised: false, version: 2 });
+        expect(await stored(paid.id)).toMatchObject({
+          head_name: 'N***** V** A',
+          address_text: null,
+          phone_masked: null,
+          national_id_masked: expect.stringMatching(/^\*{8}\d{4}$/),
+          has_name: true,
+          has_nid: true,
+          has_hash: true,
+          has_phone: false,
+          has_address: false,
+          anonymised: false,
+          version: '2',
+        });
+        expect(await requestsOf(paid.id)).toEqual([
+          { request_kind: 'ERASE', outcome: 'PARTIAL', reason: 'The payment voucher names the head of the household', erased_fields: ['phone', 'address_text'], retained_payments: 1, restricted: false, requester_verified: true },
+        ]);
+        const identity = await as((tx) => households.reveal(tx, paid.id, EVERYWHERE));
+        expect(identity).toMatchObject({ headName: HEAD, phone: null, addressText: null });
+        expect(identity.nationalId).not.toBeNull();
+      });
+
+      it('AC-ST-LND-003-1, UAT-AC381: anonymises a household that nothing was paid to, keeping the record, the code, the unit and the basis', async () => {
+        const nid = uniqueId();
+        const unpaid = await register({ nationalId: nid });
+        await pay(unpaid.id, 'PENDING');
+        await pay(unpaid.id, 'CANCELLED', 2);
+        const done = await handle(unpaid.id, 'ERASE', 'FULFILLED');
+        expect(done).toMatchObject({ erasedFields: ['head_name', 'national_id', 'phone', 'address_text'], retainedPayments: 0, anonymised: true, version: 2 });
+        expect(await stored(unpaid.id)).toMatchObject({
+          head_name: '[erased]',
+          address_text: null,
+          national_id_masked: null,
+          phone_masked: null,
+          has_name: true,
+          has_nid: false,
+          has_hash: false,
+          has_phone: false,
+          has_address: false,
+          anonymised: true,
+        });
+        const identity = await as((tx) => households.reveal(tx, unpaid.id, EVERYWHERE));
+        expect(identity).toMatchObject({ headName: '[erased]', nationalId: null, phone: null, addressText: null, householdCode: unpaid.householdCode });
+        const line = (await list(EVERYWHERE, { projectId: world.project })).find((entry) => entry.id === unpaid.id);
+        expect(line).toMatchObject({ anonymised: true, headNameMasked: '[erased]', nationalIdMasked: null, phoneMasked: null, addressMasked: null, legalBasis: 'PUBLIC_TASK_LAND_LAW', status: 'REGISTERED' });
+        // The same identity number may be registered again: the blind index went with the data.
+        expect((await register({ nationalId: nid })).householdCode).toMatch(/^HH-/);
+      });
+
+      it('asks nothing more of a household that is anonymised already: the second erasure erases nothing and changes no version, and the personal data cannot be written back', async () => {
+        const gone = await register();
+        await handle(gone.id, 'ERASE', 'FULFILLED');
+        const again = await handle(gone.id, 'ERASE', 'FULFILLED');
+        expect(again).toMatchObject({ erasedFields: [], anonymised: true, version: 2 });
+        expect(await requestsOf(gone.id)).toHaveLength(2);
+        const rewrite = (assignment: string) => sqlState(owner(`update machvon.affected_household set ${assignment} where id = $1::uuid`, [gone.id]));
+        expect((await rewrite("head_name = 'Someone'")).message).toContain('does not get its personal data back');
+        expect((await rewrite('anonymised_at = null')).message).toContain('does not get its personal data back');
+        expect((await rewrite("phone_masked = '*******123'")).message).toContain('does not get its personal data back');
+      });
+
+      it('lets the officer refuse an erasure, which changes nothing and keeps the reason', async () => {
+        const kept = await register();
+        const before = await stored(kept.id);
+        const done = await handle(kept.id, 'ERASE', 'REFUSED', { reason: 'The household is a party to a complaint that is still open' });
+        expect(done).toMatchObject({ erasedFields: [], anonymised: false, restricted: false, version: 1 });
+        expect(await stored(kept.id)).toEqual(before);
+        expect(await requestsOf(kept.id)).toEqual([
+          { request_kind: 'ERASE', outcome: 'REFUSED', reason: 'The household is a party to a complaint that is still open', erased_fields: [], retained_payments: 0, restricted: false, requester_verified: true },
+        ]);
+      });
+    });
+
+    describe('the other requests', () => {
+      it('AC-ST-LND-003-1: serves an access and a rectification by recording them, with the household left as it was', async () => {
+        const mine = await register();
+        const before = await stored(mine.id);
+        for (const kind of ['ACCESS', 'RECTIFY']) expect(await handle(mine.id, kind, 'FULFILLED')).toMatchObject({ requestKind: kind, erasedFields: [], version: 1 });
+        expect(await stored(mine.id)).toEqual(before);
+        expect((await requestsOf(mine.id)).map((entry) => entry.request_kind)).toEqual(['ACCESS', 'RECTIFY']);
+      });
+
+      it('does not handle a request of a person who was not verified (422 REQUESTER_NOT_VERIFIED), whatever it asks, and records nothing', async () => {
+        const mine = await register();
+        for (const kind of ['ACCESS', 'ERASE', 'RESTRICT']) expect(await refusal(handle(mine.id, kind, 'FULFILLED', { verified: false }))).toMatchObject({ code: 'REQUESTER_NOT_VERIFIED', status: 422, detail: 'requester_verified' });
+        expect(await requestsOf(mine.id)).toEqual([]);
+        expect((await stored(mine.id))?.version).toBe('1');
+      });
+
+      it('restricts the processing at the request of the person: the sealed data is kept and is no longer opened (409 PROCESSING_RESTRICTED), and the list says so', async () => {
+        const mine = await register();
+        expect(await handle(mine.id, 'RESTRICT', 'FULFILLED')).toMatchObject({ restricted: true, erasedFields: [], version: 2 });
+        expect(await stored(mine.id)).toMatchObject({ restricted: true, has_name: true, has_nid: true, anonymised: false });
+        expect(await refusal(as((tx) => households.reveal(tx, mine.id, EVERYWHERE)))).toMatchObject({ code: 'PROCESSING_RESTRICTED', status: 409 });
+        expect((await list(EVERYWHERE, { projectId: world.project })).find((entry) => entry.id === mine.id)).toMatchObject({ processingRestricted: true, anonymised: false });
+        // A second restriction records the request and changes nothing; the restriction is not lifted by an update.
+        expect(await handle(mine.id, 'RESTRICT', 'PARTIAL')).toMatchObject({ restricted: true, version: 2 });
+        expect((await sqlState(owner('update machvon.affected_household set processing_restricted_at = null where id = $1::uuid', [mine.id]))).message).toContain('is not lifted here');
+        expect(await requestsOf(mine.id)).toHaveLength(2);
+      });
+
+      it('lets the withdrawal of a consent erase the telephone and the address of a household registered on that consent, and nothing else', async () => {
+        const consent = await register({ legalBasis: 'CONSENT', consentRecordId: randomUUID() });
+        expect(await handle(consent.id, 'WITHDRAW_CONSENT', 'FULFILLED')).toMatchObject({ erasedFields: ['phone', 'address_text'], anonymised: false, version: 2 });
+        expect(await stored(consent.id)).toMatchObject({ has_name: true, has_nid: true, has_phone: false, has_address: false, anonymised: false });
+      });
+
+      it('refuses the withdrawal of a consent that was never the basis (422 VALIDATION_FAILED, request_kind)', async () => {
+        const task = await register();
+        expect(await refusal(handle(task.id, 'WITHDRAW_CONSENT', 'FULFILLED'))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'request_kind', extensions: { reason: 'NOT_CONSENT_BASED' } });
+        expect(await handle(task.id, 'WITHDRAW_CONSENT', 'REFUSED')).toMatchObject({ outcome: 'REFUSED', erasedFields: [] });
+      });
+
+      it('erases only what the household holds: no telephone and no address, none to name', async () => {
+        const bare = await register({ phone: undefined, addressText: undefined });
+        expect(await handle(bare.id, 'ERASE', 'PARTIAL')).toMatchObject({ erasedFields: [], version: 1 });
+        expect(await handle(bare.id, 'ERASE', 'FULFILLED')).toMatchObject({ erasedFields: ['head_name', 'national_id'], anonymised: true, version: 2 });
+      });
+    });
+
+    describe('what is asked and who asks', () => {
+      it('wants a kind, an outcome and a reason that are what they should be (422 VALIDATION_FAILED)', async () => {
+        const mine = await register();
+        expect(await refusal(handle(mine.id, 'PORT', 'FULFILLED'))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'request_kind' });
+        expect(await refusal(handle(mine.id, 'ACCESS', 'MAYBE'))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'outcome' });
+        for (const reason of ['', '   ', 'x'.repeat(2001), 'a\u0007b']) expect(await refusal(handle(mine.id, 'ACCESS', 'FULFILLED', { reason }))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'reason' });
+        expect(await requestsOf(mine.id)).toEqual([]);
+      });
+
+      it('does not find a household outside the scope of the caller (404), and does not record a thing for it', async () => {
+        const mine = await register();
+        expect(await refusal(handle(mine.id, 'ACCESS', 'FULFILLED', {}, unitId(OTHER_BRANCH)))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+        expect(await refusal(handle(mine.id, 'ACCESS', 'FULFILLED', {}, ''))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+        expect(await refusal(handle(randomUUID(), 'ACCESS', 'FULFILLED'))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+        expect(await handle(mine.id, 'ACCESS', 'FULFILLED', {}, unitId(DEPARTMENT))).toMatchObject({ requestKind: 'ACCESS' });
+        expect(await requestsOf(mine.id)).toHaveLength(1);
+      });
+
+      it('keeps the records of the requests inside the unit, for good: the policy hides them, the runtime role cannot change or remove them, and a refused request cannot carry an erasure', async () => {
+        const mine = await register();
+        await handle(mine.id, 'ACCESS', 'FULFILLED');
+        const visible = (units: string | null) => owner<{ n: string }>('select count(*)::text as n from machvon.household_data_request where household_id = $1::uuid', [mine.id], units);
+        expect((await visible(EVERYWHERE))[0]?.n).toBe('1');
+        expect((await visible(unitId(OTHER_BRANCH)))[0]?.n).toBe('0');
+        expect((await visible(unitId(DEPARTMENT)))[0]?.n).toBe('1');
+        expect((await visible(''))[0]?.n).toBe('0');
+        for (const statement of ['delete from machvon.household_data_request', "update machvon.household_data_request set reason = 'changed'", 'truncate machvon.household_data_request']) {
+          expect((await sqlState(as(async (tx) => { await enterScope(tx, EVERYWHERE); await tx.query(statement); }))).message).toContain('permission denied');
+        }
+        const insert = (kind: string, outcome: string, erased: string, restricted: boolean, verified = true) =>
+          sqlState(
+            owner(
+              `insert into machvon.household_data_request (tenant_id, id, household_id, owner_unit_id, request_kind, requester_verified, outcome, reason, erased_fields, restricted, handled_by)
+               values ($1, gen_random_uuid(), $2::uuid, $3::uuid, $4, $8, $5, 'a reason', $6::text[], $7, $9)`,
+              [TENANT_A, mine.id, unitId(DEPARTMENT), kind, outcome, erased, restricted, verified, memberId(ACTOR)],
+            ),
+          );
+        expect((await insert('ERASE', 'REFUSED', '{phone}', false)).message).toContain('household_data_request_refused_chk');
+        expect((await insert('RESTRICT', 'REFUSED', '{}', true)).message).toContain('household_data_request_refused_chk');
+        expect((await insert('ERASE', 'FULFILLED', '{iban}', false)).message).toContain('erased_fields');
+        expect((await insert('ACCESS', 'FULFILLED', '{}', false, false)).message).toContain('requester_verified');
+        expect((await insert('PORT', 'FULFILLED', '{}', false)).message).toContain('request_kind');
+      });
+    });
+  });
 });
+
+/** A payment made to a household: the voucher of it has to be kept. Written as the superuser with the foreign keys off, because the plan that a payment belongs to is another story. */
+async function pay(householdId: string, status: 'PAID' | 'DEPOSITED' | 'PENDING' | 'CANCELLED', paymentNo = 1): Promise<void> {
+  const client = new Client({ connectionString: harness.database.adminUrl });
+  await client.connect();
+  try {
+    await client.query('set session_replication_role = replica');
+    const paid = status === 'PAID' || status === 'DEPOSITED';
+    await client.query(
+      `insert into machvon.compensation_payment
+         (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, deposit_reason, status, created_by, updated_by)
+       values ($1, gen_random_uuid(), gen_random_uuid(), $2::uuid, $3::uuid, $4, 1000000, date '2026-10-01', $5, $6, $7, $8, $9, $10, $10)`,
+      [TENANT_A, householdId, unitId(DEPARTMENT), paymentNo, paid ? '2026-10-10' : null, paid ? 'BANK_TRANSFER' : null, paid ? world.cleanDocument : null, status === 'DEPOSITED' ? 'The household did not come' : null, status, memberId(ACTOR)],
+    );
+  } finally {
+    await client.end();
+  }
+}
+
+const REASON = 'The request was checked against the record of the household';
+const handle = (householdId: string, requestKind: string, outcome: string, extra: { verified?: boolean; reason?: string } = {}, units = EVERYWHERE) =>
+  as((tx) => households.handleRequest(tx, householdId, { requestKind, requesterVerified: extra.verified ?? true, outcome, reason: extra.reason ?? REASON }, memberId(ACTOR), units));
+const stored = async (householdId: string) =>
+  (
+    await owner<Record<string, unknown>>(
+      `select head_name, address_text, national_id_masked, phone_masked, head_name_enc is not null as has_name, national_id_enc is not null as has_nid, national_id_hash is not null as has_hash, phone_enc is not null as has_phone,
+              address_enc is not null as has_address, anonymised_at is not null as anonymised, processing_restricted_at is not null as restricted, version::text as version
+         from machvon.affected_household where id = $1::uuid`,
+      [householdId],
+    )
+  )[0];
+const requestsOf = (householdId: string) =>
+  owner<{ request_kind: string; outcome: string; reason: string; erased_fields: string[]; retained_payments: number; restricted: boolean; requester_verified: boolean }>(
+    'select request_kind, outcome, reason, erased_fields, retained_payments, restricted, requester_verified from machvon.household_data_request where household_id = $1::uuid order by handled_at, id',
+    [householdId],
+  );
 
 void id;

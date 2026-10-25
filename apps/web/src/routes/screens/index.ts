@@ -120,6 +120,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'LND-01': () => import('../../screens/lnd/progress/OverviewScreen'),
   'LND-02': () => import('../../screens/lnd/ParcelScreen'),
   'LND-03': () => import('../../screens/lnd/household/HouseholdScreen'),
+  'LND-13': () => import('../../screens/lnd/household/RequestScreen'),
   'LND-10': () => import('../../screens/lnd/section/SectionScreen'),
   'LND-11': () => import('../../screens/lnd/progress/ExternalProgressScreen'),
   'IAM-04': () => import('../../screens/iam/TenantChooserScreen'),

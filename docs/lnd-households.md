@@ -54,6 +54,25 @@ A household is linked to a parcel of its own unit and project (`422 VALIDATION_F
 - `apps/web/src/screens/lnd/household/*.test.ts(x)`, `apps/web/e2e/lnd-household-flows.spec.ts`: the screen LND-03.
 - The authorization matrix and the isolation suite list the four operations.
 
+## Requests of the people whose data a household holds (ST-LND-003, UAT-AC381)
+
+Migration `V1684__lnd1_household_data_request.sql`. Screen LND-13. CXN-EXE-06, so the story is DONE_UNCONFIRMED.
+
+| Operation | Route | Permission | What it does |
+|---|---|---|---|
+| `handleHouseholdDataRequest` | `POST /affected-households/{id}/data-requests` | `land.dsr.handle` over the unit | Handles one request: `request_kind`, `requester_verified`, `outcome`, `reason`. |
+
+The person who asked has to be identified first (`requester_verified` false is `422 REQUESTER_NOT_VERIFIED`, for every kind, before anything is done). A household outside the scope of the caller is `404`. What a request does:
+
+| Kind | FULFILLED | PARTIAL | REFUSED |
+|---|---|---|---|
+| `ACCESS`, `RECTIFY` | recorded as served; the data is read by the officer who may open it (every reading is recorded), the correction is made in the record | the same | recorded, nothing changes |
+| `WITHDRAW_CONSENT` | only for a household registered on its consent (otherwise `422 VALIDATION_FAILED`, `request_kind`, reason `NOT_CONSENT_BASED`): the telephone and the address are erased, the name and the identity number kept | the same | recorded |
+| `RESTRICT` | `processing_restricted_at` is set: the sealed data is kept and `revealHouseholdIdentity` answers `409 PROCESSING_RESTRICTED` | the same | recorded |
+| `ERASE` | the household is anonymised (`anonymised_at`): the name becomes `[erased]`, the identity number, its blind index, the telephone and the address are removed; the code, the unit, the basis and the status stay. **If a payment was made to the household** (`compensation_payment` `PAID` or `DEPOSITED`, whose voucher has to be kept) it is `409 RETENTION_LEGAL_HOLD` with `retained_payments`, and nothing is recorded or changed | the telephone and the address are erased; the name, the identity number and the code are kept (the officer says so, and why) | recorded |
+
+Every handled request is a row of `household_data_request` (kind, outcome, the reason, the names of the fields erased, the number of payment records kept, who and when), appended and never edited or removed by the runtime role, and seen only from inside the unit of the household. The audit row and the event `lnd.household.dsr_handled.v1` carry ids, the kind, the outcome and the names of the fields; the reason lives in the request only. An anonymised household does not get its data back (a trigger), a restriction is not lifted by an update, and a second erasure of an anonymised household erases nothing.
+
 ## Not in this story
 
-The inventory (`recordInventory`) and the data requests of the data subject (`handleHouseholdDataRequest`, LND-13) are other stories. The DPIA itself (R-LND-02) and the binding of the master keys to the KMS (R-LND-04) are for the data protection officer and the platform team.
+The inventory (`recordInventory`) is another story. Lifting a restriction and a response deadline for the data requests (an open legal question in the story) are not modelled. The DPIA itself (R-LND-02) and the binding of the master keys to the KMS (R-LND-04) are for the data protection officer and the platform team.

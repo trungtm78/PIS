@@ -4,20 +4,25 @@ import { household } from '../test-support';
 import {
   EMPTY_FILTER,
   EMPTY_LINK_FORM,
+  EMPTY_REQUEST_FORM,
   EMPTY_REGISTER_FORM,
+  canHandleRequests,
   canReveal,
+  isOpenable,
   canWrite,
   describeProblem,
   filterHouseholds,
   linkBody,
+  requestBody,
   registerBody,
   toHouseholdLine,
   toIdentity,
   validateLink,
   validateReason,
+  validateRequest,
   validateRegister,
 } from './model';
-import type { LinkForm, RegisterForm } from './model';
+import type { LinkForm, RegisterForm, RequestForm } from './model';
 
 const TODAY = '2026-10-26';
 const UNIT = '00000000-0000-4000-8000-000200000001';
@@ -94,6 +99,43 @@ describe('the rights', () => {
     expect(canReveal(['lnd.pii.read'])).toBe(true);
     expect(canReveal(undefined)).toBe(true);
     expect(canReveal(['land.household.read'])).toBe(false);
+  });
+});
+
+describe('the handling of requests', () => {
+  it('lets whoever holds land.dsr.handle handle them, unless the session is read-only', () => {
+    expect(canHandleRequests(['land.dsr.handle'], 'FULL')).toBe(true);
+    expect(canHandleRequests(undefined, undefined)).toBe(true);
+    expect(canHandleRequests(['land.dsr.handle'], 'READ_ONLY')).toBe(false);
+    expect(canHandleRequests(['lnd.pii.read'], 'FULL')).toBe(false);
+  });
+
+  it('opens the sealed data of a household that is not restricted and not erased', () => {
+    const line = (overrides: Record<string, unknown>) => toHouseholdLine(household(1, overrides)) as NonNullable<ReturnType<typeof toHouseholdLine>>;
+    expect(isOpenable(line({}))).toBe(true);
+    expect(isOpenable(line({ processing_restricted: true }))).toBe(false);
+    expect(isOpenable(line({ anonymised: true }))).toBe(false);
+    expect(line({ processing_restricted: true, anonymised: true })).toMatchObject({ processingRestricted: true, anonymised: true });
+    expect(line({})).toMatchObject({ processingRestricted: false, anonymised: false });
+  });
+
+  const filledRequest = (overrides: Partial<RequestForm> = {}): RequestForm => ({ requestKind: 'ERASE', requesterVerified: true, outcome: 'PARTIAL', reason: 'The voucher names the head of the household', ...overrides });
+
+  it('asks for the kind, the person identified, the outcome and the reason', () => {
+    expect(validateRequest(EMPTY_REQUEST_FORM)).toEqual({ requestKind: 'required', requesterVerified: 'required', outcome: 'required', reason: 'required' });
+    expect(validateRequest(filledRequest())).toEqual({});
+    expect(validateRequest(filledRequest({ requesterVerified: false }))).toEqual({ requesterVerified: 'required' });
+  });
+
+  it('refuses a reason that is too long or is not text', () => {
+    expect(validateRequest(filledRequest({ reason: '   ' })).reason).toBe('required');
+    expect(validateRequest(filledRequest({ reason: 'x'.repeat(2001) })).reason).toBe('tooLong');
+    expect(validateRequest(filledRequest({ reason: 'a\u0007b' })).reason).toBe('invalid');
+    expect(validateRequest(filledRequest({ reason: 'x'.repeat(2000) })).reason).toBeUndefined();
+  });
+
+  it('sends the request as it was filled in, the reason without its spaces', () => {
+    expect(requestBody(filledRequest({ reason: '  Because of the voucher  ' }))).toEqual({ request_kind: 'ERASE', requester_verified: true, outcome: 'PARTIAL', reason: 'Because of the voucher' });
   });
 });
 
@@ -220,6 +262,9 @@ describe('validateReason', () => {
 
 describe('describeProblem', () => {
   it('names the refusals that have their own sentence', () => {
+    expect(describeProblem(problem('RETENTION_LEGAL_HOLD'))).toBe('retentionHold');
+    expect(describeProblem(problem('REQUESTER_NOT_VERIFIED'))).toBe('requesterNotVerified');
+    expect(describeProblem(problem('PROCESSING_RESTRICTED'))).toBe('processingRestricted');
     expect(describeProblem(problem('LEGAL_BASIS_REQUIRED'))).toBe('legalBasisRequired');
     expect(describeProblem(problem('CONSENT_REQUIRED'))).toBe('consentRequired');
     expect(describeProblem(problem('HOUSEHOLD_DUPLICATE'))).toBe('householdDuplicate');

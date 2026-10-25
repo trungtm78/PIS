@@ -2127,6 +2127,18 @@
       ]
     },
     {
+      "key": "householdDpo",
+      "displayName": "Cán bộ bảo vệ dữ liệu cá nhân",
+      "membershipId": "00000000-0000-4000-8000-000000000861",
+      "permissions": [
+        "land.dsr.handle",
+        "land.household.read",
+        "project.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

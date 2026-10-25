@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { createTranslator } from '../../../i18n';
 import en from '../../../i18n/en.json';
 import vi_ from '../../../i18n/vi.json';
-import { commandProblemMessage, formProblemMessage, householdStatusLabel, legalBasisLabel, rightKindLabel } from './labels';
-import { HOUSEHOLD_STATUSES, LEGAL_BASES, RIGHT_KINDS } from './model';
+import { commandProblemMessage, formProblemMessage, householdStatusLabel, legalBasisLabel, requestKindHelp, requestKindLabel, requestOutcomeLabel, rightKindLabel } from './labels';
+import { HOUSEHOLD_STATUSES, LEGAL_BASES, REQUEST_KINDS, REQUEST_OUTCOMES, RIGHT_KINDS } from './model';
 import type { CommandProblem, FormProblem } from './model';
 
 const FORM_PROBLEMS: FormProblem[] = ['required', 'tooLong', 'invalid', 'past'];
 const COMMAND_PROBLEMS: CommandProblem[] = [
+  'retentionHold',
+  'requesterNotVerified',
+  'processingRestricted',
   'legalBasisRequired',
   'consentRequired',
   'householdDuplicate',
@@ -29,6 +32,9 @@ describe('the words of the household screen (UI-LND-03)', () => {
       distinct(HOUSEHOLD_STATUSES.map((status) => householdStatusLabel(t, status)));
       distinct(LEGAL_BASES.map((basis) => legalBasisLabel(t, basis)));
       distinct(RIGHT_KINDS.map((kind) => rightKindLabel(t, kind)));
+      distinct(REQUEST_KINDS.map((kind) => requestKindLabel(t, kind)));
+      distinct(REQUEST_KINDS.map((kind) => requestKindHelp(t, kind)));
+      distinct(REQUEST_OUTCOMES.map((outcome) => requestOutcomeLabel(t, outcome)));
       distinct(FORM_PROBLEMS.map((problem) => formProblemMessage(t, problem)));
       distinct(COMMAND_PROBLEMS.map((problem) => commandProblemMessage(t, problem)));
     });

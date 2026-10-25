@@ -4,7 +4,7 @@ import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useScopeKey } from '../hooks';
 import { toHouseholdLine, toIdentity } from './model';
-import type { HouseholdLine, LinkBody, RegisterBody } from './model';
+import type { HouseholdLine, LinkBody, RegisterBody, RequestBody } from './model';
 
 /** The households of a project in the scope of the caller, by code. They are masked; the reading that opens one is a mutation below and is not cached. */
 export function useHouseholds(projectId: string | undefined) {
@@ -47,6 +47,27 @@ export function useLinkParcel() {
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
     mutationFn: (input: LinkInput) => client.command('linkHouseholdParcel', { path: { id: input.householdId }, body: input.body, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: key });
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface HandleRequestInput {
+  householdId: string;
+  body: RequestBody;
+}
+
+/** The handling of a request of the person whose data a household holds: one attempt per intention, the cached reads refreshed on success. */
+export function useHandleRequest() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const key = useScopeKey();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: HandleRequestInput) => client.command('handleHouseholdDataRequest', { path: { id: input.householdId }, body: input.body, attempt: attempts.current.forPayload(input) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: key });

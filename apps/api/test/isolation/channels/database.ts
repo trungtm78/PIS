@@ -290,6 +290,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listLandSections',
   'registerAffectedHousehold',
   'linkHouseholdParcel',
+  'handleHouseholdDataRequest',
   'listAffectedHouseholds',
   'revealHouseholdIdentity',
   'reportLandStageProgress',

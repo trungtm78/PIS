@@ -3393,6 +3393,14 @@
       "statusBasis": "spec",
       "source": "spec:LLM"
     },
+    "PROCESSING_RESTRICTED": {
+      "status": 409,
+      "title": "Processing restricted",
+      "meaning": "The person whose data a household holds asked that its processing be restricted (handleHouseholdDataRequest, request_kind RESTRICT): the sealed data is kept and is not opened; raised by revealHouseholdIdentity (GET /affected-households/{id}/identity)",
+      "module": "LND",
+      "statusBasis": "default",
+      "source": "spec:LND"
+    },
     "PROFILE_NOT_PUBLISHED": {
       "status": 422,
       "title": "Profile not published",

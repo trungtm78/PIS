@@ -104,6 +104,7 @@
     "grantMyConsent",
     "grantPermitGateWaiver",
     "grantRole",
+    "handleHouseholdDataRequest",
     "importBoqLines",
     "importLandParcels",
     "importNationalProjectCodes",

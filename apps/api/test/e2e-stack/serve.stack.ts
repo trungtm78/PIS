@@ -502,6 +502,8 @@ const CLOSURE_ROLES = [{ n: 858, user: 'contractCloser', code: 'E2E_CONTRACT_CLO
 const HOUSEHOLD_ROLES = [
   { n: 859, user: 'householdOfficer', code: 'E2E_HOUSEHOLD_OFFICER', permissions: ['land.household.write', 'land.household.read', 'lnd.pii.read', 'land.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 40 },
   { n: 860, user: 'householdReader', code: 'E2E_HOUSEHOLD_READER', permissions: ['land.household.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 20 },
+  // The data protection officer handles the requests of the people whose data a household holds (LND-13).
+  { n: 861, user: 'householdDpo', code: 'E2E_HOUSEHOLD_DPO', permissions: ['land.dsr.handle', 'land.household.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 40 },
 ];
 
 const CHAIN_ROLES = [{ n: 842, user: 'paymentAuditor', code: 'E2E_PAYMENT_AUDITOR', permissions: ['payment.chain.read', 'project.read', 'session.self'], rank: 20 }];

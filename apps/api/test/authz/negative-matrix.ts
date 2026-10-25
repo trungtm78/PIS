@@ -1595,6 +1595,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { project_id: t.projectId, owner_unit_id: t.unit2, head_name: 'Matrix head of household', legal_basis: 'PUBLIC_TASK_LAND_LAW', legal_basis_ref: REASON, retention_until: '2036-12-31' },
     }),
   },
+  handleHouseholdDataRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/affected-households/${t.householdId}/data-requests`,
+      body: { request_kind: 'ACCESS', requester_verified: true, outcome: 'FULFILLED', reason: REASON },
+    }),
+  },
   linkHouseholdParcel: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/affected-households/${t.householdId}/parcels`, body: { parcel_id: t.parcelId, right_kind: 'OWNER' } }),
