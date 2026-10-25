@@ -1,20 +1,16 @@
-import { useId, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
-import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { useBoqLines } from '../../ctr/boq-hooks';
 import { Field } from '../../ctr/components';
 import type { ContractLine } from '../../ctr/model';
 import { useMembers } from '../../dgv/hooks';
 import { wireControl } from '../../field-wiring';
+import { CommandFrame } from '../CommandFrame';
 import { useCancelInspection, useRecordInspectionResult, useRequestInspection, useScheduleInspection } from './hooks';
 import { formProblemMessage, outcomeLabel, problemMessage, resultLabel, typeLabel } from './labels';
 import { EMPTY_SCHEDULE, INSPECTION_TYPES, OUTCOMES, RESULTS, describeProblem, emptyRequest, emptyResult, hasProblems, requestBody, resultBody, scheduleBody, validateReason, validateRequest, validateResult, validateSchedule, vietnamToday } from './model';
 import type { AnswerForm, InspectionLine, RequestForm, ResultForm, ScheduleForm } from './model';
-import '../qms.css';
-
-/** The multiplication sign on the close button of a dialog. */
-const CLOSE_GLYPH = '×';
 
 interface FrameProps {
   title: string;
@@ -27,39 +23,14 @@ interface FrameProps {
   children: ReactNode;
 }
 
-/** The frame the four commands are asked in: a title, the refusal of the server in words, the fields and the two buttons. */
+/** The frame the four commands are asked in: the title, the refusal of the server in words, the fields and the two buttons. */
 function Frame({ title, error, hasError, pending, submitLabel, onSubmit, onClose, children }: FrameProps) {
   const { t } = useTranslation();
-  const titleId = useId();
+  const words = { close: t('qms.inspection.dialog.close'), cancel: t('qms.inspection.dialog.cancel'), pending: t('qms.inspection.dialog.pending') };
   return (
-    <NavigationDialog className="catalog command-mode" onClose={onClose}>
-      <section className="command-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <div className="command-titlebar">
-          <strong id={titleId}>{title}</strong>
-          <button type="button" className="icon-button" aria-label={t('qms.inspection.dialog.close')} onClick={onClose}>
-            {CLOSE_GLYPH}
-          </button>
-        </div>
-        <div className="qms-dialog-body">
-          <form onSubmit={onSubmit} noValidate>
-            {hasError ? (
-              <p className="callout warning" role="alert" data-testid="refusal">
-                {problemMessage(t, describeProblem(error))}
-              </p>
-            ) : null}
-            {children}
-            <div className="formfooter">
-              <button type="button" onClick={onClose}>
-                {t('qms.inspection.dialog.cancel')}
-              </button>
-              <button type="submit" className="primary" disabled={pending}>
-                {pending ? t('qms.inspection.dialog.pending') : submitLabel}
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-    </NavigationDialog>
+    <CommandFrame title={title} refusal={hasError ? problemMessage(t, describeProblem(error)) : undefined} pending={pending} submitLabel={submitLabel} words={words} onSubmit={onSubmit} onClose={onClose}>
+      {children}
+    </CommandFrame>
   );
 }
 

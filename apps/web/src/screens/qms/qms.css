@@ -41,3 +41,7 @@
   display: block;
   margin-top: 2px;
 }
+.qms-signers {
+  margin: 0;
+  padding-left: 18px;
+}

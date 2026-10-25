@@ -81129,7 +81129,10 @@
         "x-error-codes": [
           "INSPECTION_NOT_PASSED",
           "OPEN_CRITICAL_NCR",
-          "VALIDATION_FAILED"
+          "CONTRACT_STATE_INVALID",
+          "QUALITY_ACCEPTANCE_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -81281,6 +81284,8 @@
           "ALREADY_SIGNED",
           "SIGNATURE_METHOD_NOT_ACCEPTED",
           "QUALITY_ACCEPTANCE_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -81433,7 +81438,10 @@
           "SIGNATURES_INCOMPLETE",
           "OPEN_CRITICAL_NCR",
           "SELF_APPROVAL_DENIED",
+          "CONTRACT_STATE_INVALID",
           "QUALITY_ACCEPTANCE_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -81585,6 +81593,8 @@
         "x-error-codes": [
           "ACCEPTANCE_ALREADY_USED",
           "QUALITY_ACCEPTANCE_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -122482,6 +122492,167 @@
         },
         "x-error-codes": []
       }
+    },
+    "/quality-acceptances": {
+      "get": {
+        "operationId": "listQualityAcceptances",
+        "summary": "Biên bản nghiệm thu chất lượng của các hợp đồng trong phạm vi, mới nhất trước (QMS-05)",
+        "tags": [
+          "QMS"
+        ],
+        "x-permission": "qacceptance.read",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Chỉ các biên bản của hợp đồng này"
+          },
+          {
+            "name": "inspection_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Chỉ các biên bản của đề nghị kiểm tra này"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QmsAcceptanceList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/quality-acceptances/{id}": {
+      "get": {
+        "operationId": "getQualityAcceptance",
+        "summary": "Chi tiết một biên bản nghiệm thu chất lượng (QMS-05)",
+        "tags": [
+          "QMS"
+        ],
+        "x-permission": "qacceptance.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QmsAcceptanceLine"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": []
+      }
     }
   },
   "components": {
@@ -132393,7 +132564,8 @@
               "STAGE",
               "PART",
               "COMPLETION"
-            ]
+            ],
+            "description": "WORK_ITEM from a material, concealed-work, safety or other inspection; STAGE from a construction-stage inspection; PART from a part-acceptance inspection; COMPLETION from the completion inspection"
           },
           "record_no": {
             "type": "string",
@@ -132424,7 +132596,8 @@
               "DESIGNER",
               "TESTING_LAB",
               "OTHER"
-            ]
+            ],
+            "description": "A role the minutes require (the snapshot of the regime of the inspection); the contractor signs as CONTRACTOR, the staff as SUPERVISOR, OWNER or DESIGNER"
           },
           "signature_method": {
             "type": "string",
@@ -132437,7 +132610,8 @@
           "cert_serial": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Required for, and only for, DIGITAL_CERT"
           },
           "client_operation_id": {
             "type": "string",
@@ -132459,7 +132633,8 @@
             "enum": [
               "approve",
               "reject"
-            ]
+            ],
+            "description": "approve needs every required role to have signed, no open serious non-conformance of the contract, and someone other than whoever drafted the minutes"
           },
           "reason": {
             "type": "string",
@@ -142612,6 +142787,399 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/QmsInspectionLine"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "QmsAcceptanceLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "record_no",
+          "contract",
+          "inspection",
+          "acceptance_scope",
+          "status",
+          "required_roles",
+          "signatures",
+          "missing_roles",
+          "open_critical_ncr",
+          "regime",
+          "actions",
+          "signable_roles",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "record_no": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inspection": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "inspection_no",
+              "inspection_type"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "inspection_no": {
+                "type": "string"
+              },
+              "inspection_type": {
+                "type": "string",
+                "enum": [
+                  "MATERIAL_ENTRY",
+                  "CONCEALED_WORK",
+                  "CONSTRUCTION_STAGE",
+                  "PART_ACCEPTANCE",
+                  "COMPLETION",
+                  "SAFETY",
+                  "OTHER"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "result": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "CONDITIONAL",
+                  null
+                ]
+              }
+            }
+          },
+          "boq_item": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "business_key": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "acceptance_scope": {
+            "type": "string",
+            "enum": [
+              "WORK_ITEM",
+              "STAGE",
+              "PART",
+              "COMPLETION"
+            ]
+          },
+          "document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SIGNING",
+              "APPROVED",
+              "REJECTED",
+              "REVOKED"
+            ]
+          },
+          "required_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CONTRACTOR",
+                "SUPERVISOR",
+                "OWNER",
+                "DESIGNER"
+              ]
+            },
+            "description": "The roles that sign the minutes (a snapshot of the regime of the inspection)"
+          },
+          "signatures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "role",
+                "method",
+                "legal_effect",
+                "signed_at",
+                "valid"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "CONTRACTOR",
+                    "SUPERVISOR",
+                    "OWNER",
+                    "DESIGNER"
+                  ]
+                },
+                "membership_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "signer_name": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "IN_APP_OTP",
+                    "IN_APP_WEBAUTHN",
+                    "DIGITAL_CERT"
+                  ]
+                },
+                "legal_effect": {
+                  "type": "string",
+                  "enum": [
+                    "INTERNAL_RECORD",
+                    "LEGAL_E_SIGNATURE"
+                  ],
+                  "description": "Only a certificate is a legal electronic signature; an in-app confirmation is an internal record"
+                },
+                "cert_serial": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "signed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "valid": {
+                  "type": "boolean",
+                  "description": "Whether it is over the hash the minutes carry; one that is not is void"
+                }
+              }
+            }
+          },
+          "missing_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CONTRACTOR",
+                "SUPERVISOR",
+                "OWNER",
+                "DESIGNER"
+              ]
+            },
+            "description": "The required roles without a valid signature"
+          },
+          "open_critical_ncr": {
+            "type": "integer",
+            "description": "Serious non-conformances of the contract still open: approval is refused while there are any"
+          },
+          "regime": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "awaiting_confirmation"
+            ],
+            "properties": {
+              "version_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uuid"
+              },
+              "label": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "legal_basis": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "awaiting_confirmation": {
+                "type": "boolean"
+              },
+              "cxn": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "decision_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approved_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "approved_by": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "created_by": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "revoke_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revoked_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signable_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CONTRACTOR",
+                "SUPERVISOR",
+                "OWNER",
+                "DESIGNER"
+              ]
+            },
+            "description": "The roles the caller could sign as now: empty for someone who signed already, who is on the other side, or who may not sign"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "What the caller may do with the minutes as they stand; the server judges each command again",
+            "required": [
+              "sign",
+              "approve",
+              "reject",
+              "revoke"
+            ],
+            "properties": {
+              "sign": {
+                "type": "boolean"
+              },
+              "approve": {
+                "type": "boolean"
+              },
+              "reject": {
+                "type": "boolean"
+              },
+              "revoke": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "QmsAcceptanceList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QmsAcceptanceLine"
             }
           },
           "as_of": {

@@ -14493,6 +14493,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/quality-acceptances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Biên bản nghiệm thu chất lượng của các hợp đồng trong phạm vi, mới nhất trước (QMS-05) */
+        get: operations["listQualityAcceptances"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/quality-acceptances/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Chi tiết một biên bản nghiệm thu chất lượng (QMS-05) */
+        get: operations["getQualityAcceptance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -17147,23 +17181,33 @@ export interface components {
             reason: string;
         };
         QmsCreateQualityAcceptance: {
-            /** @enum {string} */
+            /**
+             * @description WORK_ITEM from a material, concealed-work, safety or other inspection; STAGE from a construction-stage inspection; PART from a part-acceptance inspection; COMPLETION from the completion inspection
+             * @enum {string}
+             */
             acceptance_scope: "WORK_ITEM" | "STAGE" | "PART" | "COMPLETION";
             record_no: string;
             /** Format: uuid */
             document_version_id: string;
         };
         QmsSignQualityAcceptance: {
-            /** @enum {string} */
+            /**
+             * @description A role the minutes require (the snapshot of the regime of the inspection); the contractor signs as CONTRACTOR, the staff as SUPERVISOR, OWNER or DESIGNER
+             * @enum {string}
+             */
             signer_role: "CONTRACTOR" | "SUPERVISOR" | "OWNER" | "DESIGNER" | "TESTING_LAB" | "OTHER";
             /** @enum {string} */
             signature_method: "IN_APP_OTP" | "IN_APP_WEBAUTHN" | "DIGITAL_CERT";
+            /** @description Required for, and only for, DIGITAL_CERT */
             cert_serial?: string;
             /** Format: uuid */
             client_operation_id: string;
         };
         QmsDecideQualityAcceptance: {
-            /** @enum {string} */
+            /**
+             * @description approve needs every required role to have signed, no open serious non-conformance of the contract, and someone other than whoever drafted the minutes
+             * @enum {string}
+             */
             decision: "approve" | "reject";
             reason: string;
         };
@@ -19927,6 +19971,107 @@ export interface components {
         };
         QmsInspectionList: {
             items: components["schemas"]["QmsInspectionLine"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        QmsAcceptanceLine: {
+            /** Format: uuid */
+            id: string;
+            record_no: string;
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+            };
+            /** Format: uuid */
+            project_id?: string;
+            inspection: {
+                /** Format: uuid */
+                id: string;
+                inspection_no: string;
+                /** @enum {string} */
+                inspection_type: "MATERIAL_ENTRY" | "CONCEALED_WORK" | "CONSTRUCTION_STAGE" | "PART_ACCEPTANCE" | "COMPLETION" | "SAFETY" | "OTHER";
+                title?: string;
+                /** @enum {string|null} */
+                result?: "PASS" | "FAIL" | "CONDITIONAL" | null;
+            };
+            boq_item?: {
+                /** Format: uuid */
+                id?: string;
+                business_key?: string;
+                description?: string;
+            } | null;
+            /** @enum {string} */
+            acceptance_scope: "WORK_ITEM" | "STAGE" | "PART" | "COMPLETION";
+            /** Format: uuid */
+            document_version_id?: string | null;
+            /** @enum {string} */
+            status: "DRAFT" | "SIGNING" | "APPROVED" | "REJECTED" | "REVOKED";
+            /** @description The roles that sign the minutes (a snapshot of the regime of the inspection) */
+            required_roles: ("CONTRACTOR" | "SUPERVISOR" | "OWNER" | "DESIGNER")[];
+            signatures: {
+                /** @enum {string} */
+                role: "CONTRACTOR" | "SUPERVISOR" | "OWNER" | "DESIGNER";
+                /** Format: uuid */
+                membership_id?: string;
+                signer_name?: string;
+                /** @enum {string} */
+                method: "IN_APP_OTP" | "IN_APP_WEBAUTHN" | "DIGITAL_CERT";
+                /**
+                 * @description Only a certificate is a legal electronic signature; an in-app confirmation is an internal record
+                 * @enum {string}
+                 */
+                legal_effect: "INTERNAL_RECORD" | "LEGAL_E_SIGNATURE";
+                cert_serial?: string | null;
+                /** Format: date-time */
+                signed_at: string;
+                /** @description Whether it is over the hash the minutes carry; one that is not is void */
+                valid: boolean;
+            }[];
+            /** @description The required roles without a valid signature */
+            missing_roles: ("CONTRACTOR" | "SUPERVISOR" | "OWNER" | "DESIGNER")[];
+            /** @description Serious non-conformances of the contract still open: approval is refused while there are any */
+            open_critical_ncr: number;
+            regime: {
+                /** Format: uuid */
+                version_id?: string | null;
+                label?: string | null;
+                legal_basis?: string | null;
+                awaiting_confirmation: boolean;
+                cxn?: string | null;
+            };
+            decision_note?: string | null;
+            /** Format: date-time */
+            approved_at?: string | null;
+            approved_by?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            } | null;
+            created_by?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            };
+            revoke_reason?: string | null;
+            /** Format: date-time */
+            revoked_at?: string | null;
+            /** Format: date-time */
+            created_at?: string;
+            /** @description The roles the caller could sign as now: empty for someone who signed already, who is on the other side, or who may not sign */
+            signable_roles: ("CONTRACTOR" | "SUPERVISOR" | "OWNER" | "DESIGNER")[];
+            /** @description What the caller may do with the minutes as they stand; the server judges each command again */
+            actions: {
+                sign: boolean;
+                approve: boolean;
+                reject: boolean;
+                revoke: boolean;
+            };
+            version: number;
+        };
+        QmsAcceptanceList: {
+            items: components["schemas"]["QmsAcceptanceLine"][];
             /** Format: date-time */
             as_of: string;
         };
@@ -105285,6 +105430,125 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QmsInspectionLine"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listQualityAcceptances: {
+        parameters: {
+            query?: {
+                /** @description Chỉ các biên bản của hợp đồng này */
+                contract_id?: string;
+                /** @description Chỉ các biên bản của đề nghị kiểm tra này */
+                inspection_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QmsAcceptanceList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getQualityAcceptance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QmsAcceptanceLine"];
                 };
             };
             /** @description Unauthenticated */

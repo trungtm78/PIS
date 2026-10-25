@@ -139,6 +139,8 @@ export interface MatrixTargets {
   petitionId: string;
   /** A REQUESTED inspection (version 1) of the draft contract, asked for by someone other than the callers. */
   inspectionId: string;
+  /** Quality acceptance minutes in DRAFT (version 1) of the draft contract, drafted by someone other than the callers. */
+  acceptanceId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1185,6 +1187,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   cancelInspection: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  // The quality acceptance minutes: a caller that is refused drafts none, signs none, decides none and revokes none.
+  createQualityAcceptance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/quality-acceptances`, body: { acceptance_scope: 'WORK_ITEM', record_no: 'QA-MX-NEW', document_version_id: t.draftContractId } }),
+  },
+  signQualityAcceptance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/quality-acceptances/${t.acceptanceId}/sign`, ifMatch: '"1"', body: { signer_role: 'OWNER', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e5' } }),
+  },
+  decideQualityAcceptance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/quality-acceptances/${t.acceptanceId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  revokeQualityAcceptance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/quality-acceptances/${t.acceptanceId}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   receiveProcurementPetition: {
     referencesTenantIds: true,

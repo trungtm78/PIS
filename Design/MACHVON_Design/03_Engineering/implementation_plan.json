@@ -5315,7 +5315,9 @@
         "createQualityAcceptance",
         "signQualityAcceptance",
         "decideQualityAcceptance",
-        "revokeQualityAcceptance"
+        "revokeQualityAcceptance",
+        "listQualityAcceptances",
+        "getQualityAcceptance"
       ],
       "tables": [
         "quality_acceptance"

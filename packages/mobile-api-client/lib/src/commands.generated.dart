@@ -850,6 +850,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getProjectLifecycle({required String id, Map<String, Object?>? query}) =>
       execute('getProjectLifecycle', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getQualityAcceptance({required String id, Map<String, Object?>? query}) =>
+      execute('getQualityAcceptance', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getQualityScorecard({required String id, Map<String, Object?>? query}) =>
       execute('getQualityScorecard', path: <String, Object?>{'id': id}, query: query);
 
@@ -1611,6 +1614,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listProjectRisks({required String id, Map<String, Object?>? query}) =>
       execute('listProjectRisks', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> listQualityAcceptances({Map<String, Object?>? query}) =>
+      execute('listQualityAcceptances', query: query);
 
   Future<Object?> listReallocationProposals({Map<String, Object?>? query}) =>
       execute('listReallocationProposals', query: query);

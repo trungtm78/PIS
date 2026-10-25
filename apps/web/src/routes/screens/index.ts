@@ -94,6 +94,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PRJ-18': () => import('../../screens/prj/TaskForceScreen'),
   'PRJ-21': () => import('../../screens/prj/NationalCodeScreen'),
   'QMS-04': () => import('../../screens/qms/inspection/InspectionScreen'),
+  'QMS-05': () => import('../../screens/qms/acceptance/AcceptanceScreen'),
   'LND-01': () => import('../../screens/lnd/progress/OverviewScreen'),
   'LND-02': () => import('../../screens/lnd/ParcelScreen'),
   'LND-10': () => import('../../screens/lnd/section/SectionScreen'),

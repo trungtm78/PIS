@@ -370,6 +370,17 @@ const INSPECTION_ROLES = [
 ];
 
 /**
+ * The people of the quality acceptance minutes (QMS-05): the supervisor who drafts them and signs as the supervisor, the owner who signs, approves and revokes, the contractor (a guest of the
+ * contractor of the contract: the browser flow makes it one) who signs for the contractor, and a reader, all over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const ACCEPTANCE_ROLES = [
+  { n: 818, user: 'acceptanceDrafter', code: 'E2E_ACCEPTANCE_DRAFTER', permissions: ['qacceptance.read', 'qacceptance.manage', 'qacceptance.sign', 'inspection.read', 'contract.read', 'session.self'], rank: 30 },
+  { n: 819, user: 'acceptanceOwner', code: 'E2E_ACCEPTANCE_OWNER', permissions: ['qacceptance.read', 'qacceptance.sign', 'qacceptance.approve', 'qacceptance.revoke', 'contract.read', 'session.self'], rank: 40 },
+  { n: 820, user: 'acceptanceContractor', code: 'E2E_ACCEPTANCE_CONTRACTOR', permissions: ['qacceptance.read', 'qacceptance.sign', 'contract.read', 'session.self'], rank: 5 },
+  { n: 821, user: 'acceptanceReader', code: 'E2E_ACCEPTANCE_READER', permissions: ['qacceptance.read', 'contract.read', 'session.self'], rank: 10 },
+];
+
+/**
  * The people of the chain of changes (CTR-07, CTR-19, CTR-20): the business owner who sets the tiers of a project, the contract officer who raises and promotes a request, the one who
  * assesses it, and a reader, all over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
@@ -609,6 +620,7 @@ const GRANTS: GrantPlan[] = [
   ...MEASUREMENT_ROLES.map((role, index): GrantPlan => ({ n: 808 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PETITION_ROLES.map((role, index): GrantPlan => ({ n: 811 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...INSPECTION_ROLES.map((role, index): GrantPlan => ({ n: 815 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...ACCEPTANCE_ROLES.map((role, index): GrantPlan => ({ n: 818 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -906,7 +918,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

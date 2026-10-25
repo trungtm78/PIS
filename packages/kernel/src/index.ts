@@ -407,3 +407,5 @@ export { MAX_PETITION_DAYS, OPEN_PETITION_STATUSES, PETITION_DAY_COUNTS, PETITIO
 export type { PetitionDayCount, PetitionKind, PetitionOutcome, PetitionRule, PetitionStatus } from './bid-petition.ts';
 export { CHECKLIST_OUTCOMES, INSPECTION_COMMANDS, INSPECTION_RESULTS, INSPECTION_STATUSES, INSPECTION_TYPES, MAX_CHECKLIST_NOTE, SIGNER_ROLES, assertChecklist, assertInspectionTransition, checklistFor, requiredRolesFor } from './qms-inspection.ts';
 export type { ChecklistAnswer, ChecklistItem, ChecklistOutcome, InspectionCommand, InspectionResult, InspectionStatus, InspectionType, RegimeRule, SignerRole } from './qms-inspection.ts';
+export { ACCEPTANCE_COMMANDS, ACCEPTANCE_SCOPES, ACCEPTANCE_STATUSES, SIGNATURE_METHODS, assertAcceptanceTransition, assertSignaturesComplete, canonicalContent, legalEffectOf, missingSigners, rolesSignableBy, scopeAccepts } from './qms-acceptance.ts';
+export type { AcceptanceCommand, AcceptanceContent, AcceptanceScope, AcceptanceStatus, SignatureMethod, SignerStanding } from './qms-acceptance.ts';

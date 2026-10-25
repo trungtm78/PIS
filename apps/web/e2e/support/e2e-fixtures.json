@@ -1645,6 +1645,53 @@
       ]
     },
     {
+      "key": "acceptanceDrafter",
+      "displayName": "Giám sát lập và ký biên bản nghiệm thu",
+      "membershipId": "00000000-0000-4000-8000-000000000818",
+      "permissions": [
+        "qacceptance.read",
+        "qacceptance.manage",
+        "qacceptance.sign",
+        "inspection.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "acceptanceOwner",
+      "displayName": "Chủ đầu tư ký, duyệt và thu hồi biên bản nghiệm thu",
+      "membershipId": "00000000-0000-4000-8000-000000000819",
+      "permissions": [
+        "qacceptance.read",
+        "qacceptance.sign",
+        "qacceptance.approve",
+        "qacceptance.revoke",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "acceptanceContractor",
+      "displayName": "Nhà thầu ký biên bản nghiệm thu",
+      "membershipId": "00000000-0000-4000-8000-000000000820",
+      "permissions": [
+        "qacceptance.read",
+        "qacceptance.sign",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "acceptanceReader",
+      "displayName": "Người xem biên bản nghiệm thu",
+      "membershipId": "00000000-0000-4000-8000-000000000821",
+      "permissions": [
+        "qacceptance.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",
