@@ -87,6 +87,7 @@ export function paymentView(view: PaymentRequestView, actions: PaymentActions, g
     verification_note: guest ? null : view.verificationNote,
     treasury_submitted_on: view.treasurySubmittedOn,
     treasury_ref: guest ? null : view.treasuryRef,
+    treasury_paid_on: view.treasuryPaidOn,
     forms_standing: view.formsStanding,
     created_at: view.createdAt,
     updated_at: view.updatedAt,

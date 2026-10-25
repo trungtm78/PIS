@@ -114,6 +114,7 @@ export class CommandInterceptor implements NestInterceptor {
     // An attempt that lost its claim must not settle: the record belongs to the attempt that took it over.
     let ownsRecord = true;
     const afterCommit: Array<() => void | Promise<void>> = [];
+    let refusal: DomainError | undefined;
     try {
       const body = await this.runnerFor(options).withTenant(tenant, async (tx) => {
         let audited = 0;
@@ -134,6 +135,9 @@ export class CommandInterceptor implements NestInterceptor {
           afterCommit: (callback) => {
             afterCommit.push(callback);
           },
+          refuseAfterCommit: (error) => {
+            refusal ??= error;
+          },
         };
         // Fence against a takeover: hold the record's row lock for the whole transaction and stop when it is no longer ours.
         if (!(await this.store.claimInTx(tx, begin.recordId))) {
@@ -143,10 +147,17 @@ export class CommandInterceptor implements NestInterceptor {
         request[COMMAND_SCOPE_KEY] = scope;
         const result: unknown = await lastValueFrom(next.handle(), { defaultValue: undefined });
         if (audited === 0) throw new Error(`command ${options.operation} wrote no audit entry`);
-        await this.store.completeInTx(tx, begin.recordId, { httpStatus, response: { kind: 'success', body: result }, ...this.referenceOf(options, touched) });
+        // A refusal that is itself a record: what the command wrote commits, and the stored answer is the refusal.
+        const answer: Pick<CompletedOutcome, 'httpStatus' | 'response'> = refusal === undefined ? { httpStatus, response: { kind: 'success', body: result } } : { httpStatus: refusal.status, response: problemOf(refusal) };
+        await this.store.completeInTx(tx, begin.recordId, { ...answer, ...this.referenceOf(options, touched) });
         return result;
       });
       await this.runAfterCommit(afterCommit, correlationId);
+      if (refusal !== undefined) {
+        // The record is already completed with the refusal: it is not settled again.
+        ownsRecord = false;
+        throw refusal;
+      }
       this.setEtag(response, body, options.versionField);
       return body;
     } catch (error) {

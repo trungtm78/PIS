@@ -151,3 +151,65 @@ describe('CommandInterceptor after-commit callbacks', () => {
     expect(calls).toContain('second');
   });
 });
+
+describe('CommandInterceptor refusal that commits what the command wrote (ST-PAY-007)', () => {
+  type Scope = { audit(entry: unknown): Promise<string>; afterCommit(callback: () => void | Promise<void>): void; refuseAfterCommit(error: DomainError): void };
+
+  function runRefusing(refuse: (scope: Scope) => void) {
+    const { interceptor, context, next, handle, store, finish } = harness(true);
+    const request = (context.switchToHttp().getRequest() as unknown) as { commandScope?: Scope };
+    const calls: string[] = [];
+    handle.mockImplementation((() => {
+      const scope = request.commandScope;
+      if (scope === undefined) throw new Error('no scope');
+      return from(
+        (async () => {
+          await scope.audit({ action: 'a', resourceType: 'r', resourceId: '00000000-0000-4000-8000-000000000001', diff: {} });
+          scope.afterCommit(() => {
+            calls.push('after-commit');
+          });
+          refuse(scope);
+          return { ok: true };
+        })(),
+      );
+    }) as never);
+    (interceptor as unknown as { audit: { recordInTx: jest.Mock } }).audit = { recordInTx: jest.fn().mockResolvedValue('audit-1') };
+    (store.completeInTx as jest.Mock).mockImplementation(() => {
+      calls.push('completed');
+      return Promise.resolve();
+    });
+    return { interceptor, context, next, store, finish, calls };
+  }
+
+  const settle = (interceptor: CommandInterceptor, context: ExecutionContext, next: CallHandler): Promise<unknown> =>
+    new Promise((resolve) => interceptor.intercept(context, next).subscribe({ next: resolve, error: resolve }));
+
+  it('commits the command, stores the refusal as the answer of the key and answers it after the callbacks ran', async () => {
+    const refusal = new DomainError('AMOUNT_MISMATCH_OPENED', 422, 'amount_vnd', { extensions: { reconciliation_item_id: 'item-1' } });
+    const { interceptor, context, next, store, finish, calls } = runRefusing((scope) => scope.refuseAfterCommit(refusal));
+    expect(await settle(interceptor, context, next)).toBe(refusal);
+    expect(calls).toEqual(['completed', 'after-commit']);
+    expect(store.completeInTx).toHaveBeenCalledWith(
+      expect.anything(),
+      'record-1',
+      expect.objectContaining({ httpStatus: 422, response: { kind: 'problem', code: 'AMOUNT_MISMATCH_OPENED', status: 422, detail: 'amount_vnd', extensions: { reconciliation_item_id: 'item-1' } } }),
+    );
+    // The record is completed by the transaction itself: nothing settles it a second time.
+    expect(finish).not.toHaveBeenCalled();
+  });
+
+  it('keeps the first refusal when the command asks twice', async () => {
+    const first = new DomainError('AMOUNT_MISMATCH_OPENED', 422);
+    const { interceptor, context, next } = runRefusing((scope) => {
+      scope.refuseAfterCommit(first);
+      scope.refuseAfterCommit(new DomainError('PAYMENT_STATE_INVALID', 409));
+    });
+    expect(await settle(interceptor, context, next)).toBe(first);
+  });
+
+  it('answers the result as before when the command does not refuse', async () => {
+    const { interceptor, context, next, store } = runRefusing(() => undefined);
+    expect(await settle(interceptor, context, next)).toEqual({ ok: true });
+    expect(store.completeInTx).toHaveBeenCalledWith(expect.anything(), 'record-1', expect.objectContaining({ response: { kind: 'success', body: { ok: true } } }));
+  });
+});

@@ -417,6 +417,8 @@ export { PAYMENT_FORM_CODES, formPayload, formsAskedFor, formsMissing, groupedVn
 export type { FormFacts, PaymentFormCode } from './pay-forms.ts';
 export { ADVANCE_CATEGORIES, ADVANCE_KINDS, ADVANCE_STATUSES, COUNTED_STATUSES, RECOVERY_BASES, advanceCap, assertRecoverable, capPercentFor, gpmbDeadline, recoveryPlan } from './pay-advance.ts';
 export type { AdvanceCategory, AdvanceKind, AdvanceStatus, CapTier, RecoveryBasis, RecoveryMilestone, RecoveryPlan, RecoveryPlanInput } from './pay-advance.ts';
+export { RECONCILIATION_RESOLUTIONS, RECONCILIATION_STATUSES, WAITING_RECONCILIATION_STATUSES, amountsAgree, assertWriteOff, isWaiting, reconciliationDifference, reconciliationTarget, requiredNote } from './pay-settlement.ts';
+export type { ReconciliationResolution, ReconciliationStatus } from './pay-settlement.ts';
 export { allocateLargestRemainder, computeDraftMoney, groupForLedger, linesMatchHeader, partyRecovery, percentScaled, recoverFromTranches, retentionOf, roundedDivision, signedDong, targetRecovered, wholeVnd } from './pay-money.ts';
 export type { AdvanceTranche, ClaimGroup, DraftLine, DraftMoney, DraftMoneyInput, MoneyLine, PartyAdvance } from './pay-money.ts';
 export { DOCUMENT_KINDS, PAYMENT_KINDS, PAYMENT_STATUSES, assertContractAllows, assertPlanYear, contractRefusal, disbursementEnd, isEditable } from './pay-request.ts';

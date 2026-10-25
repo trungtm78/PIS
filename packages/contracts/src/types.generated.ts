@@ -14545,6 +14545,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reconciliation-items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một hạng mục chênh lệch đối soát trong phạm vi của người gọi */
+        get: operations["getReconciliationItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/treasury-tracking": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Theo dõi Kho bạc theo dự án: hồ sơ đã gửi, đã tất toán, giao dịch đã xác nhận, chưa ghép và chênh lệch đang chờ */
+        get: operations["getTreasuryTracking"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -16914,7 +16948,8 @@ export interface components {
         PayResolveReconciliationItem: {
             /** @enum {string} */
             resolution: "EXPLAINED" | "RESOLVED" | "WRITTEN_OFF";
-            note: string;
+            /** @description Lời giải thích hoặc lý do xử lý: bắt buộc, thiếu hoặc rỗng → 422 VALIDATION_FAILED (UAT-AC12) */
+            note?: string;
             /** Format: uuid */
             approval_document_version_id?: string;
         };
@@ -20474,6 +20509,11 @@ export interface components {
             treasury_submitted_on?: string | null;
             treasury_ref?: string | null;
             forms_standing?: string[];
+            /**
+             * Format: date
+             * @description Ngày (giờ Việt Nam) Kho bạc xác nhận khi đề nghị đã tất toán: mốc tính giải ngân (CXN-03)
+             */
+            treasury_paid_on?: string | null;
         };
         PayPaymentRequestPage: {
             items: components["schemas"]["PayPaymentRequest"][];
@@ -20654,6 +20694,148 @@ export interface components {
             plan_year?: number | null;
             warnings: components["schemas"]["PayPaymentWarning"][];
             forms: components["schemas"]["PayPaymentForm"][];
+        };
+        /** @description Kết quả ghép giao dịch Kho bạc với đề nghị thanh toán: CommandResult của đề nghị (SETTLED) kèm giao dịch, số tiền và ngày Kho bạc xác nhận */
+        PayMatchResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** Format: uuid */
+            transaction_id: string;
+            /** Format: uuid */
+            payment_request_id: string;
+            /** @description Số nguyên VND không âm, dạng chuỗi */
+            amount_vnd: string;
+            /**
+             * Format: date
+             * @description Ngày (giờ Việt Nam) Kho bạc xác nhận: mốc tính giải ngân (CXN-03)
+             */
+            treasury_paid_on: string;
+            /** Format: date-time */
+            confirmed_at: string;
+        };
+        PayReconciliationItem: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "AMOUNT_MISMATCH" | "UNMATCHED_TRANSACTION" | "MISSING_CONFIRMATION" | "DUPLICATE_CONFLICT" | "ADVANCE_OVERDUE";
+            /** @enum {string} */
+            status: "OPEN" | "EXPLAINED" | "RESOLVED" | "WRITTEN_OFF_APPROVED";
+            /** Format: uuid */
+            project_id: string;
+            project_code: string;
+            /** Format: uuid */
+            contract_id: string | null;
+            contract_code: string | null;
+            /** Format: uuid */
+            payment_request_id: string | null;
+            request_no: string | null;
+            /** Format: uuid */
+            treasury_transaction_id: string | null;
+            document_no: string | null;
+            source_file_name: string | null;
+            source_file_sha256: string | null;
+            /** @description Số nguyên VND có dấu, dạng chuỗi */
+            internal_amount_vnd: string | null;
+            /** @description Số nguyên VND có dấu, dạng chuỗi */
+            confirmed_amount_vnd: string | null;
+            /** @description Số Kho bạc xác nhận trừ số nội bộ, có dấu; không bao giờ tự chọn số lớn hơn */
+            difference_vnd: string | null;
+            /** Format: uuid */
+            owner_membership_id: string;
+            owner_name: string | null;
+            /** Format: date-time */
+            due_at: string;
+            overdue: boolean;
+            resolution_note: string | null;
+            /** Format: uuid */
+            resolved_by: string | null;
+            /** Format: date-time */
+            resolved_at: string | null;
+            /** Format: uuid */
+            approval_document_version_id: string | null;
+            /** Format: uuid */
+            issue_id: string | null;
+            version: number;
+            actions: {
+                assign: boolean;
+                explain: boolean;
+                resolve: boolean;
+                write_off: boolean;
+            };
+        };
+        PayReconciliationSummary: {
+            waiting: number;
+            overdue: number;
+            /** @description Số nguyên VND có dấu, dạng chuỗi */
+            waiting_difference_vnd: string;
+        };
+        PayReconciliationItemPage: {
+            items: components["schemas"]["PayReconciliationItem"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+            summary: components["schemas"]["PayReconciliationSummary"];
+        };
+        /** @description Kết quả lệnh về hạng mục chênh lệch: CommandResult kèm chủ xử lý, hạn xử lý và chênh lệch (không đổi) */
+        PayReconciliationCommandResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** Format: uuid */
+            owner_membership_id: string;
+            /** Format: date-time */
+            due_at: string;
+            /** @description Số nguyên VND có dấu, dạng chuỗi */
+            difference_vnd: string | null;
+        };
+        PayTreasuryTrackingItem: {
+            /** Format: uuid */
+            project_id: string;
+            project_code: string;
+            project_name: string;
+            /** @description Đề nghị đã gửi Kho bạc, chưa tất toán (số tiền = tổng net) */
+            sent: {
+                count: number;
+                /** @description Số nguyên VND không âm, dạng chuỗi */
+                amount_vnd: string;
+            };
+            /** @description Đề nghị đã tất toán (số tiền = tổng net) */
+            settled: {
+                count: number;
+                /** @description Số nguyên VND không âm, dạng chuỗi */
+                amount_vnd: string;
+            };
+            /** @description Giao dịch Kho bạc đã xác nhận (chiều thanh toán) */
+            confirmed: {
+                count: number;
+                /** @description Số nguyên VND không âm, dạng chuỗi */
+                amount_vnd: string;
+            };
+            /** @description Giao dịch chưa ghép */
+            unmatched: number;
+            /** @description Hạng mục chênh lệch đang chờ xử lý (số tiền = tổng chênh lệch có dấu) */
+            differences: {
+                count: number;
+                /** @description Số nguyên VND có dấu, dạng chuỗi */
+                amount_vnd: string;
+            };
+            /** Format: date-time */
+            last_confirmed_at: string | null;
+            /** Format: date-time */
+            last_import_at: string | null;
+        };
+        PayTreasuryTrackingPage: {
+            items: components["schemas"]["PayTreasuryTrackingItem"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -72267,7 +72449,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayMatchResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -72369,7 +72551,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayReconciliationCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -72471,7 +72653,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayReconciliationCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -73957,7 +74139,7 @@ export interface operations {
     listReconciliationItems: {
         parameters: {
             query?: {
-                status?: string;
+                status?: "OPEN" | "EXPLAINED" | "RESOLVED" | "WRITTEN_OFF_APPROVED";
                 owner_membership_id?: string;
                 cursor?: string;
                 limit?: number;
@@ -73974,9 +74156,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["PayReconciliationItemPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -106248,6 +106428,177 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PayAdvancePage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getReconciliationItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayReconciliationItem"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getTreasuryTracking: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayTreasuryTrackingPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

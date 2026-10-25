@@ -412,6 +412,18 @@ const ADVANCE_ROLES = [
 
 
 /**
+ * The people of the matching of the Treasury and of the differences (PAY-05, PAY-06, PAY-09): the reconciler who matches the transactions and gives a difference to an owner (and lists the members and the requests the
+ * dialogs offer), the owner of a difference who explains it, the approver who writes it off (a person other than the owner), and a reader, all over the whole tenant. The permissions are the ones of
+ * apps/web/e2e/support/e2e-fixtures.json.
+ */
+const RECONCILE_ROLES = [
+  { n: 832, user: 'reconciler', code: 'E2E_RECONCILER', permissions: ['treasury.match', 'treasury_transaction.read', 'reconciliation.read', 'reconciliation.assign', 'payment_request.read', 'membership.read', 'session.self'], rank: 30 },
+  { n: 833, user: 'reconcileOwner', code: 'E2E_RECONCILE_OWNER', permissions: ['reconciliation.read', 'reconciliation.resolve', 'session.self'], rank: 30 },
+  { n: 834, user: 'reconcileApprover', code: 'E2E_RECONCILE_APPROVER', permissions: ['reconciliation.read', 'reconciliation.resolve', 'session.self'], rank: 40 },
+  { n: 835, user: 'reconcileReader', code: 'E2E_RECONCILE_READER', permissions: ['reconciliation.read', 'treasury_transaction.read', 'session.self'], rank: 10 },
+];
+
+/**
  * The person who reads the cumulative ledger of a contract (PAY-10), over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
 const LEDGER_ROLES = [{ n: 826, user: 'ledgerReader', code: 'E2E_LEDGER_READER', permissions: ['ledger.read', 'session.self'], rank: 30 }];
@@ -661,6 +673,7 @@ const GRANTS: GrantPlan[] = [
   ...LEDGER_ROLES.map((role, index): GrantPlan => ({ n: 826 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PAYMENT_ROLES.map((role, index): GrantPlan => ({ n: 827 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...ADVANCE_ROLES.map((role, index): GrantPlan => ({ n: 830 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...RECONCILE_ROLES.map((role, index): GrantPlan => ({ n: 832 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -958,7 +971,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

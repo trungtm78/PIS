@@ -59,6 +59,8 @@ export const JOB_INTERVAL_SECONDS = {
   'entitlement-override-expiry': 60,
   // Hourly: a stage of land clearance whose planned end has passed becomes late within the hour and asks ISS for its issue (ST-LND-010); the pass is idempotent.
   'land-stage-late': 3600,
+  // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
+  'reconciliation-overdue': 3600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -191,6 +193,8 @@ export interface StandardJobDeps {
   /** The pass over the entitlement overrides of a tenant (ST-SAS-009): an override in force whose window has ended expires and the tenant gets a new entitlement version; a request that waited past its window expires. */
   overrideExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
+  reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -502,6 +506,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await lateStages.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const overdueItems = deps.reconciliationOverdue;
+  if (overdueItems !== undefined) {
+    handlers.push({
+      name: 'reconciliation-overdue',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overdueItems.run(workerContext(tenantId), now)));
       },
     });
   }

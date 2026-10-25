@@ -12,7 +12,7 @@ import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
 import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES } from '../suite';
@@ -356,6 +356,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordAdvanceRecovery',
   'listAdvances',
   'getAdvanceRecoveryPlan',
+  'matchTreasuryTransaction',
+  'assignReconciliationItem',
+  'resolveReconciliationItem',
+  'listReconciliationItems',
+  'getReconciliationItem',
+  'getTreasuryTracking',
   'post_payment_requests_id_submit',
   'verifyPaymentRequest',
   'returnPaymentRequest',
@@ -683,6 +689,10 @@ const INSERT_TREASURY_TRANSACTION = `insert into machvon.treasury_transaction
   (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, import_id, document_no, document_date, source_kind, row_hash, created_by)
   values ($1, $2, $3, $4, 'KBNN_FILE', 1000, '2026-10-16T00:00:00Z', repeat('c', 64), $5, $6, date '2026-10-15', 'FILE_IMPORT', repeat('c', 64), $7) on conflict do nothing`;
 
+const INSERT_RECONCILIATION_ITEM = `insert into machvon.reconciliation_item
+  (tenant_id, id, project_id, kind, internal_amount_vnd, confirmed_amount_vnd, owner_membership_id, due_at, status, resolution_note, created_by, updated_by)
+  values ($1, $2, $3, 'AMOUNT_MISMATCH', 1000, 900, $4, '2030-01-01T00:00:00Z', 'OPEN', $5, $4, $4) on conflict do nothing`;
+
 const INSERT_SUBSCRIPTION = `insert into machvon.subscription
   (tenant_id, id, plan_version_id, cycle, billing_anchor, status, payment_terms, current_period_start, current_period_end, procurement_contract_ref)
   values ($1, $2, '00000000-0000-4000-9000-000000000001', 'ANNUAL', date '2026-01-01', 'Active', '{"due_days":30,"method":"BANK_TRANSFER"}'::jsonb, date '2026-01-01', date '2026-12-31', $3) on conflict (tenant_id, id) do nothing`;
@@ -1004,6 +1014,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const treasury = TREASURY_FIXTURES[tenant];
     await client.query(INSERT_TREASURY_IMPORT, [tenantId, treasury.importId, treasury.fileSha256, `tenants/${tenantId}/import/isolation-statement`, MEMBERSHIP_ID]);
     await client.query(INSERT_TREASURY_TRANSACTION, [tenantId, treasury.transactionId, project.id, treasury.externalId, treasury.importId, treasury.documentNo, MEMBERSHIP_ID]);
+    const difference = RECONCILIATION_FIXTURES[tenant];
+    await client.query(INSERT_RECONCILIATION_ITEM, [tenantId, difference.id, project.id, MEMBERSHIP_ID, difference.note]);
     const subscription = SUBSCRIPTION_FIXTURES[tenant];
     await client.query(INSERT_SUBSCRIPTION, [tenantId, subscription.id, subscription.contractRef]);
     const usage = USAGE_FIXTURES[tenant];

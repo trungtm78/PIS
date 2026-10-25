@@ -493,4 +493,133 @@ test.describe('the payment request', () => {
     await page.locator(`tr[data-request="${made!.id}"]`).getByTestId('open').click();
     await expect(page.locator('button[data-action]')).toHaveCount(0);
   });
+
+  test('the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, UAT-AC335, UAT-AC12, UAT-AC336)', async ({ page }) => {
+    await treasuryTemplates();
+    const seeded = await seed();
+    const stamp = `${Date.now().toString(36).toUpperCase()}-${counter}`;
+    await draw(page, seeded, `DNTT-E2E-R-${stamp}`);
+    await page.getByTestId('open-request').click();
+    await attachInvoice(page, seeded, `HD-E2E-R-${stamp}`);
+    await page.locator('button[data-action="submit"]').click();
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.submitted']);
+    const [made] = await requestsOf(seeded.contractId);
+    await open(page, `/pay/pay-03?request=${made!.id}`, 'paymentApprover');
+    await page.locator('button[data-action="verify"]').click();
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.verify.submit'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.verified']);
+    await open(page, `/pay/pay-14?request=${made!.id}`, 'paymentAccountant');
+    await page.locator('button[data-action="generate-all"]').click();
+    await page.locator('#generate-place').fill('Cao Bằng');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.generate.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.generated']);
+    await page.locator('button[data-action="send"]').click();
+    await page.locator('#send-day').fill('2026-07-24');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.send.submit'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.sentTreasury']);
+
+    // The Treasury confirmed two payments: one that is 10m short of the net of the request (2.1bn) and one that is the net.
+    const [project] = await sql<{ project_id: string }>('select project_id from machvon.contract where id = $1', [seeded.contractId]);
+    const transaction = async (key: string, amount: string): Promise<string> => {
+      const [row] = await sql<{ id: string }>(
+        `insert into machvon.treasury_transaction
+           (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, row_hash, direction, document_no, document_date, source_kind, provider_event_id, match_status)
+         values ($1, gen_random_uuid(), $2, $3, 'MOCKKB', $4::numeric, timestamptz '2026-07-24T18:30:00Z', repeat('a', 64), repeat('a', 64), 'PAYMENT', $3, date '2026-07-24', 'CALLBACK_MOCK', $3, 'UNMATCHED') returning id`,
+        [stackInfo().tenants.A, project!.project_id, key, amount],
+      );
+      return row!.id;
+    };
+    const short = await transaction(`CT-E2E-${stamp}-A`, '2090000000');
+    const exact = await transaction(`CT-E2E-${stamp}-B`, '2100000000');
+
+    // UAT-AC12: matched to the request, the short transaction does not settle it; the dialog shows both figures and leads to the difference that was opened.
+    await open(page, '/pay/pay-05', 'reconciler');
+    await expect(page.getByRole('heading', { level: 1, name: vi['pay.recon.title'] })).toBeVisible();
+    await page.locator(`tr[data-transaction="${short}"] button[data-action="match"]`).click();
+    await page.locator('#match-request').selectOption(made!.id);
+    await expect(page.getByTestId('match-agree')).toHaveAttribute('data-agree', 'no');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.recon.match.submit'] }).click();
+    await expect(page.getByTestId('mismatch')).toContainText(
+      vi['pay.recon.match.mismatch'].replace('{internal}', '2.100.000.000').replace('{confirmed}', '2.090.000.000').replace('{difference}', '-10.000.000'),
+    );
+    expect((await sql<{ status: string }>('select status from machvon.payment_request where id = $1', [made!.id]))[0]?.status).toBe('SENT_TREASURY');
+    const [opened] = await sql<{ id: string; internal: string; confirmed: string; difference: string; owner: string; status: string }>(
+      'select id, internal_amount_vnd::text as internal, confirmed_amount_vnd::text as confirmed, difference_vnd::text as difference, owner_membership_id as owner, status from machvon.reconciliation_item where treasury_transaction_id = $1',
+      [short],
+    );
+    expect(opened).toMatchObject({ internal: '2100000000', confirmed: '2090000000', difference: '-10000000', owner: membershipOf('reconciler'), status: 'OPEN' });
+    await page.getByTestId('mismatch-item').click();
+
+    // UAT-AC336: the reconciler gives it to its owner with a day; the owner explains it; the owner may not write it off, a second person may.
+    await expect(page.getByRole('heading', { level: 1, name: vi['pay.item.title'] })).toBeVisible();
+    await expect(page.getByTestId('internal')).toHaveText('2.100.000.000');
+    await expect(page.getByTestId('confirmed')).toHaveText('2.090.000.000');
+    await expect(page.getByTestId('difference')).toHaveText('-10.000.000');
+    await page.locator('button[data-action="assign"]').click();
+    await page.locator('#assign-owner').selectOption(membershipOf('reconcileOwner'));
+    await page.locator('#assign-due').fill('2099-12-31T10:00');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.assign.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(vi['pay.item.done.assigned']);
+    expect((await sql<{ owner: string; due: string }>(`select owner_membership_id as owner, to_char(due_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI') as due from machvon.reconciliation_item where id = $1`, [opened!.id]))[0]).toEqual({
+      owner: membershipOf('reconcileOwner'),
+      due: '2099-12-31T03:00',
+    });
+
+    await open(page, `/pay/pay-06?item=${opened!.id}`, 'reconcileOwner');
+    await page.locator('button[data-action="explain"]').click();
+    await page.locator('#resolve-note').fill('Kho bạc trừ phí 10.000.000 theo thông báo TB-77');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.action.explain'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.recon.status.explained']);
+    await page.locator('button[data-action="write-off"]').click();
+    await page.locator('#resolve-note').fill('Không thu hồi được');
+    await page.locator('#resolve-approval').fill(seeded.paper);
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.action.writeOff'] }).click();
+    await expect(page.getByTestId('refusal')).toHaveText(vi['pay.recon.error.selfApproval']);
+    expect((await sql<{ status: string }>('select status from machvon.reconciliation_item where id = $1', [opened!.id]))[0]?.status).toBe('EXPLAINED');
+
+    await open(page, `/pay/pay-06?item=${opened!.id}`, 'reconcileApprover');
+    await page.locator('button[data-action="write-off"]').click();
+    await page.locator('#resolve-note').fill('Không thu hồi được');
+    await page.locator('#resolve-approval').fill(seeded.paper);
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.action.writeOff'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.recon.status.writtenOff']);
+    await expect(page.getByTestId('difference')).toHaveText('-10.000.000');
+    expect((await sql<{ status: string; resolved_by: string; approval: string; difference: string }>('select status, resolved_by, approval_document_version_id as approval, difference_vnd::text as difference from machvon.reconciliation_item where id = $1', [opened!.id]))[0]).toEqual({
+      status: 'WRITTEN_OFF_APPROVED',
+      resolved_by: membershipOf('reconcileApprover'),
+      approval: seeded.paper,
+      difference: '-10000000',
+    });
+    expect(await auditsOf(opened!.id, 'reconciliation_item.resolved')).toEqual([{ actor_id: membershipOf('reconcileOwner') }, { actor_id: membershipOf('reconcileApprover') }]);
+
+    // UAT-AC335: the transaction that is the net settles the request, once, and tells CAP, DIS and MNE.
+    await open(page, '/pay/pay-05', 'reconciler');
+    await expect(page.locator(`tr[data-transaction="${short}"]`)).toHaveCount(0);
+    await page.locator(`tr[data-transaction="${exact}"] button[data-action="match"]`).click();
+    await page.locator('#match-request').selectOption(made!.id);
+    await expect(page.getByTestId('match-agree')).toHaveAttribute('data-agree', 'yes');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.recon.match.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(vi['pay.recon.done.settled'].replace('{day}', '2026-07-25'));
+    expect((await sql<{ status: string; paid_on: string; tx: string }>('select status, treasury_paid_on::text as paid_on, settled_transaction_id as tx from machvon.payment_request where id = $1', [made!.id]))[0]).toEqual({ status: 'SETTLED', paid_on: '2026-07-25', tx: exact });
+    expect((await sql<{ paid_total: string; recovered: string }>('select paid_total_vnd::text as paid_total, advance_recovered_vnd::text as recovered from machvon.contract where id = $1', [seeded.contractId]))[0]).toEqual({ paid_total: '3000000000', recovered: '750000000' });
+    expect(await sql(`select 1 from machvon.cumulative_ledger_entry where payment_request_id = $1 and entry_kind = 'PAYMENT'`, [made!.id])).toHaveLength(2);
+    expect(await eventsOf(made!.id, 'pay.payment.settled.v1')).toHaveLength(1);
+    expect(await eventsOf(made!.id, 'pay.payment.settled.v2')).toHaveLength(1);
+    expect(await auditsOf(made!.id, 'payment_request.settled')).toEqual([{ actor_id: membershipOf('reconciler') }]);
+
+    // PAY-09: the project stands as the rows say, and a reader sees the board and the item and no command.
+    await open(page, '/pay/pay-09', 'reconcileReader');
+    const row = page.locator(`tr[data-project="${project!.project_id}"]`);
+    await expect(row.getByTestId('sent')).toHaveText(vi['pay.track.count'].replace('{count}', '0').replace('{amount}', '0'));
+    await expect(row.getByTestId('settled')).toHaveText(vi['pay.track.count'].replace('{count}', '1').replace('{amount}', '2.100.000.000'));
+    await expect(row.getByTestId('confirmed')).toHaveText(vi['pay.track.count'].replace('{count}', '2').replace('{amount}', '4.190.000.000'));
+    await expect(row.getByTestId('unmatched')).toHaveText('0');
+    await expect(row.getByTestId('differences')).toHaveText('0');
+    await open(page, '/pay/pay-05', 'reconcileReader');
+    await expect(page.locator('button[data-action="match"]')).toHaveCount(0);
+    await expect(page.locator(`tr[data-item="${opened!.id}"]`).getByTestId('status')).toHaveText(vi['pay.recon.status.writtenOff']);
+    await page.locator(`tr[data-item="${opened!.id}"]`).getByTestId('open').click();
+    await expect(page.locator('button[data-action]')).toHaveCount(0);
+  });
 });

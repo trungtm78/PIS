@@ -1806,6 +1806,50 @@
       ]
     },
     {
+      "key": "reconciler",
+      "displayName": "Kế toán đối soát Kho bạc",
+      "membershipId": "00000000-0000-4000-8000-000000000832",
+      "permissions": [
+        "treasury.match",
+        "treasury_transaction.read",
+        "reconciliation.read",
+        "reconciliation.assign",
+        "payment_request.read",
+        "membership.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "reconcileOwner",
+      "displayName": "Chủ xử lý chênh lệch",
+      "membershipId": "00000000-0000-4000-8000-000000000833",
+      "permissions": [
+        "reconciliation.read",
+        "reconciliation.resolve",
+        "session.self"
+      ]
+    },
+    {
+      "key": "reconcileApprover",
+      "displayName": "Lãnh đạo duyệt xóa sổ",
+      "membershipId": "00000000-0000-4000-8000-000000000834",
+      "permissions": [
+        "reconciliation.read",
+        "reconciliation.resolve",
+        "session.self"
+      ]
+    },
+    {
+      "key": "reconcileReader",
+      "displayName": "Người xem đối soát",
+      "membershipId": "00000000-0000-4000-8000-000000000835",
+      "permissions": [
+        "reconciliation.read",
+        "treasury_transaction.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

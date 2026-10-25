@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { WORKER_MEMBERSHIP_ID, INTAKE_CATEGORY_KEYS, stageLateEvent } from '@machvon/db';
+import { WORKER_MEMBERSHIP_ID, INTAKE_CATEGORY_KEYS, overdueEvent, stageLateEvent } from '@machvon/db';
 import type { OutboxDelivery } from '@machvon/db';
 import { signTenantContext } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
@@ -56,6 +56,10 @@ describe('the intake of automatic issues from the events of PMT, PAY, LND and CT
     const permit = await world.seedCategory(TENANT_A, 'ISSUE_CATEGORY', INTAKE_CATEGORY_KEYS.PMT);
     await world.as((tx) =>
       world.policies.publish(tx, { code: 'SLA-PMT-HIGH', categoryVersionId: permit, severity: 'HIGH', calendarCode: 'WORKDAY_VN', responseHours: 4, resolveHours: 16, validFrom: '2026-08-05' }, SYSTEM),
+    );
+    const payment = await world.seedCategory(TENANT_A, 'ISSUE_CATEGORY', INTAKE_CATEGORY_KEYS.PAY);
+    await world.as((tx) =>
+      world.policies.publish(tx, { code: 'SLA-PAY-MEDIUM', categoryVersionId: payment, severity: 'MEDIUM', calendarCode: 'WORKDAY_VN', responseHours: 4, resolveHours: 16, validFrom: '2026-08-05' }, SYSTEM),
     );
   }, 300_000);
 
@@ -135,6 +139,28 @@ describe('the intake of automatic issues from the events of PMT, PAY, LND and CT
     // The same delivery twice opens nothing more.
     expect(await consumer().handle(first)).toBe('duplicate');
     expect(await issuesOf(stageId)).toHaveLength(1);
+  });
+
+  it('AC-ST-PAY-007-3, UAT-AC336: an item of difference that is past its day opens one issue, the item keeps its identifier, and a second report of it changes nothing', async () => {
+    const itemId = randomUUID();
+    await world.owner(
+      `insert into machvon.reconciliation_item (tenant_id, id, project_id, kind, internal_amount_vnd, confirmed_amount_vnd, owner_membership_id, due_at, status, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, 'AMOUNT_MISMATCH', 1000000000, 990000000, $3::uuid, timestamptz '2026-07-10 10:00+07', 'OPEN', $3::uuid, $3::uuid)`,
+      [itemId, PROJECT, SYSTEM],
+    );
+    const reported = overdueEvent({ id: itemId, kind: 'AMOUNT_MISMATCH', projectId: PROJECT, contractId: null, ownerUnitId: UNIT_1, dueAt: '2026-07-10T03:00:00.000000Z', status: 'OPEN' }, TENANT_A, new Date('2026-07-11T06:00:00Z'));
+    const first = delivery(reported.type, reported.payload, { aggregateType: reported.aggregateType, aggregateId: itemId, eventKey: reported.eventKey });
+    expect(await consumer().handle(first)).toBe('processed');
+    const issues = await issuesOf(itemId);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ title: `Reconciliation item overdue: RI-${itemId.slice(0, 8)}`, status: 'OPEN', source_module: 'PAY' });
+    const linked = () => world.owner<{ issue_id: string | null }>('select issue_id from machvon.reconciliation_item where id = $1::uuid', [itemId]);
+    expect(await linked()).toEqual([{ issue_id: issues[0]?.id }]);
+    // The same delivery again, and the same item reported again under another delivery, open nothing more.
+    expect(await consumer().handle(first)).toBe('duplicate');
+    expect(await consumer().handle(delivery(reported.type, reported.payload, { aggregateType: reported.aggregateType, aggregateId: itemId }))).toBe('processed');
+    expect(await issuesOf(itemId)).toHaveLength(1);
+    expect(await linked()).toEqual([{ issue_id: issues[0]?.id }]);
   });
 
   it('UAT-AC354: a reader without the right to read households sees the issue of a land complaint but not its text; a permit issue is read whole', async () => {

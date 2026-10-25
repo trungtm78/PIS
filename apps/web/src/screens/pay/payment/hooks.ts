@@ -13,7 +13,7 @@ export interface PaymentFilter {
 }
 
 /** The payment requests the caller may see, the newest first, narrowed by contract and status. */
-export function usePayments(filter: PaymentFilter = {}) {
+export function usePayments(filter: PaymentFilter = {}, enabled = true) {
   const client = useApiClient();
   const key = useScopeKey();
   const query: Record<string, string> = {};
@@ -22,7 +22,7 @@ export function usePayments(filter: PaymentFilter = {}) {
   return useQuery<PaymentRequest[]>({
     queryKey: [...key, 'payments', filter.contractId ?? '', filter.status ?? ''],
     queryFn: async () => (await client.readAll('get_resources_payment_request', { query })).flatMap((raw) => toPaymentRequest(raw) ?? []),
-    enabled: key[1] !== undefined,
+    enabled: enabled && key[1] !== undefined,
     retry: false,
   });
 }

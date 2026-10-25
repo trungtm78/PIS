@@ -4,6 +4,7 @@ import { IssIssueStore } from './iss-issue-store.ts';
 import type { CreatedIssue, IssueSource } from './iss-issue-store.ts';
 import { ISSUE_CATEGORY_TYPE, SLA_SEVERITIES } from './iss-sla-policy-store.ts';
 import { linkStageIssue } from './lnd-stage-progress-store.ts';
+import { linkReconciliationIssue } from './pay-reconciliation-store.ts';
 import type { SlaSeverity } from './iss-sla-policy-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -58,6 +59,7 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
     wanted: alwaysWanted,
     sourceRefId: commonRef,
     referenceCode: commonCode,
+    link: linkReconciliationIssue,
   },
   { eventType: 'lnd.complaint.filed.v1', sourceModule: 'LND', title: 'Land complaint filed', severity: 'MEDIUM', categoryKey: INTAKE_CATEGORY_KEYS.LND, wanted: alwaysWanted, sourceRefId: commonRef, referenceCode: commonCode },
   {

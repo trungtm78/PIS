@@ -115,16 +115,17 @@ export async function seedCrosswalk(adminUrl: string, tenant: string, actor: num
   return crosswalk;
 }
 
-/** A payment request of a contract, as the superuser. A request in SENT_TREASURY (or later) holds its acceptance, as the table demands. */
+/** A payment request of a contract, as the superuser. A request in SENT_TREASURY (or later) holds its acceptance, as the table demands; a settled one says which transaction settled it, the day and who (the foreign keys are off, so the transaction need not exist). */
 export async function seedPaymentRequest(adminUrl: string, tenant: string, spec: PaymentRequestSpec): Promise<void> {
   const status = spec.status ?? 'SENT_TREASURY';
   const claims = ['SUBMITTED', 'VERIFIED', 'SENT_TREASURY', 'SETTLED'].includes(status);
+  const settled = status === 'SETTLED' || status === 'REVERSED';
   await withAdmin(adminUrl, async (client) => {
     await client.query(
       `insert into machvon.payment_request
          (tenant_id, id, project_id, contract_id, acceptance_id, currency, gross_vnd, advance_recovery_vnd, retention_vnd, tax_adjustment_vnd, net_vnd, status, version,
-          claims_acceptance, request_no, created_by, submitted_by, allocation_line_id, plan_year)
-       values ($1, $2, $3, $4, $5, 'VND', $6::numeric, 0, 0, 0, $6::numeric, $7, 1, $8, $9, $10, $11, $12, $13)`,
+          claims_acceptance, request_no, created_by, submitted_by, allocation_line_id, plan_year, settled_transaction_id, treasury_paid_on, settled_by, settled_at)
+       values ($1, $2, $3, $4, $5, 'VND', $6::numeric, 0, 0, 0, $6::numeric, $7, 1, $8, $9, $10, $11, $12, $13, $14::uuid, $15::date, $16::uuid, $17::timestamptz)`,
       [
         tenant,
         spec.id,
@@ -139,6 +140,10 @@ export async function seedPaymentRequest(adminUrl: string, tenant: string, spec:
         spec.submittedBy === undefined || spec.submittedBy === null ? null : memberId(spec.submittedBy),
         spec.allocationLine ?? null,
         spec.planYear ?? null,
+        settled ? randomUUID() : null,
+        settled ? '2026-07-25' : null,
+        settled ? memberId(spec.createdBy ?? 1) : null,
+        settled ? '2026-07-25T05:00:00Z' : null,
       ],
     );
   });

@@ -1,0 +1,14 @@
+{
+  "id": "PAY_RECONCILIATION_OVERDUE",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "treasury-accounting",
+  "runbook": "docs/runbooks/alerts/PAY_RECONCILIATION_OVERDUE.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "pay_reconciliation_overdue",
+    "above": 0
+  },
+  "summary": "A difference between a payment request and the Treasury waits for its owner past its due day."
+}

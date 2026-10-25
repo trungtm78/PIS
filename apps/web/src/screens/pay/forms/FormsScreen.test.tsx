@@ -144,8 +144,14 @@ describe('FormsScreen (PAY-14): the Treasury forms of a request', () => {
     await screen.findByTestId('forms');
     expect(screen.getByTestId('sent-on').textContent).toBe('2026-07-24');
     expect(screen.getByTestId('ref').textContent).toBe('KB-2026-0001');
+    expect(screen.queryByTestId('paid-on')).toBeNull();
     expect(screen.queryByTestId('missing')).toBeNull();
     expect(document.querySelectorAll('button[data-action]')).toHaveLength(0);
+    cleanup();
+    // Once the Treasury has confirmed the payment and the request is settled, the day it counts from is shown.
+    open(world({ payments: [checked(1, { status: 'SETTLED', treasury_submitted_on: '2026-07-24', treasury_paid_on: '2026-07-25' }, { generate_forms: false })], forms: four() }));
+    await screen.findByTestId('forms');
+    expect(screen.getByTestId('paid-on').textContent).toBe('2026-07-25');
     cleanup();
     open(world({ forms: four() }), { permissions: READER, mode: 'READ_ONLY' });
     await screen.findByTestId('forms');

@@ -1,0 +1,44 @@
+# Matching the Treasury to the payments, and the differences (ST-PAY-007)
+
+PAY 3.3 steps 4 and 5, CXN-03. Screens PAY-05 (the matching board and the differences), PAY-06 (the work on one difference) and PAY-09 (where the projects stand with the Treasury). The transactions come from the statement import, the callback and the confirmation by hand (ST-PAY-006); a payment request reaches the Treasury with ST-PAY-005. **No call is made to the Treasury.**
+
+## The match (`matchTreasuryTransaction`, `treasury.match`)
+
+`POST /treasury-transactions/{id}/match` with `payment_request_id` and an optional `note`. The command takes the lock of the contract of the request first (the same order as every writer of the books: the contract, the balances of the ledger by identifier, the tranche of an advance), then reads the request and the transaction for update.
+
+| Case | Answer |
+|---|---|
+| The transaction is already matched, or already tied to another request | 409 `TRANSACTION_ALREADY_MATCHED` (`reason` says which) |
+| The transaction is a refund | 422 `VALIDATION_FAILED` on `id`, `reason` `NOT_A_PAYMENT` |
+| The request is not with the Treasury | 409 `PAYMENT_STATE_INVALID` (with its `status`) |
+| The request or the transaction is outside the scope of the caller, or of another project | 404 `RESOURCE_NOT_FOUND` |
+| The amount is the net of the request, to the dong | the request is SETTLED (below) |
+| The amount is not the net | 422 `AMOUNT_MISMATCH_OPENED`, after a difference has been committed (below) |
+
+**Equal amounts settle the request.** One `PAYMENT` entry per balance of the ledger the request stood on, worth the *gross* of that balance (UAT-AC335: B01 2bn, B02 1bn; the part recovered and held was booked when the request was sent, so `advance_recovered_vnd` does not move again); `contract.paid_total_vnd` moves once by the gross of the request; the transaction becomes MATCHED and the request SETTLED with the transaction that settled it, who matched it, when, and **the day the Treasury confirmed it in Vietnam time** (`treasury_paid_on`, the day a disbursement counts from, R-PAY-05/CXN-03). An advance request pays its advance: `contract_advance` becomes PAID with the amount and the day, a land clearance advance gets its last day of recovery from the rule `PAY_ADVANCE_GPMB` of that day (none if the rule is missing; nothing is made up), the contract's `advance_paid_vnd` moves and an `advance_ledger_entry` `DISBURSE` is posted.
+
+Three events go through the outbox, each once (the event key is the request, so a replay of the command adds nothing): `pay.treasury_transaction.matched.v1`; `pay.payment.settled.v1` with the minimum CAP, DIS and MNE need (`payment_request_id`, `contract_id`, `project_id`, `amount_vnd` = the net, `allocation_line_id`, `plan_year`, `confirmed_at`, plus the actor and the time of the event); and `pay.payment.settled.v2`, which adds `treasury_paid_on`, `request_kind` and `transaction_id` (TK-007-7: the cutoff of the disbursement is the day the Treasury confirmed, not the day the person matched). CAP's `DISBURSE` and the counting of DIS and MNE are consumers of those events (other groups' stories).
+
+**A different amount opens a difference.** The transaction goes to EXCEPTION and is tied to the request; an `AMOUNT_MISMATCH` item opens with `internal_amount_vnd` (the net), `confirmed_amount_vnd`, the generated `difference_vnd` (confirmed − internal, signed), an owner (the person who matched, until it is given to someone) and a due day (three days). The request stays SENT_TREASURY, nothing moves on the books, and the larger figure is never taken. The same pair tried again finds the same item (`reconciliation_item_open_uq`). The refusal is **committed with the difference**: the command asks the interceptor to commit what it wrote and answer the refusal (`scope.refuseAfterCommit`), and the refusal is the stored answer of the idempotency key, so the same key gets the same 422 again (`Idempotency-Replayed`). The problem body carries `reconciliation_item_id`, `internal_amount_vnd`, `confirmed_amount_vnd`, `difference_vnd`, `owner_membership_id`, `due_at`.
+
+What the database holds behind the application (V1567): a request is SETTLED only by the transaction MATCHED to it, for exactly its net, on the day the Treasury confirmed it, with the person and the time; the line of capital is of the plan year of the request (`PLAN_YEAR_MISMATCH`, UAT-AC342); an advance request is settled only once its advance is PAID for the amount asked; a transaction is matched to a request that is with the Treasury, of its project, for its net, once (a unique index: one matched `PAYMENT` per request), and is tied to one request for good; what settled a request is never changed afterwards.
+
+## The work on a difference
+
+`assignReconciliationItem` (`reconciliation.assign`, versioned): `owner_membership_id` (an Active member) and `due_at` (still to come) are both needed; an item that waits may be given again. `resolveReconciliationItem` (`reconciliation.resolve`, versioned): `resolution` is `EXPLAINED` (from OPEN), `RESOLVED` (from EXPLAINED) or `WRITTEN_OFF` (from OPEN or EXPLAINED; status `WRITTEN_OFF_APPROVED`); the `note` is always needed (absent or blank is 422 `VALIDATION_FAILED`, UAT-AC12). A write-off needs the `approval_document_version_id` of a document scanned clean (422 `APPROVAL_REQUIRED`, 422 `DOCUMENT_NOT_CLEAN`) and a person other than the owner (403 `SELF_APPROVAL_DENIED`); the document is asked for before the person. Any other move is 409 `RECONCILIATION_STATE_INVALID`. The two figures and the generated difference never change, whatever is done (UAT-AC336: the difference of a written-off item is still −10m). The database keeps the same edges (OPEN→EXPLAINED, EXPLAINED→RESOLVED, either to WRITTEN_OFF_APPROVED), refuses a write-off without a document or by its owner, and keeps an item that ended as it is (only the identifier of the issue may still be written back).
+
+`listReconciliationItems` (`reconciliation.read`) returns the items due first, the filter `status` and `owner_membership_id`, a keyset cursor, and a `summary` (items that wait, those past their day, the signed sum of their differences); each item carries both figures, the file and hash the figure came from (through the transaction and its import), the owner's name, `overdue` and the buttons the state allows. `getReconciliationItem` reads one. `getTreasuryTracking` (`treasury_transaction.read`) returns, for each project in scope with anything with the Treasury, what is sent and not settled, settled, confirmed, not matched, in difference, and the last statement; it is counted from the rows when read.
+
+## Overdue (`reconciliation-overdue`, hourly)
+
+An item that waits (OPEN or EXPLAINED) and is past its due day is reported **once**: the job sets `overdue_flagged_at`, writes the audit row `pay.reconciliation_overdue` and emits `pay.reconciliation.overdue.v1` (the common contract of the issue intake: `source_ref_id` = the item, `reference_code` `RI-<8 hex>`, `project_id`, `contract_id` when it has one, `owner_unit_id`, `severity` MEDIUM; nothing a person said). The ISS intake opens one issue (category `PAYMENT`, BR-ISS-07) and writes its identifier back on the item (`link` → `linkReconciliationIssue`, in the transaction that opens it). A second pass, or a hundred, report nothing more; an item that ended is never reported. Gauges `pay_reconciliation_open` and `pay_reconciliation_overdue` are set at every pass and after every change; the alert `PAY_RECONCILIATION_OVERDUE` fires above 0 (runbook: `docs/runbooks/alerts/PAY_RECONCILIATION_OVERDUE.md`). `pay_treasury_match_total{outcome}` counts the matches.
+
+## Screens
+
+* **PAY-05** the transactions that wait to be matched (confirmed payments no request has taken) with a Match button for who holds `treasury.match`; the dialog offers the requests with the Treasury in the project of the transaction, each with its net, says in words whether the amounts agree, and on a refusal shows both figures, the difference and the way to the item; below, the differences with both columns, the signed difference, the source file and hash, the owner and the due day (a badge in words when it is past), and a filter by status.
+* **PAY-06** one difference: the figures, the source, the owner, the day, the note, the approving document, the issue ISS opened; give to an owner (a list of the active members for who may read them, else the identifier), explain, resolve and write off, each only where the state allows it and the caller holds the permission.
+* **PAY-09** one row per project with anything with the Treasury.
+
+PAY-03/PAY-14 show the day the Treasury confirmed a settled request (`treasury_paid_on`).
+
+Browser flow: `apps/web/e2e/pay-payment-flows.spec.ts` (the last test); visual regions PAY-05, PAY-06 (back link above the title) and PAY-09.

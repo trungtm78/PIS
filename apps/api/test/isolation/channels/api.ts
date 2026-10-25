@@ -21,7 +21,7 @@ import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { PERIOD_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
-import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
+import { RECONCILIATION_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -295,6 +295,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'cancelAdvance', method: 'POST', id: ADVANCE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },
   { operation: 'recordAdvanceRecovery', method: 'POST', id: ADVANCE_FIXTURES['TNT-B'].id, versioned: true, body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
   { operation: 'getAdvanceRecoveryPlan', method: 'GET', id: ADVANCE_FIXTURES['TNT-B'].id },
+  { operation: 'matchTreasuryTransaction', method: 'POST', id: TREASURY_FIXTURES['TNT-B'].transactionId, body: { payment_request_id: PAYMENT_FIXTURES['TNT-B'].id } },
+  { operation: 'assignReconciliationItem', method: 'POST', id: RECONCILIATION_FIXTURES['TNT-B'].id, versioned: true, body: { owner_membership_id: PAYMENT_FIXTURES['TNT-B'].id, due_at: '2030-01-01T00:00:00Z' } },
+  { operation: 'resolveReconciliationItem', method: 'POST', id: RECONCILIATION_FIXTURES['TNT-B'].id, versioned: true, body: { resolution: 'EXPLAINED', note: 'Isolation foreign resolution attempt' } },
+  { operation: 'getReconciliationItem', method: 'GET', id: RECONCILIATION_FIXTURES['TNT-B'].id },
   { operation: 'requestAdvance', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { party_id: ADVANCE_FIXTURES['TNT-B'].partyId, kind: 'GPMB', amount_vnd: '1', allocation_line_id: CONTRACT_FIXTURES['TNT-B'].id } },
   { operation: 'setChangeChainTiers', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { tier_count: 2 } },
   { operation: 'getChangeChain', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },

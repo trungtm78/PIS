@@ -1,5 +1,5 @@
 import type { AuditEntry, OutboxEventInput, TenantTx } from '@machvon/db';
-import type { TenantContext } from '@machvon/kernel';
+import type { DomainError, TenantContext } from '@machvon/kernel';
 
 /** What a @Command handler may use: the tenant transaction, the audit trail and the outbox. */
 export interface CommandScope {
@@ -19,4 +19,9 @@ export interface CommandScope {
    * turning the committed command into an error.
    */
   afterCommit(callback: () => void | Promise<void>): void;
+  /**
+   * Makes the command commit what it wrote (its effects, audit row and events) and then answer with this refusal instead of a result: for a command whose refusal is itself a record, such as an
+   * amount that does not agree and opens a difference. The refusal is stored as the answer of the idempotency key, so the same key gets it again; the first call wins when it is called twice.
+   */
+  refuseAfterCommit(error: DomainError): void;
 }

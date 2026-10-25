@@ -216,6 +216,13 @@
       "location": "place",
       "reason": "the forms are made out in a place (the place-and-date line of a state document); the operation had no client",
       "change_request": "ST-PAY-005"
+    },
+    {
+      "operation": "listReconciliationItems",
+      "kind": "ENUM_TIGHTENED",
+      "location": "query:status",
+      "reason": "the status filter names the four statuses of an item of difference instead of any text; the operation had no client",
+      "change_request": "ST-PAY-007"
     }
   ]
 }

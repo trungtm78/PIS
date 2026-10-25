@@ -856,6 +856,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getQualityScorecard({required String id, Map<String, Object?>? query}) =>
       execute('getQualityScorecard', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getReconciliationItem({required String id, Map<String, Object?>? query}) =>
+      execute('getReconciliationItem', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getReportRevision({required String id, Map<String, Object?>? query}) =>
       execute('getReportRevision', path: <String, Object?>{'id': id}, query: query);
 
@@ -885,6 +888,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getTreasuryImport({required String id, Map<String, Object?>? query}) =>
       execute('getTreasuryImport', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getTreasuryTracking({Map<String, Object?>? query}) =>
+      execute('getTreasuryTracking', query: query);
 
   Future<Object?> getResourcesAcceptance({Map<String, Object?>? query}) =>
       execute('get_resources_acceptance', query: query);

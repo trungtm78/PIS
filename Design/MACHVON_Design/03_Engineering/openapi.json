@@ -74364,12 +74364,18 @@
         "x-error-codes": [
           "AMOUNT_MISMATCH_OPENED",
           "PAYMENT_STATE_INVALID",
-          "TRANSACTION_ALREADY_MATCHED"
+          "TRANSACTION_ALREADY_MATCHED",
+          "PLAN_YEAR_MISMATCH",
+          "ADVANCE_STATE_INVALID",
+          "VALUE_EXCEEDED",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "pay.treasury_transaction.matched.v1",
-          "pay.payment.settled.v1"
+          "pay.payment.settled.v1",
+          "pay.payment.settled.v2"
         ],
         "x-state-guard": "UNMATCHED → MATCHED|EXCEPTION; SENT_TREASURY → SETTLED khi khớp",
         "responses": {
@@ -74378,7 +74384,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayMatchResult"
                 }
               }
             }
@@ -74515,7 +74521,9 @@
         },
         "x-error-codes": [
           "RECONCILIATION_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -74527,7 +74535,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayReconciliationCommandResult"
                 }
               }
             }
@@ -74666,7 +74674,10 @@
           "APPROVAL_REQUIRED",
           "SELF_APPROVAL_DENIED",
           "RECONCILIATION_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "DOCUMENT_NOT_CLEAN",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -74678,7 +74689,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayReconciliationCommandResult"
                 }
               }
             }
@@ -76805,7 +76816,13 @@
             "name": "status",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "EXPLAINED",
+                "RESOLVED",
+                "WRITTEN_OFF_APPROVED"
+              ]
             }
           },
           {
@@ -76843,8 +76860,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/PayReconciliationItemPage"
                 }
               }
             }
@@ -76909,7 +76925,11 @@
               }
             }
           }
-        }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ]
       }
     },
     "/issues": {
@@ -122893,6 +122913,233 @@
           }
         }
       }
+    },
+    "/reconciliation-items/{id}": {
+      "get": {
+        "operationId": "getReconciliationItem",
+        "summary": "Một hạng mục chênh lệch đối soát trong phạm vi của người gọi",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "reconciliation.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "x-error-codes": [
+          "SCOPE_DENIED"
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayReconciliationItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/treasury-tracking": {
+      "get": {
+        "operationId": "getTreasuryTracking",
+        "summary": "Theo dõi Kho bạc theo dự án: hồ sơ đã gửi, đã tất toán, giao dịch đã xác nhận, chưa ghép và chênh lệch đang chờ",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "treasury_transaction.read",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayTreasuryTrackingPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -131763,7 +132010,8 @@
           "note": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Lời giải thích hoặc lý do xử lý: bắt buộc, thiếu hoặc rỗng → 422 VALIDATION_FAILED (UAT-AC12)"
           },
           "approval_document_version_id": {
             "type": "string",
@@ -131771,8 +132019,7 @@
           }
         },
         "required": [
-          "resolution",
-          "note"
+          "resolution"
         ]
       },
       "PayRequestAdvance": {
@@ -144696,6 +144943,14 @@
             "items": {
               "type": "string"
             }
+          },
+          "treasury_paid_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "Ngày (giờ Việt Nam) Kho bạc xác nhận khi đề nghị đã tất toán: mốc tính giải ngân (CXN-03)"
           }
         }
       },
@@ -145374,6 +145629,527 @@
             "items": {
               "$ref": "#/components/schemas/PayPaymentForm"
             }
+          }
+        }
+      },
+      "PayMatchResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "transaction_id",
+          "payment_request_id",
+          "amount_vnd",
+          "treasury_paid_on",
+          "confirmed_at"
+        ],
+        "description": "Kết quả ghép giao dịch Kho bạc với đề nghị thanh toán: CommandResult của đề nghị (SETTLED) kèm giao dịch, số tiền và ngày Kho bạc xác nhận",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "payment_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Số nguyên VND không âm, dạng chuỗi"
+          },
+          "treasury_paid_on": {
+            "type": "string",
+            "format": "date",
+            "description": "Ngày (giờ Việt Nam) Kho bạc xác nhận: mốc tính giải ngân (CXN-03)"
+          },
+          "confirmed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PayReconciliationItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "project_id",
+          "project_code",
+          "contract_id",
+          "contract_code",
+          "payment_request_id",
+          "request_no",
+          "treasury_transaction_id",
+          "document_no",
+          "source_file_name",
+          "source_file_sha256",
+          "internal_amount_vnd",
+          "confirmed_amount_vnd",
+          "difference_vnd",
+          "owner_membership_id",
+          "owner_name",
+          "due_at",
+          "overdue",
+          "resolution_note",
+          "resolved_by",
+          "resolved_at",
+          "approval_document_version_id",
+          "issue_id",
+          "version",
+          "actions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "AMOUNT_MISMATCH",
+              "UNMATCHED_TRANSACTION",
+              "MISSING_CONFIRMATION",
+              "DUPLICATE_CONFLICT",
+              "ADVANCE_OVERDUE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "EXPLAINED",
+              "RESOLVED",
+              "WRITTEN_OFF_APPROVED"
+            ]
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project_code": {
+            "type": "string"
+          },
+          "contract_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "contract_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "payment_request_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "request_no": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "treasury_transaction_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "document_no": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_file_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_file_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "internal_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+$",
+            "description": "Số nguyên VND có dấu, dạng chuỗi"
+          },
+          "confirmed_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+$",
+            "description": "Số nguyên VND có dấu, dạng chuỗi"
+          },
+          "difference_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+$",
+            "description": "Số Kho bạc xác nhận trừ số nội bộ, có dấu; không bao giờ tự chọn số lớn hơn"
+          },
+          "owner_membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "owner_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "resolution_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolved_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "resolved_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "approval_document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "issue_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assign",
+              "explain",
+              "resolve",
+              "write_off"
+            ],
+            "properties": {
+              "assign": {
+                "type": "boolean"
+              },
+              "explain": {
+                "type": "boolean"
+              },
+              "resolve": {
+                "type": "boolean"
+              },
+              "write_off": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "PayReconciliationSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "waiting",
+          "overdue",
+          "waiting_difference_vnd"
+        ],
+        "properties": {
+          "waiting": {
+            "type": "integer"
+          },
+          "overdue": {
+            "type": "integer"
+          },
+          "waiting_difference_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "Số nguyên VND có dấu, dạng chuỗi"
+          }
+        }
+      },
+      "PayReconciliationItemPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of",
+          "summary"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayReconciliationItem"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/PayReconciliationSummary"
+          }
+        }
+      },
+      "PayReconciliationCommandResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "owner_membership_id",
+          "due_at",
+          "difference_vnd"
+        ],
+        "description": "Kết quả lệnh về hạng mục chênh lệch: CommandResult kèm chủ xử lý, hạn xử lý và chênh lệch (không đổi)",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "owner_membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "difference_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+$",
+            "description": "Số nguyên VND có dấu, dạng chuỗi"
+          }
+        }
+      },
+      "PayTreasuryTrackingItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "project_code",
+          "project_name",
+          "sent",
+          "settled",
+          "confirmed",
+          "unmatched",
+          "differences",
+          "last_confirmed_at",
+          "last_import_at"
+        ],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project_code": {
+            "type": "string"
+          },
+          "project_name": {
+            "type": "string"
+          },
+          "sent": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "count",
+              "amount_vnd"
+            ],
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "amount_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]+$",
+                "description": "Số nguyên VND không âm, dạng chuỗi"
+              }
+            },
+            "description": "Đề nghị đã gửi Kho bạc, chưa tất toán (số tiền = tổng net)"
+          },
+          "settled": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "count",
+              "amount_vnd"
+            ],
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "amount_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]+$",
+                "description": "Số nguyên VND không âm, dạng chuỗi"
+              }
+            },
+            "description": "Đề nghị đã tất toán (số tiền = tổng net)"
+          },
+          "confirmed": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "count",
+              "amount_vnd"
+            ],
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "amount_vnd": {
+                "type": "string",
+                "pattern": "^[0-9]+$",
+                "description": "Số nguyên VND không âm, dạng chuỗi"
+              }
+            },
+            "description": "Giao dịch Kho bạc đã xác nhận (chiều thanh toán)"
+          },
+          "unmatched": {
+            "type": "integer",
+            "description": "Giao dịch chưa ghép"
+          },
+          "differences": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "count",
+              "amount_vnd"
+            ],
+            "properties": {
+              "count": {
+                "type": "integer"
+              },
+              "amount_vnd": {
+                "type": "string",
+                "pattern": "^-?[0-9]+$",
+                "description": "Số nguyên VND có dấu, dạng chuỗi"
+              }
+            },
+            "description": "Hạng mục chênh lệch đang chờ xử lý (số tiền = tổng chênh lệch có dấu)"
+          },
+          "last_confirmed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "last_import_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "PayTreasuryTrackingPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayTreasuryTrackingItem"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

@@ -91,6 +91,7 @@ export const payment = (n: number, overrides: Record<string, unknown> = {}) => (
   verification_note: null,
   treasury_submitted_on: null,
   treasury_ref: null,
+  treasury_paid_on: null,
   forms_standing: [],
   created_by: uuid('0030', 1),
   created_at: '2026-10-25T01:00:00.000Z',

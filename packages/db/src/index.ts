@@ -388,6 +388,20 @@ export { ADVANCE_CAP_RULE, ADVANCE_GPMB_RULE, PayAdvanceStore } from './pay-adva
 export type { AdvanceFilter, AdvancePlan, AdvanceResult, AdvanceView, RecordRecoveryInput, RequestAdvanceInput } from './pay-advance-store.ts';
 export { PAY_CLAIM_CONFLICT_METRIC, PAY_SUBMIT_METRIC, PayClaimStore } from './pay-claim-store.ts';
 export type { SubmitPaymentInput } from './pay-claim-store.ts';
+export { PAY_MATCH_METRIC, PaySettlementStore } from './pay-settlement-store.ts';
+export type { MatchInput, MatchOutcome, Mismatch, Settled } from './pay-settlement-store.ts';
+export {
+  PAY_RECONCILIATION_OPEN_METRIC,
+  PAY_RECONCILIATION_OVERDUE_METRIC,
+  PayReconciliationOverdueJob,
+  PayReconciliationStore,
+  RECONCILIATION_OVERDUE_EVENT,
+  linkReconciliationIssue,
+  overdueEvent,
+} from './pay-reconciliation-store.ts';
+export type { OverdueResult, ReconciliationChange, ReconciliationFilter, ReconciliationItemView, ReconciliationSummary } from './pay-reconciliation-store.ts';
+export { PayTreasuryTracking } from './pay-treasury-tracking.ts';
+export type { TreasuryTrackingRow } from './pay-treasury-tracking.ts';
 export { PayPaymentStore } from './pay-payment-store.ts';
 export type { AttachDocumentInput, CreatePaymentInput, OverrideAuthority, PaymentDocumentView, PaymentFilter, PaymentLineView, PaymentRequestView, PaymentResult, PaymentWarning, RevisePaymentInput } from './pay-payment-store.ts';
 export type { LedgerEntryView, LedgerFilter, LedgerHeaderView, LedgerLineView, LedgerOutcome, LedgerPage, PostEntryInput, PostedEntry } from './pay-ledger-store.ts';

@@ -8024,18 +8024,18 @@ final class PayRequestAdvance implements RequestModel {
 final class PayResolveReconciliationItem implements RequestModel {
   const PayResolveReconciliationItem({
     required this.resolution,
-    required this.note,
+    this.note,
     this.approvalDocumentVersionId,
   });
 
   final String resolution;
-  final String note;
+  final String? note;
   final String? approvalDocumentVersionId;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'resolution': resolution,
-        'note': note,
+        if (note != null) 'note': note,
         if (approvalDocumentVersionId != null) 'approval_document_version_id': approvalDocumentVersionId,
       };
 }

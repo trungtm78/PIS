@@ -45,6 +45,9 @@ export interface MatrixTargets {
   paymentDocumentVersionId: string;
   /** An advance of the contract: the ids of the commands on it need no row to be refused. */
   advanceId: string;
+  /** A Treasury transaction and an item of difference: the commands that name them in the path need no row to be refused. */
+  treasuryTransactionId: string;
+  reconciliationItemId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1511,6 +1514,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   recordAdvanceRecovery: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/advances/${t.advanceId}/recoveries`, ifMatch: '"1"', body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: t.paymentDocumentVersionId } }),
+  },
+  // Matching a Treasury transaction to a payment, and the work on a difference.
+  matchTreasuryTransaction: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/treasury-transactions/${t.treasuryTransactionId}/match`, body: { payment_request_id: t.paymentRequestId } }),
+  },
+  assignReconciliationItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/assign`, ifMatch: '"1"', body: { owner_membership_id: t.paymentRequestId, due_at: '2030-01-01T00:00:00Z' } }),
+  },
+  resolveReconciliationItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/resolve`, ifMatch: '"1"', body: { resolution: 'EXPLAINED', note: REASON } }),
   },
   // Sending a payment request, checking it and giving it back.
   post_payment_requests_id_submit: {

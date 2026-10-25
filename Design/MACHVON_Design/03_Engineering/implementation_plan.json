@@ -3538,7 +3538,9 @@
         "matchTreasuryTransaction",
         "assignReconciliationItem",
         "resolveReconciliationItem",
-        "listReconciliationItems"
+        "listReconciliationItems",
+        "getReconciliationItem",
+        "getTreasuryTracking"
       ],
       "tables": [
         "reconciliation_item"

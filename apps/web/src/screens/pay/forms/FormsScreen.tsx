@@ -96,6 +96,11 @@ function FormsContent({ route }: ScreenProps) {
                       <span data-testid="sent-on">{request.treasurySubmittedOn}</span>
                     </Fact>
                   )}
+                  {request.treasuryPaidOn === null ? null : (
+                    <Fact label={t('pay.forms.fact.paidOn')}>
+                      <span data-testid="paid-on">{request.treasuryPaidOn}</span>
+                    </Fact>
+                  )}
                   {request.treasuryRef === null ? null : (
                     <Fact label={t('pay.forms.fact.ref')}>
                       <span data-testid="ref">{request.treasuryRef}</span>
