@@ -367,6 +367,8 @@ export type { NewProposalInput, ProposalFileInput, ReceivedProposal } from './bi
 export { BidProposalReads } from './bid-proposal-reads.ts';
 export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-reads.ts';
 export { BidConflictStore } from './bid-conflict-store.ts';
+export { ACTIVATION_GATE, ACTIVATION_PROJECT_STATUS, CtrContractLifecycleStore } from './ctr-contract-lifecycle-store.ts';
+export type { ActivateInput, ActivateResult, CommitmentOutcome, ContractFacts, LifecycleHooks, LifecycleResult, ActivationReadiness, SignInput, SignResult } from './ctr-contract-lifecycle-store.ts';
 export type { DeclarationLine, DeclaredConflict, DecidedConflict, NewDeclaration } from './bid-conflict-store.ts';
 export { bidWindowOf } from './bid-proposal-release.ts';
 export type { BidWindow } from './bid-proposal-release.ts';

@@ -360,7 +360,7 @@ describe('CtrContractStore (the contract register, ST-CTR-001)', () => {
       expect(await owner('select from_status, to_status, reason, effective_on::text as effective_on, command, created_by from machvon.contract_status_change where contract_id = $1::uuid', [made.id])).toEqual([
         { from_status: 'DRAFT', to_status: 'CANCELLED', reason: 'Awarded to the wrong lot', effective_on: TODAY, command: 'cancelContractDraft', created_by: memberId(ACTOR) },
       ]);
-      expect(await refusal(as((tx) => contracts.cancelDraft(tx, made.id, 2, 'Again', memberId(ACTOR), EVERYWHERE, TODAY)))).toEqual({ code: 'CONTRACT_STATE_INVALID', status: 409 });
+      expect(await refusal(as((tx) => contracts.cancelDraft(tx, made.id, 2, 'Again', memberId(ACTOR), EVERYWHERE, TODAY)))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409, extensions: { contract_status: 'CANCELLED', command: 'cancelContractDraft' } });
 
       const reviewed = await create(input({ code: 'HD-CAN-2' }));
       await owner("update machvon.contract set status = 'IN_REVIEW' where id = $1::uuid", [reviewed.id]);

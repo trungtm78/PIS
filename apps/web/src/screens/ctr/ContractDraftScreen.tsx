@@ -24,6 +24,7 @@ import {
   draftLink,
   formOf,
   partiesLink,
+  workspaceLink,
   reviseBody,
   validateForm,
 } from './model';
@@ -364,6 +365,9 @@ function DraftView({ contract }: { contract: ContractView }) {
           </Link>
           <Link className="button" to={guaranteesLink(contract.id)}>
             {t('ctr.draft.guarantees.action')}
+          </Link>
+          <Link className="button" to={workspaceLink(contract.id)}>
+            {t('ctr.draft.workspace.action')}
           </Link>
         </div>
       </div>

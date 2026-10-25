@@ -1307,6 +1307,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  // The life of a contract: the review, the signing and the activation. A caller that is refused changes no status and signs nothing.
+  submitContractForReview: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/submit-review`, ifMatch: '"1"', body: { note: REASON } }),
+  },
+  returnContractDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/return`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  recordContractSigning: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/sign`, ifMatch: '"1"', body: { signed_on: '2026-10-25', signed_document_version_id: t.documentVersionId } }),
+  },
+  post_contracts_id_activate: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/activate`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], effective_from: '2026-10-25' } }),
+  },
   // Land clearance: a section and a parcel of the CONCEPT project, the notice of a parcel and the import of a parcel list.
   createLandSection: {
     referencesTenantIds: true,

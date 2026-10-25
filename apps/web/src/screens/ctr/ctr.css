@@ -73,3 +73,23 @@
   white-space: nowrap;
   border: 0;
 }
+.ctr-dialog-body {
+  padding: 16px;
+}
+.ctr-dialog-body .formgrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+}
+.ctr-checks {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.ctr-history {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+}

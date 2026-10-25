@@ -286,6 +286,25 @@ export type { MilestoneDates, MilestoneField, MilestoneKind, MilestoneOrderIssue
 export { CONFLICT_DECISIONS, MAX_FILE_TITLE, MAX_PROPOSAL_FILES, MAX_RELATION_TEXT, MIN_CONFLICT_REASON, PROPOSAL_PARTS, PROPOSAL_STATUSES, RECEIPT_CLOCK_SKEW_MS, conflictStanding, declarationStanding, milestoneMoment, proposalView, receiptRefusal, standingOpens } from './bid-proposal.ts';
 export type { ConflictDecision, ConflictStanding, DeclarationFacts, ProposalPart, ProposalStatus, ProposalView, ReceiptRefusal, ViewFacts } from './bid-proposal.ts';
 export {
+  CONTRACT_COMMANDS,
+  CONTRACT_DOA_DOCUMENT_TYPE,
+  CONTRACT_STATUSES,
+  CONTRACT_TRANSITIONS,
+  GUARANTEE_EXEMPT_CATEGORIES,
+  MAX_LIFECYCLE_TEXT,
+  PERMIT_GATED_CATEGORIES,
+  SIGNED_STATUSES,
+  assertContractTransition,
+  assertNotMaker,
+  contractTransition,
+  isMakerOf,
+  requiresPerformanceGuarantee,
+  requiresPermitGate,
+  signingConflict,
+  withinDelegation,
+} from './contract-lifecycle.ts';
+export type { ConflictVerdict, ContractCommand, ContractStatus, LifecycleActors } from './contract-lifecycle.ts';
+export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,
   CONSENT_PURPOSES,

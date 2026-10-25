@@ -3288,12 +3288,17 @@
           "CTR"
         ],
         "x-error-codes": [
+          "CONFLICT_OF_INTEREST_BLOCKED",
+          "SELF_APPROVAL_DENIED",
+          "SCOPE_DENIED",
+          "DOA_RULE_NOT_FOUND",
           "PERFORMANCE_GUARANTEE_MISSING",
           "PERMIT_GATE_BLOCKED",
           "FUND_COMMIT_FAILED",
           "PROJECT_STAGE_INVALID",
           "CONTRACT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -67250,6 +67255,8 @@
           "CAPITAL_PLAN_NOT_APPROVED",
           "BOQ_TOTAL_MISMATCH",
           "JV_SHARE_NOT_100",
+          "CONTRACTOR_NOT_VERIFIED",
+          "CONTRACTOR_RESTRICTED",
           "CONTRACT_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -67402,7 +67409,8 @@
         "x-error-codes": [
           "CONTRACT_STATE_INVALID",
           "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -67553,9 +67561,12 @@
         "x-error-codes": [
           "CONFLICT_OF_INTEREST_BLOCKED",
           "SELF_APPROVAL_DENIED",
+          "SCOPE_DENIED",
+          "DOA_RULE_NOT_FOUND",
           "DOCUMENT_NOT_CLEAN",
           "CONTRACT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [

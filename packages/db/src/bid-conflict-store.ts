@@ -202,6 +202,22 @@ export class BidConflictStore {
     return rows.length > 0;
   }
 
+  /**
+   * The declaration that stands between a member and a contractor (BR-CTR-13): a conflict they declared with the contractor, on whichever package, or one against a whole package
+   * (none named, or blocked from it), that nobody allowed. Undefined when nothing stands between them. A contract of a package of the contractor asks this of the people who review and sign it.
+   */
+  async blockingDeclaration(tx: TenantTx, member: string, contractorId: string, packageId: string): Promise<{ id: string; packageId: string; contractorId: string | null } | undefined> {
+    const rows = await tx.query<{ id: string; package_id: string; contractor_id: string | null }>(
+      `select id, package_id, contractor_id from machvon.bid_conflict_declaration
+        where user_id = $1::uuid and has_conflict and decision is distinct from 'ALLOWED'
+          and (contractor_id = $2::uuid or (package_id = $3::uuid and (contractor_id is null or decision = 'BLOCKED')))
+        order by declared_at, id limit 1`,
+      [member, contractorId, packageId],
+    );
+    const row = rows[0];
+    return row === undefined ? undefined : { id: row.id, packageId: row.package_id, contractorId: row.contractor_id };
+  }
+
   /** The declaration of one member of a package, as the reads of the proposals need it. */
   async declarationOf(tx: TenantTx, packageId: string, member: string): Promise<{ hasConflict: boolean; decision: ConflictDecision | null; contractorId: string | null } | undefined> {
     const rows = await tx.query<{ has_conflict: boolean; decision: ConflictDecision | null; contractor_id: string | null }>(

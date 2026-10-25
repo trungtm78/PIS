@@ -276,6 +276,11 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     body: { parties: [{ contractor_id: CONTRACTOR_FIXTURES['TNT-B'].id, role: 'LEAD', share_pct: '60', work_value_vnd: '600' }, { contractor_id: CONTRACTOR_FIXTURES['TNT-A'].id, role: 'MEMBER', share_pct: '40', work_value_vnd: '400' }] },
   },
   { operation: 'cancelContractDraft', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancel attempt' } },
+  { operation: 'submitContractForReview', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign review attempt' } },
+  { operation: 'returnContractDraft', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign return attempt' } },
+  { operation: 'recordContractSigning', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { signed_on: '2026-10-25', signed_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
+  { operation: 'post_contracts_id_activate', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign activation attempt', evidence_ids: [], effective_from: '2026-10-25' } },
+  { operation: 'getContractSummary', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
   {
     operation: 'importBoqLines',
     method: 'POST',

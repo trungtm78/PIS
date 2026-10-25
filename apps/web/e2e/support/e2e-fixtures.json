@@ -1351,6 +1351,38 @@
       ]
     },
     {
+      "key": "lifecycleMaker",
+      "displayName": "Cán bộ soạn và trình hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000794",
+      "permissions": [
+        "contract.read",
+        "contract.update",
+        "contract.review.submit",
+        "session.self"
+      ]
+    },
+    {
+      "key": "lifecycleReviewer",
+      "displayName": "Lãnh đạo xem xét và ký hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000795",
+      "permissions": [
+        "contract.read",
+        "contract.review.decide",
+        "contract.sign",
+        "session.self"
+      ]
+    },
+    {
+      "key": "lifecycleActivator",
+      "displayName": "Lãnh đạo kích hoạt hợp đồng",
+      "membershipId": "00000000-0000-4000-8000-000000000796",
+      "permissions": [
+        "contract.read",
+        "contract.activate",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, activeGrants, addDecimal, compareDecimal, permissionMatches, versionConflict } from '@machvon/kernel';
-import type { EffectiveAccess } from '@machvon/kernel';
+import { CONTRACT_STATUSES, DomainError, assertContractTransition, activeGrants, addDecimal, compareDecimal, permissionMatches, versionConflict } from '@machvon/kernel';
+import type { ContractStatus, EffectiveAccess } from '@machvon/kernel';
 import { BidContractorStore } from './bid-contractor-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
 import { projectScope } from './prj-project-store.ts';
@@ -15,11 +15,11 @@ const MAX_REASON = 2000;
 const MAX_MONEY_DIGITS = 24;
 const MONEY = /^[0-9]+$/;
 const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
-const DRAFT_STATES: readonly string[] = ['DRAFT', 'IN_REVIEW'];
 const CANCEL_COMMAND = 'cancelContractDraft';
 
-export const CONTRACT_STATUSES = ['DRAFT', 'IN_REVIEW', 'SIGNED', 'ACTIVE', 'SUSPENDED', 'TERMINATED', 'COMPLETED', 'CLOSED', 'CANCELLED'] as const;
-export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
+// The statuses and the edges between them live in the kernel (contract-lifecycle.ts); the register re-exports them for the readers that already import them from here.
+export { CONTRACT_STATUSES };
+export type { ContractStatus };
 export const CONTRACT_TYPES = ['LUMP_SUM', 'UNIT_PRICE', 'ADJUSTABLE_PRICE', 'TIME_BASED', 'COST_PLUS_FEE', 'EPC', 'ESTIMATE_BASED'] as const;
 export type ContractType = (typeof CONTRACT_TYPES)[number];
 export const ADVANCE_CATEGORIES = ['CONSTRUCTION', 'EQUIPMENT', 'CONSULTING', 'EPC', 'LAND_CLEARANCE', 'OTHER'] as const;
@@ -130,6 +130,12 @@ export interface ContractDetail extends ContractLine {
   createdAt: string;
   updatedAt: string;
   createdBy: string | null;
+  /** Who sent the contract to review, who signed it and activated it, on which document and under which decision about a conflict (ST-CTR-004). */
+  submittedBy: string | null;
+  signedBy: string | null;
+  signedDocumentVersionId: string | null;
+  conflictDecisionRef: string | null;
+  activatedBy: string | null;
   ledger: ContractLedger;
   revisions: RevisionRow[];
   parties: PartyRow[];
@@ -246,6 +252,11 @@ interface DetailSql extends LineSql {
   created_at: string;
   updated_at: string;
   created_by: string | null;
+  submitted_by: string | null;
+  signed_by: string | null;
+  signed_document_version_id: string | null;
+  conflict_decision_ref: string | null;
+  activated_by: string | null;
   accepted_total_vnd: string;
   requested_total_vnd: string;
   paid_total_vnd: string;
@@ -310,6 +321,7 @@ const LIST_COLUMNS = `c.id, c.code, c.title, c.status, c.type, c.project_id, p.c
 
 const DETAIL_COLUMNS = `${LIST_COLUMNS}, c.advance_category, c.requires_quality_acceptance, c.signed_on::text as signed_on, c.effective_from::text as effective_from,
   c.status_reason, ${TIMESTAMP('c.created_at')} as created_at, ${TIMESTAMP('c.updated_at')} as updated_at, c.created_by,
+  c.submitted_by, c.signed_by, c.signed_document_version_id, c.conflict_decision_ref, c.activated_by,
   c.accepted_total_vnd::text as accepted_total_vnd, c.requested_total_vnd::text as requested_total_vnd, c.paid_total_vnd::text as paid_total_vnd,
   c.advance_paid_vnd::text as advance_paid_vnd, c.advance_recovered_vnd::text as advance_recovered_vnd, c.advance_outstanding_vnd::text as advance_outstanding_vnd,
   c.retention_held_vnd::text as retention_held_vnd, c.retention_released_vnd::text as retention_released_vnd`;
@@ -482,6 +494,11 @@ export class CtrContractStore {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       createdBy: row.created_by,
+      submittedBy: row.submitted_by,
+      signedBy: row.signed_by,
+      signedDocumentVersionId: row.signed_document_version_id,
+      conflictDecisionRef: row.conflict_decision_ref,
+      activatedBy: row.activated_by,
       ledger: {
         acceptedTotalVnd: row.accepted_total_vnd,
         requestedTotalVnd: row.requested_total_vnd,
@@ -666,7 +683,7 @@ export class CtrContractStore {
     const text = textOf(reason, 'reason', MAX_REASON);
     const locked = await this.lock(tx, id, scopes);
     if (locked.version !== expectedVersion) throw versionConflict(locked.version);
-    if (!DRAFT_STATES.includes(locked.status)) throw new DomainError('CONTRACT_STATE_INVALID', 409);
+    assertContractTransition('cancelContractDraft', locked.status);
     await tx.query(
       `update machvon.contract set status = 'CANCELLED', status_reason = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,
       [id, text, actor],

@@ -329,6 +329,17 @@ const PROPOSAL_ROLES = [
 ];
 
 /**
+ * The people of the review, the signing and the activation of a contract (CTR-03): the maker who drafts and sends to review, the reviewer who gives back and signs, and the one
+ * who activates, all over the whole tenant. The reviewer and the activator hold the rank of the band of the delegation-of-authority rule below. The permissions are the ones of
+ * apps/web/e2e/support/e2e-fixtures.json.
+ */
+const LIFECYCLE_ROLES = [
+  { n: 794, user: 'lifecycleMaker', code: 'E2E_LIFECYCLE_MAKER', permissions: ['contract.read', 'contract.update', 'contract.review.submit', 'session.self'], rank: 30 },
+  { n: 795, user: 'lifecycleReviewer', code: 'E2E_LIFECYCLE_REVIEWER', permissions: ['contract.read', 'contract.review.decide', 'contract.sign', 'session.self'], rank: 50 },
+  { n: 796, user: 'lifecycleActivator', code: 'E2E_LIFECYCLE_ACTIVATOR', permissions: ['contract.read', 'contract.activate', 'session.self'], rank: 50 },
+];
+
+/**
  * The people of the recall of issued documents and of the voiding of numbers (DOC-19): the leader who recalls, and two records managers who void the number of a
  * document that cannot be sealed (one executes, the other approves), all over the subtree of unit 2 where the documents are drafted. The permissions are the ones of
  * apps/web/e2e/support/e2e-fixtures.json.
@@ -533,6 +544,7 @@ const GRANTS: GrantPlan[] = [
   ...PROGRESS_ROLES.map((role, index): GrantPlan => ({ n: 770 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PROCUREMENT_ROLES.map((role, index): GrantPlan => ({ n: 780 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PROPOSAL_ROLES.map((role, index): GrantPlan => ({ n: 790 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...LIFECYCLE_ROLES.map((role, index): GrantPlan => ({ n: 794 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -603,6 +615,11 @@ function docDraftFixtures(tenantId: string): Array<[string, unknown[]]> {
       `insert into machvon.doa_rule (tenant_id, id, matrix_version_id, document_type, unit_id, include_subtree, amount_min_vnd, amount_max_vnd, approver_role_id, position)
        values ($1, $2, $3, 'QD', $4, true, 0, null, (select id from machvon.role_definition where code = 'TENANT_OWNER'), 0)`,
       [tenantId, fixtureId(0xd5, 2), matrix, unitId(1)],
+    ],
+    [
+      `insert into machvon.doa_rule (tenant_id, id, matrix_version_id, document_type, unit_id, include_subtree, amount_min_vnd, amount_max_vnd, approver_role_id, position)
+       values ($1, $2, $3, 'CTR_CONTRACT', $4, true, 0, null, (select id from machvon.role_definition where code = 'E2E_LIFECYCLE_REVIEWER'), 1)`,
+      [tenantId, fixtureId(0xd5, 3), matrix, unitId(1)],
     ],
     // The rules are written while the version is a draft; it then goes through the approval, which the guard of the table demands.
     ["update machvon.doa_matrix_version set status = 'PendingApproval' where id = $1", [matrix]],
@@ -825,7 +842,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

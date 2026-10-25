@@ -8,6 +8,7 @@ export const UPDATE_PERMISSION = 'contract.update';
 export const LIST_PATH = '/ctr/ctr-01';
 export const DRAFT_PATH = '/ctr/ctr-02';
 export const PARTIES_PATH = '/ctr/ctr-25';
+export const WORKSPACE_PATH = '/ctr/ctr-03';
 
 export const CONTRACT_STATUSES = ['DRAFT', 'IN_REVIEW', 'SIGNED', 'ACTIVE', 'SUSPENDED', 'TERMINATED', 'COMPLETED', 'CLOSED', 'CANCELLED'] as const;
 export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
@@ -517,3 +518,5 @@ const linkTo = (path: string, contractId: string): string => `${path}?${new URLS
 /** The address of the draft of a contract (CTR-02) and of its members (CTR-25). */
 export const draftLink = (contractId: string): string => linkTo(DRAFT_PATH, contractId);
 export const partiesLink = (contractId: string): string => linkTo(PARTIES_PATH, contractId);
+/** The address of the workspace of a contract (CTR-03): its review, its signing and its activation. */
+export const workspaceLink = (contractId: string): string => linkTo(WORKSPACE_PATH, contractId);
