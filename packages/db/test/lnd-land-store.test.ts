@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+import { handedRatio } from '@machvon/kernel';
 import type { EffectiveAccess, Scope } from '@machvon/kernel';
 import { LndParcelStore, parcelCodeOf, parcelScope } from '../src/lnd-parcel-store';
 import { LndSectionStore } from '../src/lnd-section-store';
@@ -8,6 +10,7 @@ import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
 import { WorkCalendarStore } from '../src/work-calendar-store';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, id, memberId, unitId } from './support/authz-fixtures';
+import { seedAs } from './support/bid-proposal-fixtures';
 import { seedLndWorld } from './support/lnd-fixtures';
 import type { LndWorld } from './support/lnd-fixtures';
 
@@ -626,6 +629,147 @@ describe('the sections, parcels and recovery timers of land clearance (ST-LND-00
       const created = await makeParcel({ landUseGroup: 'AGRICULTURAL' });
       expect(await refusal(notice(created.id, 1, '2026-10-20'))).toEqual({ code: 'CALENDAR_NOT_EFFECTIVE', status: 422, detail: 'year' });
       expect(await deadlineRows(created.id)).toEqual([]);
+    });
+  });
+
+  describe('recordSectionHandover (LND-10, ST-LND-009, BR-LND-06)', () => {
+    const DOCUMENT_OK = (): string => world.cleanDocument;
+    const make = async (extra: Record<string, unknown> = {}) => (await as((tx) => sections.create(tx, section({ contractId: world.contract, ...extra }), memberId(ACTOR)))).id;
+    const hand = (sectionId: string, area: string, version = 1, extra: Partial<Parameters<LndSectionStore['recordHandover']>[3]> = {}, today = TODAY) =>
+      as((tx) => sections.recordHandover(tx, sectionId, version, { handedAreaM2: area, handedOverOn: '2026-10-20', handoverDocumentVersionId: DOCUMENT_OK(), ...extra }, memberId(ACTOR), today));
+    const sectionRow = async (sectionId: string) =>
+      (
+        await owner<{ status: string; handed_area_m2: string; handed_over_on: string | null; handover_document_version_id: string | null; version: string; contract_id: string | null }>(
+          'select status, handed_area_m2::text, handed_over_on::text, handover_document_version_id, version::text, contract_id from machvon.land_handover_section where id = $1::uuid',
+          [sectionId],
+        )
+      )[0];
+    const contractOf = async (status: string, category = 'CONSTRUCTION'): Promise<string> => {
+      counter += 1;
+      const contractId = id(FAMILY, 100 + counter);
+      await seedAs(harness, [
+        [
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, advance_category)
+           values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', $8::date, $9)`,
+          [TENANT_A, contractId, world.project, id(FAMILY, 51), id(FAMILY, 50), `HD-S-${counter}`, status, status === 'SIGNED' ? null : '2026-01-01', category],
+        ],
+      ]);
+      return contractId;
+    };
+
+    it('AC-ST-LND-009-1, UAT-AC386: hands the land over in steps: PARTIAL with the area and the day, then HANDED_OVER with the whole of it, and keeps the document', async () => {
+      const created = await make();
+      const first = await hand(created, '18000');
+      expect(first).toMatchObject({ fromStatus: 'NOT_READY', status: 'PARTIAL', version: 2, previousHandedAreaM2: '0.00', handedAreaM2: '18000.00', handedOverOn: '2026-10-20', parcelsHandedOver: 0, contractId: world.contract });
+      expect(await sectionRow(created)).toEqual({ status: 'PARTIAL', handed_area_m2: '18000.00', handed_over_on: '2026-10-20', handover_document_version_id: world.cleanDocument, version: '2', contract_id: world.contract });
+
+      const last = await hand(created, '30000', 2, { handedOverOn: '2026-10-22' });
+      expect(last).toMatchObject({ fromStatus: 'PARTIAL', status: 'HANDED_OVER', version: 3, previousHandedAreaM2: '18000.00', handedAreaM2: '30000.00', handedOverOn: '2026-10-22' });
+      expect(await sectionRow(created)).toMatchObject({ status: 'HANDED_OVER', handed_area_m2: '30000.00', handed_over_on: '2026-10-22', version: '3' });
+    });
+
+    it('AC-ST-LND-009-1, UAT-AC386: refuses the handover above the area the section needs, and one to a contract that is not active', async () => {
+      const created = await make();
+      expect(await refusal(hand(created, '30000.01'))).toEqual({ code: 'HANDED_AREA_EXCEEDS_REQUIRED', status: 422, detail: 'handed_area_m2' });
+      expect((await sqlState(owner('update machvon.land_handover_section set handed_area_m2 = 30000.01, status = $2 where id = $1::uuid', [created, 'PARTIAL']))).message).toContain('land_section_area_chk');
+      expect((await sectionRow(created))?.status).toBe('NOT_READY');
+
+      for (const status of ['SIGNED', 'DRAFT', 'COMPLETED']) {
+        const contract = await contractOf(status);
+        const target = await make({ contractId: contract });
+        const refused = await as((tx) => sections.recordHandover(tx, target, 1, { handedAreaM2: '10000', handedOverOn: '2026-10-20', handoverDocumentVersionId: world.cleanDocument }, memberId(ACTOR), TODAY)).catch((error: unknown) => error as { code: string; status: number; extensions: Record<string, unknown> });
+        expect(refused).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409, extensions: { contract_status: status } });
+        expect((await sectionRow(target))?.status).toBe('NOT_READY');
+      }
+    });
+
+    it('is for a contract that builds: a section with no contract, and a consulting contract, are refused', async () => {
+      const bare = await as((tx) => sections.create(tx, section(), memberId(ACTOR)));
+      const refused = await as((tx) => sections.recordHandover(tx, bare.id, 1, { handedAreaM2: '10', handedOverOn: '2026-10-20', handoverDocumentVersionId: world.cleanDocument }, memberId(ACTOR), TODAY)).catch((error: unknown) => error as { code: string; status: number; detail: string; extensions: Record<string, unknown> });
+      expect(refused).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'contract_id', extensions: { reason: 'NO_CONTRACT' } });
+      const consulting = await contractOf('ACTIVE', 'CONSULTING');
+      const target = await make({ contractId: consulting });
+      const second = await as((tx) => sections.recordHandover(tx, target, 1, { handedAreaM2: '10', handedOverOn: '2026-10-20', handoverDocumentVersionId: world.cleanDocument }, memberId(ACTOR), TODAY)).catch((error: unknown) => error as { code: string; extensions: Record<string, unknown> });
+      expect(second).toMatchObject({ code: 'VALIDATION_FAILED', extensions: { reason: 'NOT_A_CONSTRUCTION_CONTRACT' } });
+      const epc = await contractOf('ACTIVE', 'EPC');
+      expect((await hand(await make({ contractId: epc }), '10')).status).toBe('PARTIAL');
+    });
+
+    it('lets the area only grow, the day only move forward, and takes a clean document under the version the caller saw', async () => {
+      const created = await make();
+      await hand(created, '10000');
+      expect(await refusal(hand(created, '10000', 2))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'handed_area_m2' });
+      expect(await refusal(hand(created, '9000', 2))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'handed_area_m2' });
+      expect(await refusal(hand(created, '12000', 2, { handedOverOn: '2026-10-19' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'handed_over_on' });
+      expect(await refusal(hand(created, '12000', 2, { handedOverOn: '2026-10-25' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'handed_over_on' });
+      expect(await refusal(hand(created, '12000', 2, { handoverDocumentVersionId: world.pendingDocument }))).toEqual({ code: 'DOCUMENT_NOT_CLEAN', status: 422, detail: 'handover_document_version_id' });
+      expect(await refusal(hand(created, '12000', 2, { handoverDocumentVersionId: id(FAMILY, 99) }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'handover_document_version_id' });
+      expect(await refusal(hand(created, '12000', 1))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
+      expect((await sectionRow(created))?.handed_area_m2).toBe('10000.00');
+      expect((await hand(created, '12000', 2, { handedOverOn: '2026-10-20' })).handedAreaM2).toBe('12000.00');
+    });
+
+    it('judges the shape: areas of at most two decimals and twelve integer digits, and days that exist', async () => {
+      const created = await make();
+      for (const area of ['', 'abc', '-1', '10.123', '1e3', '1234567890123', '0.00']) {
+        expect(await refusal(hand(created, area))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'handed_area_m2' });
+      }
+      expect(await refusal(hand(created, '10', 1, { handedOverOn: '2026-02-30' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'handed_over_on' });
+      expect(await refusal(hand(randomUUID(), '10'))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+    });
+
+    it('hands the parcels over with the last of the area, and only when every parcel of the section is paid', async () => {
+      const created = await make({ requiredAreaM2: '1000' });
+      const paid = await makeParcel({ sectionId: created });
+      const waiting = await makeParcel({ sectionId: created });
+      const done = await makeParcel({ sectionId: created });
+      await owner("update machvon.land_parcel set status = 'PAID' where id = $1::uuid", [paid.id]);
+      await owner("update machvon.land_parcel set status = 'HANDED_OVER' where id = $1::uuid", [done.id]);
+      // Part of the area may go before the compensation is all paid.
+      expect((await hand(created, '400')).status).toBe('PARTIAL');
+      const refused = await as((tx) => sections.recordHandover(tx, created, 2, { handedAreaM2: '1000', handedOverOn: '2026-10-21', handoverDocumentVersionId: world.cleanDocument }, memberId(ACTOR), TODAY)).catch((error: unknown) => error as { code: string; status: number; extensions: Record<string, unknown> });
+      expect(refused).toMatchObject({ code: 'PARCELS_NOT_READY', status: 422, extensions: { parcels_not_ready: 1 } });
+      expect((await sectionRow(created))?.status).toBe('PARTIAL');
+      expect((await parcelRow(paid.id))?.status).toBe('PAID');
+
+      await owner("update machvon.land_parcel set status = 'PAID' where id = $1::uuid", [waiting.id]);
+      const last = await hand(created, '1000', 2, { handedOverOn: '2026-10-21' });
+      expect(last).toMatchObject({ status: 'HANDED_OVER', parcelsHandedOver: 2 });
+      expect([(await parcelRow(paid.id))?.status, (await parcelRow(waiting.id))?.status, (await parcelRow(done.id))?.status]).toEqual(['HANDED_OVER', 'HANDED_OVER', 'HANDED_OVER']);
+      expect((await parcelRow(paid.id))?.version).toBe('2');
+      expect((await parcelRow(done.id))?.version).toBe('1');
+    });
+
+    it('keeps a section as it was handed over: the database refuses a smaller area, a contract that changes, a status that does not match, and a handover with no day or document', async () => {
+      const created = await make();
+      await hand(created, '10000');
+      const update = (set: string, params: unknown[] = []) => sqlState(owner(`update machvon.land_handover_section set ${set} where id = $1::uuid`, [created, ...params]));
+      expect((await update('handed_area_m2 = 9000')).message).toContain('never decreases');
+      expect((await update("handed_over_on = date '2026-10-01'")).message).toContain('never moves back');
+      expect((await update('contract_id = $2::uuid', [world.foreignContract])).message).toContain('does not change');
+      expect((await update("status = 'HANDED_OVER'")).message).toContain('land_section_status_chk');
+      expect((await update('handed_over_on = null')).message).toContain('land_section_handover_chk');
+      expect((await update('handover_document_version_id = null')).message).toContain('land_section_handover_chk');
+      const bare = await as((tx) => sections.create(tx, section(), memberId(ACTOR)));
+      expect((await sqlState(owner("update machvon.land_handover_section set handed_area_m2 = 10, status = 'PARTIAL', handed_over_on = date '2026-10-20', handover_document_version_id = $2::uuid where id = $1::uuid", [bare.id, world.cleanDocument]))).message).toContain('land_section_contract_chk');
+      expect(await sectionRow(created)).toMatchObject({ status: 'PARTIAL', handed_area_m2: '10000.00' });
+    });
+
+    it('computes the share of the project that was handed over from the sections it has', async () => {
+      const project = world.otherProject;
+      const seedSection = (code: string, required: string, handed: string, contract: string) =>
+        seedAs(harness, [
+          [
+            `insert into machvon.land_handover_section (tenant_id, id, project_id, contract_id, code, name, required_area_m2, handed_area_m2, handed_over_on, handover_document_version_id, status, created_by, updated_by)
+             values ($1, gen_random_uuid(), $2, $3, $4, 'Section', $5::numeric, $6::numeric, case when $6::numeric = 0 then null else date '2026-10-20' end, case when $6::numeric = 0 then null else $7::uuid end,
+                     case when $6::numeric = 0 then 'NOT_READY' when $6::numeric = $5::numeric then 'HANDED_OVER' else 'PARTIAL' end, $8, $8)`,
+            [TENANT_A, project, contract, code, required, handed, world.cleanDocument, memberId(ACTOR)],
+          ],
+        ]);
+      await seedSection('RATIO-1', '30000', '30000', world.foreignContract);
+      await seedSection('RATIO-2', '28000', '0', world.foreignContract);
+      const totals = await owner<{ required: string; handed: string }>("select sum(required_area_m2)::text as required, sum(handed_area_m2)::text as handed from machvon.land_handover_section where project_id = $1::uuid and code like 'RATIO-%'", [project]);
+      expect(handedRatio(totals[0]?.handed ?? '0', totals[0]?.required ?? '0')).toBe('51.72');
     });
   });
 });

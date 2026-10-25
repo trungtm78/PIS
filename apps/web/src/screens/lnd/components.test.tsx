@@ -5,7 +5,7 @@ import vi_ from '../../i18n/vi.json';
 import { NoticeDialog, ParcelDialog, SectionDialog } from './components';
 import { toParcelLine } from './model';
 import type { ParcelLine } from './model';
-import { DOCUMENT, PROJECT, SECTION, UNIT_TTQD, UNIT_XA, client, mount, parcel, world } from './test-support';
+import { CONTRACT, DOCUMENT, PROJECT, SECTION, UNIT_TTQD, UNIT_XA, client, mount, parcel, world } from './test-support';
 
 const problem = (code: string, status = 422) => new ApiError({ status, code, correlationId: 'c', extensions: {} });
 const OK = { operation_id: 'o', status: 'SURVEYED', resource_version: 2, resource_id: 'x' };
@@ -166,6 +166,26 @@ describe('SectionDialog (the creation of a handover section)', () => {
       'createLandSection',
       expect.objectContaining({ body: { project_id: PROJECT, code: 'KM-0-3', name: 'Km 0 đến km 3', required_area_m2: '30000', from_km: '0', to_km: '3', target_date: '2027-03-01' } }),
     );
+  });
+
+  it('offers the contracts of the project as the one that receives the land, and sends the one that is chosen', async () => {
+    const h = client(world(), () => OK);
+    const onClose = vi.fn();
+    mount(<SectionDialog projectId={PROJECT} contracts={[{ id: CONTRACT, code: 'HD-A-001', projectId: PROJECT }]} onClose={onClose} />, h, { permissions: ['land.manage'] });
+    const select = screen.getByLabelText(vi_['lnd.sectionDialog.contract.label']) as HTMLSelectElement;
+    expect(Array.from(select.options).map((option) => option.textContent)).toEqual([vi_['lnd.sectionDialog.contract.none'], 'HD-A-001']);
+    fill(vi_['lnd.sectionDialog.code.label'], 'KM-0-3');
+    fill(vi_['lnd.sectionDialog.name.label'], 'Km 0 đến km 3');
+    fill(vi_['lnd.sectionDialog.area.label'], '30000');
+    fireEvent.change(select, { target: { value: CONTRACT } });
+    save();
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(h.command).toHaveBeenCalledWith('createLandSection', expect.objectContaining({ body: expect.objectContaining({ contract_id: CONTRACT }) }));
+  });
+
+  it('does not offer a contract when the project has none the caller can read', () => {
+    open();
+    expect(screen.queryByLabelText(vi_['lnd.sectionDialog.contract.label'])).toBeNull();
   });
 
   it('shows a refusal of the server and does not send twice while it is sending', async () => {

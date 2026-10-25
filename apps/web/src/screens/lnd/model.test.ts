@@ -170,12 +170,13 @@ describe('the form of a parcel', () => {
 });
 
 describe('the form of a section', () => {
-  const good: SectionForm = { code: 'KM-0-3', name: 'Km 0 to km 3', fromKm: '0', toKm: '3.5', requiredAreaM2: '30000', targetDate: '2027-03-01' };
+  const good: SectionForm = { code: 'KM-0-3', name: 'Km 0 to km 3', fromKm: '0', toKm: '3.5', requiredAreaM2: '30000', targetDate: '2027-03-01', contractId: '' };
 
   it('accepts a good form and sends only the fields that are filled', () => {
     expect(validateSection(good)).toEqual({});
     expect(sectionBody('p1', good)).toEqual({ project_id: 'p1', code: 'KM-0-3', name: 'Km 0 to km 3', required_area_m2: '30000', from_km: '0', to_km: '3.5', target_date: '2027-03-01' });
     expect(sectionBody('p1', { ...good, fromKm: '', toKm: '', targetDate: '' })).toEqual({ project_id: 'p1', code: 'KM-0-3', name: 'Km 0 to km 3', required_area_m2: '30000' });
+    expect(sectionBody('p1', { ...good, contractId: 'c1' })).toMatchObject({ contract_id: 'c1' });
   });
 
   it('says what is missing, too long, or not valid', () => {

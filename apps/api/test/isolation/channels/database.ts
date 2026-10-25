@@ -291,6 +291,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
+  'recordSectionHandover',
   'getProjectLifecycle',
   'listProjectPipeline',
   'createRetentionPolicyVersion',

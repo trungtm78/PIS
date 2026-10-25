@@ -703,6 +703,14 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, parcelId, projectId, unitId(2), ACTOR],
       ],
     ]);
+    // A section of that project: the handover command acts on it.
+    const sectionId = id(0xb2, 2);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.land_handover_section (tenant_id, id, project_id, code, name, required_area_m2, status, created_by, updated_by) values ($1, $2, $3, 'MX-SEC', 'Matrix section', 100, 'NOT_READY', $4, $4)`,
+        [TENANT_A, sectionId, projectId, ACTOR],
+      ],
+    ]);
     // Who answers for that project and a task force of its unit: the assignment commands act on them.
     const accountabilityId = id(0xb3, 1);
     const taskForceId = id(0xb3, 2);
@@ -928,6 +936,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       permitDossierId,
       permitId,
       parcelId,
+      sectionId,
       issueCategoryVersionId,
       slaPolicyId,
       issueId,

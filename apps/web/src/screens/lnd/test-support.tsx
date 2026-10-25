@@ -34,6 +34,7 @@ export const UNIT_XA = uuid('0002', 1);
 export const UNIT_TTQD = uuid('0002', 2);
 export const SECTION = uuid('0003', 1);
 export const DOCUMENT = uuid('0004', 1);
+export const CONTRACT = uuid('0005', 1);
 
 export const parcel = (n: number, overrides: Record<string, unknown> = {}) => ({
   id: uuid('0010', n),
@@ -76,6 +77,7 @@ export interface World {
   parcels: Array<Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
+  contracts: Array<Record<string, unknown>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
 }
@@ -92,6 +94,7 @@ export function world(overrides: Partial<World> = {}): World {
       { id: UNIT_XA, code: 'XA1', name: 'UBND xã An Phú' },
       { id: UNIT_TTQD, code: 'TTQD', name: 'Trung tâm phát triển quỹ đất' },
     ],
+    contracts: [{ id: CONTRACT, code: 'HD-A-001', project_id: PROJECT }],
     failing: new Set(),
     ...overrides,
   };
@@ -112,6 +115,8 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.sections);
         case 'get_resources_organization_unit':
           return Promise.resolve(state.units);
+        case 'get_resources_contract':
+          return Promise.resolve(state.contracts);
         default:
           return Promise.reject(new Error(`unexpected readAll ${operation}`));
       }

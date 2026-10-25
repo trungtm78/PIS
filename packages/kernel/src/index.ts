@@ -306,6 +306,8 @@ export {
 export type { ConflictVerdict, ContractCommand, ContractStatus, LifecycleActors } from './contract-lifecycle.ts';
 export { GUARANTEE_ACTIONS, MAX_EXTENSION_DAYS, NEW_WORK_STATUSES, acceptsNewWork, assertDayBetween, assertNotProposer, guaranteeActionOf, terminationSuggestion } from './contract-halt.ts';
 export type { GuaranteeAction, TerminationSuggestion } from './contract-halt.ts';
+export { HANDOVER_CATEGORIES, HANDOVER_READY_PARCEL_STATUSES, handedRatio, receivesSite, sectionStatusFor } from './land-handover.ts';
+export type { SectionHandoverStatus } from './land-handover.ts';
 export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,

@@ -71,6 +71,18 @@ export class LndLandSource {
     return rows[0];
   }
 
+  /** The project a section lies in, from the section alone; undefined when it does not exist in the tenant. */
+  async sectionRef(tx: TenantTx, sectionId: string): Promise<{ id: string; projectId: string } | undefined> {
+    const rows = await tx.query<{ id: string; project_id: string }>('select id, project_id from machvon.land_handover_section where id = $1::uuid', [sectionId]);
+    return rows[0] === undefined ? undefined : { id: rows[0].id, projectId: rows[0].project_id };
+  }
+
+  /** What a section needs to know of the contract that receives it: its status and the group it belongs to; undefined when it does not exist in the tenant. */
+  async contractFacts(tx: TenantTx, contractId: string): Promise<{ status: string; advanceCategory: string } | undefined> {
+    const rows = await tx.query<{ status: string; advance_category: string }>('select status, advance_category from machvon.contract where id = $1::uuid', [contractId]);
+    return rows[0] === undefined ? undefined : { status: rows[0].status, advanceCategory: rows[0].advance_category };
+  }
+
   /** The section of a project by its id; undefined when it does not exist in the project. */
   async sectionOfProject(tx: TenantTx, projectId: string, sectionId: string): Promise<{ id: string } | undefined> {
     const rows = await tx.query<{ id: string }>('select id from machvon.land_handover_section where project_id = $1::uuid and id = $2::uuid', [projectId, sectionId]);

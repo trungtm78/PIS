@@ -19,7 +19,7 @@ import {
   validateParcel,
   validateSection,
 } from './model';
-import type { NoticeForm, ParcelForm, ParcelLine, SectionForm, SectionOption, UnitOption } from './model';
+import type { ContractOption, NoticeForm, ParcelForm, ParcelLine, SectionForm, SectionOption, UnitOption } from './model';
 import './lnd.css';
 
 /** The multiplication sign on the close button of a dialog. */
@@ -211,8 +211,8 @@ export function ParcelDialog({ projectId, units, sections, onClose }: ParcelDial
   );
 }
 
-/** The creation of a section of a project, by kilometre or by area. */
-export function SectionDialog({ projectId, onClose }: { projectId: string; onClose(): void }) {
+/** The creation of a section of a project, by kilometre or by area; the construction contract that receives it may be named now or later. */
+export function SectionDialog({ projectId, contracts = [], onClose }: { projectId: string; contracts?: readonly ContractOption[]; onClose(): void }) {
   const { t } = useTranslation();
   const create = useCreateSection();
   const [form, setForm] = useState<SectionForm>(EMPTY_SECTION_FORM);
@@ -254,6 +254,18 @@ export function SectionDialog({ projectId, onClose }: { projectId: string; onClo
       <Field id="section-target" label={t('lnd.sectionDialog.target.label')} error={error('targetDate')}>
         <input id="section-target" type="date" value={form.targetDate} onChange={(event) => setForm({ ...form, targetDate: event.target.value })} />
       </Field>
+      {contracts.length === 0 ? null : (
+        <Field id="section-contract" label={t('lnd.sectionDialog.contract.label')} error={undefined} hint={t('lnd.sectionDialog.contract.hint')}>
+          <select id="section-contract" value={form.contractId} onChange={(event) => setForm({ ...form, contractId: event.target.value })}>
+            <option value="">{t('lnd.sectionDialog.contract.none')}</option>
+            {contracts.map((contract) => (
+              <option key={contract.id} value={contract.id}>
+                {contract.code}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
     </DialogFrame>
   );
 }

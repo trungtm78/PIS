@@ -85371,6 +85371,9 @@
           "HANDED_AREA_EXCEEDS_REQUIRED",
           "PARCELS_NOT_READY",
           "CONTRACT_STATE_INVALID",
+          "DOCUMENT_NOT_CLEAN",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",

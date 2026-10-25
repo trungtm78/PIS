@@ -528,7 +528,7 @@ export type { CreatedProject, FieldChange, GroupSuggestion, MasterLabel, NewProj
 export { LndLandSource, WARD_MASTER_TYPES } from './lnd-land-source.ts';
 export type { LandProjectRef } from './lnd-land-source.ts';
 export { LndSectionStore } from './lnd-section-store.ts';
-export type { CreatedLandSection, LandSectionRow, LandSectionStatus, NewLandSection } from './lnd-section-store.ts';
+export type { CreatedLandSection, LandSectionRow, LandSectionStatus, NewLandSection, SectionHandoverInput, SectionHandoverResult } from './lnd-section-store.ts';
 export { LndParcelStore, PARCEL_STATUSES, parcelCodeOf, parcelScope } from './lnd-parcel-store.ts';
 export type { CreatedLandParcel, DeadlineStatus, NewLandParcel, ParcelDeadlineView, ParcelFilter, ParcelPlace, ParcelRow, ParcelStatus, RecordedDecision, RecordedNotice } from './lnd-parcel-store.ts';
 export { LAND_PARCEL_CONNECTOR_PREFIX, LAND_PARCEL_FORMAT_VERSION, LndParcelImportStore, PARCEL_COLUMNS, PARCEL_FIELDS, REQUIRED_PARCEL_FIELDS, checkParcelLayout, connectorOf, createParcelFileAdapter, createParcelFileFormat } from './lnd-parcel-import.ts';

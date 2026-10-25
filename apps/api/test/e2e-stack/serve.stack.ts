@@ -410,6 +410,8 @@ const NATIONAL_CODE_ROLES = [{ n: 380, user: 'nationalCodeAdmin', code: 'E2E_NAT
 const LAND_ROLES = [
   { n: 390, user: 'landOfficer', code: 'E2E_LAND_OFFICER', permissions: ['land.manage', 'land.process', 'land.read', 'project.read', 'organization_unit.read'], rank: 40 },
   { n: 391, user: 'landReader', code: 'E2E_LAND_READER', permissions: ['land.read', 'project.read', 'organization_unit.read'], rank: 20 },
+  // Hands cleared land over to a construction contract (LND-10); reads the contracts to name the one that receives it.
+  { n: 392, user: 'landHandover', code: 'E2E_LAND_HANDOVER', permissions: ['land.handover', 'land.read', 'project.read', 'organization_unit.read', 'contract.read'], rank: 30 },
 ];
 
 /** The people of the accountability screens (PRJ-17, PRJ-18): the office that assigns leaders and manages task forces on the whole tenant, and the reader. */

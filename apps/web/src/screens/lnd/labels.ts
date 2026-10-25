@@ -88,6 +88,16 @@ export function formProblemMessage(t: Translate, problem: FormProblem): string {
 /** The sentence for a refusal of a command; a problem the screen has no sentence for is the general one. */
 export function commandProblemMessage(t: Translate, problem: CommandProblem): string {
   switch (problem) {
+    case 'areaExceeded':
+      return t('lnd.problem.areaExceeded.error');
+    case 'parcelsNotReady':
+      return t('lnd.problem.parcelsNotReady.error');
+    case 'contractNotActive':
+      return t('lnd.problem.contractNotActive.error');
+    case 'noContract':
+      return t('lnd.problem.noContract.error');
+    case 'notBuilding':
+      return t('lnd.problem.notBuilding.error');
     case 'codeDuplicate':
       return t('lnd.problem.codeDuplicate.error');
     case 'areaInvalid':

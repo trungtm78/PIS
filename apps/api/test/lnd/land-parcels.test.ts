@@ -18,7 +18,8 @@ import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
 import { LandSectionController } from '../../src/modules/lnd/section.controller';
 import { LandStageProgressController } from '../../src/modules/lnd/stage-progress.controller';
-import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { seedAs } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { seedLndWorld } from '../../../../packages/db/test/support/lnd-fixtures';
 import type { LndWorld } from '../../../../packages/db/test/support/lnd-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -34,6 +35,8 @@ const PROJECT_OFFICER = 3; // the same on project 1 only
 const READER = 4; // land.read on the whole tenant
 const PROCESS_ELSEWHERE = 5; // land.read on the whole tenant, land.process on the other branch only
 const NOBODY = 6;
+const HANDOVER = 8; // land.handover and land.read on the whole tenant
+const HANDOVER_ELSEWHERE = 9; // land.read on the whole tenant, land.handover on the other branch only
 const PROCESS_ONLY = 7; // land.process on the unit tree of the department and nothing else: the commune officer of the module document
 const B_OFFICER = 1; // of tenant B
 const ROOT = 1;
@@ -142,12 +145,14 @@ describe('land clearance: sections, parcels without owners, the parcel import an
       ]);
     }
     await harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, (tx) => applyBaseline(tx, BASELINE_PACK, WORKER, '2026-10-24'));
-    for (const n of [OFFICER, DEPARTMENT_OFFICER, PROJECT_OFFICER, READER, PROCESS_ELSEWHERE, NOBODY, PROCESS_ONLY]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [OFFICER, DEPARTMENT_OFFICER, PROJECT_OFFICER, READER, PROCESS_ELSEWHERE, NOBODY, PROCESS_ONLY, HANDOVER, HANDOVER_ELSEWHERE]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_OFFICER, ROOT);
     await harness.seedRole(TENANT_A, 1, 'LAND_OFFICER', ['land.manage', 'land.process', 'land.read'], 40);
     await harness.seedRole(TENANT_A, 2, 'LAND_READER', ['land.read'], 20);
     await harness.seedRole(TENANT_A, 3, 'LAND_PROCESS', ['land.process'], 30);
+    await harness.seedRole(TENANT_A, 4, 'LAND_HANDOVER', ['land.handover'], 30);
     await harness.seedRole(TENANT_B, 1, 'LAND_OFFICER', ['land.manage', 'land.process', 'land.read'], 40);
+    await harness.seedRole(TENANT_B, 2, 'LAND_HANDOVER', ['land.handover'], 30);
     world = await seedLndWorld(harness.database.adminUrl, TENANT_A, FAMILY, OFFICER, DEPARTMENT, ROOT);
     worldB = await seedLndWorld(harness.database.adminUrl, TENANT_B, FAMILY_B, B_OFFICER, DEPARTMENT, ROOT);
     await harness.seedGrants(TENANT_A, [
@@ -158,8 +163,15 @@ describe('land clearance: sections, parcels without owners, the parcel import an
       { n: 5, member: PROCESS_ELSEWHERE, role: 2, kind: 'TENANT' },
       { n: 6, member: PROCESS_ELSEWHERE, role: 3, kind: 'UNIT_SUBTREE', refs: [unitId(ELSEWHERE)] },
       { n: 7, member: PROCESS_ONLY, role: 3, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
+      { n: 8, member: HANDOVER, role: 4, kind: 'TENANT' },
+      { n: 9, member: HANDOVER, role: 2, kind: 'TENANT' },
+      { n: 10, member: HANDOVER_ELSEWHERE, role: 2, kind: 'TENANT' },
+      { n: 11, member: HANDOVER_ELSEWHERE, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(ELSEWHERE)] },
     ]);
-    await harness.seedGrants(TENANT_B, [{ n: 1, member: B_OFFICER, role: 1, kind: 'TENANT' }]);
+    await harness.seedGrants(TENANT_B, [
+      { n: 1, member: B_OFFICER, role: 1, kind: 'TENANT' },
+      { n: 2, member: B_OFFICER, role: 2, kind: 'TENANT' },
+    ]);
     const tenants = harness.tenants as TenantDatabase;
     files = new FileService({ storage: new FsObjectStorage(root), scanner: new MockScanPort(), urlSecret: randomBytes(32) });
     app = await startTestApp({
@@ -576,6 +588,105 @@ describe('land clearance: sections, parcels without owners, the parcel import an
       const missing = await uploadDoor(OFFICER, bytesOf('parcel_code,owner_unit_code', 'A,U2'));
       expect(missing.json.missing_columns).toEqual(['land_use_group', 'area_total_m2', 'area_affected_m2']);
       expect((await uploadDoor(READER, bytesOf(HEADER, 'UP-3,U2,AGRICULTURAL,100,50,,'))).status).toBe(403);
+    });
+  });
+  describe('recordSectionHandover (AC-ST-LND-009-1, UAT-AC386)', () => {
+    const hand = (member: number, sectionId: string, version: number | string, extra: Record<string, unknown> = {}, tenantId?: string): Promise<Reply> =>
+      call('POST', `/land-sections/${sectionId}/handover`, {
+        member,
+        ifMatch: `"${version}"`,
+        ...(tenantId === undefined ? {} : { tenantId }),
+        body: { handed_area_m2: '18000', handed_over_on: '2026-10-20', handover_document_version_id: world.cleanDocument, ...extra },
+      });
+    const sectionOf = async (sectionId: string) =>
+      (
+        await rows<{ status: string; handed_area_m2: string; handed_over_on: string | null; handover_document_version_id: string | null; version: string }>(
+          'select status, handed_area_m2::text, handed_over_on::text, handover_document_version_id, version::text from machvon.land_handover_section where id = $1::uuid',
+          [sectionId],
+        )
+      )[0];
+    const newSection = async (extra: Record<string, unknown> = {}): Promise<string> => (await createSection(OFFICER, { contract_id: world.contract, ...extra })).json.resource_id as string;
+    const contractWith = async (status: string, category = 'CONSTRUCTION'): Promise<string> => {
+      const contractId = randomUUID();
+      await seedAs(harness, [
+        [
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, advance_category)
+           values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', $8::date, $9)`,
+          [TENANT_A, contractId, world.project, id(FAMILY, 51), id(FAMILY, 50), code('HD-H'), status, status === 'SIGNED' ? null : '2026-01-01', category],
+        ],
+      ]);
+      return contractId;
+    };
+
+    it('hands the land over in steps for a contract that is active: PARTIAL, then HANDED_OVER, with the audit row and the event the contracts read', async () => {
+      const sectionId = await newSection();
+      const first = await hand(HANDOVER, sectionId, 1);
+      expect(first).toMatchObject({ status: 200, json: { status: 'PARTIAL', resource_version: 2, resource_id: sectionId } });
+      expect(await sectionOf(sectionId)).toEqual({ status: 'PARTIAL', handed_area_m2: '18000.00', handed_over_on: '2026-10-20', handover_document_version_id: world.cleanDocument, version: '2' });
+      const last = await hand(HANDOVER, sectionId, 2, { handed_area_m2: '30000', handed_over_on: '2026-10-22' });
+      expect(last).toMatchObject({ status: 200, json: { status: 'HANDED_OVER', resource_version: 3 } });
+      expect((await sectionOf(sectionId))?.handed_area_m2).toBe('30000.00');
+
+      const trail = await audits(sectionId, 'land.section_handed_over');
+      expect(trail).toHaveLength(2);
+      expect(trail[1]).toMatchObject({ outcome: 'SUCCESS', actor_id: memberId(HANDOVER), safe_diff: { from_status: 'PARTIAL', status: 'HANDED_OVER', previous_handed_area_m2: '18000.00', handed_area_m2: '30000.00', contract_id: world.contract } });
+      const handed = await events(sectionId, 'lnd.section.handed_over.v1');
+      expect(handed).toHaveLength(2);
+      expect(handed[1]?.payload).toMatchObject({ section_id: sectionId, project_id: world.project, contract_id: world.contract, status: 'HANDED_OVER', handed_area_m2: '30000.00', required_area_m2: '30000.00', handed_over_on: '2026-10-22', version: 3, actor_id: memberId(HANDOVER) });
+    });
+
+    it('UAT-AC386: refuses 30000.01 against 30000.00 needed (422 HANDED_AREA_EXCEEDS_REQUIRED) and a contract that is only signed (409 CONTRACT_STATE_INVALID), and changes nothing', async () => {
+      const sectionId = await newSection();
+      expect(await hand(HANDOVER, sectionId, 1, { handed_area_m2: '30000.01' })).toMatchObject({ status: 422, json: { code: 'HANDED_AREA_EXCEEDS_REQUIRED' } });
+      const signed = await contractWith('SIGNED');
+      const second = await newSection({ contract_id: signed, required_area_m2: '28000' });
+      expect(await hand(HANDOVER, second, 1, { handed_area_m2: '10000' })).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID', contract_status: 'SIGNED' } });
+      expect((await sectionOf(sectionId))?.status).toBe('NOT_READY');
+      expect((await sectionOf(second))?.status).toBe('NOT_READY');
+      expect(await audits(sectionId, 'land.section_handed_over')).toEqual([]);
+      expect(await events(second, 'lnd.section.handed_over.v1')).toEqual([]);
+    });
+
+    it('is for a contract that builds, and for the area, the day and the document of a real handover', async () => {
+      const bare = (await createSection(OFFICER)).json.resource_id as string;
+      expect(await hand(HANDOVER, bare, 1)).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      const consulting = await newSection({ contract_id: await contractWith('ACTIVE', 'CONSULTING') });
+      expect(await hand(HANDOVER, consulting, 1)).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      const target = await newSection();
+      await hand(HANDOVER, target, 1);
+      expect(await hand(HANDOVER, target, 2, { handed_area_m2: '18000' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await hand(HANDOVER, target, 2, { handed_area_m2: '20000', handed_over_on: '2026-10-19' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await hand(HANDOVER, target, 2, { handed_area_m2: '20000', handover_document_version_id: world.pendingDocument })).toMatchObject({ status: 422, json: { code: 'DOCUMENT_NOT_CLEAN' } });
+      expect(await hand(HANDOVER, target, 1, { handed_area_m2: '20000' })).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+      expect(await hand(HANDOVER, target, 2, { handed_area_m2: '20000', status: 'HANDED_OVER' })).toMatchObject({ status: 400, json: { code: 'FIELD_NOT_ALLOWED' } });
+      expect(await hand(HANDOVER, target, 2, { handed_area_m2: '20000', tenant_id: TENANT_B })).toMatchObject({ status: 400, json: { code: 'FIELD_NOT_ALLOWED' } });
+      expect((await sectionOf(target))?.handed_area_m2).toBe('18000.00');
+    });
+
+    it('hands the paid parcels over with the last of the area, and refuses it while a parcel is not paid', async () => {
+      const sectionId = await newSection({ required_area_m2: '1000' });
+      const paid = (await createParcel(OFFICER, { section_id: sectionId })).json.resource_id as string;
+      const waiting = (await createParcel(OFFICER, { section_id: sectionId })).json.resource_id as string;
+      await rows("update machvon.land_parcel set status = 'PAID' where id = $1::uuid", [paid]);
+      expect(await hand(HANDOVER, sectionId, 1, { handed_area_m2: '1000' })).toMatchObject({ status: 422, json: { code: 'PARCELS_NOT_READY' } });
+      expect((await sectionOf(sectionId))?.status).toBe('NOT_READY');
+      await rows("update machvon.land_parcel set status = 'PAID' where id = $1::uuid", [waiting]);
+      expect(await hand(HANDOVER, sectionId, 1, { handed_area_m2: '1000' })).toMatchObject({ status: 200, json: { status: 'HANDED_OVER' } });
+      expect((await parcelRow(paid)).status).toBe('HANDED_OVER');
+      expect((await parcelRow(waiting)).status).toBe('HANDED_OVER');
+      const [audit] = await audits(sectionId, 'land.section_handed_over');
+      expect(audit?.safe_diff).toMatchObject({ parcels_handed_over: 2 });
+    });
+
+    it('is for whoever holds land.handover over the project: a reader and an officer of another branch are refused, a section of another tenant does not exist', async () => {
+      const sectionId = await newSection();
+      expect((await hand(READER, sectionId, 1)).status).toBe(403);
+      expect((await hand(OFFICER, sectionId, 1)).status).toBe(403);
+      expect((await hand(HANDOVER_ELSEWHERE, sectionId, 1)).status).toBe(403);
+      expect((await hand(NOBODY, sectionId, 1)).status).toBe(403);
+      expect((await hand(HANDOVER, randomUUID(), 1)).status).toBe(404);
+      expect((await hand(B_OFFICER, sectionId, 1, {}, TENANT_B)).status).toBe(404);
+      expect((await sectionOf(sectionId))?.status).toBe('NOT_READY');
     });
   });
 });

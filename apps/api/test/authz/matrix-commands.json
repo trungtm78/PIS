@@ -124,6 +124,7 @@
     "recordProcurementMilestone",
     "recordProjectAppraisal",
     "recordRecoveryNotice",
+    "recordSectionHandover",
     "recordUsageEvent",
     "registerAppropriation",
     "registerContractor",

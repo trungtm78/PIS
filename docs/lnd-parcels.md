@@ -62,3 +62,22 @@ Personal data minimisation is the point of the story. A parcel is land and nothi
 | Stores | `packages/db/src/lnd-section-store.ts`, `lnd-parcel-store.ts`, `lnd-parcel-import.ts`, `lnd-land-source.ts`, `lnd-values.ts`, `lnd-stage-progress-store.ts` (reports, overview, the job `land-stage-late`) |
 | API | `apps/api/src/modules/lnd/` |
 | Screen pieces | `apps/web/src/screens/lnd/` (LND-02), `apps/web/src/screens/lnd/progress/` (LND-01, LND-11) |
+
+## The handover of a section to a construction contract (ST-LND-009, LND-10)
+
+`recordSectionHandover` (`POST /land-sections/{id}/handover`, `land.handover` over the project of the section, `If-Match` on the version of the section) hands cleared land to the
+contract of a section. The body is `handed_area_m2` (the whole area handed over by now), `handed_over_on` and `handover_document_version_id` (a clean file of the tenant).
+
+Refusals, in order: the shape (422 `VALIDATION_FAILED`), the section (404 outside the tenant, 403 `SCOPE_DENIED` without the permission over its project), the version (409
+`VERSION_CONFLICT`), the contract (422 `VALIDATION_FAILED` on `contract_id` for a section with no contract or a contract that does not build; 409 `CONTRACT_STATE_INVALID` for a
+contract that is not ACTIVE), the area (422 `HANDED_AREA_EXCEEDS_REQUIRED` above what the section needs, 422 `VALIDATION_FAILED` when it does not grow), the day (not in the future, not
+before the last handover), the document (422 `DOCUMENT_NOT_CLEAN`) and, for the last of the area, the parcels (422 `PARCELS_NOT_READY`).
+
+* The status follows the area: nothing handed over is `NOT_READY`, anything less than all of it is `PARTIAL`, all of it is `HANDED_OVER` (kernel `sectionStatusFor`; V1682 holds it).
+* The last of the area hands over the parcels with it: every parcel of the section has to be `PAID` (or already `HANDED_OVER`), and the paid ones become `HANDED_OVER`.
+* V1682 keeps what was handed over: the area and the day only grow, the contract that took the land stays, and a handover has its day and its document or none at all.
+* The share of the project handed over is the sum of the handed areas over the sum of the required areas (`handedRatio`, two decimals, half up, exact).
+* Audit: `land.section_handed_over` (the areas, the day, the document, the parcels). Event: `lnd.section.handed_over.v1`, which the contracts and the quality module read.
+
+The screen LND-10 (`apps/web/src/screens/lnd/section`) lists the sections of a project with the totals, hands a section over in a dialog and creates a section, naming the contract that
+receives it when the caller can read the contracts of the project.

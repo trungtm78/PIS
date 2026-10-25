@@ -115,6 +115,8 @@ export interface MatrixTargets {
   mneRuleId: string;
   /** A SURVEYED land parcel of the CONCEPT project of unit 2 of tenant A, answered for by unit 2 (version 1). */
   parcelId: string;
+  /** A land section of the same project with no contract and nothing handed over (version 1). */
+  sectionId: string;
   /** A PIPELINE project of unit 2 of tenant A with a line of capital in a published plan, a DRAFT procurement plan of it (version 1) and an IN_REVIEW one of another such project (version 2), made by someone other than the callers. */
   bidPlanProjectId: string;
   bidPlanLineId: string;
@@ -1374,6 +1376,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   recordRecoveryNotice: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/land-parcels/${t.parcelId}/recovery-notice`, ifMatch: '"1"', body: { notice_on: '2026-07-01', notice_document_version_id: t.documentVersionId } }),
+  },
+  recordSectionHandover: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/land-sections/${t.sectionId}/handover`,
+      ifMatch: '"1"',
+      body: { handed_area_m2: '10', handed_over_on: '2026-10-20', handover_document_version_id: t.documentVersionId },
+    }),
   },
   importBoqLines: {
     referencesTenantIds: true,

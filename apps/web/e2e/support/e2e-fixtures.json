@@ -1404,6 +1404,18 @@
       ]
     },
     {
+      "key": "landHandover",
+      "displayName": "Cán bộ bàn giao mặt bằng",
+      "membershipId": "00000000-0000-4000-8000-000000000392",
+      "permissions": [
+        "land.handover",
+        "land.read",
+        "project.read",
+        "organization_unit.read",
+        "contract.read"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

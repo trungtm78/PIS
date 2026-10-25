@@ -140,6 +140,21 @@ export function toSectionOption(raw: unknown): SectionOption[] {
   return row === undefined || id === undefined || code === undefined ? [] : [{ id, code, name: text(row.name) ?? '' }];
 }
 
+/** A contract of a project that can receive the land of a section. */
+export interface ContractOption {
+  id: string;
+  code: string;
+  projectId: string;
+}
+
+export function toContractOption(raw: unknown): ContractOption[] {
+  const row = asRecord(raw);
+  const id = text(row?.id);
+  const code = text(row?.code);
+  const projectId = text(row?.project_id);
+  return row === undefined || id === undefined || code === undefined || projectId === undefined ? [] : [{ id, code, projectId }];
+}
+
 /** A unit that can answer for a parcel. */
 export interface UnitOption {
   id: string;
@@ -181,6 +196,11 @@ export function noticeState(parcel: ParcelLine, today: string): NoticeState {
 export function canRecordNotice(parcel: ParcelLine, permissions: readonly string[] | undefined, mode: 'FULL' | 'READ_ONLY' | undefined): boolean {
   return (permissions === undefined || permissions.includes(PROCESS_PERMISSION)) && mode !== 'READ_ONLY' && parcel.recoveryNoticeOn === null && NOTICE_STATUSES.includes(parcel.status);
 }
+
+/** What the forms of the handover check by the same rules as the sections and the notices: an area of at most two decimals, a uuid, a day that exists. */
+export const isArea = (value: string): boolean => AREA.test(value.trim());
+export const isUuid = (value: string): boolean => UUID.test(value.trim());
+export const isDay = (value: string): boolean => ISO_DATE.test(value.trim()) && new Date(`${value.trim()}T00:00:00Z`).toISOString().slice(0, 10) === value.trim();
 
 export const canManage = (permissions: readonly string[] | undefined, mode: 'FULL' | 'READ_ONLY' | undefined): boolean =>
   (permissions === undefined || permissions.includes(MANAGE_PERMISSION)) && mode !== 'READ_ONLY';
@@ -271,9 +291,11 @@ export interface SectionForm {
   toKm: string;
   requiredAreaM2: string;
   targetDate: string;
+  /** The construction contract that receives the land of the section; empty when none is named yet. */
+  contractId: string;
 }
 
-export const EMPTY_SECTION_FORM: SectionForm = { code: '', name: '', fromKm: '', toKm: '', requiredAreaM2: '', targetDate: '' };
+export const EMPTY_SECTION_FORM: SectionForm = { code: '', name: '', fromKm: '', toKm: '', requiredAreaM2: '', targetDate: '', contractId: '' };
 
 export function validateSection(form: SectionForm): Partial<Record<keyof SectionForm, FormProblem>> {
   const problems: Partial<Record<keyof SectionForm, FormProblem>> = {};
@@ -305,6 +327,7 @@ export interface SectionBody {
   from_km?: string;
   to_km?: string;
   target_date?: string;
+  contract_id?: string;
 }
 
 export function sectionBody(projectId: string, form: SectionForm): SectionBody {
@@ -312,6 +335,7 @@ export function sectionBody(projectId: string, form: SectionForm): SectionBody {
   if (form.fromKm.trim() !== '') body.from_km = form.fromKm.trim();
   if (form.toKm.trim() !== '') body.to_km = form.toKm.trim();
   if (form.targetDate.trim() !== '') body.target_date = form.targetDate.trim();
+  if (form.contractId !== '') body.contract_id = form.contractId;
   return body;
 }
 
@@ -343,6 +367,11 @@ export interface NoticeBody {
 export const noticeBody = (form: NoticeForm): NoticeBody => ({ notice_on: form.noticeOn.trim(), notice_document_version_id: form.documentVersionId.trim().toLowerCase() });
 
 export type CommandProblem =
+  | 'areaExceeded'
+  | 'parcelsNotReady'
+  | 'contractNotActive'
+  | 'noContract'
+  | 'notBuilding'
   | 'codeDuplicate'
   | 'areaInvalid'
   | 'ruleUnconfirmed'
@@ -356,6 +385,9 @@ export type CommandProblem =
   | 'general';
 
 const PROBLEM_BY_CODE: Readonly<Record<string, CommandProblem>> = {
+  HANDED_AREA_EXCEEDS_REQUIRED: 'areaExceeded',
+  PARCELS_NOT_READY: 'parcelsNotReady',
+  CONTRACT_STATE_INVALID: 'contractNotActive',
   PARCEL_CODE_DUPLICATE: 'codeDuplicate',
   SECTION_CODE_DUPLICATE: 'codeDuplicate',
   AREA_INVALID: 'areaInvalid',
@@ -372,7 +404,11 @@ const PROBLEM_BY_CODE: Readonly<Record<string, CommandProblem>> = {
 
 /** Maps the error of a command to what a dialog shows; an unknown failure is the general message. */
 export function describeProblem(error: unknown): CommandProblem {
-  return error instanceof ApiError ? (PROBLEM_BY_CODE[error.code] ?? 'general') : 'general';
+  if (!(error instanceof ApiError)) return 'general';
+  // A section that has no contract, or one that does not build, is told apart from a request that is wrong in another way.
+  if (error.code === 'VALIDATION_FAILED' && error.extensions.reason === 'NO_CONTRACT') return 'noContract';
+  if (error.code === 'VALIDATION_FAILED' && error.extensions.reason === 'NOT_A_CONSTRUCTION_CONTRACT') return 'notBuilding';
+  return PROBLEM_BY_CODE[error.code] ?? 'general';
 }
 
 /** The timer a notice will start for a land use (BR-LND-01): the short notice for agricultural land, the long one for every other land use. */
