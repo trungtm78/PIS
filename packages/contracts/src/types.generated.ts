@@ -12302,7 +12302,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Khai báo xung đột lợi ích của gói thầu: người có thẩm quyền thấy mọi khai báo của gói, thành viên tổ chuyên gia thấy khai báo của mình (BID-05) */
+        get: operations["listConflictDeclarations"];
         put?: never;
         /** Thành viên tổ chuyên gia khai báo xung đột lợi ích (bắt buộc trước khi mở hồ sơ) */
         post: operations["declareConflictOfInterest"];
@@ -14449,6 +14450,23 @@ export interface paths {
         get: operations["listProcurementExternalLinks"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/proposals/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tải một tệp của hồ sơ dự thầu (PDF) lên kho đối tượng, quét mã độc và đếm số trang; chưa gắn vào hồ sơ nào */
+        post: operations["uploadProposalFile"];
         delete?: never;
         options?: never;
         head?: never;
@@ -18303,7 +18321,7 @@ export interface components {
             contractor_id: string;
             /** Format: date-time */
             submitted_at: string;
-            documents: Record<string, never>[];
+            documents: components["schemas"]["BidProposalFile"][];
             /** @description VND nguyên dạng chuỗi decimal */
             bid_price_vnd?: string;
         };
@@ -18316,6 +18334,11 @@ export interface components {
         BidConflictDeclare: {
             has_conflict: boolean;
             relation_text?: string;
+            /**
+             * Format: uuid
+             * @description The contractor the relation is with; without it a conflict is declared against the whole package
+             */
+            contractor_id?: string;
         };
         BidConflictDecision: {
             /** @enum {string} */
@@ -19415,6 +19438,69 @@ export interface components {
         };
         BidExternalLinkList: {
             items: components["schemas"]["BidExternalLink"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        BidProposalFile: {
+            /**
+             * @description The part of the bid the file belongs to
+             * @enum {string}
+             */
+            part: "LEGAL" | "TECHNICAL" | "FINANCIAL" | "OTHER";
+            title: string;
+            /** @description The key a clean upload of uploadProposalFile answered */
+            file_object_key: string;
+            /** @description The digest the upload answered; the file is read again and must match */
+            file_sha256: string;
+        };
+        BidProposalFileUpload: {
+            file_object_key: string;
+            file_sha256: string;
+            size_bytes: number;
+            page_count: number;
+        };
+        BidConflictDeclarationLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            package_id: string;
+            member: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+            };
+            has_conflict: boolean;
+            relation_text?: string | null;
+            contractor?: {
+                /** Format: uuid */
+                id?: string;
+                legal_name?: string;
+            } | null;
+            /** Format: date-time */
+            declared_at: string;
+            /** @enum {string|null} */
+            decision?: "ALLOWED" | "RECUSED" | "BLOCKED" | null;
+            decision_reason?: string | null;
+            decided_by?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            } | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            /**
+             * @description What the declaration means for the member now
+             * @enum {string}
+             */
+            standing?: "CLEAR" | "PENDING" | "ALLOWED" | "RECUSED" | "BLOCKED";
+            version: number;
+            /** @description Whether the declaration is the caller's own */
+            is_own: boolean;
+        };
+        BidConflictDeclarationList: {
+            items: components["schemas"]["BidConflictDeclarationLine"][];
+            /** @description Whether the caller may decide the declarations of the package */
+            may_decide: boolean;
             /** Format: date-time */
             as_of: string;
         };
@@ -25829,6 +25915,7 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                package_id?: string;
             };
             header?: never;
             path?: never;
@@ -92547,6 +92634,64 @@ export interface operations {
             };
         };
     };
+    listConflictDeclarations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidConflictDeclarationList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     declareConflictOfInterest: {
         parameters: {
             query?: never;
@@ -104414,6 +104559,116 @@ export interface operations {
             };
             /** @description Rate limit */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    uploadProposalFile: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The file is stored and clean; the key and the digest are what receiveProposal takes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidProposalFileUpload"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Payload too large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

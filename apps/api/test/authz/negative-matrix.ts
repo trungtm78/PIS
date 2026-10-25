@@ -123,6 +123,8 @@ export interface MatrixTargets {
   /** A package of an approved plan in a project of unit 2 of tenant A, and a DRAFT version of criteria (version 1) for it, made by the actor of the seed. */
   criteriaPackageId: string;
   criteriaDraftId: string;
+  /** A declaration of conflict of interest of that package that is waiting for a decision (version 1), made by the actor of the seed. */
+  conflictDeclarationId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1123,6 +1125,34 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   uploadProcurementFile: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/procurement-imports/files', body: {} }),
+  },
+  // The sealed proposal and the declaration of conflict of interest: no proposal is received, no conflict declared and none decided by a caller that is refused.
+  receiveProposal: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/proposals',
+      body: {
+        package_id: t.criteriaPackageId,
+        contractor_id: t.contractorId,
+        submitted_at: '2026-09-01T03:00:00Z',
+        documents: [
+          { part: 'TECHNICAL', title: 'Matrix volume', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/document/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) },
+        ],
+      },
+    }),
+  },
+  uploadProposalFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/proposals/files', body: {} }),
+  },
+  declareConflictOfInterest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/procurement-packages/${t.criteriaPackageId}/conflict-declarations`, body: { has_conflict: false } }),
+  },
+  decideConflictOfInterest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/bid-conflict-declarations/${t.conflictDeclarationId}/decision`, ifMatch: '"1"', body: { decision: 'ALLOWED', decision_reason: 'Matrix decision of a refused caller.' } }),
   },
   importNationalProjectCodes: {
     referencesTenantIds: true,

@@ -130,6 +130,12 @@ export const PACKAGE_FIXTURES: Readonly<Record<TenantName, { id: string; code: s
   'TNT-B': { id: '00000000-0000-4000-b0b9-000000000001', code: 'BETA-PACKAGE-0001', milestoneId: '00000000-0000-4000-b0b9-000000000002', linkId: '00000000-0000-4000-b0b9-000000000003', externalCode: 'BETA-TBMT-0001' },
 };
 
+/** A sealed proposal of the contractor of each tenant on its package, and a declaration of conflict of interest about it (the price and the words of the relation are distinctive; tenant confidential data). */
+export const PROPOSAL_FIXTURES: Readonly<Record<TenantName, { id: string; declarationId: string; bidPrice: string; relation: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ba-000000000001', declarationId: '00000000-0000-4000-a0ba-000000000002', bidPrice: '7771000001', relation: 'ALPHA-CONFLICT-RELATION-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0ba-000000000001', declarationId: '00000000-0000-4000-b0ba-000000000002', bidPrice: '7772000001', relation: 'BETA-CONFLICT-RELATION-0001' },
+};
+
 /** A stage of land clearance reported by an external unit, in the section of each tenant (its note is distinctive; tenant data). */
 export const STAGE_FIXTURES: Readonly<Record<TenantName, { id: string; note: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0b8-000000000001', note: 'ALPHA-STAGE-BLOCKER-0001' },
@@ -569,6 +575,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'procurement package code', value: PACKAGE_FIXTURES[tenant].code },
     { kind: 'procurement external code', value: PACKAGE_FIXTURES[tenant].externalCode },
     { kind: 'land stage note', value: STAGE_FIXTURES[tenant].note },
+    { kind: 'proposal id', value: PROPOSAL_FIXTURES[tenant].id },
+    { kind: 'proposal bid price', value: PROPOSAL_FIXTURES[tenant].bidPrice },
+    { kind: 'conflict declaration id', value: PROPOSAL_FIXTURES[tenant].declarationId },
+    { kind: 'conflict relation text', value: PROPOSAL_FIXTURES[tenant].relation },
     { kind: 'assignment id', value: ACCOUNTABILITY_FIXTURES[tenant].assignmentId },
     { kind: 'task force id', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceId },
     { kind: 'task force code', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceCode },

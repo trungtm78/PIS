@@ -992,15 +992,18 @@ final class BidConflictDeclare implements RequestModel {
   const BidConflictDeclare({
     required this.hasConflict,
     this.relationText,
+    this.contractorId,
   });
 
   final bool hasConflict;
   final String? relationText;
+  final String? contractorId;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'has_conflict': hasConflict,
         if (relationText != null) 'relation_text': relationText,
+        if (contractorId != null) 'contractor_id': contractorId,
       };
 }
 
@@ -1225,6 +1228,28 @@ final class BidPlanDecision implements RequestModel {
       };
 }
 
+final class BidProposalFile implements RequestModel {
+  const BidProposalFile({
+    required this.part_,
+    required this.title,
+    required this.fileObjectKey,
+    required this.fileSha256,
+  });
+
+  final String part_;
+  final String title;
+  final String fileObjectKey;
+  final String fileSha256;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'part': part_,
+        'title': title,
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+      };
+}
+
 final class BidProposalReceive implements RequestModel {
   const BidProposalReceive({
     required this.packageId,
@@ -1237,7 +1262,7 @@ final class BidProposalReceive implements RequestModel {
   final String packageId;
   final String contractorId;
   final String submittedAt;
-  final List<Map<String, Object?>> documents;
+  final List<BidProposalFile> documents;
   final String? bidPriceVnd;
 
   @override

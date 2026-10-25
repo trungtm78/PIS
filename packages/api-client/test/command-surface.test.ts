@@ -27,7 +27,7 @@ describe('the typed command surface', () => {
     const notJson = writes
       .filter((entry) => entry.operation.requestBody !== undefined && !('application/json' in (entry.operation.requestBody.content ?? {})))
       .map((entry) => entry.id);
-    expect([...notJson].sort()).toEqual(['uploadDocumentFile', 'uploadLandParcelFile', 'uploadMasterImportFile', 'uploadNationalCodeFile', 'uploadProcurementFile', 'uploadSystemTenantThemeAsset', 'uploadTreasuryStatementFile']);
+    expect([...notJson].sort()).toEqual(['uploadDocumentFile', 'uploadLandParcelFile', 'uploadMasterImportFile', 'uploadNationalCodeFile', 'uploadProcurementFile', 'uploadProposalFile', 'uploadSystemTenantThemeAsset', 'uploadTreasuryStatementFile']);
   });
 
   it('keeps every command without a request body (they are listed in OPERATIONS and typed as commands)', () => {

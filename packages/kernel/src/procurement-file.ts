@@ -120,7 +120,11 @@ export function momentOf(cell: string): string | undefined {
     if (year < 2000 || year > 2100 || !realDate(year, month, date)) return undefined;
     return new Date(Date.UTC(year, month - 1, date) - 7 * 3_600_000).toISOString();
   }
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/.test(text)) return undefined;
+  const stamp = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/.exec(text);
+  if (stamp === null) return undefined;
+  // The reader of dates rolls 30 February over to March and 24:00 to the next day; a moment that is written so does not exist.
+  const [, y = '', mo = '', d = '', h = '', mi = '', sec = '0'] = stamp;
+  if (!realDate(Number(y), Number(mo), Number(d)) || Number(h) > 23 || Number(mi) > 59 || Number(sec) > 59) return undefined;
   const at = Date.parse(text);
   if (Number.isNaN(at)) return undefined;
   const iso = new Date(at).toISOString();

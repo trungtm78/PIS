@@ -362,6 +362,14 @@ export { BidProcurementImport, ProcurementImportAdapter } from './bid-procuremen
 export type { BatchCounts, ImportedMilestone, ProcurementImportContext, ProcurementOutcome } from './bid-procurement-import.ts';
 export { BidLinkReads, LINK_DIFF_STATUSES } from './bid-link-reads.ts';
 export type { LinkDiffStatus, LinkLine } from './bid-link-reads.ts';
+export { PACKAGE_STATUS_OPEN_FOR_BIDS, PROPOSAL_FILE_DOC_TYPE, PROPOSAL_SUBJECT_MODULE, BidProposalStore } from './bid-proposal-store.ts';
+export type { NewProposalInput, ProposalFileInput, ReceivedProposal } from './bid-proposal-store.ts';
+export { BidProposalReads } from './bid-proposal-reads.ts';
+export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-reads.ts';
+export { BidConflictStore } from './bid-conflict-store.ts';
+export type { DeclarationLine, DeclaredConflict, DecidedConflict, NewDeclaration } from './bid-conflict-store.ts';
+export { bidWindowOf } from './bid-proposal-release.ts';
+export type { BidWindow } from './bid-proposal-release.ts';
 export type { BidReadScope, LastDecision, PackageLine, PlanFilter as BidPlanFilter, PlanLine, ProjectLabel } from './bid-plan-reads.ts';
 export { CRITERION_KINDS, MAX_CRITERIA, TOTAL_WEIGHT, readCriteria } from './bid-criteria-input.ts';
 export type { CheckedCriteria, Criterion, CriterionKind, NewCriteriaInput } from './bid-criteria-input.ts';

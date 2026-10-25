@@ -11568,7 +11568,9 @@
         "declareConflictOfInterest",
         "decideConflictOfInterest",
         "get_resources_proposal",
-        "get_resources_proposal_id"
+        "get_resources_proposal_id",
+        "uploadProposalFile",
+        "listConflictDeclarations"
       ],
       "tables": [
         "proposal",

@@ -9259,6 +9259,14 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "package_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -9529,7 +9537,10 @@
         "x-contract-maturity": "reference-scaffolding",
         "x-implementation-gate": "Review action DTO allowlist, object scope, state invariants and error contract before exposing. No arbitrary state/role/tenant updates.",
         "x-exposure": "dto",
-        "x-exposure-reason": "CONFIDENTIAL: chỉ tổ chuyên gia đã khai báo xung đột và sau access_released_at; trước đó chỉ metadata cho văn thư; không trả document_version_ids thô"
+        "x-exposure-reason": "CONFIDENTIAL: chỉ tổ chuyên gia đã khai báo xung đột và sau access_released_at; trước đó chỉ metadata cho văn thư; không trả document_version_ids thô",
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED"
+        ]
       }
     },
     "/resources/criteria_version": {
@@ -105039,7 +105050,12 @@
           "BID_CLOSED",
           "CONTRACTOR_RESTRICTED",
           "CONTRACTOR_NOT_VERIFIED",
-          "SCAN_PENDING"
+          "SCAN_PENDING",
+          "BID_OPENING_UNSET",
+          "PACKAGE_STATE_INVALID",
+          "FILE_NOT_CLEAN",
+          "UPLOAD_NOT_PDF",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -105317,12 +105333,84 @@
           }
         },
         "x-error-codes": [
-          "ALREADY_DECLARED"
+          "ALREADY_DECLARED",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "bid.conflict.declared.v1"
         ]
+      },
+      "get": {
+        "operationId": "listConflictDeclarations",
+        "summary": "Khai báo xung đột lợi ích của gói thầu: người có thẩm quyền thấy mọi khai báo của gói, thành viên tổ chuyên gia thấy khai báo của mình (BID-05)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidConflictDeclarationList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/bid-conflict-declarations/{id}/decision": {
@@ -105466,7 +105554,8 @@
         },
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "NO_CONFLICT_DECLARED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -106590,7 +106679,8 @@
           "IMPORT_SCHEMA_INVALID",
           "IMPORT_EMPTY",
           "FILE_NOT_CLEAN",
-          "STAGE_TRANSITION_DENIED"
+          "STAGE_TRANSITION_DENIED",
+          "OPENING_ALREADY_RELEASED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -106741,7 +106831,8 @@
           "MILESTONE_ORDER_INVALID",
           "VERSION_CONFLICT",
           "PACKAGE_STATE_INVALID",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "OPENING_ALREADY_RELEASED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -121899,6 +121990,155 @@
           }
         }
       }
+    },
+    "/proposals/files": {
+      "post": {
+        "operationId": "uploadProposalFile",
+        "summary": "Tải một tệp của hồ sơ dự thầu (PDF) lên kho đối tượng, quét mã độc và đếm số trang; chưa gắn vào hồ sơ nào",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.proposal.receive",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The file is stored and clean; the key and the digest are what receiveProposal takes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidProposalFileUpload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "FILE_NOT_CLEAN",
+          "SCAN_PENDING",
+          "UPLOAD_NOT_PDF"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
     }
   },
   "components": {
@@ -136174,10 +136414,11 @@
           },
           "documents": {
             "type": "array",
+            "minItems": 1,
+            "maxItems": 500,
             "items": {
-              "type": "object"
-            },
-            "maxItems": 500
+              "$ref": "#/components/schemas/BidProposalFile"
+            }
           },
           "bid_price_vnd": {
             "type": "string",
@@ -136226,6 +136467,11 @@
             "type": "string",
             "minLength": 0,
             "maxLength": 2000
+          },
+          "contractor_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The contractor the relation is with; without it a conflict is declared against the whole package"
           }
         }
       },
@@ -140442,6 +140688,223 @@
             "items": {
               "$ref": "#/components/schemas/BidExternalLink"
             }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BidProposalFile": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "part",
+          "title",
+          "file_object_key",
+          "file_sha256"
+        ],
+        "properties": {
+          "part": {
+            "type": "string",
+            "enum": [
+              "LEGAL",
+              "TECHNICAL",
+              "FINANCIAL",
+              "OTHER"
+            ],
+            "description": "The part of the bid the file belongs to"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "file_object_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "The key a clean upload of uploadProposalFile answered"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The digest the upload answered; the file is read again and must match"
+          }
+        }
+      },
+      "BidProposalFileUpload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_key",
+          "file_sha256",
+          "size_bytes",
+          "page_count"
+        ],
+        "properties": {
+          "file_object_key": {
+            "type": "string"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer"
+          },
+          "page_count": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "BidConflictDeclarationLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "package_id",
+          "member",
+          "has_conflict",
+          "declared_at",
+          "version",
+          "is_own"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "member": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "has_conflict": {
+            "type": "boolean"
+          },
+          "relation_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "contractor": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "legal_name": {
+                "type": "string"
+              }
+            }
+          },
+          "declared_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "decision": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "ALLOWED",
+              "RECUSED",
+              "BLOCKED",
+              null
+            ]
+          },
+          "decision_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decided_by": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "standing": {
+            "type": "string",
+            "enum": [
+              "CLEAR",
+              "PENDING",
+              "ALLOWED",
+              "RECUSED",
+              "BLOCKED"
+            ],
+            "description": "What the declaration means for the member now"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "is_own": {
+            "type": "boolean",
+            "description": "Whether the declaration is the caller's own"
+          }
+        }
+      },
+      "BidConflictDeclarationList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of",
+          "may_decide"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidConflictDeclarationLine"
+            }
+          },
+          "may_decide": {
+            "type": "boolean",
+            "description": "Whether the caller may decide the declarations of the package"
           },
           "as_of": {
             "type": "string",

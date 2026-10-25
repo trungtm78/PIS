@@ -1300,6 +1300,57 @@
       ]
     },
     {
+      "key": "proposalClerk",
+      "displayName": "Văn thư tiếp nhận hồ sơ dự thầu",
+      "membershipId": "00000000-0000-4000-8000-000000000790",
+      "permissions": [
+        "bid.read",
+        "proposal.read",
+        "bid.proposal.receive",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "proposalEvaluator",
+      "displayName": "Chuyên gia đánh giá hồ sơ dự thầu",
+      "membershipId": "00000000-0000-4000-8000-000000000791",
+      "permissions": [
+        "bid.read",
+        "proposal.read",
+        "bid.evaluate",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "proposalEvaluatorTwo",
+      "displayName": "Chuyên gia đánh giá thứ hai",
+      "membershipId": "00000000-0000-4000-8000-000000000792",
+      "permissions": [
+        "bid.read",
+        "proposal.read",
+        "bid.evaluate",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "proposalAuthority",
+      "displayName": "Người có thẩm quyền quyết định xung đột lợi ích",
+      "membershipId": "00000000-0000-4000-8000-000000000793",
+      "permissions": [
+        "bid.read",
+        "bid.conflict.decide",
+        "contractor.read",
+        "procurement_package.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

@@ -240,6 +240,14 @@ const VERSION_FROM = `from machvon.document_version v
   join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id
   left join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.issuer_unit_id`;
 
+/**
+ * The subject of the files of a sealed proposal (ST-BID-004): they are confidential until the bids are opened and then for the evaluators who declared, so the reads of this module,
+ * whose scope is a unit, never serve them; the proposal serves them to the people it names.
+ */
+export const SEALED_SUBJECT_MODULE = 'BID_PROPOSAL';
+
+const NOT_SEALED = `d.subject_module is distinct from '${SEALED_SUBJECT_MODULE}'`;
+
 /** The columns of the owner unit a scope predicate for versions is compiled against. */
 export const VERSION_SCOPE_COLUMNS = { unitPath: 'ou.path', unitId: 'ou.id' } as const;
 
@@ -549,7 +557,7 @@ export class DocumentStore {
   /** One version; `scope` (compiled over `VERSION_SCOPE_COLUMNS`) narrows it to what the caller may see. */
   async findVersion(tx: TenantTx, id: string, scope?: ScopeBuilder): Promise<DocumentVersionRecord | undefined> {
     const predicate = scope?.(2);
-    const [row] = await tx.query<VersionRow>(`select ${VERSION_COLUMNS} ${VERSION_FROM} where v.id = $1::uuid and ${predicate?.sql ?? 'true'}`, [id, ...(predicate?.params ?? [])]);
+    const [row] = await tx.query<VersionRow>(`select ${VERSION_COLUMNS} ${VERSION_FROM} where v.id = $1::uuid and ${NOT_SEALED} and ${predicate?.sql ?? 'true'}`, [id, ...(predicate?.params ?? [])]);
     return row === undefined ? undefined : toVersion(row);
   }
 
@@ -559,7 +567,7 @@ export class DocumentStore {
     const predicate = scope?.(4);
     const rows = await tx.query<VersionRow>(
       `select ${VERSION_COLUMNS} ${VERSION_FROM}
-        where ($1::text is null or (v.created_at, v.id) < ($1::timestamptz, $2::uuid)) and ${predicate?.sql ?? 'true'}
+        where ($1::text is null or (v.created_at, v.id) < ($1::timestamptz, $2::uuid)) and ${NOT_SEALED} and ${predicate?.sql ?? 'true'}
         order by v.created_at desc, v.id desc limit $3`,
       [page.after?.sortKey ?? null, page.after?.id ?? null, page.limit, ...(predicate?.params ?? [])],
     );

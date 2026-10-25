@@ -34,7 +34,7 @@ Phiên bản đặc tả M1 · 22/10/2026 · Nguồn dữ liệu máy: `work/sta
 
 **F2 — Nhà thầu (BID-01, BID-02, BID-21).** `registerContractor` khớp master MDM theo MST (không theo tên); `verifyContractor` bằng giấy tờ/tra cứu chính thức; trùng MST đã VERIFIED → 409 và chuyển đề nghị merge sang MDM. Hạn chế (`contractor_restriction`) nhập từ tệp nguồn chính thức hoặc theo quyết định; còn hiệu lực → chặn tiếp nhận hồ sơ và trình kết quả.
 
-**F3 — Tiếp nhận và OCR (BID-05, BID-06).** `receiveProposal` tạo `proposal` + `proposal_document` (tệp đã quét virus, `document` loại ATTACHMENT, phân loại CONFIDENTIAL); `access_released_at` = giờ mở thầu; trước đó chỉ văn thư thấy metadata. OCR theo trang (`document_page_ocr`); trang dưới ngưỡng tin cậy (mặc định 0,85 [GIẢ ĐỊNH]) hoặc bảng không khớp tổng → NEEDS_REVIEW; phân tích tài chính chờ xác nhận.
+**F3 — Tiếp nhận và OCR (BID-05, BID-06).** `receiveProposal` tạo `proposal` + `proposal_document` (tệp đã quét virus, `document` loại ATTACHMENT, phân loại CONFIDENTIAL); `access_released_at` = giờ mở thầu; trước đó chỉ văn thư thấy metadata. OCR theo trang (`document_page_ocr`); trang dưới ngưỡng tin cậy (mặc định 0,85 [GIẢ ĐỊNH]) hoặc bảng không khớp tổng → NEEDS_REVIEW; phân tích tài chính chờ xác nhận. Quyết định xung đột: ALLOWED mở hồ sơ cho thành viên; RECUSED loại thành viên khỏi hồ sơ của nhà thầu có quan hệ (toàn gói khi không nêu nhà thầu); BLOCKED loại khỏi cả gói; xung đột chưa quyết định đã đóng phần nó bao trùm; RECUSED/BLOCKED rút thành viên khỏi `signed_off_by` của biên bản chưa phát hành.
 
 **F4 — Tiêu chí (BID-04).** `createCriteriaVersion`: tiêu chí, điều kiện bắt buộc, thang điểm, Σ trọng số = 100, bằng chứng yêu cầu; tiêu chí cấm (tên, đặc tính cá nhân không liên quan, vùng miền) → 422 `PROHIBITED_CRITERION`; `approveCriteriaVersion` (≠ người soạn) khóa phiên bản; đã có lượt phân tích thì không sửa (tạo revision).
 
@@ -113,7 +113,7 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 - `procurement_result` (mới): id, package_id, winner_contractor_id, award_price_vnd, evaluation_report_id, decision_document_id, outcome, status, submitted_by, approved_by, approved_at, created_at, created_by, updated_at, updated_by, version
 - `procurement_import_batch` (mới): id, source_system, adapter_status, file_sha256, file_object_key, mode, rows_total, rows_ok, rows_error, errors_json, status, created_at, created_by, updated_at, updated_by, version
 - `procurement_external_link` (mới): id, package_id, external_system, external_code, last_batch_id, diff_status, diff_json, diff_owner_user_id, created_at, created_by, updated_at, updated_by, version
-- `bid_conflict_declaration` (mới): id, package_id, user_id, has_conflict, relation_text, declared_at, decision, decided_by, decided_at, decision_reason, created_at, created_by, updated_at, updated_by, version
+- `bid_conflict_declaration` (mới): id, package_id, user_id, has_conflict, relation_text, contractor_id (nhà thầu có quan hệ; bỏ trống = toàn gói), declared_at, decision, decided_by, decided_at, decision_reason, created_at, created_by, updated_at, updated_by, version
 - `procurement_petition` (mới): id, package_id, contractor_id, petition_kind, received_on, due_on, petition_document_id, status, resolution_document_id, handled_by, created_at, created_by, updated_at, updated_by, version
 - `proposal_document` (mới): id, proposal_id, document_version_id, part, received_at, received_by
 - `document_page_ocr` (mới): id, document_version_id, page_index, ocr_confidence, text_sha256, text_object_key, tables_json, engine_version, review_status, reviewed_by, reviewed_at, created_at
@@ -139,6 +139,8 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `reviewOcrPage` | POST /document-page-ocr/{id}/review | bid.ocr.review | `BidOcrReview` | OCR_STATE_INVALID | ✔ | – |
 | `declareConflictOfInterest` | POST /procurement-packages/{id}/conflict-declarations | bid.evaluate | `BidConflictDeclare` | ALREADY_DECLARED | ✔ | – |
 | `decideConflictOfInterest` | POST /bid-conflict-declarations/{id}/decision | bid.conflict.decide | `BidConflictDecision` | SELF_APPROVAL_DENIED | ✔ | ✔ |
+| `uploadProposalFile` | POST /proposals/files | bid.proposal.receive | tệp PDF | tệp được quét mã độc, lưu kho, đếm trang; chưa gắn vào hồ sơ nào | FILE_NOT_CLEAN, SCAN_PENDING, UPLOAD_NOT_PDF | ✔ | – |
+| `listConflictDeclarations` | GET /procurement-packages/{id}/conflict-declarations | bid.read | – | người có `bid.conflict.decide` thấy mọi khai báo của gói, thành viên tổ chuyên gia thấy khai báo của mình | – | – | – |
 | `reviewAnalysisFinding` | POST /analysis-findings/{id}/review | bid.evaluate | `BidFindingReview` | CONFLICT_UNDECLARED, REASON_REQUIRED, RUN_NOT_COMPLETED | ✔ | ✔ |
 | `createEvaluationReport` | POST /evaluation-reports | bid.evaluate | `BidReportCreate` | CRITERIA_VERSION_MISMATCH, UNREVIEWED_FINDINGS | ✔ | – |
 | `signOffEvaluationReport` | POST /evaluation-reports/{id}/sign-off | bid.evaluate | – | CONFLICT_UNDECLARED, ALREADY_SIGNED_OFF | ✔ | ✔ |

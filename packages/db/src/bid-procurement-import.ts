@@ -4,6 +4,7 @@ import type { Difference, MilestoneDates, MilestoneKind, ProcurementRow, Rejecti
 import { BidExternalLinks, diffWithMilestone } from './bid-external-link.ts';
 import type { LinkDiff } from './bid-external-link.ts';
 import { PACKAGE_STATUSES_WITHOUT_MILESTONES } from './bid-milestone-store.ts';
+import { openingWouldReseal } from './bid-proposal-release.ts';
 import { isActiveMember } from './file-import-item-store.ts';
 import type { FileImportAdapter, ImportEntry } from './file-import-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
@@ -125,6 +126,8 @@ export class ProcurementImportAdapter implements FileImportAdapter<ProcurementRo
     const current = held.find((row) => row.milestone_kind === entry.record.milestoneKind);
     // A date the register already has is not touched, so only the date the file would write is judged against the order of the others.
     if (current?.actual_at == null) {
+      // A file that gives the opening later than the moment the sealed proposals were released at does not close them again.
+      if (entry.record.milestoneKind === 'BID_OPENING' && (await openingWouldReseal(tx, pack.id, entry.record.actualAt))) return { code: 'OPENING_ALREADY_RELEASED', field: 'actual_at' };
       const dates: Partial<Record<MilestoneKind, MilestoneDates>> = {};
       for (const row of held) dates[row.milestone_kind] = { plannedAt: row.planned_at, actualAt: row.actual_at };
       if (milestoneOrderIssue(dates, { kind: entry.record.milestoneKind, actualAt: entry.record.actualAt }) !== undefined) return { code: 'MILESTONE_ORDER_INVALID', field: 'actual_at' };

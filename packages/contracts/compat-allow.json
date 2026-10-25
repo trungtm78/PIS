@@ -1,3 +1,32 @@
 {
-  "allowed": []
+  "allowed": [
+    {
+      "operation": "receiveProposal",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "documents[].part",
+      "reason": "receiveProposal was a scaffold whose documents array had no item shape and no client; the items now name the part, the title and the clean upload",
+      "change_request": "ST-BID-004"
+    },
+    {
+      "operation": "receiveProposal",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "documents[].title",
+      "reason": "receiveProposal was a scaffold whose documents array had no item shape and no client; the items now name the part, the title and the clean upload",
+      "change_request": "ST-BID-004"
+    },
+    {
+      "operation": "receiveProposal",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "documents[].file_object_key",
+      "reason": "receiveProposal was a scaffold whose documents array had no item shape and no client; the items now name the part, the title and the clean upload",
+      "change_request": "ST-BID-004"
+    },
+    {
+      "operation": "receiveProposal",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "documents[].file_sha256",
+      "reason": "receiveProposal was a scaffold whose documents array had no item shape and no client; the items now name the part, the title and the clean upload",
+      "change_request": "ST-BID-004"
+    }
+  ]
 }

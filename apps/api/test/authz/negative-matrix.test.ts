@@ -849,6 +849,15 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         ],
       ],
     ]);
+    // A declaration of conflict of interest of that package, made by the actor of the seed and waiting for a decision.
+    const conflictDeclarationId = id(0xb6, 3);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.bid_conflict_declaration (tenant_id, id, package_id, user_id, has_conflict, relation_text, created_by, updated_by)
+         values ($1, $2, $3, $4, true, 'Matrix relation', $4, $4)`,
+        [TENANT_A, conflictDeclarationId, criteriaPackageId, ACTOR],
+      ],
+    ]);
     // A dataset of the DIS module with a working contract, a DRAFT quality rule of it made by someone other than the callers, and a frozen snapshot of the open period: the quality commands act on them.
     const qualityDatasetId = id(0xde, 1);
     const qualityContractId = id(0xde, 2);
@@ -893,6 +902,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       bidPlanInReviewId: derivedId(bidReviewObject, 'bid-plan'),
       criteriaPackageId,
       criteriaDraftId,
+      conflictDeclarationId,
       qualityContractId,
       qualityRuleId,
       qualitySnapshotId,

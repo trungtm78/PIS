@@ -112,7 +112,7 @@ describe('the moment of a cell and the day of a moment', () => {
     expect(momentOf(' 31/08/2026 ')).toBe('2026-08-30T17:00:00.000Z');
     expect(momentOf('2026-08-31T00:00:00Z')).toBe('2026-08-31T00:00:00.000Z');
     expect(momentOf('2026-08-31T07:30:15.5+07:00')).toBe('2026-08-31T00:30:15.500Z');
-    for (const bad of ['', '2026-8-31', '31-08-2026', '2026-08-31T10:00', '2026-13-01', '2026-02-29', '1999-12-31', '2101-01-01', 'yesterday', '2026-08-31 10:00:00Z']) expect(momentOf(bad)).toBeUndefined();
+    for (const bad of ['', '2026-8-31', '31-08-2026', '2026-08-31T10:00', '2026-13-01', '2026-02-29', '1999-12-31', '2101-01-01', 'yesterday', '2026-08-31 10:00:00Z', '2026-02-30T10:00:00Z', '2026-04-31T10:00:00+07:00', '2026-08-31T24:00:00Z', '2026-08-31T10:60:00Z', '2026-08-31T10:00:60Z']) expect(momentOf(bad)).toBeUndefined();
   });
 
   it('gives the Vietnam calendar day of a moment', () => {

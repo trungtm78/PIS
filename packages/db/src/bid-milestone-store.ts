@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { DomainError, MILESTONE_KINDS, milestoneOrderIssue, momentOf, versionConflict, vietnamDayOf } from '@machvon/kernel';
 import type { MilestoneDates, MilestoneKind, MilestoneSource } from '@machvon/kernel';
 import { BidExternalLinks, diffWithMilestone } from './bid-external-link.ts';
+import { assertOpeningNotResealed } from './bid-proposal-release.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -124,6 +125,8 @@ export class BidMilestoneStore {
     const current = held.find((row) => row.milestone_kind === input.kind);
     const nextPlanned = plannedAt ?? current?.planned_at ?? null;
     const nextActual = actualAt ?? current?.actual_at ?? null;
+    // The bids are opened once: a date that comes later than the moment the sealed proposals were released at does not close them again.
+    if (input.kind === 'BID_OPENING') await assertOpeningNotResealed(tx, pack.id, nextActual ?? nextPlanned, actualAt !== undefined ? 'actual_at' : 'planned_at');
     if (current === undefined) {
       await tx.query(
         `insert into machvon.procurement_milestone (tenant_id, id, package_id, milestone_kind, planned_at, actual_at, source, created_by, updated_by, version)

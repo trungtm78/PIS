@@ -5105,6 +5105,30 @@
       "module": "KERNEL",
       "statusBasis": "plan",
       "source": "plan:ST-KERNEL-021"
+    },
+    "BID_OPENING_UNSET": {
+      "status": 422,
+      "title": "Bid opening unset",
+      "meaning": "Raised by receiveProposal (POST /proposals): the package has no date for the opening of the bids, so the moment the proposal is unsealed is unknown",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "NO_CONFLICT_DECLARED": {
+      "status": 422,
+      "title": "No conflict declared",
+      "meaning": "Raised by decideConflictOfInterest (POST /bid-conflict-declarations/{id}/decision): the member declared no conflict, so there is nothing to decide",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "OPENING_ALREADY_RELEASED": {
+      "status": 409,
+      "title": "Opening already released",
+      "meaning": "Raised by recordProcurementMilestone and importProcurementFile: the bids of the package were unsealed at the earlier opening date and are not sealed again by a later one",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
     }
   }
 }

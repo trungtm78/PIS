@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Injectable, createParamDecorator } from '@nestjs/common';
 import type { CanActivate, ExecutionContext, Type } from '@nestjs/common';
-import { DomainError } from '@machvon/kernel';
+import { DomainError, UPLOAD_PURPOSES } from '@machvon/kernel';
 
 /** A logo is at most 1 MiB (`tenant_theme_asset` CHECK, AC-ST-SAS-005-4: a 1.5 MB image is refused). */
 export const MAX_THEME_ASSET_BYTES = 1024 * 1024;
@@ -134,6 +134,10 @@ export const SingleFileUploadGuard = guardFor(MAX_THEME_ASSET_BYTES);
 /** The guard of a file of a bulk import: one file of at most 10 MiB, read by the import framework afterwards. */
 export const MAX_IMPORT_FILE_BYTES = 10 * 1024 * 1024;
 export const ImportFileUploadGuard = guardFor(MAX_IMPORT_FILE_BYTES);
+
+/** The guard of a file of a bid: one file of at most the limit of a document (25 MiB), kept as it was handed in. */
+export const MAX_DOCUMENT_FILE_BYTES = UPLOAD_PURPOSES.document.maxBytes;
+export const DocumentFileUploadGuard = guardFor(MAX_DOCUMENT_FILE_BYTES);
 
 /** The file that `SingleFileUploadGuard` read from the request. */
 export const UploadedBytes = createParamDecorator((_data: unknown, context: ExecutionContext): UploadedFile => {

@@ -91,3 +91,37 @@
   align-items: center;
   gap: 6px;
 }
+.bid-files {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+}
+.bid-files legend {
+  padding: 0 6px;
+  font-size: 12px;
+}
+.bid-file-row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr) minmax(0, 2fr);
+  align-items: end;
+  margin-bottom: 12px;
+}
+@media (max-width: 900px) {
+  .bid-file-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.bid-file-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.bid-documents {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding-left: 18px;
+}

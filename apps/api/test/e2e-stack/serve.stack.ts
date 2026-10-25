@@ -318,6 +318,17 @@ const PROCUREMENT_ROLES = [
 ];
 
 /**
+ * The people of the sealed proposals (BID-05): the clerk who receives proposals, two members of the evaluation team who declare before they look and the authority who decides a conflict of interest, all
+ * over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ */
+const PROPOSAL_ROLES = [
+  { n: 790, user: 'proposalClerk', code: 'E2E_PROPOSAL_CLERK', permissions: ['bid.read', 'proposal.read', 'bid.proposal.receive', 'contractor.read', 'procurement_package.read', 'session.self'], rank: 30 },
+  { n: 791, user: 'proposalEvaluator', code: 'E2E_PROPOSAL_EVALUATOR', permissions: ['bid.read', 'proposal.read', 'bid.evaluate', 'contractor.read', 'procurement_package.read', 'session.self'], rank: 30 },
+  { n: 792, user: 'proposalEvaluatorTwo', code: 'E2E_PROPOSAL_EVALUATOR_TWO', permissions: ['bid.read', 'proposal.read', 'bid.evaluate', 'contractor.read', 'procurement_package.read', 'session.self'], rank: 30 },
+  { n: 793, user: 'proposalAuthority', code: 'E2E_PROPOSAL_AUTHORITY', permissions: ['bid.read', 'bid.conflict.decide', 'contractor.read', 'procurement_package.read', 'session.self'], rank: 40 },
+];
+
+/**
  * The people of the recall of issued documents and of the voiding of numbers (DOC-19): the leader who recalls, and two records managers who void the number of a
  * document that cannot be sealed (one executes, the other approves), all over the subtree of unit 2 where the documents are drafted. The permissions are the ones of
  * apps/web/e2e/support/e2e-fixtures.json.
@@ -521,6 +532,7 @@ const GRANTS: GrantPlan[] = [
   ...YEAR_ROLES.map((role, index): GrantPlan => ({ n: 760 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PROGRESS_ROLES.map((role, index): GrantPlan => ({ n: 770 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PROCUREMENT_ROLES.map((role, index): GrantPlan => ({ n: 780 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...PROPOSAL_ROLES.map((role, index): GrantPlan => ({ n: 790 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -813,7 +825,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

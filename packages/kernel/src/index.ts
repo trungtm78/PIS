@@ -283,6 +283,8 @@ export { NATIONAL_CODE_ADAPTER_STATUS, NATIONAL_CODE_CONNECTOR, NATIONAL_CODE_FO
 export type { NationalCodeRow } from './national-code-file.ts';
 export { MILESTONE_KINDS, MILESTONE_SOURCES, PROCUREMENT_ADAPTER_STATUS, PROCUREMENT_CODE_MAX_LENGTH, PROCUREMENT_CONNECTOR, PROCUREMENT_EXTERNAL_CODE_MAX_LENGTH, PROCUREMENT_FORMAT_VERSION, PROCUREMENT_SOURCE_SYSTEM, milestoneOrderIssue, momentOf, procurementFileFormat, vietnamDayOf } from './procurement-file.ts';
 export type { MilestoneDates, MilestoneField, MilestoneKind, MilestoneOrderIssue, MilestoneSource, ProcurementRow } from './procurement-file.ts';
+export { CONFLICT_DECISIONS, MAX_FILE_TITLE, MAX_PROPOSAL_FILES, MAX_RELATION_TEXT, MIN_CONFLICT_REASON, PROPOSAL_PARTS, PROPOSAL_STATUSES, RECEIPT_CLOCK_SKEW_MS, conflictStanding, declarationStanding, milestoneMoment, proposalView, receiptRefusal, standingOpens } from './bid-proposal.ts';
+export type { ConflictDecision, ConflictStanding, DeclarationFacts, ProposalPart, ProposalStatus, ProposalView, ReceiptRefusal, ViewFacts } from './bid-proposal.ts';
 export {
   CONSENT_CHANNELS,
   CONSENT_DECISION_TABLE,
