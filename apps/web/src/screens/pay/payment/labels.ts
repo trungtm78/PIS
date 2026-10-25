@@ -93,6 +93,12 @@ export function problemMessage(t: Translate, problem: Problem): string {
       return t('pay.payment.error.paymentState');
     case 'netMismatch':
       return t('pay.payment.error.netMismatch');
+    case 'invoiceRequired':
+      return t('pay.payment.error.invoiceRequired');
+    case 'valueExceeded':
+      return t('pay.payment.error.valueExceeded');
+    case 'advanceExceeded':
+      return t('pay.payment.error.advanceExceeded');
     case 'allocationUnavailable':
       return t('pay.payment.error.allocationUnavailable');
     case 'planYear':

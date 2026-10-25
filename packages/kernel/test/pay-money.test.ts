@@ -2,9 +2,11 @@ import type { DomainError } from '../src/errors';
 import {
   allocateLargestRemainder,
   computeDraftMoney,
+  groupForLedger,
   linesMatchHeader,
   partyRecovery,
   percentScaled,
+  recoverFromTranches,
   retentionOf,
   roundedDivision,
   signedDong,
@@ -282,6 +284,30 @@ describe('the money of a payment request (ST-PAY-002)', () => {
       expect(linesMatchHeader(header, [lines[0]!, { ...lines[1]!, retentionVnd: '1' }])).toBe(false);
       expect(linesMatchHeader({ ...header, netVnd: '2100000001' }, lines)).toBe(false);
       expect(linesMatchHeader({ ...header, taxAdjustmentVnd: '-5', netVnd: '2099999995' }, lines)).toBe(true);
+    });
+  });
+
+  describe('the claim on the ledger', () => {
+    const line = (boqItemId: string, partyId: string | null, gross: string, recovery: string, retention: string) => ({ boqItemId, partyId, grossVnd: gross, advanceRecoveryVnd: recovery, retentionVnd: retention });
+
+    it('groups the lines by the balance they fall on, the sums of each, in the order the ledger is written', () => {
+      const groups = groupForLedger([line(B02, SOLE, '10', '1', '2'), line(B01, null, '5', '0', '1'), line(B02, SOLE, '20', '2', '3'), line(B01, SOLE, '7', '1', '0'), line(B02, null, '1', '0', '0')]);
+      expect(groups).toEqual([
+        { boqItemId: B01, partyId: null, grossVnd: '5', advanceRecoveryVnd: '0', retentionVnd: '1' },
+        { boqItemId: B01, partyId: SOLE, grossVnd: '7', advanceRecoveryVnd: '1', retentionVnd: '0' },
+        { boqItemId: B02, partyId: null, grossVnd: '1', advanceRecoveryVnd: '0', retentionVnd: '0' },
+        { boqItemId: B02, partyId: SOLE, grossVnd: '30', advanceRecoveryVnd: '3', retentionVnd: '5' },
+      ]);
+      expect(groupForLedger([])).toEqual([]);
+    });
+
+    it('takes the recovery out of the tranches, the earliest first, and says what could not be placed', () => {
+      expect(recoverFromTranches(['100', '50'], '120')).toEqual({ taken: ['100', '20'], left: '0' });
+      expect(recoverFromTranches(['100', '50'], '30')).toEqual({ taken: ['30', '0'], left: '0' });
+      expect(recoverFromTranches(['100', '50'], '200')).toEqual({ taken: ['100', '50'], left: '50' });
+      expect(recoverFromTranches([], '5')).toEqual({ taken: [], left: '5' });
+      expect(recoverFromTranches(['0', '10'], '0')).toEqual({ taken: ['0', '0'], left: '0' });
+      expect(refusal(() => recoverFromTranches(['x'], '1'))).toMatchObject({ detail: 'outstanding_vnd' });
     });
   });
 });

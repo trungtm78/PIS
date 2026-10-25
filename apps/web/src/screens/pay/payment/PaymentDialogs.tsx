@@ -4,10 +4,30 @@ import { useTranslation } from '../../../i18n';
 import { useLineChoices } from '../../bid/plan-hooks';
 import { Field } from '../../ctr/components';
 import { CommandFrame } from '../../qms/CommandFrame';
-import { useAttachDocument, useCancelPayment, useRevisePayment } from './hooks';
+import { useAttachDocument, useCancelPayment, useReturnPayment, useRevisePayment, useSubmitPayment, useVerifyPayment } from './hooks';
 import { docKindLabel, formProblemMessage, problemMessage } from './labels';
-import { DOC_KINDS, EMPTY_ATTACH, EMPTY_CANCEL, attachBody, cancelBody, describeProblem, reviseBody, reviseFormOf, validateAttach, validateCancel, validateRevise } from './model';
-import type { AttachForm, CancelForm, PaymentAnswer, PaymentRequest, ReviseForm } from './model';
+import {
+  DOC_KINDS,
+  EMPTY_ATTACH,
+  EMPTY_CANCEL,
+  EMPTY_RETURN,
+  EMPTY_VERIFY,
+  attachBody,
+  cancelBody,
+  describeProblem,
+  returnBody,
+  reviseBody,
+  reviseFormOf,
+  signedAmountText,
+  submitBody,
+  validateAttach,
+  validateCancel,
+  validateReturn,
+  validateRevise,
+  validateVerify,
+  verifyBody,
+} from './model';
+import type { AttachForm, CancelForm, PaymentAnswer, PaymentRequest, ReturnForm, ReviseForm, VerifyForm } from './model';
 
 export interface PaymentDialogProps {
   request: PaymentRequest;
@@ -174,6 +194,98 @@ export function CancelDialog({ request, onDone, onClose }: PaymentDialogProps) {
     >
       <Field id="cancel-reason" label={t('pay.payment.field.cancelReason')} error={sent && problems.reason !== undefined ? formProblemMessage(t, problems.reason) : undefined}>
         <textarea id="cancel-reason" rows={3} value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} />
+      </Field>
+    </CommandFrame>
+  );
+}
+
+/**
+ * Sending the request: the person sees what it is worth and what sending does (it takes the acceptance for this request and puts the amounts on the contract), and the figures they saw go with the
+ * command, so a request that changed in the meantime is refused and shown again rather than sent.
+ */
+export function SubmitDialog({ request, onDone, onClose }: PaymentDialogProps) {
+  const { t, locale } = useTranslation();
+  const words = useFrameWords();
+  const submit = useSubmitPayment();
+  const send = (event: FormEvent): void => {
+    event.preventDefault();
+    if (submit.isPending) return;
+    submit.mutate({ id: request.id, version: request.version, body: submitBody(request) }, { onSuccess: onDone });
+  };
+  return (
+    <CommandFrame
+      title={t('pay.payment.submit.title', { no: request.requestNo ?? '' })}
+      refusal={submit.isError ? problemMessage(t, describeProblem(submit.error)) : undefined}
+      pending={submit.isPending}
+      submitLabel={t('pay.payment.submit.submit')}
+      words={words}
+      onSubmit={send}
+      onClose={onClose}
+    >
+      <p data-testid="submit-intro">
+        {t('pay.payment.submit.intro', { gross: signedAmountText(request.grossVnd, locale) ?? request.grossVnd, net: signedAmountText(request.netVnd, locale) ?? request.netVnd })}
+      </p>
+    </CommandFrame>
+  );
+}
+
+/** Checking a request that was sent, with a note if the person wants one; a person who drew it up or sent it is refused by the server. */
+export function VerifyDialog({ request, onDone, onClose }: PaymentDialogProps) {
+  const { t } = useTranslation();
+  const words = useFrameWords();
+  const verify = useVerifyPayment();
+  const [form, setForm] = useState<VerifyForm>(EMPTY_VERIFY);
+  const [sent, setSent] = useState(false);
+  const problems = validateVerify(form);
+  const send = (event: FormEvent): void => {
+    event.preventDefault();
+    setSent(true);
+    if (verify.isPending || Object.keys(problems).length > 0) return;
+    verify.mutate({ id: request.id, version: request.version, body: verifyBody(form) }, { onSuccess: onDone });
+  };
+  return (
+    <CommandFrame
+      title={t('pay.payment.verify.title', { no: request.requestNo ?? '' })}
+      refusal={verify.isError ? problemMessage(t, describeProblem(verify.error)) : undefined}
+      pending={verify.isPending}
+      submitLabel={t('pay.payment.verify.submit')}
+      words={words}
+      onSubmit={send}
+      onClose={onClose}
+    >
+      <Field id="verify-note" label={t('pay.payment.field.verifyNote')} error={sent && problems.note !== undefined ? formProblemMessage(t, problems.note) : undefined}>
+        <textarea id="verify-note" rows={3} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
+      </Field>
+    </CommandFrame>
+  );
+}
+
+/** Giving a request back to its drafter with the reason; the claim, the retention and the recovery it took are given back by the server. */
+export function ReturnDialog({ request, onDone, onClose }: PaymentDialogProps) {
+  const { t } = useTranslation();
+  const words = useFrameWords();
+  const giveBack = useReturnPayment();
+  const [form, setForm] = useState<ReturnForm>(EMPTY_RETURN);
+  const [sent, setSent] = useState(false);
+  const problems = validateReturn(form);
+  const send = (event: FormEvent): void => {
+    event.preventDefault();
+    setSent(true);
+    if (giveBack.isPending || Object.keys(problems).length > 0) return;
+    giveBack.mutate({ id: request.id, version: request.version, body: returnBody(form) }, { onSuccess: onDone });
+  };
+  return (
+    <CommandFrame
+      title={t('pay.payment.return.title', { no: request.requestNo ?? '' })}
+      refusal={giveBack.isError ? problemMessage(t, describeProblem(giveBack.error)) : undefined}
+      pending={giveBack.isPending}
+      submitLabel={t('pay.payment.return.submit')}
+      words={words}
+      onSubmit={send}
+      onClose={onClose}
+    >
+      <Field id="return-reason" label={t('pay.payment.field.returnReason')} error={sent && problems.reason !== undefined ? formProblemMessage(t, problems.reason) : undefined}>
+        <textarea id="return-reason" rows={3} value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} />
       </Field>
     </CommandFrame>
   );

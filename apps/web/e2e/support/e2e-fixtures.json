@@ -1754,6 +1754,7 @@
         "payment.create",
         "payment.document.attach",
         "payment.cancel",
+        "payment.submit",
         "contract.read",
         "acceptance.read",
         "allocation_line.read",
@@ -1768,6 +1769,7 @@
         "payment_request.read",
         "payment.document.attach",
         "payment.verify",
+        "payment.return",
         "session.self"
       ]
     },

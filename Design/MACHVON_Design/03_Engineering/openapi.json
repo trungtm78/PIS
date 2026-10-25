@@ -3829,7 +3829,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -3928,7 +3928,10 @@
           "ALLOCATION_UNAVAILABLE",
           "INVOICE_REQUIRED",
           "PAYMENT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "ACCEPTANCE_NOT_APPROVED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -72833,7 +72836,9 @@
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
           "PAYMENT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -72846,7 +72851,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -72983,7 +72988,9 @@
         },
         "x-error-codes": [
           "PAYMENT_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -72996,7 +73003,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayPaymentCommandResult"
                 }
               }
             }
@@ -144330,7 +144337,10 @@
               "revise",
               "attach_document",
               "cancel",
-              "override_duplicate"
+              "override_duplicate",
+              "submit",
+              "verify",
+              "return"
             ],
             "properties": {
               "revise": {
@@ -144344,11 +144354,47 @@
               },
               "override_duplicate": {
                 "type": "boolean"
+              },
+              "submit": {
+                "type": "boolean"
+              },
+              "verify": {
+                "type": "boolean"
+              },
+              "return": {
+                "type": "boolean"
               }
             }
           },
           "version": {
             "type": "integer"
+          },
+          "submitted_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "submitted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "verified_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "verification_note": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },

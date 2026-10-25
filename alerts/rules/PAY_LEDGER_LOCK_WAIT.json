@@ -8,7 +8,7 @@
   "source": {
     "type": "gauge",
     "metric": "pay_ledger_lock_wait_seconds",
-    "above": 5
+    "above": 2
   },
-  "summary": "A writer of the cumulative ledger waited more than 5 seconds for the lock of a contract."
+  "summary": "A writer of the cumulative ledger waited more than 2 seconds for the lock of a contract."
 }

@@ -111,6 +111,7 @@
     "post_master_records_id_publish",
     "post_measurements_id_decision",
     "post_notifications_id_replay",
+    "post_payment_requests_id_submit",
     "post_plans_id_publish",
     "promoteChangeRequest",
     "proposeGlossaryTerm",
@@ -177,6 +178,7 @@
     "retryDocumentDistribution",
     "returnContractDraft",
     "returnOutgoingDocument",
+    "returnPaymentRequest",
     "reviseContractDraft",
     "revisePaymentDraft",
     "revokeAcceptance",
@@ -230,6 +232,7 @@
     "verifyContractor",
     "verifyDocumentSignatures",
     "verifyGuarantee",
+    "verifyPaymentRequest",
     "voidOutgoingDocumentNumber",
     "withdrawChangeRequest",
     "withdrawMyConsent"

@@ -360,7 +360,7 @@ describe('the acceptance of work over HTTP (ST-CTR-009)', () => {
     ]);
     expect(await revoke(REVOKER, waiting.id, version)).toMatchObject({ status: 409, json: { code: 'ACCEPTANCE_ALREADY_CLAIMED', payment_request_id: claim } });
     expect(await events(waiting.id, 'ctr.acceptance.revoked.v1')).toEqual([]);
-    await world.owner("update machvon.payment_request set status = 'RETURNED', claims_acceptance = false where id = $1::uuid", [claim]);
+    await world.owner("update machvon.payment_request set status = 'RETURNED', claims_acceptance = false, return_reason = 'Withdrawn.', returned_by = gen_random_uuid(), returned_at = now() where id = $1::uuid", [claim]);
     const revoked = await revoke(REVOKER, waiting.id, version);
     expect(revoked).toMatchObject({ status: 200, json: { status: 'REVOKED', resource_version: version + 1 } });
     expect(await total(target.id)).toBe('0');

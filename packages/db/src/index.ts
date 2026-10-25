@@ -381,7 +381,9 @@ export type { DecideInput as CtrDecideInput, DecisionHooks as CtrDecisionHooks, 
 export { CtrRevisionStore } from './ctr-revision-store.ts';
 export type { DatedPrice, PricingRevision } from './ctr-revision-store.ts';
 export { CtrAcceptanceStore } from './ctr-acceptance-store.ts';
-export { PAY_LEDGER_LOCK_WAIT_METRIC, PAY_VALUE_EXCEEDED_METRIC, PayLedgerStore } from './pay-ledger-store.ts';
+export { PAY_LEDGER_LOCK_WAIT_METRIC, PAY_VALUE_EXCEEDED_METRIC, PayLedgerStore, valueExceeded } from './pay-ledger-store.ts';
+export { PAY_CLAIM_CONFLICT_METRIC, PAY_SUBMIT_METRIC, PayClaimStore } from './pay-claim-store.ts';
+export type { SubmitPaymentInput } from './pay-claim-store.ts';
 export { PayPaymentStore } from './pay-payment-store.ts';
 export type { AttachDocumentInput, CreatePaymentInput, OverrideAuthority, PaymentDocumentView, PaymentFilter, PaymentLineView, PaymentRequestView, PaymentResult, PaymentWarning, RevisePaymentInput } from './pay-payment-store.ts';
 export type { LedgerEntryView, LedgerFilter, LedgerHeaderView, LedgerLineView, LedgerOutcome, LedgerPage, PostEntryInput, PostedEntry } from './pay-ledger-store.ts';

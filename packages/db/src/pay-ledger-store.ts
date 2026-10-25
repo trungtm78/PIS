@@ -179,9 +179,15 @@ interface EntrySql {
  */
 export class PayLedgerStore {
   private readonly metrics: MetricsSink;
+  private readonly applicationChecks: boolean;
 
-  constructor(metrics: MetricsSink = NOOP_METRICS) {
+  /**
+   * `applicationChecks: false` is for the tests that prove the database holds the rules when the checks of the application are bypassed (UAT-AC321): an entry that would break a rule is then
+   * refused by the CHECKs of the tables, and told as the same 409 `VALUE_EXCEEDED`.
+   */
+  constructor(metrics: MetricsSink = NOOP_METRICS, options: { applicationChecks?: boolean } = {}) {
     this.metrics = metrics;
+    this.applicationChecks = options.applicationChecks ?? true;
   }
 
   /** Recognises an approved acceptance: one entry on the balance of each item, worth the lines of the item. */
@@ -245,6 +251,41 @@ export class PayLedgerStore {
   }
 
   /**
+   * Takes back what a payment request put on the ledger (PAY 3.1, the branch of the return): the retention it held is released, the advance it recovered is given back and the claim is released,
+   * in that order (what is recovered and held is part of what is requested), each by an entry that is the opposite of the one it undoes and says so. An entry already undone is not undone twice.
+   * The caller holds the lock of the contract and has moved the totals of the contract; `advanceOutstandingVnd` is the advance still to recover after the return.
+   */
+  async releaseRequest(tx: TenantTx, input: { paymentRequestId: string; requestId: string; actor: string; advanceOutstandingVnd: string }): Promise<number> {
+    const entries = await tx.query<{ id: string; ledger_id: string; entry_kind: LedgerEntryKind; accepted: string; requested: string; paid: string; recovered: string; retention: string }>(
+      `select e.id, e.ledger_id, e.entry_kind, e.accepted_delta_vnd::text as accepted, e.requested_delta_vnd::text as requested, e.paid_delta_vnd::text as paid,
+              e.advance_recovery_delta_vnd::text as recovered, e.retention_delta_vnd::text as retention
+         from machvon.cumulative_ledger_entry e
+        where e.payment_request_id = $1::uuid and e.entry_kind in ('CLAIM', 'ADVANCE_RECOVERY', 'RETENTION_HOLD')
+          and not exists (select 1 from machvon.cumulative_ledger_entry r where r.tenant_id = e.tenant_id and r.reversal_of_id = e.id)
+          and not (e.entry_kind = 'RETENTION_HOLD' and exists (select 1 from machvon.cumulative_ledger_entry r where r.tenant_id = e.tenant_id and r.ledger_id = e.ledger_id
+                                                                 and r.payment_request_id = e.payment_request_id and r.entry_kind = 'RETENTION_RELEASE' and r.created_at > e.created_at))
+        order by case e.entry_kind when 'RETENTION_HOLD' then 0 when 'ADVANCE_RECOVERY' then 1 else 2 end, e.ledger_id, e.id`,
+      [input.paymentRequestId],
+    );
+    await lockLedgerRows(tx, [...new Set(entries.map((entry) => entry.ledger_id))].map((id) => ({ table: 'cumulative_ledger', id })));
+    for (const entry of entries) {
+      const opposite = negate({ accepted: entry.accepted, requested: entry.requested, paid: entry.paid, advanceRecovery: entry.recovered, retention: entry.retention });
+      const kind: LedgerEntryKind = entry.entry_kind === 'CLAIM' ? 'CLAIM_RELEASE' : entry.entry_kind === 'ADVANCE_RECOVERY' ? 'ADVANCE_RECOVERY_REVERSAL' : 'RETENTION_RELEASE';
+      await this.post(tx, {
+        ledgerId: entry.ledger_id,
+        kind,
+        delta: opposite,
+        ...(kind === 'RETENTION_RELEASE' ? {} : { reversalOfId: entry.id }),
+        paymentRequestId: input.paymentRequestId,
+        requestId: input.requestId,
+        actor: input.actor,
+        advanceOutstandingVnd: input.advanceOutstandingVnd,
+      });
+    }
+    return entries.length;
+  }
+
+  /**
    * Posts one entry and moves its balance by it, in the same transaction; the caller holds the lock of the contract. 409 `VALUE_EXCEEDED` when the balance would break a rule of the ledger
    * (the database keeps the same rules behind this check).
    */
@@ -253,13 +294,24 @@ export class PayLedgerStore {
     const [row] = await tx.query<LedgerRowSql>(`select ${BALANCE_COLUMNS} from machvon.cumulative_ledger where id = $1::uuid for update`, [input.ledgerId]);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const next = applyDelta(toRow(row).balance, input.delta);
-    try {
-      assertLedgerInvariants(next);
-    } catch (error) {
-      this.metrics.increment(PAY_VALUE_EXCEEDED_METRIC, { rule: String((error as DomainError).extensions?.rule) });
-      throw error;
+    if (this.applicationChecks) {
+      try {
+        assertLedgerInvariants(next);
+      } catch (error) {
+        this.metrics.increment(PAY_VALUE_EXCEEDED_METRIC, { rule: String((error as DomainError).extensions?.rule) });
+        throw error;
+      }
     }
     const entryId = randomUUID();
+    try {
+      await this.write(tx, input, entryId, next);
+    } catch (error) {
+      throw valueExceeded(error, this.metrics) ?? error;
+    }
+    return { id: entryId, ledgerId: input.ledgerId, kind: input.kind, delta: input.delta, balance: next };
+  }
+
+  private async write(tx: TenantTx, input: PostEntryInput, entryId: string, next: LedgerBalance): Promise<void> {
     await tx.query(
       `insert into machvon.cumulative_ledger_entry (tenant_id, id, ledger_id, contract_id, boq_item_id, acceptance_id, payment_request_id, entry_kind, accepted_delta_vnd, requested_delta_vnd,
               paid_delta_vnd, advance_recovery_delta_vnd, retention_delta_vnd, advance_outstanding_after_vnd, reversal_of_id, reason, request_id, created_by)
@@ -288,7 +340,6 @@ export class PayLedgerStore {
               updated_at = now(), updated_by = $7::uuid, version = version + 1 where id = $1::uuid`,
       [input.ledgerId, next.acceptedVnd, next.requestedVnd, next.paidVnd, next.advanceRecoveredVnd, next.retentionHeldVnd, input.actor],
     );
-    return { id: entryId, ledgerId: input.ledgerId, kind: input.kind, delta: input.delta, balance: next };
   }
 
   /** The version of a contract inside the scope of the caller (what a cached page is keyed by); undefined when the contract is outside it. */
@@ -470,4 +521,27 @@ export class PayLedgerStore {
     }
     return found;
   }
+}
+
+/** The checks of the database that keep the money within its bounds: a refusal by one of them is the 409 `VALUE_EXCEEDED` of the contract, not a constraint name. */
+const VALUE_CONSTRAINTS: ReadonlySet<string> = new Set([
+  'cumulative_ledger_nonneg_chk',
+  'cumulative_ledger_requested_le_accepted_chk',
+  'cumulative_ledger_paid_le_requested_chk',
+  'cumulative_ledger_deductions_chk',
+  'contract_ledger_order_chk',
+  'contract_cash_out_chk',
+  'contract_advance_order_chk',
+  'contract_retention_order_chk',
+]);
+
+/**
+ * A DomainError 409 `VALUE_EXCEEDED` (counted by `pay_value_exceeded_total`, naming the constraint as the rule) when the database refused a write for one of the checks that keep the money within
+ * its bounds; undefined for any other failure.
+ */
+export function valueExceeded(error: unknown, metrics: MetricsSink = NOOP_METRICS): DomainError | undefined {
+  const failure = error as { code?: string; constraint?: string };
+  if (failure.code !== '23514' || failure.constraint === undefined || !VALUE_CONSTRAINTS.has(failure.constraint)) return undefined;
+  metrics.increment(PAY_VALUE_EXCEEDED_METRIC, { rule: failure.constraint });
+  return new DomainError('VALUE_EXCEEDED', 409, 'ledger', { extensions: { rule: failure.constraint } });
 }

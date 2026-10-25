@@ -1,11 +1,10 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { BidContractorStore, PayPaymentStore, TenantDatabase, contractScope } from '@machvon/db';
-import type { ContractScopes, PaymentResult } from '@machvon/db';
+import type { ContractScopes } from '@machvon/db';
 import { DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
-import { commandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
@@ -13,6 +12,8 @@ import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { placeRefs, reaches } from '../ctr/contract.controller';
+import { CLASSIFICATION, RESOURCE_TYPE, answer, recordPayment } from './payment-record';
+import type { PaymentCommandResult } from './payment-record';
 import { paymentActionsOf, paymentView } from './payment-request-view';
 import type { PaymentPermissions } from './payment-request-view';
 
@@ -21,28 +22,18 @@ const ATTACH_PERMISSION = PERMISSIONS.attachPaymentDocument;
 const CANCEL_PERMISSION = PERMISSIONS.cancelPaymentRequest;
 const OVERRIDE_PERMISSION = PERMISSIONS.verifyPaymentRequest;
 const READ_PERMISSION = PERMISSIONS.get_resources_payment_request;
-const RESOURCE_TYPE = 'payment_request';
-const CLASSIFICATION = 'CONFIDENTIAL';
 
-const PERMISSIONS_OF_ACTIONS: PaymentPermissions = { create: CREATE_PERMISSION, attach: ATTACH_PERMISSION, cancel: CANCEL_PERMISSION, override: OVERRIDE_PERMISSION };
+const PERMISSIONS_OF_ACTIONS: PaymentPermissions = {
+  create: CREATE_PERMISSION,
+  attach: ATTACH_PERMISSION,
+  cancel: CANCEL_PERMISSION,
+  submit: PERMISSIONS.post_payment_requests_id_submit,
+  verify: PERMISSIONS.verifyPaymentRequest,
+  return: PERMISSIONS.returnPaymentRequest,
+  override: OVERRIDE_PERMISSION,
+};
 
 const scopesFor = (access: EffectiveAccess, permission: string, now: Date): ContractScopes => ({ update: contractScope(access, permission, now), read: contractScope(access, READ_PERMISSION, now) });
-
-type PaymentCommandResult = Schemas['PayPaymentCommandResult'];
-
-/** What a command answers: the usual result of a command, and the figures the server computed (the client never sends them), the year of the plan and what the caller should know. */
-function answer(scope: CommandScope, done: PaymentResult): PaymentCommandResult {
-  return {
-    ...commandResult(scope, done.status, done.version, done.id),
-    gross_vnd: done.grossVnd,
-    advance_recovery_vnd: done.advanceRecoveryVnd,
-    retention_vnd: done.retentionVnd,
-    tax_adjustment_vnd: done.taxAdjustmentVnd,
-    net_vnd: done.netVnd,
-    plan_year: done.planYear,
-    warnings: done.warnings.map((warning) => ({ code: warning.code, detail: warning.detail })),
-  };
-}
 
 /**
  * The draft of a payment request (ST-PAY-002, PAY 3.1 steps 1 and 2). An accountant draws a request up from an approved acceptance with the number of the file, the line of capital, a tax
@@ -78,7 +69,7 @@ export class PaymentRequestController {
       scopesFor(access, CREATE_PERMISSION, now),
       vietnamDateOf(now),
     );
-    await this.written(scope, done, 'payment_request.drafted', 'pay.payment_request.drafted.v1', now);
+    await recordPayment(scope, done, 'payment_request.drafted', 'pay.payment_request.drafted.v1', now);
     return answer(scope, done);
   }
 
@@ -103,7 +94,7 @@ export class PaymentRequestController {
       scopesFor(access, CREATE_PERMISSION, now),
       vietnamDateOf(now),
     );
-    await this.written(scope, done, 'payment_request.revised', 'pay.payment_request.revised.v1', now);
+    await recordPayment(scope, done, 'payment_request.revised', 'pay.payment_request.revised.v1', now);
     return answer(scope, done);
   }
 
@@ -155,46 +146,10 @@ export class PaymentRequestController {
   async cancel(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['PayCancelPaymentRequest']): Promise<PaymentCommandResult> {
     const now = new Date();
     const done = await this.payments.cancel(scope.tx, id.toLowerCase(), scope.expectedVersion ?? 0, body.reason, scope.tenant.membershipId, scopesFor(access, CANCEL_PERMISSION, now));
-    await this.written(scope, done, 'payment_request.cancelled', 'pay.payment_request.cancelled.v1', now, body.reason.trim());
+    await recordPayment(scope, done, 'payment_request.cancelled', 'pay.payment_request.cancelled.v1', now, body.reason.trim());
     return answer(scope, done);
   }
 
-  /** The audit row and the event of a command: identifiers, amounts, the year and the status; never the words of a reason beyond the row that keeps them. */
-  private async written(scope: CommandScope, done: PaymentResult, action: string, type: string, now: Date, reason?: string): Promise<void> {
-    const facts = {
-      contract_id: done.contractId,
-      contract_code: done.contractCode,
-      project_id: done.projectId,
-      request_kind: done.requestKind,
-      request_no: done.requestNo,
-      acceptance_id: done.acceptanceId,
-      allocation_line_id: done.allocationLineId,
-      plan_year: done.planYear,
-      gross_vnd: done.grossVnd,
-      advance_recovery_vnd: done.advanceRecoveryVnd,
-      retention_vnd: done.retentionVnd,
-      tax_adjustment_vnd: done.taxAdjustmentVnd,
-      net_vnd: done.netVnd,
-      line_count: done.lineCount,
-    };
-    await scope.audit({
-      action,
-      resourceType: RESOURCE_TYPE,
-      resourceId: done.id,
-      classification: CLASSIFICATION,
-      ...(reason === undefined ? {} : { reason }),
-      diff: { from_status: done.fromStatus, to_status: done.status, ...facts, warnings: done.warnings.map((warning) => warning.code) },
-    });
-    await scope.emit({
-      aggregateType: RESOURCE_TYPE,
-      aggregateId: done.id,
-      aggregateVersion: done.version,
-      type,
-      schemaVersion: 1,
-      payload: { tenant_id: scope.tenant.tenantId, payment_request_id: done.id, ...facts, status: done.status, from_status: done.fromStatus, version: done.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
-      eventKey: `${RESOURCE_TYPE}:${done.id}:${done.version}`,
-    });
-  }
 }
 
 /** The payment requests in the scope of the caller (the right to read them is `payment_request.read`). */

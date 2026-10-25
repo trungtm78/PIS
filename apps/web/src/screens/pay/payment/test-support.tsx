@@ -31,7 +31,7 @@ export const routeOf = (id: string, module: string, req: string) => ({
   req,
 });
 
-export const actions = (overrides: Record<string, unknown> = {}) => ({ revise: true, attach_document: true, cancel: true, override_duplicate: false, ...overrides });
+export const actions = (overrides: Record<string, unknown> = {}) => ({ revise: true, attach_document: true, cancel: true, override_duplicate: false, submit: false, verify: false, return: false, ...overrides });
 
 /** One line of a request: B01 and B02 of the example of the chief accountant (gross 3bn, recovery 750m, retention 150m). */
 export const paymentLine = (n: number, overrides: Record<string, unknown> = {}) => ({
@@ -88,6 +88,7 @@ export const payment = (n: number, overrides: Record<string, unknown> = {}) => (
   other_drafts: 0,
   return_reason: null,
   cancel_reason: null,
+  verification_note: null,
   created_by: uuid('0030', 1),
   created_at: '2026-10-25T01:00:00.000Z',
   updated_at: '2026-10-25T01:00:00.000Z',

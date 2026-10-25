@@ -163,6 +163,10 @@ export interface PaymentRequestView {
   returnReason: string | null;
   cancelReason: string | null;
   createdBy: string | null;
+  submittedBy: string | null;
+  submittedAt: string | null;
+  verifiedBy: string | null;
+  verificationNote: string | null;
   createdAt: string;
   updatedAt: string;
   lines: PaymentLineView[];
@@ -207,6 +211,10 @@ interface HeaderSql {
   return_reason: string | null;
   cancel_reason: string | null;
   created_by: string | null;
+  submitted_by: string | null;
+  submitted_at: string | null;
+  verified_by: string | null;
+  verification_note: string | null;
   created_at: string;
   updated_at: string;
   owner_unit_id: string;
@@ -220,7 +228,7 @@ const SELECT = `select pr.id, pr.request_no, pr.request_kind, pr.status, pr.vers
        pr.gross_vnd::text as gross_vnd, pr.advance_recovery_vnd::text as advance_recovery_vnd, pr.retention_vnd::text as retention_vnd, pr.tax_adjustment_vnd::text as tax_adjustment_vnd,
        pr.tax_adjustment_basis, pr.advance_recovery_extra_vnd::text as advance_recovery_extra_vnd, pr.net_vnd::text as net_vnd, pr.claims_acceptance,
        (select count(*)::text from machvon.payment_request o where o.tenant_id = pr.tenant_id and o.acceptance_id = pr.acceptance_id and o.id <> pr.id and o.status in ('DRAFT', 'RETURNED')) as other_drafts,
-       pr.return_reason, pr.cancel_reason, pr.created_by, ${TIMESTAMP('pr.created_at')} as created_at, ${TIMESTAMP('pr.updated_at')} as updated_at,
+       pr.return_reason, pr.cancel_reason, pr.created_by, pr.submitted_by, ${TIMESTAMP('pr.submitted_at')} as submitted_at, pr.verified_by, pr.verification_note, ${TIMESTAMP('pr.created_at')} as created_at, ${TIMESTAMP('pr.updated_at')} as updated_at,
        ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path
   from ${CONTRACT_SCOPE_FROM}
   join machvon.payment_request pr on pr.tenant_id = c.tenant_id and pr.contract_id = c.id
@@ -252,6 +260,10 @@ function toView(row: HeaderSql, lines: PaymentLineView[], documents: PaymentDocu
     returnReason: row.return_reason,
     cancelReason: row.cancel_reason,
     createdBy: row.created_by,
+    submittedBy: row.submitted_by,
+    submittedAt: row.submitted_at,
+    verifiedBy: row.verified_by,
+    verificationNote: row.verification_note,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     lines,
@@ -284,7 +296,7 @@ interface LockSql {
   created_by: string | null;
 }
 
-interface AcceptanceSql {
+export interface AcceptanceSql {
   id: string;
   contract_id: string;
   status: string;
@@ -293,7 +305,7 @@ interface AcceptanceSql {
   accepted_amount_vnd: string;
 }
 
-interface ContractSql {
+export interface ContractSql {
   id: string;
   code: string;
   status: string;
@@ -640,7 +652,7 @@ export class PayPaymentStore {
     };
   }
 
-  private async contractFacts(tx: TenantTx, contractId: string): Promise<ContractSql> {
+  async contractFacts(tx: TenantTx, contractId: string): Promise<ContractSql> {
     const [row] = await tx.query<ContractSql>('select id, code, status, project_id, suspended_from::text as suspended_from, terminated_on::text as terminated_on from machvon.contract where id = $1::uuid', [contractId]);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return row;
@@ -699,7 +711,7 @@ export class PayPaymentStore {
     return { money, partyOfLine: loaded.partyOfLine, planYear, warnings };
   }
 
-  private async acceptanceOf(tx: TenantTx, id: string, contractId: string): Promise<AcceptanceSql> {
+  async acceptanceOf(tx: TenantTx, id: string, contractId: string): Promise<AcceptanceSql> {
     const [row] = await tx.query<AcceptanceSql>(
       `select id, contract_id, status, accepted_on::text as accepted_on, (approved_at at time zone 'Asia/Ho_Chi_Minh')::date::text as approved_on, accepted_amount_vnd::text as accepted_amount_vnd
          from machvon.acceptance where id = $1::uuid`,
@@ -731,7 +743,7 @@ export class PayPaymentStore {
   }
 
   /** The line of capital: of the project of the contract, in force (it has a balance), of a year the acceptance may be paid from and still open for payment (BR-PAY-14). Gives its plan year. */
-  private async assertAllocation(tx: TenantTx, lineId: string, projectId: string, acceptanceYear: number | null, today: string): Promise<number> {
+  async assertAllocation(tx: TenantTx, lineId: string, projectId: string, acceptanceYear: number | null, today: string): Promise<number> {
     const [row] = await tx.query<{ project_id: string | null; plan_year: number | null; extended_to: string | null; balanced: boolean }>(
       `select al.project_id, a.plan_year, a.extended_to::text as extended_to,
               exists (select 1 from machvon.allocation_balance b where b.tenant_id = al.tenant_id and b.allocation_line_id = al.id) as balanced
@@ -810,7 +822,7 @@ export class PayPaymentStore {
   }
 
   /** What the database refused, in the words of the contract; anything else is not ours to explain. */
-  private mapDatabaseRefusal(error: unknown): unknown {
+  mapDatabaseRefusal(error: unknown): unknown {
     const failure = error as { code?: string; constraint?: string; message?: string };
     if (failure.code === UNIQUE_VIOLATION && failure.constraint === NUMBER_CONSTRAINT) return new DomainError('PAYMENT_REFERENCE_DUPLICATE', 409, 'request_no');
     if (failure.code === CHECK_VIOLATION && typeof failure.message === 'string') {
@@ -822,7 +834,7 @@ export class PayPaymentStore {
     return error;
   }
 
-  private async resultOf(tx: TenantTx, id: string, fromStatus: PaymentStatus | null, warnings: PaymentWarning[]): Promise<PaymentResult> {
+  async resultOf(tx: TenantTx, id: string, fromStatus: PaymentStatus | null, warnings: PaymentWarning[]): Promise<PaymentResult> {
     const [row] = await tx.query<{
       id: string;
       request_no: string | null;

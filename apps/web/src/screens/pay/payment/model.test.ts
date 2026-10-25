@@ -5,6 +5,8 @@ import {
   EMPTY_ATTACH,
   EMPTY_CANCEL,
   EMPTY_CREATE,
+  EMPTY_RETURN,
+  EMPTY_VERIFY,
   KINDS,
   STATUSES,
   attachBody,
@@ -18,14 +20,19 @@ import {
   listLink,
   paymentLink,
   percentText,
+  returnBody,
   reviseBody,
   reviseFormOf,
+  submitBody,
   toAnswer,
   toPaymentRequest,
   validateAttach,
   validateCancel,
   validateCreate,
+  validateReturn,
   validateRevise,
+  validateVerify,
+  verifyBody,
   valuationLink,
 } from './model';
 import type { AttachForm, CreateForm } from './model';
@@ -191,6 +198,24 @@ describe('the model of the payment request (PAY-01, PAY-02, PAY-03, CTR-13)', ()
     expect(cancelBody({ reason: ' Duplicate ' })).toEqual({ reason: 'Duplicate' });
   });
 
+  it('UI-PAY-03: sends the figures the person saw, a note that may be left out and a reason that may not', () => {
+    const request = toPaymentRequest(payment(1, { verification_note: 'Complete.' }))!;
+    expect(request.verificationNote).toBe('Complete.');
+    expect(submitBody(request)).toEqual({ expected_gross_vnd: '3000000000', expected_net_vnd: '2100000000' });
+    expect(validateVerify(EMPTY_VERIFY)).toEqual({});
+    expect(validateVerify({ note: '   ' })).toEqual({ note: 'required' });
+    expect(validateVerify({ note: 'x'.repeat(2001) })).toEqual({ note: 'tooLong' });
+    expect(verifyBody(EMPTY_VERIFY)).toEqual({});
+    expect(verifyBody({ note: ' Complete ' })).toEqual({ note: 'Complete' });
+    expect(validateReturn(EMPTY_RETURN)).toEqual({ reason: 'required' });
+    expect(validateReturn({ reason: 'x'.repeat(2001) })).toEqual({ reason: 'tooLong' });
+    expect(validateReturn({ reason: 'Wrong invoice' })).toEqual({});
+    expect(returnBody({ reason: ' Wrong invoice ' })).toEqual({ reason: 'Wrong invoice' });
+    const open = toPaymentRequest(payment(1, { status: 'SUBMITTED', actions: { revise: false, attach_document: false, cancel: false, override_duplicate: false, submit: true, verify: true, return: true } }))!;
+    expect(open.actions).toMatchObject({ submit: true, verify: true, return: true });
+    expect(toPaymentRequest(payment(1, { actions: null }))!.actions).toMatchObject({ submit: false, verify: false, return: false });
+  });
+
   it('words every refusal of the server', () => {
     const cases: Array<[string, string]> = [
       ['ACCEPTANCE_NOT_APPROVED', 'acceptanceNotApproved'],
@@ -199,6 +224,9 @@ describe('the model of the payment request (PAY-01, PAY-02, PAY-03, CTR-13)', ()
       ['PAYMENT_REFERENCE_DUPLICATE', 'referenceDuplicate'],
       ['PAYMENT_STATE_INVALID', 'paymentState'],
       ['PAYMENT_NET_MISMATCH', 'netMismatch'],
+      ['INVOICE_REQUIRED', 'invoiceRequired'],
+      ['VALUE_EXCEEDED', 'valueExceeded'],
+      ['ADVANCE_RECOVERY_EXCEEDED', 'advanceExceeded'],
       ['ALLOCATION_UNAVAILABLE', 'allocationUnavailable'],
       ['PLAN_YEAR_MISMATCH', 'planYear'],
       ['NATIONAL_CODE_REQUIRED', 'nationalCode'],

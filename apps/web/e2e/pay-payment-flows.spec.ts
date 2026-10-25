@@ -87,18 +87,24 @@ async function seed(): Promise<Seeded> {
       [tenant, line, version, fund.id, projectId, appropriation, OWNER, level, origin],
     );
     await client.query(`insert into machvon.allocation_balance (tenant_id, id, allocation_line_id, allocated_vnd) values ($1, $2, $3, 30000000000)`, [tenant, balance, line]);
+    const packageId = randomUUID();
+    await client.query(
+      `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status, title, created_by, version)
+       values ($1, $2, $3, $4, 9000000000, 'OPEN_BIDDING', 1, 'APPROVED', $5, $6, 1)`,
+      [tenant, packageId, projectId, `GT-TT-${suffix}`, `Gói thầu thanh toán ${counter}`, OWNER],
+    );
     await client.query(
       `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, title, type, currency, status, version, contract_value_vnd, estimate_ceiling_vnd, accepted_total_vnd,
                                      created_by, updated_by, submitted_by, signed_on, signed_by, signed_document_version_id, effective_from, activated_by)
        values ($1, $2, $3, $4, $5, $6, 'Hợp đồng thử đề nghị thanh toán', 'UNIT_PRICE', 'VND', 'ACTIVE', 1, 9000000000::numeric, 9000000000::numeric, 3000000000::numeric, $7, $7, $7, date '2026-01-02', $8, $9, date '2026-01-03', $10)`,
-      [tenant, contractId, projectId, randomUUID(), contractor.id, code, OWNER, membershipOf('lifecycleReviewer'), paper.id, membershipOf('lifecycleActivator')],
+      [tenant, contractId, projectId, packageId, contractor.id, code, OWNER, membershipOf('lifecycleReviewer'), paper.id, membershipOf('lifecycleActivator')],
     );
     await client.query(
       `insert into machvon.contract_revision (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, version, created_by, updated_by, decided_by, decided_at)
        values ($1, $2, $3, 1, 9000000000::numeric, $4, date '2026-01-03', 'EFFECTIVE', 'BASE', 1, $5, $5, $6, now())`,
       [tenant, revisionId, contractId, paper.id, OWNER, membershipOf('lifecycleActivator')],
     );
-    await client.query(`update machvon.contract set current_revision_id = $2 where id = $1`, [contractId, revisionId]);
+    await client.query(`update machvon.contract set current_revision_id = $2, advance_paid_vnd = 2000000000 where id = $1`, [contractId, revisionId]);
     await client.query(
       `insert into machvon.contract_party (tenant_id, id, contract_id, contractor_id, role, share_pct, work_value_vnd, status, valid_from, created_by, updated_by)
        values ($1, $2, $3, $4, 'SOLE', 100, 10000000000, 'ACTIVE', date '2026-01-03', $5, $5)`,
@@ -186,6 +192,20 @@ async function draw(page: Page, seeded: Seeded, number: string, tax?: { amount: 
   if ((await page.getByTestId('refusal').count()) > 0) throw new Error(`the form was refused: ${await page.getByTestId('refusal').textContent()}`);
   await expect(page.getByTestId('result')).toBeVisible();
 }
+
+/** Gives a draft its invoice in the dialog of PAY-03. */
+async function attachInvoice(page: Page, seeded: Seeded, invoiceNo: string): Promise<void> {
+  await page.locator('button[data-action="attach"]').click();
+  await page.locator('#attach-kind').selectOption('INVOICE');
+  await page.locator('#attach-document').fill(seeded.paper);
+  await page.locator('#attach-invoice-no').fill(invoiceNo);
+  await page.locator('#attach-invoice-date').fill('2026-07-01');
+  await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.attach.submit'] }).click();
+  await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.attached']);
+}
+
+const ledgerOf = (contractId: string) =>
+  sql<{ requested: string; entries: string }>('select coalesce(sum(requested_vnd), 0)::text as requested, (select count(*)::text from machvon.cumulative_ledger_entry where contract_id = $1) as entries from machvon.cumulative_ledger where contract_id = $1', [contractId]);
 
 test.describe('the payment request', () => {
   test('the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60)', async ({ page }) => {
@@ -309,5 +329,63 @@ test.describe('the payment request', () => {
     await open(page, `/pay/pay-02?contract=${seeded.contractId}`, 'paymentReader');
     await expect(page.getByTestId('no-right')).toHaveText(vi['pay.payment.create.noRight']);
     expect(made?.status).toBe('DRAFT');
+  });
+
+  test('the accountant sends a request, another request for the same acceptance is turned away, the approver checks it and gives it back, and the ledger follows (UI-PAY-03, AC-ST-PAY-003-1, AC-ST-PAY-003-3, AC-ST-PAY-003-5, UAT-AC320, UAT-AC322, UAT-AC332)', async ({ page }) => {
+    const seeded = await seed();
+    const stamp = `${Date.now().toString(36).toUpperCase()}-${counter}`;
+    await draw(page, seeded, `DNTT-E2E-S-${stamp}`);
+    await page.getByTestId('open-request').click();
+    await attachInvoice(page, seeded, `HD-E2E-S-${stamp}`);
+    // A second draft of the same acceptance is allowed while neither has been sent.
+    await draw(page, seeded, `DNTT-E2E-S2-${stamp}`);
+    await page.getByTestId('open-request').click();
+    await attachInvoice(page, seeded, `HD-E2E-S2-${stamp}`);
+    const [firstDraft, secondDraft] = await requestsOf(seeded.contractId);
+    await open(page, `/pay/pay-03?request=${firstDraft!.id}`, 'paymentAccountant');
+
+    // Sending shows what the request is worth and what sending does, then holds the acceptance and puts the amounts on the ledger of the contract.
+    await page.locator('button[data-action="submit"]').click();
+    await expect(page.getByTestId('submit-intro')).toHaveText(vi['pay.payment.submit.intro'].replace('{gross}', '3.000.000.000').replace('{net}', '2.100.000.000'));
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.submitted']);
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.submitted']);
+    const sent = firstDraft;
+    expect((await requestsOf(seeded.contractId))[0]).toMatchObject({ status: 'SUBMITTED' });
+    expect(await sql<{ claims_acceptance: boolean }>('select claims_acceptance from machvon.payment_request where id = $1', [sent!.id])).toEqual([{ claims_acceptance: true }]);
+    expect((await ledgerOf(seeded.contractId))[0]).toMatchObject({ requested: '3000000000' });
+    expect(await eventsOf(sent!.id, 'pay.payment_request.submitted.v1')).toHaveLength(1);
+    expect(await auditsOf(sent!.id, 'payment_request.submitted')).toEqual([{ actor_id: membershipOf('paymentAccountant') }]);
+    // The one who sent it has no button left for it, and cannot check it.
+    await expect(page.locator('button[data-action="submit"]')).toHaveCount(0);
+    await expect(page.locator('button[data-action="verify"]')).toHaveCount(0);
+
+    // A second request for the same acceptance is turned away in words, and leaves nothing on the ledger.
+    await open(page, `/pay/pay-03?request=${secondDraft!.id}`, 'paymentAccountant');
+    await page.locator('button[data-action="submit"]').click();
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('refusal')).toHaveText(vi['pay.payment.error.claimed']);
+    expect((await ledgerOf(seeded.contractId))[0]).toMatchObject({ requested: '3000000000' });
+
+    // The approver checks the first request with a note, then gives it back with a reason; the acceptance, the retention and the recovery are released.
+    await open(page, `/pay/pay-03?request=${sent!.id}`, 'paymentApprover');
+    await page.locator('button[data-action="verify"]').click();
+    await page.locator('#verify-note').fill('Hồ sơ đầy đủ.');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.verify.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.verified']);
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.verified']);
+    await expect(page.getByTestId('verification-note')).toHaveText('Hồ sơ đầy đủ.');
+    await page.locator('button[data-action="return"]').click();
+    await page.locator('#return-reason').fill('Hóa đơn không khớp với nghiệm thu.');
+    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.return.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.returned']);
+    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.returned']);
+    await expect(page.getByTestId('return-reason')).toHaveText('Hóa đơn không khớp với nghiệm thu.');
+    expect(await sql<{ status: string; claims_acceptance: boolean; verified_by: string }>('select status, claims_acceptance, verified_by from machvon.payment_request where id = $1', [sent!.id])).toEqual([
+      { status: 'RETURNED', claims_acceptance: false, verified_by: membershipOf('paymentApprover') },
+    ]);
+    expect((await ledgerOf(seeded.contractId))[0]).toMatchObject({ requested: '0' });
+    expect(await auditsOf(sent!.id, 'payment_request.verified')).toEqual([{ actor_id: membershipOf('paymentApprover') }]);
+    expect(await auditsOf(sent!.id, 'payment_request.returned')).toEqual([{ actor_id: membershipOf('paymentApprover') }]);
   });
 });

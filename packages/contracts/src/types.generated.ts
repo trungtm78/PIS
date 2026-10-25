@@ -20436,8 +20436,18 @@ export interface components {
                 attach_document: boolean;
                 cancel: boolean;
                 override_duplicate: boolean;
+                submit: boolean;
+                verify: boolean;
+                return: boolean;
             };
             version: number;
+            /** Format: uuid */
+            submitted_by?: string | null;
+            /** Format: date-time */
+            submitted_at?: string | null;
+            /** Format: uuid */
+            verified_by?: string | null;
+            verification_note?: string | null;
         };
         PayPaymentRequestPage: {
             items: components["schemas"]["PayPaymentRequest"][];
@@ -23108,7 +23118,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request */
@@ -70975,7 +70985,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -71077,7 +71087,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayPaymentCommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

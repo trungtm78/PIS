@@ -6,7 +6,7 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, Fact } from '../../ctr/components';
-import { AttachDialog, CancelDialog, ReviseDialog } from './PaymentDialogs';
+import { AttachDialog, CancelDialog, ReturnDialog, ReviseDialog, SubmitDialog, VerifyDialog } from './PaymentDialogs';
 import { usePayment } from './hooks';
 import { docKindLabel, kindLabel, statusLabel, warningMessage } from './labels';
 import { listLink, signedAmountText, valuationLink } from './model';
@@ -23,7 +23,7 @@ export default function PaymentDetailScreen({ route }: ScreenProps) {
   return <PaymentDetailContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
-type Dialog = 'revise' | 'attach' | 'cancel';
+type Dialog = 'revise' | 'attach' | 'cancel' | 'submit' | 'verify' | 'return';
 
 function PaymentDetailContent({ route }: ScreenProps) {
   const { t } = useTranslation();
@@ -114,6 +114,11 @@ function Detail({ request }: { request: PaymentRequest }) {
               <span data-testid="return-reason">{request.returnReason}</span>
             </Fact>
           )}
+          {request.verificationNote === null ? null : (
+            <Fact label={t('pay.payment.fact.verificationNote')}>
+              <span data-testid="verification-note">{request.verificationNote}</span>
+            </Fact>
+          )}
           {request.cancelReason === null ? null : (
             <Fact label={t('pay.payment.fact.cancelReason')}>
               <span data-testid="cancel-reason">{request.cancelReason}</span>
@@ -137,6 +142,21 @@ function Detail({ request }: { request: PaymentRequest }) {
           {writable && request.actions.attachDocument ? (
             <button type="button" onClick={() => setDialog('attach')} data-action="attach">
               {t('pay.payment.detail.attach')}
+            </button>
+          ) : null}
+          {writable && request.actions.submit ? (
+            <button type="button" className="primary" onClick={() => setDialog('submit')} data-action="submit">
+              {t('pay.payment.detail.submit')}
+            </button>
+          ) : null}
+          {writable && request.actions.verify ? (
+            <button type="button" className="primary" onClick={() => setDialog('verify')} data-action="verify">
+              {t('pay.payment.detail.verify')}
+            </button>
+          ) : null}
+          {writable && request.actions.return ? (
+            <button type="button" onClick={() => setDialog('return')} data-action="return">
+              {t('pay.payment.detail.return')}
             </button>
           ) : null}
           {writable && request.actions.cancel ? (
@@ -194,6 +214,9 @@ function Detail({ request }: { request: PaymentRequest }) {
       {dialog === 'revise' ? <ReviseDialog request={request} onDone={finished(t('pay.payment.done.revised'))} onClose={close} /> : null}
       {dialog === 'attach' ? <AttachDialog request={request} onDone={finished(t('pay.payment.done.attached'))} onClose={close} /> : null}
       {dialog === 'cancel' ? <CancelDialog request={request} onDone={finished(t('pay.payment.done.cancelled'))} onClose={close} /> : null}
+      {dialog === 'submit' ? <SubmitDialog request={request} onDone={finished(t('pay.payment.done.submitted'))} onClose={close} /> : null}
+      {dialog === 'verify' ? <VerifyDialog request={request} onDone={finished(t('pay.payment.done.verified'))} onClose={close} /> : null}
+      {dialog === 'return' ? <ReturnDialog request={request} onDone={finished(t('pay.payment.done.returned'))} onClose={close} /> : null}
     </>
   );
 }

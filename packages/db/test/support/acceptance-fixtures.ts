@@ -4,7 +4,7 @@ import type { AcceptanceResult } from '../../src/ctr-acceptance-store';
 import type { ContractScopes } from '../../src/ctr-contract-store';
 import type { TenantTx } from '../../src/tenant-database';
 import { TENANT_A, contextFor, id, memberId } from './authz-fixtures';
-import { seedAs } from './bid-proposal-fixtures';
+import { seedAs, seedContractor } from './bid-proposal-fixtures';
 import { CapWorld } from './cap-fixtures';
 
 const FAMILY = 0xb1;
@@ -12,7 +12,6 @@ const CREATOR = 1;
 const SENDER = 2;
 const APPROVER = 3;
 const REVOKER = 5;
-const CONTRACTOR = id(FAMILY, 10);
 const DOCUMENT = id(FAMILY, 30);
 const VERSION = id(FAMILY, 31);
 const TODAY = '2026-07-25';
@@ -47,13 +46,16 @@ export class AcceptanceWorld {
   /** The project and the line of capital of the first published plan: the contracts of the tests are of this project unless they are given another. */
   projectId = '';
   lineId = '';
+  /** The contractor of the contracts of the tests (a row of the table, so a contract can be changed in a transaction that wrote it). */
+  contractorId = '';
   private periodId = '';
   private counter = 0;
 
   async start(): Promise<void> {
     await this.world.start();
+    this.contractorId = await seedContractor(this.harness);
     await this.harness.seedMembership(TENANT_A, REVOKER, 1);
-    const published = await this.world.publishedLine();
+    const published = await this.world.publishedLine({ allocated: '10000000000000', appropriationAmount: '20000000000000' });
     this.projectId = published.projectId;
     this.lineId = published.lineId;
     this.periodId = randomUUID();
@@ -109,7 +111,7 @@ export class AcceptanceWorld {
            (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, title, advance_category, is_joint_venture, requires_quality_acceptance, contract_value_vnd,
             created_by, updated_by, signed_on, effective_from)
          values ($1, $2, $3, $4, $5, $6, 'UNIT_PRICE', 'VND', 'ACTIVE', 1, 'Contract', 'OTHER', false, false, 9000000000, $7, $7, date '2026-01-01', date '2026-01-02')`,
-        [TENANT_A, contractId, options.projectId ?? this.projectId, packageId, CONTRACTOR, code, memberId(CREATOR)],
+        [TENANT_A, contractId, options.projectId ?? this.projectId, packageId, this.contractorId, code, memberId(CREATOR)],
       ],
       [
         `insert into machvon.contract_revision (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, version, created_by, updated_by)
@@ -127,7 +129,7 @@ export class AcceptanceWorld {
       [
         `insert into machvon.contract_party (tenant_id, id, contract_id, contractor_id, role, share_pct, work_value_vnd, status, valid_from, created_by, updated_by)
          values ($1, $2, $3, $4, 'SOLE', 100, 9000000000, 'ACTIVE', date '2026-01-02', $5, $5)`,
-        [TENANT_A, partyId, contractId, CONTRACTOR, memberId(CREATOR)],
+        [TENANT_A, partyId, contractId, this.contractorId, memberId(CREATOR)],
       ],
       [`update machvon.contract_revision set status = 'EFFECTIVE', decided_by = $2, decided_at = now() where id = $1::uuid`, [revisionId, memberId(CREATOR)]],
       [`update machvon.contract set current_revision_id = $2 where id = $1::uuid`, [contractId, revisionId]],

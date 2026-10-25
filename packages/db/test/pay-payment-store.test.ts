@@ -218,7 +218,7 @@ describe('the draft of a payment request (ST-PAY-002)', () => {
       // The same number in another contract is another reference.
       expect((await create(other, { requestNo: 'DNTT-SAME' })).status).toBe('DRAFT');
       // A request that holds the claim stops a new one.
-      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true where id = $1::uuid`, [made.id]);
+      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true, submitted_by = created_by, submitted_at = now() where id = $1::uuid`, [made.id]);
       expect(await refusal(create(approved))).toMatchObject({ code: 'ACCEPTANCE_ALREADY_CLAIMED', status: 409, extensions: { payment_request_id: made.id } });
     });
 
@@ -327,10 +327,10 @@ describe('the draft of a payment request (ST-PAY-002)', () => {
     it('opens a returned request again as a draft, and refuses to revise or cancel one that was sent or is over', async () => {
       const approved = await approvedThreeBillion();
       const made = await create(approved);
-      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true where id = $1::uuid`, [made.id]);
+      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true, submitted_by = created_by, submitted_at = now() where id = $1::uuid`, [made.id]);
       expect(await refusal(as((tx) => payments.revise(tx, made.id, 1, {}, memberId(ACCOUNTANT), everything, TODAY)))).toMatchObject({ code: 'PAYMENT_STATE_INVALID', status: 409 });
       expect(await refusal(as((tx) => payments.cancel(tx, made.id, 1, 'Wrong', memberId(ACCOUNTANT), everything)))).toMatchObject({ code: 'PAYMENT_STATE_INVALID' });
-      await owner(`update machvon.payment_request set status = 'RETURNED', claims_acceptance = false, return_reason = 'Fix the invoice.' where id = $1::uuid`, [made.id]);
+      await owner(`update machvon.payment_request set status = 'RETURNED', claims_acceptance = false, return_reason = 'Fix the invoice.', returned_by = created_by, returned_at = now() where id = $1::uuid`, [made.id]);
       const reopened = await as((tx) => payments.revise(tx, made.id, 1, { taxAdjustmentVnd: '7', taxAdjustmentBasis: 'Làm tròn' }, memberId(ACCOUNTANT), everything, TODAY));
       expect(reopened).toMatchObject({ status: 'DRAFT', fromStatus: 'RETURNED', version: 2 });
       const cancelled = await as((tx) => payments.cancel(tx, made.id, 2, '  Duplicate request.  ', memberId(ACCOUNTANT), everything));
@@ -422,7 +422,7 @@ describe('the draft of a payment request (ST-PAY-002)', () => {
     it('refuses a document for a request that was sent', async () => {
       const approved = await approvedThreeBillion();
       const made = await create(approved);
-      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true where id = $1::uuid`, [made.id]);
+      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true, submitted_by = created_by, submitted_at = now() where id = $1::uuid`, [made.id]);
       expect(await refusal(attach(made.id, { documentVersionId: (await fixtures.documentVersion()).id, docKind: 'OTHER' }))).toMatchObject({ code: 'PAYMENT_STATE_INVALID' });
     });
   });
@@ -449,7 +449,7 @@ describe('the draft of a payment request (ST-PAY-002)', () => {
       expect((await databaseRefusal(owner('delete from machvon.payment_request_line where payment_request_id = $1::uuid and boq_item_id = $2::uuid', [made.id, line!.boq_item_id]))).message).toContain('PAYMENT_NET_MISMATCH');
       expect(await stored(made.id)).toMatchObject({ gross_vnd: '3000000000', net_vnd: '2850000000' });
       // Once sent, the amounts, the number and the capital line are fixed, and the status moves along the edges only.
-      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true where id = $1::uuid`, [made.id]);
+      await owner(`update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true, submitted_by = created_by, submitted_at = now() where id = $1::uuid`, [made.id]);
       expect((await databaseRefusal(owner('update machvon.payment_request set tax_adjustment_vnd = 1, tax_adjustment_basis = $2, net_vnd = net_vnd + 1 where id = $1::uuid', [made.id, 'x']))).message).toContain('PAYMENT_STATE_INVALID');
       expect((await databaseRefusal(owner("update machvon.payment_request set status = 'SETTLED' where id = $1::uuid", [made.id]))).message).toContain('PAYMENT_STATE_INVALID');
       expect((await databaseRefusal(owner('delete from machvon.payment_request_line where payment_request_id = $1::uuid', [made.id]))).message).toContain('PAYMENT_STATE_INVALID');

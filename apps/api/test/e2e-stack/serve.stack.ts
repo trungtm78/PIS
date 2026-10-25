@@ -396,8 +396,8 @@ const WORK_ACCEPTANCE_ROLES = [
  * the approver who can let a duplicate invoice through, and a reader, all over the whole tenant. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
 const PAYMENT_ROLES = [
-  { n: 827, user: 'paymentAccountant', code: 'E2E_PAYMENT_ACCOUNTANT', permissions: ['payment_request.read', 'payment.create', 'payment.document.attach', 'payment.cancel', 'contract.read', 'acceptance.read', 'allocation_line.read', 'session.self'], rank: 30 },
-  { n: 828, user: 'paymentApprover', code: 'E2E_PAYMENT_APPROVER', permissions: ['payment_request.read', 'payment.document.attach', 'payment.verify', 'session.self'], rank: 40 },
+  { n: 827, user: 'paymentAccountant', code: 'E2E_PAYMENT_ACCOUNTANT', permissions: ['payment_request.read', 'payment.create', 'payment.document.attach', 'payment.cancel', 'payment.submit', 'contract.read', 'acceptance.read', 'allocation_line.read', 'session.self'], rank: 30 },
+  { n: 828, user: 'paymentApprover', code: 'E2E_PAYMENT_APPROVER', permissions: ['payment_request.read', 'payment.document.attach', 'payment.verify', 'payment.return', 'session.self'], rank: 40 },
   { n: 829, user: 'paymentReader', code: 'E2E_PAYMENT_READER', permissions: ['payment_request.read', 'session.self'], rank: 10 },
 ];
 

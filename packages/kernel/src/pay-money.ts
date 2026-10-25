@@ -305,3 +305,46 @@ export function linesMatchHeader(
     BigInt(header.netVnd) === gross - recovery - retention + BigInt(header.taxAdjustmentVnd)
   );
 }
+
+/** One group of lines of a request that falls on one balance of the ledger: the same item and the same party. */
+export interface ClaimGroup {
+  boqItemId: string;
+  partyId: string | null;
+  grossVnd: string;
+  advanceRecoveryVnd: string;
+  retentionVnd: string;
+}
+
+/**
+ * The lines of a request grouped by the balance of the ledger they fall on (item and party), in the order the ledger is locked and written: by the identifier of the item, then of the party (none
+ * first). The gross, the recovery and the retention of a group are the sums of its lines.
+ */
+export function groupForLedger(lines: ReadonlyArray<{ boqItemId: string; partyId: string | null; grossVnd: string; advanceRecoveryVnd: string; retentionVnd: string }>): ClaimGroup[] {
+  const groups = new Map<string, { boqItemId: string; partyId: string | null; gross: bigint; recovery: bigint; retention: bigint }>();
+  for (const line of lines) {
+    const key = `${line.boqItemId}|${line.partyId ?? ''}`;
+    const group = groups.get(key) ?? { boqItemId: line.boqItemId, partyId: line.partyId, gross: ZERO, recovery: ZERO, retention: ZERO };
+    group.gross += wholeVnd(line.grossVnd, 'gross_vnd');
+    group.recovery += wholeVnd(line.advanceRecoveryVnd, 'advance_recovery_vnd');
+    group.retention += wholeVnd(line.retentionVnd, 'retention_vnd');
+    groups.set(key, group);
+  }
+  return [...groups.values()]
+    .sort((a, b) => (a.boqItemId < b.boqItemId ? -1 : a.boqItemId > b.boqItemId ? 1 : (a.partyId ?? '') < (b.partyId ?? '') ? -1 : (a.partyId ?? '') > (b.partyId ?? '') ? 1 : 0))
+    .map((group) => ({ boqItemId: group.boqItemId, partyId: group.partyId, grossVnd: group.gross.toString(), advanceRecoveryVnd: group.recovery.toString(), retentionVnd: group.retention.toString() }));
+}
+
+/**
+ * Takes `amount` of recovery out of the tranches of an advance, the earliest first, each up to what is still outstanding on it. Gives what each tranche gives (in the order of the tranches) and what
+ * could not be placed: more than the advances hold outstanding is not a recovery that can be made (422 `ADVANCE_RECOVERY_EXCEEDED` in the command that asks).
+ */
+export function recoverFromTranches(outstanding: readonly string[], amountVnd: string): { taken: string[]; left: string } {
+  let left = wholeVnd(amountVnd, 'advance_recovery_vnd');
+  const taken = outstanding.map((room) => {
+    const available = wholeVnd(room, 'outstanding_vnd');
+    const part = left < available ? left : available;
+    left -= part;
+    return part.toString();
+  });
+  return { taken, left: left.toString() };
+}

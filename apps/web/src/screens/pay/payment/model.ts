@@ -81,6 +81,9 @@ export interface PaymentActions {
   attachDocument: boolean;
   cancel: boolean;
   overrideDuplicate: boolean;
+  submit: boolean;
+  verify: boolean;
+  return: boolean;
 }
 
 export interface PaymentRequest {
@@ -104,6 +107,7 @@ export interface PaymentRequest {
   /** Other drafts of the same acceptance; null where the reader may not be told. */
   otherDrafts: number | null;
   returnReason: string | null;
+  verificationNote: string | null;
   cancelReason: string | null;
   createdAt: string;
   lines: PaymentLine[];
@@ -213,10 +217,11 @@ export function toPaymentRequest(value: unknown): PaymentRequest | undefined {
     otherDrafts: whole(row.other_drafts) ?? null,
     returnReason: nullableText(row.return_reason),
     cancelReason: nullableText(row.cancel_reason),
+    verificationNote: nullableText(row.verification_note),
     createdAt: text(row.created_at) ?? '',
     lines: (Array.isArray(row.lines) ? row.lines : []).flatMap((line) => toLine(line) ?? []),
     documents: (Array.isArray(row.documents) ? row.documents : []).flatMap((document) => toDocument(document) ?? []),
-    actions: { revise: actions?.revise === true, attachDocument: actions?.attach_document === true, cancel: actions?.cancel === true, overrideDuplicate: actions?.override_duplicate === true },
+    actions: { revise: actions?.revise === true, attachDocument: actions?.attach_document === true, cancel: actions?.cancel === true, overrideDuplicate: actions?.override_duplicate === true, submit: actions?.submit === true, verify: actions?.verify === true, return: actions?.return === true },
     version,
   };
 }
@@ -445,6 +450,36 @@ export function validateCancel(form: CancelForm): Partial<Record<keyof CancelFor
 
 export const cancelBody = (form: CancelForm): { reason: string } => ({ reason: form.reason.trim() });
 
+/** Sending a request: the figures the person saw are sent with it, so a screen that is out of date is refused rather than sent. */
+export const submitBody = (request: PaymentRequest): { expected_gross_vnd: string; expected_net_vnd: string } => ({ expected_gross_vnd: request.grossVnd, expected_net_vnd: request.netVnd });
+
+export interface VerifyForm {
+  note: string;
+}
+
+export const EMPTY_VERIFY: VerifyForm = { note: '' };
+
+/** The note of the person who checks is optional; when written it is not blank and not too long. */
+export function validateVerify(form: VerifyForm): Partial<Record<keyof VerifyForm, FormProblem>> {
+  const problem = form.note === '' ? undefined : requiredText(form.note, MAX_TEXT);
+  return problem === undefined ? {} : { note: problem };
+}
+
+export const verifyBody = (form: VerifyForm): { note?: string } => (form.note.trim() === '' ? {} : { note: form.note.trim() });
+
+export interface ReturnForm {
+  reason: string;
+}
+
+export const EMPTY_RETURN: ReturnForm = { reason: '' };
+
+export function validateReturn(form: ReturnForm): Partial<Record<keyof ReturnForm, FormProblem>> {
+  const problem = requiredText(form.reason, MAX_TEXT);
+  return problem === undefined ? {} : { reason: problem };
+}
+
+export const returnBody = (form: ReturnForm): { reason: string } => ({ reason: form.reason.trim() });
+
 // ---- refusals ----------------------------------------------------------------------------------------------------------------
 
 export type Problem =
@@ -454,6 +489,9 @@ export type Problem =
   | 'referenceDuplicate'
   | 'paymentState'
   | 'netMismatch'
+  | 'invoiceRequired'
+  | 'valueExceeded'
+  | 'advanceExceeded'
   | 'allocationUnavailable'
   | 'planYear'
   | 'nationalCode'
@@ -483,6 +521,12 @@ export function describeProblem(error: unknown): Problem {
       return 'paymentState';
     case 'PAYMENT_NET_MISMATCH':
       return 'netMismatch';
+    case 'INVOICE_REQUIRED':
+      return 'invoiceRequired';
+    case 'VALUE_EXCEEDED':
+      return 'valueExceeded';
+    case 'ADVANCE_RECOVERY_EXCEEDED':
+      return 'advanceExceeded';
     case 'ALLOCATION_UNAVAILABLE':
       return 'allocationUnavailable';
     case 'PLAN_YEAR_MISMATCH':

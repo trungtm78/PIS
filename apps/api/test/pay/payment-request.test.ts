@@ -170,7 +170,7 @@ describe('the draft of a payment request over HTTP (ST-PAY-002)', () => {
     expect(await create(MAKER, target, { acceptance_id: randomUUID() })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
     expect(await create(MAKER, target, { allocation_line_id: randomUUID() })).toMatchObject({ status: 422, json: { code: 'ALLOCATION_UNAVAILABLE' } });
     expect(await create(MAKER, target, { request_kind: 'FINAL' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
-    await fixtures.owner("update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true where id = $1::uuid", [first.json.resource_id]);
+    await fixtures.owner("update machvon.payment_request set status = 'SUBMITTED', claims_acceptance = true, submitted_by = created_by, submitted_at = now() where id = $1::uuid", [first.json.resource_id]);
     expect(await create(MAKER, target)).toMatchObject({ status: 409, json: { code: 'ACCEPTANCE_ALREADY_CLAIMED' } });
     const other = await approved();
     const paper = (await fixtures.documentVersion()).id;
@@ -204,7 +204,7 @@ describe('the draft of a payment request over HTTP (ST-PAY-002)', () => {
       net_vnd: '2100000000',
       other_drafts: 0,
       created_by: memberId(MAKER),
-      actions: { revise: false, attach_document: false, cancel: false, override_duplicate: false },
+      actions: { revise: false, attach_document: false, cancel: false, override_duplicate: false, submit: false, verify: false, return: false },
       version: 1,
     });
     const lines = read.json.lines as Array<Record<string, unknown>>;
@@ -212,8 +212,8 @@ describe('the draft of a payment request over HTTP (ST-PAY-002)', () => {
       ['B01', '2000000000', '500000000', '100000000', '1400000000'],
       ['B02', '1000000000', '250000000', '50000000', '700000000'],
     ]);
-    expect((await call('GET', `/resources/payment_request/${id}`, { member: MAKER })).json.actions).toEqual({ revise: true, attach_document: true, cancel: true, override_duplicate: false });
-    expect((await call('GET', `/resources/payment_request/${id}`, { member: APPROVER })).json.actions).toEqual({ revise: false, attach_document: true, cancel: false, override_duplicate: true });
+    expect((await call('GET', `/resources/payment_request/${id}`, { member: MAKER })).json.actions).toEqual({ revise: true, attach_document: true, cancel: true, override_duplicate: false, submit: false, verify: false, return: false });
+    expect((await call('GET', `/resources/payment_request/${id}`, { member: APPROVER })).json.actions).toEqual({ revise: false, attach_document: true, cancel: false, override_duplicate: true, submit: false, verify: false, return: false });
     expect(await call('GET', `/resources/payment_request/${id}`, { member: NOBODY })).toMatchObject({ status: 403 });
     expect(await call('GET', `/resources/payment_request/${id}`, { member: ELSEWHERE })).toMatchObject({ status: 404 });
     expect(await call('GET', `/resources/payment_request/${randomUUID()}`, { member: READER })).toMatchObject({ status: 404 });

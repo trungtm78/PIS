@@ -40,7 +40,7 @@ The same rules are checked first in the code (`packages/kernel/src/pay-ledger.ts
 Every writer of the ledger locks the **contract row first** (the `for update` of `settle`, the same lock CTR takes when it approves or revokes), then the balances of the acceptance in the order of
 their identifiers (`lockLedgerRows`, the lock rank of `ledger-registry.ts`: balance 20, entry 40). Two writers therefore never wait for each other in a circle, and parallel claims on one balance
 are serialised: the second sees what the first left (a test posts ten claims of 30,000,000 on a balance of 100,000,000 and exactly three succeed). The wait for the contract is measured
-(`pay_ledger_lock_wait_seconds`, alert `PAY_LEDGER_LOCK_WAIT` above 5 s).
+(`pay_ledger_lock_wait_seconds`, alert `PAY_LEDGER_LOCK_WAIT` above 2 s).
 
 ## Recognising an acceptance (`AcceptanceLedgerConsumer`)
 
@@ -76,6 +76,6 @@ the entries of each balance on demand, a reversal marked. "Show more" follows th
 
 | signal | kind | meaning |
 |---|---|---|
-| `pay_ledger_lock_wait_seconds` | gauge | how long the last writer waited for the lock of a contract; alert `PAY_LEDGER_LOCK_WAIT` above 5 s |
+| `pay_ledger_lock_wait_seconds` | gauge | how long the last writer waited for the lock of a contract; alert `PAY_LEDGER_LOCK_WAIT` above 2 s |
 | `pay_value_exceeded_total{rule}` | counter | entries the store refused because they would break a rule of the ledger |
 | `PAY_LEDGER_CHECK_VIOLATION` | alert (event) | the database refused (SQLSTATE 23514) what the store let through |

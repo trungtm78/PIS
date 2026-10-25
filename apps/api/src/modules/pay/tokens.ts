@@ -1,2 +1,2 @@
-/** Injection token of the metrics sink of PAY; the no-op sink is used when none is bound. */
+/** Where the metrics of PAY go (the sink of the process; without one the counters are not kept). */
 export const PAY_METRICS = Symbol('PAY_METRICS');

@@ -647,7 +647,7 @@ describe('the acceptance of work under a contract (ST-CTR-009)', () => {
       expect(await refusal(revoke(approved))).toMatchObject({ code: 'ACCEPTANCE_ALREADY_CLAIMED', status: 409, extensions: { payment_request_id: claim } });
       expect((await rowOf(approved.id))?.status).toBe('APPROVED');
       expect(await acceptedTotal(seeded.contractId)).toBe('400000000');
-      await owner("update machvon.payment_request set status = 'RETURNED', claims_acceptance = false where id = $1::uuid", [claim]);
+      await owner("update machvon.payment_request set status = 'RETURNED', claims_acceptance = false, return_reason = 'Withdrawn.', returned_by = gen_random_uuid(), returned_at = now() where id = $1::uuid", [claim]);
       expect((await revoke(approved)).status).toBe('REVOKED');
     });
 

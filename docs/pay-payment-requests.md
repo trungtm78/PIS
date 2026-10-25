@@ -55,11 +55,37 @@ The status moves along the edges of PAY 4 only; the amounts, the number and the 
 what the acceptance says; **at every commit the lines add up to the header** and the gross is the gross of the acceptance (`PAYMENT_NET_MISMATCH`); a document is clean, of the contract of the request, written
 while it is a draft and never changed or deleted; a request is never deleted; a request is drawn only from an approved acceptance of its contract, for the project of the contract.
 
+## Sending, checking and giving back (ST-PAY-003, `PayClaimStore`)
+
+Sending (`post_payment_requests_id_submit`, `payment.submit`) is the one place a request takes the claim on its acceptance and moves money on the books, in one transaction and in the lock order of the
+product: the contract, the balances of the ledger by identifier, the tranches of the advance, then the line of capital.
+
+1. The contract is locked, then the request (`FOR UPDATE`); the version must be the one the person saw (409 `VERSION_CONFLICT`) and the request a draft (409 `PAYMENT_STATE_INVALID`).
+2. A screen that is out of date is refused: the gross and net the person saw go with the command (`expected_gross_vnd`, `expected_net_vnd`) and 422 `PAYMENT_NET_MISMATCH` answers with what the request is worth now.
+3. An interim or final request needs an invoice (422 `INVOICE_REQUIRED`); the matrix of the contract state is judged again (409 `CONTRACT_STATE_INVALID`); the claim is checked before the money so the second of two
+   requests for one acceptance hears 409 `ACCEPTANCE_ALREADY_CLAIMED`, not that the money is short; the plan year and the line of capital are judged again.
+4. The request becomes `SUBMITTED` (the unique index `payment_request_active_acceptance_uq` holds the claim against any bypass of the check). The acceptance is recognised on the ledger on demand if the consumer has
+   not done it yet, so sending never depends on the order of events.
+5. The advance is recovered from the tranches in order (FIFO, each within what it has left: 422 `ADVANCE_RECOVERY_EXCEEDED`), the totals of the contract move, and each ledger balance gets its `CLAIM`,
+   `ADVANCE_RECOVERY` and `RETENTION_HOLD` entries; a rule of the ledger that would break is 409 `VALUE_EXCEEDED` with the rule and the figures (the CHECKs of the database say the same behind the application).
+6. The retention is held as `retention_hold` rows released on completion; finally the line of capital must have room: allocated less disbursed less what other requests have in flight (422
+   `ALLOCATION_UNAVAILABLE`, reason `INSUFFICIENT`; the reserve and commit calls of CAP arrive with ST-CAP-011).
+
+Checking (`verifyPaymentRequest`, `payment.verify`) takes a `SUBMITTED` request to `VERIFIED`; whoever drew it up or sent it is refused (403 `SELF_APPROVAL_DENIED`).
+
+Returning (`returnPaymentRequest`, `payment.return`) takes a `SUBMITTED` or `VERIFIED` request to `RETURNED` with a reason, and a request with the Treasury only when the Treasury returned it (`returned_by_treasury`).
+Everything sending put on the books is given back by the opposite entries: `CLAIM_RELEASE` and `ADVANCE_RECOVERY_REVERSAL` say which entry they reverse; the retention is let go by `RETENTION_RELEASE` (it
+reverses a hold of this round, so a second round is not confused with the first); the tranches get `REVERSE_RECOVER`; the totals of the contract move back and the retention rows are deleted. Revising a
+returned request makes it a draft again and sending it takes the claim again. No entry is ever updated or deleted (V1564 makes the advance entries append-only like the ledger).
+
+Every command is audited and tells PAY once (`pay.payment_request.submitted.v1`, `.verified.v1`, `.returned.v1`). Metrics: `pay_submit_total{outcome,problem_code}`, `pay_claim_conflict_total`,
+`pay_value_exceeded_total`, and the wait for the lock of the contract on `pay_ledger_lock_wait_seconds` (alert `PAY_LEDGER_LOCK_WAIT` above 2 s).
+
 ## Screens
 
 * **PAY-01** the list (filters by contract and status; a link to the form for whoever may draw up).
 * **PAY-02** the form: contract, approved acceptance, line of capital, number, tax adjustment and basis, extra recovery; nothing the server computes is asked for; the result shows the server's figures and the warnings.
-* **PAY-03** the detail and documents: the figures (read-only), the documents, and the commands the server says the caller may give (revise, attach, cancel).
+* **PAY-03** the detail and documents: the figures (read-only), the documents, and the commands the server says the caller may give (revise, attach, cancel). Send, check and give back are offered the same way; sending shows the figures and what it does.
 * **CTR-13** the valuation table: for each line the quantity, the price in force, gross, recovery, retention and net, then the tax adjustment of the whole request and the amount asked for.
 
 Browser flow `apps/web/e2e/pay-payment-flows.spec.ts`; visual regions PAY-01, PAY-02, PAY-03, CTR-13.

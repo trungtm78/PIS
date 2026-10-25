@@ -98,3 +98,31 @@ export function useCancelPayment() {
   const client = useApiClient();
   return useCommand<CancelInput>((input, attempt) => client.command('cancelPaymentRequest', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
 }
+
+export interface SubmitInput {
+  id: string;
+  version: number;
+  body: { expected_gross_vnd: string; expected_net_vnd: string };
+}
+
+/** Sends the request: the server takes the claim on the acceptance and puts the amounts on the ledger of the contract. */
+export function useSubmitPayment() {
+  const client = useApiClient();
+  return useCommand<SubmitInput>((input, attempt) => client.command('post_payment_requests_id_submit', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+}
+
+export interface VerifyInput {
+  id: string;
+  version: number;
+  body: { note?: string };
+}
+
+export function useVerifyPayment() {
+  const client = useApiClient();
+  return useCommand<VerifyInput>((input, attempt) => client.command('verifyPaymentRequest', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+}
+
+export function useReturnPayment() {
+  const client = useApiClient();
+  return useCommand<CancelInput>((input, attempt) => client.command('returnPaymentRequest', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+}

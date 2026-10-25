@@ -216,6 +216,81 @@ describe('PaymentDetailScreen (PAY-03): a payment request and its documents', ()
     expect(screen.getByTestId('done').textContent).toContain(vi_['pay.payment.done.cancelled']);
   });
 
+  it('UI-PAY-03: sends the request with the figures on the screen, and says what sending did', async () => {
+    const h = open(world({ payments: [payment(1, { actions: actions({ submit: true }) })] }), { command: () => answer(1, { status: 'SUBMITTED', resource_version: 2 }) });
+    await screen.findByTestId('request-no');
+    fireEvent.click(action('submit'));
+    expect(within(dialog()).getByTestId('submit-intro').textContent).toBe(text('pay.payment.submit.intro', { gross: '3.000.000.000', net: '2.100.000.000' }));
+    press(vi_['pay.payment.submit.submit']);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(commandsOf(h, 'post_payment_requests_id_submit')[0]).toMatchObject({ path: { id: paymentId(1) }, ifMatchVersion: 1, body: { expected_gross_vnd: '3000000000', expected_net_vnd: '2100000000' } });
+    expect(screen.getByTestId('done').textContent).toContain(vi_['pay.payment.done.submitted']);
+  });
+
+  it('UI-PAY-03, AC-ST-PAY-003-1: tells a request whose acceptance another one holds, one without an invoice and one that changed, each in words', async () => {
+    let code = 'ACCEPTANCE_ALREADY_CLAIMED';
+    open(world({ payments: [payment(1, { actions: actions({ submit: true }) })] }), { command: () => refusal(code, code === 'INVOICE_REQUIRED' ? 422 : 409) });
+    await screen.findByTestId('request-no');
+    fireEvent.click(action('submit'));
+    const outcomes: Array<[string, string]> = [
+      ['ACCEPTANCE_ALREADY_CLAIMED', 'pay.payment.error.claimed'],
+      ['INVOICE_REQUIRED', 'pay.payment.error.invoiceRequired'],
+      ['PAYMENT_NET_MISMATCH', 'pay.payment.error.netMismatch'],
+      ['VALUE_EXCEEDED', 'pay.payment.error.valueExceeded'],
+      ['ADVANCE_RECOVERY_EXCEEDED', 'pay.payment.error.advanceExceeded'],
+    ];
+    for (const [refused, key] of outcomes) {
+      code = refused;
+      press(vi_['pay.payment.submit.submit']);
+      await waitFor(() => expect(within(dialog()).getByTestId('refusal').textContent).toBe((vi_ as Record<string, string>)[key]));
+    }
+  });
+
+  it('UI-PAY-03, AC-ST-PAY-003-5: offers the check only to a person the server allows, sends the note if there is one, and shows it after', async () => {
+    const h = open(world({ payments: [payment(1, { status: 'SUBMITTED', actions: actions({ revise: false, attach_document: false, cancel: false, verify: true, return: true }) })] }), {
+      permissions: APPROVER,
+      command: () => answer(1, { status: 'VERIFIED', resource_version: 3 }),
+    });
+    await screen.findByTestId('request-no');
+    expect(action('submit')).toBeNull();
+    fireEvent.click(action('verify'));
+    type('verify-note', 'The documents are complete.');
+    press(vi_['pay.payment.verify.submit']);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(commandsOf(h, 'verifyPaymentRequest')[0]).toMatchObject({ path: { id: paymentId(1) }, ifMatchVersion: 1, body: { note: 'The documents are complete.' } });
+    expect(screen.getByTestId('done').textContent).toContain(vi_['pay.payment.done.verified']);
+    // Without a note the body is empty, and a person who drew the request up is refused in words.
+    cleanup();
+    const again = open(world({ payments: [payment(1, { status: 'SUBMITTED', actions: actions({ verify: true }) })] }), { command: () => refusal('SELF_APPROVAL_DENIED', 403) });
+    await screen.findByTestId('request-no');
+    fireEvent.click(action('verify'));
+    press(vi_['pay.payment.verify.submit']);
+    expect((await within(dialog()).findByTestId('refusal')).textContent).toBe(vi_['pay.payment.error.selfApproval']);
+    expect(commandsOf(again, 'verifyPaymentRequest')[0]?.body).toEqual({});
+  });
+
+  it('shows the note of the checker on a request that was checked', async () => {
+    open(world({ payments: [payment(1, { status: 'VERIFIED', verification_note: 'The documents are complete.', actions: actions({ revise: false, attach_document: false, cancel: false }) })] }));
+    expect((await screen.findByTestId('verification-note')).textContent).toBe('The documents are complete.');
+  });
+
+  it('UI-PAY-03, AC-ST-PAY-003-3: gives a request back with a reason, which it asks for in words', async () => {
+    const h = open(world({ payments: [payment(1, { status: 'SUBMITTED', actions: actions({ revise: false, attach_document: false, cancel: false, return: true }) })] }), {
+      permissions: APPROVER,
+      command: () => answer(1, { status: 'RETURNED', resource_version: 3 }),
+    });
+    await screen.findByTestId('request-no');
+    fireEvent.click(action('return'));
+    press(vi_['pay.payment.return.submit']);
+    expect(await within(dialog()).findByText(vi_['pay.payment.problem.required'])).toBeTruthy();
+    expect(commandsOf(h, 'returnPaymentRequest')).toEqual([]);
+    type('return-reason', 'The invoice does not match the acceptance.');
+    press(vi_['pay.payment.return.submit']);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(commandsOf(h, 'returnPaymentRequest')[0]).toMatchObject({ path: { id: paymentId(1) }, ifMatchVersion: 1, body: { reason: 'The invoice does not match the acceptance.' } });
+    expect(screen.getByTestId('done').textContent).toContain(vi_['pay.payment.done.returned']);
+  });
+
   it('shows the states of a request that is not there, of a refusal and of a failed read, and never half a request', async () => {
     open(world({ payments: [] }));
     expect(await screen.findByText(vi_['states.error.title'])).toBeTruthy();

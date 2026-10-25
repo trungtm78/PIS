@@ -7,6 +7,9 @@ export interface PaymentPermissions {
   create: string;
   attach: string;
   cancel: string;
+  submit: string;
+  verify: string;
+  return: string;
   /** The right to approve an exception, which is what lets a duplicate invoice through. */
   override: string;
 }
@@ -16,6 +19,9 @@ export interface PaymentActions {
   attach_document: boolean;
   cancel: boolean;
   override_duplicate: boolean;
+  submit: boolean;
+  verify: boolean;
+  return: boolean;
 }
 
 /**
@@ -25,12 +31,17 @@ export interface PaymentActions {
 export function paymentActionsOf(view: PaymentRequestView, access: EffectiveAccess, now: Date, permissions: PaymentPermissions, viewer: string): PaymentActions {
   const refs = placeRefs(view.reach);
   const editable = isEditable(view.status);
-  const mine = view.createdBy !== null && view.createdBy.toLowerCase() === viewer.toLowerCase();
+  const is = (person: string | null): boolean => person !== null && person.toLowerCase() === viewer.toLowerCase();
+  const mine = is(view.createdBy);
   return {
     revise: editable && reaches(access, permissions.create, refs, now),
     attach_document: editable && reaches(access, permissions.attach, refs, now),
     cancel: editable && !view.claimsAcceptance && reaches(access, permissions.cancel, refs, now),
     override_duplicate: editable && reaches(access, permissions.attach, refs, now) && reaches(access, permissions.override, refs, now) && !mine,
+    submit: view.status === 'DRAFT' && reaches(access, permissions.submit, refs, now),
+    // Whoever drew a request up or sent it does not check it (the server refuses them anyway).
+    verify: view.status === 'SUBMITTED' && reaches(access, permissions.verify, refs, now) && !mine && !is(view.submittedBy),
+    return: (view.status === 'SUBMITTED' || view.status === 'VERIFIED') && reaches(access, permissions.return, refs, now),
   };
 }
 
@@ -63,6 +74,10 @@ export function paymentView(view: PaymentRequestView, actions: PaymentActions, g
     return_reason: view.returnReason,
     cancel_reason: view.cancelReason,
     created_by: guest ? null : view.createdBy,
+    submitted_by: guest ? null : view.submittedBy,
+    submitted_at: view.submittedAt,
+    verified_by: guest ? null : view.verifiedBy,
+    verification_note: guest ? null : view.verificationNote,
     created_at: view.createdAt,
     updated_at: view.updatedAt,
     lines: view.lines.map((line) => ({

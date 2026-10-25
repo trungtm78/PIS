@@ -1488,6 +1488,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  // Sending a payment request, checking it and giving it back.
+  post_payment_requests_id_submit: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/submit`, ifMatch: '"1"', body: { expected_gross_vnd: '1', expected_net_vnd: '1' } }),
+  },
+  verifyPaymentRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/verify`, ifMatch: '"1"', body: {} }),
+  },
+  returnPaymentRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/return`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   withdrawChangeRequest: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),
