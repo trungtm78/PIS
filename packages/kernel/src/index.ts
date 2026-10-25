@@ -419,6 +419,29 @@ export { ADVANCE_CATEGORIES, ADVANCE_KINDS, ADVANCE_STATUSES, COUNTED_STATUSES, 
 export type { AdvanceCategory, AdvanceKind, AdvanceStatus, CapTier, RecoveryBasis, RecoveryMilestone, RecoveryPlan, RecoveryPlanInput } from './pay-advance.ts';
 export { RECONCILIATION_RESOLUTIONS, RECONCILIATION_STATUSES, WAITING_RECONCILIATION_STATUSES, amountsAgree, assertWriteOff, isWaiting, reconciliationDifference, reconciliationTarget, requiredNote } from './pay-settlement.ts';
 export type { ReconciliationResolution, ReconciliationStatus } from './pay-settlement.ts';
+export {
+  OPEN_SETTLEMENT_STATUSES,
+  SETTLEMENT_DEADLINE_KEY,
+  SETTLEMENT_DEADLINE_RULE,
+  SETTLEMENT_PROJECT_GROUPS,
+  SETTLEMENT_SCOPES,
+  SETTLEMENT_STATUSES,
+  VERIFICATION_OUTCOMES,
+  assertClosable,
+  assertExceptionNeeded,
+  assertNotPreparer,
+  assertVerifier,
+  daysBetween,
+  deadlineDays,
+  deadlineStage,
+  hasOutstanding,
+  isOpenSettlement,
+  isSettlementEditable,
+  settlementFigures,
+  verificationDueOn,
+  verificationTarget,
+} from './pay-project-settlement.ts';
+export type { DeadlineStage, LedgerSums, SettlementFigures, SettlementProjectGroup, SettlementScope, SettlementStatus, VerificationOutcome } from './pay-project-settlement.ts';
 export { allocateLargestRemainder, computeDraftMoney, groupForLedger, linesMatchHeader, partyRecovery, percentScaled, recoverFromTranches, retentionOf, roundedDivision, signedDong, targetRecovered, wholeVnd } from './pay-money.ts';
 export type { AdvanceTranche, ClaimGroup, DraftLine, DraftMoney, DraftMoneyInput, MoneyLine, PartyAdvance } from './pay-money.ts';
 export { DOCUMENT_KINDS, PAYMENT_KINDS, PAYMENT_STATUSES, assertContractAllows, assertPlanYear, contractRefusal, disbursementEnd, isEditable } from './pay-request.ts';

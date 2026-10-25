@@ -309,6 +309,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         'PAYMENT_TYPE',
         'PAY_ADVANCE_CAP',
         'PAY_ADVANCE_GPMB',
+        'PAY_SETTLEMENT_DEADLINE',
         'PROGRAM',
         'PROJECT_GROUP',
         'PROJECT_GROUP_THRESHOLDS',

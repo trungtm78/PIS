@@ -1,4 +1,4 @@
-import { ADVANCE_CATEGORIES, CALENDAR_TIMEZONES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SIGNER_ROLES, WEEKDAYS, assertCalendar, capPercentFor, percentScaled } from '@machvon/kernel';
+import { ADVANCE_CATEGORIES, CALENDAR_TIMEZONES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SETTLEMENT_DEADLINE_KEY, SETTLEMENT_PROJECT_GROUPS, SIGNER_ROLES, WEEKDAYS, assertCalendar, capPercentFor, percentScaled } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -273,6 +273,20 @@ function checkAdvanceCap(businessKey: string, attributes: Record<string, unknown
 function checkAdvanceGpmb(businessKey: string, attributes: Record<string, unknown>): void {
   if (businessKey !== 'GPMB') fail('business_key');
   if (attributes.owner_module !== 'PAY') fail('attributes.owner_module');
+}
+
+/** The days the verification of a settlement may take for each group of project (BR-PAY-15, CXN-09): the key is VERIFY_DEADLINE, the owner is PAY, and every group the settlement can have has one row. */
+function checkSettlementDeadline(businessKey: string, attributes: Record<string, unknown>): void {
+  if (businessKey !== SETTLEMENT_DEADLINE_KEY) fail('business_key');
+  if (attributes.owner_module !== 'PAY') fail('attributes.owner_module');
+  const rows = attributes.days_by_group;
+  if (!Array.isArray(rows) || rows.length !== SETTLEMENT_PROJECT_GROUPS.length) return fail('attributes.days_by_group');
+  const seen = new Set<string>();
+  for (const row of rows) {
+    if (!isObject(row) || typeof row.project_group !== 'string' || !(SETTLEMENT_PROJECT_GROUPS as readonly string[]).includes(row.project_group) || seen.has(row.project_group)) return fail('attributes.days_by_group');
+    if (typeof row.days !== 'number' || !Number.isInteger(row.days) || row.days < 1 || row.days > MAX_TIMER_DAYS) return fail('attributes.days_by_group');
+    seen.add(row.project_group);
+  }
 }
 
 const DEFINITIONS: readonly MasterTypeDefinition[] = [
@@ -591,6 +605,14 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     strict: true,
     fields: [...RULE_FIELDS, { name: 'recovery_days', kind: 'integer', required: true, min: 1, max: MAX_ADVANCE_RECOVERY_DAYS }],
     check: ({ businessKey, content }) => checkAdvanceGpmb(businessKey, content.attributes),
+  },
+  {
+    // BR-PAY-15: the days, for each group of project, from the day a settlement is sent to the last day its verification may take.
+    masterType: 'PAY_SETTLEMENT_DEADLINE',
+    rule: true,
+    strict: true,
+    fields: [...RULE_FIELDS, { name: 'days_by_group', kind: 'list', required: true, maxItems: SETTLEMENT_PROJECT_GROUPS.length }],
+    check: ({ businessKey, content }) => checkSettlementDeadline(businessKey, content.attributes),
   },
 ];
 

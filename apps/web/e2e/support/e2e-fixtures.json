@@ -1863,6 +1863,57 @@
       ]
     },
     {
+      "key": "settleOfficer",
+      "displayName": "Cán bộ quyết toán",
+      "membershipId": "00000000-0000-4000-8000-000000000837",
+      "permissions": [
+        "settlement_revision.read",
+        "settlement.open",
+        "settlement.submit",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "settleVerifier",
+      "displayName": "Người thẩm tra quyết toán",
+      "membershipId": "00000000-0000-4000-8000-000000000838",
+      "permissions": [
+        "settlement_revision.read",
+        "settlement.verify",
+        "session.self"
+      ]
+    },
+    {
+      "key": "settleChief",
+      "displayName": "Kế toán trưởng quyết toán",
+      "membershipId": "00000000-0000-4000-8000-000000000839",
+      "permissions": [
+        "settlement_revision.read",
+        "settlement.exception.approve",
+        "session.self"
+      ]
+    },
+    {
+      "key": "settleLeader",
+      "displayName": "Lãnh đạo duyệt quyết toán",
+      "membershipId": "00000000-0000-4000-8000-000000000840",
+      "permissions": [
+        "settlement_revision.read",
+        "settlement.close",
+        "session.self"
+      ]
+    },
+    {
+      "key": "settleReader",
+      "displayName": "Người xem quyết toán",
+      "membershipId": "00000000-0000-4000-8000-000000000841",
+      "permissions": [
+        "settlement_revision.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

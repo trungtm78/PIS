@@ -330,7 +330,28 @@ const ADVANCE_CAPS: readonly BaselineEntry[] = [
   entry('PAY_ADVANCE_GPMB', 'GPMB', 'Hạn thu hồi tạm ứng giải phóng mặt bằng', { owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-12', recovery_days: 30 }, { legalBasis: 'Hạn thu hồi tạm ứng bồi thường, hỗ trợ, tái định cư — số ngày chờ xác nhận văn bản gốc [CXN-12]' }),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...ADVANCE_CAPS]);
+/** The days the verification of a settlement may take (BR-PAY-15): the numbers are the fixture of the acceptance tests (UAT-AC339), not a regulation, and wait for the confirmation named by CXN-09. */
+const SETTLEMENT_DEADLINES: readonly BaselineEntry[] = [
+  entry(
+    'PAY_SETTLEMENT_DEADLINE',
+    'VERIFY_DEADLINE',
+    'Hạn thẩm tra quyết toán theo nhóm dự án (số liệu thử)',
+    {
+      owner_module: 'PAY',
+      awaiting_confirmation: true,
+      cxn: 'CXN-09',
+      days_by_group: [
+        { project_group: 'QTQG', days: 270 },
+        { project_group: 'A', days: 270 },
+        { project_group: 'B', days: 180 },
+        { project_group: 'C', days: 120 },
+      ],
+    },
+    { legalBasis: 'Thông tư 91/2025/TT-BTC về quyết toán dự án hoàn thành — số ngày theo nhóm dự án là số liệu thử, không phải quy định, chờ kiểm văn bản gốc [CXN-09]' },
+  ),
+];
+
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...ADVANCE_CAPS, ...SETTLEMENT_DEADLINES]);
 
 export interface BaselineResult {
   created: number;

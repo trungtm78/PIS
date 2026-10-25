@@ -48,6 +48,8 @@ export interface MatrixTargets {
   /** A Treasury transaction and an item of difference: the commands that name them in the path need no row to be refused. */
   treasuryTransactionId: string;
   reconciliationItemId: string;
+  /** A settlement of a project: the commands that name it in the path need no row to be refused. */
+  settlementId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1527,6 +1529,31 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   resolveReconciliationItem: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/resolve`, ifMatch: '"1"', body: { resolution: 'EXPLAINED', note: REASON } }),
+  },
+  // The settlement of a project: opened, read again, sent, verified, excepted and closed.
+  openSettlement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/settlements', body: { project_id: t.projectId, settlement_scope: 'PROJECT' } }),
+  },
+  refreshSettlementFigures: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/refresh`, ifMatch: '"1"', body: { note: REASON } }),
+  },
+  submitSettlement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/submit`, ifMatch: '"1"', body: { submitted_on: '2026-10-25' } }),
+  },
+  recordSettlementVerification: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/verification`, ifMatch: '"1"', body: { outcome: 'VERIFYING', findings: REASON } }),
+  },
+  approveSettlementException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/exception-approval`, ifMatch: '"1"', body: { reason: REASON, approval_document_version_id: t.paymentDocumentVersionId } }),
+  },
+  post_settlements_id_close: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/close`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], decision_document_version_id: t.paymentDocumentVersionId } }),
   },
   // Reversing a payment that was settled, against the refund the Treasury confirmed.
   reversePayment: {

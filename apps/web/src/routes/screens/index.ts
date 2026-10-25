@@ -86,6 +86,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PAY-06': () => import('../../screens/pay/recon/ItemScreen'),
   'PAY-09': () => import('../../screens/pay/recon/TrackingScreen'),
   'PAY-08': () => import('../../screens/pay/reversal/ReversalScreen'),
+  'PAY-15': () => import('../../screens/pay/settlement/SettlementScreen'),
   'CTR-06': () => import('../../screens/ctr/advance/ScheduleScreen'),
   'PAY-02': () => import('../../screens/pay/payment/PaymentCreateScreen'),
   'PAY-03': () => import('../../screens/pay/payment/PaymentDetailScreen'),

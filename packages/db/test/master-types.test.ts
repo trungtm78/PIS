@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PAY_ADVANCE_CAP', 'PAY_ADVANCE_GPMB', 'PROJECT_GROUP_THRESHOLDS', 'QMS_REGIME', 'RETENTION_POLICY']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PAY_ADVANCE_CAP', 'PAY_ADVANCE_GPMB', 'PAY_SETTLEMENT_DEADLINE', 'PROJECT_GROUP_THRESHOLDS', 'QMS_REGIME', 'RETENTION_POLICY']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -468,6 +468,36 @@ describe('the regimes of quality management (BR-QMS-04, rule type QMS_REGIME)', 
     expect(await problem('QMS_REGIME', 'R', content({ owner_module: 'QMS', required_roles: ['OWNER'], checklists }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
     expect(await problem('QMS_REGIME', 'R', regime({ extra: 1 }))).toEqual(invalid('attributes.extra'));
     expect(await problem('BID_PETITION', 'PROCESS', content({ owner_module: 'BID', days: 7, day_count: 'CALENDAR', awaiting_confirmation: true, cxn: 'CXN-BID-02' }, { legalBasis: 'Luật Đấu thầu' }))).toBeUndefined();
+  });
+});
+
+describe('the days of the verification of a settlement by group of project (BR-PAY-15, rule type PAY_SETTLEMENT_DEADLINE)', () => {
+  const rows = [
+    { project_group: 'QTQG', days: 270 },
+    { project_group: 'A', days: 270 },
+    { project_group: 'B', days: 180 },
+    { project_group: 'C', days: 120 },
+  ];
+  const deadline = (attributes: Record<string, unknown>) =>
+    content({ owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-09', days_by_group: rows, ...attributes }, { legalBasis: 'Thông tư 91/2025/TT-BTC' });
+
+  it('is a rule type that PAY owns, under the key VERIFY_DEADLINE only', async () => {
+    expect(isRuleType('PAY_SETTLEMENT_DEADLINE')).toBe(true);
+    expect(await problem('PAY_SETTLEMENT_DEADLINE', 'VERIFY_DEADLINE', deadline({}))).toBeUndefined();
+    expect(await problem('PAY_SETTLEMENT_DEADLINE', 'OTHER', deadline({}))).toEqual(invalid('business_key'));
+    expect(await problem('PAY_SETTLEMENT_DEADLINE', 'VERIFY_DEADLINE', deadline({ owner_module: 'CTR' }))).toEqual(invalid('attributes.owner_module'));
+  });
+
+  it('gives a number of days to every group of project, once, and nothing else', async () => {
+    const bad = (value: unknown) => problem('PAY_SETTLEMENT_DEADLINE', 'VERIFY_DEADLINE', deadline({ days_by_group: value }));
+    expect(await bad([])).toEqual(invalid('attributes.days_by_group'));
+    expect(await bad('x')).toEqual(invalid('attributes.days_by_group'));
+    expect(await bad(rows.slice(1))).toEqual(invalid('attributes.days_by_group'));
+    expect(await bad([...rows.slice(0, 3), { project_group: 'A', days: 5 }])).toEqual(invalid('attributes.days_by_group'));
+    expect(await bad([...rows.slice(0, 3), { project_group: 'D', days: 5 }])).toEqual(invalid('attributes.days_by_group'));
+    expect(await bad([...rows.slice(0, 3), 'x'])).toEqual(invalid('attributes.days_by_group'));
+    for (const days of [0, 367, 1.5, '120']) expect(await bad([...rows.slice(0, 3), { project_group: 'C', days }])).toEqual(invalid('attributes.days_by_group'));
+    expect(await problem('PAY_SETTLEMENT_DEADLINE', 'VERIFY_DEADLINE', deadline({ extra: 1 }))).toEqual(invalid('attributes.extra'));
   });
 });
 

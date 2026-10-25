@@ -217,7 +217,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
 
         const api = await start();
         for (const delay of ALL_DELAYS) timers.fire(delay);
-        await until(() => (api.workers?.history().length ?? 0) >= 27, 'every job to have run once');
+        await until(() => (api.workers?.history().length ?? 0) >= 28, 'every job to have run once');
         const outcomes = Object.fromEntries((api.workers?.history() ?? []).map((run) => [run.name, run.outcome]));
         expect(outcomes).toEqual({
           'outbox-relay': 'SUCCESS',
@@ -246,6 +246,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
           'entitlement-override-expiry': 'SUCCESS',
           'land-stage-late': 'SUCCESS',
           'reconciliation-overdue': 'SUCCESS',
+          'settlement-deadline': 'SUCCESS',
           'capital-balance-reconcile': 'SUCCESS',
         });
         const [certificate] = await fixture.harness.owner<{ status: string }>(TENANT_A, [['select status from machvon.signing_certificate where id = $1', [registered.id]]]);
@@ -266,7 +267,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
   describe('shutdown and the switch', () => {
     it('stops every timer on stop() and a second stop is safe', async () => {
       const api = await start();
-      expect(timers.delays()).toHaveLength(28);
+      expect(timers.delays()).toHaveLength(29);
       await api.stop();
       expect(timers.delays()).toEqual([]);
       await expect(api.stop()).resolves.toBeUndefined();
@@ -348,7 +349,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
     it('starts the workers by default: an environment that does not mention the switch runs them', async () => {
       expect(fixture.configWith().workersEnabled).toBe(true);
       const api = await start();
-      expect(api.workers?.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'land-stage-late', 'reconciliation-overdue', 'capital-balance-reconcile', 'access-cache-expiry']);
+      expect(api.workers?.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'land-stage-late', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'access-cache-expiry']);
     }, TEST_TIMEOUT);
   });
 });

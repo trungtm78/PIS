@@ -61,6 +61,7 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
     referenceCode: commonCode,
     link: linkReconciliationIssue,
   },
+  { eventType: 'pay.settlement.overdue.v1', sourceModule: 'PAY', title: 'Settlement verification overdue', severity: 'HIGH', categoryKey: INTAKE_CATEGORY_KEYS.PAY, wanted: alwaysWanted, sourceRefId: commonRef, referenceCode: commonCode },
   { eventType: 'lnd.complaint.filed.v1', sourceModule: 'LND', title: 'Land complaint filed', severity: 'MEDIUM', categoryKey: INTAKE_CATEGORY_KEYS.LND, wanted: alwaysWanted, sourceRefId: commonRef, referenceCode: commonCode },
   {
     eventType: 'lnd.deadline.breached.v1',

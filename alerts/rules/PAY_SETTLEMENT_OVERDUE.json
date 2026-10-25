@@ -1,0 +1,14 @@
+{
+  "id": "PAY_SETTLEMENT_OVERDUE",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "settlement-office",
+  "runbook": "docs/runbooks/alerts/PAY_SETTLEMENT_OVERDUE.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "pay_settlement_overdue",
+    "above": 0
+  },
+  "summary": "A settlement that was sent waits for its verification past the last day of its deadline."
+}

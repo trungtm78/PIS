@@ -21,7 +21,7 @@ import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { PERIOD_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
-import { RECONCILIATION_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
+import { RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -300,6 +300,12 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'resolveReconciliationItem', method: 'POST', id: RECONCILIATION_FIXTURES['TNT-B'].id, versioned: true, body: { resolution: 'EXPLAINED', note: 'Isolation foreign resolution attempt' } },
   { operation: 'getReconciliationItem', method: 'GET', id: RECONCILIATION_FIXTURES['TNT-B'].id },
   { operation: 'reversePayment', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign reversal attempt', approval_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId, refund_treasury_transaction_id: TREASURY_FIXTURES['TNT-B'].transactionId } },
+  { operation: 'refreshSettlementFigures', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign refresh attempt' } },
+  { operation: 'submitSettlement', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { submitted_on: '2026-10-25' } },
+  { operation: 'recordSettlementVerification', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { outcome: 'VERIFYING', findings: 'Isolation foreign verification attempt' } },
+  { operation: 'approveSettlementException', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign exception attempt', approval_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
+  { operation: 'post_settlements_id_close', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign close attempt', evidence_ids: [], decision_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
+  { operation: 'get_resources_settlement_revision_id', method: 'GET', id: SETTLEMENT_FIXTURES['TNT-B'].id },
   { operation: 'requestAdvance', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { party_id: ADVANCE_FIXTURES['TNT-B'].partyId, kind: 'GPMB', amount_vnd: '1', allocation_line_id: CONTRACT_FIXTURES['TNT-B'].id } },
   { operation: 'setChangeChainTiers', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { tier_count: 2 } },
   { operation: 'getChangeChain', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },

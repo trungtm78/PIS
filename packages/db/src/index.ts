@@ -388,6 +388,10 @@ export { ADVANCE_CAP_RULE, ADVANCE_GPMB_RULE, PayAdvanceStore } from './pay-adva
 export type { AdvanceFilter, AdvancePlan, AdvanceResult, AdvanceView, RecordRecoveryInput, RequestAdvanceInput } from './pay-advance-store.ts';
 export { PAY_CLAIM_CONFLICT_METRIC, PAY_SUBMIT_METRIC, PayClaimStore } from './pay-claim-store.ts';
 export type { ReversePaymentInput, Reversed, SubmitPaymentInput } from './pay-claim-store.ts';
+export { PayProjectSettlementStore, SETTLEMENT_COMMAND_METRIC } from './pay-project-settlement-store.ts';
+export type { CloseSettlementInput, ExceptionInput, OpenSettlementInput, SettlementChange, SettlementFilter, SettlementReach, SettlementView, VerificationInput } from './pay-project-settlement-store.ts';
+export { PAY_SETTLEMENT_OVERDUE_METRIC, PaySettlementDeadlineJob, SETTLEMENT_DEADLINE_EVENT, SETTLEMENT_OVERDUE_EVENT } from './pay-settlement-deadline-job.ts';
+export type { SettlementDeadlineResult } from './pay-settlement-deadline-job.ts';
 export { PAY_MATCH_METRIC, PaySettlementStore } from './pay-settlement-store.ts';
 export type { MatchInput, MatchOutcome, Mismatch, Settled } from './pay-settlement-store.ts';
 export {

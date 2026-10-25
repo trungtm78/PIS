@@ -172,6 +172,12 @@ export const RECONCILIATION_FIXTURES: Readonly<Record<TenantName, { id: string; 
   'TNT-B': { id: '00000000-0000-4000-b0d0-000000000001', note: 'BETA-RECONCILIATION-NOTE-0001' },
 };
 
+/** A settlement of the project of each tenant, in DRAFT and with a distinctive note (tenant financial data). */
+export const SETTLEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; note: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d1-000000000001', note: 'ALPHA-SETTLEMENT-NOTE-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d1-000000000001', note: 'BETA-SETTLEMENT-NOTE-0001' },
+};
+
 /** The cumulative ledger of the work acceptance of each tenant, with one entry (the reason is distinctive; tenant financial data). */
 export const LEDGER_FIXTURES: Readonly<Record<TenantName, { id: string; entryId: string; entryReason: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0cd-000000000001', entryId: '00000000-0000-4000-a0cd-000000000002', entryReason: 'ALPHA-LEDGER-ENTRY-0001' },
@@ -670,6 +676,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'advance id', value: ADVANCE_FIXTURES[tenant].id },
     { kind: 'reconciliation item id', value: RECONCILIATION_FIXTURES[tenant].id },
     { kind: 'reconciliation item note', value: RECONCILIATION_FIXTURES[tenant].note },
+    { kind: 'settlement id', value: SETTLEMENT_FIXTURES[tenant].id },
+    { kind: 'settlement note', value: SETTLEMENT_FIXTURES[tenant].note },
     { kind: 'cumulative ledger id', value: LEDGER_FIXTURES[tenant].id },
     { kind: 'cumulative ledger entry id', value: LEDGER_FIXTURES[tenant].entryId },
     { kind: 'cumulative ledger entry reason', value: LEDGER_FIXTURES[tenant].entryReason },

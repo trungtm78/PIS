@@ -291,6 +291,34 @@ describe('standard jobs', () => {
     ]);
   });
 
+  it('reminds the settlements whose verification deadline is near in every tenant in the 06:00 hour of Vietnam time only, and keeps going when one tenant fails (settlement-deadline, ST-PAY-009)', async () => {
+    const visited: Array<[string, string]> = [];
+    let now = new Date('2026-07-10T22:59:00Z');
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      clock: () => now,
+      settlementDeadline: {
+        run: async (ctx, at) => {
+          visited.push([ctx.tenantId, at.toISOString()]);
+          if (ctx.tenantId === TENANT_A) throw new Error('boom');
+        },
+      },
+    });
+    const job = handlers.find((handler) => handler.name === 'settlement-deadline');
+    // 05:59 in Vietnam: not the hour of the morning.
+    await job?.run();
+    expect(visited).toEqual([]);
+    now = new Date('2026-07-10T23:00:00Z');
+    await expect(job?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(visited).toEqual([
+      [TENANT_A, '2026-07-10T23:00:00.000Z'],
+      [TENANT_B, '2026-07-10T23:00:00.000Z'],
+    ]);
+    expect(JOB_INTERVAL_SECONDS['settlement-deadline']).toBe(3600);
+  });
+
   it('compares the balances of capital with their ledger in every tenant in the 02:00 hour of Vietnam time only, and keeps going when one tenant fails (capital-balance-reconcile, ST-CAP-006)', async () => {
     const visited: Array<[string, string]> = [];
     let now = new Date('2026-07-11T18:59:00Z');
@@ -433,9 +461,10 @@ describe('standard jobs', () => {
       stageLate: { run: async () => ({ late: 0 }) },
       reconciliationOverdue: { run: async () => ({ reported: 0 }) },
       capitalBalanceReconcile: { run: async () => ({ drift: [] }) },
+      settlementDeadline: { run: async () => ({ overdue: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'land-stage-late', 'reconciliation-overdue', 'capital-balance-reconcile', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'land-stage-late', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });
