@@ -142,6 +142,12 @@ export const RESULT_FIXTURES: Readonly<Record<TenantName, { id: string; awardPri
   'TNT-B': { id: '00000000-0000-4000-b0bb-000000000001', awardPrice: '8882000001' },
 };
 
+/** An inspection of the draft contract of each tenant (the title is distinctive; tenant data). */
+export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ca-000000000001', title: 'ALPHA-INSPECTION-TITLE-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0ca-000000000001', title: 'BETA-INSPECTION-TITLE-0001' },
+};
+
 /** A petition of the contractor of each tenant on its package, received and waiting for an answer. */
 export const PETITION_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bc-000000000001' },
@@ -621,6 +627,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'change request id', value: CHANGE_FIXTURES[tenant].id },
     { kind: 'change request reason', value: CHANGE_FIXTURES[tenant].reason },
     { kind: 'measurement id', value: MEASUREMENT_FIXTURES[tenant].id },
+    { kind: 'inspection id', value: INSPECTION_FIXTURES[tenant].id },
+    { kind: 'inspection title', value: INSPECTION_FIXTURES[tenant].title },
     { kind: 'measurement reference', value: MEASUREMENT_FIXTURES[tenant].referenceNo },
     { kind: 'boq item id', value: BOQ_FIXTURES[tenant].itemId },
     { kind: 'boq line id', value: BOQ_FIXTURES[tenant].lineId },

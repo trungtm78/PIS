@@ -9367,7 +9367,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Đề nghị kiểm tra, nghiệm thu của các hợp đồng trong phạm vi, ngày đề nghị mới nhất trước (QMS-04) */
+        get: operations["listInspections"];
         put?: never;
         /** Nhà thầu/chuyên viên đề nghị kiểm tra, nghiệm thu */
         post: operations["requestInspection"];
@@ -14475,6 +14476,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/inspections/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Chi tiết một đề nghị kiểm tra (QMS-04) */
+        get: operations["getInspection"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -17096,22 +17114,33 @@ export interface components {
             inspection_type: "MATERIAL_ENTRY" | "CONCEALED_WORK" | "CONSTRUCTION_STAGE" | "PART_ACCEPTANCE" | "COMPLETION" | "SAFETY" | "OTHER";
             title: string;
             location_text?: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description The day of the inspection asked for; the regime in force that day gives the checklist and the roles that sign the minutes
+             */
             requested_for: string;
             /** Format: uuid */
             site_diary_id?: string;
         };
         QmsScheduleInspection: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Not before now
+             */
             scheduled_at: string;
+            /** @description Active members of the tenant, each once */
             participant_membership_ids: string[];
         };
         QmsRecordInspectionResult: {
             /** @enum {string} */
             result: "PASS" | "FAIL" | "CONDITIONAL";
             result_note: string;
+            /** @description An answer for each item of the checklist the inspection was given, once: {code, outcome: PASS|FAIL|NA, note?}. A PASS has no failed item; a FAIL or a CONDITIONAL has at least one, and a CONDITIONAL says its condition in the note of each failed item */
             checklist: {
-                [key: string]: unknown;
+                code: string;
+                /** @enum {string} */
+                outcome: "PASS" | "FAIL" | "NA";
+                note?: string;
             }[];
         };
         QmsCancelInspection: {
@@ -19818,6 +19847,86 @@ export interface components {
         };
         BidPetitionList: {
             items: components["schemas"]["BidPetitionLine"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        QmsInspectionLine: {
+            /** Format: uuid */
+            id: string;
+            inspection_no: string;
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+            };
+            /** Format: uuid */
+            project_id?: string;
+            boq_item?: {
+                /** Format: uuid */
+                id?: string;
+                business_key?: string;
+                description?: string;
+            } | null;
+            /** @enum {string} */
+            inspection_type: "MATERIAL_ENTRY" | "CONCEALED_WORK" | "CONSTRUCTION_STAGE" | "PART_ACCEPTANCE" | "COMPLETION" | "SAFETY" | "OTHER";
+            title: string;
+            location_text?: string | null;
+            requested_by?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            };
+            /** Format: date */
+            requested_for: string;
+            /** Format: date-time */
+            scheduled_at?: string | null;
+            participants?: {
+                /** Format: uuid */
+                membership_id?: string;
+                display_name?: string;
+            }[];
+            /** @enum {string} */
+            status: "REQUESTED" | "SCHEDULED" | "RESULT_RECORDED" | "CANCELLED";
+            /** @enum {string|null} */
+            result?: "PASS" | "FAIL" | "CONDITIONAL" | null;
+            result_note?: string | null;
+            /** Format: date-time */
+            result_recorded_at?: string | null;
+            /** @description The checklist the inspection was given; once the result is recorded, each item carries its outcome and note */
+            checklist?: {
+                code: string;
+                label: string;
+                /** @enum {string} */
+                outcome?: "PASS" | "FAIL" | "NA";
+                note?: string;
+            }[];
+            /** @description The regime in force on the day of the request, kept by the inspection; awaiting_confirmation warns that its rule data waits for the confirmation named by cxn */
+            regime: {
+                /** Format: uuid */
+                version_id?: string | null;
+                label?: string | null;
+                legal_basis?: string | null;
+                awaiting_confirmation: boolean;
+                cxn?: string | null;
+            };
+            /** @description The roles that will sign the acceptance minutes (a snapshot of the regime) */
+            required_roles: ("CONTRACTOR" | "SUPERVISOR" | "OWNER" | "DESIGNER")[];
+            /** Format: uuid */
+            site_diary_id?: string | null;
+            cancel_reason?: string | null;
+            /** Format: date-time */
+            created_at?: string;
+            /** @description What the caller may do with the inspection as it stands; the server judges each command again */
+            actions?: {
+                schedule: boolean;
+                record: boolean;
+                cancel: boolean;
+            };
+            version: number;
+        };
+        QmsInspectionList: {
+            items: components["schemas"]["QmsInspectionLine"][];
             /** Format: date-time */
             as_of: string;
         };
@@ -75623,6 +75732,65 @@ export interface operations {
             };
         };
     };
+    listInspections: {
+        parameters: {
+            query?: {
+                /** @description Chỉ các đề nghị của hợp đồng này */
+                contract_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QmsInspectionList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     requestInspection: {
         parameters: {
             query?: never;
@@ -105090,6 +105258,64 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getInspection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QmsInspectionLine"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

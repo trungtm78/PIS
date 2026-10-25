@@ -5207,7 +5207,9 @@
         "requestInspection",
         "scheduleInspection",
         "recordInspectionResult",
-        "cancelInspection"
+        "cancelInspection",
+        "listInspections",
+        "getInspection"
       ],
       "tables": [
         "inspection"

@@ -188,6 +188,23 @@ export class MasterRules {
     return rows[0] === undefined ? undefined : criteriaSetOf(reading('APPRAISAL_CRITERIA', rows[0]));
   }
 
+  /**
+   * The regime of quality management that applies on a day (BR-QMS-04): the version of any regime in force on `asOf`, the platform's before a tenant's own and, of those in force, the one
+   * that took effect last. Undefined when none is in force.
+   */
+  async regimeAt(tx: TenantTx, asOf: string): Promise<RuleReading | undefined> {
+    const rows = await tx.query<RuleSqlRow>(
+      `select v.id, r.business_key, v.revision, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.legal_basis, v.attributes
+         from machvon.master_record r
+         join machvon.master_record_version v on v.master_record_id = r.id
+        where r.master_type = 'QMS_REGIME' and v.status in ('APPROVED', 'EFFECTIVE') and v.published_at is not null
+          and v.valid_from <= $1::date and (v.valid_until is null or v.valid_until > $1::date)
+        order by v.valid_from desc, case r.namespace when 'PLATFORM' then 0 else 1 end, v.revision desc limit 1`,
+      [asOf],
+    );
+    return rows[0] === undefined ? undefined : reading('QMS_REGIME', rows[0]);
+  }
+
   /** The set of appraisal criteria that a sheet names, whatever its dates. */
   async appraisalCriteriaVersion(tx: TenantTx, versionId: string): Promise<AppraisalCriteriaSet | undefined> {
     const found = await this.readVersion(tx, 'APPRAISAL_CRITERIA', versionId);

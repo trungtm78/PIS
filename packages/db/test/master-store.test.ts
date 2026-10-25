@@ -312,13 +312,14 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         'PROJECT_GROUP_THRESHOLDS',
         'PROJECT_STAGE',
         'PROJECT_TYPE',
+        'QMS_REGIME',
         'RETENTION_POLICY',
         'SECTOR',
         'TREASURY_OFFICE',
         'UNIT',
       ]);
       // The law and the process of the platform are its own; the rule data is never a tenant's to write by default.
-      for (const type of ['PROJECT_GROUP', 'PROJECT_STAGE', 'PROJECT_GROUP_THRESHOLDS', 'NATIONAL_CODE_REQUIRED', 'NATIONAL_CODE_FORMAT', 'APPRAISAL_CRITERIA', 'LND_TIMER', 'BID_PETITION']) {
+      for (const type of ['PROJECT_GROUP', 'PROJECT_STAGE', 'PROJECT_GROUP_THRESHOLDS', 'NATIONAL_CODE_REQUIRED', 'NATIONAL_CODE_FORMAT', 'APPRAISAL_CRITERIA', 'LND_TIMER', 'BID_PETITION', 'QMS_REGIME']) {
         expect(BASELINE_POLICIES[type]?.scope).toBe('PLATFORM_ONLY');
       }
     });

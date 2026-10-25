@@ -790,6 +790,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getIncomingDocument({required String id, Map<String, Object?>? query}) =>
       execute('getIncomingDocument', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getInspection({required String id, Map<String, Object?>? query}) =>
+      execute('getInspection', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getIssueWeeklyMatrix({Map<String, Object?>? query}) =>
       execute('getIssueWeeklyMatrix', query: query);
 
@@ -1527,6 +1530,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listIncomingDocuments({Map<String, Object?>? query}) =>
       execute('listIncomingDocuments', query: query);
+
+  Future<Object?> listInspections({Map<String, Object?>? query}) =>
+      execute('listInspections', query: query);
 
   Future<Object?> listInteropMessages({Map<String, Object?>? query}) =>
       execute('listInteropMessages', query: query);

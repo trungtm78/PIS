@@ -80453,7 +80453,9 @@
           "CONTRACT_STATE_INVALID",
           "PERMIT_GATE_BLOCKED",
           "INSPECTION_DUPLICATE",
-          "VALIDATION_FAILED"
+          "REGIME_NOT_EFFECTIVE",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -80552,6 +80554,81 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listInspections",
+        "summary": "Đề nghị kiểm tra, nghiệm thu của các hợp đồng trong phạm vi, ngày đề nghị mới nhất trước (QMS-04)",
+        "tags": [
+          "QMS"
+        ],
+        "x-permission": "inspection.read",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Chỉ các đề nghị của hợp đồng này"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QmsInspectionList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/inspections/{id}/schedule": {
@@ -80603,6 +80680,8 @@
         },
         "x-error-codes": [
           "INSPECTION_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -80754,6 +80833,8 @@
         "x-error-codes": [
           "INSPECTION_STATE_INVALID",
           "CHECKLIST_INCOMPLETE",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -80904,6 +80985,8 @@
         },
         "x-error-codes": [
           "INSPECTION_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -122325,6 +122408,80 @@
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
       }
+    },
+    "/inspections/{id}": {
+      "get": {
+        "operationId": "getInspection",
+        "summary": "Chi tiết một đề nghị kiểm tra (QMS-04)",
+        "tags": [
+          "QMS"
+        ],
+        "x-permission": "inspection.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QmsInspectionLine"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": []
+      }
     }
   },
   "components": {
@@ -132117,7 +132274,8 @@
           },
           "requested_for": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "The day of the inspection asked for; the regime in force that day gives the checklist and the roles that sign the minutes"
           },
           "site_diary_id": {
             "type": "string",
@@ -132137,14 +132295,16 @@
         "properties": {
           "scheduled_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Not before now"
           },
           "participant_membership_ids": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "description": "Active members of the tenant, each once"
           }
         },
         "required": [
@@ -132173,8 +132333,33 @@
             "type": "array",
             "items": {
               "type": "object",
-              "additionalProperties": true
-            }
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "outcome"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "PASS",
+                    "FAIL",
+                    "NA"
+                  ]
+                },
+                "note": {
+                  "type": "string",
+                  "maxLength": 2000
+                }
+              }
+            },
+            "description": "An answer for each item of the checklist the inspection was given, once: {code, outcome: PASS|FAIL|NA, note?}. A PASS has no failed item; a FAIL or a CONDITIONAL has at least one, and a CONDITIONAL says its condition in the note of each failed item",
+            "maxItems": 200
           }
         },
         "required": [
@@ -142120,6 +142305,313 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BidPetitionLine"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "QmsInspectionLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "inspection_no",
+          "contract",
+          "inspection_type",
+          "title",
+          "requested_for",
+          "status",
+          "regime",
+          "required_roles",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inspection_no": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "boq_item": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "business_key": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "inspection_type": {
+            "type": "string",
+            "enum": [
+              "MATERIAL_ENTRY",
+              "CONCEALED_WORK",
+              "CONSTRUCTION_STAGE",
+              "PART_ACCEPTANCE",
+              "COMPLETION",
+              "SAFETY",
+              "OTHER"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "location_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requested_by": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "requested_for": {
+            "type": "string",
+            "format": "date"
+          },
+          "scheduled_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "membership_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "display_name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "SCHEDULED",
+              "RESULT_RECORDED",
+              "CANCELLED"
+            ]
+          },
+          "result": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "PASS",
+              "FAIL",
+              "CONDITIONAL",
+              null
+            ]
+          },
+          "result_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result_recorded_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "checklist": {
+            "type": "array",
+            "description": "The checklist the inspection was given; once the result is recorded, each item carries its outcome and note",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "label"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "PASS",
+                    "FAIL",
+                    "NA"
+                  ]
+                },
+                "note": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "regime": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The regime in force on the day of the request, kept by the inspection; awaiting_confirmation warns that its rule data waits for the confirmation named by cxn",
+            "required": [
+              "awaiting_confirmation"
+            ],
+            "properties": {
+              "version_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uuid"
+              },
+              "label": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "legal_basis": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "awaiting_confirmation": {
+                "type": "boolean"
+              },
+              "cxn": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "required_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CONTRACTOR",
+                "SUPERVISOR",
+                "OWNER",
+                "DESIGNER"
+              ]
+            },
+            "description": "The roles that will sign the acceptance minutes (a snapshot of the regime)"
+          },
+          "site_diary_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "cancel_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "What the caller may do with the inspection as it stands; the server judges each command again",
+            "required": [
+              "schedule",
+              "record",
+              "cancel"
+            ],
+            "properties": {
+              "schedule": {
+                "type": "boolean"
+              },
+              "record": {
+                "type": "boolean"
+              },
+              "cancel": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "QmsInspectionList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QmsInspectionLine"
             }
           },
           "as_of": {

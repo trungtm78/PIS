@@ -43,7 +43,7 @@ describe('the definitions of the catalogue types', () => {
   it('leaves a type without a definition free and knows the rule types', () => {
     expect(masterTypeDefinition('AREA')).toBeUndefined();
     expect(masterTypeDefinition('FUND_SOURCE')?.masterType).toBe('FUND_SOURCE');
-    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'RETENTION_POLICY']);
+    expect(ruleTypes().sort()).toEqual(['APPRAISAL_CRITERIA', 'BID_PETITION', 'CALENDAR', 'LND_TIMER', 'NATIONAL_CODE_FORMAT', 'NATIONAL_CODE_REQUIRED', 'PROJECT_GROUP_THRESHOLDS', 'QMS_REGIME', 'RETENTION_POLICY']);
     expect(isRuleType('NATIONAL_CODE_REQUIRED')).toBe(true);
     expect(isRuleType('SECTOR')).toBe(false);
     return expect(problem('AREA', 'X', content({ anything: [1, 2] }))).resolves.toBeUndefined();
@@ -425,5 +425,48 @@ describe('the deadlines of the petitions of contractors (BR-BID-14, rule type BI
     expect(await problem('BID_PETITION', 'PROCESS', deadline({ owner_module: 'LND' }))).toEqual(invalid('attributes.owner_module'));
     expect(await problem('BID_PETITION', 'PROCESS', content({ owner_module: 'BID', days: 7, day_count: 'CALENDAR' }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
     expect(await problem('BID_PETITION', 'PROCESS', deadline({ extra: 1 }))).toEqual(invalid('attributes.extra'));
+  });
+});
+
+describe('the regimes of quality management (BR-QMS-04, rule type QMS_REGIME)', () => {
+  const checklists = [{ inspection_type: 'CONCEALED_WORK', items: [{ code: 'REBAR', label: 'Rebar to drawing' }] }];
+  const regime = (attributes: Record<string, unknown>) =>
+    content({ owner_module: 'QMS', awaiting_confirmation: true, cxn: 'CXN-07', required_roles: ['CONTRACTOR', 'SUPERVISOR', 'OWNER'], checklists, ...attributes }, { legalBasis: 'Nghị định 06/2021/NĐ-CP' });
+
+  it('is a rule type that QMS owns', () => {
+    expect(isRuleType('QMS_REGIME')).toBe(true);
+  });
+
+  it('takes the roles that sign and the checklist of each kind of inspection', async () => {
+    expect(await problem('QMS_REGIME', 'ND-06-2021', regime({}))).toBeUndefined();
+    expect(await problem('QMS_REGIME', 'ND-207-2026', regime({ required_roles: ['CONTRACTOR', 'SUPERVISOR', 'OWNER', 'DESIGNER'], completion_required_roles: ['SUPERVISOR', 'OWNER'] }))).toBeUndefined();
+  });
+
+  it('refuses roles that do not sign minutes, a list that is empty and a role named twice', async () => {
+    expect(await problem('QMS_REGIME', 'R', regime({ required_roles: ['CONTRACTOR', 'JANITOR'] }))).toEqual(invalid('attributes.required_roles'));
+    expect(await problem('QMS_REGIME', 'R', regime({ required_roles: [] }))).toEqual(invalid('attributes.required_roles'));
+    expect(await problem('QMS_REGIME', 'R', regime({ required_roles: ['OWNER', 'OWNER'] }))).toEqual(invalid('attributes.required_roles'));
+    expect(await problem('QMS_REGIME', 'R', regime({ completion_required_roles: [] }))).toEqual(invalid('attributes.completion_required_roles'));
+    expect(await problem('QMS_REGIME', 'R', regime({ completion_required_roles: ['NOBODY'] }))).toEqual(invalid('attributes.completion_required_roles'));
+  });
+
+  it('refuses a checklist for a kind that does not exist, a kind twice, an item twice, an item without a label and a list that is empty', async () => {
+    const bad = (value: unknown) => problem('QMS_REGIME', 'R', regime({ checklists: value }));
+    expect(await bad([{ inspection_type: 'COFFEE', items: [{ code: 'A', label: 'a' }] }])).toEqual(invalid('attributes.checklists'));
+    expect(await bad([...checklists, ...checklists])).toEqual(invalid('attributes.checklists'));
+    expect(await bad([{ inspection_type: 'SAFETY', items: [{ code: 'A', label: 'a' }, { code: 'A', label: 'b' }] }])).toEqual(invalid('attributes.checklists'));
+    expect(await bad([{ inspection_type: 'SAFETY', items: [{ code: 'A', label: ' ' }] }])).toEqual(invalid('attributes.checklists'));
+    expect(await bad([{ inspection_type: 'SAFETY', items: [{ code: 'bad code', label: 'x' }] }])).toEqual(invalid('attributes.checklists'));
+    expect(await bad([{ inspection_type: 'SAFETY', items: [] }])).toEqual(invalid('attributes.checklists'));
+    expect(await bad([{ inspection_type: 'SAFETY' }])).toEqual(invalid('attributes.checklists'));
+    expect(await bad([])).toEqual(invalid('attributes.checklists'));
+    expect(await bad(['x'])).toEqual(invalid('attributes.checklists'));
+  });
+
+  it('belongs to QMS, carries its legal basis and takes no attribute it does not define', async () => {
+    expect(await problem('QMS_REGIME', 'R', regime({ owner_module: 'BID' }))).toEqual(invalid('attributes.owner_module'));
+    expect(await problem('QMS_REGIME', 'R', content({ owner_module: 'QMS', required_roles: ['OWNER'], checklists }, { legalBasis: null }))).toEqual(invalid('legal_basis'));
+    expect(await problem('QMS_REGIME', 'R', regime({ extra: 1 }))).toEqual(invalid('attributes.extra'));
+    expect(await problem('BID_PETITION', 'PROCESS', content({ owner_module: 'BID', days: 7, day_count: 'CALENDAR', awaiting_confirmation: true, cxn: 'CXN-BID-02' }, { legalBasis: 'Luật Đấu thầu' }))).toBeUndefined();
   });
 });

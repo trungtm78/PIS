@@ -9420,13 +9420,32 @@ final class QmsRecordInspectionResult implements RequestModel {
 
   final String result;
   final String resultNote;
-  final List<Map<String, Object?>> checklist;
+  final List<QmsRecordInspectionResultChecklistItem> checklist;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'result': result,
         'result_note': resultNote,
         'checklist': checklist,
+      };
+}
+
+final class QmsRecordInspectionResultChecklistItem implements RequestModel {
+  const QmsRecordInspectionResultChecklistItem({
+    required this.code,
+    required this.outcome,
+    this.note,
+  });
+
+  final String code;
+  final String outcome;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'outcome': outcome,
+        if (note != null) 'note': note,
       };
 }
 

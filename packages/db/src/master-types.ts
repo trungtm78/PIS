@@ -1,4 +1,4 @@
-import { CALENDAR_TIMEZONES, DomainError, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
+import { CALENDAR_TIMEZONES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SIGNER_ROLES, WEEKDAYS, assertCalendar } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -101,7 +101,7 @@ export const FUND_RELATIONS = ['ADDITIVE', 'SUBSET_OF'] as const;
 export const PROGRAM_KINDS = ['CTMTQG', 'NATIONAL_TARGET', 'SECTORAL', 'LOCAL'] as const;
 export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] as const;
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
-export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND', 'BID'] as const;
+export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND', 'BID', 'QMS'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
 export const TREASURY_LEVELS = ['CENTRAL', 'PROVINCE', 'DISTRICT'] as const;
 export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
@@ -198,6 +198,42 @@ function checkPetitionDeadline(businessKey: string, attributes: Record<string, u
   const hasCalendar = attributes.calendar_code !== undefined && attributes.calendar_code !== null;
   if ((attributes.day_count === 'WORKING') !== hasCalendar) fail('attributes.calendar_code');
   if (attributes.filing_days !== undefined && businessKey !== 'RESULT') fail('attributes.filing_days');
+}
+
+const MAX_CHECKLIST_ITEMS = 60;
+
+/** A checklist of the regime: the kind of inspection it is for (once for each kind) and its items, each a code (once in the list) and a label. */
+function checkChecklists(value: unknown): void {
+  if (!Array.isArray(value) || value.length === 0 || value.length > INSPECTION_TYPES.length) return fail('attributes.checklists');
+  const kinds = new Set<string>();
+  for (const entry of value) {
+    if (!isObject(entry) || !(INSPECTION_TYPES as readonly string[]).includes(entry.inspection_type as string) || kinds.has(entry.inspection_type as string)) return fail('attributes.checklists');
+    kinds.add(entry.inspection_type as string);
+    const items = entry.items;
+    if (!Array.isArray(items) || items.length === 0 || items.length > MAX_CHECKLIST_ITEMS) return fail('attributes.checklists');
+    const codes = new Set<string>();
+    for (const item of items) {
+      if (!isObject(item) || typeof item.code !== 'string' || !KEY.test(item.code) || codes.has(item.code) || typeof item.label !== 'string' || item.label.trim() === '' || item.label.length > 300) return fail('attributes.checklists');
+      codes.add(item.code);
+    }
+  }
+}
+
+/** The roles that sign the minutes under a regime: each one of the four roles, once, and at least the first list is not empty. */
+function checkSignerRoles(attributes: Record<string, unknown>): void {
+  const valid = (roles: unknown): boolean => Array.isArray(roles) && roles.length > 0 && new Set(roles).size === roles.length && roles.every((role) => (SIGNER_ROLES as readonly string[]).includes(role as string));
+  if (!valid(attributes.required_roles)) fail('attributes.required_roles');
+  if (attributes.completion_required_roles !== undefined && !valid(attributes.completion_required_roles)) fail('attributes.completion_required_roles');
+}
+
+/**
+ * A regime of quality management (BR-QMS-04, BR-QMS-05): the owner is QMS, the roles that sign the minutes and the checklist of each kind of inspection are stated in the version, and the
+ * dates of the version say from which day to which day the regime applies to an inspection.
+ */
+function checkQmsRegime(attributes: Record<string, unknown>): void {
+  if (attributes.owner_module !== 'QMS') fail('attributes.owner_module');
+  checkSignerRoles(attributes);
+  checkChecklists(attributes.checklists);
 }
 
 const DEFINITIONS: readonly MasterTypeDefinition[] = [
@@ -483,6 +519,19 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
       { name: 'filing_days', kind: 'integer', min: 1, max: MAX_PETITION_DAYS },
     ],
     check: ({ businessKey, content }) => checkPetitionDeadline(businessKey, content.attributes),
+  },
+  {
+    // BR-QMS-04: the key names the regime (the decree it comes from); the dates of the version say when it applies.
+    masterType: 'QMS_REGIME',
+    rule: true,
+    strict: true,
+    fields: [
+      ...RULE_FIELDS,
+      { name: 'required_roles', kind: 'list', required: true, maxItems: SIGNER_ROLES.length },
+      { name: 'completion_required_roles', kind: 'list', maxItems: SIGNER_ROLES.length },
+      { name: 'checklists', kind: 'list', required: true, maxItems: INSPECTION_TYPES.length },
+    ],
+    check: ({ content }) => checkQmsRegime(content.attributes),
   },
 ];
 

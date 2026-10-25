@@ -235,6 +235,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || confirmation_status || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.document_template where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.reporting_period where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.procurement_petition where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.inspection where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_obligation_rule where tenant_id = $1),
     (select count(*)::text from machvon.mne_report where tenant_id = $1),
@@ -390,6 +391,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
              (tenant_id, id, contract_id, contract_revision_id, boq_line_id, boq_item_id, period_id, quantity_period, quantity_cumulative, revision, status, evidence_refs, reference_no, submitted_by, submitted_at, created_by, updated_by, version)
            values ($1, $2, $3, $4, $5, $6, $7, 10, 0, 1, 'SUBMITTED', jsonb_build_array(jsonb_build_object('document_version_id', $8::text)), 'MX-MEASUREMENT', $9, now(), $9, $9, 1)`,
           [TENANT_A, id(0x77, 15), draftId, id(0x77, 9), id(0x77, 16), id(0x77, 17), id(0x77, 18), id(0x78, 2), memberId(RECIPIENT)],
+        ],
+        [
+          `insert into machvon.inspection (tenant_id, id, project_id, contract_id, inspection_no, inspection_type, title, requested_by, requested_for, status, created_by, updated_by, version)
+           values ($1, $2, $3, $4, 'KT-MX', 'SAFETY', 'Matrix inspection', $5, date '2026-12-31', 'REQUESTED', $5, $5, 1)`,
+          [TENANT_A, id(0x77, 19), project, draftId, memberId(RECIPIENT)],
         ],
       ];
       for (const [sql, params] of statements) await seeder.query(sql, params);
@@ -946,6 +952,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       conflictDeclarationId,
       resultId,
       petitionId,
+      inspectionId: id(0x77, 19),
       qualityContractId,
       qualityRuleId,
       qualitySnapshotId,

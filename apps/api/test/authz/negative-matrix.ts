@@ -137,6 +137,8 @@ export interface MatrixTargets {
   resultId: string;
   /** A RECEIVED petition of a contractor (version 1) on that package, logged by someone other than the callers. */
   petitionId: string;
+  /** A REQUESTED inspection (version 1) of the draft contract, asked for by someone other than the callers. */
+  inspectionId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1167,6 +1169,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({ method: 'POST', path: '/procurement-results', body: { package_id: t.criteriaPackageId, outcome: 'CANCELLED', evaluation_report_id: t.documentVersionId } }),
   },
   // The petitions of contractors: a caller that is refused logs none and answers none.
+  // The inspections: a caller that is refused requests none, schedules none, records no result and cancels none.
+  requestInspection: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/inspections', body: { contract_id: t.draftContractId, inspection_type: 'SAFETY', title: REASON, requested_for: '2026-12-31' } }),
+  },
+  scheduleInspection: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/schedule`, ifMatch: '"1"', body: { scheduled_at: '2999-01-01T00:00:00Z', participant_membership_ids: [t.recipientMembershipId] } }),
+  },
+  recordInspectionResult: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/result`, ifMatch: '"1"', body: { result: 'PASS', result_note: REASON, checklist: [] } }),
+  },
+  cancelInspection: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   receiveProcurementPetition: {
     referencesTenantIds: true,
     build: (t) => ({

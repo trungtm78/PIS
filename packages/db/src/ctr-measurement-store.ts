@@ -17,6 +17,7 @@ import type { MeasurementStatus } from '@machvon/kernel';
 import { CtrContractStore, SCOPE_FROM as CONTRACT_SCOPE_FROM, TIMESTAMP, textOf } from './ctr-contract-store.ts';
 import type { ContractPlace, ContractScopes } from './ctr-contract-store.ts';
 import { PmtGateStore } from './pmt-gate-store.ts';
+import { assertGateOpen } from './permit-gate-guard.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -269,7 +270,7 @@ export class CtrMeasurementStore {
     await this.assertEvidence(tx, evidence);
     if (inspectionId !== null) await this.assertInspection(tx, contractId, inspectionId);
     const category = (await tx.query<{ advance_category: string }>('select advance_category from machvon.contract where id = $1::uuid', [contractId]))[0]?.advance_category ?? '';
-    if (requiresPermitGate(category)) await this.assertStartGate(tx, contract.projectId, today);
+    if (requiresPermitGate(category)) await assertGateOpen(this.gates, tx, contract.projectId, START_GATE, today);
 
     const taken = await tx.query<{ id: string }>(`select id from machvon.measurement where contract_id = $1::uuid and boq_item_id = $2::uuid and period_id = $3::uuid and status in (${LIVE}) limit 1`, [contractId, itemId, periodId]);
     if (taken[0] !== undefined) throw new DomainError('MEASUREMENT_STATE_INVALID', 409, 'period_id', { extensions: { reason: 'PERIOD_ALREADY_MEASURED', measurement_id: taken[0].id } });
@@ -498,16 +499,6 @@ export class CtrMeasurementStore {
       [contractId, reference],
     );
     if (rows[0] !== undefined) throw new DomainError('MEASUREMENT_REFERENCE_DUPLICATE', 409, 'reference_no', { extensions: { measurement_id: rows[0].id } });
-  }
-
-  /** The gate of the start of construction is refused with 422 here (the table of the gates answers 409 to the commands that cannot go on at all). */
-  private async assertStartGate(tx: TenantTx, projectId: string, today: string): Promise<void> {
-    try {
-      await this.gates.assertPasses(tx, projectId, START_GATE, today);
-    } catch (error) {
-      if (error instanceof DomainError && error.code === 'PERMIT_GATE_BLOCKED') throw new DomainError('PERMIT_GATE_BLOCKED', 422, error.detail, { extensions: error.extensions });
-      throw error;
-    }
   }
 
   private idOf(value: string, field: string): string {

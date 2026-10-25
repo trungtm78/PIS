@@ -292,7 +292,34 @@ const PETITION_DEADLINES: readonly BaselineEntry[] = [
   petitionDeadline('RESULT', 'Hạn trả lời kiến nghị về kết quả lựa chọn nhà thầu', 7),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES]);
+const REGIME_LAW = 'Nghị định 06/2021/NĐ-CP về quản lý chất lượng, thi công xây dựng và bảo trì công trình và văn bản thay thế dự kiến Nghị định 207/2026 — nội dung chờ xác nhận văn bản gốc [CXN-07]';
+const checklist = (inspectionType: string, items: Array<[string, string]>) => ({ inspection_type: inspectionType, items: items.map(([code, label]) => ({ code, label })) });
+/** The checklists of the working assumption: what the supervisor checks for each kind of inspection, until the owner of the construction business signs the regime. */
+const REGIME_CHECKLISTS = [
+  checklist('MATERIAL_ENTRY', [['ORIGIN', 'Hồ sơ xuất xứ và chứng nhận chất lượng vật liệu'], ['SAMPLE', 'Mẫu vật liệu khớp với hồ sơ đã đăng ký']]),
+  checklist('CONCEALED_WORK', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng công việc che khuất đạt yêu cầu'], ['RECORD', 'Hồ sơ nghiệm thu nội bộ của nhà thầu đầy đủ']]),
+  checklist('CONSTRUCTION_STAGE', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng giai đoạn thi công đạt yêu cầu']]),
+  checklist('PART_ACCEPTANCE', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng bộ phận công trình đạt yêu cầu']]),
+  checklist('COMPLETION', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng hạng mục hoặc công trình đạt yêu cầu'], ['DOSSIER', 'Hồ sơ hoàn thành công trình đầy đủ']]),
+  checklist('SAFETY', [['MEASURES', 'Biện pháp an toàn lao động được thực hiện'], ['EQUIPMENT', 'Thiết bị và phương tiện bảo hộ đạt yêu cầu']]),
+  checklist('OTHER', [['CONTENT', 'Nội dung kiểm tra theo đề nghị được thực hiện']]),
+];
+const regime = (key: string, label: string, requiredRoles: string[], validFrom: string, validUntil?: string): BaselineEntry =>
+  entry(
+    'QMS_REGIME',
+    key,
+    label,
+    { owner_module: 'QMS', awaiting_confirmation: true, cxn: 'CXN-07', required_roles: requiredRoles, completion_required_roles: ['CONTRACTOR', 'SUPERVISOR', 'OWNER', 'DESIGNER'], checklists: REGIME_CHECKLISTS },
+    { legalBasis: REGIME_LAW, validFrom, ...(validUntil === undefined ? {} : { validUntil }) },
+  );
+
+/** The regimes of quality management (BR-QMS-04): the current decree until the end of 2026 and the one that replaces it from 2027, both flagged with the confirmation they wait for. */
+const QMS_REGIMES: readonly BaselineEntry[] = [
+  regime('ND-06-2021', 'Quy chế Nghị định 06/2021/NĐ-CP', ['CONTRACTOR', 'SUPERVISOR', 'OWNER'], SINCE, '2027-01-01'),
+  regime('ND-207-2026', 'Quy chế Nghị định 207/2026/NĐ-CP (dự kiến)', ['CONTRACTOR', 'SUPERVISOR', 'OWNER', 'DESIGNER'], '2027-01-01'),
+];
+
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES]);
 
 export interface BaselineResult {
   created: number;

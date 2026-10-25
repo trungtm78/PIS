@@ -1608,6 +1608,43 @@
       ]
     },
     {
+      "key": "inspectionRequester",
+      "displayName": "Nhà thầu đề nghị kiểm tra",
+      "membershipId": "00000000-0000-4000-8000-000000000815",
+      "permissions": [
+        "inspection.read",
+        "inspection.request",
+        "contract.read",
+        "boq_line.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "inspectionSupervisor",
+      "displayName": "Giám sát lên lịch và ghi kết quả kiểm tra",
+      "membershipId": "00000000-0000-4000-8000-000000000816",
+      "permissions": [
+        "inspection.read",
+        "inspection.request",
+        "inspection.manage",
+        "inspection.record",
+        "contract.read",
+        "boq_line.read",
+        "membership.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "inspectionReader",
+      "displayName": "Người xem kiểm tra, nghiệm thu",
+      "membershipId": "00000000-0000-4000-8000-000000000817",
+      "permissions": [
+        "inspection.read",
+        "contract.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "billingAdmin",
       "displayName": "Quản trị thanh toán",
       "initials": "TT",

@@ -115,6 +115,7 @@ export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; reti
   APPRAISAL_CRITERIA: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   LND_TIMER: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   BID_PETITION: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
+  QMS_REGIME: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   CALENDAR: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   UNIT: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: true },
   CURRENCY: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },

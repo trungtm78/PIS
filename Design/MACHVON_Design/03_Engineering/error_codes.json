@@ -3561,6 +3561,14 @@
       "statusBasis": "convention",
       "source": "spec:AUD"
     },
+    "REGIME_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Regime not effective",
+      "meaning": "No rule QMS_REGIME is in force on the day of the inspection asked for; raised by requestInspection (POST /inspections)",
+      "module": "QMS",
+      "statusBasis": "default",
+      "source": "spec:QMS"
+    },
     "RULE_RANGE_OVERLAP": {
       "status": 409,
       "title": "Rule range overlap",

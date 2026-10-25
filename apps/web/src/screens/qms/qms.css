@@ -1,0 +1,43 @@
+.qms-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.qms-badge.ok {
+  border-color: var(--shell-success, #15803d);
+}
+.qms-badge.warning {
+  border-color: var(--shell-warning, #b45309);
+}
+.qms-badge.danger {
+  border-color: var(--shell-danger, #b91c1c);
+}
+.qms-dialog-body {
+  padding: 16px;
+}
+.qms-checklist-row {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr);
+  align-items: center;
+  margin-bottom: 8px;
+}
+.qms-checklist-row .field-error {
+  grid-column: 1 / -1;
+}
+@media (max-width: 640px) {
+  .qms-checklist-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.qms-checklist {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.qms-regime {
+  display: block;
+  margin-top: 2px;
+}

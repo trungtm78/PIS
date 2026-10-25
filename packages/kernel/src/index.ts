@@ -405,3 +405,5 @@ export type {
 } from './quality-rule.ts';
 export { MAX_PETITION_DAYS, OPEN_PETITION_STATUSES, PETITION_DAY_COUNTS, PETITION_KINDS, PETITION_OUTCOMES, PETITION_STATUSES, assertPetitionTransition, isPetitionOverdue, petitionTarget } from './bid-petition.ts';
 export type { PetitionDayCount, PetitionKind, PetitionOutcome, PetitionRule, PetitionStatus } from './bid-petition.ts';
+export { CHECKLIST_OUTCOMES, INSPECTION_COMMANDS, INSPECTION_RESULTS, INSPECTION_STATUSES, INSPECTION_TYPES, MAX_CHECKLIST_NOTE, SIGNER_ROLES, assertChecklist, assertInspectionTransition, checklistFor, requiredRolesFor } from './qms-inspection.ts';
+export type { ChecklistAnswer, ChecklistItem, ChecklistOutcome, InspectionCommand, InspectionResult, InspectionStatus, InspectionType, RegimeRule, SignerRole } from './qms-inspection.ts';
