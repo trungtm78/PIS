@@ -132,27 +132,36 @@ export const ENGAGEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; scop
 
 /** The conclusion of the engagement of each tenant with a finding and a recommendation (what an authority wrote is CONFIDENTIAL and belongs to the tenant: the words are distinctive). */
 export const CONCLUSION_FIXTURES: Readonly<
-  Record<TenantName, { id: string; findingId: string; recommendationId: string; summary: string; findingCode: string; findingWords: string; recCode: string; recWords: string }>
+  Record<
+    TenantName,
+    { id: string; findingId: string; recommendationId: string; actionId: string; summary: string; findingCode: string; findingWords: string; recCode: string; recWords: string; actionCode: string; actionWords: string }
+  >
 > = {
   'TNT-A': {
     id: '00000000-0000-4000-a0ec-000000000001',
     findingId: '00000000-0000-4000-a0ed-000000000001',
     recommendationId: '00000000-0000-4000-a0ee-000000000001',
+    actionId: '00000000-0000-4000-a0ef-000000000001',
     summary: 'Alpha audit found payments far above the approved volumes',
     findingCode: 'AUD-F-ALPHA',
     findingWords: 'Alpha finding of a payment above the accepted volume',
     recCode: 'AUD-R-ALPHA',
     recWords: 'Alpha recommendation to recover the excess payment',
+    actionCode: 'AUD-A-ALPHA',
+    actionWords: 'Alpha action to repay the excess to the budget',
   },
   'TNT-B': {
     id: '00000000-0000-4000-b0ec-000000000001',
     findingId: '00000000-0000-4000-b0ed-000000000001',
     recommendationId: '00000000-0000-4000-b0ee-000000000001',
+    actionId: '00000000-0000-4000-b0ef-000000000001',
     summary: 'Beta inspection found invoices without supporting records',
     findingCode: 'AUD-F-BETA',
     findingWords: 'Beta finding of invoices without records of the work',
     recCode: 'AUD-R-BETA',
     recWords: 'Beta recommendation to correct the process of invoicing',
+    actionCode: 'AUD-A-BETA',
+    actionWords: 'Beta action to rewrite the invoicing procedure',
   },
 };
 
@@ -731,6 +740,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'audit recommendation id', value: CONCLUSION_FIXTURES[tenant].recommendationId },
     { kind: 'audit recommendation code', value: CONCLUSION_FIXTURES[tenant].recCode },
     { kind: 'audit recommendation words', value: CONCLUSION_FIXTURES[tenant].recWords },
+    { kind: 'audit action id', value: CONCLUSION_FIXTURES[tenant].actionId },
+    { kind: 'audit action code', value: CONCLUSION_FIXTURES[tenant].actionCode },
+    { kind: 'audit action words', value: CONCLUSION_FIXTURES[tenant].actionWords },
     { kind: 'land complaint id', value: COMPLAINT_FIXTURES[tenant].id },
     { kind: 'land complaint number', value: COMPLAINT_FIXTURES[tenant].number },
     { kind: 'land complaint words', value: COMPLAINT_FIXTURES[tenant].words },

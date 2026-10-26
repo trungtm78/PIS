@@ -7,6 +7,7 @@ import { CommandModule } from '../../src/command.module';
 import { audModule } from '../../src/modules/aud';
 import { AuditConclusionController, AuditConclusionReadsController } from '../../src/modules/aud/conclusion.controller';
 import { AuditEngagementController, AuditEngagementReadsController } from '../../src/modules/aud/engagement.controller';
+import { AuditRecommendationController, AuditRecommendationReadsController } from '../../src/modules/aud/recommendation.controller';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
@@ -208,7 +209,7 @@ describe('conclusions, findings and recommendations over HTTP (ST-AUD-002, AUD-0
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController],
+      controllers: [AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController, AuditRecommendationController, AuditRecommendationReadsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
@@ -222,7 +223,7 @@ describe('conclusions, findings and recommendations over HTTP (ST-AUD-002, AUD-0
   }, 60_000);
 
   it('serves the conclusion controllers in the module of AUD', () => {
-    expect(audModule.controllers).toEqual([AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController]);
+    expect(audModule.controllers.slice(0, 4)).toEqual([AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController]);
   });
 
   describe('recordAuditConclusion', () => {

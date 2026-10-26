@@ -530,6 +530,10 @@ const PLAN_COMP_ROLES = [
 const AUD_ROLES = [
   { n: 869, user: 'audOfficer', code: 'E2E_AUD_OFFICER', permissions: ['aud.engagement.manage', 'aud.conclusion.record', 'aud.read', 'project.read', 'contract.read', 'organization_unit.read', 'session.self'], rank: 35 },
   { n: 870, user: 'audReader', code: 'E2E_AUD_READER', permissions: ['aud.read', 'session.self'], rank: 20 },
+  // the leader who gives recommendations to units, the owner who does the work, and the verifier who had no hand in it (ST-AUD-003)
+  { n: 871, user: 'audLeader', code: 'E2E_AUD_LEADER', permissions: ['aud.recommendation.assign', 'aud.read', 'organization_unit.read', 'session.self'], rank: 40 },
+  { n: 872, user: 'audOwner', code: 'E2E_AUD_OWNER', permissions: ['aud.recommendation.execute', 'aud.read', 'session.self'], rank: 25 },
+  { n: 873, user: 'audVerifier', code: 'E2E_AUD_VERIFIER', permissions: ['aud.recommendation.verify', 'aud.read', 'session.self'], rank: 40 },
 ];
 
 const CHAIN_ROLES = [{ n: 842, user: 'paymentAuditor', code: 'E2E_PAYMENT_AUDITOR', permissions: ['payment.chain.read', 'project.read', 'session.self'], rank: 20 }];

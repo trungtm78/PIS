@@ -77,6 +77,14 @@
       "statusBasis": "spec",
       "source": "spec:NOT"
     },
+    "ACTION_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Action code duplicate",
+      "meaning": "An action of remediation uses a code the recommendation already has (planRemediationAction, POST /audit-recommendations/{id}/actions)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
     "ACTION_STATE_INVALID": {
       "status": 409,
       "title": "Action state invalid",

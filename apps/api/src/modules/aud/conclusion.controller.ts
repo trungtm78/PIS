@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { AudConclusionStore, AudEngagementStore, TenantDatabase, engagementScope } from '@machvon/db';
-import type { ConclusionLine, FindingLine, RecommendationLine } from '@machvon/db';
-import { DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
+import type { ConclusionLine, FindingLine } from '@machvon/db';
+import { DomainError, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -63,34 +63,6 @@ export function findingView(line: FindingLine): Record<string, unknown> {
     severity: line.severity,
     created_at: line.createdAt,
   };
-}
-
-/** A recommendation as the screens read it. */
-export function recommendationView(line: RecommendationLine): Record<string, unknown> {
-  return {
-    id: line.id,
-    conclusion_id: line.conclusionId,
-    finding_id: line.findingId,
-    rec_code: line.recCode,
-    rec_type: line.recType,
-    description: line.description,
-    amount_vnd: line.amountVnd,
-    recovered_vnd: line.recoveredVnd,
-    project_id: line.projectId,
-    owner_unit_id: line.ownerUnitId,
-    due_on: line.dueOn,
-    status: line.status,
-    is_overdue: line.isOverdue,
-    created_at: line.createdAt,
-  };
-}
-
-/** The optional uuid of a query: absent is undefined, one that is not a uuid is a field problem (422). */
-function optionalUuid(value: unknown, field: string): string | undefined {
-  if (value === undefined) return undefined;
-  const parsed = typeof value === 'string' ? asUuid(value) : undefined;
-  if (parsed === undefined) throw new DomainError('VALIDATION_FAILED', 422, field);
-  return parsed.toLowerCase();
 }
 
 /**
@@ -302,38 +274,5 @@ export class AuditConclusionReadsController {
     const shown = rows.slice(0, request.limit);
     const last = shown[shown.length - 1];
     return { items: shown.map(findingView), next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.findingCode, id: last.id }) : null };
-  }
-
-  @Get('audit-recommendations')
-  @OperationId('listAuditRecommendations')
-  async listRecommendations(
-    @CurrentTenant() tenant: TenantContext,
-    @CurrentAccess() access: EffectiveAccess,
-    @Query('conclusion_id') conclusion?: unknown,
-    @Query('engagement_id') engagement?: unknown,
-    @Query('status') status?: unknown,
-    @Query('owner_unit_id') ownerUnit?: unknown,
-    @Query('overdue') overdue?: unknown,
-    @Query('rec_type') recType?: unknown,
-    @Query('limit') limit?: unknown,
-    @Query('cursor') cursor?: unknown,
-  ): Promise<{ items: Array<Record<string, unknown>>; next_cursor: string | null }> {
-    const request = parsePageRequest(limit, cursor);
-    if (overdue !== undefined && overdue !== 'true' && overdue !== 'false') throw new DomainError('VALIDATION_FAILED', 422, 'overdue');
-    const rows = await this.database.withTenant(tenant, (tx) =>
-      this.conclusions.listRecommendations(tx, engagementScope(access, READ_PERMISSION, new Date()), {
-        limit: request.limit + 1,
-        after: request.after,
-        conclusionId: optionalUuid(conclusion, 'conclusion_id'),
-        engagementId: optionalUuid(engagement, 'engagement_id'),
-        status: typeof status === 'string' ? status : undefined,
-        recType: typeof recType === 'string' ? recType : undefined,
-        ownerUnitId: optionalUuid(ownerUnit, 'owner_unit_id'),
-        overdue: overdue === undefined ? undefined : overdue === 'true',
-      }),
-    );
-    const shown = rows.slice(0, request.limit);
-    const last = shown[shown.length - 1];
-    return { items: shown.map(recommendationView), next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.recCode, id: last.id }) : null };
   }
 }

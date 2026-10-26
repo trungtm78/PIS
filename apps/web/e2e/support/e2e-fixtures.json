@@ -2223,6 +2223,37 @@
       ]
     },
     {
+      "key": "audLeader",
+      "displayName": "Lãnh đạo giao việc",
+      "membershipId": "00000000-0000-4000-8000-000000000871",
+      "permissions": [
+        "aud.recommendation.assign",
+        "aud.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "audOwner",
+      "displayName": "Người thực hiện kiến nghị",
+      "membershipId": "00000000-0000-4000-8000-000000000872",
+      "permissions": [
+        "aud.recommendation.execute",
+        "aud.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "audVerifier",
+      "displayName": "Người xác minh kiến nghị",
+      "membershipId": "00000000-0000-4000-8000-000000000873",
+      "permissions": [
+        "aud.recommendation.verify",
+        "aud.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "landPayer",
       "displayName": "Kế toán chi trả bồi thường",
       "membershipId": "00000000-0000-4000-8000-000000000867",

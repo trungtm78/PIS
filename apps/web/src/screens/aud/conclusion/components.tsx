@@ -14,7 +14,7 @@ export function EngagementPicker({ selected }: { selected: string | undefined })
   const list = useEngagements(NO_FILTER);
   const options = (list.data ?? []).filter((engagement) => concludable(engagement.status) || engagement.id === selected);
   return (
-    <div className="card aud-picker">
+    <div className="card">
       <Field id="conclusion-engagement" label={t('aud.conclusion.picker.label')} error={undefined} hint={t('aud.conclusion.picker.help')}>
         <select
           id="conclusion-engagement"

@@ -25,13 +25,16 @@ export const TENANT: SessionTenant = {
 
 export const MANAGER = ['aud.engagement.manage', 'aud.read'];
 export const RECORDER = ['aud.conclusion.record', 'aud.read'];
+export const LEADER = ['aud.recommendation.assign', 'aud.read'];
+export const OWNER_ROLE = ['aud.recommendation.execute', 'aud.read'];
+export const VERIFIER_ROLE = ['aud.recommendation.verify', 'aud.read'];
 export const READER = ['aud.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({
   id,
   path: `/aud/${id.toLowerCase()}`,
   title: id,
-  kind: id === 'AUD-03' ? 'detail' : id === 'AUD-04' ? 'form' : 'table',
+  kind: id === 'AUD-03' ? 'detail' : id === 'AUD-04' ? 'form' : id === 'AUD-07' ? 'board' : 'table',
   area: 'insights',
   module: 'AUD',
   group: 'Cuộc thanh tra, kiểm toán',
@@ -141,7 +144,41 @@ export const recommendationRecord = (n: number, overrides: Record<string, unknow
   ...overrides,
 });
 
+/** A recommendation as the board and the table read it: the owner, the day, the dispute and the actions with their evidence. */
+export const boardRecord = (n: number, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  ...recommendationRecord(n),
+  engagement: { id: uuid('0010', 1), engagement_code: 'TTCP-2026-001' },
+  owner_unit_id: UNIT,
+  owner_unit: { id: UNIT, code: 'SXD', name: 'Sở Xây dựng' },
+  owner_user: { id: SELF, display_name: 'Nguyễn Văn An' },
+  due_on: '2026-12-01',
+  implementation_due_on: '2026-12-31',
+  dispute_reason: null,
+  dispute_outcome: null,
+  verification_note: null,
+  submitted_by: null,
+  disputed_by: null,
+  actions: [],
+  evidence_count: 0,
+  version: 3,
+  ...overrides,
+});
+
+export const actionRecord = (n: number, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: uuid('0024', n),
+  action_code: `HD-${String(n).padStart(2, '0')}`,
+  description: 'Chấn chỉnh quy trình thanh toán.',
+  planned_on: '2026-11-15',
+  completed_on: null,
+  status: 'PLANNED',
+  evidence_document_id: null,
+  version: 1,
+  ...overrides,
+});
+
 export interface World {
+  /** The recommendations as the board reads them (no conclusion named), by any engagement. */
+  board: Array<Record<string, unknown>>;
   engagements: Array<Record<string, unknown>>;
   details: Record<string, Record<string, unknown>>;
   /** The conclusions of an engagement, by the id of the engagement. */
@@ -160,6 +197,7 @@ export interface World {
 
 export function world(overrides: Partial<World> = {}): World {
   return {
+    board: [],
     engagements: [],
     details: {},
     conclusions: {},
@@ -198,7 +236,15 @@ export function client(state: World, command: (operation: string, input: unknown
       case 'listAuditFindings':
         return Promise.resolve(state.findings[input?.path?.id ?? ''] ?? []);
       case 'listAuditRecommendations':
-        return Promise.resolve(state.recommendations[input?.query?.conclusion_id ?? ''] ?? []);
+        if (input?.query?.conclusion_id !== undefined) return Promise.resolve(state.recommendations[input.query.conclusion_id] ?? []);
+        return Promise.resolve(
+          state.board.filter(
+            (item) =>
+              (input?.query?.engagement_id === undefined || (item.engagement as { id: string }).id === input.query.engagement_id) &&
+              (input?.query?.status === undefined || item.status === input.query.status) &&
+              (input?.query?.rec_type === undefined || item.rec_type === input.query.rec_type),
+          ),
+        );
       case 'get_resources_project':
         return Promise.resolve(state.projects);
       case 'get_resources_contract':

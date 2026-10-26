@@ -1699,6 +1699,38 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { rec_code: 'R-MATRIX-1', rec_type: 'FINANCIAL_RECOVERY', description: 'Negative matrix recommendation description', amount_vnd: '1000' },
     }),
   },
+  assignAuditRecommendation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/assignment`, ifMatch: '"1"', body: { owner_unit_id: t.unit2, due_on: '2026-12-01' } }),
+  },
+  planRemediationAction: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/actions`, ifMatch: '"1"', body: { action_code: 'A-MATRIX-1', description: 'Negative matrix action', planned_on: '2026-12-01' } }),
+  },
+  completeRemediationAction: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-remediation-actions/${t.legalHoldId}/completion`, ifMatch: '"1"', body: { completed_on: '2026-10-20', evidence_document_id: t.documentVersionId } }),
+  },
+  submitRecommendationForVerification: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/verification-request`, ifMatch: '"1"', body: {} }),
+  },
+  verifyAuditRecommendation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/verification`, ifMatch: '"1"', body: { decision: 'CLOSE' } }),
+  },
+  disputeAuditRecommendation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/dispute`, ifMatch: '"1"', body: { dispute_reason: 'Negative matrix dispute explanation of the owner', dispute_document_id: t.documentVersionId } }),
+  },
+  recordAuditDisputeDecision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/dispute-decision`, ifMatch: '"1"', body: { outcome: 'REJECTED_BY_AUTHORITY', authority_document_id: t.documentVersionId } }),
+  },
+  attachAuditEvidence: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/audit-evidence', body: { owner_kind: 'ENGAGEMENT', owner_id: t.legalHoldId, document_id: t.documentVersionId } }),
+  },
   startAuditEngagement: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/audit-engagements/${t.legalHoldId}/start`, ifMatch: '"1"', body: { started_on: '2026-10-20', place_legal_hold: false } }),

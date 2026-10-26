@@ -91,23 +91,6 @@ export interface FindingLine {
   createdAt: string;
 }
 
-export interface RecommendationLine {
-  id: string;
-  conclusionId: string;
-  findingId: string | null;
-  recCode: string;
-  recType: RecommendationType;
-  description: string;
-  amountVnd: string | null;
-  recoveredVnd: string;
-  projectId: string | null;
-  ownerUnitId: string | null;
-  dueOn: string | null;
-  status: string;
-  isOverdue: boolean;
-  createdAt: string;
-}
-
 interface ConclusionSql {
   id: string;
   engagement_id: string;
@@ -151,23 +134,6 @@ interface FindingSql {
   created_at: string;
 }
 
-interface RecommendationSql {
-  id: string;
-  conclusion_id: string;
-  finding_id: string | null;
-  rec_code: string;
-  rec_type: RecommendationType;
-  description: string;
-  amount_vnd: string | null;
-  recovered_vnd: string;
-  project_id: string | null;
-  owner_unit_id: string | null;
-  due_on: string | null;
-  status: string;
-  is_overdue: boolean;
-  created_at: string;
-}
-
 const CONCLUSION_COLUMNS = `c.id, c.engagement_id, c.conclusion_kind, c.conclusion_document_id as document_id, doc.title as document_title, doc.symbol as document_symbol, c.revision, c.supersedes_id,
   c.issued_on::text as issued_on, c.received_on::text as received_on, c.implementation_due_on::text as implementation_due_on, c.report_due_on::text as report_due_on, c.summary,
   c.total_financial_vnd::text as total_financial_vnd,
@@ -179,9 +145,6 @@ const CONCLUSION_COLUMNS = `c.id, c.engagement_id, c.conclusion_kind, c.conclusi
 
 const FINDING_COLUMNS = `f.id, f.conclusion_id, f.finding_code, f.category, f.project_id, p.code as project_code, p.name as project_name, f.contract_id, k.code as contract_code,
   f.organization_unit_id as unit_id, u.code as unit_code, u.name as unit_name, f.description, f.legal_basis_cited, f.amount_vnd::text as amount_vnd, f.severity, f.created_at::text as created_at`;
-
-const RECOMMENDATION_COLUMNS = `r.id, r.conclusion_id, r.finding_id, r.rec_code, r.rec_type, r.description, r.amount_vnd::text as amount_vnd, r.recovered_vnd::text as recovered_vnd, r.project_id,
-  r.owner_unit_id, r.due_on::text as due_on, r.status, r.is_overdue, r.created_at::text as created_at`;
 
 const toConclusion = (row: ConclusionSql): ConclusionLine => ({
   id: row.id,
@@ -217,23 +180,6 @@ const toFinding = (row: FindingSql): FindingLine => ({
   legalBasisCited: row.legal_basis_cited,
   amountVnd: row.amount_vnd,
   severity: row.severity,
-  createdAt: row.created_at,
-});
-
-const toRecommendation = (row: RecommendationSql): RecommendationLine => ({
-  id: row.id,
-  conclusionId: row.conclusion_id,
-  findingId: row.finding_id,
-  recCode: row.rec_code,
-  recType: row.rec_type,
-  description: row.description,
-  amountVnd: row.amount_vnd,
-  recoveredVnd: row.recovered_vnd,
-  projectId: row.project_id,
-  ownerUnitId: row.owner_unit_id,
-  dueOn: row.due_on,
-  status: row.status,
-  isOverdue: row.is_overdue,
   createdAt: row.created_at,
 });
 
@@ -462,48 +408,5 @@ export class AudConclusionStore {
       [conclusionId, request.after?.code ?? null, request.after?.id ?? null, request.limit, ...predicate.params],
     );
     return rows.map(toFinding);
-  }
-
-  /** The recommendations in the scope of the caller, by code, narrowed by what the screens ask for; the cursor is the code and the id of the last one. */
-  async listRecommendations(
-    tx: TenantTx,
-    scope: ScopeBuilder,
-    request: {
-      limit: number;
-      after: { code: string; id: string } | undefined;
-      conclusionId?: string | undefined;
-      engagementId?: string | undefined;
-      status?: string | undefined;
-      recType?: string | undefined;
-      ownerUnitId?: string | undefined;
-      overdue?: boolean | undefined;
-    },
-  ): Promise<RecommendationLine[]> {
-    const predicate = scope(10);
-    const rows = await tx.query<RecommendationSql>(
-      `select ${RECOMMENDATION_COLUMNS}
-         from machvon.audit_recommendation r
-         join machvon.audit_conclusion c on c.tenant_id = r.tenant_id and c.id = r.conclusion_id
-         join machvon.audit_engagement e on e.tenant_id = c.tenant_id and e.id = c.engagement_id
-        where ($1::text is null or (r.rec_code, r.id) > ($1::text, $2::uuid))
-          and ($4::uuid is null or r.conclusion_id = $4::uuid) and ($5::uuid is null or c.engagement_id = $5::uuid)
-          and ($6::text is null or r.status = $6::text) and ($7::text is null or r.rec_type = $7::text)
-          and ($8::uuid is null or r.owner_unit_id = $8::uuid) and ($9::boolean is null or r.is_overdue = $9::boolean)
-          and ${predicate.sql}
-        order by r.rec_code, r.id limit $3`,
-      [
-        request.after?.code ?? null,
-        request.after?.id ?? null,
-        request.limit,
-        request.conclusionId ?? null,
-        request.engagementId ?? null,
-        request.status ?? null,
-        request.recType ?? null,
-        request.ownerUnitId ?? null,
-        request.overdue ?? null,
-        ...predicate.params,
-      ],
-    );
-    return rows.map(toRecommendation);
   }
 }

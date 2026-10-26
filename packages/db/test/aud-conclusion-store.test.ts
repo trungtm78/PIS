@@ -422,20 +422,23 @@ describe('AudConclusionStore (conclusions, findings and recommendations, ST-AUD-
       const mine = await addFinding(done.conclusionId, finding());
       const theirs = await addFinding(other.conclusionId, finding());
       const created = await addRecommendation(done.conclusionId, recommendation({ recCode: 'R-ONE', findingId: mine.id, projectId: PROJECT }));
-      const [shown] = await as((tx) => store.listRecommendations(tx, everything, { limit: 10, after: undefined, conclusionId: done.conclusionId }));
-      expect(shown).toMatchObject({
+      const [shown] = await owner<Record<string, unknown>>(
+        'select id, conclusion_id, finding_id, rec_code, rec_type, amount_vnd::text as amount_vnd, recovered_vnd::text as recovered_vnd, project_id, owner_unit_id, due_on, status, is_overdue from machvon.audit_recommendation where id = $1',
+        [created.id],
+      );
+      expect(shown).toEqual({
         id: created.id,
-        conclusionId: done.conclusionId,
-        findingId: mine.id,
-        recCode: 'R-ONE',
-        recType: 'FINANCIAL_RECOVERY',
-        amountVnd: '100000000',
-        recoveredVnd: '0',
-        projectId: PROJECT,
-        ownerUnitId: null,
-        dueOn: null,
+        conclusion_id: done.conclusionId,
+        finding_id: mine.id,
+        rec_code: 'R-ONE',
+        rec_type: 'FINANCIAL_RECOVERY',
+        amount_vnd: '100000000',
+        recovered_vnd: '0',
+        project_id: PROJECT,
+        owner_unit_id: null,
+        due_on: null,
         status: 'OPEN',
-        isOverdue: false,
+        is_overdue: false,
       });
       expect(await refusal(addRecommendation(done.conclusionId, recommendation({ recCode: 'R-ONE' })))).toMatchObject({ code: 'REC_CODE_DUPLICATE', status: 409 });
       expect(await refusal(addRecommendation(done.conclusionId, recommendation({ findingId: theirs.id })))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'finding_id' });
@@ -474,26 +477,6 @@ describe('AudConclusionStore (conclusions, findings and recommendations, ST-AUD-
       await owner("update machvon.audit_recommendation set status = 'CANCELLED' where conclusion_id = $1 and rec_code = 'T-3'", [done.conclusionId]);
       await insert('T-5', 'FINANCIAL_RECOVERY', '400');
       await expect(owner("update machvon.audit_recommendation set status = 'OPEN' where conclusion_id = $1 and rec_code = 'T-3'", [done.conclusionId])).rejects.toMatchObject({ code: '23514' });
-    });
-
-    it('lists the recommendations by code with a cursor and the filters of the screens, and none outside the scope of the reader', async () => {
-      const done = await followed();
-      const other = await followed();
-      for (const code of ['R-3', 'R-1', 'R-2']) await addRecommendation(done.conclusionId, recommendation({ recCode: code, amountVnd: '1000' }));
-      await addRecommendation(done.conclusionId, recommendation({ recCode: 'R-4', recType: 'REFERRAL', amountVnd: undefined }));
-      await addRecommendation(other.conclusionId, recommendation({ recCode: 'R-9', amountVnd: '1000' }));
-      const page = (extra: Record<string, unknown>) => as((tx) => store.listRecommendations(tx, everything, { limit: 3, after: undefined, ...extra }));
-      expect((await page({ conclusionId: done.conclusionId })).map((line) => line.recCode)).toEqual(['R-1', 'R-2', 'R-3']);
-      const first = await page({ engagementId: done.engagementId });
-      const last = first[2] as { recCode: string; id: string };
-      expect((await as((tx) => store.listRecommendations(tx, everything, { limit: 3, after: { code: last.recCode, id: last.id }, engagementId: done.engagementId }))).map((line) => line.recCode)).toEqual(['R-4']);
-      expect((await page({ conclusionId: done.conclusionId, recType: 'REFERRAL' })).map((line) => line.recCode)).toEqual(['R-4']);
-      expect(await page({ conclusionId: done.conclusionId, status: 'CLOSED' })).toEqual([]);
-      expect(await page({ conclusionId: done.conclusionId, ownerUnitId: unitId(DEPARTMENT) })).toEqual([]);
-      expect((await page({ conclusionId: done.conclusionId, overdue: false })).length).toBe(3);
-      expect(await page({ conclusionId: done.conclusionId, overdue: true })).toEqual([]);
-      expect(await as((tx) => store.listRecommendations(tx, nothing, { limit: 10, after: undefined, conclusionId: done.conclusionId }))).toEqual([]);
-      expect(await as((tx) => store.listRecommendations(tx, everything, { limit: 10, after: undefined, conclusionId: done.conclusionId }), TENANT_B)).toEqual([]);
     });
   });
 

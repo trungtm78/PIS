@@ -566,3 +566,13 @@ export {
   wholeDong,
 } from './aud-conclusion.ts';
 export type { ConclusionKind, FindingCategory, FindingSeverity, RecommendationType } from './aud-conclusion.ts';
+export {
+  OVERDUE_EXEMPT_STATUSES,
+  RECOMMENDATION_EDGES,
+  RECOMMENDATION_STATUSES,
+  assertDueDay,
+  assertNotOwnWork,
+  assertRecoveryComplete,
+  nextRecommendationStatus,
+} from './aud-recommendation.ts';
+export type { Hands as RecommendationHands, RecommendationAction, RecommendationStatus } from './aud-recommendation.ts';
