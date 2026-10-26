@@ -124,6 +124,12 @@ export const INVENTORY_FIXTURES: Readonly<Record<TenantName, { id: string; linkI
   'TNT-B': { id: '00000000-0000-4000-b0b9-000000000001', linkId: '00000000-0000-4000-b0b9-000000000002', priceDecision: 'BETA-QD-GIA-0001' },
 };
 
+/** A complaint of the household of each tenant (its words are distinctive: what a complainant says is personal data of the tenant). */
+export const COMPLAINT_FIXTURES: Readonly<Record<TenantName, { id: string; number: string; words: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0bc-000000000001', number: 'LC-000901', words: 'Alpha complainant says the price is far too low' },
+  'TNT-B': { id: '00000000-0000-4000-b0bc-000000000001', number: 'LC-000902', words: 'Beta complainant says the area is wrong' },
+};
+
 /** A payment of the approved plan of compensation of each tenant (the plan of PLAN_COMP_FIXTURES, in the end of its way to being paid). */
 export const PAYMENT_COMP_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bb-000000000001' },
@@ -682,6 +688,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'compensation plan item id', value: PLAN_COMP_FIXTURES[tenant].itemId },
     { kind: 'compensation plan code', value: PLAN_COMP_FIXTURES[tenant].code },
     { kind: 'compensation payment id', value: PAYMENT_COMP_FIXTURES[tenant].id },
+    { kind: 'land complaint id', value: COMPLAINT_FIXTURES[tenant].id },
+    { kind: 'land complaint number', value: COMPLAINT_FIXTURES[tenant].number },
+    { kind: 'land complaint words', value: COMPLAINT_FIXTURES[tenant].words },
     { kind: 'inventory price decision', value: INVENTORY_FIXTURES[tenant].priceDecision },
     { kind: 'household code', value: HOUSEHOLD_FIXTURES[tenant].code },
     { kind: 'land section id', value: SECTION_FIXTURES[tenant].id },

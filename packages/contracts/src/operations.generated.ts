@@ -523,6 +523,7 @@ export const OPERATIONS = {
   "listIssueAssignees": { method: "get", path: "/issues/{id}/assignees", versioned: false, stepUp: null, permission: "issue.assign" },
   "listIssueSlaBreaches": { method: "get", path: "/issues/sla-breaches", versioned: false, stepUp: null, permission: "issue.read" },
   "listIssueSlaPolicies": { method: "get", path: "/issue-sla-policies", versioned: false, stepUp: null, permission: "issue.read" },
+  "listLandComplaints": { method: "get", path: "/land-complaints", versioned: false, stepUp: null, permission: "land.read" },
   "listLandParcels": { method: "get", path: "/land-parcels", versioned: false, stepUp: null, permission: "land.read" },
   "listLandSections": { method: "get", path: "/land-sections", versioned: false, stepUp: null, permission: "land.read" },
   "listMasterChangeRequests": { method: "get", path: "/master-change-requests", versioned: false, stepUp: null, permission: "master.read" },

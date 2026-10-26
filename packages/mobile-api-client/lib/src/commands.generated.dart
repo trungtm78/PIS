@@ -1573,6 +1573,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listIssueSlaPolicies({Map<String, Object?>? query}) =>
       execute('listIssueSlaPolicies', query: query);
 
+  Future<Object?> listLandComplaints({Map<String, Object?>? query}) =>
+      execute('listLandComplaints', query: query);
+
   Future<Object?> listLandParcels({Map<String, Object?>? query}) =>
       execute('listLandParcels', query: query);
 

@@ -525,6 +525,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listIssueAssignees': OperationDescriptor(method: 'GET', path: '/issues/{id}/assignees', versioned: false, stepUp: null, permission: 'issue.assign'),
   'listIssueSlaBreaches': OperationDescriptor(method: 'GET', path: '/issues/sla-breaches', versioned: false, stepUp: null, permission: 'issue.read'),
   'listIssueSlaPolicies': OperationDescriptor(method: 'GET', path: '/issue-sla-policies', versioned: false, stepUp: null, permission: 'issue.read'),
+  'listLandComplaints': OperationDescriptor(method: 'GET', path: '/land-complaints', versioned: false, stepUp: null, permission: 'land.read'),
   'listLandParcels': OperationDescriptor(method: 'GET', path: '/land-parcels', versioned: false, stepUp: null, permission: 'land.read'),
   'listLandSections': OperationDescriptor(method: 'GET', path: '/land-sections', versioned: false, stepUp: null, permission: 'land.read'),
   'listMasterChangeRequests': OperationDescriptor(method: 'GET', path: '/master-change-requests', versioned: false, stepUp: null, permission: 'master.read'),

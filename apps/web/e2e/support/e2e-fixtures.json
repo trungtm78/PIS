@@ -2186,6 +2186,20 @@
       ]
     },
     {
+      "key": "landComplaintOfficer",
+      "displayName": "Cán bộ tiếp nhận khiếu nại GPMB",
+      "membershipId": "00000000-0000-4000-8000-000000000868",
+      "permissions": [
+        "land.complaint.write",
+        "land.complaint.resolve",
+        "land.read",
+        "land.household.read",
+        "project.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "landPayer",
       "displayName": "Kế toán chi trả bồi thường",
       "membershipId": "00000000-0000-4000-8000-000000000867",

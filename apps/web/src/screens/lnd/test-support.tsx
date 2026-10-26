@@ -207,6 +207,30 @@ export const paymentRecord = (n: number, planId: string, overrides: Record<strin
   ...overrides,
 });
 
+/** A complaint as the list answers it (received, with the days left). */
+export const complaintRecord = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0090', n),
+  project_id: PROJECT,
+  household_id: uuid('0030', 1),
+  household_code: 'HH-000001',
+  plan_id: null,
+  owner_unit_id: UNIT_XA,
+  complaint_no: `LC-${String(n).padStart(6, '0')}`,
+  filed_on: '2026-09-15',
+  channel: 'MEETING',
+  subject: 'PRICE',
+  description: 'Giá nhà quá thấp so với thị trường',
+  status: 'RECEIVED',
+  due_on: '2026-10-15',
+  remaining_days: 5,
+  resolved_on: null,
+  resolution_note: null,
+  resolution_document_version_id: null,
+  issue_id: null,
+  version: 1,
+  ...overrides,
+});
+
 /** The timers of a plan as the read answers them. */
 export const timersRecord = (planId: string, overrides: Record<string, unknown> = {}) => ({
   plan_id: planId,
@@ -262,6 +286,7 @@ export interface World {
   /** The opinions on the plans, and the timers of a plan by its id. */
   feedback: Array<Record<string, unknown>>;
   payments: Array<Record<string, unknown>>;
+  complaints: Array<Record<string, unknown>>;
   timers: Record<string, Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
@@ -283,6 +308,7 @@ export function world(overrides: Partial<World> = {}): World {
     planItems: [],
     feedback: [],
     payments: [],
+    complaints: [],
     timers: {},
     sections: [{ id: SECTION, code: 'KM-0-3', name: 'Km 0 đến km 3' }],
     units: [
@@ -320,6 +346,8 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.planItems.filter((item) => item.plan_id === input?.path?.id));
         case 'listCompensationPayments':
           return Promise.resolve(state.payments.filter((item) => item.plan_id === input?.path?.id));
+        case 'listLandComplaints':
+          return Promise.resolve(state.complaints.filter((item) => item.project_id === input?.query?.project_id));
         case 'listPlanFeedback':
           return Promise.resolve(state.feedback.filter((item) => item.plan_id === input?.path?.id));
         case 'listLandSections':

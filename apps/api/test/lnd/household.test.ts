@@ -15,6 +15,7 @@ import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
 import { CompensationPlanController, CompensationPlanReadsController } from '../../src/modules/lnd/plan.controller';
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from '../../src/modules/lnd/plan-posting.controller';
 import { CompensationPaymentController, CompensationPaymentReadsController } from '../../src/modules/lnd/payment.controller';
+import { LandComplaintController, LandComplaintReadsController } from '../../src/modules/lnd/complaint.controller';
 import { FIELD_CIPHER, LND_METRICS } from '../../src/modules/lnd/tokens';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedLndWorld } from '../../../../packages/db/test/support/lnd-fixtures';
@@ -187,7 +188,7 @@ describe('the households affected by a land recovery: sealed personal data, mask
   }, 60_000);
 
   it('is registered in the module of LND, with a cipher that fails closed when the process has no keys', async () => {
-    expect(lndModule.controllers).toEqual(expect.arrayContaining([AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController]));
+    expect(lndModule.controllers).toEqual(expect.arrayContaining([AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController]));
     const bound = createFieldCipher({ FIELD_ENCRYPTION_KEYS: `1:${randomBytes(32).toString('base64')}` });
     const place = { tenantId: TENANT_A, table: 'affected_household', column: 'head_name_enc', rowId: randomUUID() };
     expect(bound.open(place, bound.seal(place, HEAD))).toBe(HEAD);

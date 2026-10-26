@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, COMPLAINT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -313,6 +313,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'depositCompensationPayment',
   'listCompensationPayments',
   'listUpcomingLandDeadlines',
+  'fileLandComplaint',
+  'resolveLandComplaint',
+  'listLandComplaints',
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
@@ -999,6 +1002,11 @@ const INSERT_COMP_FEEDBACK = `insert into machvon.compensation_plan_feedback
   select $1::uuid, $2::uuid, $2::uuid, $3::uuid, $4::uuid, 'LETTER', 'Isolation fixture opinion', 'OPEN', date '2026-10-02', $5::uuid, $5::uuid, 1
   where exists (select 1 from machvon.compensation_plan where id = $2::uuid and status = 'POSTING') on conflict do nothing`;
 
+/** A complaint of the household of the fixture, received and not yet answered. */
+const INSERT_COMPLAINT = `insert into machvon.land_complaint
+  (tenant_id, id, project_id, household_id, owner_unit_id, complaint_no, filed_on, channel, subject, description, status, due_on, created_by, updated_by, version)
+  values ($1, $2, $3, $4, $5, $6, date '2026-09-15', 'LETTER', 'PRICE', $7, 'RECEIVED', date '2026-10-15', $8, $8, 1) on conflict do nothing`;
+
 /** The plan of the fixture goes on to be paid (every step as the commands take it, and only while it is where the step starts, so that a seed that runs again leaves it as it is): the opinion is handled, the posting closed, the plan approved on the decision document of the tenant by the other member, and one payment scheduled. */
 const HANDLE_COMP_FEEDBACK = `update machvon.compensation_plan_feedback
   set status = 'HANDLED', handled_on = date '2026-10-03', handled_by = $2, handling_note = 'Isolation fixture handling', updated_by = $2, version = 2 where id = $1 and status = 'OPEN'`;
@@ -1144,6 +1152,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query("select set_config('app.scope_units', '*', false)");
     await client.query(INSERT_HOUSEHOLD, [tenantId, HOUSEHOLD_FIXTURES[tenant].id, project.id, home, HOUSEHOLD_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query(INSERT_HOUSEHOLD_PARCEL, [tenantId, INVENTORY_FIXTURES[tenant].linkId, HOUSEHOLD_FIXTURES[tenant].id, PARCEL_FIXTURES[tenant].id, home, ACTOR_ID]);
+    await client.query(INSERT_COMPLAINT, [tenantId, COMPLAINT_FIXTURES[tenant].id, project.id, HOUSEHOLD_FIXTURES[tenant].id, home, COMPLAINT_FIXTURES[tenant].number, COMPLAINT_FIXTURES[tenant].words, MEMBERSHIP_ID]);
     await client.query(INSERT_COMP_PLAN, [tenantId, PLAN_COMP_FIXTURES[tenant].id, project.id, home, PLAN_COMP_FIXTURES[tenant].code, MEMBERSHIP_ID]);
     await client.query(INSERT_COMP_ITEM, [tenantId, PLAN_COMP_FIXTURES[tenant].itemId, PLAN_COMP_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, MEMBERSHIP_ID]);
     await client.query('update machvon.compensation_plan set total_support_vnd = 1000 where id = $1', [PLAN_COMP_FIXTURES[tenant].id]);

@@ -822,3 +822,5 @@ export { COMPENSATION_PAYMENT_METHODS, COMPENSATION_PAYMENT_STATUSES, LndPayment
 export type { CompensationPaymentMethod, CompensationPaymentStatus, NewPayment, PaymentLine, ScheduledPayment, ScheduledPayments, SettledPayment } from './lnd-payment-store.ts';
 export { LndDeadlineStore } from './lnd-deadline-store.ts';
 export type { DeadlineState, DeadlineSubject, UpcomingDeadline, UpcomingFilter } from './lnd-deadline-store.ts';
+export { COMPLAINT_CHANNELS, COMPLAINT_OUTCOMES, COMPLAINT_STATUSES, COMPLAINT_SUBJECTS, COMPLAINT_FILED_EVENT, LndComplaintStore, complaintFiledPayload, linkComplaintIssue } from './lnd-complaint-store.ts';
+export type { AnsweredComplaint, ComplaintChannel, ComplaintFilter, ComplaintLine, ComplaintOutcome, ComplaintStatus, ComplaintSubject, FiledComplaint } from './lnd-complaint-store.ts';

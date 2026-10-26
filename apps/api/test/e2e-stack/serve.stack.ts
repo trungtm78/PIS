@@ -522,6 +522,7 @@ const PLAN_COMP_ROLES = [
   { n: 864, user: 'landPlanWriter', code: 'E2E_LAND_PLAN_WRITER', permissions: ['land.plan.write', 'land.read', 'land.household.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 30 },
   { n: 865, user: 'landPlanReader', code: 'E2E_LAND_PLAN_READER', permissions: ['land.read', 'project.read', 'session.self'], rank: 20 },
   { n: 866, user: 'landPlanApprover', code: 'E2E_LAND_PLAN_APPROVER', permissions: ['land.plan.approve', 'land.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 40 },
+  { n: 868, user: 'landComplaintOfficer', code: 'E2E_LAND_COMPLAINT_OFFICER', permissions: ['land.complaint.write', 'land.complaint.resolve', 'land.read', 'land.household.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 35 },
   { n: 867, user: 'landPayer', code: 'E2E_LAND_PAYER', permissions: ['land.payment.write', 'land.read', 'land.household.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 35 },
 ];
 

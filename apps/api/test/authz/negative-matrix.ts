@@ -1648,6 +1648,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/compensation-payments/${t.planId}/deposit`, ifMatch: '"1"', body: { deposit_reason: REASON, voucher_document_version_id: t.documentVersionId, paid_on: '2026-10-20' } }),
   },
+  fileLandComplaint: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/land-complaints', body: { project_id: t.projectId, household_id: t.householdId, owner_unit_id: t.unit2, channel: 'LETTER', subject: 'PRICE', description: REASON, filed_on: '2026-10-20' } }),
+  },
+  resolveLandComplaint: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/land-complaints/${t.planId}/resolve`, ifMatch: '"1"', body: { outcome: 'ESCALATED', resolved_on: '2026-10-20', note: REASON } }),
+  },
   recordInventory: {
     referencesTenantIds: true,
     build: (t) => ({
