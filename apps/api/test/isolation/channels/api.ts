@@ -184,6 +184,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'post_reports_id_submit', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'post_reports_id_decision', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision', evidence_ids: [] } },
   { operation: 'post_reports_id_corrections', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: { amendment_reason: 'Isolation foreign correction' } },
+  { operation: 'withdrawReport', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign withdrawal attempt.' } },
+  { operation: 'deleteDraftReport', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign deletion' } },
+  { operation: 'restoreDraftReport', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   {
     operation: 'post_reports_id_revisions',
     method: 'POST',

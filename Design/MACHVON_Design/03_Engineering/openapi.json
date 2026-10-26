@@ -7285,6 +7285,15 @@
             }
           },
           {
+            "name": "deleted",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "true lists the drafts that were deleted and can still be restored (within 30 days of the deletion) instead of the reports that stand."
+          },
+          {
             "name": "cursor",
             "in": "query",
             "schema": {
@@ -37029,6 +37038,7 @@
         "x-error-codes": [
           "REPORT_STATE_INVALID",
           "PERIOD_LOCKED",
+          "VALIDATION_FAILED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -37178,6 +37188,7 @@
         },
         "x-error-codes": [
           "REPORT_NOT_EDITABLE",
+          "VALIDATION_FAILED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -37324,7 +37335,10 @@
         },
         "x-error-codes": [
           "RESTORE_WINDOW_EXPIRED",
-          "SCOPE_DENIED"
+          "REPORT_STATE_INVALID",
+          "SCOPE_DENIED",
+          "VERSION_CONFLICT",
+          "DRAFT_EXISTS"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
       }
@@ -127592,10 +127606,10 @@
         "properties": {
           "reason": {
             "type": "string",
-            "minLength": 20,
             "maxLength": 2000
           }
-        }
+        },
+        "description": "Why a report that was handed in is taken back: words, at least 20 characters. The length is judged by the command (422 VALIDATION_FAILED naming reason), not by the schema, so that every refusal of it has the same code."
       },
       "DisImportRequest": {
         "type": "object",

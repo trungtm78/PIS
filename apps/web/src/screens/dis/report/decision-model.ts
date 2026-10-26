@@ -16,8 +16,8 @@ type Mode = 'FULL' | 'READ_ONLY' | undefined;
 
 /** The statuses a reviewer approves or returns a report in, and the one a reviewer asks an accepted report to be amended in. */
 const DECIDABLE: readonly ReportStatus[] = ['SUBMITTED', 'UNDER_REVIEW'];
-/** The statuses a correction starts from. */
-const CORRECTABLE: readonly ReportStatus[] = ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED'];
+/** The statuses a correction starts from; a withdrawn report is one, so that the period is reported again from it (ST-DIS-007). */
+const CORRECTABLE: readonly ReportStatus[] = ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED', 'WITHDRAWN'];
 
 const allowed = (permissions: readonly string[] | undefined, permission: string, mode: Mode): boolean => (permissions === undefined || permissions.includes(permission)) && mode !== 'READ_ONLY';
 
@@ -48,6 +48,8 @@ export interface DecisionProblems {
 }
 
 const REASON_MAX = 2000;
+/** The length of a text in characters, as the database counts them (an emoji is one). */
+const characters = (value: string): number => [...value].length;
 const ITEM_MIN = 3;
 const ITEM_MAX = 2000;
 const ITEMS_MAX = 20;
@@ -64,13 +66,13 @@ export function validateDecision(form: DecisionForm, today: Date): DecisionProbl
   const problems: DecisionProblems = {};
   const reason = form.reason.trim();
   if (reason === '') problems.reason = 'required';
-  else if (reason.length > REASON_MAX) problems.reason = 'tooLong';
+  else if (characters(reason) > REASON_MAX) problems.reason = 'tooLong';
   if (form.kind === 'approve') return problems;
   const items = itemsOf(form.items);
   if (items.length === 0 && form.kind === 'return') problems.items = 'required';
   else if (items.length > ITEMS_MAX) problems.items = 'tooMany';
-  else if (items.some((item) => item.length < ITEM_MIN)) problems.items = 'itemTooShort';
-  else if (items.some((item) => item.length > ITEM_MAX)) problems.items = 'itemTooLong';
+  else if (items.some((item) => characters(item) < ITEM_MIN)) problems.items = 'itemTooShort';
+  else if (items.some((item) => characters(item) > ITEM_MAX)) problems.items = 'itemTooLong';
   if (form.dueOn === '') {
     if (form.kind === 'return') problems.dueOn = 'dueRequired';
   } else if (!isRealDay(form.dueOn) || endOfDay(form.dueOn) <= today.getTime()) problems.dueOn = 'dueInvalid';
@@ -112,8 +114,8 @@ export type ReasonProblem = 'required' | 'tooShort' | 'tooLong';
 export function validateReason(reason: string): ReasonProblem | undefined {
   const words = reason.trim();
   if (words === '') return 'required';
-  if (words.length < AMENDMENT_MIN) return 'tooShort';
-  return words.length > REASON_MAX ? 'tooLong' : undefined;
+  if (characters(words) < AMENDMENT_MIN) return 'tooShort';
+  return characters(words) > REASON_MAX ? 'tooLong' : undefined;
 }
 
 /** The request of a correction: the reason, and only the cells that changed (the others stay as they were), the explanation of a fall when given. */

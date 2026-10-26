@@ -838,6 +838,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/corrections`, ifMatch: '"1"', body: { amendment_reason: 'The Treasury corrected a payment.' } }),
   },
+  withdrawReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/withdrawal`, ifMatch: '"1"', body: { reason: 'The wrong period was reported by mistake.' } }),
+  },
+  deleteDraftReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/draft-deletion`, ifMatch: '"1"', body: { reason: 'Started in the wrong week.' } }),
+  },
+  restoreDraftReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/draft-restore`, ifMatch: '"1"', body: {} }),
+  },
   requestPeriodReopen: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodLockedId}/reopen-requests`, body: { scope_kind: 'PERIOD', reason: 'Matrix request to reopen the locked period', window_hours: 24 } }),

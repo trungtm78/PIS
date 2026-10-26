@@ -9,6 +9,7 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
 import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
+import { ReportLifecycleController } from '../../src/modules/dis/report-lifecycle.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
 import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
 import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
@@ -69,6 +70,8 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
   let app: RunningApp;
   let root: string;
   const now = new Date('2026-12-15T00:00:00Z');
+  /** The clock of the module: the day of the tests, moved for the ones that judge the window of a restore. */
+  let clockNow = now;
   const counted: Array<{ name: string; labels: Record<string, string> | undefined }> = [];
   let counter = 0;
   let weeks: string[] = [];
@@ -184,11 +187,11 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
     }
     for (const n of [MAKER, REVIEWER, READER, ELSEWHERE_REVIEWER, OTHER_MAKER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MAKER, ROOT);
-    await harness.seedRole(TENANT_A, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_A, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.withdraw', 'report.read', 'report_revision.read'], 30);
     await harness.seedRole(TENANT_A, 2, 'DIS_REVIEWER', ['report.review', 'report.read', 'report_revision.read'], 25);
     await harness.seedRole(TENANT_A, 3, 'DIS_READER', ['report.read', 'report_revision.read'], 20);
-    await harness.seedRole(TENANT_A, 4, 'DIS_MAKER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.read', 'report_revision.read'], 30);
-    await harness.seedRole(TENANT_B, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_A, 4, 'DIS_MAKER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.withdraw', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_B, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.withdraw', 'report.read', 'report_revision.read'], 30);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MAKER, role: 1, kind: 'TENANT' },
       { n: 2, member: REVIEWER, role: 2, kind: 'TENANT' },
@@ -228,11 +231,11 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController],
+      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController, ReportLifecycleController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
-        { provide: DIS_CLOCK, useValue: () => now },
+        { provide: DIS_CLOCK, useValue: () => clockNow },
         { provide: DIS_METRICS, useValue: { increment: (name: string, labels?: Record<string, string>) => void counted.push({ name, labels }), gauge: () => undefined } },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
@@ -247,6 +250,7 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
 
   it('serves the controller of the decision in the module of DIS', () => {
     expect(disModule.controllers).toContain(ReportDecisionController);
+    expect(disModule.controllers).toContain(ReportLifecycleController);
   });
 
   describe('post_reports_id_decision', () => {
@@ -467,6 +471,155 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
       expect(first.status).toBe(200);
       expect(again.json).toEqual(first.json);
       expect(await rows('select id from machvon.report_revision where supersedes_id = $1', [reportId])).toHaveLength(1);
+    });
+  });
+
+  describe('withdrawReport', () => {
+    const withdraw = (reportId: string, version: number, body: Record<string, unknown>, member = MAKER, options: Partial<CallOptions> = {}): Promise<Reply> =>
+      call('POST', `/reports/${reportId}/withdrawal`, { member, body, ifMatch: `"${version}"`, ...options });
+    const REASON_OK = 'The wrong period was reported by mistake.';
+
+    it('AC-ST-DIS-007-3 / UAT-AC259: a reason under 20 characters is 422 on reason, then a valid one makes the report WITHDRAWN, with the audit row, one event and the count after commit', async () => {
+      const { reportId } = await submitted();
+      counted.length = 0;
+      expect(await withdraw(reportId, 2, { reason: 'too short a reason' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'reason' } });
+      // A request with no reason at all is not one the schema takes.
+      expect(await withdraw(reportId, 2, {})).toMatchObject({ status: 400, json: { code: 'INVALID_REQUEST' } });
+      expect(await state(reportId)).toMatchObject({ status: 'SUBMITTED', version: '2' });
+      const done = await withdraw(reportId, 2, { reason: `  ${REASON_OK}  ` });
+      expect(done).toMatchObject({ status: 200, json: { status: 'WITHDRAWN', resource_version: 3, resource_id: reportId } });
+      expect(await state(reportId)).toMatchObject({ status: 'WITHDRAWN', is_current: false });
+      const found = (await read(reportId)).json;
+      expect(found).toMatchObject({ status: 'WITHDRAWN', withdrawn_by: memberId(MAKER), withdrawn_reason: REASON_OK });
+      const raised = await events(reportId, 'report.withdrawn.v1');
+      expect(raised).toHaveLength(1);
+      expect(raised[0]?.payload).toMatchObject({ report_id: reportId, revision: 1, reason: REASON_OK, submitted_by: memberId(MAKER), cumulative_vnd: '420000000' });
+      const entry = (await trail(reportId)).find((row) => row.action === 'dis.report_withdrawn');
+      expect(entry?.safe_diff).toMatchObject({ previous_status: 'SUBMITTED', reason_length: REASON_OK.length, revision: 1, version: 3 });
+      expect(JSON.stringify(entry?.safe_diff)).not.toContain('wrong period');
+      expect(counted).toContainEqual({ name: 'dis_report_withdrawal_total', labels: {} });
+    });
+
+    it('AC-ST-DIS-007-3: a report under review, a draft and a report that was decided on are 409 REPORT_STATE_INVALID, a locked period is 409 PERIOD_LOCKED, and nothing changes', async () => {
+      const reviewing = await submitted();
+      await rows("update machvon.report_revision set status = 'UNDER_REVIEW' where id = $1", [reviewing.reportId]);
+      expect(await withdraw(reviewing.reportId, 2, { reason: REASON_OK })).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_status: 'UNDER_REVIEW' } });
+      const accepted = await submitted();
+      await approve(accepted.reportId, 2);
+      expect(await withdraw(accepted.reportId, 3, { reason: REASON_OK })).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_status: 'ACCEPTED' } });
+      const { projectId, planId } = await seedProject();
+      const made = await create(draft(projectId, week(), planId));
+      expect(await withdraw(idOf(made), 1, { reason: REASON_OK })).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_status: 'DRAFT' } });
+      const locked = await submitted();
+      await lockPeriod(locked.period);
+      expect(await withdraw(locked.reportId, 2, { reason: REASON_OK })).toMatchObject({ status: 409, json: { code: 'PERIOD_LOCKED' } });
+      expect(await state(locked.reportId)).toMatchObject({ status: 'SUBMITTED', version: '2' });
+      expect(await events(locked.reportId, 'report.withdrawn.v1')).toEqual([]);
+    });
+
+    it('lets the maker report the period again: a correction of the withdrawn report is the next revision, a draft', async () => {
+      const { reportId } = await submitted();
+      await withdraw(reportId, 2, { reason: REASON_OK });
+      const made = await correct(reportId, 3, { amendment_reason: 'The right period is reported now.' });
+      expect(made).toMatchObject({ status: 200, json: { status: 'DRAFT' } });
+      expect(await state(idOf(made))).toMatchObject({ revision: 2, status: 'DRAFT', supersedes_id: reportId });
+    });
+
+    it('is for the maker who may withdraw on the project: a reviewer and a reader are 403, another tenant is 404; the key answers once', async () => {
+      const { reportId } = await submitted();
+      expect((await withdraw(reportId, 2, { reason: REASON_OK }, REVIEWER)).status).toBe(403);
+      expect((await withdraw(reportId, 2, { reason: REASON_OK }, READER)).status).toBe(403);
+      expect((await withdraw(reportId, 2, { reason: REASON_OK }, MAKER, { tenantId: TENANT_B })).status).toBe(404);
+      expect((await withdraw(reportId, 7, { reason: REASON_OK })).json).toMatchObject({ code: 'VERSION_CONFLICT', current_version: 2 });
+      const key = `key-${randomUUID()}`;
+      const first = await withdraw(reportId, 2, { reason: REASON_OK }, OTHER_MAKER, { key });
+      const again = await withdraw(reportId, 2, { reason: REASON_OK }, OTHER_MAKER, { key });
+      expect(first.status).toBe(200);
+      expect(again.json).toEqual(first.json);
+      expect(await events(reportId, 'report.withdrawn.v1')).toHaveLength(1);
+    });
+  });
+
+  describe('deleteDraftReport and restoreDraftReport', () => {
+    const remove = (reportId: string, version: number, body: Record<string, unknown> = { reason: 'Started in the wrong week.' }, member = MAKER): Promise<Reply> =>
+      call('POST', `/reports/${reportId}/draft-deletion`, { member, body, ifMatch: `"${version}"` });
+    const restore = (reportId: string, version: number, member = MAKER, options: Partial<CallOptions> = {}): Promise<Reply> => call('POST', `/reports/${reportId}/draft-restore`, { member, body: {}, ifMatch: `"${version}"`, ...options });
+    const listOf = async (query: string, member = MAKER): Promise<string[]> => ((await call('GET', `/resources/report_revision?${query}`, { member })).json.items as Array<{ id: string }>).map((row) => row.id);
+    const aDraft = async () => {
+      const { projectId, planId } = await seedProject();
+      const made = await create(draft(projectId, week(), planId));
+      return { reportId: idOf(made), projectId };
+    };
+
+    it('AC-ST-DIS-007-1 / UAT-AC259: deletes a draft with a reason, lists it apart while it can be restored, restores it, and a report that was handed in is 409 REPORT_NOT_EDITABLE', async () => {
+      const { reportId, projectId } = await aDraft();
+      // The list of the drafts that can be restored runs on the clock of the database, so the deletion is dated by the real day.
+      clockNow = new Date();
+      const deleted = await remove(reportId, 1);
+      expect(deleted).toMatchObject({ status: 200, json: { status: 'DRAFT', resource_version: 2, resource_id: reportId } });
+      expect(await listOf(`project_id=${projectId}`)).toEqual([]);
+      expect(await listOf(`project_id=${projectId}&deleted=true`)).toEqual([reportId]);
+      const found = (await read(reportId)).json;
+      expect(found).toMatchObject({ deleted: true, deleted_reason: 'Started in the wrong week.', version: 2 });
+      expect(found.deleted_at).toBe(clockNow.toISOString());
+      expect((await trail(reportId)).find((row) => row.action === 'dis.report_draft_deleted')?.safe_diff).toMatchObject({ reason_length: 'Started in the wrong week.'.length, version: 2 });
+      expect(await restore(reportId, 2)).toMatchObject({ status: 200, json: { status: 'DRAFT', resource_version: 3 } });
+      expect(await listOf(`project_id=${projectId}`)).toEqual([reportId]);
+      expect(await listOf(`project_id=${projectId}&deleted=true`)).toEqual([]);
+      expect((await read(reportId)).json).toMatchObject({ deleted: false, deleted_at: null });
+      const handedIn = await submitted();
+      expect(await remove(handedIn.reportId, 2)).toMatchObject({ status: 409, json: { code: 'REPORT_NOT_EDITABLE', report_status: 'SUBMITTED' } });
+      expect(await remove(reportId, 3, { reason: 'no' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'reason' } });
+      expect(await remove(reportId, 3, { reason: '     ' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'reason' } });
+      clockNow = now;
+    });
+
+    it('AC-ST-DIS-007-2 / UAT-PLAN-68: after 30 days the restore is 422 RESTORE_WINDOW_EXPIRED and the draft stays deleted; on the last day it is restored', async () => {
+      const first = await aDraft();
+      const second = await aDraft();
+      const deletedAt = clockNow;
+      await remove(first.reportId, 1);
+      await remove(second.reportId, 1);
+      try {
+        clockNow = new Date(deletedAt.getTime() + 30 * 86_400_000);
+        expect(await restore(second.reportId, 2)).toMatchObject({ status: 200, json: { resource_version: 3 } });
+        clockNow = new Date(deletedAt.getTime() + 30 * 86_400_000 + 1000);
+        expect(await restore(first.reportId, 2)).toMatchObject({ status: 422, json: { code: 'RESTORE_WINDOW_EXPIRED' } });
+        expect(await state(first.reportId)).toMatchObject({ status: 'DRAFT', version: '2' });
+        expect((await read(first.reportId)).json).toMatchObject({ deleted: true });
+      } finally {
+        clockNow = now;
+      }
+    });
+
+    it('AC-ST-DIS-007-2: the restore judges the permission of the caller now: a person who may only read or review is 403 wherever they sit, another tenant is 404, a stale version is 409', async () => {
+      const { reportId } = await aDraft();
+      await remove(reportId, 1);
+      expect((await restore(reportId, 2, READER)).status).toBe(403);
+      expect((await restore(reportId, 2, REVIEWER)).status).toBe(403);
+      expect((await restore(reportId, 2, ELSEWHERE_REVIEWER)).status).toBe(403);
+      expect((await restore(reportId, 2, MAKER, { tenantId: TENANT_B })).status).toBe(404);
+      expect((await restore(reportId, 9)).json).toMatchObject({ code: 'VERSION_CONFLICT', current_version: 2 });
+      expect(await restore(randomUUID(), 1)).toMatchObject({ status: 404 });
+      expect((await read(reportId)).json).toMatchObject({ deleted: true });
+    });
+
+    it('does not restore what was not deleted (409 REPORT_STATE_INVALID), and does not delete a draft twice (409 REPORT_NOT_EDITABLE)', async () => {
+      const { reportId } = await aDraft();
+      expect(await restore(reportId, 1)).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID' } });
+      await remove(reportId, 1);
+      expect(await remove(reportId, 2)).toMatchObject({ status: 409, json: { code: 'REPORT_NOT_EDITABLE' } });
+      expect(await save(reportId, draft(randomUUID(), randomUUID(), randomUUID()), 2)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
+    });
+
+    it('answers the same key with the same answer and changes nothing twice', async () => {
+      const { reportId } = await aDraft();
+      const key = `key-${randomUUID()}`;
+      const first = await call('POST', `/reports/${reportId}/draft-deletion`, { member: MAKER, body: { reason: 'Started in the wrong week.' }, ifMatch: '"1"', key });
+      const again = await call('POST', `/reports/${reportId}/draft-deletion`, { member: MAKER, body: { reason: 'Started in the wrong week.' }, ifMatch: '"1"', key });
+      expect(first.status).toBe(200);
+      expect(again.json).toEqual(first.json);
+      expect((await trail(reportId)).filter((row) => row.action === 'dis.report_draft_deleted')).toHaveLength(1);
     });
   });
 });

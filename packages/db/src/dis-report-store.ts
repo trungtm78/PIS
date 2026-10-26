@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, FUNDING_CELLS, assertFourEyes, decisionOutcome, deltaOf, draftHash, fundingTotals, versionConflict } from '@machvon/kernel';
+import { DomainError, FUNDING_CELLS, RESTORE_WINDOW_DAYS, assertFourEyes, decisionOutcome, deleteRefusal, deltaOf, draftHash, fundingTotals, restoreRefusal, versionConflict, withdrawRefusal } from '@machvon/kernel';
 import type { AttachmentRef, DecisionInput, BudgetLevel, FundingBucket, FundingInput, FundingTotals, MeasurementBasis, NarrativeInput, ProgressInput, ReportType, RevisionStatus } from '@machvon/kernel';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
@@ -12,6 +12,8 @@ export const REPORT_RESOURCE = 'report_revision';
 export const DIS_DECISION_METRIC = 'dis_report_decision_total';
 export const decisionLabels = (outcome: string): { decision: string } => ({ decision: outcome });
 export const DIS_CORRECTION_METRIC = 'dis_report_correction_total';
+/** The metric of a report that was taken back by its maker. */
+export const DIS_WITHDRAWAL_METRIC = 'dis_report_withdrawal_total';
 
 const NOT_FOUND = (): DomainError => new DomainError('RESOURCE_NOT_FOUND', 404);
 const cellKey = (bucket: string, level: string): string => `${bucket}/${level}`;
@@ -77,10 +79,17 @@ export interface RevisionHead {
   /** The revision this one corrects, and why (revision 2 and after). */
   supersedesId: string | null;
   amendmentReason: string | null;
+  /** Who took the report back, when and why (WITHDRAWN). */
+  withdrawnBy: string | null;
+  withdrawnAt: string | null;
+  withdrawnReason: string | null;
   payloadHash: string;
   negativeDeltaExplanation: string | null;
   clientOperationId: string | null;
   deleted: boolean;
+  /** When and why a draft was deleted (soft); restored within the window of the restore. */
+  deletedAt: string | null;
+  deletedReason: string | null;
   createdAt: string;
   createdBy: string;
   updatedAt: string;
@@ -162,6 +171,8 @@ export interface ReportFilter {
   projectId?: string | undefined;
   status?: string | undefined;
   reportType?: string | undefined;
+  /** The drafts that were deleted and can still be restored, instead of the reports that stand. */
+  deleted?: boolean | undefined;
 }
 
 /** A figure of the list with the words that say what it is a total of (SRC-01/02: a filtered table and the whole scope are not the same number). */
@@ -240,10 +251,15 @@ interface HeadSql {
   returned_reason: string | null;
   supersedes_id: string | null;
   amendment_reason: string | null;
+  withdrawn_by: string | null;
+  withdrawn_at: string | null;
+  withdrawn_reason: string | null;
   payload_hash: string;
   negative_delta_explanation: string | null;
   client_operation_id: string | null;
   deleted: boolean;
+  deleted_at: string | null;
+  deleted_reason: string | null;
   created_at: string;
   created_by: string;
   updated_at: string;
@@ -251,7 +267,8 @@ interface HeadSql {
 }
 
 const HEAD_COLUMNS = `r.id, r.project_id, r.period_id, r.plan_version_id, r.revision, r.status, r.is_current, r.version::text as version, r.report_type, r.measurement_basis, r.is_late,
-  ${iso('r.submitted_at')} as submitted_at, r.submitted_by, ${iso('r.accepted_at')} as accepted_at, r.accepted_by, r.returned_reason, r.supersedes_id, r.amendment_reason, r.payload_hash, r.negative_delta_explanation, r.client_operation_id, (r.deleted_at is not null) as deleted,
+  ${iso('r.submitted_at')} as submitted_at, r.submitted_by, ${iso('r.accepted_at')} as accepted_at, r.accepted_by, r.returned_reason, r.supersedes_id, r.amendment_reason, r.withdrawn_by, ${iso('r.withdrawn_at')} as withdrawn_at, r.withdrawn_reason, r.payload_hash, r.negative_delta_explanation, r.client_operation_id, (r.deleted_at is not null) as deleted,
+  ${iso('r.deleted_at')} as deleted_at, r.deleted_reason,
   ${iso('r.created_at')} as created_at, r.created_by, ${iso('r.updated_at')} as updated_at, r.updated_by`;
 
 const toHead = (row: HeadSql): RevisionHead => ({
@@ -273,10 +290,15 @@ const toHead = (row: HeadSql): RevisionHead => ({
   returnedReason: row.returned_reason,
   supersedesId: row.supersedes_id,
   amendmentReason: row.amendment_reason,
+  withdrawnBy: row.withdrawn_by,
+  withdrawnAt: row.withdrawn_at,
+  withdrawnReason: row.withdrawn_reason,
   payloadHash: row.payload_hash,
   negativeDeltaExplanation: row.negative_delta_explanation,
   clientOperationId: row.client_operation_id,
   deleted: row.deleted,
+  deletedAt: row.deleted_at,
+  deletedReason: row.deleted_reason,
   createdAt: row.created_at,
   createdBy: row.created_by,
   updatedAt: row.updated_at,
@@ -744,6 +766,53 @@ export class DisReportStore {
     return { version: Number(updated.version), supersededId, decisionId };
   }
 
+  /**
+   * Takes back a report that was handed in and is not being reviewed (ST-DIS-007, DIS 3 F3): WITHDRAWN with who, when and why, the version moves once. The table keeps the graph (a report under
+   * review, or one that was decided on, cannot move to it) and the three facts together with the status.
+   */
+  async withdraw(tx: TenantTx, head: RevisionHead, reason: string, actor: string, at: Date): Promise<{ version: number }> {
+    const refusal = withdrawRefusal(head.status, head.deleted);
+    if (refusal !== undefined) throw refusal;
+    const [updated] = await tx.query<{ version: string }>(
+      `update machvon.report_revision
+          set status = 'WITHDRAWN', withdrawn_by = $2::uuid, withdrawn_at = $3::timestamptz, withdrawn_reason = $4, updated_at = now(), updated_by = $2::uuid, version = version + 1
+        where id = $1::uuid and status = 'SUBMITTED' and deleted_at is null returning version::text as version`,
+      [head.id, actor, at.toISOString(), reason],
+    );
+    if (updated === undefined) throw new DomainError('REPORT_STATE_INVALID', 409, 'status', { extensions: { report_status: head.status } });
+    return { version: Number(updated.version) };
+  }
+
+  /** Deletes a draft softly, with the reason and the instant (409 `REPORT_NOT_EDITABLE` for anything that was handed in): it leaves the lists and is restored within the window. */
+  async softDelete(tx: TenantTx, head: RevisionHead, reason: string, actor: string, at: Date): Promise<{ version: number }> {
+    const refusal = deleteRefusal(head.status, head.deleted);
+    if (refusal !== undefined) throw refusal;
+    const [updated] = await tx.query<{ version: string }>(
+      `update machvon.report_revision
+          set deleted_at = $3::timestamptz, deleted_reason = $4, updated_at = now(), updated_by = $2::uuid, version = version + 1
+        where id = $1::uuid and status = 'DRAFT' and deleted_at is null returning version::text as version`,
+      [head.id, actor, at.toISOString(), reason],
+    );
+    if (updated === undefined) throw new DomainError('REPORT_NOT_EDITABLE', 409, 'status', { extensions: { report_status: head.status } });
+    return { version: Number(updated.version) };
+  }
+
+  /** Brings back a draft that was deleted, within the window of the restore (422 `RESTORE_WINDOW_EXPIRED` after it); the draft is as it was. */
+  async restore(tx: TenantTx, head: RevisionHead, actor: string, now: Date): Promise<{ version: number }> {
+    const refusal = restoreRefusal(head, now);
+    if (refusal !== undefined) throw refusal;
+    const [updated] = await withUniqueClaim(tx, { constraint: 'report_revision_draft_uq', code: 'DRAFT_EXISTS' }, () =>
+      tx.query<{ version: string }>(
+        `update machvon.report_revision
+            set deleted_at = null, deleted_reason = null, updated_at = now(), updated_by = $2::uuid, version = version + 1
+          where id = $1::uuid and status = 'DRAFT' and deleted_at is not null returning version::text as version`,
+        [head.id, actor],
+      ),
+    );
+    if (updated === undefined) throw new DomainError('REPORT_STATE_INVALID', 409, 'status', { extensions: { report_status: head.status } });
+    return { version: Number(updated.version) };
+  }
+
   /** The decisions taken on a report, the first first. */
   async decisionsOf(tx: TenantTx, reportId: string): Promise<DecisionRow[]> {
     const rows = await tx.query<{ id: string; decision: DecisionRow['decision']; reason: string; evidence_ids: string[]; return_items: string[]; due_at: string | null; decided_by: string; decided_at: string }>(
@@ -859,7 +928,7 @@ export class DisReportStore {
 
   /** The reports in the scope of the caller, newest first; the cursor is the instant the report was made and its id. */
   async list(tx: TenantTx, scope: ScopeBuilder, filter: ReportFilter, request: { limit: number; after: { createdAt: string; id: string } | undefined }): Promise<RevisionLine[]> {
-    const predicate = scope(11);
+    const predicate = scope(12);
     const rows = await tx.query<{
       id: string;
       project_id: string;
@@ -888,7 +957,7 @@ export class DisReportStore {
               ${iso('r.created_at')} as created_at, ${iso('r.updated_at')} as updated_at
          from ${REPORT_FROM}
          join machvon.reporting_period rp on rp.tenant_id = r.tenant_id and rp.id = r.period_id
-        where r.deleted_at is null and ($1::timestamptz is null or (r.created_at, r.id) < ($1::timestamptz, $2::uuid))
+        where ($1::timestamptz is null or (r.created_at, r.id) < ($1::timestamptz, $2::uuid))
           and ${filterSql(4)} and ${predicate.sql}
         order by r.created_at desc, r.id desc limit $3`,
       [request.after?.createdAt ?? null, request.after?.id ?? null, request.limit, ...filterParams(filter), ...predicate.params],
@@ -915,14 +984,14 @@ export class DisReportStore {
    * reports are counted whatever page is shown; the totals of two filters are two figures, and the screen says which filter each belongs to.
    */
   async kpi(tx: TenantTx, scope: ScopeBuilder, filter: ReportFilter): Promise<ReportKpi> {
-    const predicate = scope(8);
+    const predicate = scope(9);
     const [row] = await tx.query<{ reports: string; projects: string; cumulative: string; ctmtqg: string }>(
       `select count(*)::text as reports, count(distinct r.project_id)::text as projects,
               coalesce(sum((select sum(l.disbursed_cumulative_vnd) from machvon.funding_snapshot_line l where l.tenant_id = r.tenant_id and l.report_revision_id = r.id)), 0)::text as cumulative,
               coalesce(sum((select sum(l.ctmtqg_subset_vnd) from machvon.funding_snapshot_line l where l.tenant_id = r.tenant_id and l.report_revision_id = r.id)), 0)::text as ctmtqg
          from ${REPORT_FROM}
          join machvon.reporting_period rp on rp.tenant_id = r.tenant_id and rp.id = r.period_id
-        where r.deleted_at is null and ${filterSql(1)} and ${predicate.sql}`,
+        where ${filterSql(1)} and ${predicate.sql}`,
       [...filterParams(filter), ...predicate.params],
     );
     const found = row as { reports: string; projects: string; cumulative: string; ctmtqg: string };
@@ -930,7 +999,10 @@ export class DisReportStore {
   }
 }
 
-/** The seven filters of the list as conditions over seven consecutive parameters from `first`: a filter that is not given lets everything through. */
+/**
+ * The filters of the list as conditions over eight consecutive parameters from `first`: a filter that is not given lets everything through. The last one tells what is listed: the reports that stand (the
+ * default: a draft that was deleted is not among them) or the drafts that were deleted and can still be restored.
+ */
 function filterSql(first: number): string {
   const at = (offset: number): string => '$' + String(first + offset);
   return [
@@ -941,6 +1013,7 @@ function filterSql(first: number): string {
     `(${at(4)}::text is null or r.status = ${at(4)}::text)`,
     `(${at(5)}::text is null or r.report_type = ${at(5)}::text)`,
     `(${at(6)}::uuid is null or exists (select 1 from machvon.plan_version pv where pv.tenant_id = r.tenant_id and pv.id = r.plan_version_id and pv.capital_plan_id = ${at(6)}::uuid))`,
+    `(case when ${at(7)}::boolean then r.deleted_at is not null and r.deleted_at > now() - make_interval(days => ${RESTORE_WINDOW_DAYS}) else r.deleted_at is null end)`,
   ].join(' and ');
 }
 
@@ -952,4 +1025,5 @@ const filterParams = (filter: ReportFilter): unknown[] => [
   filter.status ?? null,
   filter.reportType ?? null,
   filter.planId ?? null,
+  filter.deleted === true,
 ];

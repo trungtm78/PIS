@@ -9,6 +9,7 @@ import type { ProjectOption } from '../model';
 import { toAttachment } from './detail-parts';
 import type { Attachment } from './detail-parts';
 import type { CorrectionBody, DecisionBody } from './decision-model';
+import { reasonBody } from './lifecycle-model';
 import { createBody, queryOf, saveBody, toReportDetail, toReportLine, toReportPage } from './model';
 import type { Basis, FilterState, FundingForm, ReportDetail, ReportDraftBody, ReportLine, ReportPage } from './model';
 
@@ -187,6 +188,41 @@ export function useRevisionsOf(projectId: string | undefined, periodId: string |
       return all.flatMap((raw) => toReportLine(raw) ?? []).sort((a, b) => a.revision - b.revision);
     },
     enabled: tenant !== undefined && projectId !== undefined && periodId !== undefined,
+    retry: false,
+  });
+}
+
+export interface RemovalInput {
+  detail: ReportDetail;
+  reason: string;
+}
+
+/** A maker takes back a report that was handed in and is not being reviewed (DIS-09). */
+export function useWithdraw() {
+  const client = useApiClient();
+  return useCommand<RemovalInput>((input, attempt) => client.command('withdrawReport', { path: { id: input.detail.id }, body: reasonBody(input.reason), ifMatchVersion: input.detail.version, attempt }));
+}
+
+/** A draft is deleted softly, with the reason (DIS-09). */
+export function useDeleteDraft() {
+  const client = useApiClient();
+  return useCommand<RemovalInput>((input, attempt) => client.command('deleteDraftReport', { path: { id: input.detail.id }, body: reasonBody(input.reason), ifMatchVersion: input.detail.version, attempt }));
+}
+
+/** A draft that was deleted is brought back within the window; the server judges the permission of the person now. */
+export function useRestoreDraft() {
+  const client = useApiClient();
+  return useCommand<{ detail: ReportDetail }>((input, attempt) => client.command('restoreDraftReport', { path: { id: input.detail.id }, ifMatchVersion: input.detail.version, attempt }));
+}
+
+/** The drafts that were deleted and can still be restored, what DIS-01 offers apart from the reports that stand. */
+export function useDeletedDrafts(enabled: boolean) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ReportLine[]>({
+    queryKey: [...root(tenant?.id), 'deleted'],
+    queryFn: async () => (await client.readAll('get_resources_report_revision', { query: { deleted: true } })).flatMap((raw) => toReportLine(raw) ?? []),
+    enabled: tenant !== undefined && enabled,
     retry: false,
   });
 }

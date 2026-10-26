@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import ReportDetailScreen from './ReportDetailScreen';
-import { CORRECTOR, MAKER, READER, REPORT, REVIEWER, client, fileRecord, mount, progressRecord, reportRecord, routeOf, world } from './test-support';
+import { CORRECTOR, MAKER, READER, REPORT, REVIEWER, WITHDRAWER, client, fileRecord, mount, progressRecord, reportRecord, routeOf, world } from './test-support';
 
 const ROUTE = routeOf('DIS-07', 'FR-DIS-07');
 const PATH = `/dis/dis-07?report=${REPORT}`;
@@ -152,6 +152,19 @@ describe('DIS-07 report detail and the decision of the reviewer', () => {
     await user.click(within(form).getByRole('button', { name: vi_['dis.reportDecision.submit.action'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     expect(bodyOf(h).body).toEqual({ decision: 'request_amendment', reason: 'The Treasury corrected a payment.', evidence_ids: [] });
+  });
+
+  it('AC-ST-DIS-007-3: leads the maker who may withdraw to the confirmation, for a report that was handed in and for no other', async () => {
+    open(submitted(), { permissions: WITHDRAWER });
+    expect((await screen.findByTestId('withdraw-link')).getAttribute('href')).toBe(`/dis/dis-09?report=${REPORT}`);
+    cleanup();
+    open(submitted(), { permissions: MAKER });
+    await screen.findByTestId('detail-total');
+    expect(screen.queryByTestId('withdraw-link')).toBeNull();
+    cleanup();
+    open(reportRecord({ status: 'ACCEPTED', is_current: true, review: null }), { permissions: WITHDRAWER });
+    await screen.findByTestId('detail-total');
+    expect(screen.queryByTestId('withdraw-link')).toBeNull();
   });
 
   it('says which revision a correction corrects and why, with the way to the history', async () => {

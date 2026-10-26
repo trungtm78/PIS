@@ -34,6 +34,19 @@ const pick = (name = 'scan.pdf'): void => {
 const bodyOf = (h: { command: { mock: { calls: unknown[][] } } }, call = 0) => (h.command.mock.calls[call]?.[1] as { body: Record<string, unknown>; ifMatchVersion: number }).body;
 
 describe('DIS-06 review and send', () => {
+  it('AC-ST-DIS-007-1: leads a person who may edit to the confirmation that deletes the draft, and shows it for no report that was handed in', async () => {
+    open();
+    expect((await screen.findByTestId('delete-link')).getAttribute('href')).toBe(`/dis/dis-09?report=${REPORT}`);
+    cleanup();
+    open(reportRecord({ status: 'SUBMITTED', review: null }));
+    await screen.findByTestId('review-status');
+    expect(screen.queryByTestId('delete-link')).toBeNull();
+    cleanup();
+    open(reportRecord(), { permissions: READER });
+    await screen.findByTestId('review-status');
+    expect(screen.queryByTestId('delete-link')).toBeNull();
+  });
+
   it('AC-ST-DIS-004-2: tells every error and every warning at once, each with its figures and the step where it is put right, and blocks while there is an error', async () => {
     open(
       reportRecord({

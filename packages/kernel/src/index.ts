@@ -630,3 +630,4 @@ export { TREASURY_GAP_THRESHOLD_PCT, WARNING_CODES, percentOf, reviewReport, sub
 export type { Review, ReviewCell, ReviewFinding, ReviewInput, ReviewSeverity } from './dis-review.ts';
 export { DECISIONS, DECISION_LIMITS, STATUS_AFTER, correctionOf, correctionSourceRefusal, decisionOf, decisionOutcome } from './dis-decision.ts';
 export type { ReportDecision, DecisionInput, RawCorrection, RawDecision } from './dis-decision.ts';
+export { DELETION_REASON_MIN, LIFECYCLE_REASON_MAX, charactersOf, RESTORE_WINDOW_DAYS, WITHDRAWAL_REASON_MIN, deleteRefusal, deletionOf, restoreDeadline, restoreRefusal, withdrawRefusal, withdrawalOf } from './dis-lifecycle.ts';

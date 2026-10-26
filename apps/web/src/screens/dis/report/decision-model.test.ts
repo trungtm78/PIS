@@ -44,9 +44,9 @@ describe('who may decide and correct (the server decides again)', () => {
     expect(canAskAmendment(['report.read'], 'FULL', detailOf({ status: 'ACCEPTED', is_current: true }))).toBe(false);
   });
 
-  it('lets a maker correct a report that was accepted, returned or asked to be amended', () => {
-    for (const status of ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED'] as const) expect(canCorrect(['report.correct'], 'FULL', status)).toBe(true);
-    for (const status of ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'WITHDRAWN', 'SUPERSEDED'] as const) expect(canCorrect(['report.correct'], 'FULL', status)).toBe(false);
+  it('lets a maker correct a report that was accepted, returned, asked to be amended or withdrawn', () => {
+    for (const status of ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED', 'WITHDRAWN'] as const) expect(canCorrect(['report.correct'], 'FULL', status)).toBe(true);
+    for (const status of ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'SUPERSEDED'] as const) expect(canCorrect(['report.correct'], 'FULL', status)).toBe(false);
     expect(canCorrect(['report.edit'], 'FULL', 'RETURNED')).toBe(false);
     expect(canCorrect(['report.correct'], 'READ_ONLY', 'RETURNED')).toBe(false);
   });

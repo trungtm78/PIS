@@ -925,5 +925,133 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       await decide(report.id, giveBack);
       expect(await as((tx) => store.decisionsOf(tx, report.id), TENANT_B)).toEqual([]);
     });
+
+    describe('the withdrawal, the soft deletion and the restore (ST-DIS-007)', () => {
+      const WITHDRAWAL = 'The wrong period was reported by mistake.';
+      const withdraw = (reportId: string, member = MAKER, at = AT) =>
+        as(async (tx) => store.withdraw(tx, await store.lock(tx, reportId, seeAll, actsAll, Number((await state(reportId)).version)), WITHDRAWAL, memberId(member), at), TENANT_A, member);
+      const remove = (reportId: string, at = AT, reason = 'Started in the wrong week.') =>
+        as(async (tx) => store.softDelete(tx, await store.lock(tx, reportId, seeAll, actsAll, Number((await state(reportId)).version)), reason, memberId(MAKER), at));
+      const restore = (reportId: string, now: Date, acts = actsAll) =>
+        as(async (tx) => store.restore(tx, await store.lock(tx, reportId, seeAll, acts, Number((await state(reportId)).version)), memberId(MAKER), now));
+      const draftOf2 = async () => {
+        const projectId = await freshProject();
+        const planId = id(FAMILY, 300 + counter);
+        const week = nextWeek();
+        const periodId = id(FAMILY, 2000 + weeks);
+        await seedReplica([periodRow(periodId, `DL-W${weeks}`, week.start, week.end, 'WEEK', week.year)]);
+        return { ...(await create(projectId, periodId, planId)), projectId, periodId };
+      };
+      const listed = (filter: Parameters<DisReportStore['list']>[2], member = MAKER) => as((tx) => store.list(tx, seeAll, filter, { limit: 100, after: undefined }), TENANT_A, member);
+
+      it('AC-ST-DIS-007-3 / UAT-AC259: takes back a report that was handed in and is not under review: WITHDRAWN with who, when and why, and the version moves once', async () => {
+        const report = await submitted();
+        const done = await withdraw(report.id);
+        expect(done).toEqual({ version: 3 });
+        expect(await state(report.id)).toMatchObject({ status: 'WITHDRAWN', is_current: false, version: '3' });
+        expect((await owner<{ withdrawn_by: string; withdrawn_at: string; withdrawn_reason: string }>('select withdrawn_by, withdrawn_at::text as withdrawn_at, withdrawn_reason from machvon.report_revision where id = $1', [report.id]))[0]).toMatchObject({
+          withdrawn_by: memberId(MAKER),
+          withdrawn_reason: WITHDRAWAL,
+        });
+        const detail = await as((tx) => store.find(tx, report.id, seeAll));
+        expect(detail).toMatchObject({ status: 'WITHDRAWN', withdrawnBy: memberId(MAKER), withdrawnReason: WITHDRAWAL, withdrawnAt: AT.toISOString() });
+      });
+
+      it('AC-ST-DIS-007-3: a report under review, a draft, one that was decided on and one that was withdrawn are not withdrawn (409 REPORT_STATE_INVALID, nothing written)', async () => {
+        const reviewing = await submitted();
+        await owner("update machvon.report_revision set status = 'UNDER_REVIEW' where id = $1", [reviewing.id]);
+        expect(await refusal(withdraw(reviewing.id))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409, extensions: { report_status: 'UNDER_REVIEW' } });
+        const draft = await draftOf2();
+        expect(await refusal(withdraw(draft.id))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409 });
+        const accepted = await submitted();
+        await decide(accepted.id, approval);
+        expect(await refusal(withdraw(accepted.id))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409 });
+        const gone = await submitted();
+        await withdraw(gone.id);
+        expect(await refusal(withdraw(gone.id))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409 });
+        expect(await state(reviewing.id)).toMatchObject({ status: 'UNDER_REVIEW' });
+      });
+
+      it('lets the maker report the period again from a report that was withdrawn: the correction is the next revision of it', async () => {
+        const first = await submitted();
+        await withdraw(first.id);
+        const second = await correct(first.id);
+        expect(second).toMatchObject({ revision: 2 });
+        expect(await state(second.id)).toMatchObject({ status: 'DRAFT' });
+      });
+
+      it('refuses in the table a withdrawal without its facts, a reason that is not words, and the facts of a withdrawal that are edited', async () => {
+        const report = await submitted();
+        const guard = (sql: string, params: unknown[] = []) => refusal(owner(sql, params));
+        expect(await guard("update machvon.report_revision set status = 'WITHDRAWN' where id = $1", [report.id])).toMatchObject({ code: '23514' });
+        expect(await guard("update machvon.report_revision set status = 'WITHDRAWN', withdrawn_by = $2, withdrawn_at = now(), withdrawn_reason = 'too short' where id = $1", [report.id, memberId(MAKER)])).toMatchObject({ code: '23514' });
+        expect(await guard('update machvon.report_revision set withdrawn_reason = $2 where id = $1', [report.id, WITHDRAWAL])).toMatchObject({ code: '23514' });
+        await withdraw(report.id);
+        expect(await guard('update machvon.report_revision set withdrawn_reason = $2 where id = $1', [report.id, 'Another reason that is long enough.'])).toMatchObject({ code: '23514' });
+        expect(await guard('update machvon.report_revision set withdrawn_at = now() where id = $1', [report.id])).toMatchObject({ code: '23514' });
+      });
+
+      it('AC-ST-DIS-007-1 / UAT-AC259: deletes a draft softly with the reason, lists it apart while it can be restored, and restores it as it was', async () => {
+        const draft = await draftOf2();
+        // The list of the drafts that can be restored runs on the clock of the database, so the deletion is dated by it.
+        expect(await remove(draft.id, new Date())).toEqual({ version: 2 });
+        expect(await state(draft.id)).toMatchObject({ status: 'DRAFT', version: '2' });
+        const [row] = await owner<{ deleted_at: string; deleted_reason: string }>('select deleted_at::text as deleted_at, deleted_reason from machvon.report_revision where id = $1', [draft.id]);
+        expect(row?.deleted_reason).toBe('Started in the wrong week.');
+        expect((await listed({ projectId: draft.projectId })).map((line) => line.id)).toEqual([]);
+        // The drafts that were deleted are listed apart, as long as they can be restored.
+        expect((await listed({ projectId: draft.projectId, deleted: true })).map((line) => line.id)).toEqual([draft.id]);
+        expect((await as((tx) => store.kpi(tx, seeAll, { projectId: draft.projectId }))).reports).toBe(0);
+        expect((await as((tx) => store.kpi(tx, seeAll, { projectId: draft.projectId, deleted: true }))).reports).toBe(1);
+        // A draft that was deleted is not edited.
+        expect(await refusal(as(async (tx) => store.saveDraft(tx, await store.lock(tx, draft.id, seeAll, actsAll, 2), { measurementBasis: 'YTD', cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null, ...KEEP }, '2026-10-04', memberId(MAKER))))).toMatchObject({
+          code: 'REVISION_IMMUTABLE',
+          status: 409,
+        });
+        expect(await restore(draft.id, new Date(AT.getTime() + 86_400_000))).toEqual({ version: 3 });
+        expect(await state(draft.id)).toMatchObject({ status: 'DRAFT', version: '3' });
+        expect((await listed({ projectId: draft.projectId })).map((line) => line.id)).toEqual([draft.id]);
+        expect((await listed({ projectId: draft.projectId, deleted: true })).map((line) => line.id)).toEqual([]);
+        expect(await cells(draft.id)).toHaveLength(6);
+      });
+
+      it('AC-ST-DIS-007-1: a report that was handed in is not deleted (409 REPORT_NOT_EDITABLE), nor is a draft twice', async () => {
+        const report = await submitted();
+        expect(await refusal(remove(report.id))).toMatchObject({ code: 'REPORT_NOT_EDITABLE', status: 409, extensions: { report_status: 'SUBMITTED' } });
+        const draft = await draftOf2();
+        await remove(draft.id);
+        expect(await refusal(remove(draft.id))).toMatchObject({ code: 'REPORT_NOT_EDITABLE', status: 409 });
+        expect(await refusal(owner("update machvon.report_revision set deleted_at = now() where id = $1", [report.id]))).toMatchObject({ code: '23514' });
+      });
+
+      it('AC-ST-DIS-007-2 / UAT-PLAN-68: restores within 30 days and not after (422 RESTORE_WINDOW_EXPIRED), and only what was deleted (409)', async () => {
+        const draft = await draftOf2();
+        // The window of the list runs on the clock of the database, so the deletion is dated by it.
+        const deletedAt = new Date(Date.now() - 40 * 86_400_000);
+        const lastDay = new Date(deletedAt.getTime() + 30 * 86_400_000);
+        await remove(draft.id, deletedAt);
+        expect(await refusal(restore(draft.id, new Date(lastDay.getTime() + 1000)))).toMatchObject({ code: 'RESTORE_WINDOW_EXPIRED', status: 422 });
+        expect((await listed({ projectId: draft.projectId, deleted: true })).map((line) => line.id)).toEqual([]);
+        expect(await state(draft.id)).toMatchObject({ status: 'DRAFT', version: '2' });
+        expect(await restore(draft.id, lastDay)).toEqual({ version: 3 });
+        expect(await refusal(restore(draft.id, lastDay))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409 });
+      });
+
+      it('AC-ST-DIS-007-2: restores only for a person who may edit the project now (403 SCOPE_DENIED, the draft stays deleted); another tenant finds nothing (404)', async () => {
+        const draft = await draftOf2();
+        await remove(draft.id);
+        expect(await refusal(restore(draft.id, AT, readOnly))).toEqual({ code: 'SCOPE_DENIED', status: 403 });
+        expect(await state(draft.id)).toMatchObject({ version: '2' });
+        expect(await refusal(as((tx) => store.lock(tx, draft.id, seeAll, actsAll, 2), TENANT_B))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      });
+
+      it('keeps a deletion as it was made: the instant and the reason are not rewritten while the draft stays deleted', async () => {
+        const draft = await draftOf2();
+        await remove(draft.id);
+        const guard = (sql: string, params: unknown[] = []) => refusal(owner(sql, params));
+        expect(await guard('update machvon.report_revision set deleted_reason = $2 where id = $1', [draft.id, 'Another reason'])).toMatchObject({ code: '23514' });
+        expect(await guard("update machvon.report_revision set deleted_at = now() where id = $1", [draft.id])).toMatchObject({ code: '23514' });
+      });
+    });
   });
 });

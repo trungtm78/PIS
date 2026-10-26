@@ -171,6 +171,14 @@ export interface ReportDetail {
   amendmentReason: string | null;
   /** What the reviewers decided on it, the first first. */
   decisions: DecisionEntry[];
+  /** A draft that was deleted (softly) and can still be restored, and why. */
+  deleted: boolean;
+  deletedAt: string | null;
+  deletedReason: string | null;
+  /** Who took the report back, when and why. */
+  withdrawnBy: string | null;
+  withdrawnAt: string | null;
+  withdrawnReason: string | null;
   project: { id: string; code: string; name: string; status: string };
   period: { id: string; code: string; periodType: string; fiscalYear: number; startDate: string; endDate: string; status: string };
   planVersion: { id: string; fiscalYear: number; revision: number };
@@ -244,6 +252,12 @@ export function toReportDetail(raw: unknown): ReportDetail | undefined {
     supersedesId: nullableText(row.supersedes_id),
     amendmentReason: nullableText(row.amendment_reason),
     decisions: toDecisions(row.decisions),
+    deleted: row.deleted === true,
+    deletedAt: nullableText(row.deleted_at),
+    deletedReason: nullableText(row.deleted_reason),
+    withdrawnBy: nullableText(row.withdrawn_by),
+    withdrawnAt: nullableText(row.withdrawn_at),
+    withdrawnReason: nullableText(row.withdrawn_reason),
     project: { id: projectId, code: projectCode, name: text(project?.name) ?? '', status: text(project?.status) ?? '' },
     period: {
       id: periodId,

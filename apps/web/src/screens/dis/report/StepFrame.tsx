@@ -1,7 +1,9 @@
 import { ApiError } from '@machvon/api-client';
 import type { ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
+import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import type { ScreenState } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
@@ -9,6 +11,7 @@ import { BackLink } from '../components';
 import '../dis.css';
 import { StepNav } from './components';
 import { useReport } from './hooks';
+import { REMOVAL_PATH, canDelete } from './lifecycle-model';
 import { REPORTS_PATH } from './model';
 import type { ReportDetail } from './model';
 import type { StepKey } from './step-model';
@@ -28,6 +31,8 @@ export interface StepTexts {
  */
 export function StepFrame({ route, texts, current, children }: ScreenProps & { texts: StepTexts; current?: StepKey; children: (detail: ReportDetail) => ReactNode }) {
   const [params] = useSearchParams();
+  const { t } = useTranslation();
+  const { permissions, mode } = useSession();
   const reportId = params.get('report') ?? undefined;
   const report = useReport(reportId);
   const missing = report.error instanceof ApiError && report.error.status === 404;
@@ -51,7 +56,16 @@ export function StepFrame({ route, texts, current, children }: ScreenProps & { t
             {texts.choose}
           </p>
         ) : (
-          children(detail)
+          <>
+            {children(detail)}
+            {current !== undefined && canDelete(permissions, mode, detail) ? (
+              <p>
+                <Link to={`${REMOVAL_PATH}?report=${detail.id}`} data-testid="delete-link">
+                  {t('dis.reportRemoval.delete.link')}
+                </Link>
+              </p>
+            ) : null}
+          </>
         )}
       </StateBoundary>
       <p className="prototype-note">{texts.footer}</p>

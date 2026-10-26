@@ -136,6 +136,12 @@ export function reportView(detail: RevisionDetail, review: Review | null = null,
       decided_by: decision.decidedBy,
       decided_at: decision.decidedAt,
     })),
+    deleted: detail.deleted,
+    deleted_at: detail.deletedAt,
+    deleted_reason: detail.deletedReason,
+    withdrawn_by: detail.withdrawnBy,
+    withdrawn_at: detail.withdrawnAt,
+    withdrawn_reason: detail.withdrawnReason,
     review:
       review === null
         ? null
@@ -228,7 +234,10 @@ function filterOf(query: Record<string, unknown>): ReportFilter {
   if (status !== undefined && !(REVISION_STATUSES as readonly string[]).includes(status)) throw new DomainError('VALIDATION_FAILED', 422, 'status');
   const reportType = text('report_type');
   if (reportType !== undefined && !(REPORT_TYPES as readonly string[]).includes(reportType)) throw new DomainError('VALIDATION_FAILED', 422, 'report_type');
+  const deleted = text('deleted');
+  if (deleted !== undefined && deleted !== 'true' && deleted !== 'false') throw new DomainError('VALIDATION_FAILED', 422, 'deleted');
   return {
+    deleted: deleted === undefined ? undefined : deleted === 'true',
     fiscalYear: year === undefined ? undefined : Number(year),
     periodId: uuid('period_id'),
     planVersionId: uuid('plan_version_id'),
@@ -471,11 +480,12 @@ export class ReportReadsController {
     @Query('project_id') projectId?: unknown,
     @Query('status') status?: unknown,
     @Query('report_type') reportType?: unknown,
+    @Query('deleted') deleted?: unknown,
     @Query('limit') limit?: unknown,
     @Query('cursor') cursor?: unknown,
   ): Promise<Record<string, unknown>> {
     const request = parsePageRequest(limit, cursor);
-    const filter = filterOf({ fiscal_year: fiscalYear, period_id: periodId, plan_version_id: planVersionId, plan_id: planId, project_id: projectId, status, report_type: reportType });
+    const filter = filterOf({ fiscal_year: fiscalYear, period_id: periodId, plan_version_id: planVersionId, plan_id: planId, project_id: projectId, status, report_type: reportType, deleted });
     if (request.after !== undefined && (!TIMESTAMP.test(request.after.code) || Number.isNaN(Date.parse(request.after.code)))) throw new DomainError('VALIDATION_FAILED', 422, 'cursor');
     const scope = projectScope(access, LIST_PERMISSION, new Date());
     const found = await this.database.withTenant(tenant, async (tx) => {
@@ -502,6 +512,7 @@ export class ReportReadsController {
           project_id: filter.projectId ?? null,
           status: filter.status ?? null,
           report_type: filter.reportType ?? null,
+          deleted: filter.deleted ?? null,
         },
       },
     };

@@ -15367,6 +15367,7 @@ export interface components {
         DisDraftDeletion: {
             reason: string;
         };
+        /** @description Why a report that was handed in is taken back: words, at least 20 characters. The length is judged by the command (422 VALIDATION_FAILED naming reason), not by the schema, so that every refusal of it has the same code. */
         DisWithdrawal: {
             reason: string;
         };
@@ -26029,6 +26030,8 @@ export interface operations {
                 project_id?: string;
                 status?: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "ACCEPTED" | "RETURNED" | "AMENDMENT_REQUESTED" | "WITHDRAWN" | "SUPERSEDED";
                 report_type?: "WEEKLY" | "MONTHLY";
+                /** @description true lists the drafts that were deleted and can still be restored (within 30 days of the deletion) instead of the reports that stand. */
+                deleted?: boolean;
                 cursor?: string;
                 limit?: number;
             };

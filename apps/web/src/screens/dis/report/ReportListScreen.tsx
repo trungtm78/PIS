@@ -9,9 +9,10 @@ import { Field } from '../components';
 import { usePeriods } from '../hooks';
 import { periodsOf, yearsOf } from '../model';
 import '../dis.css';
-import { usePlanOptions, useProjectOptions, useReportPage } from './hooks';
+import { useDeletedDrafts, usePlanOptions, useProjectOptions, useReportPage } from './hooks';
 import { reportStatusLabel } from './labels';
 import { DETAIL_PATH } from './decision-model';
+import { REMOVAL_PATH, canDelete } from './lifecycle-model';
 import { CREATE_PATH, EDIT_PATH, NO_FILTER, canCreate, isFiltered } from './model';
 import type { FilterState, Kpi, ReportLine } from './model';
 import { formatVnd } from './money';
@@ -167,7 +168,30 @@ function ReportListContent({ route }: ScreenProps) {
           </>
         )}
       </StateBoundary>
+      <DeletedDrafts allowed={canDelete(permissions, mode, { status: 'DRAFT', deleted: false })} />
       <p className="prototype-note">{t('dis.reports.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
+    </section>
+  );
+}
+
+/** The drafts that were deleted and can still be restored (30 days), apart from the reports that stand: each leads to DIS-09, which names it before it is restored. */
+function DeletedDrafts({ allowed }: { allowed: boolean }) {
+  const { t } = useTranslation();
+  const deleted = useDeletedDrafts(allowed);
+  const lines = deleted.data ?? [];
+  if (!allowed || lines.length === 0) return null;
+  return (
+    <section className="card" aria-labelledby="deleted-title" data-testid="deleted-drafts">
+      <h2 id="deleted-title">{t('dis.reports.deleted.title')}</h2>
+      <p className="sub">{t('dis.reports.deleted.help')}</p>
+      <ul>
+        {lines.map((line) => (
+          <li key={line.id}>
+            {t('dis.reports.deleted.item.text', { project: line.project.code, period: line.period.code, revision: line.revision })}{' '}
+            <Link to={`${REMOVAL_PATH}?report=${line.id}`}>{t('dis.reports.deleted.open.action')}</Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

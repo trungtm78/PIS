@@ -27,6 +27,7 @@ export const MAKER = ['report.create', 'report.edit', 'report.read', 'report_rev
 export const READER = ['report.read', 'report_revision.read'];
 export const REVIEWER = ['report.review', 'report.read', 'report_revision.read'];
 export const CORRECTOR = [...MAKER, 'report.correct'];
+export const WITHDRAWER = [...MAKER, 'report.withdraw'];
 export const routeOf = baseRoute;
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -69,6 +70,12 @@ export const reportRecord = (overrides: Record<string, unknown> = {}): Record<st
   supersedes_id: null,
   amendment_reason: null,
   decisions: [],
+  deleted: false,
+  deleted_at: null,
+  deleted_reason: null,
+  withdrawn_by: null,
+  withdrawn_at: null,
+  withdrawn_reason: null,
   created_at: '2027-01-04T03:00:00.000Z',
   created_by: TENANT.membershipId,
   updated_at: '2027-01-04T03:00:00.000Z',
@@ -159,6 +166,8 @@ export const period = (id: string, code: string, status: string, year = 2027) =>
 export interface World {
   /** The reports by id, as `getReportRevision` answers them. */
   details: Record<string, Record<string, unknown>>;
+  /** The drafts that were deleted and can still be restored, as the list answers them for `deleted=true`. */
+  deleted: Array<Record<string, unknown>>;
   /** The page the list answers for a query, or one for every query. */
   page: Record<string, unknown> | ((query: Record<string, unknown>) => Record<string, unknown>);
   periods: Array<Record<string, unknown>>;
@@ -171,6 +180,7 @@ export interface World {
 export function world(overrides: Partial<World> = {}): World {
   return {
     details: {},
+    deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
     projects: [
@@ -201,6 +211,7 @@ export function client(state: World, command: (operation: string, input: unknown
     const failure = state.failing.get(operation);
     if (failure !== undefined) return Promise.reject(failure);
     if (operation === 'get_resources_report_revision') {
+      if (input?.query?.deleted === true) return Promise.resolve(state.deleted);
       const page = typeof state.page === 'function' ? state.page(input?.query ?? {}) : state.page;
       return Promise.resolve(Array.isArray(page.items) ? page.items : []);
     }
@@ -253,6 +264,7 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-06" element={screen} />
                 <Route path="/dis/dis-07" element={screen} />
                 <Route path="/dis/dis-08" element={screen} />
+                <Route path="/dis/dis-09" element={screen} />
                 <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />

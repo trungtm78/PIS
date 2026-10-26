@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { charactersOf } from './dis-lifecycle.ts';
 import { asUuid } from './tenant-context.ts';
 import type { RevisionStatus } from './dis-report.ts';
 
@@ -19,8 +20,8 @@ const DECIDABLE: Readonly<Record<ReportDecision, readonly RevisionStatus[]>> = {
   request_amendment: ['ACCEPTED'],
 };
 
-/** The statuses a correction starts from: the report was accepted and is wrong, or it was sent back, or an amendment was asked for. */
-const CORRECTABLE: readonly RevisionStatus[] = ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED'];
+/** The statuses a correction starts from: the report was accepted and is wrong, or it was sent back, or an amendment was asked for, or it was taken back by its maker (the period is reported again from it, ST-DIS-007). */
+const CORRECTABLE: readonly RevisionStatus[] = ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED', 'WITHDRAWN'];
 
 export interface RawDecision {
   decision?: unknown;
@@ -44,7 +45,8 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 function wordsOf(value: unknown, max: number, field: string, min = 1): string {
   if (typeof value !== 'string') throw invalid(field);
   const text = value.trim();
-  if (text.length < min || text.length > max) throw invalid(field);
+  const length = charactersOf(text);
+  if (length < min || length > max) throw invalid(field);
   return text;
 }
 
@@ -114,7 +116,8 @@ export interface RawCorrection {
 /** What a maker answers a decision with: why the numbers change (422 `CORRECTION_REASON_REQUIRED` naming `amendment_reason` for none, a short one or a long one). */
 export function correctionOf(raw: RawCorrection): { amendmentReason: string } {
   const reason = typeof raw.amendment_reason === 'string' ? raw.amendment_reason.trim() : '';
-  if (reason.length < DECISION_LIMITS.amendmentReasonMin || reason.length > DECISION_LIMITS.reasonMax) throw new DomainError('CORRECTION_REASON_REQUIRED', 422, 'amendment_reason');
+  const length = charactersOf(reason);
+  if (length < DECISION_LIMITS.amendmentReasonMin || length > DECISION_LIMITS.reasonMax) throw new DomainError('CORRECTION_REASON_REQUIRED', 422, 'amendment_reason');
   return { amendmentReason: reason };
 }
 

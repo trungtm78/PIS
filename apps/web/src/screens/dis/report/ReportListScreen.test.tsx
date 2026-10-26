@@ -22,6 +22,26 @@ const text = (id: string): string => screen.getByTestId(id).textContent ?? '';
 const queryOfLastRead = (h: ReturnType<typeof client>): Record<string, unknown> => ((h.read.mock.calls.at(-1)?.[1] as { query: Record<string, unknown> }) ?? { query: {} }).query;
 
 describe('DIS-01 weekly reports', () => {
+  it('AC-ST-DIS-007-1: offers the drafts that were deleted apart from the reports that stand, each leading to the confirmation that names it', async () => {
+    const gone = lineRecord(7, { id: '00000000-0000-4000-8000-004500000077', period: { id: PERIOD, code: '2027-W05', end_date: '2027-02-07', fiscal_year: 2027, status: 'OPEN' } });
+    open({ deleted: [gone] });
+    const section = await screen.findByTestId('deleted-drafts');
+    expect(within(section).getByText(/DA-2027-007 · 2027-W05 · lần 1/)).toBeTruthy();
+    expect(within(section).getByRole('link', { name: vi_['dis.reports.deleted.open.action'] }).getAttribute('href')).toBe('/dis/dis-09?report=00000000-0000-4000-8000-004500000077');
+    // The table is of the reports that stand: the deleted draft is not in it.
+    expect(screen.getAllByRole('row').slice(1)).toHaveLength(2);
+  });
+
+  it('shows no deleted drafts when there are none, and to a reader who may not restore them', async () => {
+    open();
+    await screen.findByRole('heading', { level: 1, name: vi_['dis.reports.page.title'] });
+    expect(screen.queryByTestId('deleted-drafts')).toBeNull();
+    cleanup();
+    open({ deleted: [lineRecord(7)] }, READER);
+    await screen.findByRole('heading', { level: 1, name: vi_['dis.reports.page.title'] });
+    expect(screen.queryByTestId('deleted-drafts')).toBeNull();
+  });
+
   it('lists the reports with the project, the period, the status, the cumulative and the CTMTQG apart, and a link to open each', async () => {
     open();
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.reports.page.title'] })).toBeTruthy();

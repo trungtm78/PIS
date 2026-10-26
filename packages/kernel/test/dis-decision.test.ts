@@ -98,9 +98,9 @@ describe('the correction of a report that was handed in (ST-DIS-006)', () => {
     }
   });
 
-  it('is made from a report that was accepted, returned or asked to be amended, and from no other (409 REPORT_STATE_INVALID)', () => {
-    for (const status of ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED'] as const) expect(correctionSourceRefusal(status)).toBeUndefined();
-    for (const status of ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'WITHDRAWN', 'SUPERSEDED'] as const) {
+  it('is made from a report that was accepted, returned, asked to be amended or withdrawn, and from no other (409 REPORT_STATE_INVALID)', () => {
+    for (const status of ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED', 'WITHDRAWN'] as const) expect(correctionSourceRefusal(status)).toBeUndefined();
+    for (const status of ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'SUPERSEDED'] as const) {
       expect(correctionSourceRefusal(status)).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409, detail: 'status' });
     }
   });

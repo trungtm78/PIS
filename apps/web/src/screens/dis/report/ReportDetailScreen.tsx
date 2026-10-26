@@ -6,6 +6,7 @@ import '../dis.css';
 import { ReportFacts } from './components';
 import { DecisionHistory, DecisionPanel } from './decision-parts';
 import { CORRECTION_PATH, HISTORY_PATH, canAskAmendment, canCorrect, canDecide, formatMoment } from './decision-model';
+import { REMOVAL_PATH, canWithdraw } from './lifecycle-model';
 import { cellLabel } from './labels';
 import { CELLS } from './model';
 import type { ReportDetail } from './model';
@@ -78,6 +79,13 @@ function Detail({ detail }: { detail: ReportDetail }) {
             {t('dis.reportDetail.correct.action')}
           </Link>
         ) : null}{' '}
+        {canWithdraw(permissions, mode, detail.status) ? (
+          <>
+            <Link to={`${REMOVAL_PATH}?report=${detail.id}`} data-testid="withdraw-link">
+              {t('dis.reportRemoval.withdraw.link')}
+            </Link>{' '}
+          </>
+        ) : null}
         <Link to={`${HISTORY_PATH}?report=${detail.id}`}>{t('dis.reportDetail.history.link')}</Link>
       </p>
     </div>
