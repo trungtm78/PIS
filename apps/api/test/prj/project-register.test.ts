@@ -22,6 +22,7 @@ const MAKER = 1; // project.create, project.update and project.read on the whole
 const DEPARTMENT_MAKER = 2; // the same permissions on the subtree of unit 2
 const READER = 3; // project.read on the whole tenant
 const NOBODY = 4;
+const SUBTREE_READER = 5; // project.read on the subtree of unit 2 only (a specialist of the department)
 const B_MAKER = 1; // of tenant B
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -97,7 +98,7 @@ describe('the project register: create, profile update, list and workspace (ST-P
       ]);
       await harness.tenants.withTenant({ tenantId: tenant, membershipId: WORKER, scopeVersion: 0 }, (tx) => applyBaseline(tx, BASELINE_PACK, WORKER, TODAY));
     }
-    for (const n of [MAKER, DEPARTMENT_MAKER, READER, NOBODY]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [MAKER, DEPARTMENT_MAKER, READER, NOBODY, SUBTREE_READER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MAKER, ROOT);
     const maker = ['project.create', 'project.update', 'project.read'];
     await harness.seedRole(TENANT_A, 1, 'PROJECT_MAKER', maker, 40);
@@ -107,6 +108,7 @@ describe('the project register: create, profile update, list and workspace (ST-P
       { n: 1, member: MAKER, role: 1, kind: 'TENANT' },
       { n: 2, member: DEPARTMENT_MAKER, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
       { n: 3, member: READER, role: 2, kind: 'TENANT' },
+      { n: 4, member: SUBTREE_READER, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_MAKER, role: 1, kind: 'TENANT' }]);
     versions.area = await seedVersion(TENANT_A, 'AREA', 'TINH-P');
@@ -357,6 +359,21 @@ describe('the project register: create, profile update, list and workspace (ST-P
       expect((await call('GET', `/resources/project/${randomUUID()}`, { member: MAKER })).status).toBe(404);
       expect((await call('GET', '/resources/project/not-a-uuid', { member: MAKER })).status).toBe(422);
       expect((await row(projectId)).name).toBe('Dự án cầu Thủ Thiêm 4');
+    });
+
+    it('AC-ST-IAM-005-1 / UAT-AC107: a reader on the subtree of a unit reads the project inside it (200) and gets 404 for one outside, in the read and in the list', async () => {
+      const inside = idOf(await create(MAKER, { owner_unit_id: unitId(DEPARTMENT), code: 'SUB-IN' }));
+      const above = idOf(await create(MAKER, { owner_unit_id: unitId(ROOT), code: 'SUB-ROOT' }));
+      const beside = idOf(await create(MAKER, { owner_unit_id: unitId(ELSEWHERE), code: 'SUB-ELSE' }));
+      const reader = (projectId: string): Promise<Reply> => call('GET', `/resources/project/${projectId}`, { member: SUBTREE_READER });
+      expect((await reader(inside)).status).toBe(200);
+      for (const outside of [above, beside]) expect([(await reader(outside)).status, (await reader(outside)).json.code]).toEqual([404, 'RESOURCE_NOT_FOUND']);
+      const listed = items(await call('GET', '/resources/project?limit=200', { member: SUBTREE_READER })).map((item) => item.id);
+      expect(listed).toContain(inside);
+      expect(listed).not.toContain(above);
+      expect(listed).not.toContain(beside);
+      // The same person with a grant on the whole tenant sees all three: the scope, not the role, is what hid them.
+      for (const projectId of [inside, above, beside]) expect((await call('GET', `/resources/project/${projectId}`, { member: READER })).status).toBe(200);
     });
 
     it('has no generic write for the status, the tenant, the rights or the money of a project (AC-ST-PRJ-001-4)', async () => {

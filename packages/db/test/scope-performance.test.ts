@@ -1,4 +1,5 @@
 import { performance } from 'node:perf_hooks';
+import { effectivePermissions, holdsPermission } from '@machvon/kernel';
 import { EffectiveAccessStore } from '../src/effective-access-store';
 import { InMemoryAuthzCache } from '../src/authz-cache';
 import { MyAccessStore } from '../src/my-access-store';
@@ -10,6 +11,8 @@ import { LOAD_GRANTS_PER_MEMBER, LOAD_UNITS, loadMemberId, seedScopeLoad } from 
 
 const CALLS = 200;
 const P95_BUDGET_MS = 100;
+// A decision of the PDP from the cached access of a member (UAT-NFR-PERFORMANCE-01).
+const DECISION_BUDGET_MS = 20;
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
 const PATH_INDEX = 'organization_unit_path_idx';
 // The department whose subtree the scoped readers hold: 259 units below and including it, of 5,000.
@@ -149,6 +152,20 @@ describe('scope queries on a tenant of 5,000 units and 50,000 grants (ST-IAM-005
       const samples = await timed(() => access.load(contextFor(TENANT_A, loadMemberId((member += 1) % LOAD_UNITS || 1))));
       report('effective access load', samples);
       expect(p95(samples)).toBeLessThan(P95_BUDGET_MS);
+    });
+
+    it(`AC-ST-IAM-005-4 / UAT-NFR-PERFORMANCE-01: decides from the cached access of a member (ten grants of 50,000) in under ${DECISION_BUDGET_MS} ms p95`, async () => {
+      const ctx = contextFor(TENANT_A, loadMemberId(READER));
+      const [row] = await inTenant((tx) => tx.query<{ path: string }>('select path from machvon.organization_unit where id = $1::uuid', [unitId(DEPARTMENT)]));
+      const unit = { ownerUnitPath: row?.path ?? '', ownerUnitId: unitId(DEPARTMENT) };
+      const decide = async (): Promise<boolean> => holdsPermission(effectivePermissions(await access.load(ctx), new Date(), unit), 'iam.unit.manage');
+      expect(await decide()).toBe(true);
+      const samples = await timed(decide);
+      report('pdp decision (cached access)', samples);
+      expect(p95(samples)).toBeLessThan(DECISION_BUDGET_MS);
+      // A unit the grants do not reach is refused just as fast.
+      const refused = await timed(async () => holdsPermission(effectivePermissions(await access.load(ctx), new Date(), { ownerUnitPath: '/none/', ownerUnitId: unitId(4000) }), 'iam.unit.manage'));
+      expect(p95(refused)).toBeLessThan(DECISION_BUDGET_MS);
     });
 
     it('shows my effective access: the ten grants of a member with their units and breadcrumbs', async () => {
