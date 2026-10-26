@@ -5,6 +5,7 @@ import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machv
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { ContractController, ContractReadsController, ContractRevisionReadsController } from '../../src/modules/ctr/contract.controller';
+import { ProjectReadsController } from '../../src/modules/prj/project.controller';
 import { ctrModule } from '../../src/modules/ctr';
 import { MODULES } from '../../src/modules/registry';
 import { PolicyModule } from '../../src/policy.module';
@@ -124,6 +125,7 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
     await harness.seedRole(TENANT_A, 4, 'LEDGER_READER', ['contract.read', 'ledger.read'], 25);
     await harness.seedRole(TENANT_A, 5, 'REVISION_READER', ['contract_revision.read'], 20);
     await harness.seedRole(TENANT_A, 6, 'GUEST_READER', ['contract.read'], 10);
+    await harness.seedRole(TENANT_A, 8, 'PROJECT_READER', ['project.read'], 20);
     await harness.seedRole(TENANT_B, 1, 'CONTRACT_MAKER', [...all, 'contract_revision.read'], 40);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MAKER, role: 1, kind: 'TENANT' },
@@ -134,6 +136,9 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
       { n: 6, member: READER, role: 3, kind: 'TENANT' },
       { n: 7, member: LEDGER_READER, role: 4, kind: 'TENANT' },
       { n: 8, member: REVISION_READER, role: 5, kind: 'TENANT' },
+      { n: 9, member: MAKER, role: 8, kind: 'TENANT' },
+      { n: 10, member: DEPARTMENT_MAKER, role: 8, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
+      { n: 11, member: ELSEWHERE_MAKER, role: 8, kind: 'UNIT_SUBTREE', refs: [unitId(ELSEWHERE)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_MAKER, role: 1, kind: 'TENANT' }]);
     await seedAs([
@@ -179,7 +184,7 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ContractController, ContractReadsController, ContractRevisionReadsController],
+      controllers: [ContractController, ContractReadsController, ContractRevisionReadsController, ProjectReadsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
@@ -429,6 +434,53 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
       expect((await call('GET', `/resources/contract/${randomUUID()}`, { member: GUEST })).status).toBe(404);
       expect((await call('GET', '/resources/contract_revision', { member: GUEST })).status).toBe(403);
       expect((await create(GUEST)).status).toBe(403);
+    });
+
+    it('AC-ST-KERNEL-026-2 / UAT-NFR-TENANCY-09: a department user, a user of another branch and a contractor guest each list only their own projects and contracts, and every out-of-scope id is 404', async () => {
+      const elsewhereProject = id(FAMILY, 61);
+      const elsewhereContract = id(FAMILY, 62);
+      await seedAs([
+        [
+          `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, investor_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+           values ($1, $2, 'PRJ-A-003', 'Project of another branch', $3, $3, $4, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
+          [TENANT_A, elsewhereProject, unitId(ELSEWHERE), id(FAMILY, 42)],
+        ],
+        [
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due)
+           values ($1, $2, $3, $4, $5, 'HD-A-900', 'LUMP_SUM', 'VND', 'ACTIVE', 1, 1000, '2026-01-01', '2026-01-01', '2027-03-31')`,
+          [TENANT_A, elsewhereContract, elsewhereProject, id(FAMILY, 63), LEAD],
+        ],
+      ]);
+      try {
+        const codes = async (member: number, path: string): Promise<string[]> => {
+          const reply = await call('GET', path, { member });
+          expect(reply.status).toBe(200);
+          return (reply.json.items as Array<{ code: string }>).map((item) => item.code).sort();
+        };
+        // The department user: the projects and contracts of the department, nothing of the other branch.
+        expect(await codes(DEPARTMENT_MAKER, '/resources/project?limit=200')).toEqual(expect.arrayContaining(['PRJ-A-001', 'PRJ-A-002']));
+        expect(await codes(DEPARTMENT_MAKER, '/resources/project?limit=200')).not.toContain('PRJ-A-003');
+        const departmentContracts = await codes(DEPARTMENT_MAKER, '/resources/contract?limit=200');
+        expect(departmentContracts).toContain('HD-A-001');
+        expect(departmentContracts).not.toContain('HD-A-900');
+        expect([(await call('GET', `/resources/contract/${elsewhereContract}`, { member: DEPARTMENT_MAKER })).status, (await call('GET', `/resources/project/${elsewhereProject}`, { member: DEPARTMENT_MAKER })).status]).toEqual([404, 404]);
+        // The user of the other branch sees that branch only, and the contracts of the department are out of sight for them.
+        expect(await codes(ELSEWHERE_MAKER, '/resources/project?limit=200')).toEqual(['PRJ-A-003']);
+        expect(await codes(ELSEWHERE_MAKER, '/resources/contract?limit=200')).toEqual(['HD-A-900']);
+        for (const contract of [guestContract, otherContract]) expect((await call('GET', `/resources/contract/${contract}`, { member: ELSEWHERE_MAKER })).status).toBe(404);
+        // The guest: the one contract they were invited to, no project at all, and the others are absent, not forbidden.
+        expect(await codes(GUEST, '/resources/contract?limit=200')).toEqual(['HD-A-001']);
+        expect((await call('GET', '/resources/project?limit=200', { member: GUEST })).status).toBe(403);
+        for (const hidden of [otherContract, elsewhereContract]) expect((await call('GET', `/resources/contract/${hidden}`, { member: GUEST })).status).toBe(404);
+        // The whole-tenant user sees all of it: it is the scope, not the data, that hid it above.
+        expect(await codes(MAKER, '/resources/project?limit=200')).toEqual(expect.arrayContaining(['PRJ-A-001', 'PRJ-A-002', 'PRJ-A-003']));
+      } finally {
+        // The other tests of this file count the contracts of the other branch: leave it as it was found.
+        await seedAs([
+          ['delete from machvon.contract where id = $1', [elsewhereContract]],
+          ['delete from machvon.project where id = $1', [elsewhereProject]],
+        ]);
+      }
     });
 
     it('gives the staff the line the guest picker reads and, with the right, the ceiling; the totals of the ledger only with ledger.read', async () => {

@@ -141,6 +141,8 @@ export type {
   UploadPurpose,
   UploadVerdict,
 } from './object-storage.ts';
+export { continueDrill } from './drill-continuation.ts';
+export type { DrillContinuation, DrillDeps } from './drill-continuation.ts';
 export { runScheduledExport } from './scheduled-export.ts';
 export type { ScheduledExportDeps, ScheduledExportJob, ScheduledExportOutcome } from './scheduled-export.ts';
 export { parseSigningCertificate } from './signing-certificate.ts';
