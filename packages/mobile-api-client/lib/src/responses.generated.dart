@@ -887,6 +887,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'uploadNationalCodeFile': PrjNationalCodeFileUploadResponse.fromJson,
   'uploadProcurementFile': BidProcurementFileUploadResponse.fromJson,
   'uploadProposalFile': BidProposalFileUploadResponse.fromJson,
+  'uploadReportFile': DisReportFileResponse.fromJson,
   'uploadSystemTenantThemeAsset': TenantThemeAssetResponse.fromJson,
   'uploadTreasuryStatementFile': PayStatementFileResponse.fromJson,
   'upsertIssueSlaPolicy': CommandResultResponse.fromJson,
@@ -3934,6 +3935,48 @@ final class DisRatesResponse implements ResponseModel {
         if (rateNullReason != null) 'rate_null_reason': rateNullReason,
         if (treasuryCoverage != null) 'treasury_coverage': treasuryCoverage,
         if (legalConfirmationRefs != null) 'legal_confirmation_refs': legalConfirmationRefs,
+        ...extra,
+      };
+}
+
+final class DisReportFileResponse implements ResponseModel {
+  const DisReportFileResponse({
+    required this.fileObjectId,
+    required this.fileSha256,
+    required this.fileName,
+    required this.contentType,
+    required this.sizeBytes,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportFileResponse.fromJson(Object? json, [String path = 'DisReportFileResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportFileResponse(
+      fileObjectId: requiredField(map, path, 'file_object_id', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      fileName: requiredField(map, path, 'file_name', asString),
+      contentType: requiredField(map, path, 'content_type', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      extra: unknownFields(map, path, const <String>{'file_object_id', 'file_sha256', 'file_name', 'content_type', 'size_bytes'}, strict: true),
+    );
+  }
+
+  final String fileObjectId;
+  final String fileSha256;
+  final String fileName;
+  final String contentType;
+  final int sizeBytes;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_id': fileObjectId,
+        'file_sha256': fileSha256,
+        'file_name': fileName,
+        'content_type': contentType,
+        'size_bytes': sizeBytes,
         ...extra,
       };
 }

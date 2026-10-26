@@ -4325,6 +4325,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/report-files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Put a file (a voucher, a scan) into the shared upload pipeline for a report draft: judged by its bytes, scanned, stored private to the tenant */
+        post: operations["uploadReportFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reporting-periods/generate": {
         parameters: {
             query?: never;
@@ -14714,6 +14731,7 @@ export interface components {
             next_month_ctmtqg_subset_vnd?: components["schemas"]["Money"];
             source_year?: number;
         };
+        /** @description The volumes (`construction_vnd`, `acceptance_vnd`, `treasury_submitted_vnd`, `preparing_dossier_vnd`, `physical_progress_pct`), `narrative` and `attachments` are replaced when a save names them and kept when it does not; naming any volume asks for the four amounts together. */
         ReportDraft: {
             /** Format: uuid */
             project_id: string;
@@ -14733,11 +14751,14 @@ export interface components {
             acceptance_vnd?: components["schemas"]["Money"];
             treasury_submitted_vnd?: components["schemas"]["Money"];
             preparing_dossier_vnd?: components["schemas"]["Money"];
+            /** @description Percent of the physical work, 0 to 100 with up to two decimals. */
             physical_progress_pct?: string;
-            narrative?: Record<string, never>;
+            narrative?: components["schemas"]["ReportNarrative"];
             /** Format: uuid */
             client_operation_id?: string;
             negative_delta_explanation?: string;
+            /** @description The whole list of the files attached to the draft; a save that leaves it out keeps the files as they are. */
+            attachments?: components["schemas"]["ReportAttachmentRef"][];
         };
         Decision: {
             /** @enum {string} */
@@ -20973,6 +20994,29 @@ export interface components {
         };
         LndHandlePlanFeedback: {
             handling_note: string;
+        };
+        /** @description The words of a report (DIS-06 notes). Every section is optional in the weekly report; a section is at most 4000 characters and the issues are those of the project, each named once (at most 50). The member is the whole narrative: what it leaves out is removed from the draft. */
+        ReportNarrative: {
+            results?: string;
+            causes?: string;
+            solutions?: string;
+            proposals?: string;
+            linked_issue_ids?: string[];
+        };
+        /** @description A file attached to a report, as the upload door `uploadReportFile` answered it. Only a file that the scan found clean, of this tenant, with this hash, can be attached (422 FILE_NOT_CLEAN, 409 SCAN_PENDING, 422 HASH_MISMATCH). */
+        ReportAttachmentRef: {
+            /** Format: uuid */
+            file_object_id: string;
+            file_sha256: string;
+            file_name: string;
+        };
+        DisReportFile: {
+            /** Format: uuid */
+            file_object_id: string;
+            file_sha256: string;
+            file_name: string;
+            content_type: string;
+            size_bytes: number;
         };
     };
     responses: never;
@@ -46971,6 +47015,116 @@ export interface operations {
             };
             /** @description Version / state / idempotency conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    uploadReportFile: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The file is stored and clean; attach it to a draft with its id and hash */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisReportFile"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Payload too large */
+            413: {
                 headers: {
                     [name: string]: unknown;
                 };

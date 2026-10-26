@@ -10,7 +10,7 @@ import type { ScreenState } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, Field } from '../components';
 import '../dis.css';
-import { MoneyInput } from './components';
+import { MoneyInput, StepNav } from './components';
 import { useReport, useSaveReport } from './hooks';
 import { basisLabel, cellLabel, cellProblemMessage, formProblemMessage, reportProblemMessage, reportStatusLabel } from './labels';
 import { BASES, CELLS, REPORTS_PATH, SAVED_PATH, canEdit, cellId, deltaOf, describeReport, fieldId, formOf, hasFall, hasProblems, takesCtmtqg, totalsOf, validateFunding } from './model';
@@ -47,6 +47,7 @@ function ReportEditContent({ route }: ScreenProps) {
           <p>{t('dis.reportEdit.page.subtitle')}</p>
         </div>
       </div>
+      {detail === undefined ? null : <StepNav reportId={detail.id} current="cells" />}
       <StateBoundary state={state} onRetry={() => void report.refetch()}>
         {detail === undefined ? (
           <p className="muted" data-testid="report-choose">

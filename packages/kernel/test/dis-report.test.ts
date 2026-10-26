@@ -145,7 +145,7 @@ describe('the stage of the project (DIS 3 F1)', () => {
 });
 
 describe('the hash of a draft', () => {
-  const content = { projectId: PROJECT, periodId: PERIOD, planVersionId: PLAN, reportType: 'WEEKLY' as const, measurementBasis: 'YTD' as const, cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null };
+  const content = { projectId: PROJECT, periodId: PERIOD, planVersionId: PLAN, reportType: 'WEEKLY' as const, measurementBasis: 'YTD' as const, cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null, progress: null, narrative: null, attachments: [] };
 
   it('is the same for the same entries in any order and in any case of the ids, and changes with any figure', () => {
     const reversed = fundingCells([...FX_DIS_001].reverse());
@@ -156,6 +156,14 @@ describe('the hash of a draft', () => {
     expect(draftHash({ ...content, measurementBasis: 'PERIOD' })).not.toBe(draftHash(content));
     expect(draftHash({ ...content, reportType: 'MONTHLY' })).not.toBe(draftHash(content));
     expect(draftHash({ ...content, negativeDeltaExplanation: 'The Treasury returned a payment.' })).not.toBe(draftHash(content));
+    const progress = { constructionVnd: '1', acceptanceVnd: '0', treasurySubmittedVnd: '0', preparingDossierVnd: '0', physicalProgressPct: null };
+    expect(draftHash({ ...content, progress })).not.toBe(draftHash(content));
+    expect(draftHash({ ...content, progress: { ...progress, physicalProgressPct: '10.00' } })).not.toBe(draftHash({ ...content, progress }));
+    const narrative = { resultsText: 'Done', causesText: null, solutionsText: null, proposalsText: null, linkedIssueIds: [] };
+    expect(draftHash({ ...content, narrative })).not.toBe(draftHash(content));
+    const file = { fileObjectId: PROJECT, fileSha256: 'a'.repeat(64), fileName: 'voucher.pdf' };
+    expect(draftHash({ ...content, attachments: [file] })).not.toBe(draftHash(content));
+    expect(draftHash({ ...content, attachments: [{ ...file, fileName: 'other.pdf' }] })).not.toBe(draftHash({ ...content, attachments: [file] }));
   });
 });
 

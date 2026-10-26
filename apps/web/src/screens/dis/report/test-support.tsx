@@ -35,6 +35,7 @@ export const PERIOD_LOCKED = uuid('0042', 2);
 export const PLAN_VERSION = uuid('0043', 1);
 export const PLAN = uuid('0044', 1);
 export const REPORT = uuid('0045', 1);
+export const FILE_ID = uuid('0047', 1);
 
 /** The cells of FX-DIS-001: 100/200/30/70/0/20 million and the CTMTQG of 40 million in the year plan of the central budget. */
 export const fxCells = (): Array<Record<string, unknown>> => [
@@ -69,6 +70,35 @@ export const reportRecord = (overrides: Record<string, unknown> = {}): Record<st
   funding_lines: fxCells(),
   totals: { allocated_vnd: '850000000', cumulative_vnd: '420000000', ctmtqg_vnd: '40000000', next_month_vnd: '5000000', next_month_ctmtqg_vnd: '0' },
   needs_explanation: false,
+  progress: null,
+  narrative: null,
+  attachments: [],
+  review: { blocking: false, errors: [], warnings: [] },
+  ...overrides,
+});
+
+/** The volumes of a report as the server answers them. */
+export const progressRecord = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  construction_vnd: '300000000',
+  acceptance_vnd: '200000000',
+  treasury_submitted_vnd: '150000000',
+  preparing_dossier_vnd: '50000000',
+  physical_progress_pct: '37.50',
+  as_of_date: '2027-01-10',
+  measurement_basis: 'YTD',
+  ...overrides,
+});
+
+/** A file attached to a report as the server answers it. */
+export const fileRecord = (n = 1, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: uuid('0048', n),
+  file_object_id: uuid('0047', n),
+  file_sha256: 'a'.repeat(64),
+  file_name: `voucher-${n}.pdf`,
+  content_type: 'application/pdf',
+  size_bytes: 2048,
+  position: n,
+  created_at: '2027-01-05T03:00:00.000Z',
   ...overrides,
 });
 
@@ -205,7 +235,10 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
               <Routes>
                 <Route path="/dis/dis-01" element={screen} />
                 <Route path="/dis/dis-02" element={screen} />
+                <Route path="/dis/dis-03" element={screen} />
                 <Route path="/dis/dis-04" element={screen} />
+                <Route path="/dis/dis-05" element={screen} />
+                <Route path="/dis/dis-06" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />
               </Routes>

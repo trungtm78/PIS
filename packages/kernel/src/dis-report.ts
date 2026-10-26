@@ -1,5 +1,6 @@
 import { wholeDong } from './aud-conclusion.ts';
 import { DomainError } from './errors.ts';
+import type { AttachmentRef, NarrativeInput, ProgressInput } from './dis-progress.ts';
 import { payloadSha256 } from './pdf-render.ts';
 
 /** The sources a report counts disbursement in (DIS 3 F1 step 4, BR-DIS-01): the year plan, the carried-over plan and every other source, each by central or local budget. */
@@ -133,7 +134,7 @@ export function deltaOf(previousVnd: string | null, currentVnd: string): string 
   return previousVnd === null ? null : (BigInt(currentVnd) - BigInt(previousVnd)).toString();
 }
 
-/** The draft as it is hashed: the identity of the report, the basis, the cells in the order of the form and the explanation of a fall. */
+/** The draft as it is hashed: the identity of the report, the basis, the cells in the order of the form, the explanation of a fall, the volumes, the narrative and the files attached. */
 export interface DraftContent {
   projectId: string;
   periodId: string;
@@ -142,6 +143,9 @@ export interface DraftContent {
   measurementBasis: MeasurementBasis;
   cells: readonly FundingInput[];
   negativeDeltaExplanation: string | null;
+  progress: ProgressInput | null;
+  narrative: NarrativeInput | null;
+  attachments: readonly AttachmentRef[];
 }
 
 /** SHA-256 of the canonical content of a draft: the same entries in any order give the same hash, so that a replay is recognised and a change is not missed. */
@@ -153,6 +157,9 @@ export function draftHash(content: DraftContent): string {
     report_type: content.reportType,
     measurement_basis: content.measurementBasis,
     negative_delta_explanation: content.negativeDeltaExplanation,
+    progress: content.progress === null ? null : { construction_vnd: content.progress.constructionVnd, acceptance_vnd: content.progress.acceptanceVnd, treasury_submitted_vnd: content.progress.treasurySubmittedVnd, preparing_dossier_vnd: content.progress.preparingDossierVnd, physical_progress_pct: content.progress.physicalProgressPct },
+    narrative: content.narrative === null ? null : { results: content.narrative.resultsText, causes: content.narrative.causesText, solutions: content.narrative.solutionsText, proposals: content.narrative.proposalsText, linked_issue_ids: content.narrative.linkedIssueIds },
+    attachments: content.attachments.map((ref) => ({ file_object_id: ref.fileObjectId, file_sha256: ref.fileSha256, file_name: ref.fileName })),
     funding_lines: content.cells.map((cell) => ({
       bucket: cell.bucket,
       budget_level: cell.budgetLevel,

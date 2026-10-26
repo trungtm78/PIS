@@ -883,6 +883,7 @@
   "uploadNationalCodeFile": {"file_object_key":"sample","file_sha256":"sample","size_bytes":0,"format":"CSV","columns":["sample"],"row_count":0},
   "uploadProcurementFile": {"file_object_key":"sample","file_sha256":"sample","size_bytes":0,"format":"CSV","columns":["sample"],"row_count":0},
   "uploadProposalFile": {"file_object_key":"sample","file_sha256":"sample","size_bytes":1,"page_count":1},
+  "uploadReportFile": {"file_object_id":"00000000-0000-4000-8000-000000000001","file_sha256":"sample","file_name":"sample","content_type":"sample","size_bytes":1},
   "uploadSystemTenantThemeAsset": {"assetId":"00000000-0000-4000-8000-000000000001","scanStatus":"pending","contentHash":"sample","contentType":"image/png"},
   "uploadTreasuryStatementFile": {"file_object_id":"00000000-0000-4000-8000-000000000001","file_sha256":"sample","size_bytes":0,"file_name":"sample","format":"CSV","columns":["sample"],"row_count":0,"layout_ok":true,"missing_columns":["sample"]},
   "upsertIssueSlaPolicy": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},

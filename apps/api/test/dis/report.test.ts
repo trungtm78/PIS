@@ -1,12 +1,19 @@
-import { randomBytes, randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
 import { BASELINE_PACK, DisPeriodStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, applyBaseline } from '@machvon/db';
-import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import { loadErrorRegistry, objectKey, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
+import { ReportFileController } from '../../src/modules/dis/report-file.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
 import { DIS_CLOCK } from '../../src/modules/dis/tokens';
+import { FileService } from '../../src/modules/files/file.service';
+import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
+import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
@@ -58,6 +65,8 @@ const FX_DIS_001 = [
 describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   const harness = new AuthzHarness();
   let app: RunningApp;
+  let root: string;
+  let files: FileService;
   const now = new Date('2026-12-15T00:00:00Z');
   let counter = 0;
   let weeks: string[] = [];
@@ -184,15 +193,18 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       await new DisPeriodStore().generate(tx, { calendarCode: 'DEFAULT', fiscalYear: 2027, periodType: 'WEEK' }, WORKER, now);
     });
     weeks = (await rows<{ id: string }>("select id from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' order by start_date")).map((row) => row.id);
+    root = await mkdtemp(join(tmpdir(), 'machvon-dis-'));
+    files = new FileService({ storage: new FsObjectStorage(root), scanner: new MockScanPort(), urlSecret: randomBytes(32) });
     app = await startTestApp({
       signingKey: SIGNING_KEY,
       imports: [
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ReportController, ReportReadsController],
+      controllers: [ReportController, ReportReadsController, ReportFileController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
+        { provide: FileService, useValue: files },
         { provide: DIS_CLOCK, useValue: () => now },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
@@ -202,10 +214,11 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   afterAll(async () => {
     if (app) await app.close();
     await harness.stop();
+    await rm(root, { recursive: true, force: true });
   }, 60_000);
 
   it('serves the controllers of the report in the module of DIS', () => {
-    expect(disModule.controllers.slice(-2)).toEqual([ReportController, ReportReadsController]);
+    expect(disModule.controllers.slice(-3)).toEqual([ReportController, ReportReadsController, ReportFileController]);
   });
 
   describe('post_reports', () => {
@@ -371,7 +384,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       expect(JSON.stringify(reply.json)).toContain('report_type');
     });
 
-    it('refuses money that is not whole dong, a cell named twice, a subset in the other sources, and the members that belong to the next story, naming the field', async () => {
+    it('refuses money that is not whole dong, a cell named twice, a subset in the other sources, and volumes and a narrative that are not valid, naming the field', async () => {
       const { projectId, planId } = await seedProject();
       const period = week();
       const bad = (extra: Record<string, unknown>) => create(draft(projectId, period, planId, extra));
@@ -381,8 +394,8 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
         [{ funding_lines: [{ bucket: 'OTHER', budget_level: 'LOCAL', cumulative_vnd: '10', ctmtqg_subset_vnd: '1' }] }, 'funding_lines[0].ctmtqg_subset_vnd'],
         [{ funding_lines: [{ bucket: 'OTHER', budget_level: 'LOCAL', cumulative_vnd: '1' }, { bucket: 'OTHER', budget_level: 'LOCAL', cumulative_vnd: '2' }] }, 'funding_lines[1].bucket'],
         [{ negative_delta_explanation: 'short' }, 'negative_delta_explanation'],
-        [{ construction_vnd: '5' }, 'construction_vnd'],
-        [{ narrative: {} }, 'narrative'],
+        [{ construction_vnd: '5' }, 'acceptance_vnd'],
+        [{ narrative: { results: 'x'.repeat(4001) } }, 'narrative.results'],
       ];
       for (const [extra, field] of cases) {
         const reply = await bad(extra);
@@ -563,6 +576,328 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       const other = await call('GET', '/resources/report_revision', { member: B_MAKER, tenantId: TENANT_B });
       expect(other.json.items).toEqual([]);
       expect((await call('GET', '/resources/report_revision', { member: NOBODY })).status).toBe(403);
+    });
+  });
+
+  describe('the volumes, the registration for next month, the narrative and the files (ST-DIS-004)', () => {
+    const PROGRESS = { construction_vnd: '300000000', acceptance_vnd: '200000000', treasury_submitted_vnd: '150000000', preparing_dossier_vnd: '50000000', physical_progress_pct: '37.5' };
+    const periodDates = async (periodId: string): Promise<{ start: string; end: string }> => {
+      const [row] = await rows<{ start: string; end: string }>('select start_date::text as start, end_date::text as end from machvon.reporting_period where id = $1', [periodId]);
+      return row as { start: string; end: string };
+    };
+    const started = async (extra: Record<string, unknown> = {}, options: { allocate?: boolean } = {}) => {
+      const { projectId, planId } = await seedProject(options);
+      const period = week();
+      const made = await create(draft(projectId, period, planId, extra));
+      return { projectId, planId, period, reportId: idOf(made), made };
+    };
+    interface Finding {
+      code: string;
+      field: string;
+      values: Record<string, string | null>;
+    }
+    /** The report as the read answers it; `review` is null for a report that was handed in, which the one test of it checks as such. */
+    interface Found {
+      progress: Record<string, unknown> | null;
+      narrative: Record<string, unknown> | null;
+      attachments: Array<{ file_object_id: string; file_sha256: string; file_name: string; content_type: string; size_bytes: number; position: number }>;
+      review: { blocking: boolean; errors: Finding[]; warnings: Finding[] };
+      funding_lines: Array<Record<string, unknown>>;
+      totals: Record<string, unknown>;
+      needs_explanation: boolean;
+    }
+    const readReport = async (reportId: string): Promise<Found> => (await read(reportId)).json as unknown as Found;
+    const pdf = (text = 'a voucher'): Uint8Array => new TextEncoder().encode(`%PDF-1.4\n% ${text}\n%%EOF`);
+    const shaOf = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex');
+    async function upload(member: number, bytes: Uint8Array, options: { type?: string; name?: string; tenantId?: string; raw?: boolean } = {}): Promise<Reply> {
+      const headers: Record<string, string> = { [TENANT_HEADER]: tokenOf(member, options.tenantId), 'idempotency-key': `key-${randomUUID()}` };
+      let payload: FormData | Buffer;
+      if (options.raw === true) {
+        headers['content-type'] = 'application/pdf';
+        payload = Buffer.from(bytes);
+      } else {
+        const form = new FormData();
+        form.append('file', new Blob([bytes], { type: options.type ?? 'application/pdf' }), options.name ?? 'voucher.pdf');
+        payload = form;
+      }
+      const response = await fetch(`${app.baseUrl}/report-files`, { method: 'POST', headers, body: payload });
+      return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
+    }
+    const ref = (door: Reply) => ({ file_object_id: door.json.file_object_id, file_sha256: door.json.file_sha256, file_name: door.json.file_name });
+    const attached = async (reportId: string): Promise<Array<{ file_name: string; position: number }>> => ((await readReport(reportId)).attachments as Array<{ file_name: string; position: number }>).map((file) => ({ file_name: file.file_name, position: file.position }));
+
+    it('AC-ST-DIS-004-1 / UAT-AC264: saves the four volumes and the percent with the date of the period and the basis of the report, reads them back, and keeps them when a save does not name them', async () => {
+      const { projectId, planId, period, reportId } = await started();
+      expect((await readReport(reportId)).progress).toBeNull();
+      const saved = await save(reportId, draft(projectId, period, planId, PROGRESS), 1);
+      expect(saved).toMatchObject({ status: 200, json: { status: 'DRAFT', resource_version: 2 } });
+      const dates = await periodDates(period);
+      expect((await readReport(reportId)).progress).toEqual({ ...PROGRESS, physical_progress_pct: '37.50', as_of_date: dates.end, measurement_basis: 'YTD' });
+      expect(await rows('select construction_value_vnd::text as c, acceptance_value_vnd::text as a, treasury_submitted_value_vnd::text as t, preparing_dossier_value_vnd::text as p, physical_progress_pct::text as pct, as_of_date::text as d, measurement_basis as b from machvon.progress_snapshot where report_revision_id = $1', [reportId])).toEqual([
+        { c: '300000000', a: '200000000', t: '150000000', p: '50000000', pct: '37.50', d: dates.end, b: 'YTD' },
+      ]);
+      // A save of the six cells that leaves the volumes out keeps them; a new basis moves them with it.
+      const again = await save(reportId, draft(projectId, period, planId, { measurement_basis: 'PERIOD' }), 2);
+      expect(again.json.resource_version).toBe(3);
+      expect((await readReport(reportId)).progress).toMatchObject({ construction_vnd: '300000000', measurement_basis: 'PERIOD' });
+      const entries = await trail(reportId);
+      const last = entries.filter((entry) => entry.action === 'dis.report_saved')[0];
+      expect(last?.safe_diff).toMatchObject({ measurement_basis: 'YTD', construction_vnd: '300000000', physical_progress_pct: '37.50' });
+      expect(JSON.stringify(entries)).not.toContain('Foundations');
+    });
+
+    it('wants the four volumes together and refuses a negative amount, a fraction and a percent out of range, naming the field, and writes nothing', async () => {
+      const { projectId, planId, period, reportId } = await started();
+      const bad = (extra: Record<string, unknown>) => save(reportId, draft(projectId, period, planId, extra), 1);
+      const cases: Array<[Record<string, unknown>, string]> = [
+        [{ construction_vnd: '5' }, 'acceptance_vnd'],
+        [{ physical_progress_pct: '10' }, 'construction_vnd'],
+        [{ ...PROGRESS, acceptance_vnd: '-1' }, 'acceptance_vnd'],
+        [{ ...PROGRESS, treasury_submitted_vnd: '1.5' }, 'treasury_submitted_vnd'],
+        [{ ...PROGRESS, physical_progress_pct: '100.5' }, 'physical_progress_pct'],
+        [{ ...PROGRESS, physical_progress_pct: '-3' }, 'physical_progress_pct'],
+      ];
+      for (const [extra, field] of cases) {
+        const reply = await bad(extra);
+        expect([reply.status, reply.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+        expect(JSON.stringify(reply.json)).toContain(field);
+      }
+      expect(await rows('select 1 from machvon.progress_snapshot where report_revision_id = $1', [reportId])).toEqual([]);
+      expect((await state(reportId))?.version).toBe('1');
+    });
+
+    it('AC-ST-DIS-004-2 / UI-DIS-06: tells every error and every warning at once: a volume of 203.8% of the capital allocated, a gap above 5% with the Treasury and no registration for next month are warnings and do not block; the missing volumes are an error', async () => {
+      const { projectId, planId, period, reportId } = await started();
+      const dates = await periodDates(period);
+      await seedReplica([
+        [
+          `insert into machvon.treasury_transaction (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, import_id)
+           values ($1, gen_random_uuid(), $2, $3, 'TREASURY', 380000000, ($4::date + time '09:00') at time zone 'Asia/Ho_Chi_Minh', $5, gen_random_uuid())`,
+          [TENANT_A, projectId, `EXT-${randomUUID()}`, dates.start, 'e'.repeat(64)],
+        ],
+      ]);
+      const before = (await readReport(reportId)).review;
+      expect(before.blocking).toBe(true);
+      expect(before.errors).toEqual([{ code: 'VALIDATION_FAILED', field: 'progress', values: { missing: 'construction_vnd' } }]);
+      expect(before.warnings.map((finding)  => finding.code)).toEqual(['TREASURY_GAP', 'NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT']);
+      expect(before.warnings[0]).toEqual({ code: 'TREASURY_GAP', field: 'funding_lines', values: { reported_vnd: '420000000', treasury_vnd: '380000000', gap_pct: '10.5' } });
+      expect(before.warnings[1]?.values).toEqual({ remaining_vnd: '80000000' });
+
+      await save(reportId, draft(projectId, period, planId, { ...PROGRESS, construction_vnd: '1019000000' }), 1);
+      const after = (await readReport(reportId)).review;
+      expect(after.blocking).toBe(false);
+      expect(after.errors).toEqual([]);
+      expect(after.warnings.map((finding)  => finding.code)).toEqual(['VOLUME_EXCEEDS_ALLOCATION', 'TREASURY_GAP', 'NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT']);
+      expect(after.warnings[0]).toEqual({ code: 'VOLUME_EXCEEDS_ALLOCATION', field: 'progress.construction_vnd', values: { construction_vnd: '1019000000', allocated_vnd: '500000000', ratio_pct: '203.8' } });
+      // The warnings do not stop a save, and the reader sees the same review.
+      expect((await read(reportId, READER)).json.review).toEqual(after);
+    });
+
+    it('treats the window of the Treasury by the basis of the report: payments of the period for PERIOD, of the year for YTD, of all time for PROJECT_TO_DATE', async () => {
+      const { projectId, planId, period, reportId } = await started({ measurement_basis: 'PERIOD' });
+      const dates = await periodDates(period);
+      const paid = (amount: string, at: string): [string, unknown[]] => [
+        `insert into machvon.treasury_transaction (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, import_id)
+         values ($1, gen_random_uuid(), $2, $3, 'TREASURY', $4::numeric, ($5::date + time '09:00') at time zone 'Asia/Ho_Chi_Minh', $6, gen_random_uuid())`,
+        [TENANT_A, projectId, `EXT-${randomUUID()}`, amount, at, 'f'.repeat(64)],
+      ];
+      // 420 million paid before the year began and 420 million in the period: only the second counts for the basis PERIOD, both for PROJECT_TO_DATE.
+      await seedReplica([paid('420000000', '2026-12-30'), paid('420000000', dates.start)]);
+      const gaps = async (): Promise<string[]> => ((await readReport(reportId)).review.warnings as Array<{ code: string }>).map((finding) => finding.code);
+      expect(await gaps()).not.toContain('TREASURY_GAP');
+      await save(reportId, draft(projectId, period, planId, { measurement_basis: 'PROJECT_TO_DATE' }), 1);
+      expect(await gaps()).toContain('TREASURY_GAP');
+      await save(reportId, draft(projectId, period, planId, { measurement_basis: 'YTD' }), 2);
+      expect(await gaps()).not.toContain('TREASURY_GAP');
+    });
+
+    it('reviews a period that was locked as an error, a plan version that is no longer the one in force as an error, and a report that was handed in as no review at all', async () => {
+      const { projectId, planId, period, reportId } = await started({}, {});
+      await save(reportId, draft(projectId, period, planId, PROGRESS), 1);
+      expect((await readReport(reportId)).review.errors).toEqual([]);
+      await lockPeriod(period);
+      expect((await readReport(reportId)).review.errors).toEqual([{ code: 'PERIOD_LOCKED', field: 'period', values: {} }]);
+      await seedReplica([["update machvon.plan_version set effective_at = timestamptz '2028-01-01T00:00:00Z' where id = $1", [planId]]]);
+      expect((await readReport(reportId)).review.errors.map((finding)  => finding.code)).toEqual(['PERIOD_LOCKED', 'PLAN_VERSION_NOT_EFFECTIVE']);
+      await rows("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [reportId, memberId(MAKER)]);
+      expect((await readReport(reportId)).review).toBeNull();
+    });
+
+    it('reviews a fall below the period before as an error until it is explained', async () => {
+      const { projectId, planId } = await seedProject();
+      const earlier = await create(draft(projectId, week(), planId));
+      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, submitted_by = $2, accepted_by = $3, submitted_at = now(), accepted_at = now() where id = $1", [idOf(earlier), memberId(MAKER), memberId(READER)]);
+      const second = week();
+      const falling = { ...PROGRESS, funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '90000000' }] };
+      const made = await create(draft(projectId, second, planId, falling));
+      expect((await readReport(idOf(made))).review.errors).toEqual([{ code: 'NEGATIVE_DELTA_EXPLANATION_REQUIRED', field: 'negative_delta_explanation', values: {} }]);
+      await save(idOf(made), draft(projectId, second, planId, { ...falling, negative_delta_explanation: 'The Treasury returned a payment.' }), 1);
+      expect((await readReport(idOf(made))).review.errors).toEqual([]);
+    });
+
+    it('AC-ST-DIS-004-3 / UAT-AC264: keeps the registration for next month with its CTMTQG per cell, adds it up, and refuses a CTMTQG above the registration', async () => {
+      const { projectId, planId, period, reportId } = await started({
+        funding_lines: FX_DIS_001.map((line, index) => (index === 0 ? { ...line, next_month_vnd: '300000000', next_month_ctmtqg_subset_vnd: '100000000' } : line)),
+      });
+      const found = await readReport(reportId);
+      expect(found.funding_lines[0]).toMatchObject({ next_month_vnd: '300000000', next_month_ctmtqg_subset_vnd: '100000000' });
+      expect(found.totals).toMatchObject({ next_month_vnd: '300000000', next_month_ctmtqg_vnd: '100000000' });
+      expect(found.review.warnings.map((finding)  => finding.code)).not.toContain('NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT');
+      const bad = await save(reportId, draft(projectId, period, planId, { funding_lines: FX_DIS_001.map((line, index) => (index === 0 ? { ...line, next_month_vnd: '10', next_month_ctmtqg_subset_vnd: '11' } : line)) }), 1);
+      expect([bad.status, bad.json.code]).toEqual([422, 'SUBSET_EXCEEDS_PARENT']);
+      expect(JSON.stringify(bad.json)).toContain('funding_lines[0].next_month_ctmtqg_subset_vnd');
+      expect((await readReport(reportId)).funding_lines[0]).toMatchObject({ next_month_vnd: '300000000' });
+    });
+
+    it('keeps the narrative as a whole, with the issues of the project, and takes it away with an empty one', async () => {
+      const { projectId, planId, period, reportId } = await started();
+      const issue = randomUUID();
+      const strange = randomUUID();
+      const issueRow = (n: string, forProject: string): [string, unknown[]] => [
+        `insert into machvon.issue (tenant_id, id, project_id, category_version_id, severity, assignee_id, due_at, status, version, code, title, description, source_module, reported_by, opened_at, owner_unit_id, sla_policy_id, response_due_at)
+         values ($1, $2, $3, $4, 'MEDIUM', $5, now() + interval '7 days', 'OPEN', 1, $6, 'An issue', 'It is an issue', 'MANUAL', $5, now(), $7, $4, now() + interval '1 day')`,
+        [TENANT_A, n, forProject, FUND_SOURCE, memberId(MAKER), `VM-2027-${String(100000 + (counter += 1))}`, unitId(DEPARTMENT)],
+      ];
+      const otherProject = await seedProject();
+      await seedReplica([issueRow(issue, projectId), issueRow(strange, otherProject.projectId)]);
+      const narrative = { results: '  Foundations are poured.  ', solutions: 'A second shift.', linked_issue_ids: [issue] };
+      expect((await save(reportId, draft(projectId, period, planId, { narrative }), 1)).status).toBe(200);
+      expect((await readReport(reportId)).narrative).toEqual({ results: 'Foundations are poured.', causes: null, solutions: 'A second shift.', proposals: null, linked_issue_ids: [issue] });
+      const entries = await trail(reportId);
+      expect(entries.find((entry) => entry.action === 'dis.report_saved')?.safe_diff).toMatchObject({ narrative_sections: 2, linked_issues: 1 });
+      expect(JSON.stringify(entries)).not.toContain('Foundations');
+      const outside = await save(reportId, draft(projectId, period, planId, { narrative: { results: 'x', linked_issue_ids: [issue, strange] } }), 2);
+      expect([outside.status, outside.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      expect(JSON.stringify(outside.json)).toContain('narrative.linked_issue_ids[1]');
+      const unknown = await save(reportId, draft(projectId, period, planId, { narrative: { linked_issue_ids: [randomUUID()] } }), 2);
+      expect(unknown.json.code).toBe('VALIDATION_FAILED');
+      // A save that leaves the narrative out keeps it; an empty one removes it.
+      expect((await save(reportId, draft(projectId, period, planId), 2)).json.resource_version).toBe(3);
+      expect((await readReport(reportId)).narrative).toMatchObject({ results: 'Foundations are poured.' });
+      expect((await save(reportId, draft(projectId, period, planId, { narrative: {} }), 3)).status).toBe(200);
+      expect((await readReport(reportId)).narrative).toBeNull();
+    });
+
+    it('refuses a narrative with a text that is too long, a text that is not a text and issues that are too many, naming the field', async () => {
+      const { projectId, planId, period, reportId } = await started();
+      const cases: Array<[Record<string, unknown>, string]> = [
+        [{ narrative: { results: 'x'.repeat(4001) } }, 'narrative.results'],
+        [{ narrative: { linked_issue_ids: ['nope'] } }, 'narrative.linked_issue_ids'],
+        [{ narrative: { linked_issue_ids: Array.from({ length: 51 }, () => randomUUID()) } }, 'narrative.linked_issue_ids'],
+      ];
+      for (const [extra, field] of cases) {
+        const reply = await save(reportId, draft(projectId, period, planId, extra), 1);
+        expect([reply.status, reply.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+        expect(JSON.stringify(reply.json)).toContain(field);
+      }
+    });
+
+    describe('the files (AC-ST-DIS-004-4, TH04)', () => {
+      it('takes a clean file through the upload door and shows what it kept, and leaves a trail of the hash and the size, never the name', async () => {
+        const bytes = pdf();
+        const door = await upload(MAKER, bytes, { name: 'Chứng từ 01.pdf' });
+        expect(door).toMatchObject({ status: 200, json: { file_sha256: shaOf(bytes), file_name: 'Chứng từ 01.pdf', content_type: 'application/pdf', size_bytes: bytes.length } });
+        expect(door.json.file_object_id).toMatch(/^[0-9a-f-]{36}$/);
+        const entries = await rows<{ safe_diff: Record<string, unknown> }>("select safe_diff from machvon.audit_event where action = 'dis.report_file_uploaded' and resource_id::text = $1", [door.json.file_object_id as string]);
+        expect(entries.map((entry) => entry.safe_diff)).toEqual([{ file_sha256: shaOf(bytes), size_bytes: bytes.length, content_type: 'application/pdf' }]);
+        expect(JSON.stringify(entries)).not.toContain('Chứng');
+      });
+
+      it('refuses an infected file (422 FILE_NOT_CLEAN), a file that is not what it says (422 FILE_TYPE_NOT_ALLOWED) and one that is too large (413), and keeps none of them', async () => {
+        const infected = new Uint8Array([...pdf(), ...eicarBytes()]);
+        const before = (await readdir(root, { recursive: true })).length;
+        expect(await upload(MAKER, infected)).toMatchObject({ status: 422, json: { code: 'FILE_NOT_CLEAN' } });
+        expect((await readdir(root, { recursive: true })).length).toBe(before);
+        expect(await upload(MAKER, new TextEncoder().encode('MZ this is a program'))).toMatchObject({ status: 422, json: { code: 'FILE_TYPE_NOT_ALLOWED' } });
+        expect(await upload(MAKER, pdf(), { type: 'image/svg+xml' })).toMatchObject({ status: 422, json: { code: 'FILE_TYPE_NOT_ALLOWED' } });
+        const large = new Uint8Array(26 * 1024 * 1024);
+        large.set(pdf());
+        expect(await upload(MAKER, large)).toMatchObject({ status: 413, json: { code: 'PAYLOAD_TOO_LARGE' } });
+        expect((await upload(MAKER, pdf(), { raw: true })).status).toBe(400);
+        expect((await readdir(root, { recursive: true })).length).toBe(before);
+      });
+
+      it('is for the maker: a reader and a person with no right are refused (403)', async () => {
+        expect((await upload(READER, pdf())).status).toBe(403);
+        expect((await upload(NOBODY, pdf())).status).toBe(403);
+      });
+
+      it('attaches the files a person names as the whole list, in order, and keeps them when a save does not name them', async () => {
+        const { projectId, planId, period, reportId } = await started();
+        const [one, two] = [await upload(MAKER, pdf('one'), { name: 'one.pdf' }), await upload(MAKER, pdf('two'), { name: 'two.pdf' })];
+        const saved = await save(reportId, draft(projectId, period, planId, { attachments: [ref(two), ref(one)] }), 1);
+        expect(saved.status).toBe(200);
+        expect(await attached(reportId)).toEqual([
+          { file_name: 'two.pdf', position: 1 },
+          { file_name: 'one.pdf', position: 2 },
+        ]);
+        const detail = await readReport(reportId);
+        expect(detail.attachments[0]).toMatchObject({ file_object_id: two.json.file_object_id, file_sha256: two.json.file_sha256, content_type: 'application/pdf', size_bytes: (pdf('two') as Uint8Array).length });
+        expect((await save(reportId, draft(projectId, period, planId), 2)).status).toBe(200);
+        expect(await attached(reportId)).toHaveLength(2);
+        expect((await save(reportId, draft(projectId, period, planId, { attachments: [ref(one)] }), 3)).status).toBe(200);
+        expect(await attached(reportId)).toEqual([{ file_name: 'one.pdf', position: 1 }]);
+        expect((await trail(reportId)).filter((entry) => entry.action === 'dis.report_saved').pop()?.safe_diff).toMatchObject({ attachments: 1 });
+        expect((await save(reportId, draft(projectId, period, planId, { attachments: [] }), 4)).status).toBe(200);
+        expect(await attached(reportId)).toEqual([]);
+      });
+
+      it('does not link a file with another hash (422 HASH_MISMATCH), one that does not exist or belongs to another tenant (422), one that is infected (422 FILE_NOT_CLEAN) or not yet scanned (409 SCAN_PENDING)', async () => {
+        const { projectId, planId, period, reportId } = await started();
+        const good = await upload(MAKER, pdf('good'));
+        const link = (attachments: unknown[]) => save(reportId, draft(projectId, period, planId, { attachments }), 1);
+        expect(await link([{ ...ref(good), file_sha256: 'a'.repeat(64) }])).toMatchObject({ status: 422, json: { code: 'HASH_MISMATCH' } });
+        const missing = await link([{ ...ref(good), file_object_id: randomUUID() }]);
+        expect([missing.status, missing.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+        expect(JSON.stringify(missing.json)).toContain('attachments[0].file_object_id');
+        // A file of another tenant is a file that does not exist.
+        const foreign = await upload(B_MAKER, pdf('foreign'), { tenantId: TENANT_B });
+        expect(foreign.status).toBe(200);
+        const crossed = await link([ref(foreign)]);
+        expect([crossed.status, crossed.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+        const tenantA = { tenantId: TENANT_A, membershipId: memberId(MAKER), scopeVersion: 1 };
+        const bad = new Uint8Array([...pdf('bad'), ...eicarBytes()]);
+        const infectedKey = (await files.upload(tenantA, { purpose: 'document', declaredType: 'application/pdf', bytes: bad })).key;
+        expect(await link([{ file_object_id: infectedKey.split('/').pop(), file_sha256: shaOf(bad), file_name: 'bad.pdf' }])).toMatchObject({ status: 422, json: { code: 'FILE_NOT_CLEAN' } });
+        const pendingId = randomUUID();
+        const pending = pdf('pending');
+        await new FsObjectStorage(root).put(tenantA, objectKey(TENANT_A, 'document', pendingId), pending, { contentType: 'application/pdf' });
+        expect(await link([{ file_object_id: pendingId, file_sha256: shaOf(pending), file_name: 'pending.pdf' }])).toMatchObject({ status: 409, json: { code: 'SCAN_PENDING' } });
+        expect(await attached(reportId)).toEqual([]);
+        expect((await state(reportId))?.version).toBe('1');
+      });
+
+      it('refuses a list of more than 20 files, a file named twice, a name that is a path and a hash that is not one, naming the field', async () => {
+        const { projectId, planId, period, reportId } = await started();
+        const door = await upload(MAKER, pdf('x'));
+        const cases: Array<[unknown[], string]> = [
+          [Array.from({ length: 21 }, () => ref(door)), 'attachments'],
+          [[ref(door), ref(door)], 'attachments[1].file_object_id'],
+          [[{ ...ref(door), file_name: '../x.pdf' }], 'attachments[0].file_name'],
+          [[{ ...ref(door), file_sha256: 'xyz' }], 'attachments.file_sha256'],
+        ];
+        for (const [attachments, field] of cases) {
+          const reply = await save(reportId, draft(projectId, period, planId, { attachments }), 1);
+          expect([reply.status, reply.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+          expect(JSON.stringify(reply.json)).toContain(field);
+        }
+      });
+
+      it('answers a client operation sent again with the same volumes and files with the first report, and one with other volumes as a mistake of the client', async () => {
+        const { projectId, planId, period } = await seedProject().then((seeded) => ({ ...seeded, period: week() }));
+        const door = await upload(MAKER, pdf('replay'));
+        const operation = randomUUID();
+        const entered = { client_operation_id: operation, ...PROGRESS, attachments: [ref(door)], narrative: { results: 'Done' } };
+        const first = await create(draft(projectId, period, planId, entered));
+        expect(first.status).toBe(200);
+        const again = await create(draft(projectId, period, planId, entered));
+        expect(idOf(again)).toBe(idOf(first));
+        const other = await create(draft(projectId, period, planId, { ...entered, construction_vnd: '1' }));
+        expect([other.status, other.json.code]).toEqual([409, 'IDEMPOTENCY_CONFLICT']);
+        const detail = await readReport(idOf(first));
+        expect(detail).toMatchObject({ progress: { construction_vnd: '300000000' }, narrative: { results: 'Done' } });
+        expect(detail.attachments).toHaveLength(1);
+      });
     });
   });
 });

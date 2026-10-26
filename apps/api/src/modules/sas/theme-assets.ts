@@ -63,7 +63,8 @@ export function parseSingleFile(contentTypeHeader: string | undefined, body: Buf
   const headersStart = afterOpening + CRLF.length;
   const headersEnd = body.indexOf(HEADER_END, headersStart - CRLF.length);
   if (headersEnd < 0) throw invalid('body');
-  const headers = body.subarray(headersStart, headersEnd).toString('latin1');
+  // Browsers write the file name as UTF-8 bytes: a Vietnamese name must come out as it was typed.
+  const headers = body.subarray(headersStart, headersEnd).toString('utf8');
   const contentStart = headersEnd + HEADER_END.length;
   const closing = Buffer.concat([CRLF, delimiter]);
   const contentEnd = body.indexOf(closing, contentStart);

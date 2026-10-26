@@ -623,3 +623,7 @@ export {
   takesCtmtqg,
 } from './dis-report.ts';
 export type { BudgetLevel, DraftContent, FundingBucket, FundingCellKey, FundingInput, FundingTotals, MeasurementBasis, RawFundingLine, ReportType, RevisionStatus } from './dis-report.ts';
+export { ATTACHMENT_MAX_COUNT, NARRATIVE_MAX_CHARS, NARRATIVE_MAX_ISSUES, attachmentsOf, narrativeOf, progressOf } from './dis-progress.ts';
+export type { AttachmentRef, NarrativeInput, ProgressInput, RawAttachment, RawNarrative, RawProgress } from './dis-progress.ts';
+export { TREASURY_GAP_THRESHOLD_PCT, WARNING_CODES, percentOf, reviewReport, treasuryWindow } from './dis-review.ts';
+export type { Review, ReviewCell, ReviewFinding, ReviewInput, ReviewSeverity } from './dis-review.ts';

@@ -1,5 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import type { components } from '@machvon/contracts';
+import { toAttachment, toNarrative, toProgress, toReview } from './detail-parts';
+import type { Attachment, Narrative, Progress, Review } from './detail-parts';
 import { digitsOf } from './money';
 
 /** DIS-01 the list of the weekly reports, DIS-02 the choice of the period and the project, DIS-04 the entry of the six cells, DIS-18 the draft that was saved (ST-DIS-003, DIS 3 F1). */
@@ -7,6 +9,10 @@ export const REPORTS_PATH = '/dis/dis-01';
 export const CREATE_PATH = '/dis/dis-02';
 export const EDIT_PATH = '/dis/dis-04';
 export const SAVED_PATH = '/dis/dis-18';
+/** The steps of the draft that follow the choice of the period and the project (ST-DIS-004): the volumes, the cumulative cells, the registration for next month and the review. */
+export const PROGRESS_PATH = '/dis/dis-03';
+export const REGISTRATION_PATH = '/dis/dis-05';
+export const REVIEW_PATH = '/dis/dis-06';
 
 /** The permissions that gate the buttons; the server decides again on every request. */
 export const CREATE_PERMISSION = 'report.create';
@@ -158,7 +164,12 @@ export interface ReportDetail {
   period: { id: string; code: string; periodType: string; fiscalYear: number; startDate: string; endDate: string; status: string };
   planVersion: { id: string; fiscalYear: number; revision: number };
   cells: FundingCell[];
-  totals: { allocatedVnd: string; cumulativeVnd: string; ctmtqgVnd: string };
+  totals: { allocatedVnd: string; cumulativeVnd: string; ctmtqgVnd: string; nextMonthVnd: string; nextMonthCtmtqgVnd: string };
+  progress: Progress | null;
+  narrative: Narrative | null;
+  attachments: Attachment[];
+  /** The review of a draft; none for a report that was handed in. */
+  review: Review | null;
 }
 
 export function toReportDetail(raw: unknown): ReportDetail | undefined {
@@ -226,7 +237,11 @@ export function toReportDetail(raw: unknown): ReportDetail | undefined {
     },
     planVersion: { id: planId, fiscalYear: whole(plan?.fiscal_year) ?? 0, revision: whole(plan?.revision) ?? 0 },
     cells,
-    totals: { allocatedVnd: allocated, cumulativeVnd: cumulative, ctmtqgVnd: ctmtqg },
+    totals: { allocatedVnd: allocated, cumulativeVnd: cumulative, ctmtqgVnd: ctmtqg, nextMonthVnd: dong(totals?.next_month_vnd) ?? '0', nextMonthCtmtqgVnd: dong(totals?.next_month_ctmtqg_vnd) ?? '0' },
+    progress: toProgress(row.progress),
+    narrative: toNarrative(row.narrative),
+    attachments: (Array.isArray(row.attachments) ? row.attachments : []).flatMap((item) => toAttachment(item) ?? []),
+    review: toReview(row.review),
   };
 }
 
@@ -390,6 +405,11 @@ export type ReportProblem =
   | 'scopeDenied'
   | 'validation'
   | 'notFound'
+  | 'fileInfected'
+  | 'fileType'
+  | 'fileTooLarge'
+  | 'scanPending'
+  | 'hashMismatch'
   | 'general';
 
 const PROBLEM_BY_CODE: Readonly<Record<string, ReportProblem>> = {
@@ -406,6 +426,11 @@ const PROBLEM_BY_CODE: Readonly<Record<string, ReportProblem>> = {
   INVALID_REQUEST: 'validation',
   FIELD_NOT_ALLOWED: 'validation',
   RESOURCE_NOT_FOUND: 'notFound',
+  FILE_NOT_CLEAN: 'fileInfected',
+  FILE_TYPE_NOT_ALLOWED: 'fileType',
+  PAYLOAD_TOO_LARGE: 'fileTooLarge',
+  SCAN_PENDING: 'scanPending',
+  HASH_MISMATCH: 'hashMismatch',
 };
 
 export interface DescribedReport {
@@ -416,7 +441,9 @@ export interface DescribedReport {
   field: string | undefined;
 }
 
-const DETAIL_FIELD = /^funding_lines\[(\d)\]\.(cumulative_vnd|ctmtqg_subset_vnd)$/;
+const DETAIL_FIELD = /^funding_lines\[(\d)\]\.(cumulative_vnd|ctmtqg_subset_vnd|next_month_vnd|next_month_ctmtqg_subset_vnd)$/;
+/** The suffix of the field id of a cell for each member the server can name. */
+const FIELD_SUFFIX: Readonly<Record<string, string>> = { cumulative_vnd: 'cumulative', ctmtqg_subset_vnd: 'ctmtqg', next_month_vnd: 'nextMonth', next_month_ctmtqg_subset_vnd: 'nextCtmtqg' };
 
 /** Maps the error of a command to what the screen shows; an unknown failure is the general message. */
 export function describeReport(error: unknown): DescribedReport {
@@ -427,7 +454,7 @@ export function describeReport(error: unknown): DescribedReport {
   return {
     problem: PROBLEM_BY_CODE[error.code] ?? 'general',
     existingId: typeof existing === 'string' ? existing : undefined,
-    field: key === undefined || matched === null ? undefined : fieldId(key, matched[2] === 'ctmtqg_subset_vnd' ? 'ctmtqg' : 'cumulative'),
+    field: key === undefined || matched === null ? undefined : `${cellId(key)}.${FIELD_SUFFIX[matched[2] ?? ''] ?? 'cumulative'}`,
   };
 }
 

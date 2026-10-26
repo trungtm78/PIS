@@ -366,6 +366,13 @@ export class DisPeriodStore {
     return { period, late: await this.rules.isLate(tx, bound, at), deadlineAt, reopen };
   }
 
+  /** Whether the period takes no report from the project at `at`: it is locked and no approved reopening covers the project. A period that does not exist takes none. */
+  async closedFor(tx: TenantTx, periodId: string, projectId: string, at: Date): Promise<boolean> {
+    const period = await this.find(tx, periodId);
+    if (period === undefined) return true;
+    return period.status === 'LOCKED' && (await this.openWindow(tx, periodId, projectId, at)) === null;
+  }
+
   /** The approved reopening whose window is open at `at` and covers the project (the latest to end when several do); empty when none does. */
   private async openWindow(tx: TenantTx, periodId: string, projectId: string, at: Date): Promise<{ id: string; windowUntil: string } | null> {
     const rows = await tx.query<{ id: string; window_until: string }>(

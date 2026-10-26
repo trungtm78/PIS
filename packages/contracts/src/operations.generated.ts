@@ -884,6 +884,7 @@ export const OPERATIONS = {
   "uploadNationalCodeFile": { method: "post", path: "/project-national-code-imports/files", versioned: false, stepUp: null, permission: "project.national_code.manage" },
   "uploadProcurementFile": { method: "post", path: "/procurement-imports/files", versioned: false, stepUp: null, permission: "bid.import" },
   "uploadProposalFile": { method: "post", path: "/proposals/files", versioned: false, stepUp: null, permission: "bid.proposal.receive" },
+  "uploadReportFile": { method: "post", path: "/report-files", versioned: false, stepUp: null, permission: "report.edit" },
   "uploadSystemTenantThemeAsset": { method: "post", path: "/system/tenants/{tenantId}/theme/assets", versioned: false, stepUp: null, permission: "system.theme.manage" },
   "uploadTreasuryStatementFile": { method: "post", path: "/treasury-imports/files", versioned: false, stepUp: null, permission: "treasury.import" },
   "upsertIssueSlaPolicy": { method: "post", path: "/issue-sla-policies", versioned: false, stepUp: null, permission: "issue.sla.manage" },

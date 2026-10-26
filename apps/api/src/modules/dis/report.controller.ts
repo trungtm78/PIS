@@ -1,19 +1,25 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { DisPeriodStore, DisReportStore, REPORT_RESOURCE, TenantDatabase, projectScope } from '@machvon/db';
-import type { FundingLineRow, ReportFilter, RevisionDetail, RevisionHead, RevisionLine } from '@machvon/db';
+import type { AttachmentFile, FundingLineRow, ReportFilter, RevisionDetail, RevisionHead, RevisionLine, TenantTx } from '@machvon/db';
 import {
   DomainError,
   REPORT_TYPES,
   REVISION_STATUSES,
   assertReportableStage,
   asUuid,
+  attachmentsOf,
   draftHash,
   fundingCells,
   fundingTotals,
+  narrativeOf,
   negativeDeltaExplanation,
+  objectKey,
+  progressOf,
+  reviewReport,
+  treasuryWindow,
 } from '@machvon/kernel';
-import type { EffectiveAccess, FundingInput, ReportType, TenantContext } from '@machvon/kernel';
+import type { AttachmentRef, EffectiveAccess, FundingInput, NarrativeInput, ProgressInput, ReportType, Review, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
@@ -23,6 +29,8 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { FileService } from '../files';
+import { REPORT_FILE_PURPOSE } from './report-file.controller';
 import { DIS_CLOCK } from './tokens';
 
 const READ_PERMISSION = PERMISSIONS.getReportRevision;
@@ -31,8 +39,6 @@ const EDIT_PERMISSION = PERMISSIONS.post_reports_id_revisions;
 const LIST_PERMISSION = PERMISSIONS.get_resources_report_revision;
 /** A week is reported weekly and a month monthly; the other kinds of period take no report of this kind (DIS 3 F1). */
 const PERIOD_TYPE_OF: Readonly<Record<ReportType, string>> = { WEEKLY: 'WEEK', MONTHLY: 'MONTH' };
-/** What the report carries beyond its six cells is the story of the volumes and the narrative (ST-DIS-004): until it lands the request refuses them instead of dropping them. */
-const LATER_MEMBERS = ['construction_vnd', 'acceptance_vnd', 'treasury_submitted_vnd', 'preparing_dossier_vnd', 'physical_progress_pct', 'narrative'] as const;
 const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 const line = (row: FundingLineRow): Record<string, unknown> => ({
@@ -52,7 +58,7 @@ const line = (row: FundingLineRow): Record<string, unknown> => ({
  * A report as DIS-04 reads it: the revision, the project, the period and the plan version it rests on, the six cells with what the plan allocated and what the period before had reached, and
  * the totals. The total is the sum of the six cumulative cells; the CTMTQG is inside them and is given apart, never added (BR-DIS-01). Money is text, whole dong.
  */
-export function reportView(detail: RevisionDetail): Record<string, unknown> {
+export function reportView(detail: RevisionDetail, review: Review | null = null): Record<string, unknown> {
   const next = fundingTotals(detail.lines);
   return {
     id: detail.id,
@@ -90,6 +96,40 @@ export function reportView(detail: RevisionDetail): Record<string, unknown> {
       next_month_ctmtqg_vnd: next.nextMonthCtmtqgVnd,
     },
     needs_explanation: detail.lines.some((row) => row.deltaVnd !== null && row.deltaVnd.startsWith('-')),
+    progress:
+      detail.progress === null
+        ? null
+        : {
+            construction_vnd: detail.progress.constructionVnd,
+            acceptance_vnd: detail.progress.acceptanceVnd,
+            treasury_submitted_vnd: detail.progress.treasurySubmittedVnd,
+            preparing_dossier_vnd: detail.progress.preparingDossierVnd,
+            physical_progress_pct: detail.progress.physicalProgressPct,
+            as_of_date: detail.progress.asOfDate,
+            measurement_basis: detail.progress.measurementBasis,
+          },
+    narrative:
+      detail.narrative === null
+        ? null
+        : { results: detail.narrative.resultsText, causes: detail.narrative.causesText, solutions: detail.narrative.solutionsText, proposals: detail.narrative.proposalsText, linked_issue_ids: [...detail.narrative.linkedIssueIds] },
+    attachments: detail.attachments.map((file) => ({
+      id: file.id,
+      file_object_id: file.fileObjectId,
+      file_sha256: file.fileSha256,
+      file_name: file.fileName,
+      content_type: file.contentType,
+      size_bytes: file.sizeBytes,
+      position: file.position,
+      created_at: file.createdAt,
+    })),
+    review:
+      review === null
+        ? null
+        : {
+            blocking: review.blocking,
+            errors: review.errors.map((finding) => ({ code: finding.code, field: finding.field, values: finding.values })),
+            warnings: review.warnings.map((finding) => ({ code: finding.code, field: finding.field, values: finding.values })),
+          },
   };
 }
 
@@ -116,17 +156,42 @@ interface Entries {
   cells: FundingInput[];
   explanation: string | null;
   reportType: ReportType;
+  /** The volumes, the narrative and the files the request names; undefined for what it leaves out (a save keeps it, a new draft has none). */
+  progress: ProgressInput | undefined;
+  narrative: NarrativeInput | null | undefined;
+  attachments: AttachmentRef[] | undefined;
 }
 
-/** What a request enters, once it is read: the cells, the explanation of a fall and the kind of report; anything the story does not take yet is refused by name. */
+/** What a request enters, once it is read: the cells, the explanation of a fall, the kind of report, the volumes, the narrative and the files. */
 function entriesOf(body: Schemas['ReportDraft']): Entries {
-  const record = body as unknown as Record<string, unknown>;
-  for (const member of LATER_MEMBERS) {
-    if (record[member] !== undefined) throw new DomainError('VALIDATION_FAILED', 422, member);
-  }
   const reportType: ReportType = body.report_type ?? 'WEEKLY';
   if (!(REPORT_TYPES as readonly string[]).includes(reportType)) throw new DomainError('VALIDATION_FAILED', 422, 'report_type');
-  return { cells: fundingCells(body.funding_lines), explanation: negativeDeltaExplanation(body.negative_delta_explanation), reportType };
+  return {
+    cells: fundingCells(body.funding_lines),
+    explanation: negativeDeltaExplanation(body.negative_delta_explanation),
+    reportType,
+    progress: progressOf(body),
+    narrative: body.narrative === undefined ? undefined : narrativeOf(body.narrative),
+    attachments: attachmentsOf(body.attachments),
+  };
+}
+
+/**
+ * The files a draft names, checked against the store: each is of this tenant (a key of another tenant is a file that does not exist), is the file the upload door stored under that hash, and is
+ * clean. A file that is missing is 422 `VALIDATION_FAILED` naming it, one with another hash 422 `HASH_MISMATCH`, an infected one 422 `FILE_NOT_CLEAN` and one the scan has not finished with 409
+ * `SCAN_PENDING`; none of them is linked.
+ */
+async function resolveFiles(files: FileService, tenant: TenantContext, refs: readonly AttachmentRef[]): Promise<AttachmentFile[]> {
+  const resolved: AttachmentFile[] = [];
+  for (const [index, ref] of refs.entries()) {
+    const stored = await files.open(tenant, objectKey(tenant.tenantId, REPORT_FILE_PURPOSE, ref.fileObjectId)).catch((error: unknown) => {
+      if (error instanceof DomainError && error.status === 404) throw new DomainError('VALIDATION_FAILED', 422, `attachments[${index}].file_object_id`);
+      throw error;
+    });
+    if (stored.sha256 !== ref.fileSha256) throw new DomainError('HASH_MISMATCH', 422, `attachments[${index}].file_sha256`);
+    resolved.push({ ...ref, contentType: stored.contentType, sizeBytes: stored.size });
+  }
+  return resolved;
 }
 
 function filterOf(query: Record<string, unknown>): ReportFilter {
@@ -174,7 +239,10 @@ export class ReportController {
   private readonly periods = new DisPeriodStore();
   private readonly clock: () => Date;
 
-  constructor(@Optional() @Inject(DIS_CLOCK) clock?: () => Date) {
+  constructor(
+    @Inject(FileService) private readonly files: FileService,
+    @Optional() @Inject(DIS_CLOCK) clock?: () => Date,
+  ) {
     this.clock = clock ?? ((): Date => new Date());
   }
 
@@ -196,6 +264,9 @@ export class ReportController {
         measurementBasis: body.measurement_basis,
         cells: entries.cells,
         negativeDeltaExplanation: entries.explanation,
+        progress: entries.progress ?? null,
+        narrative: entries.narrative ?? null,
+        attachments: entries.attachments ?? [],
       });
     if (body.client_operation_id !== undefined) {
       const earlier = await this.reports.byClientOperation(scope.tx, body.client_operation_id);
@@ -215,6 +286,8 @@ export class ReportController {
     if (effective === undefined || (body.plan_version_id !== undefined && effective.id !== body.plan_version_id.toLowerCase())) {
       throw new DomainError('PLAN_VERSION_NOT_EFFECTIVE', 422, 'plan_version_id', { extensions: effective === undefined ? {} : { effective_plan_version_id: effective.id } });
     }
+    await this.assertIssues(scope.tx, project.id, entries.narrative ?? null);
+    const files = await resolveFiles(this.files, scope.tenant, entries.attachments ?? []);
     const hash = hashFor(effective.id);
     const made = await this.reports.createDraft(
       scope.tx,
@@ -226,6 +299,10 @@ export class ReportController {
         measurementBasis: body.measurement_basis,
         cells: entries.cells,
         negativeDeltaExplanation: entries.explanation,
+        progress: entries.progress ?? null,
+        narrative: entries.narrative ?? null,
+        attachments: files,
+        asOfDate: judged.period.endDate,
         clientOperationId: body.client_operation_id,
         allocations: await this.reports.allocations(scope.tx, effective.id),
       },
@@ -246,6 +323,7 @@ export class ReportController {
         payload_hash: hash,
         cumulative_vnd: totals.cumulativeVnd,
         ctmtqg_vnd: totals.ctmtqgVnd,
+        ...this.entriesTrail(entries.progress, entries.narrative, entries.attachments),
         reopened: judged.reopen !== null,
       },
     });
@@ -268,16 +346,64 @@ export class ReportController {
     // What was handed in is not edited; the answer does not wait for the period.
     this.reports.assertEditable(head);
     this.assertSame(head, body, entries.reportType);
-    await this.periods.judge(scope.tx, head.periodId, head.projectId, now);
-    const saved = await this.reports.saveDraft(scope.tx, head, { measurementBasis: body.measurement_basis, cells: entries.cells, negativeDeltaExplanation: entries.explanation }, scope.tenant.membershipId);
+    const judged = await this.periods.judge(scope.tx, head.periodId, head.projectId, now);
+    await this.assertIssues(scope.tx, head.projectId, entries.narrative ?? null);
+    const files = entries.attachments === undefined ? undefined : await resolveFiles(this.files, scope.tenant, entries.attachments);
+    const saved = await this.reports.saveDraft(
+      scope.tx,
+      head,
+      {
+        measurementBasis: body.measurement_basis,
+        cells: entries.cells,
+        negativeDeltaExplanation: entries.explanation,
+        progress: entries.progress,
+        narrative: entries.narrative,
+        attachments: files,
+      },
+      judged.period.endDate,
+      scope.tenant.membershipId,
+    );
     const totals = fundingTotals(entries.cells);
     await scope.audit({
       action: 'dis.report_saved',
       resourceType: REPORT_RESOURCE,
       resourceId: id,
-      diff: { revision: head.revision, measurement_basis: body.measurement_basis, payload_hash: saved.payloadHash, cumulative_vnd: totals.cumulativeVnd, ctmtqg_vnd: totals.ctmtqgVnd, version: saved.version },
+      diff: {
+        revision: head.revision,
+        measurement_basis: body.measurement_basis,
+        payload_hash: saved.payloadHash,
+        cumulative_vnd: totals.cumulativeVnd,
+        ctmtqg_vnd: totals.ctmtqgVnd,
+        ...this.entriesTrail(entries.progress, entries.narrative, entries.attachments),
+        version: saved.version,
+      },
     });
     return commandResult(scope, 'DRAFT', saved.version, id);
+  }
+
+  /** The issues a narrative speaks about are issues of the project of the report: one that is not, or does not exist, is 422 `VALIDATION_FAILED` naming it. */
+  private async assertIssues(tx: TenantTx, projectId: string, narrative: NarrativeInput | null): Promise<void> {
+    if (narrative === null || narrative.linkedIssueIds.length === 0) return;
+    const outside = await this.reports.issuesOutside(tx, projectId, narrative.linkedIssueIds);
+    const first = outside[0];
+    if (first !== undefined) throw new DomainError('VALIDATION_FAILED', 422, `narrative.linked_issue_ids[${narrative.linkedIssueIds.indexOf(first)}]`);
+  }
+
+  /** What the trail keeps of the volumes, the narrative and the files: the amounts and the counts, never the words of a section or the name of a file. */
+  private entriesTrail(progress: ProgressInput | undefined, narrative: NarrativeInput | null | undefined, attachments: readonly AttachmentRef[] | undefined): Record<string, unknown> {
+    return {
+      ...(progress === undefined
+        ? {}
+        : {
+            construction_vnd: progress.constructionVnd,
+            acceptance_vnd: progress.acceptanceVnd,
+            treasury_submitted_vnd: progress.treasurySubmittedVnd,
+            preparing_dossier_vnd: progress.preparingDossierVnd,
+            physical_progress_pct: progress.physicalProgressPct,
+          }),
+      ...(narrative === undefined ? {} : { narrative_sections: narrative === null ? 0 : [narrative.resultsText, narrative.causesText, narrative.solutionsText, narrative.proposalsText].filter((text) => text !== null).length, linked_issues: narrative?.linkedIssueIds.length ?? 0 }),
+      ...(attachments === undefined ? {} : { attachments: attachments.length }),
+    };
   }
 
   /** A draft is saved for the project, the period and the plan version it was made for: another is a different report (422 `VALIDATION_FAILED` naming the member). */
@@ -293,8 +419,15 @@ export class ReportController {
 @Controller()
 export class ReportReadsController {
   private readonly reports = new DisReportStore();
+  private readonly periods = new DisPeriodStore();
+  private readonly clock: () => Date;
 
-  constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
+  constructor(
+    @Inject(TenantDatabase) private readonly database: TenantDatabase,
+    @Optional() @Inject(DIS_CLOCK) clock?: () => Date,
+  ) {
+    this.clock = clock ?? ((): Date => new Date());
+  }
 
   @Get('reports/:id')
   @OperationId('getReportRevision')
@@ -361,8 +494,38 @@ export class ReportReadsController {
   }
 
   private async detail(tenant: TenantContext, id: string, scope: ReturnType<typeof projectScope>): Promise<Record<string, unknown>> {
-    const found = await this.database.withTenant(tenant, (tx) => this.reports.find(tx, id, scope));
-    if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return reportView(found);
+    return this.database.withTenant(tenant, async (tx) => {
+      const found = await this.reports.find(tx, id, scope);
+      if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      // The review is what DIS-06 shows before a send, so it is made for a live draft; a report that was handed in has nothing left to fix.
+      return reportView(found, found.status === 'DRAFT' && !found.deleted ? await this.reviewOf(tx, found) : null);
+    });
+  }
+
+  /**
+   * The review of a draft (BR-DIS-07): the same errors the server would answer, and the warnings, all at once. The period is judged as a send would judge it (a locked period with no approved reopening
+   * covering the project is an error), the plan version against the one in force at the end of the period, and the cumulative against what the Treasury paid in the window of the basis.
+   */
+  private async reviewOf(tx: TenantTx, detail: RevisionDetail): Promise<Review> {
+    const periodClosed = await this.periods.closedFor(tx, detail.period.id, detail.project.id, this.clock());
+    const effective = await this.reports.effectivePlan(tx, detail.project.id, detail.period.fiscalYear, detail.period.endDate);
+    const treasury = await this.reports.treasuryFigure(tx, detail.project.id, treasuryWindow(detail.measurementBasis, detail.period));
+    return reviewReport({
+      status: detail.status,
+      deleted: detail.deleted,
+      periodClosed,
+      planInForce: effective?.id === detail.plan.id,
+      cells: detail.lines.map((row) => ({
+        cumulativeVnd: row.cumulativeVnd,
+        ctmtqgVnd: row.ctmtqgVnd,
+        nextMonthVnd: row.nextMonthVnd,
+        nextMonthCtmtqgVnd: row.nextMonthCtmtqgVnd,
+        allocatedVnd: row.allocatedVnd,
+        deltaVnd: row.deltaVnd,
+      })),
+      negativeDeltaExplanation: detail.negativeDeltaExplanation,
+      progress: detail.progress,
+      treasuryVnd: treasury?.totalVnd ?? null,
+    });
   }
 }

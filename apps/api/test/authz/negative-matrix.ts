@@ -612,6 +612,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/master-imports/files', body: {} }),
   },
+  uploadReportFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/report-files', body: {} }),
+  },
   uploadLandParcelFile: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/land-parcels/files', body: {} }),

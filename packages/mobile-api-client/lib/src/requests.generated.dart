@@ -9829,6 +9829,25 @@ final class ReasonOnly implements RequestModel {
       };
 }
 
+final class ReportAttachmentRef implements RequestModel {
+  const ReportAttachmentRef({
+    required this.fileObjectId,
+    required this.fileSha256,
+    required this.fileName,
+  });
+
+  final String fileObjectId;
+  final String fileSha256;
+  final String fileName;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_id': fileObjectId,
+        'file_sha256': fileSha256,
+        'file_name': fileName,
+      };
+}
+
 final class ReportDraft implements RequestModel {
   const ReportDraft({
     required this.projectId,
@@ -9845,6 +9864,7 @@ final class ReportDraft implements RequestModel {
     this.narrative,
     this.clientOperationId,
     this.negativeDeltaExplanation,
+    this.attachments,
   });
 
   final String projectId;
@@ -9858,9 +9878,10 @@ final class ReportDraft implements RequestModel {
   final String? treasurySubmittedVnd;
   final String? preparingDossierVnd;
   final String? physicalProgressPct;
-  final Map<String, Object?>? narrative;
+  final ReportNarrative? narrative;
   final String? clientOperationId;
   final String? negativeDeltaExplanation;
+  final List<ReportAttachmentRef>? attachments;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -9878,6 +9899,32 @@ final class ReportDraft implements RequestModel {
         if (narrative != null) 'narrative': narrative,
         if (clientOperationId != null) 'client_operation_id': clientOperationId,
         if (negativeDeltaExplanation != null) 'negative_delta_explanation': negativeDeltaExplanation,
+        if (attachments != null) 'attachments': attachments,
+      };
+}
+
+final class ReportNarrative implements RequestModel {
+  const ReportNarrative({
+    this.results,
+    this.causes,
+    this.solutions,
+    this.proposals,
+    this.linkedIssueIds,
+  });
+
+  final String? results;
+  final String? causes;
+  final String? solutions;
+  final String? proposals;
+  final List<String>? linkedIssueIds;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (results != null) 'results': results,
+        if (causes != null) 'causes': causes,
+        if (solutions != null) 'solutions': solutions,
+        if (proposals != null) 'proposals': proposals,
+        if (linkedIssueIds != null) 'linked_issue_ids': linkedIssueIds,
       };
 }
 

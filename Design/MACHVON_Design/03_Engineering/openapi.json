@@ -142,7 +142,10 @@
           "PLAN_VERSION_NOT_EFFECTIVE",
           "PROJECT_STAGE_INVALID",
           "SCOPE_DENIED",
-          "DRAFT_EXISTS"
+          "DRAFT_EXISTS",
+          "FILE_NOT_CLEAN",
+          "SCAN_PENDING",
+          "HASH_MISMATCH"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -290,7 +293,10 @@
           "REVISION_IMMUTABLE",
           "VERSION_CONFLICT",
           "PERIOD_LOCKED",
-          "SUBSET_EXCEEDS_PARENT"
+          "SUBSET_EXCEEDS_PARENT",
+          "FILE_NOT_CLEAN",
+          "SCAN_PENDING",
+          "HASH_MISMATCH"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -37728,6 +37734,156 @@
             }
           }
         }
+      }
+    },
+    "/report-files": {
+      "post": {
+        "operationId": "uploadReportFile",
+        "summary": "Put a file (a voucher, a scan) into the shared upload pipeline for a report draft: judged by its bytes, scanned, stored private to the tenant",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "report.edit",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The file is stored and clean; attach it to a draft with its id and hash",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisReportFile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "FILE_TYPE_NOT_ALLOWED",
+          "FILE_NOT_CLEAN",
+          "PAYLOAD_TOO_LARGE",
+          "SCAN_PENDING"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
       }
     },
     "/reporting-periods/generate": {
@@ -125165,10 +125321,12 @@
             "$ref": "#/components/schemas/Money"
           },
           "physical_progress_pct": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(100(\\.0{1,2})?|[0-9]{1,2}(\\.[0-9]{1,2})?)$",
+            "description": "Percent of the physical work, 0 to 100 with up to two decimals."
           },
           "narrative": {
-            "type": "object"
+            "$ref": "#/components/schemas/ReportNarrative"
           },
           "client_operation_id": {
             "type": "string",
@@ -125178,8 +125336,17 @@
             "type": "string",
             "minLength": 10,
             "maxLength": 2000
+          },
+          "attachments": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "$ref": "#/components/schemas/ReportAttachmentRef"
+            },
+            "description": "The whole list of the files attached to the draft; a save that leaves it out keeps the files as they are."
           }
-        }
+        },
+        "description": "The volumes (`construction_vnd`, `acceptance_vnd`, `treasury_submitted_vnd`, `preparing_dossier_vnd`, `physical_progress_pct`), `narrative` and `attachments` are replaced when a save names them and kept when it does not; naming any volume asks for the four amounts together."
       },
       "Decision": {
         "type": "object",
@@ -148082,6 +148249,95 @@
         "required": [
           "handling_note"
         ]
+      },
+      "ReportNarrative": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The words of a report (DIS-06 notes). Every section is optional in the weekly report; a section is at most 4000 characters and the issues are those of the project, each named once (at most 50). The member is the whole narrative: what it leaves out is removed from the draft.",
+        "properties": {
+          "results": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "causes": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "solutions": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "proposals": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "linked_issue_ids": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "ReportAttachmentRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_id",
+          "file_sha256",
+          "file_name"
+        ],
+        "description": "A file attached to a report, as the upload door `uploadReportFile` answered it. Only a file that the scan found clean, of this tenant, with this hash, can be attached (422 FILE_NOT_CLEAN, 409 SCAN_PENDING, 422 HASH_MISMATCH).",
+        "properties": {
+          "file_object_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "file_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "DisReportFile": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_id",
+          "file_sha256",
+          "file_name",
+          "content_type",
+          "size_bytes"
+        ],
+        "properties": {
+          "file_object_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "file_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
       }
     }
   }

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, FUNDING_CELLS, deltaOf, draftHash, fundingTotals, versionConflict } from '@machvon/kernel';
-import type { BudgetLevel, FundingBucket, FundingInput, FundingTotals, MeasurementBasis, ReportType, RevisionStatus } from '@machvon/kernel';
+import type { AttachmentRef, BudgetLevel, FundingBucket, FundingInput, FundingTotals, MeasurementBasis, NarrativeInput, ProgressInput, ReportType, RevisionStatus } from '@machvon/kernel';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -91,12 +91,40 @@ export interface FundingLineRow {
   deltaVnd: string | null;
 }
 
+/** The volumes of a report as they are kept: the date is the last day of the period, the basis the one of the report. */
+export interface ProgressRow extends ProgressInput {
+  asOfDate: string;
+  measurementBasis: MeasurementBasis;
+}
+
+/** A file attached to a report as the upload door answered it, in the order it was attached. */
+export interface AttachmentFile extends AttachmentRef {
+  contentType: string;
+  sizeBytes: number;
+}
+
+export interface AttachmentRow extends AttachmentFile {
+  id: string;
+  position: number;
+  createdAt: string;
+  createdBy: string;
+}
+
 export interface RevisionDetail extends RevisionHead {
   project: ReportProject;
   period: ReportPeriodFacts;
   plan: PlanFacts;
   lines: FundingLineRow[];
   totals: FundingTotals & { allocatedVnd: string };
+  progress: ProgressRow | null;
+  narrative: NarrativeInput | null;
+  attachments: AttachmentRow[];
+}
+
+/** What the Treasury paid for a project in a window of days (reversals taken off), and in how many transactions. */
+export interface TreasuryFigure {
+  totalVnd: string;
+  transactions: number;
 }
 
 export interface RevisionLine {
@@ -142,14 +170,26 @@ export interface NewDraft {
   measurementBasis: MeasurementBasis;
   cells: readonly FundingInput[];
   negativeDeltaExplanation: string | null;
+  progress: ProgressInput | null;
+  narrative: NarrativeInput | null;
+  attachments: readonly AttachmentFile[];
+  /** The last day of the period: the date the volumes are as of. */
+  asOfDate: string;
   clientOperationId: string | undefined;
   allocations: ReadonlyMap<string, Allocation>;
 }
 
+/**
+ * What a save enters. The basis, the cells and the explanation are the whole of those; the volumes, the narrative and the files are replaced when the request names them and kept as they are when
+ * it does not (undefined), so that each screen of the draft saves what it shows and nothing it does not.
+ */
 export interface DraftContent {
   measurementBasis: MeasurementBasis;
   cells: readonly FundingInput[];
   negativeDeltaExplanation: string | null;
+  progress: ProgressInput | undefined;
+  narrative: NarrativeInput | null | undefined;
+  attachments: readonly AttachmentFile[] | undefined;
 }
 
 interface HeadSql {
@@ -311,6 +351,9 @@ export class DisReportStore {
       measurementBasis: input.measurementBasis,
       cells: input.cells,
       negativeDeltaExplanation: input.negativeDeltaExplanation,
+      progress: input.progress,
+      narrative: input.narrative,
+      attachments: input.attachments,
     });
     try {
       await this.insertRevision(tx, { id, hash, input, actor });
@@ -322,6 +365,9 @@ export class DisReportStore {
     for (const cell of input.cells) {
       await this.insertCell(tx, id, cell, input.allocations.get(cellKey(cell.bucket, cell.budgetLevel)));
     }
+    if (input.progress !== null) await this.writeProgress(tx, id, input.progress, input.asOfDate, input.measurementBasis);
+    if (input.narrative !== null) await this.writeNarrative(tx, id, input.narrative, actor);
+    await this.writeAttachments(tx, id, input.attachments, actor);
     return { id, version: 1 };
   }
 
@@ -378,9 +424,15 @@ export class DisReportStore {
     return head;
   }
 
-  /** Saves the entries of a live draft: the cells and the basis are replaced, the amounts the plan allocated stay, and the hash and the version move. */
-  async saveDraft(tx: TenantTx, head: RevisionHead, content: DraftContent, actor: string): Promise<{ version: number; payloadHash: string }> {
+  /**
+   * Saves the entries of a live draft: the cells and the basis are replaced, the amounts the plan allocated stay; the volumes, the narrative and the files are replaced when the save names them and kept
+   * when it does not. The hash is of what the draft holds after the save, and the version moves once.
+   */
+  async saveDraft(tx: TenantTx, head: RevisionHead, content: DraftContent, asOfDate: string, actor: string): Promise<{ version: number; payloadHash: string }> {
     this.assertEditable(head);
+    const progress = content.progress === undefined ? ((await this.progressOf(tx, head.id))?.progress ?? null) : content.progress;
+    const narrative = content.narrative === undefined ? await this.narrativeOf(tx, head.id) : content.narrative;
+    const attachments = content.attachments ?? (await this.attachmentsOf(tx, head.id));
     const hash = draftHash({
       projectId: head.projectId,
       periodId: head.periodId,
@@ -389,6 +441,9 @@ export class DisReportStore {
       measurementBasis: content.measurementBasis,
       cells: content.cells,
       negativeDeltaExplanation: content.negativeDeltaExplanation,
+      progress,
+      narrative,
+      attachments,
     });
     for (const cell of content.cells) {
       await tx.query(
@@ -405,7 +460,122 @@ export class DisReportStore {
         where id = $1::uuid returning version::text as version`,
       [head.id, content.measurementBasis, content.negativeDeltaExplanation, hash, actor],
     );
+    // The volumes are read on the basis of the report: a new basis moves them with it, even when the save does not name them.
+    if (progress !== null) await this.writeProgress(tx, head.id, progress, asOfDate, content.measurementBasis);
+    if (content.narrative !== undefined) await this.writeNarrative(tx, head.id, content.narrative, actor);
+    if (content.attachments !== undefined) await this.writeAttachments(tx, head.id, content.attachments, actor);
     return { version: Number((updated as { version: string }).version), payloadHash: hash };
+  }
+
+  /** The volumes of a report with the date and the basis they are kept with; undefined when none were entered. */
+  async progressOf(tx: TenantTx, reportId: string): Promise<{ progress: ProgressInput; asOfDate: string; measurementBasis: MeasurementBasis } | undefined> {
+    const [row] = await tx.query<{ construction: string; acceptance: string; treasury: string; preparing: string; pct: string | null; as_of: string; basis: MeasurementBasis }>(
+      `select construction_value_vnd::text as construction, acceptance_value_vnd::text as acceptance, treasury_submitted_value_vnd::text as treasury, preparing_dossier_value_vnd::text as preparing,
+              physical_progress_pct::text as pct, as_of_date::text as as_of, measurement_basis as basis
+         from machvon.progress_snapshot where report_revision_id = $1::uuid`,
+      [reportId],
+    );
+    if (row === undefined) return undefined;
+    return {
+      progress: { constructionVnd: row.construction, acceptanceVnd: row.acceptance, treasurySubmittedVnd: row.treasury, preparingDossierVnd: row.preparing, physicalProgressPct: row.pct },
+      asOfDate: row.as_of,
+      measurementBasis: row.basis,
+    };
+  }
+
+  /** The narrative of a report; null when none was written. */
+  async narrativeOf(tx: TenantTx, reportId: string): Promise<NarrativeInput | null> {
+    const [row] = await tx.query<{ results: string | null; causes: string | null; solutions: string | null; proposals: string | null; issues: string[] | null }>(
+      'select results_text as results, causes_text as causes, solutions_text as solutions, proposals_text as proposals, linked_issue_ids as issues from machvon.report_narrative where report_revision_id = $1::uuid',
+      [reportId],
+    );
+    return row === undefined ? null : { resultsText: row.results, causesText: row.causes, solutionsText: row.solutions, proposalsText: row.proposals, linkedIssueIds: row.issues ?? [] };
+  }
+
+  /** The issues among the ones named that do not exist or are not issues of the project; empty when every one is. */
+  async issuesOutside(tx: TenantTx, projectId: string, issueIds: readonly string[]): Promise<string[]> {
+    const found = await tx.query<{ id: string }>('select id from machvon.issue where project_id = $1::uuid and id = any($2::uuid[])', [projectId, [...issueIds]]);
+    const present = new Set(found.map((row) => row.id));
+    return issueIds.filter((id) => !present.has(id));
+  }
+
+  /** The files attached to a report, in the order they were attached. */
+  async attachmentsOf(tx: TenantTx, reportId: string): Promise<AttachmentRow[]> {
+    const rows = await tx.query<{ id: string; file_object_id: string; file_sha256: string; file_name: string; content_type: string; size_bytes: string; position: number; created_at: string; created_by: string }>(
+      `select id, file_object_id, file_sha256, file_name, content_type, size_bytes::text as size_bytes, position, ${iso('created_at')} as created_at, created_by
+         from machvon.report_attachment where report_revision_id = $1::uuid order by position`,
+      [reportId],
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      fileObjectId: row.file_object_id,
+      fileSha256: row.file_sha256,
+      fileName: row.file_name,
+      contentType: row.content_type,
+      sizeBytes: Number(row.size_bytes),
+      position: row.position,
+      createdAt: row.created_at,
+      createdBy: row.created_by,
+    }));
+  }
+
+  private async writeProgress(tx: TenantTx, reportId: string, progress: ProgressInput, asOfDate: string, basis: MeasurementBasis): Promise<void> {
+    await tx.query(
+      `insert into machvon.progress_snapshot
+         (tenant_id, id, report_revision_id, construction_value_vnd, acceptance_value_vnd, treasury_submitted_value_vnd, preparing_dossier_value_vnd, measurement_basis, as_of_date, physical_progress_pct)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::numeric, $3::numeric, $4::numeric, $5::numeric, $6, $7::date, $8::numeric)
+       on conflict (tenant_id, report_revision_id) do update
+         set construction_value_vnd = excluded.construction_value_vnd, acceptance_value_vnd = excluded.acceptance_value_vnd, treasury_submitted_value_vnd = excluded.treasury_submitted_value_vnd,
+             preparing_dossier_value_vnd = excluded.preparing_dossier_value_vnd, measurement_basis = excluded.measurement_basis, as_of_date = excluded.as_of_date,
+             physical_progress_pct = excluded.physical_progress_pct`,
+      [reportId, progress.constructionVnd, progress.acceptanceVnd, progress.treasurySubmittedVnd, progress.preparingDossierVnd, basis, asOfDate, progress.physicalProgressPct],
+    );
+  }
+
+  /** The narrative is written whole: the row is replaced, and removed when the save leaves none. */
+  private async writeNarrative(tx: TenantTx, reportId: string, narrative: NarrativeInput | null, actor: string): Promise<void> {
+    if (narrative === null) {
+      await tx.query('delete from machvon.report_narrative where report_revision_id = $1::uuid', [reportId]);
+      return;
+    }
+    await tx.query(
+      `insert into machvon.report_narrative
+         (tenant_id, id, report_revision_id, results_text, causes_text, solutions_text, proposals_text, linked_issue_ids, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2, $3, $4, $5, $6::uuid[], $7::uuid, $7::uuid)
+       on conflict (tenant_id, report_revision_id) do update
+         set results_text = excluded.results_text, causes_text = excluded.causes_text, solutions_text = excluded.solutions_text, proposals_text = excluded.proposals_text,
+             linked_issue_ids = excluded.linked_issue_ids, updated_at = now(), updated_by = excluded.updated_by, version = machvon.report_narrative.version + 1`,
+      [reportId, narrative.resultsText, narrative.causesText, narrative.solutionsText, narrative.proposalsText, [...narrative.linkedIssueIds], actor],
+    );
+  }
+
+  /** The files are written as the whole list: the ones no longer named are unlinked, the ones that stay keep their row, the new ones are added at their place. */
+  private async writeAttachments(tx: TenantTx, reportId: string, files: readonly AttachmentFile[], actor: string): Promise<void> {
+    await tx.query('delete from machvon.report_attachment where report_revision_id = $1::uuid and not (file_object_id = any($2::uuid[]))', [reportId, files.map((file) => file.fileObjectId)]);
+    for (const [index, file] of files.entries()) {
+      await tx.query(
+        `insert into machvon.report_attachment (tenant_id, id, report_revision_id, file_object_id, file_sha256, file_name, content_type, size_bytes, position, created_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3, $4, $5, $6::bigint, $7, $8::uuid)
+         on conflict (tenant_id, report_revision_id, file_object_id) do update set file_name = excluded.file_name, position = excluded.position`,
+        [reportId, file.fileObjectId, file.fileSha256, file.fileName, file.contentType, file.sizeBytes, index + 1, actor],
+      );
+    }
+  }
+
+  /**
+   * What the Treasury paid for the project from `from` to `to` (Vietnam days, `from` null for no start), the reversals taken off (BR-DIS-06: a payment counts on the day the Treasury booked it);
+   * undefined when it booked nothing in the window, which is not the same as zero (BR-DIS-08).
+   */
+  async treasuryFigure(tx: TenantTx, projectId: string, window: { from: string | null; to: string }): Promise<TreasuryFigure | undefined> {
+    const [row] = await tx.query<{ total: string; n: string }>(
+      `select coalesce(sum(case when t.reversal_of_id is not null then -t.amount_vnd else t.amount_vnd end), 0)::text as total, count(*)::text as n
+         from machvon.treasury_transaction t
+        where t.project_id = $1::uuid and (t.confirmed_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date
+          and ($2::date is null or (t.confirmed_at at time zone 'Asia/Ho_Chi_Minh')::date >= $2::date)`,
+      [projectId, window.from, window.to],
+    );
+    const found = row as { total: string; n: string };
+    return Number(found.n) === 0 ? undefined : { totalVnd: found.total, transactions: Number(found.n) };
   }
 
   /** One report in the scope of the caller with its project, its period, its plan version and its cells; undefined when it does not exist or lies outside the scope. */
@@ -477,6 +647,7 @@ export class DisReportStore {
     });
     const totals = fundingTotals(lines);
     const allocated = lines.reduce((sum, line) => sum + BigInt(line.allocatedVnd), 0n);
+    const volumes = await this.progressOf(tx, id);
     return {
       ...head,
       project: { id: head.projectId, code: row.p_code, name: row.p_name, status: row.p_status },
@@ -484,6 +655,9 @@ export class DisReportStore {
       plan: { id: head.planVersionId, projectId: row.pv_project, fiscalYear: row.pv_year, revision: row.pv_revision, status: row.pv_status },
       lines,
       totals: { ...totals, allocatedVnd: allocated.toString() },
+      progress: volumes === undefined ? null : { ...volumes.progress, asOfDate: volumes.asOfDate, measurementBasis: volumes.measurementBasis },
+      narrative: await this.narrativeOf(tx, id),
+      attachments: await this.attachmentsOf(tx, id),
     };
   }
 

@@ -186,10 +186,13 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       // A maker submits in SOFT_CLOSED: accepted, and late (the deadline was 03:00:00Z).
       const judged = await as((tx) => periods.judge(tx, week40.id, PROJECT, at('2026-10-02T03:05:30Z')));
       expect(judged).toMatchObject({ late: true, deadlineAt: '2026-10-02T03:00:00.000Z', period: { status: 'SOFT_CLOSED' } });
+      expect(await as((tx) => periods.closedFor(tx, week40.id, PROJECT, at('2026-10-02T03:05:30Z')))).toBe(false);
       expect(await refusal(as((tx) => periods.softClose(tx, week40.id, 2, memberId(ACTOR), at('2026-10-02T03:06:00Z'))))).toEqual({ code: 'PERIOD_STATE_INVALID', status: 409, detail: 'status' });
       const locked = await as((tx) => periods.lock(tx, week40.id, 2, memberId(ACTOR), at('2026-10-02T03:10:00Z')));
       expect(locked).toMatchObject({ status: 'LOCKED', lockedAt: '2026-10-02T03:10:00.000Z', lockedBy: memberId(ACTOR), version: 3 });
       expect(await refusal(as((tx) => periods.judge(tx, week40.id, PROJECT, at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'PERIOD_LOCKED', status: 409 });
+      expect(await as((tx) => periods.closedFor(tx, week40.id, PROJECT, at('2026-10-02T03:11:00Z')))).toBe(true);
+      expect(await as((tx) => periods.closedFor(tx, randomUUID(), PROJECT, at('2026-10-02T03:11:00Z')))).toBe(true);
       expect(await refusal(as((tx) => periods.lock(tx, week40.id, 3, memberId(ACTOR), at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'PERIOD_STATE_INVALID', status: 409, detail: 'status' });
       expect(await refusal(as((tx) => periods.judge(tx, randomUUID(), PROJECT, at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
     });

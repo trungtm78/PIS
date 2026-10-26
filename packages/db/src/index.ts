@@ -844,10 +844,13 @@ export { AudReportStore, reportPayloadRef } from './aud-report-store.ts';
 export { DisReportStore, REPORT_RESOURCE } from './dis-report-store.ts';
 export type {
   Allocation,
+  AttachmentFile,
+  AttachmentRow,
   DraftContent as ReportDraftContent,
   FundingLineRow,
   NewDraft,
   PlanFacts,
+  ProgressRow,
   ReportFilter,
   ReportKpi,
   ReportPeriodFacts,
@@ -855,5 +858,6 @@ export type {
   RevisionDetail,
   RevisionHead,
   RevisionLine,
+  TreasuryFigure,
 } from './dis-report-store.ts';
 export type { NewReport, ReportContext, ReportHead, ReportLine } from './aud-report-store.ts';

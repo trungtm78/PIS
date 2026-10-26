@@ -117,3 +117,30 @@ th.num {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+.dis-steps ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.dis-steps a[aria-current='step'] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+.dis-findings {
+  margin: 4px 0 12px;
+  padding-left: 20px;
+}
+.dis-findings li {
+  margin: 4px 0;
+}
+.dis-files {
+  margin: 4px 0 12px;
+  padding-left: 0;
+  list-style: none;
+}
+.dis-files li {
+  margin: 6px 0;
+}

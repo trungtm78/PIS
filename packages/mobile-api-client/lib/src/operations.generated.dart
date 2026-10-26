@@ -886,6 +886,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'uploadNationalCodeFile': OperationDescriptor(method: 'POST', path: '/project-national-code-imports/files', versioned: false, stepUp: null, permission: 'project.national_code.manage'),
   'uploadProcurementFile': OperationDescriptor(method: 'POST', path: '/procurement-imports/files', versioned: false, stepUp: null, permission: 'bid.import'),
   'uploadProposalFile': OperationDescriptor(method: 'POST', path: '/proposals/files', versioned: false, stepUp: null, permission: 'bid.proposal.receive'),
+  'uploadReportFile': OperationDescriptor(method: 'POST', path: '/report-files', versioned: false, stepUp: null, permission: 'report.edit'),
   'uploadSystemTenantThemeAsset': OperationDescriptor(method: 'POST', path: '/system/tenants/{tenantId}/theme/assets', versioned: false, stepUp: null, permission: 'system.theme.manage'),
   'uploadTreasuryStatementFile': OperationDescriptor(method: 'POST', path: '/treasury-imports/files', versioned: false, stepUp: null, permission: 'treasury.import'),
   'upsertIssueSlaPolicy': OperationDescriptor(method: 'POST', path: '/issue-sla-policies', versioned: false, stepUp: null, permission: 'issue.sla.manage'),

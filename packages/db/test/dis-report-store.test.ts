@@ -49,6 +49,9 @@ const actsAll = projectScope(whole, CREATE, NOW);
 const readOnly = projectScope(accessOf([READ], { kind: 'TENANT' }), CREATE, NOW);
 const elsewhereOnly = projectScope(accessOf([READ, CREATE], { kind: 'UNIT_SUBTREE', refIds: [unitId(ELSEWHERE)], paths: ['/u3/'] }), READ, NOW);
 
+/** A save that names none of the volumes, the narrative and the files: it keeps them. */
+const KEEP = { progress: undefined, narrative: undefined, attachments: undefined };
+
 const project = { a: id(FAMILY, 1), b: id(FAMILY, 2), concept: id(FAMILY, 3) };
 const period = { w40: id(FAMILY, 10), w41: id(FAMILY, 11), w42: id(FAMILY, 12), y2025: id(FAMILY, 13), month: id(FAMILY, 14) };
 const plan = { published: id(FAMILY, 20), later: id(FAMILY, 21), draft: id(FAMILY, 22), year2025: id(FAMILY, 23), noLines: id(FAMILY, 24), b: id(FAMILY, 25) };
@@ -124,6 +127,10 @@ const draftOf = async (projectId: string, periodId: string, planId: string, over
   measurementBasis: 'YTD',
   cells: fundingCells(FX_DIS_001),
   negativeDeltaExplanation: null,
+  progress: null,
+  narrative: null,
+  attachments: [],
+  asOfDate: '2026-10-04',
   clientOperationId: undefined,
   allocations: await allocationsOf(planId),
   ...overrides,
@@ -280,7 +287,7 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       ]);
       expect(fundingTotals(stored.map((cell) => ({ cumulativeVnd: cell.cumulative, ctmtqgVnd: cell.ctmtqg, nextMonthVnd: cell.next_month, nextMonthCtmtqgVnd: null })))).toMatchObject({ cumulativeVnd: '420000000', ctmtqgVnd: '40000000' });
       expect((await state(made.id)).hash).toBe(
-        draftHash({ projectId: project.a, periodId: period.w40, planVersionId: plan.published, reportType: 'WEEKLY', measurementBasis: 'YTD', cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null }),
+        draftHash({ projectId: project.a, periodId: period.w40, planVersionId: plan.published, reportType: 'WEEKLY', measurementBasis: 'YTD', cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null, progress: null, narrative: null, attachments: [] }),
       );
     });
 
@@ -340,7 +347,7 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
         { bucket: 'OTHER', budget_level: 'LOCAL', cumulative_vnd: '5', source_year: 2024 },
       ]);
       const head = await lockFor(made.id, 1);
-      const saved = await as((tx) => store.saveDraft(tx, head, { measurementBasis: 'PERIOD', cells: next, negativeDeltaExplanation: 'The Treasury returned a payment.' }, memberId(MAKER)));
+      const saved = await as((tx) => store.saveDraft(tx, head, { ...KEEP, measurementBasis: 'PERIOD', cells: next, negativeDeltaExplanation: 'The Treasury returned a payment.' }, '2026-10-04', memberId(MAKER)));
       expect(saved.version).toBe(2);
       const after = await state(made.id);
       expect(after).toMatchObject({ status: 'DRAFT', version: '2', basis: 'PERIOD', explanation: 'The Treasury returned a payment.' });
@@ -356,19 +363,19 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       const made = await create(await freshProject(), await newPeriod(), id(FAMILY, 300 + counter));
       const head = await lockFor(made.id, 1);
       expect(await refusal(lockFor(made.id, 7))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
-      const content = { measurementBasis: 'YTD' as const, cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null };
-      const first = await as((tx) => store.saveDraft(tx, head, content, memberId(MAKER)));
-      const second = await as((tx) => store.saveDraft(tx, { ...head, version: first.version }, content, memberId(MAKER)));
+      const content = { ...KEEP, measurementBasis: 'YTD' as const, cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null };
+      const first = await as((tx) => store.saveDraft(tx, head, content, '2026-10-04', memberId(MAKER)));
+      const second = await as((tx) => store.saveDraft(tx, { ...head, version: first.version }, content, '2026-10-04', memberId(MAKER)));
       expect(second.payloadHash).toBe(first.payloadHash);
     });
 
     it('does not edit a revision that was handed in (409 REVISION_IMMUTABLE), nor one that was deleted', async () => {
       const made = await create(await freshProject(), await newPeriod(), id(FAMILY, 300 + counter));
       const head = await lockFor(made.id, 1);
-      const content = { measurementBasis: 'YTD' as const, cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null };
+      const content = { ...KEEP, measurementBasis: 'YTD' as const, cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null };
       await owner("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [made.id, memberId(MAKER)]);
-      expect(await refusal(as((tx) => store.saveDraft(tx, { ...head, status: 'SUBMITTED' }, content, memberId(MAKER))))).toMatchObject({ code: 'REVISION_IMMUTABLE', status: 409, extensions: { report_status: 'SUBMITTED' } });
-      expect(await refusal(as((tx) => store.saveDraft(tx, { ...head, deleted: true }, content, memberId(MAKER))))).toMatchObject({ code: 'REVISION_IMMUTABLE' });
+      expect(await refusal(as((tx) => store.saveDraft(tx, { ...head, status: 'SUBMITTED' }, content, '2026-10-04', memberId(MAKER))))).toMatchObject({ code: 'REVISION_IMMUTABLE', status: 409, extensions: { report_status: 'SUBMITTED' } });
+      expect(await refusal(as((tx) => store.saveDraft(tx, { ...head, deleted: true }, content, '2026-10-04', memberId(MAKER))))).toMatchObject({ code: 'REVISION_IMMUTABLE' });
     });
 
     it('is for the maker who acts on the project: another branch is 404, a reader 403, another tenant 404', async () => {
@@ -533,6 +540,206 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       expect(BigInt(everything.cumulativeVnd)).toBeGreaterThan(BigInt(filtered.cumulativeVnd));
       expect(await as((tx) => store.kpi(tx, elsewhereOnly, { projectId }))).toEqual({ reports: 0, projects: 0, cumulativeVnd: '0', ctmtqgVnd: '0' });
       expect(await as((tx) => store.kpi(tx, seeAll, {}), TENANT_B)).toEqual({ reports: 0, projects: 0, cumulativeVnd: '0', ctmtqgVnd: '0' });
+    });
+  });
+
+  describe('the volumes, the narrative and the files (ST-DIS-004)', () => {
+    const lockFor = (reportId: string, version: number) => as((tx) => store.lock(tx, reportId, seeAll, actsAll, version));
+    const PROGRESS = { constructionVnd: '300000000', acceptanceVnd: '200000000', treasurySubmittedVnd: '150000000', preparingDossierVnd: '50000000', physicalProgressPct: '37.50' };
+    const NARRATIVE = { resultsText: 'Foundations done.', causesText: null, solutionsText: 'Add a second shift.', proposalsText: null, linkedIssueIds: [] as string[] };
+    const fileOf = (name: string, size = 1000) => ({ fileObjectId: randomUUID(), fileSha256: 'b'.repeat(64), fileName: name, contentType: 'application/pdf', sizeBytes: size });
+    const content = (overrides: object = {}) => ({ ...KEEP, measurementBasis: 'YTD' as const, cells: fundingCells(FX_DIS_001), negativeDeltaExplanation: null, ...overrides });
+    const save = async (reportId: string, version: number, overrides: object = {}, asOf = '2026-10-04') => {
+      const head = await lockFor(reportId, version);
+      return as((tx) => store.saveDraft(tx, head, content(overrides), asOf, memberId(MAKER)));
+    };
+    const progressRows = (reportId: string) =>
+      owner<{ construction: string; acceptance: string; treasury: string; preparing: string; pct: string | null; as_of: string; basis: string }>(
+        `select construction_value_vnd::text as construction, acceptance_value_vnd::text as acceptance, treasury_submitted_value_vnd::text as treasury, preparing_dossier_value_vnd::text as preparing,
+                physical_progress_pct::text as pct, as_of_date::text as as_of, measurement_basis as basis from machvon.progress_snapshot where report_revision_id = $1`,
+        [reportId],
+      );
+    const fresh = async (overrides: Partial<NewDraft> = {}): Promise<{ made: Made; projectId: string }> => {
+      const projectId = await freshProject();
+      const made = await create(projectId, await newPeriod(), id(FAMILY, 300 + counter), overrides);
+      return { made, projectId };
+    };
+
+    it('AC-ST-DIS-004-1: stores the volumes with the date of the period, the basis of the report and the percent, and reads them back', async () => {
+      const { made } = await fresh();
+      expect(await progressRows(made.id)).toEqual([]);
+      const saved = await save(made.id, 1, { progress: PROGRESS });
+      expect(await progressRows(made.id)).toEqual([{ construction: '300000000', acceptance: '200000000', treasury: '150000000', preparing: '50000000', pct: '37.50', as_of: '2026-10-04', basis: 'YTD' }]);
+      const detail = await as((tx) => store.find(tx, made.id, seeAll));
+      expect(detail?.progress).toEqual({ ...PROGRESS, asOfDate: '2026-10-04', measurementBasis: 'YTD' });
+      expect((await state(made.id)).hash).toBe(saved.payloadHash);
+      // The same volumes again give the same hash, and one amount more gives another.
+      const again = await save(made.id, saved.version, { progress: PROGRESS });
+      expect(again.payloadHash).toBe(saved.payloadHash);
+      expect((await save(made.id, again.version, { progress: { ...PROGRESS, constructionVnd: '300000001' } })).payloadHash).not.toBe(saved.payloadHash);
+    });
+
+    it('keeps the volumes, the narrative and the files when a save does not name them, and moves the volumes to a new basis', async () => {
+      const { made } = await fresh();
+      const file = fileOf('voucher.pdf');
+      const first = await save(made.id, 1, { progress: PROGRESS, narrative: NARRATIVE, attachments: [file] });
+      const second = await save(made.id, first.version, { measurementBasis: 'PERIOD' });
+      expect(second.payloadHash).not.toBe(first.payloadHash);
+      expect((await progressRows(made.id))[0]).toMatchObject({ construction: '300000000', basis: 'PERIOD' });
+      const detail = await as((tx) => store.find(tx, made.id, seeAll));
+      expect(detail?.narrative).toEqual(NARRATIVE);
+      expect(detail?.attachments.map((entry) => [entry.fileObjectId, entry.fileName, entry.position])).toEqual([[file.fileObjectId, 'voucher.pdf', 1]]);
+      // Naming the same content again, whatever the order the screen sent it in, is the same hash.
+      const third = await save(made.id, second.version, { measurementBasis: 'PERIOD', progress: PROGRESS, narrative: NARRATIVE, attachments: [file] });
+      expect(third.payloadHash).toBe(second.payloadHash);
+    });
+
+    it('writes the volumes, the narrative and the files of a new draft with it', async () => {
+      const file = fileOf('scan.pdf', 2048);
+      const { made } = await fresh({ progress: PROGRESS, narrative: { ...NARRATIVE, proposalsText: 'Release the tranche' }, attachments: [file] });
+      const detail = await as((tx) => store.find(tx, made.id, seeAll));
+      expect(detail).toMatchObject({ progress: { constructionVnd: '300000000', asOfDate: '2026-10-04' }, narrative: { proposalsText: 'Release the tranche' } });
+      expect(detail?.attachments[0]).toMatchObject({ fileObjectId: file.fileObjectId, fileSha256: 'b'.repeat(64), contentType: 'application/pdf', sizeBytes: 2048, createdBy: memberId(MAKER) });
+      expect((await state(made.id)).hash).toBe(
+        draftHash({
+          projectId: detail?.projectId ?? '',
+          periodId: detail?.periodId ?? '',
+          planVersionId: detail?.planVersionId ?? '',
+          reportType: 'WEEKLY',
+          measurementBasis: 'YTD',
+          cells: fundingCells(FX_DIS_001),
+          negativeDeltaExplanation: null,
+          progress: PROGRESS,
+          narrative: { ...NARRATIVE, proposalsText: 'Release the tranche' },
+          attachments: [{ fileObjectId: file.fileObjectId, fileSha256: file.fileSha256, fileName: 'scan.pdf' }],
+        }),
+      );
+    });
+
+    it('replaces the narrative as a whole, removes it when the save leaves none, and counts its versions', async () => {
+      const { made } = await fresh();
+      const first = await save(made.id, 1, { narrative: NARRATIVE });
+      const second = await save(made.id, first.version, { narrative: { resultsText: null, causesText: 'Rain', solutionsText: null, proposalsText: null, linkedIssueIds: [] } });
+      expect(await as((tx) => store.narrativeOf(tx, made.id))).toEqual({ resultsText: null, causesText: 'Rain', solutionsText: null, proposalsText: null, linkedIssueIds: [] });
+      expect((await owner<{ version: string }>('select version::text as version from machvon.report_narrative where report_revision_id = $1', [made.id]))[0]?.version).toBe('2');
+      await save(made.id, second.version, { narrative: null });
+      expect(await as((tx) => store.narrativeOf(tx, made.id))).toBeNull();
+      expect(await owner('select 1 from machvon.report_narrative where report_revision_id = $1', [made.id])).toEqual([]);
+    });
+
+    it('writes the files as the whole list: the ones no longer named are unlinked, the ones that stay keep their row, and the order is the order of the list', async () => {
+      const { made } = await fresh();
+      const [one, two, three] = [fileOf('one.pdf'), fileOf('two.pdf'), fileOf('three.pdf')];
+      const first = await save(made.id, 1, { attachments: [one, two] });
+      const before = await owner<{ id: string; file_object_id: string }>('select id, file_object_id from machvon.report_attachment where report_revision_id = $1', [made.id]);
+      const second = await save(made.id, first.version, { attachments: [three, { ...two, fileName: 'two-renamed.pdf' }] });
+      const rows = await as((tx) => store.attachmentsOf(tx, made.id));
+      expect(rows.map((row) => [row.fileName, row.position])).toEqual([
+        ['three.pdf', 1],
+        ['two-renamed.pdf', 2],
+      ]);
+      expect(rows.find((row) => row.fileObjectId === two.fileObjectId)?.id).toBe(before.find((row) => row.file_object_id === two.fileObjectId)?.id);
+      await save(made.id, second.version, { attachments: [] });
+      expect(await as((tx) => store.attachmentsOf(tx, made.id))).toEqual([]);
+    });
+
+    it('refuses in the table a narrative with nothing in it, a text above 4000 characters, more than 50 issues, a file twice, a 21st file and a name that is not one', async () => {
+      const { made } = await fresh();
+      const insertNarrative = (results: string | null, issues: string[] | null) =>
+        owner(
+          `insert into machvon.report_narrative (tenant_id, id, report_revision_id, results_text, linked_issue_ids, created_by, updated_by) values ($1, gen_random_uuid(), $2, $3, $4::uuid[], $5, $5)`,
+          [TENANT_A, made.id, results, issues, memberId(MAKER)],
+        );
+      await expect(insertNarrative(null, null)).rejects.toMatchObject({ constraint: 'report_narrative_not_empty_chk' });
+      await expect(insertNarrative(null, [])).rejects.toMatchObject({ constraint: 'report_narrative_not_empty_chk' });
+      await expect(insertNarrative('x'.repeat(4001), null)).rejects.toMatchObject({ constraint: 'report_narrative_text_chk' });
+      await expect(insertNarrative(' padded ', null)).rejects.toMatchObject({ constraint: 'report_narrative_text_chk' });
+      await expect(insertNarrative(null, Array.from({ length: 51 }, () => randomUUID()))).rejects.toMatchObject({ constraint: 'report_narrative_issues_chk' });
+      const insertFile = (fileObjectId: string, name: string, position: number) =>
+        owner(
+          `insert into machvon.report_attachment (tenant_id, id, report_revision_id, file_object_id, file_sha256, file_name, content_type, size_bytes, position, created_by)
+           values ($1, gen_random_uuid(), $2, $3, $4, $5, 'application/pdf', 10, $6, $7)`,
+          [TENANT_A, made.id, fileObjectId, 'c'.repeat(64), name, position, memberId(MAKER)],
+        );
+      const same = randomUUID();
+      await insertFile(same, 'a.pdf', 1);
+      await expect(insertFile(same, 'b.pdf', 2)).rejects.toMatchObject({ constraint: 'report_attachment_file_uq' });
+      await expect(insertFile(randomUUID(), 'c.pdf', 1)).rejects.toMatchObject({ constraint: 'report_attachment_position_uq' });
+      await expect(insertFile(randomUUID(), 'd.pdf', 21)).rejects.toMatchObject({ code: '23514' });
+      await expect(insertFile(randomUUID(), ' padded.pdf', 3)).rejects.toMatchObject({ code: '23514' });
+      await expect(insertFile(randomUUID(), '', 3)).rejects.toMatchObject({ code: '23514' });
+    });
+
+    it('does not edit what belongs to a report that was handed in, nor let it move to another report, nor read on another basis than the report', async () => {
+      const { made } = await fresh({ progress: PROGRESS, narrative: NARRATIVE, attachments: [fileOf('a.pdf')] });
+      const other = await fresh();
+      await expect(owner("update machvon.progress_snapshot set measurement_basis = 'PERIOD' where report_revision_id = $1", [made.id])).rejects.toMatchObject({ constraint: 'progress_snapshot_basis_guard' });
+      await expect(owner('update machvon.report_narrative set report_revision_id = $2 where report_revision_id = $1', [made.id, other.made.id])).rejects.toMatchObject({ constraint: 'report_child_identity_guard' });
+      await owner("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [made.id, memberId(MAKER)]);
+      await expect(owner('update machvon.progress_snapshot set construction_value_vnd = 1 where report_revision_id = $1', [made.id])).rejects.toMatchObject({ constraint: 'report_child_immutable_guard' });
+      await expect(owner("update machvon.report_narrative set results_text = 'changed' where report_revision_id = $1", [made.id])).rejects.toMatchObject({ constraint: 'report_child_immutable_guard' });
+      await expect(owner('delete from machvon.report_narrative where report_revision_id = $1', [made.id])).rejects.toMatchObject({ constraint: 'report_child_immutable_guard' });
+      await expect(owner('delete from machvon.report_attachment where report_revision_id = $1', [made.id])).rejects.toMatchObject({ constraint: 'report_child_immutable_guard' });
+      await expect(owner('delete from machvon.progress_snapshot where report_revision_id = $1', [made.id])).rejects.toMatchObject({ constraint: 'report_child_immutable_guard' });
+      expect(await progressRows(made.id)).toHaveLength(1);
+      // A save through the store is refused first, with the status.
+      const head = await lockFor(made.id, 1);
+      expect(await refusal(as((tx) => store.saveDraft(tx, head, content({ progress: PROGRESS }), '2026-10-04', memberId(MAKER))))).toMatchObject({ code: 'REVISION_IMMUTABLE', status: 409 });
+    });
+
+    it('refuses in the table a volume below zero and a percent above 100', async () => {
+      const { made } = await fresh();
+      const insert = (construction: string, pct: string | null, asOf: string | null) =>
+        owner(
+          `insert into machvon.progress_snapshot (tenant_id, id, report_revision_id, construction_value_vnd, acceptance_value_vnd, treasury_submitted_value_vnd, preparing_dossier_value_vnd, measurement_basis, as_of_date, physical_progress_pct)
+           values ($1, gen_random_uuid(), $2, $3::numeric, 0, 0, 0, 'YTD', $4::date, $5::numeric)`,
+          [TENANT_A, made.id, construction, asOf, pct],
+        );
+      await expect(insert('-1', null, '2026-10-04')).rejects.toMatchObject({ constraint: 'progress_money_chk' });
+      await expect(insert('1', '100.01', '2026-10-04')).rejects.toBeDefined();
+    });
+
+    it('says which of the issues named are not issues of the project', async () => {
+      const { projectId } = await fresh();
+      const mine = randomUUID();
+      const elsewhere = randomUUID();
+      const issueRow = (n: string, owner_project: string): [string, unknown[]] => [
+        `insert into machvon.issue
+           (tenant_id, id, project_id, category_version_id, severity, assignee_id, due_at, status, version, code, title, description, source_module, reported_by, opened_at, owner_unit_id, sla_policy_id, response_due_at)
+         values ($1, $2, $3, $4, 'MEDIUM', $5, now() + interval '7 days', 'OPEN', 1, $6, 'An issue', 'It is an issue', 'MANUAL', $5, now(), $7, $4, now() + interval '1 day')`,
+        [TENANT_A, n, owner_project, FUND_SOURCE, memberId(MAKER), `VM-2026-${String(100000 + (counter += 1))}`, unitId(DEPARTMENT)],
+      ];
+      await seedReplica([issueRow(mine, projectId), issueRow(elsewhere, project.b)]);
+      const unknown = randomUUID();
+      expect(await as((tx) => store.issuesOutside(tx, projectId, [mine, elsewhere, unknown]))).toEqual([elsewhere, unknown]);
+      expect(await as((tx) => store.issuesOutside(tx, projectId, [mine]))).toEqual([]);
+      expect(await as((tx) => store.issuesOutside(tx, projectId, []))).toEqual([]);
+      expect(await as((tx) => store.issuesOutside(tx, projectId, [mine]), TENANT_B)).toEqual([mine]);
+    });
+
+    it('adds up what the Treasury paid on the days it booked it in the window, takes the refunds off, and says nothing when it booked nothing', async () => {
+      const projectId = await freshProject();
+      const paid = (amount: string, at: string, refundOf: string | null = null, n = randomUUID()): [string, unknown[]] => [
+        `insert into machvon.treasury_transaction (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, direction, reversal_of_id, import_id)
+         values ($1, $2, $3, $4, 'TREASURY', $5::numeric, $6::timestamptz, $7, $8, $9, gen_random_uuid())`,
+        [TENANT_A, n, projectId, `EXT-${n}`, amount, at, 'd'.repeat(64), refundOf === null ? 'PAYMENT' : 'REFUND', refundOf],
+      ];
+      const first = randomUUID();
+      await seedReplica([
+        paid('500000000', '2026-09-30T08:00:00+07:00', null, first),
+        paid('300000000', '2026-10-01T09:00:00+07:00'),
+        paid('50000000', '2026-10-02T09:00:00+07:00', first),
+        paid('7', '2025-12-31T23:30:00+07:00'),
+      ]);
+      const figure = (from: string | null, to: string) => as((tx) => store.treasuryFigure(tx, projectId, { from, to }));
+      // The day a payment counts on is the day of the Vietnam clock: the booking of 23:30 on 31 December is in 2025.
+      expect(await figure('2026-01-01', '2026-09-30')).toEqual({ totalVnd: '500000000', transactions: 1 });
+      expect(await figure('2026-01-01', '2026-10-04')).toEqual({ totalVnd: '750000000', transactions: 3 });
+      expect(await figure('2026-10-01', '2026-10-04')).toEqual({ totalVnd: '250000000', transactions: 2 });
+      expect(await figure(null, '2026-10-04')).toEqual({ totalVnd: '750000007', transactions: 4 });
+      expect(await figure(null, '2025-12-31')).toEqual({ totalVnd: '7', transactions: 1 });
+      expect(await figure('2026-10-03', '2026-10-04')).toBeUndefined();
+      expect(await as((tx) => store.treasuryFigure(tx, projectId, { from: null, to: '2030-01-01' }), TENANT_B)).toBeUndefined();
     });
   });
 });
