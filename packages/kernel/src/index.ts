@@ -635,6 +635,8 @@ export type { ImportRow, ParsedImport, ReportImportMapping, RowFault } from './d
 export { COVERAGE, DEFINITION_STATUSES, METRIC_SET_VERSION, SNAPSHOT_KINDS, buildLines, coverageOf, groupRate, planSplitOf, ratesOf, snapshotHash, treasuryDisbursed } from './dis-snapshot.ts';
 export { RATE_BASES, addSums, rateOfSums } from './dis-rates.ts';
 export { DEFAULT_MINIMUM_PLAN_VND, rankUnits } from './dis-ranking.ts';
+export { OPEN_WARNING_STATUSES, WARNING_ACTIONS, WARNING_COMPARATORS, WARNING_METRICS, WARNING_SCOPES, WARNING_SEVERITIES, WARNING_STATUSES, checkRule, dedupeKeyOf, evaluateRule, expectedRatePct, inForce, nextWarningStatus, reasonOf } from './dis-warning.ts';
+export type { ProjectFacts, RuleDraft, RuleInput, Violation, WarningAction, WarningComparator, WarningMetric, WarningScope, WarningSeverity, WarningStatus } from './dis-warning.ts';
 export type { ExcludedReason, RankedUnit, Ranking, RankingUnit } from './dis-ranking.ts';
 export type { RateBasis, RateFigures, RateSums } from './dis-rates.ts';
 export type { DefinitionStatus, HashedLine, PlanCell, RateNullReason, Rates, ReportedCell, SnapshotHeader, SnapshotKind, SnapshotLine, SnapshotProject, TreasuryCoverage, TreasuryEntry } from './dis-snapshot.ts';

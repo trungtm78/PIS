@@ -33,6 +33,10 @@ export const SNAPSHOTTER = ['snapshot.build', 'snapshot.freeze', 'disbursement.r
 export const SNAPSHOT_READER = ['disbursement.read'];
 export const RATE_READER = ['disbursement.read'];
 export const DEFINITION_READER = ['glossary.read'];
+export const WARNING_MANAGER = ['warning.rule.manage', 'warning.read'];
+export const WARNING_APPROVER = ['warning.rule.approve', 'warning.read'];
+export const WARNING_HANDLER = ['warning.handle', 'warning.read'];
+export const WARNING_READER = ['warning.read'];
 export const routeOf = baseRoute;
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -177,6 +181,9 @@ export interface World {
   snapshots: Record<string, Record<string, unknown>>;
   /** The pages of `listPeriodSnapshotLines` for a snapshot, by id and by cursor (`''` is the first page). */
   snapshotLines: Record<string, Record<string, Record<string, unknown>>>;
+  /** The rules of `listEarlyWarningRules`, and the pages of `listEarlyWarnings` by query (a function of the query, or one answer for all). */
+  rules: Array<Record<string, unknown>>;
+  warnings: Record<string, unknown> | ((query: Record<string, unknown>) => unknown);
   /** The terms of the business glossary, as `listGlossaryTerms` answers them. */
   glossary: Array<Record<string, unknown>>;
   /** The answer of `getDisbursementRates`, or one for each query; none answers 404. */
@@ -200,6 +207,8 @@ export function world(overrides: Partial<World> = {}): World {
     snapshotLines: {},
     rates: undefined,
     glossary: [],
+    rules: [],
+    warnings: { items: [], next_cursor: null },
     deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
@@ -228,6 +237,11 @@ export function client(state: World, command: (operation: string, input: unknown
       const query = (input as { query?: Record<string, unknown> }).query ?? {};
       const answer = typeof state.rates === 'function' ? state.rates(query) : state.rates;
       return answer ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
+    }
+    if (operation === 'listEarlyWarningRules') return { items: state.rules, next_cursor: null };
+    if (operation === 'listEarlyWarnings') {
+      const query = (input as { query?: Record<string, unknown> }).query ?? {};
+      return typeof state.warnings === 'function' ? state.warnings(query) : state.warnings;
     }
     if (operation === 'listPeriodSnapshots') {
       const periodId = String((input as { query?: { period_id?: string } }).query?.period_id ?? '');
@@ -308,6 +322,7 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-12" element={screen} />
                 <Route path="/dis/dis-16" element={screen} />
                 <Route path="/dis/dis-19" element={screen} />
+                <Route path="/dis/dis-20" element={screen} />
                 <Route path="/dis/dis-21" element={screen} />
                 <Route path="/dis/dis-25" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />

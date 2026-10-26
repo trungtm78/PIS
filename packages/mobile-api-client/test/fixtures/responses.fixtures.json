@@ -514,6 +514,7 @@
   "listDocumentRetentionRules": {},
   "listDocumentTemplates": {},
   "listDossiers": {},
+  "listEarlyWarningRules": {},
   "listEarlyWarnings": {},
   "listExpiringGuarantees": {},
   "listExpiringPermits": {},

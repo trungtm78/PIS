@@ -475,6 +475,12 @@ export const PERIOD_SNAPSHOT_FIXTURES: Readonly<Record<TenantName, { id: string;
   'TNT-B': { id: '00000000-0000-4000-b0ff-000000000001', lineId: '00000000-0000-4000-b0ff-000000000002', planVnd: '9200007' },
 };
 
+/** A draft early-warning rule and a warning of each tenant that is open (the name, the legal basis and the dedupe key are distinctive: the rules and the warnings of a tenant are internal to it). */
+export const EARLY_WARNING_FIXTURES: Readonly<Record<TenantName, { ruleId: string; ruleName: string; legalBasis: string; warningId: string; dedupeKey: string }>> = {
+  'TNT-A': { ruleId: '00000000-0000-4000-a0f8-000000000001', ruleName: 'Alpha tenant slow disbursement rule 0001', legalBasis: 'Alpha tenant legal basis of the warning rule 0001', warningId: '00000000-0000-4000-a0f8-000000000002', dedupeKey: 'EW-ISO|alpha-0001|2026' },
+  'TNT-B': { ruleId: '00000000-0000-4000-b0f8-000000000001', ruleName: 'Beta tenant slow disbursement rule 0001', legalBasis: 'Beta tenant legal basis of the warning rule 0001', warningId: '00000000-0000-4000-b0f8-000000000002', dedupeKey: 'EW-ISO|beta-0001|2026' },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -894,6 +900,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'report import id', value: REPORT_IMPORT_FIXTURES[tenant].id },
     { kind: 'report import file hash', value: REPORT_IMPORT_FIXTURES[tenant].fileSha256 },
     { kind: 'period snapshot id', value: PERIOD_SNAPSHOT_FIXTURES[tenant].id },
+    { kind: 'warning rule id', value: EARLY_WARNING_FIXTURES[tenant].ruleId },
+    { kind: 'warning rule name', value: EARLY_WARNING_FIXTURES[tenant].ruleName },
+    { kind: 'warning rule legal basis', value: EARLY_WARNING_FIXTURES[tenant].legalBasis },
+    { kind: 'warning id', value: EARLY_WARNING_FIXTURES[tenant].warningId },
+    { kind: 'warning dedupe key', value: EARLY_WARNING_FIXTURES[tenant].dedupeKey },
     { kind: 'period snapshot planned amount', value: PERIOD_SNAPSHOT_FIXTURES[tenant].planVnd },
     { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },
     { kind: 'weekly report hash', value: REPORT_FIXTURES[tenant].payloadHash },

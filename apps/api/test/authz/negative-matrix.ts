@@ -858,6 +858,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/report-imports/${t.legalHoldId}/apply`, ifMatch: '"1"', body: {} }),
   },
+  createEarlyWarningRuleVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/early-warning-rules',
+      body: { rule_code: 'EW-MATRIX', name: 'Matrix rule of the negative matrix', metric_code: 'YTD_RATE_GAP', comparator: 'GTE', threshold_json: { points: 10 }, severity: 'WARNING', scope_kind: 'PROJECT', legal_basis: 'Matrix legal basis', effective_from: '2027-01-01' },
+    }),
+  },
+  publishEarlyWarningRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/early-warning-rules/${t.legalHoldId}/publish`, ifMatch: '"1"', body: {} }),
+  },
+  acknowledgeEarlyWarning: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/early-warnings/${t.legalHoldId}/acknowledge`, ifMatch: '"1"', body: { reason: 'Matrix attempt to acknowledge' } }),
+  },
+  dismissEarlyWarning: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/early-warnings/${t.legalHoldId}/dismiss`, ifMatch: '"1"', body: { reason: 'Matrix attempt to dismiss' } }),
+  },
   buildPeriodSnapshot: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/period-snapshots', body: { period_id: t.periodLockedId, snapshot_kind: 'PERIOD_CLOSE', treasury_cutoff_date: '2026-01-04' } }),

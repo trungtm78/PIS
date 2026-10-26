@@ -867,3 +867,5 @@ export type {
 export type { NewReport, ReportContext, ReportHead, ReportLine } from './aud-report-store.ts';
 export { DisSnapshotStore, DIS_RATE_NULL_METRIC, SNAPSHOT_RESOURCE, DIS_SNAPSHOT_BUILD_METRIC, DIS_SNAPSHOT_FREEZE_METRIC } from './dis-snapshot-store.ts';
 export type { SnapshotRow as PeriodSnapshotRow, SnapshotLineRow as PeriodSnapshotLineRow, SnapshotStatus as PeriodSnapshotStatus } from './dis-snapshot-store.ts';
+export { DIS_WARNING_OPEN_METRIC, DisWarningStore, SEED_RULES as WARNING_SEED_RULES, WARNING_RESOURCE, WARNING_RULE_RESOURCE } from './dis-warning-store.ts';
+export type { Cleared as ClearedWarning, Evaluation as WarningEvaluation, Opened as OpenedWarning, RuleRow as WarningRuleRow, WarningRow } from './dis-warning-store.ts';

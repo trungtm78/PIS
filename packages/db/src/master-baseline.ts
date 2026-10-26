@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { canonicalJson, sha256Hex, vietnamDateOf } from '@machvon/kernel';
+import { DisWarningStore } from './dis-warning-store.ts';
 import { GlossaryStore } from './glossary-store.ts';
 import { IntegrationCursorStore } from './integration-cursor-store.ts';
 import { contentHashOf } from './master-store.ts';
@@ -510,6 +511,8 @@ export async function applyBaseline(tx: TenantTx, pack: BaselinePack, actor: str
   await new IntegrationCursorStore().ensureDefaults(tx, actor);
   // The definitions of the disbursement figures wait for the signature of the capital business owner (D03): in review, never published here.
   await new GlossaryStore().ensureDisbursementTerms(tx, actor);
+  // The early-warning rules of DIS wait as drafts for the finance office (BR-DIS-13): published by someone other than the platform, once the thresholds are signed.
+  await new DisWarningStore().ensureSeedRules(tx, actor);
   if (created + superseded > 0) {
     await enqueueOutbox(tx, {
       aggregateType: 'master_baseline',

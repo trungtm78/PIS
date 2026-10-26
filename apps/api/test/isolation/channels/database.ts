@@ -22,7 +22,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -239,6 +239,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'freezePeriodSnapshot',
   'listPeriodSnapshotLines',
   'listPeriodSnapshots',
+  'createEarlyWarningRuleVersion',
+  'publishEarlyWarningRule',
+  'acknowledgeEarlyWarning',
+  'dismissEarlyWarning',
+  'listEarlyWarningRules',
+  'listEarlyWarnings',
   'getDisbursementRates',
   'uploadReportFile',
   'getReportRevision',
@@ -710,6 +716,16 @@ const INSERT_PERIOD_SNAPSHOT_LINE = `insert into machvon.period_snapshot_line
   (tenant_id, id, snapshot_id, project_id, unit_id, bucket, budget_level, plan_pm_assigned_vnd, plan_total_vnd, treasury_coverage)
   select $1, $2, $3, $4, $5, 'CURRENT_YEAR', 'CENTRAL', $6::numeric, $6::numeric, 'NONE'
    where exists (select 1 from machvon.period_snapshot s where s.tenant_id = $1 and s.id = $3 and s.status = 'BUILDING') on conflict do nothing`;
+
+const INSERT_WARNING_RULE = `insert into machvon.early_warning_rule
+  (tenant_id, id, rule_code, name, metric_code, comparator, threshold_json, severity, scope_kind, legal_basis, effective_from, revision, status, created_by, updated_by)
+  select $1, $2, 'EW-ISO', $3, 'YTD_RATE_GAP', 'GTE', '{"points": "10"}'::jsonb, 'WARNING', 'PROJECT', $4, date '2027-01-01', 1, 'DRAFT', $5::uuid, $5::uuid
+   where not exists (select 1 from machvon.early_warning_rule where id = $2::uuid)`;
+
+const INSERT_WARNING = `insert into machvon.early_warning
+  (tenant_id, id, rule_id, project_id, unit_id, period_id, snapshot_id, severity, observed_json, dedupe_key, status, created_by, updated_by)
+  select $1, $2, $3, $4, $5, $6, $7, 'WARNING', '{}'::jsonb, $8, 'OPEN', $9::uuid, $9::uuid
+   where not exists (select 1 from machvon.early_warning where id = $2::uuid)`;
 
 const INSERT_REPORT_LINE = `insert into machvon.funding_snapshot_line
   (tenant_id, id, report_revision_id, bucket, budget_level, disbursed_cumulative_vnd, next_month_registered_vnd, allocated_vnd)
@@ -1338,6 +1354,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PERIOD_SNAPSHOT, [tenantId, snapshot.id, period.id, MEMBERSHIP_ID]);
     await client.query(INSERT_PERIOD_SNAPSHOT_LINE, [tenantId, snapshot.lineId, snapshot.id, project.id, home, snapshot.planVnd]);
     await client.query(FREEZE_PERIOD_SNAPSHOT, [tenantId, snapshot.id, MEMBERSHIP_ID]);
+    const warning = EARLY_WARNING_FIXTURES[tenant];
+    await client.query(INSERT_WARNING_RULE, [tenantId, warning.ruleId, warning.ruleName, warning.legalBasis, MEMBERSHIP_ID]);
+    await client.query(INSERT_WARNING, [tenantId, warning.warningId, warning.ruleId, project.id, home, period.id, snapshot.id, warning.dedupeKey, MEMBERSHIP_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);

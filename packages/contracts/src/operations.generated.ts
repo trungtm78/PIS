@@ -515,6 +515,7 @@ export const OPERATIONS = {
   "listDocumentRetentionRules": { method: "get", path: "/document-retention-rules", versioned: false, stepUp: null, permission: "doc.retention.read" },
   "listDocumentTemplates": { method: "get", path: "/document-templates", versioned: false, stepUp: null, permission: "doc.template.read" },
   "listDossiers": { method: "get", path: "/dossiers", versioned: false, stepUp: null, permission: "doc.dossier.read" },
+  "listEarlyWarningRules": { method: "get", path: "/early-warning-rules", versioned: false, stepUp: null, permission: "warning.read" },
   "listEarlyWarnings": { method: "get", path: "/early-warnings", versioned: false, stepUp: null, permission: "warning.read" },
   "listExpiringGuarantees": { method: "get", path: "/guarantees/expiring", versioned: false, stepUp: null, permission: "guarantee.read" },
   "listExpiringPermits": { method: "get", path: "/permits/expiring", versioned: false, stepUp: null, permission: "permit.read" },

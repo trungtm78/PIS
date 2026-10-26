@@ -1549,6 +1549,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listDossiers({Map<String, Object?>? query}) =>
       execute('listDossiers', query: query);
 
+  Future<Object?> listEarlyWarningRules({Map<String, Object?>? query}) =>
+      execute('listEarlyWarningRules', query: query);
+
   Future<Object?> listEarlyWarnings({Map<String, Object?>? query}) =>
       execute('listEarlyWarnings', query: query);
 

@@ -19,7 +19,7 @@ import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
-import { PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
@@ -205,6 +205,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'applyReportImport', method: 'POST', id: REPORT_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'listPeriodSnapshotLines', method: 'GET', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id },
   { operation: 'freezePeriodSnapshot', method: 'POST', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'publishEarlyWarningRule', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].ruleId, versioned: true, body: {} },
+  { operation: 'acknowledgeEarlyWarning', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].warningId, versioned: true, body: { reason: 'Isolation foreign acknowledgement' } },
+  { operation: 'dismissEarlyWarning', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].warningId, versioned: true, body: { reason: 'Isolation foreign dismissal' } },
   { operation: 'get_resources_report_revision_id', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },
   { operation: 'requestPeriodReopen', method: 'POST', id: REOPEN_FIXTURES['TNT-B'].periodId, body: { scope_kind: 'PERIOD', reason: 'Isolation foreign reopen request attempt', window_hours: 24 } },
   { operation: 'decidePeriodReopen', method: 'POST', id: REOPEN_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision', window_hours: 24 } },
