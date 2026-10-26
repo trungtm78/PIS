@@ -50,6 +50,8 @@ export interface PeriodView {
   id: string;
   code: string;
   calendarCode: string;
+  /** WEEK, MONTH and the others the calendar can produce. */
+  periodType: string;
   fiscalYear: number;
   startDate: string;
   endDate: string;
@@ -132,7 +134,7 @@ export function toPeriod(raw: unknown): PeriodView | undefined {
     return undefined;
   }
   const reopens = Array.isArray(row.reopens) ? row.reopens.flatMap((item) => toReopen(item) ?? []) : [];
-  return { id, code, calendarCode, fiscalYear, startDate, endDate, deadlineAt, calendarRevision, status, softClosedAt: nullableText(row.soft_closed_at), lockedAt: nullableText(row.locked_at), version, reopens };
+  return { id, code, calendarCode, periodType: text(row.period_type) ?? '', fiscalYear, startDate, endDate, deadlineAt, calendarRevision, status, softClosedAt: nullableText(row.soft_closed_at), lockedAt: nullableText(row.locked_at), version, reopens };
 }
 
 /** The offset of Vietnam from UTC in minutes: the calendar of DIS counts days and deadlines in this zone and it has no daylight saving. */

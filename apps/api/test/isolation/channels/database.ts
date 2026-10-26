@@ -22,7 +22,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, REPORT_FIXTURES } from '../suite';
+import { PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -232,8 +232,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'withdrawReport',
   'deleteDraftReport',
   'restoreDraftReport',
+  'uploadReportImportFile',
+  'createReportImport',
+  'applyReportImport',
   'uploadReportFile',
   'getReportRevision',
+  'getReportImport',
   'get_resources_report_revision',
   'get_resources_report_revision_id',
   'registerAppropriation',
@@ -686,6 +690,10 @@ const INSERT_PERIOD = `insert into machvon.reporting_period
 const INSERT_REPORT = `insert into machvon.report_revision
   (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, payload_hash, report_type, measurement_basis, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 1, 'DRAFT', false, 1, $6, 'WEEKLY', 'YTD', $7, $7) on conflict do nothing`;
+
+const INSERT_REPORT_IMPORT = `insert into machvon.report_import_batch
+  (tenant_id, id, period_id, file_object_key, file_sha256, mapping_version, status, total_rows, valid_rows, error_rows, errors_json, created_by, updated_by)
+  values ($1, $2, $3, 'isolation/import/none', $4, 'DIS-WEEKLY-1', 'DRY_RUN', 1, 0, 1, '[{"line":2,"project_code":null,"field":"project_code","code":"PROJECT_CODE_REQUIRED"}]'::jsonb, $5, $5) on conflict do nothing`;
 
 const INSERT_REPORT_LINE = `insert into machvon.funding_snapshot_line
   (tenant_id, id, report_revision_id, bucket, budget_level, disbursed_cumulative_vnd, next_month_registered_vnd, allocated_vnd)
@@ -1308,6 +1316,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const report = REPORT_FIXTURES[tenant];
     await client.query(INSERT_REPORT, [tenantId, report.id, project.id, period.id, plan.versionId, report.payloadHash, ACTOR_ID]);
     await client.query(INSERT_REPORT_LINE, [tenantId, report.lineId, report.id, report.cumulativeVnd]);
+    const reportImport = REPORT_IMPORT_FIXTURES[tenant];
+    await client.query(INSERT_REPORT_IMPORT, [tenantId, reportImport.id, period.id, reportImport.fileSha256, MEMBERSHIP_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);

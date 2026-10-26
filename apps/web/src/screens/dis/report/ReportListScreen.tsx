@@ -12,6 +12,7 @@ import '../dis.css';
 import { useDeletedDrafts, usePlanOptions, useProjectOptions, useReportPage } from './hooks';
 import { reportStatusLabel } from './labels';
 import { DETAIL_PATH } from './decision-model';
+import { IMPORT_PATH, canImport } from './import-model';
 import { REMOVAL_PATH, canDelete } from './lifecycle-model';
 import { CREATE_PATH, EDIT_PATH, NO_FILTER, canCreate, isFiltered } from './model';
 import type { FilterState, Kpi, ReportLine } from './model';
@@ -56,11 +57,18 @@ function ReportListContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('dis.reports.page.title')}</h1>
           <p>{t('dis.reports.page.subtitle')}</p>
         </div>
-        {canCreate(permissions, mode) ? (
+        {canCreate(permissions, mode) || canImport(permissions, mode) ? (
           <div className="actions">
-            <Link className="button primary" to={CREATE_PATH}>
-              {t('dis.reports.create.action')}
-            </Link>
+            {canCreate(permissions, mode) ? (
+              <Link className="button primary" to={CREATE_PATH}>
+                {t('dis.reports.create.action')}
+              </Link>
+            ) : null}
+            {canImport(permissions, mode) ? (
+              <Link className="button" to={IMPORT_PATH}>
+                {t('dis.reports.import.action')}
+              </Link>
+            ) : null}
           </div>
         ) : null}
       </div>

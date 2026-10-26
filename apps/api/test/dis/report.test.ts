@@ -11,6 +11,7 @@ import { disModule } from '../../src/modules/dis';
 import { ReportFileController } from '../../src/modules/dis/report-file.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
 import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
+import { ReportImportController } from '../../src/modules/dis/report-import.controller';
 import { ReportLifecycleController } from '../../src/modules/dis/report-lifecycle.controller';
 import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
 import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
@@ -232,7 +233,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   }, 60_000);
 
   it('serves the controllers of the report in the module of DIS', () => {
-    expect(disModule.controllers.slice(-6)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController]);
+    expect(disModule.controllers.slice(-7)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController]);
   });
 
   describe('post_reports', () => {

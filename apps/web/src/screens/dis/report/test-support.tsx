@@ -28,6 +28,7 @@ export const READER = ['report.read', 'report_revision.read'];
 export const REVIEWER = ['report.review', 'report.read', 'report_revision.read'];
 export const CORRECTOR = [...MAKER, 'report.correct'];
 export const WITHDRAWER = [...MAKER, 'report.withdraw'];
+export const IMPORTER = ['report.import', 'report.read', 'report_revision.read'];
 export const routeOf = baseRoute;
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -166,6 +167,8 @@ export const period = (id: string, code: string, status: string, year = 2027) =>
 export interface World {
   /** The reports by id, as `getReportRevision` answers them. */
   details: Record<string, Record<string, unknown>>;
+  /** The batches of the bulk import by id, as `getReportImport` answers them. */
+  imports: Record<string, Record<string, unknown>>;
   /** The drafts that were deleted and can still be restored, as the list answers them for `deleted=true`. */
   deleted: Array<Record<string, unknown>>;
   /** The page the list answers for a query, or one for every query. */
@@ -180,6 +183,7 @@ export interface World {
 export function world(overrides: Partial<World> = {}): World {
   return {
     details: {},
+    imports: {},
     deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
@@ -200,6 +204,9 @@ export function client(state: World, command: (operation: string, input: unknown
     if (failure !== undefined) return failure;
     if (operation === 'getReportRevision') {
       return state.details[(input as { path: { id: string } }).path.id] ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
+    }
+    if (operation === 'getReportImport') {
+      return state.imports[(input as { path: { id: string } }).path.id] ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
     }
     if (operation === 'get_resources_report_revision') {
       const query = (input as { query?: Record<string, unknown> }).query ?? {};
@@ -265,6 +272,7 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-07" element={screen} />
                 <Route path="/dis/dis-08" element={screen} />
                 <Route path="/dis/dis-09" element={screen} />
+                <Route path="/dis/dis-10" element={screen} />
                 <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />

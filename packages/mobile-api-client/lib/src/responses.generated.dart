@@ -460,6 +460,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getQualityAcceptance': QmsAcceptanceLineResponse.fromJson,
   'getQualityScorecard': asObject,
   'getReconciliationItem': PayReconciliationItemResponse.fromJson,
+  'getReportImport': DisReportImportResponse.fromJson,
   'getReportRevision': asObject,
   'getSitePhotoChecks': asObject,
   'getSubmissionProgress': asObject,
@@ -888,6 +889,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'uploadProcurementFile': BidProcurementFileUploadResponse.fromJson,
   'uploadProposalFile': BidProposalFileUploadResponse.fromJson,
   'uploadReportFile': DisReportFileResponse.fromJson,
+  'uploadReportImportFile': DisImportFileResponse.fromJson,
   'uploadSystemTenantThemeAsset': TenantThemeAssetResponse.fromJson,
   'uploadTreasuryStatementFile': PayStatementFileResponse.fromJson,
   'upsertIssueSlaPolicy': CommandResultResponse.fromJson,
@@ -3861,6 +3863,52 @@ final class DisForecastResponseMonthsItem implements ResponseModel {
       };
 }
 
+final class DisImportFileResponse implements ResponseModel {
+  const DisImportFileResponse({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.format,
+    required this.columns,
+    required this.rowCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisImportFileResponse.fromJson(Object? json, [String path = 'DisImportFileResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisImportFileResponse(
+      fileObjectKey: requiredField(map, path, 'file_object_key', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      format: requiredField(map, path, 'format', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      extra: unknownFields(map, path, const <String>{'file_object_key', 'file_sha256', 'size_bytes', 'format', 'columns', 'row_count'}, strict: true),
+    );
+  }
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final int sizeBytes;
+  final String format;
+  final List<String> columns;
+  final int rowCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'format': format,
+        'columns': columns,
+        'row_count': rowCount,
+        ...extra,
+      };
+}
+
 final class DisRatesResponse implements ResponseModel {
   const DisRatesResponse({
     this.snapshotId,
@@ -3977,6 +4025,130 @@ final class DisReportFileResponse implements ResponseModel {
         'file_name': fileName,
         'content_type': contentType,
         'size_bytes': sizeBytes,
+        ...extra,
+      };
+}
+
+final class DisReportImportResponse implements ResponseModel {
+  const DisReportImportResponse({
+    required this.id,
+    required this.periodId,
+    required this.fileSha256,
+    required this.mappingVersion,
+    required this.status,
+    required this.totalRows,
+    required this.validRows,
+    required this.errorRows,
+    required this.errors,
+    required this.draftsCreated,
+    required this.draftsUpdated,
+    required this.appliedAt,
+    required this.appliedBy,
+    required this.createdAt,
+    required this.createdBy,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportImportResponse.fromJson(Object? json, [String path = 'DisReportImportResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportImportResponse(
+      id: requiredField(map, path, 'id', asString),
+      periodId: requiredField(map, path, 'period_id', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      mappingVersion: requiredField(map, path, 'mapping_version', asString),
+      status: requiredField(map, path, 'status', asString),
+      totalRows: requiredField(map, path, 'total_rows', asInt),
+      validRows: requiredField(map, path, 'valid_rows', asInt),
+      errorRows: requiredField(map, path, 'error_rows', asInt),
+      errors: requiredField(map, path, 'errors', asList(DisReportImportResponseErrorsItem.fromJson)),
+      draftsCreated: requiredField(map, path, 'drafts_created', asInt),
+      draftsUpdated: requiredField(map, path, 'drafts_updated', asInt),
+      appliedAt: requiredField(map, path, 'applied_at', nullable(asString)),
+      appliedBy: requiredField(map, path, 'applied_by', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'period_id', 'file_sha256', 'mapping_version', 'status', 'total_rows', 'valid_rows', 'error_rows', 'errors', 'drafts_created', 'drafts_updated', 'applied_at', 'applied_by', 'created_at', 'created_by', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String periodId;
+  final String fileSha256;
+  final String mappingVersion;
+  final String status;
+  final int totalRows;
+  final int validRows;
+  final int errorRows;
+  final List<DisReportImportResponseErrorsItem> errors;
+  final int draftsCreated;
+  final int draftsUpdated;
+  final String? appliedAt;
+  final String? appliedBy;
+  final String createdAt;
+  final String createdBy;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'period_id': periodId,
+        'file_sha256': fileSha256,
+        'mapping_version': mappingVersion,
+        'status': status,
+        'total_rows': totalRows,
+        'valid_rows': validRows,
+        'error_rows': errorRows,
+        'errors': errors.map((e0) => e0.toJson()).toList(),
+        'drafts_created': draftsCreated,
+        'drafts_updated': draftsUpdated,
+        'applied_at': appliedAt,
+        'applied_by': appliedBy,
+        'created_at': createdAt,
+        'created_by': createdBy,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class DisReportImportResponseErrorsItem implements ResponseModel {
+  const DisReportImportResponseErrorsItem({
+    required this.line,
+    required this.projectCode,
+    required this.field,
+    required this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportImportResponseErrorsItem.fromJson(Object? json, [String path = 'DisReportImportResponseErrorsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportImportResponseErrorsItem(
+      line: requiredField(map, path, 'line', asInt),
+      projectCode: requiredField(map, path, 'project_code', nullable(asString)),
+      field: requiredField(map, path, 'field', asString),
+      code: requiredField(map, path, 'code', asString),
+      extra: unknownFields(map, path, const <String>{'line', 'project_code', 'field', 'code'}, strict: true),
+    );
+  }
+
+  final int line;
+  final String? projectCode;
+  final String field;
+  final String code;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'line': line,
+        'project_code': projectCode,
+        'field': field,
+        'code': code,
         ...extra,
       };
 }

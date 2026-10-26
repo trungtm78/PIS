@@ -9,13 +9,14 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
 import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
+import { ReportImportController } from '../../src/modules/dis/report-import.controller';
 import { ReportLifecycleController } from '../../src/modules/dis/report-lifecycle.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
 import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
 import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
-import { MockScanPort } from '../../src/modules/files/mock-scan';
+import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
@@ -30,6 +31,7 @@ const REVIEWER = 2; // report.review over the whole tenant
 const READER = 3; // report.read only
 const ELSEWHERE_REVIEWER = 4; // report.review over another branch, where the projects are not
 const OTHER_MAKER = 5; // the maker rights over the whole tenant, without report.review
+const ELSEWHERE_IMPORTER = 6; // report.import over another branch, where the projects are not
 const B_MAKER = 1;
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -185,19 +187,21 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
         { n: ELSEWHERE, path: `/${unitId(ELSEWHERE)}/` },
       ]);
     }
-    for (const n of [MAKER, REVIEWER, READER, ELSEWHERE_REVIEWER, OTHER_MAKER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [MAKER, REVIEWER, READER, ELSEWHERE_REVIEWER, OTHER_MAKER, ELSEWHERE_IMPORTER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MAKER, ROOT);
-    await harness.seedRole(TENANT_A, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.withdraw', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_A, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.withdraw', 'report.import', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_A, 5, 'DIS_IMPORTER', ['report.import', 'report.read'], 25);
     await harness.seedRole(TENANT_A, 2, 'DIS_REVIEWER', ['report.review', 'report.read', 'report_revision.read'], 25);
     await harness.seedRole(TENANT_A, 3, 'DIS_READER', ['report.read', 'report_revision.read'], 20);
     await harness.seedRole(TENANT_A, 4, 'DIS_MAKER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.withdraw', 'report.read', 'report_revision.read'], 30);
-    await harness.seedRole(TENANT_B, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.withdraw', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_B, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.withdraw', 'report.import', 'report.read', 'report_revision.read'], 30);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MAKER, role: 1, kind: 'TENANT' },
       { n: 2, member: REVIEWER, role: 2, kind: 'TENANT' },
       { n: 3, member: READER, role: 3, kind: 'TENANT' },
       { n: 4, member: ELSEWHERE_REVIEWER, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(ELSEWHERE)] },
       { n: 5, member: OTHER_MAKER, role: 4, kind: 'TENANT' },
+      { n: 6, member: ELSEWHERE_IMPORTER, role: 5, kind: 'UNIT_SUBTREE', refs: [unitId(ELSEWHERE)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_MAKER, role: 1, kind: 'TENANT' }]);
     await seedReplica([
@@ -231,7 +235,7 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController, ReportLifecycleController],
+      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
@@ -251,6 +255,7 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
   it('serves the controller of the decision in the module of DIS', () => {
     expect(disModule.controllers).toContain(ReportDecisionController);
     expect(disModule.controllers).toContain(ReportLifecycleController);
+    expect(disModule.controllers).toContain(ReportImportController);
   });
 
   describe('post_reports_id_decision', () => {
@@ -620,6 +625,165 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
       expect(first.status).toBe(200);
       expect(again.json).toEqual(first.json);
       expect((await trail(reportId)).filter((row) => row.action === 'dis.report_draft_deleted')).toHaveLength(1);
+    });
+  });
+
+  describe('the bulk import of weekly reports (ST-DIS-008)', () => {
+    const HEADER = 'project_code,cy_central,cy_central_ctmtqg,cy_local,cy_local_ctmtqg,co_central,co_central_ctmtqg,co_local,co_local_ctmtqg,other_central,other_local,total_cumulative_vnd,construction_vnd,acceptance_vnd,treasury_submitted_vnd,preparing_dossier_vnd,physical_progress_pct,negative_delta_explanation';
+    /** FX-DIS-001 for a project: 100/200/30/70/0/20 million, CTMTQG 40 million, 420 million in all. */
+    const line = (code: string, over: Record<string, string> = {}): string => {
+      const row: Record<string, string> = { project_code: code, cy_central: '100000000', cy_central_ctmtqg: '40000000', cy_local: '200000000', cy_local_ctmtqg: '', co_central: '30000000', co_central_ctmtqg: '', co_local: '70000000', co_local_ctmtqg: '', other_central: '0', other_local: '20000000', total_cumulative_vnd: '420000000', construction_vnd: '', acceptance_vnd: '', treasury_submitted_vnd: '', preparing_dossier_vnd: '', physical_progress_pct: '', negative_delta_explanation: '', ...over };
+      return HEADER.split(',').map((column) => row[column] as string).join(',');
+    };
+    const workbook = (lines: readonly string[], header = HEADER): Uint8Array => new TextEncoder().encode(`${header}\n${lines.join('\n')}\n`);
+
+    async function upload(member: number, bytes: Uint8Array, options: { type?: string; tenantId?: string; name?: string } = {}): Promise<Reply> {
+      const form = new FormData();
+      form.append('file', new Blob([bytes], { type: options.type ?? 'text/csv' }), options.name ?? 'weekly.csv');
+      const response = await fetch(`${app.baseUrl}/report-imports/files`, { method: 'POST', headers: { [TENANT_HEADER]: tokenOf(member, options.tenantId), 'idempotency-key': `key-${randomUUID()}` }, body: form });
+      return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
+    }
+    const createImport = (period: string, stored: Reply, member = MAKER, extra: Record<string, unknown> = {}, options: Partial<CallOptions> = {}): Promise<Reply> =>
+      call('POST', '/report-imports', { member, body: { period_id: period, file_object_key: stored.json.file_object_key, file_sha256: stored.json.file_sha256, mapping_version: 'DIS-WEEKLY-1', ...extra }, ...options });
+    const applyImport = (importId: string, version: number, member = MAKER, options: Partial<CallOptions> = {}): Promise<Reply> => call('POST', `/report-imports/${importId}/apply`, { member, body: {}, ifMatch: `"${version}"`, ...options });
+    const batch = (importId: string, member = MAKER): Promise<Reply> => call('GET', `/report-imports/${importId}`, { member });
+    const projectsFor = async (count: number): Promise<string[]> => {
+      const codes: string[] = [];
+      for (let n = 0; n < count; n += 1) {
+        const { projectId } = await seedProject();
+        codes.push((await rows<{ code: string }>('select code from machvon.project where id = $1', [projectId]))[0]?.code as string);
+      }
+      return codes;
+    };
+    const draftsOf = (periodId: string) => rows<{ id: string; status: string; source_kind: string; import_batch_id: string | null; project_id: string }>('select id, status, source_kind, import_batch_id, project_id from machvon.report_revision where period_id = $1 order by created_at', [periodId]);
+
+    it('AC-ST-DIS-008-1 / UAT-AC258: a workbook of 20 rows with an unknown project (row 5) and a CTMTQG above its cell (row 9) is a dry run with 2 error rows; apply is 422 IMPORT_HAS_ERRORS; the corrected file creates 20 drafts of source IMPORT; applying it again is 409 IMPORT_FILE_ALREADY_APPLIED', async () => {
+      const period = week();
+      const codes = await projectsFor(20);
+      const bad = codes.map((code, index) => (index === 3 ? line('NO-SUCH-PROJECT') : index === 7 ? line(code, { cy_central_ctmtqg: '150000000' }) : line(code)));
+      const stored = await upload(MAKER, workbook(bad));
+      expect(stored).toMatchObject({ status: 200, json: { format: 'CSV', row_count: 20 } });
+      expect((stored.json.columns as string[]).slice(0, 3)).toEqual(['project_code', 'cy_central', 'cy_central_ctmtqg']);
+      const dry = await createImport(period, stored);
+      expect(dry).toMatchObject({ status: 200, json: { status: 'DRY_RUN', resource_version: 1 } });
+      const view = (await batch(idOf(dry))).json;
+      expect(view).toMatchObject({ status: 'DRY_RUN', total_rows: 20, valid_rows: 18, error_rows: 2, mapping_version: 'DIS-WEEKLY-1', drafts_created: 0, applied_at: null });
+      expect(view.errors).toEqual([
+        { line: 5, project_code: 'NO-SUCH-PROJECT', field: 'project_code', code: 'PROJECT_NOT_FOUND' },
+        { line: 9, project_code: codes[7], field: 'cy_central_ctmtqg', code: 'SUBSET_EXCEEDS_PARENT' },
+      ]);
+      expect(await applyImport(idOf(dry), 1)).toMatchObject({ status: 422, json: { code: 'IMPORT_HAS_ERRORS', error_rows: 2 } });
+      expect(await draftsOf(period)).toEqual([]);
+
+      const good = await upload(MAKER, workbook(codes.map((code) => line(code))));
+      const validated = await createImport(period, good);
+      expect(validated).toMatchObject({ status: 200, json: { status: 'VALIDATED' } });
+      expect(await applyImport(idOf(validated), 7)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT', current_version: 1 } });
+      const applied = await applyImport(idOf(validated), 1);
+      expect(applied).toMatchObject({ status: 200, json: { status: 'APPLIED', resource_version: 2, resource_id: idOf(validated) } });
+      const drafts = await draftsOf(period);
+      expect(drafts).toHaveLength(20);
+      expect(drafts.every((draft) => draft.status === 'DRAFT' && draft.source_kind === 'IMPORT' && draft.import_batch_id === idOf(validated))).toBe(true);
+      expect((await batch(idOf(validated))).json).toMatchObject({ status: 'APPLIED', drafts_created: 20, drafts_updated: 0, applied_by: memberId(MAKER) });
+      expect(await applyImport(idOf(validated), 2)).toMatchObject({ status: 409, json: { code: 'IMPORT_FILE_ALREADY_APPLIED' } });
+      expect(await createImport(period, good)).toMatchObject({ status: 409, json: { code: 'IMPORT_FILE_ALREADY_APPLIED' } });
+      expect(await draftsOf(period)).toHaveLength(20);
+      // The report of a project is the one the file said: six cells and the CTMTQG apart.
+      const found = (await read(drafts[0]?.id as string)).json;
+      expect(found).toMatchObject({ status: 'DRAFT', totals: { cumulative_vnd: '420000000', ctmtqg_vnd: '40000000' } });
+    });
+
+    it('AC-ST-DIS-008-2 / DQ01: a project named twice, an amount that is not the total and a project that is not there go to the error report; the rows that are in order are counted apart; sending the same file again adds nothing', async () => {
+      const period = week();
+      const [one, two, three] = await projectsFor(3);
+      const file = workbook([line(one as string), line(two as string), line(two as string, { cy_local: '1', total_cumulative_vnd: '220000001' }), line(three as string, { total_cumulative_vnd: '419999999' }), line('ORPHAN-1')]);
+      const stored = await upload(MAKER, file);
+      const dry = await createImport(period, stored);
+      const view = (await batch(idOf(dry))).json;
+      expect(view).toMatchObject({ status: 'DRY_RUN', total_rows: 5, valid_rows: 1, error_rows: 4 });
+      expect((view.errors as Array<{ line: number; code: string }>).map((entry) => [entry.line, entry.code])).toEqual([
+        [3, 'PROJECT_DUPLICATE_IN_FILE'],
+        [4, 'PROJECT_DUPLICATE_IN_FILE'],
+        [5, 'TOTAL_MISMATCH'],
+        [6, 'PROJECT_NOT_FOUND'],
+      ]);
+      expect(await applyImport(idOf(dry), 1)).toMatchObject({ status: 422, json: { code: 'IMPORT_HAS_ERRORS' } });
+      // Sending the file again is another dry run of the same file: still nothing to apply, and no draft anywhere.
+      const again = await createImport(period, stored);
+      expect(idOf(again)).not.toBe(idOf(dry));
+      expect(await draftsOf(period)).toEqual([]);
+    });
+
+    it('judges again at the apply: a project that was reported on since the dry run is 422 IMPORT_HAS_ERRORS and a period that was locked is 409 PERIOD_LOCKED, with nothing written', async () => {
+      const period = week();
+      const [one, two] = await projectsFor(2);
+      const validated = await createImport(period, await upload(MAKER, workbook([line(one as string), line(two as string)])));
+      expect(validated.json.status).toBe('VALIDATED');
+      const { projectId, planId } = { projectId: (await rows<{ id: string }>('select id from machvon.project where code = $1', [two]))[0]?.id as string, planId: (await rows<{ id: string }>('select p.id from machvon.plan_version p join machvon.project j on j.id = p.project_id where j.code = $1', [two]))[0]?.id as string };
+      const made = await create(draft(projectId, period, planId));
+      await submit(idOf(made), 1);
+      expect(await applyImport(idOf(validated), 1)).toMatchObject({ status: 422, json: { code: 'IMPORT_HAS_ERRORS', error_rows: 1 } });
+      expect(await draftsOf(period)).toHaveLength(1);
+      const locked = week();
+      const [three] = await projectsFor(1);
+      const second = await createImport(locked, await upload(MAKER, workbook([line(three as string)])));
+      await lockPeriod(locked);
+      expect(await applyImport(idOf(second), 1)).toMatchObject({ status: 409, json: { code: 'PERIOD_LOCKED' } });
+      expect(await draftsOf(locked)).toEqual([]);
+    });
+
+    it('brings up to date the draft a project has, keeping what the import does not carry, and counts it apart; the key answers once', async () => {
+      const period = week();
+      const [code] = await projectsFor(1);
+      const projectId = (await rows<{ id: string }>('select id from machvon.project where code = $1', [code]))[0]?.id as string;
+      const planId = (await rows<{ id: string }>('select p.id from machvon.plan_version p where p.project_id = $1', [projectId]))[0]?.id as string;
+      const made = await create(draft(projectId, period, planId, { narrative: { results: 'The deck was poured.' } }));
+      const validated = await createImport(period, await upload(MAKER, workbook([line(code as string, { cy_local: '250000000', total_cumulative_vnd: '470000000' })])));
+      const key = `key-${randomUUID()}`;
+      const done = await applyImport(idOf(validated), 1, MAKER, { key });
+      expect(done).toMatchObject({ status: 200, json: { status: 'APPLIED' } });
+      expect((await applyImport(idOf(validated), 1, MAKER, { key })).json).toEqual(done.json);
+      expect((await batch(idOf(validated))).json).toMatchObject({ drafts_created: 0, drafts_updated: 1 });
+      expect(await draftsOf(period)).toEqual([{ id: idOf(made), status: 'DRAFT', source_kind: 'IMPORT', import_batch_id: idOf(validated), project_id: projectId }]);
+      const found = (await read(idOf(made))).json;
+      expect(found).toMatchObject({ totals: { cumulative_vnd: '470000000' }, narrative: { results: 'The deck was poured.' } });
+      expect((await trail(idOf(validated))).map((entry) => entry.action)).toEqual(['dis.report_import_validated', 'dis.report_import_applied']);
+      expect(await events(idOf(validated), 'report.import_applied.v1')).toHaveLength(1);
+    });
+
+    it('refuses the file before it is judged: a layout that is not known (422 MAPPING_VERSION_UNKNOWN), a column the layout needs (422 IMPORT_SCHEMA_INVALID), bytes that are not the file named (422), a period that is not a week or not there', async () => {
+      const period = week();
+      const [code] = await projectsFor(1);
+      const stored = await upload(MAKER, workbook([line(code as string)]));
+      expect(await createImport(period, stored, MAKER, { mapping_version: 'DIS-WEEKLY-9' })).toMatchObject({ status: 422, json: { code: 'MAPPING_VERSION_UNKNOWN' } });
+      const lacking = await upload(MAKER, workbook([`${code},1`], 'project_code,cy_central'));
+      expect(await createImport(period, lacking)).toMatchObject({ status: 422, json: { code: 'IMPORT_SCHEMA_INVALID' } });
+      expect(await createImport(period, stored, MAKER, { file_sha256: 'f'.repeat(64) })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'file_sha256' } });
+      expect(await createImport(randomUUID(), stored)).toMatchObject({ status: 404 });
+      const month = (await rows<{ id: string }>("select id from machvon.reporting_period where period_type = 'MONTH' limit 1"))[0]?.id ?? (await rows<{ id: string }>("select id from machvon.reporting_period where period_type <> 'WEEK' limit 1"))[0]?.id;
+      if (month !== undefined) expect(await createImport(month, stored)).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'period_id' } });
+      expect(await upload(MAKER, eicarBytes())).toMatchObject({ status: 422, json: { code: 'FILE_NOT_CLEAN' } });
+      expect(await upload(MAKER, new TextEncoder().encode('%PDF-1.4 not a table'), { type: 'application/pdf', name: 'weekly.pdf' })).toMatchObject({ status: 422 });
+    });
+
+    it('is for the person who may import on the project: a reader is 403 everywhere, another branch finds no project, another tenant finds no batch', async () => {
+      const period = week();
+      const [code] = await projectsFor(1);
+      const file = workbook([line(code as string)]);
+      expect((await upload(READER, file)).status).toBe(403);
+      const stored = await upload(MAKER, file);
+      expect((await createImport(period, stored, READER)).status).toBe(403);
+      const dry = await createImport(period, stored, ELSEWHERE_IMPORTER);
+      expect(dry).toMatchObject({ status: 200, json: { status: 'DRY_RUN' } });
+      expect((await batch(idOf(dry), ELSEWHERE_IMPORTER)).json.errors).toEqual([{ line: 2, project_code: code, field: 'project_code', code: 'PROJECT_NOT_FOUND' }]);
+      // A batch is its maker's alone: its faults name projects of their scope, so another holder of the right finds none.
+      expect((await batch(idOf(dry), MAKER)).status).toBe(404);
+      expect((await applyImport(idOf(dry), 1, MAKER)).status).toBe(404);
+      const validated = await createImport(period, stored);
+      expect((await applyImport(idOf(validated), 1, READER)).status).toBe(403);
+      expect((await batch(idOf(validated), READER)).status).toBe(403);
+      expect((await call('GET', `/report-imports/${idOf(validated)}`, { member: B_MAKER, tenantId: TENANT_B })).status).toBe(404);
+      expect((await call('GET', `/report-imports/${randomUUID()}`, { member: MAKER })).status).toBe(404);
     });
   });
 });

@@ -83,6 +83,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'DIS-07': () => import('../../screens/dis/report/ReportDetailScreen'),
   'DIS-08': () => import('../../screens/dis/report/CorrectionScreen'),
   'DIS-09': () => import('../../screens/dis/report/ReportRemovalScreen'),
+  'DIS-10': () => import('../../screens/dis/report/ReportImportScreen'),
   'DIS-11': () => import('../../screens/dis/report/HistoryScreen'),
   'DIS-14': () => import('../../screens/dis/PeriodCalendarScreen'),
   'DIS-18': () => import('../../screens/dis/report/ReportSavedScreen'),

@@ -32,6 +32,19 @@ describe('DIS-01 weekly reports', () => {
     expect(screen.getAllByRole('row').slice(1)).toHaveLength(2);
   });
 
+  it('AC-ST-DIS-008-1: leads a person who may import to the bulk import, and shows the way to nobody else', async () => {
+    open({}, [...MAKER, 'report.import']);
+    expect((await screen.findByRole('link', { name: vi_['dis.reports.import.action'] })).getAttribute('href')).toBe('/dis/dis-10');
+    cleanup();
+    open({}, MAKER);
+    await screen.findByRole('heading', { level: 1, name: vi_['dis.reports.page.title'] });
+    expect(screen.queryByRole('link', { name: vi_['dis.reports.import.action'] })).toBeNull();
+    cleanup();
+    open({}, ['report.import', 'report.read']);
+    expect((await screen.findByRole('link', { name: vi_['dis.reports.import.action'] })).getAttribute('href')).toBe('/dis/dis-10');
+    expect(screen.queryByRole('link', { name: vi_['dis.reports.create.action'] })).toBeNull();
+  });
+
   it('shows no deleted drafts when there are none, and to a reader who may not restore them', async () => {
     open();
     await screen.findByRole('heading', { level: 1, name: vi_['dis.reports.page.title'] });

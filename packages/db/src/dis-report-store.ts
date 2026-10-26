@@ -198,6 +198,8 @@ export interface NewDraft {
   asOfDate: string;
   clientOperationId: string | undefined;
   allocations: ReadonlyMap<string, Allocation>;
+  /** The batch of the bulk import that makes the draft (source IMPORT); none for a draft that a person starts. */
+  importBatchId?: string | undefined;
 }
 
 /** A correction: a draft that is the next revision of a report that was handed in, with the report it corrects and why. */
@@ -470,8 +472,8 @@ export class DisReportStore {
       await tx.query(
         `insert into machvon.report_revision
            (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, payload_hash, report_type, measurement_basis, negative_delta_explanation,
-            client_operation_id, source_kind, supersedes_id, amendment_reason, created_by, updated_by)
-         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $11::int, 'DRAFT', false, 1, $5, $6, $7, $8, $9::uuid, 'MANUAL', $12::uuid, $13, $10::uuid, $10::uuid)`,
+            client_operation_id, source_kind, import_batch_id, supersedes_id, amendment_reason, created_by, updated_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $11::int, 'DRAFT', false, 1, $5, $6, $7, $8, $9::uuid, case when $14::uuid is null then 'MANUAL' else 'IMPORT' end, $14::uuid, $12::uuid, $13, $10::uuid, $10::uuid)`,
         [
           id,
           input.projectId,
@@ -486,6 +488,7 @@ export class DisReportStore {
           lineage?.revision ?? 1,
           lineage?.supersedesId ?? null,
           lineage?.amendmentReason ?? null,
+          input.importBatchId ?? null,
         ],
       );
     });
@@ -811,6 +814,13 @@ export class DisReportStore {
     );
     if (updated === undefined) throw new DomainError('REPORT_STATE_INVALID', 409, 'status', { extensions: { report_status: head.status } });
     return { version: Number(updated.version) };
+  }
+
+  /** A draft that a bulk import brought up to date is of that batch from then on (source IMPORT); the version is the one the save left. */
+  async markImported(tx: TenantTx, id: string, batchId: string): Promise<number> {
+    const [row] = await tx.query<{ version: string }>("update machvon.report_revision set source_kind = 'IMPORT', import_batch_id = $2::uuid where id = $1::uuid and status = 'DRAFT' and deleted_at is null returning version::text as version", [id, batchId]);
+    if (row === undefined) throw new DomainError('REPORT_NOT_EDITABLE', 409, 'status');
+    return Number(row.version);
   }
 
   /** The decisions taken on a report, the first first. */

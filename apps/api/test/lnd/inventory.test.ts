@@ -40,6 +40,9 @@ interface Reply {
   json: Record<string, unknown>;
 }
 
+/** A day that has not come, whatever day the test runs on (the commands judge a date against the day in Vietnam). */
+const TOMORROW = new Date(Date.now() + 7 * 3_600_000 + 86_400_000).toISOString().slice(0, 10);
+
 describe('the inventory of the assets of the affected households: counting at a price decision in force and the answer of the household (ST-LND-004)', () => {
   const harness = new AuthzHarness();
   const cipher = new FieldCipher(staticKeyProvider(new Map([[1, randomBytes(32)]])));
@@ -267,7 +270,7 @@ describe('the inventory of the assets of the affected households: counting at a 
         ['quantity', '1.1234567'],
         ['unit_price_vnd', '4.5'],
         ['description', '   '],
-        ['surveyed_on', '2026-10-27'],
+        ['surveyed_on', TOMORROW],
         ['surveyed_on', '2026-02-30'],
         ['item_kind', 'SPACESHIP'],
       ] as const) {
@@ -341,7 +344,7 @@ describe('the inventory of the assets of the affected households: counting at a 
     it('wants the day the household answered to exist, not to be to come and not to be before the survey, and an outcome that is one (422 VALIDATION_FAILED)', async () => {
       const aim = await target();
       const id = (await record(COUNTER, aim)).json.resource_id as string;
-      for (const extra of [{ household_confirmed_on: '2026-10-27' }, { household_confirmed_on: '2026-06-19' }, { household_confirmed_on: '2026-02-30' }, { outcome: 'MAYBE' }]) {
+      for (const extra of [{ household_confirmed_on: TOMORROW }, { household_confirmed_on: '2026-06-19' }, { household_confirmed_on: '2026-02-30' }, { outcome: 'MAYBE' }]) {
         const refused = await confirm(CHECKER, id, 1, extra);
         expect([refused.status, refused.json.code]).toEqual([422, 'VALIDATION_FAILED']);
       }

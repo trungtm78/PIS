@@ -841,6 +841,8 @@ export type { RecoveryMismatch, RecoveryReconcileResult } from './aud-recovery-r
 export { AudRecoveryStore, OVERVIEW_ENGAGEMENTS_LIMIT } from './aud-recovery-store.ts';
 export type { ExceptionKind, ExceptionLine, LinkLine as RecoveryLinkLine, LinkRow as RecoveryLinkRow, NewLink as NewRecoveryLink, Overview as AuditOverview, OverviewEngagement, PayOutcome, RecoverySummary, SummaryLine } from './aud-recovery-store.ts';
 export { AudReportStore, reportPayloadRef } from './aud-report-store.ts';
+export { DisImportStore, IMPORT_RESOURCE } from './dis-import-store.ts';
+export type { ImportBatchRow as ReportImportBatchRow, ImportScope as ReportImportScope, JudgedRow as ReportImportJudgedRow, Judgement as ReportImportJudgement } from './dis-import-store.ts';
 export { DIS_CORRECTION_METRIC, DIS_DECISION_METRIC, DIS_WITHDRAWAL_METRIC, DisReportStore, REPORT_RESOURCE, decisionLabels } from './dis-report-store.ts';
 export type {
   Allocation,

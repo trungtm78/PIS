@@ -20,7 +20,8 @@ const FAMILY = 0xb1;
 const PROVINCE = 1;
 const DEPARTMENT = 2;
 const OTHER_BRANCH = 3;
-const TODAY = '2026-10-26';
+// The table compares the retention with the day of the database in Vietnam, so the day of the test is that day.
+const TODAY = new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
 const NOW = new Date('2026-10-26T03:00:00Z');
 const NID_1 = '079000010001';
 const NID_2 = '079000020001';

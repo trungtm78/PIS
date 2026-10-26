@@ -9,6 +9,8 @@ import type { ProjectOption } from '../model';
 import { toAttachment } from './detail-parts';
 import type { Attachment } from './detail-parts';
 import type { CorrectionBody, DecisionBody } from './decision-model';
+import { importRequest, toImportBatch, toStoredWorkbook } from './import-model';
+import type { ImportBatch, StoredWorkbook } from './import-model';
 import { reasonBody } from './lifecycle-model';
 import { createBody, queryOf, saveBody, toReportDetail, toReportLine, toReportPage } from './model';
 import type { Basis, FilterState, FundingForm, ReportDetail, ReportDraftBody, ReportLine, ReportPage } from './model';
@@ -223,6 +225,41 @@ export function useDeletedDrafts(enabled: boolean) {
     queryKey: [...root(tenant?.id), 'deleted'],
     queryFn: async () => (await client.readAll('get_resources_report_revision', { query: { deleted: true } })).flatMap((raw) => toReportLine(raw) ?? []),
     enabled: tenant !== undefined && enabled,
+    retry: false,
+  });
+}
+
+/** Puts the workbook into the upload door (judged by its bytes, scanned); the answer names the file and how many rows and columns it has. */
+export function useUploadImportFile() {
+  const client = useApiClient();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation<StoredWorkbook | undefined, unknown, File>({
+    mutationFn: async (file) => toStoredWorkbook(await uploadFile(client, 'uploadReportImportFile', { file, attempt: attempts.current.forPayload({ name: file.name, size: file.size, type: file.type, modified: file.lastModified }) }), file.name),
+    onSuccess: () => attempts.current.done(),
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** The dry run of a workbook for a period: every row is judged and its faults kept; the answer names the batch. */
+export function useCreateImport() {
+  const client = useApiClient();
+  return useCommand<{ periodId: string; file: StoredWorkbook }>((input, attempt) => client.command('createReportImport', { body: importRequest(input.periodId, input.file), attempt }));
+}
+
+/** Applies a batch that has no fault, under the version the screen showed: the drafts are made, none is handed in. */
+export function useApplyImport() {
+  const client = useApiClient();
+  return useCommand<{ batch: ImportBatch }>((input, attempt) => client.command('applyReportImport', { path: { id: input.batch.id }, ifMatchVersion: input.batch.version, attempt }));
+}
+
+/** A batch of the bulk import with what was found in every row of its file. */
+export function useImportBatch(id: string) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ImportBatch | undefined>({
+    queryKey: [...root(tenant?.id), 'import', id],
+    queryFn: async () => toImportBatch(await client.read('getReportImport', { path: { id } })),
+    enabled: tenant !== undefined,
     retry: false,
   });
 }

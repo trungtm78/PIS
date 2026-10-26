@@ -463,6 +463,12 @@ export const REPORT_FIXTURES: Readonly<Record<TenantName, { id: string; lineId: 
   'TNT-B': { id: '00000000-0000-4000-b0fb-000000000001', lineId: '00000000-0000-4000-b0fb-000000000002', payloadHash: 'b0fb'.repeat(16), cumulativeVnd: '9100002' },
 };
 
+/** A bulk import of weekly reports of each tenant that has errors (a dry run: it is read, and it cannot be applied), on the period of the fixtures (its file hash is distinctive: what a tenant imports is internal to it). */
+export const REPORT_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; fileSha256: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0fe-000000000001', fileSha256: 'a0fe'.repeat(16) },
+  'TNT-B': { id: '00000000-0000-4000-b0fe-000000000001', fileSha256: 'b0fe'.repeat(16) },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -879,6 +885,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'expired permit number', value: PERMIT_FIXTURES[tenant].expiredNo },
     { kind: 'reporting period id', value: PERIOD_FIXTURES[tenant].id },
     { kind: 'reporting period code', value: PERIOD_FIXTURES[tenant].code },
+    { kind: 'report import id', value: REPORT_IMPORT_FIXTURES[tenant].id },
+    { kind: 'report import file hash', value: REPORT_IMPORT_FIXTURES[tenant].fileSha256 },
     { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },
     { kind: 'weekly report hash', value: REPORT_FIXTURES[tenant].payloadHash },
     { kind: 'weekly report cumulative', value: REPORT_FIXTURES[tenant].cumulativeVnd },

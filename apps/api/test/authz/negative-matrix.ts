@@ -846,6 +846,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/draft-deletion`, ifMatch: '"1"', body: { reason: 'Started in the wrong week.' } }),
   },
+  uploadReportImportFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/report-imports/files', body: {} }),
+  },
+  createReportImport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/report-imports', body: { period_id: t.legalHoldId, file_object_key: 'tenants/matrix/import/none', file_sha256: 'a'.repeat(64), mapping_version: 'DIS-WEEKLY-1' } }),
+  },
+  applyReportImport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/report-imports/${t.legalHoldId}/apply`, ifMatch: '"1"', body: {} }),
+  },
   restoreDraftReport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/draft-restore`, ifMatch: '"1"', body: {} }),

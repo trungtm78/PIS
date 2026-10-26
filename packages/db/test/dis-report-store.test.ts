@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { Client } from 'pg';
 import { FUNDING_CELLS, draftHash, fundingCells, fundingTotals } from '@machvon/kernel';
-import type { EffectiveAccess, RawFundingLine, Scope } from '@machvon/kernel';
+import type { EffectiveAccess, ImportRow, ParsedImport, RawFundingLine, Scope } from '@machvon/kernel';
+import { DisImportStore } from '../src/dis-import-store';
+import { DisPeriodStore } from '../src/dis-period-store';
 import { DisReportStore } from '../src/dis-report-store';
 import type { Allocation, NewDraft } from '../src/dis-report-store';
 import { projectScope } from '../src/prj-project-store';
@@ -1052,6 +1054,188 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
         expect(await guard('update machvon.report_revision set deleted_reason = $2 where id = $1', [draft.id, 'Another reason'])).toMatchObject({ code: '23514' });
         expect(await guard("update machvon.report_revision set deleted_at = now() where id = $1", [draft.id])).toMatchObject({ code: '23514' });
       });
+    });
+  });
+
+  describe('the bulk import of weekly reports (ST-DIS-008)', () => {
+    const importer = new DisImportStore();
+    const periodsStore = new DisPeriodStore();
+    const importing = accessOf(['report.import'], { kind: 'TENANT' });
+    const scope = projectScope(importing, 'report.import', NOW);
+    const elsewhere = projectScope(accessOf(['report.import'], { kind: 'UNIT_SUBTREE', refIds: [unitId(ELSEWHERE)], paths: ['/u3/'] }), 'report.import', NOW);
+    const context = { scope, actor: memberId(MAKER), now: NOW };
+    const SHA = (n: number): string => n.toString(16).padStart(64, '0');
+
+    /** A project of its own with the plan in force, and a week of its own; the row of the file that names it. */
+    async function world(count = 1): Promise<{ projects: string[]; codes: string[]; periodId: string }> {
+      const projects: string[] = [];
+      const codes: string[] = [];
+      for (let n = 0; n < count; n += 1) {
+        const projectId = await freshProject();
+        projects.push(projectId);
+        codes.push(`FR-${counter}`);
+      }
+      const week = nextWeek();
+      const periodId = id(FAMILY, 2000 + weeks);
+      // The plan in force is the one of the year of the period.
+      await seedReplica([periodRow(periodId, `IM-W${weeks}`, week.start, week.end, 'WEEK', week.year), ...projects.map((projectId) => planRow(randomUUID(), projectId, week.year, 1, 'PUBLISHED', '2026-01-15T00:00:00Z'))]);
+      return { projects, codes, periodId };
+    }
+    const rowOf = (code: string, line: number, extra: Partial<ImportRow> = {}): ImportRow => ({ line, projectCode: code, cells: fundingCells(FX_DIS_001), progress: undefined, explanation: null, ...extra });
+    const parsedOf = (rows: ImportRow[], faults: ParsedImport['faults'] = []): ParsedImport => ({ totalRows: rows.length + new Set(faults.map((fault) => fault.line)).size, rows, faults });
+    const periodOf = async (periodId: string) => (await as((tx) => periodsStore.find(tx, periodId))) as NonNullable<Awaited<ReturnType<DisPeriodStore['find']>>>;
+    const judged = async (parsed: ParsedImport, periodId: string, ctx = context) => as(async (tx) => importer.judge(tx, parsed, await periodOf(periodId), ctx));
+    const record = (periodId: string, sha: number, parsedFaults: ParsedImport['faults'], totalRows: number) =>
+      as((tx) => importer.record(tx, { periodId, fileObjectKey: `tenants/x/import/${sha}`, fileSha256: SHA(sha), mappingVersion: 'DIS-WEEKLY-1', totalRows, faults: parsedFaults, actor: memberId(MAKER) }));
+    let shas = 0x1000;
+    const nextSha = (): number => (shas += 1);
+    const applyBatch = (batchId: string, judgement: Awaited<ReturnType<typeof judged>>, periodId: string, version = 1) =>
+      as(async (tx) => {
+        const batch = await importer.lockForApply(tx, batchId, version, memberId(MAKER));
+        return importer.apply(tx, batch, judgement, await periodOf(periodId), context);
+      });
+
+    it('judges the rows against the register: an unknown project or one outside the scope is PROJECT_NOT_FOUND, a stage that does not report, a plan not in force, a report that was handed in, each with its line', async () => {
+      const { codes, projects, periodId } = await world(3);
+      await seedReplica([projectRow(id(FAMILY, 900 + counter), `NP-${counter}`, unitId(DEPARTMENT), 'IMPLEMENTATION')]);
+      const concept = `CN-${counter}`;
+      await seedReplica([projectRow(id(FAMILY, 950 + counter), concept, unitId(DEPARTMENT), 'CONCEPT')]);
+      // The third project has a report handed in already.
+      await create(projects[2] as string, periodId, id(FAMILY, 300 + counter));
+      const third = (await as((tx) => store.latestFor(tx, projects[2] as string, periodId))) as NonNullable<Awaited<ReturnType<DisReportStore['latestFor']>>>;
+      await owner("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [third.id, memberId(MAKER)]);
+      const result = await judged(
+        parsedOf([rowOf(codes[0] as string, 2), rowOf('NOPE-1', 3), rowOf(`NP-${counter}`, 4), rowOf(concept, 5), rowOf(codes[2] as string, 6)]),
+        periodId,
+      );
+      expect(result.rows.map((row) => [row.line, row.projectCode, row.draft])).toEqual([[2, codes[0], undefined]]);
+      expect(result.faults.map((fault) => [fault.line, fault.projectCode, fault.field, fault.code])).toEqual([
+        [3, 'NOPE-1', 'project_code', 'PROJECT_NOT_FOUND'],
+        [4, `NP-${counter}`, 'project_code', 'PLAN_VERSION_NOT_EFFECTIVE'],
+        [5, concept, 'project_code', 'PROJECT_STAGE_INVALID'],
+        [6, codes[2], 'project_code', 'REPORT_STATE_INVALID'],
+      ]);
+      expect((await judged(parsedOf([rowOf(codes[0] as string, 2)]), periodId, { ...context, scope: elsewhere })).faults.map((fault) => fault.code)).toEqual(['PROJECT_NOT_FOUND']);
+    });
+
+    it('takes a live draft of the project as the one the row brings up to date, and refuses a project of a period that is locked', async () => {
+      const { codes, projects, periodId } = await world(2);
+      const made = await create(projects[0] as string, periodId, id(FAMILY, 300 + counter - 1));
+      const result = await judged(parsedOf([rowOf(codes[0] as string, 2)]), periodId);
+      expect(result.rows[0]?.draft).toMatchObject({ id: made.id, status: 'DRAFT' });
+      await owner("update machvon.reporting_period set status = 'SOFT_CLOSED', soft_closed_at = now(), version = version + 1 where id = $1", [periodId]);
+      await owner("update machvon.reporting_period set status = 'LOCKED', locked_at = now(), locked_by = $2, version = version + 1 where id = $1", [periodId, memberId(MAKER)]);
+      expect((await judged(parsedOf([rowOf(codes[1] as string, 3)]), periodId)).faults.map((fault) => fault.code)).toEqual(['PERIOD_LOCKED']);
+    });
+
+    it('AC-ST-DIS-008-1: keeps the dry run with its counts and every fault, ready to apply only when there is none', async () => {
+      const { periodId } = await world(1);
+      const faults = [
+        { line: 5, projectCode: 'NOPE-1', field: 'project_code', code: 'PROJECT_NOT_FOUND' },
+        { line: 9, projectCode: 'DA-9', field: 'cy_central_ctmtqg', code: 'SUBSET_EXCEEDS_PARENT' },
+        { line: 9, projectCode: 'DA-9', field: 'total_cumulative_vnd', code: 'TOTAL_MISMATCH' },
+      ];
+      const dry = await record(periodId, nextSha(), faults, 20);
+      expect(dry).toMatchObject({ status: 'DRY_RUN', totalRows: 20, validRows: 18, errorRows: 2, version: 1, appliedAt: null, draftsCreated: 0 });
+      expect(dry.faults).toEqual(faults);
+      expect(await as((tx) => importer.find(tx, dry.id))).toEqual(dry);
+      expect(await refusal(as((tx) => importer.lockForApply(tx, dry.id, 1, memberId(MAKER))))).toMatchObject({ code: 'IMPORT_HAS_ERRORS', status: 422, extensions: { error_rows: 2 } });
+      const clean = await record(periodId, nextSha(), [], 20);
+      expect(clean).toMatchObject({ status: 'VALIDATED', validRows: 20, errorRows: 0 });
+      expect(await as((tx) => importer.appliedFor(tx, periodId, SHA(shas)))).toBeUndefined();
+      expect(await refusal(as((tx) => importer.lockForApply(tx, clean.id, 7, memberId(MAKER))))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
+      expect(await refusal(as((tx) => importer.lockForApply(tx, randomUUID(), 1, memberId(MAKER))))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      // A batch is its maker's alone.
+      expect(await refusal(as((tx) => importer.lockForApply(tx, clean.id, 1, memberId(OTHER))))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      expect(await as((tx) => importer.find(tx, clean.id), TENANT_B)).toBeUndefined();
+    });
+
+    it('AC-ST-DIS-008-1 / UAT-AC258: applies a file without error: a draft for every project with source IMPORT and the batch, never handed in, and the batch is APPLIED with who and when', async () => {
+      const { codes, projects, periodId } = await world(3);
+      const rows = codes.map((code, index) => rowOf(code, index + 2, index === 1 ? { progress: { constructionVnd: '300', acceptanceVnd: '200', treasurySubmittedVnd: '100', preparingDossierVnd: '50', physicalProgressPct: null }, explanation: null } : {}));
+      const judgement = await judged(parsedOf(rows), periodId);
+      expect(judgement.faults).toEqual([]);
+      const batch = await record(periodId, nextSha(), [], 3);
+      const done = await applyBatch(batch.id, judgement, periodId);
+      expect(done.batch).toMatchObject({ status: 'APPLIED', draftsCreated: 3, draftsUpdated: 0, appliedBy: memberId(MAKER), appliedAt: NOW.toISOString(), version: 2 });
+      expect(done.drafts.map((draft) => [draft.projectCode, draft.action, draft.version])).toEqual(codes.map((code) => [code, 'CREATED', 1]));
+      for (const [index, draft] of done.drafts.entries()) {
+        const [row] = await owner<{ status: string; source_kind: string; import_batch_id: string; is_current: boolean; project_id: string }>('select status, source_kind, import_batch_id, is_current, project_id from machvon.report_revision where id = $1', [draft.id]);
+        expect(row).toEqual({ status: 'DRAFT', source_kind: 'IMPORT', import_batch_id: batch.id, is_current: false, project_id: projects[index] });
+        expect(await cells(draft.id)).toHaveLength(6);
+      }
+      expect((await as((tx) => store.find(tx, done.drafts[1]?.id as string, seeAll)))?.progress).toMatchObject({ constructionVnd: '300', acceptanceVnd: '200' });
+      expect((await as((tx) => importer.appliedFor(tx, periodId, SHA(shas))))?.id).toBe(batch.id);
+    });
+
+    it('brings up to date the draft a project has instead of making a second one, keeping its notes, and marks it as imported', async () => {
+      const { codes, projects, periodId } = await world(1);
+      // A draft on another basis, with a registration for next month entered on DIS-05: the file carries neither.
+      const made = await create(projects[0] as string, periodId, id(FAMILY, 300 + counter), { measurementBasis: 'PERIOD', cells: fundingCells([{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '5', next_month_vnd: '7000000', next_month_ctmtqg_subset_vnd: '2000000' }]) });
+      const judgement = await judged(parsedOf([rowOf(codes[0] as string, 2)]), periodId);
+      const done = await applyBatch((await record(periodId, nextSha(), [], 1)).id, judgement, periodId);
+      expect(done.batch).toMatchObject({ status: 'APPLIED', draftsCreated: 0, draftsUpdated: 1 });
+      expect(done.drafts).toEqual([{ id: made.id, projectCode: codes[0], action: 'UPDATED', version: 2 }]);
+      expect((await cells(made.id)).find((cell) => cell.bucket === 'CURRENT_YEAR' && cell.budget_level === 'CENTRAL')?.cumulative).toBe('100000000');
+      expect(await state(made.id)).toMatchObject({ status: 'DRAFT', version: '2', basis: 'YTD' });
+      const central = (await cells(made.id)).find((cell) => cell.bucket === 'CURRENT_YEAR' && cell.budget_level === 'CENTRAL');
+      expect(central).toMatchObject({ next_month: '7000000' });
+      expect((await owner<{ source_kind: string }>('select source_kind from machvon.report_revision where id = $1', [made.id]))[0]?.source_kind).toBe('IMPORT');
+      expect((await owner<{ n: string }>('select count(*)::text as n from machvon.report_revision where project_id = $1 and period_id = $2', [projects[0], periodId]))[0]?.n).toBe('1');
+    });
+
+    it('AC-ST-DIS-008-1 / AC-ST-DIS-008-2: a file is applied once for a period: the batch again, and another batch of the same bytes, are 409 IMPORT_FILE_ALREADY_APPLIED and add no draft', async () => {
+      const { codes, periodId } = await world(2);
+      const judgement = await judged(parsedOf(codes.map((code, index) => rowOf(code, index + 2))), periodId);
+      const sha = nextSha();
+      const first = await record(periodId, sha, [], 2);
+      const second = await record(periodId, sha, [], 2);
+      await applyBatch(first.id, judgement, periodId);
+      expect(await refusal(applyBatch(first.id, judgement, periodId, 2))).toMatchObject({ code: 'IMPORT_FILE_ALREADY_APPLIED', status: 409 });
+      expect(await refusal(applyBatch(second.id, judgement, periodId))).toMatchObject({ code: 'IMPORT_FILE_ALREADY_APPLIED', status: 409 });
+      expect((await owner<{ n: string }>('select count(*)::text as n from machvon.report_revision where period_id = $1', [periodId]))[0]?.n).toBe('2');
+      expect((await as((tx) => importer.find(tx, second.id)))?.status).toBe('VALIDATED');
+      // Another period takes the same bytes.
+      const other = await world(1);
+      expect((await record(other.periodId, sha, [], 1)).status).toBe('VALIDATED');
+    });
+
+    it('lets two applies of the same file at once make one set of drafts: the second is refused and its drafts are rolled back', async () => {
+      const { codes, periodId } = await world(2);
+      const judgement = await judged(parsedOf(codes.map((code, index) => rowOf(code, index + 2))), periodId);
+      const sha = nextSha();
+      const [one, other] = [await record(periodId, sha, [], 2), await record(periodId, sha, [], 2)];
+      const results = await Promise.allSettled([applyBatch((one as { id: string }).id, judgement, periodId), applyBatch((other as { id: string }).id, judgement, periodId)]);
+      expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+      const lost = results.find((result) => result.status === 'rejected') as PromiseRejectedResult;
+      expect((lost.reason as { code: string }).code).toBe('IMPORT_FILE_ALREADY_APPLIED');
+      expect((await owner<{ n: string }>('select count(*)::text as n from machvon.report_revision where period_id = $1', [periodId]))[0]?.n).toBe('2');
+    });
+
+    it('refuses in the table a batch that does not add up, one that is ready with errors, an applied one without who applied it, any change of an applied batch, and a delete', async () => {
+      const { periodId } = await world(1);
+      const guard = (sql: string, params: unknown[] = []) => refusal(owner(sql, params));
+      const insert = (status: string, total: number, valid: number, errors: number, extra = '') =>
+        guard(
+          `insert into machvon.report_import_batch (tenant_id, id, period_id, file_object_key, file_sha256, mapping_version, status, total_rows, valid_rows, error_rows, errors_json, created_by, updated_by ${extra.split('|')[0] ?? ''})
+           values (current_setting('app.tenant_id')::uuid, gen_random_uuid(), $1, 'k', $2, 'DIS-WEEKLY-1', '${status}', ${total}, ${valid}, ${errors}, '[]'::jsonb, $3, $3 ${extra.split('|')[1] ?? ''})`,
+          [periodId, SHA(nextSha()), memberId(MAKER)],
+        );
+      expect(await insert('DRY_RUN', 5, 4, 2)).toMatchObject({ code: '23514' });
+      expect(await insert('VALIDATED', 5, 3, 2)).toMatchObject({ code: '23514' });
+      expect(await insert('APPLIED', 2, 2, 0)).toMatchObject({ code: '23514' });
+      expect(await guard("insert into machvon.report_import_batch (tenant_id, id, period_id, file_object_key, file_sha256, mapping_version, status, errors_json, created_by, updated_by) values (current_setting('app.tenant_id')::uuid, gen_random_uuid(), $1, 'k', $2, 'DIS-WEEKLY-1', 'DRY_RUN', '{}'::jsonb, $3, $3)", [periodId, SHA(nextSha()), memberId(MAKER)])).toMatchObject({ code: '23514' });
+      const clean = await record(periodId, nextSha(), [], 1);
+      const dry = await record(periodId, nextSha(), [{ line: 2, projectCode: null, field: 'project_code', code: 'PROJECT_CODE_REQUIRED' }], 1);
+      expect(await guard('update machvon.report_import_batch set file_sha256 = $2 where id = $1', [clean.id, SHA(1)])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.report_import_batch set errors_json = '[]'::jsonb, error_rows = 0, valid_rows = 1 where id = $1", [dry.id])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.report_import_batch set status = 'APPLIED', applied_at = now() where id = $1", [clean.id])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.report_import_batch set status = 'APPLIED', applied_at = now(), applied_by = $2 where id = $1", [dry.id, memberId(MAKER)])).toMatchObject({ code: '23514' });
+      expect(await guard('delete from machvon.report_import_batch where id = $1', [clean.id])).toMatchObject({ code: '23514' });
+      await owner("update machvon.report_import_batch set status = 'CANCELLED' where id = $1", [dry.id]);
+      expect(await guard("update machvon.report_import_batch set status = 'VALIDATED' where id = $1", [dry.id])).toMatchObject({ code: '23514' });
+      await owner("update machvon.report_import_batch set status = 'APPLIED', applied_at = now(), applied_by = $2 where id = $1", [clean.id, memberId(MAKER)]);
+      expect(await guard("update machvon.report_import_batch set drafts_created = 1 where id = $1", [clean.id])).toMatchObject({ code: '23514' });
     });
   });
 });
