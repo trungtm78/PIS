@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -392,4 +392,86 @@ test('the policy may scope the audit to production or all dependencies and nothi
   } finally {
     cleanup();
   }
+});
+
+// A report as `npm audit --json` writes it: the package that holds the advisory carries it in `via`; the packages that only depend on it name the package.
+const advisoryReport = (vulnerabilities = {}) => ({
+  vulnerabilities: {
+    'bad-package': {
+      name: 'bad-package',
+      severity: 'high',
+      via: [{ source: 1099999, name: 'bad-package', title: 'Prototype pollution', url: 'https://github.com/advisories/GHSA-aaaa-bbbb-cccc', severity: 'high', range: '<2.0.0' }],
+    },
+    'depends-on-bad': { name: 'depends-on-bad', severity: 'high', via: ['bad-package'] },
+    'minor-package': { name: 'minor-package', severity: 'low', via: [{ source: 5, name: 'minor-package', url: 'https://github.com/advisories/GHSA-dddd-eeee-ffff', severity: 'low' }] },
+    ...vulnerabilities,
+  },
+  metadata: { vulnerabilities: { info: 0, low: 1, moderate: 0, high: 2, critical: 0, total: 3 } },
+});
+const NOW = new Date('2026-10-26T03:00:00Z');
+const EXCEPTION = { package: 'bad-package', advisory: 'GHSA-aaaa-bbbb-cccc', owner: 'security@example.org', reason: 'No fixed release yet; the call path is not reachable', expires: '2026-12-01' };
+
+test('a dependency with a published high advisory is red and names the package and the advisory id (AC-ST-KERNEL-013-1, UAT-NFR-SECURITY-07)', () => {
+  const result = auditFindings({ run: audit(advisoryReport(), 1), level: 'high', now: NOW });
+  assert.equal(result.status, 'fail');
+  assert.deepEqual(result.findings, [{ code: 'AUDIT_VULNERABLE', detail: 'bad-package GHSA-aaaa-bbbb-cccc (high)' }]);
+});
+
+test('a time-boxed exception turns the audit green and the exception appears in the report (AC-ST-KERNEL-013-1, UAT-NFR-SECURITY-07)', () => {
+  const result = auditFindings({ run: audit(advisoryReport(), 1), level: 'high', exceptions: [EXCEPTION], now: NOW });
+  assert.equal(result.status, 'pass');
+  assert.deepEqual(result.findings, []);
+  assert.deepEqual(result.excepted, [{ package: 'bad-package', advisory: 'GHSA-aaaa-bbbb-cccc', severity: 'high', owner: 'security@example.org', reason: EXCEPTION.reason, expires: '2026-12-01' }]);
+  const { root, cleanup } = scratch({ policy: { rangePolicy: 'lockfile', auditExceptions: [EXCEPTION] } });
+  try {
+    const lines = [];
+    assert.equal(main(['--root', root, '--skip-sbom', '--audit', '--locale', 'en'], { log: (line) => lines.push(line), run: audit(advisoryReport(), 1) }), 0);
+    assert.match(lines.join('\n'), /EXCEPTED: bad-package GHSA-aaaa-bbbb-cccc \(high\) until 2026-12-01, owner security@example\.org/);
+  } finally {
+    cleanup();
+  }
+});
+
+test('an exception does not cover another advisory of the package, another package, or a vulnerability the report only counts', () => {
+  const other = { ...EXCEPTION, advisory: 'GHSA-zzzz-zzzz-zzzz' };
+  assert.equal(auditFindings({ run: audit(advisoryReport(), 1), level: 'high', exceptions: [other], now: NOW }).status, 'fail');
+  const counted = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 1, critical: 0, total: 1 } } };
+  const result = auditFindings({ run: audit(counted, 1), level: 'high', exceptions: [EXCEPTION], now: NOW });
+  assert.deepEqual(result.findings, [{ code: 'AUDIT_VULNERABLE', detail: 'high 1' }]);
+});
+
+test('an exception that is past, longer than a quarter or incomplete is a finding and excepts nothing (AC-ST-KERNEL-013-1)', () => {
+  const past = auditFindings({ run: audit(advisoryReport(), 1), level: 'high', exceptions: [{ ...EXCEPTION, expires: '2026-10-25' }], now: NOW });
+  assert.deepEqual(codes(past.findings), ['AUDIT_VULNERABLE', 'EXCEPTION_EXPIRED']);
+  const today = auditFindings({ run: audit(advisoryReport(), 1), level: 'high', exceptions: [{ ...EXCEPTION, expires: '2026-10-26' }], now: NOW });
+  assert.equal(today.status, 'pass');
+  const long = auditFindings({ run: audit(advisoryReport(), 1), level: 'high', exceptions: [{ ...EXCEPTION, expires: '2027-02-01' }], now: NOW });
+  assert.deepEqual(codes(long.findings), ['AUDIT_VULNERABLE', 'EXCEPTION_TOO_LONG']);
+  for (const broken of [{ ...EXCEPTION, owner: '' }, { ...EXCEPTION, reason: 'short' }, { ...EXCEPTION, expires: 'soon' }, { ...EXCEPTION, expires: '2026-13-45' }, { package: 'bad-package' }, null]) {
+    const result = auditFindings({ run: audit(advisoryReport(), 1), level: 'high', exceptions: [broken], now: NOW });
+    assert.deepEqual(codes(result.findings), ['AUDIT_VULNERABLE', 'EXCEPTION_INVALID']);
+  }
+  const stale = auditFindings({ run: audit({ metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 } } }), level: 'high', exceptions: [{ ...EXCEPTION, expires: '2026-01-01' }], now: NOW });
+  assert.deepEqual(codes(stale.findings), ['EXCEPTION_EXPIRED']);
+});
+
+test('names the advisory by its numeric source when the report has no GHSA or CVE link, and reports each advisory once', () => {
+  const report = advisoryReport({
+    'other-package': { name: 'other-package', severity: 'critical', via: [{ source: 77, name: 'other-package', severity: 'critical' }, { source: 77, name: 'other-package', severity: 'critical' }, { source: 78, severity: 'critical', url: 'https://example.org/page' }] },
+  });
+  const details = auditFindings({ run: audit(report, 1), level: 'high', now: NOW }).findings.map((item) => item.detail);
+  assert.deepEqual(details, ['bad-package GHSA-aaaa-bbbb-cccc (high)', 'other-package 77 (critical)', 'other-package 78 (critical)']);
+});
+
+test('the daily audit workflow runs every day, audits the lockfile, and raises an issue with an owner on a failure (AC-ST-KERNEL-013-3, UAT-NFR-OBSERVABILITY-02)', () => {
+  const text = readFileSync(join(REPO_ROOT, '.github', 'workflows', 'supply-chain-daily.yml'), 'utf8');
+  assert.match(text, /^on:\s*\n\s+schedule:\s*\n\s+- cron: '\d{1,2} \d{1,2} \* \* \*'/m, 'a daily cron: minute and hour fixed, every day');
+  assert.match(text, /workflow_dispatch:/);
+  assert.match(text, /npm run supply-chain:check -- --audit/);
+  assert.match(text, /issues: write/);
+  assert.match(text, /gh issue (?:create|comment)/);
+  assert.match(text, /--assignee "\$\{\{ env\.SUPPLY_CHAIN_OWNER \}\}"/);
+  assert.match(text, /SUPPLY_CHAIN_OWNER: \$\{\{ vars\.SUPPLY_CHAIN_OWNER/);
+  assert.match(text, /if: steps\.audit\.outcome == 'failure'/);
+  assert.match(text, /osv-scanner/, 'the pub packages are audited with the OSV scanner');
 });

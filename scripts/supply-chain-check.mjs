@@ -13,6 +13,11 @@ const RANGE_POLICIES = new Set(['exact', 'lockfile']);
 const AUDIT_SCOPES = new Set(['production', 'all']);
 const DEFAULT_AUDIT_LEVEL = 'high';
 const SEVERITIES = ['low', 'moderate', 'high', 'critical'];
+/** The longest an exception to the audit may run: a finding is accepted for a quarter at most, then it is fixed or decided again. */
+export const EXCEPTION_MAX_DAYS = 90;
+const DAY_MS = 86_400_000;
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+const MIN_REASON_LENGTH = 10;
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'optionalDependencies'];
 const SKIPPED_DIRECTORIES = new Set(['node_modules', '.git', 'dist', '.test-locks']);
 const DOCKERFILE_NAME = /^(?:Dockerfile(?:\..+)?|.+\.Dockerfile)$/;
@@ -240,11 +245,57 @@ export function checkSupplyChain(root, { sbomPath = DEFAULT_SBOM_PATH } = {}) {
   return findings;
 }
 
+/** The advisory an `npm audit` entry names: the GHSA or CVE id at the end of its URL, else the numeric source id. */
+function advisoryId(via) {
+  const last = typeof via.url === 'string' ? via.url.split('/').pop() : undefined;
+  if (last !== undefined && /^(?:GHSA|CVE)-/i.test(last)) return last;
+  return via.source === undefined ? 'unknown' : String(via.source);
+}
+
+/** The advisories at or above `level` that the report names, one for each package and advisory; a vulnerability that only comes through a dependency is named by the package that holds the advisory. */
+function advisoriesOf(report, level) {
+  const rank = SEVERITIES.indexOf(level);
+  const found = new Map();
+  for (const [name, entry] of Object.entries(report?.vulnerabilities ?? {})) {
+    for (const via of Array.isArray(entry?.via) ? entry.via : []) {
+      if (typeof via !== 'object' || via === null || SEVERITIES.indexOf(via.severity) < rank) continue;
+      const item = { package: via.name ?? name, advisory: advisoryId(via), severity: via.severity };
+      found.set(`${item.package}|${item.advisory}`, item);
+    }
+  }
+  return [...found.values()].sort((a, b) => a.package.localeCompare(b.package) || a.advisory.localeCompare(b.advisory));
+}
+
+/**
+ * The time-boxed exceptions of `supply-chain.json` (`auditExceptions`): each names the package, the advisory, an owner, a reason and a last day (YYYY-MM-DD) that is not past and not
+ * more than `EXCEPTION_MAX_DAYS` ahead. An exception that is incomplete, past or too long is a finding and excepts nothing. Returns the valid ones by `package|advisory`.
+ */
+export function judgeExceptions(entries, now = new Date()) {
+  const valid = new Map();
+  const findings = [];
+  const today = Date.parse(`${now.toISOString().slice(0, 10)}T00:00:00Z`);
+  (Array.isArray(entries) ? entries : []).forEach((entry, index) => {
+    const named = typeof entry?.package === 'string' && typeof entry?.advisory === 'string' ? `${entry.package} ${entry.advisory}` : `#${index + 1}`;
+    const complete =
+      typeof entry === 'object' && entry !== null && entry.package !== '' && entry.advisory !== '' && typeof entry.owner === 'string' && entry.owner.trim() !== '' &&
+      typeof entry.reason === 'string' && entry.reason.trim().length >= MIN_REASON_LENGTH && typeof entry.expires === 'string' && ISO_DAY.test(entry.expires) && typeof entry.package === 'string' && typeof entry.advisory === 'string';
+    if (!complete || Number.isNaN(Date.parse(`${entry.expires}T00:00:00Z`))) {
+      findings.push(auditFinding('EXCEPTION_INVALID', named));
+      return;
+    }
+    const end = Date.parse(`${entry.expires}T00:00:00Z`);
+    if (end < today) findings.push(auditFinding('EXCEPTION_EXPIRED', `${named} ${entry.expires}`));
+    else if (end - today > EXCEPTION_MAX_DAYS * DAY_MS) findings.push(auditFinding('EXCEPTION_TOO_LONG', `${named} ${entry.expires}`));
+    else valid.set(`${entry.package}|${entry.advisory}`, entry);
+  });
+  return { valid, findings };
+}
+
 /**
  * Runs `npm audit` (production dependencies unless the policy says `all`) and judges it. A registry that cannot be reached is `skipped` (the gate earned no credit, it did not
  * pass); any other answer that is not a report is a failure, never a pass.
  */
-export function auditFindings({ run = runNpm, level = DEFAULT_AUDIT_LEVEL, scope = 'production', root = REPO_ROOT } = {}) {
+export function auditFindings({ run = runNpm, level = DEFAULT_AUDIT_LEVEL, scope = 'production', root = REPO_ROOT, exceptions = [], now = new Date() } = {}) {
   // An unknown level must not be read as "critical only": nothing is judged until the level is one of the severities.
   if (!SEVERITIES.includes(level)) return { status: 'fail', findings: [auditFinding('AUDIT_LEVEL_INVALID', String(level))] };
   const result = run('npm', ['audit', '--json', ...(scope === 'production' ? ['--omit=dev'] : [])], { cwd: root });
@@ -264,8 +315,14 @@ export function auditFindings({ run = runNpm, level = DEFAULT_AUDIT_LEVEL, scope
     .reverse()
     .filter((severity) => counts[severity] > 0)
     .map((severity) => `${severity} ${counts[severity]}`);
-  if (flagged.length === 0) return { status: 'pass', findings: [] };
-  return { status: 'fail', findings: [auditFinding('AUDIT_VULNERABLE', flagged.join(', '))] };
+  const judged = judgeExceptions(exceptions, now);
+  const advisories = advisoriesOf(report, level);
+  // A report that counts vulnerabilities but names none cannot be excepted: it fails with the counts, never passes.
+  if (flagged.length > 0 && advisories.length === 0) return { status: 'fail', findings: [auditFinding('AUDIT_VULNERABLE', flagged.join(', ')), ...judged.findings] };
+  const excepted = advisories.filter((item) => judged.valid.has(`${item.package}|${item.advisory}`)).map((item) => ({ ...item, ...judged.valid.get(`${item.package}|${item.advisory}`) }));
+  const open = advisories.filter((item) => !judged.valid.has(`${item.package}|${item.advisory}`));
+  const findings = [...open.map((item) => auditFinding('AUDIT_VULNERABLE', `${item.package} ${item.advisory} (${item.severity})`)), ...judged.findings];
+  return { status: findings.length === 0 ? 'pass' : 'fail', findings, ...(excepted.length > 0 ? { excepted } : {}) };
 }
 
 export function main(argv, { log = console.log, run = runNpm } = {}) {
@@ -286,8 +343,9 @@ export function main(argv, { log = console.log, run = runNpm } = {}) {
   if (values.audit) {
     const policy = loadPolicy(root, []);
     const level = values['audit-level'] ?? policy.auditLevel;
-    const audit = auditFindings({ run, level, scope: policy.auditScope, root });
+    const audit = auditFindings({ run, level, scope: policy.auditScope, root, exceptions: policy.auditExceptions ?? [] });
     findings.push(...audit.findings);
+    for (const item of audit.excepted ?? []) log(format(messages['supplyChain.audit.excepted'], item));
     if (audit.status === 'skipped') log(messages['supplyChain.audit.skipped']);
     if (audit.status === 'pass') log(format(messages['supplyChain.audit.pass'], { level }));
   }

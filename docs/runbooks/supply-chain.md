@@ -26,6 +26,25 @@ Sibling workspace packages (`"@machvon/kernel": "*"`) are linked, not downloaded
 - `auditScope`: `production` (default, `npm audit --omit=dev`) or `all`.
 - `imageScan`: `{ "tool": "trivy", "failOn": "HIGH" }`, required as soon as the repository holds a Dockerfile.
 
+## Exceptions to the audit (`auditExceptions`)
+
+A finding that cannot be fixed yet (no fixed release, a path that is not reachable) is accepted for a time, in the policy file and in review, never silently:
+
+```json
+{ "auditExceptions": [ { "package": "bad-package", "advisory": "GHSA-aaaa-bbbb-cccc", "owner": "security@example.org", "reason": "No fixed release yet; the call path is not reachable", "expires": "2026-12-01" } ] }
+```
+
+- All five fields are required; `reason` has at least 10 characters; `expires` is a day as `YYYY-MM-DD`.
+- It excepts exactly that package and that advisory (the GHSA or CVE id at the end of the advisory link; the numeric id when the report has no link) and nothing else.
+- `expires` is at most 90 days ahead (a quarter). A last day that is past, a longer one or an incomplete entry is a finding (`EXCEPTION_EXPIRED`, `EXCEPTION_TOO_LONG`, `EXCEPTION_INVALID`) and excepts nothing, so the vulnerability is red again until someone fixes it or decides again.
+- Every run prints `EXCEPTED: package advisory (severity) until day, owner ...` for each exception in force, so the report shows what is being carried.
+
+A red audit names each package with its advisory id: `bad-package GHSA-aaaa-bbbb-cccc (high)`. A report that only counts vulnerabilities without naming them still fails (with the counts) and cannot be excepted.
+
+## The daily audit (`.github/workflows/supply-chain-daily.yml`)
+
+A new advisory can be published for a dependency that was clean yesterday, so the same audit runs every day at 02:17 UTC (and on demand). npm is audited from the lockfile with the exceptions above; the pub packages of the mobile clients are audited by the OSV scanner from their `pubspec.lock` (a package without a lockfile has nothing locked to audit and says so). When either fails, the workflow opens one issue labelled `supply-chain` and `security`, **assigned to the owner**, with the end of the log and the link to the run; the next day's failure comments on the same issue instead of opening another. The owner is the repository variable `SUPPLY_CHAIN_OWNER` (the repository owner when it is not set). The run then fails, so the failure is also visible in the Actions list. The alert therefore reaches a named person within 24 hours of the advisory being published, as the advisory databases are updated.
+
 ## Offline audit
 
 `npm audit` needs the registry. When it cannot be reached (`ENOTFOUND`, `ECONNREFUSED`, `EAI_AGAIN`, timeouts) the gate
