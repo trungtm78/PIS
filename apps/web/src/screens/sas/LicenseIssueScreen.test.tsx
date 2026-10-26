@@ -1,4 +1,4 @@
-import { ApiError } from '@machvon/api-client';
+import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -70,6 +70,7 @@ describe('SAS-12 issue a license', () => {
   it('shows the current entitlement version of the chosen tenant, read from the control plane', async () => {
     const h = open();
     const user = userEvent.setup();
+    await screen.findByLabelText(vi_['sas.licenseIssue.tenant.label']);
     expect((field(vi_['sas.licenseIssue.entitlement.label']) as HTMLInputElement).value).toBe(vi_['sas.licenseIssue.entitlement.choose']);
     await chooseTenant(user, ACTIVE);
     expect(await screen.findByDisplayValue(vi_['sas.licenseIssue.entitlement.current'].replace('{version}', '3'))).toBeTruthy();
@@ -113,7 +114,7 @@ describe('SAS-12 issue a license', () => {
   it('clears the message of a field when the field is edited', async () => {
     const user = userEvent.setup();
     open();
-    await user.click(screen.getByRole('button', { name: vi_['sas.licenseIssue.submit.action'] }));
+    await user.click(await screen.findByRole('button', { name: vi_['sas.licenseIssue.submit.action'] }));
     expect(screen.getAllByText(vi_['sas.licenseIssue.problem.required']).length).toBeGreaterThan(0);
     await chooseTenant(user, ACTIVE);
     expect(document.querySelector('[data-field="tenant_id"] .field-error')).toBeNull();
@@ -203,6 +204,7 @@ describe('SAS-12 issue a license', () => {
     expect(await screen.findByRole('button', { name: vi_['sas.licenseIssue.submit.action'] })).toBeTruthy();
     cleanup();
     const h = open(PLATFORM_OPERATOR);
+    await screen.findByLabelText(vi_['sas.licenseIssue.tenant.label']);
     fireEvent.submit(document.querySelector('form') as HTMLFormElement);
     expect(h.command).not.toHaveBeenCalled();
   });
@@ -247,19 +249,28 @@ describe('SAS-12 issue a license', () => {
       await waitFor(() => expect(Array.from(select.options).map((option) => option.textContent)).toContain('Tenant Late'));
     });
 
-    it('says that the list of tenants could not be read, and reads it again on request', async () => {
+    it('says that a later page of tenants could not be read, keeps the form, and reads again on request', async () => {
       const user = userEvent.setup();
-      let failing = true;
+      let failing = false;
       openWith((operation, input) => {
-        if (operation === 'listSystemTenants' && failing) return new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' });
+        if (operation === 'listSystemTenants') {
+          const cursor = (input as { query?: { cursor?: string } }).query?.cursor;
+          if (cursor !== undefined && failing) return new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' });
+          return cursor === undefined ? { items: [TENANTS[0]], next_cursor: 'page-2' } : { items: [tenant(LATE, 'Tenant Late', 'Active')], next_cursor: null };
+        }
         return answer(operation, input);
       });
+      const select = (await screen.findByLabelText(vi_['sas.licenseIssue.tenant.label'])) as HTMLSelectElement;
+      await waitFor(() => expect(select.options.length).toBe(2));
+      failing = true;
+      await user.click(screen.getByRole('button', { name: vi_['sas.licenseTenants.more.action'] }));
       expect(await screen.findByText((content) => content.startsWith(vi_['sas.licenseTenants.error.notice']))).toBeTruthy();
+      expect(screen.getByLabelText(vi_['sas.licenseIssue.tenant.label'])).toBe(select);
       failing = false;
       await user.click(screen.getByRole('button', { name: vi_['sas.licenseTenants.retry.action'] }));
-      const select = screen.getByLabelText(vi_['sas.licenseIssue.tenant.label']) as HTMLSelectElement;
-      await waitFor(() => expect(select.options.length).toBeGreaterThan(1));
-      expect(screen.queryByText((content) => content.startsWith(vi_['sas.licenseTenants.error.notice']))).toBeNull();
+      await waitFor(() => expect(screen.queryByText((content) => content.startsWith(vi_['sas.licenseTenants.error.notice']))).toBeNull());
+      await user.click(await screen.findByRole('button', { name: vi_['sas.licenseTenants.more.action'] }));
+      await waitFor(() => expect(Array.from(select.options).some((option) => option.value === LATE)).toBe(true));
     });
 
     it('tells a failed read of the entitlement version from a tenant without one, sends nothing, and keeps the typed values for the retry', async () => {
@@ -290,6 +301,52 @@ describe('SAS-12 issue a license', () => {
       expect((field(vi_['sas.licenseIssue.validUntil.label']) as HTMLInputElement).value).toBe('2028-01-01');
       await user.click(screen.getByRole('button', { name: vi_['sas.licenseIssue.submit.action'] }));
       await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    });
+  });
+
+  describe('the seven states (AC-ST-SAS-003-9)', () => {
+    const mountFailing = (error: ApiError) => mount(<LicenseIssueScreen route={ROUTE} />, harness(() => error), LICENSE_ADMIN, '/sas/sas-12');
+
+    it('shows a loading state first, then the denied, signed-out, offline and error states, and the form as the default state', async () => {
+      mountFailing(new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c' }));
+      expect(screen.getByRole('status', { name: vi_['states.loading.label'] })).toBeTruthy();
+      expect(await screen.findByText(vi_['states.denied.title'])).toBeTruthy();
+      expect(screen.queryByRole('button', { name: vi_['sas.licenseIssue.submit.action'] })).toBeNull();
+      cleanup();
+      mountFailing(new ApiError({ status: 401, code: 'SESSION_EXPIRED', correlationId: 'c' }));
+      expect(await screen.findByText(vi_['states.signedOut.title'])).toBeTruthy();
+      cleanup();
+      mountFailing(new ApiError({ status: 0, code: NETWORK_ERROR_CODE, correlationId: 'c' }));
+      expect(await screen.findByText(vi_['states.offline.title'])).toBeTruthy();
+      cleanup();
+      open();
+      expect(await screen.findByRole('button', { name: vi_['sas.licenseIssue.submit.action'] })).toBeTruthy();
+    });
+
+    it('says the registry could not be read and reads it again on request, keeping nothing half drawn', async () => {
+      const user = userEvent.setup();
+      let failing = true;
+      mount(
+        <LicenseIssueScreen route={ROUTE} />,
+        harness((operation, input) => (operation === 'listSystemTenants' && failing ? new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' }) : answer(operation, input))),
+        LICENSE_ADMIN,
+        '/sas/sas-12',
+      );
+      expect(await screen.findByText(vi_['states.error.title'])).toBeTruthy();
+      failing = false;
+      await user.click(screen.getByRole('button', { name: vi_['states.retry.action'] }));
+      expect(await screen.findByLabelText(vi_['sas.licenseIssue.tenant.label'])).toBeTruthy();
+      expect(screen.queryByText(vi_['states.error.title'])).toBeNull();
+    });
+
+    it('shows the empty state when no tenant can take a license yet', async () => {
+      mount(
+        <LicenseIssueScreen route={ROUTE} />,
+        harness((operation, input) => (operation === 'listSystemTenants' ? { items: [TENANTS[2], TENANTS[3]], next_cursor: null } : answer(operation, input))),
+        LICENSE_ADMIN,
+        '/sas/sas-12',
+      );
+      expect(await screen.findByText(vi_['states.empty.title'])).toBeTruthy();
     });
   });
 });

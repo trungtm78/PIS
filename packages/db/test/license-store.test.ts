@@ -4,9 +4,11 @@ import { STANDARD_FEATURES } from '@machvon/kernel';
 import type { LicenseSigner } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
 import type { PoolClient } from 'pg';
+import { AuditWriter } from '../src/audit-writer';
 import { ControlDatabase, PLATFORM_TENANT_ID } from '../src/control-database';
 import { InMemoryEntitlementCache } from '../src/entitlement-cache';
 import { EntitlementStore } from '../src/entitlement-store';
+import { LicenseStatusJob, nextLicenseStatus } from '../src/license-status-job';
 import { LicenseStore } from '../src/license-store';
 import type { IssueLicenseInput, LicenseRow, RenewLicenseInput, RenewedLicense } from '../src/license-store';
 import { startMigratedTestDatabase } from '../src/migrated-test-database';
@@ -775,6 +777,120 @@ describe('licenses in the control plane (ST-SAS-003)', () => {
       expect(rows.rows).toHaveLength(1);
       expect(rows.rows[0]).toMatchObject({ owning_module: 'SAS', status: 'Active', allowed_purposes: ['REMINDER', 'OPERATIONAL'] });
       expect(rows.rows[0]?.payload_schema.required).toEqual(['tenant_id', 'license_id', 'serial', 'valid_until', 'days_left']);
+    });
+  });
+
+  describe('the status job (AC-ST-SAS-003-1, UAT-AC40)', () => {
+    const START = new Date('2026-11-01T00:00:00Z');
+    const END = new Date('2026-12-01T00:00:00Z');
+    const GRACE_END = new Date('2026-12-31T00:00:00Z');
+    const at = (base: Date, seconds: number): Date => new Date(base.getTime() + seconds * 1000);
+
+    let job: LicenseStatusJob;
+    beforeAll(() => {
+      job = new LicenseStatusJob(new AuditWriter(tenants));
+    });
+
+    const run = (tenantId: string, now: Date) => control.withTenantOf(tenantId, (tx) => job.run(tx, ACTOR, now));
+    const statusOf = async (licenseId: string): Promise<{ status: string; version: string }> =>
+      (await asAdmin((client) => client.query<{ status: string; version: string }>('select status, version::text from machvon.license_revision where id = $1', [licenseId]))).rows[0] ?? { status: '', version: '' };
+    const eventsOf = async (licenseId: string): Promise<Array<{ from: string; to: string }>> =>
+      (
+        await asAdmin((client) =>
+          client.query<{ payload: { from: string; to: string } }>("select payload from machvon.outbox_event where type = 'sas.license.status_changed.v1' and aggregate_id = $1 order by created_at, id", [licenseId]),
+        )
+      ).rows.map((row) => ({ from: row.payload.from, to: row.payload.to }));
+    const windowed = async (graceUntil = GRACE_END) => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId, { validFrom: START, validUntil: END, graceUntil });
+      return { tenantId, license };
+    };
+
+    it('AC-ST-SAS-003-1 / UAT-AC40: moves Issued, Active, Active, Grace, Grace, Expired at the boundaries of [from, until) by the clock it is given, one event for each move', async () => {
+      const { tenantId, license } = await windowed();
+      const steps: Array<[Date, string, number]> = [
+        [at(START, -1), 'Issued', 0],
+        [START, 'Active', 1],
+        [at(END, -1), 'Active', 1],
+        [END, 'Grace', 2],
+        [at(GRACE_END, -1), 'Grace', 2],
+        [GRACE_END, 'Expired', 3],
+      ];
+      for (const [now, expected, events] of steps) {
+        await run(tenantId, now);
+        expect((await statusOf(license.id)).status).toBe(expected);
+        expect(await eventsOf(license.id)).toHaveLength(events);
+      }
+      expect(await eventsOf(license.id)).toEqual([
+        { from: 'Issued', to: 'Active' },
+        { from: 'Active', to: 'Grace' },
+        { from: 'Grace', to: 'Expired' },
+      ]);
+      expect((await statusOf(license.id)).version).toBe('4');
+    });
+
+    it('changes nothing when it runs again at the same time, and leaves the license alone before its window', async () => {
+      const { tenantId, license } = await windowed();
+      expect((await run(tenantId, START)).changes).toHaveLength(1);
+      const again = await run(tenantId, START);
+      expect(again.changes).toEqual([]);
+      expect(await eventsOf(license.id)).toHaveLength(1);
+      const early = await windowed();
+      expect((await run(early.tenantId, at(START, -3600))).changes).toEqual([]);
+      expect((await statusOf(early.license.id)).status).toBe('Issued');
+    });
+
+    it('tells every step when the pass finds a license several steps behind, and the tenant gets one entitlement version for each cause', async () => {
+      const { tenantId, license } = await windowed();
+      const before = await versionCount(tenantId);
+      const result = await run(tenantId, at(GRACE_END, 60));
+      expect(result.changes.map((change) => `${change.from}>${change.to}`)).toEqual(['Issued>Active', 'Active>Grace', 'Grace>Expired']);
+      expect(await eventsOf(license.id)).toHaveLength(3);
+      expect(await versionCount(tenantId)).toBe(before + 2);
+      const causes = await asAdmin((client) => client.query<{ cause: string }>('select cause from machvon.entitlement_version where tenant_id = $1 order by version_no desc limit 2', [tenantId]));
+      expect(causes.rows.map((row) => row.cause).sort()).toEqual(['EXPIRY', 'LICENSE_CHANGE']);
+    });
+
+    it('goes from Active straight to Expired when the license has no grace', async () => {
+      const { tenantId, license } = await windowed(END);
+      await run(tenantId, START);
+      await run(tenantId, END);
+      expect((await statusOf(license.id)).status).toBe('Expired');
+      expect(await eventsOf(license.id)).toEqual([
+        { from: 'Issued', to: 'Active' },
+        { from: 'Active', to: 'Expired' },
+      ]);
+    });
+
+    it('leaves a suspended license and a revoked one as the people left them, whatever the clock says', async () => {
+      const held = await windowed();
+      await asAdmin((client) => client.query("update machvon.license_revision set status = 'Suspended', status_reason = 'Held for a check of the contract.' where id = $1", [held.license.id]));
+      const ended = await windowed();
+      await revoke(ended.license.id, ended.license.version);
+      expect((await run(held.tenantId, at(GRACE_END, 60))).changes).toEqual([]);
+      expect((await run(ended.tenantId, at(GRACE_END, 60))).changes).toEqual([]);
+      expect((await statusOf(held.license.id)).status).toBe('Suspended');
+      expect((await statusOf(ended.license.id)).status).toBe('Revoked');
+    });
+
+    it('reads the next step of a status from the window alone, and none for a status the clock does not move', () => {
+      const window = { valid_from: START, valid_until: END, grace_until: GRACE_END };
+      expect(nextLicenseStatus({ status: 'Issued', ...window }, END)).toBe('Active');
+      expect(nextLicenseStatus({ status: 'Expired', ...window }, GRACE_END)).toBeUndefined();
+      expect(nextLicenseStatus({ status: 'Revoked', ...window }, GRACE_END)).toBeUndefined();
+      expect(nextLicenseStatus({ status: 'Suspended', ...window }, GRACE_END)).toBeUndefined();
+    });
+
+    it('writes one audit row for each move, with the statuses and no signed claims', async () => {
+      const { tenantId, license } = await windowed();
+      await run(tenantId, END);
+      const rows = await asAdmin((client) =>
+        client.query<{ diff: Record<string, unknown> }>("select safe_diff as diff from machvon.audit_event where tenant_id = $1 and action = 'sas.license_status_changed' and resource_id = $2 order by occurred_at", [tenantId, license.id]),
+      );
+      expect(rows.rows.map((row) => row.diff)).toEqual([
+        { serial: license.serial, revision: 1, from_status: 'Issued', to_status: 'Active' },
+        { serial: license.serial, revision: 1, from_status: 'Active', to_status: 'Grace' },
+      ]);
     });
   });
 });

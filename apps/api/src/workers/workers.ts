@@ -1,4 +1,4 @@
-import { AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LndStageLateJob, MasterStore, OutboxRelay, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, MetricsSink, TenantContext, TimerPort } from '@machvon/kernel';
@@ -84,6 +84,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const dgvQuality = new DgvQualityRunJob(deps.tenants, audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const subscriptions = new SubscriptionStore();
   const overrides = new EntitlementOverrideStore();
+  const licenseStatus = new LicenseStatusJob(audit);
   const extensions = new CapAllocationExtensionStore();
   const fiscalYears = new CapFiscalYearStore();
   const stageLate = new LndStageLateJob(audit);
@@ -134,6 +135,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     reconciliationOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => reconciliationOverdue.run(tx, ctx.membershipId, now)) },
     settlementDeadline: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => settlementDeadlines.run(tx, ctx.membershipId, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },
+    // Licenses are control-plane rows too: the pass of a tenant runs through the control role acting as that tenant.
+    licenseStatus: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => licenseStatus.run(tx, ctx.membershipId, now)) },
     overrideExpiry: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => overrides.expireDue(tx, now)) },
     accessCache: deps.accessCache,
   });

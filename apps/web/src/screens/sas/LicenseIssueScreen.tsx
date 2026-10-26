@@ -5,6 +5,8 @@ import { useTranslation } from '../../i18n';
 import { routeById } from '../../routes/registry';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
+import { StateBoundary } from '../../states/StateBoundary';
+import { useScreenState } from '../../states/useScreenState';
 import { useIssueLicense } from './license/hooks';
 import { editionLabel, fieldProblemMessage, problemMessage } from './license/labels';
 import { describeProblem } from './license/problems';
@@ -12,7 +14,7 @@ import { EMPTY_ISSUE_VALUES, validateIssueForm } from './license/rules';
 import type { IssueErrors, IssueField, IssueValues } from './license/rules';
 import { EDITIONS, MANAGE_LICENSES_PERMISSION } from './license/types';
 import { TenantSelect } from './license/TenantSelect';
-import { useEntitlements } from './tenants/hooks';
+import { useEntitlements, useTenantList } from './tenants/hooks';
 import type { TenantSummary } from './tenants/types';
 import './tenants/sas.css';
 
@@ -56,6 +58,13 @@ export default function LicenseIssueScreen({ route }: ScreenProps) {
   const [refused, setRefused] = useState<IssueErrors>({});
   const [issuedId, setIssuedId] = useState<string | undefined>(undefined);
   const entitlements = useEntitlements(values.tenant_id, values.tenant_id !== '');
+  // The registry is what the form chooses from: a registry that cannot be read (or has no tenant to issue to) is the state of the screen; a later page that fails is told by the picker.
+  const registry = useTenantList();
+  const state = useScreenState({
+    isLoading: registry.isLoading,
+    error: registry.data === undefined ? registry.error : undefined,
+    data: registry.data === undefined ? undefined : registry.data.pages.flatMap((page) => page.items).filter(isIssuable),
+  });
   const detail = routeById('SAS-13');
   const versionId = entitlements.data !== undefined && entitlements.data.versionNo > NO_VERSION ? entitlements.data.versionId : undefined;
 
@@ -135,48 +144,50 @@ export default function LicenseIssueScreen({ route }: ScreenProps) {
             {problemMessage(t, problem)}
           </p>
         ) : null}
-        <form onSubmit={submit} noValidate>
-          <div className="formgrid">
-            <Field field="tenant_id" label={t('sas.licenseIssue.tenant.label')} error={errorOf('tenant_id')}>
-              <TenantSelect id="license-tenant_id" value={values.tenant_id} chooseLabel={t('sas.licenseIssue.tenant.choose')} accepts={isIssuable} {...invalid('tenant_id')} onChange={(tenantId) => set('tenant_id', tenantId)} />
-            </Field>
-            <Field field="entitlement_version_id" label={t('sas.licenseIssue.entitlement.label')} error={errorOf('entitlement_version_id')}>
-              <input id="license-entitlement_version_id" readOnly value={entitlementText} {...invalid('entitlement_version_id')} />
-              {values.tenant_id !== '' && entitlements.isError ? (
-                <p className="callout warning" role="alert">
-                  {t('sas.licenseIssue.entitlement.error.notice')}{' '}
-                  <button type="button" disabled={entitlements.isFetching} onClick={() => void entitlements.refetch()}>
-                    {t('sas.licenseIssue.entitlement.retry.action')}
-                  </button>
-                </p>
+        <StateBoundary state={state} onRetry={() => void registry.refetch()}>
+          <form onSubmit={submit} noValidate>
+            <div className="formgrid">
+              <Field field="tenant_id" label={t('sas.licenseIssue.tenant.label')} error={errorOf('tenant_id')}>
+                <TenantSelect id="license-tenant_id" value={values.tenant_id} chooseLabel={t('sas.licenseIssue.tenant.choose')} accepts={isIssuable} {...invalid('tenant_id')} onChange={(tenantId) => set('tenant_id', tenantId)} />
+              </Field>
+              <Field field="entitlement_version_id" label={t('sas.licenseIssue.entitlement.label')} error={errorOf('entitlement_version_id')}>
+                <input id="license-entitlement_version_id" readOnly value={entitlementText} {...invalid('entitlement_version_id')} />
+                {values.tenant_id !== '' && entitlements.isError ? (
+                  <p className="callout warning" role="alert">
+                    {t('sas.licenseIssue.entitlement.error.notice')}{' '}
+                    <button type="button" disabled={entitlements.isFetching} onClick={() => void entitlements.refetch()}>
+                      {t('sas.licenseIssue.entitlement.retry.action')}
+                    </button>
+                  </p>
+                ) : null}
+              </Field>
+              {text('seats', t('sas.licenseIssue.seats.label'), 'number')}
+              <Field field="edition" label={t('sas.licenseIssue.edition.label')} error={errorOf('edition')}>
+                <select id="license-edition" value={values.edition} {...invalid('edition')} onChange={(event) => set('edition', event.target.value)}>
+                  {EDITIONS.map((edition) => (
+                    <option key={edition} value={edition}>
+                      {editionLabel(t, edition)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              {text('valid_from', t('sas.licenseIssue.validFrom.label'), 'date')}
+              {text('valid_until', t('sas.licenseIssue.validUntil.label'), 'date')}
+              {text('grace_until', t('sas.licenseIssue.graceUntil.label'), 'date')}
+              {values.edition === 'PRIVATE' ? text('deployment_binding', t('sas.licenseIssue.binding.label')) : null}
+              {values.edition === 'PRIVATE' ? text('offline_lease_days', t('sas.licenseIssue.lease.label'), 'number') : null}
+            </div>
+            <p className="callout">{t('sas.licenseIssue.signing.notice')}</p>
+            <div className="formfooter">
+              <span className="sub">{t('sas.licenseIssue.hint')}</span>
+              {canManage ? (
+                <button type="submit" className="primary" disabled={issue.isPending}>
+                  {t('sas.licenseIssue.submit.action')}
+                </button>
               ) : null}
-            </Field>
-            {text('seats', t('sas.licenseIssue.seats.label'), 'number')}
-            <Field field="edition" label={t('sas.licenseIssue.edition.label')} error={errorOf('edition')}>
-              <select id="license-edition" value={values.edition} {...invalid('edition')} onChange={(event) => set('edition', event.target.value)}>
-                {EDITIONS.map((edition) => (
-                  <option key={edition} value={edition}>
-                    {editionLabel(t, edition)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            {text('valid_from', t('sas.licenseIssue.validFrom.label'), 'date')}
-            {text('valid_until', t('sas.licenseIssue.validUntil.label'), 'date')}
-            {text('grace_until', t('sas.licenseIssue.graceUntil.label'), 'date')}
-            {values.edition === 'PRIVATE' ? text('deployment_binding', t('sas.licenseIssue.binding.label')) : null}
-            {values.edition === 'PRIVATE' ? text('offline_lease_days', t('sas.licenseIssue.lease.label'), 'number') : null}
-          </div>
-          <p className="callout">{t('sas.licenseIssue.signing.notice')}</p>
-          <div className="formfooter">
-            <span className="sub">{t('sas.licenseIssue.hint')}</span>
-            {canManage ? (
-              <button type="submit" className="primary" disabled={issue.isPending}>
-                {t('sas.licenseIssue.submit.action')}
-              </button>
-            ) : null}
-          </div>
-        </form>
+            </div>
+          </form>
+        </StateBoundary>
       </div>
       <p className="prototype-note">{t('sas.licenseIssue.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

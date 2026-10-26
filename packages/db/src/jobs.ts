@@ -59,6 +59,8 @@ export const JOB_INTERVAL_SECONDS = {
   'fiscal-year-relock': 900,
   // Every minute: an entitlement override whose window has ended stops counting and the tenant is told within the minute (ST-SAS-009, "takes effect within 60 seconds"); the pass is idempotent.
   'entitlement-override-expiry': 60,
+  // Every minute: a license moves Issued -> Active -> Grace -> Expired at its boundaries by the clock of the server, one event for each move (ST-SAS-003); the pass is idempotent.
+  'license-status': 60,
   // Hourly: a stage of land clearance whose planned end has passed becomes late within the hour and asks ISS for its issue (ST-LND-010); the pass is idempotent.
   'land-stage-late': 3600,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
@@ -208,6 +210,8 @@ export interface StandardJobDeps {
   fiscalYearRelock?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ years: number[] }> };
   /** The pass over the entitlement overrides of a tenant (ST-SAS-009): an override in force whose window has ended expires and the tenant gets a new entitlement version; a request that waited past its window expires. */
   overrideExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The pass over the licenses of a tenant (ST-SAS-003): each one moves along Issued, Active, Grace and Expired by the clock of the server, with an event for every move. */
+  licenseStatus?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -529,6 +533,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overrides.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const licenses = deps.licenseStatus;
+  if (licenses !== undefined) {
+    handlers.push({
+      name: 'license-status',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await licenses.run(workerContext(tenantId), now)));
       },
     });
   }
