@@ -24,7 +24,7 @@ One line for each project and each of the six cells of the report (BR-DIS-01), w
 - a Treasury net below zero for the year (a refund of a payment of the year before) is shown as it is, with no rate (`rate_null_reason` `NO_DATA`) and `PARTIAL` coverage: it is a figure to look at, not a rate;
 - `treasury_coverage`: `NONE` when the Treasury booked nothing, `PARTIAL` when there is no accepted report to compare with or the two differ by more than 5% (assumption), otherwise `COMPLETE`.
 
-The snapshot carries `metric_set_version` (`DIS-METRICS-R1-PROPOSED`) and `definition_status`: `PROPOSED_PENDING_SIGNOFF` until every glossary term the formulas are defined by (`DISBURSEMENT_CUMULATIVE`, `DISBURSEMENT_RATE_PM`, `DISBURSEMENT_RATE_TOTAL`, `TREASURY_CUTOFF`, `MEASUREMENT_BASIS`, domain `DISBURSEMENT`) is PUBLISHED in the glossary of the tenant, then `SIGNED` (CXN-03; DIS-21 shows the badge "CHỜ KÝ D03").
+The snapshot carries `metric_set_version` (`DIS-METRICS-R1-PROPOSED`) and `definition_status`: `PROPOSED_PENDING_SIGNOFF` until every term that the glossary requires of the domain `DISBURSEMENT` (the five definitions of ST-MDM-008: `GIAI_NGAN_PERIOD`, `GIAI_NGAN_YTD`, `GIAI_NGAN_PTD`, `MAU_SO_KH_TTG_GIAO`, `MAU_SO_KH_TONG`; `GlossaryStore.definitionStatus`, the snapshot keeps no list of its own) is PUBLISHED in the glossary of the tenant, then `SIGNED` (CXN-03; DIS-21 shows the badge "CHỜ KÝ D03").
 
 ## Build and freeze
 

@@ -5,7 +5,9 @@ import type { EffectiveAccess, ImportRow, ParsedImport, RawFundingLine, Scope } 
 import { DisImportStore } from '../src/dis-import-store';
 import { DisPeriodStore } from '../src/dis-period-store';
 import { DisReportStore } from '../src/dis-report-store';
-import { DisSnapshotStore, REQUIRED_GLOSSARY_TERMS } from '../src/dis-snapshot-store';
+import { DISBURSEMENT_TERMS } from '../src/glossary-store';
+import { DisSnapshotStore } from '../src/dis-snapshot-store';
+
 import type { Allocation, NewDraft } from '../src/dis-report-store';
 import { projectScope } from '../src/prj-project-store';
 import type { TenantTx } from '../src/tenant-database';
@@ -1557,7 +1559,8 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       expect(listed.map((row) => row.status)).toEqual(['FROZEN', 'SUPERSEDED']);
     });
 
-    it('says the definitions are proposals until every term of the formulas is published in the glossary, then that they are signed (CXN-03)', async () => {
+    it('says the definitions are proposals until every term the glossary requires of the domain DISBURSEMENT is published, then that they are signed (CXN-03)', async () => {
+      const TERM_CODES = DISBURSEMENT_TERMS.map((item) => item.termCode);
       expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_A, BUILDER)).toBe('PROPOSED_PENDING_SIGNOFF');
       const term = (code: string, n: number, published: boolean): [string, unknown[]] => [
         `insert into machvon.glossary_term (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, created_by, updated_by, approved_by, decided_by, decided_at, published_by, published_at, effective_from)
@@ -1565,12 +1568,12 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
         [TENANT_A, id(FAMILY, 4000 + n), code, memberId(MAKER), published ? 'PUBLISHED' : 'APPROVED', memberId(OTHER), published ? memberId(OTHER) : null, published ? '2026-01-01T00:00:00Z' : null, published ? '2026-01-01' : null],
       ];
       // All but the first term are published, the first is only approved: the formulas are still proposals.
-      await seedReplica([term(REQUIRED_GLOSSARY_TERMS[0] as string, 0, false), ...REQUIRED_GLOSSARY_TERMS.slice(1).map((code, n) => term(code, n + 1, true))]);
+      await seedReplica([term(TERM_CODES[0] as string, 0, false), ...TERM_CODES.slice(1).map((code, n) => term(code, n + 1, true))]);
       expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_A, BUILDER)).toBe('PROPOSED_PENDING_SIGNOFF');
       await owner("update machvon.glossary_term set status = 'PUBLISHED', published_by = $2, published_at = now(), effective_from = date '2026-01-01' where id = $1", [id(FAMILY, 4000), memberId(OTHER)]);
       expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_A, BUILDER)).toBe('SIGNED');
       expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_B, BUILDER)).toBe('PROPOSED_PENDING_SIGNOFF');
-      await owner('delete from machvon.glossary_term where id = any($1::uuid[])', [REQUIRED_GLOSSARY_TERMS.map((_code, n) => id(FAMILY, 4000 + n))]);
+      await owner('delete from machvon.glossary_term where id = any($1::uuid[])', [TERM_CODES.map((_code, n) => id(FAMILY, 4000 + n))]);
     });
 
     it('what the table refuses: a frozen snapshot is not changed or deleted, a line is not touched, lines are written only while building, a hash is a hash', async () => {

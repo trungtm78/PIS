@@ -3,6 +3,7 @@ import { DomainError, METRIC_SET_VERSION, buildLines, snapshotHash, versionConfl
 import type { RateBasis, RateSums } from '@machvon/kernel';
 import type { DefinitionStatus, HashedLine, PlanCell, ReportedCell, SnapshotKind, SnapshotLine, SnapshotProject, TreasuryEntry } from '@machvon/kernel';
 import type { PeriodRow } from './dis-period-store.ts';
+import { DISBURSEMENT_DOMAIN, GlossaryStore } from './glossary-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -14,9 +15,6 @@ export const DIS_SNAPSHOT_FREEZE_METRIC = 'dis_snapshot_freeze_total';
 /** Counts each rate that was read and could not be computed, by the reason (ST-DIS-010). */
 export const DIS_RATE_NULL_METRIC = 'dis_rate_null_total';
 
-/** The glossary terms the formulas of the snapshot are defined by: the snapshot says its definitions are proposals until every one of them is published (DIS 3 F6, CXN-03). */
-export const REQUIRED_GLOSSARY_TERMS: readonly string[] = ['DISBURSEMENT_CUMULATIVE', 'DISBURSEMENT_RATE_PM', 'DISBURSEMENT_RATE_TOTAL', 'TREASURY_CUTOFF', 'MEASUREMENT_BASIS'];
-export const GLOSSARY_DOMAIN = 'DISBURSEMENT';
 
 const TENANT = "nullif(current_setting('app.tenant_id', true), '')::uuid";
 const iso = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
@@ -182,13 +180,9 @@ export class DisSnapshotStore {
     return rows.map(toSnapshot);
   }
 
-  /** `SIGNED` when every term the formulas are defined by is published in the glossary of the tenant, otherwise the formulas are proposals (CXN-03). */
+  /** `SIGNED` when every term the glossary requires of the domain DISBURSEMENT is published (the definitions of ST-MDM-008), otherwise the formulas are proposals (CXN-03). The glossary says what it requires: this does not keep a list of its own. */
   async definitionStatus(tx: TenantTx): Promise<DefinitionStatus> {
-    const [row] = await tx.query<{ n: string }>(
-      `select count(distinct term_code)::text as n from machvon.glossary_term where domain = $1 and status = 'PUBLISHED' and term_code = any($2::text[])`,
-      [GLOSSARY_DOMAIN, [...REQUIRED_GLOSSARY_TERMS]],
-    );
-    return Number((row as { n: string }).n) === REQUIRED_GLOSSARY_TERMS.length ? 'SIGNED' : 'PROPOSED_PENDING_SIGNOFF';
+    return (await new GlossaryStore().definitionStatus(tx, DISBURSEMENT_DOMAIN)).status;
   }
 
   /** Reads what the build needs of every project in scope, with a query for each kind of data and not for each project. */

@@ -9,3 +9,5 @@ export type { components, operations, paths } from './types.generated.ts';
 export { requestSchemaOf, validateRequestBody } from './request-validation.ts';
 export { ROOT_PATH, validateValue } from './validation.ts';
 export type { Issue, IssueKind, Schema, SchemaTable } from './validation.ts';
+export { DIS_GLOSSARY_DOMAIN, DIS_GOLDEN, DIS_GOLDEN_SESSION, DIS_GOLDEN_STATUS } from './dis-golden.ts';
+export type { GoldenCell, GoldenFixture, GoldenTransaction, GoldenUnit } from './dis-golden.ts';

@@ -32,6 +32,7 @@ export const IMPORTER = ['report.import', 'report.read', 'report_revision.read']
 export const SNAPSHOTTER = ['snapshot.build', 'snapshot.freeze', 'disbursement.read'];
 export const SNAPSHOT_READER = ['disbursement.read'];
 export const RATE_READER = ['disbursement.read'];
+export const DEFINITION_READER = ['glossary.read'];
 export const routeOf = baseRoute;
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -176,6 +177,8 @@ export interface World {
   snapshots: Record<string, Record<string, unknown>>;
   /** The pages of `listPeriodSnapshotLines` for a snapshot, by id and by cursor (`''` is the first page). */
   snapshotLines: Record<string, Record<string, Record<string, unknown>>>;
+  /** The terms of the business glossary, as `listGlossaryTerms` answers them. */
+  glossary: Array<Record<string, unknown>>;
   /** The answer of `getDisbursementRates`, or one for each query; none answers 404. */
   rates: Record<string, unknown> | ((query: Record<string, unknown>) => unknown) | undefined;
   /** The drafts that were deleted and can still be restored, as the list answers them for `deleted=true`. */
@@ -196,6 +199,7 @@ export function world(overrides: Partial<World> = {}): World {
     snapshots: {},
     snapshotLines: {},
     rates: undefined,
+    glossary: [],
     deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
@@ -247,6 +251,7 @@ export function client(state: World, command: (operation: string, input: unknown
       const page = typeof state.page === 'function' ? state.page(input?.query ?? {}) : state.page;
       return Promise.resolve(Array.isArray(page.items) ? page.items : []);
     }
+    if (operation === 'listGlossaryTerms') return Promise.resolve(state.glossary);
     if (operation === 'get_resources_reporting_period') return Promise.resolve(state.periods);
     if (operation === 'get_resources_project') return Promise.resolve(state.projects);
     if (operation === 'get_resources_plan_version') return Promise.resolve(state.plans);
@@ -304,6 +309,7 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-16" element={screen} />
                 <Route path="/dis/dis-19" element={screen} />
                 <Route path="/dis/dis-21" element={screen} />
+                <Route path="/dis/dis-25" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />
               </Routes>
             </MemoryRouter>
