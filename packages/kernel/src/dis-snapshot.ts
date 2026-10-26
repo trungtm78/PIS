@@ -39,15 +39,17 @@ export interface Rates {
  * province or the ministry added. The first can pass 100%. A rate with nothing to divide by, or nothing to divide, is null with its reason, never zero (BR-DIS-08).
  */
 export function ratesOf(input: { disbursedVnd: string | null; planPmVnd: string; planLocalVnd: string; coverage: TreasuryCoverage }): Rates {
+  const pm = BigInt(input.planPmVnd);
+  const total = pm + BigInt(input.planLocalVnd);
+  // BR-DIS-08 names the plan first: with nothing to divide by there is no rate, whatever else is missing.
+  if (total === 0n) return { ratePmPct: null, rateTotalPct: null, nullReason: 'ZERO_DENOMINATOR' };
   if (input.disbursedVnd === null) return { ratePmPct: null, rateTotalPct: null, nullReason: input.coverage === COVERAGE.none ? 'TREASURY_COVERAGE_NONE' : 'NO_DATA' };
   const disbursed = BigInt(input.disbursedVnd);
   // A refund of what the Treasury paid before the year can leave the net of the year below zero: that is not a rate of disbursement, it is a figure to be looked at, so no rate is given (assumption until D03).
   if (disbursed < 0n) return { ratePmPct: null, rateTotalPct: null, nullReason: 'NO_DATA' };
-  const pm = BigInt(input.planPmVnd);
-  const total = pm + BigInt(input.planLocalVnd);
   const ratePmPct = pm === 0n ? null : percentWithFourDecimals(disbursed, pm);
-  const rateTotalPct = total === 0n ? null : percentWithFourDecimals(disbursed, total);
-  return { ratePmPct, rateTotalPct, nullReason: ratePmPct === null || rateTotalPct === null ? 'ZERO_DENOMINATOR' : null };
+  const rateTotalPct = percentWithFourDecimals(disbursed, total);
+  return { ratePmPct, rateTotalPct, nullReason: ratePmPct === null ? 'ZERO_DENOMINATOR' : null };
 }
 
 /** BR-DIS-04: the rate of a group is the sum of the numerators over the sum of the denominators, never the mean of the rates; null when there is nothing to divide by. */

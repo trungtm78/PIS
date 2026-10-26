@@ -469,7 +469,7 @@ export const REPORT_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; f
   'TNT-B': { id: '00000000-0000-4000-b0fe-000000000001', fileSha256: 'b0fe'.repeat(16) },
 };
 
-/** A period snapshot of each tenant that was built and not frozen, with one line of its project (the planned amount is distinctive: the figures of a tenant are internal to it). */
+/** A period snapshot of each tenant that was frozen, with one line of its project (the planned amount is distinctive: the figures of a tenant are internal to it). */
 export const PERIOD_SNAPSHOT_FIXTURES: Readonly<Record<TenantName, { id: string; lineId: string; planVnd: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0ff-000000000001', lineId: '00000000-0000-4000-a0ff-000000000002', planVnd: '8400003' },
   'TNT-B': { id: '00000000-0000-4000-b0ff-000000000001', lineId: '00000000-0000-4000-b0ff-000000000002', planVnd: '9200007' },

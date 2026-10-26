@@ -633,5 +633,7 @@ export type { ReportDecision, DecisionInput, RawCorrection, RawDecision } from '
 export { IMPORT_FAULTS, REPORT_IMPORT_MAPPINGS, REQUIRED_COLUMNS as REPORT_IMPORT_COLUMNS, faultedRowsOf, mappingOf, parseReportImport } from './dis-import.ts';
 export type { ImportRow, ParsedImport, ReportImportMapping, RowFault } from './dis-import.ts';
 export { COVERAGE, DEFINITION_STATUSES, METRIC_SET_VERSION, SNAPSHOT_KINDS, buildLines, coverageOf, groupRate, planSplitOf, ratesOf, snapshotHash, treasuryDisbursed } from './dis-snapshot.ts';
+export { RATE_BASES, addSums, rateOfSums } from './dis-rates.ts';
+export type { RateBasis, RateFigures, RateSums } from './dis-rates.ts';
 export type { DefinitionStatus, HashedLine, PlanCell, RateNullReason, Rates, ReportedCell, SnapshotHeader, SnapshotKind, SnapshotLine, SnapshotProject, TreasuryCoverage, TreasuryEntry } from './dis-snapshot.ts';
 export { DELETION_REASON_MIN, LIFECYCLE_REASON_MAX, charactersOf, RESTORE_WINDOW_DAYS, WITHDRAWAL_REASON_MIN, deleteRefusal, deletionOf, restoreDeadline, restoreRefusal, withdrawRefusal, withdrawalOf } from './dis-lifecycle.ts';

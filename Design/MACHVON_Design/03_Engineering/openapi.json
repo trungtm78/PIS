@@ -39652,7 +39652,8 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "description": "The snapshot to read; the most recent frozen close snapshot when absent."
           },
           {
             "name": "unit_id",
@@ -39686,8 +39687,27 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "enum": [
+                "CURRENT_YEAR",
+                "CARRYOVER"
+              ],
+              "default": "CURRENT_YEAR"
+            },
+            "description": "CURRENT_YEAR divides the Treasury by the year plan; CARRYOVER divides what was reported by the plan of the capital carried over, apart."
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "UNIT",
+                "PROJECT"
+              ]
+            },
+            "description": "Adds a row for each unit or project, each made from its own sums."
           }
         ],
         "responses": {
@@ -128227,10 +128247,28 @@
       },
       "DisRates": {
         "type": "object",
+        "description": "The two disbursement rates over one snapshot and one scope, with one numerator (BR-DIS-04, BR-DIS-05, BR-DIS-08); the formulas are proposals until D03 is signed.",
         "properties": {
           "snapshot_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "snapshot_kind": {
+            "type": "string",
+            "enum": [
+              "PERIOD_CLOSE",
+              "ADHOC",
+              "MNE"
+            ]
+          },
+          "snapshot_status": {
+            "type": "string",
+            "enum": [
+              "BUILDING",
+              "FROZEN",
+              "SUPERSEDED",
+              "FAILED"
+            ]
           },
           "as_of_date": {
             "type": "string",
@@ -128247,11 +128285,26 @@
               "SIGNED"
             ]
           },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "CURRENT_YEAR",
+              "CARRYOVER"
+            ]
+          },
           "scope": {
             "type": "object"
           },
+          "projects": {
+            "type": "integer",
+            "minimum": 0
+          },
           "numerator_disbursed_vnd": {
-            "$ref": "#/components/schemas/Money"
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Treasury payments up to the cutoff (year plan) or what was reported (capital carried over); null when nobody has the figure."
           },
           "plan_pm_assigned_vnd": {
             "$ref": "#/components/schemas/Money"
@@ -128278,6 +128331,12 @@
             "type": [
               "string",
               "null"
+            ],
+            "enum": [
+              "ZERO_DENOMINATOR",
+              "NO_DATA",
+              "TREASURY_COVERAGE_NONE",
+              null
             ]
           },
           "treasury_coverage": {
@@ -128288,10 +128347,28 @@
               "NONE"
             ]
           },
+          "reported_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ctmtqg_subset_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "legal_confirmation_refs": {
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisRateGroup"
             }
           }
         }
@@ -149023,6 +149100,95 @@
           "version": {
             "type": "integer",
             "minimum": 1
+          }
+        }
+      },
+      "DisRateGroup": {
+        "type": "object",
+        "description": "The two rates of a unit or a project: the sums of its lines, never the mean of the rates of its parts.",
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "projects": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "numerator_disbursed_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Treasury payments up to the cutoff (year plan) or what was reported (capital carried over); null when nobody has the figure."
+          },
+          "plan_pm_assigned_vnd": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "plan_local_added_vnd": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "plan_total_vnd": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "rate_pm_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rate_total_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rate_null_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "ZERO_DENOMINATOR",
+              "NO_DATA",
+              "TREASURY_COVERAGE_NONE",
+              null
+            ]
+          },
+          "treasury_coverage": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "PARTIAL",
+              "NONE"
+            ]
+          },
+          "reported_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ctmtqg_subset_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }

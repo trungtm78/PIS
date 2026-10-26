@@ -239,6 +239,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'freezePeriodSnapshot',
   'listPeriodSnapshotLines',
   'listPeriodSnapshots',
+  'getDisbursementRates',
   'uploadReportFile',
   'getReportRevision',
   'getReportImport',
@@ -703,9 +704,12 @@ const INSERT_PERIOD_SNAPSHOT = `insert into machvon.period_snapshot
   (tenant_id, id, period_id, snapshot_kind, as_of_at, as_of_date, treasury_cutoff_date, status, metric_set_version, definition_status, row_count, created_by, updated_by)
   values ($1, $2, $3, 'PERIOD_CLOSE', now(), date '2026-01-10', date '2026-01-10', 'BUILDING', 'DIS-METRICS-R1-PROPOSED', 'PROPOSED_PENDING_SIGNOFF', 1, $4, $4) on conflict do nothing`;
 
+const FREEZE_PERIOD_SNAPSHOT = `update machvon.period_snapshot set status = 'FROZEN', payload_sha256 = repeat('a', 64), frozen_by = $3, frozen_at = now() where tenant_id = $1 and id = $2 and status = 'BUILDING'`;
+
 const INSERT_PERIOD_SNAPSHOT_LINE = `insert into machvon.period_snapshot_line
   (tenant_id, id, snapshot_id, project_id, unit_id, bucket, budget_level, plan_pm_assigned_vnd, plan_total_vnd, treasury_coverage)
-  values ($1, $2, $3, $4, $5, 'CURRENT_YEAR', 'CENTRAL', $6::numeric, $6::numeric, 'NONE') on conflict do nothing`;
+  select $1, $2, $3, $4, $5, 'CURRENT_YEAR', 'CENTRAL', $6::numeric, $6::numeric, 'NONE'
+   where exists (select 1 from machvon.period_snapshot s where s.tenant_id = $1 and s.id = $3 and s.status = 'BUILDING') on conflict do nothing`;
 
 const INSERT_REPORT_LINE = `insert into machvon.funding_snapshot_line
   (tenant_id, id, report_revision_id, bucket, budget_level, disbursed_cumulative_vnd, next_month_registered_vnd, allocated_vnd)
@@ -1333,6 +1337,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const snapshot = PERIOD_SNAPSHOT_FIXTURES[tenant];
     await client.query(INSERT_PERIOD_SNAPSHOT, [tenantId, snapshot.id, period.id, MEMBERSHIP_ID]);
     await client.query(INSERT_PERIOD_SNAPSHOT_LINE, [tenantId, snapshot.lineId, snapshot.id, project.id, home, snapshot.planVnd]);
+    await client.query(FREEZE_PERIOD_SNAPSHOT, [tenantId, snapshot.id, MEMBERSHIP_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);

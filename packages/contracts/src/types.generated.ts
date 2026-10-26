@@ -15455,26 +15455,39 @@ export interface components {
             /** @enum {string} */
             unit_scale?: "VND" | "MILLION_VND";
         };
+        /** @description The two disbursement rates over one snapshot and one scope, with one numerator (BR-DIS-04, BR-DIS-05, BR-DIS-08); the formulas are proposals until D03 is signed. */
         DisRates: {
             /** Format: uuid */
             snapshot_id?: string;
+            /** @enum {string} */
+            snapshot_kind?: "PERIOD_CLOSE" | "ADHOC" | "MNE";
+            /** @enum {string} */
+            snapshot_status?: "BUILDING" | "FROZEN" | "SUPERSEDED" | "FAILED";
             /** Format: date */
             as_of_date?: string;
             /** Format: date */
             treasury_cutoff_date?: string;
             /** @enum {string} */
             definition_status?: "PROPOSED_PENDING_SIGNOFF" | "SIGNED";
+            /** @enum {string} */
+            basis?: "CURRENT_YEAR" | "CARRYOVER";
             scope?: Record<string, never>;
-            numerator_disbursed_vnd?: components["schemas"]["Money"];
+            projects?: number;
+            /** @description Treasury payments up to the cutoff (year plan) or what was reported (capital carried over); null when nobody has the figure. */
+            numerator_disbursed_vnd?: string | null;
             plan_pm_assigned_vnd?: components["schemas"]["Money"];
             plan_local_added_vnd?: components["schemas"]["Money"];
             plan_total_vnd?: components["schemas"]["Money"];
             rate_pm_pct?: string | null;
             rate_total_pct?: string | null;
-            rate_null_reason?: string | null;
+            /** @enum {string|null} */
+            rate_null_reason?: "ZERO_DENOMINATOR" | "NO_DATA" | "TREASURY_COVERAGE_NONE" | null;
             /** @enum {string} */
             treasury_coverage?: "COMPLETE" | "PARTIAL" | "NONE";
+            reported_vnd?: string | null;
+            ctmtqg_subset_vnd?: string | null;
             legal_confirmation_refs?: string[];
+            groups?: components["schemas"]["DisRateGroup"][];
         };
         DisForecast: {
             /** Format: uuid */
@@ -21116,6 +21129,27 @@ export interface components {
             /** Format: uuid */
             created_by: string;
             version: number;
+        };
+        /** @description The two rates of a unit or a project: the sums of its lines, never the mean of the rates of its parts. */
+        DisRateGroup: {
+            /** Format: uuid */
+            id?: string | null;
+            code?: string | null;
+            name?: string | null;
+            projects?: number;
+            /** @description Treasury payments up to the cutoff (year plan) or what was reported (capital carried over); null when nobody has the figure. */
+            numerator_disbursed_vnd?: string | null;
+            plan_pm_assigned_vnd?: components["schemas"]["Money"];
+            plan_local_added_vnd?: components["schemas"]["Money"];
+            plan_total_vnd?: components["schemas"]["Money"];
+            rate_pm_pct?: string | null;
+            rate_total_pct?: string | null;
+            /** @enum {string|null} */
+            rate_null_reason?: "ZERO_DENOMINATOR" | "NO_DATA" | "TREASURY_COVERAGE_NONE" | null;
+            /** @enum {string} */
+            treasury_coverage?: "COMPLETE" | "PARTIAL" | "NONE";
+            reported_vnd?: string | null;
+            ctmtqg_subset_vnd?: string | null;
         };
     };
     responses: never;
@@ -48470,11 +48504,15 @@ export interface operations {
     getDisbursementRates: {
         parameters: {
             query?: {
+                /** @description The snapshot to read; the most recent frozen close snapshot when absent. */
                 snapshot_id?: string;
                 unit_id?: string;
                 project_id?: string;
                 fund_source_version_id?: string;
-                bucket?: string;
+                /** @description CURRENT_YEAR divides the Treasury by the year plan; CARRYOVER divides what was reported by the plan of the capital carried over, apart. */
+                bucket?: "CURRENT_YEAR" | "CARRYOVER";
+                /** @description Adds a row for each unit or project, each made from its own sums. */
+                group_by?: "UNIT" | "PROJECT";
             };
             header?: never;
             path?: never;

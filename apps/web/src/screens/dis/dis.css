@@ -144,3 +144,33 @@ th.num {
 .dis-files li {
   margin: 6px 0;
 }
+.dis-rate-pair {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin: 8px 0 12px;
+}
+.dis-rate-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line, #d8d3da);
+  border-radius: 6px;
+}
+.dis-rate-tile strong {
+  font-size: 22px;
+}
+.dis-full-table .pinned {
+  position: sticky;
+  z-index: 1;
+  background: var(--surface, #fff);
+}
+.dis-full-table .pinned-first {
+  left: 0;
+  min-width: 120px;
+}
+.dis-full-table .pinned-second {
+  left: 120px;
+  min-width: 160px;
+}

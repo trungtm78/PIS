@@ -31,6 +31,7 @@ export const WITHDRAWER = [...MAKER, 'report.withdraw'];
 export const IMPORTER = ['report.import', 'report.read', 'report_revision.read'];
 export const SNAPSHOTTER = ['snapshot.build', 'snapshot.freeze', 'disbursement.read'];
 export const SNAPSHOT_READER = ['disbursement.read'];
+export const RATE_READER = ['disbursement.read'];
 export const routeOf = baseRoute;
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -175,6 +176,8 @@ export interface World {
   snapshots: Record<string, Record<string, unknown>>;
   /** The pages of `listPeriodSnapshotLines` for a snapshot, by id and by cursor (`''` is the first page). */
   snapshotLines: Record<string, Record<string, Record<string, unknown>>>;
+  /** The answer of `getDisbursementRates`, or one for each query; none answers 404. */
+  rates: Record<string, unknown> | ((query: Record<string, unknown>) => unknown) | undefined;
   /** The drafts that were deleted and can still be restored, as the list answers them for `deleted=true`. */
   deleted: Array<Record<string, unknown>>;
   /** The page the list answers for a query, or one for every query. */
@@ -192,6 +195,7 @@ export function world(overrides: Partial<World> = {}): World {
     imports: {},
     snapshots: {},
     snapshotLines: {},
+    rates: undefined,
     deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
@@ -215,6 +219,11 @@ export function client(state: World, command: (operation: string, input: unknown
     }
     if (operation === 'getReportImport') {
       return state.imports[(input as { path: { id: string } }).path.id] ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
+    }
+    if (operation === 'getDisbursementRates') {
+      const query = (input as { query?: Record<string, unknown> }).query ?? {};
+      const answer = typeof state.rates === 'function' ? state.rates(query) : state.rates;
+      return answer ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
     }
     if (operation === 'listPeriodSnapshots') {
       const periodId = String((input as { query?: { period_id?: string } }).query?.period_id ?? '');
@@ -291,6 +300,9 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-10" element={screen} />
                 <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
+                <Route path="/dis/dis-12" element={screen} />
+                <Route path="/dis/dis-16" element={screen} />
+                <Route path="/dis/dis-19" element={screen} />
                 <Route path="/dis/dis-21" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />
               </Routes>

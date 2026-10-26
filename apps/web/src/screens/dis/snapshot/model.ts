@@ -103,6 +103,7 @@ export interface SnapshotLineView {
   treasuryVnd: string | null;
   reportedVnd: string | null;
   deltaVnd: string | null;
+  ctmtqgVnd: string | null;
   ratePmPct: string | null;
   rateTotalPct: string | null;
   rateNullReason: string | null;
@@ -131,6 +132,7 @@ export function toSnapshotLine(raw: unknown): SnapshotLineView | undefined {
     treasuryVnd: optionalText(row.disbursed_treasury_vnd),
     reportedVnd: optionalText(row.disbursed_reported_vnd),
     deltaVnd: optionalText(row.period_delta_vnd),
+    ctmtqgVnd: optionalText(row.ctmtqg_subset_vnd),
     ratePmPct: optionalText(row.rate_pm_pct),
     rateTotalPct: optionalText(row.rate_total_pct),
     rateNullReason: optionalText(row.rate_null_reason),

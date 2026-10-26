@@ -3910,13 +3910,12 @@ final class DisImportFileResponse implements ResponseModel {
       };
 }
 
-final class DisRatesResponse implements ResponseModel {
-  const DisRatesResponse({
-    this.snapshotId,
-    this.asOfDate,
-    this.treasuryCutoffDate,
-    this.definitionStatus,
-    this.scope,
+final class DisRateGroupResponse implements ResponseModel {
+  const DisRateGroupResponse({
+    this.id,
+    this.code,
+    this.name,
+    this.projects,
     this.numeratorDisbursedVnd,
     this.planPmAssignedVnd,
     this.planLocalAddedVnd,
@@ -3925,19 +3924,19 @@ final class DisRatesResponse implements ResponseModel {
     this.rateTotalPct,
     this.rateNullReason,
     this.treasuryCoverage,
-    this.legalConfirmationRefs,
+    this.reportedVnd,
+    this.ctmtqgSubsetVnd,
     this.extra = const <String, Object?>{},
   });
 
-  factory DisRatesResponse.fromJson(Object? json, [String path = 'DisRatesResponse']) {
+  factory DisRateGroupResponse.fromJson(Object? json, [String path = 'DisRateGroupResponse']) {
     final Map<String, Object?> map = asObject(json, path);
-    return DisRatesResponse(
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOfDate: optionalField(map, path, 'as_of_date', asString),
-      treasuryCutoffDate: optionalField(map, path, 'treasury_cutoff_date', asString),
-      definitionStatus: optionalField(map, path, 'definition_status', asString),
-      scope: optionalField(map, path, 'scope', asObject),
-      numeratorDisbursedVnd: optionalField(map, path, 'numerator_disbursed_vnd', asString),
+    return DisRateGroupResponse(
+      id: optionalField(map, path, 'id', nullable(asString)),
+      code: optionalField(map, path, 'code', nullable(asString)),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      projects: optionalField(map, path, 'projects', asInt),
+      numeratorDisbursedVnd: optionalField(map, path, 'numerator_disbursed_vnd', nullable(asString)),
       planPmAssignedVnd: optionalField(map, path, 'plan_pm_assigned_vnd', asString),
       planLocalAddedVnd: optionalField(map, path, 'plan_local_added_vnd', asString),
       planTotalVnd: optionalField(map, path, 'plan_total_vnd', asString),
@@ -3945,16 +3944,16 @@ final class DisRatesResponse implements ResponseModel {
       rateTotalPct: optionalField(map, path, 'rate_total_pct', nullable(asString)),
       rateNullReason: optionalField(map, path, 'rate_null_reason', nullable(asString)),
       treasuryCoverage: optionalField(map, path, 'treasury_coverage', asString),
-      legalConfirmationRefs: optionalField(map, path, 'legal_confirmation_refs', asList(asString)),
-      extra: unknownFields(map, path, const <String>{'snapshot_id', 'as_of_date', 'treasury_cutoff_date', 'definition_status', 'scope', 'numerator_disbursed_vnd', 'plan_pm_assigned_vnd', 'plan_local_added_vnd', 'plan_total_vnd', 'rate_pm_pct', 'rate_total_pct', 'rate_null_reason', 'treasury_coverage', 'legal_confirmation_refs'}, strict: false),
+      reportedVnd: optionalField(map, path, 'reported_vnd', nullable(asString)),
+      ctmtqgSubsetVnd: optionalField(map, path, 'ctmtqg_subset_vnd', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'projects', 'numerator_disbursed_vnd', 'plan_pm_assigned_vnd', 'plan_local_added_vnd', 'plan_total_vnd', 'rate_pm_pct', 'rate_total_pct', 'rate_null_reason', 'treasury_coverage', 'reported_vnd', 'ctmtqg_subset_vnd'}, strict: false),
     );
   }
 
-  final String? snapshotId;
-  final String? asOfDate;
-  final String? treasuryCutoffDate;
-  final String? definitionStatus;
-  final Map<String, Object?>? scope;
+  final String? id;
+  final String? code;
+  final String? name;
+  final int? projects;
   final String? numeratorDisbursedVnd;
   final String? planPmAssignedVnd;
   final String? planLocalAddedVnd;
@@ -3963,18 +3962,18 @@ final class DisRatesResponse implements ResponseModel {
   final String? rateTotalPct;
   final String? rateNullReason;
   final String? treasuryCoverage;
-  final List<String>? legalConfirmationRefs;
+  final String? reportedVnd;
+  final String? ctmtqgSubsetVnd;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOfDate != null) 'as_of_date': asOfDate,
-        if (treasuryCutoffDate != null) 'treasury_cutoff_date': treasuryCutoffDate,
-        if (definitionStatus != null) 'definition_status': definitionStatus,
-        if (scope != null) 'scope': scope,
+        if (id != null) 'id': id,
+        if (code != null) 'code': code,
+        if (name != null) 'name': name,
+        if (projects != null) 'projects': projects,
         if (numeratorDisbursedVnd != null) 'numerator_disbursed_vnd': numeratorDisbursedVnd,
         if (planPmAssignedVnd != null) 'plan_pm_assigned_vnd': planPmAssignedVnd,
         if (planLocalAddedVnd != null) 'plan_local_added_vnd': planLocalAddedVnd,
@@ -3983,7 +3982,114 @@ final class DisRatesResponse implements ResponseModel {
         if (rateTotalPct != null) 'rate_total_pct': rateTotalPct,
         if (rateNullReason != null) 'rate_null_reason': rateNullReason,
         if (treasuryCoverage != null) 'treasury_coverage': treasuryCoverage,
+        if (reportedVnd != null) 'reported_vnd': reportedVnd,
+        if (ctmtqgSubsetVnd != null) 'ctmtqg_subset_vnd': ctmtqgSubsetVnd,
+        ...extra,
+      };
+}
+
+final class DisRatesResponse implements ResponseModel {
+  const DisRatesResponse({
+    this.snapshotId,
+    this.snapshotKind,
+    this.snapshotStatus,
+    this.asOfDate,
+    this.treasuryCutoffDate,
+    this.definitionStatus,
+    this.basis,
+    this.scope,
+    this.projects,
+    this.numeratorDisbursedVnd,
+    this.planPmAssignedVnd,
+    this.planLocalAddedVnd,
+    this.planTotalVnd,
+    this.ratePmPct,
+    this.rateTotalPct,
+    this.rateNullReason,
+    this.treasuryCoverage,
+    this.reportedVnd,
+    this.ctmtqgSubsetVnd,
+    this.legalConfirmationRefs,
+    this.groups,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisRatesResponse.fromJson(Object? json, [String path = 'DisRatesResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisRatesResponse(
+      snapshotId: optionalField(map, path, 'snapshot_id', asString),
+      snapshotKind: optionalField(map, path, 'snapshot_kind', asString),
+      snapshotStatus: optionalField(map, path, 'snapshot_status', asString),
+      asOfDate: optionalField(map, path, 'as_of_date', asString),
+      treasuryCutoffDate: optionalField(map, path, 'treasury_cutoff_date', asString),
+      definitionStatus: optionalField(map, path, 'definition_status', asString),
+      basis: optionalField(map, path, 'basis', asString),
+      scope: optionalField(map, path, 'scope', asObject),
+      projects: optionalField(map, path, 'projects', asInt),
+      numeratorDisbursedVnd: optionalField(map, path, 'numerator_disbursed_vnd', nullable(asString)),
+      planPmAssignedVnd: optionalField(map, path, 'plan_pm_assigned_vnd', asString),
+      planLocalAddedVnd: optionalField(map, path, 'plan_local_added_vnd', asString),
+      planTotalVnd: optionalField(map, path, 'plan_total_vnd', asString),
+      ratePmPct: optionalField(map, path, 'rate_pm_pct', nullable(asString)),
+      rateTotalPct: optionalField(map, path, 'rate_total_pct', nullable(asString)),
+      rateNullReason: optionalField(map, path, 'rate_null_reason', nullable(asString)),
+      treasuryCoverage: optionalField(map, path, 'treasury_coverage', asString),
+      reportedVnd: optionalField(map, path, 'reported_vnd', nullable(asString)),
+      ctmtqgSubsetVnd: optionalField(map, path, 'ctmtqg_subset_vnd', nullable(asString)),
+      legalConfirmationRefs: optionalField(map, path, 'legal_confirmation_refs', asList(asString)),
+      groups: optionalField(map, path, 'groups', asList(DisRateGroupResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'snapshot_id', 'snapshot_kind', 'snapshot_status', 'as_of_date', 'treasury_cutoff_date', 'definition_status', 'basis', 'scope', 'projects', 'numerator_disbursed_vnd', 'plan_pm_assigned_vnd', 'plan_local_added_vnd', 'plan_total_vnd', 'rate_pm_pct', 'rate_total_pct', 'rate_null_reason', 'treasury_coverage', 'reported_vnd', 'ctmtqg_subset_vnd', 'legal_confirmation_refs', 'groups'}, strict: false),
+    );
+  }
+
+  final String? snapshotId;
+  final String? snapshotKind;
+  final String? snapshotStatus;
+  final String? asOfDate;
+  final String? treasuryCutoffDate;
+  final String? definitionStatus;
+  final String? basis;
+  final Map<String, Object?>? scope;
+  final int? projects;
+  final String? numeratorDisbursedVnd;
+  final String? planPmAssignedVnd;
+  final String? planLocalAddedVnd;
+  final String? planTotalVnd;
+  final String? ratePmPct;
+  final String? rateTotalPct;
+  final String? rateNullReason;
+  final String? treasuryCoverage;
+  final String? reportedVnd;
+  final String? ctmtqgSubsetVnd;
+  final List<String>? legalConfirmationRefs;
+  final List<DisRateGroupResponse>? groups;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (snapshotId != null) 'snapshot_id': snapshotId,
+        if (snapshotKind != null) 'snapshot_kind': snapshotKind,
+        if (snapshotStatus != null) 'snapshot_status': snapshotStatus,
+        if (asOfDate != null) 'as_of_date': asOfDate,
+        if (treasuryCutoffDate != null) 'treasury_cutoff_date': treasuryCutoffDate,
+        if (definitionStatus != null) 'definition_status': definitionStatus,
+        if (basis != null) 'basis': basis,
+        if (scope != null) 'scope': scope,
+        if (projects != null) 'projects': projects,
+        if (numeratorDisbursedVnd != null) 'numerator_disbursed_vnd': numeratorDisbursedVnd,
+        if (planPmAssignedVnd != null) 'plan_pm_assigned_vnd': planPmAssignedVnd,
+        if (planLocalAddedVnd != null) 'plan_local_added_vnd': planLocalAddedVnd,
+        if (planTotalVnd != null) 'plan_total_vnd': planTotalVnd,
+        if (ratePmPct != null) 'rate_pm_pct': ratePmPct,
+        if (rateTotalPct != null) 'rate_total_pct': rateTotalPct,
+        if (rateNullReason != null) 'rate_null_reason': rateNullReason,
+        if (treasuryCoverage != null) 'treasury_coverage': treasuryCoverage,
+        if (reportedVnd != null) 'reported_vnd': reportedVnd,
+        if (ctmtqgSubsetVnd != null) 'ctmtqg_subset_vnd': ctmtqgSubsetVnd,
         if (legalConfirmationRefs != null) 'legal_confirmation_refs': legalConfirmationRefs,
+        if (groups != null) 'groups': groups!.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }

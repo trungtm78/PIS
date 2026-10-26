@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Client } from 'pg';
-import { FUNDING_CELLS, draftHash, fundingCells, fundingTotals } from '@machvon/kernel';
+import { FUNDING_CELLS, addSums, draftHash, fundingCells, fundingTotals, rateOfSums } from '@machvon/kernel';
 import type { EffectiveAccess, ImportRow, ParsedImport, RawFundingLine, Scope } from '@machvon/kernel';
 import { DisImportStore } from '../src/dis-import-store';
 import { DisPeriodStore } from '../src/dis-period-store';
@@ -1402,6 +1402,82 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
         expect(await refusal(as((other) => snapshots.build(other, input), TENANT_A, BUILDER))).toMatchObject({ code: 'SNAPSHOT_BUILD_IN_PROGRESS', status: 409 });
       }, TENANT_A, BUILDER);
       expect(await as((tx) => snapshots.list(tx, { periodId: world.periodId, kind: 'MNE' }, 10), TENANT_A, BUILDER)).toHaveLength(1);
+    });
+
+    /** A unit of its own with projects that have a plan of each kind and what the Treasury paid, in a week of their own: what a rate over a group is tested on. */
+    async function unitWorld(unitN: number, projects: Array<{ pm: string; local?: string; carryover?: string; paid?: string }>) {
+      await harness.seedUnits(TENANT_A, [{ n: unitN, path: `/u1/u${unitN}/`, parent: ROOT }]);
+      const found = await week();
+      const made: Array<{ projectId: string; code: string }> = [];
+      for (const item of projects) {
+        counter += 1;
+        const projectId = id(FAMILY, 100 + counter);
+        const planId = id(FAMILY, 300 + counter);
+        const code = `RT-${counter}`;
+        await seedReplica([
+          projectRow(projectId, code, unitId(unitN), 'IMPLEMENTATION'),
+          planRow(planId, projectId, found.year, 1, 'PUBLISHED', `${found.year - 1}-12-01T00:00:00Z`),
+          ...(item.pm === '0' ? [] : [allocationOf(planId, projectId, 'CURRENT_YEAR', 'CENTRAL', item.pm, 'PM_ASSIGNED')]),
+          ...(item.local === undefined ? [] : [allocationOf(planId, projectId, 'CURRENT_YEAR', 'LOCAL', item.local, 'LOCAL_ADDED')]),
+          ...(item.carryover === undefined ? [] : [allocationOf(planId, projectId, 'CARRYOVER', 'CENTRAL', item.carryover, 'CARRYOVER')]),
+          ...(item.paid === undefined ? [] : [paidOf(projectId, item.paid, `${found.start}T09:00:00+07:00`)]),
+        ]);
+        made.push({ projectId, code });
+      }
+      const built = await build(found.periodId, found.end);
+      const frozen = await freeze(built.snapshot.id);
+      return { ...found, projects: made, snapshotId: frozen.snapshot.id, unitId: unitId(unitN) };
+    }
+    type Sums = Awaited<ReturnType<DisSnapshotStore['rateSums']>>[number]['sums'];
+    const sumsOf = (snapshotId: string, filter: { basis?: 'CURRENT_YEAR' | 'CARRYOVER'; projectId?: string; unitId?: string; groupBy?: 'NONE' | 'UNIT' | 'PROJECT' }, scope = wholeScope) =>
+      as((tx) => snapshots.rateSums(tx, snapshotId, scope, { basis: filter.basis ?? 'CURRENT_YEAR', groupBy: filter.groupBy ?? 'NONE', projectId: filter.projectId, unitId: filter.unitId }), TENANT_A, BUILDER);
+
+    it('AC-ST-DIS-010-1 / FX-DIS-004 / UAT-AC243: one numerator of 600 million over 1 billion given by the Prime Minister and over 1.25 billion with the province addition is 60.0000% and 48.0000%', async () => {
+      const world = await unitWorld(16, [{ pm: '1000000000', local: '250000000', paid: '600000000' }]);
+      const [group] = await sumsOf(world.snapshotId, { projectId: world.projects[0]?.projectId });
+      expect(group?.sums).toMatchObject({ projects: 1, planPmVnd: '1000000000', planLocalVnd: '250000000', treasuryVnd: '600000000' });
+      expect(rateOfSums(group?.sums as Sums, 'CURRENT_YEAR')).toMatchObject({ numeratorVnd: '600000000', planTotalVnd: '1250000000', ratePmPct: '60.0000', rateTotalPct: '48.0000', rateNullReason: null });
+    });
+
+    it('AC-ST-DIS-010-2 / FX-DIS-003 / UAT-AC242: the rate of a unit is 140 over 1,000 million = 14% (the sums of its projects), while the projects have 50% and 10%; the unit is one group and the projects are two', async () => {
+      const world = await unitWorld(17, [
+        { pm: '100000000', paid: '50000000' },
+        { pm: '900000000', paid: '90000000' },
+      ]);
+      const byUnit = await sumsOf(world.snapshotId, { unitId: world.unitId, groupBy: 'UNIT' });
+      expect(byUnit).toHaveLength(1);
+      expect(byUnit[0]).toMatchObject({ id: world.unitId, sums: { projects: 2, planPmVnd: '1000000000', treasuryVnd: '140000000' } });
+      expect(rateOfSums(byUnit[0]?.sums as Sums, 'CURRENT_YEAR')).toMatchObject({ ratePmPct: '14.0000', rateTotalPct: '14.0000' });
+      const byProject = await sumsOf(world.snapshotId, { unitId: world.unitId, groupBy: 'PROJECT' });
+      expect(byProject.map((group) => group.code)).toEqual(world.projects.map((made) => made.code));
+      expect(byProject.map((group) => rateOfSums(group.sums, 'CURRENT_YEAR').ratePmPct)).toEqual(['50.0000', '10.0000']);
+      // The groups of a partition add up to the whole, which is the point of sums over sums.
+      expect(addSums(byProject.map((group) => group.sums))).toEqual(byUnit[0]?.sums);
+    });
+
+    it('AC-ST-DIS-010-3 / UAT-AC04: a project with no plan has no rate and says ZERO_DENOMINATOR, one with a plan and no Treasury says why (TREASURY_COVERAGE_NONE), and none of them reads as 0%', async () => {
+      const world = await unitWorld(18, [{ pm: '0', paid: '5000' }, { pm: '100000000' }]);
+      const [noPlan, noTreasury] = await sumsOf(world.snapshotId, { unitId: world.unitId, groupBy: 'PROJECT' });
+      expect(rateOfSums(noPlan?.sums as Sums, 'CURRENT_YEAR')).toMatchObject({ ratePmPct: null, rateTotalPct: null, rateNullReason: 'ZERO_DENOMINATOR', numeratorVnd: '5000' });
+      expect(rateOfSums(noTreasury?.sums as Sums, 'CURRENT_YEAR')).toMatchObject({ ratePmPct: null, rateNullReason: 'TREASURY_COVERAGE_NONE', treasuryCoverage: 'NONE', numeratorVnd: null });
+    });
+
+    it('keeps the capital carried over apart: the year plan and the capital carried over have each their own plan, and the rate of the second is what was reported', async () => {
+      const world = await unitWorld(19, [{ pm: '400000000', carryover: '200000000', paid: '100000000' }]);
+      const [year] = await sumsOf(world.snapshotId, { projectId: world.projects[0]?.projectId });
+      const [carried] = await sumsOf(world.snapshotId, { projectId: world.projects[0]?.projectId, basis: 'CARRYOVER' });
+      expect(year?.sums).toMatchObject({ planPmVnd: '400000000' });
+      expect(carried?.sums).toMatchObject({ planPmVnd: '200000000', treasuryVnd: null, reportedVnd: null });
+      expect(rateOfSums(carried?.sums as Sums, 'CARRYOVER')).toMatchObject({ numeratorVnd: null, rateNullReason: 'NO_DATA' });
+    });
+
+    it('reads only the projects of the scope of the caller, and the most recent frozen snapshot is the one a screen opens on', async () => {
+      const world = await unitWorld(20, [{ pm: '100000000', paid: '10000000' }]);
+      expect(await sumsOf(world.snapshotId, { unitId: world.unitId }, elsewhereScope)).toEqual([expect.objectContaining({ sums: expect.objectContaining({ projects: 0, planPmVnd: '0', treasuryVnd: null, allNone: true }) })]);
+      expect(await sumsOf(world.snapshotId, { unitId: world.unitId, groupBy: 'PROJECT' }, elsewhereScope)).toEqual([]);
+      const latest = await as((tx) => snapshots.latestFrozen(tx), TENANT_A, BUILDER);
+      expect(latest?.id).toBe(world.snapshotId);
+      expect(await as((tx) => snapshots.latestFrozen(tx), TENANT_B, BUILDER)).toBeUndefined();
     });
 
     it('leaves out a report that was handed in and not accepted, and shows it apart as waiting (BR-DIS-02)', async () => {

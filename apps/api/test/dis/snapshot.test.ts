@@ -8,6 +8,7 @@ import { BASELINE_PACK, DisPeriodStore, EffectiveAccessStore, InMemoryAuthzCache
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
+import { DisbursementRatesController } from '../../src/modules/dis/disbursement-rates.controller';
 import { PeriodSnapshotController } from '../../src/modules/dis/period-snapshot.controller';
 import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
 import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
@@ -111,7 +112,7 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
   const plusDays = (day: string, days: number): string => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
   /** A project of the department (or of another branch) with a plan version of 2027 in force from December 2026 that allocated 500,000,000 to the year plan of the central budget. */
-  async function seedProject(unit = DEPARTMENT): Promise<{ projectId: string; planId: string; code: string }> {
+  async function seedProject(unit = DEPARTMENT, plan: { pm?: string; local?: string; carryover?: string } = {}): Promise<{ projectId: string; planId: string; code: string }> {
     counter += 1;
     const projectId = randomUUID();
     const planId = randomUUID();
@@ -126,11 +127,19 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
         `insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2027, 1, $4, 'PUBLISHED', timestamptz '2026-12-20T01:00:00Z')`,
         [TENANT_A, planId, projectId, DECISION],
       ],
-      [
-        `insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id, budget_level, origin)
-         values ($1, gen_random_uuid(), $2, $3, 'CURRENT_YEAR', 2027, 500000000, 0, $4, 'CENTRAL', 'PM_ASSIGNED')`,
-        [TENANT_A, planId, FUND_SOURCE, projectId],
-      ],
+      ...([
+        [plan.pm ?? '500000000', 'CURRENT_YEAR', 'CENTRAL', 'PM_ASSIGNED'],
+        [plan.local ?? '0', 'CURRENT_YEAR', 'LOCAL', 'LOCAL_ADDED'],
+        [plan.carryover ?? '0', 'CARRYOVER', 'CENTRAL', 'CARRYOVER'],
+      ] as const)
+        .filter(([amount]) => amount !== '0')
+        .map(
+          ([amount, bucket, level, origin]): [string, unknown[]] => [
+            `insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id, budget_level, origin, is_extended, extended_to, extension_document_id)
+             values ($1, gen_random_uuid(), $2, $3, $4, 2027, $5::numeric, 0, $6, $7, $8, $9, case when $9 then date '2028-03-31' end, case when $9 then $10::uuid end)`,
+            [TENANT_A, planId, FUND_SOURCE, bucket, amount, projectId, level, origin, bucket === 'CARRYOVER', DECISION],
+          ],
+        ),
     ]);
     return { projectId, planId, code };
   }
@@ -195,6 +204,7 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.seedUnits(tenant, [
         { n: ROOT, path: `/${unitId(ROOT)}/` },
+        ...Array.from({ length: 16 }, (_, k) => ({ n: 10 + k, path: `/${unitId(ROOT)}/${unitId(10 + k)}/`, parent: ROOT })),
         { n: DEPARTMENT, path: `/${unitId(ROOT)}/${unitId(DEPARTMENT)}/`, parent: ROOT },
         { n: ELSEWHERE, path: `/${unitId(ELSEWHERE)}/` },
       ]);
@@ -243,7 +253,7 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController, PeriodSnapshotController],
+      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController, PeriodSnapshotController, DisbursementRatesController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
@@ -488,6 +498,119 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
       expect(await listed('?status=DONE')).toMatchObject({ status: 422, json: { detail: 'status' } });
       expect(await listed('?period_id=nope')).toMatchObject({ status: 422, json: { detail: 'period_id' } });
       expect(await listed(`?period_id=${world.period.id}`, NOBODY)).toMatchObject({ status: 403 });
+    });
+  });
+
+  describe('getDisbursementRates', () => {
+    let slot = 0;
+    const rates = (query: string, member = READER, tenantId?: string): Promise<Reply> => call('GET', `/disbursement-rates${query}`, { member, ...(tenantId === undefined ? {} : { tenantId }) });
+    const groupsOf = (reply: Reply): Array<Record<string, unknown>> => reply.json.groups as Array<Record<string, unknown>>;
+
+    /** Unit one: two projects of 50/100 and 90/900 million (FX-DIS-003); unit two: one project of 1 billion plus 250 million added, 600 million paid (FX-DIS-004), one with no plan that was paid 5,000, one with a plan and nothing paid. */
+    async function ratesWorld() {
+      const unitOne = 10 + slot * 2;
+      const unitTwo = 11 + slot * 2;
+      slot += 1;
+      const period = week();
+      const first = await seedProject(unitOne, { pm: '100000000' });
+      const second = await seedProject(unitOne, { pm: '900000000' });
+      const golden = await seedProject(unitTwo, { pm: '1000000000', local: '250000000', carryover: '200000000' });
+      const noPlan = await seedProject(unitTwo, { pm: '0' });
+      const unpaid = await seedProject(unitTwo, { pm: '100000000' });
+      const on = `${period.start}T09:00:00+07:00`;
+      await seedReplica([paid(first.projectId, '50000000', on), paid(second.projectId, '90000000', on), paid(golden.projectId, '600000000', on), paid(noPlan.projectId, '5000', on)]);
+      await softClose(period.id);
+      const snapshotId = idOf(await build(closeBody(period)));
+      expect(await freeze(snapshotId, 1)).toMatchObject({ status: 200 });
+      return { period, snapshotId, first, second, golden, noPlan, unpaid, unitOne: unitId(unitOne) };
+    }
+
+    it('AC-ST-DIS-010-1 / FX-DIS-004 / UAT-AC243: answers the two rates together over one numerator: 600 million is 60.0000% of the plan of the Prime Minister and 48.0000% of the plan with the province addition, with the formulas marked as awaiting D03', async () => {
+      const world = await ratesWorld();
+      const reply = await rates(`?snapshot_id=${world.snapshotId}&project_id=${world.golden.projectId}`);
+      expect(reply).toMatchObject({
+        status: 200,
+        json: {
+          snapshot_id: world.snapshotId,
+          snapshot_kind: 'PERIOD_CLOSE',
+          snapshot_status: 'FROZEN',
+          treasury_cutoff_date: world.period.end,
+          definition_status: 'PROPOSED_PENDING_SIGNOFF',
+          basis: 'CURRENT_YEAR',
+          projects: 1,
+          numerator_disbursed_vnd: '600000000',
+          plan_pm_assigned_vnd: '1000000000',
+          plan_local_added_vnd: '250000000',
+          plan_total_vnd: '1250000000',
+          rate_pm_pct: '60.0000',
+          rate_total_pct: '48.0000',
+          rate_null_reason: null,
+          legal_confirmation_refs: ['CXN-03'],
+          groups: [],
+        },
+      });
+    });
+
+    it('AC-ST-DIS-010-2 / FX-DIS-003 / UAT-AC242: the rate of a unit is 140 over 1,000 million = 14%, the sum of the numerators over the sum of the denominators, and its two projects are 50% and 10%', async () => {
+      const world = await ratesWorld();
+      const unit = await rates(`?snapshot_id=${world.snapshotId}&unit_id=${world.unitOne}&group_by=UNIT`);
+      expect(unit.json).toMatchObject({ projects: 2, numerator_disbursed_vnd: '140000000', plan_pm_assigned_vnd: '1000000000', rate_pm_pct: '14.0000', rate_total_pct: '14.0000' });
+      expect(groupsOf(unit)).toEqual([expect.objectContaining({ id: world.unitOne, projects: 2, rate_pm_pct: '14.0000' })]);
+      const byProject = await rates(`?snapshot_id=${world.snapshotId}&unit_id=${world.unitOne}&group_by=PROJECT`);
+      expect(groupsOf(byProject).map((row) => [row.code, row.rate_pm_pct])).toEqual([
+        [world.first.code, '50.0000'],
+        [world.second.code, '10.0000'],
+      ]);
+      expect(byProject.json.rate_pm_pct).toBe('14.0000');
+    });
+
+    it('AC-ST-DIS-010-3 / UAT-AC04: a project with no plan says ZERO_DENOMINATOR (never 0% and never infinite), one with a plan and no Treasury payment says TREASURY_COVERAGE_NONE, and each is counted once by its reason', async () => {
+      const world = await ratesWorld();
+      counted.length = 0;
+      const none = await rates(`?snapshot_id=${world.snapshotId}&project_id=${world.noPlan.projectId}`);
+      expect(none.json).toMatchObject({ rate_pm_pct: null, rate_total_pct: null, rate_null_reason: 'ZERO_DENOMINATOR', numerator_disbursed_vnd: '5000', plan_total_vnd: '0' });
+      expect(counted.filter((item) => item.name === 'dis_rate_null_total')).toEqual([{ name: 'dis_rate_null_total', labels: { reason: 'ZERO_DENOMINATOR' } }]);
+      const unpaid = await rates(`?snapshot_id=${world.snapshotId}&project_id=${world.unpaid.projectId}`);
+      expect(unpaid.json).toMatchObject({ rate_pm_pct: null, rate_null_reason: 'TREASURY_COVERAGE_NONE', treasury_coverage: 'NONE', numerator_disbursed_vnd: null });
+      expect(JSON.stringify(none.json)).not.toContain('Infinity');
+      expect(JSON.stringify(none.json)).not.toContain('NaN');
+    });
+
+    it('opens on the most recent frozen close snapshot when none is named, and reads the capital carried over apart, on its own plan', async () => {
+      const world = await ratesWorld();
+      const latest = await rates(`?project_id=${world.golden.projectId}`);
+      expect(latest.json.snapshot_id).toBe(world.snapshotId);
+      const carried = await rates(`?snapshot_id=${world.snapshotId}&project_id=${world.golden.projectId}&bucket=CARRYOVER`);
+      expect(carried.json).toMatchObject({ basis: 'CARRYOVER', plan_pm_assigned_vnd: '200000000', numerator_disbursed_vnd: null, rate_null_reason: 'NO_DATA', scope: { bucket: 'CARRYOVER' } });
+    });
+
+    it('reads only the projects in the scope of the caller, and is for the person who holds disbursement.read', async () => {
+      const world = await ratesWorld();
+      const part = await rates(`?snapshot_id=${world.snapshotId}&unit_id=${world.unitOne}`, ELSEWHERE_READER);
+      expect(part).toMatchObject({ status: 200, json: { projects: 0, plan_pm_assigned_vnd: '0', numerator_disbursed_vnd: null, rate_null_reason: 'ZERO_DENOMINATOR' } });
+      expect(groupsOf(await rates(`?snapshot_id=${world.snapshotId}&group_by=PROJECT`, ELSEWHERE_READER)).some((row) => row.code === world.first.code)).toBe(false);
+      expect(await rates(`?snapshot_id=${world.snapshotId}`, NOBODY)).toMatchObject({ status: 403 });
+      expect(await rates(`?snapshot_id=${world.snapshotId}`, MAKER)).toMatchObject({ status: 403 });
+    });
+
+    it('AC-ST-DIS-010-5 / UAT-AC265: another tenant reads nothing of the snapshot of tenant A (404), and a tenant with no frozen snapshot has none to open on', async () => {
+      const world = await ratesWorld();
+      expect(await rates(`?snapshot_id=${world.snapshotId}`, B_BUILDER, TENANT_B)).toMatchObject({ status: 404, json: { code: 'RESOURCE_NOT_FOUND' } });
+      expect(await rates('', B_BUILDER, TENANT_B)).toMatchObject({ status: 404, json: { code: 'RESOURCE_NOT_FOUND' } });
+      expect(await rates(`?snapshot_id=${randomUUID()}`)).toMatchObject({ status: 404, json: { code: 'RESOURCE_NOT_FOUND' } });
+    });
+
+    it('judges the query: ids that are not ids, a basis or a grouping that does not exist are 422 on their field', async () => {
+      for (const [query, detail] of [
+        ['?snapshot_id=nope', 'snapshot_id'],
+        ['?unit_id=nope', 'unit_id'],
+        ['?project_id=nope', 'project_id'],
+        ['?fund_source_version_id=nope', 'fund_source_version_id'],
+        ['?bucket=OTHER', 'bucket'],
+        ['?group_by=MONTH', 'group_by'],
+      ] as const) {
+        expect(await rates(query)).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail } });
+      }
     });
   });
 });
