@@ -1,9 +1,9 @@
 import { Controller, Get, Inject, Param, ParseUUIDPipe, Query, createParamDecorator } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { MemberStore, TenantDatabase, scopePredicate } from '@machvon/db';
+import { MemberStore, RoleStore, TenantDatabase, scopePredicate } from '@machvon/db';
 import type { DirectoryDetail, TenantTx } from '@machvon/db';
-import { DomainError, effectivePermissions, holdsPermission } from '@machvon/kernel';
+import { DomainError, effectivePermissions, holdsPermission, maxRank } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { OperationId } from '../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../pagination';
@@ -39,14 +39,19 @@ interface MembershipView extends MembershipRow {
   contractor_id: string | null;
   contractor_name: string | null;
   contracts: Array<{ id: string; code: string }>;
+  /** Whether the lifecycle commands (suspend, reactivate, end) are open to the caller on this member: their unit is reached and the caller outranks the member (BR-IAM-05). Absent when the request carries no access. */
+  can_manage?: boolean;
 }
 
 const MEMBERSHIP_TYPES: readonly string[] = ['STAFF', 'GUEST_CONTRACTOR', 'SERVICE_ACCOUNT'];
 const members = new MemberStore();
+const roles = new RoleStore();
 
 // The catalogue has no iam.member.read_pii (IAM section 6 names it): personal data is shown to those who manage members.
 const PII_PERMISSION = 'iam.member.manage';
 const READ_PERMISSION = PERMISSIONS.get_resources_membership;
+/** The permission the lifecycle commands (suspend, reactivate, end) need. */
+const MANAGE_PERMISSION = PERMISSIONS.endMembership;
 
 // The view masks email and phone unless the transaction says the caller may read them. Row-level security limits it to
 // the tenant of the transaction; the scope predicate limits it to the units the caller's grants reach.
@@ -103,8 +108,26 @@ async function withPersonalData(tx: TenantTx, access: EffectiveAccess | undefine
   }));
 }
 
+/**
+ * Whether the caller may act on each member, by the rule the lifecycle commands judge (BR-IAM-05): the permission to manage members reaches the member's unit and
+ * the caller's rank there is above the highest role the member holds. The screen hides the actions that would be refused; the commands still decide.
+ */
+async function manageable(tx: TenantTx, access: EffectiveAccess | undefined, records: readonly MembershipRecord[]): Promise<Map<string, boolean>> {
+  if (access === undefined) return new Map();
+  const now = new Date();
+  const ranks = await roles.highestRanksOf(tx, records.map((record) => record.id));
+  return new Map(
+    records.map((record) => {
+      const unit = { ownerUnitPath: record.unit_path, ownerUnitId: record.organization_id };
+      const reached = holdsPermission(effectivePermissions(access, now, unit), MANAGE_PERMISSION);
+      const scope = { kind: 'UNIT_ONLY' as const, refIds: [record.organization_id], paths: [record.unit_path] };
+      return [record.id, reached && maxRank(access, now, scope) > (ranks.get(record.id) ?? 0)];
+    }),
+  );
+}
+
 /** The roles, invitation, contractor and contracts of the rows; the contracts are those of owner units the caller's grants reach. */
-async function withDetails(tx: TenantTx, access: EffectiveAccess | undefined, rows: MembershipRow[]): Promise<MembershipView[]> {
+async function withDetails(tx: TenantTx, access: EffectiveAccess | undefined, rows: MembershipRow[], canManage: ReadonlyMap<string, boolean>): Promise<MembershipView[]> {
   const reach =
     access === undefined ? { sql: 'true', params: [] } : scopePredicate(access, READ_PERMISSION, new Date(), { unitPath: 'cu.path', unitId: 'cu.id' }, 2);
   const details = await members.directoryDetails(tx, rows.map((row) => row.id), reach);
@@ -118,6 +141,7 @@ async function withDetails(tx: TenantTx, access: EffectiveAccess | undefined, ro
       contractor_id: detail.contractorId,
       contractor_name: detail.contractorName,
       contracts: detail.contracts,
+      ...(canManage.has(row.id) ? { can_manage: canManage.get(row.id) === true } : {}),
     };
   });
 }
@@ -156,7 +180,7 @@ export class MembershipsController {
          order by d.display_name, d.membership_id limit $3`,
         [request.after?.code ?? null, request.after?.id ?? null, request.limit + 1, type, ...scope.params],
       );
-      return withDetails(tx, access, await withPersonalData(tx, access, records));
+      return withDetails(tx, access, await withPersonalData(tx, access, records), await manageable(tx, access, records));
     });
     const items = rows.slice(0, request.limit);
     const last = items[items.length - 1];
@@ -171,7 +195,7 @@ export class MembershipsController {
     const rows = await this.database.withTenant(tenant, async (tx) => {
       await tx.query("select set_config('app.can_read_pii', 'false', true)", []);
       const records = await tx.query<MembershipRecord>(`select ${COLUMNS} from ${FROM} where d.membership_id = $1 and ${scope.sql}`, [id, ...scope.params]);
-      return withDetails(tx, access, await withPersonalData(tx, access, records));
+      return withDetails(tx, access, await withPersonalData(tx, access, records), await manageable(tx, access, records));
     });
     const row = rows[0];
     // A member of another tenant, or outside the caller's scope, is indistinguishable from a missing one.

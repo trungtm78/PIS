@@ -379,6 +379,19 @@ export class RoleStore {
     return rows.some((row) => !GUEST_CONTRACT_STATUSES.includes(row.status)) ? 'NOT_ACTIVE' : undefined;
   }
 
+  /** The highest rank in force now (as `highestRankOf`) of each of these members, in one read; a member with no grant in force has none in the map. */
+  async highestRanksOf(tx: TenantTx, membershipIds: readonly string[]): Promise<Map<string, number>> {
+    if (membershipIds.length === 0) return new Map();
+    const rows = await tx.query<{ membership_id: string; rank: number }>(
+      `select g.membership_id, max(r.rank) as rank from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id
+       where g.membership_id = any($1::uuid[]) and g.status = 'Active' and r.status = 'Active'
+         and g.effective_from <= now() and (g.effective_until is null or g.effective_until > now())
+       group by g.membership_id`,
+      [[...membershipIds]],
+    );
+    return new Map(rows.map((row) => [row.membership_id, row.rank]));
+  }
+
   /** The highest rank among the member's grants in force now (Active, inside their window) of Active roles (0 when none). */
   async highestRankOf(tx: TenantTx, membershipId: string): Promise<number> {
     const rows = await tx.query<{ rank: number | null }>(

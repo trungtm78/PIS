@@ -242,6 +242,13 @@ describe('RoleStore', () => {
       expect(await inA((tx) => store.highestRankOf(tx, memberId(3)))).toBe(40);
     });
 
+    it('reports the highest rank of several members in one read, leaving out those with no grant in force', async () => {
+      const ranks = await inA((tx) => store.highestRanksOf(tx, [memberId(3), memberId(999)]));
+      expect(ranks.get(memberId(3))).toBe(await inA((tx) => store.highestRankOf(tx, memberId(3))));
+      expect(ranks.has(memberId(999))).toBe(false);
+      expect((await inA((tx) => store.highestRanksOf(tx, []))).size).toBe(0);
+    });
+
     it('lists grants in id order with a keyset, optionally for one member, and never across tenants', async () => {
       const everything = await inA((tx) => store.listGrants(tx, { after: undefined, limit: 1000 }));
       const ids = everything.map((row) => row.id);

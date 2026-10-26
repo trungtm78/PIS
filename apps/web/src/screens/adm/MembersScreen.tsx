@@ -9,9 +9,9 @@ import { DevAcceptanceSlot } from './members/DevAcceptanceSlot';
 import { InviteMemberDialog } from './members/InviteMemberDialog';
 import { LifecycleDialog } from './members/LifecycleDialog';
 import { RowActions } from './members/RowActions';
-import { useMembers, useUnits } from './members/hooks';
-import { dayOf, invitationLabel, lifecycleDone, statusLabel, statusPill, typeLabel } from './members/labels';
-import { MEMBERSHIP_STATUSES, MEMBERSHIP_TYPES, PERMISSION_INVITE, PERMISSION_MANAGE, PERMISSION_READ } from './members/types';
+import { useMembers, useSeatUsage, useUnits } from './members/hooks';
+import { dayOf, invitationLabel, lifecycleDone, seatCountText, statusLabel, statusPill, typeLabel } from './members/labels';
+import { MEMBERSHIP_STATUSES, MEMBERSHIP_TYPES, PERMISSION_INVITE, PERMISSION_MANAGE, PERMISSION_READ, PERMISSION_USAGE } from './members/types';
 import type { Lifecycle, Member, MembershipStatus, MembershipType } from './members/types';
 import './members/members.css';
 
@@ -58,6 +58,8 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
 
   const list = useMembers(undefined, canRead);
   const units = useUnits(canRead);
+  // The seats are advice beside the list: a reader without the right to see the subscription, or a failed read, simply has no line.
+  const seats = useSeatUsage(canRead && holds(permissions, PERMISSION_USAGE));
   const [draft, setDraft] = useState<Filter>(NO_FILTER);
   const [applied, setApplied] = useState<Filter>(NO_FILTER);
   const [inviting, setInviting] = useState(false);
@@ -97,6 +99,11 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
             {notice.kind === 'invited' ? t('adm.members.notice.invited', { email: notice.email }) : notice.text}
             {notice.kind === 'invited' ? <DevAcceptanceSlot email={notice.email} /> : null}
           </div>
+        )}
+        {seats.data === undefined ? null : (
+          <p className="sub" data-seats="">
+            {t('adm.members.seats.text', { staff: seatCountText(t, seats.data.staff), guests: seatCountText(t, seats.data.guests) })}
+          </p>
         )}
         <div className="card">
           <form className="filters" onSubmit={submit}>

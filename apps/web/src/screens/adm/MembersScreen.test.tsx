@@ -8,7 +8,7 @@ import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import { SessionContext } from '../../session/SessionContext';
 import type { SessionValue } from '../../session/SessionContext';
 import MembersScreen from './MembersScreen';
-import { READER, SELF, TENANT, UNIT_ONE, UNIT_TWO, harness, member, mount, problem, role, routeOf, unit } from './members/test-support';
+import { ADMIN, READER, SELF, TENANT, UNIT_ONE, UNIT_TWO, harness, member, mount, problem, role, routeOf, unit } from './members/test-support';
 
 const ROUTE = routeOf('ADM-02', 'FR-ADM-02');
 const UNITS = [unit(UNIT_ONE, 'U1', 'Unit one'), unit(UNIT_TWO, 'U2', 'Unit two')];
@@ -49,6 +49,36 @@ describe('MembersScreen (ADM-02)', () => {
     expect(names(rowOf('Person 3'))).toEqual([vi_['adm.members.reactivate.action'], vi_['adm.members.end.action']]);
     expect(names(rowOf('Person 4'))).toEqual([vi_['adm.members.end.action']]);
     expect(names(rowOf('Person 5'))).toEqual([]);
+  });
+
+  it('AC-ST-ADM-006-5 / UI-ADM-02: hides the actions on members the server says the reader does not outrank, and shows the seats used out of their limit', async () => {
+    const rows = [member(2, { can_manage: false }), member(3, { can_manage: true }), member(4)];
+    const h = harness({ members: rows, units: UNITS, usage: { as_of: '2026-10-26T00:00:00Z', seats: { used: 3, limit: 3 }, guest_seats: { used: 1 } } });
+    mount(<MembersScreen route={ROUTE} />, h, { permissions: [...ADMIN, 'subscription.read'] });
+    await screen.findByText('Person 2');
+    const names = (row: HTMLElement) => within(row).queryAllByRole('button').map((button) => button.textContent);
+    expect(names(rowOf('Person 2'))).toEqual([]);
+    expect(names(rowOf('Person 3'))).toEqual([vi_['adm.members.suspend.action'], vi_['adm.members.end.action']]);
+    // A server that says nothing leaves the decision to the command, so the buttons stay.
+    expect(names(rowOf('Person 4'))).toEqual([vi_['adm.members.suspend.action'], vi_['adm.members.end.action']]);
+    const seats = await screen.findByText((content) => content.startsWith('Ghế đã dùng'));
+    expect(seats.textContent).toBe(
+      vi_['adm.members.seats.text'].replace('{staff}', vi_['adm.members.seats.used'].replace('{used}', '3').replace('{limit}', '3')).replace('{guests}', vi_['adm.members.seats.unlimited'].replace('{used}', '1')),
+    );
+    expect(h.read).toHaveBeenCalledWith('getMyUsage');
+  });
+
+  it('asks for no seats without the right to read the subscription, and shows no line when they cannot be read', async () => {
+    const h = harness({ members: ROWS, units: UNITS });
+    mount(<MembersScreen route={ROUTE} />, h);
+    await screen.findByText('Person 2');
+    expect(h.read).not.toHaveBeenCalledWith('getMyUsage');
+    cleanup();
+    const failing = harness({ members: ROWS, units: UNITS, usage: problem('INTERNAL_ERROR', 500) });
+    mount(<MembersScreen route={ROUTE} />, failing, { permissions: [...ADMIN, 'subscription.read'] });
+    await screen.findByText('Person 2');
+    await waitFor(() => expect(failing.read).toHaveBeenCalledWith('getMyUsage'));
+    expect(screen.queryByText((content) => content.startsWith('Ghế đã dùng'))).toBeNull();
   });
 
   it('shows no control to a read-only user, nor in a suspended tenant', async () => {

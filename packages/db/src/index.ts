@@ -189,6 +189,8 @@ export { MAX_CLOCK_SKEW_MS, UsageMeterStore } from './usage-meter-store.ts';
 export type { ListUsageEventsInput, RecordUsageInput, RecordedUsage, UsageCounterRow, UsageEventRow } from './usage-meter-store.ts';
 export type { ListPlansInput, PlanFeatureRow, PlanVersionRow, PlanVersionStatus, PublishPlanInput } from './plan-store.ts';
 export { LicenseStore } from './license-store.ts';
+export { InvitationExpiryJob, MEMBERSHIP_EXPIRED_EVENT } from './invitation-expiry-job.ts';
+export type { InvitationExpiryResult } from './invitation-expiry-job.ts';
 export { LICENSE_STATUS_CHANGED_EVENT, LicenseStatusJob, nextLicenseStatus } from './license-status-job.ts';
 export type { LicenseStatusChange, LicenseStatusResult } from './license-status-job.ts';
 export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RenewLicenseInput, RenewedLicense, RevokeLicenseInput, SignatureCheck } from './license-store.ts';

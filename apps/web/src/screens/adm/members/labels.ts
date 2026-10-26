@@ -1,6 +1,6 @@
 import type { Translator } from '../../../i18n';
 import type { FieldProblem } from './rules';
-import type { InvitationStatus, Lifecycle, Member, MembershipStatus, MembershipType } from './types';
+import type { InvitationStatus, Lifecycle, Member, MembershipStatus, MembershipType, SeatCount } from './types';
 
 type T = Translator['t'];
 
@@ -18,6 +18,11 @@ export function statusLabel(t: T, status: MembershipStatus): string {
     case 'Expired':
       return t('adm.members.status.expired');
   }
+}
+
+/** A seat count as people read it: `used/limit`, or the used number with the words for no cap. */
+export function seatCountText(t: T, seats: SeatCount): string {
+  return seats.limit === undefined ? t('adm.members.seats.unlimited', { used: seats.used }) : t('adm.members.seats.used', { used: seats.used, limit: seats.limit });
 }
 
 export function typeLabel(t: T, type: MembershipType): string {

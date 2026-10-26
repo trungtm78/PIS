@@ -3,6 +3,8 @@ export const PERMISSION_READ = 'membership.read';
 export const PERMISSION_INVITE = 'iam.member.invite';
 export const PERMISSION_MANAGE = 'iam.member.manage';
 export const PERMISSION_INVITE_GUEST = 'iam.guest.invite';
+/** The permission to read the seats of the subscription (getMyUsage). */
+export const PERMISSION_USAGE = 'subscription.read';
 
 export const MEMBERSHIP_TYPES = ['STAFF', 'GUEST_CONTRACTOR', 'SERVICE_ACCOUNT'] as const;
 export type MembershipType = (typeof MEMBERSHIP_TYPES)[number];
@@ -35,6 +37,8 @@ export interface Member {
   contractorId: string | null;
   contractorName: string | null;
   contracts: Array<{ id: string; code: string }>;
+  /** What the server says about the lifecycle commands on this member (BR-IAM-05: the reader's unit reaches them and the reader outranks the member); undefined when it says nothing. */
+  canManage: boolean | undefined;
 }
 
 export interface MemberPage {
@@ -68,6 +72,7 @@ export function toMember(raw: unknown): Member {
     contracts: Array.isArray(row.contracts)
       ? row.contracts.flatMap((contract) => (isRecord(contract) && typeof contract.id === 'string' ? [{ id: contract.id, code: text(contract.code) }] : []))
       : [],
+    canManage: typeof row.can_manage === 'boolean' ? row.can_manage : undefined,
   };
 }
 
@@ -77,6 +82,28 @@ export function toMemberPage(raw: unknown): MemberPage {
     items: Array.isArray(page.items) ? page.items.map(toMember) : [],
     nextCursor: typeof page.next_cursor === 'string' ? page.next_cursor : undefined,
   };
+}
+
+/** The seats in use against what the licence or the plan allows; `limit` is undefined when nothing caps them. */
+export interface SeatCount {
+  used: number;
+  limit: number | undefined;
+}
+
+export interface SeatUsage {
+  staff: SeatCount;
+  guests: SeatCount;
+}
+
+function toSeatCount(raw: unknown): SeatCount {
+  const row: Raw = isRecord(raw) ? raw : {};
+  return { used: count(row.used), limit: typeof row.limit === 'number' && Number.isFinite(row.limit) ? row.limit : undefined };
+}
+
+/** The seats of `getMyUsage` (SAS BR-SAS-09): staff seats and guest seats, each used out of its limit. */
+export function toSeatUsage(raw: unknown): SeatUsage {
+  const row: Raw = isRecord(raw) ? raw : {};
+  return { staff: toSeatCount(row.seats), guests: toSeatCount(row.guest_seats) };
 }
 
 /** A unit of the tenant, as the invitation picks the unit of the new member. */

@@ -94,6 +94,8 @@ export interface Answers {
   units?: Array<Record<string, unknown>> | Error;
   contracts?: Array<Record<string, unknown>> | Error;
   roles?: Array<Record<string, unknown>> | Error;
+  /** The answer of `getMyUsage`; without one the read fails as an unexpected one. */
+  usage?: Record<string, unknown> | Error;
   command?: (operation: string, input: unknown) => unknown;
 }
 
@@ -108,6 +110,7 @@ const settle = (value: unknown): Promise<unknown> => (value instanceof Error ? P
 
 export function harness(answers: Answers = {}): Harness {
   const read = vi.fn((operation: string) => {
+    if (operation === 'getMyUsage') return settle(answers.usage ?? new Error('unexpected read'));
     if (operation !== 'get_resources_membership') return settle(new Error('unexpected read'));
     const rows = answers.members ?? [];
     return settle(rows instanceof Error ? rows : { items: rows, next_cursor: null });

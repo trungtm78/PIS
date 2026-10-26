@@ -12,10 +12,10 @@ export interface RowActionsProps {
   onAction(action: Lifecycle, member: Member): void;
 }
 
-/** The lifecycle commands the status of a membership allows, as one button each; none for a read-only user or for oneself. */
+/** The lifecycle commands the status of a membership allows, as one button each; none for a read-only user, for oneself or for a member the server says the reader does not outrank (BR-IAM-05). */
 export function RowActions({ member, selfId, canManage, onAction }: RowActionsProps) {
   const { t } = useTranslation();
-  if (!canManage || member.id === selfId) return null;
+  if (!canManage || member.id === selfId || member.canManage === false) return null;
   return (
     <>
       {lifecycleOptions(member.status).map((action) => (

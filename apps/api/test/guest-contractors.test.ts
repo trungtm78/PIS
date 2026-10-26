@@ -181,10 +181,13 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
       ];
       for (const [contractId, project, contractor, status, code, completion] of rows) {
         const draft = status === 'DRAFT';
+        const done = status === 'COMPLETED';
         await client.query(
-          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due)
-           values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, $8, $9::date, $9::date, $10::date)`,
-          [T, contractId, project, id(0x53, 1), contractor, code, status, draft ? 0 : 1000, draft ? null : '2026-01-01', completion],
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due,
+              completed_on, completion_quality_acceptance_id, completed_by)
+           values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, $8, $9::date, $9::date, $10::date, $11::date, $12::uuid, $13::uuid)`,
+          // A completed contract names the acceptance and the person that completed it (contract_completion_chk); the foreign keys are off for this seed.
+          [T, contractId, project, id(0x53, 1), contractor, code, status, draft ? 0 : 1000, draft ? null : '2026-01-01', completion, done ? '2026-06-30' : null, done ? id(0x56, 1) : null, done ? ACTOR : null],
         );
       }
     } finally {

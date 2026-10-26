@@ -216,6 +216,11 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
     await harness.seedMembership(T_OTHER, OTHER_TENANT_MEMBER, U1);
     await admin("update machvon.user_account set status = 'Locked' where id = $1", [id(0x60, LOCKED_USER)]);
     for (const row of await admin<{ id: string; code: string }>('select id, code from machvon.role_definition where tenant_id = $1', [T])) roles.set(row.code, row.id);
+    // The directory read (membership.read) is a right of its own that no system role below the owner carries: a small role gives it to the two administrators.
+    await admin("insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, 'DIRECTORY_READER', 'DIRECTORY_READER', '{membership.read}', 10, 'Active', $3)", [T, randomUUID(), ACTOR]);
+    for (const row of await admin<{ id: string; code: string }>("select id, code from machvon.role_definition where tenant_id = $1 and code = 'DIRECTORY_READER'", [T])) roles.set(row.code, row.id);
+    await giveRole(ADMIN, 'DIRECTORY_READER', 'TENANT');
+    await giveRole(UNIT_ADMIN, 'DIRECTORY_READER', 'UNIT_SUBTREE', [unitId(U2)]);
     await giveRole(ADMIN, 'TENANT_ADMIN', 'TENANT');
     await giveRole(ADMIN, 'MEMBER', 'TENANT');
     await giveRole(UNIT_ADMIN, 'UNIT_ADMIN', 'UNIT_SUBTREE', [unitId(U2)]);
@@ -834,6 +839,24 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(peer.json.code).toBe('ROLE_ESCALATION_DENIED');
       const above = await lifecycle(UNIT_ADMIN, 'suspend', ADMIN, await versionOf(ADMIN));
       expect(above.json.code).toBe('SCOPE_DENIED');
+    });
+
+    it('marks in the directory which members the reader may act on: a unit administrator is told no for a peer and an owner, yes for a member of lower rank (AC-ST-ADM-006-5)', async () => {
+      const listed = async (n: number): Promise<Map<string, unknown>> => {
+        const reply = await as(n, 'GET', '/resources/membership?limit=200', undefined);
+        expect(reply.status).toBe(200);
+        return new Map((reply.json.items as Array<{ id: string; can_manage?: unknown }>).map((row) => [row.id, row.can_manage]));
+      };
+      const unitAdmin = await listed(UNIT_ADMIN);
+      expect(unitAdmin.get(memberId(TARGET_A))).toBe(true);
+      expect(unitAdmin.get(memberId(PEER))).toBe(false);
+      expect(unitAdmin.has(memberId(TARGET_B))).toBe(false);
+      const tenantAdmin = await listed(ADMIN);
+      expect(tenantAdmin.get(memberId(TARGET_B))).toBe(true);
+      expect(tenantAdmin.get(memberId(PEER))).toBe(true);
+      expect(tenantAdmin.get(memberId(OWNER))).toBe(false);
+      const one = await as(UNIT_ADMIN, 'GET', `/resources/membership/${memberId(PEER)}`, undefined);
+      expect(one.json.can_manage).toBe(false);
     });
 
     it('never suspends or ends the last tenant owner, and ranks protect owners when there are two (AC-ST-ADM-006-3)', async () => {

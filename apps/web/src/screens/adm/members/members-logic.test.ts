@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { contractsProblem, emailProblem, guestMaxUntil, guestValidUntilProblem, isoOf, localInputOf, nameProblem, reasonProblem, staffValidUntilProblem } from './rules';
-import { GUEST_CONTRACT_STATUSES, lifecycleOptions, toContractOption, toMember, toMemberPage, toUnitOption } from './types';
+import { GUEST_CONTRACT_STATUSES, lifecycleOptions, toContractOption, toMember, toMemberPage, toSeatUsage, toUnitOption } from './types';
 import type { ContractOption } from './types';
 
 const NOW = new Date('2026-10-23T09:00:00Z');
@@ -114,5 +114,19 @@ describe('what the directory returns', () => {
     expect(lifecycleOptions('Ended')).toEqual([]);
     expect(lifecycleOptions('Expired')).toEqual([]);
     expect(GUEST_CONTRACT_STATUSES).toEqual(['SIGNED', 'ACTIVE', 'SUSPENDED', 'COMPLETED']);
+  });
+});
+
+describe('what the server says about a member and the seats', () => {
+  it('reads whether the lifecycle commands are open to the reader, and nothing when the server says nothing', () => {
+    expect(toMember({ can_manage: false }).canManage).toBe(false);
+    expect(toMember({ can_manage: true }).canManage).toBe(true);
+    expect(toMember({ can_manage: 'yes' }).canManage).toBeUndefined();
+    expect(toMember(null).canManage).toBeUndefined();
+  });
+
+  it('reads the seats used out of their limit, with no limit when nothing caps them', () => {
+    expect(toSeatUsage({ seats: { used: 3, limit: 5 }, guest_seats: { used: 1 } })).toEqual({ staff: { used: 3, limit: 5 }, guests: { used: 1, limit: undefined } });
+    expect(toSeatUsage(null)).toEqual({ staff: { used: 0, limit: undefined }, guests: { used: 0, limit: undefined } });
   });
 });

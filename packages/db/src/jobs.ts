@@ -61,6 +61,8 @@ export const JOB_INTERVAL_SECONDS = {
   'entitlement-override-expiry': 60,
   // Every minute: a license moves Issued -> Active -> Grace -> Expired at its boundaries by the clock of the server, one event for each move (ST-SAS-003); the pass is idempotent.
   'license-status': 60,
+  // Hourly: an invitation nobody accepted before its day runs out, with its membership, so the seat and the address are free again (ST-ADM-006); the pass is idempotent.
+  'membership-invitation-expiry': 3600,
   // Hourly: a stage of land clearance whose planned end has passed becomes late within the hour and asks ISS for its issue (ST-LND-010); the pass is idempotent.
   'land-stage-late': 3600,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
@@ -211,6 +213,8 @@ export interface StandardJobDeps {
   /** The pass over the entitlement overrides of a tenant (ST-SAS-009): an override in force whose window has ended expires and the tenant gets a new entitlement version; a request that waited past its window expires. */
   overrideExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the licenses of a tenant (ST-SAS-003): each one moves along Issued, Active, Grace and Expired by the clock of the server, with an event for every move. */
+  /** The pass over the invitations of a tenant (ST-ADM-006): an invitation that ran out and the membership it was for become Expired, with an event for each. */
+  invitationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   licenseStatus?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
@@ -543,6 +547,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await licenses.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const invitations = deps.invitationExpiry;
+  if (invitations !== undefined) {
+    handlers.push({
+      name: 'membership-invitation-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await invitations.run(workerContext(tenantId), now)));
       },
     });
   }
