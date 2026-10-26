@@ -10,6 +10,7 @@ import {
   fundingCells,
   fundingTotals,
   negativeDeltaExplanation,
+  periodDeltaOf,
   takesCtmtqg,
 } from '../src/dis-report.ts';
 import type { RawFundingLine } from '../src/dis-report.ts';
@@ -164,6 +165,15 @@ describe('the hash of a draft', () => {
     const file = { fileObjectId: PROJECT, fileSha256: 'a'.repeat(64), fileName: 'voucher.pdf' };
     expect(draftHash({ ...content, attachments: [file] })).not.toBe(draftHash(content));
     expect(draftHash({ ...content, attachments: [{ ...file, fileName: 'other.pdf' }] })).not.toBe(draftHash({ ...content, attachments: [file] }));
+  });
+});
+
+describe('what a period added in all', () => {
+  it('AC-ST-DIS-005-5: is the sum of the changes of the cells that have a period before, a fall kept as it is, and none when no cell has one', () => {
+    expect(periodDeltaOf(['-30000000', null, '0'])).toBe('-30000000');
+    expect(periodDeltaOf(['50000000', '-20000000'])).toBe('30000000');
+    expect(periodDeltaOf([null, null])).toBeNull();
+    expect(periodDeltaOf([])).toBeNull();
   });
 });
 

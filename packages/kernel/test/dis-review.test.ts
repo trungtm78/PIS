@@ -1,4 +1,5 @@
-import { TREASURY_GAP_THRESHOLD_PCT, WARNING_CODES, percentOf, reviewReport, treasuryWindow } from '../src/dis-review.ts';
+import { DomainError } from '../src/errors.ts';
+import { TREASURY_GAP_THRESHOLD_PCT, WARNING_CODES, percentOf, reviewReport, submitRefusal, treasuryWindow } from '../src/dis-review.ts';
 import type { ReviewCell, ReviewInput } from '../src/dis-review.ts';
 
 const cell = (extra: Partial<ReviewCell> = {}): ReviewCell => ({ cumulativeVnd: '0', ctmtqgVnd: null, nextMonthVnd: '0', nextMonthCtmtqgVnd: null, allocatedVnd: '0', deltaVnd: null, ...extra });
@@ -102,6 +103,31 @@ describe('the review of a report (BR-DIS-07, AC-ST-DIS-004-2)', () => {
     const all = reviewReport(clean({ cells: [cell({ cumulativeVnd: '60', allocatedVnd: '100' }), ...Array.from({ length: 5 }, () => cell())], progress: { ...PROGRESS, constructionVnd: '500' }, treasuryVnd: '10' }));
     expect(all.warnings.map((finding) => finding.code)).toEqual([WARNING_CODES.volumeExceedsAllocation, WARNING_CODES.treasuryGap, WARNING_CODES.nextMonthEmptyWithCapitalLeft]);
     expect(all.blocking).toBe(false);
+  });
+});
+
+describe('a fall that is explained and the refusal of a send', () => {
+  const fall = (explanation: string | null) =>
+    clean({ negativeDeltaExplanation: explanation, cells: [cell({ cumulativeVnd: '120', allocatedVnd: '200', nextMonthVnd: '10', deltaVnd: '-30' }), cell({ deltaVnd: '5' }), ...Array.from({ length: 4 }, () => cell())] });
+
+  it('AC-ST-DIS-005-5: tells a fall that is explained as a warning with the sum of the falls, and as an error when it is not', () => {
+    const explained = reviewReport(fall('The Treasury returned a payment.'));
+    expect(explained.blocking).toBe(false);
+    expect(explained.warnings).toEqual([{ code: WARNING_CODES.negativeDelta, severity: 'WARNING', field: 'negative_delta_explanation', values: { delta_vnd: '-30' } }]);
+    const bare = reviewReport(fall(null));
+    expect(bare.errors.map((finding) => finding.code)).toEqual(['NEGATIVE_DELTA_EXPLANATION_REQUIRED']);
+    expect(bare.warnings.map((finding) => finding.code)).not.toContain(WARNING_CODES.negativeDelta);
+  });
+
+  it('answers the first error as the problem of the send, 409 for the state of the report and the period and 422 for the entries, with the codes of all of them', () => {
+    const refusal = submitRefusal(reviewReport(clean({ status: 'SUBMITTED', planInForce: false, progress: null })));
+    expect(refusal).toBeInstanceOf(DomainError);
+    expect([refusal?.status, refusal?.code, refusal?.detail, refusal?.extensions]).toEqual([409, 'REVISION_IMMUTABLE', 'status', { error_codes: ['REVISION_IMMUTABLE', 'PLAN_VERSION_NOT_EFFECTIVE', 'VALIDATION_FAILED'], report_status: 'SUBMITTED' }]);
+    expect(submitRefusal(reviewReport(clean({ periodClosed: true })))?.status).toBe(409);
+    const entries = submitRefusal(reviewReport(clean({ progress: null })));
+    expect([entries?.status, entries?.code, entries?.detail]).toEqual([422, 'VALIDATION_FAILED', 'progress']);
+    expect(submitRefusal(reviewReport(fall(null)))?.code).toBe('NEGATIVE_DELTA_EXPLANATION_REQUIRED');
+    expect(submitRefusal(reviewReport(clean()))).toBeUndefined();
   });
 });
 

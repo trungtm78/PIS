@@ -606,7 +606,7 @@
   "post_reports_id_corrections": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "post_reports_id_decision": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "post_reports_id_revisions": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
-  "post_reports_id_submit": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
+  "post_reports_id_submit": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001","is_late":true,"submitted_at":"2026-01-01T00:00:00Z","payload_hash":"sample","period_delta_vnd":"sample","warnings":[{"code":"sample","field":"sample","values":{"key":"sample"}}]},
   "post_settlements_id_close": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "post_support_access_id_approve": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "post_sync_attachments": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},

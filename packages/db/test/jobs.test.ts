@@ -535,6 +535,7 @@ describe('standard jobs', () => {
       reconciliationOverdue: { run: async () => ({ reported: 0 }) },
       capitalBalanceReconcile: { run: async () => ({ drift: [] }) },
       settlementDeadline: { run: async () => ({ overdue: 0 }) },
+      audRecoveryReconcile: { run: async () => ({ mismatches: [] }) },
       accessCache: { expire: () => (expired += 1) },
     });
     expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'aud-recovery-reconcile', 'access-cache-expiry']);

@@ -10,7 +10,8 @@ import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
 import { ReportFileController } from '../../src/modules/dis/report-file.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
-import { DIS_CLOCK } from '../../src/modules/dis/tokens';
+import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
+import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
@@ -68,6 +69,9 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   let root: string;
   let files: FileService;
   const now = new Date('2026-12-15T00:00:00Z');
+  /** The clock of the module: the day of the tests, moved for the one that judges lateness. */
+  let clockNow = now;
+  const counted: Array<{ name: string; labels: Record<string, string> | undefined }> = [];
   let counter = 0;
   let weeks: string[] = [];
   let nextWeek = 0;
@@ -164,10 +168,10 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
     }
     for (const n of [MAKER, READER, ELSEWHERE_MAKER, NOBODY, NO_READ]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MAKER, ROOT);
-    await harness.seedRole(TENANT_A, 1, 'DIS_MAKER', ['report.create', 'report.edit', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_A, 1, 'DIS_MAKER', ['report.create', 'report.edit', 'report.submit', 'report.read', 'report_revision.read'], 30);
     await harness.seedRole(TENANT_A, 2, 'DIS_READER', ['report.read', 'report_revision.read'], 20);
     await harness.seedRole(TENANT_A, 3, 'DIS_WRITER', ['report.create', 'report.edit'], 25);
-    await harness.seedRole(TENANT_B, 1, 'DIS_MAKER', ['report.create', 'report.edit', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_B, 1, 'DIS_MAKER', ['report.create', 'report.edit', 'report.submit', 'report.read', 'report_revision.read'], 30);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MAKER, role: 1, kind: 'TENANT' },
       { n: 2, member: READER, role: 2, kind: 'TENANT' },
@@ -192,7 +196,14 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       await applyBaseline(tx, BASELINE_PACK, WORKER);
       await new DisPeriodStore().generate(tx, { calendarCode: 'DEFAULT', fiscalYear: 2027, periodType: 'WEEK' }, WORKER, now);
     });
-    weeks = (await rows<{ id: string }>("select id from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' order by start_date")).map((row) => row.id);
+    // A second calendar of the same weeks (the exclusion of the periods is per calendar): the tests of a project each need a week of their own, and one calendar of 2027 has 52.
+    await rows(
+      `insert into machvon.reporting_period
+         (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
+       select tenant_id, gen_random_uuid(), 'X-' || code, calendar_version, start_date, end_date, deadline_at, 'EXTRA', period_type, fiscal_year, 'OPEN', calendar_version_id, created_by, updated_by
+         from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' and calendar_code = 'DEFAULT'`,
+    );
+    weeks = (await rows<{ id: string }>("select id from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' order by calendar_code, start_date")).map((row) => row.id);
     root = await mkdtemp(join(tmpdir(), 'machvon-dis-'));
     files = new FileService({ storage: new FsObjectStorage(root), scanner: new MockScanPort(), urlSecret: randomBytes(32) });
     app = await startTestApp({
@@ -201,11 +212,12 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ReportController, ReportReadsController, ReportFileController],
+      controllers: [ReportController, ReportReadsController, ReportFileController, ReportSubmitController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
-        { provide: DIS_CLOCK, useValue: () => now },
+        { provide: DIS_CLOCK, useValue: () => clockNow },
+        { provide: DIS_METRICS, useValue: { increment: (name: string, labels?: Record<string, string>) => void counted.push({ name, labels }), gauge: () => undefined } },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });
@@ -218,7 +230,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   }, 60_000);
 
   it('serves the controllers of the report in the module of DIS', () => {
-    expect(disModule.controllers.slice(-3)).toEqual([ReportController, ReportReadsController, ReportFileController]);
+    expect(disModule.controllers.slice(-4)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController]);
   });
 
   describe('post_reports', () => {
@@ -898,6 +910,206 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
         expect(detail).toMatchObject({ progress: { construction_vnd: '300000000' }, narrative: { results: 'Done' } });
         expect(detail.attachments).toHaveLength(1);
       });
+    });
+  });
+
+  describe('post_reports_id_submit (ST-DIS-005)', () => {
+    const PROGRESS = { construction_vnd: '300000000', acceptance_vnd: '200000000', treasury_submitted_vnd: '150000000', preparing_dossier_vnd: '50000000', physical_progress_pct: '37.5' };
+    const submit = (reportId: string, version: number | string, member = MAKER, options: Partial<CallOptions> = {}): Promise<Reply> =>
+      call('POST', `/reports/${reportId}/submit`, { member, ifMatch: `"${version}"`, body: {}, ...options });
+    /** A draft of FX-DIS-001 with the volumes entered, saved twice so that it stands at version 3 (the screen of the story shows it so). */
+    const ready = async (extra: Record<string, unknown> = {}, options: { project?: { projectId: string; planId: string }; period?: string } = {}) => {
+      const { projectId, planId } = options.project ?? (await seedProject());
+      const period = options.period ?? week();
+      const made = await create(draft(projectId, period, planId, { ...PROGRESS, ...extra }));
+      const reportId = idOf(made);
+      await save(reportId, draft(projectId, period, planId, { ...PROGRESS, ...extra }), 1);
+      await save(reportId, draft(projectId, period, planId, { ...PROGRESS, ...extra }), 2);
+      return { projectId, planId, period, reportId };
+    };
+    const readReport = async (reportId: string): Promise<{ funding_lines: Array<Record<string, unknown>> }> => (await read(reportId)).json as unknown as { funding_lines: Array<Record<string, unknown>> };
+    const events = (reportId: string) => rows<{ type: string; payload: Record<string, unknown> }>("select type, payload from machvon.outbox_event where aggregate_id = $1 and type = 'report.submitted.v1'", [reportId]);
+    const sealed = async (reportId: string) =>
+      (await rows<{ status: string; version: string; submitted_by: string | null; submitted_at: string | null; is_late: boolean; payload_hash: string; is_current: boolean; workflow_version_id: string | null }>(
+        'select status, version::text as version, submitted_by, submitted_at::text as submitted_at, is_late, payload_hash, is_current, workflow_version_id from machvon.report_revision where id = $1',
+        [reportId],
+      ))[0];
+
+    it('AC-ST-DIS-005-1 / UAT-AC01 / AC-ST-DIS-005-6: hands in FX-DIS-001 at version 3 once, however often the same key is sent: SUBMITTED, one audit row, one report.submitted.v1 with is_late and the hash, one count', async () => {
+      const { reportId } = await ready();
+      expect((await state(reportId))?.version).toBe('3');
+      const key = `key-${randomUUID()}`;
+      const first = await submit(reportId, 3, MAKER, { key });
+      expect(first).toMatchObject({ status: 200, json: { status: 'SUBMITTED', resource_version: 4, resource_id: reportId, is_late: false, period_delta_vnd: null } });
+      // Nothing is registered for next month while 80 million of the capital allocated is left: told with the answer, and it does not stop the send.
+      expect(first.json.warnings).toEqual([{ code: 'NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT', field: 'funding_lines', values: { remaining_vnd: '80000000' } }]);
+      const again = await submit(reportId, 3, MAKER, { key });
+      expect(again.status).toBe(200);
+      expect(again.json).toEqual(first.json);
+      const row = await sealed(reportId);
+      expect(row).toMatchObject({ status: 'SUBMITTED', version: '4', submitted_by: memberId(MAKER), is_late: false, is_current: false, workflow_version_id: null });
+      expect(first.json.payload_hash).toBe(row?.payload_hash);
+      expect(first.json.payload_hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(first.json.submitted_at).toBe(now.toISOString());
+      expect(Date.parse(row?.submitted_at ?? '')).toBe(now.getTime());
+      const trailed = (await trail(reportId)).filter((entry) => entry.action === 'dis.report_submitted');
+      expect(trailed).toHaveLength(1);
+      expect(trailed[0]?.safe_diff).toMatchObject({ revision: 1, is_late: false, payload_hash: row?.payload_hash, cumulative_vnd: '420000000', ctmtqg_vnd: '40000000', period_delta_vnd: null, reopened: false, version: 4 });
+      const emitted = await events(reportId);
+      expect(emitted).toHaveLength(1);
+      expect(emitted[0]?.payload).toMatchObject({ report_id: reportId, revision: 1, report_type: 'WEEKLY', is_late: false, payload_hash: row?.payload_hash, submitted_at: now.toISOString(), cumulative_vnd: '420000000', ctmtqg_vnd: '40000000' });
+      expect(counted).toEqual([{ name: 'dis_submit_total', labels: { late: 'false' } }]);
+    });
+
+    it('seals the hash of what the draft held, which the saves had sealed already, and lets nothing of it change afterwards (UAT-AC247)', async () => {
+      const { projectId, planId, period, reportId } = await ready();
+      const before = (await sealed(reportId))?.payload_hash;
+      const handed = await submit(reportId, 3);
+      expect(handed.json.payload_hash).toBe(before);
+      expect(await save(reportId, draft(projectId, period, planId, PROGRESS), 4)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
+      await expect(rows("update machvon.report_revision set submitted_at = now() - interval '1 day' where id = $1", [reportId])).rejects.toMatchObject({ constraint: 'report_revision_sealed_guard' });
+      await expect(rows('update machvon.report_revision set is_late = true where id = $1', [reportId])).rejects.toMatchObject({ constraint: 'report_revision_sealed_guard' });
+      await expect(rows("update machvon.report_revision set submitted_by = null, status = 'SUBMITTED' where id = $1", [reportId])).rejects.toBeDefined();
+      expect((await sealed(reportId))?.is_late).toBe(false);
+    });
+
+    it('UAT-AC07: judges the lateness by the calendar of the period to the second: on time up to the deadline, late after it', async () => {
+      const first = await ready();
+      const second = await ready();
+      const deadline = async (periodId: string): Promise<number> => Date.parse((await rows<{ at: string }>('select deadline_at::text as at from machvon.reporting_period where id = $1', [periodId]))[0]?.at ?? '');
+      try {
+        clockNow = new Date((await deadline(first.period)) - 1000);
+        expect((await submit(first.reportId, 3)).json.is_late).toBe(false);
+        clockNow = new Date((await deadline(second.period)) + 1000);
+        const late = await submit(second.reportId, 3);
+        expect(late.json.is_late).toBe(true);
+        expect((await sealed(second.reportId))?.is_late).toBe(true);
+        expect((await events(second.reportId))[0]?.payload.is_late).toBe(true);
+        expect(counted.slice(-1)).toEqual([{ name: 'dis_submit_total', labels: { late: 'true' } }]);
+      } finally {
+        clockNow = now;
+      }
+    });
+
+    it('AC-ST-DIS-005-2 / UAT-AC03: refuses a period that was locked with no reopening (409 PERIOD_LOCKED) and leaves the draft as it was; takes it for the project a reopening names', async () => {
+      const locked = await ready();
+      await lockPeriod(locked.period);
+      const refused = await submit(locked.reportId, 3);
+      expect([refused.status, refused.json.code]).toEqual([409, 'PERIOD_LOCKED']);
+      expect(await sealed(locked.reportId)).toMatchObject({ status: 'DRAFT', version: '3', submitted_by: null });
+      expect((await trail(locked.reportId)).filter((entry) => entry.action === 'dis.report_submitted')).toEqual([]);
+      expect(await events(locked.reportId)).toEqual([]);
+      const reopenId = randomUUID();
+      await rows(
+        `insert into machvon.period_reopen (tenant_id, id, period_id, scope_kind, scope_project_ids, reason, requested_by, requested_window_hours, status, created_by, updated_by)
+         values ($1, $2, $3, 'PROJECTS', $4::uuid[], 'The investor sent the figures after the period was locked.', $5, 72, 'REQUESTED', $5, $5)`,
+        [TENANT_A, reopenId, locked.period, [locked.projectId], memberId(MAKER)],
+      );
+      await rows(
+        "update machvon.period_reopen set status = 'APPROVED', approved_by = $2, decided_by = $2, decided_at = $3::timestamptz, decision_reason = 'The delay was justified.', window_until = $4::timestamptz, version = version + 1 where id = $1",
+        [reopenId, memberId(READER), '2026-12-14T00:00:00Z', '2026-12-17T00:00:00Z'],
+      );
+      const taken = await submit(locked.reportId, 3);
+      expect(taken.status).toBe(200);
+      expect((await trail(locked.reportId)).find((entry) => entry.action === 'dis.report_submitted')?.safe_diff).toMatchObject({ reopened: true });
+    });
+
+    it('AC-ST-DIS-005-3 / UAT-AC248: of two makers at version 3 at once, one hands in (version 4) and the other is 409 VERSION_CONFLICT naming the version that won; one event', async () => {
+      const { reportId } = await ready();
+      const [one, other] = await Promise.all([submit(reportId, 3), submit(reportId, 3)]);
+      const won = [one, other].filter((reply) => reply.status === 200);
+      const lost = [one, other].filter((reply) => reply.status !== 200);
+      expect(won).toHaveLength(1);
+      expect(won[0]?.json).toMatchObject({ status: 'SUBMITTED', resource_version: 4 });
+      expect(lost).toHaveLength(1);
+      expect(lost[0]).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT', current_version: 4 } });
+      expect(await events(reportId)).toHaveLength(1);
+      expect((await trail(reportId)).filter((entry) => entry.action === 'dis.report_submitted')).toHaveLength(1);
+    });
+
+    it('AC-ST-DIS-005-4 / UAT-AC249: answers the same key with the same answer, refuses the same key with another request (409 IDEMPOTENCY_CONFLICT) and a new key for a report that was handed in (409)', async () => {
+      const { reportId } = await ready();
+      const key = `key-${randomUUID()}`;
+      const first = await submit(reportId, 3, MAKER, { key });
+      expect((await submit(reportId, 3, MAKER, { key })).json).toEqual(first.json);
+      const changed = await submit(reportId, 4, MAKER, { key });
+      expect([changed.status, changed.json.code]).toEqual([409, 'IDEMPOTENCY_CONFLICT']);
+      expect(await submit(reportId, 4)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
+      expect(await submit(reportId, 3)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT', current_version: 4 } });
+      expect((await trail(reportId)).filter((entry) => entry.action === 'dis.report_submitted')).toHaveLength(1);
+      expect(await events(reportId)).toHaveLength(1);
+      expect((await state(reportId))?.version).toBe('4');
+    });
+
+    it('AC-ST-DIS-005-5 / UAT-AC250: refuses a cumulative that fell from 150 million to 120 million until it is explained (422), then hands it in with the warning and the change of -30 million', async () => {
+      const { projectId, planId } = await seedProject();
+      const cell = (amount: string) => [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: amount, next_month_vnd: '10' }];
+      const earlier = await create(draft(projectId, week(), planId, { funding_lines: cell('150000000') }));
+      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, submitted_by = $2, accepted_by = $3, submitted_at = now(), accepted_at = now() where id = $1", [idOf(earlier), memberId(MAKER), memberId(READER)]);
+      const period = week();
+      const made = await create(draft(projectId, period, planId, { ...PROGRESS, funding_lines: cell('120000000') }));
+      const reportId = idOf(made);
+      const refused = await submit(reportId, 1);
+      expect([refused.status, refused.json.code, refused.json.detail]).toEqual([422, 'NEGATIVE_DELTA_EXPLANATION_REQUIRED', 'negative_delta_explanation']);
+      expect((await sealed(reportId))?.status).toBe('DRAFT');
+      await save(reportId, draft(projectId, period, planId, { ...PROGRESS, funding_lines: cell('120000000'), negative_delta_explanation: 'The Treasury returned a payment.' }), 1);
+      const handed = await submit(reportId, 2);
+      expect(handed).toMatchObject({ status: 200, json: { status: 'SUBMITTED', period_delta_vnd: '-30000000' } });
+      expect(handed.json.warnings).toEqual([{ code: 'NEGATIVE_DELTA', field: 'negative_delta_explanation', values: { delta_vnd: '-30000000' } }]);
+      expect((await trail(reportId)).find((entry) => entry.action === 'dis.report_submitted')?.safe_diff).toMatchObject({ period_delta_vnd: '-30000000', warnings: ['NEGATIVE_DELTA'] });
+      // The explanation is kept as it was written, and the words are not in the trail.
+      expect((await readReport(reportId)).funding_lines[0]).toMatchObject({ delta_vnd: '-30000000' });
+      expect(JSON.stringify(await trail(reportId))).not.toContain('Treasury returned');
+    });
+
+    it('refuses a draft with errors with the first error as the problem and the codes of all of them, and changes nothing: no volumes, a plan version that is no longer in force', async () => {
+      const { projectId, planId } = await seedProject();
+      const period = week();
+      const reportId = idOf(await create(draft(projectId, period, planId)));
+      const noVolumes = await submit(reportId, 1);
+      expect([noVolumes.status, noVolumes.json.code, noVolumes.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'progress']);
+      expect(noVolumes.json.error_codes).toEqual(['VALIDATION_FAILED']);
+      await save(reportId, draft(projectId, period, planId, PROGRESS), 1);
+      await seedReplica([["update machvon.plan_version set effective_at = timestamptz '2028-01-01T00:00:00Z' where id = $1", [planId]]]);
+      const stale = await submit(reportId, 2);
+      expect([stale.status, stale.json.code]).toEqual([422, 'PLAN_VERSION_NOT_EFFECTIVE']);
+      expect(await sealed(reportId)).toMatchObject({ status: 'DRAFT', version: '2' });
+      expect(await events(reportId)).toEqual([]);
+    });
+
+    it('goes with the workflow of the review that is published for reports, when there is one', async () => {
+      const { reportId } = await ready();
+      const workflowId = randomUUID();
+      await seedReplica([
+        ["insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, created_by, definition_hash) values ($1, $2, 'DIS_REPORT_REVIEW', 1, '{}'::jsonb, 'Draft', $3, repeat('a', 64))", [TENANT_A, workflowId, memberId(MAKER)]],
+        ["insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, created_by, definition_hash) values ($1, $2, 'DIS_REPORT_REVIEW', 2, '{}'::jsonb, 'Published', $3, repeat('b', 64))", [TENANT_A, randomUUID(), memberId(MAKER)]],
+        // A notification workflow of the same business type with a higher revision is not the review of the report.
+        ["insert into machvon.workflow_version (tenant_id, id, business_type, kind, event_type, revision, definition_json, status, created_by, definition_hash) values ($1, $2, 'DIS_REPORT_REVIEW', 'NOTIFICATION', 'report.submitted.v1', 3, '{}'::jsonb, 'Published', $3, repeat('c', 64))", [TENANT_A, randomUUID(), memberId(MAKER)]],
+      ]);
+      const newest = (await rows<{ id: string }>("select id from machvon.workflow_version where business_type = 'DIS_REPORT_REVIEW' and kind = 'APPROVAL' and status = 'Published'"))[0]?.id;
+      expect((await submit(reportId, 3)).status).toBe(200);
+      expect((await sealed(reportId))?.workflow_version_id).toBe(newest);
+    });
+
+    it('AC-ST-DIS-005-8 / UAT-AC265: is for the maker who acts on the project: a reader and a person with no right are 403, another branch and another tenant are 404 and learn nothing', async () => {
+      const { reportId } = await ready();
+      expect((await submit(reportId, 3, READER)).status).toBe(403);
+      expect((await submit(reportId, 3, NOBODY)).status).toBe(403);
+      expect((await submit(reportId, 3, ELSEWHERE_MAKER)).status).toBe(404);
+      const other = await submit(reportId, 3, B_MAKER, { tenantId: TENANT_B });
+      expect(other.status).toBe(404);
+      const missing = await submit(randomUUID(), 3, B_MAKER, { tenantId: TENANT_B });
+      expect(other.json.code).toBe(missing.json.code);
+      expect(JSON.stringify(other.json)).not.toContain(reportId);
+      expect((await call('GET', `/reports/${reportId}`, { member: B_MAKER, tenantId: TENANT_B })).status).toBe(404);
+      expect(await sealed(reportId)).toMatchObject({ status: 'DRAFT', version: '3' });
+    });
+
+    it('AC-ST-DIS-005-7 / UAT-NFR-OPERABILITY-05: leaves one logical event under one key for the consumers to take once: the relay and the inbox of the kernel make the redelivery harmless', async () => {
+      const { reportId } = await ready();
+      await submit(reportId, 3);
+      const rowsOf = await rows<{ event_key: string }>("select event_key from machvon.outbox_event where aggregate_id = $1 and type = 'report.submitted.v1'", [reportId]);
+      expect(rowsOf.map((row) => row.event_key)).toEqual([`report_revision:${reportId}:submitted`]);
     });
   });
 });

@@ -22,7 +22,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { PERIOD_FIXTURES, REPORT_FIXTURES } from '../suite';
+import { PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, REPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -226,6 +226,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_reporting_period_id',
   'post_reports',
   'post_reports_id_revisions',
+  'post_reports_id_submit',
   'uploadReportFile',
   'getReportRevision',
   'get_resources_report_revision',
@@ -664,6 +665,13 @@ const INSERT_EXPIRED_PERMIT = `insert into machvon.permit
 const INSERT_PERMIT = `insert into machvon.permit
   (tenant_id, id, dossier_id, permit_type_id, status, authority_name, created_by, updated_by)
   values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $6, $6) on conflict do nothing`;
+
+const INSERT_CALENDAR_RECORD = `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by)
+  values ($1, $2, 'TENANT', 'CALENDAR', 'DEFAULT', 'EFFECTIVE', $3, $3) on conflict do nothing`;
+const INSERT_CALENDAR_VERSION = `insert into machvon.master_record_version
+  (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+  values ($1, $2, $3, 'CALENDAR', 'DEFAULT', 1, 'Reporting calendar of the fixture',
+          '{"week_starts_on":"SATURDAY","deadline_weekday":"FRIDAY","deadline_time":"10:00","timezone":"Asia/Ho_Chi_Minh"}'::jsonb, '2025-01-01', 'EFFECTIVE', 'TENANT', timestamptz '2025-01-01T00:00:00Z', $4, $4) on conflict do nothing`;
 
 const INSERT_PERIOD = `insert into machvon.reporting_period
   (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
@@ -1209,9 +1217,12 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PERMIT_TYPE, [tenantId, permitType.id, permitType.code, permitType.legalBasis, ACTOR_ID]);
     await client.query(INSERT_GATE_RULE, [tenantId, PERMIT_TYPE_FIXTURES[tenant].gateRuleId, permitType.id, PERMIT_TYPE_FIXTURES[tenant].gateBasis, ACTOR_ID]);
     const period = PERIOD_FIXTURES[tenant];
-    await client.query(INSERT_PERIOD, [tenantId, period.id, period.code, master.versionId, ACTOR_ID]);
+    const periodCalendar = PERIOD_CALENDAR_FIXTURES[tenant];
+    await client.query(INSERT_CALENDAR_RECORD, [tenantId, periodCalendar.recordId, ACTOR_ID]);
+    await client.query(INSERT_CALENDAR_VERSION, [tenantId, periodCalendar.versionId, periodCalendar.recordId, ACTOR_ID]);
+    await client.query(INSERT_PERIOD, [tenantId, period.id, period.code, periodCalendar.versionId, ACTOR_ID]);
     const reopen = REOPEN_FIXTURES[tenant];
-    await client.query(INSERT_LOCKED_PERIOD, [tenantId, reopen.periodId, reopen.periodCode, master.versionId, ACTOR_ID]);
+    await client.query(INSERT_LOCKED_PERIOD, [tenantId, reopen.periodId, reopen.periodCode, periodCalendar.versionId, ACTOR_ID]);
     await client.query(INSERT_REOPEN, [tenantId, reopen.id, reopen.periodId, reopen.reason, ACTOR_ID]);
     const slaPolicy = SLA_POLICY_FIXTURES[tenant];
     await client.query(INSERT_SLA_POLICY, [tenantId, slaPolicy.id, slaPolicy.code, master.versionId, master.recordId, ACTOR_ID]);

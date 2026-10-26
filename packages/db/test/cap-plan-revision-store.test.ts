@@ -414,12 +414,14 @@ describe('CapPlanRevisionStore.asOf (getCapitalPlanAsOf, BR-CAP-10)', () => {
   it('counts what was paid by the moment asked for, not what was paid after it, and not a payment that was undone', async () => {
     const base = await publishedPlan([money(5)]);
     const target = base.projects[0] as string;
+    // A payment is posted against the allocation line of its project (capital_ledger_payment_line_chk).
+    const allocationLineId = (await linesOf(base.planId)).find((row) => row.project_id === target)?.id as string;
     const pay = async (amount: string, postedAt: string, reversalOf?: string): Promise<string> => {
       const id = randomUUID();
       await owner(
-        `insert into machvon.capital_ledger_entry (tenant_id, id, appropriation_id, project_id, entry_type, amount_vnd, plan_year, source_ref_kind, source_ref_id, reversal_of_id, posted_at, posted_by)
-         values ($1, $2, $3, $4, $5, $6::numeric, $7, 'PAYMENT_REQUEST', $8, $9, $10::timestamptz, $11)`,
-        [TENANT_A, id, base.appropriationId, target, reversalOf === undefined ? 'DISBURSE' : 'REVERSAL', amount, base.year, randomUUID(), reversalOf ?? null, postedAt, memberId(MAKER)],
+        `insert into machvon.capital_ledger_entry (tenant_id, id, appropriation_id, project_id, allocation_line_id, entry_type, amount_vnd, plan_year, source_ref_kind, source_ref_id, reversal_of_id, posted_at, posted_by)
+         values ($1, $2, $3, $4, $12, $5, $6::numeric, $7, 'PAYMENT_REQUEST', $8, $9, $10::timestamptz, $11)`,
+        [TENANT_A, id, base.appropriationId, target, reversalOf === undefined ? 'DISBURSE' : 'REVERSAL', amount, base.year, randomUUID(), reversalOf ?? null, postedAt, memberId(MAKER), allocationLineId],
       );
       return id;
     };

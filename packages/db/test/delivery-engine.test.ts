@@ -905,7 +905,9 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       const dead = await notify(['EMAIL']);
       await send((await queuedOf(dead)).id, refused, T0);
       const lost = await notify(['SMS']);
-      await send((await queuedOf(lost)).id, timedOut, new Date(Date.now() - 1000), SMS);
+      await send((await queuedOf(lost)).id, timedOut, T0, SMS);
+      // The window of reconciliation runs from the moment the send was lost, so that moment is the real one; the send itself is judged at a fixed hour, outside the quiet hours.
+      await owner("update machvon.delivery_attempt set unknown_at = now() - interval '1 second' where notification_id = $1 and status = 'Unknown'", [lost]);
       const delivered = await notify(['IN_APP', 'EMAIL']);
       await send((await queuedOf(delivered)).id, refused, T0);
       const queue = await inTenant((tx) => deliveries.list(tx, { deadLetter: true }, { limit: 200, after: undefined }));

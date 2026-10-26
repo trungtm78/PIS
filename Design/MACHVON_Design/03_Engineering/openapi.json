@@ -350,11 +350,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Command accepted; returns resource id/version/status",
+            "description": "The report was handed in",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/DisReportSubmitResult"
                 }
               }
             }
@@ -447,7 +447,9 @@
           "CORRECTION_REASON_REQUIRED",
           "VERSION_CONFLICT",
           "IDEMPOTENCY_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "REVISION_IMMUTABLE",
+          "PLAN_VERSION_NOT_EFFECTIVE"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -148336,6 +148338,88 @@
           "size_bytes": {
             "type": "integer",
             "minimum": 1
+          }
+        }
+      },
+      "DisReportSubmitResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "is_late",
+          "submitted_at",
+          "payload_hash",
+          "period_delta_vnd",
+          "warnings"
+        ],
+        "description": "The report that was handed in: the status SUBMITTED and the version it moved to, the time the server took, whether it was late by the calendar of its period, the SHA-256 of what it held, what the period added in all (negative when the cumulative fell, never forced to zero; null when no cell has a period before) and the warnings of the review (they do not block).",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_late": {
+            "type": "boolean"
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "period_delta_vnd": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "field",
+                "values"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
           }
         }
       }

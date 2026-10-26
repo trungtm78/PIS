@@ -1,3 +1,4 @@
+import { DomainError } from './errors.ts';
 import type { MeasurementBasis, RevisionStatus } from './dis-report.ts';
 import type { ProgressInput } from './dis-progress.ts';
 
@@ -49,6 +50,7 @@ export const WARNING_CODES = {
   volumeExceedsAllocation: 'VOLUME_EXCEEDS_ALLOCATION',
   treasuryGap: 'TREASURY_GAP',
   nextMonthEmptyWithCapitalLeft: 'NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT',
+  negativeDelta: 'NEGATIVE_DELTA',
 } as const;
 
 /** The gap between what is reported and what the Treasury paid that is told above 5% (BR-DIS-07, an assumption until the capital owner signs it, CXN-03). */
@@ -97,6 +99,11 @@ export function reviewReport(input: ReviewInput): Review {
   }
   if (input.progress === null) error('VALIDATION_FAILED', 'progress', { missing: 'construction_vnd' });
 
+  const falls = input.cells.flatMap((cell) => (cell.deltaVnd !== null && cell.deltaVnd.startsWith('-') ? [BigInt(cell.deltaVnd)] : []));
+  // A fall that is explained is told, not hidden: the report goes with it, and the change is what it is (never forced to zero).
+  if (falls.length > 0 && input.negativeDeltaExplanation !== null) {
+    warn(WARNING_CODES.negativeDelta, 'negative_delta_explanation', { delta_vnd: falls.reduce((total, fall) => total + fall, 0n).toString() });
+  }
   const allocated = sum(input.cells.map((cell) => cell.allocatedVnd));
   const cumulative = sum(input.cells.map((cell) => cell.cumulativeVnd));
   const nextMonth = sum(input.cells.map((cell) => cell.nextMonthVnd));
@@ -115,4 +122,17 @@ export function reviewReport(input: ReviewInput): Review {
     warn(WARNING_CODES.nextMonthEmptyWithCapitalLeft, 'funding_lines', { remaining_vnd: (allocated - cumulative).toString() });
   }
   return { errors, warnings, blocking: errors.length > 0 };
+}
+
+/** The statuses a refused send answers: a report that cannot be edited and a period that is locked are conflicts of state, the rest are entries that are not valid. */
+const CONFLICTS: ReadonlySet<string> = new Set(['REVISION_IMMUTABLE', 'PERIOD_LOCKED']);
+
+/**
+ * The refusal of a send that has errors: the first error of the review, as the problem the server answers (409 for the state of the report or the period, 422 for the entries), naming its field,
+ * with the codes of every error so that a client can show them all. Undefined when there is none.
+ */
+export function submitRefusal(review: Review): DomainError | undefined {
+  const first = review.errors[0];
+  if (first === undefined) return undefined;
+  return new DomainError(first.code, CONFLICTS.has(first.code) ? 409 : 422, first.field, { extensions: { error_codes: review.errors.map((entry) => entry.code), ...first.values } });
 }

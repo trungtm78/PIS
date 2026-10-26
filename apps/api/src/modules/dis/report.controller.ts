@@ -16,8 +16,6 @@ import {
   negativeDeltaExplanation,
   objectKey,
   progressOf,
-  reviewReport,
-  treasuryWindow,
 } from '@machvon/kernel';
 import type { AttachmentRef, EffectiveAccess, FundingInput, NarrativeInput, ProgressInput, ReportType, Review, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -31,6 +29,7 @@ import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { FileService } from '../files';
 import { REPORT_FILE_PURPOSE } from './report-file.controller';
+import { reviewOf } from './report-review';
 import { DIS_CLOCK } from './tokens';
 
 const READ_PERMISSION = PERMISSIONS.getReportRevision;
@@ -498,34 +497,7 @@ export class ReportReadsController {
       const found = await this.reports.find(tx, id, scope);
       if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
       // The review is what DIS-06 shows before a send, so it is made for a live draft; a report that was handed in has nothing left to fix.
-      return reportView(found, found.status === 'DRAFT' && !found.deleted ? await this.reviewOf(tx, found) : null);
-    });
-  }
-
-  /**
-   * The review of a draft (BR-DIS-07): the same errors the server would answer, and the warnings, all at once. The period is judged as a send would judge it (a locked period with no approved reopening
-   * covering the project is an error), the plan version against the one in force at the end of the period, and the cumulative against what the Treasury paid in the window of the basis.
-   */
-  private async reviewOf(tx: TenantTx, detail: RevisionDetail): Promise<Review> {
-    const periodClosed = await this.periods.closedFor(tx, detail.period.id, detail.project.id, this.clock());
-    const effective = await this.reports.effectivePlan(tx, detail.project.id, detail.period.fiscalYear, detail.period.endDate);
-    const treasury = await this.reports.treasuryFigure(tx, detail.project.id, treasuryWindow(detail.measurementBasis, detail.period));
-    return reviewReport({
-      status: detail.status,
-      deleted: detail.deleted,
-      periodClosed,
-      planInForce: effective?.id === detail.plan.id,
-      cells: detail.lines.map((row) => ({
-        cumulativeVnd: row.cumulativeVnd,
-        ctmtqgVnd: row.ctmtqgVnd,
-        nextMonthVnd: row.nextMonthVnd,
-        nextMonthCtmtqgVnd: row.nextMonthCtmtqgVnd,
-        allocatedVnd: row.allocatedVnd,
-        deltaVnd: row.deltaVnd,
-      })),
-      negativeDeltaExplanation: detail.negativeDeltaExplanation,
-      progress: detail.progress,
-      treasuryVnd: treasury?.totalVnd ?? null,
+      return reportView(found, found.status === 'DRAFT' && !found.deleted ? await reviewOf(tx, this.reports, this.periods, found, this.clock()) : null);
     });
   }
 }

@@ -5,6 +5,7 @@ import type { ContractScopes } from '../src/ctr-contract-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
 import { TENANT_A, contextFor, id, memberId, unitId } from './support/authz-fixtures';
+import { completeContract } from './support/contract-fixtures';
 import { DEPARTMENT, PROVINCE, everything, nothing, seedAs } from './support/bid-proposal-fixtures';
 import { CapWorld } from './support/cap-fixtures';
 
@@ -380,7 +381,7 @@ describe('the chain of changes of a contract (ST-CTR-006)', () => {
       expect(await refusal(promote(randomUUID()))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
       expect(await refusal(promote(co.id, 1, 'x', nothingUpdate))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
       expect(await refusal(promote(co.id, 1, 'x', invisible))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
-      await owner("update machvon.contract set status = 'COMPLETED' where id = $1::uuid", [contract.contractId]);
+      await completeContract(harness.database.adminUrl, contract.contractId, memberId(MAKER));
       expect(await refusal(evaluate(co.id))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409, extensions: { contract_status: 'COMPLETED' } });
     });
 

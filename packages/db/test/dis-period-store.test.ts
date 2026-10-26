@@ -197,6 +197,17 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       expect(await refusal(as((tx) => periods.judge(tx, randomUUID(), PROJECT, at('2026-10-02T03:11:00Z'))))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
     });
 
+    it('holds the period against a close or a lock while a send is judged, until the send commits', async () => {
+      const week42 = await byCode('W2026-42');
+      const heldAgainst = await as(async (tx) => {
+        await periods.judge(tx, week42.id, PROJECT, at('2026-10-02T02:00:00Z'));
+        // Another connection that tries to move the period meanwhile waits for the send and gives up here after the time it is allowed.
+        return refusal(harness.owner(TENANT_A, [["set lock_timeout = '300ms'"], ['select id from machvon.reporting_period where id = $1::uuid for update', [week42.id]]]));
+      });
+      expect(heldAgainst).toMatchObject({ code: '55P03' });
+      expect(await owner('select id from machvon.reporting_period where id = $1::uuid for update', [week42.id])).toHaveLength(1);
+    });
+
     it('does not let a tenant move the period of another', async () => {
       const week41 = await byCode('W2026-41');
       expect(await refusal(as((tx) => periods.softClose(tx, week41.id, 1, memberId(ACTOR), at('2026-12-31T00:00:00Z')), TENANT_B))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });

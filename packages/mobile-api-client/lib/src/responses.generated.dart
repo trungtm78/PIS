@@ -610,7 +610,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'post_reports_id_corrections': CommandResultResponse.fromJson,
   'post_reports_id_decision': CommandResultResponse.fromJson,
   'post_reports_id_revisions': CommandResultResponse.fromJson,
-  'post_reports_id_submit': CommandResultResponse.fromJson,
+  'post_reports_id_submit': DisReportSubmitResultResponse.fromJson,
   'post_settlements_id_close': CommandResultResponse.fromJson,
   'post_support_access_id_approve': CommandResultResponse.fromJson,
   'post_sync_attachments': CommandResultResponse.fromJson,
@@ -3977,6 +3977,98 @@ final class DisReportFileResponse implements ResponseModel {
         'file_name': fileName,
         'content_type': contentType,
         'size_bytes': sizeBytes,
+        ...extra,
+      };
+}
+
+final class DisReportSubmitResultResponse implements ResponseModel {
+  const DisReportSubmitResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.isLate,
+    required this.submittedAt,
+    required this.payloadHash,
+    required this.periodDeltaVnd,
+    required this.warnings,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportSubmitResultResponse.fromJson(Object? json, [String path = 'DisReportSubmitResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportSubmitResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      isLate: requiredField(map, path, 'is_late', asBool),
+      submittedAt: requiredField(map, path, 'submitted_at', asString),
+      payloadHash: requiredField(map, path, 'payload_hash', asString),
+      periodDeltaVnd: requiredField(map, path, 'period_delta_vnd', asAny),
+      warnings: requiredField(map, path, 'warnings', asList(DisReportSubmitResultResponseWarningsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'is_late', 'submitted_at', 'payload_hash', 'period_delta_vnd', 'warnings'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final bool isLate;
+  final String submittedAt;
+  final String payloadHash;
+  final Object? periodDeltaVnd;
+  final List<DisReportSubmitResultResponseWarningsItem> warnings;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'is_late': isLate,
+        'submitted_at': submittedAt,
+        'payload_hash': payloadHash,
+        'period_delta_vnd': periodDeltaVnd,
+        'warnings': warnings.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class DisReportSubmitResultResponseWarningsItem implements ResponseModel {
+  const DisReportSubmitResultResponseWarningsItem({
+    required this.code,
+    required this.field,
+    required this.values,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportSubmitResultResponseWarningsItem.fromJson(Object? json, [String path = 'DisReportSubmitResultResponseWarningsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportSubmitResultResponseWarningsItem(
+      code: requiredField(map, path, 'code', asString),
+      field: requiredField(map, path, 'field', asString),
+      values: requiredField(map, path, 'values', asMap(nullable(asString))),
+      extra: unknownFields(map, path, const <String>{'code', 'field', 'values'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String field;
+  final Map<String, String?> values;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'field': field,
+        'values': values,
         ...extra,
       };
 }

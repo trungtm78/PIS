@@ -155,6 +155,7 @@
     "post_plans_id_publish",
     "post_reports",
     "post_reports_id_revisions",
+    "post_reports_id_submit",
     "post_settlements_id_close",
     "promoteChangeRequest",
     "proposeGlossaryTerm",

@@ -181,6 +181,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'softCloseReportingPeriod', method: 'POST', id: PERIOD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign soft close' } },
   { operation: 'lockReportingPeriod', method: 'POST', id: PERIOD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign lock' } },
   { operation: 'get_resources_reporting_period_id', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
+  { operation: 'post_reports_id_submit', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   {
     operation: 'post_reports_id_revisions',
     method: 'POST',

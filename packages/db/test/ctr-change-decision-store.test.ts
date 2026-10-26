@@ -12,6 +12,7 @@ import { CtrRevisionEffective } from '../src/ctr-revision-effective';
 import { CtrRevisionStore } from '../src/ctr-revision-store';
 import type { TenantTx } from '../src/tenant-database';
 import { TENANT_A, contextFor, id, memberId } from './support/authz-fixtures';
+import { completeContract } from './support/contract-fixtures';
 import { everything, seedAs } from './support/bid-proposal-fixtures';
 import { CapWorld } from './support/cap-fixtures';
 
@@ -467,7 +468,7 @@ describe('the decision of a change order and the revisions it makes (ST-CTR-007)
       const pco = await as((tx) => chain.promote(tx, event.id, 1, 'Priced.', memberId(MAKER), contractScopes));
       const fresh = await as((tx) => chain.promote(tx, pco.id, 1, 'Agreed.', memberId(MAKER), contractScopes));
       expect(await refusal(decide(fresh))).toMatchObject({ code: 'CHANGE_STATE_INVALID', status: 409, extensions: { change_status: 'SUBMITTED' } });
-      await owner("update machvon.contract set status = 'COMPLETED' where id = $1::uuid", [contract.contractId]);
+      await completeContract(harness.database.adminUrl, contract.contractId, memberId(MAKER));
       expect(await refusal(decide(co))).toMatchObject({ code: 'CONTRACT_STATE_INVALID', status: 409, extensions: { contract_status: 'COMPLETED' } });
     });
 
@@ -509,7 +510,7 @@ describe('the decision of a change order and the revisions it makes (ST-CTR-007)
     it('leaves a revision of a contract that is no longer being performed', async () => {
       const contract = await seedContract();
       await decide(await evaluatedCo(contract, '100000000'));
-      await owner("update machvon.contract set status = 'COMPLETED' where id = $1::uuid", [contract.contractId]);
+      await completeContract(harness.database.adminUrl, contract.contractId, memberId(MAKER));
       expect(await runJob()).toEqual({ activated: 0, blocked: 1, overdue: 0 });
       expect((await revisionsOf(contract.contractId))[1]).toMatchObject({ status: 'PENDING_EFFECTIVE' });
       expect(await contractRow(contract.contractId)).toMatchObject({ contract_value_vnd: '10000000000' });

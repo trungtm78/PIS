@@ -234,8 +234,9 @@ export class DisPeriodStore {
     this.rules = rules;
   }
 
-  async find(tx: TenantTx, id: string, lock = false): Promise<PeriodRow | undefined> {
-    const rows = await tx.query<SqlRow>(`${SELECT} where p.id = $1::uuid${lock ? ' for update of p' : ''}`, [id]);
+  async find(tx: TenantTx, id: string, lock: boolean | 'share' = false): Promise<PeriodRow | undefined> {
+    const clause = lock === 'share' ? ' for share of p' : lock ? ' for update of p' : '';
+    const rows = await tx.query<SqlRow>(`${SELECT} where p.id = $1::uuid${clause}`, [id]);
     return rows[0] === undefined ? undefined : toRow(rows[0]);
   }
 
@@ -357,7 +358,8 @@ export class DisPeriodStore {
    * reopening is late, as the period is past its deadline.
    */
   async judge(tx: TenantTx, periodId: string, projectId: string, at: Date): Promise<SubmissionJudgement> {
-    const period = await this.find(tx, periodId);
+    // The period is held against a lock or a close until the send commits: a send is judged on a state that cannot change under it.
+    const period = await this.find(tx, periodId, 'share');
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const reopen = period.status === 'LOCKED' ? await this.openWindow(tx, periodId, projectId, at) : null;
     if (period.status === 'LOCKED' && reopen === null) throw new DomainError('PERIOD_LOCKED', 409);

@@ -134,6 +134,12 @@ export function deltaOf(previousVnd: string | null, currentVnd: string): string 
   return previousVnd === null ? null : (BigInt(currentVnd) - BigInt(previousVnd)).toString();
 }
 
+/** What the period added in all: the sum of the changes of the cells that have a period before them, or none when no cell has one (nothing to compare with is not zero). A fall is kept as it is. */
+export function periodDeltaOf(deltas: ReadonlyArray<string | null>): string | null {
+  const known = deltas.flatMap((delta) => (delta === null ? [] : [BigInt(delta)]));
+  return known.length === 0 ? null : known.reduce((total, delta) => total + delta, 0n).toString();
+}
+
 /** The draft as it is hashed: the identity of the report, the basis, the cells in the order of the form, the explanation of a fall, the volumes, the narrative and the files attached. */
 export interface DraftContent {
   projectId: string;
@@ -148,7 +154,7 @@ export interface DraftContent {
   attachments: readonly AttachmentRef[];
 }
 
-/** SHA-256 of the canonical content of a draft: the same entries in any order give the same hash, so that a replay is recognised and a change is not missed. */
+/** SHA-256 of the canonical content of a draft (the source year of a cell is not in it: it is read from the allocation, so what a save wrote and what is stored hash the same): the same entries in any order give the same hash, so that a replay is recognised and a change is not missed. */
 export function draftHash(content: DraftContent): string {
   return payloadSha256({
     project_id: content.projectId.toLowerCase(),
@@ -167,7 +173,6 @@ export function draftHash(content: DraftContent): string {
       ctmtqg_subset_vnd: cell.ctmtqgVnd,
       next_month_vnd: cell.nextMonthVnd,
       next_month_ctmtqg_subset_vnd: cell.nextMonthCtmtqgVnd,
-      source_year: cell.sourceYear,
     })),
   });
 }

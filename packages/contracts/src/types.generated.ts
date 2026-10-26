@@ -21018,6 +21018,27 @@ export interface components {
             content_type: string;
             size_bytes: number;
         };
+        /** @description The report that was handed in: the status SUBMITTED and the version it moved to, the time the server took, whether it was late by the calendar of its period, the SHA-256 of what it held, what the period added in all (negative when the cumulative fell, never forced to zero; null when no cell has a period before) and the warnings of the review (they do not block). */
+        DisReportSubmitResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            is_late: boolean;
+            /** Format: date-time */
+            submitted_at: string;
+            payload_hash: string;
+            period_delta_vnd: components["schemas"]["Money"] | null;
+            warnings: {
+                code: string;
+                field: string;
+                values: {
+                    [key: string]: string | null;
+                };
+            }[];
+        };
     };
     responses: never;
     parameters: never;
@@ -21244,13 +21265,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Command accepted; returns resource id/version/status */
+            /** @description The report was handed in */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["DisReportSubmitResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

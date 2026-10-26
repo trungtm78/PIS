@@ -578,6 +578,52 @@ export class DisReportStore {
     return Number(found.n) === 0 ? undefined : { totalVnd: found.total, transactions: Number(found.n) };
   }
 
+  /** The hash of the content a draft holds now, as a save seals it: the identity of the report, the basis, the six cells, the explanation, the volumes, the notes and the files. */
+  hashOf(detail: RevisionDetail): string {
+    return draftHash({
+      projectId: detail.projectId,
+      periodId: detail.periodId,
+      planVersionId: detail.planVersionId,
+      reportType: detail.reportType,
+      measurementBasis: detail.measurementBasis,
+      cells: detail.lines.map((line) => ({
+        bucket: line.bucket,
+        budgetLevel: line.budgetLevel,
+        cumulativeVnd: line.cumulativeVnd,
+        ctmtqgVnd: line.ctmtqgVnd,
+        nextMonthVnd: line.nextMonthVnd,
+        nextMonthCtmtqgVnd: line.nextMonthCtmtqgVnd,
+        sourceYear: line.sourceYear,
+      })),
+      negativeDeltaExplanation: detail.negativeDeltaExplanation,
+      progress: detail.progress === null ? null : { constructionVnd: detail.progress.constructionVnd, acceptanceVnd: detail.progress.acceptanceVnd, treasurySubmittedVnd: detail.progress.treasurySubmittedVnd, preparingDossierVnd: detail.progress.preparingDossierVnd, physicalProgressPct: detail.progress.physicalProgressPct },
+      narrative: detail.narrative,
+      attachments: detail.attachments,
+    });
+  }
+
+  /** The approval workflow of the review that is published for a kind of business, newest revision first; undefined when none is (the report then goes without one). */
+  async workflowVersionFor(tx: TenantTx, businessType: string): Promise<string | undefined> {
+    const [row] = await tx.query<{ id: string }>("select id from machvon.workflow_version where business_type = $1 and kind = 'APPROVAL' and status = 'Published' order by revision desc, id limit 1", [businessType]);
+    return row?.id;
+  }
+
+  /**
+   * Hands a live draft in: SUBMITTED, with who did it, the time the server took, whether it was late by the calendar of its period, the hash of what it holds and the workflow it goes through; the
+   * version moves once. The report stays not current until the review accepts it.
+   */
+  async submit(tx: TenantTx, head: RevisionHead, input: { actor: string; at: Date; late: boolean; payloadHash: string; workflowVersionId: string | undefined }): Promise<{ version: number }> {
+    this.assertEditable(head);
+    const [updated] = await tx.query<{ version: string }>(
+      `update machvon.report_revision
+          set status = 'SUBMITTED', submitted_by = $2::uuid, submitted_at = $3::timestamptz, is_late = $4, payload_hash = $5, workflow_version_id = $6::uuid, updated_at = now(), updated_by = $2::uuid, version = version + 1
+        where id = $1::uuid and status = 'DRAFT' and deleted_at is null returning version::text as version`,
+      [head.id, input.actor, input.at.toISOString(), input.late, input.payloadHash, input.workflowVersionId ?? null],
+    );
+    if (updated === undefined) throw new DomainError('REVISION_IMMUTABLE', 409, 'status', { extensions: { report_status: head.status } });
+    return { version: Number(updated.version) };
+  }
+
   /** One report in the scope of the caller with its project, its period, its plan version and its cells; undefined when it does not exist or lies outside the scope. */
   async find(tx: TenantTx, id: string, seen: ScopeBuilder): Promise<RevisionDetail | undefined> {
     const visible = seen(2);

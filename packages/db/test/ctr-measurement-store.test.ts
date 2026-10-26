@@ -11,6 +11,7 @@ import { CtrRevisionEffective } from '../src/ctr-revision-effective';
 import { PmtGateStore } from '../src/pmt-gate-store';
 import type { TenantTx } from '../src/tenant-database';
 import { TENANT_A, contextFor, id, memberId } from './support/authz-fixtures';
+import { completeContract } from './support/contract-fixtures';
 import { everything, seedAs } from './support/bid-proposal-fixtures';
 import { CapWorld } from './support/cap-fixtures';
 
@@ -126,12 +127,17 @@ async function seedContract(status = 'ACTIVE', category = 'CONSTRUCTION'): Promi
 }
 
 /** The contract in another status; a suspended or terminated one says why and on which document, as the lifecycle commands do. */
-const setStatus = (contractId: string, status: string) =>
-  owner(
+const setStatus = async (contractId: string, status: string): Promise<void> => {
+  if (status === 'COMPLETED') {
+    await completeContract(harness.database.adminUrl, contractId, memberId(RECORDER));
+    return;
+  }
+  await owner(
     `update machvon.contract set status = $2::text, status_reason = case when $2::text in ('SUSPENDED', 'TERMINATED') then 'Stopped.' end,
             status_decision_document_version_id = case when $2::text in ('SUSPENDED', 'TERMINATED') then $3::uuid end where id = $1::uuid`,
     [contractId, status, VERSION],
   );
+};
 
 async function seedPeriods(count: number): Promise<void> {
   for (let n = 0; n < count; n += 1) {

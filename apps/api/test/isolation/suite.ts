@@ -445,6 +445,12 @@ export const PERIOD_FIXTURES: Readonly<Record<TenantName, { id: string; code: st
   'TNT-B': { id: '00000000-0000-4000-b0b5-000000000001', code: 'BETA-PERIOD-0001' },
 };
 
+/** The reporting calendar each period of the fixtures is bound to: a period is judged late by the version it was generated from, so a send needs that version to exist. */
+export const PERIOD_CALENDAR_FIXTURES: Readonly<Record<TenantName, { recordId: string; versionId: string }>> = {
+  'TNT-A': { recordId: '00000000-0000-4000-a0b5-000000000002', versionId: '00000000-0000-4000-a0b5-000000000003' },
+  'TNT-B': { recordId: '00000000-0000-4000-b0b5-000000000002', versionId: '00000000-0000-4000-b0b5-000000000003' },
+};
+
 /** A LOCKED reporting period of each tenant and a request to reopen it that waits for a decision (the reason of the request is distinctive: it is internal to the tenant). */
 export const REOPEN_FIXTURES: Readonly<Record<TenantName, { periodId: string; periodCode: string; id: string; reason: string }>> = {
   'TNT-A': { periodId: '00000000-0000-4000-a0b6-000000000001', periodCode: 'ALPHA-PERIOD-0002', id: '00000000-0000-4000-a0b7-000000000001', reason: 'Alpha tenant request to reopen the locked period 0001' },
