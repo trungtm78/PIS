@@ -105,6 +105,8 @@ export { RoleStore } from './role-store.ts';
 export type { GrantPage, GrantReach, GrantRow, GuestContractIssue, MembershipRow, NewCustomRole, NewGrant, ResolvedScope, RolePage, RolePageAnchor, RoleRow, ScopeKind } from './role-store.ts';
 export { MyAccessStore } from './my-access-store.ts';
 export type { MyDelegation, MyGrant, ScopeUnit } from './my-access-store.ts';
+export { GuestAccessStore } from './guest-access-store.ts';
+export type { GuestAccessChange, GuestGrantChange } from './guest-access-store.ts';
 export { MemberStore } from './member-store.ts';
 export type { ContractReach, ContractSummary, DirectoryDetail, InvitationRecord, InvitationStatus, MemberRecord, MembershipStatus, NewInvitation, NewInvitedMember, SeatLimits, UnitRecord } from './member-store.ts';
 export { ControlDatabase, PLATFORM_TENANT_ID } from './control-database.ts';

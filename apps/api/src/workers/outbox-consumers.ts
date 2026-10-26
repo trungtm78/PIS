@@ -9,6 +9,7 @@ import { ISS_INTAKE_CONSUMER, IssIntakeConsumer } from '../modules/iss/intake.co
 import { PlanPublishedConsumer, PRJ_PLAN_PUBLISHED_CONSUMER } from '../modules/prj/plan-published.consumer';
 import { AcceptanceLedgerConsumer, PAY_ACCEPTANCE_LEDGER_CONSUMER } from '../modules/pay/acceptance-ledger.consumer';
 import { CAP_PAYMENT_LEDGER_CONSUMER, PaymentLedgerConsumer } from '../modules/cap/payment-ledger.consumer';
+import { ADM_GUEST_CONTRACT_CONSUMER, GuestContractClosedConsumer } from '../modules/adm/guest-contract-closed.consumer';
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
 import { ControlEventTypeCatalog, PayloadValidator } from '../notifications/payload-validator';
@@ -74,6 +75,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
   const paymentLedger = new PaymentLedgerConsumer({ database: tenants, security });
   const issIntake = new IssIntakeConsumer({ database: tenants, security });
   const snapshotFrozen = new SnapshotFrozenConsumer({ database: tenants, security });
+  const guestContracts = new GuestContractClosedConsumer({ database: tenants, security });
   return [
     { name: PROVISIONING_CONSUMER, handle: (delivery) => deps.provisioning.handle(delivery) },
     { name: ENTITLEMENT_CONSUMER, handle: (delivery) => entitlements.handle(delivery) },
@@ -83,6 +85,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: CAP_PAYMENT_LEDGER_CONSUMER, handle: (delivery) => paymentLedger.handle(delivery) },
     { name: ISS_INTAKE_CONSUMER, handle: (delivery) => issIntake.handle(delivery) },
     { name: DGV_SNAPSHOT_FROZEN_CONSUMER, handle: (delivery) => snapshotFrozen.handle(delivery) },
+    { name: ADM_GUEST_CONTRACT_CONSUMER, handle: (delivery) => guestContracts.handle(delivery) },
     ...(deps.docIssue === undefined ? [] : [deps.docIssue]),
     new RegisteredEventConsumer(NOTIFICATION_CONSUMER, catalog, { name: NOTIFICATION_CONSUMER, handle: (delivery) => notifications.handle(delivery) }),
   ];
