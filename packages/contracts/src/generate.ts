@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import type { OpenAPI3 } from 'openapi-typescript';
 import { DART_COMMANDS_FILE, DART_OPERATIONS_FILE, DART_REQUESTS_FILE, generateDart } from './generate-dart.ts';
+import { DART_RESPONSES_FILE, DART_RESPONSE_FIXTURES_FILE } from './generate-dart-responses.ts';
 import { REQUEST_SCHEMAS_FILE, generateRequestSchemas, renderRequestSchemasModule } from './generate-validators.ts';
 import { lintOpenApi } from './lint-openapi.ts';
 import { listOperations } from './openapi-document.ts';
@@ -194,6 +195,9 @@ export async function main(argv: string[], io: Io = stdoutIo): Promise<number> {
       { directory, name: DART_OPERATIONS_FILE, content: dart.operations },
       { directory, name: DART_REQUESTS_FILE, content: dart.requests },
       { directory, name: DART_COMMANDS_FILE, content: dart.commands },
+      { directory, name: DART_RESPONSES_FILE, content: dart.responses },
+      // The package keeps its test data beside its tests: lib/src is two levels below the package root.
+      { directory: resolve(directory, '..', '..', 'test', 'fixtures'), name: DART_RESPONSE_FIXTURES_FILE, content: dart.responseFixtures },
     );
   }
   if (!values.check) {

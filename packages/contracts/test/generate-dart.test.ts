@@ -1,4 +1,6 @@
 import { generateDart } from '../src/generate-dart';
+import type { DartFiles } from '../src/generate-dart';
+import { listOperations } from '../src/openapi-document';
 import type { OpenApiDocument } from '../src/openapi-document';
 import { OPERATIONS } from '../src/operations.generated';
 import { documentWith, jsonResponse, loadRealDocument } from './fixtures';
@@ -154,8 +156,13 @@ describe('generateDart on the real contract', () => {
     const descriptors = real.operations.match(/OperationDescriptor\(method:/g) ?? [];
     expect(descriptors).toHaveLength(Object.keys(OPERATIONS).length);
     const methods = real.commands.match(/^ {2}Future<Object\?> /gm) ?? [];
-    expect(methods.length).toBeGreaterThan(Object.keys(OPERATIONS).length - 7);
-    expect(methods.length).toBeLessThan(Object.keys(OPERATIONS).length);
+    // A body that is not offered as JSON (a file upload) has no typed method: the table says which operations those are.
+    const uploads = listOperations(loadRealDocument()).filter((entry) => {
+      const body = (entry.operation as { requestBody?: { content?: Record<string, unknown> } }).requestBody;
+      return body !== undefined && body.content?.['application/json'] === undefined;
+    });
+    expect(uploads.length).toBeGreaterThan(0);
+    expect(methods).toHaveLength(Object.keys(OPERATIONS).length - uploads.length);
   });
 
   it('maps a known request body to a typed class', () => {
@@ -168,5 +175,159 @@ describe('generateDart on the real contract', () => {
     const names = [...real.requests.matchAll(/^final class (\w+) implements RequestModel/gm)].map((match) => match[1]);
     expect(new Set(names).size).toBe(names.length);
     expect(names.length).toBeGreaterThan(300);
+  });
+});
+
+describe('generateDart: the response classes and the sample responses (AC-ST-KERNEL-030-2)', () => {
+  const ITEM = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['id', 'version'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      version: { type: 'integer', minimum: 1 },
+      label: { type: ['string', 'null'] },
+      status: { type: 'string', enum: ['OPEN', 'CLOSED'] },
+      tags: { type: 'array', items: { type: 'string' } },
+      scores: { type: 'object', additionalProperties: { type: 'integer' } },
+      note: { type: 'string', nullable: true },
+      owner: { $ref: '#/components/schemas/Owner' },
+      history: { type: 'array', items: { $ref: '#/components/schemas/Owner' } },
+      detail: { type: 'object', required: ['street'], properties: { street: { type: 'string' }, 'zip-code': { type: 'string' } } },
+      choice: { oneOf: [{ type: 'string' }, { type: 'integer' }] },
+      free: { type: 'object' },
+      when: { type: 'string', format: 'date-time' },
+      class: { type: 'string' },
+      extra: { type: 'string' },
+      parent: { $ref: '#/components/schemas/Item' },
+    },
+  };
+  const PAGE = { type: 'object', required: ['items', 'next_cursor'], properties: { items: { type: 'array', items: { $ref: '#/components/schemas/Item' } }, next_cursor: { type: ['string', 'null'] } } };
+  const MERGED = { allOf: [{ $ref: '#/components/schemas/Owner' }, { type: 'object', required: ['since'], properties: { since: { type: 'string', format: 'date' } } }] };
+  const OWNER = { type: 'object', required: ['id'], properties: { id: { type: 'string' }, label: { type: 'string' } } };
+
+  function responses(): DartFiles {
+    return generateDart(
+      documentWith(
+        {
+          '/items': {
+            get: { operationId: 'listItems', 'x-permission': 'item.read', responses: jsonResponse({ $ref: '#/components/schemas/Page' }) },
+            post: { operationId: 'createItem', 'x-permission': 'item.write', responses: { '201': { description: 'created', content: { 'application/json': { schema: { $ref: '#/components/schemas/Item' } } } } } },
+          },
+          '/items/{id}/owner': { get: { operationId: 'getOwner', 'x-permission': 'item.read', responses: jsonResponse({ $ref: '#/components/schemas/Merged' }) } },
+          '/items/names': { get: { operationId: 'listNames', 'x-permission': 'item.read', responses: jsonResponse({ type: 'array', items: { type: 'string' } }) } },
+          '/items/inline': { get: { operationId: 'getInline', 'x-permission': 'item.read', responses: jsonResponse({ type: 'object', required: ['count'], properties: { count: { type: 'integer' } } }) } },
+          '/items/nothing': { delete: { operationId: 'deleteItem', 'x-permission': 'item.write', responses: { '204': { description: 'gone' } } } },
+          '/items/text': { get: { operationId: 'getText', 'x-permission': 'item.read', responses: { '200': { description: 'ok', content: { 'text/plain': { schema: { type: 'string' } } } } } } },
+        },
+        { Item: ITEM, Page: PAGE, Merged: MERGED, Owner: OWNER },
+      ),
+    );
+  }
+
+  it('reads each response strictly: required members, nullable and optional members, lists and maps, and closes an object that the contract closes', () => {
+    const text = responses().responses;
+    expect(text).toContain('final class ItemResponse implements ResponseModel');
+    expect(text).toContain("id: requiredField(map, path, 'id', asString),");
+    expect(text).toContain("version: requiredField(map, path, 'version', asInt),");
+    expect(text).toContain("label: optionalField(map, path, 'label', nullable(asString)),");
+    expect(text).toContain("tags: optionalField(map, path, 'tags', asList(asString)),");
+    expect(text).toContain("scores: optionalField(map, path, 'scores', asMap(asInt)),");
+    expect(text).toContain("owner: optionalField(map, path, 'owner', OwnerResponse.fromJson),");
+    expect(text).toContain("history: optionalField(map, path, 'history', asList(OwnerResponse.fromJson)),");
+    expect(text).toContain("choice: optionalField(map, path, 'choice', asAny),");
+    expect(text).toContain("free: optionalField(map, path, 'free', asObject),");
+    expect(text).toContain("parent: optionalField(map, path, 'parent', ItemResponse.fromJson),");
+    expect(text).toContain("strict: true),");
+    expect(text).toContain("strict: false),");
+  });
+
+  it('names a nested object after its owner, avoids reserved words and a member called extra, and keeps the wire names when writing back', () => {
+    const text = responses().responses;
+    expect(text).toContain('final class ItemResponseDetail implements ResponseModel');
+    expect(text).toContain("'zip-code'");
+    expect(text).toContain('final String? class_;');
+    expect(text).toContain('final String? extra_;');
+    expect(text).toContain("if (class_ != null) 'class': class_,");
+    expect(text).toContain("'id': id,");
+    expect(text).toContain("if (owner != null) 'owner': owner!.toJson(),");
+    expect(text).toContain("if (history != null) 'history': history!.map((e0) => e0.toJson()).toList(),");
+    expect(text).toContain('...extra,');
+  });
+
+  it('gives each operation with a JSON answer a decoder, whichever 2xx it answers with, and none to the others', () => {
+    const text = responses().responses;
+    expect(text).toContain("'listItems': PageResponse.fromJson,");
+    expect(text).toContain("'createItem': ItemResponse.fromJson,");
+    expect(text).toContain("'getOwner': MergedResponse.fromJson,");
+    expect(text).toContain("'listNames': asList(asString),");
+    expect(text).toContain("'getInline': GetInlineResponse.fromJson,");
+    expect(text).not.toContain("'deleteItem'");
+    expect(text).not.toContain("'getText'");
+  });
+
+  it('merges the parts of an allOf into one class', () => {
+    const text = responses().responses;
+    expect(text).toMatch(/final class MergedResponse implements ResponseModel \{\s*const MergedResponse\(\{\s*required this\.id,\s*required this\.since,/);
+  });
+
+  it('writes one sample response for each operation that satisfies the contract, with every member and the simplest value of its type', () => {
+    const fixtures = JSON.parse(responses().responseFixtures) as Record<string, Record<string, unknown>>;
+    expect(Object.keys(fixtures)).toEqual(['createItem', 'getInline', 'getOwner', 'listItems', 'listNames']);
+    expect(fixtures.getInline).toEqual({ count: 1 });
+    expect(fixtures.listNames).toEqual(['sample']);
+    expect(fixtures.getOwner).toEqual({ id: 'sample', label: 'sample', since: '2026-01-01' });
+    const item = fixtures.createItem as Record<string, unknown>;
+    expect(item).toMatchObject({
+      id: '00000000-0000-4000-8000-000000000001',
+      version: 1,
+      label: 'sample',
+      status: 'OPEN',
+      tags: ['sample'],
+      scores: { key: 1 },
+      choice: 'sample',
+      free: {},
+      when: '2026-01-01T00:00:00Z',
+      detail: { street: 'sample', 'zip-code': 'sample' },
+    });
+    expect((fixtures.listItems as { items: unknown[] }).items).toHaveLength(1);
+  });
+
+  it('stops a schema that contains itself, and refuses a response class that would reuse a request class', () => {
+    const item = (responses().responseFixtures && JSON.parse(responses().responseFixtures)) as Record<string, { parent?: { parent?: unknown } }>;
+    let depth = 0;
+    for (let node: { parent?: unknown } | undefined = item.createItem; node !== undefined; node = node.parent as { parent?: unknown } | undefined) depth += 1;
+    expect(depth).toBeGreaterThan(1);
+    expect(depth).toBeLessThan(20);
+    const clash = documentWith(
+      {
+        '/units': {
+          post: {
+            operationId: 'createUnit',
+            'x-permission': 'unit.write',
+            requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/UnitResponse' } } } },
+            responses: jsonResponse({ $ref: '#/components/schemas/Unit' }),
+          },
+        },
+      },
+      { Unit: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } }, UnitResponse: { type: 'object', required: ['code'], properties: { code: { type: 'string' } } } },
+    );
+    expect(() => generateDart(clash)).toThrow('a response class would reuse the request class UnitResponse');
+  });
+
+  it('refuses two members that would get the same Dart name in a response', () => {
+    const clash = documentWith(
+      { '/units': { get: { operationId: 'getUnit', 'x-permission': 'unit.read', responses: jsonResponse({ $ref: '#/components/schemas/Unit' }) } } },
+      { Unit: { type: 'object', properties: { 'unit-id': { type: 'string' }, unit_id: { type: 'string' } } } },
+    );
+    expect(() => generateDart(clash)).toThrow('would both be named');
+  });
+
+  it('generates the real contract: a decoder and a sample for every operation that answers with JSON', () => {
+    const real = generateDart(loadRealDocument());
+    const fixtures = JSON.parse(real.responseFixtures) as Record<string, unknown>;
+    const decoders = [...real.responses.matchAll(/^ {2}'([^']+)': .+,$/gm)].map((match) => match[1]);
+    expect(Object.keys(fixtures).length).toBeGreaterThan(800);
+    expect(decoders.sort()).toEqual(Object.keys(fixtures).sort());
   });
 });
