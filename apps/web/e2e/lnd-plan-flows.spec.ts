@@ -152,7 +152,7 @@ test.describe('LND-05: the plans of compensation, support and resettlement', () 
     expect(item).toEqual({ amount: '360000000', price_decision_ref: DECISION, price_decision_revision: null });
 
     // The plan is posted (a later story's command, here its effect) and then revised: the new revision takes the items and the earlier one stays readable as replaced.
-    await sql("update machvon.compensation_plan set status = 'POSTING', posting_started_on = date '2026-10-01', posting_ends_on = date '2026-10-31' where id = $1", [plan?.id]);
+    await sql("update machvon.compensation_plan set status = 'POSTING', posting_started_on = date '2026-10-01', posting_ends_on = date '2026-10-31', posting_place_text = 'Commune office', timer_rule_version_id = gen_random_uuid() where id = $1", [plan?.id]);
     await open(page, 'landPlanWriter', aim);
     await expect(page.locator('[data-plan-id]').first().getByRole('button', { name: vi['lnd.plans.items.action'] })).toHaveCount(0);
     await page.locator('[data-plan-id]').first().getByRole('button', { name: vi['lnd.plans.revise.action'] }).click();

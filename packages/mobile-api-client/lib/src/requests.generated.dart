@@ -6552,6 +6552,19 @@ final class LndHandleHouseholdDataRequest implements RequestModel {
       };
 }
 
+final class LndHandlePlanFeedback implements RequestModel {
+  const LndHandlePlanFeedback({
+    required this.handlingNote,
+  });
+
+  final String handlingNote;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'handling_note': handlingNote,
+      };
+}
+
 final class LndImportLandParcels implements RequestModel {
   const LndImportLandParcels({
     required this.projectId,

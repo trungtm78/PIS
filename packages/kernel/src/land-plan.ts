@@ -39,6 +39,23 @@ export const acceptsItems = (status: PlanStatus): boolean => status === 'DRAFT';
 export const REVISABLE_STATUSES: readonly PlanStatus[] = ['POSTING', 'POSTING_CLOSED', 'APPROVED'];
 export const canRevise = (status: PlanStatus): boolean => REVISABLE_STATUSES.includes(status);
 
+/** The ways an opinion reaches the officer while a plan is posted (the opinions of the households and of the community, LND 3.1 step 5). */
+export const FEEDBACK_CHANNELS = ['IN_PERSON', 'LETTER', 'PORTAL', 'MEETING'] as const;
+export type FeedbackChannel = (typeof FEEDBACK_CHANNELS)[number];
+
+/** An opinion is open until an officer handles it, and a handled opinion is final. */
+export const FEEDBACK_STATUSES = ['OPEN', 'HANDLED'] as const;
+export type FeedbackStatus = (typeof FEEDBACK_STATUSES)[number];
+
+/** A plan is posted to the households from a draft with something in it. */
+export const canPost = (status: PlanStatus): boolean => status === 'DRAFT';
+
+/** Opinions are recorded while the plan is posted and not after: the households were given the period to speak, and what comes later is a complaint. */
+export const acceptsFeedback = (status: PlanStatus): boolean => status === 'POSTING';
+
+/** Opinions are handled while the plan is posted and after its posting closed, until it is approved: approval waits for the last one. */
+export const acceptsFeedbackHandling = (status: PlanStatus): boolean => status === 'POSTING' || status === 'POSTING_CLOSED';
+
 /** An amount in whole dong (422 `VALIDATION_FAILED`, the field named). */
 export function normalizeAmount(value: string, field: string): string {
   const amount = value.trim();

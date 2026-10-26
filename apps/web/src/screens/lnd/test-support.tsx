@@ -137,8 +137,11 @@ export const planRecord = (n: number, overrides: Record<string, unknown> = {}) =
   status: 'DRAFT',
   posting_started_on: null,
   posting_ends_on: null,
+  posting_place_text: null,
+  feedback_summary: null,
   approved_on: null,
   payment_due_on: null,
+  decision_document_version_id: null,
   version: 1,
   ...overrides,
 });
@@ -164,6 +167,54 @@ export const planItemRecord = (n: number, planId: string, overrides: Record<stri
   ...overrides,
 });
 
+/** An opinion on a posted plan as the list answers it. */
+export const feedbackRecord = (n: number, planId: string, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0070', n),
+  plan_id: planId,
+  household_id: uuid('0030', 1),
+  household_code: 'HH-000001',
+  owner_unit_id: UNIT_XA,
+  channel: 'MEETING',
+  summary: 'Giá nhà quá thấp',
+  status: 'OPEN',
+  recorded_on: '2026-08-05',
+  handled_on: null,
+  handling_note: null,
+  version: 1,
+  ...overrides,
+});
+
+/** The timers of a plan as the read answers them. */
+export const timersRecord = (planId: string, overrides: Record<string, unknown> = {}) => ({
+  plan_id: planId,
+  project_id: PROJECT,
+  status: 'POSTING',
+  posting_started_on: '2026-08-01',
+  posting_ends_on: '2026-08-31',
+  approved_on: null,
+  payment_due_on: null,
+  payment_remaining_days: null,
+  feedback_open: 0,
+  feedback_handled: 0,
+  deadlines: [
+    {
+      id: uuid('0020', 2),
+      timer_code: 'PLAN_POSTING_30',
+      days_applied: 30,
+      started_on: '2026-08-01',
+      due_on: '2026-08-31',
+      satisfied_on: null,
+      status: 'RUNNING',
+      remaining_days: 30,
+      legal_basis: 'Luật Đất đai 2024 và Nghị định 88/2024/NĐ-CP — số ngày chờ xác nhận văn bản gốc [CXN-12]',
+      awaiting_confirmation: true,
+      cxn: 'CXN-12',
+    },
+  ],
+  as_of: '2026-08-01T00:00:00.000Z',
+  ...overrides,
+});
+
 export const deadline = (overrides: Record<string, unknown> = {}) => ({
   id: uuid('0020', 1),
   timer_code: 'NOTICE_AGRICULTURAL_90',
@@ -185,6 +236,9 @@ export interface World {
   inventory: Array<Record<string, unknown>>;
   plans: Array<Record<string, unknown>>;
   planItems: Array<Record<string, unknown>>;
+  /** The opinions on the plans, and the timers of a plan by its id. */
+  feedback: Array<Record<string, unknown>>;
+  timers: Record<string, Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
   contracts: Array<Record<string, unknown>>;
@@ -203,6 +257,8 @@ export function world(overrides: Partial<World> = {}): World {
     inventory: [],
     plans: [],
     planItems: [],
+    feedback: [],
+    timers: {},
     sections: [{ id: SECTION, code: 'KM-0-3', name: 'Km 0 đến km 3' }],
     units: [
       { id: UNIT_XA, code: 'XA1', name: 'UBND xã An Phú' },
@@ -216,7 +272,11 @@ export function world(overrides: Partial<World> = {}): World {
 
 /** A client over `state`: every read is answered from it, and `command(operation, input)` answers the commands. */
 export function client(state: World, command: (operation: string, input: unknown) => unknown = () => ({}), answer: (operation: string, input: unknown) => unknown = () => new Error('unexpected read')): Harness {
-  const h = baseHarness(answer, command);
+  const reads = (operation: string, input: unknown): unknown => {
+    if (operation !== 'getCompensationPlanTimers') return answer(operation, input);
+    return state.timers[(input as { path: { id: string } }).path.id] ?? new Error('no timers');
+  };
+  const h = baseHarness(reads, command);
   (h.client as unknown as { readAll: (operation: string, input?: { query?: Record<string, string>; path?: Record<string, string> }) => Promise<unknown[]> }).readAll = vi.fn(
     (operation: string, input?: { query?: Record<string, string>; path?: Record<string, string> }) => {
       if (state.failing.has(operation)) return Promise.reject(new Error(`${operation} failed`));
@@ -233,6 +293,8 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.plans.filter((item) => item.project_id === input?.query?.project_id));
         case 'listCompensationPlanItems':
           return Promise.resolve(state.planItems.filter((item) => item.plan_id === input?.path?.id));
+        case 'listPlanFeedback':
+          return Promise.resolve(state.feedback.filter((item) => item.plan_id === input?.path?.id));
         case 'listLandSections':
           return Promise.resolve(state.sections);
         case 'get_resources_organization_unit':

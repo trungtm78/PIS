@@ -532,10 +532,15 @@ export {
   MAX_ITEMS_PER_COMMAND,
   PLAN_EXECUTOR_KINDS,
   PLAN_ITEM_KINDS,
+  FEEDBACK_CHANNELS,
+  FEEDBACK_STATUSES,
   PLAN_STATUSES,
   PLAN_TOTAL_GROUPS,
   REVISABLE_STATUSES,
+  acceptsFeedback,
+  acceptsFeedbackHandling,
   acceptsItems,
+  canPost,
   canRevise,
   compensationKindOf,
   normalizeAmount,
@@ -543,4 +548,4 @@ export {
   totalGroupOf,
   totalsOf,
 } from './land-plan.ts';
-export type { PlanExecutorKind, PlanItemKind, PlanStatus, PlanTotalGroup, PlanTotals } from './land-plan.ts';
+export type { FeedbackChannel, FeedbackStatus, PlanExecutorKind, PlanItemKind, PlanStatus, PlanTotalGroup, PlanTotals } from './land-plan.ts';

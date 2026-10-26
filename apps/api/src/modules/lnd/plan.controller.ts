@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { LndLandSource, LndPlanStore, TenantDatabase, householdScopeUnits, projectScope } from '@machvon/db';
-import type { CompensationPlanLine, PlanItemLine } from '@machvon/db';
+import type { CompensationPlanLine, PlanItemLine, TenantTx } from '@machvon/db';
 import { DomainError, asUuid } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -41,8 +41,11 @@ export function planLineView(line: CompensationPlanLine): Record<string, unknown
     status: line.status,
     posting_started_on: line.postingStartedOn,
     posting_ends_on: line.postingEndsOn,
+    posting_place_text: line.postingPlaceText,
+    feedback_summary: line.feedbackSummary,
     approved_on: line.approvedOn,
     payment_due_on: line.paymentDueOn,
+    decision_document_version_id: line.decisionDocumentVersionId,
     version: line.version,
   };
 }
@@ -67,6 +70,15 @@ export function planItemView(line: PlanItemLine): Record<string, unknown> {
     price_decision_revision: line.priceDecisionRevision,
     legal_basis: line.legalBasis,
   };
+}
+
+/** The plan has to exist for the caller (they see its project) and they need the right asked for: a plan they cannot see is 404, one they see and may not act on is 403. */
+export async function mayActOnPlan(tx: TenantTx, plans: LndPlanStore, source: LndLandSource, access: EffectiveAccess, planId: string, permission: string, now: Date): Promise<void> {
+  const place = await plans.place(tx, planId);
+  const project = place === undefined ? undefined : await source.projectRef(tx, place.projectId);
+  const refs = project === undefined ? [] : projectRefs(project);
+  if (place === undefined || project === undefined || !SEEING_PERMISSIONS.some((seeing) => reaches(access, seeing, refs, now))) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+  if (!reaches(access, permission, refs, now)) throw new DomainError('SCOPE_DENIED', 403);
 }
 
 const record = (value: unknown): Record<string, unknown> => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : {});
@@ -232,13 +244,8 @@ export class CompensationPlanController {
     return commandResult(scope, 'DRAFT', 1, done.id);
   }
 
-  /** The plan has to exist for the caller (they see its project) and they need the right to write: a plan they cannot see is 404, one they see and may not write to is 403. */
-  private async mayWrite(scope: CommandScope, access: EffectiveAccess, planId: string, now: Date): Promise<void> {
-    const place = await this.plans.place(scope.tx, planId);
-    const project = place === undefined ? undefined : await this.source.projectRef(scope.tx, place.projectId);
-    const refs = project === undefined ? [] : projectRefs(project);
-    if (place === undefined || project === undefined || !SEEING_PERMISSIONS.some((permission) => reaches(access, permission, refs, now))) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    if (!reaches(access, WRITE_PERMISSION, refs, now)) throw new DomainError('SCOPE_DENIED', 403);
+  private mayWrite(scope: CommandScope, access: EffectiveAccess, planId: string, now: Date): Promise<void> {
+    return mayActOnPlan(scope.tx, this.plans, this.source, access, planId, WRITE_PERMISSION, now);
   }
 }
 

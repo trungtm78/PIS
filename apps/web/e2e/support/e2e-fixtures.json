@@ -2174,6 +2174,18 @@
       ]
     },
     {
+      "key": "landPlanApprover",
+      "displayName": "Người phê duyệt phương án bồi thường",
+      "membershipId": "00000000-0000-4000-8000-000000000866",
+      "permissions": [
+        "land.plan.approve",
+        "land.read",
+        "project.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "householdDpo",
       "displayName": "Cán bộ bảo vệ dữ liệu cá nhân",
       "membershipId": "00000000-0000-4000-8000-000000000861",

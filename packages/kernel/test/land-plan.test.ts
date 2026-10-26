@@ -6,8 +6,13 @@ import {
   PLAN_ITEM_KINDS,
   PLAN_STATUSES,
   PLAN_TOTAL_GROUPS,
+  FEEDBACK_CHANNELS,
+  FEEDBACK_STATUSES,
   REVISABLE_STATUSES,
+  acceptsFeedback,
+  acceptsFeedbackHandling,
   acceptsItems,
+  canPost,
   canRevise,
   compensationKindOf,
   normalizeAmount,
@@ -68,5 +73,13 @@ describe('the plan of compensation, support and resettlement (BR-LND-05)', () =>
       ]),
     ).toEqual({ compensation: '363750000', support: '10000001', resettlement: '99999999999999999999999', grand: (363750000n + 10000001n + 99999999999999999999999n).toString() });
     expect(totalsOf([])).toEqual({ compensation: '0', support: '0', resettlement: '0', grand: '0' });
+  });
+
+  it('posts a draft, takes opinions while the plan is posted and handles them until it is approved', () => {
+    expect(PLAN_STATUSES.filter(canPost)).toEqual(['DRAFT']);
+    expect(PLAN_STATUSES.filter(acceptsFeedback)).toEqual(['POSTING']);
+    expect(PLAN_STATUSES.filter(acceptsFeedbackHandling)).toEqual(['POSTING', 'POSTING_CLOSED']);
+    expect(FEEDBACK_CHANNELS).toEqual(['IN_PERSON', 'LETTER', 'PORTAL', 'MEETING']);
+    expect(FEEDBACK_STATUSES).toEqual(['OPEN', 'HANDLED']);
   });
 });

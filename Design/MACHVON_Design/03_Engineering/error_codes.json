@@ -1733,6 +1733,14 @@
       "statusBasis": "spec",
       "source": "spec:CAP"
     },
+    "FEEDBACK_ALREADY_HANDLED": {
+      "status": 409,
+      "title": "Feedback already handled",
+      "meaning": "The opinion of a household on a posted plan was handled once and a handled opinion is final (handlePlanFeedback, POST /compensation-plans/{id}/feedback/{feedback_id}/handle)",
+      "module": "LND",
+      "statusBasis": "default",
+      "source": "spec:LND"
+    },
     "FEATURE_UNKNOWN": {
       "status": 422,
       "title": "Feature unknown",
@@ -3210,6 +3218,14 @@
       "module": "CAP",
       "statusBasis": "spec",
       "source": "spec:CAP"
+    },
+    "PLAN_HAS_NO_ITEMS": {
+      "status": 422,
+      "title": "Plan has no items",
+      "meaning": "A plan with no amount in it is not posted to the households (postCompensationPlan, POST /compensation-plans/{id}/post)",
+      "module": "LND",
+      "statusBasis": "default",
+      "source": "spec:LND"
     },
     "PLAN_INVALID": {
       "status": 422,

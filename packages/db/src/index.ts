@@ -816,3 +816,5 @@ export { INVENTORY_OUTCOMES, LndInventoryStore, PRICE_DECISION_TYPE } from './ln
 export type { ConfirmedInventory, InventoryAnswer, InventoryFilter, InventoryLine, InventoryOutcome, NewInventory, RecordedInventory } from './lnd-inventory-store.ts';
 export { LndPlanStore } from './lnd-plan-store.ts';
 export type { AddedItem, AddedItems, CompensationPlanFilter, CompensationPlanLine, DraftedPlan, NewCompensationPlan, NewPlanItem, PlanItemLine, RevisedPlan } from './lnd-plan-store.ts';
+export { LndPlanPostingStore } from './lnd-plan-posting-store.ts';
+export type { ApprovedPlan, ClosedPosting, HandledFeedback, PlanFeedbackLine, PlanTimerLine, PlanTimers, PostedPlan, RecordedFeedback } from './lnd-plan-posting-store.ts';

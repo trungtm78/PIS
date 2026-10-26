@@ -51,6 +51,13 @@ export interface PlanLine {
   totalResettlementVnd: string;
   grandTotalVnd: string;
   status: PlanStatus;
+  postingStartedOn: string | null;
+  postingEndsOn: string | null;
+  postingPlaceText: string | null;
+  feedbackSummary: string | null;
+  approvedOn: string | null;
+  paymentDueOn: string | null;
+  decisionDocumentVersionId: string | null;
   version: number;
 }
 
@@ -85,6 +92,13 @@ export function toPlanLine(raw: unknown): PlanLine | undefined {
     totalResettlementVnd: resettlement,
     grandTotalVnd: grand,
     status,
+    postingStartedOn: nullableText(row.posting_started_on),
+    postingEndsOn: nullableText(row.posting_ends_on),
+    postingPlaceText: nullableText(row.posting_place_text),
+    feedbackSummary: nullableText(row.feedback_summary),
+    approvedOn: nullableText(row.approved_on),
+    paymentDueOn: nullableText(row.payment_due_on),
+    decisionDocumentVersionId: nullableText(row.decision_document_version_id),
     version,
   };
 }

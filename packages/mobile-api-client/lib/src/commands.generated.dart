@@ -1417,6 +1417,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> handleHouseholdDataRequest(LndHandleHouseholdDataRequest body, {required String id, CommandAttempt? attempt}) =>
       execute('handleHouseholdDataRequest', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
+  Future<Object?> handlePlanFeedback(LndHandlePlanFeedback body, {required String id, required String feedbackId, CommandAttempt? attempt}) =>
+      execute('handlePlanFeedback', path: <String, Object?>{'id': id, 'feedback_id': feedbackId}, body: body, attempt: attempt);
+
   Future<Object?> handoverDossierToArchive(DocDossierHandover body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('handoverDossierToArchive', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -1611,6 +1614,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listPeriodSnapshotLines({required String id, Map<String, Object?>? query}) =>
       execute('listPeriodSnapshotLines', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> listPlanFeedback({required String id, Map<String, Object?>? query}) =>
+      execute('listPlanFeedback', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> listPlanVersions({Map<String, Object?>? query}) =>
       execute('listPlanVersions', query: query);

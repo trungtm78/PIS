@@ -301,6 +301,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'revisePlan',
   'listCompensationPlans',
   'listCompensationPlanItems',
+  'postCompensationPlan',
+  'recordPlanFeedback',
+  'handlePlanFeedback',
+  'closePlanPosting',
+  'approveCompensationPlan',
+  'listPlanFeedback',
+  'getCompensationPlanTimers',
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
@@ -972,9 +979,19 @@ const INSERT_INVENTORY = `insert into machvon.land_inventory_record
 const INSERT_COMP_PLAN = `insert into machvon.compensation_plan
   (tenant_id, id, project_id, executor_unit_id, executor_kind, plan_code, status, created_by, updated_by, version)
   values ($1, $2, $3, $4, 'LAND_FUND_CENTRE', $5, 'DRAFT', $6, $6, 1) on conflict do nothing`;
+// The seed runs again on a database that has it: the item goes in while the plan is a draft, the plan is posted once.
 const INSERT_COMP_ITEM = `insert into machvon.compensation_plan_item
   (tenant_id, id, plan_id, household_id, owner_unit_id, item_kind, amount_vnd, legal_basis, created_by, updated_by, version)
-  values ($1, $2, $3, $4, $5, 'SUPPORT_LIVELIHOOD', 1000, 'Isolation fixture policy', $6, $6, 1) on conflict do nothing`;
+  select $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::uuid, 'SUPPORT_LIVELIHOOD', 1000, 'Isolation fixture policy', $6::uuid, $6::uuid, 1
+  where exists (select 1 from machvon.compensation_plan where id = $3::uuid and status = 'DRAFT') on conflict do nothing`;
+
+/** The plan is posted and has one opinion whose id is the id of the plan, so that the one id the foreign-id cases put in every path parameter names both. */
+const POST_COMP_PLAN = `update machvon.compensation_plan
+  set status = 'POSTING', posting_started_on = date '2026-10-01', posting_ends_on = date '2026-10-31', posting_place_text = 'Isolation fixture place', timer_rule_version_id = gen_random_uuid()
+  where id = $1 and status = 'DRAFT'`;
+const INSERT_COMP_FEEDBACK = `insert into machvon.compensation_plan_feedback
+  (tenant_id, id, plan_id, household_id, owner_unit_id, channel, summary, status, recorded_on, created_by, updated_by, version)
+  values ($1, $2, $2, $3, $4, 'LETTER', 'Isolation fixture opinion', 'OPEN', date '2026-10-02', $5, $5, 1) on conflict do nothing`;
 
 const INSERT_ACCOUNTABILITY = `insert into machvon.project_accountability
   (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
@@ -1107,6 +1124,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_COMP_PLAN, [tenantId, PLAN_COMP_FIXTURES[tenant].id, project.id, home, PLAN_COMP_FIXTURES[tenant].code, MEMBERSHIP_ID]);
     await client.query(INSERT_COMP_ITEM, [tenantId, PLAN_COMP_FIXTURES[tenant].itemId, PLAN_COMP_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, MEMBERSHIP_ID]);
     await client.query('update machvon.compensation_plan set total_support_vnd = 1000 where id = $1', [PLAN_COMP_FIXTURES[tenant].id]);
+    await client.query(POST_COMP_PLAN, [PLAN_COMP_FIXTURES[tenant].id]);
+    await client.query(INSERT_COMP_FEEDBACK, [tenantId, PLAN_COMP_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, MEMBERSHIP_ID]);
     await client.query(INSERT_INVENTORY, [tenantId, INVENTORY_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, PARCEL_FIXTURES[tenant].id, home, INVENTORY_FIXTURES[tenant].priceDecision, ACTOR_ID, MEMBERSHIP_ID]);
     const pack = PACKAGE_FIXTURES[tenant];
     await client.query(INSERT_PLANNED_PACKAGE, [tenantId, pack.id, project.id, pack.code, ACTOR_ID]);

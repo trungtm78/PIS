@@ -5,6 +5,15 @@
   align-items: end;
   margin-bottom: 12px;
 }
+.lnd-back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+.lnd-back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
 .lnd-badge {
   display: inline-block;
   padding: 2px 8px;

@@ -13,7 +13,7 @@ const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole'
  * (ST-MDM-007 AC-2: a reset of an integration cursor without a reason; ST-CTR-003 AC-1: a release of a guarantee without its evidence; ST-AST-002 AC-1: a transfer of an asset without the dossier of the commissioning; UAT-AC380: a household without its retention date; UAT-AC381: a data request without its reason).
  * A field of the wrong type stays 400.
  */
-const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor', 'releaseGuarantee', 'transferAsset', 'registerAffectedHousehold', 'handleHouseholdDataRequest', 'recordInventory', 'confirmInventory', 'draftCompensationPlan', 'addCompensationPlanItems', 'revisePlan']);
+const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor', 'releaseGuarantee', 'transferAsset', 'registerAffectedHousehold', 'handleHouseholdDataRequest', 'recordInventory', 'confirmInventory', 'draftCompensationPlan', 'addCompensationPlanItems', 'revisePlan', 'postCompensationPlan', 'recordPlanFeedback', 'handlePlanFeedback', 'closePlanPosting', 'approveCompensationPlan']);
 
 /**
  * Fields whose absence or empty value has a code of its own in the operation catalogue (422, the field named): a legal
@@ -39,6 +39,8 @@ const FIELD_PROBLEMS: Readonly<Record<string, Readonly<Record<string, string>>>>
   requestPeriodReopen: { reason: 'REOPEN_REASON_REQUIRED' },
   // A household is registered on a legal basis for processing the personal data, and the reference to it (ST-LND-002 AC-1, UAT-AC380).
   registerAffectedHousehold: { legal_basis: 'LEGAL_BASIS_REQUIRED', legal_basis_ref: 'LEGAL_BASIS_REQUIRED' },
+  // A plan of compensation is approved on the decision document (ST-LND-006 AC-1, UAT-AC377).
+  approveCompensationPlan: { decision_document_version_id: 'DECISION_DOCUMENT_REQUIRED' },
 };
 
 /**

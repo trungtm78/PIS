@@ -117,7 +117,7 @@ describe('the plan of compensation, support and resettlement: drafting, composin
   const compensation = (aim: Target, basis: string, extra: Record<string, unknown> = {}): Record<string, unknown> => ({ household_id: aim.householdId, item_kind: 'COMPENSATION_ASSET', basis_inventory_id: basis, legal_basis: BASIS, ...extra });
   const support = (aim: Target, amount: string, extra: Record<string, unknown> = {}): Record<string, unknown> => ({ household_id: aim.householdId, item_kind: 'SUPPORT_LIVELIHOOD', amount_vnd: amount, legal_basis: POLICY, ...extra });
   const planOf = async (member = PLANNER): Promise<{ id: string; version: number }> => ({ id: (await draft(member)).json.resource_id as string, version: 1 });
-  const post = (planId: string) => rows("update machvon.compensation_plan set status = 'POSTING', posting_started_on = date '2026-10-01', posting_ends_on = date '2026-10-31' where id = $1::uuid", [planId]);
+  const post = (planId: string) => rows("update machvon.compensation_plan set status = 'POSTING', posting_started_on = date '2026-10-01', posting_ends_on = date '2026-10-31', posting_place_text = 'Commune office', timer_rule_version_id = gen_random_uuid() where id = $1::uuid", [planId]);
 
   const audits = (resourceId: string, action: string) =>
     rows<{ safe_diff: Record<string, unknown>; outcome: string; actor_id: string; classification: string }>(
@@ -274,10 +274,11 @@ describe('the plan of compensation, support and resettlement: drafting, composin
       expect([missing.status, missing.json.code, missing.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'items']);
       const stale = await items(PLANNER, plan.id, 9, [support(aim, '1')]);
       expect([stale.status, stale.json.code]).toEqual([409, 'VERSION_CONFLICT']);
+      expect((await items(PLANNER, plan.id, 1, [support(aim, '1')])).status).toBe(200);
       await post(plan.id);
-      const posted = await items(PLANNER, plan.id, 1, [support(aim, '1')]);
+      const posted = await items(PLANNER, plan.id, 2, [support(aim, '1')]);
       expect([posted.status, posted.json.code]).toEqual([409, 'PLAN_STATE_INVALID']);
-      expect(await rows('select 1 from machvon.compensation_plan_item where plan_id = $1::uuid', [plan.id])).toEqual([]);
+      expect(await rows('select 1 from machvon.compensation_plan_item where plan_id = $1::uuid', [plan.id])).toHaveLength(1);
     });
 
     it('is written inside the units of the households: the department sees its own, a grant on a project reaches no household, a reader is turned away, another tenant does not find the plan', async () => {
@@ -460,13 +461,16 @@ describe('the plan of compensation, support and resettlement: drafting, composin
       status: 'DRAFT',
       postingStartedOn: null,
       postingEndsOn: null,
+      postingPlaceText: null,
+      feedbackSummary: null,
       approvedOn: null,
       paymentDueOn: null,
+      decisionDocumentVersionId: null,
       version: 1,
     });
     expect(Object.keys(plan).sort()).toEqual(
       [
-        'approved_on', 'executor_kind', 'executor_unit_id', 'grand_total_vnd', 'id', 'payment_due_on', 'plan_code', 'posting_ends_on', 'posting_started_on', 'project_id', 'revision', 'revision_reason', 'section_id',
+        'approved_on', 'decision_document_version_id', 'executor_kind', 'executor_unit_id', 'feedback_summary', 'grand_total_vnd', 'id', 'payment_due_on', 'plan_code', 'posting_ends_on', 'posting_place_text', 'posting_started_on', 'project_id', 'revision', 'revision_reason', 'section_id',
         'status', 'supersedes_id', 'total_compensation_vnd', 'total_resettlement_vnd', 'total_support_vnd', 'version',
       ].sort(),
     );

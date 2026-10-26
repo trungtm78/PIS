@@ -1616,6 +1616,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/revise`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  postCompensationPlan: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/post`, ifMatch: '"1"', body: { posting_started_on: '2026-10-20', posting_place_text: REASON } }),
+  },
+  recordPlanFeedback: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/feedback`, body: { summary: REASON, channel: 'LETTER' } }),
+  },
+  handlePlanFeedback: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/feedback/${t.planId}/handle`, body: { handling_note: REASON } }),
+  },
+  closePlanPosting: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/close-posting`, ifMatch: '"1"', body: { feedback_summary: REASON } }),
+  },
+  approveCompensationPlan: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/approve`, ifMatch: '"1"', body: { approved_on: '2026-10-20', decision_document_version_id: t.documentVersionId } }),
+  },
   recordInventory: {
     referencesTenantIds: true,
     build: (t) => ({

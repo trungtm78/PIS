@@ -151,7 +151,7 @@ const planRow = async (planId: string) =>
     )
   )[0];
 const post = (planId: string) =>
-  owner("update machvon.compensation_plan set status = 'POSTING', posting_started_on = date '2026-10-01', posting_ends_on = date '2026-10-31' where id = $1::uuid", [planId]);
+  owner("update machvon.compensation_plan set status = 'POSTING', posting_started_on = date '2026-10-01', posting_ends_on = date '2026-10-31', posting_place_text = 'Commune office', timer_rule_version_id = gen_random_uuid() where id = $1::uuid", [planId]);
 const sumOfItems = async (planId: string) =>
   (
     await owner<{ comp: string; support: string; resettlement: string }>(
@@ -396,16 +396,16 @@ describe('the plan of compensation, support and resettlement: composing it from 
       expect(await refusal(revise(plan.id, done.version))).toMatchObject({ code: 'PLAN_STATE_INVALID', status: 409, extensions: { status: 'DRAFT' } });
       await post(plan.id);
       expect(await refusal(revise(plan.id, 77))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
-      await owner("update machvon.compensation_plan set status = 'POSTING_CLOSED' where id = $1::uuid", [plan.id]);
-      await owner("update machvon.compensation_plan set status = 'APPROVED', approved_on = date '2026-11-05', payment_due_on = date '2026-12-05', decision_document_version_id = $2::uuid where id = $1::uuid", [plan.id, world.cleanDocument]);
+      await owner("update machvon.compensation_plan set status = 'POSTING_CLOSED', feedback_summary = 'No opinions' where id = $1::uuid", [plan.id]);
+      await owner("update machvon.compensation_plan set status = 'APPROVED', approved_on = date '2026-11-05', payment_due_on = date '2026-12-05', decision_document_version_id = $2::uuid, approved_by = $3::uuid where id = $1::uuid", [plan.id, world.cleanDocument, memberId(CHECKER)]);
       const revised = await revise(plan.id, done.version);
       expect(revised.revision).toBe(2);
       expect(await refusal(revise(plan.id, done.version + 1))).toMatchObject({ code: 'PLAN_STATE_INVALID', extensions: { status: 'REVISED' } });
       const paying = await draft();
       await add(paying.id, [support(aim, '1')]);
       await post(paying.id);
-      await owner("update machvon.compensation_plan set status = 'POSTING_CLOSED' where id = $1::uuid", [paying.id]);
-      await owner("update machvon.compensation_plan set status = 'APPROVED', approved_on = date '2026-11-05', payment_due_on = date '2026-12-05', decision_document_version_id = $2::uuid where id = $1::uuid", [paying.id, world.cleanDocument]);
+      await owner("update machvon.compensation_plan set status = 'POSTING_CLOSED', feedback_summary = 'No opinions' where id = $1::uuid", [paying.id]);
+      await owner("update machvon.compensation_plan set status = 'APPROVED', approved_on = date '2026-11-05', payment_due_on = date '2026-12-05', decision_document_version_id = $2::uuid, approved_by = $3::uuid where id = $1::uuid", [paying.id, world.cleanDocument, memberId(CHECKER)]);
       await owner("update machvon.compensation_plan set status = 'PAYING' where id = $1::uuid", [paying.id]);
       expect(await refusal(revise(paying.id, 2))).toMatchObject({ code: 'PLAN_STATE_INVALID', extensions: { status: 'PAYING' } });
       expect(await refusal(revise(randomUUID(), 1))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
@@ -440,10 +440,11 @@ describe('the plan of compensation, support and resettlement: composing it from 
     it('lists the plans of a project by code with the newest revision first, the status filter and the cursor, and the plans of a scope', async () => {
       const first = await draft({ planCode: 'PA-LIST-A' });
       const second = await draft({ planCode: 'PA-LIST-B' });
+      await add(second.id, [support(await target(), '1')]);
       await post(second.id);
       const all = await as((tx) => plans.list(tx, allPlans, { projectId: world.project, limit: 100 }));
       expect(all.map((line) => line.id)).toEqual(expect.arrayContaining([first.id, second.id]));
-      expect(all.find((line) => line.id === second.id)).toMatchObject({ planCode: 'PA-LIST-B', revision: 1, status: 'POSTING', postingStartedOn: '2026-10-01', postingEndsOn: '2026-10-31', totalCompensationVnd: '0', grandTotalVnd: '0', version: 1, supersedesId: null });
+      expect(all.find((line) => line.id === second.id)).toMatchObject({ planCode: 'PA-LIST-B', revision: 1, status: 'POSTING', postingStartedOn: '2026-10-01', postingEndsOn: '2026-10-31', totalCompensationVnd: '0', totalSupportVnd: '1', grandTotalVnd: '1', version: 2, supersedesId: null });
       expect((await as((tx) => plans.list(tx, allPlans, { projectId: world.project, status: 'POSTING', limit: 100 }))).map((line) => line.id)).toContain(second.id);
       expect((await as((tx) => plans.list(tx, allPlans, { projectId: world.project, status: 'POSTING', limit: 100 }))).map((line) => line.id)).not.toContain(first.id);
       const page = await as((tx) => plans.list(tx, allPlans, { projectId: world.project, limit: 1 }));

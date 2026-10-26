@@ -106,8 +106,11 @@ export interface CompensationPlanLine {
   status: PlanStatus;
   postingStartedOn: string | null;
   postingEndsOn: string | null;
+  postingPlaceText: string | null;
+  feedbackSummary: string | null;
   approvedOn: string | null;
   paymentDueOn: string | null;
+  decisionDocumentVersionId: string | null;
   version: number;
 }
 
@@ -155,14 +158,18 @@ interface PlanSql {
   status: PlanStatus;
   posting_started_on: string | null;
   posting_ends_on: string | null;
+  posting_place_text: string | null;
+  feedback_summary: string | null;
   approved_on: string | null;
   payment_due_on: string | null;
+  decision_document_version_id: string | null;
   version: string;
 }
 
 const PLAN_COLUMNS = `c.id, c.project_id, c.section_id, c.executor_unit_id, c.executor_kind, c.plan_code, c.revision, c.supersedes_id, c.revision_reason, c.total_compensation_vnd::text as total_compensation_vnd,
   c.total_support_vnd::text as total_support_vnd, c.total_resettlement_vnd::text as total_resettlement_vnd, c.grand_total_vnd::text as grand_total_vnd, c.status, c.posting_started_on::text as posting_started_on,
-  c.posting_ends_on::text as posting_ends_on, c.approved_on::text as approved_on, c.payment_due_on::text as payment_due_on, c.version::text as version`;
+  c.posting_ends_on::text as posting_ends_on, c.posting_place_text, c.feedback_summary, c.approved_on::text as approved_on, c.payment_due_on::text as payment_due_on,
+  c.decision_document_version_id, c.version::text as version`;
 
 /** The plan with the project and the two units the scope of its project is judged by (the aliases of the project register: `p`, `ou`, `iu`). */
 const PLAN_FROM = `machvon.compensation_plan c
@@ -189,8 +196,11 @@ const toPlan = (row: PlanSql): CompensationPlanLine => ({
   status: row.status,
   postingStartedOn: row.posting_started_on,
   postingEndsOn: row.posting_ends_on,
+  postingPlaceText: row.posting_place_text,
+  feedbackSummary: row.feedback_summary,
   approvedOn: row.approved_on,
   paymentDueOn: row.payment_due_on,
+  decisionDocumentVersionId: row.decision_document_version_id,
   version: Number(row.version),
 });
 
@@ -308,6 +318,8 @@ export class LndPlanStore {
     );
     // The plan is locked by this transaction, so the update finds it.
     const row = updated[0] as { total_compensation_vnd: string; total_support_vnd: string; total_resettlement_vnd: string };
+    // The parcels that the plan now counts are drafted into it (LND 4): a parcel that is somewhere else (objected to, posted by another plan) stays where it is.
+    await tx.query('select parcels_moved from machvon.advance_plan_subjects($1::uuid, $2::uuid)', [plan.id, actor]);
     const grand = (BigInt(row.total_compensation_vnd) + BigInt(row.total_support_vnd) + BigInt(row.total_resettlement_vnd)).toString();
     return { planId: plan.id, projectId: plan.project_id, status: plan.status, version, added, totals: { compensation: row.total_compensation_vnd, support: row.total_support_vnd, resettlement: row.total_resettlement_vnd, grand } };
   }

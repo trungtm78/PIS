@@ -34,4 +34,4 @@ The items of a plan are the amounts that a household is to receive: they are cla
 
 ## Not in this story
 
-Posting (`postCompensationPlan`), the comments of the households, the closing of the posting and the approval (ST-LND-006), the payments (ST-LND-007), the cancellation of a plan, and a plan item that rests on a record that was replaced by a newer count.
+Posting, the opinions of the households, the closing of the posting and the approval (ST-LND-006, see `docs/lnd-posting.md`), the payments (ST-LND-007), the cancellation of a plan, and a plan item that rests on a record that was replaced by a newer count.
