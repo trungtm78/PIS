@@ -4602,6 +4602,14 @@
       "statusBasis": "default",
       "source": "spec:DGV"
     },
+    "TARGET_OUT_OF_ENGAGEMENT": {
+      "status": 422,
+      "title": "Target out of engagement",
+      "meaning": "A finding or a recommendation is about a unit, project or contract that lies outside the scope of its engagement (recordAuditFinding, POST /audit-conclusions/{id}/findings; createAuditRecommendation, POST /audit-conclusions/{id}/recommendations)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
     "TASK_ALREADY_DECIDED": {
       "status": 409,
       "title": "Task already decided",

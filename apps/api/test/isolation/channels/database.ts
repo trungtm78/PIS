@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, COMPLAINT_FIXTURES, ENGAGEMENT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, COMPLAINT_FIXTURES, CONCLUSION_FIXTURES, ENGAGEMENT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -322,6 +322,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'cancelAuditEngagement',
   'listAuditEngagements',
   'getAuditEngagement',
+  'recordAuditConclusion',
+  'recordAuditFinding',
+  'createAuditRecommendation',
+  'listAuditConclusions',
+  'listAuditFindings',
+  'listAuditRecommendations',
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
@@ -1015,6 +1021,17 @@ const INSERT_ENGAGEMENT = `insert into machvon.audit_engagement
 const INSERT_ENGAGEMENT_SCOPE = `insert into machvon.audit_scope_item (tenant_id, id, engagement_id, scope_kind, project_id, added_by)
   values ($1, $2, $3, 'PROJECT', $4, $5) on conflict do nothing`;
 
+/** The conclusion of an engagement with a finding and a recommendation: the engagement is followed up, the recommendation recovers part of the total. */
+const INSERT_CONCLUSION = `insert into machvon.audit_conclusion
+  (tenant_id, id, engagement_id, conclusion_kind, conclusion_document_id, revision, issued_on, received_on, summary, total_financial_vnd, status, created_by, updated_by, version)
+  values ($1, $2, $3, 'AUDIT_REPORT', $4, 1, date '2026-10-10', date '2026-10-15', $5, 1000000, 'RECEIVED', $6, $6, 1) on conflict do nothing`;
+const INSERT_FINDING = `insert into machvon.audit_finding
+  (tenant_id, id, conclusion_id, finding_code, category, project_id, description, amount_vnd, severity, created_by, updated_by, version)
+  values ($1, $2, $3, $4, 'FINANCIAL', $5, $6, 500000, 'HIGH', $7, $7, 1) on conflict do nothing`;
+const INSERT_RECOMMENDATION = `insert into machvon.audit_recommendation
+  (tenant_id, id, conclusion_id, finding_id, rec_code, rec_type, description, amount_vnd, project_id, status, created_by, updated_by, version)
+  values ($1, $2, $3, $4, $5, 'FINANCIAL_RECOVERY', $6, 400000, $7, 'OPEN', $8, $8, 1) on conflict do nothing`;
+
 /** A complaint of the household of the fixture, received and not yet answered. */
 const INSERT_COMPLAINT = `insert into machvon.land_complaint
   (tenant_id, id, project_id, household_id, owner_unit_id, complaint_no, filed_on, channel, subject, description, status, due_on, created_by, updated_by, version)
@@ -1212,6 +1229,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const engagement = ENGAGEMENT_FIXTURES[tenant];
     await client.query(INSERT_ENGAGEMENT, [tenantId, engagement.id, engagement.code, documents.documentId, engagement.title, MEMBERSHIP_ID]);
     await client.query(INSERT_ENGAGEMENT_SCOPE, [tenantId, engagement.scopeItemId, engagement.id, project.id, MEMBERSHIP_ID]);
+    const conclusion = CONCLUSION_FIXTURES[tenant];
+    await client.query(INSERT_CONCLUSION, [tenantId, conclusion.id, engagement.id, documents.documentId, conclusion.summary, MEMBERSHIP_ID]);
+    await client.query(INSERT_FINDING, [tenantId, conclusion.findingId, conclusion.id, conclusion.findingCode, project.id, conclusion.findingWords, MEMBERSHIP_ID]);
+    await client.query(INSERT_RECOMMENDATION, [tenantId, conclusion.recommendationId, conclusion.id, conclusion.findingId, conclusion.recCode, conclusion.recWords, project.id, MEMBERSHIP_ID]);
     const appropriation = APPROPRIATION_FIXTURES[tenant];
     await client.query(INSERT_APPROPRIATION, [tenantId, appropriation.id, master.versionId, documents.documentId, appropriation.issuingAuthority, ACTOR_ID]);
     const plan = CAPITAL_PLAN_FIXTURES[tenant];

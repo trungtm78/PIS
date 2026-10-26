@@ -16,6 +16,12 @@ interface FieldProps {
   children: ReactNode;
 }
 
+/** The error of a field once the person has tried to send the form. */
+export function errorOf<P extends string, F>(problems: Partial<Record<keyof F, P>>, submitted: boolean, field: keyof F, message: (problem: P) => string): string | undefined {
+  const problem = problems[field];
+  return submitted && problem !== undefined ? message(problem) : undefined;
+}
+
 /** A label, its control, the hint under it and the problem with it; the control is tied to both for assistive technology. */
 export function Field({ id, label, error, hint, children }: FieldProps) {
   return (

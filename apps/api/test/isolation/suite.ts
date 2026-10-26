@@ -130,6 +130,32 @@ export const ENGAGEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; scop
   'TNT-B': { id: '00000000-0000-4000-b0ea-000000000001', scopeItemId: '00000000-0000-4000-b0eb-000000000001', code: 'AUD-ISO-BETA', title: 'Beta inspection of the investment in the road' },
 };
 
+/** The conclusion of the engagement of each tenant with a finding and a recommendation (what an authority wrote is CONFIDENTIAL and belongs to the tenant: the words are distinctive). */
+export const CONCLUSION_FIXTURES: Readonly<
+  Record<TenantName, { id: string; findingId: string; recommendationId: string; summary: string; findingCode: string; findingWords: string; recCode: string; recWords: string }>
+> = {
+  'TNT-A': {
+    id: '00000000-0000-4000-a0ec-000000000001',
+    findingId: '00000000-0000-4000-a0ed-000000000001',
+    recommendationId: '00000000-0000-4000-a0ee-000000000001',
+    summary: 'Alpha audit found payments far above the approved volumes',
+    findingCode: 'AUD-F-ALPHA',
+    findingWords: 'Alpha finding of a payment above the accepted volume',
+    recCode: 'AUD-R-ALPHA',
+    recWords: 'Alpha recommendation to recover the excess payment',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0ec-000000000001',
+    findingId: '00000000-0000-4000-b0ed-000000000001',
+    recommendationId: '00000000-0000-4000-b0ee-000000000001',
+    summary: 'Beta inspection found invoices without supporting records',
+    findingCode: 'AUD-F-BETA',
+    findingWords: 'Beta finding of invoices without records of the work',
+    recCode: 'AUD-R-BETA',
+    recWords: 'Beta recommendation to correct the process of invoicing',
+  },
+};
+
 /** A complaint of the household of each tenant (its words are distinctive: what a complainant says is personal data of the tenant). */
 export const COMPLAINT_FIXTURES: Readonly<Record<TenantName, { id: string; number: string; words: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bc-000000000001', number: 'LC-000901', words: 'Alpha complainant says the price is far too low' },
@@ -697,6 +723,14 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'audit engagement id', value: ENGAGEMENT_FIXTURES[tenant].id },
     { kind: 'audit engagement code', value: ENGAGEMENT_FIXTURES[tenant].code },
     { kind: 'audit engagement title', value: ENGAGEMENT_FIXTURES[tenant].title },
+    { kind: 'audit conclusion id', value: CONCLUSION_FIXTURES[tenant].id },
+    { kind: 'audit conclusion summary', value: CONCLUSION_FIXTURES[tenant].summary },
+    { kind: 'audit finding id', value: CONCLUSION_FIXTURES[tenant].findingId },
+    { kind: 'audit finding code', value: CONCLUSION_FIXTURES[tenant].findingCode },
+    { kind: 'audit finding words', value: CONCLUSION_FIXTURES[tenant].findingWords },
+    { kind: 'audit recommendation id', value: CONCLUSION_FIXTURES[tenant].recommendationId },
+    { kind: 'audit recommendation code', value: CONCLUSION_FIXTURES[tenant].recCode },
+    { kind: 'audit recommendation words', value: CONCLUSION_FIXTURES[tenant].recWords },
     { kind: 'land complaint id', value: COMPLAINT_FIXTURES[tenant].id },
     { kind: 'land complaint number', value: COMPLAINT_FIXTURES[tenant].number },
     { kind: 'land complaint words', value: COMPLAINT_FIXTURES[tenant].words },

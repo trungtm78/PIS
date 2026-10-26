@@ -35,7 +35,13 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export const isUuid = (value: string): boolean => UUID.test(value.trim());
-export const isDay = (value: string): boolean => ISO_DATE.test(value.trim()) && new Date(`${value.trim()}T00:00:00Z`).toISOString().slice(0, 10) === value.trim();
+export const isDay = (value: string): boolean => {
+  const day = value.trim();
+  if (!ISO_DATE.test(day)) return false;
+  // A day that does not exist (month 13, the 31st of April) is not a day: the date parses to nothing or to another day.
+  const parsed = new Date(`${day}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === day;
+};
 /** The day it is in Vietnam, where the days of an engagement are counted. */
 export const todayInVietnam = (now: Date = new Date()): string => new Date(now.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
 

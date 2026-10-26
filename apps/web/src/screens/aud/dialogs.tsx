@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
-import { DialogFrame, Field } from './components';
+import { DialogFrame, Field, errorOf } from './components';
 import { useCancelEngagement, useCoordinatorOptions, useCreateEngagement, useEndFieldwork, usePlaceOptions, useStartEngagement } from './hooks';
 import { authorityKindLabel, commandProblemMessage, engagementTypeLabel, formProblemMessage, scopeKindLabel } from './labels';
 import {
@@ -24,14 +24,6 @@ import {
   validateStart,
 } from './model';
 import type { CancelForm, CreateForm, EndForm, EngagementDetail, ScopeItem, ScopeKind, StartForm } from './model';
-
-type Problems<F> = Partial<Record<keyof F, Parameters<typeof formProblemMessage>[1]>>;
-
-/** The error of a field once the person has tried to send the form. */
-function errorOf<F>(problems: Problems<F>, submitted: boolean, field: keyof F, message: (problem: NonNullable<Problems<F>[keyof F]>) => string): string | undefined {
-  const problem = problems[field];
-  return submitted && problem !== undefined ? message(problem as NonNullable<Problems<F>[keyof F]>) : undefined;
-}
 
 /** The places of the scope of an engagement: a kind, a place of that kind chosen from what the caller may read, and the list of what was added. */
 function ScopePicker({ value, onChange, error }: { value: ScopeItem[]; onChange(next: ScopeItem[]): void; error: string | undefined }) {

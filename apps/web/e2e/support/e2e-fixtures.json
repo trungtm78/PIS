@@ -2205,6 +2205,7 @@
       "membershipId": "00000000-0000-4000-8000-000000000869",
       "permissions": [
         "aud.engagement.manage",
+        "aud.conclusion.record",
         "aud.read",
         "project.read",
         "contract.read",

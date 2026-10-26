@@ -528,7 +528,7 @@ const PLAN_COMP_ROLES = [
 
 /** AUD: the coordinator of inspections and audits (registers, starts and cancels engagements) and a reader of them, both over the whole tenant. */
 const AUD_ROLES = [
-  { n: 869, user: 'audOfficer', code: 'E2E_AUD_OFFICER', permissions: ['aud.engagement.manage', 'aud.read', 'project.read', 'contract.read', 'organization_unit.read', 'session.self'], rank: 35 },
+  { n: 869, user: 'audOfficer', code: 'E2E_AUD_OFFICER', permissions: ['aud.engagement.manage', 'aud.conclusion.record', 'aud.read', 'project.read', 'contract.read', 'organization_unit.read', 'session.self'], rank: 35 },
   { n: 870, user: 'audReader', code: 'E2E_AUD_READER', permissions: ['aud.read', 'session.self'], rank: 20 },
 ];
 

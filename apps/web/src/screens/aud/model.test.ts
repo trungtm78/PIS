@@ -15,6 +15,7 @@ import {
   describeProblem,
   endBody,
   engagementsMatching,
+  isDay,
   startBody,
   toEngagementDetail,
   toEngagementLine,
@@ -25,6 +26,15 @@ import {
   validateStart,
 } from './model';
 import type { CreateForm, EngagementDetail } from './model';
+
+describe('the days of the engagement screens', () => {
+  it('knows a day that exists and refuses one that does not, without failing on a month or a day out of range', () => {
+    expect(isDay('2026-10-26')).toBe(true);
+    expect(isDay(' 2026-02-28 ')).toBe(true);
+    expect(isDay('2024-02-29')).toBe(true);
+    for (const bad of ['2026-13-01', '2026-00-10', '2026-02-30', '2026-04-31', '2026-02-29', '26-10-26', '', 'today', '2026-10-26T00:00']) expect(isDay(bad)).toBe(false);
+  });
+});
 
 const detail = (overrides: Record<string, unknown> = {}): EngagementDetail => toEngagementDetail(detailRecord(1, overrides)) as EngagementDetail;
 

@@ -832,3 +832,5 @@ export { LndDeadlineStore } from './lnd-deadline-store.ts';
 export type { DeadlineState, DeadlineSubject, UpcomingDeadline, UpcomingFilter } from './lnd-deadline-store.ts';
 export { COMPLAINT_CHANNELS, COMPLAINT_OUTCOMES, COMPLAINT_STATUSES, COMPLAINT_SUBJECTS, COMPLAINT_FILED_EVENT, LndComplaintStore, complaintFiledPayload, linkComplaintIssue } from './lnd-complaint-store.ts';
 export type { AnsweredComplaint, ComplaintChannel, ComplaintFilter, ComplaintLine, ComplaintOutcome, ComplaintStatus, ComplaintSubject, FiledComplaint } from './lnd-complaint-store.ts';
+export { AudConclusionStore, withinEngagementScope } from './aud-conclusion-store.ts';
+export type { ConclusionLine, ConclusionRow, FindingLine, NewConclusion, NewFinding, NewRecommendation, RecommendationLine } from './aud-conclusion-store.ts';

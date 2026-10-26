@@ -7,6 +7,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import type { ScreenState } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { CONCLUSIONS_PATH, FINDINGS_PATH, concludable } from './conclusion/model';
 import { CancelDialog, EndFieldworkDialog, StartDialog } from './dialogs';
 import { useEngagement } from './hooks';
 import { authorityKindLabel, engagementStatusLabel, engagementTypeLabel, holdStatusLabel, scopeKindLabel } from './labels';
@@ -80,6 +81,12 @@ function EngagementFile({ detail }: { detail: EngagementDetail }) {
   const { t } = useTranslation();
   return (
     <>
+      {concludable(detail.status) ? (
+        <p className="aud-links" data-testid="conclusion-links">
+          <Link to={`${CONCLUSIONS_PATH}?engagement=${detail.id}`}>{t('aud.engagement.conclusion.link')}</Link>
+          {detail.status === 'FOLLOW_UP' || detail.status === 'CLOSED' ? <Link to={`${FINDINGS_PATH}?engagement=${detail.id}`}>{t('aud.engagement.findings.link')}</Link> : null}
+        </p>
+      ) : null}
       <div className="aud-cards">
         <div className="card" data-testid="decision-card">
           <h2>{t('aud.engagement.decision.title')}</h2>

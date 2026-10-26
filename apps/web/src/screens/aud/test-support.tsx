@@ -24,13 +24,14 @@ export const TENANT: SessionTenant = {
 };
 
 export const MANAGER = ['aud.engagement.manage', 'aud.read'];
+export const RECORDER = ['aud.conclusion.record', 'aud.read'];
 export const READER = ['aud.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({
   id,
   path: `/aud/${id.toLowerCase()}`,
   title: id,
-  kind: id === 'AUD-03' ? 'detail' : 'table',
+  kind: id === 'AUD-03' ? 'detail' : id === 'AUD-04' ? 'form' : 'table',
   area: 'insights',
   module: 'AUD',
   group: 'Cuộc thanh tra, kiểm toán',
@@ -82,9 +83,73 @@ export const detailRecord = (n: number, overrides: Record<string, unknown> = {})
   ...overrides,
 });
 
+/** The conclusion of an engagement as the read answers it: the total, what the recommendations add up to and what is left. */
+export const conclusionRecord = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: uuid('0020', 1),
+  engagement_id: uuid('0010', 1),
+  conclusion_kind: 'AUDIT_REPORT',
+  document: { id: uuid('0021', 1), title: 'Báo cáo kiểm toán cầu', symbol: '88/BC-KTNN' },
+  revision: 1,
+  supersedes_id: null,
+  issued_on: '2026-10-10',
+  received_on: '2026-10-15',
+  implementation_due_on: '2026-12-31',
+  report_due_on: '2027-01-15',
+  summary: 'Kiểm toán phát hiện thanh toán vượt khối lượng được duyệt.',
+  total_financial_vnd: '1250000000',
+  recommended_vnd: '1200000000',
+  shortfall_vnd: '50000000',
+  is_public: false,
+  status: 'RECEIVED',
+  finding_count: 1,
+  recommendation_count: 2,
+  version: 1,
+  ...overrides,
+});
+
+export const findingRecord = (n: number, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: uuid('0022', n),
+  conclusion_id: uuid('0020', 1),
+  finding_code: `PH-${String(n).padStart(3, '0')}`,
+  category: 'FINANCIAL',
+  project: { id: PROJECT, code: 'DA-2026-001', name: 'Cầu qua sông' },
+  contract: null,
+  organization_unit: { id: UNIT, code: 'SXD', name: 'Sở Xây dựng' },
+  description: 'Thanh toán vượt khối lượng nghiệm thu.',
+  legal_basis_cited: 'Điều 12 Luật Đầu tư công',
+  amount_vnd: '300000000',
+  severity: 'HIGH',
+  created_at: '2026-10-16T00:00:00Z',
+  ...overrides,
+});
+
+export const recommendationRecord = (n: number, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: uuid('0023', n),
+  conclusion_id: uuid('0020', 1),
+  finding_id: null,
+  rec_code: `KN-${String(n).padStart(3, '0')}`,
+  rec_type: 'FINANCIAL_RECOVERY',
+  description: 'Thu hồi khoản thanh toán vượt khối lượng.',
+  amount_vnd: '800000000',
+  recovered_vnd: '0',
+  project_id: null,
+  owner_unit_id: null,
+  due_on: null,
+  status: 'OPEN',
+  is_overdue: false,
+  created_at: '2026-10-16T00:00:00Z',
+  ...overrides,
+});
+
 export interface World {
   engagements: Array<Record<string, unknown>>;
   details: Record<string, Record<string, unknown>>;
+  /** The conclusions of an engagement, by the id of the engagement. */
+  conclusions: Record<string, Array<Record<string, unknown>>>;
+  /** The findings of a conclusion, by the id of the conclusion. */
+  findings: Record<string, Array<Record<string, unknown>>>;
+  /** The recommendations of a conclusion, by the id of the conclusion. */
+  recommendations: Record<string, Array<Record<string, unknown>>>;
   projects: Array<Record<string, unknown>>;
   contracts: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
@@ -97,6 +162,9 @@ export function world(overrides: Partial<World> = {}): World {
   return {
     engagements: [],
     details: {},
+    conclusions: {},
+    findings: {},
+    recommendations: {},
     projects: [{ id: PROJECT, code: 'DA-2026-001', name: 'Cầu qua sông' }],
     contracts: [{ id: CONTRACT, code: 'HD-A-001', title: 'Hợp đồng thi công cầu' }],
     units: [{ id: UNIT, code: 'SXD', name: 'Sở Xây dựng' }],
@@ -119,12 +187,18 @@ export function client(state: World, command: (operation: string, input: unknown
     const found = state.details[(input as { path: { id: string } }).path.id];
     return found ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
   }, command);
-  (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string, input?: { query?: Record<string, string> }) => {
+  (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string, input?: { query?: Record<string, string>; path?: { id: string } }) => {
     const failure = state.failing.get(operation);
     if (failure !== undefined) return Promise.reject(failure);
     switch (operation) {
       case 'listAuditEngagements':
         return Promise.resolve(state.engagements.filter((item) => (input?.query?.status ?? item.status) === item.status && (input?.query?.engagement_type ?? item.engagement_type) === item.engagement_type));
+      case 'listAuditConclusions':
+        return Promise.resolve(state.conclusions[input?.path?.id ?? ''] ?? []);
+      case 'listAuditFindings':
+        return Promise.resolve(state.findings[input?.path?.id ?? ''] ?? []);
+      case 'listAuditRecommendations':
+        return Promise.resolve(state.recommendations[input?.query?.conclusion_id ?? ''] ?? []);
       case 'get_resources_project':
         return Promise.resolve(state.projects);
       case 'get_resources_contract':

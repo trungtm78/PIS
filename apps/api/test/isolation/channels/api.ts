@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
 import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import { WORK_CALENDAR_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ENGAGEMENT_FIXTURES, ESCALATION_FIXTURES, COMPLAINT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, CONCLUSION_FIXTURES, ENGAGEMENT_FIXTURES, ESCALATION_FIXTURES, COMPLAINT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -475,6 +475,34 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'depositCompensationPayment', method: 'POST', id: PAYMENT_COMP_FIXTURES['TNT-B'].id, versioned: true, body: { deposit_reason: 'Isolation foreign deposit attempt', voucher_document_version_id: '00000000-0000-4000-b0bb-0000000000ff', paid_on: '2026-11-01' } },
   { operation: 'listCompensationPayments', method: 'GET', id: PLAN_COMP_FIXTURES['TNT-B'].id },
   { operation: 'getAuditEngagement', method: 'GET', id: ENGAGEMENT_FIXTURES['TNT-B'].id },
+  { operation: 'listAuditConclusions', method: 'GET', id: ENGAGEMENT_FIXTURES['TNT-B'].id },
+  {
+    operation: 'recordAuditConclusion',
+    method: 'POST',
+    id: ENGAGEMENT_FIXTURES['TNT-B'].id,
+    versioned: true,
+    body: {
+      conclusion_kind: 'AUDIT_REPORT',
+      conclusion_document_id: '00000000-0000-4000-b0bb-0000000000ff',
+      issued_on: '2026-10-10',
+      received_on: '2026-10-15',
+      summary: 'Isolation foreign conclusion attempt',
+      total_financial_vnd: '1000',
+    },
+  },
+  { operation: 'listAuditFindings', method: 'GET', id: CONCLUSION_FIXTURES['TNT-B'].id },
+  {
+    operation: 'recordAuditFinding',
+    method: 'POST',
+    id: CONCLUSION_FIXTURES['TNT-B'].id,
+    body: { finding_code: 'F-ISO-1', category: 'FINANCIAL', description: 'Isolation foreign finding attempt', severity: 'HIGH' },
+  },
+  {
+    operation: 'createAuditRecommendation',
+    method: 'POST',
+    id: CONCLUSION_FIXTURES['TNT-B'].id,
+    body: { rec_code: 'R-ISO-1', rec_type: 'FINANCIAL_RECOVERY', description: 'Isolation foreign recommendation attempt', amount_vnd: '1000' },
+  },
   { operation: 'startAuditEngagement', method: 'POST', id: ENGAGEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { started_on: '2026-10-20', place_legal_hold: false } },
   { operation: 'endAuditFieldwork', method: 'POST', id: ENGAGEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { on_date: '2026-10-20' } },
   { operation: 'cancelAuditEngagement', method: 'POST', id: ENGAGEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { on_date: '2026-10-20', reason: 'Isolation foreign cancellation attempt' } },

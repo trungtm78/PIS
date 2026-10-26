@@ -1667,6 +1667,38 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  recordAuditConclusion: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/audit-engagements/${t.legalHoldId}/conclusions`,
+      ifMatch: '"1"',
+      body: {
+        conclusion_kind: 'AUDIT_REPORT',
+        conclusion_document_id: t.documentVersionId,
+        issued_on: '2026-10-10',
+        received_on: '2026-10-15',
+        summary: 'Negative matrix conclusion summary',
+        total_financial_vnd: '1000000',
+      },
+    }),
+  },
+  recordAuditFinding: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/audit-conclusions/${t.legalHoldId}/findings`,
+      body: { finding_code: 'F-MATRIX-1', category: 'FINANCIAL', description: 'Negative matrix finding description', severity: 'HIGH', project_id: t.projectId },
+    }),
+  },
+  createAuditRecommendation: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/audit-conclusions/${t.legalHoldId}/recommendations`,
+      body: { rec_code: 'R-MATRIX-1', rec_type: 'FINANCIAL_RECOVERY', description: 'Negative matrix recommendation description', amount_vnd: '1000' },
+    }),
+  },
   startAuditEngagement: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/audit-engagements/${t.legalHoldId}/start`, ifMatch: '"1"', body: { started_on: '2026-10-20', place_legal_hold: false } }),

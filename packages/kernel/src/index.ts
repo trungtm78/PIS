@@ -553,3 +553,16 @@ export {
   totalsOf,
 } from './land-plan.ts';
 export type { FeedbackChannel, FeedbackStatus, PlanExecutorKind, PlanItemKind, PlanStatus, PlanTotalGroup, PlanTotals } from './land-plan.ts';
+export {
+  CONCLUSION_KINDS,
+  FINANCIAL_RECOMMENDATION_TYPES,
+  FINDING_CATEGORIES,
+  FINDING_SEVERITIES,
+  RECOMMENDATION_TYPES,
+  assertWithinConclusionTotal,
+  financialShortfall,
+  isFinancialRecommendation,
+  recommendationAmount,
+  wholeVnd,
+} from './aud-conclusion.ts';
+export type { ConclusionKind, FindingCategory, FindingSeverity, RecommendationType } from './aud-conclusion.ts';
