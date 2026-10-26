@@ -567,6 +567,7 @@
   "listTreasuryImports": {},
   "listUpcomingLandDeadlines": {},
   "listWarrantyObligations": {},
+  "listWeeklyDisbursementPlans": {"plan_year":1,"items":[{"project":{},"leader":{},"period":{},"commitment_vnd":"sample","actual_vnd":"sample","difference_vnd":"sample","actual_from_year_start":true}],"next_cursor":"sample"},
   "lockReportingPeriod": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "lockSiteDiary": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "markContractorExportSubmitted": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},

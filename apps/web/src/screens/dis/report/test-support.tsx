@@ -184,6 +184,8 @@ export interface World {
   /** The rules of `listEarlyWarningRules`, and the pages of `listEarlyWarnings` by query (a function of the query, or one answer for all). */
   rules: Array<Record<string, unknown>>;
   warnings: Record<string, unknown> | ((query: Record<string, unknown>) => unknown);
+  /** The pages of `listWeeklyDisbursementPlans` by query (a function of the query, or one answer for all). */
+  weekly: Record<string, unknown> | ((query: Record<string, unknown>) => unknown);
   /** The terms of the business glossary, as `listGlossaryTerms` answers them. */
   glossary: Array<Record<string, unknown>>;
   /** The answer of `getDisbursementRates`, or one for each query; none answers 404. */
@@ -209,6 +211,7 @@ export function world(overrides: Partial<World> = {}): World {
     glossary: [],
     rules: [],
     warnings: { items: [], next_cursor: null },
+    weekly: { plan_year: 2027, items: [], next_cursor: null },
     deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
@@ -242,6 +245,10 @@ export function client(state: World, command: (operation: string, input: unknown
     if (operation === 'listEarlyWarnings') {
       const query = (input as { query?: Record<string, unknown> }).query ?? {};
       return typeof state.warnings === 'function' ? state.warnings(query) : state.warnings;
+    }
+    if (operation === 'listWeeklyDisbursementPlans') {
+      const query = (input as { query?: Record<string, unknown> }).query ?? {};
+      return typeof state.weekly === 'function' ? state.weekly(query) : state.weekly;
     }
     if (operation === 'listPeriodSnapshots') {
       const periodId = String((input as { query?: { period_id?: string } }).query?.period_id ?? '');
@@ -324,6 +331,7 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-19" element={screen} />
                 <Route path="/dis/dis-20" element={screen} />
                 <Route path="/dis/dis-21" element={screen} />
+                <Route path="/dis/dis-24" element={screen} />
                 <Route path="/dis/dis-25" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />
               </Routes>

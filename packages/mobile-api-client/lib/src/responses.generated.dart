@@ -571,6 +571,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listTreasuryImports': asObject,
   'listUpcomingLandDeadlines': asObject,
   'listWarrantyObligations': asObject,
+  'listWeeklyDisbursementPlans': DisWeeklyPlanPageResponse.fromJson,
   'lockReportingPeriod': CommandResultResponse.fromJson,
   'lockSiteDiary': CommandResultResponse.fromJson,
   'markContractorExportSubmitted': CommandResultResponse.fromJson,
@@ -4349,6 +4350,90 @@ final class DisReportSubmitResultResponseWarningsItem implements ResponseModel {
         'code': code,
         'field': field,
         'values': values,
+        ...extra,
+      };
+}
+
+final class DisWeeklyPlanPageResponse implements ResponseModel {
+  const DisWeeklyPlanPageResponse({
+    this.planYear,
+    this.items,
+    this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisWeeklyPlanPageResponse.fromJson(Object? json, [String path = 'DisWeeklyPlanPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisWeeklyPlanPageResponse(
+      planYear: optionalField(map, path, 'plan_year', asInt),
+      items: optionalField(map, path, 'items', asList(DisWeeklyPlanRowResponse.fromJson)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'plan_year', 'items', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final int? planYear;
+  final List<DisWeeklyPlanRowResponse>? items;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (planYear != null) 'plan_year': planYear,
+        if (items != null) 'items': items!.map((e0) => e0.toJson()).toList(),
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class DisWeeklyPlanRowResponse implements ResponseModel {
+  const DisWeeklyPlanRowResponse({
+    this.project,
+    this.leader,
+    this.period,
+    this.commitmentVnd,
+    this.actualVnd,
+    this.differenceVnd,
+    this.actualFromYearStart,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisWeeklyPlanRowResponse.fromJson(Object? json, [String path = 'DisWeeklyPlanRowResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisWeeklyPlanRowResponse(
+      project: optionalField(map, path, 'project', asObject),
+      leader: optionalField(map, path, 'leader', nullable(asObject)),
+      period: optionalField(map, path, 'period', asObject),
+      commitmentVnd: optionalField(map, path, 'commitment_vnd', asString),
+      actualVnd: optionalField(map, path, 'actual_vnd', nullable(asString)),
+      differenceVnd: optionalField(map, path, 'difference_vnd', nullable(asString)),
+      actualFromYearStart: optionalField(map, path, 'actual_from_year_start', asBool),
+      extra: unknownFields(map, path, const <String>{'project', 'leader', 'period', 'commitment_vnd', 'actual_vnd', 'difference_vnd', 'actual_from_year_start'}, strict: false),
+    );
+  }
+
+  final Map<String, Object?>? project;
+  final Map<String, Object?>? leader;
+  final Map<String, Object?>? period;
+  final String? commitmentVnd;
+  final String? actualVnd;
+  final String? differenceVnd;
+  final bool? actualFromYearStart;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (project != null) 'project': project,
+        if (leader != null) 'leader': leader,
+        if (period != null) 'period': period,
+        if (commitmentVnd != null) 'commitment_vnd': commitmentVnd,
+        if (actualVnd != null) 'actual_vnd': actualVnd,
+        if (differenceVnd != null) 'difference_vnd': differenceVnd,
+        if (actualFromYearStart != null) 'actual_from_year_start': actualFromYearStart,
         ...extra,
       };
 }

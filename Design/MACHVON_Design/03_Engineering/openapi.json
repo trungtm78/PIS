@@ -125685,6 +125685,160 @@
         "x-exposure": "dto",
         "x-exposure-reason": "Read model with DTO allowlist and object scope"
       }
+    },
+    "/weekly-disbursement-plans": {
+      "get": {
+        "operationId": "listWeeklyDisbursementPlans",
+        "summary": "Kế hoạch giải ngân tuần theo dự án so với số Kho bạc đã chốt, kèm lãnh đạo phụ trách",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "disbursement.read",
+        "parameters": [
+          {
+            "name": "plan_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            },
+            "description": "The plan year; the year of today when absent."
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The weekly commitments against the frozen Treasury actuals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisWeeklyPlanPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope"
+      }
     }
   },
   "components": {
@@ -149288,6 +149442,62 @@
             ]
           },
           "ctmtqg_subset_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "DisWeeklyPlanRow": {
+        "type": "object",
+        "description": "A project and a week: the commitment (a plan, never counted as disbursed), what the Treasury paid in the week from the frozen close snapshots and their difference.",
+        "properties": {
+          "project": {
+            "type": "object"
+          },
+          "leader": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "period": {
+            "type": "object"
+          },
+          "commitment_vnd": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "actual_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "difference_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "actual_from_year_start": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DisWeeklyPlanPage": {
+        "type": "object",
+        "properties": {
+          "plan_year": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisWeeklyPlanRow"
+            }
+          },
+          "next_cursor": {
             "type": [
               "string",
               "null"

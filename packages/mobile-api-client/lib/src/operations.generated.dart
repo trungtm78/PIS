@@ -570,6 +570,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listTreasuryImports': OperationDescriptor(method: 'GET', path: '/treasury-imports', versioned: false, stepUp: null, permission: 'treasury.import.read'),
   'listUpcomingLandDeadlines': OperationDescriptor(method: 'GET', path: '/land-deadlines/upcoming', versioned: false, stepUp: null, permission: 'land.read'),
   'listWarrantyObligations': OperationDescriptor(method: 'GET', path: '/warranty-obligations', versioned: false, stepUp: null, permission: 'warranty.read'),
+  'listWeeklyDisbursementPlans': OperationDescriptor(method: 'GET', path: '/weekly-disbursement-plans', versioned: false, stepUp: null, permission: 'disbursement.read'),
   'lockReportingPeriod': OperationDescriptor(method: 'POST', path: '/reporting-periods/{id}/lock', versioned: true, stepUp: null, permission: 'period.lock'),
   'lockSiteDiary': OperationDescriptor(method: 'POST', path: '/site-diaries/{id}/lock', versioned: true, stepUp: null, permission: 'diary.lock'),
   'markContractorExportSubmitted': OperationDescriptor(method: 'POST', path: '/contractor-exports/{id}/mark-submitted', versioned: false, stepUp: null, permission: 'contractor.export'),

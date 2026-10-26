@@ -568,6 +568,7 @@ export const OPERATIONS = {
   "listTreasuryImports": { method: "get", path: "/treasury-imports", versioned: false, stepUp: null, permission: "treasury.import.read" },
   "listUpcomingLandDeadlines": { method: "get", path: "/land-deadlines/upcoming", versioned: false, stepUp: null, permission: "land.read" },
   "listWarrantyObligations": { method: "get", path: "/warranty-obligations", versioned: false, stepUp: null, permission: "warranty.read" },
+  "listWeeklyDisbursementPlans": { method: "get", path: "/weekly-disbursement-plans", versioned: false, stepUp: null, permission: "disbursement.read" },
   "lockReportingPeriod": { method: "post", path: "/reporting-periods/{id}/lock", versioned: true, stepUp: null, permission: "period.lock" },
   "lockSiteDiary": { method: "post", path: "/site-diaries/{id}/lock", versioned: true, stepUp: null, permission: "diary.lock" },
   "markContractorExportSubmitted": { method: "post", path: "/contractor-exports/{id}/mark-submitted", versioned: false, stepUp: null, permission: "contractor.export" },

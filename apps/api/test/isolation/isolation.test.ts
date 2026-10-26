@@ -334,6 +334,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'listEarlyWarningRules',
         'listEarlyWarnings',
         'getDisbursementRates',
+        'listWeeklyDisbursementPlans',
         'uploadReportFile',
         'getReportRevision',
         'getReportImport',

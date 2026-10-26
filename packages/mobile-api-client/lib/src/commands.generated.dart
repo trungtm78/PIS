@@ -1708,6 +1708,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listWarrantyObligations({Map<String, Object?>? query}) =>
       execute('listWarrantyObligations', query: query);
 
+  Future<Object?> listWeeklyDisbursementPlans({Map<String, Object?>? query}) =>
+      execute('listWeeklyDisbursementPlans', query: query);
+
   Future<Object?> lockReportingPeriod(DisPeriodTransition body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('lockReportingPeriod', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 

@@ -246,6 +246,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listEarlyWarningRules',
   'listEarlyWarnings',
   'getDisbursementRates',
+  'listWeeklyDisbursementPlans',
   'uploadReportFile',
   'getReportRevision',
   'getReportImport',
@@ -754,6 +755,10 @@ const INSERT_PUBLISHED_CAPITAL_PLAN = `insert into machvon.capital_plan
 const INSERT_SCHEDULE_LINE = `insert into machvon.disbursement_schedule_line
   (tenant_id, id, project_id, plan_year, granularity, month, bucket, budget_level, kind, amount_vnd, assumption, revision, is_current, created_by, updated_by)
   values ($1, $2, $3, 2026, 'MONTH', 6, 'CURRENT_YEAR', 'CENTRAL', 'FORECAST', 1000, $4, 1, true, $5, $5) on conflict do nothing`;
+
+const INSERT_WEEKLY_COMMITMENT = `insert into machvon.disbursement_schedule_line
+  (tenant_id, id, project_id, plan_year, granularity, period_id, bucket, budget_level, kind, amount_vnd, revision, is_current, created_by, updated_by)
+  values ($1, gen_random_uuid(), $2, 2026, 'WEEK', $3, 'CURRENT_YEAR', 'CENTRAL', 'WEEKLY_COMMITMENT', 1000, 1, true, $4, $4) on conflict do nothing`;
 
 const INSERT_PLAN_VERSION = `insert into machvon.plan_version
   (tenant_id, id, project_id, fiscal_year, revision, status, capital_plan_id, created_by, updated_by)
@@ -1362,6 +1367,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);
     const schedule = SCHEDULE_FIXTURES[tenant];
     await client.query(INSERT_SCHEDULE_LINE, [tenantId, schedule.id, project.id, schedule.assumption, ACTOR_ID]);
+    await client.query(INSERT_WEEKLY_COMMITMENT, [tenantId, project.id, period.id, ACTOR_ID]);
     const procurement = PROCUREMENT_PLAN_FIXTURES[tenant];
     await client.query(INSERT_PROCUREMENT_PLAN, [tenantId, procurement.id, project.id, procurement.title, ACTOR_ID]);
     await client.query(INSERT_PLAN_PACKAGE, [tenantId, procurement.packageId, project.id, procurement.packageCode, procurement.id, procurement.packageTitle, plan.lineId, ACTOR_ID]);

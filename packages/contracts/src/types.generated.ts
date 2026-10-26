@@ -14727,6 +14727,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/weekly-disbursement-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kế hoạch giải ngân tuần theo dự án so với số Kho bạc đã chốt, kèm lãnh đạo phụ trách */
+        get: operations["listWeeklyDisbursementPlans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -21151,6 +21168,21 @@ export interface components {
             treasury_coverage?: "COMPLETE" | "PARTIAL" | "NONE";
             reported_vnd?: string | null;
             ctmtqg_subset_vnd?: string | null;
+        };
+        /** @description A project and a week: the commitment (a plan, never counted as disbursed), what the Treasury paid in the week from the frozen close snapshots and their difference. */
+        DisWeeklyPlanRow: {
+            project?: Record<string, never>;
+            leader?: Record<string, never> | null;
+            period?: Record<string, never>;
+            commitment_vnd?: components["schemas"]["Money"];
+            actual_vnd?: string | null;
+            difference_vnd?: string | null;
+            actual_from_year_start?: boolean;
+        };
+        DisWeeklyPlanPage: {
+            plan_year?: number;
+            items?: components["schemas"]["DisWeeklyPlanRow"][];
+            next_cursor?: string | null;
         };
     };
     responses: never;
@@ -108661,6 +108693,105 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DisReportImport"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listWeeklyDisbursementPlans: {
+        parameters: {
+            query?: {
+                /** @description The plan year; the year of today when absent. */
+                plan_year?: number;
+                project_id?: string;
+                unit_id?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The weekly commitments against the frozen Treasury actuals */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisWeeklyPlanPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
