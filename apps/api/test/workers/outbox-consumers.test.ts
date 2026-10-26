@@ -23,6 +23,7 @@ import { ISS_INTAKE_CONSUMER } from '../../src/modules/iss/intake.consumer';
 import { ADM_GUEST_CONTRACT_CONSUMER } from '../../src/modules/adm/guest-contract-closed.consumer';
 import { AUD_PAY_RECOVERY_CONSUMER } from '../../src/modules/aud/pay-recovery.consumer';
 import { AUD_REPORT_CONSUMER } from '../../src/modules/aud/report.consumer';
+import { DIS_RANKING_COMPUTE_CONSUMER } from '../../src/modules/dis/ranking-compute.consumer';
 import { DIS_WARNING_EVALUATE_CONSUMER } from '../../src/modules/dis/warning-evaluate.consumer';
 import { DGV_SNAPSHOT_FROZEN_CONSUMER } from '../../src/modules/dgv/snapshot-frozen.consumer';
 import { PRJ_PLAN_PUBLISHED_CONSUMER } from '../../src/modules/prj/plan-published.consumer';
@@ -111,7 +112,7 @@ describe('the consumers of the outbox (ST-KERNEL-022)', () => {
   });
 
   it('names the consumers of the repository, one each', () => {
-    expect(consumersOnTheSharedSink().map((consumer) => consumer.name)).toEqual([PROVISIONING_CONSUMER, ENTITLEMENT_CONSUMER, TENANT_STATUS_CONSUMER, PRJ_PLAN_PUBLISHED_CONSUMER, PAY_ACCEPTANCE_LEDGER_CONSUMER, CAP_PAYMENT_LEDGER_CONSUMER, ISS_INTAKE_CONSUMER, DGV_SNAPSHOT_FROZEN_CONSUMER, DIS_WARNING_EVALUATE_CONSUMER, ADM_GUEST_CONTRACT_CONSUMER, AUD_PAY_RECOVERY_CONSUMER, AUD_REPORT_CONSUMER, NOTIFICATION_CONSUMER]);
+    expect(consumersOnTheSharedSink().map((consumer) => consumer.name)).toEqual([PROVISIONING_CONSUMER, ENTITLEMENT_CONSUMER, TENANT_STATUS_CONSUMER, PRJ_PLAN_PUBLISHED_CONSUMER, PAY_ACCEPTANCE_LEDGER_CONSUMER, CAP_PAYMENT_LEDGER_CONSUMER, ISS_INTAKE_CONSUMER, DGV_SNAPSHOT_FROZEN_CONSUMER, DIS_WARNING_EVALUATE_CONSUMER, DIS_RANKING_COMPUTE_CONSUMER, ADM_GUEST_CONTRACT_CONSUMER, AUD_PAY_RECOVERY_CONSUMER, AUD_REPORT_CONSUMER, NOTIFICATION_CONSUMER]);
   });
 
   it.each([

@@ -1,6 +1,6 @@
 import { DEFAULT_MINIMUM_PLAN_VND, rankUnits } from '../src/dis-ranking.ts';
 
-const unit = (code: string, planVnd: string, disbursedVnd: string) => ({ code, planVnd, disbursedVnd });
+const unit = (code: string, planVnd: string, disbursedVnd: string | null) => ({ code, planVnd, disbursedVnd });
 
 describe('the ranking of the units (ST-DIS-011 fixture FX-DIS-007, BR-DIS-10, proposals until D03 is signed)', () => {
   it('ranks by rate from the highest, from fractions of whole dong and not from rounded percents', () => {
@@ -27,6 +27,18 @@ describe('the ranking of the units (ST-DIS-011 fixture FX-DIS-007, BR-DIS-10, pr
     expect(ranking.ranked.map((item) => [item.rank, item.code])).toEqual([
       [1, 'U-0'],
       [2, 'U-1'],
+    ]);
+  });
+
+  it('leaves out a unit that has no figure, or a net below zero, as NO_DATA: a rate is not a guess, and it is not negative', () => {
+    const ranking = rankUnits([unit('A', '2000000000', null), unit('B', '2000000000', '-5'), unit('C', '2000000000', '0'), unit('D', '2000000000', '10')]);
+    expect(ranking.excluded).toEqual([
+      { code: 'A', reason: 'NO_DATA' },
+      { code: 'B', reason: 'NO_DATA' },
+    ]);
+    expect(ranking.ranked.map((item) => [item.rank, item.code, item.ratePct])).toEqual([
+      [1, 'D', '0.0000'],
+      [2, 'C', '0.0000'],
     ]);
   });
 

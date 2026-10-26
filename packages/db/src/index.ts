@@ -869,3 +869,5 @@ export { DisSnapshotStore, DIS_RATE_NULL_METRIC, SNAPSHOT_RESOURCE, DIS_SNAPSHOT
 export type { SnapshotRow as PeriodSnapshotRow, SnapshotLineRow as PeriodSnapshotLineRow, SnapshotStatus as PeriodSnapshotStatus } from './dis-snapshot-store.ts';
 export { DIS_WARNING_OPEN_METRIC, DisWarningStore, SEED_RULES as WARNING_SEED_RULES, WARNING_RESOURCE, WARNING_RULE_RESOURCE } from './dis-warning-store.ts';
 export type { Cleared as ClearedWarning, Evaluation as WarningEvaluation, Opened as OpenedWarning, RuleRow as WarningRuleRow, WarningRow } from './dis-warning-store.ts';
+export { DENOMINATORS as RANKING_DENOMINATORS, DisRankingStore, RANKING_RESOURCE } from './dis-ranking-store.ts';
+export type { Computation as RankingComputation, DenominatorKind as RankingDenominator, RankingRow } from './dis-ranking-store.ts';
