@@ -176,7 +176,7 @@ describe('SAS-01 tenant list', () => {
       await user.click(await within(failed).findByRole('button', { name: vi_['sas.tenants.retry.action'] }));
       await user.type(within(failed).getByLabelText(vi_['sas.tenants.retry.reason.label']), 'The subdomain was released.');
       await user.click(within(failed).getByRole('button', { name: vi_['sas.tenants.retry.submit'] }));
-      await within(failed).findByText(vi_['sas.tenantCreate.error.general']);
+      await within(failed).findByText(vi_['sas.tenantCreate.error.offline']);
       await user.click(within(failed).getByRole('button', { name: vi_['sas.tenants.retry.submit'] }));
       await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
       const [first, second] = h.command.mock.calls.map(([, input]) => (input as { attempt: unknown }).attempt);

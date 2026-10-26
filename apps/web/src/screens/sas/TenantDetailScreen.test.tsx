@@ -168,7 +168,7 @@ describe('SAS-03 tenant detail', () => {
       });
       await user.type(within(dialog).getByLabelText(vi_['sas.tenantDetail.reason.label']), REASON);
       await user.click(within(dialog).getByRole('button', { name: vi_['sas.tenantDetail.suspend.confirm'] }));
-      await within(dialog).findByText(vi_['sas.tenantCreate.error.general']);
+      await within(dialog).findByText(vi_['sas.tenantCreate.error.offline']);
       await user.click(within(dialog).getByRole('button', { name: vi_['sas.tenantDetail.suspend.confirm'] }));
       await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
       const [first, second] = h.command.mock.calls.map(([, input]) => (input as { attempt: unknown }).attempt);

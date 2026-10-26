@@ -167,6 +167,8 @@ export function problemMessage(t: Translate, view: ProblemView): string {
       return t('sas.tenantCreate.error.stepUp');
     case 'session':
       return t('sas.tenantCreate.error.session');
+    case 'offline':
+      return t('sas.tenantCreate.error.offline');
     case 'general':
       return t('sas.tenantCreate.error.general');
   }

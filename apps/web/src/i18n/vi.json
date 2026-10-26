@@ -3078,6 +3078,7 @@
   "sas.tenantCreate.error.denied": "Bạn không có quyền thực hiện thao tác này.",
   "sas.tenantCreate.error.stepUp": "Thao tác này cần xác thực bước hai.",
   "sas.tenantCreate.error.session": "Phiên làm việc đã hết hạn; đăng nhập lại.",
+  "sas.tenantCreate.error.offline": "Không kết nối được tới máy chủ; kiểm tra mạng rồi thử lại.",
   "sas.tenantCreate.error.general": "Chưa thể hoàn tất; thử lại sau.",
   "sas.entitlements.page.title": "Quyền lợi hiệu lực và ghi đè",
   "sas.entitlements.page.subtitle": "Tenant, thương hiệu, thuê bao và license.",

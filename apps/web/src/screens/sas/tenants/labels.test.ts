@@ -28,7 +28,7 @@ const known = (key: string): boolean => key in en;
 const STEPS = ['IDP_ORG', 'DNS_SUBDOMAIN', 'STORAGE_PREFIX', 'DB_PLACEMENT', 'RLS_SEED', 'ENTITLEMENT_V1', 'LICENSE_PILOT', 'ROLE_SEED', 'ROOT_UNIT', 'THEME_V1', 'OWNER_INVITE'];
 const RUN_STATUSES = ['PENDING', 'RUNNING', 'DONE', 'FAILED', 'COMPENSATED'];
 const FIELD_PROBLEMS: FieldProblem[] = ['required', 'pattern', 'tooShort', 'tooLong', 'email', 'uuid', 'choice'];
-const REASONS: ProblemView['reason'][] = ['codeTaken', 'domainTaken', 'planNotPublished', 'placementUnavailable', 'invalid', 'fieldNotAllowed', 'stateInvalid', 'conflict', 'notFound', 'denied', 'stepUp', 'session', 'general'];
+const REASONS: ProblemView['reason'][] = ['codeTaken', 'domainTaken', 'planNotPublished', 'placementUnavailable', 'invalid', 'fieldNotAllowed', 'stateInvalid', 'conflict', 'notFound', 'denied', 'stepUp', 'session', 'offline', 'general'];
 const FEATURES = ['reporting', 'export', 'ai.analysis', 'notification.campaign', 'member.invite'];
 const MODES = ['FULL', 'READ_ONLY', 'EXPORT_ONLY', 'DENIED'];
 const LICENSES = ['FULL', 'GRACE', 'EXPIRED', 'SUSPENDED', 'REVOKED'];

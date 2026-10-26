@@ -1,4 +1,4 @@
-import { ApiError } from '@machvon/api-client';
+import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
 import { describeProblem } from './problems';
 import { EMPTY_PROVISION_VALUES, provisionBody, validateProvisionForm } from './rules';
@@ -147,6 +147,7 @@ describe('describeProblem', () => {
     expect(describeProblem(problem('VERSION_CONFLICT'))).toMatchObject({ reason: 'conflict', currentVersion: undefined });
     expect(describeProblem(problem('MFA_REQUIRED', { status: 403 }))).toMatchObject({ reason: 'stepUp' });
     expect(describeProblem(problem('SESSION_EXPIRED', { status: 401 }))).toMatchObject({ reason: 'session' });
+    expect(describeProblem(problem(NETWORK_ERROR_CODE, { status: 0 }))).toMatchObject({ reason: 'offline' });
     expect(describeProblem(problem('TENANT_STATE_INVALID'))).toMatchObject({ reason: 'stateInvalid', field: undefined });
     expect(describeProblem(problem('ENTITLEMENT_DENIED', { status: 403 }))).toMatchObject({ reason: 'denied' });
     expect(describeProblem(problem('SOMETHING_ELSE', { status: 500 }))).toMatchObject({ reason: 'general' });

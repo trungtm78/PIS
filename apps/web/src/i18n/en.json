@@ -3078,6 +3078,7 @@
   "sas.tenantCreate.error.denied": "You are not allowed to do this.",
   "sas.tenantCreate.error.stepUp": "This action needs second-factor authentication.",
   "sas.tenantCreate.error.session": "Your session has expired; sign in again.",
+  "sas.tenantCreate.error.offline": "The server could not be reached; check the network and try again.",
   "sas.tenantCreate.error.general": "This could not be completed; try again later.",
   "sas.entitlements.page.title": "Effective entitlements and overrides",
   "sas.entitlements.page.subtitle": "Tenants, branding, subscriptions and licences.",

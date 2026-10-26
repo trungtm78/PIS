@@ -1,4 +1,4 @@
-import { ApiError } from '@machvon/api-client';
+import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { PROVISION_FIELDS } from './rules';
 import type { ProvisionField } from './rules';
 
@@ -16,6 +16,7 @@ export type ProblemReason =
   | 'denied'
   | 'stepUp'
   | 'session'
+  | 'offline'
   | 'general';
 
 export interface ProblemView {
@@ -58,6 +59,7 @@ export function describeProblem(error: unknown): ProblemView {
   }
   if (error.code === 'MFA_REQUIRED') return { reason: 'stepUp', field: undefined, currentVersion: undefined };
   if (error.code === 'SESSION_EXPIRED') return { reason: 'session', field: undefined, currentVersion: undefined };
+  if (error.code === NETWORK_ERROR_CODE) return { reason: 'offline', field: undefined, currentVersion: undefined };
   return {
     reason: REASON_BY_CODE[error.code] ?? 'general',
     field: isField(error.detail) ? error.detail : FIELD_BY_CODE[error.code],

@@ -1,4 +1,4 @@
-import { ApiError } from '@machvon/api-client';
+import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -183,5 +183,52 @@ describe('SAS-02 tenant creation', () => {
     const keys = (h.command.mock.calls as unknown as Array<[string, { attempt: { key: string } }]>).map((call) => call[1].attempt.key);
     expect(keys[1]).not.toBe(keys[0]);
     expect(keys[2]).toBe(keys[1]);
+  });
+
+  describe('the seven states (AC-ST-SAS-001-5)', () => {
+    const failWith = (error: ApiError) => harness(() => ({}), () => error);
+
+    async function submitWith(h: ReturnType<typeof harness>): Promise<void> {
+      const user = userEvent.setup();
+      mount(<TenantCreateScreen route={ROUTE} />, h);
+      await fill(user);
+      await user.click(submit());
+    }
+
+    it('shows the empty form first and, while the request is sent, a disabled button and no second request', async () => {
+      const user = userEvent.setup();
+      let release: (value: unknown) => void = () => undefined;
+      const h = harness(
+        () => ({}),
+        () =>
+          new Promise((resolve) => {
+            release = resolve;
+          }),
+      );
+      mount(<TenantCreateScreen route={ROUTE} />, h);
+      expect((field(vi_['sas.tenantCreate.name.label']) as HTMLInputElement).value).toBe('');
+      await fill(user);
+      await user.click(submit());
+      await waitFor(() => expect(submit()).toBeDisabled());
+      await user.click(submit());
+      expect(h.command).toHaveBeenCalledTimes(1);
+      release(ACCEPTED);
+      expect(await screen.findByRole('link', { name: vi_['sas.tenantCreate.accepted.link'] })).toBeTruthy();
+    });
+
+    it('says in words when the person may not create a tenant, when the session has lapsed and when the server cannot be reached', async () => {
+      await submitWith(failWith(new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c' })));
+      expect(await screen.findByText(vi_['sas.tenantCreate.error.denied'])).toBeTruthy();
+      cleanup();
+      await submitWith(failWith(new ApiError({ status: 401, code: 'SESSION_EXPIRED', correlationId: 'c' })));
+      expect(await screen.findByText(vi_['sas.tenantCreate.error.session'])).toBeTruthy();
+      cleanup();
+      await submitWith(failWith(new ApiError({ status: 0, code: NETWORK_ERROR_CODE, correlationId: 'c' })));
+      expect(await screen.findByText(vi_['sas.tenantCreate.error.offline'])).toBeTruthy();
+      expect((field(vi_['sas.tenantCreate.owner.label']) as HTMLInputElement).value).toBe('owner@example.org');
+      cleanup();
+      await submitWith(failWith(new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' })));
+      expect(await screen.findByText(vi_['sas.tenantCreate.error.general'])).toBeTruthy();
+    });
   });
 });
