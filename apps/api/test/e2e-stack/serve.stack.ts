@@ -541,6 +541,12 @@ const AUD_ROLES = [
   { n: 876, user: 'audCloser', code: 'E2E_AUD_CLOSER', permissions: ['aud.engagement.close', 'aud.read', 'session.self'], rank: 40 },
 ];
 
+/** DIS: the maker of the weekly report of the disbursement (draws the draft and enters the six cells) and a reader of the reports, both over the whole tenant. */
+const DIS_REPORT_ROLES = [
+  { n: 877, user: 'reportMaker', code: 'E2E_REPORT_MAKER', permissions: ['report.create', 'report.edit', 'report.read', 'report_revision.read', 'reporting_period.read', 'project.read', 'plan_version.read', 'session.self'], rank: 30 },
+  { n: 878, user: 'reportReader', code: 'E2E_REPORT_READER', permissions: ['report.read', 'report_revision.read', 'reporting_period.read', 'project.read', 'plan_version.read', 'session.self'], rank: 20 },
+];
+
 const CHAIN_ROLES = [{ n: 842, user: 'paymentAuditor', code: 'E2E_PAYMENT_AUDITOR', permissions: ['payment.chain.read', 'project.read', 'session.self'], rank: 20 }];
 
 /**
@@ -807,6 +813,7 @@ const GRANTS: GrantPlan[] = [
   ...INVENTORY_ROLES.map((role, index): GrantPlan => ({ n: 862 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PLAN_COMP_ROLES.map((role, index): GrantPlan => ({ n: 864 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...AUD_ROLES.map((role, index): GrantPlan => ({ n: 869 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...DIS_REPORT_ROLES.map((role, index): GrantPlan => ({ n: 877 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
 ];
 
 /** Runs statements as machvon_owner with the tenant set (FORCE RLS applies to the owner too). */
@@ -1104,7 +1111,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...MASTER_ROLES]) {
+  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...DIS_REPORT_ROLES, ...MASTER_ROLES]) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],

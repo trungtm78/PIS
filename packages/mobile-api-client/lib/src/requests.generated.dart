@@ -9833,9 +9833,9 @@ final class ReportDraft implements RequestModel {
   const ReportDraft({
     required this.projectId,
     required this.periodId,
-    required this.planVersionId,
     required this.measurementBasis,
     required this.fundingLines,
+    this.planVersionId,
     this.reportType,
     this.constructionVnd,
     this.acceptanceVnd,
@@ -9849,7 +9849,7 @@ final class ReportDraft implements RequestModel {
 
   final String projectId;
   final String periodId;
-  final String planVersionId;
+  final String? planVersionId;
   final String? reportType;
   final String measurementBasis;
   final List<FundingLine> fundingLines;
@@ -9866,7 +9866,7 @@ final class ReportDraft implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'project_id': projectId,
         'period_id': periodId,
-        'plan_version_id': planVersionId,
+        if (planVersionId != null) 'plan_version_id': planVersionId,
         if (reportType != null) 'report_type': reportType,
         'measurement_basis': measurementBasis,
         'funding_lines': fundingLines,

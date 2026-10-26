@@ -19,7 +19,7 @@ import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
-import { PERIOD_FIXTURES } from '../suite';
+import { PERIOD_FIXTURES, REPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
@@ -181,6 +181,21 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'softCloseReportingPeriod', method: 'POST', id: PERIOD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign soft close' } },
   { operation: 'lockReportingPeriod', method: 'POST', id: PERIOD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign lock' } },
   { operation: 'get_resources_reporting_period_id', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
+  {
+    operation: 'post_reports_id_revisions',
+    method: 'POST',
+    id: REPORT_FIXTURES['TNT-B'].id,
+    versioned: true,
+    body: {
+      project_id: PROJECT_FIXTURES['TNT-B'].id,
+      period_id: PERIOD_FIXTURES['TNT-B'].id,
+      plan_version_id: '00000000-0000-4000-b0bb-0000000000fa',
+      measurement_basis: 'YTD',
+      funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '1000' }],
+    },
+  },
+  { operation: 'getReportRevision', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_report_revision_id', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },
   { operation: 'requestPeriodReopen', method: 'POST', id: REOPEN_FIXTURES['TNT-B'].periodId, body: { scope_kind: 'PERIOD', reason: 'Isolation foreign reopen request attempt', window_hours: 24 } },
   { operation: 'decidePeriodReopen', method: 'POST', id: REOPEN_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision', window_hours: 24 } },
   { operation: 'retireIssueSlaPolicy', method: 'POST', id: SLA_POLICY_FIXTURES['TNT-B'].id, body: { valid_until: '2999-12-31' } },

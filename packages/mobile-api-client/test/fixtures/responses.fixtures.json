@@ -367,7 +367,7 @@
   "get_resources_quality_rule_version_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_quality_run": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_quality_run_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
-  "get_resources_report_revision": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
+  "get_resources_report_revision": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z","summary":{}},
   "get_resources_report_revision_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_reporting_period": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_reporting_period_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},

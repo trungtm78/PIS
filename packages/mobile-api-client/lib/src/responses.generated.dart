@@ -9458,6 +9458,7 @@ final class GetResourcesReportRevisionResponse implements ResponseModel {
     this.nextCursor,
     this.snapshotId,
     this.asOf,
+    this.summary,
     this.extra = const <String, Object?>{},
   });
 
@@ -9468,7 +9469,8 @@ final class GetResourcesReportRevisionResponse implements ResponseModel {
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),
       asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
+      summary: optionalField(map, path, 'summary', asObject),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of', 'summary'}, strict: false),
     );
   }
 
@@ -9476,6 +9478,7 @@ final class GetResourcesReportRevisionResponse implements ResponseModel {
   final String? nextCursor;
   final String? snapshotId;
   final String? asOf;
+  final Map<String, Object?>? summary;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -9486,6 +9489,7 @@ final class GetResourcesReportRevisionResponse implements ResponseModel {
         if (nextCursor != null) 'next_cursor': nextCursor,
         if (snapshotId != null) 'snapshot_id': snapshotId,
         if (asOf != null) 'as_of': asOf,
+        if (summary != null) 'summary': summary,
         ...extra,
       };
 }

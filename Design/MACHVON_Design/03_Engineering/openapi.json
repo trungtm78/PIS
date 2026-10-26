@@ -7205,6 +7205,76 @@
         "x-permission": "report_revision.read",
         "parameters": [
           {
+            "name": "fiscal_year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1990,
+              "maximum": 2100
+            }
+          },
+          {
+            "name": "period_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "plan_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The annual plan (capital plan) the plan version of the report belongs to."
+          },
+          {
+            "name": "plan_version_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SUBMITTED",
+                "UNDER_REVIEW",
+                "ACCEPTED",
+                "RETURNED",
+                "AMENDMENT_REQUESTED",
+                "WITHDRAWN",
+                "SUPERSEDED"
+              ]
+            }
+          },
+          {
+            "name": "report_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "WEEKLY",
+                "MONTHLY"
+              ]
+            }
+          },
+          {
             "name": "cursor",
             "in": "query",
             "schema": {
@@ -7248,6 +7318,10 @@
                     "as_of": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "summary": {
+                      "type": "object",
+                      "description": "The figures above the list: `filtered` adds up the reports of the filter, `scope` the reports the caller can see at all (SRC-01/02)."
                     }
                   }
                 }
@@ -125040,7 +125114,6 @@
         "required": [
           "project_id",
           "period_id",
-          "plan_version_id",
           "measurement_basis",
           "funding_lines"
         ],
@@ -125055,7 +125128,8 @@
           },
           "plan_version_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The plan version in force at the end of the period. Optional: the server finds it and captures it with the draft; when given it must be that one (422 PLAN_VERSION_NOT_EFFECTIVE)."
           },
           "report_type": {
             "type": "string",

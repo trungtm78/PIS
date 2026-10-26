@@ -22,7 +22,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { PERIOD_FIXTURES } from '../suite';
+import { PERIOD_FIXTURES, REPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -224,6 +224,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'decidePeriodReopen',
   'get_resources_reporting_period',
   'get_resources_reporting_period_id',
+  'post_reports',
+  'post_reports_id_revisions',
+  'getReportRevision',
+  'get_resources_report_revision',
+  'get_resources_report_revision_id',
   'registerAppropriation',
   'decideAppropriation',
   'listAppropriations',
@@ -662,6 +667,15 @@ const INSERT_PERMIT = `insert into machvon.permit
 const INSERT_PERIOD = `insert into machvon.reporting_period
   (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
   values ($1, $2, $3, 1, date '2026-01-03', date '2026-01-09', timestamptz '2026-01-09T03:00:00Z', 'DEFAULT', 'WEEK', 2026, 'OPEN', $4, $5, $5) on conflict do nothing`;
+
+/** The weekly report of the project of the fixture in its open period, in DRAFT, with one cell of the year plan of the central budget. */
+const INSERT_REPORT = `insert into machvon.report_revision
+  (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, payload_hash, report_type, measurement_basis, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, 1, 'DRAFT', false, 1, $6, 'WEEKLY', 'YTD', $7, $7) on conflict do nothing`;
+
+const INSERT_REPORT_LINE = `insert into machvon.funding_snapshot_line
+  (tenant_id, id, report_revision_id, bucket, budget_level, disbursed_cumulative_vnd, next_month_registered_vnd, allocated_vnd)
+  values ($1, $2, $3, 'CURRENT_YEAR', 'CENTRAL', $4::numeric, 0, 0) on conflict do nothing`;
 
 const INSERT_LOCKED_PERIOD = `insert into machvon.reporting_period
   (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, soft_closed_at, locked_at, locked_by, calendar_version_id, created_by, updated_by)
@@ -1274,6 +1288,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CAPITAL_PLAN, [tenantId, plan.id, plan.planCode, home, ACTOR_ID]);
     await client.query(INSERT_PUBLISHED_CAPITAL_PLAN, [tenantId, plan.publishedId, plan.publishedCode, home, ACTOR_ID, documents.documentId, APPROVER_ID]);
     await client.query(INSERT_PLAN_VERSION, [tenantId, plan.versionId, project.id, plan.id, ACTOR_ID]);
+    const report = REPORT_FIXTURES[tenant];
+    await client.query(INSERT_REPORT, [tenantId, report.id, project.id, period.id, plan.versionId, report.payloadHash, ACTOR_ID]);
+    await client.query(INSERT_REPORT_LINE, [tenantId, report.lineId, report.id, report.cumulativeVnd]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);

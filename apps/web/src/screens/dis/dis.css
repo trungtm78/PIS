@@ -91,3 +91,29 @@
   font-size: 11px;
   color: var(--shell-muted, #68616c);
 }
+.dis-matrix th[scope='row'] {
+  text-align: left;
+  font-weight: 600;
+}
+.dis-matrix input.num {
+  width: 100%;
+  min-width: 140px;
+  text-align: right;
+}
+.dis-subrow th[scope='row'] {
+  padding-left: 28px;
+  font-weight: 400;
+  color: var(--shell-muted, #68616c);
+}
+.dis-subrow td {
+  color: var(--shell-muted, #68616c);
+}
+.dis-fall {
+  color: var(--shell-warning, #b45309);
+  font-weight: 600;
+}
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

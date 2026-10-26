@@ -2284,6 +2284,34 @@
       ]
     },
     {
+      "key": "reportMaker",
+      "displayName": "Cán bộ lập báo cáo giải ngân tuần",
+      "membershipId": "00000000-0000-4000-8000-000000000877",
+      "permissions": [
+        "report.create",
+        "report.edit",
+        "report.read",
+        "report_revision.read",
+        "reporting_period.read",
+        "project.read",
+        "plan_version.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "reportReader",
+      "displayName": "Người xem báo cáo giải ngân tuần",
+      "membershipId": "00000000-0000-4000-8000-000000000878",
+      "permissions": [
+        "report.read",
+        "report_revision.read",
+        "reporting_period.read",
+        "project.read",
+        "plan_version.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "landPayer",
       "displayName": "Kế toán chi trả bồi thường",
       "membershipId": "00000000-0000-4000-8000-000000000867",

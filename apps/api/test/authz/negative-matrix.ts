@@ -805,6 +805,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodSoftClosedId}/lock`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  post_reports: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/reports',
+      body: { project_id: t.projectId, period_id: t.periodOpenId, plan_version_id: t.legalHoldId, measurement_basis: 'YTD', funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '1000' }] },
+    }),
+  },
+  post_reports_id_revisions: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/reports/${t.legalHoldId}/revisions`,
+      ifMatch: '"1"',
+      body: { project_id: t.projectId, period_id: t.periodOpenId, plan_version_id: t.legalHoldId, measurement_basis: 'YTD', funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '1000' }] },
+    }),
+  },
   requestPeriodReopen: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodLockedId}/reopen-requests`, body: { scope_kind: 'PERIOD', reason: 'Matrix request to reopen the locked period', window_hours: 24 } }),

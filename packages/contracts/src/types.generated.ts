@@ -14719,8 +14719,11 @@ export interface components {
             project_id: string;
             /** Format: uuid */
             period_id: string;
-            /** Format: uuid */
-            plan_version_id: string;
+            /**
+             * Format: uuid
+             * @description The plan version in force at the end of the period. Optional: the server finds it and captures it with the draft; when given it must be that one (422 PLAN_VERSION_NOT_EFFECTIVE).
+             */
+            plan_version_id?: string;
             /** @enum {string} */
             report_type?: "WEEKLY" | "MONTHLY";
             /** @enum {string} */
@@ -25952,6 +25955,14 @@ export interface operations {
     get_resources_report_revision: {
         parameters: {
             query?: {
+                fiscal_year?: number;
+                period_id?: string;
+                /** @description The annual plan (capital plan) the plan version of the report belongs to. */
+                plan_id?: string;
+                plan_version_id?: string;
+                project_id?: string;
+                status?: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "ACCEPTED" | "RETURNED" | "AMENDMENT_REQUESTED" | "WITHDRAWN" | "SUPERSEDED";
+                report_type?: "WEEKLY" | "MONTHLY";
                 cursor?: string;
                 limit?: number;
             };
@@ -25973,6 +25984,8 @@ export interface operations {
                         snapshot_id?: string;
                         /** Format: date-time */
                         as_of?: string;
+                        /** @description The figures above the list: `filtered` adds up the reports of the filter, `scope` the reports the caller can see at all (SRC-01/02). */
+                        summary?: Record<string, never>;
                     };
                 };
             };

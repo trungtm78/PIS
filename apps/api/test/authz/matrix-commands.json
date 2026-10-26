@@ -153,6 +153,8 @@
     "post_notifications_id_replay",
     "post_payment_requests_id_submit",
     "post_plans_id_publish",
+    "post_reports",
+    "post_reports_id_revisions",
     "post_settlements_id_close",
     "promoteChangeRequest",
     "proposeGlossaryTerm",

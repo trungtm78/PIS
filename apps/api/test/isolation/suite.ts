@@ -451,6 +451,12 @@ export const REOPEN_FIXTURES: Readonly<Record<TenantName, { periodId: string; pe
   'TNT-B': { periodId: '00000000-0000-4000-b0b6-000000000001', periodCode: 'BETA-PERIOD-0002', id: '00000000-0000-4000-b0b7-000000000001', reason: 'Beta tenant request to reopen the locked period 0001' },
 };
 
+/** A DRAFT weekly report of the project of each tenant in its open period (the hash of the content is distinctive: the figures of a report are internal to the tenant). */
+export const REPORT_FIXTURES: Readonly<Record<TenantName, { id: string; lineId: string; payloadHash: string; cumulativeVnd: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0fb-000000000001', lineId: '00000000-0000-4000-a0fb-000000000002', payloadHash: 'a0fb'.repeat(16), cumulativeVnd: '7300001' },
+  'TNT-B': { id: '00000000-0000-4000-b0fb-000000000001', lineId: '00000000-0000-4000-b0fb-000000000002', payloadHash: 'b0fb'.repeat(16), cumulativeVnd: '9100002' },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -867,6 +873,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'expired permit number', value: PERMIT_FIXTURES[tenant].expiredNo },
     { kind: 'reporting period id', value: PERIOD_FIXTURES[tenant].id },
     { kind: 'reporting period code', value: PERIOD_FIXTURES[tenant].code },
+    { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },
+    { kind: 'weekly report hash', value: REPORT_FIXTURES[tenant].payloadHash },
+    { kind: 'weekly report cumulative', value: REPORT_FIXTURES[tenant].cumulativeVnd },
     { kind: 'locked reporting period id', value: REOPEN_FIXTURES[tenant].periodId },
     { kind: 'locked reporting period code', value: REOPEN_FIXTURES[tenant].periodCode },
     { kind: 'period reopen id', value: REOPEN_FIXTURES[tenant].id },

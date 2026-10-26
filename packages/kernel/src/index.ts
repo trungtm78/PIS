@@ -605,3 +605,21 @@ export {
   reportTotals,
 } from './aud-report.ts';
 export type { ReportAction, ReportFacts, ReportGroup, ReportRecommendation, ReportStatus, ReportTotals } from './aud-report.ts';
+export {
+  BUDGET_LEVELS,
+  DEFAULT_MEASUREMENT_BASIS,
+  FUNDING_BUCKETS,
+  FUNDING_CELLS,
+  MEASUREMENT_BASES,
+  REPORTABLE_PROJECT_STATUSES,
+  REPORT_TYPES,
+  REVISION_STATUSES,
+  assertReportableStage,
+  deltaOf,
+  draftHash,
+  fundingCells,
+  fundingTotals,
+  negativeDeltaExplanation,
+  takesCtmtqg,
+} from './dis-report.ts';
+export type { BudgetLevel, DraftContent, FundingBucket, FundingCellKey, FundingInput, FundingTotals, MeasurementBasis, RawFundingLine, ReportType, RevisionStatus } from './dis-report.ts';

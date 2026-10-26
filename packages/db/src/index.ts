@@ -841,4 +841,19 @@ export type { RecoveryMismatch, RecoveryReconcileResult } from './aud-recovery-r
 export { AudRecoveryStore, OVERVIEW_ENGAGEMENTS_LIMIT } from './aud-recovery-store.ts';
 export type { ExceptionKind, ExceptionLine, LinkLine as RecoveryLinkLine, LinkRow as RecoveryLinkRow, NewLink as NewRecoveryLink, Overview as AuditOverview, OverviewEngagement, PayOutcome, RecoverySummary, SummaryLine } from './aud-recovery-store.ts';
 export { AudReportStore, reportPayloadRef } from './aud-report-store.ts';
+export { DisReportStore, REPORT_RESOURCE } from './dis-report-store.ts';
+export type {
+  Allocation,
+  DraftContent as ReportDraftContent,
+  FundingLineRow,
+  NewDraft,
+  PlanFacts,
+  ReportFilter,
+  ReportKpi,
+  ReportPeriodFacts,
+  ReportProject,
+  RevisionDetail,
+  RevisionHead,
+  RevisionLine,
+} from './dis-report-store.ts';
 export type { NewReport, ReportContext, ReportHead, ReportLine } from './aud-report-store.ts';
