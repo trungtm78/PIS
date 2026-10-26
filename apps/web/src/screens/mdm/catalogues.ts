@@ -305,6 +305,16 @@ const NEEDS_QUOTES = /[",\r\n]/;
 /** The byte order mark that makes a spreadsheet read the file as UTF-8, so that the accents survive. */
 const BYTE_ORDER_MARK = '﻿';
 
+/** Hands a text to the browser as a file to save. */
+export function download(name: string, content: string): void {
+  const url = URL.createObjectURL(new Blob([content], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 /**
  * The rows as a CSV text. A cell that starts like a formula is written as text, so that a catalogue entry cannot run anything on the
  * machine of the person who exports it.

@@ -27,6 +27,8 @@ export interface Register {
   version: number;
 }
 
+export type EntryStatus = 'ALLOCATED' | 'VOIDED' | 'RECALLED';
+
 /** One line of the log of a register (`listDocumentRegisterEntries`): the number as people read it, its symbol and its state. */
 export interface RegisterEntry {
   allocationId: string;
@@ -35,7 +37,7 @@ export interface RegisterEntry {
   symbol: string;
   documentId: string;
   issuedOn: string;
-  status: 'ALLOCATED' | 'VOIDED';
+  status: EntryStatus;
 }
 
 /** One revision of a document type, as the list of registers carries it next to the registers. */
@@ -85,11 +87,11 @@ export function toEntry(raw: unknown): RegisterEntry {
   return {
     allocationId: text(row.allocation_id),
     number: count(row.number),
-    displayNumber: text(row.display_number) || String(count(row.number)),
+    displayNumber: text(row.display_number) || String(count(row.number)).padStart(2, '0'),
     symbol: text(row.symbol),
     documentId: text(row.document_id),
     issuedOn: text(row.issued_on),
-    status: row.status === 'VOIDED' ? 'VOIDED' : 'ALLOCATED',
+    status: row.status === 'VOIDED' || row.status === 'RECALLED' ? row.status : 'ALLOCATED',
   };
 }
 

@@ -5,9 +5,11 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { useCloseRegister, useRegisterEntries, useRegisters } from './registers/hooks';
+import { download } from '../mdm/catalogues';
+import { useCloseRegister, useLedgerRead, useRegisterEntries, useRegisters } from './registers/hooks';
 import type { RegisterFilter } from './registers/hooks';
 import { directionLabel, entryStatusLabel, fieldProblemMessage, modeLabel, problemMessage, statusLabel } from './registers/labels';
+import { buildLedgerFile } from './registers/ledger-export';
 import { describeProblem } from './registers/problems';
 import { closeReasonProblem } from './registers/rules';
 import { DIRECTIONS, MANAGE_REGISTERS_PERMISSION, REGISTER_STATUSES } from './registers/types';
@@ -34,7 +36,7 @@ export default function NumberRegistersScreen({ route }: ScreenProps) {
 
 function NumberRegistersContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
   const frozen = mode === 'READ_ONLY';
   const canManage = (permissions === undefined || permissions.includes(MANAGE_REGISTERS_PERMISSION)) && !frozen;
@@ -48,9 +50,11 @@ function NumberRegistersContent({ route }: ScreenProps) {
   const [reason, setReason] = useState('');
   const [reasonRefused, setReasonRefused] = useState(false);
   const [closed, setClosed] = useState<string | undefined>(undefined);
+  const [exported, setExported] = useState<{ code: string; count: number; hash: string } | undefined>(undefined);
   const list = useRegisters({ year: applied.year, direction: applied.direction });
   const entries = useRegisterEntries(openId);
   const close = useCloseRegister();
+  const ledger = useLedgerRead();
   const all = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
   const shown = useMemo(() => all.filter((register) => matches(register, applied)), [all, applied]);
   // The state replaces the table, not the filters: a year or direction without registers can still be changed.
@@ -58,11 +62,23 @@ function NumberRegistersContent({ route }: ScreenProps) {
   const opened = all.find((register) => register.id === openId);
   const rows = entries.data?.pages.flatMap((page) => page.items) ?? [];
   const problem = close.isError ? describeProblem(close.error) : undefined;
+  const exportProblem = ledger.isError ? describeProblem(ledger.error) : undefined;
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     setApplied(draft);
     setOpenId(undefined);
+  };
+
+  const exportLedger = (register: Register): void => {
+    setExported(undefined);
+    ledger.mutate(register.id, {
+      onSuccess: async (entriesOf) => {
+        const file = await buildLedgerFile(t, { register, entries: entriesOf, tenantName: tenant?.name ?? '', exportedOn: new Date().toISOString().slice(0, 10) });
+        download(file.name, file.content);
+        setExported({ code: register.registerCode, count: file.rowCount, hash: file.sha256 });
+      },
+    });
   };
 
   const startClosing = (register: Register): void => {
@@ -100,6 +116,11 @@ function NumberRegistersContent({ route }: ScreenProps) {
           <p>{t('doc.registers.page.subtitle')}</p>
         </div>
       </div>
+      {exported === undefined ? null : (
+        <p className="callout" role="status">
+          {t('doc.registers.export.done.notice', { code: exported.code, count: exported.count, hash: exported.hash })}
+        </p>
+      )}
       {closed === undefined ? null : (
         <p className="callout" role="status">
           {t('doc.registers.closed.notice', { code: closed })}
@@ -236,7 +257,22 @@ function NumberRegistersContent({ route }: ScreenProps) {
       )}
       {opened === undefined ? null : (
         <div className="card" data-entries-of={opened.id}>
-          <h2>{t('doc.registers.entries.title', { code: opened.registerCode, year: opened.year })}</h2>
+          <div className="row between gap">
+            <h2>{t('doc.registers.entries.title', { code: opened.registerCode, year: opened.year })}</h2>
+            <button type="button" disabled={ledger.isPending} onClick={() => exportLedger(opened)}>
+              {t('doc.registers.export.action')}
+            </button>
+          </div>
+          {ledger.isPending ? (
+            <p className="muted" role="status">
+              {t('doc.registers.export.running')}
+            </p>
+          ) : null}
+          {exportProblem === undefined ? null : (
+            <p className="callout warning" role="alert">
+              {problemMessage(t, exportProblem)}
+            </p>
+          )}
           {entries.isError ? (
             <p className="callout warning" role="alert">
               {problemMessage(t, describeProblem(entries.error))}

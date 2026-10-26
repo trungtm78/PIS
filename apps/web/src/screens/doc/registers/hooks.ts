@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
-import { toEntryPage, toRegisterPage } from './types';
+import { toEntry, toEntryPage, toRegisterPage } from './types';
 import type { Direction, EntryPage, RegisterPage } from './types';
 import type { RegisterBody, TypeBody } from './rules';
 
@@ -56,6 +56,17 @@ export function useRegisterEntries(registerId: string | undefined) {
     getNextPageParam: (last) => last.nextCursor,
     enabled: tenant !== undefined && registerId !== undefined,
     retry: false,
+  });
+}
+
+/** Every number of a register, read page after page: what the exported ledger holds. */
+export function useLedgerRead() {
+  const client = useApiClient();
+  return useMutation({
+    mutationFn: async (registerId: string) => {
+      const items: unknown[] = await client.readAll('listDocumentRegisterEntries', { path: { id: registerId }, query: { limit: PAGE_SIZE } });
+      return items.map(toEntry);
+    },
   });
 }
 

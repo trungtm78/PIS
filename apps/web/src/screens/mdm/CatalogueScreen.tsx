@@ -6,7 +6,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { RulePanel } from './RulePanel';
-import { CATALOGUES, camel, inTreeOrder, toCsv } from './catalogues';
+import { CATALOGUES, camel, download, inTreeOrder, toCsv } from './catalogues';
 import type { CatalogueConfig, CellContext } from './catalogues';
 import { useCatalogue, useCrosswalks, useTypePolicies } from './hooks';
 import { recordStatusLabel, scopeLabel } from './labels';
@@ -18,15 +18,6 @@ const DETAIL_PATH = '/mdm/mdm-27';
 const STATUSES: readonly RecordStatus[] = ['EFFECTIVE', 'DRAFT', 'IN_REVIEW', 'APPROVED', 'RETIRED', 'MERGED'];
 const NEVER_EMPTY = (): boolean => false;
 const TREE_INDENT_PX = 16;
-
-function download(name: string, content: string): void {
-  const url = URL.createObjectURL(new Blob([content], { type: 'text/csv;charset=utf-8' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = name;
-  link.click();
-  URL.revokeObjectURL(url);
-}
 
 /**
  * MDM-04 to MDM-10: the catalogues of the capital chain (funding sources, programmes, sectors, project groups and types, stages, decision

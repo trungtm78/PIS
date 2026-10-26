@@ -1,7 +1,7 @@
 import type { Translator } from '../../../i18n';
 import type { FieldProblem } from './rules';
 import type { ProblemView } from './problems';
-import type { Direction, RegisterMode, RegisterStatus, SymbolKind } from './types';
+import type { Direction, EntryStatus, RegisterMode, RegisterStatus, SymbolKind } from './types';
 
 type T = Translator['t'];
 
@@ -18,8 +18,15 @@ export function modeLabel(t: T, mode: RegisterMode): string {
   return mode === 'MANAGED' ? t('doc.registers.mode.managed') : t('doc.registers.mode.mirrored');
 }
 
-export function entryStatusLabel(t: T, status: 'ALLOCATED' | 'VOIDED'): string {
-  return status === 'ALLOCATED' ? t('doc.registers.entryStatus.allocated') : t('doc.registers.entryStatus.voided');
+export function entryStatusLabel(t: T, status: EntryStatus): string {
+  switch (status) {
+    case 'ALLOCATED':
+      return t('doc.registers.entryStatus.allocated');
+    case 'VOIDED':
+      return t('doc.registers.entryStatus.voided');
+    case 'RECALLED':
+      return t('doc.registers.entryStatus.recalled');
+  }
 }
 
 export function symbolKindLabel(t: T, kind: SymbolKind): string {

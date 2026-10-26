@@ -1,7 +1,7 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import NumberRegistersScreen from './NumberRegistersScreen';
 import { CLERK, READER, harness, mount, routeOf } from './test-support';
@@ -48,6 +48,20 @@ function answer(operation: string, input: unknown): unknown {
 }
 
 afterEach(cleanup);
+
+/** The client of the harness has no real paging: this one follows next_cursor over the reads of the harness, as the real client does. */
+function pageThrough(h: ReturnType<typeof harness>): void {
+  (h.client as unknown as { readAll: unknown }).readAll = async (operation: string, input: { path?: unknown; query?: Record<string, unknown> }) => {
+    const items: unknown[] = [];
+    let cursor: string | undefined;
+    do {
+      const page = (await h.read(operation, { ...input, query: cursor === undefined ? input.query : { ...input.query, cursor } })) as { items: unknown[]; next_cursor: string | null };
+      items.push(...page.items);
+      cursor = page.next_cursor ?? undefined;
+    } while (cursor !== undefined);
+    return items;
+  };
+}
 
 describe('NumberRegistersScreen (DOC-10)', () => {
   it('lists the registers with their counters and asks the server for the year of the filter', async () => {
@@ -154,6 +168,62 @@ describe('NumberRegistersScreen (DOC-10)', () => {
     await screen.findByText('REG-1');
     expect(screen.queryByRole('button', { name: vi_['doc.registers.close.label'].replace('{code}', 'REG-1') })).toBeNull();
     expect(screen.getAllByRole('button', { name: /Mở/ }).length).toBeGreaterThan(0);
+  });
+
+  it('AC-ST-DOC-002-2 / UAT-AC431: exports the whole ledger, every page, as a file with the scope and its SHA-256', async () => {
+    const h = harness((operation, input) => {
+      if (operation !== 'listDocumentRegisterEntries') return answer(operation, input);
+      const cursor = (input as { query?: { cursor?: string } }).query?.cursor;
+      return cursor === undefined
+        ? { register: ROWS[0], items: [entry(1), entry(2, 'VOIDED')], next_cursor: 'next' }
+        : { register: ROWS[0], items: [entry(3, 'RECALLED')], next_cursor: null };
+    });
+    pageThrough(h);
+    mount(<NumberRegistersScreen route={ROUTE} />, h);
+    await screen.findByText('REG-1');
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
+    await screen.findByText('01/QD-UBND');
+    let blob: Blob | undefined;
+    URL.createObjectURL = vi.fn((made: Blob) => {
+      blob = made;
+      return 'blob:ledger';
+    });
+    URL.revokeObjectURL = vi.fn();
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    await user.click(screen.getByRole('button', { name: vi_['doc.registers.export.action'] }));
+    const notice = await screen.findByText(/SHA-256 [0-9a-f]{64}/);
+    expect(click).toHaveBeenCalledTimes(1);
+    const text = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.readAsText(blob as Blob);
+    });
+    expect(text).toContain('01,01/QD-UBND');
+    expect(text).toContain('03,03/QD-UBND');
+    expect(text).toContain(vi_['doc.registers.entryStatus.voided']);
+    expect(text).toContain(vi_['doc.registers.entryStatus.recalled']);
+    expect(text).toContain('Cao Bang');
+    const hash = /SHA-256 ([0-9a-f]{64})/.exec(notice.textContent ?? '')?.[1];
+    expect(text).toContain(`${vi_['doc.registers.export.meta.hash']},${hash}`);
+    expect(notice.textContent).toContain('REG-1: 3');
+    click.mockRestore();
+  });
+
+  it('says why the ledger could not be exported and writes no file', async () => {
+    let failing = false;
+    const h = harness((operation, input) => (operation === 'listDocumentRegisterEntries' && failing ? new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c' }) : answer(operation, input)));
+    pageThrough(h);
+    mount(<NumberRegistersScreen route={ROUTE} />, h);
+    await screen.findByText('REG-1');
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
+    await screen.findByText('01/QD-UBND');
+    failing = true;
+    URL.createObjectURL = vi.fn(() => 'blob:none');
+    await user.click(screen.getByRole('button', { name: vi_['doc.registers.export.action'] }));
+    expect((await screen.findByRole('alert')).textContent).toBe(vi_['doc.problem.denied.text']);
+    expect(URL.createObjectURL).not.toHaveBeenCalled();
   });
 
   it('loads the next page of registers on request', async () => {

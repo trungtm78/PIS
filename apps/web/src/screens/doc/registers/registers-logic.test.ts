@@ -147,6 +147,7 @@ describe('problems', () => {
     expect(modeLabel(t, 'MIRRORED')).toBe(vi_['doc.registers.mode.mirrored']);
     expect(entryStatusLabel(t, 'ALLOCATED')).toBe(vi_['doc.registers.entryStatus.allocated']);
     expect(entryStatusLabel(t, 'VOIDED')).toBe(vi_['doc.registers.entryStatus.voided']);
+    expect(entryStatusLabel(t, 'RECALLED')).toBe(vi_['doc.registers.entryStatus.recalled']);
     expect(symbolKindLabel(t, 'DECISION')).toBe(vi_['doc.types.kind.decision']);
     expect(symbolKindLabel(t, 'NAMED_TYPE')).toBe(vi_['doc.types.kind.namedType']);
     expect(symbolKindLabel(t, 'OFFICIAL_LETTER')).toBe(vi_['doc.types.kind.officialLetter']);
@@ -173,6 +174,7 @@ describe('parsing of the API answers', () => {
       status: 'VOIDED',
     });
     expect(toEntry({ number: 12 })).toMatchObject({ displayNumber: '12', status: 'ALLOCATED' });
+    expect(toEntry({ number: 5, status: 'RECALLED' })).toMatchObject({ displayNumber: '05', status: 'RECALLED' });
     expect(toDocType({ id: 't', code: 'QD', name: 'N', abbreviation: 'Q', symbol_kind: 'OFFICIAL_LETTER', symbol_pattern: 'p', register_code: 'R', effective_from: '2026-01-01', effective_until: null, status: 'PUBLISHED', version: 2 })).toMatchObject({
       symbolKind: 'OFFICIAL_LETTER',
       abbreviation: 'Q',
