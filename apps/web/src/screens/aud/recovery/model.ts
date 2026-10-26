@@ -42,7 +42,7 @@ export interface Rate {
   percent: string | null;
 }
 
-function toRate(raw: unknown): Rate | undefined {
+export function toRate(raw: unknown): Rate | undefined {
   const row = asRecord(raw);
   const numerator = dong(row?.numerator);
   const denominator = dong(row?.denominator);

@@ -349,6 +349,7 @@ describe('issue requests and document references for source modules (ST-DOC-008)
       }
       expect(await count("select count(*) as n from machvon.doc_issue_request where source_module = 'DIS'")).toBe(1);
       expect(issueRequestOf({ type: 'mne.report.issue_requested.v1', payload: { ...base, source_module: undefined } })?.sourceModule).toBe('MNE');
+      expect(issueRequestOf({ type: 'aud.report.issue_requested.v1', payload: { ...base, source_module: undefined } })?.sourceModule).toBe('AUD');
       expect(issueRequestOf({ type: 'doc.issue_requested.v1', payload: { ...base, source_module: undefined } })).toBeUndefined();
       expect(issueRequestOf({ type: 'doc.issue_requested.v1', payload: { ...base, source_module: 'bad' } })).toBeUndefined();
       expect(issueRequestOf({ type: 'doc.issue_requested.v1', payload: { ...base, event_id: randomUUID().toUpperCase() } })?.eventId).toMatch(/^[0-9a-f-]{36}$/);

@@ -499,6 +499,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listAuditConclusions': OperationDescriptor(method: 'GET', path: '/audit-engagements/{id}/conclusions', versioned: false, stepUp: null, permission: 'aud.read'),
   'listAuditEngagements': OperationDescriptor(method: 'GET', path: '/audit-engagements', versioned: false, stepUp: null, permission: 'aud.read'),
   'listAuditFindings': OperationDescriptor(method: 'GET', path: '/audit-conclusions/{id}/findings', versioned: false, stepUp: null, permission: 'aud.read'),
+  'listAuditFollowUpReports': OperationDescriptor(method: 'GET', path: '/audit-engagements/{id}/follow-up-reports', versioned: false, stepUp: null, permission: 'aud.read'),
   'listAuditRecommendations': OperationDescriptor(method: 'GET', path: '/audit-recommendations', versioned: false, stepUp: null, permission: 'aud.read'),
   'listAuditRecoveryLinks': OperationDescriptor(method: 'GET', path: '/audit-engagements/{id}/recovery-links', versioned: false, stepUp: null, permission: 'aud.read'),
   'listAvcPolicies': OperationDescriptor(method: 'GET', path: '/avc-policies', versioned: false, stepUp: null, permission: 'capital.read'),

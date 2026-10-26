@@ -1829,6 +1829,14 @@
       "statusBasis": "spec",
       "source": "spec:SAS"
     },
+    "FOLLOW_UP_REPORT_EXISTS": {
+      "status": 409,
+      "title": "Follow up report exists",
+      "meaning": "A report of the results of the recommendations of the same conclusion and the same day is waiting for DOC or was issued already; the problem names it (requestAuditFollowUpReport, POST /audit-engagements/{id}/follow-up-reports)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
     "FOLLOW_UP_REPORT_MISSING": {
       "status": 422,
       "title": "Follow up report missing",

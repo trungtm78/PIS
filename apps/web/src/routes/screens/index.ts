@@ -26,6 +26,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'AUD-06': () => import('../../screens/aud/recommendation/RecommendationsScreen'),
   'AUD-07': () => import('../../screens/aud/recommendation/BoardScreen'),
   'AUD-08': () => import('../../screens/aud/recovery/RecoveryScreen'),
+  'AUD-10': () => import('../../screens/aud/report/ReportScreen'),
   'BID-01': () => import('../../screens/bid/ContractorListScreen'),
   'BID-02': () => import('../../screens/bid/ContractorProfileScreen'),
   'BID-03': () => import('../../screens/bid/PackageListScreen'),

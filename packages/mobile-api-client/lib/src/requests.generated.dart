@@ -707,15 +707,21 @@ final class AudFollowUpReport implements RequestModel {
   const AudFollowUpReport({
     required this.conclusionId,
     required this.asOfDate,
+    this.draftingUnitId,
+    this.place,
   });
 
   final String conclusionId;
   final String asOfDate;
+  final String? draftingUnitId;
+  final String? place;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'conclusion_id': conclusionId,
         'as_of_date': asOfDate,
+        if (draftingUnitId != null) 'drafting_unit_id': draftingUnitId,
+        if (place != null) 'place': place,
       };
 }
 

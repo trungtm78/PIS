@@ -23,7 +23,7 @@ describe('the platform template pack (ST-DOC-006, TK-DOC-006-3)', () => {
 
   it('is data with a version: every template has its legal basis, a watermark that says it waits for confirmation, a start date and a body the renderer can fill', () => {
     expect(loaded.packVersion).toBe('2026.10.1');
-    expect(loaded.templates).toHaveLength(22);
+    expect(loaded.templates).toHaveLength(23);
     for (const template of loaded.templates) {
       expect(template.legalBasis.length).toBeGreaterThan(5);
       expect(template.watermarkText).toContain('CHƯA XÁC NHẬN PHÁP LÝ');

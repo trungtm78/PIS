@@ -497,6 +497,7 @@ export const OPERATIONS = {
   "listAuditConclusions": { method: "get", path: "/audit-engagements/{id}/conclusions", versioned: false, stepUp: null, permission: "aud.read" },
   "listAuditEngagements": { method: "get", path: "/audit-engagements", versioned: false, stepUp: null, permission: "aud.read" },
   "listAuditFindings": { method: "get", path: "/audit-conclusions/{id}/findings", versioned: false, stepUp: null, permission: "aud.read" },
+  "listAuditFollowUpReports": { method: "get", path: "/audit-engagements/{id}/follow-up-reports", versioned: false, stepUp: null, permission: "aud.read" },
   "listAuditRecommendations": { method: "get", path: "/audit-recommendations", versioned: false, stepUp: null, permission: "aud.read" },
   "listAuditRecoveryLinks": { method: "get", path: "/audit-engagements/{id}/recovery-links", versioned: false, stepUp: null, permission: "aud.read" },
   "listAvcPolicies": { method: "get", path: "/avc-policies", versioned: false, stepUp: null, permission: "capital.read" },

@@ -1,0 +1,13 @@
+{
+  "id": "AUD_REPORT_REJECTED",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "audit-follow-up",
+  "runbook": "docs/runbooks/alerts/AUD_REPORT_REJECTED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "AUD_REPORT_REJECTED"
+  },
+  "summary": "DOC could not issue the report of the results of the recommendations of an audit or an inspection."
+}

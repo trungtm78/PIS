@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { AUD_SCOPE_KINDS, AudEngagementStore, TenantDatabase, WORKER_MEMBERSHIP_ID, engagementScope, engagementTargetRef } from '@machvon/db';
+import { AUD_SCOPE_KINDS, AudEngagementStore, AudReportStore, TenantDatabase, WORKER_MEMBERSHIP_ID, engagementScope, engagementTargetRef } from '@machvon/db';
 import type { AudScopeTarget, EngagementDetail, EngagementLine } from '@machvon/db';
 import { DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -17,6 +17,7 @@ import { reaches } from '../lnd/reach';
 
 const READ_PERMISSION = PERMISSIONS.listAuditEngagements;
 const MANAGE_PERMISSION = PERMISSIONS.createAuditEngagement;
+const CLOSE_PERMISSION = PERMISSIONS.closeAuditEngagement;
 const RESOURCE_TYPE = 'audit_engagement';
 /** AUD data are CONFIDENTIAL (AUD 2): the trail and the events carry codes and ids, never the title, the authority or the reason in words. */
 const CLASSIFICATION = 'CONFIDENTIAL';
@@ -82,6 +83,7 @@ function scopeOf(items: ReadonlyArray<unknown>): AudScopeTarget[] {
 @Controller()
 export class AuditEngagementController {
   private readonly engagements = new AudEngagementStore();
+  private readonly reports = new AudReportStore();
 
   @Post('audit-engagements')
   @HttpCode(200)
@@ -259,6 +261,52 @@ export class AuditEngagementController {
       eventKey: `${RESOURCE_TYPE}:${id}:${done.version}`,
     });
     return commandResult(scope, 'CANCELLED', done.version, id);
+  }
+
+  /**
+   * CLOSE: FOLLOW_UP to CLOSED once no recommendation is open and DOC has issued a report for every conclusion that stands (ST-AUD-005, BR-AUD-04). The engagement is locked first, and the facts
+   * are read after the lock, which is what a reversal of a recovery waits for before it reopens a recommendation. The hold of the engagement is released in the same transaction (BR-AUD-10).
+   */
+  @Post('audit-engagements/:id/closure')
+  @HttpCode(200)
+  @OperationId('closeAuditEngagement')
+  @Command({ operation: 'closeAuditEngagement', versioned: true })
+  async close(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Schemas['AudStatusNote'],
+  ): Promise<CommandResult> {
+    const now = new Date();
+    const row = await this.engagements.lock(scope.tx, id, engagementScope(access, READ_PERMISSION, now), engagementScope(access, CLOSE_PERMISSION, now), scope.expectedVersion ?? 0);
+    const facts = await this.reports.closureFacts(scope.tx, id);
+    const done = await this.engagements.close(scope.tx, row, { onDate: body.on_date, today: vietnamDateOf(now), releasedBy: WORKER_MEMBERSHIP_ID, facts }, scope.tenant.membershipId);
+    await scope.audit({
+      action: 'aud.engagement_closed',
+      resourceType: RESOURCE_TYPE,
+      resourceId: id,
+      classification: CLASSIFICATION,
+      diff: { engagement_code: row.engagementCode, from_status: row.status, to_status: 'CLOSED', on_date: body.on_date, legal_hold_id: row.legalHoldId, legal_hold_released: done.holdReleased },
+    });
+    await scope.emit({
+      aggregateType: RESOURCE_TYPE,
+      aggregateId: id,
+      aggregateVersion: done.version,
+      type: 'aud.engagement.closed.v1',
+      schemaVersion: 1,
+      payload: {
+        tenant_id: scope.tenant.tenantId,
+        engagement_id: id,
+        engagement_code: row.engagementCode,
+        closed_on: body.on_date,
+        legal_hold_id: row.legalHoldId,
+        legal_hold_released: done.holdReleased,
+        actor_id: scope.tenant.membershipId,
+        occurred_at: now.toISOString(),
+      },
+      eventKey: `${RESOURCE_TYPE}:${id}:${done.version}`,
+    });
+    return commandResult(scope, 'CLOSED', done.version, id);
   }
 
   /** The engagement locked for a command: 404 when the caller does not see it, 403 when they see it and may not act on it, 409 for a stale version. */

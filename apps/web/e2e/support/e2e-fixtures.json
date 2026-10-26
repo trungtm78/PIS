@@ -2264,6 +2264,26 @@
       ]
     },
     {
+      "key": "audReporter",
+      "displayName": "Người lập báo cáo kết quả",
+      "membershipId": "00000000-0000-4000-8000-000000000875",
+      "permissions": [
+        "aud.report.issue",
+        "aud.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "audCloser",
+      "displayName": "Người đóng cuộc thanh tra",
+      "membershipId": "00000000-0000-4000-8000-000000000876",
+      "permissions": [
+        "aud.engagement.close",
+        "aud.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "landPayer",
       "displayName": "Kế toán chi trả bồi thường",
       "membershipId": "00000000-0000-4000-8000-000000000867",

@@ -189,7 +189,7 @@ describe('the ledger of recoveries over HTTP (ST-AUD-004, AUD-08, AUD-01)', () =
   }, 60_000);
 
   it('serves the controllers of the ledger in the module of AUD', () => {
-    expect(audModule.controllers.slice(-2)).toEqual([AuditRecoveryController, AuditRecoveryReadsController]);
+    expect(audModule.controllers.slice(-4, -2)).toEqual([AuditRecoveryController, AuditRecoveryReadsController]);
   });
 
   describe('linkAuditRecovery', () => {

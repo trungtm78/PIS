@@ -1,0 +1,13 @@
+{
+  "id": "AUD_REPORT_EXCEPTION",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "audit-follow-up",
+  "runbook": "docs/runbooks/alerts/AUD_REPORT_EXCEPTION.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "AUD_REPORT_EXCEPTION"
+  },
+  "summary": "An answer of DOC about a report of the results of an audit does not fit the report it names, or the report was issued by the person who asked for it."
+}

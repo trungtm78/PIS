@@ -320,6 +320,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'startAuditEngagement',
   'endAuditFieldwork',
   'cancelAuditEngagement',
+  'closeAuditEngagement',
+  'requestAuditFollowUpReport',
+  'listAuditFollowUpReports',
   'listAuditEngagements',
   'getAuditEngagement',
   'recordAuditConclusion',
@@ -1055,6 +1058,12 @@ const INSERT_RECOVERY_LINK = `insert into machvon.audit_recovery_link
   (tenant_id, id, recommendation_id, source_kind, source_id, amount_vnd, recorded_on, recorded_by)
   select $1, $2, $3, 'PAY_RECOVERY', $4, 100000, date '2026-10-01', $5 where not exists (select 1 from machvon.audit_recovery_link where tenant_id = $1 and id = $2)`;
 
+/** A report of the results of the conclusion of the fixture, asked of DOC: the figures are frozen with it and the hash is the marker. */
+const INSERT_FOLLOW_UP_REPORT = `insert into machvon.audit_follow_up_report
+  (tenant_id, id, engagement_id, conclusion_id, as_of_date, revision, totals_json, payload_sha256, status, payload_ref, issue_event_id, drafting_unit_id, created_by, updated_by, version)
+  select $1::uuid, $2::uuid, $3::uuid, $4::uuid, date '2026-10-20', 1, '{"total": 1}'::jsonb, $5::text, 'ISSUE_REQUESTED', 'tenants/' || $1::uuid::text || '/aud/follow-up-reports/' || $2::uuid::text || '/r1.json', gen_random_uuid(), $6::uuid, $7::uuid, $7::uuid, 1
+  where not exists (select 1 from machvon.audit_follow_up_report where tenant_id = $1::uuid and id = $2::uuid)`;
+
 /** A complaint of the household of the fixture, received and not yet answered. */
 const INSERT_COMPLAINT = `insert into machvon.land_complaint
   (tenant_id, id, project_id, household_id, owner_unit_id, complaint_no, filed_on, channel, subject, description, status, due_on, created_by, updated_by, version)
@@ -1258,6 +1267,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_RECOMMENDATION, [tenantId, conclusion.recommendationId, conclusion.id, conclusion.findingId, conclusion.recCode, conclusion.recWords, project.id, MEMBERSHIP_ID]);
     await client.query(INSERT_ACTION, [tenantId, conclusion.actionId, conclusion.recommendationId, conclusion.actionCode, conclusion.actionWords, MEMBERSHIP_ID]);
     await client.query(INSERT_RECOVERY_LINK, [tenantId, conclusion.linkId, conclusion.recommendationId, conclusion.linkSourceId, MEMBERSHIP_ID]);
+    await client.query(INSERT_FOLLOW_UP_REPORT, [tenantId, conclusion.reportId, engagement.id, conclusion.id, conclusion.reportSha256, home, MEMBERSHIP_ID]);
     const appropriation = APPROPRIATION_FIXTURES[tenant];
     await client.query(INSERT_APPROPRIATION, [tenantId, appropriation.id, master.versionId, documents.documentId, appropriation.issuingAuthority, ACTOR_ID]);
     const plan = CAPITAL_PLAN_FIXTURES[tenant];

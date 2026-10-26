@@ -46,20 +46,20 @@ describe('AUD-03 file of an engagement', () => {
     expect(screen.getByTestId('confidential-note').textContent).toBe(vi_['aud.engagement.confidential.note']);
   });
 
-  it('links to the conclusion of an engagement that can take one or has one, and to its findings once it has one (ST-AUD-002)', async () => {
+  it('links to the conclusion of an engagement that can take one or has one, to its findings once it has one (ST-AUD-002), and to its report of the results once it is followed up (ST-AUD-005)', async () => {
     for (const [status, links] of [
       ['PLANNED', []],
       ['ONGOING', [vi_['aud.engagement.conclusion.link']]],
       ['AWAITING_CONCLUSION', [vi_['aud.engagement.conclusion.link']]],
-      ['FOLLOW_UP', [vi_['aud.engagement.conclusion.link'], vi_['aud.engagement.findings.link']]],
-      ['CLOSED', [vi_['aud.engagement.conclusion.link'], vi_['aud.engagement.findings.link']]],
+      ['FOLLOW_UP', [vi_['aud.engagement.conclusion.link'], vi_['aud.engagement.findings.link'], vi_['aud.engagement.report.link']]],
+      ['CLOSED', [vi_['aud.engagement.conclusion.link'], vi_['aud.engagement.findings.link'], vi_['aud.engagement.report.link']]],
       ['CANCELLED', []],
     ] as const) {
       open({ status });
       await screen.findByTestId('period-card');
       const found = screen.queryByTestId('conclusion-links');
       expect(found === null ? [] : within(found).getAllByRole('link').map((link) => link.textContent)).toEqual(links);
-      if (links.length > 0) expect(within(found as HTMLElement).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([`/aud/aud-04?engagement=${ID}`, `/aud/aud-05?engagement=${ID}`].slice(0, links.length));
+      if (links.length > 0) expect(within(found as HTMLElement).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([`/aud/aud-04?engagement=${ID}`, `/aud/aud-05?engagement=${ID}`, `/aud/aud-10?engagement=${ID}`].slice(0, links.length));
       cleanup();
     }
   });

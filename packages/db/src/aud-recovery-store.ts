@@ -269,8 +269,14 @@ export class AudRecoveryStore {
       return line as { id: string };
     });
     const after = await this.position(tx, recommendation.id);
-    // An engagement that is closed keeps the status of its recommendations: the line is the truth of the money, and the engagement is not reopened by a reversal.
-    const reopened = recommendation.engagementStatus === 'FOLLOW_UP' && reopensOnReversal({ status: after.status, amountVnd: after.amountVnd, recoveredVnd: after.recoveredVnd, disputeAccepted: after.disputeAccepted });
+    // An engagement that is closed keeps the status of its recommendations: the line is the truth of the money, and the engagement is not reopened by a reversal. The engagement is read again
+    // under a share lock, after the line took the lock of the recommendation: a closure that is under way finishes first, and one that comes after waits for this reversal and counts what it reopened.
+    const [engagement] = await tx.query<{ status: string }>(
+      `select e.status from machvon.audit_engagement e join machvon.audit_conclusion c on c.tenant_id = e.tenant_id and c.engagement_id = e.id
+         join machvon.audit_recommendation r on r.tenant_id = c.tenant_id and r.conclusion_id = c.id where r.id = $1::uuid for share of e`,
+      [recommendation.id],
+    );
+    const reopened = engagement?.status === 'FOLLOW_UP' && reopensOnReversal({ status: after.status, amountVnd: after.amountVnd, recoveredVnd: after.recoveredVnd, disputeAccepted: after.disputeAccepted });
     if (reopened) {
       await tx.query(
         `update machvon.audit_recommendation

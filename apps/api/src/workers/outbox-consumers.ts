@@ -11,6 +11,7 @@ import { AcceptanceLedgerConsumer, PAY_ACCEPTANCE_LEDGER_CONSUMER } from '../mod
 import { CAP_PAYMENT_LEDGER_CONSUMER, PaymentLedgerConsumer } from '../modules/cap/payment-ledger.consumer';
 import { ADM_GUEST_CONTRACT_CONSUMER, GuestContractClosedConsumer } from '../modules/adm/guest-contract-closed.consumer';
 import { AUD_PAY_RECOVERY_CONSUMER, PayRecoveryConsumer } from '../modules/aud/pay-recovery.consumer';
+import { AUD_REPORT_CONSUMER, ReportConsumer } from '../modules/aud/report.consumer';
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
 import { ControlEventTypeCatalog, PayloadValidator } from '../notifications/payload-validator';
@@ -78,6 +79,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
   const snapshotFrozen = new SnapshotFrozenConsumer({ database: tenants, security });
   const guestContracts = new GuestContractClosedConsumer({ database: tenants, security });
   const payRecoveries = new PayRecoveryConsumer({ database: tenants, security });
+  const auditReports = new ReportConsumer({ database: tenants, security });
   return [
     { name: PROVISIONING_CONSUMER, handle: (delivery) => deps.provisioning.handle(delivery) },
     { name: ENTITLEMENT_CONSUMER, handle: (delivery) => entitlements.handle(delivery) },
@@ -89,6 +91,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: DGV_SNAPSHOT_FROZEN_CONSUMER, handle: (delivery) => snapshotFrozen.handle(delivery) },
     { name: ADM_GUEST_CONTRACT_CONSUMER, handle: (delivery) => guestContracts.handle(delivery) },
     { name: AUD_PAY_RECOVERY_CONSUMER, handle: (delivery) => payRecoveries.handle(delivery) },
+    { name: AUD_REPORT_CONSUMER, handle: (delivery) => auditReports.handle(delivery) },
     ...(deps.docIssue === undefined ? [] : [deps.docIssue]),
     new RegisteredEventConsumer(NOTIFICATION_CONSUMER, catalog, { name: NOTIFICATION_CONSUMER, handle: (delivery) => notifications.handle(delivery) }),
   ];

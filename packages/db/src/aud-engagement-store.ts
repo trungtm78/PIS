@@ -1,4 +1,4 @@
-import { DomainError, activeGrants, holdKindOf, nextEngagementStatus, permissionMatches, versionConflict } from '@machvon/kernel';
+import { DomainError, activeGrants, assertEngagementClosable, holdKindOf, nextEngagementStatus, permissionMatches, versionConflict } from '@machvon/kernel';
 import type { EffectiveAccess, EngagementStatus, EngagementType, ResourceRef } from '@machvon/kernel';
 import { LegalHoldStore } from './legal-hold-store.ts';
 import type { HoldScope } from './legal-hold-store.ts';
@@ -429,6 +429,29 @@ export class AudEngagementStore {
       `update machvon.audit_engagement set status = $2, cancel_reason = $3, updated_at = now(), updated_by = $4::uuid, version = version + 1
         where id = $1::uuid returning version::text as version`,
       [row.id, status, reason, actor],
+    );
+    return { version: Number((updated as { version: string }).version), holdReleased };
+  }
+
+  /**
+   * CLOSE: FOLLOW_UP to CLOSED on a day from the start to today, when no recommendation is open and every conclusion that stands has a report DOC issued (the facts are read by the caller
+   * after the engagement is locked, which is what a reversal of a recovery waits for before it reopens a recommendation). The hold of the engagement is released in the same transaction by the
+   * system (BR-AUD-10); a hold that someone released already is left as it is.
+   */
+  async close(
+    tx: TenantTx,
+    row: EngagementRow,
+    input: { onDate: string; today: string; releasedBy: string; facts: { openRecommendations: number; conclusionsWithoutReport: number } },
+    actor: string,
+  ): Promise<{ version: number; holdReleased: boolean }> {
+    const status = nextEngagementStatus(row.status, 'close');
+    if (input.onDate > input.today || (row.startedOn !== null && input.onDate < row.startedOn)) throw new DomainError('VALIDATION_FAILED', 422, 'on_date');
+    assertEngagementClosable(input.facts);
+    const holdReleased = row.legalHoldId !== null && (await this.releaseHold(tx, row.legalHoldId, input.releasedBy, 'The engagement was closed.'));
+    const [updated] = await tx.query<{ version: string }>(
+      `update machvon.audit_engagement set status = $2, closed_on = $3::date, updated_at = now(), updated_by = $4::uuid, version = version + 1
+        where id = $1::uuid returning version::text as version`,
+      [row.id, status, input.onDate, actor],
     );
     return { version: Number((updated as { version: string }).version), holdReleased };
   }

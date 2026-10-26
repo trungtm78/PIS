@@ -8,6 +8,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import type { ScreenState } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { CONCLUSIONS_PATH, FINDINGS_PATH, concludable } from './conclusion/model';
+import { REPORT_PATH } from './report/model';
 import { CancelDialog, EndFieldworkDialog, StartDialog } from './dialogs';
 import { useEngagement } from './hooks';
 import { authorityKindLabel, engagementStatusLabel, engagementTypeLabel, holdStatusLabel, scopeKindLabel } from './labels';
@@ -85,6 +86,7 @@ function EngagementFile({ detail }: { detail: EngagementDetail }) {
         <p className="aud-links" data-testid="conclusion-links">
           <Link to={`${CONCLUSIONS_PATH}?engagement=${detail.id}`}>{t('aud.engagement.conclusion.link')}</Link>
           {detail.status === 'FOLLOW_UP' || detail.status === 'CLOSED' ? <Link to={`${FINDINGS_PATH}?engagement=${detail.id}`}>{t('aud.engagement.findings.link')}</Link> : null}
+          {detail.status === 'FOLLOW_UP' || detail.status === 'CLOSED' ? <Link to={`${REPORT_PATH}?engagement=${detail.id}`}>{t('aud.engagement.report.link')}</Link> : null}
         </p>
       ) : null}
       <div className="aud-cards">

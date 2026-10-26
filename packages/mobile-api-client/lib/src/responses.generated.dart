@@ -500,6 +500,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAuditConclusions': asObject,
   'listAuditEngagements': asObject,
   'listAuditFindings': asObject,
+  'listAuditFollowUpReports': asObject,
   'listAuditRecommendations': asObject,
   'listAuditRecoveryLinks': asObject,
   'listAvcPolicies': asObject,

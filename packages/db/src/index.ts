@@ -840,3 +840,5 @@ export { AUD_RECOVERY_MISMATCH_EVENT, AUD_RECOVERY_MISMATCH_METRIC, AudRecoveryR
 export type { RecoveryMismatch, RecoveryReconcileResult } from './aud-recovery-reconcile-job.ts';
 export { AudRecoveryStore, OVERVIEW_ENGAGEMENTS_LIMIT } from './aud-recovery-store.ts';
 export type { ExceptionKind, ExceptionLine, LinkLine as RecoveryLinkLine, LinkRow as RecoveryLinkRow, NewLink as NewRecoveryLink, Overview as AuditOverview, OverviewEngagement, PayOutcome, RecoverySummary, SummaryLine } from './aud-recovery-store.ts';
+export { AudReportStore, reportPayloadRef } from './aud-report-store.ts';
+export type { NewReport, ReportContext, ReportHead, ReportLine } from './aud-report-store.ts';

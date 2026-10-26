@@ -1495,6 +1495,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAuditFindings({required String id, Map<String, Object?>? query}) =>
       execute('listAuditFindings', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> listAuditFollowUpReports({required String id, Map<String, Object?>? query}) =>
+      execute('listAuditFollowUpReports', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> listAuditRecommendations({Map<String, Object?>? query}) =>
       execute('listAuditRecommendations', query: query);
 

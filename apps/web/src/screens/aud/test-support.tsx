@@ -35,7 +35,7 @@ export const routeOf = (id: string, req: string): WebRoute => ({
   id,
   path: `/aud/${id.toLowerCase()}`,
   title: id,
-  kind: id === 'AUD-03' ? 'detail' : id === 'AUD-04' ? 'form' : id === 'AUD-07' ? 'board' : id === 'AUD-01' ? 'dashboard' : id === 'AUD-08' ? 'reconcile' : 'table',
+  kind: id === 'AUD-03' ? 'detail' : id === 'AUD-04' ? 'form' : id === 'AUD-07' ? 'board' : id === 'AUD-01' ? 'dashboard' : id === 'AUD-08' ? 'reconcile' : id === 'AUD-10' ? 'approval' : 'table',
   area: 'insights',
   module: 'AUD',
   group: 'Cuộc thanh tra, kiểm toán',
@@ -228,7 +228,46 @@ export const overviewRecord = (overrides: Record<string, unknown> = {}): Record<
   ...overrides,
 });
 
+/** The figures frozen with a report: R1 and R3 closed, R2 in progress, 1,200,000,000 recommended and 1,100,000,000 recovered. */
+export const reportTotalsRecord = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  as_of_date: '2027-01-04',
+  total: 3,
+  closed: 2,
+  in_progress: 1,
+  open: 0,
+  disputed: 0,
+  amount: '1200000000',
+  recovered: '1100000000',
+  remaining: '100000000',
+  money_rate: rateRecord('1100000000', '1200000000', '91.67'),
+  count_rate: rateRecord('2', '3', '66.67'),
+  ...overrides,
+});
+
+/** A report as the list answers it: asked of DOC and waiting for it. */
+export const reportRecord = (n: number, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: uuid('0030', n),
+  conclusion_id: uuid('0020', 1),
+  conclusion_symbol: '88/BC-KTNN',
+  as_of_date: '2027-01-04',
+  revision: 1,
+  status: 'ISSUE_REQUESTED',
+  totals: reportTotalsRecord(),
+  payload_sha256: `${String(n)}abcdef012345`.padEnd(64, 'f'),
+  source_ref: `AUD:audit_follow_up_report:${uuid('0030', n)}:r1`,
+  report_document_id: null,
+  reject_code: null,
+  requested_by: { id: SELF, display_name: 'Nguyễn Văn An' },
+  approved_by: null,
+  requested_at: '2027-01-04T03:00:00Z',
+  issued_at: null,
+  version: 1,
+  ...overrides,
+});
+
 export interface World {
+  /** The reports of an engagement, by its id. */
+  reports: Record<string, Array<Record<string, unknown>>>;
   /** The money of an engagement, by its id. */
   summaries: Record<string, Record<string, unknown>>;
   /** The lines of the ledger of an engagement, by its id. */
@@ -255,6 +294,7 @@ export interface World {
 
 export function world(overrides: Partial<World> = {}): World {
   return {
+    reports: {},
     summaries: {},
     links: {},
     overview: undefined,
@@ -296,6 +336,8 @@ export function client(state: World, command: (operation: string, input: unknown
         return Promise.resolve(state.engagements.filter((item) => (input?.query?.status ?? item.status) === item.status && (input?.query?.engagement_type ?? item.engagement_type) === item.engagement_type));
       case 'listAuditRecoveryLinks':
         return Promise.resolve(state.links[input?.path?.id ?? ''] ?? []);
+      case 'listAuditFollowUpReports':
+        return Promise.resolve(state.reports[input?.path?.id ?? ''] ?? []);
       case 'listAuditConclusions':
         return Promise.resolve(state.conclusions[input?.path?.id ?? ''] ?? []);
       case 'listAuditFindings':

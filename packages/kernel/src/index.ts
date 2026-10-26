@@ -588,3 +588,20 @@ export {
   reopensOnReversal,
 } from './aud-recovery.ts';
 export type { PayRecoveryFacts, Position as RecoveryPosition, Rate, RecoverySourceKind } from './aud-recovery.ts';
+export {
+  REPORT_EDGES,
+  REPORT_SOURCE_MODULE,
+  REPORT_STATUSES,
+  REPORT_TEMPLATE_CODE,
+  assertAsOf,
+  assertEngagementClosable,
+  groupAsOf,
+  groupDong,
+  nextReportStatus,
+  parseReportSourceRef,
+  percentText,
+  reportPayload,
+  reportSourceRef,
+  reportTotals,
+} from './aud-report.ts';
+export type { ReportAction, ReportFacts, ReportGroup, ReportRecommendation, ReportStatus, ReportTotals } from './aud-report.ts';

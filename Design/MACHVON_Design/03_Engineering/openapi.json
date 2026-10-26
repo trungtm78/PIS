@@ -104563,12 +104563,110 @@
         "x-error-codes": [
           "DOC_TEMPLATE_MISSING",
           "ENGAGEMENT_STATE_INVALID",
+          "FOLLOW_UP_REPORT_EXISTS",
+          "CONCLUSION_REVISION_INVALID",
+          "PROVIDER_UNAVAILABLE",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "aud.report.issue_requested.v1"
         ]
+      },
+      "get": {
+        "operationId": "listAuditFollowUpReports",
+        "summary": "Báo cáo kết quả thực hiện của một cuộc: số liệu đã chốt, băm, trạng thái DOC, người đề nghị và người duyệt",
+        "tags": [
+          "AUD"
+        ],
+        "x-permission": "aud.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo phạm vi của cuộc); màn AUD-10, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/audit-engagements/{id}/closure": {
@@ -138884,6 +138982,15 @@
           "as_of_date": {
             "type": "string",
             "format": "date"
+          },
+          "drafting_unit_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "place": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
           }
         }
       },
