@@ -352,7 +352,7 @@ describe('the payments of a plan of compensation to its households (ST-LND-007)'
       expect(JSON.stringify(depositAudit)).not.toContain('refused to take');
     });
 
-    it('AC-ST-LND-007-3, UAT-AC397: answers a repeated confirmation with the first answer: one payment, one audit row and one event', async () => {
+    it('AC-ST-LND-007-3, AC-ST-CTR-013-2, UAT-AC397: answers a repeated confirmation with the first answer, refuses the same key with another body, and a new key meets the state: one payment, one audit row and one event', async () => {
       const a = await target();
       const plan = await approvedPlan([{ aim: a, amount: '1000' }]);
       await schedule(PAYER, plan.id, 2, [entry(a, '1000')]);
@@ -361,6 +361,8 @@ describe('the payments of a plan of compensation to its households (ST-LND-007)'
       const first = await confirm(PAYER, id, 1, {}, { key });
       const second = await confirm(PAYER, id, 1, {}, { key });
       expect(second.json).toEqual(first.json);
+      const changed = await confirm(PAYER, id, 1, { method: 'TREASURY' }, { key });
+      expect([changed.status, changed.json.code]).toEqual([409, 'IDEMPOTENCY_CONFLICT']);
       expect(await audits(id, 'lnd.payment_confirmed')).toHaveLength(1);
       expect(await events(id, 'lnd.payment.paid.v1')).toHaveLength(1);
       const again = await confirm(PAYER, id, 2);

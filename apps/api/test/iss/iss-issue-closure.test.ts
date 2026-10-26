@@ -201,7 +201,7 @@ describe('requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadl
       for (const secret of ['compensation', 'Checked on the site', 'handed over']) expect(everything).not.toContain(secret);
     });
 
-    it('AC-ST-ISS-003-3: the same close command sent again returns the first answer without a second audit row or event; a new key is an invalid state', async () => {
+    it('AC-ST-ISS-003-3, AC-ST-CTR-013-2, UAT-AC397: the same close command sent again returns the first answer without a second audit row or event; the same key with another body is a conflict; a new key is an invalid state', async () => {
       const issueId = await working();
       expect((await requestVerification(issueId, 3)).status).toBe(200);
       const first = await close(issueId, 4, VERIFIER, 'close-key-00000000001');
@@ -209,6 +209,8 @@ describe('requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadl
       expect([first.status, again.status]).toEqual([200, 200]);
       expect(again.headers.get('idempotency-replayed')).toBe('true');
       expect(again.json).toEqual(first.json);
+      const changed = await post(`/issues/${issueId}/close`, { member: VERIFIER, ifMatch: 4, body: { verification_note: 'Another note than the first' }, key: 'close-key-00000000001' });
+      expect([changed.status, changed.json.code]).toEqual([409, 'IDEMPOTENCY_CONFLICT']);
       expect((await audits(issueId)).filter((entry) => entry.action === 'iss.issue_closed')).toHaveLength(1);
       expect((await outbox(issueId)).filter((event) => event.type === 'iss.issue.closed.v1')).toHaveLength(1);
       const fresh = await close(issueId, 5, VERIFIER, 'close-key-00000000002');

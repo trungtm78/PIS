@@ -762,4 +762,74 @@ describe('IssIssueStore (create, assign, work, comment and transfer issues, ST-I
       expect((await sqlRefusal(insert(`title, description, owner_unit_id, sla_policy_id, 'OPEN', 1, reported_by, opened_at, due_at + interval '1 hour', due_at, 'MANUAL', null, false, null, null, null`))).message).toContain('issue_due_chk');
     });
   });
+
+  describe('the lists of issues are served by their indexes (AC-ST-CTR-013-1, UAT-AC398)', () => {
+    const BULK = 10_000;
+
+    /** The plan of a query as the nodes it is made of, with the index each one reads. */
+    const plan = async (sql: string, params: unknown[]): Promise<Array<{ type: string; relation?: string; index?: string }>> => {
+      const rows = await owner<{ 'QUERY PLAN': Array<{ Plan: Record<string, unknown> }> }>(`explain (format json) ${sql}`, params);
+      const nodes: Array<{ type: string; relation?: string; index?: string }> = [];
+      const visit = (node: Record<string, unknown>): void => {
+        nodes.push({ type: String(node['Node Type']), relation: node['Relation Name'] as string | undefined, index: node['Index Name'] as string | undefined });
+        for (const child of (node.Plans as Array<Record<string, unknown>> | undefined) ?? []) visit(child);
+      };
+      const root = rows[0]?.['QUERY PLAN'][0]?.Plan;
+      if (root !== undefined) visit(root);
+      return nodes;
+    };
+
+    beforeAll(async () => {
+      const created = await open(request({ projectId: PROJECT }));
+      const columns = (await owner<{ column_name: string }>(
+        "select column_name from information_schema.columns where table_schema = 'machvon' and table_name = 'issue' and is_generated = 'NEVER' order by ordinal_position",
+      )).map((column) => column.column_name);
+      // A table of 10,000 issues in two projects, with due dates spread over a week: copies of one real issue, so every rule of the table holds.
+      const override: Record<string, string> = {
+        id: 'gen_random_uuid()',
+        code: "'VM-2026-' || lpad((100000 + n)::text, 6, '0')",
+        client_operation_id: 'gen_random_uuid()',
+        project_id: `case when n % 2 = 0 then '${PROJECT}'::uuid else '${PROJECT_OTHER}'::uuid end`,
+        due_at: "i0.due_at + (n || ' minutes')::interval",
+        // One issue in ten is still open and the others are being worked, so that a status picks out a few rows (the planner would not need an index for a status all rows share).
+        status: "case when n % 10 = 0 then 'OPEN' else 'IN_PROGRESS' end",
+        assignee_id: 'i0.reported_by',
+      };
+      const selected = columns.map((column) => override[column] ?? `i0.${column}`).join(', ');
+      await owner(`insert into machvon.issue (${columns.join(', ')}) select ${selected} from machvon.issue i0, generate_series(1, ${BULK}) n where i0.id = $1::uuid`, [created.id]);
+      await owner('analyze machvon.issue');
+    }, 120_000);
+
+    it('has the volume the gate is measured on', async () => {
+      const [count] = await owner<{ n: string }>('select count(*) as n from machvon.issue where tenant_id = $1::uuid', [TENANT_A]);
+      expect(Number(count?.n)).toBeGreaterThanOrEqual(BULK);
+    });
+
+    it('lists the issues of a project by status through issue_project_status_idx, without a sequential scan of the table', async () => {
+      const nodes = await plan("select id from machvon.issue where tenant_id = $1::uuid and project_id = $2::uuid and status = 'OPEN'", [TENANT_A, PROJECT]);
+      expect(JSON.stringify(nodes)).toContain('issue_project_status_idx');
+      expect(nodes.filter((node) => node.type === 'Seq Scan' && node.relation === 'issue')).toEqual([]);
+    });
+
+    it('lists the issues of a status by their due date through issue_status_due_idx, without a sequential scan of the table', async () => {
+      const nodes = await plan("select id from machvon.issue where tenant_id = $1::uuid and status = 'OPEN' and due_at < $2::timestamptz order by due_at limit 50", [TENANT_A, new Date('2026-08-12T00:00:00Z')]);
+      expect(nodes.some((node) => node.index === 'issue_status_due_idx')).toBe(true);
+      expect(nodes.filter((node) => node.type === 'Seq Scan' && node.relation === 'issue')).toEqual([]);
+    });
+
+    it('leaves no *_id column of the issue tables without an index that starts with tenant_id', async () => {
+      const unindexed = await owner<{ table_name: string; column_name: string }>(
+        `select c.table_name, c.column_name
+           from information_schema.columns c
+          where c.table_schema = 'machvon' and c.table_name in ('issue', 'issue_event', 'issue_assignment', 'issue_sla_policy') and c.column_name like '%\\_id' escape '\\' and c.column_name <> 'tenant_id'
+            and not exists (
+              select 1 from pg_index x join pg_class t on t.oid = x.indrelid join pg_namespace n on n.oid = t.relnamespace
+                join pg_attribute a1 on a1.attrelid = t.oid and a1.attnum = x.indkey[0] join pg_attribute a2 on a2.attrelid = t.oid and a2.attnum = x.indkey[1]
+               where n.nspname = 'machvon' and t.relname = c.table_name and a1.attname = 'tenant_id' and a2.attname = c.column_name)
+            and c.column_name <> 'id'`,
+      );
+      // A column may also be the second column of a unique index of the table (the rls-catalog test judges the whole database); the list here is what is left over.
+      expect(unindexed.filter((entry) => entry.table_name === 'issue')).toEqual([]);
+    });
+  });
 });

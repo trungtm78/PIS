@@ -258,6 +258,22 @@ describe('the acceptance of work over HTTP (ST-CTR-009)', () => {
     expect(await decide(SECOND_APPROVER, acceptanceId, 3)).toMatchObject({ status: 409, json: { code: 'ACCEPTANCE_STATE_INVALID', acceptance_status: 'APPROVED' } });
   });
 
+  it('AC-ST-CTR-013-2, UAT-AC397: the decision of an acceptance replays with the same key, conflicts with another body, and a new key meets the business refusal without a second effect', async () => {
+    const target = await contract();
+    const one = await measured(target, 0, '10');
+    const { id: acceptanceId, version } = await sent(target, [one]);
+    const first = await decide(APPROVER, acceptanceId, version, 'approve', {}, 'matrix-decision-key');
+    expect(first).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
+    const effects = async () => [(await audits(acceptanceId, 'acceptance.approved')).length, (await events(acceptanceId, 'ctr.acceptance.approved.v1')).length, await total(target.id)];
+    const once = await effects();
+    expect(once).toEqual([1, 1, '10000000']);
+    expect(await decide(APPROVER, acceptanceId, version, 'approve', {}, 'matrix-decision-key')).toEqual(first);
+    expect(await decide(APPROVER, acceptanceId, version, 'approve', { reason: 'Another reason than the first.' }, 'matrix-decision-key')).toMatchObject({ status: 409, json: { code: 'IDEMPOTENCY_CONFLICT' } });
+    expect(await decide(APPROVER, acceptanceId, version, 'approve')).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+    expect(await decide(APPROVER, acceptanceId, version + 1, 'approve')).toMatchObject({ status: 409, json: { code: 'ACCEPTANCE_STATE_INVALID' } });
+    expect(await effects()).toEqual(once);
+  });
+
   it('rejects an acceptance, and gives one back to the draft, with the reason: audited, no event to PAY', async () => {
     const target = await contract();
     const made = (await create(CREATOR, target, [await measured(target, 0, '1')])).json.resource_id as string;

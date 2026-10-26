@@ -201,7 +201,7 @@ describe('the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, A
       expect(await ledgerEntries(payment.contractId)).toHaveLength(1);
     });
 
-    it('AC-ST-CTR-010-2, UAT-AC397: answers the same key with the first body and writes nothing twice; a new key after the success has nothing left to release; the same key with another body is a conflict', async () => {
+    it('AC-ST-CTR-010-2, AC-ST-CTR-013-2, UAT-AC397: answers the same key with the first body and writes nothing twice; a new key after the success has nothing left to release; the same key with another body is a conflict', async () => {
       const { payment, b01 } = await paid();
       await warranty(payment.contractId, 'CLOSED');
       const send = () => release(ACCOUNTANT, b01, { amount_vnd: '100000000' }, { key: 'release-once-for-this-key' });

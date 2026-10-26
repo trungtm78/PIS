@@ -149,6 +149,20 @@ describe('sending, checking and returning a payment request over HTTP (ST-PAY-00
     expect(await submit(MAKER, id, before, { expected_net_vnd: '1' }, 'submit-once-for-this-key')).toMatchObject({ status: 409, json: { code: 'IDEMPOTENCY_CONFLICT' } });
   });
 
+  it('AC-ST-CTR-013-2, UAT-AC397: the submission of a payment request replays with the same key, conflicts with other figures, and a new key meets the business refusal without a second effect', async () => {
+    const { target, id } = await drafted();
+    const before = await versionOf(id, 'current');
+    const sent = await submit(MAKER, id, before, {}, 'matrix-submit-key');
+    expect(sent).toMatchObject({ status: 200, json: { status: 'SUBMITTED' } });
+    const effects = async () => [(await audits(id, 'payment_request.submitted')).length, (await events(id, 'pay.payment_request.submitted.v1')).length, (await ledger(target.contract.contractId)).kinds.length];
+    const once = await effects();
+    expect(once.slice(0, 2)).toEqual([1, 1]);
+    expect(await submit(MAKER, id, before, {}, 'matrix-submit-key')).toEqual(sent);
+    expect(await submit(MAKER, id, before, { expected_net_vnd: '1' }, 'matrix-submit-key')).toMatchObject({ status: 409, json: { code: 'IDEMPOTENCY_CONFLICT' } });
+    expect(await submit(MAKER, id, before)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+    expect(await effects()).toEqual(once);
+  });
+
   it('refuses a request that is stale, has no invoice or is not a draft, and puts nothing on the books', async () => {
     const { target, id } = await drafted();
     expect(await submit(MAKER, id, 'current', { expected_net_vnd: '2000000000' })).toMatchObject({ status: 422, json: { code: 'PAYMENT_NET_MISMATCH' } });

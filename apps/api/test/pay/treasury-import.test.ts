@@ -86,6 +86,33 @@ describe('importTreasuryStatement and getTreasuryImport (ST-PAY-006)', () => {
       expect([other.status, other.json.code]).toEqual([409, 'IDEMPOTENCY_CONFLICT']);
     });
 
+    it('AC-ST-CTR-013-2, UAT-AC397: the import of a file replays with the same key, conflicts with another request, and a new key meets the file already imported without a second effect', async () => {
+      const stored = await pay.store(csv(line('A1M-1', 1000), line('A1M-2', 2000)));
+      const body = { file_object_id: stored.fileObjectId, file_sha256: stored.sha256, source_kind: 'STATEMENT_FILE' };
+      const first = await pay.call('POST', '/treasury-imports', { member: IMPORTER, body, key: 'matrix-import-key' });
+      expect(first.json.result).toBe('APPLIED');
+      const effects = async () => [
+        await pay.count("select count(*)::text as n from machvon.treasury_transaction where external_id like 'KBNN_FILE|A1M-%'"),
+        await pay.count('select count(*)::text as n from machvon.treasury_import where file_sha256 = $1', [stored.sha256]),
+        await pay.count('select count(*)::text as n from machvon.audit_event where resource_id = $1', [first.json.resource_id]),
+        await pay.count('select count(*)::text as n from machvon.outbox_event where aggregate_id = $1', [first.json.resource_id]),
+      ];
+      const once = await effects();
+      expect(once.slice(0, 2)).toEqual([2, 1]);
+      const replay = await pay.call('POST', '/treasury-imports', { member: IMPORTER, body, key: 'matrix-import-key' });
+      expect(replay.json).toEqual(first.json);
+      expect(replay.headers.get('idempotency-replayed')).toBe('true');
+      expect(await effects()).toEqual(once);
+      const other = await pay.call('POST', '/treasury-imports', { member: IMPORTER, body: { ...body, source_kind: 'EXPORT_FILE' }, key: 'matrix-import-key' });
+      expect([other.status, other.json.code]).toEqual([409, 'IDEMPOTENCY_CONFLICT']);
+      expect(await effects()).toEqual(once);
+      // The file is the identity of the import: a new key finds it already imported and creates no transaction (the one effect it has is the audit row that says the file came again).
+      const again = await pay.call('POST', '/treasury-imports', { member: IMPORTER, body });
+      expect(again.json).toMatchObject({ result: 'ALREADY_IMPORTED', resource_id: first.json.resource_id });
+      const [transactions, imports] = await effects();
+      expect([transactions, imports]).toEqual(once.slice(0, 2));
+    });
+
     it('applies the file once when it arrives twice at the same moment (AC-ST-PAY-006-1)', async () => {
       const bytes = csv(line('A1C-1', 1500), line('A1C-2', 2500));
       const stored = await pay.store(bytes);

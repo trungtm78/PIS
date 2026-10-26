@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Client } from 'pg';
 import { SCHEMA_SOURCE_PATH, findAppendOnlyTables, findNonTenantTables, loadCommittedMigrations } from '../src/generate-migrations';
@@ -164,6 +164,43 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
     // The schema has 845 *_id columns on tenant and control-plane tables; control-plane ones are checked on their own.
     expect(report.checked).toBeGreaterThanOrEqual(840);
     expect(report.controlPlaneUnindexed).toEqual([]);
+  });
+
+  describe('the execution tables (ST-CTR-013)', () => {
+    // The tables of the execution modules: the contracts, payments, quality, issues, land clearance and permits of the baseline schema, and every table that the migrations of those modules add.
+    const BASELINE_EXECUTION = /^(contract|issue|payment|treasury|boq|measurement|acceptance|quality|inspection|ncr|punch|land|household|parcel|compensation|permit|retention|guarantee|advance|cumulative|settlement|disbursement)/;
+    const created = (sql: string): string[] => [...sql.matchAll(/CREATE TABLE (?:IF NOT EXISTS )?(?:machvon\.)?(\w+)/gi)].map((match) => match[1] as string);
+    const executionTables = (): string[] => {
+      const directory = join(REPO_ROOT, 'db', 'migrations');
+      const added = readdirSync(directory)
+        .filter((name) => /__(?:ctr|pay|qms|iss|lnd|pmt)\d+_/.test(name))
+        .flatMap((name) => created(readFileSync(join(directory, name), 'utf8')));
+      const baseline = created(schemaSql).filter((name) => BASELINE_EXECUTION.test(name));
+      return [...new Set([...baseline, ...added])].sort();
+    };
+
+    it('AC-ST-CTR-013-3 / UAT-AC396: gives every execution table forced row-level security and exactly the two required policies', () => {
+      const names = executionTables();
+      expect(names.length).toBeGreaterThanOrEqual(65);
+      const found = names.map((name) => snapshot.tables.find((table) => table.name === name));
+      expect(found.map((table, index) => (table === undefined ? `${names[index]} is not in the database` : undefined)).filter((entry) => entry !== undefined)).toEqual([]);
+      for (const table of found.filter((entry) => entry !== undefined)) {
+        expect([table.name, table.rowSecurity, table.forceRowSecurity]).toEqual([table.name, true, true]);
+        // A table of personal data of households has one more restrictive policy, the guard of the units of the reader (scope_units_guard); it narrows, never widens.
+        const tenantPolicies = table.policies.filter((entry) => entry.name !== 'scope_units_guard');
+        expect([table.name, tenantPolicies.map((entry) => entry.name).sort()]).toEqual([table.name, ['tenant_access', 'tenant_boundary']]);
+        expect(table.policies.filter((entry) => entry.name === 'scope_units_guard').every((entry) => !entry.permissive)).toBe(true);
+      }
+      expect(rlsReport(snapshot, EXPECTED).missing.filter((entry) => names.includes(entry.table))).toEqual([]);
+    });
+
+    it('AC-ST-CTR-013-1 / UAT-AC398: leaves no *_id column of an execution table without an index that starts with tenant_id', () => {
+      const names = new Set(executionTables());
+      const report = indexReport(snapshot);
+      expect(report.missing.filter((entry) => names.has(entry.table))).toEqual([]);
+      const columns = snapshot.tables.filter((table) => names.has(table.name)).flatMap((table) => table.idColumns);
+      expect(columns.length).toBeGreaterThan(100);
+    });
   });
 
   describe('behaviour as the application role', () => {
