@@ -2,6 +2,7 @@
   "commands": [
     "acceptIssueEscalation",
     "acknowledgeNotification",
+    "addCompensationPlanItems",
     "addPermit",
     "addPunchItem",
     "addTaskForceMember",
@@ -92,6 +93,7 @@
     "dispatchOutgoingDocument",
     "dissolveTaskForce",
     "draftCapitalAllocation",
+    "draftCompensationPlan",
     "endMembership",
     "endProjectLeaderAssignment",
     "escalateIssue",
@@ -214,6 +216,7 @@
     "reviseContractDraft",
     "revisePaymentDraft",
     "recordAdvanceRecovery",
+    "revisePlan",
     "revokeAcceptance",
     "revokePermit",
     "revokePermitGateWaiver",

@@ -66,6 +66,8 @@ export interface MatrixTargets {
   householdId: string;
   /** An inventory record of a household: the command that names it in the path needs no row to be refused. */
   inventoryId: string;
+  /** A plan of compensation: the command that names it in the path needs no row to be refused. */
+  planId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1596,6 +1598,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/affected-households',
       body: { project_id: t.projectId, owner_unit_id: t.unit2, head_name: 'Matrix head of household', legal_basis: 'PUBLIC_TASK_LAND_LAW', legal_basis_ref: REASON, retention_until: '2036-12-31' },
     }),
+  },
+  draftCompensationPlan: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/compensation-plans', body: { project_id: t.projectId, executor_unit_id: t.unit2, executor_kind: 'LAND_FUND_CENTRE', plan_code: 'MX-PLAN' } }),
+  },
+  addCompensationPlanItems: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/compensation-plans/${t.planId}/items`,
+      ifMatch: '"1"',
+      body: { items: [{ household_id: t.householdId, item_kind: 'SUPPORT_LIVELIHOOD', amount_vnd: '1', legal_basis: REASON }] },
+    }),
+  },
+  revisePlan: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/revise`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   recordInventory: {
     referencesTenantIds: true,

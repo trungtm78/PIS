@@ -498,6 +498,8 @@ export const OPERATIONS = {
   "listBiQueryRuns": { method: "get", path: "/bi/query-runs", versioned: false, stepUp: null, permission: "bi.admin.read" },
   "listCapitalLedger": { method: "get", path: "/capital-ledger", versioned: false, stepUp: null, permission: "capital.ledger.read" },
   "listCapitalPlanLines": { method: "get", path: "/capital-plans/{id}/lines", versioned: false, stepUp: null, permission: "capital.read" },
+  "listCompensationPlanItems": { method: "get", path: "/compensation-plans/{id}/items", versioned: false, stepUp: null, permission: "land.read" },
+  "listCompensationPlans": { method: "get", path: "/compensation-plans", versioned: false, stepUp: null, permission: "land.read" },
   "listConflictDeclarations": { method: "get", path: "/procurement-packages/{id}/conflict-declarations", versioned: false, stepUp: null, permission: "bid.read" },
   "listDisbursementSchedules": { method: "get", path: "/disbursement-schedules", versioned: false, stepUp: null, permission: "capital.read" },
   "listDocumentNumberRegisters": { method: "get", path: "/document-number-registers", versioned: false, stepUp: null, permission: "doc.register.read" },

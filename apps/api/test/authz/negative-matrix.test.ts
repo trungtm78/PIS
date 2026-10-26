@@ -1078,6 +1078,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       retentionHoldId: id(0x77, 34),
       householdId: id(0x77, 35),
       inventoryId: id(0x77, 36),
+      planId: id(0x77, 37),
       boqItemId: id(0x77, 17),
       periodId: id(0x77, 18),
       recipientMembershipId: memberId(RECIPIENT),

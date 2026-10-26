@@ -27,6 +27,8 @@ export const HOUSEHOLD_OFFICER = ['land.household.write', 'land.household.read',
 export const HOUSEHOLD_READER = ['land.household.read'];
 export const DPO = ['land.dsr.handle', 'land.household.read'];
 export const COUNTER = ['land.process', 'land.household.read'];
+export const PLANNER = ['land.plan.write', 'land.read'];
+export const PLAN_READER = ['land.read'];
 export const READER = ['land.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({ id, path: `/lnd/${id.toLowerCase()}`, title: id, kind: 'map', area: 'investment', module: 'LND', group: 'Tổng quan & thửa đất', role: 'workspace', parent: null, req });
@@ -117,6 +119,51 @@ export const inventoryRecord = (n: number, overrides: Record<string, unknown> = 
   ...overrides,
 });
 
+/** A plan of compensation as the list answers it (one revision of it). */
+export const planRecord = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0050', n),
+  project_id: PROJECT,
+  section_id: null,
+  executor_unit_id: UNIT_XA,
+  executor_kind: 'LAND_FUND_CENTRE',
+  plan_code: `PA-${String(n).padStart(4, '0')}`,
+  revision: 1,
+  supersedes_id: null,
+  revision_reason: null,
+  total_compensation_vnd: '0',
+  total_support_vnd: '0',
+  total_resettlement_vnd: '0',
+  grand_total_vnd: '0',
+  status: 'DRAFT',
+  posting_started_on: null,
+  posting_ends_on: null,
+  approved_on: null,
+  payment_due_on: null,
+  version: 1,
+  ...overrides,
+});
+
+/** An item of a plan as the list answers it. */
+export const planItemRecord = (n: number, planId: string, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0060', n),
+  plan_id: planId,
+  household_id: uuid('0030', 1),
+  household_code: 'HH-000001',
+  parcel_id: null,
+  parcel_code: null,
+  owner_unit_id: UNIT_XA,
+  item_kind: 'SUPPORT_LIVELIHOOD',
+  amount_vnd: '10000000',
+  basis_inventory_id: null,
+  quantity: null,
+  unit_code: null,
+  unit_price_vnd: null,
+  price_decision_ref: null,
+  price_decision_revision: null,
+  legal_basis: 'Nghị định 88/2024/NĐ-CP',
+  ...overrides,
+});
+
 export const deadline = (overrides: Record<string, unknown> = {}) => ({
   id: uuid('0020', 1),
   timer_code: 'NOTICE_AGRICULTURAL_90',
@@ -136,6 +183,8 @@ export interface World {
   parcels: Array<Record<string, unknown>>;
   households: Array<Record<string, unknown>>;
   inventory: Array<Record<string, unknown>>;
+  plans: Array<Record<string, unknown>>;
+  planItems: Array<Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
   contracts: Array<Record<string, unknown>>;
@@ -152,6 +201,8 @@ export function world(overrides: Partial<World> = {}): World {
     parcels: [parcel(1), parcel(2, { land_use_group: 'NON_AGRICULTURAL_RESIDENTIAL', owner_unit_name: 'Trung tâm phát triển quỹ đất', parcel_code: 'TB-2/20', address_text: null })],
     households: [],
     inventory: [],
+    plans: [],
+    planItems: [],
     sections: [{ id: SECTION, code: 'KM-0-3', name: 'Km 0 đến km 3' }],
     units: [
       { id: UNIT_XA, code: 'XA1', name: 'UBND xã An Phú' },
@@ -166,8 +217,8 @@ export function world(overrides: Partial<World> = {}): World {
 /** A client over `state`: every read is answered from it, and `command(operation, input)` answers the commands. */
 export function client(state: World, command: (operation: string, input: unknown) => unknown = () => ({}), answer: (operation: string, input: unknown) => unknown = () => new Error('unexpected read')): Harness {
   const h = baseHarness(answer, command);
-  (h.client as unknown as { readAll: (operation: string, input?: { query?: Record<string, string> }) => Promise<unknown[]> }).readAll = vi.fn(
-    (operation: string, input?: { query?: Record<string, string> }) => {
+  (h.client as unknown as { readAll: (operation: string, input?: { query?: Record<string, string>; path?: Record<string, string> }) => Promise<unknown[]> }).readAll = vi.fn(
+    (operation: string, input?: { query?: Record<string, string>; path?: Record<string, string> }) => {
       if (state.failing.has(operation)) return Promise.reject(new Error(`${operation} failed`));
       switch (operation) {
         case 'get_resources_project':
@@ -178,6 +229,10 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.households.filter((item) => item.project_id === input?.query?.project_id));
         case 'listInventoryRecords':
           return Promise.resolve(state.inventory.filter((item) => item.household_id === input?.query?.household_id));
+        case 'listCompensationPlans':
+          return Promise.resolve(state.plans.filter((item) => item.project_id === input?.query?.project_id));
+        case 'listCompensationPlanItems':
+          return Promise.resolve(state.planItems.filter((item) => item.plan_id === input?.path?.id));
         case 'listLandSections':
           return Promise.resolve(state.sections);
         case 'get_resources_organization_unit':

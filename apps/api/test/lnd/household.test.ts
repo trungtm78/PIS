@@ -12,6 +12,7 @@ import { createFieldCipher } from '../../src/modules/lnd/field-cipher';
 import { AffectedHouseholdController, AffectedHouseholdReadsController, householdLineView } from '../../src/modules/lnd/household.controller';
 import { LandInventoryController, LandInventoryReadsController } from '../../src/modules/lnd/inventory.controller';
 import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
+import { CompensationPlanController, CompensationPlanReadsController } from '../../src/modules/lnd/plan.controller';
 import { FIELD_CIPHER, LND_METRICS } from '../../src/modules/lnd/tokens';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedLndWorld } from '../../../../packages/db/test/support/lnd-fixtures';
@@ -184,7 +185,7 @@ describe('the households affected by a land recovery: sealed personal data, mask
   }, 60_000);
 
   it('is registered in the module of LND, with a cipher that fails closed when the process has no keys', async () => {
-    expect(lndModule.controllers).toEqual(expect.arrayContaining([AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController]));
+    expect(lndModule.controllers).toEqual(expect.arrayContaining([AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController]));
     const bound = createFieldCipher({ FIELD_ENCRYPTION_KEYS: `1:${randomBytes(32).toString('base64')}` });
     const place = { tenantId: TENANT_A, table: 'affected_household', column: 'head_name_enc', rowId: randomUUID() };
     expect(bound.open(place, bound.seal(place, HEAD))).toBe(HEAD);

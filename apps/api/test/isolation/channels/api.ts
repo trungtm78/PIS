@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
 import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import { WORK_CALENDAR_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PLAN_COMP_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -460,6 +460,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'linkHouseholdParcel', method: 'POST', id: HOUSEHOLD_FIXTURES['TNT-B'].id, body: { parcel_id: PARCEL_FIXTURES['TNT-B'].id, right_kind: 'OWNER', share_pct: '10' } },
   { operation: 'handleHouseholdDataRequest', method: 'POST', id: HOUSEHOLD_FIXTURES['TNT-B'].id, body: { request_kind: 'ACCESS', requester_verified: true, outcome: 'FULFILLED', reason: 'Isolation foreign data request attempt' } },
   { operation: 'confirmInventory', method: 'POST', id: INVENTORY_FIXTURES['TNT-B'].id, versioned: true, body: { outcome: 'CONFIRMED', household_confirmed_on: '2026-10-20' } },
+  { operation: 'addCompensationPlanItems', method: 'POST', id: PLAN_COMP_FIXTURES['TNT-B'].id, versioned: true, body: { items: [{ household_id: HOUSEHOLD_FIXTURES['TNT-B'].id, item_kind: 'SUPPORT_TRAINING', amount_vnd: '1', legal_basis: 'Isolation foreign item attempt' }] } },
+  { operation: 'revisePlan', method: 'POST', id: PLAN_COMP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign revision attempt' } },
+  { operation: 'listCompensationPlanItems', method: 'GET', id: PLAN_COMP_FIXTURES['TNT-B'].id },
   { operation: 'revealHouseholdIdentity', method: 'GET', id: HOUSEHOLD_FIXTURES['TNT-B'].id, query: 'reason=Isolation%20foreign%20reading%20attempt' },
   { operation: 'getProjectLifecycle', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'getLandProgress', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },

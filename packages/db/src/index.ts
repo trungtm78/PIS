@@ -814,3 +814,5 @@ export { HOUSEHOLD_STATUSES, LEGAL_BASES, LndHouseholdStore, REQUEST_KINDS, REQU
 export type { ErasedField, HandledRequest, HouseholdFilter, HouseholdIdentity, HouseholdRequestInput, HouseholdLine, HouseholdLink, HouseholdStatus, LegalBasis, NewHousehold, NewHouseholdLink, RegisteredHousehold, RequestKind, RequestOutcome, RightKind, ScopeUnits } from './lnd-household-store.ts';
 export { INVENTORY_OUTCOMES, LndInventoryStore, PRICE_DECISION_TYPE } from './lnd-inventory-store.ts';
 export type { ConfirmedInventory, InventoryAnswer, InventoryFilter, InventoryLine, InventoryOutcome, NewInventory, RecordedInventory } from './lnd-inventory-store.ts';
+export { LndPlanStore } from './lnd-plan-store.ts';
+export type { AddedItem, AddedItems, CompensationPlanFilter, CompensationPlanLine, DraftedPlan, NewCompensationPlan, NewPlanItem, PlanItemLine, RevisedPlan } from './lnd-plan-store.ts';

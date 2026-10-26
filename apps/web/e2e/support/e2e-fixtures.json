@@ -2151,6 +2151,29 @@
       ]
     },
     {
+      "key": "landPlanWriter",
+      "displayName": "Cán bộ lập phương án bồi thường",
+      "membershipId": "00000000-0000-4000-8000-000000000864",
+      "permissions": [
+        "land.plan.write",
+        "land.read",
+        "land.household.read",
+        "project.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "landPlanReader",
+      "displayName": "Người xem phương án bồi thường",
+      "membershipId": "00000000-0000-4000-8000-000000000865",
+      "permissions": [
+        "land.read",
+        "project.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "householdDpo",
       "displayName": "Cán bộ bảo vệ dữ liệu cá nhân",
       "membershipId": "00000000-0000-4000-8000-000000000861",

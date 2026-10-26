@@ -528,3 +528,19 @@ export {
 export type { FieldKeyProvider, FieldPlace } from './field-encryption.ts';
 export { INVENTORY_ITEM_KINDS, INVENTORY_STATUSES, QUANTITY_SCALE, inventoryAmountVnd, normalizeQuantity, normalizeUnitPrice } from './land-inventory.ts';
 export type { InventoryItemKind, InventoryStatus } from './land-inventory.ts';
+export {
+  MAX_ITEMS_PER_COMMAND,
+  PLAN_EXECUTOR_KINDS,
+  PLAN_ITEM_KINDS,
+  PLAN_STATUSES,
+  PLAN_TOTAL_GROUPS,
+  REVISABLE_STATUSES,
+  acceptsItems,
+  canRevise,
+  compensationKindOf,
+  normalizeAmount,
+  restsOnInventory,
+  totalGroupOf,
+  totalsOf,
+} from './land-plan.ts';
+export type { PlanExecutorKind, PlanItemKind, PlanStatus, PlanTotalGroup, PlanTotals } from './land-plan.ts';
