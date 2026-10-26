@@ -469,6 +469,12 @@ export const REPORT_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; f
   'TNT-B': { id: '00000000-0000-4000-b0fe-000000000001', fileSha256: 'b0fe'.repeat(16) },
 };
 
+/** A period snapshot of each tenant that was built and not frozen, with one line of its project (the planned amount is distinctive: the figures of a tenant are internal to it). */
+export const PERIOD_SNAPSHOT_FIXTURES: Readonly<Record<TenantName, { id: string; lineId: string; planVnd: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ff-000000000001', lineId: '00000000-0000-4000-a0ff-000000000002', planVnd: '8400003' },
+  'TNT-B': { id: '00000000-0000-4000-b0ff-000000000001', lineId: '00000000-0000-4000-b0ff-000000000002', planVnd: '9200007' },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -887,6 +893,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'reporting period code', value: PERIOD_FIXTURES[tenant].code },
     { kind: 'report import id', value: REPORT_IMPORT_FIXTURES[tenant].id },
     { kind: 'report import file hash', value: REPORT_IMPORT_FIXTURES[tenant].fileSha256 },
+    { kind: 'period snapshot id', value: PERIOD_SNAPSHOT_FIXTURES[tenant].id },
+    { kind: 'period snapshot planned amount', value: PERIOD_SNAPSHOT_FIXTURES[tenant].planVnd },
     { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },
     { kind: 'weekly report hash', value: REPORT_FIXTURES[tenant].payloadHash },
     { kind: 'weekly report cumulative', value: REPORT_FIXTURES[tenant].cumulativeVnd },

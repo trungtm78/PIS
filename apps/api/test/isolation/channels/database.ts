@@ -22,7 +22,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
+import { PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -235,6 +235,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'uploadReportImportFile',
   'createReportImport',
   'applyReportImport',
+  'buildPeriodSnapshot',
+  'freezePeriodSnapshot',
+  'listPeriodSnapshotLines',
+  'listPeriodSnapshots',
   'uploadReportFile',
   'getReportRevision',
   'getReportImport',
@@ -694,6 +698,14 @@ const INSERT_REPORT = `insert into machvon.report_revision
 const INSERT_REPORT_IMPORT = `insert into machvon.report_import_batch
   (tenant_id, id, period_id, file_object_key, file_sha256, mapping_version, status, total_rows, valid_rows, error_rows, errors_json, created_by, updated_by)
   values ($1, $2, $3, 'isolation/import/none', $4, 'DIS-WEEKLY-1', 'DRY_RUN', 1, 0, 1, '[{"line":2,"project_code":null,"field":"project_code","code":"PROJECT_CODE_REQUIRED"}]'::jsonb, $5, $5) on conflict do nothing`;
+
+const INSERT_PERIOD_SNAPSHOT = `insert into machvon.period_snapshot
+  (tenant_id, id, period_id, snapshot_kind, as_of_at, as_of_date, treasury_cutoff_date, status, metric_set_version, definition_status, row_count, created_by, updated_by)
+  values ($1, $2, $3, 'PERIOD_CLOSE', now(), date '2026-01-10', date '2026-01-10', 'BUILDING', 'DIS-METRICS-R1-PROPOSED', 'PROPOSED_PENDING_SIGNOFF', 1, $4, $4) on conflict do nothing`;
+
+const INSERT_PERIOD_SNAPSHOT_LINE = `insert into machvon.period_snapshot_line
+  (tenant_id, id, snapshot_id, project_id, unit_id, bucket, budget_level, plan_pm_assigned_vnd, plan_total_vnd, treasury_coverage)
+  values ($1, $2, $3, $4, $5, 'CURRENT_YEAR', 'CENTRAL', $6::numeric, $6::numeric, 'NONE') on conflict do nothing`;
 
 const INSERT_REPORT_LINE = `insert into machvon.funding_snapshot_line
   (tenant_id, id, report_revision_id, bucket, budget_level, disbursed_cumulative_vnd, next_month_registered_vnd, allocated_vnd)
@@ -1318,6 +1330,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_REPORT_LINE, [tenantId, report.lineId, report.id, report.cumulativeVnd]);
     const reportImport = REPORT_IMPORT_FIXTURES[tenant];
     await client.query(INSERT_REPORT_IMPORT, [tenantId, reportImport.id, period.id, reportImport.fileSha256, MEMBERSHIP_ID]);
+    const snapshot = PERIOD_SNAPSHOT_FIXTURES[tenant];
+    await client.query(INSERT_PERIOD_SNAPSHOT, [tenantId, snapshot.id, period.id, MEMBERSHIP_ID]);
+    await client.query(INSERT_PERIOD_SNAPSHOT_LINE, [tenantId, snapshot.lineId, snapshot.id, project.id, home, snapshot.planVnd]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);

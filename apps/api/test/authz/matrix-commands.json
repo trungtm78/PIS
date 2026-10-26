@@ -164,6 +164,8 @@
     "uploadReportImportFile",
     "createReportImport",
     "applyReportImport",
+    "buildPeriodSnapshot",
+    "freezePeriodSnapshot",
     "post_settlements_id_close",
     "promoteChangeRequest",
     "proposeGlossaryTerm",

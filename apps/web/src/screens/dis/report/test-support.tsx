@@ -29,6 +29,8 @@ export const REVIEWER = ['report.review', 'report.read', 'report_revision.read']
 export const CORRECTOR = [...MAKER, 'report.correct'];
 export const WITHDRAWER = [...MAKER, 'report.withdraw'];
 export const IMPORTER = ['report.import', 'report.read', 'report_revision.read'];
+export const SNAPSHOTTER = ['snapshot.build', 'snapshot.freeze', 'disbursement.read'];
+export const SNAPSHOT_READER = ['disbursement.read'];
 export const routeOf = baseRoute;
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -169,6 +171,10 @@ export interface World {
   details: Record<string, Record<string, unknown>>;
   /** The batches of the bulk import by id, as `getReportImport` answers them. */
   imports: Record<string, Record<string, unknown>>;
+  /** The answer of `listPeriodSnapshots` for a period, by the id of the period. */
+  snapshots: Record<string, Record<string, unknown>>;
+  /** The pages of `listPeriodSnapshotLines` for a snapshot, by id and by cursor (`''` is the first page). */
+  snapshotLines: Record<string, Record<string, Record<string, unknown>>>;
   /** The drafts that were deleted and can still be restored, as the list answers them for `deleted=true`. */
   deleted: Array<Record<string, unknown>>;
   /** The page the list answers for a query, or one for every query. */
@@ -184,6 +190,8 @@ export function world(overrides: Partial<World> = {}): World {
   return {
     details: {},
     imports: {},
+    snapshots: {},
+    snapshotLines: {},
     deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
@@ -207,6 +215,14 @@ export function client(state: World, command: (operation: string, input: unknown
     }
     if (operation === 'getReportImport') {
       return state.imports[(input as { path: { id: string } }).path.id] ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
+    }
+    if (operation === 'listPeriodSnapshots') {
+      const periodId = String((input as { query?: { period_id?: string } }).query?.period_id ?? '');
+      return state.snapshots[periodId] ?? { items: [], next_cursor: null, pending_reports: [] };
+    }
+    if (operation === 'listPeriodSnapshotLines') {
+      const request = input as { path: { id: string }; query?: { cursor?: string } };
+      return state.snapshotLines[request.path.id]?.[request.query?.cursor ?? ''] ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
     }
     if (operation === 'get_resources_report_revision') {
       const query = (input as { query?: Record<string, unknown> }).query ?? {};
@@ -275,6 +291,7 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-10" element={screen} />
                 <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
+                <Route path="/dis/dis-21" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />
               </Routes>
             </MemoryRouter>

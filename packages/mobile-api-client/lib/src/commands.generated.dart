@@ -1639,6 +1639,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listPeriodSnapshotLines({required String id, Map<String, Object?>? query}) =>
       execute('listPeriodSnapshotLines', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> listPeriodSnapshots({Map<String, Object?>? query}) =>
+      execute('listPeriodSnapshots', query: query);
+
   Future<Object?> listPlanFeedback({required String id, Map<String, Object?>? query}) =>
       execute('listPlanFeedback', path: <String, Object?>{'id': id}, query: query);
 

@@ -548,6 +548,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listOverdueAdvances': asObject,
   'listPaymentForms': PayPaymentFormPageResponse.fromJson,
   'listPeriodSnapshotLines': asObject,
+  'listPeriodSnapshots': asObject,
   'listPlanFeedback': asObject,
   'listPlanVersions': PlanVersionPageResponse.fromJson,
   'listProcurementExternalLinks': BidExternalLinkListResponse.fromJson,

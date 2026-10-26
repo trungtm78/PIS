@@ -545,6 +545,7 @@ export const OPERATIONS = {
   "listOverdueAdvances": { method: "get", path: "/advances/overdue", versioned: false, stepUp: null, permission: "advance.read" },
   "listPaymentForms": { method: "get", path: "/payment-requests/{id}/forms", versioned: false, stepUp: null, permission: "payment_request.read" },
   "listPeriodSnapshotLines": { method: "get", path: "/period-snapshots/{id}/lines", versioned: false, stepUp: null, permission: "disbursement.read" },
+  "listPeriodSnapshots": { method: "get", path: "/period-snapshots", versioned: false, stepUp: null, permission: "disbursement.read" },
   "listPlanFeedback": { method: "get", path: "/compensation-plans/{id}/feedback", versioned: false, stepUp: null, permission: "land.read" },
   "listPlanVersions": { method: "get", path: "/system/plans", versioned: false, stepUp: null, permission: "system.billing.manage" },
   "listProcurementExternalLinks": { method: "get", path: "/procurement-external-links", versioned: false, stepUp: null, permission: "bid.read" },

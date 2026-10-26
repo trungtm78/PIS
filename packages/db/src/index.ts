@@ -865,3 +865,5 @@ export type {
   TreasuryFigure,
 } from './dis-report-store.ts';
 export type { NewReport, ReportContext, ReportHead, ReportLine } from './aud-report-store.ts';
+export { DisSnapshotStore, SNAPSHOT_RESOURCE, DIS_SNAPSHOT_BUILD_METRIC, DIS_SNAPSHOT_FREEZE_METRIC, REQUIRED_GLOSSARY_TERMS } from './dis-snapshot-store.ts';
+export type { SnapshotRow as PeriodSnapshotRow, SnapshotLineRow as PeriodSnapshotLineRow, SnapshotStatus as PeriodSnapshotStatus } from './dis-snapshot-store.ts';

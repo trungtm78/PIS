@@ -858,6 +858,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/report-imports/${t.legalHoldId}/apply`, ifMatch: '"1"', body: {} }),
   },
+  buildPeriodSnapshot: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/period-snapshots', body: { period_id: t.periodLockedId, snapshot_kind: 'PERIOD_CLOSE', treasury_cutoff_date: '2026-01-04' } }),
+  },
+  freezePeriodSnapshot: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/period-snapshots/${t.legalHoldId}/freeze`, ifMatch: '"1"', body: {} }),
+  },
   restoreDraftReport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/draft-restore`, ifMatch: '"1"', body: {} }),

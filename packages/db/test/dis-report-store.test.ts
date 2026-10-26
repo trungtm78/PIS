@@ -5,6 +5,7 @@ import type { EffectiveAccess, ImportRow, ParsedImport, RawFundingLine, Scope } 
 import { DisImportStore } from '../src/dis-import-store';
 import { DisPeriodStore } from '../src/dis-period-store';
 import { DisReportStore } from '../src/dis-report-store';
+import { DisSnapshotStore, REQUIRED_GLOSSARY_TERMS } from '../src/dis-snapshot-store';
 import type { Allocation, NewDraft } from '../src/dis-report-store';
 import { projectScope } from '../src/prj-project-store';
 import type { TenantTx } from '../src/tenant-database';
@@ -1236,6 +1237,297 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       expect(await guard("update machvon.report_import_batch set status = 'VALIDATED' where id = $1", [dry.id])).toMatchObject({ code: '23514' });
       await owner("update machvon.report_import_batch set status = 'APPLIED', applied_at = now(), applied_by = $2 where id = $1", [clean.id, memberId(MAKER)]);
       expect(await guard("update machvon.report_import_batch set drafts_created = 1 where id = $1", [clean.id])).toMatchObject({ code: '23514' });
+    });
+  });
+
+  describe('the period snapshot (ST-DIS-009)', () => {
+    const snapshots = new DisSnapshotStore();
+    const BUILDER = OTHER;
+    const BUILT_AT = new Date('2026-10-27T03:00:00.000Z');
+    const wholeScope = projectScope(accessOf(['snapshot.build'], { kind: 'TENANT' }), 'snapshot.build', NOW);
+    const elsewhereScope = projectScope(accessOf(['snapshot.build'], { kind: 'UNIT_SUBTREE', refIds: [unitId(ELSEWHERE)], paths: ['/u3/'] }), 'snapshot.build', NOW);
+    const periodsStore = new DisPeriodStore();
+
+    const allocationOf = (planId: string, projectId: string, bucket: string, level: string, amount: string, origin: string): [string, unknown[]] => [
+      `insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id, budget_level, origin, is_extended, extended_to, extension_document_id)
+       values ($1, gen_random_uuid(), $2, $3, $4, $5, $6::numeric, 0, $7, $8, $9, $10, case when $10 then date '2041-03-31' end, case when $10 then $11::uuid end)`,
+      [TENANT_A, planId, FUND_SOURCE, bucket, 2026, amount, projectId, level, origin, bucket === 'CARRYOVER', DECISION],
+    ];
+    const plusDays = (day: string, days: number): string => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+    const paidOf = (projectId: string, amount: string, at: string, refundOf: string | null = null, n: string = randomUUID()): [string, unknown[]] => [
+      `insert into machvon.treasury_transaction (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, direction, reversal_of_id, import_id)
+       values ($1, $2, $3, $4, 'TREASURY', $5::numeric, $6::timestamptz, $7, $8, $9, gen_random_uuid())`,
+      [TENANT_A, n, projectId, `EXT-${n}`, amount, at, 'd'.repeat(64), refundOf === null ? 'PAYMENT' : 'REFUND', refundOf],
+    ];
+
+    /** A fresh week of its own (with the year of its plan) and, when asked, a project with the plan in force and the report of the week accepted. */
+    async function week(): Promise<{ periodId: string; start: string; end: string; year: number }> {
+      const found = nextWeek();
+      const periodId = id(FAMILY, 2000 + weeks);
+      await seedReplica([periodRow(periodId, `SN-W${weeks}`, found.start, found.end, 'WEEK', found.year)]);
+      return { periodId, start: found.start, end: found.end, year: found.year };
+    }
+    async function projectIn(found: { year: number }, plans: Array<[string, string, string, string]>): Promise<{ projectId: string; planId: string }> {
+      counter += 1;
+      const projectId = id(FAMILY, 100 + counter);
+      const planId = id(FAMILY, 300 + counter);
+      await seedReplica([
+        projectRow(projectId, `SN-${counter}`, unitId(DEPARTMENT), 'IMPLEMENTATION'),
+        planRow(planId, projectId, found.year, 1, 'PUBLISHED', `${found.year - 1}-12-01T00:00:00Z`),
+        ...plans.map(([bucket, level, amount, origin]) => allocationOf(planId, projectId, bucket, level, amount, origin)),
+      ]);
+      return { projectId, planId };
+    }
+    const stateOf = async (reportId: string) => Number((await owner<{ version: string }>('select version::text as version from machvon.report_revision where id = $1', [reportId]))[0]?.version);
+    /** The report of the project in the week, handed in by the maker and accepted by another member. */
+    async function accepted(projectId: string, planId: string, periodId: string, decision: 'approve' | 'leave' = 'approve', overrides: Partial<NewDraft> = {}): Promise<string> {
+      const made = await create(projectId, periodId, planId, overrides);
+      return handled(made.id, decision);
+    }
+    async function handled(reportId: string, decision: 'approve' | 'leave' = 'approve'): Promise<string> {
+      const made = { id: reportId };
+      const head = await as(async (tx) => store.lock(tx, made.id, seeAll, actsAll, await stateOf(made.id)));
+      await as((tx) => store.submit(tx, head, { actor: memberId(MAKER), at: new Date('2026-10-26T03:00:00.000Z'), late: false, payloadHash: head.payloadHash, workflowVersionId: undefined }));
+      if (decision === 'approve') {
+        await as(
+          async (tx) => store.decide(tx, await store.lock(tx, made.id, seeAll, actsAll, await stateOf(made.id)), { decision: 'approve', reason: 'The figures agree with the Treasury.', evidenceIds: [], returnItems: [], dueAt: null }, memberId(BUILDER), BUILT_AT),
+          TENANT_A,
+          BUILDER,
+        );
+      }
+      return made.id;
+    }
+    const periodOf = async (periodId: string) => (await as((tx) => periodsStore.find(tx, periodId))) as NonNullable<Awaited<ReturnType<DisPeriodStore['find']>>>;
+    const build = async (periodId: string, cutoff: string, scope = wholeScope, kind: 'PERIOD_CLOSE' | 'ADHOC' | 'MNE' = 'PERIOD_CLOSE') =>
+      as(async (tx) => snapshots.build(tx, { period: await periodOf(periodId), kind, treasuryCutoffDate: cutoff, asOfAt: BUILT_AT, actor: memberId(BUILDER), scope }), TENANT_A, BUILDER);
+    const linesOf = (snapshotId: string, scope = wholeScope, filter: { projectId?: string } = {}) => as((tx) => snapshots.lines(tx, snapshotId, scope, filter, { limit: 100, after: undefined }), TENANT_A, BUILDER);
+    const freeze = (snapshotId: string, version = 1) => as((tx) => snapshots.freeze(tx, snapshotId, version, memberId(BUILDER), BUILT_AT), TENANT_A, BUILDER);
+    const rowOf = async (snapshotId: string) => (await as((tx) => snapshots.find(tx, snapshotId))) as NonNullable<Awaited<ReturnType<DisSnapshotStore['find']>>>;
+
+    /** The standard world: a year plan of 500 million that the Prime Minister gave and 300 million that the province added, the report FX-DIS-001 accepted, 300 million paid and 50 million taken back by the Treasury. */
+    async function standard() {
+      const found = await week();
+      const { projectId, planId } = await projectIn(found, [
+        ['CURRENT_YEAR', 'CENTRAL', '500000000', 'PM_ASSIGNED'],
+        ['CURRENT_YEAR', 'LOCAL', '300000000', 'LOCAL_ADDED'],
+        ['CARRYOVER', 'LOCAL', '100000000', 'CARRYOVER'],
+      ]);
+      const first = randomUUID();
+      await seedReplica([paidOf(projectId, '300000000', `${found.start}T09:00:00+07:00`, null, first), paidOf(projectId, '50000000', `${plusDays(found.start, 1)}T09:00:00+07:00`, first)]);
+      const reportId = await accepted(projectId, planId, found.periodId);
+      return { ...found, projectId, planId, reportId };
+    }
+
+    it('FX-DIS-004: builds the lines of every project in scope from the accepted report, the plan in force and the Treasury, with the two rates and the formulas it was made with', async () => {
+      const world = await standard();
+      const built = await build(world.periodId, world.end);
+      expect(built.snapshot).toMatchObject({ status: 'BUILDING', snapshotKind: 'PERIOD_CLOSE', treasuryCutoffDate: world.end, asOfDate: world.end, metricSetVersion: 'DIS-METRICS-R1-PROPOSED', definitionStatus: 'PROPOSED_PENDING_SIGNOFF', payloadSha256: null, frozenBy: null, version: 1 });
+      const lines = await linesOf(built.snapshot.id);
+      expect(built.snapshot.rowCount).toBe(lines.length);
+      const mine = lines.filter((line) => line.projectId === world.projectId);
+      expect(mine).toHaveLength(6);
+      const yearCentral = mine.find((line) => line.bucket === 'CURRENT_YEAR' && line.budgetLevel === 'CENTRAL');
+      // The Treasury paid 300 million and took 50 back: 250 million, over 500 million of the Prime Minister and 800 million of the whole plan.
+      expect(yearCentral).toMatchObject({
+        planPmAssignedVnd: '500000000',
+        planLocalAddedVnd: '0',
+        planTotalVnd: '500000000',
+        disbursedTreasuryVnd: '250000000',
+        disbursedReportedVnd: '100000000',
+        ctmtqgSubsetVnd: '40000000',
+        ratePmPct: '50.0000',
+        rateTotalPct: '31.2500',
+        rateNullReason: null,
+        treasuryCoverage: 'PARTIAL',
+        reportRevisionId: world.reportId,
+        planVersionId: world.planId,
+      });
+      expect(mine.find((line) => line.bucket === 'CURRENT_YEAR' && line.budgetLevel === 'LOCAL')).toMatchObject({ planLocalAddedVnd: '300000000', planPmAssignedVnd: '0', disbursedReportedVnd: '200000000', disbursedTreasuryVnd: null, ratePmPct: null });
+      expect(mine.find((line) => line.bucket === 'CARRYOVER' && line.budgetLevel === 'LOCAL')).toMatchObject({ planPmAssignedVnd: '100000000', disbursedReportedVnd: '70000000' });
+      expect(mine.find((line) => line.bucket === 'OTHER' && line.budgetLevel === 'CENTRAL')).toMatchObject({ disbursedReportedVnd: '0', planTotalVnd: '0' });
+    });
+
+    it('AC-ST-DIS-009-2 / UAT-AC241 / FX-DIS-002: takes the cumulative of the accepted report of the period, not the sum of the periods, and the change against the accepted report of the period before', async () => {
+      const first = await week();
+      const { projectId, planId } = await projectIn(first, [['CURRENT_YEAR', 'CENTRAL', '500000000', 'PM_ASSIGNED']]);
+      await accepted(projectId, planId, first.periodId);
+      // The week after: the cumulative is 150 million (it was 100), not 250.
+      const second = await week();
+      const cells = fundingCells(FX_DIS_001.map((line) => (line.bucket === 'CURRENT_YEAR' && line.budget_level === 'CENTRAL' ? { ...line, cumulative_vnd: '150000000' } : line)));
+      await accepted(projectId, planId, second.periodId, 'approve', { cells });
+      const built = await build(second.periodId, second.end);
+      const mine = (await linesOf(built.snapshot.id)).filter((line) => line.projectId === projectId);
+      expect(mine.find((line) => line.bucket === 'CURRENT_YEAR' && line.budgetLevel === 'CENTRAL')).toMatchObject({ disbursedReportedVnd: '150000000', periodDeltaVnd: '50000000' });
+      expect(mine.find((line) => line.bucket === 'CURRENT_YEAR' && line.budgetLevel === 'LOCAL')).toMatchObject({ disbursedReportedVnd: '200000000', periodDeltaVnd: '0' });
+      // The snapshot of the first week has no period before it: the change is not known, which is not a change of zero.
+      const early = (await linesOf((await build(first.periodId, first.end)).snapshot.id)).filter((line) => line.projectId === projectId);
+      expect(early.find((line) => line.bucket === 'CURRENT_YEAR' && line.budgetLevel === 'CENTRAL')).toMatchObject({ disbursedReportedVnd: '100000000', periodDeltaVnd: null });
+    });
+
+    it('AC-ST-DIS-009-3 / UAT-AC06: a figure that was frozen stays as it was when the report is corrected; the corrected report is in the next snapshot, which replaces the first', async () => {
+      const found = await week();
+      const { projectId, planId } = await projectIn(found, [['CURRENT_YEAR', 'CENTRAL', '500000000', 'PM_ASSIGNED']]);
+      const rev1 = await accepted(projectId, planId, found.periodId);
+      const a = await freeze((await build(found.periodId, found.end)).snapshot.id);
+      const total = async (snapshotId: string) => (await linesOf(snapshotId)).filter((line) => line.projectId === projectId).reduce((sum, line) => sum + BigInt(line.disbursedReportedVnd ?? '0'), 0n);
+      expect(await total(a.snapshot.id)).toBe(420_000_000n);
+      // Rev2 corrects the report to 400 million; until it is accepted the snapshot and a new build still say 420.
+      const base = await draftOf(projectId, found.periodId, planId, { cells: fundingCells(FX_DIS_001.map((line) => (line.bucket === 'OTHER' && line.budget_level === 'LOCAL' ? { ...line, cumulative_vnd: '0' } : line))) });
+      const correction = await as((tx) => store.createCorrection(tx, { ...base, revision: 2, supersedesId: rev1, amendmentReason: 'The Treasury corrected a payment.' }, memberId(MAKER)));
+      await handled(correction.id, 'leave');
+      expect(await total((await build(found.periodId, found.end)).snapshot.id)).toBe(420_000_000n);
+      await as(async (tx) => store.decide(tx, await store.lock(tx, correction.id, seeAll, actsAll, await stateOf(correction.id)), { decision: 'approve', reason: 'The figures agree with the Treasury.', evidenceIds: [], returnItems: [], dueAt: null }, memberId(BUILDER), BUILT_AT), TENANT_A, BUILDER);
+      const b = await freeze((await build(found.periodId, found.end)).snapshot.id);
+      expect(await total(b.snapshot.id)).toBe(400_000_000n);
+      expect(b.supersededId).toBe(a.snapshot.id);
+      // The first snapshot has the lines and the hash it had.
+      expect(await total(a.snapshot.id)).toBe(420_000_000n);
+      expect(await rowOf(a.snapshot.id)).toMatchObject({ status: 'SUPERSEDED', payloadSha256: a.snapshot.payloadSha256 });
+      expect(b.snapshot.payloadSha256).not.toBe(a.snapshot.payloadSha256);
+    });
+
+    it('a build that was not frozen is replaced by the next build of the same period and kind and cannot be frozen any more; a build is made by one person at a time (SNAPSHOT_BUILD_IN_PROGRESS)', async () => {
+      const world = await standard();
+      const first = await build(world.periodId, world.end);
+      const second = await build(world.periodId, world.end);
+      expect(second.discardedId).toBe(first.snapshot.id);
+      expect(await rowOf(first.snapshot.id)).toMatchObject({ status: 'FAILED', payloadSha256: null, frozenBy: null });
+      expect(await refusal(freeze(first.snapshot.id, 2))).toMatchObject({ code: 'SNAPSHOT_NOT_BUILT', status: 409 });
+      // Another kind has its own build.
+      expect((await build(world.periodId, world.end, wholeScope, 'ADHOC')).discardedId).toBeNull();
+      // While one build holds its turn, a second one is told so and writes nothing.
+      const input = { period: await periodOf(world.periodId), kind: 'MNE' as const, treasuryCutoffDate: world.end, asOfAt: BUILT_AT, actor: memberId(BUILDER), scope: wholeScope };
+      await as(async (tx) => {
+        await snapshots.build(tx, input);
+        expect(await refusal(as((other) => snapshots.build(other, input), TENANT_A, BUILDER))).toMatchObject({ code: 'SNAPSHOT_BUILD_IN_PROGRESS', status: 409 });
+      }, TENANT_A, BUILDER);
+      expect(await as((tx) => snapshots.list(tx, { periodId: world.periodId, kind: 'MNE' }, 10), TENANT_A, BUILDER)).toHaveLength(1);
+    });
+
+    it('leaves out a report that was handed in and not accepted, and shows it apart as waiting (BR-DIS-02)', async () => {
+      const found = await week();
+      const { projectId, planId } = await projectIn(found, [['CURRENT_YEAR', 'CENTRAL', '500000000', 'PM_ASSIGNED']]);
+      await accepted(projectId, planId, found.periodId, 'leave');
+      const built = await build(found.periodId, found.end);
+      const mine = (await linesOf(built.snapshot.id)).filter((line) => line.projectId === projectId);
+      expect(mine.length).toBeGreaterThan(0);
+      expect(mine.every((line) => line.reportRevisionId === null && line.disbursedReportedVnd === null)).toBe(true);
+      expect(mine.find((line) => line.bucket === 'CURRENT_YEAR' && line.budgetLevel === 'CENTRAL')).toMatchObject({ planPmAssignedVnd: '500000000', disbursedTreasuryVnd: null, rateNullReason: 'TREASURY_COVERAGE_NONE', treasuryCoverage: 'NONE' });
+      const waiting = await as((tx) => snapshots.pendingReports(tx, found.periodId, wholeScope), TENANT_A, BUILDER);
+      expect(waiting).toEqual([expect.objectContaining({ projectId, status: 'SUBMITTED', revision: 1 })]);
+    });
+
+    it('AC-ST-DIS-009-1 / UAT-AC244 / FX-DIS-005: takes the Treasury up to the cutoff and by the Vietnam day: a payment after the cutoff and one before the year are not in it', async () => {
+      const found = await week();
+      const { projectId, planId } = await projectIn(found, [['CURRENT_YEAR', 'CENTRAL', '500000000', 'PM_ASSIGNED']]);
+      await seedReplica([
+        paidOf(projectId, '100000000', `${found.start}T09:00:00+07:00`),
+        paidOf(projectId, '40000000', `${found.end}T23:30:00+07:00`),
+        paidOf(projectId, '9000000', `${found.year - 1}-12-31T23:30:00+07:00`),
+        paidOf(projectId, '5', `${found.year + 1}-01-01T00:30:00+07:00`),
+      ]);
+      await accepted(projectId, planId, found.periodId);
+      const early = await build(found.periodId, found.start);
+      const late = await build(found.periodId, found.end);
+      const carried = (snapshotId: string) => linesOf(snapshotId).then((lines) => lines.find((line) => line.projectId === projectId && line.bucket === 'CURRENT_YEAR' && line.budgetLevel === 'CENTRAL'));
+      expect((await carried(early.snapshot.id))?.disbursedTreasuryVnd).toBe('100000000');
+      expect((await carried(late.snapshot.id))?.disbursedTreasuryVnd).toBe('140000000');
+    });
+
+    it('is built only by a person who sees every project (403 SCOPE_DENIED), and a project outside the scope of a reader is neither in the lines nor in what is read', async () => {
+      const world = await standard();
+      expect(await refusal(build(world.periodId, world.end, elsewhereScope))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
+      expect(await as((tx) => snapshots.list(tx, { periodId: world.periodId }, 10), TENANT_A, BUILDER)).toEqual([]);
+      const all = await build(world.periodId, world.end);
+      expect((await linesOf(all.snapshot.id, elsewhereScope)).some((line) => line.projectId === world.projectId)).toBe(false);
+      expect((await linesOf(all.snapshot.id, wholeScope, { projectId: world.projectId }))).toHaveLength(6);
+      expect(await as((tx) => snapshots.pendingReports(tx, world.periodId, elsewhereScope), TENANT_A, BUILDER)).toEqual([]);
+    });
+
+    it('AC-ST-DIS-009-4: freezing keeps the hash of the lines and who and when, the snapshot cannot be frozen twice, and a version that is not the one shown is refused', async () => {
+      const world = await standard();
+      const built = await build(world.periodId, world.end);
+      expect(await refusal(freeze(built.snapshot.id, 7))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
+      const frozen = await freeze(built.snapshot.id);
+      expect(frozen.supersededId).toBeNull();
+      expect(frozen.snapshot).toMatchObject({ status: 'FROZEN', frozenBy: memberId(BUILDER), frozenAt: BUILT_AT.toISOString(), version: 2 });
+      expect(frozen.snapshot.payloadSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(await refusal(freeze(built.snapshot.id, 2))).toMatchObject({ code: 'SNAPSHOT_FROZEN', status: 409 });
+      expect(await refusal(as((tx) => snapshots.freeze(tx, randomUUID(), 1, memberId(BUILDER), BUILT_AT)))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+    });
+
+    it('the hash is the same for the same figures: a second snapshot of the same data has the same hash, a changed payment changes it', async () => {
+      const world = await standard();
+      const one = await freeze((await build(world.periodId, world.end)).snapshot.id);
+      const two = await freeze((await build(world.periodId, world.end)).snapshot.id);
+      expect(two.snapshot.payloadSha256).toBe(one.snapshot.payloadSha256);
+      await seedReplica([paidOf(world.projectId, '1000', `${plusDays(world.start, 2)}T09:00:00+07:00`)]);
+      const three = await freeze((await build(world.periodId, world.end)).snapshot.id);
+      expect(three.snapshot.payloadSha256).not.toBe(one.snapshot.payloadSha256);
+    });
+
+    it('AC-ST-DIS-009-4 / UAT-AC251: a newer snapshot of the same period and kind takes the place of the frozen one, which becomes SUPERSEDED with its hash unchanged; another kind is not touched', async () => {
+      const world = await standard();
+      const first = await freeze((await build(world.periodId, world.end)).snapshot.id);
+      const adhoc = await freeze((await build(world.periodId, world.end, wholeScope, 'ADHOC')).snapshot.id);
+      expect(adhoc.supersededId).toBeNull();
+      const second = await freeze((await build(world.periodId, world.end)).snapshot.id);
+      expect(second.supersededId).toBe(first.snapshot.id);
+      expect(second.snapshot).toMatchObject({ status: 'FROZEN', supersedesId: first.snapshot.id });
+      expect(await rowOf(first.snapshot.id)).toMatchObject({ status: 'SUPERSEDED', payloadSha256: first.snapshot.payloadSha256, frozenBy: memberId(BUILDER) });
+      expect(await rowOf(adhoc.snapshot.id)).toMatchObject({ status: 'FROZEN' });
+      expect(await refusal(freeze(first.snapshot.id, 3))).toMatchObject({ code: 'SNAPSHOT_FROZEN', status: 409 });
+      const listed = await as((tx) => snapshots.list(tx, { periodId: world.periodId, kind: 'PERIOD_CLOSE' }, 10), TENANT_A, BUILDER);
+      expect(listed.map((row) => row.status)).toEqual(['FROZEN', 'SUPERSEDED']);
+    });
+
+    it('says the definitions are proposals until every term of the formulas is published in the glossary, then that they are signed (CXN-03)', async () => {
+      expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_A, BUILDER)).toBe('PROPOSED_PENDING_SIGNOFF');
+      const term = (code: string, n: number, published: boolean): [string, unknown[]] => [
+        `insert into machvon.glossary_term (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, created_by, updated_by, approved_by, decided_by, decided_at, published_by, published_at, effective_from)
+         values ($1, $2, $3, $3, 'The way this figure of disbursement is defined.', 'DISBURSEMENT', $4, 1, $5, $4, $4, $6, $6, '2026-01-01T00:00:00Z'::timestamptz, $7, $8::timestamptz, $9::date)`,
+        [TENANT_A, id(FAMILY, 4000 + n), code, memberId(MAKER), published ? 'PUBLISHED' : 'APPROVED', memberId(OTHER), published ? memberId(OTHER) : null, published ? '2026-01-01T00:00:00Z' : null, published ? '2026-01-01' : null],
+      ];
+      // All but the first term are published, the first is only approved: the formulas are still proposals.
+      await seedReplica([term(REQUIRED_GLOSSARY_TERMS[0] as string, 0, false), ...REQUIRED_GLOSSARY_TERMS.slice(1).map((code, n) => term(code, n + 1, true))]);
+      expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_A, BUILDER)).toBe('PROPOSED_PENDING_SIGNOFF');
+      await owner("update machvon.glossary_term set status = 'PUBLISHED', published_by = $2, published_at = now(), effective_from = date '2026-01-01' where id = $1", [id(FAMILY, 4000), memberId(OTHER)]);
+      expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_A, BUILDER)).toBe('SIGNED');
+      expect(await as((tx) => snapshots.definitionStatus(tx), TENANT_B, BUILDER)).toBe('PROPOSED_PENDING_SIGNOFF');
+      await owner('delete from machvon.glossary_term where id = any($1::uuid[])', [REQUIRED_GLOSSARY_TERMS.map((_code, n) => id(FAMILY, 4000 + n))]);
+    });
+
+    it('what the table refuses: a frozen snapshot is not changed or deleted, a line is not touched, lines are written only while building, a hash is a hash', async () => {
+      const world = await standard();
+      const built = await build(world.periodId, world.end);
+      const guard = (sql: string, params: unknown[] = []) => refusal(owner(sql, params));
+      expect(await guard("update machvon.period_snapshot set status = 'SUPERSEDED' where id = $1", [built.snapshot.id])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.period_snapshot set status = 'FROZEN', frozen_at = now() where id = $1", [built.snapshot.id])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.period_snapshot set metric_set_version = 'X' where id = $1", [built.snapshot.id])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.period_snapshot set status = 'FROZEN', frozen_at = now(), frozen_by = $2, payload_sha256 = 'nothex' where id = $1", [built.snapshot.id, memberId(BUILDER)])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.period_snapshot_line set plan_total_vnd = 1 where snapshot_id = $1", [built.snapshot.id])).toMatchObject({ code: '23514' });
+      expect(await guard('delete from machvon.period_snapshot_line where snapshot_id = $1', [built.snapshot.id])).toMatchObject({ code: '23514' });
+      const frozen = await freeze(built.snapshot.id);
+      expect(await guard("update machvon.period_snapshot set payload_sha256 = repeat('0', 64) where id = $1", [frozen.snapshot.id])).toMatchObject({ code: '23514' });
+      expect(await guard('delete from machvon.period_snapshot where id = $1', [frozen.snapshot.id])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.period_snapshot set status = 'BUILDING' where id = $1", [frozen.snapshot.id])).toMatchObject({ code: '23514' });
+      expect(
+        await guard(
+          `insert into machvon.period_snapshot_line (tenant_id, id, snapshot_id, project_id, unit_id, bucket, budget_level, treasury_coverage) values (current_setting('app.tenant_id')::uuid, gen_random_uuid(), $1, $2, $3, 'OTHER', 'LOCAL', 'NONE')`,
+          [frozen.snapshot.id, world.projectId, unitId(DEPARTMENT)],
+        ),
+      ).toMatchObject({ code: '23514' });
+      expect(await guard('update machvon.period_snapshot_line set rate_pm_pct = -1 where id = (select id from machvon.period_snapshot_line where snapshot_id = $1 limit 1)', [built.snapshot.id])).toMatchObject({ code: '23514' });
+    });
+
+    it('is the tenant\'s own: another tenant sees no snapshot and no line, and the list is newest first', async () => {
+      const world = await standard();
+      const built = await build(world.periodId, world.end);
+      expect(await as((tx) => snapshots.find(tx, built.snapshot.id), TENANT_B)).toBeUndefined();
+      expect(await as((tx) => snapshots.list(tx, { periodId: world.periodId }, 10), TENANT_B)).toEqual([]);
+      const again = await build(world.periodId, world.end);
+      const listed = await as((tx) => snapshots.list(tx, { periodId: world.periodId }, 10), TENANT_A, BUILDER);
+      expect(listed.map((row) => row.id)).toEqual([again.snapshot.id, built.snapshot.id]);
     });
   });
 });

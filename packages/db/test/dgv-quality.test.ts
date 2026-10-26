@@ -73,6 +73,9 @@ async function newWorld(extra: { producerModule?: string; isCritical?: boolean; 
   return { datasetId: created.id, contractId, code };
 }
 
+/** A change of a snapshot that its guard refuses, made with the guard switched off for the statement (the defect that a run has to notice). */
+const tamper = (sql: string, params: unknown[]) =>
+  harness.owner(TENANT_A, [['alter table machvon.period_snapshot disable trigger period_snapshot_guard'], [sql, params], ['alter table machvon.period_snapshot enable trigger period_snapshot_guard']]);
 const newSnapshot = (seed: SnapshotSeed = {}): Promise<SeededSnapshot> => seedSnapshot(harness, TENANT_A, STEWARD, seed);
 
 const draft = (world: World, extra: Partial<QualityRuleDraftInput> & { code: string }): QualityRuleDraftInput => ({
@@ -569,8 +572,9 @@ describe('quality rules, runs on frozen snapshots and scorecards (ST-DGV-002)', 
       const incomplete = await newSnapshot();
       const requestedChanged = await request(world, changed.id);
       const requestedIncomplete = await request(world, incomplete.id);
-      await owner("update machvon.period_snapshot set payload_sha256 = repeat('f', 64) where id = $1", [changed.id]);
-      await owner('update machvon.period_snapshot set row_count = row_count + 3 where id = $1', [incomplete.id]);
+      // The table keeps a frozen snapshot as it was: what a tampering would do is simulated with its guard switched off.
+      await tamper("update machvon.period_snapshot set payload_sha256 = repeat('f', 64) where id = $1", [changed.id]);
+      await tamper('update machvon.period_snapshot set row_count = row_count + 3 where id = $1', [incomplete.id]);
       await drain(newJob().job);
       expect(await runRow(requestedChanged.id)).toMatchObject({ status: 'FAILED', failure_code: 'SNAPSHOT_CHANGED', overall_result: null, score: null });
       expect(await runRow(requestedIncomplete.id)).toMatchObject({ status: 'FAILED', failure_code: 'SNAPSHOT_INCOMPLETE', overall_result: null, score: null });
@@ -579,7 +583,7 @@ describe('quality rules, runs on frozen snapshots and scorecards (ST-DGV-002)', 
       // A snapshot that is no longer frozen at all is the same refusal.
       const gone = await newSnapshot();
       const requestedGone = await request(world, gone.id);
-      await owner("update machvon.period_snapshot set status = 'FAILED', payload_sha256 = null, frozen_at = null where id = $1", [gone.id]);
+      await tamper("update machvon.period_snapshot set status = 'FAILED', payload_sha256 = null, frozen_at = null, frozen_by = null where id = $1", [gone.id]);
       await drain(newJob().job);
       expect(await runRow(requestedGone.id)).toMatchObject({ status: 'FAILED', failure_code: 'SNAPSHOT_CHANGED' });
     });

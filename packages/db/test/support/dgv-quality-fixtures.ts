@@ -50,8 +50,8 @@ export async function seedSnapshot(harness: AuthzHarness, tenantId: string, acto
     [
       `insert into machvon.period_snapshot (tenant_id, id, period_id, snapshot_kind, as_of_at, as_of_date, treasury_cutoff_date, status, metric_set_version, definition_status, row_count,
           payload_sha256, frozen_by, frozen_at, created_by, updated_by)
-       values ($1, $2, $3, 'PERIOD_CLOSE', coalesce($4::timestamptz, now()), current_date, current_date, $5, 'v1', 'PROPOSED_PENDING_SIGNOFF', $6, $7, $8, $9, $8, $8)`,
-      [tenantId, snapshotId, randomUUID(), seed.asOfAt ?? null, status, lines.length + (seed.rowCountDelta ?? 0), final ? sha256 : null, memberId(actor), final ? new Date().toISOString() : null],
+       values ($1, $2, $3, 'PERIOD_CLOSE', coalesce($4::timestamptz, now()), current_date, current_date, 'BUILDING', 'v1', 'PROPOSED_PENDING_SIGNOFF', $5, null, null, null, $6, $6)`,
+      [tenantId, snapshotId, randomUUID(), seed.asOfAt ?? null, lines.length + (seed.rowCountDelta ?? 0), memberId(actor)],
     ],
   ]);
   const projectIds: string[] = [];
@@ -76,6 +76,15 @@ export async function seedSnapshot(harness: AuthzHarness, tenantId: string, acto
         [tenantId, randomUUID(), snapshotId, projectId, unitId(1), line.bucket ?? 'CURRENT_YEAR', planTotal, line.ctmtqg ?? '500', line.rateTotal === undefined ? '50' : line.rateTotal, line.rateTotal === null ? 'NO_DATA' : null],
       ],
     ]);
+  }
+  // The lines are written while the snapshot is being built; only then does it move on (the table keeps the lines of a frozen snapshot as they were).
+  if (final) {
+    await harness.owner(tenantId, [
+      ["update machvon.period_snapshot set status = 'FROZEN', payload_sha256 = $2, frozen_by = $3, frozen_at = $4::timestamptz where id = $1", [snapshotId, sha256, memberId(actor), new Date().toISOString()]],
+    ]);
+    if (status === 'SUPERSEDED') await harness.owner(tenantId, [["update machvon.period_snapshot set status = 'SUPERSEDED' where id = $1", [snapshotId]]]);
+  } else if (status === 'FAILED') {
+    await harness.owner(tenantId, [["update machvon.period_snapshot set status = 'FAILED' where id = $1", [snapshotId]]]);
   }
   return { id: snapshotId, sha256, projectIds };
 }
