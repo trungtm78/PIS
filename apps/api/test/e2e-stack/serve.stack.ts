@@ -516,12 +516,13 @@ const INVENTORY_ROLES = [
 ];
 
 /**
- * The people of the plans of compensation (LND-05, LND-06), over the whole tenant: the officer who drafts, composes, revises, posts and closes them, the reader and the approver. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
+ * The people of the plans of compensation (LND-05, LND-06, LND-07), over the whole tenant: the officer who drafts, composes, revises, posts and closes them, the reader, the approver and the one who pays. The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json.
  */
 const PLAN_COMP_ROLES = [
   { n: 864, user: 'landPlanWriter', code: 'E2E_LAND_PLAN_WRITER', permissions: ['land.plan.write', 'land.read', 'land.household.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 30 },
   { n: 865, user: 'landPlanReader', code: 'E2E_LAND_PLAN_READER', permissions: ['land.read', 'project.read', 'session.self'], rank: 20 },
   { n: 866, user: 'landPlanApprover', code: 'E2E_LAND_PLAN_APPROVER', permissions: ['land.plan.approve', 'land.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 40 },
+  { n: 867, user: 'landPayer', code: 'E2E_LAND_PAYER', permissions: ['land.payment.write', 'land.read', 'land.household.read', 'project.read', 'organization_unit.read', 'session.self'], rank: 35 },
 ];
 
 const CHAIN_ROLES = [{ n: 842, user: 'paymentAuditor', code: 'E2E_PAYMENT_AUDITOR', permissions: ['payment.chain.read', 'project.read', 'session.self'], rank: 20 }];

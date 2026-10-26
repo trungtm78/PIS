@@ -6341,6 +6341,7 @@ final class LndConfirmCompensationPayment implements RequestModel {
     required this.voucherDocumentVersionId,
     this.treasuryTransactionId,
     this.advanceId,
+    this.lateReason,
   });
 
   final String paidOn;
@@ -6348,6 +6349,7 @@ final class LndConfirmCompensationPayment implements RequestModel {
   final String voucherDocumentVersionId;
   final String? treasuryTransactionId;
   final String? advanceId;
+  final String? lateReason;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -6356,6 +6358,7 @@ final class LndConfirmCompensationPayment implements RequestModel {
         'voucher_document_version_id': voucherDocumentVersionId,
         if (treasuryTransactionId != null) 'treasury_transaction_id': treasuryTransactionId,
         if (advanceId != null) 'advance_id': advanceId,
+        if (lateReason != null) 'late_reason': lateReason,
       };
 }
 

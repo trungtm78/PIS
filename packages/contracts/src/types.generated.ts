@@ -10226,7 +10226,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các khoản chi trả của một phương án (theo phạm vi đơn vị của hộ; tài khoản ngân hàng chỉ ở dạng che) */
+        get: operations["listCompensationPayments"];
         put?: never;
         /** Lập lịch chi trả cho từng hộ theo phương án đã duyệt */
         post: operations["scheduleCompensationPayments"];
@@ -17703,6 +17704,7 @@ export interface components {
             treasury_transaction_id?: string;
             /** Format: uuid */
             advance_id?: string;
+            late_reason?: string;
         };
         LndDepositCompensationPayment: {
             deposit_reason: string;
@@ -82354,6 +82356,86 @@ export interface operations {
             };
             /** @description Domain invariant failure */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listCompensationPayments: {
+        parameters: {
+            query?: {
+                status?: "PENDING" | "PAID" | "DEPOSITED" | "CANCELLED";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

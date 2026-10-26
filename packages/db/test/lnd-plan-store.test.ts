@@ -406,6 +406,11 @@ describe('the plan of compensation, support and resettlement: composing it from 
       await post(paying.id);
       await owner("update machvon.compensation_plan set status = 'POSTING_CLOSED', feedback_summary = 'No opinions' where id = $1::uuid", [paying.id]);
       await owner("update machvon.compensation_plan set status = 'APPROVED', approved_on = date '2026-11-05', payment_due_on = date '2026-12-05', decision_document_version_id = $2::uuid, approved_by = $3::uuid where id = $1::uuid", [paying.id, world.cleanDocument, memberId(CHECKER)]);
+      await owner(
+        `insert into machvon.compensation_payment (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, status, created_by, updated_by)
+         select tenant_id, gen_random_uuid(), plan_id, household_id, owner_unit_id, 1, 1, date '2026-11-20', 'PENDING', created_by, created_by from machvon.compensation_plan_item where plan_id = $1::uuid limit 1`,
+        [paying.id],
+      );
       await owner("update machvon.compensation_plan set status = 'PAYING' where id = $1::uuid", [paying.id]);
       expect(await refusal(revise(paying.id, 2))).toMatchObject({ code: 'PLAN_STATE_INVALID', extensions: { status: 'PAYING' } });
       expect(await refusal(revise(randomUUID(), 1))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });

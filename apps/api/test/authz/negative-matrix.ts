@@ -1636,6 +1636,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/approve`, ifMatch: '"1"', body: { approved_on: '2026-10-20', decision_document_version_id: t.documentVersionId } }),
   },
+  scheduleCompensationPayments: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-plans/${t.planId}/payments`, ifMatch: '"1"', body: { payments: [{ household_id: t.householdId, amount_vnd: '1' }] } }),
+  },
+  confirmCompensationPayment: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-payments/${t.planId}/confirm`, ifMatch: '"1"', body: { paid_on: '2026-10-20', method: 'BANK_TRANSFER', voucher_document_version_id: t.documentVersionId } }),
+  },
+  depositCompensationPayment: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/compensation-payments/${t.planId}/deposit`, ifMatch: '"1"', body: { deposit_reason: REASON, voucher_document_version_id: t.documentVersionId, paid_on: '2026-10-20' } }),
+  },
   recordInventory: {
     referencesTenantIds: true,
     build: (t) => ({

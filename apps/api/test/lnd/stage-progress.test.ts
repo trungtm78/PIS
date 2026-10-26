@@ -11,6 +11,7 @@ import { LandInventoryController, LandInventoryReadsController } from '../../src
 import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
 import { CompensationPlanController, CompensationPlanReadsController } from '../../src/modules/lnd/plan.controller';
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from '../../src/modules/lnd/plan-posting.controller';
+import { CompensationPaymentController, CompensationPaymentReadsController } from '../../src/modules/lnd/payment.controller';
 import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.controller';
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
 import { LandSectionController } from '../../src/modules/lnd/section.controller';
@@ -154,7 +155,7 @@ describe('the progress of land clearance by stage, tracked from outside (ST-LND-
   }, 60_000);
 
   it('is registered in the module of LND', () => {
-    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController]);
+    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController]);
   });
 
   describe('reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387)', () => {

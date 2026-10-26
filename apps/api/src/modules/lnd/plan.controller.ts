@@ -18,7 +18,7 @@ import { projectRefs, reaches } from './reach';
 const WRITE_PERMISSION = PERMISSIONS.draftCompensationPlan;
 const READ_PERMISSION = PERMISSIONS.listCompensationPlans;
 /** The rights that let a caller see a plan at all: whoever reads, writes or approves plans of a place knows they exist; without one of them a plan does not exist for the caller. */
-const SEEING_PERMISSIONS: readonly string[] = ['land.read', WRITE_PERMISSION, 'land.plan.approve'];
+const SEEING_PERMISSIONS: readonly string[] = ['land.read', WRITE_PERMISSION, 'land.plan.approve', 'land.payment.write'];
 const RESOURCE_TYPE = 'compensation_plan';
 const CLASSIFICATION = 'INTERNAL';
 

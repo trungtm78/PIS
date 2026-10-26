@@ -124,6 +124,12 @@ export const INVENTORY_FIXTURES: Readonly<Record<TenantName, { id: string; linkI
   'TNT-B': { id: '00000000-0000-4000-b0b9-000000000001', linkId: '00000000-0000-4000-b0b9-000000000002', priceDecision: 'BETA-QD-GIA-0001' },
 };
 
+/** A payment of the approved plan of compensation of each tenant (the plan of PLAN_COMP_FIXTURES, in the end of its way to being paid). */
+export const PAYMENT_COMP_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0bb-000000000001' },
+  'TNT-B': { id: '00000000-0000-4000-b0bb-000000000001' },
+};
+
 /** A draft plan of compensation of the project of each tenant, with one item of the household (the code is distinctive; the amounts of a household are tenant data). */
 export const PLAN_COMP_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0ba-000000000001', itemId: '00000000-0000-4000-a0ba-000000000002', code: 'ALPHA-PLAN-0001' },
@@ -675,6 +681,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'compensation plan id', value: PLAN_COMP_FIXTURES[tenant].id },
     { kind: 'compensation plan item id', value: PLAN_COMP_FIXTURES[tenant].itemId },
     { kind: 'compensation plan code', value: PLAN_COMP_FIXTURES[tenant].code },
+    { kind: 'compensation payment id', value: PAYMENT_COMP_FIXTURES[tenant].id },
     { kind: 'inventory price decision', value: INVENTORY_FIXTURES[tenant].priceDecision },
     { kind: 'household code', value: HOUSEHOLD_FIXTURES[tenant].code },
     { kind: 'land section id', value: SECTION_FIXTURES[tenant].id },

@@ -14,6 +14,7 @@ import { LandInventoryController, LandInventoryReadsController } from '../../src
 import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
 import { CompensationPlanController, CompensationPlanReadsController } from '../../src/modules/lnd/plan.controller';
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from '../../src/modules/lnd/plan-posting.controller';
+import { CompensationPaymentController, CompensationPaymentReadsController } from '../../src/modules/lnd/payment.controller';
 import { FIELD_CIPHER, LND_METRICS } from '../../src/modules/lnd/tokens';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedLndWorld } from '../../../../packages/db/test/support/lnd-fixtures';
@@ -186,7 +187,7 @@ describe('the households affected by a land recovery: sealed personal data, mask
   }, 60_000);
 
   it('is registered in the module of LND, with a cipher that fails closed when the process has no keys', async () => {
-    expect(lndModule.controllers).toEqual(expect.arrayContaining([AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController]));
+    expect(lndModule.controllers).toEqual(expect.arrayContaining([AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController]));
     const bound = createFieldCipher({ FIELD_ENCRYPTION_KEYS: `1:${randomBytes(32).toString('base64')}` });
     const place = { tenantId: TENANT_A, table: 'affected_household', column: 'head_name_enc', rowId: randomUUID() };
     expect(bound.open(place, bound.seal(place, HEAD))).toBe(HEAD);
@@ -515,9 +516,9 @@ describe('the households affected by a land recovery: sealed personal data, mask
       const paid = status === 'PAID';
       await client.query(
         `insert into machvon.compensation_payment
-           (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, status, created_by, updated_by)
-         values ($1, gen_random_uuid(), gen_random_uuid(), $2::uuid, $3::uuid, 1, 1000000, date '2026-10-01', $4, $5, $6, $7, $8, $8)`,
-        [TENANT_A, householdId, unitId(unit), paid ? '2026-10-10' : null, paid ? 'BANK_TRANSFER' : null, paid ? world.cleanDocument : null, status, memberId(OFFICER)],
+           (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, late_reason, status, created_by, updated_by)
+         values ($1, gen_random_uuid(), gen_random_uuid(), $2::uuid, $3::uuid, 1, 1000000, date '2026-10-01', $4, $5, $6, $7, $8, $9, $9)`,
+        [TENANT_A, householdId, unitId(unit), paid ? '2026-10-10' : null, paid ? 'BANK_TRANSFER' : null, paid ? world.cleanDocument : null, paid ? 'The treasury was closed' : null, status, memberId(OFFICER)],
       );
     } finally {
       await client.end();

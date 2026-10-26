@@ -721,9 +721,21 @@ async function pay(householdId: string, status: 'PAID' | 'DEPOSITED' | 'PENDING'
     const paid = status === 'PAID' || status === 'DEPOSITED';
     await client.query(
       `insert into machvon.compensation_payment
-         (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, deposit_reason, status, created_by, updated_by)
-       values ($1, gen_random_uuid(), gen_random_uuid(), $2::uuid, $3::uuid, $4, 1000000, date '2026-10-01', $5, $6, $7, $8, $9, $10, $10)`,
-      [TENANT_A, householdId, unitId(DEPARTMENT), paymentNo, paid ? '2026-10-10' : null, paid ? 'BANK_TRANSFER' : null, paid ? world.cleanDocument : null, status === 'DEPOSITED' ? 'The household did not come' : null, status, memberId(ACTOR)],
+         (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, deposit_reason, late_reason, status, created_by, updated_by)
+       values ($1, gen_random_uuid(), gen_random_uuid(), $2::uuid, $3::uuid, $4, 1000000, date '2026-10-01', $5, $6, $7, $8, $9, $10, $11, $11)`,
+      [
+        TENANT_A,
+        householdId,
+        unitId(DEPARTMENT),
+        paymentNo,
+        paid ? '2026-10-10' : null,
+        status === 'DEPOSITED' ? 'DEPOSITED' : paid ? 'BANK_TRANSFER' : null,
+        paid ? world.cleanDocument : null,
+        status === 'DEPOSITED' ? 'The household did not come' : null,
+        status === 'PAID' ? 'The treasury was closed' : null,
+        status,
+        memberId(ACTOR),
+      ],
     );
   } finally {
     await client.end();

@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -308,6 +308,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'approveCompensationPlan',
   'listPlanFeedback',
   'getCompensationPlanTimers',
+  'scheduleCompensationPayments',
+  'confirmCompensationPayment',
+  'depositCompensationPayment',
+  'listCompensationPayments',
+  'listUpcomingLandDeadlines',
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
@@ -991,7 +996,25 @@ const POST_COMP_PLAN = `update machvon.compensation_plan
   where id = $1 and status = 'DRAFT'`;
 const INSERT_COMP_FEEDBACK = `insert into machvon.compensation_plan_feedback
   (tenant_id, id, plan_id, household_id, owner_unit_id, channel, summary, status, recorded_on, created_by, updated_by, version)
-  values ($1, $2, $2, $3, $4, 'LETTER', 'Isolation fixture opinion', 'OPEN', date '2026-10-02', $5, $5, 1) on conflict do nothing`;
+  select $1::uuid, $2::uuid, $2::uuid, $3::uuid, $4::uuid, 'LETTER', 'Isolation fixture opinion', 'OPEN', date '2026-10-02', $5::uuid, $5::uuid, 1
+  where exists (select 1 from machvon.compensation_plan where id = $2::uuid and status = 'POSTING') on conflict do nothing`;
+
+/** The plan of the fixture goes on to be paid (every step as the commands take it, and only while it is where the step starts, so that a seed that runs again leaves it as it is): the opinion is handled, the posting closed, the plan approved on the decision document of the tenant by the other member, and one payment scheduled. */
+const HANDLE_COMP_FEEDBACK = `update machvon.compensation_plan_feedback
+  set status = 'HANDLED', handled_on = date '2026-10-03', handled_by = $2, handling_note = 'Isolation fixture handling', updated_by = $2, version = 2 where id = $1 and status = 'OPEN'`;
+const CLOSE_COMP_PLAN = `update machvon.compensation_plan set status = 'POSTING_CLOSED', feedback_summary = 'Isolation fixture summary', version = version + 1 where id = $1 and status = 'POSTING'`;
+const APPROVE_COMP_PLAN = `update machvon.compensation_plan
+  set status = 'APPROVED', approved_on = date '2026-10-31', approved_by = $2, payment_due_on = date '2026-11-30', decision_document_version_id = $3, version = version + 1 where id = $1 and status = 'POSTING_CLOSED'`;
+const INSERT_COMP_PAYMENT = `insert into machvon.compensation_payment
+  (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, status, created_by, updated_by, version)
+  select $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::uuid, 1, 1000, date '2026-11-15', 'PENDING', $6::uuid, $6::uuid, 1
+  where exists (select 1 from machvon.compensation_plan where id = $3::uuid and status = 'APPROVED') on conflict do nothing`;
+/** A timer of the plan that is running and falls due in three days, so that the list of what is coming up has a row to read (the plan of the fixture is one that is paid: the timer is the one of its posting, shown as the one still to end). */
+const INSERT_COMP_DEADLINE = `insert into machvon.land_deadline
+  (tenant_id, id, project_id, subject_kind, subject_id, timer_code, days_applied, started_on, due_on, status, version, created_by, updated_by)
+  select $1::uuid, gen_random_uuid(), $2::uuid, 'PLAN', $3::uuid, 'PLAN_POSTING_30', 30, current_date - 27, current_date + 3, 'RUNNING', 1, $4::uuid, $4::uuid
+  where not exists (select 1 from machvon.land_deadline where subject_kind = 'PLAN' and subject_id = $3::uuid)`;
+const PAY_COMP_PLAN = `update machvon.compensation_plan set status = 'PAYING', version = version + 1 where id = $1 and status = 'APPROVED'`;
 
 const INSERT_ACCOUNTABILITY = `insert into machvon.project_accountability
   (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
@@ -1191,6 +1214,13 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_RESULT, [tenantId, result.id, pack.id, contractor.id, result.awardPrice, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_PETITION, [tenantId, PETITION_FIXTURES[tenant].id, pack.id, contractor.id, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
+    const planFixture = PLAN_COMP_FIXTURES[tenant];
+    await client.query(HANDLE_COMP_FEEDBACK, [planFixture.id, MEMBERSHIP_ID]);
+    await client.query(CLOSE_COMP_PLAN, [planFixture.id]);
+    await client.query(APPROVE_COMP_PLAN, [planFixture.id, MEMBERSHIP_FIXTURES[tenant].id, documents.versionId]);
+    await client.query(INSERT_COMP_PAYMENT, [tenantId, PAYMENT_COMP_FIXTURES[tenant].id, planFixture.id, HOUSEHOLD_FIXTURES[tenant].id, home, MEMBERSHIP_ID]);
+    await client.query(PAY_COMP_PLAN, [planFixture.id]);
+    await client.query(INSERT_COMP_DEADLINE, [tenantId, project.id, planFixture.id, MEMBERSHIP_ID]);
     const ticket = TICKET_FIXTURES[tenant];
     await client.query(INSERT_SUPPORT_TICKET, [tenantId, ticket.id, ticket.code, MEMBERSHIP_ID, ticket.subject, `support_ticket_body:${ticket.id}`]);
     await client.query(INSERT_SUPPORT_TICKET_BODY, [tenantId, ticket.id, ticket.description]);

@@ -44,7 +44,7 @@ function answer(scope: CommandScope, view: AdvanceView): AdvanceCommandResult {
 }
 
 /** The audit row and the event of a command on an advance: identifiers, amounts and the status; the reason or the evidence is named, never repeated. */
-async function record(scope: CommandScope, done: AdvanceResult, action: string, type: string, now: Date, extra: { reason?: string; recovery?: Record<string, unknown> } = {}): Promise<void> {
+export async function recordAdvanceTrail(scope: CommandScope, done: AdvanceResult, action: string, type: string, now: Date, extra: { reason?: string; recovery?: Record<string, unknown> } = {}): Promise<void> {
   const { view } = done;
   const facts = {
     contract_id: view.contract.id,
@@ -102,7 +102,7 @@ export class AdvanceController {
       scopesFor(access, REQUEST_PERMISSION, now),
       now,
     );
-    await record(scope, done, 'advance.planned', 'pay.advance.planned.v1', now);
+    await recordAdvanceTrail(scope, done, 'advance.planned', 'pay.advance.planned.v1', now);
     return answer(scope, done.view);
   }
 
@@ -113,7 +113,7 @@ export class AdvanceController {
   async cancel(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['PayCancelAdvance']): Promise<AdvanceCommandResult> {
     const now = new Date();
     const done = await this.advances.cancel(scope.tx, id.toLowerCase(), scope.expectedVersion ?? 0, body.reason, scope.tenant.membershipId, scopesFor(access, CANCEL_PERMISSION, now));
-    await record(scope, done, 'advance.cancelled', 'pay.advance.cancelled.v1', now, { reason: body.reason.trim() });
+    await recordAdvanceTrail(scope, done, 'advance.cancelled', 'pay.advance.cancelled.v1', now, { reason: body.reason.trim() });
     return answer(scope, done.view);
   }
 
@@ -131,7 +131,7 @@ export class AdvanceController {
       scope.tenant.membershipId,
       scopesFor(access, RECOVER_PERMISSION, now),
     );
-    await record(scope, done, 'advance.recovered', 'pay.advance.recovered.v1', now, {
+    await recordAdvanceTrail(scope, done, 'advance.recovered', 'pay.advance.recovered.v1', now, {
       recovery: { recovery_amount_vnd: body.amount_vnd, basis: body.basis, source_ref_id: body.source_ref_id ?? null, evidence_document_version_id: body.evidence_document_version_id.toLowerCase() },
     });
     return answer(scope, done.view);

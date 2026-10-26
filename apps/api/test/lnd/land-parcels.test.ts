@@ -18,6 +18,7 @@ import { LandInventoryController, LandInventoryReadsController } from '../../src
 import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
 import { CompensationPlanController, CompensationPlanReadsController } from '../../src/modules/lnd/plan.controller';
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from '../../src/modules/lnd/plan-posting.controller';
+import { CompensationPaymentController, CompensationPaymentReadsController } from '../../src/modules/lnd/payment.controller';
 import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.controller';
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
 import { LandSectionController } from '../../src/modules/lnd/section.controller';
@@ -201,7 +202,7 @@ describe('land clearance: sections, parcels without owners, the parcel import an
 
   it('is registered in the module of LND', () => {
     expect(lndModule.code).toBe('LND');
-    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController]);
+    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController]);
   });
 
   describe('createLandSection', () => {

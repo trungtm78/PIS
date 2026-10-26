@@ -184,6 +184,29 @@ export const feedbackRecord = (n: number, planId: string, overrides: Record<stri
   ...overrides,
 });
 
+/** A payment of a plan as the list answers it (waiting, with the day it is due). */
+export const paymentRecord = (n: number, planId: string, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0080', n),
+  plan_id: planId,
+  household_id: uuid('0030', 1),
+  household_code: 'HH-000001',
+  owner_unit_id: UNIT_XA,
+  payment_no: 1,
+  amount_vnd: '450000000',
+  due_on: '2026-10-10',
+  paid_on: null,
+  method: null,
+  bank_account_masked: null,
+  treasury_transaction_id: null,
+  advance_id: null,
+  voucher_document_version_id: null,
+  deposit_reason: null,
+  late_reason: null,
+  status: 'PENDING',
+  version: 1,
+  ...overrides,
+});
+
 /** The timers of a plan as the read answers them. */
 export const timersRecord = (planId: string, overrides: Record<string, unknown> = {}) => ({
   plan_id: planId,
@@ -238,6 +261,7 @@ export interface World {
   planItems: Array<Record<string, unknown>>;
   /** The opinions on the plans, and the timers of a plan by its id. */
   feedback: Array<Record<string, unknown>>;
+  payments: Array<Record<string, unknown>>;
   timers: Record<string, Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
@@ -258,6 +282,7 @@ export function world(overrides: Partial<World> = {}): World {
     plans: [],
     planItems: [],
     feedback: [],
+    payments: [],
     timers: {},
     sections: [{ id: SECTION, code: 'KM-0-3', name: 'Km 0 đến km 3' }],
     units: [
@@ -293,6 +318,8 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.plans.filter((item) => item.project_id === input?.query?.project_id));
         case 'listCompensationPlanItems':
           return Promise.resolve(state.planItems.filter((item) => item.plan_id === input?.path?.id));
+        case 'listCompensationPayments':
+          return Promise.resolve(state.payments.filter((item) => item.plan_id === input?.path?.id));
         case 'listPlanFeedback':
           return Promise.resolve(state.feedback.filter((item) => item.plan_id === input?.path?.id));
         case 'listLandSections':

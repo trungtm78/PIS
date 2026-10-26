@@ -13,7 +13,7 @@ const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole'
  * (ST-MDM-007 AC-2: a reset of an integration cursor without a reason; ST-CTR-003 AC-1: a release of a guarantee without its evidence; ST-AST-002 AC-1: a transfer of an asset without the dossier of the commissioning; UAT-AC380: a household without its retention date; UAT-AC381: a data request without its reason).
  * A field of the wrong type stays 400.
  */
-const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor', 'releaseGuarantee', 'transferAsset', 'registerAffectedHousehold', 'handleHouseholdDataRequest', 'recordInventory', 'confirmInventory', 'draftCompensationPlan', 'addCompensationPlanItems', 'revisePlan', 'postCompensationPlan', 'recordPlanFeedback', 'handlePlanFeedback', 'closePlanPosting', 'approveCompensationPlan']);
+const MISSING_AS_VALIDATION_FAILED: ReadonlySet<string> = new Set(['resetIntegrationCursor', 'releaseGuarantee', 'transferAsset', 'registerAffectedHousehold', 'handleHouseholdDataRequest', 'recordInventory', 'confirmInventory', 'draftCompensationPlan', 'addCompensationPlanItems', 'revisePlan', 'postCompensationPlan', 'recordPlanFeedback', 'handlePlanFeedback', 'closePlanPosting', 'approveCompensationPlan', 'scheduleCompensationPayments', 'confirmCompensationPayment', 'depositCompensationPayment']);
 
 /**
  * Fields whose absence or empty value has a code of its own in the operation catalogue (422, the field named): a legal

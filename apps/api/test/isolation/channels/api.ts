@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
 import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import { WORK_CALENDAR_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PLAN_COMP_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, ESCALATION_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -470,6 +470,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'approveCompensationPlan', method: 'POST', id: PLAN_COMP_FIXTURES['TNT-B'].id, versioned: true, body: { approved_on: '2026-10-20', decision_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
   { operation: 'listPlanFeedback', method: 'GET', id: PLAN_COMP_FIXTURES['TNT-B'].id },
   { operation: 'getCompensationPlanTimers', method: 'GET', id: PLAN_COMP_FIXTURES['TNT-B'].id },
+  { operation: 'scheduleCompensationPayments', method: 'POST', id: PLAN_COMP_FIXTURES['TNT-B'].id, versioned: true, body: { payments: [{ household_id: HOUSEHOLD_FIXTURES['TNT-B'].id, amount_vnd: '999999999' }] } },
+  { operation: 'confirmCompensationPayment', method: 'POST', id: PAYMENT_COMP_FIXTURES['TNT-B'].id, versioned: true, body: { paid_on: '2026-11-01', method: 'BANK_TRANSFER', voucher_document_version_id: '00000000-0000-4000-b0bb-0000000000ff' } },
+  { operation: 'depositCompensationPayment', method: 'POST', id: PAYMENT_COMP_FIXTURES['TNT-B'].id, versioned: true, body: { deposit_reason: 'Isolation foreign deposit attempt', voucher_document_version_id: '00000000-0000-4000-b0bb-0000000000ff', paid_on: '2026-11-01' } },
+  { operation: 'listCompensationPayments', method: 'GET', id: PLAN_COMP_FIXTURES['TNT-B'].id },
   { operation: 'revealHouseholdIdentity', method: 'GET', id: HOUSEHOLD_FIXTURES['TNT-B'].id, query: 'reason=Isolation%20foreign%20reading%20attempt' },
   { operation: 'getProjectLifecycle', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'getLandProgress', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
