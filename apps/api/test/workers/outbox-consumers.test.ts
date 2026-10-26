@@ -21,6 +21,7 @@ import { ENTITLEMENT_CONSUMER } from '../../src/entitlements/entitlement-consume
 import { EnvironmentLicenseKeyStore } from '../../src/modules/sas/license-signer';
 import { ISS_INTAKE_CONSUMER } from '../../src/modules/iss/intake.consumer';
 import { ADM_GUEST_CONTRACT_CONSUMER } from '../../src/modules/adm/guest-contract-closed.consumer';
+import { AUD_PAY_RECOVERY_CONSUMER } from '../../src/modules/aud/pay-recovery.consumer';
 import { DGV_SNAPSHOT_FROZEN_CONSUMER } from '../../src/modules/dgv/snapshot-frozen.consumer';
 import { PRJ_PLAN_PUBLISHED_CONSUMER } from '../../src/modules/prj/plan-published.consumer';
 import { CAP_PAYMENT_LEDGER_CONSUMER } from '../../src/modules/cap/payment-ledger.consumer';
@@ -108,7 +109,7 @@ describe('the consumers of the outbox (ST-KERNEL-022)', () => {
   });
 
   it('names the consumers of the repository, one each', () => {
-    expect(consumersOnTheSharedSink().map((consumer) => consumer.name)).toEqual([PROVISIONING_CONSUMER, ENTITLEMENT_CONSUMER, TENANT_STATUS_CONSUMER, PRJ_PLAN_PUBLISHED_CONSUMER, PAY_ACCEPTANCE_LEDGER_CONSUMER, CAP_PAYMENT_LEDGER_CONSUMER, ISS_INTAKE_CONSUMER, DGV_SNAPSHOT_FROZEN_CONSUMER, ADM_GUEST_CONTRACT_CONSUMER, NOTIFICATION_CONSUMER]);
+    expect(consumersOnTheSharedSink().map((consumer) => consumer.name)).toEqual([PROVISIONING_CONSUMER, ENTITLEMENT_CONSUMER, TENANT_STATUS_CONSUMER, PRJ_PLAN_PUBLISHED_CONSUMER, PAY_ACCEPTANCE_LEDGER_CONSUMER, CAP_PAYMENT_LEDGER_CONSUMER, ISS_INTAKE_CONSUMER, DGV_SNAPSHOT_FROZEN_CONSUMER, ADM_GUEST_CONTRACT_CONSUMER, AUD_PAY_RECOVERY_CONSUMER, NOTIFICATION_CONSUMER]);
   });
 
   it.each([

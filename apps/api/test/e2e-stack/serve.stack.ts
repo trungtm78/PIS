@@ -534,6 +534,8 @@ const AUD_ROLES = [
   { n: 871, user: 'audLeader', code: 'E2E_AUD_LEADER', permissions: ['aud.recommendation.assign', 'aud.read', 'organization_unit.read', 'session.self'], rank: 40 },
   { n: 872, user: 'audOwner', code: 'E2E_AUD_OWNER', permissions: ['aud.recommendation.execute', 'aud.read', 'session.self'], rank: 25 },
   { n: 873, user: 'audVerifier', code: 'E2E_AUD_VERIFIER', permissions: ['aud.recommendation.verify', 'aud.read', 'session.self'], rank: 40 },
+  // the accountant who records the money recovered by hand (ST-AUD-004)
+  { n: 874, user: 'audAccountant', code: 'E2E_AUD_ACCOUNTANT', permissions: ['aud.recovery.record', 'aud.read', 'session.self'], rank: 30 },
 ];
 
 const CHAIN_ROLES = [{ n: 842, user: 'paymentAuditor', code: 'E2E_PAYMENT_AUDITOR', permissions: ['payment.chain.read', 'project.read', 'session.self'], rank: 20 }];

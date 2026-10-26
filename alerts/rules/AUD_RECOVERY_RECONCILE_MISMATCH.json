@@ -1,0 +1,14 @@
+{
+  "id": "AUD_RECOVERY_RECONCILE_MISMATCH",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "audit-follow-up",
+  "runbook": "docs/runbooks/alerts/AUD_RECOVERY_RECONCILE_MISMATCH.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "aud_recovery_reconcile_mismatch_total",
+    "above": 0
+  },
+  "summary": "The recovered amount of a recommendation of an audit or an inspection is not what its ledger of recoveries adds up to."
+}

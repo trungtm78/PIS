@@ -1731,6 +1731,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/audit-evidence', body: { owner_kind: 'ENGAGEMENT', owner_id: t.legalHoldId, document_id: t.documentVersionId } }),
   },
+  linkAuditRecovery: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/audit-recommendations/${t.legalHoldId}/recoveries`,
+      ifMatch: '"1"',
+      body: { source_kind: 'MANUAL_EVIDENCE', amount_vnd: '1000', recorded_on: '2026-10-20', evidence_document_id: t.documentVersionId },
+    }),
+  },
+  reverseAuditRecovery: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-recovery-links/${t.legalHoldId}/reversal`, body: { reason: 'Negative matrix reversal of a recovery' } }),
+  },
   startAuditEngagement: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/audit-engagements/${t.legalHoldId}/start`, ifMatch: '"1"', body: { started_on: '2026-10-20', place_legal_hold: false } }),

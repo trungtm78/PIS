@@ -718,6 +718,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getAuditEngagement({required String id, Map<String, Object?>? query}) =>
       execute('getAuditEngagement', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getAuditOverview({Map<String, Object?>? query}) =>
+      execute('getAuditOverview', query: query);
+
   Future<Object?> getAuditRecoverySummary({required String id, Map<String, Object?>? query}) =>
       execute('getAuditRecoverySummary', path: <String, Object?>{'id': id}, query: query);
 
@@ -1494,6 +1497,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listAuditRecommendations({Map<String, Object?>? query}) =>
       execute('listAuditRecommendations', query: query);
+
+  Future<Object?> listAuditRecoveryLinks({required String id, Map<String, Object?>? query}) =>
+      execute('listAuditRecoveryLinks', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> listAvcPolicies({Map<String, Object?>? query}) =>
       execute('listAvcPolicies', query: query);

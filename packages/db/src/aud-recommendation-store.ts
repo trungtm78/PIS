@@ -315,6 +315,13 @@ export class AudRecommendationStore {
     return toRow(row);
   }
 
+  /** Locks a recommendation for the system (a consumer of events, a job), which acts for the tenant and not through the scope of a person: 404 when it is not in the tenant. */
+  async lockForSystem(tx: TenantTx, id: string): Promise<RecommendationRow> {
+    const [row] = await tx.query<RowSql>(`select ${ROW_COLUMNS} from ${ROW_FROM} where r.id = $1::uuid for update of r`, [id]);
+    if (row === undefined) throw NOT_FOUND();
+    return toRow(row);
+  }
+
   /** 409 `VERSION_CONFLICT` unless the version is the one the screen showed. */
   assertVersion(row: { version: number }, version: number): void {
     if (row.version !== version) throw new DomainError('VERSION_CONFLICT', 409, undefined, { extensions: { current_version: row.version } });
@@ -416,7 +423,7 @@ export class AudRecommendationStore {
   }
 
   /** Puts a document in the register of evidence of an object once; the same document twice is the same row. */
-  private async keepEvidence(tx: TenantTx, ownerKind: EvidenceOwnerKind, ownerId: string, documentId: string, note: string | null, actor: string): Promise<string> {
+  async keepEvidence(tx: TenantTx, ownerKind: EvidenceOwnerKind, ownerId: string, documentId: string, note: string | null, actor: string): Promise<string> {
     await tx.query(
       `insert into machvon.audit_evidence (tenant_id, id, owner_kind, owner_id, document_id, note, attached_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2::uuid, $3::uuid, $4, $5::uuid) on conflict do nothing`,

@@ -156,3 +156,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.aud-figure {
+  margin: 4px 0;
+  font-size: 28px;
+  font-weight: 700;
+}

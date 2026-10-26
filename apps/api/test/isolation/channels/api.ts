@@ -491,6 +491,16 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     },
   },
   { operation: 'listAuditFindings', method: 'GET', id: CONCLUSION_FIXTURES['TNT-B'].id },
+  { operation: 'getAuditRecoverySummary', method: 'GET', id: ENGAGEMENT_FIXTURES['TNT-B'].id },
+  { operation: 'listAuditRecoveryLinks', method: 'GET', id: ENGAGEMENT_FIXTURES['TNT-B'].id },
+  {
+    operation: 'linkAuditRecovery',
+    method: 'POST',
+    id: CONCLUSION_FIXTURES['TNT-B'].recommendationId,
+    versioned: true,
+    body: { source_kind: 'MANUAL_EVIDENCE', amount_vnd: '1000', recorded_on: '2026-10-20', evidence_document_id: '00000000-0000-4000-b0bb-0000000000ff' },
+  },
+  { operation: 'reverseAuditRecovery', method: 'POST', id: CONCLUSION_FIXTURES['TNT-B'].linkId, body: { reason: 'Isolation foreign reversal attempt' } },
   { operation: 'assignAuditRecommendation', method: 'POST', id: CONCLUSION_FIXTURES['TNT-B'].recommendationId, versioned: true, body: { owner_unit_id: '00000000-0000-4000-b0bb-0000000000fe', due_on: '2026-12-01' } },
   {
     operation: 'planRemediationAction',

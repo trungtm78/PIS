@@ -28,13 +28,14 @@ export const RECORDER = ['aud.conclusion.record', 'aud.read'];
 export const LEADER = ['aud.recommendation.assign', 'aud.read'];
 export const OWNER_ROLE = ['aud.recommendation.execute', 'aud.read'];
 export const VERIFIER_ROLE = ['aud.recommendation.verify', 'aud.read'];
+export const ACCOUNTANT_ROLE = ['aud.recovery.record', 'aud.read'];
 export const READER = ['aud.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({
   id,
   path: `/aud/${id.toLowerCase()}`,
   title: id,
-  kind: id === 'AUD-03' ? 'detail' : id === 'AUD-04' ? 'form' : id === 'AUD-07' ? 'board' : 'table',
+  kind: id === 'AUD-03' ? 'detail' : id === 'AUD-04' ? 'form' : id === 'AUD-07' ? 'board' : id === 'AUD-01' ? 'dashboard' : id === 'AUD-08' ? 'reconcile' : 'table',
   area: 'insights',
   module: 'AUD',
   group: 'Cuộc thanh tra, kiểm toán',
@@ -176,7 +177,64 @@ export const actionRecord = (n: number, overrides: Record<string, unknown> = {})
   ...overrides,
 });
 
+/** A rate with its numerator and its denominator. */
+export const rateRecord = (numerator: string, denominator: string, percent: string | null): Record<string, unknown> => ({ numerator, denominator, percent });
+
+/** The money of an engagement as the summary answers it: 800,000,000 recommended, 500,000,000 recovered. */
+export const summaryRecord = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  engagement_id: uuid('0010', 1),
+  amount_vnd: '800000000',
+  recovered_vnd: '500000000',
+  remaining_vnd: '300000000',
+  money_rate: rateRecord('500000000', '800000000', '62.50'),
+  count_rate: rateRecord('0', '1', '0.00'),
+  recommendations: [{ recommendation_id: uuid('0023', 1), rec_code: 'KN-001', status: 'IN_PROGRESS', amount_vnd: '800000000', recovered_vnd: '500000000', remaining_vnd: '300000000', line_count: 1, version: 6 }],
+  exceptions: [],
+  ...overrides,
+});
+
+/** A line of the ledger as the list answers it. */
+export const linkRecord = (n: number, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: uuid('0025', n),
+  recommendation_id: uuid('0023', 1),
+  rec_code: 'KN-001',
+  source_kind: 'PAY_RECOVERY',
+  source_id: uuid('0026', n),
+  amount_vnd: '500000000',
+  recorded_on: '2026-10-20',
+  evidence_document_id: null,
+  reversal_of_id: null,
+  reversed: false,
+  note: null,
+  recorded_by: SELF,
+  recorded_at: '2026-10-20T03:00:00Z',
+  cumulative_vnd: '500000000',
+  remaining_vnd: '300000000',
+  ...overrides,
+});
+
+export const overviewRecord = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+  engagements_ongoing: 2,
+  engagements_follow_up: 3,
+  recommendations_open: 7,
+  recommendations_overdue: 2,
+  amount_vnd: '1250000000',
+  recovered_vnd: '500000000',
+  remaining_vnd: '750000000',
+  money_rate: rateRecord('500000000', '1250000000', '40.00'),
+  count_rate: rateRecord('1', '8', '12.50'),
+  exceptions_open: 0,
+  engagements: [{ id: uuid('0010', 1), engagement_code: 'TTCP-2026-001', title: 'Thanh tra đầu tư cầu số 1', status: 'FOLLOW_UP', recommendations_open: 4, recommendations_overdue: 2, amount_vnd: '800000000', recovered_vnd: '500000000' }],
+  ...overrides,
+});
+
 export interface World {
+  /** The money of an engagement, by its id. */
+  summaries: Record<string, Record<string, unknown>>;
+  /** The lines of the ledger of an engagement, by its id. */
+  links: Record<string, Array<Record<string, unknown>>>;
+  /** The overview, or none (the read answers 404). */
+  overview: Record<string, unknown> | undefined;
   /** The recommendations as the board reads them (no conclusion named), by any engagement. */
   board: Array<Record<string, unknown>>;
   engagements: Array<Record<string, unknown>>;
@@ -197,6 +255,9 @@ export interface World {
 
 export function world(overrides: Partial<World> = {}): World {
   return {
+    summaries: {},
+    links: {},
+    overview: undefined,
     board: [],
     engagements: [],
     details: {},
@@ -221,9 +282,11 @@ export function client(state: World, command: (operation: string, input: unknown
   const h = baseHarness((operation, input) => {
     const failure = state.failing.get(operation);
     if (failure !== undefined) return failure;
+    const missing = new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
+    if (operation === 'getAuditOverview') return state.overview ?? missing;
+    if (operation === 'getAuditRecoverySummary') return state.summaries[(input as { path: { id: string } }).path.id] ?? missing;
     if (operation !== 'getAuditEngagement') return new Error(`unexpected read ${operation}`);
-    const found = state.details[(input as { path: { id: string } }).path.id];
-    return found ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
+    return state.details[(input as { path: { id: string } }).path.id] ?? missing;
   }, command);
   (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string, input?: { query?: Record<string, string>; path?: { id: string } }) => {
     const failure = state.failing.get(operation);
@@ -231,6 +294,8 @@ export function client(state: World, command: (operation: string, input: unknown
     switch (operation) {
       case 'listAuditEngagements':
         return Promise.resolve(state.engagements.filter((item) => (input?.query?.status ?? item.status) === item.status && (input?.query?.engagement_type ?? item.engagement_type) === item.engagement_type));
+      case 'listAuditRecoveryLinks':
+        return Promise.resolve(state.links[input?.path?.id ?? ''] ?? []);
       case 'listAuditConclusions':
         return Promise.resolve(state.conclusions[input?.path?.id ?? ''] ?? []);
       case 'listAuditFindings':

@@ -71,6 +71,8 @@ export const JOB_INTERVAL_SECONDS = {
   'settlement-deadline': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the balances of capital are compared with their ledger once a night wherever the process started; nothing is changed by it (ST-CAP-006).
   'capital-balance-reconcile': 3600,
+  // Hourly tick that works only in the 02:00 hour of Vietnam time, so the recovered amount of each recommendation of AUD is compared with its ledger once a night wherever the process started; nothing is changed by it (ST-AUD-004).
+  'aud-recovery-reconcile': 3600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -83,6 +85,8 @@ const VIETNAM_UTC_OFFSET_HOURS = 7;
 export const GUARANTEE_EXPIRY_HOUR = 6;
 /** The hour of the night, in Vietnam time, in which the balances of capital are compared with their ledger (CAP: nightly, after the Treasury files of the evening are matched). */
 export const CAPITAL_RECONCILE_HOUR = 2;
+/** The hour of the night, in Vietnam time, in which the recovered amounts of the recommendations of AUD are compared with their ledgers (AUD 9: daily at 02:00). */
+export const AUD_RECONCILE_HOUR = 2;
 /** The hour of the morning, in Vietnam time, in which the reminders of the verification deadline of a settlement go (PAY 3.5: 06:00). */
 export const SETTLEMENT_DEADLINE_HOUR = 6;
 /** The gauge of the revision job: the pending revisions more than a day past their first day, which the alert `CTR_REVISION_OVERDUE` watches. */
@@ -221,6 +225,7 @@ export interface StandardJobDeps {
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Compares the balances of capital with their ledger, once a night, and reports a difference without correcting it (ST-CAP-006). */
   capitalBalanceReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
@@ -599,6 +604,17 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         const now = (deps.clock ?? (() => new Date()))();
         if (vietnamHourOf(now) !== CAPITAL_RECONCILE_HOUR) return;
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await capitalBalances.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const audRecoveries = deps.audRecoveryReconcile;
+  if (audRecoveries !== undefined) {
+    handlers.push({
+      name: 'aud-recovery-reconcile',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== AUD_RECONCILE_HOUR) return;
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await audRecoveries.run(workerContext(tenantId), now)));
       },
     });
   }

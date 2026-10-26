@@ -2254,6 +2254,16 @@
       ]
     },
     {
+      "key": "audAccountant",
+      "displayName": "Kế toán thu hồi",
+      "membershipId": "00000000-0000-4000-8000-000000000874",
+      "permissions": [
+        "aud.recovery.record",
+        "aud.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "landPayer",
       "displayName": "Kế toán chi trả bồi thường",
       "membershipId": "00000000-0000-4000-8000-000000000867",

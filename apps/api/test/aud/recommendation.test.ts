@@ -243,7 +243,7 @@ describe('assignment, remediation, dispute and verification over HTTP (ST-AUD-00
   }, 60_000);
 
   it('serves the recommendation controllers in the module of AUD', () => {
-    expect(audModule.controllers.slice(4)).toEqual([AuditRecommendationController, AuditRecommendationReadsController]);
+    expect(audModule.controllers.slice(4, 6)).toEqual([AuditRecommendationController, AuditRecommendationReadsController]);
   });
 
   describe('assignAuditRecommendation (AC-ST-AUD-003-1)', () => {

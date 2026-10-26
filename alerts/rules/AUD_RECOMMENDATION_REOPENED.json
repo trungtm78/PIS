@@ -1,0 +1,13 @@
+{
+  "id": "AUD_RECOMMENDATION_REOPENED",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "audit-follow-up",
+  "runbook": "docs/runbooks/alerts/AUD_RECOMMENDATION_REOPENED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "AUD_RECOMMENDATION_REOPENED"
+  },
+  "summary": "A recommendation that was closed went back to work because a recovery of PAY was reversed."
+}

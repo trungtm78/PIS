@@ -576,3 +576,15 @@ export {
   nextRecommendationStatus,
 } from './aud-recommendation.ts';
 export type { Hands as RecommendationHands, RecommendationAction, RecommendationStatus } from './aud-recommendation.ts';
+export {
+  MANUAL_SOURCE_KINDS,
+  PAY_RECOVERY_KINDS,
+  RECOVERY_SOURCE_KINDS,
+  assertWithinRecommendation,
+  rateOf,
+  readRecordedRecovery,
+  readReversedRecovery,
+  remaining as remainingToRecover,
+  reopensOnReversal,
+} from './aud-recovery.ts';
+export type { PayRecoveryFacts, Position as RecoveryPosition, Rate, RecoverySourceKind } from './aud-recovery.ts';

@@ -328,6 +328,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listAuditConclusions',
   'listAuditFindings',
   'listAuditRecommendations',
+  'linkAuditRecovery',
+  'reverseAuditRecovery',
+  'getAuditRecoverySummary',
+  'listAuditRecoveryLinks',
+  'getAuditOverview',
   'assignAuditRecommendation',
   'planRemediationAction',
   'completeRemediationAction',
@@ -1045,6 +1050,11 @@ const INSERT_ACTION = `insert into machvon.audit_remediation_action
   (tenant_id, id, recommendation_id, action_code, description, planned_on, status, reported_by, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, date '2026-12-01', 'PLANNED', $6, $6, $6, 1) on conflict do nothing`;
 
+/** A line of the ledger of recoveries of the recommendation of the fixture: PAY recovered a part of it (the table moves the recovered amount of the recommendation). */
+const INSERT_RECOVERY_LINK = `insert into machvon.audit_recovery_link
+  (tenant_id, id, recommendation_id, source_kind, source_id, amount_vnd, recorded_on, recorded_by)
+  select $1, $2, $3, 'PAY_RECOVERY', $4, 100000, date '2026-10-01', $5 where not exists (select 1 from machvon.audit_recovery_link where tenant_id = $1 and id = $2)`;
+
 /** A complaint of the household of the fixture, received and not yet answered. */
 const INSERT_COMPLAINT = `insert into machvon.land_complaint
   (tenant_id, id, project_id, household_id, owner_unit_id, complaint_no, filed_on, channel, subject, description, status, due_on, created_by, updated_by, version)
@@ -1247,6 +1257,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_FINDING, [tenantId, conclusion.findingId, conclusion.id, conclusion.findingCode, project.id, conclusion.findingWords, MEMBERSHIP_ID]);
     await client.query(INSERT_RECOMMENDATION, [tenantId, conclusion.recommendationId, conclusion.id, conclusion.findingId, conclusion.recCode, conclusion.recWords, project.id, MEMBERSHIP_ID]);
     await client.query(INSERT_ACTION, [tenantId, conclusion.actionId, conclusion.recommendationId, conclusion.actionCode, conclusion.actionWords, MEMBERSHIP_ID]);
+    await client.query(INSERT_RECOVERY_LINK, [tenantId, conclusion.linkId, conclusion.recommendationId, conclusion.linkSourceId, MEMBERSHIP_ID]);
     const appropriation = APPROPRIATION_FIXTURES[tenant];
     await client.query(INSERT_APPROPRIATION, [tenantId, appropriation.id, master.versionId, documents.documentId, appropriation.issuingAuthority, ACTOR_ID]);
     const plan = CAPITAL_PLAN_FIXTURES[tenant];

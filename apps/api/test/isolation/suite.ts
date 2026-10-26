@@ -134,7 +134,7 @@ export const ENGAGEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; scop
 export const CONCLUSION_FIXTURES: Readonly<
   Record<
     TenantName,
-    { id: string; findingId: string; recommendationId: string; actionId: string; summary: string; findingCode: string; findingWords: string; recCode: string; recWords: string; actionCode: string; actionWords: string }
+    { id: string; findingId: string; recommendationId: string; actionId: string; linkId: string; linkSourceId: string; summary: string; findingCode: string; findingWords: string; recCode: string; recWords: string; actionCode: string; actionWords: string }
   >
 > = {
   'TNT-A': {
@@ -142,6 +142,8 @@ export const CONCLUSION_FIXTURES: Readonly<
     findingId: '00000000-0000-4000-a0ed-000000000001',
     recommendationId: '00000000-0000-4000-a0ee-000000000001',
     actionId: '00000000-0000-4000-a0ef-000000000001',
+    linkId: '00000000-0000-4000-a0f0-000000000001',
+    linkSourceId: '00000000-0000-4000-a0f1-000000000001',
     summary: 'Alpha audit found payments far above the approved volumes',
     findingCode: 'AUD-F-ALPHA',
     findingWords: 'Alpha finding of a payment above the accepted volume',
@@ -155,6 +157,8 @@ export const CONCLUSION_FIXTURES: Readonly<
     findingId: '00000000-0000-4000-b0ed-000000000001',
     recommendationId: '00000000-0000-4000-b0ee-000000000001',
     actionId: '00000000-0000-4000-b0ef-000000000001',
+    linkId: '00000000-0000-4000-b0f0-000000000001',
+    linkSourceId: '00000000-0000-4000-b0f1-000000000001',
     summary: 'Beta inspection found invoices without supporting records',
     findingCode: 'AUD-F-BETA',
     findingWords: 'Beta finding of invoices without records of the work',
@@ -743,6 +747,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'audit action id', value: CONCLUSION_FIXTURES[tenant].actionId },
     { kind: 'audit action code', value: CONCLUSION_FIXTURES[tenant].actionCode },
     { kind: 'audit action words', value: CONCLUSION_FIXTURES[tenant].actionWords },
+    { kind: 'audit recovery link id', value: CONCLUSION_FIXTURES[tenant].linkId },
+    { kind: 'audit recovery source id', value: CONCLUSION_FIXTURES[tenant].linkSourceId },
     { kind: 'land complaint id', value: COMPLAINT_FIXTURES[tenant].id },
     { kind: 'land complaint number', value: COMPLAINT_FIXTURES[tenant].number },
     { kind: 'land complaint words', value: COMPLAINT_FIXTURES[tenant].words },

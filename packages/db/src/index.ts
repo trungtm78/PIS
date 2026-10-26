@@ -836,3 +836,7 @@ export { AudConclusionStore, withinEngagementScope } from './aud-conclusion-stor
 export type { ConclusionLine, ConclusionRow, FindingLine, NewConclusion, NewFinding, NewRecommendation } from './aud-conclusion-store.ts';
 export { AudRecommendationStore, assertOwner, recommendationScope } from './aud-recommendation-store.ts';
 export type { ActionLine, ActionRow, ActionStatus, BoardLine, DisputeOutcome, EvidenceOwnerKind, NewAction, NewAssignment, RecommendationRow, Verification } from './aud-recommendation-store.ts';
+export { AUD_RECOVERY_MISMATCH_EVENT, AUD_RECOVERY_MISMATCH_METRIC, AudRecoveryReconcileJob } from './aud-recovery-reconcile-job.ts';
+export type { RecoveryMismatch, RecoveryReconcileResult } from './aud-recovery-reconcile-job.ts';
+export { AudRecoveryStore, OVERVIEW_ENGAGEMENTS_LIMIT } from './aud-recovery-store.ts';
+export type { ExceptionKind, ExceptionLine, LinkLine as RecoveryLinkLine, LinkRow as RecoveryLinkRow, NewLink as NewRecoveryLink, Overview as AuditOverview, OverviewEngagement, PayOutcome, RecoverySummary, SummaryLine } from './aud-recovery-store.ts';
