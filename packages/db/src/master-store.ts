@@ -132,6 +132,7 @@ export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; reti
   LANGUAGE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   RETENTION_POLICY: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   TREASURY_OFFICE: { scope: 'TENANT_ONLY', retireRequiresSuccessor: false },
+  LND_PRICE_DECISION: { scope: 'TENANT_ONLY', retireRequiresSuccessor: false },
 };
 
 const OWN_BY_DEFAULT = { scope: 'TENANT_ONLY' as const, retireRequiresSuccessor: false };

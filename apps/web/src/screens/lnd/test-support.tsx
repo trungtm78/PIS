@@ -26,6 +26,7 @@ export const OFFICER = ['land.manage', 'land.process', 'land.read'];
 export const HOUSEHOLD_OFFICER = ['land.household.write', 'land.household.read', 'lnd.pii.read'];
 export const HOUSEHOLD_READER = ['land.household.read'];
 export const DPO = ['land.dsr.handle', 'land.household.read'];
+export const COUNTER = ['land.process', 'land.household.read'];
 export const READER = ['land.read'];
 
 export const routeOf = (id: string, req: string): WebRoute => ({ id, path: `/lnd/${id.toLowerCase()}`, title: id, kind: 'map', area: 'investment', module: 'LND', group: 'Tổng quan & thửa đất', role: 'workspace', parent: null, req });
@@ -87,6 +88,35 @@ export const household = (n: number, overrides: Record<string, unknown> = {}) =>
   ...overrides,
 });
 
+/** A record of the inventory of a household as the list answers it. */
+export const inventoryRecord = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0040', n),
+  household_id: uuid('0030', 1),
+  household_code: 'HH-000001',
+  parcel_id: uuid('0010', 1),
+  parcel_code: 'TB-1/10',
+  owner_unit_id: UNIT_XA,
+  item_kind: 'HOUSE',
+  description: 'Nhà cấp 4 mái ngói, xây năm 2011',
+  quantity: '80.000000',
+  unit_code: 'M2',
+  unit_price_vnd: '4500000',
+  amount_vnd: '360000000',
+  price_decision_ref: 'QD-GIA-2024',
+  price_decision_revision: 1,
+  surveyed_on: '2026-06-20',
+  surveyed_by: '00000000-0000-4000-8000-0000000000aa',
+  household_confirmed_on: null,
+  household_dispute: false,
+  confirmed_by: null,
+  note: null,
+  evidence_photo_id: null,
+  document_version_id: null,
+  status: 'DRAFT',
+  version: 1,
+  ...overrides,
+});
+
 export const deadline = (overrides: Record<string, unknown> = {}) => ({
   id: uuid('0020', 1),
   timer_code: 'NOTICE_AGRICULTURAL_90',
@@ -105,6 +135,7 @@ export interface World {
   projects: Array<Record<string, unknown>>;
   parcels: Array<Record<string, unknown>>;
   households: Array<Record<string, unknown>>;
+  inventory: Array<Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
   contracts: Array<Record<string, unknown>>;
@@ -120,6 +151,7 @@ export function world(overrides: Partial<World> = {}): World {
     ],
     parcels: [parcel(1), parcel(2, { land_use_group: 'NON_AGRICULTURAL_RESIDENTIAL', owner_unit_name: 'Trung tâm phát triển quỹ đất', parcel_code: 'TB-2/20', address_text: null })],
     households: [],
+    inventory: [],
     sections: [{ id: SECTION, code: 'KM-0-3', name: 'Km 0 đến km 3' }],
     units: [
       { id: UNIT_XA, code: 'XA1', name: 'UBND xã An Phú' },
@@ -144,6 +176,8 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.parcels.filter((item) => item.project_id === input?.query?.project_id));
         case 'listAffectedHouseholds':
           return Promise.resolve(state.households.filter((item) => item.project_id === input?.query?.project_id));
+        case 'listInventoryRecords':
+          return Promise.resolve(state.inventory.filter((item) => item.household_id === input?.query?.household_id));
         case 'listLandSections':
           return Promise.resolve(state.sections);
         case 'get_resources_organization_unit':

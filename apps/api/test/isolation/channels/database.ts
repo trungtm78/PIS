@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, HOUSEHOLD_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -293,6 +293,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'handleHouseholdDataRequest',
   'listAffectedHouseholds',
   'revealHouseholdIdentity',
+  'recordInventory',
+  'confirmInventory',
+  'listInventoryRecords',
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
@@ -952,6 +955,14 @@ const INSERT_HOUSEHOLD = `insert into machvon.affected_household
   (tenant_id, id, project_id, owner_unit_id, household_code, head_name, head_name_enc, legal_basis, legal_basis_ref, retention_until, status, version, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 'I*********', decode('00', 'hex'), 'PUBLIC_TASK_LAND_LAW', 'Isolation fixture legal basis', date '2036-12-31', 'REGISTERED', 1, $6, $6) on conflict do nothing`;
 
+/** The household holds a right on the parcel above, and a record counts a house of it at a price decision (the record is a DRAFT nobody confirmed). */
+const INSERT_HOUSEHOLD_PARCEL = `insert into machvon.household_parcel
+  (tenant_id, id, household_id, parcel_id, owner_unit_id, right_kind, share_pct, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, 'OWNER', 100, $6, $6) on conflict do nothing`;
+const INSERT_INVENTORY = `insert into machvon.land_inventory_record
+  (tenant_id, id, household_id, parcel_id, owner_unit_id, item_kind, description, quantity, unit_code, unit_price_vnd, amount_vnd, price_decision_ref, surveyed_on, surveyed_by, status, created_by, updated_by, version)
+  values ($1, $2, $3, $4, $5, 'HOUSE', 'Isolation fixture house', 80, 'M2', 1000, 80000, $6, date '2026-06-20', $8, 'DRAFT', $7, $7, 1) on conflict do nothing`;
+
 const INSERT_ACCOUNTABILITY = `insert into machvon.project_accountability
   (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'DEPUTY_LEADER', '2026-01-01', 'ACTIVE', $5, $5) on conflict do nothing`;
@@ -1079,6 +1090,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query("select set_config('app.scope_units', '*', false)");
     await client.query(INSERT_HOUSEHOLD, [tenantId, HOUSEHOLD_FIXTURES[tenant].id, project.id, home, HOUSEHOLD_FIXTURES[tenant].code, ACTOR_ID]);
+    await client.query(INSERT_HOUSEHOLD_PARCEL, [tenantId, INVENTORY_FIXTURES[tenant].linkId, HOUSEHOLD_FIXTURES[tenant].id, PARCEL_FIXTURES[tenant].id, home, ACTOR_ID]);
+    await client.query(INSERT_INVENTORY, [tenantId, INVENTORY_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, PARCEL_FIXTURES[tenant].id, home, INVENTORY_FIXTURES[tenant].priceDecision, ACTOR_ID, MEMBERSHIP_ID]);
     const pack = PACKAGE_FIXTURES[tenant];
     await client.query(INSERT_PLANNED_PACKAGE, [tenantId, pack.id, project.id, pack.code, ACTOR_ID]);
     await client.query(INSERT_MILESTONE, [tenantId, pack.milestoneId, pack.id, ACTOR_ID]);

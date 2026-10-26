@@ -1549,6 +1549,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listInteropMessages({Map<String, Object?>? query}) =>
       execute('listInteropMessages', query: query);
 
+  Future<Object?> listInventoryRecords({Map<String, Object?>? query}) =>
+      execute('listInventoryRecords', query: query);
+
   Future<Object?> listIssueAssignees({required String id, Map<String, Object?>? query}) =>
       execute('listIssueAssignees', path: <String, Object?>{'id': id}, query: query);
 

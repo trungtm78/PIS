@@ -14,6 +14,7 @@ import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
 import { lndModule } from '../../src/modules/lnd';
 import { AffectedHouseholdController, AffectedHouseholdReadsController } from '../../src/modules/lnd/household.controller';
+import { LandInventoryController, LandInventoryReadsController } from '../../src/modules/lnd/inventory.controller';
 import { LandParcelController } from '../../src/modules/lnd/parcel.controller';
 import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.controller';
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
@@ -198,7 +199,7 @@ describe('land clearance: sections, parcels without owners, the parcel import an
 
   it('is registered in the module of LND', () => {
     expect(lndModule.code).toBe('LND');
-    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController]);
+    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController]);
   });
 
   describe('createLandSection', () => {

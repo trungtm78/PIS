@@ -812,3 +812,5 @@ export { AstWarrantyRules, WARRANTY_RULE_TYPE } from './ast-warranty-rules.ts';
 export type { ResolvedWarrantyRule } from './ast-warranty-rules.ts';
 export { HOUSEHOLD_STATUSES, LEGAL_BASES, LndHouseholdStore, REQUEST_KINDS, REQUEST_OUTCOMES, RIGHT_KINDS, enterScope, householdScopeUnits, unitInScope } from './lnd-household-store.ts';
 export type { ErasedField, HandledRequest, HouseholdFilter, HouseholdIdentity, HouseholdRequestInput, HouseholdLine, HouseholdLink, HouseholdStatus, LegalBasis, NewHousehold, NewHouseholdLink, RegisteredHousehold, RequestKind, RequestOutcome, RightKind, ScopeUnits } from './lnd-household-store.ts';
+export { INVENTORY_OUTCOMES, LndInventoryStore, PRICE_DECISION_TYPE } from './lnd-inventory-store.ts';
+export type { ConfirmedInventory, InventoryAnswer, InventoryFilter, InventoryLine, InventoryOutcome, NewInventory, RecordedInventory } from './lnd-inventory-store.ts';

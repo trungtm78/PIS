@@ -515,6 +515,7 @@ export const OPERATIONS = {
   "listIncomingDocuments": { method: "get", path: "/incoming-documents", versioned: false, stepUp: null, permission: "doc.incoming.read" },
   "listInspections": { method: "get", path: "/inspections", versioned: false, stepUp: null, permission: "inspection.read" },
   "listInteropMessages": { method: "get", path: "/doc-interop-messages", versioned: false, stepUp: null, permission: "doc.interop.read" },
+  "listInventoryRecords": { method: "get", path: "/land-inventory-records", versioned: false, stepUp: null, permission: "land.household.read" },
   "listIssueAssignees": { method: "get", path: "/issues/{id}/assignees", versioned: false, stepUp: null, permission: "issue.assign" },
   "listIssueSlaBreaches": { method: "get", path: "/issues/sla-breaches", versioned: false, stepUp: null, permission: "issue.read" },
   "listIssueSlaPolicies": { method: "get", path: "/issue-sla-policies", versioned: false, stepUp: null, permission: "issue.read" },

@@ -375,6 +375,18 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     ],
   },
   {
+    // BR-LND-04: the key is the reference of a decision on land prices (QD-GIA-2024); the dates of the version say when the decision is in force, and an inventory keeps the version that was in force on the day of the survey.
+    masterType: 'LND_PRICE_DECISION',
+    strict: true,
+    fields: [
+      { name: 'title', kind: 'text', required: true, maxLength: 300 },
+      { name: 'issuing_authority', kind: 'text', maxLength: 200 },
+    ],
+    check: ({ businessKey }) => {
+      if (!KEY.test(businessKey)) fail('business_key');
+    },
+  },
+  {
     masterType: 'LANGUAGE',
     fields: [{ name: 'native_name', kind: 'text', required: true, maxLength: 100 }],
     check: ({ businessKey }) => {

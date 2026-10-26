@@ -118,6 +118,12 @@ export const HOUSEHOLD_FIXTURES: Readonly<Record<TenantName, { id: string; code:
   'TNT-B': { id: '00000000-0000-4000-b0b8-000000000001', code: 'HH-B90001' },
 };
 
+/** An inventory record of the household of each tenant (counted at a distinctive price decision; what is counted at a household is tenant data). */
+export const INVENTORY_FIXTURES: Readonly<Record<TenantName, { id: string; linkId: string; priceDecision: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0b9-000000000001', linkId: '00000000-0000-4000-a0b9-000000000002', priceDecision: 'ALPHA-QD-GIA-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0b9-000000000001', linkId: '00000000-0000-4000-b0b9-000000000002', priceDecision: 'BETA-QD-GIA-0001' },
+};
+
 /** The ACTIVE deputy-leader assignment of the isolation project of each tenant and an ACTIVE task force (the code and the name are distinctive; who answers for a project is tenant data). */
 export const ACCOUNTABILITY_FIXTURES: Readonly<Record<TenantName, { assignmentId: string; taskForceId: string; taskForceCode: string; taskForceName: string }>> = {
   'TNT-A': { assignmentId: '00000000-0000-4000-a0b3-000000000001', taskForceId: '00000000-0000-4000-a0b3-000000000002', taskForceCode: 'ALPHA-TF-0001', taskForceName: 'Alpha tenant disbursement task force 0001' },
@@ -659,6 +665,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'land parcel id', value: PARCEL_FIXTURES[tenant].id },
     { kind: 'land parcel code', value: PARCEL_FIXTURES[tenant].code },
     { kind: 'household id', value: HOUSEHOLD_FIXTURES[tenant].id },
+    { kind: 'inventory record id', value: INVENTORY_FIXTURES[tenant].id },
+    { kind: 'inventory price decision', value: INVENTORY_FIXTURES[tenant].priceDecision },
     { kind: 'household code', value: HOUSEHOLD_FIXTURES[tenant].code },
     { kind: 'land section id', value: SECTION_FIXTURES[tenant].id },
     { kind: 'land section code', value: SECTION_FIXTURES[tenant].code },

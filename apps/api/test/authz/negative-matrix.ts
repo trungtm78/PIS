@@ -64,6 +64,8 @@ export interface MatrixTargets {
   retentionHoldId: string;
   /** A household affected by a land recovery: the command that names it in the path needs no row to be refused. */
   householdId: string;
+  /** An inventory record of a household: the command that names it in the path needs no row to be refused. */
+  inventoryId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -1594,6 +1596,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/affected-households',
       body: { project_id: t.projectId, owner_unit_id: t.unit2, head_name: 'Matrix head of household', legal_basis: 'PUBLIC_TASK_LAND_LAW', legal_basis_ref: REASON, retention_until: '2036-12-31' },
     }),
+  },
+  recordInventory: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/land-inventory-records',
+      body: { household_id: t.householdId, parcel_id: t.parcelId, item_kind: 'HOUSE', description: 'Matrix house', quantity: '1', unit_code: 'M2', unit_price_vnd: '1', price_decision_ref: 'QD-MATRIX', surveyed_on: '2026-06-20' },
+    }),
+  },
+  confirmInventory: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/land-inventory-records/${t.inventoryId}/confirm`, ifMatch: '"1"', body: { outcome: 'CONFIRMED', household_confirmed_on: '2026-07-01' } }),
   },
   handleHouseholdDataRequest: {
     referencesTenantIds: true,

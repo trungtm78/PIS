@@ -304,6 +304,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         'EXPERT_ROLE',
         'FUND_SOURCE',
         'LANGUAGE',
+        'LND_PRICE_DECISION',
         'LND_TIMER',
         'NATIONAL_CODE_FORMAT',
         'NATIONAL_CODE_REQUIRED',

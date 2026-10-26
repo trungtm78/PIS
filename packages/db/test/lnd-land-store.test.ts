@@ -649,9 +649,9 @@ describe('the sections, parcels and recovery timers of land clearance (ST-LND-00
       const contractId = id(FAMILY, 100 + counter);
       await seedAs(harness, [
         [
-          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, advance_category)
-           values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', $8::date, $9)`,
-          [TENANT_A, contractId, world.project, id(FAMILY, 51), id(FAMILY, 50), `HD-S-${counter}`, status, status === 'SIGNED' ? null : '2026-01-01', category],
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, advance_category, completed_on, completion_quality_acceptance_id, completed_by)
+           values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', $8::date, $9, case when $7 = 'COMPLETED' then date '2026-09-01' end, case when $7 = 'COMPLETED' then gen_random_uuid() end, case when $7 = 'COMPLETED' then $10::uuid end)`,
+          [TENANT_A, contractId, world.project, id(FAMILY, 51), id(FAMILY, 50), `HD-S-${counter}`, status, status === 'SIGNED' ? null : '2026-01-01', category, memberId(ACTOR)],
         ],
       ]);
       return contractId;
