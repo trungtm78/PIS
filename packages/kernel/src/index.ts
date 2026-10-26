@@ -563,6 +563,6 @@ export {
   financialShortfall,
   isFinancialRecommendation,
   recommendationAmount,
-  wholeVnd,
+  wholeDong,
 } from './aud-conclusion.ts';
 export type { ConclusionKind, FindingCategory, FindingSeverity, RecommendationType } from './aud-conclusion.ts';

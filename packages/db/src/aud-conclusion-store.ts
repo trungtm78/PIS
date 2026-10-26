@@ -1,4 +1,4 @@
-import { DomainError, FINANCIAL_RECOMMENDATION_TYPES, assertWithinConclusionTotal, financialShortfall, nextEngagementStatus, recommendationAmount, wholeVnd } from '@machvon/kernel';
+import { DomainError, FINANCIAL_RECOMMENDATION_TYPES, assertWithinConclusionTotal, financialShortfall, nextEngagementStatus, recommendationAmount, wholeDong } from '@machvon/kernel';
 import type { ConclusionKind, EngagementStatus, FindingCategory, FindingSeverity, RecommendationType } from '@machvon/kernel';
 import { AudEngagementStore } from './aud-engagement-store.ts';
 import type { EngagementRow, ResolvedTarget, ScopeTarget } from './aud-engagement-store.ts';
@@ -270,7 +270,7 @@ export class AudConclusionStore {
     }
     const summary = input.summary.trim();
     if (summary.length < 10) throw new DomainError('VALIDATION_FAILED', 422, 'summary');
-    const total = wholeVnd(input.totalFinancialVnd, 'total_financial_vnd');
+    const total = wholeDong(input.totalFinancialVnd, 'total_financial_vnd');
     if (input.receivedOn < input.issuedOn || input.receivedOn > today) throw new DomainError('VALIDATION_FAILED', 422, 'received_on');
     if (input.implementationDueOn !== undefined && input.implementationDueOn < input.issuedOn) throw new DomainError('VALIDATION_FAILED', 422, 'implementation_due_on');
     if (input.reportDueOn !== undefined && input.reportDueOn < input.issuedOn) throw new DomainError('VALIDATION_FAILED', 422, 'report_due_on');
@@ -353,7 +353,7 @@ export class AudConclusionStore {
     if (code.length < 1) throw new DomainError('VALIDATION_FAILED', 422, 'finding_code');
     const description = input.description.trim();
     if (description.length < 10) throw new DomainError('VALIDATION_FAILED', 422, 'description');
-    const amount = input.amountVnd === undefined ? null : wholeVnd(input.amountVnd, 'amount_vnd');
+    const amount = input.amountVnd === undefined ? null : wholeDong(input.amountVnd, 'amount_vnd');
     await this.assertNamed(tx, conclusion.engagementId, input);
     return withUniqueClaim(tx, { constraint: 'audit_finding_code_uq', code: 'FINDING_CODE_DUPLICATE', status: 409 }, async () => {
       const [row] = await tx.query<{ id: string }>(

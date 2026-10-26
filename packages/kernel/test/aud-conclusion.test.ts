@@ -8,7 +8,7 @@ import {
   financialShortfall,
   isFinancialRecommendation,
   recommendationAmount,
-  wholeVnd,
+  wholeDong,
 } from '../src/aud-conclusion.ts';
 import { DomainError } from '../src/errors.ts';
 
@@ -29,11 +29,11 @@ describe('the money of a conclusion (AUD 5, BR-AUD-01, BR-AUD-05)', () => {
   });
 
   it('reads a whole amount of VND from its decimal string, without leading zeros, and refuses anything else naming the field', () => {
-    expect(wholeVnd('1250000000', 'total_financial_vnd')).toBe('1250000000');
-    expect(wholeVnd('0007', 'total_financial_vnd')).toBe('7');
-    expect(wholeVnd('9'.repeat(24), 'total_financial_vnd')).toBe('9'.repeat(24));
+    expect(wholeDong('1250000000', 'total_financial_vnd')).toBe('1250000000');
+    expect(wholeDong('0007', 'total_financial_vnd')).toBe('7');
+    expect(wholeDong('9'.repeat(24), 'total_financial_vnd')).toBe('9'.repeat(24));
     for (const bad of ['', '-1', '1.5', '1e3', ' 12', '1'.repeat(25), '12 000']) {
-      const error = refusal(() => wholeVnd(bad, 'total_financial_vnd'));
+      const error = refusal(() => wholeDong(bad, 'total_financial_vnd'));
       expect([error.status, error.code, error.detail]).toEqual([422, 'VALIDATION_FAILED', 'total_financial_vnd']);
     }
   });

@@ -19,13 +19,13 @@ export const isFinancialRecommendation = (type: RecommendationType): boolean => 
 const WHOLE_VND = /^[0-9]{1,24}$/;
 
 /** A whole amount of VND as the API writes it (a decimal string, never a number); the value is returned the way it is stored, without leading zeros. Anything else is 422 `VALIDATION_FAILED` naming the field. */
-export function wholeVnd(value: string, field: string): string {
+export function wholeDong(value: string, field: string): string {
   if (!WHOLE_VND.test(value)) throw new DomainError('VALIDATION_FAILED', 422, field);
   return BigInt(value).toString();
 }
 
 /**
- * The amount a recommendation carries (BR-AUD-01, AUD-001 of the table): a financial one must name an amount above zero (422 `AMOUNT_REQUIRED` when it names none, `VALIDATION_FAILED` when it is
+ * The amount a recommendation carries (BR-AUD-01): a financial one must name an amount above zero (422 `AMOUNT_REQUIRED` when it names none, `VALIDATION_FAILED` when it is
  * zero); one that is not financial has nothing to add up and carries none (`VALIDATION_FAILED`, naming `amount_vnd`).
  */
 export function recommendationAmount(type: RecommendationType, amount: string | undefined): string | null {
@@ -34,7 +34,7 @@ export function recommendationAmount(type: RecommendationType, amount: string | 
     return null;
   }
   if (amount === undefined) throw new DomainError('AMOUNT_REQUIRED', 422, 'amount_vnd');
-  const whole = wholeVnd(amount, 'amount_vnd');
+  const whole = wholeDong(amount, 'amount_vnd');
   if (whole === '0') throw new DomainError('VALIDATION_FAILED', 422, 'amount_vnd');
   return whole;
 }
