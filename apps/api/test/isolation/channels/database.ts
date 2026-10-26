@@ -10,7 +10,7 @@ import { MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, COMPLAINT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
+import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, COMPLAINT_FIXTURES, ENGAGEMENT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
@@ -316,6 +316,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'fileLandComplaint',
   'resolveLandComplaint',
   'listLandComplaints',
+  'createAuditEngagement',
+  'startAuditEngagement',
+  'endAuditFieldwork',
+  'cancelAuditEngagement',
+  'listAuditEngagements',
+  'getAuditEngagement',
   'reportLandStageProgress',
   'getLandProgress',
   'recordRecoveryNotice',
@@ -1002,6 +1008,13 @@ const INSERT_COMP_FEEDBACK = `insert into machvon.compensation_plan_feedback
   select $1::uuid, $2::uuid, $2::uuid, $3::uuid, $4::uuid, 'LETTER', 'Isolation fixture opinion', 'OPEN', date '2026-10-02', $5::uuid, $5::uuid, 1
   where exists (select 1 from machvon.compensation_plan where id = $2::uuid and status = 'POSTING') on conflict do nothing`;
 
+/** An engagement of the tenant about its project: planned, with the decision of the document fixture, confidential. */
+const INSERT_ENGAGEMENT = `insert into machvon.audit_engagement
+  (tenant_id, id, engagement_code, engagement_type, authority_kind, authority_name, decision_document_id, title, period_from, period_to, coordinator_user_id, status, classification, created_by, updated_by, version)
+  values ($1, $2, $3, 'STATE_AUDIT', 'STATE_AUDIT_OFFICE', 'Isolation authority', $4, $5, date '2025-01-01', date '2025-12-31', $6, 'PLANNED', 'CONFIDENTIAL', $6, $6, 1) on conflict do nothing`;
+const INSERT_ENGAGEMENT_SCOPE = `insert into machvon.audit_scope_item (tenant_id, id, engagement_id, scope_kind, project_id, added_by)
+  values ($1, $2, $3, 'PROJECT', $4, $5) on conflict do nothing`;
+
 /** A complaint of the household of the fixture, received and not yet answered. */
 const INSERT_COMPLAINT = `insert into machvon.land_complaint
   (tenant_id, id, project_id, household_id, owner_unit_id, complaint_no, filed_on, channel, subject, description, status, due_on, created_by, updated_by, version)
@@ -1196,6 +1209,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const documents = DOCUMENT_FIXTURES[tenant];
     await client.query(INSERT_REGISTER, [tenantId, documents.registerId, documents.registerCode, home, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT, [tenantId, documents.documentId, ACTOR_ID]);
+    const engagement = ENGAGEMENT_FIXTURES[tenant];
+    await client.query(INSERT_ENGAGEMENT, [tenantId, engagement.id, engagement.code, documents.documentId, engagement.title, MEMBERSHIP_ID]);
+    await client.query(INSERT_ENGAGEMENT_SCOPE, [tenantId, engagement.scopeItemId, engagement.id, project.id, MEMBERSHIP_ID]);
     const appropriation = APPROPRIATION_FIXTURES[tenant];
     await client.query(INSERT_APPROPRIATION, [tenantId, appropriation.id, master.versionId, documents.documentId, appropriation.issuingAuthority, ACTOR_ID]);
     const plan = CAPITAL_PLAN_FIXTURES[tenant];

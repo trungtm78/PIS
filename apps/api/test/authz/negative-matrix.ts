@@ -1648,6 +1648,37 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/compensation-payments/${t.planId}/deposit`, ifMatch: '"1"', body: { deposit_reason: REASON, voucher_document_version_id: t.documentVersionId, paid_on: '2026-10-20' } }),
   },
+  createAuditEngagement: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/audit-engagements',
+      body: {
+        engagement_code: 'AUD-MATRIX-1',
+        engagement_type: 'STATE_AUDIT',
+        authority_kind: 'STATE_AUDIT_OFFICE',
+        authority_name: 'Matrix authority',
+        decision_document_id: t.documentVersionId,
+        title: 'Matrix engagement',
+        period_from: '2025-01-01',
+        period_to: '2025-12-31',
+        coordinator_user_id: t.recipientMembershipId,
+        scope: [{ kind: 'UNIT', id: t.unit2 }],
+      },
+    }),
+  },
+  startAuditEngagement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-engagements/${t.legalHoldId}/start`, ifMatch: '"1"', body: { started_on: '2026-10-20', place_legal_hold: false } }),
+  },
+  endAuditFieldwork: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-engagements/${t.legalHoldId}/fieldwork-end`, ifMatch: '"1"', body: { on_date: '2026-10-20' } }),
+  },
+  cancelAuditEngagement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/audit-engagements/${t.legalHoldId}/cancellation`, ifMatch: '"1"', body: { on_date: '2026-10-20', reason: REASON } }),
+  },
   fileLandComplaint: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/land-complaints', body: { project_id: t.projectId, household_id: t.householdId, owner_unit_id: t.unit2, channel: 'LETTER', subject: 'PRICE', description: REASON, filed_on: '2026-10-20' } }),

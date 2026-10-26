@@ -124,6 +124,12 @@ export const INVENTORY_FIXTURES: Readonly<Record<TenantName, { id: string; linkI
   'TNT-B': { id: '00000000-0000-4000-b0b9-000000000001', linkId: '00000000-0000-4000-b0b9-000000000002', priceDecision: 'BETA-QD-GIA-0001' },
 };
 
+/** An audit engagement of each tenant (its code and title are distinctive: the data of an engagement are CONFIDENTIAL and belong to the tenant). */
+export const ENGAGEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; scopeItemId: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ea-000000000001', scopeItemId: '00000000-0000-4000-a0eb-000000000001', code: 'AUD-ISO-ALPHA', title: 'Alpha audit of the investment in the bridge' },
+  'TNT-B': { id: '00000000-0000-4000-b0ea-000000000001', scopeItemId: '00000000-0000-4000-b0eb-000000000001', code: 'AUD-ISO-BETA', title: 'Beta inspection of the investment in the road' },
+};
+
 /** A complaint of the household of each tenant (its words are distinctive: what a complainant says is personal data of the tenant). */
 export const COMPLAINT_FIXTURES: Readonly<Record<TenantName, { id: string; number: string; words: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bc-000000000001', number: 'LC-000901', words: 'Alpha complainant says the price is far too low' },
@@ -688,6 +694,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'compensation plan item id', value: PLAN_COMP_FIXTURES[tenant].itemId },
     { kind: 'compensation plan code', value: PLAN_COMP_FIXTURES[tenant].code },
     { kind: 'compensation payment id', value: PAYMENT_COMP_FIXTURES[tenant].id },
+    { kind: 'audit engagement id', value: ENGAGEMENT_FIXTURES[tenant].id },
+    { kind: 'audit engagement code', value: ENGAGEMENT_FIXTURES[tenant].code },
+    { kind: 'audit engagement title', value: ENGAGEMENT_FIXTURES[tenant].title },
     { kind: 'land complaint id', value: COMPLAINT_FIXTURES[tenant].id },
     { kind: 'land complaint number', value: COMPLAINT_FIXTURES[tenant].number },
     { kind: 'land complaint words', value: COMPLAINT_FIXTURES[tenant].words },

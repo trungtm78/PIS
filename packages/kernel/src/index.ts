@@ -141,6 +141,8 @@ export type {
   UploadPurpose,
   UploadVerdict,
 } from './object-storage.ts';
+export { ENDED_STATUSES as ENGAGEMENT_ENDED_STATUSES, ENGAGEMENT_EDGES, ENGAGEMENT_STATUSES, ENGAGEMENT_TYPES, holdKindOf, nextEngagementStatus } from './aud-engagement.ts';
+export type { EngagementAction, EngagementStatus, EngagementType } from './aud-engagement.ts';
 export { continueDrill } from './drill-continuation.ts';
 export type { DrillContinuation, DrillDeps } from './drill-continuation.ts';
 export { runScheduledExport } from './scheduled-export.ts';

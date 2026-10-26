@@ -196,6 +196,8 @@ export type { InvitationExpiryResult } from './invitation-expiry-job.ts';
 export { LICENSE_STATUS_CHANGED_EVENT, LicenseStatusJob, nextLicenseStatus } from './license-status-job.ts';
 export type { LicenseStatusChange, LicenseStatusResult } from './license-status-job.ts';
 export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RenewLicenseInput, RenewedLicense, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
+export { AudEngagementStore, SCOPE_KINDS as AUD_SCOPE_KINDS, engagementScope, targetRef as engagementTargetRef } from './aud-engagement-store.ts';
+export type { EngagementDetail, EngagementLine, EngagementRow, NewEngagement, ResolvedTarget, ScopeKind as AudScopeKind, ScopeTarget as AudScopeTarget } from './aud-engagement-store.ts';
 export { LegalHoldStore } from './legal-hold-store.ts';
 export type { HoldKind, HoldPageAnchor, HoldScope, HoldScopeKind, LegalHoldRow, NewLegalHold, ScopeRef } from './legal-hold-store.ts';
 export { LEGAL_HOLD_SQLSTATE, asLegalHoldViolation, assertNotOnHold, isHeld } from './purge-guard.ts';

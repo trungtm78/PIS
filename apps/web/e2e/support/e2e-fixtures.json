@@ -2200,6 +2200,28 @@
       ]
     },
     {
+      "key": "audOfficer",
+      "displayName": "Đầu mối thanh tra, kiểm toán",
+      "membershipId": "00000000-0000-4000-8000-000000000869",
+      "permissions": [
+        "aud.engagement.manage",
+        "aud.read",
+        "project.read",
+        "contract.read",
+        "organization_unit.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "audReader",
+      "displayName": "Người xem thanh tra, kiểm toán",
+      "membershipId": "00000000-0000-4000-8000-000000000870",
+      "permissions": [
+        "aud.read",
+        "session.self"
+      ]
+    },
+    {
       "key": "landPayer",
       "displayName": "Kế toán chi trả bồi thường",
       "membershipId": "00000000-0000-4000-8000-000000000867",
