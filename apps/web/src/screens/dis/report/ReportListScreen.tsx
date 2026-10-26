@@ -11,6 +11,7 @@ import { periodsOf, yearsOf } from '../model';
 import '../dis.css';
 import { usePlanOptions, useProjectOptions, useReportPage } from './hooks';
 import { reportStatusLabel } from './labels';
+import { DETAIL_PATH } from './decision-model';
 import { CREATE_PATH, EDIT_PATH, NO_FILTER, canCreate, isFiltered } from './model';
 import type { FilterState, Kpi, ReportLine } from './model';
 import { formatVnd } from './money';
@@ -204,7 +205,7 @@ function Row({ report }: { report: ReportLine }) {
         <time dateTime={report.updatedAt}>{report.updatedAt.slice(0, 10)}</time>
       </td>
       <td>
-        <Link to={`${EDIT_PATH}?report=${report.id}`}>{t('dis.reports.open.action', { code: report.project.code })}</Link>
+        <Link to={`${report.status === 'DRAFT' ? EDIT_PATH : DETAIL_PATH}?report=${report.id}`}>{t('dis.reports.open.action', { code: report.project.code })}</Link>
       </td>
     </tr>
   );

@@ -3921,20 +3921,20 @@ final class DisReopenRequest implements RequestModel {
 
 final class DisReportCorrection implements RequestModel {
   const DisReportCorrection({
-    required this.amendmentReason,
+    this.amendmentReason,
     this.fundingLines,
     this.progress,
     this.negativeDeltaExplanation,
   });
 
-  final String amendmentReason;
+  final String? amendmentReason;
   final List<FundingLine>? fundingLines;
   final Map<String, Object?>? progress;
   final String? negativeDeltaExplanation;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'amendment_reason': amendmentReason,
+        if (amendmentReason != null) 'amendment_reason': amendmentReason,
         if (fundingLines != null) 'funding_lines': fundingLines,
         if (progress != null) 'progress': progress,
         if (negativeDeltaExplanation != null) 'negative_delta_explanation': negativeDeltaExplanation,

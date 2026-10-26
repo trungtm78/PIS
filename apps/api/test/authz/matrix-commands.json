@@ -156,6 +156,8 @@
     "post_reports",
     "post_reports_id_revisions",
     "post_reports_id_submit",
+    "post_reports_id_decision",
+    "post_reports_id_corrections",
     "post_settlements_id_close",
     "promoteChangeRequest",
     "proposeGlossaryTerm",

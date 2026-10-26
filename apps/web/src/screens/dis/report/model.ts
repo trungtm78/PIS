@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import type { components } from '@machvon/contracts';
-import { toAttachment, toNarrative, toProgress, toReview } from './detail-parts';
-import type { Attachment, Narrative, Progress, Review } from './detail-parts';
+import { toAttachment, toDecisions, toNarrative, toProgress, toReview } from './detail-parts';
+import type { Attachment, DecisionEntry, Narrative, Progress, Review } from './detail-parts';
 import { digitsOf } from './money';
 
 /** DIS-01 the list of the weekly reports, DIS-02 the choice of the period and the project, DIS-04 the entry of the six cells, DIS-18 the draft that was saved (ST-DIS-003, DIS 3 F1). */
@@ -156,10 +156,21 @@ export interface ReportDetail {
   id: string;
   revision: number;
   status: ReportStatus;
+  /** The revision the figures of the period are taken from (the accepted one). */
+  isCurrent: boolean;
   version: number;
   reportType: 'WEEKLY' | 'MONTHLY';
   measurementBasis: Basis;
   negativeDeltaExplanation: string | null;
+  submittedBy: string | null;
+  acceptedBy: string | null;
+  acceptedAt: string | null;
+  returnedReason: string | null;
+  /** The revision this one corrects, and why (revision 2 and after). */
+  supersedesId: string | null;
+  amendmentReason: string | null;
+  /** What the reviewers decided on it, the first first. */
+  decisions: DecisionEntry[];
   project: { id: string; code: string; name: string; status: string };
   period: { id: string; code: string; periodType: string; fiscalYear: number; startDate: string; endDate: string; status: string };
   planVersion: { id: string; fiscalYear: number; revision: number };
@@ -221,10 +232,18 @@ export function toReportDetail(raw: unknown): ReportDetail | undefined {
     id,
     revision,
     status,
+    isCurrent: row.is_current === true,
     version,
     reportType,
     measurementBasis: basis,
     negativeDeltaExplanation: nullableText(row.negative_delta_explanation),
+    submittedBy: nullableText(row.submitted_by),
+    acceptedBy: nullableText(row.accepted_by),
+    acceptedAt: nullableText(row.accepted_at),
+    returnedReason: nullableText(row.returned_reason),
+    supersedesId: nullableText(row.supersedes_id),
+    amendmentReason: nullableText(row.amendment_reason),
+    decisions: toDecisions(row.decisions),
     project: { id: projectId, code: projectCode, name: text(project?.name) ?? '', status: text(project?.status) ?? '' },
     period: {
       id: periodId,
@@ -401,6 +420,9 @@ export type ReportProblem =
   | 'stageInvalid'
   | 'subsetExceeds'
   | 'immutable'
+  | 'selfApproval'
+  | 'pendingExists'
+  | 'reasonRequired'
   | 'versionConflict'
   | 'scopeDenied'
   | 'validation'
@@ -420,6 +442,9 @@ const PROBLEM_BY_CODE: Readonly<Record<string, ReportProblem>> = {
   PROJECT_STAGE_INVALID: 'stageInvalid',
   SUBSET_EXCEEDS_PARENT: 'subsetExceeds',
   REVISION_IMMUTABLE: 'immutable',
+  SELF_APPROVAL_DENIED: 'selfApproval',
+  REVISION_PENDING_EXISTS: 'pendingExists',
+  CORRECTION_REASON_REQUIRED: 'reasonRequired',
   VERSION_CONFLICT: 'versionConflict',
   SCOPE_DENIED: 'scopeDenied',
   VALIDATION_FAILED: 'validation',

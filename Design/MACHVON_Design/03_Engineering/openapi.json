@@ -741,6 +741,8 @@
         "x-error-codes": [
           "CORRECTION_REASON_REQUIRED",
           "PERIOD_LOCKED",
+          "PLAN_VERSION_NOT_EFFECTIVE",
+          "REPORT_STATE_INVALID",
           "REVISION_PENDING_EXISTS",
           "VERSION_CONFLICT"
         ],
@@ -127501,13 +127503,10 @@
       "DisReportCorrection": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "amendment_reason"
-        ],
+        "description": "A correction of a report that was accepted, returned or asked to be amended: the next revision, a draft that carries over the cells, the volumes, the narrative and the files; the cells and the volumes the request names replace the same ones. The reason is judged by the command (422 CORRECTION_REASON_REQUIRED when it is missing or shorter than 10 characters), not by the schema, so that every refusal of it has the same code.",
         "properties": {
           "amendment_reason": {
             "type": "string",
-            "minLength": 10,
             "maxLength": 2000
           },
           "funding_lines": {

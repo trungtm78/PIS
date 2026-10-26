@@ -8,8 +8,9 @@ import { toProjectOption } from '../model';
 import type { ProjectOption } from '../model';
 import { toAttachment } from './detail-parts';
 import type { Attachment } from './detail-parts';
-import { createBody, queryOf, saveBody, toReportDetail, toReportPage } from './model';
-import type { Basis, FilterState, FundingForm, ReportDetail, ReportDraftBody, ReportPage } from './model';
+import type { CorrectionBody, DecisionBody } from './decision-model';
+import { createBody, queryOf, saveBody, toReportDetail, toReportLine, toReportPage } from './model';
+import type { Basis, FilterState, FundingForm, ReportDetail, ReportDraftBody, ReportLine, ReportPage } from './model';
 
 const root = (tenantId: string | undefined) => ['dis', tenantId, 'reports'] as const;
 
@@ -150,5 +151,42 @@ export function useUploadReportFile() {
     mutationFn: async (file) => toAttachment(await uploadFile(client, 'uploadReportFile', { file, attempt: attempts.current.forPayload({ name: file.name, size: file.size, type: file.type, modified: file.lastModified }) })),
     onSuccess: () => attempts.current.done(),
     onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface DecideInput {
+  detail: ReportDetail;
+  body: DecisionBody;
+}
+
+/** A reviewer's decision on a report that was handed in, under the version the screen showed (If-Match). */
+export function useDecide() {
+  const client = useApiClient();
+  return useCommand<DecideInput>((input, attempt) => client.command('post_reports_id_decision', { path: { id: input.detail.id }, body: input.body, ifMatchVersion: input.detail.version, attempt }));
+}
+
+export interface CorrectInput {
+  detail: ReportDetail;
+  body: CorrectionBody;
+}
+
+/** A correction of a report: the answer names the new revision, a draft. */
+export function useCorrect() {
+  const client = useApiClient();
+  return useCommand<CorrectInput>((input, attempt) => client.command('post_reports_id_corrections', { path: { id: input.detail.id }, body: input.body, ifMatchVersion: input.detail.version, attempt }));
+}
+
+/** The revisions of a project in a period, the first first: what DIS-11 offers to compare. */
+export function useRevisionsOf(projectId: string | undefined, periodId: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ReportLine[]>({
+    queryKey: [...root(tenant?.id), 'revisions', projectId ?? '', periodId ?? ''],
+    queryFn: async () => {
+      const all = await client.readAll('get_resources_report_revision', { query: { project_id: projectId ?? '', period_id: periodId ?? '' } });
+      return all.flatMap((raw) => toReportLine(raw) ?? []).sort((a, b) => a.revision - b.revision);
+    },
+    enabled: tenant !== undefined && projectId !== undefined && periodId !== undefined,
+    retry: false,
   });
 }

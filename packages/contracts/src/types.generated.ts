@@ -15348,8 +15348,9 @@ export interface components {
             reason: string;
             window_hours?: number;
         };
+        /** @description A correction of a report that was accepted, returned or asked to be amended: the next revision, a draft that carries over the cells, the volumes, the narrative and the files; the cells and the volumes the request names replace the same ones. The reason is judged by the command (422 CORRECTION_REASON_REQUIRED when it is missing or shorter than 10 characters), not by the schema, so that every refusal of it has the same code. */
         DisReportCorrection: {
-            amendment_reason: string;
+            amendment_reason?: string;
             funding_lines?: components["schemas"]["FundingLine"][];
             progress?: Record<string, never>;
             negative_delta_explanation?: string;

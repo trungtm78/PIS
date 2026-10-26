@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { DisPeriodStore, DisReportStore, REPORT_RESOURCE, TenantDatabase, projectScope } from '@machvon/db';
-import type { AttachmentFile, FundingLineRow, ReportFilter, RevisionDetail, RevisionHead, RevisionLine, TenantTx } from '@machvon/db';
+import type { AttachmentFile, DecisionRow, FundingLineRow, ReportFilter, RevisionDetail, RevisionHead, RevisionLine, TenantTx } from '@machvon/db';
 import {
   DomainError,
   REPORT_TYPES,
@@ -57,7 +57,7 @@ const line = (row: FundingLineRow): Record<string, unknown> => ({
  * A report as DIS-04 reads it: the revision, the project, the period and the plan version it rests on, the six cells with what the plan allocated and what the period before had reached, and
  * the totals. The total is the sum of the six cumulative cells; the CTMTQG is inside them and is given apart, never added (BR-DIS-01). Money is text, whole dong.
  */
-export function reportView(detail: RevisionDetail, review: Review | null = null): Record<string, unknown> {
+export function reportView(detail: RevisionDetail, review: Review | null = null, decisions: readonly DecisionRow[] = []): Record<string, unknown> {
   const next = fundingTotals(detail.lines);
   return {
     id: detail.id,
@@ -71,7 +71,12 @@ export function reportView(detail: RevisionDetail, review: Review | null = null)
     payload_hash: detail.payloadHash,
     negative_delta_explanation: detail.negativeDeltaExplanation,
     submitted_at: detail.submittedAt,
+    submitted_by: detail.submittedBy,
     accepted_at: detail.acceptedAt,
+    accepted_by: detail.acceptedBy,
+    returned_reason: detail.returnedReason,
+    supersedes_id: detail.supersedesId,
+    amendment_reason: detail.amendmentReason,
     created_at: detail.createdAt,
     created_by: detail.createdBy,
     updated_at: detail.updatedAt,
@@ -120,6 +125,16 @@ export function reportView(detail: RevisionDetail, review: Review | null = null)
       size_bytes: file.sizeBytes,
       position: file.position,
       created_at: file.createdAt,
+    })),
+    decisions: decisions.map((decision) => ({
+      id: decision.id,
+      decision: decision.decision,
+      reason: decision.reason,
+      evidence_ids: decision.evidenceIds,
+      return_items: decision.returnItems,
+      due_at: decision.dueAt,
+      decided_by: decision.decidedBy,
+      decided_at: decision.decidedAt,
     })),
     review:
       review === null
@@ -497,7 +512,7 @@ export class ReportReadsController {
       const found = await this.reports.find(tx, id, scope);
       if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
       // The review is what DIS-06 shows before a send, so it is made for a live draft; a report that was handed in has nothing left to fix.
-      return reportView(found, found.status === 'DRAFT' && !found.deleted ? await reviewOf(tx, this.reports, this.periods, found, this.clock()) : null);
+      return reportView(found, found.status === 'DRAFT' && !found.deleted ? await reviewOf(tx, this.reports, this.periods, found, this.clock()) : null, await this.reports.decisionsOf(tx, id));
     });
   }
 }

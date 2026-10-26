@@ -10,6 +10,7 @@ import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
 import { ReportFileController } from '../../src/modules/dis/report-file.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
+import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
 import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
 import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
 import { FileService } from '../../src/modules/files/file.service';
@@ -230,7 +231,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   }, 60_000);
 
   it('serves the controllers of the report in the module of DIS', () => {
-    expect(disModule.controllers.slice(-4)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController]);
+    expect(disModule.controllers.slice(-5)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController]);
   });
 
   describe('post_reports', () => {
@@ -506,7 +507,9 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       const first = week();
       const second = week();
       const earlier = await create(draft(projectId, first, planId));
-      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, submitted_by = $2, accepted_by = $3, submitted_at = now(), accepted_at = now() where id = $1", [idOf(earlier), memberId(MAKER), memberId(READER)]);
+      // A report is handed in before it is accepted: the table lets it move along the graph only.
+      await rows("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [idOf(earlier), memberId(MAKER)]);
+      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, accepted_by = $2, accepted_at = now() where id = $1", [idOf(earlier), memberId(READER)]);
       const falling = [
         { bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '90000000' },
         { bucket: 'CURRENT_YEAR', budget_level: 'LOCAL', cumulative_vnd: '250000000' },
@@ -738,7 +741,9 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
     it('reviews a fall below the period before as an error until it is explained', async () => {
       const { projectId, planId } = await seedProject();
       const earlier = await create(draft(projectId, week(), planId));
-      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, submitted_by = $2, accepted_by = $3, submitted_at = now(), accepted_at = now() where id = $1", [idOf(earlier), memberId(MAKER), memberId(READER)]);
+      // A report is handed in before it is accepted: the table lets it move along the graph only.
+      await rows("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [idOf(earlier), memberId(MAKER)]);
+      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, accepted_by = $2, accepted_at = now() where id = $1", [idOf(earlier), memberId(READER)]);
       const second = week();
       const falling = { ...PROGRESS, funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '90000000' }] };
       const made = await create(draft(projectId, second, planId, falling));
@@ -1045,7 +1050,9 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       const { projectId, planId } = await seedProject();
       const cell = (amount: string) => [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: amount, next_month_vnd: '10' }];
       const earlier = await create(draft(projectId, week(), planId, { funding_lines: cell('150000000') }));
-      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, submitted_by = $2, accepted_by = $3, submitted_at = now(), accepted_at = now() where id = $1", [idOf(earlier), memberId(MAKER), memberId(READER)]);
+      // A report is handed in before it is accepted: the table lets it move along the graph only.
+      await rows("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [idOf(earlier), memberId(MAKER)]);
+      await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, accepted_by = $2, accepted_at = now() where id = $1", [idOf(earlier), memberId(READER)]);
       const period = week();
       const made = await create(draft(projectId, period, planId, { ...PROGRESS, funding_lines: cell('120000000') }));
       const reportId = idOf(made);

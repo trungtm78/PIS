@@ -97,3 +97,33 @@ export function toReview(raw: unknown): Review | null {
   const list = (value: unknown): Finding[] => (Array.isArray(value) ? value : []).flatMap((entry) => toFinding(entry) ?? []);
   return { blocking: row.blocking === true, errors: list(row.errors), warnings: list(row.warnings) };
 }
+
+export const DECISION_KINDS = ['ACCEPTED', 'RETURNED', 'AMENDMENT_REQUESTED'] as const;
+export type DecisionKind = (typeof DECISION_KINDS)[number];
+
+const texts = (value: unknown): string[] => (Array.isArray(value) ? value.flatMap((entry) => (typeof entry === 'string' ? [entry] : [])) : []);
+
+/** A decision of a reviewer as the server keeps it: who, when, why, and for a return what is to be fixed and by when (ST-DIS-006). */
+export interface DecisionEntry {
+  id: string;
+  decision: DecisionKind;
+  reason: string;
+  evidenceIds: string[];
+  returnItems: string[];
+  dueAt: string | null;
+  decidedBy: string;
+  decidedAt: string;
+}
+
+export function toDecisions(raw: unknown): DecisionEntry[] {
+  return (Array.isArray(raw) ? raw : []).flatMap((item): DecisionEntry[] => {
+    const entry = asRecord(item);
+    const id = text(entry?.id);
+    const decision = DECISION_KINDS.find((kind) => kind === entry?.decision);
+    const reason = text(entry?.reason);
+    const decidedBy = text(entry?.decided_by);
+    const decidedAt = text(entry?.decided_at);
+    if (entry === undefined || id === undefined || decision === undefined || reason === undefined || decidedBy === undefined || decidedAt === undefined) return [];
+    return [{ id, decision, reason, evidenceIds: texts(entry.evidence_ids), returnItems: texts(entry.return_items), dueAt: nullableText(entry.due_at), decidedBy, decidedAt }];
+  });
+}

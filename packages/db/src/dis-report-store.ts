@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, FUNDING_CELLS, deltaOf, draftHash, fundingTotals, versionConflict } from '@machvon/kernel';
-import type { AttachmentRef, BudgetLevel, FundingBucket, FundingInput, FundingTotals, MeasurementBasis, NarrativeInput, ProgressInput, ReportType, RevisionStatus } from '@machvon/kernel';
+import { DomainError, FUNDING_CELLS, assertFourEyes, decisionOutcome, deltaOf, draftHash, fundingTotals, versionConflict } from '@machvon/kernel';
+import type { AttachmentRef, DecisionInput, BudgetLevel, FundingBucket, FundingInput, FundingTotals, MeasurementBasis, NarrativeInput, ProgressInput, ReportType, RevisionStatus } from '@machvon/kernel';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -8,6 +8,10 @@ import { withUniqueClaim } from './unique-claim.ts';
 
 /** The resource type of the audit rows and the events of a report. */
 export const REPORT_RESOURCE = 'report_revision';
+/** The metric of a decision of a reviewer, by what it led to, and the one of a correction that was started (DIS 9). */
+export const DIS_DECISION_METRIC = 'dis_report_decision_total';
+export const decisionLabels = (outcome: string): { decision: string } => ({ decision: outcome });
+export const DIS_CORRECTION_METRIC = 'dis_report_correction_total';
 
 const NOT_FOUND = (): DomainError => new DomainError('RESOURCE_NOT_FOUND', 404);
 const cellKey = (bucket: string, level: string): string => `${bucket}/${level}`;
@@ -66,7 +70,13 @@ export interface RevisionHead {
   measurementBasis: MeasurementBasis;
   isLate: boolean;
   submittedAt: string | null;
+  submittedBy: string | null;
   acceptedAt: string | null;
+  acceptedBy: string | null;
+  returnedReason: string | null;
+  /** The revision this one corrects, and why (revision 2 and after). */
+  supersedesId: string | null;
+  amendmentReason: string | null;
   payloadHash: string;
   negativeDeltaExplanation: string | null;
   clientOperationId: string | null;
@@ -179,6 +189,25 @@ export interface NewDraft {
   allocations: ReadonlyMap<string, Allocation>;
 }
 
+/** A correction: a draft that is the next revision of a report that was handed in, with the report it corrects and why. */
+export interface NewCorrection extends NewDraft {
+  revision: number;
+  supersedesId: string;
+  amendmentReason: string;
+}
+
+/** A decision of a reviewer as it was kept (DIS 3 F2). */
+export interface DecisionRow {
+  id: string;
+  decision: 'ACCEPTED' | 'RETURNED' | 'AMENDMENT_REQUESTED';
+  reason: string;
+  evidenceIds: string[];
+  returnItems: string[];
+  dueAt: string | null;
+  decidedBy: string;
+  decidedAt: string;
+}
+
 /**
  * What a save enters. The basis, the cells and the explanation are the whole of those; the volumes, the narrative and the files are replaced when the request names them and kept as they are when
  * it does not (undefined), so that each screen of the draft saves what it shows and nothing it does not.
@@ -205,7 +234,12 @@ interface HeadSql {
   measurement_basis: MeasurementBasis;
   is_late: boolean;
   submitted_at: string | null;
+  submitted_by: string | null;
   accepted_at: string | null;
+  accepted_by: string | null;
+  returned_reason: string | null;
+  supersedes_id: string | null;
+  amendment_reason: string | null;
   payload_hash: string;
   negative_delta_explanation: string | null;
   client_operation_id: string | null;
@@ -217,7 +251,7 @@ interface HeadSql {
 }
 
 const HEAD_COLUMNS = `r.id, r.project_id, r.period_id, r.plan_version_id, r.revision, r.status, r.is_current, r.version::text as version, r.report_type, r.measurement_basis, r.is_late,
-  ${iso('r.submitted_at')} as submitted_at, ${iso('r.accepted_at')} as accepted_at, r.payload_hash, r.negative_delta_explanation, r.client_operation_id, (r.deleted_at is not null) as deleted,
+  ${iso('r.submitted_at')} as submitted_at, r.submitted_by, ${iso('r.accepted_at')} as accepted_at, r.accepted_by, r.returned_reason, r.supersedes_id, r.amendment_reason, r.payload_hash, r.negative_delta_explanation, r.client_operation_id, (r.deleted_at is not null) as deleted,
   ${iso('r.created_at')} as created_at, r.created_by, ${iso('r.updated_at')} as updated_at, r.updated_by`;
 
 const toHead = (row: HeadSql): RevisionHead => ({
@@ -233,7 +267,12 @@ const toHead = (row: HeadSql): RevisionHead => ({
   measurementBasis: row.measurement_basis,
   isLate: row.is_late,
   submittedAt: row.submitted_at,
+  submittedBy: row.submitted_by,
   acceptedAt: row.accepted_at,
+  acceptedBy: row.accepted_by,
+  returnedReason: row.returned_reason,
+  supersedesId: row.supersedes_id,
+  amendmentReason: row.amendment_reason,
   payloadHash: row.payload_hash,
   negativeDeltaExplanation: row.negative_delta_explanation,
   clientOperationId: row.client_operation_id,
@@ -308,7 +347,7 @@ export class DisReportStore {
          from machvon.funding_snapshot_line l
         where l.report_revision_id = (
           select r.id from machvon.report_revision r join machvon.reporting_period rp on rp.tenant_id = r.tenant_id and rp.id = r.period_id
-           where r.project_id = $1::uuid and r.is_current and r.status = 'ACCEPTED' and rp.period_type = $2 and rp.fiscal_year = $3 and rp.end_date < $4::date
+           where r.project_id = $1::uuid and r.is_current and r.status in ('ACCEPTED', 'AMENDMENT_REQUESTED') and rp.period_type = $2 and rp.fiscal_year = $3 and rp.end_date < $4::date
            order by rp.end_date desc, r.revision desc limit 1)`,
       [projectId, period.periodType, period.fiscalYear, period.startDate],
     );
@@ -362,24 +401,70 @@ export class DisReportStore {
       if ((error as { code?: string; constraint?: string }).code === '23505' && (error as { constraint?: string }).constraint === 'report_revision_client_op_uq') throw new DomainError('IDEMPOTENCY_CONFLICT', 409, 'client_operation_id');
       throw error;
     }
+    await this.writeContent(tx, id, input, actor);
+    return { id, version: 1 };
+  }
+
+  /**
+   * Writes the revision that corrects another (ST-DIS-006): the next number of the report of the project in the period, a DRAFT that names the revision it corrects and the reason, with the cells,
+   * the volumes, the narrative and the files the caller carried over. One live draft of a project and a period is the rule of the table: a second one is 409 `REVISION_PENDING_EXISTS`.
+   */
+  async createCorrection(tx: TenantTx, input: NewCorrection, actor: string): Promise<{ id: string; version: number; revision: number }> {
+    const id = randomUUID();
+    const hash = draftHash({
+      projectId: input.projectId,
+      periodId: input.periodId,
+      planVersionId: input.planVersionId,
+      reportType: input.reportType,
+      measurementBasis: input.measurementBasis,
+      cells: input.cells,
+      negativeDeltaExplanation: input.negativeDeltaExplanation,
+      progress: input.progress,
+      narrative: input.narrative,
+      attachments: input.attachments,
+    });
+    await this.insertRevision(tx, { id, hash, input, actor }, { revision: input.revision, supersedesId: input.supersedesId, amendmentReason: input.amendmentReason });
+    await this.writeContent(tx, id, input, actor);
+    return { id, version: 1, revision: input.revision };
+  }
+
+  private async writeContent(tx: TenantTx, id: string, input: NewDraft, actor: string): Promise<void> {
     for (const cell of input.cells) {
       await this.insertCell(tx, id, cell, input.allocations.get(cellKey(cell.bucket, cell.budgetLevel)));
     }
     if (input.progress !== null) await this.writeProgress(tx, id, input.progress, input.asOfDate, input.measurementBasis);
     if (input.narrative !== null) await this.writeNarrative(tx, id, input.narrative, actor);
     await this.writeAttachments(tx, id, input.attachments, actor);
-    return { id, version: 1 };
   }
 
-  private async insertRevision(tx: TenantTx, row: { id: string; hash: string; input: NewDraft; actor: string }): Promise<void> {
+  private async insertRevision(
+    tx: TenantTx,
+    row: { id: string; hash: string; input: NewDraft; actor: string },
+    lineage?: { revision: number; supersedesId: string; amendmentReason: string },
+  ): Promise<void> {
     const { id, hash, input, actor } = row;
-    await withUniqueClaim(tx, { constraint: ['report_revision_draft_uq', 'report_revision_number'], code: 'DRAFT_EXISTS' }, async () => {
+    const claim = { constraint: ['report_revision_draft_uq', 'report_revision_number'], code: lineage === undefined ? 'DRAFT_EXISTS' : 'REVISION_PENDING_EXISTS' };
+    await withUniqueClaim(tx, claim, async () => {
       await tx.query(
         `insert into machvon.report_revision
            (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, payload_hash, report_type, measurement_basis, negative_delta_explanation,
-            client_operation_id, source_kind, created_by, updated_by)
-         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, 1, 'DRAFT', false, 1, $5, $6, $7, $8, $9::uuid, 'MANUAL', $10::uuid, $10::uuid)`,
-        [id, input.projectId, input.periodId, input.planVersionId, hash, input.reportType, input.measurementBasis, input.negativeDeltaExplanation, input.clientOperationId ?? null, actor],
+            client_operation_id, source_kind, supersedes_id, amendment_reason, created_by, updated_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $11::int, 'DRAFT', false, 1, $5, $6, $7, $8, $9::uuid, 'MANUAL', $12::uuid, $13, $10::uuid, $10::uuid)`,
+        [
+          id,
+          input.projectId,
+          input.periodId,
+          input.planVersionId,
+          hash,
+          input.reportType,
+          input.measurementBasis,
+          input.negativeDeltaExplanation,
+          input.clientOperationId ?? null,
+          actor,
+          lineage?.revision ?? 1,
+          lineage?.supersedesId ?? null,
+          lineage?.amendmentReason ?? null,
+        ],
       );
     });
   }
@@ -622,6 +707,71 @@ export class DisReportStore {
     );
     if (updated === undefined) throw new DomainError('REVISION_IMMUTABLE', 409, 'status', { extensions: { report_status: head.status } });
     return { version: Number(updated.version) };
+  }
+
+  /**
+   * Takes a decision on a report that was handed in (DIS 3 F2): the report moves along the graph (409 `REPORT_STATE_INVALID` off it), the person who handed it in is not the one who decides (403
+   * `SELF_APPROVAL_DENIED`), and the decision is kept as it was taken. An approval makes the report the current one and the revision that was current before it SUPERSEDED, in this step; a return keeps
+   * the reason on the report; a request for an amendment leaves the accepted report current until the corrected one is accepted. The version moves once.
+   */
+  async decide(tx: TenantTx, head: RevisionHead, input: DecisionInput, actor: string, at: Date): Promise<{ version: number; supersededId: string | null; decisionId: string }> {
+    const next = decisionOutcome(head.status, input.decision);
+    if (head.submittedBy !== null) assertFourEyes(head.submittedBy, actor);
+    let supersededId: string | null = null;
+    if (next === 'ACCEPTED') {
+      const [previous] = await tx.query<{ id: string }>(
+        `update machvon.report_revision set status = 'SUPERSEDED', is_current = false, updated_at = now(), updated_by = $3::uuid, version = version + 1
+          where project_id = $1::uuid and period_id = $2::uuid and is_current and id <> $4::uuid returning id`,
+        [head.projectId, head.periodId, actor, head.id],
+      );
+      supersededId = previous?.id ?? null;
+    }
+    const [updated] = await tx.query<{ version: string }>(
+      `update machvon.report_revision
+          set status = $2, is_current = case when $2 = 'ACCEPTED' then true else is_current end,
+              accepted_by = case when $2 = 'ACCEPTED' then $3::uuid else accepted_by end, accepted_at = case when $2 = 'ACCEPTED' then $4::timestamptz else accepted_at end,
+              returned_reason = case when $2 = 'ACCEPTED' then returned_reason else $5 end, updated_at = now(), updated_by = $3::uuid, version = version + 1
+        where id = $1::uuid and status = $6 and deleted_at is null returning version::text as version`,
+      [head.id, next, actor, at.toISOString(), input.reason, head.status],
+    );
+    if (updated === undefined) throw new DomainError('REPORT_STATE_INVALID', 409, 'status', { extensions: { report_status: head.status } });
+    const decisionId = randomUUID();
+    await tx.query(
+      `insert into machvon.report_decision (tenant_id, id, report_revision_id, decision, reason, evidence_ids, return_items, due_at, decided_by, decided_at)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5::uuid[], $6::text[], $7::timestamptz, $8::uuid, $9::timestamptz)`,
+      [decisionId, head.id, next, input.reason, input.evidenceIds, input.returnItems, input.dueAt?.toISOString() ?? null, actor, at.toISOString()],
+    );
+    return { version: Number(updated.version), supersededId, decisionId };
+  }
+
+  /** The decisions taken on a report, the first first. */
+  async decisionsOf(tx: TenantTx, reportId: string): Promise<DecisionRow[]> {
+    const rows = await tx.query<{ id: string; decision: DecisionRow['decision']; reason: string; evidence_ids: string[]; return_items: string[]; due_at: string | null; decided_by: string; decided_at: string }>(
+      `select id, decision, reason, evidence_ids::text[] as evidence_ids, return_items, ${iso('due_at')} as due_at, decided_by, ${iso('decided_at')} as decided_at
+         from machvon.report_decision where report_revision_id = $1::uuid order by decided_at, created_at, id`,
+      [reportId],
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      decision: row.decision,
+      reason: row.reason,
+      evidenceIds: row.evidence_ids,
+      returnItems: row.return_items,
+      dueAt: row.due_at,
+      decidedBy: row.decided_by,
+      decidedAt: row.decided_at,
+    }));
+  }
+
+  /** A revision of the project in the period, other than the one named, that is still on its way: a live draft, or one that was handed in and has not been decided on. */
+  async pendingFor(tx: TenantTx, projectId: string, periodId: string, exceptId: string): Promise<RevisionHead | undefined> {
+    const [row] = await tx.query<HeadSql>(
+      `select ${HEAD_COLUMNS} from machvon.report_revision r
+        where r.project_id = $1::uuid and r.period_id = $2::uuid and r.id <> $3::uuid and r.deleted_at is null and r.status in ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW')
+        order by r.revision desc limit 1`,
+      [projectId, periodId, exceptId],
+    );
+    return row === undefined ? undefined : toHead(row);
   }
 
   /** One report in the scope of the caller with its project, its period, its plan version and its cells; undefined when it does not exist or lies outside the scope. */

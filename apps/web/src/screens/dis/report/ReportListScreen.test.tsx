@@ -30,6 +30,8 @@ describe('DIS-01 weekly reports', () => {
     expect(rows[1]?.[2]).toBe(`${vi_['dis.reportStatus.submitted']}${vi_['dis.reports.late.text']}`);
     expect(rows[1]?.[3]).toBe('1.250.000.000');
     expect(screen.getByRole('link', { name: vi_['dis.reports.open.action'].replace('{code}', 'DA-2027-001') }).getAttribute('href')).toBe(`/dis/dis-04?report=${lineRecord(1).id as string}`);
+    // A report that was handed in is read on its detail (DIS-07), where the reviewer decides and the maker corrects; only a draft is edited.
+    expect(screen.getByRole('link', { name: vi_['dis.reports.open.action'].replace('{code}', 'DA-2027-002') }).getAttribute('href')).toBe(`/dis/dis-07?report=${lineRecord(2).id as string}`);
   });
 
   it('AC-ST-DIS-003-4 / UI-DIS-01: gives the figures of the table with the words of what they are the total of, and the figures of everything the caller sees apart once the table is filtered', async () => {

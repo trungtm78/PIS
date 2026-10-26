@@ -628,3 +628,5 @@ export { ATTACHMENT_MAX_COUNT, NARRATIVE_MAX_CHARS, NARRATIVE_MAX_ISSUES, attach
 export type { AttachmentRef, NarrativeInput, ProgressInput, RawAttachment, RawNarrative, RawProgress } from './dis-progress.ts';
 export { TREASURY_GAP_THRESHOLD_PCT, WARNING_CODES, percentOf, reviewReport, submitRefusal, treasuryWindow } from './dis-review.ts';
 export type { Review, ReviewCell, ReviewFinding, ReviewInput, ReviewSeverity } from './dis-review.ts';
+export { DECISIONS, DECISION_LIMITS, STATUS_AFTER, correctionOf, correctionSourceRefusal, decisionOf, decisionOutcome } from './dis-decision.ts';
+export type { ReportDecision, DecisionInput, RawCorrection, RawDecision } from './dis-decision.ts';

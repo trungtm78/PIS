@@ -315,6 +315,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'post_reports',
         'post_reports_id_revisions',
         'post_reports_id_submit',
+        'post_reports_id_decision',
+        'post_reports_id_corrections',
         'uploadReportFile',
         'getReportRevision',
         'get_resources_report_revision',

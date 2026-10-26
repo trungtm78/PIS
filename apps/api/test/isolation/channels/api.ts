@@ -182,6 +182,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'lockReportingPeriod', method: 'POST', id: PERIOD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign lock' } },
   { operation: 'get_resources_reporting_period_id', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
   { operation: 'post_reports_id_submit', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'post_reports_id_decision', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision', evidence_ids: [] } },
+  { operation: 'post_reports_id_corrections', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: { amendment_reason: 'Isolation foreign correction' } },
   {
     operation: 'post_reports_id_revisions',
     method: 'POST',

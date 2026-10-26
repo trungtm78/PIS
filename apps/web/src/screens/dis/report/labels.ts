@@ -88,6 +88,12 @@ export function reportProblemMessage(t: T, problem: ReportProblem): string {
       return t('dis.reportProblem.subsetExceeds');
     case 'immutable':
       return t('dis.reportProblem.immutable');
+    case 'selfApproval':
+      return t('dis.reportProblem.selfApproval');
+    case 'pendingExists':
+      return t('dis.reportProblem.pendingExists');
+    case 'reasonRequired':
+      return t('dis.reportProblem.reasonRequired');
     case 'versionConflict':
       return t('dis.reportProblem.versionConflict');
     case 'scopeDenied':

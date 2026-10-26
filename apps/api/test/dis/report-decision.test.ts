@@ -1,0 +1,472 @@
+import { randomBytes, randomUUID } from 'node:crypto';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { APP_FILTER } from '@nestjs/core';
+import { Client } from 'pg';
+import { BASELINE_PACK, DisPeriodStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, applyBaseline } from '@machvon/db';
+import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import { CommandModule } from '../../src/command.module';
+import { disModule } from '../../src/modules/dis';
+import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
+import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
+import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
+import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
+import { FileService } from '../../src/modules/files/file.service';
+import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
+import { MockScanPort } from '../../src/modules/files/mock-scan';
+import { PolicyModule } from '../../src/policy.module';
+import { ProblemFilter } from '../../src/problem.filter';
+import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { TENANT_HEADER } from '../isolation/test-auth.guard';
+import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
+import type { RunningApp } from '../isolation/test-app';
+
+const SIGNING_KEY = randomBytes(32);
+const WORKER = '00000000-0000-4000-8000-000000000000';
+const MAKER = 1; // makes and hands in the reports, answers a return with a correction, and also holds report.review (so that the maker-checker rule is what stops the self-approval)
+const REVIEWER = 2; // report.review over the whole tenant
+const READER = 3; // report.read only
+const ELSEWHERE_REVIEWER = 4; // report.review over another branch, where the projects are not
+const OTHER_MAKER = 5; // the maker rights over the whole tenant, without report.review
+const B_MAKER = 1;
+const ROOT = 1;
+const DEPARTMENT = 2;
+const ELSEWHERE = 3;
+const FAMILY = 0x9e;
+const AREA = id(FAMILY, 30);
+const DECISION = id(FAMILY, 32);
+const FUND_SOURCE = id(FAMILY, 31);
+const DUE = '2027-01-10T03:00:00.000Z';
+
+interface Reply {
+  status: number;
+  headers: Headers;
+  json: Record<string, unknown>;
+}
+
+interface CallOptions {
+  member: number;
+  tenantId?: string;
+  body?: unknown;
+  ifMatch?: string;
+  key?: string;
+}
+
+const FX_DIS_001 = [
+  { bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '100000000', ctmtqg_subset_vnd: '40000000' },
+  { bucket: 'CURRENT_YEAR', budget_level: 'LOCAL', cumulative_vnd: '200000000' },
+  { bucket: 'CARRYOVER', budget_level: 'CENTRAL', cumulative_vnd: '30000000' },
+  { bucket: 'CARRYOVER', budget_level: 'LOCAL', cumulative_vnd: '70000000' },
+  { bucket: 'OTHER', budget_level: 'CENTRAL', cumulative_vnd: '0' },
+  { bucket: 'OTHER', budget_level: 'LOCAL', cumulative_vnd: '20000000' },
+];
+const PROGRESS = { construction_vnd: '300000000', acceptance_vnd: '200000000', treasury_submitted_vnd: '150000000', preparing_dossier_vnd: '50000000', physical_progress_pct: '37.5' };
+
+/** The decision of a reviewer on a weekly report and the chain of corrections over HTTP (ST-DIS-006, DIS-07, DIS-08, DIS-11). */
+describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-006)', () => {
+  const harness = new AuthzHarness();
+  let app: RunningApp;
+  let root: string;
+  const now = new Date('2026-12-15T00:00:00Z');
+  const counted: Array<{ name: string; labels: Record<string, string> | undefined }> = [];
+  let counter = 0;
+  let weeks: string[] = [];
+  let nextWeek = 0;
+
+  const tokenOf = (member: number, tenantId = TENANT_A): string => signTenantContext({ tenantId, membershipId: memberId(member), scopeVersion: 1 }, SIGNING_KEY);
+
+  async function call(method: 'GET' | 'POST', url: string, options: CallOptions): Promise<Reply> {
+    const headers: Record<string, string> = { [TENANT_HEADER]: tokenOf(options.member, options.tenantId), 'content-type': 'application/json' };
+    if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;
+    if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
+    const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
+    return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
+  }
+
+  const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
+  const idOf = (reply: Reply): string => reply.json.resource_id as string;
+
+  async function seedReplica(statements: Array<[string, unknown[]]>): Promise<void> {
+    const client = new Client({ connectionString: harness.database.adminUrl });
+    await client.connect();
+    try {
+      await client.query('set session_replication_role = replica');
+      for (const [sql, params] of statements) await client.query(sql, params);
+    } finally {
+      await client.end();
+    }
+  }
+
+  /** A project of the department with a plan version of 2027 in force from December 2026 that allocated 500,000,000 to the year plan of the central budget. */
+  async function seedProject(): Promise<{ projectId: string; planId: string }> {
+    counter += 1;
+    const projectId = randomUUID();
+    const planId = randomUUID();
+    await seedReplica([
+      [
+        `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+         values ($1, $2, $3, $4, $5, $6, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
+        [TENANT_A, projectId, `DC-${counter}`, `Project DC-${counter}`, unitId(DEPARTMENT), AREA],
+      ],
+      [
+        `insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2027, 1, $4, 'PUBLISHED', timestamptz '2026-12-20T01:00:00Z')`,
+        [TENANT_A, planId, projectId, DECISION],
+      ],
+      [
+        `insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id, budget_level)
+         values ($1, gen_random_uuid(), $2, $3, 'CURRENT_YEAR', 2027, 500000000, 0, $4, 'CENTRAL')`,
+        [TENANT_A, planId, FUND_SOURCE, projectId],
+      ],
+    ]);
+    return { projectId, planId };
+  }
+
+  const week = (): string => {
+    const found = weeks[nextWeek];
+    nextWeek += 1;
+    if (found === undefined) throw new Error('the calendar of 2027 ran out of weeks');
+    return found;
+  };
+
+  const draft = (projectId: string, periodId: string, planId: string, extra: Record<string, unknown> = {}): Record<string, unknown> => ({
+    project_id: projectId,
+    period_id: periodId,
+    plan_version_id: planId,
+    report_type: 'WEEKLY',
+    measurement_basis: 'YTD',
+    funding_lines: FX_DIS_001,
+    ...PROGRESS,
+    ...extra,
+  });
+  const create = (body: Record<string, unknown>, member = MAKER): Promise<Reply> => call('POST', '/reports', { member, body });
+  const save = (reportId: string, body: Record<string, unknown>, version: number, member = MAKER): Promise<Reply> => call('POST', `/reports/${reportId}/revisions`, { member, body, ifMatch: `"${version}"` });
+  const submit = (reportId: string, version: number, member = MAKER): Promise<Reply> => call('POST', `/reports/${reportId}/submit`, { member, ifMatch: `"${version}"`, body: {} });
+  const read = (reportId: string, member = READER, tenantId?: string): Promise<Reply> => call('GET', `/reports/${reportId}`, { member, ...(tenantId === undefined ? {} : { tenantId }) });
+  const decide = (reportId: string, version: number, body: Record<string, unknown>, member = REVIEWER, options: Partial<CallOptions> = {}): Promise<Reply> =>
+    call('POST', `/reports/${reportId}/decision`, { member, body, ifMatch: `"${version}"`, ...options });
+  const correct = (reportId: string, version: number, body: Record<string, unknown>, member = MAKER, options: Partial<CallOptions> = {}): Promise<Reply> =>
+    call('POST', `/reports/${reportId}/corrections`, { member, body, ifMatch: `"${version}"`, ...options });
+  const approve = (reportId: string, version: number, member = REVIEWER): Promise<Reply> => decide(reportId, version, { decision: 'approve', reason: 'The figures agree with the Treasury.', evidence_ids: [] }, member);
+  const giveBack = (reportId: string, version: number, extra: Record<string, unknown> = {}): Promise<Reply> =>
+    decide(reportId, version, { decision: 'return', reason: 'The CTMTQG cell is wrong.', evidence_ids: [], return_items: ['Fix the CTMTQG cell', 'Explain the fall'], due_at: DUE, ...extra });
+  const trail = (resourceId: string) => rows<{ action: string; safe_diff: Record<string, unknown> }>('select action, safe_diff from machvon.audit_event where resource_id::text = $1 order by occurred_at, id', [resourceId]);
+  const events = (reportId: string, type: string) => rows<{ type: string; payload: Record<string, unknown> }>('select type, payload from machvon.outbox_event where aggregate_id = $1 and type = $2', [reportId, type]);
+  const state = async (reportId: string) =>
+    (await rows<{ status: string; version: string; revision: number; is_current: boolean; payload_hash: string; supersedes_id: string | null; amendment_reason: string | null; accepted_by: string | null; submitted_by: string | null }>(
+      'select status, version::text as version, revision, is_current, payload_hash, supersedes_id, amendment_reason, accepted_by, submitted_by from machvon.report_revision where id = $1',
+      [reportId],
+    ))[0];
+  const lockPeriod = async (periodId: string): Promise<void> => {
+    await rows("update machvon.reporting_period set status = 'SOFT_CLOSED', soft_closed_at = now(), version = version + 1 where id = $1", [periodId]);
+    await rows("update machvon.reporting_period set status = 'LOCKED', locked_at = now(), locked_by = $2, version = version + 1 where id = $1", [periodId, memberId(MAKER)]);
+  };
+
+  /** A report of a project in a week of its own, handed in by the maker: SUBMITTED at version 2. */
+  async function submitted(options: { project?: { projectId: string; planId: string }; period?: string; extra?: Record<string, unknown> } = {}): Promise<{ reportId: string; projectId: string; planId: string; period: string }> {
+    const { projectId, planId } = options.project ?? (await seedProject());
+    const period = options.period ?? week();
+    const made = await create(draft(projectId, period, planId, options.extra));
+    expect(made.status).toBe(200);
+    const sent = await submit(idOf(made), 1);
+    expect(sent).toMatchObject({ status: 200, json: { status: 'SUBMITTED', resource_version: 2 } });
+    return { reportId: idOf(made), projectId, planId, period };
+  }
+
+  beforeAll(async () => {
+    await harness.start();
+    for (const tenant of [TENANT_A, TENANT_B]) {
+      await harness.seedUnits(tenant, [
+        { n: ROOT, path: `/${unitId(ROOT)}/` },
+        { n: DEPARTMENT, path: `/${unitId(ROOT)}/${unitId(DEPARTMENT)}/`, parent: ROOT },
+        { n: ELSEWHERE, path: `/${unitId(ELSEWHERE)}/` },
+      ]);
+    }
+    for (const n of [MAKER, REVIEWER, READER, ELSEWHERE_REVIEWER, OTHER_MAKER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    await harness.seedMembership(TENANT_B, B_MAKER, ROOT);
+    await harness.seedRole(TENANT_A, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_A, 2, 'DIS_REVIEWER', ['report.review', 'report.read', 'report_revision.read'], 25);
+    await harness.seedRole(TENANT_A, 3, 'DIS_READER', ['report.read', 'report_revision.read'], 20);
+    await harness.seedRole(TENANT_A, 4, 'DIS_MAKER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.read', 'report_revision.read'], 30);
+    await harness.seedRole(TENANT_B, 1, 'DIS_MAKER_REVIEWER', ['report.create', 'report.edit', 'report.submit', 'report.correct', 'report.review', 'report.read', 'report_revision.read'], 30);
+    await harness.seedGrants(TENANT_A, [
+      { n: 1, member: MAKER, role: 1, kind: 'TENANT' },
+      { n: 2, member: REVIEWER, role: 2, kind: 'TENANT' },
+      { n: 3, member: READER, role: 3, kind: 'TENANT' },
+      { n: 4, member: ELSEWHERE_REVIEWER, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(ELSEWHERE)] },
+      { n: 5, member: OTHER_MAKER, role: 4, kind: 'TENANT' },
+    ]);
+    await harness.seedGrants(TENANT_B, [{ n: 1, member: B_MAKER, role: 1, kind: 'TENANT' }]);
+    await seedReplica([
+      [
+        "insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'FUND_SOURCE', 'NSTW', 'EFFECTIVE', $3, $3)",
+        [TENANT_A, id(FAMILY, 33), memberId(MAKER)],
+      ],
+      [
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+         values ($1, $2, $3, 'FUND_SOURCE', 'NSTW', 1, 'Central budget', '{}', date '2024-01-01', 'EFFECTIVE', 'TENANT', now(), $4, $4)`,
+        [TENANT_A, FUND_SOURCE, id(FAMILY, 33), memberId(MAKER)],
+      ],
+    ]);
+    const tenants = harness.tenants as TenantDatabase;
+    await tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, async (tx) => {
+      await applyBaseline(tx, BASELINE_PACK, WORKER);
+      await new DisPeriodStore().generate(tx, { calendarCode: 'DEFAULT', fiscalYear: 2027, periodType: 'WEEK' }, WORKER, now);
+    });
+    await rows(
+      `insert into machvon.reporting_period
+         (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
+       select tenant_id, gen_random_uuid(), 'X-' || code, calendar_version, start_date, end_date, deadline_at, 'EXTRA', period_type, fiscal_year, 'OPEN', calendar_version_id, created_by, updated_by
+         from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' and calendar_code = 'DEFAULT'`,
+    );
+    weeks = (await rows<{ id: string }>("select id from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' order by calendar_code, start_date")).map((row) => row.id);
+    root = await mkdtemp(join(tmpdir(), 'machvon-dis-decision-'));
+    const files = new FileService({ storage: new FsObjectStorage(root), scanner: new MockScanPort(), urlSecret: randomBytes(32) });
+    app = await startTestApp({
+      signingKey: SIGNING_KEY,
+      imports: [
+        CommandModule.register({ database: tenants }),
+        PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
+      ],
+      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController],
+      providers: [
+        { provide: TenantDatabase, useValue: tenants },
+        { provide: FileService, useValue: files },
+        { provide: DIS_CLOCK, useValue: () => now },
+        { provide: DIS_METRICS, useValue: { increment: (name: string, labels?: Record<string, string>) => void counted.push({ name, labels }), gauge: () => undefined } },
+        { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
+      ],
+    });
+  }, 300_000);
+
+  afterAll(async () => {
+    if (app) await app.close();
+    await harness.stop();
+    await rm(root, { recursive: true, force: true });
+  }, 60_000);
+
+  it('serves the controller of the decision in the module of DIS', () => {
+    expect(disModule.controllers).toContain(ReportDecisionController);
+  });
+
+  describe('post_reports_id_decision', () => {
+    it('AC-ST-DIS-006-1 / UAT-AC05: the maker who also holds report.review is 403 SELF_APPROVAL_DENIED with the attempt on the trail and the report still SUBMITTED; the reviewer gets ACCEPTED, and accepted_by differs from submitted_by', async () => {
+      const { reportId } = await submitted();
+      const own = await approve(reportId, 2, MAKER);
+      expect(own).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+      expect(await state(reportId)).toMatchObject({ status: 'SUBMITTED', version: '2', is_current: false, accepted_by: null });
+      expect(await rows("select actor_id from machvon.audit_event where action = 'command.denied:post_reports_id_decision' and outcome = 'DENIED'")).toEqual(expect.arrayContaining([{ actor_id: memberId(MAKER) }]));
+      const accepted = await approve(reportId, 2);
+      expect(accepted).toMatchObject({ status: 200, json: { status: 'ACCEPTED', resource_version: 3, resource_id: reportId } });
+      const row = await state(reportId);
+      expect(row).toMatchObject({ status: 'ACCEPTED', is_current: true, accepted_by: memberId(REVIEWER), submitted_by: memberId(MAKER) });
+      expect(row?.accepted_by).not.toBe(row?.submitted_by);
+      const found = await read(reportId);
+      expect(found.json).toMatchObject({ status: 'ACCEPTED', is_current: true, accepted_by: memberId(REVIEWER), submitted_by: memberId(MAKER), supersedes_id: null });
+      expect(found.json.decisions).toEqual([expect.objectContaining({ decision: 'ACCEPTED', reason: 'The figures agree with the Treasury.', decided_by: memberId(REVIEWER), return_items: [], due_at: null })]);
+    });
+
+    it('keeps the audit row without the words of the reason, raises one report.accepted.v1 with the version of the report, and counts the decision after it was committed', async () => {
+      const { reportId } = await submitted();
+      counted.length = 0;
+      await approve(reportId, 2);
+      const entry = (await trail(reportId)).find((row) => row.action === 'dis.report_accepted');
+      expect(entry?.safe_diff).toMatchObject({ decision: 'ACCEPTED', previous_status: 'SUBMITTED', revision: 1, evidence_count: 0, items_count: 0, version: 3 });
+      expect(JSON.stringify(entry?.safe_diff)).not.toContain('Treasury');
+      const raised = await events(reportId, 'report.accepted.v1');
+      expect(raised).toHaveLength(1);
+      expect(raised[0]?.payload).toMatchObject({ report_id: reportId, revision: 1, decision: 'ACCEPTED', superseded_report_id: null, submitted_by: memberId(MAKER), cumulative_vnd: '420000000' });
+      expect(counted).toContainEqual({ name: 'dis_report_decision_total', labels: { decision: 'ACCEPTED' } });
+    });
+
+    it('AC-ST-DIS-006-3 / UAT-AC260: a return without its items is 422 on return_items, then with the items and the day it is RETURNED and the notification event names them', async () => {
+      const { reportId } = await submitted();
+      const without = await decide(reportId, 2, { decision: 'return', reason: 'The CTMTQG cell is wrong.', evidence_ids: [] });
+      expect(without).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'return_items' } });
+      expect(await state(reportId)).toMatchObject({ status: 'SUBMITTED', version: '2' });
+      const returned = await giveBack(reportId, 2);
+      expect(returned).toMatchObject({ status: 200, json: { status: 'RETURNED', resource_version: 3 } });
+      const raised = await events(reportId, 'report.returned.v1');
+      expect(raised).toHaveLength(1);
+      expect(raised[0]?.payload).toMatchObject({ decision: 'RETURNED', return_items: ['Fix the CTMTQG cell', 'Explain the fall'], due_at: DUE, submitted_by: memberId(MAKER) });
+      const found = await read(reportId);
+      expect(found.json).toMatchObject({ status: 'RETURNED', returned_reason: 'The CTMTQG cell is wrong.' });
+      expect(found.json.decisions).toEqual([expect.objectContaining({ decision: 'RETURNED', return_items: ['Fix the CTMTQG cell', 'Explain the fall'], due_at: DUE })]);
+      expect(JSON.stringify((await trail(reportId)).find((row) => row.action === 'dis.report_returned')?.safe_diff)).not.toContain('Fix the CTMTQG cell');
+    });
+
+    it('asks for an amendment of an accepted report, with a reason, leaving it the current one; a report that was not accepted cannot be asked to be amended', async () => {
+      const { reportId } = await submitted();
+      expect(await decide(reportId, 2, { decision: 'request_amendment', reason: 'The Treasury corrected a payment.', evidence_ids: [] })).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID' } });
+      await approve(reportId, 2);
+      const asked = await decide(reportId, 3, { decision: 'request_amendment', reason: 'The Treasury corrected a payment.', evidence_ids: [] });
+      expect(asked).toMatchObject({ status: 200, json: { status: 'AMENDMENT_REQUESTED', resource_version: 4 } });
+      expect(await state(reportId)).toMatchObject({ status: 'AMENDMENT_REQUESTED', is_current: true });
+      expect((await events(reportId, 'report.returned.v1'))[0]?.payload).toMatchObject({ decision: 'AMENDMENT_REQUESTED', return_items: [], due_at: null });
+    });
+
+    it('judges the request before the report: a decision that is not one, a missing reason, evidence that is not an id are 422 on their field, and a rejection is not a decision of the state machine', async () => {
+      const { reportId } = await submitted();
+      const base = { decision: 'approve', reason: 'The figures agree.', evidence_ids: [] };
+      for (const [body, detail] of [
+        [{ ...base, decision: 'reject' }, 'decision'],
+        [{ ...base, reason: '   ' }, 'reason'],
+        [{ ...base, evidence_ids: ['nope'] }, 'evidence_ids'],
+        [{ ...base, return_items: ['Fix the cell'] }, 'return_items'],
+        [{ ...base, decision: 'return', return_items: ['Fix the cell'], due_at: '2026-12-01T00:00:00.000Z' }, 'due_at'],
+      ] as const) {
+        expect(await decide(reportId, 2, body)).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail } });
+      }
+      expect(await state(reportId)).toMatchObject({ status: 'SUBMITTED', version: '2' });
+    });
+
+    it('answers the same key with the same answer and changes nothing, refuses the key with another request, and keeps one decision for two reviewers at once (409 VERSION_CONFLICT)', async () => {
+      const key = `key-${randomUUID()}`;
+      const other = await submitted();
+      const one = await decide(other.reportId, 2, { decision: 'approve', reason: 'The figures agree.', evidence_ids: [] }, REVIEWER, { key });
+      const again = await decide(other.reportId, 2, { decision: 'approve', reason: 'The figures agree.', evidence_ids: [] }, REVIEWER, { key });
+      expect(again).toMatchObject({ status: 200, json: { status: 'ACCEPTED', resource_version: 3 } });
+      expect(again.json).toEqual(one.json);
+      expect(await decide(other.reportId, 2, { decision: 'return', reason: 'Another request.', evidence_ids: [], return_items: ['Fix the cell'], due_at: DUE }, REVIEWER, { key })).toMatchObject({
+        status: 409,
+        json: { code: 'IDEMPOTENCY_CONFLICT' },
+      });
+      expect(await events(other.reportId, 'report.accepted.v1')).toHaveLength(1);
+      const race = await submitted();
+      const [a, b] = await Promise.all([approve(race.reportId, 2), approve(race.reportId, 2)]);
+      expect([a.status, b.status].sort()).toEqual([200, 409]);
+      expect([a, b].find((reply) => reply.status === 409)?.json).toMatchObject({ code: 'VERSION_CONFLICT', current_version: 3 });
+      expect(await events(race.reportId, 'report.accepted.v1')).toHaveLength(1);
+    });
+
+    it('does not decide on a report twice, nor on a draft (409 REPORT_STATE_INVALID naming the status)', async () => {
+      const { reportId } = await submitted();
+      await giveBack(reportId, 2);
+      expect(await approve(reportId, 3)).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_status: 'RETURNED' } });
+      const { projectId, planId } = await seedProject();
+      const made = await create(draft(projectId, week(), planId));
+      expect(await approve(idOf(made), 1)).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_status: 'DRAFT' } });
+    });
+
+    it('is for the reviewer who acts on the project: a reader and a maker without the right are 403, another branch and another tenant are 404 and learn nothing', async () => {
+      const { reportId } = await submitted();
+      expect((await approve(reportId, 2, READER)).status).toBe(403);
+      expect((await approve(reportId, 2, OTHER_MAKER)).status).toBe(403);
+      expect((await approve(reportId, 2, ELSEWHERE_REVIEWER)).status).toBe(404);
+      expect((await call('POST', `/reports/${reportId}/decision`, { member: B_MAKER, tenantId: TENANT_B, body: { decision: 'approve', reason: 'Other tenant.', evidence_ids: [] }, ifMatch: '"2"' })).status).toBe(404);
+      expect((await approve(randomUUID(), 2)).status).toBe(404);
+      expect(await state(reportId)).toMatchObject({ status: 'SUBMITTED', version: '2' });
+    });
+  });
+
+  describe('post_reports_id_corrections', () => {
+    it('AC-ST-DIS-006-2 / UAT-AC247: a submitted revision is not edited (409 REVISION_IMMUTABLE); after the return a correction without its reason is 422 CORRECTION_REASON_REQUIRED, then rev2 is a DRAFT that points at rev1, is handed in, and rev1 keeps its payload_hash', async () => {
+      const { reportId, projectId, planId, period } = await submitted();
+      const before = await state(reportId);
+      expect(await save(reportId, draft(projectId, period, planId), 2)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
+      await giveBack(reportId, 2);
+      const missing = await correct(reportId, 3, {});
+      expect(missing).toMatchObject({ status: 422, json: { code: 'CORRECTION_REASON_REQUIRED', detail: 'amendment_reason' } });
+      expect(await correct(reportId, 3, { amendment_reason: 'too short' })).toMatchObject({ status: 422, json: { code: 'CORRECTION_REASON_REQUIRED' } });
+      const made = await correct(reportId, 3, { amendment_reason: 'The Treasury corrected a payment of March.' });
+      expect(made).toMatchObject({ status: 200, json: { status: 'DRAFT', resource_version: 1 } });
+      const second = idOf(made);
+      expect(second).not.toBe(reportId);
+      expect(await state(second)).toMatchObject({ status: 'DRAFT', revision: 2, supersedes_id: reportId, amendment_reason: 'The Treasury corrected a payment of March.', is_current: false });
+      const found = await read(second);
+      expect(found.json).toMatchObject({ revision: 2, supersedes_id: reportId, amendment_reason: 'The Treasury corrected a payment of March.', totals: { cumulative_vnd: '420000000', ctmtqg_vnd: '40000000' } });
+      expect(found.json.progress).toMatchObject({ construction_vnd: '300000000' });
+      expect(await submit(second, 1)).toMatchObject({ status: 200, json: { status: 'SUBMITTED' } });
+      expect((await state(reportId))?.payload_hash).toBe(before?.payload_hash);
+      const raised = await events(second, 'report.correction_started.v1');
+      expect(raised).toHaveLength(1);
+      expect(raised[0]?.payload).toMatchObject({ report_id: second, supersedes_id: reportId, revision: 2 });
+      expect((await trail(second)).find((row) => row.action === 'dis.report_correction_started')?.safe_diff).toMatchObject({ revision: 2, supersedes_id: reportId, supersedes_status: 'RETURNED' });
+    });
+
+    it('carries the cells it names in place of the same cells and keeps the others (the registration for next month of a cell it names too, when it does not name it), takes new volumes and a new explanation, and does not touch the revision it corrects', async () => {
+      const registered = FX_DIS_001.map((line) => (line.bucket === 'CURRENT_YEAR' && line.budget_level === 'LOCAL' ? { ...line, next_month_vnd: '5000000' } : line));
+      const { reportId } = await submitted({ extra: { funding_lines: registered } });
+      await approve(reportId, 2);
+      await decide(reportId, 3, { decision: 'request_amendment', reason: 'The Treasury corrected a payment.', evidence_ids: [] });
+      const made = await correct(reportId, 4, {
+        amendment_reason: 'The Treasury corrected a payment of March.',
+        funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'LOCAL', cumulative_vnd: '250000000' }],
+        progress: { ...PROGRESS, construction_vnd: '310000000' },
+      });
+      expect(made.status).toBe(200);
+      const found = (await read(idOf(made))).json;
+      const lines = found.funding_lines as Array<Record<string, unknown>>;
+      expect(lines.map((line) => [line.bucket, line.budget_level, line.cumulative_vnd])).toEqual([
+        ['CURRENT_YEAR', 'CENTRAL', '100000000'],
+        ['CURRENT_YEAR', 'LOCAL', '250000000'],
+        ['CARRYOVER', 'CENTRAL', '30000000'],
+        ['CARRYOVER', 'LOCAL', '70000000'],
+        ['OTHER', 'CENTRAL', '0'],
+        ['OTHER', 'LOCAL', '20000000'],
+      ]);
+      expect(found.progress).toMatchObject({ construction_vnd: '310000000' });
+      expect(lines[1]).toMatchObject({ cumulative_vnd: '250000000', next_month_vnd: '5000000' });
+      const old = (await read(reportId)).json;
+      expect((old.funding_lines as Array<Record<string, unknown>>)[1]).toMatchObject({ cumulative_vnd: '200000000' });
+      expect(old).toMatchObject({ status: 'AMENDMENT_REQUESTED', is_current: true });
+    });
+
+    it('BR-DIS-02 / AC-ST-DIS-006-4: accepting the corrected revision makes the one before SUPERSEDED and itself the current one, and the page of the history reads both', async () => {
+      const { reportId } = await submitted();
+      await approve(reportId, 2);
+      await decide(reportId, 3, { decision: 'request_amendment', reason: 'The Treasury corrected a payment.', evidence_ids: [] });
+      const second = idOf(await correct(reportId, 4, { amendment_reason: 'The Treasury corrected a payment of March.' }));
+      await submit(second, 1);
+      expect(await approve(second, 2)).toMatchObject({ status: 200, json: { status: 'ACCEPTED', resource_version: 3 } });
+      expect(await state(reportId)).toMatchObject({ status: 'SUPERSEDED', is_current: false });
+      expect(await state(second)).toMatchObject({ status: 'ACCEPTED', is_current: true });
+      expect((await events(second, 'report.accepted.v1'))[0]?.payload).toMatchObject({ superseded_report_id: reportId });
+      const history = await call('GET', `/resources/report_revision?period_id=${(await rows<{ period_id: string }>('select period_id from machvon.report_revision where id = $1', [second]))[0]?.period_id}`, { member: READER });
+      expect(history.status).toBe(200);
+      expect((history.json.items as Array<Record<string, unknown>>).map((row) => [row.revision, row.status])).toEqual(expect.arrayContaining([[1, 'SUPERSEDED'], [2, 'ACCEPTED']]));
+    });
+
+    it('lets one correction at a time start from a period (409 REVISION_PENDING_EXISTS naming it), and one only from a report that was accepted, returned or asked to be amended (409 REPORT_STATE_INVALID)', async () => {
+      const { reportId } = await submitted();
+      expect(await correct(reportId, 2, { amendment_reason: 'The Treasury corrected a payment.' })).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_status: 'SUBMITTED' } });
+      await giveBack(reportId, 2);
+      const made = await correct(reportId, 3, { amendment_reason: 'The Treasury corrected a payment.' });
+      expect(made.status).toBe(200);
+      expect(await correct(reportId, 3, { amendment_reason: 'The Treasury corrected a payment again.' })).toMatchObject({
+        status: 409,
+        json: { code: 'REVISION_PENDING_EXISTS', report_id: idOf(made), revision: 2, report_status: 'DRAFT' },
+      });
+      const [a, b] = await (async () => {
+        const racing = await submitted();
+        await giveBack(racing.reportId, 2);
+        return Promise.all([correct(racing.reportId, 3, { amendment_reason: 'The Treasury corrected a payment.' }), correct(racing.reportId, 3, { amendment_reason: 'The Treasury corrected a payment.' })]);
+      })();
+      expect([a.status, b.status].sort()).toEqual([200, 409]);
+    });
+
+    it('takes nothing for a locked period unless an approved reopening names the project (409 PERIOD_LOCKED, the report as it was)', async () => {
+      const { reportId, period } = await submitted();
+      await giveBack(reportId, 2);
+      await lockPeriod(period);
+      expect(await correct(reportId, 3, { amendment_reason: 'The Treasury corrected a payment.' })).toMatchObject({ status: 409, json: { code: 'PERIOD_LOCKED' } });
+      expect(await state(reportId)).toMatchObject({ status: 'RETURNED', version: '3' });
+      expect(await rows('select id from machvon.report_revision where supersedes_id = $1', [reportId])).toEqual([]);
+    });
+
+    it('is for the maker who acts on the project: a reader and a reviewer without the maker right are 403, another tenant is 404, and the key answers once', async () => {
+      const { reportId } = await submitted();
+      await giveBack(reportId, 2);
+      const body = { amendment_reason: 'The Treasury corrected a payment of March.' };
+      expect((await correct(reportId, 3, body, READER)).status).toBe(403);
+      expect((await correct(reportId, 3, body, REVIEWER)).status).toBe(403);
+      expect((await correct(reportId, 3, body, MAKER, { tenantId: TENANT_B })).status).toBe(404);
+      const key = `key-${randomUUID()}`;
+      const first = await correct(reportId, 3, body, OTHER_MAKER, { key });
+      const again = await correct(reportId, 3, body, OTHER_MAKER, { key });
+      expect(first.status).toBe(200);
+      expect(again.json).toEqual(first.json);
+      expect(await rows('select id from machvon.report_revision where supersedes_id = $1', [reportId])).toHaveLength(1);
+    });
+  });
+});

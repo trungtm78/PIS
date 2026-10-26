@@ -246,13 +246,11 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       const plan1 = id(FAMILY, 300 + counter);
       const accept = async (periodId: string, cumulative: string, options: { status?: string; current?: boolean } = {}): Promise<void> => {
         const made = await create(projectId, periodId, plan1, { cells: fundingCells([{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: cumulative }]) });
-        await owner("update machvon.report_revision set status = $2, is_current = $3, accepted_by = $4, submitted_by = $5, submitted_at = now(), accepted_at = now() where id = $1", [
-          made.id,
-          options.status ?? 'ACCEPTED',
-          options.current ?? true,
-          memberId(OTHER),
-          memberId(MAKER),
-        ]);
+        // A report is handed in before it is accepted: the table lets it move along the graph only.
+        await owner("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [made.id, memberId(MAKER)]);
+        if ((options.status ?? 'ACCEPTED') === 'ACCEPTED') {
+          await owner("update machvon.report_revision set status = 'ACCEPTED', is_current = $2, accepted_by = $3, accepted_at = now() where id = $1", [made.id, options.current ?? true, memberId(OTHER)]);
+        }
       };
       const span = [nextWeek(), nextWeek(), nextWeek()].map((range, index) => ({ id: randomUUID(), code: `P-W${index + 1}-${counter}`, ...range }));
       await seedReplica(span.map((entry) => periodRow(entry.id, entry.code, entry.start, entry.end, 'WEEK', entry.year)));
@@ -463,7 +461,8 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       const periodId = randomUUID();
       await seedReplica([weekRow(before, `RD1-${counter}`), weekRow(periodId, `RD2-${counter}`)]);
       const earlier = await create(projectId, before, planId, { cells: fundingCells([{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '300' }, { bucket: 'CARRYOVER', budget_level: 'LOCAL', cumulative_vnd: '10' }]) });
-      await owner("update machvon.report_revision set status = 'ACCEPTED', is_current = true, submitted_by = $2, accepted_by = $3, submitted_at = now(), accepted_at = now() where id = $1", [earlier.id, memberId(MAKER), memberId(OTHER)]);
+      await owner("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [earlier.id, memberId(MAKER)]);
+      await owner("update machvon.report_revision set status = 'ACCEPTED', is_current = true, accepted_by = $2, accepted_at = now() where id = $1", [earlier.id, memberId(OTHER)]);
       const made = await create(projectId, periodId, planId, { cells: fundingCells([{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '250', ctmtqg_subset_vnd: '50' }, { bucket: 'CARRYOVER', budget_level: 'LOCAL', cumulative_vnd: '40' }]) });
       const detail = await as((tx) => store.find(tx, made.id, seeAll));
       expect(detail).toMatchObject({
@@ -740,6 +739,191 @@ describe('DisReportStore (the weekly report draft, ST-DIS-003)', () => {
       expect(await figure(null, '2025-12-31')).toEqual({ totalVnd: '7', transactions: 1 });
       expect(await figure('2026-10-03', '2026-10-04')).toBeUndefined();
       expect(await as((tx) => store.treasuryFigure(tx, projectId, { from: null, to: '2030-01-01' }), TENANT_B)).toBeUndefined();
+    });
+  });
+
+  describe('the decision of a reviewer and the chain of corrections (ST-DIS-006)', () => {
+    const REVIEWER = OTHER;
+    const AT = new Date('2026-10-27T03:00:00.000Z');
+    const DUE = new Date('2026-11-03T03:00:00.000Z');
+    const approval = { decision: 'approve', reason: 'The figures agree with the Treasury.', evidenceIds: [], returnItems: [], dueAt: null } as const;
+    const giveBack = { decision: 'return', reason: 'The CTMTQG cell is wrong.', evidenceIds: [], returnItems: ['Fix the CTMTQG cell', 'Explain the fall'], dueAt: DUE } as const;
+    const amendment = { decision: 'request_amendment', reason: 'The Treasury corrected a payment of March.', evidenceIds: [], returnItems: [], dueAt: null } as const;
+
+    const headOf = async (reportId: string, member = MAKER) => as(async (tx) => store.lock(tx, reportId, seeAll, actsAll, Number((await state(reportId)).version)), TENANT_A, member);
+    async function handIn(reportId: string): Promise<void> {
+      const head = await headOf(reportId);
+      await as((tx) => store.submit(tx, head, { actor: memberId(MAKER), at: new Date('2026-10-26T03:00:00.000Z'), late: false, payloadHash: head.payloadHash, workflowVersionId: undefined }));
+    }
+    /** A report of a fresh project in a period of its own, handed in by the maker (member 1). */
+    async function submitted(): Promise<{ id: string; projectId: string; periodId: string; planId: string }> {
+      const projectId = await freshProject();
+      const planId = id(FAMILY, 300 + counter);
+      const week = nextWeek();
+      const periodId = id(FAMILY, 2000 + weeks);
+      await seedReplica([periodRow(periodId, `DC-W${weeks}`, week.start, week.end, 'WEEK', week.year)]);
+      const made = await create(projectId, periodId, planId);
+      await handIn(made.id);
+      return { id: made.id, projectId, periodId, planId };
+    }
+    const decide = (reportId: string, input: Parameters<DisReportStore['decide']>[2], member = REVIEWER) =>
+      as(async (tx) => store.decide(tx, await store.lock(tx, reportId, seeAll, actsAll, Number((await state(reportId)).version)), input, memberId(member), AT), TENANT_A, member);
+    const decisions = (reportId: string) => as((tx) => store.decisionsOf(tx, reportId));
+
+    async function correct(sourceId: string): Promise<{ id: string; version: number; revision: number }> {
+      const detail = (await as((tx) => store.find(tx, sourceId, seeAll))) as NonNullable<Awaited<ReturnType<DisReportStore['find']>>>;
+      const latest = (await as((tx) => store.latestFor(tx, detail.projectId, detail.periodId))) as NonNullable<Awaited<ReturnType<DisReportStore['latestFor']>>>;
+      const input = {
+        ...(await draftOf(detail.projectId, detail.periodId, detail.planVersionId)),
+        revision: latest.revision + 1,
+        supersedesId: sourceId,
+        amendmentReason: 'The Treasury corrected a payment of March.',
+      };
+      return as((tx) => store.createCorrection(tx, input, memberId(MAKER)));
+    }
+
+    it('AC-ST-DIS-006-1 / UAT-AC05: accepts a report that was handed in: ACCEPTED, current, who and when, one decision kept, and the version moves once', async () => {
+      const report = await submitted();
+      const done = await decide(report.id, approval);
+      expect(done).toMatchObject({ version: 3, supersededId: null });
+      expect(await state(report.id)).toMatchObject({ status: 'ACCEPTED', is_current: true, version: '3' });
+      const [row] = await owner<{ accepted_by: string; submitted_by: string }>('select accepted_by, submitted_by from machvon.report_revision where id = $1', [report.id]);
+      expect(row).toMatchObject({ accepted_by: memberId(REVIEWER), submitted_by: memberId(MAKER) });
+      expect(await decisions(report.id)).toEqual([
+        expect.objectContaining({ decision: 'ACCEPTED', reason: 'The figures agree with the Treasury.', returnItems: [], dueAt: null, decidedBy: memberId(REVIEWER), decidedAt: AT.toISOString() }),
+      ]);
+    });
+
+    it('AC-ST-DIS-006-1: the person who handed the report in does not decide on it, whatever the decision (403 SELF_APPROVAL_DENIED), and the report stays as it was', async () => {
+      const report = await submitted();
+      for (const input of [approval, giveBack]) expect(await refusal(decide(report.id, input, MAKER))).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });
+      expect(await state(report.id)).toMatchObject({ status: 'SUBMITTED', is_current: false });
+      expect(await decisions(report.id)).toEqual([]);
+    });
+
+    it('AC-ST-DIS-006-3 / UAT-AC260: returns a report with what to fix and by when: RETURNED with the reason, the items and the day kept', async () => {
+      const report = await submitted();
+      expect(await decide(report.id, giveBack)).toMatchObject({ version: 3, supersededId: null });
+      expect(await state(report.id)).toMatchObject({ status: 'RETURNED', is_current: false });
+      expect((await owner<{ returned_reason: string }>('select returned_reason from machvon.report_revision where id = $1', [report.id]))[0]?.returned_reason).toBe('The CTMTQG cell is wrong.');
+      expect(await decisions(report.id)).toEqual([expect.objectContaining({ decision: 'RETURNED', returnItems: ['Fix the CTMTQG cell', 'Explain the fall'], dueAt: DUE.toISOString() })]);
+    });
+
+    it('asks for an amendment of an accepted report: AMENDMENT_REQUESTED, still the current one until a corrected revision is accepted', async () => {
+      const report = await submitted();
+      await decide(report.id, approval);
+      await decide(report.id, amendment);
+      expect(await state(report.id)).toMatchObject({ status: 'AMENDMENT_REQUESTED', is_current: true });
+      expect((await decisions(report.id)).map((row) => row.decision)).toEqual(['ACCEPTED', 'AMENDMENT_REQUESTED']);
+    });
+
+    it('decides only along the graph: a draft, a returned report and an accepted one are not decided again (409 REPORT_STATE_INVALID, nothing written)', async () => {
+      const report = await submitted();
+      const draft = await create(await freshProject(), period.w41, id(FAMILY, 300 + counter));
+      expect(await refusal(decide(draft.id, approval))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409 });
+      await decide(report.id, giveBack);
+      for (const input of [approval, giveBack, amendment]) expect(await refusal(decide(report.id, input))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409 });
+      expect(await decisions(report.id)).toHaveLength(1);
+      const accepted = await submitted();
+      await decide(accepted.id, approval);
+      expect(await refusal(decide(accepted.id, approval))).toMatchObject({ code: 'REPORT_STATE_INVALID', status: 409 });
+    });
+
+    it('takes the version the reviewer saw (409 VERSION_CONFLICT) and answers 404 outside the scope, 403 for a reader', async () => {
+      const report = await submitted();
+      expect(await refusal(as((tx) => store.lock(tx, report.id, seeAll, actsAll, 99), TENANT_A, REVIEWER))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
+      expect(await refusal(as((tx) => store.lock(tx, report.id, elsewhereOnly, actsAll, 2), TENANT_A, REVIEWER))).toEqual({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      expect(await refusal(as((tx) => store.lock(tx, report.id, seeAll, readOnly, 2), TENANT_A, REVIEWER))).toEqual({ code: 'SCOPE_DENIED', status: 403 });
+    });
+
+    it('BR-DIS-02: the accepted revision is the one current: accepting the next one makes the one before it SUPERSEDED and moves the current mark, in one step', async () => {
+      const first = await submitted();
+      await decide(first.id, approval);
+      await decide(first.id, amendment);
+      const second = await correct(first.id);
+      await handIn(second.id);
+      expect(await decide(second.id, approval)).toMatchObject({ supersededId: first.id });
+      expect(await state(first.id)).toMatchObject({ status: 'SUPERSEDED', is_current: false });
+      expect(await state(second.id)).toMatchObject({ status: 'ACCEPTED', is_current: true });
+      expect((await owner<{ n: string }>('select count(*)::text as n from machvon.report_revision where project_id = $1 and period_id = $2 and is_current', [first.projectId, first.periodId]))[0]?.n).toBe('1');
+      // A revision that is plain ACCEPTED is superseded by the next one too.
+      const third = await correct(second.id);
+      await handIn(third.id);
+      expect(await decide(third.id, approval)).toMatchObject({ supersededId: second.id });
+      expect(await state(second.id)).toMatchObject({ status: 'SUPERSEDED' });
+    });
+
+    it('AC-ST-DIS-006-2 / UAT-AC247: a correction is a new revision in DRAFT that points at the one it corrects with the reason; the revision it corrects keeps its hash', async () => {
+      const first = await submitted();
+      const before = await state(first.id);
+      await decide(first.id, giveBack);
+      const second = await correct(first.id);
+      expect(second).toMatchObject({ version: 1, revision: 2 });
+      expect(await state(second.id)).toMatchObject({ status: 'DRAFT', is_current: false, version: '1' });
+      const [row] = await owner<{ supersedes_id: string; amendment_reason: string; revision: number }>('select supersedes_id, amendment_reason, revision from machvon.report_revision where id = $1', [second.id]);
+      expect(row).toEqual({ supersedes_id: first.id, amendment_reason: 'The Treasury corrected a payment of March.', revision: 2 });
+      expect((await state(first.id)).hash).toBe(before.hash);
+      expect(await cells(second.id)).toHaveLength(6);
+      // The correction is a draft like any other: it is edited and handed in under the rules of a draft.
+      expect(await headOf(second.id)).toMatchObject({ revision: 2, supersedesId: first.id, status: 'DRAFT', amendmentReason: 'The Treasury corrected a payment of March.' });
+    });
+
+    it('lets one correction at a time start from a period: another that is waiting is found, whatever it is waiting for', async () => {
+      const first = await submitted();
+      await decide(first.id, giveBack);
+      const second = await correct(first.id);
+      expect(await as((tx) => store.pendingFor(tx, first.projectId, first.periodId, first.id))).toMatchObject({ id: second.id, status: 'DRAFT', revision: 2 });
+      expect(await as((tx) => store.pendingFor(tx, first.projectId, first.periodId, second.id))).toBeUndefined();
+      await handIn(second.id);
+      expect(await as((tx) => store.pendingFor(tx, first.projectId, first.periodId, first.id))).toMatchObject({ id: second.id, status: 'SUBMITTED' });
+    });
+
+    it('refuses in the table a report that moves off the graph, a decision that is edited or deleted, one by the person who handed the report in, and a return without its items', async () => {
+      const report = await submitted();
+      await decide(report.id, giveBack);
+      const [decided] = await decisions(report.id);
+      const guard = (sql: string, params: unknown[] = []) => refusal(owner(sql, params));
+      expect(await guard("update machvon.report_revision set status = 'ACCEPTED', is_current = true, accepted_by = $2, accepted_at = now() where id = $1", [report.id, memberId(REVIEWER)])).toMatchObject({ code: '23514' });
+      expect(await guard('update machvon.report_decision set reason = $2 where id = $1', [decided?.id, 'Edited later'])).toMatchObject({ code: '23514' });
+      expect(await guard('delete from machvon.report_decision where id = $1', [decided?.id])).toMatchObject({ code: '23514' });
+      const open = await submitted();
+      const insert = (decision: string, by: string, items: string[], due: string | null) =>
+        guard(
+          `insert into machvon.report_decision (tenant_id, id, report_revision_id, decision, reason, return_items, due_at, decided_by, decided_at)
+           values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2, 'Reason', $3::text[], $4::timestamptz, $5, now())`,
+          [open.id, decision, items, due, by],
+        );
+      expect(await insert('RETURNED', memberId(MAKER), ['Fix the cell'], DUE.toISOString())).toMatchObject({ code: '23514' });
+      expect(await insert('RETURNED', memberId(REVIEWER), [], DUE.toISOString())).toMatchObject({ code: '23514' });
+      expect(await insert('RETURNED', memberId(REVIEWER), ['Fix the cell'], null)).toMatchObject({ code: '23514' });
+      expect(await insert('ACCEPTED', memberId(REVIEWER), ['Fix the cell'], null)).toMatchObject({ code: '23514' });
+      const accepted = await submitted();
+      await decide(accepted.id, approval);
+      expect(await guard('update machvon.report_revision set accepted_by = $2 where id = $1', [accepted.id, memberId(MAKER)])).toMatchObject({ code: '23514' });
+      expect(await guard("update machvon.report_revision set status = 'SUBMITTED', is_current = false where id = $1", [accepted.id])).toMatchObject({ code: '23514' });
+    });
+
+    it('keeps the figure of the period while an amendment is asked for: the next period still takes its change from the accepted report, until the corrected one is accepted', async () => {
+      const report = await submitted();
+      await decide(report.id, approval);
+      const detail = (await as((tx) => store.find(tx, report.id, seeAll))) as NonNullable<Awaited<ReturnType<DisReportStore['find']>>>;
+      const next = { ...detail.period, startDate: '2041-12-30', endDate: '2042-01-05' };
+      const baseline = () => as((tx) => store.previousCumulative(tx, report.projectId, next));
+      expect((await baseline()).get('CURRENT_YEAR/CENTRAL')).toBe('100000000');
+      await decide(report.id, amendment);
+      expect(await state(report.id)).toMatchObject({ status: 'AMENDMENT_REQUESTED', is_current: true });
+      expect((await baseline()).get('CURRENT_YEAR/CENTRAL')).toBe('100000000');
+      const second = await correct(report.id);
+      await handIn(second.id);
+      await decide(second.id, approval);
+      expect(await state(report.id)).toMatchObject({ status: 'SUPERSEDED', is_current: false });
+      expect((await baseline()).get('CURRENT_YEAR/CENTRAL')).toBe('100000000');
+    });
+
+    it('keeps what a decision names in the tenant: another tenant reads none of it', async () => {
+      const report = await submitted();
+      await decide(report.id, giveBack);
+      expect(await as((tx) => store.decisionsOf(tx, report.id), TENANT_B)).toEqual([]);
     });
   });
 });

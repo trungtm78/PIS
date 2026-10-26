@@ -23,10 +23,10 @@ export interface StepTexts {
 }
 
 /**
- * The frame the steps of the draft share (DIS-03, DIS-05, DIS-06): the link back to the list, the title, the steps of the draft, and the report named by `?report=` loaded under the state
+ * The frame the steps of the draft share (DIS-03, DIS-05, DIS-06), and the screens of a report that was handed in (DIS-07, DIS-08, DIS-11), which have no steps: the link back to the list, the title, the steps of the draft, and the report named by `?report=` loaded under the state
  * boundary. A report that is not found is told as empty (whoever asked cannot tell one of another scope from one that is not there); with none chosen there is nothing to load.
  */
-export function StepFrame({ route, texts, current, children }: ScreenProps & { texts: StepTexts; current: StepKey; children: (detail: ReportDetail) => ReactNode }) {
+export function StepFrame({ route, texts, current, children }: ScreenProps & { texts: StepTexts; current?: StepKey; children: (detail: ReportDetail) => ReactNode }) {
   const [params] = useSearchParams();
   const reportId = params.get('report') ?? undefined;
   const report = useReport(reportId);
@@ -44,7 +44,7 @@ export function StepFrame({ route, texts, current, children }: ScreenProps & { t
           <p>{texts.subtitle}</p>
         </div>
       </div>
-      {detail === undefined ? null : <StepNav reportId={detail.id} current={current} />}
+      {detail === undefined || current === undefined ? null : <StepNav reportId={detail.id} current={current} />}
       <StateBoundary state={state} onRetry={() => void report.refetch()}>
         {detail === undefined ? (
           <p className="muted" data-testid="report-choose">

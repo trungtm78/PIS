@@ -25,6 +25,8 @@ export const TENANT: SessionTenant = {
 
 export const MAKER = ['report.create', 'report.edit', 'report.read', 'report_revision.read'];
 export const READER = ['report.read', 'report_revision.read'];
+export const REVIEWER = ['report.review', 'report.read', 'report_revision.read'];
+export const CORRECTOR = [...MAKER, 'report.correct'];
 export const routeOf = baseRoute;
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -60,7 +62,13 @@ export const reportRecord = (overrides: Record<string, unknown> = {}): Record<st
   payload_hash: 'a'.repeat(64),
   negative_delta_explanation: null,
   submitted_at: null,
+  submitted_by: null,
   accepted_at: null,
+  accepted_by: null,
+  returned_reason: null,
+  supersedes_id: null,
+  amendment_reason: null,
+  decisions: [],
   created_at: '2027-01-04T03:00:00.000Z',
   created_by: TENANT.membershipId,
   updated_at: '2027-01-04T03:00:00.000Z',
@@ -189,9 +197,13 @@ export function client(state: World, command: (operation: string, input: unknown
     }
     return new Error(`unexpected read ${operation}`);
   }, command);
-  (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string) => {
+  (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string, input?: { query?: Record<string, unknown> }) => {
     const failure = state.failing.get(operation);
     if (failure !== undefined) return Promise.reject(failure);
+    if (operation === 'get_resources_report_revision') {
+      const page = typeof state.page === 'function' ? state.page(input?.query ?? {}) : state.page;
+      return Promise.resolve(Array.isArray(page.items) ? page.items : []);
+    }
     if (operation === 'get_resources_reporting_period') return Promise.resolve(state.periods);
     if (operation === 'get_resources_project') return Promise.resolve(state.projects);
     if (operation === 'get_resources_plan_version') return Promise.resolve(state.plans);
@@ -239,6 +251,9 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-04" element={screen} />
                 <Route path="/dis/dis-05" element={screen} />
                 <Route path="/dis/dis-06" element={screen} />
+                <Route path="/dis/dis-07" element={screen} />
+                <Route path="/dis/dis-08" element={screen} />
+                <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
                 <Route path="*" element={<p data-testid="elsewhere" />} />
               </Routes>

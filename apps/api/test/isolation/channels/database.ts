@@ -227,6 +227,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'post_reports',
   'post_reports_id_revisions',
   'post_reports_id_submit',
+  'post_reports_id_decision',
+  'post_reports_id_corrections',
   'uploadReportFile',
   'getReportRevision',
   'get_resources_report_revision',
