@@ -665,3 +665,5 @@ export { drillChildTile, drillDimensions, drillLevelOf, reconcileChildren } from
 export type { DrillDimension, DrillLevel, Reconciliation } from './home-drill.ts';
 export { warningHistory } from './home-warning.ts';
 export type { WarningHistoryEntry, WarningHistoryEvent, WarningHistoryInput } from './home-warning.ts';
+export { NEAR_DAYS, WORK_KINDS, compareWork, orderWork, workBucket } from './home-work.ts';
+export type { WorkBucket, WorkItem, WorkKind } from './home-work.ts';

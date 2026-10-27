@@ -203,6 +203,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'ISS-02': () => import('../../screens/iss/IssueCreateScreen'),
   'ISS-03': () => import('../../screens/iss/IssueWorkspaceScreen'),
   'HOME-01': () => import('../../screens/home/OverviewScreen'),
+  'HOME-02': () => import('../../screens/home/MyWorkScreen'),
   'HOME-03': () => import('../../screens/home/WarningsScreen'),
   'HOME-04': () => import('../../screens/home/RankingScreen'),
   'HOME-06': () => import('../../screens/home/WarningProfileScreen'),

@@ -253,6 +253,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'explainHomeMetric',
   'getHomeWarnings',
   'getDisbursementRankings',
+  'getMyWork',
   'getDisbursementForecast',
   'listExplanationRequests',
   'listProjectTransfers',

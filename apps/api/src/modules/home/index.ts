@@ -4,6 +4,7 @@ import { ORCHESTRATION_OPTIONS } from '../orchestration';
 import type { OrchestrationOptions } from '../orchestration';
 import { CommandCenterController } from './command-center.controller';
 import { HomeDrillController } from './drill.controller';
+import { MyWorkController } from './my-work.controller';
 import { HomeRankingsController } from './rankings.controller';
 import { HomeWarningsController } from './warnings.controller';
 import { HOME_CONTEXT_KEY } from './tokens';
@@ -14,7 +15,7 @@ import { HOME_CONTEXT_KEY } from './tokens';
  */
 export const homeModule = defineModule({
   code: 'HOME',
-  controllers: [CommandCenterController, HomeDrillController, HomeWarningsController, HomeRankingsController],
+  controllers: [CommandCenterController, HomeDrillController, HomeWarningsController, HomeRankingsController, MyWorkController],
   providers: [
     {
       provide: HOME_CONTEXT_KEY,
