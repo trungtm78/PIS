@@ -297,7 +297,7 @@ export interface CategoryNode {
   totals: Totals;
 }
 
-function categoryOf(fundSource: FundSource): Category {
+export function categoryOf(fundSource: FundSource): Category {
   return (CATEGORIES as readonly (string | null)[]).includes(fundSource.category) ? (fundSource.category as Category) : 'OTHER';
 }
 
