@@ -1,5 +1,6 @@
 import type { Translator } from '../../i18n';
 import type { FieldProblem, GenerationProblem, Phase, ProblemView } from './model';
+import type { Progress } from './progress-model';
 import type { DocStage, ReportProblem } from './report-model';
 import type { AdapterStatus, ExportTarget, FieldSource, Frequency, PackageFormat, FormStatus, ReportKind, PackageStatus, ReportStatus, ReportingRole } from './types';
 
@@ -291,5 +292,19 @@ export function formatLabel(t: T, format: PackageFormat): string {
       return t('mne.export.format.pdf');
     case 'CSV':
       return t('mne.export.format.csv');
+  }
+}
+
+/** What the progress says of an obligation, in words and with the number of days (BR-MNE-04). */
+export function progressLabel(t: T, progress: Progress): string {
+  switch (progress.kind) {
+    case 'ON_TIME':
+      return t('mne.progress.status.onTime');
+    case 'LATE':
+      return progress.days === null ? t('mne.progress.status.lateUnknown') : t('mne.progress.status.late', { days: progress.days });
+    case 'OPEN_LATE':
+      return t('mne.progress.status.openLate', { days: progress.days ?? 0 });
+    case 'OPEN':
+      return t('mne.progress.status.open');
   }
 }

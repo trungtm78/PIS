@@ -96,6 +96,8 @@ describe('the correction of an issued report (ST-MNE-007, MNE F3)', () => {
     // The correction is a draft of the same obligation: the calendar still has one entry, and it is the report that was issued.
     const listed = (await flow.call('GET', '/mne-obligations?report_year=2026&limit=200', READER)).json.items as Array<{ mne_report_id: string; status: string; period_label: string }>;
     expect(listed.filter((item) => item.period_label === 'H1-2026')).toEqual([expect.objectContaining({ mne_report_id: id, status: 'ISSUED' })]);
+    // Not filed: the calendar says so with no day, and counts the days late to today (the deadline of the rule is long past).
+    expect(listed.find((item) => item.period_label === 'H1-2026')).toMatchObject({ filed_on: null, is_late: true, days_late: expect.any(Number) });
   });
 
   it('keeps an obligation that was never filed open after its report is superseded, and settles it once with the first filing', async () => {

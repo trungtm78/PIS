@@ -372,6 +372,48 @@ describe('MneObligationStore (the filing calendar, ST-MNE-001, MNE F2, BR-MNE-02
       expect((await listAll({ scopeUnitId: unitId(4) }, EVERYTHING, '2026-07-10'))[0]).toMatchObject({ isLate: false, daysLate: 0 });
     });
 
+    it('follows the revision of the rule in force at the end of the period: r2 from 2026-06-01 gives H1-2026 the 15th of July, and shows the revision (ST-MNE-006)', async () => {
+      const form = await publishedForm('TT44-M02');
+      await publishedRule(form.id, 'OVERALL_SEMIANNUAL', { effectiveFrom: '2026-01-01' });
+      await publishedRule(form.id, 'OVERALL_SEMIANNUAL', { effectiveFrom: '2026-06-01', dueRuleJson: { period: 'H1', month: 7, day: 15 } });
+      await generate(2026);
+      const rows = (await listAll({ reportYear: 2026 })).filter((row) => row.periodLabel === 'H1-2026');
+      expect(rows.map((row) => [row.ruleRevision, row.dueDate])).toEqual(rows.map(() => [2, '2026-07-15']));
+      // Filed on the 12th it is on time by r2; by r1 (the 10th) it would have been two days late.
+      const filedOn = '2026-07-12';
+      expect(filedOn > '2026-07-10').toBe(true);
+      expect(filedOn <= (rows[0]?.dueDate as string)).toBe(true);
+    });
+
+    it('counts the days late of a filed report from the day it was filed, and not from today (ST-MNE-006)', async () => {
+      await publishDesignRules();
+      await generate(2026);
+      const file = async (unit: number, day: string, late: boolean): Promise<void> => {
+        const where = "where scope_unit_id = $1 and period_label = 'H1-2026'";
+        const steps: Array<[string, unknown[]]> = [
+          [`update machvon.mne_report set status = 'IN_REVIEW', submitted_by = $2, submitted_at = now() ${where}`, [unitId(unit), memberId(MAKER)]],
+          [`update machvon.mne_report set status = 'APPROVED', approved_by = $2, decided_by = $2, decided_at = now() ${where}`, [unitId(unit), memberId(CHECKER)]],
+          [`update machvon.mne_report set status = 'ISSUING', payload_sha256 = repeat('a', 64), payload_ref = 'tenants/x/mne/r.json', issue_event_id = gen_random_uuid(), issue_requested_at = now() ${where}`, [unitId(unit)]],
+          [`update machvon.mne_report set status = 'ISSUED', doc_document_id = $2, issued_at = now() ${where}`, [unitId(unit), randomUUID()]],
+          [`update machvon.mne_report set status = 'EXPORTED' ${where}`, [unitId(unit)]],
+          [`update machvon.mne_report set status = 'SUBMITTED_EXTERNAL', is_late = $2, filed_on = $3::date ${where}`, [unitId(unit), late, day]],
+        ];
+        for (const [sql, params] of steps) await owner(sql, params);
+      };
+      // The deadline is 2026-07-10: one unit filed the day before, one two days after, one not at all, and today is 2026-07-15.
+      await file(2, '2026-07-09', false);
+      await file(3, '2026-07-12', true);
+      const rows = await listAll({}, EVERYTHING, '2026-07-15');
+      const h1 = (unit: number): MneObligationRow | undefined => rows.find((row) => row.scopeUnitId === unitId(unit) && row.periodLabel === 'H1-2026');
+      expect(h1(2)).toMatchObject({ status: 'SUBMITTED_EXTERNAL', isLate: false, daysLate: 0, filedOn: '2026-07-09' });
+      expect(h1(3)).toMatchObject({ status: 'SUBMITTED_EXTERNAL', isLate: true, daysLate: 2, filedOn: '2026-07-12' });
+      expect(h1(4)).toMatchObject({ status: 'DRAFT', isLate: true, daysLate: 5, filedOn: null });
+      // The same read a month later changes nothing for the filed ones, and goes on counting for the one that was not.
+      const later = await listAll({}, EVERYTHING, '2026-08-15');
+      expect(later.find((row) => row.scopeUnitId === unitId(3) && row.periodLabel === 'H1-2026')).toMatchObject({ isLate: true, daysLate: 2 });
+      expect(later.find((row) => row.scopeUnitId === unitId(4) && row.periodLabel === 'H1-2026')).toMatchObject({ isLate: true, daysLate: 36 });
+    });
+
     it('does not count today for a report that was filed: the filing decides', async () => {
       await publishDesignRules();
       await generate(2026);

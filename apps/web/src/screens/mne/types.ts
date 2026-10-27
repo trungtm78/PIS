@@ -91,6 +91,8 @@ export interface ObligationView {
   isLate: boolean;
   /** Days past the due date; null for a filed report whose filing day is not known. */
   daysLate: number | null;
+  /** The day (Vietnam time) the obligation was filed; null while it has not been. */
+  filedOn: string | null;
   legalBasis: string;
   awaitingConfirmation: boolean;
   cxnRefs: string[];
@@ -211,6 +213,7 @@ export function toObligation(raw: unknown): ObligationView | undefined {
     status,
     isLate: raw.is_late === true,
     daysLate: typeof raw.days_late === 'number' && Number.isFinite(raw.days_late) ? raw.days_late : null,
+    filedOn: nullableText(raw.filed_on),
     legalBasis: text(raw.legal_basis),
     awaitingConfirmation: raw.awaiting_confirmation !== false,
     cxnRefs: texts(raw.cxn_refs),
