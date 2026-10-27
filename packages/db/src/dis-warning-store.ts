@@ -502,17 +502,18 @@ export class DisWarningStore {
   async list(
     tx: TenantTx,
     scope: ScopeBuilder,
-    filter: { status?: string | undefined; severity?: string | undefined; ruleCode?: string | undefined; projectId?: string | undefined; unitId?: string | undefined },
+    filter: { status?: string | undefined; statuses?: readonly string[] | undefined; severity?: string | undefined; ruleCode?: string | undefined; projectId?: string | undefined; unitId?: string | undefined; snapshotId?: string | undefined; id?: string | undefined },
     page: { limit: number; after: { openedAt: string; id: string } | undefined },
   ): Promise<WarningRow[]> {
-    const visible = scope(9);
+    const visible = scope(12);
     const rows = await tx.query<WarningSql>(
       `select ${WARNING_COLUMNS} from ${WARNING_FROM}
         where ($1::text is null or w.status = $1) and ($2::text is null or w.severity = $2) and ($3::text is null or r.rule_code = $3) and ($4::uuid is null or w.project_id = $4::uuid)
           and ($5::uuid is null or w.unit_id = $5::uuid) and ($6::timestamptz is null or (date_trunc('milliseconds', w.opened_at), w.id) < ($6::timestamptz, $7::uuid))
+          and ($9::text[] is null or w.status = any($9::text[])) and ($10::uuid is null or w.snapshot_id = $10::uuid) and ($11::uuid is null or w.id = $11::uuid)
           and exists (select 1 from ${SCOPE_FROM} where p.id = w.project_id and ${visible.sql})
         order by date_trunc('milliseconds', w.opened_at) desc, w.id desc limit $8`,
-      [filter.status ?? null, filter.severity ?? null, filter.ruleCode ?? null, filter.projectId ?? null, filter.unitId ?? null, page.after?.openedAt ?? null, page.after?.id ?? null, page.limit, ...visible.params],
+      [filter.status ?? null, filter.severity ?? null, filter.ruleCode ?? null, filter.projectId ?? null, filter.unitId ?? null, page.after?.openedAt ?? null, page.after?.id ?? null, page.limit, filter.statuses === undefined ? null : [...filter.statuses], filter.snapshotId ?? null, filter.id ?? null, ...visible.params],
     );
     return rows.map(toWarning);
   }

@@ -251,6 +251,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getDisbursementRates',
   'getCommandCenter',
   'explainHomeMetric',
+  'getHomeWarnings',
+  'getDisbursementRankings',
   'getDisbursementForecast',
   'listExplanationRequests',
   'listProjectTransfers',

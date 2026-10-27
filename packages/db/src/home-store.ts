@@ -7,9 +7,9 @@ export const HOME_OPEN_WARNING_STATUSES = ['OPEN', 'ACKNOWLEDGED', 'EXPLANATION_
 
 export interface HomeCounts {
   openWarnings: number;
-  /** Explanations that were asked for and not given by their day: marked overdue, or still requested or sent back with the day past. */
+  /** Explanations whose day is past and that are not concluded (BR-HOME-05): marked overdue, or still requested, sent back or answered and waiting for the review. */
   overdueExplanations: number;
-  /** Proposals to move capital from slow projects to fast ones that wait for a decision (CAP-19). */
+  /** Proposals to move capital from slow projects to fast ones that are not applied yet: submitted, or approved and waiting for the application (CAP-19, BR-HOME-05). */
   pendingReallocations: number;
 }
 
@@ -69,7 +69,7 @@ export class HomeStore {
   }
 
   private async overdueExplanations(tx: TenantTx, input: HomeCountInput): Promise<number> {
-    const overdue = `(e.status = 'OVERDUE' or (e.status in ('REQUESTED', 'RETURNED') and e.due_at < $1::timestamptz))`;
+    const overdue = `(e.status = 'OVERDUE' or (e.status in ('REQUESTED', 'RETURNED', 'RESPONDED') and e.due_at < $1::timestamptz))`;
     const projects = input.projectScope(3);
     const projectRows = await tx.query<{ n: string }>(
       `select count(*)::text as n from machvon.explanation_request e join ${SCOPE_FROM} on p.tenant_id = e.tenant_id and p.id = e.project_id
@@ -89,7 +89,7 @@ export class HomeStore {
     const units = input.unitScope(2);
     const rows = await tx.query<{ n: string }>(
       `select count(*)::text as n from machvon.reallocation_proposal r join machvon.organization_unit u on u.tenant_id = r.tenant_id and u.id = r.scope_unit_id
-        where r.status = 'SUBMITTED' and ($1::uuid is null or exists (select 1 from machvon.organization_unit su where su.id = $1::uuid and starts_with(u.path, su.path))) and ${units.sql}`,
+        where r.status in ('SUBMITTED', 'APPROVED') and ($1::uuid is null or exists (select 1 from machvon.organization_unit su where su.id = $1::uuid and starts_with(u.path, su.path))) and ${units.sql}`,
       [input.unitId ?? null, ...units.params],
     );
     return countOf(rows);

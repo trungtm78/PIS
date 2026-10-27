@@ -663,3 +663,5 @@ export { HOME_CONTEXT_TTL_SECONDS, HOME_STALE_DAYS, homeScopeFingerprint, homeSc
 export type { HomeContext, HomeSnapshotState, HomeTile, HomeTileUnit, SignedHomeContext } from './home.ts';
 export { drillChildTile, drillDimensions, drillLevelOf, reconcileChildren } from './home-drill.ts';
 export type { DrillDimension, DrillLevel, Reconciliation } from './home-drill.ts';
+export { warningHistory } from './home-warning.ts';
+export type { WarningHistoryEntry, WarningHistoryEvent, WarningHistoryInput } from './home-warning.ts';

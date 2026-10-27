@@ -339,6 +339,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'getDisbursementRates',
         'getCommandCenter',
         'explainHomeMetric',
+        'getHomeWarnings',
+        'getDisbursementRankings',
         'getDisbursementForecast',
         'listExplanationRequests',
         'listProjectTransfers',

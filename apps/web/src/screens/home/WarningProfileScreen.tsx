@@ -1,0 +1,316 @@
+import { ApiError } from '@machvon/api-client';
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from '../../i18n';
+import type { Translator } from '../../i18n';
+import type { ScreenProps } from '../../routes/types';
+import { useSession } from '../../session/SessionContext';
+import { StateBoundary } from '../../states/StateBoundary';
+import { useScreenState } from '../../states/useScreenState';
+import { formatVnd } from '../dis/report/money';
+import { Field } from '../mne/components';
+import { vietnamToday } from '../mne/model';
+import '../dis/dis.css';
+import { FORMULA_REFERENCE, shortId } from './model';
+import { ObservedText, SeverityBadge, explanationStatusLabel, warningStatusLabel } from './WarningsScreen';
+import { useAcknowledgeWarning, useAskExplanation, useDismissWarning, useHomeWarning } from './warning-hooks';
+import { HANDLE_WARNING_PERMISSION, REQUEST_EXPLANATION_PERMISSION, WARNINGS_PATH, describeWarning, trimmed } from './warning-model';
+import type { HistoryEvent, WarningItem } from './warning-model';
+
+type T = Translator['t'];
+const REASON_MIN = 5;
+const QUESTION_MIN = 10;
+
+function historyLabel(t: T, event: HistoryEvent): string {
+  switch (event) {
+    case 'OPENED':
+      return t('home.profile.history.opened');
+    case 'ACKNOWLEDGED':
+      return t('home.profile.history.acknowledged');
+    case 'EXPLANATION_REQUESTED':
+      return t('home.profile.history.explanationRequested');
+    case 'EXPLANATION_RESPONDED':
+      return t('home.profile.history.explanationResponded');
+    case 'RESOLVED':
+      return t('home.profile.history.resolved');
+    case 'DISMISSED':
+      return t('home.profile.history.dismissed');
+  }
+}
+
+type Action = 'explain' | 'acknowledge' | 'dismiss';
+
+/** What a command of another module answered, in words: a warning that moved (409), a right that is not held (403), a request that is not good (422). */
+function problemKey(error: unknown): 'conflict' | 'state' | 'denied' | 'validation' | 'general' {
+  if (!(error instanceof ApiError)) return 'general';
+  if (error.code === 'VERSION_CONFLICT') return 'conflict';
+  if (error.code === 'WARNING_STATE_INVALID' || error.code === 'EXPLANATION_ALREADY_OPEN') return 'state';
+  if (error.status === 403) return 'denied';
+  if (error.status === 422) return 'validation';
+  return 'general';
+}
+
+/** The day, with the end of it, that a request is due on: the date input gives a day, the server wants a moment. */
+const dueMoment = (day: string): string => `${day}T16:59:59.000Z`;
+
+/**
+ * HOME-06: the profile of an early warning (ST-HOME-003, HOME 3 F4): the cause (the rule, its threshold and what was observed), the evidence (the cells of the project in the snapshot the warning was opened on), the
+ * leader in charge now, the explanation that was asked for, and the history. The three actions are the commands of PRJ (ask for an explanation of the leader) and DIS (acknowledge, dismiss), sent under the right the reader
+ * holds for each: a button for an action the reader may not take is not there.
+ */
+export default function WarningProfileScreen({ route }: ScreenProps) {
+  const tenant = useSession().tenant;
+  const [params] = useSearchParams();
+  // What is open belongs to one member of one tenant and to the warning the address names: a switch of either starts the screen over.
+  return <ProfileContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${params.get('warning') ?? ''}`} route={route} id={params.get('warning') ?? ''} />;
+}
+
+function ProfileContent({ route, id }: ScreenProps & { id: string }) {
+  const { t } = useTranslation();
+  const query = useHomeWarning(id);
+  const problem = query.error === null ? undefined : describeWarning(query.error);
+  const state = useScreenState({ isLoading: query.isLoading, error: problem === 'notFound' ? undefined : query.error, data: problem === 'notFound' ? undefined : query.data });
+  return (
+    <section data-screen-id={route.id} aria-labelledby="screen-title">
+      <div className="heading">
+        <div>
+          <h1 id="screen-title">{t('home.profile.page.title')}</h1>
+          <p>{t('home.profile.page.subtitle')}</p>
+        </div>
+        <Link className="btn" to={WARNINGS_PATH}>
+          {t('home.profile.back')}
+        </Link>
+      </div>
+      {id === '' ? (
+        <div className="card statecard" role="alert" data-testid="profile-no-id">
+          <p>{t('home.profile.noId')}</p>
+        </div>
+      ) : null}
+      {problem === 'notFound' ? (
+        <div className="card statecard" role="alert" data-testid="profile-not-found">
+          <p>{t('home.profile.notFound')}</p>
+        </div>
+      ) : null}
+      {id === '' ? null : (
+        <StateBoundary state={state} onRetry={() => void query.refetch()}>
+          {query.data === undefined || problem === 'notFound' ? null : <ProfileBody key={query.data.id} warning={query.data} />}
+        </StateBoundary>
+      )}
+    </section>
+  );
+}
+
+function ProfileBody({ warning }: { warning: WarningItem }) {
+  const { t } = useTranslation();
+  const { permissions, mode } = useSession();
+  const frozen = mode === 'READ_ONLY';
+  const holds = (permission: string): boolean => permissions === undefined || permissions.includes(permission);
+  const [action, setAction] = useState<Action | undefined>(undefined);
+  const [reason, setReason] = useState('');
+  const [question, setQuestion] = useState('');
+  const [due, setDue] = useState('');
+  const [done, setDone] = useState<Action | undefined>(undefined);
+  const acknowledge = useAcknowledgeWarning();
+  const dismiss = useDismissWarning();
+  const ask = useAskExplanation();
+  const busy = acknowledge.isPending || dismiss.isPending || ask.isPending;
+  const failure = action === 'acknowledge' ? acknowledge.error : action === 'dismiss' ? dismiss.error : action === 'explain' ? ask.error : null;
+  const open = warning.status === 'OPEN';
+  const canExplain = !frozen && holds(REQUEST_EXPLANATION_PERMISSION) && warning.project !== null && warning.leader !== null && (warning.status === 'OPEN' || warning.status === 'ACKNOWLEDGED');
+  const canAcknowledge = !frozen && holds(HANDLE_WARNING_PERMISSION) && open;
+  const canDismiss = !frozen && holds(HANDLE_WARNING_PERMISSION) && (open || warning.status === 'ACKNOWLEDGED');
+  const today = vietnamToday();
+  const reasonOk = reason.trim().length >= REASON_MIN;
+  const askOk = question.trim().length >= QUESTION_MIN && due !== '' && due >= today;
+  const close = (): void => {
+    setAction(undefined);
+    setReason('');
+    setQuestion('');
+    setDue('');
+    acknowledge.reset();
+    dismiss.reset();
+    ask.reset();
+  };
+  const submit = (): void => {
+    if (action === undefined || busy) return;
+    const onSuccess = (): void => {
+      setDone(action);
+      close();
+    };
+    if (action === 'explain' && askOk) ask.mutate({ warning, question, dueAt: dueMoment(due) }, { onSuccess });
+    if (action === 'acknowledge' && reasonOk) acknowledge.mutate({ warning, reason: reason.trim() }, { onSuccess });
+    if (action === 'dismiss' && reasonOk) dismiss.mutate({ warning, reason: reason.trim() }, { onSuccess });
+  };
+  const threshold = warning.threshold === null ? null : Object.entries(warning.threshold).map(([key, value]) => `${key} ${String(value)}`).join(', ');
+  const gap = typeof warning.observed.gap_points === 'string' ? trimmed(warning.observed.gap_points) : null;
+
+  return (
+    <div data-testid="warning-profile" data-warning-status={warning.status}>
+      <section className="card" aria-labelledby="profile-cause-title" data-testid="profile-cause">
+        <div className="mne-badges">
+          <SeverityBadge severity={warning.severity} />
+          <span className="pill" data-testid="profile-status">
+            {warningStatusLabel(t, warning.status)}
+          </span>
+        </div>
+        <h2 id="profile-cause-title">{t('home.profile.cause.title')}</h2>
+        <dl className="aud-facts">
+          <dt>{t('home.profile.cause.rule')}</dt>
+          <dd data-testid="profile-rule">
+            {warning.ruleCode} {warning.ruleName}
+          </dd>
+          <dt>{t('home.profile.cause.project')}</dt>
+          <dd data-testid="profile-project">{warning.project === null ? '—' : `${warning.project.code} ${warning.project.name}`}</dd>
+          <dt>{t('home.profile.cause.observed')}</dt>
+          <dd data-testid="profile-observed">
+            <ObservedText item={warning} />
+          </dd>
+          {gap === null ? null : (
+            <>
+              <dt>{t('home.profile.cause.gap')}</dt>
+              <dd data-testid="profile-gap">{t('home.profile.cause.gap.value', { gap })}</dd>
+            </>
+          )}
+          {threshold === null ? null : (
+            <>
+              <dt>{t('home.profile.cause.threshold')}</dt>
+              <dd data-testid="profile-threshold" title={t('home.profile.cause.threshold.title', { ref: FORMULA_REFERENCE })}>
+                {threshold}
+              </dd>
+            </>
+          )}
+        </dl>
+      </section>
+      <section className="card" aria-labelledby="profile-evidence-title" data-testid="profile-evidence">
+        <h2 id="profile-evidence-title">{t('home.profile.evidence.title')}</h2>
+        {warning.evidence === null || warning.evidence.cells.length === 0 ? (
+          <p>{t('home.profile.evidence.none')}</p>
+        ) : (
+          <>
+            <p className="sub" data-testid="evidence-context">
+              {t('home.profile.evidence.context', { id: shortId(warning.evidence.snapshotId), date: warning.evidence.asOfDate })}
+            </p>
+            <div className="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">{t('home.profile.evidence.cell')}</th>
+                    <th scope="col">{t('home.profile.evidence.planPm')}</th>
+                    <th scope="col">{t('home.profile.evidence.planLocal')}</th>
+                    <th scope="col">{t('home.profile.evidence.disbursed')}</th>
+                    <th scope="col">{t('home.profile.evidence.ratePm')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {warning.evidence.cells.map((cell) => (
+                    <tr key={`${cell.bucket}|${cell.budgetLevel}`}>
+                      <td>{`${cell.bucket} · ${cell.budgetLevel}`}</td>
+                      <td>{formatVnd(cell.planPmVnd)}</td>
+                      <td>{formatVnd(cell.planLocalVnd)}</td>
+                      <td>{cell.disbursedVnd === null ? t('home.tile.nullReason.noData') : formatVnd(cell.disbursedVnd)}</td>
+                      <td>{cell.ratePmPct === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: cell.ratePmPct })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </section>
+      <section className="card" aria-labelledby="profile-leader-title" data-testid="profile-leader">
+        <h2 id="profile-leader-title">{t('home.profile.leader.title')}</h2>
+        <p>{warning.leader === null ? t('home.warnings.leader.none') : warning.leader.displayName}</p>
+      </section>
+      <section className="card" aria-labelledby="profile-explanation-title" data-testid="profile-explanation">
+        <h2 id="profile-explanation-title">{t('home.profile.explanation.title')}</h2>
+        <p>
+          {warning.explanation === null
+            ? t('home.warnings.explanation.none')
+            : t('home.profile.explanation.status', { status: explanationStatusLabel(t, warning.explanation.status), due: warning.explanation.dueAt.slice(0, 10) })}
+        </p>
+      </section>
+      <section className="card" aria-labelledby="profile-history-title" data-testid="profile-history">
+        <h2 id="profile-history-title">{t('home.profile.history.title')}</h2>
+        <ol className="mne-lines">
+          {warning.history.map((entry, index) => (
+            <li key={`${entry.event}:${index}`} data-event={entry.event}>
+              {entry.at.slice(0, 10)} · {historyLabel(t, entry.event)}
+              {entry.note === null ? '' : `: ${entry.note}`}
+            </li>
+          ))}
+        </ol>
+      </section>
+      {done === undefined ? null : (
+        <p role="status" className="pill" data-testid="profile-done">
+          {done === 'explain' ? t('home.profile.done.explain') : done === 'acknowledge' ? t('home.profile.done.acknowledge') : t('home.profile.done.dismiss')}
+        </p>
+      )}
+      <div className="mne-actions" data-testid="profile-actions">
+        {canExplain ? (
+          <button type="button" className="btn" onClick={() => setAction('explain')}>
+            {t('home.profile.action.explain')}
+          </button>
+        ) : null}
+        {canAcknowledge ? (
+          <button type="button" className="btn" onClick={() => setAction('acknowledge')}>
+            {t('home.profile.action.acknowledge')}
+          </button>
+        ) : null}
+        {canDismiss ? (
+          <button type="button" className="btn" onClick={() => setAction('dismiss')}>
+            {t('home.profile.action.dismiss')}
+          </button>
+        ) : null}
+      </div>
+      {holds(REQUEST_EXPLANATION_PERMISSION) && warning.project !== null && warning.leader === null && (warning.status === 'OPEN' || warning.status === 'ACKNOWLEDGED') ? <p className="sub">{t('home.profile.explain.noLeader')}</p> : null}
+      {action === undefined ? null : (
+        <div className="card" role="dialog" aria-modal="false" aria-labelledby="profile-dialog-title" data-testid="profile-dialog">
+          <h2 id="profile-dialog-title">{action === 'explain' ? t('home.profile.action.explain') : action === 'acknowledge' ? t('home.profile.action.acknowledge') : t('home.profile.action.dismiss')}</h2>
+          {action === 'explain' ? (
+            <>
+              <Field id="profile-question" label={t('home.profile.explain.question.label')} error={undefined}>
+                <textarea id="profile-question" value={question} maxLength={2000} onChange={(event) => setQuestion(event.target.value)} />
+              </Field>
+              <Field id="profile-due" label={t('home.profile.explain.due.label')} error={undefined}>
+                <input id="profile-due" type="date" min={today} value={due} onChange={(event) => setDue(event.target.value)} />
+              </Field>
+              <p className="sub">{t('home.profile.explain.to', { leader: warning.leader?.displayName ?? '' })}</p>
+            </>
+          ) : (
+            <Field id="profile-reason" label={t('home.profile.reason.label')} error={undefined}>
+              <textarea id="profile-reason" value={reason} maxLength={2000} onChange={(event) => setReason(event.target.value)} />
+            </Field>
+          )}
+          {failure === null || failure === undefined ? null : (
+            <p role="alert" className="field-error" data-testid="profile-problem">
+              {problemText(t, problemKey(failure))}
+            </p>
+          )}
+          <div className="mne-actions">
+            <button type="button" className="btn" onClick={close} disabled={busy}>
+              {t('home.profile.cancel')}
+            </button>
+            <button type="button" className="primary" onClick={submit} disabled={busy || (action === 'explain' ? !askOk : !reasonOk)}>
+              {t('home.profile.confirm')}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function problemText(t: T, key: ReturnType<typeof problemKey>): string {
+  switch (key) {
+    case 'conflict':
+      return t('home.profile.problem.conflict');
+    case 'state':
+      return t('home.profile.problem.state');
+    case 'denied':
+      return t('home.profile.problem.denied');
+    case 'validation':
+      return t('home.profile.problem.validation');
+    case 'general':
+      return t('home.profile.problem.general');
+  }
+}

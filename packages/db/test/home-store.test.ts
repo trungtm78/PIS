@@ -101,9 +101,10 @@ describe('HomeStore (ST-HOME-001): what the command center counts beside the rat
     [TENANT_A, randomUUID(), project === null ? 'UNIT' : 'PROJECT', project, unit === null ? null : unitId(unit), memberId(1), due, status, WORKER, `T-${++triggers}`],
   ];
   const reallocation = (status: string, unit: number, code: string): [string, unknown[]] => [
-    `insert into machvon.reallocation_proposal (tenant_id, id, code, plan_year, scope_unit_id, basis_snapshot_id, source_capital_plan_id, reason, status, submitted_by, submitted_at, created_by, updated_by)
-     values ($1, $2, $3, 2026, $4, $5, $6, 'Move capital from slow projects to fast ones', $7, case when $7 = 'SUBMITTED' then $8::uuid end, case when $7 = 'SUBMITTED' then now() end, $8, $8)`,
-    [TENANT_A, randomUUID(), code, unitId(unit), snapshotId, randomUUID(), status, WORKER],
+    `insert into machvon.reallocation_proposal (tenant_id, id, code, plan_year, scope_unit_id, basis_snapshot_id, source_capital_plan_id, reason, status, submitted_by, submitted_at, approved_by, decided_by, decided_at, decision_reason, created_by, updated_by)
+     values ($1, $2, $3, 2026, $4, $5, $6, 'Move capital from slow projects to fast ones', $7, case when $7 in ('SUBMITTED', 'APPROVED') then $9::uuid end, case when $7 in ('SUBMITTED', 'APPROVED') then now() end,
+             case when $7 = 'APPROVED' then $10::uuid end, case when $7 = 'APPROVED' then $10::uuid end, case when $7 = 'APPROVED' then now() end, case when $7 = 'APPROVED' then 'Approved.' end, $8, $8)`,
+    [TENANT_A, randomUUID(), code, unitId(unit), snapshotId, randomUUID(), status, WORKER, memberId(1), memberId(2)],
   ];
 
   it('counts the warnings that still ask something of someone, in the scope of the reader, and under the unit they narrowed to', async () => {
@@ -123,28 +124,31 @@ describe('HomeStore (ST-HOME-001): what the command center counts beside the rat
     expect(narrowed.openWarnings).toBe(1);
   });
 
-  it('counts the explanations that are late by their status or by their day, and not the ones that were answered or are not yet due', async () => {
+  it('counts the explanations that are late by their status or by their day, the answered ones that wait for the review included (BR-HOME-05), and not the ones that are not yet due or are closed', async () => {
     await seed([
       explanation('OVERDUE', '2026-10-01T00:00:00Z', northProject, null),
       explanation('REQUESTED', '2026-10-27T00:00:00Z', northProject, null),
       explanation('REQUESTED', '2026-11-05T00:00:00Z', northProject, null),
       explanation('RESPONDED', '2026-10-01T00:00:00Z', northProject, null),
+      // Answered and waiting for the review after its day: not concluded, so it counts; one answered before its day does not.
+      explanation('RESPONDED', '2026-10-26T00:00:00Z', northProject, null),
+      explanation('RESPONDED', '2026-11-26T00:00:00Z', northProject, null),
       explanation('CANCELLED', '2026-10-01T00:00:00Z', northProject, null),
       explanation('OVERDUE', '2026-10-02T00:00:00Z', southProject, null),
       explanation('REQUESTED', '2026-10-02T00:00:00Z', null, SOUTH),
     ]);
     const all = await as((tx) => store.counts(tx, { projectScope: EVERYTHING, unitScope: EVERYTHING, unitId: undefined, now: NOW }));
-    expect(all.overdueExplanations).toBe(4);
+    expect(all.overdueExplanations).toBe(6);
     const north = await as((tx) => store.counts(tx, { projectScope: under('ou.path', NORTH_PATH), unitScope: under('u.path', NORTH_PATH), unitId: undefined, now: NOW }));
-    expect(north.overdueExplanations).toBe(2);
+    expect(north.overdueExplanations).toBe(4);
   });
 
-  it('counts the proposals of reallocation that wait for a decision, in the units of the reader', async () => {
-    await seed([reallocation('SUBMITTED', NORTH, 'RA-1'), reallocation('SUBMITTED', SOUTH, 'RA-2'), reallocation('DRAFT', NORTH, 'RA-3'), reallocation('WITHDRAWN', NORTH, 'RA-4')]);
+  it('counts the proposals of reallocation that are not applied yet (submitted, or approved and waiting), in the units of the reader', async () => {
+    await seed([reallocation('SUBMITTED', NORTH, 'RA-1'), reallocation('SUBMITTED', SOUTH, 'RA-2'), reallocation('DRAFT', NORTH, 'RA-3'), reallocation('WITHDRAWN', NORTH, 'RA-4'), reallocation('APPROVED', NORTH, 'RA-5'), reallocation('APPROVED', SOUTH, 'RA-6')]);
     const all = await as((tx) => store.counts(tx, { projectScope: EVERYTHING, unitScope: EVERYTHING, unitId: undefined, now: NOW }));
-    expect(all.pendingReallocations).toBe(2);
+    expect(all.pendingReallocations).toBe(4);
     const north = await as((tx) => store.counts(tx, { projectScope: under('ou.path', NORTH_PATH), unitScope: under('u.path', NORTH_PATH), unitId: undefined, now: NOW }));
-    expect(north.pendingReallocations).toBe(1);
+    expect(north.pendingReallocations).toBe(2);
   });
 
   it('reads nothing of another tenant, and nothing when the reader has no scope at all', async () => {
