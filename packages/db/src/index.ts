@@ -893,3 +893,5 @@ export { PROJECT_TRANSFERRED_EVENT, PrjTransferApplyJob, PrjTransferStore, TRANS
 export type { TransferChange, TransferImpact, TransferRow } from './prj-transfer-store.ts';
 export { CapReallocationStore, REALLOCATION_APPLIED_EVENT, REALLOCATION_RESOURCE, reallocationAppliedEvent, reallocationRecord, reallocationScope } from './cap-reallocation-store.ts';
 export type { ApplyResult as ReallocationApplyResult, ReallocationChange, ReallocationLineRow, ReallocationRow } from './cap-reallocation-store.ts';
+export { HOME_OPEN_WARNING_STATUSES, HomeStore } from './home-store.ts';
+export type { HomeCountInput, HomeCounts } from './home-store.ts';

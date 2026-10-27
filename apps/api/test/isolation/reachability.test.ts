@@ -93,7 +93,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   // Reads that are not a list of rows of the tenant: the published theme answers 403 to a tenant that has none, and the global search needs a text (its own channel
   // of the isolation suite reads it).
   // The reads of the caller's own access, entitlements and notification preferences answer one object, not a page of rows: they are read for leaks like the others. The preferences hold an `items` list that is empty for a person who never saved. The two rates answer one aggregate over a snapshot (its groups are asked for), not a page of rows.
-  const LISTS_WITHOUT_ROWS: string[] = ['getAuditOverview', 'getDisbursementForecast', 'getDisbursementRates', 'getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyUsage'];
+  const LISTS_WITHOUT_ROWS: string[] = ['getAuditOverview', 'getCommandCenter', 'getDisbursementForecast', 'getDisbursementRates', 'getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyUsage'];
   // The capital available on a line or an appropriation names what it reads in its query (the line or the appropriation): it is not a list.
   const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability', 'getPaymentChain']);
 
