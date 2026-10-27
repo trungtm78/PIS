@@ -14,6 +14,7 @@ import { ReportDecisionController } from '../../src/modules/dis/report-decision.
 import { ReportImportController } from '../../src/modules/dis/report-import.controller';
 import { ReportLifecycleController } from '../../src/modules/dis/report-lifecycle.controller';
 import { ReportSubmitController } from '../../src/modules/dis/report-submit.controller';
+import { SubmissionProgressController } from '../../src/modules/dis/submission-progress.controller';
 import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
@@ -215,7 +216,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ReportController, ReportReadsController, ReportFileController, ReportSubmitController],
+      controllers: [ReportController, ReportReadsController, ReportFileController, ReportSubmitController, SubmissionProgressController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
@@ -233,7 +234,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   }, 60_000);
 
   it('serves the controllers of the report in the module of DIS', () => {
-    expect(disModule.controllers.slice(-11, -4)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController]);
+    expect(disModule.controllers.slice(-12, -5)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController]);
   });
 
   describe('post_reports', () => {
@@ -1119,6 +1120,47 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       await submit(reportId, 3);
       const rowsOf = await rows<{ event_key: string }>("select event_key from machvon.outbox_event where aggregate_id = $1 and type = 'report.submitted.v1'", [reportId]);
       expect(rowsOf.map((row) => row.event_key)).toEqual([`report_revision:${reportId}:submitted`]);
+    });
+
+    it('AC-ST-DIS-015-2 / UAT-AC262: a monthly report of September without the causes of its narrative is refused (422 VALIDATION_FAILED naming narrative.causes_text), and once they are written it is SUBMITTED and the monthly follow-up shows the narrative', async () => {
+      const month = randomUUID();
+      await rows(
+        `insert into machvon.reporting_period
+           (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
+         select tenant_id, $1::uuid, 'M2027-09', calendar_version, date '2027-09-01', date '2027-09-30', timestamptz '2027-10-05T10:00:00Z', 'MONTHLY', 'MONTH', 2027, 'OPEN', calendar_version_id, created_by, updated_by
+           from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' and calendar_code = 'DEFAULT' limit 1`,
+        [month],
+      );
+      const project = await seedProject();
+      const monthly = { ...PROGRESS, report_type: 'MONTHLY' };
+      const made = await create(draft(project.projectId, month, project.planId, monthly));
+      expect(made.status).toBe(200);
+      const reportId = idOf(made);
+      await save(reportId, draft(project.projectId, month, project.planId, monthly), 1);
+      expect(await submit(reportId, 2)).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'narrative.causes_text' } });
+      expect(await state(reportId)).toMatchObject({ status: 'DRAFT' });
+      const words = 'Giải ngân chậm do chờ phê duyệt điều chỉnh thiết kế';
+      expect((await save(reportId, draft(project.projectId, month, project.planId, { ...monthly, narrative: { results: 'Đạt 60% khối lượng', causes: words } }), 2)).status).toBe(200);
+      expect(await submit(reportId, 3)).toMatchObject({ status: 200, json: { status: 'SUBMITTED' } });
+      // A month is due on the 5th of the next one (03:00 UTC), judged by the calendar of the period: on time at 03:00:00, late at 03:00:01.
+      const lateness = async (at: string): Promise<unknown> => {
+        const other = await seedProject();
+        const narrative = { causes: words };
+        const made2 = await create(draft(other.projectId, month, other.planId, { ...monthly, narrative }));
+        const id2 = idOf(made2);
+        await save(id2, draft(other.projectId, month, other.planId, { ...monthly, narrative }), 1);
+        clockNow = new Date(at);
+        try {
+          return (await submit(id2, 2)).json.is_late;
+        } finally {
+          clockNow = now;
+        }
+      };
+      expect(await lateness('2027-10-05T03:00:00Z')).toBe(false);
+      expect(await lateness('2027-10-05T03:00:01Z')).toBe(true);
+      const board = await call('GET', `/reporting-periods/${month}/submission-progress?state=SUBMITTED&with_narrative=true&limit=200`, { member: READER });
+      const mine = (board.json.projects as Array<{ project: { id: string }; narrative: { causes: string; results: string } | null; state: string }>).find((row) => row.project.id === project.projectId);
+      expect(mine).toMatchObject({ state: 'SUBMITTED', narrative: { causes: words, results: 'Đạt 60% khối lượng' } });
     });
   });
 });

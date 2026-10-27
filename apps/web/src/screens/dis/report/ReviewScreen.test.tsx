@@ -77,6 +77,15 @@ describe('DIS-06 review and send', () => {
     expect(within(warnings[2] as HTMLElement).getByRole('link', { name: vi_['dis.review.fix.link'] }).getAttribute('href')).toBe(`/dis/dis-05?report=${REPORT}`);
   });
 
+  it('AC-ST-DIS-015-2: tells a monthly report that its causes are missing (not that the volumes are), and has no step of the draft to send the person to', async () => {
+    open(reportRecord({ report_type: 'MONTHLY', review: { blocking: true, errors: [finding('VALIDATION_FAILED', 'narrative.causes_text', { missing: 'causes_text' })], warnings: [] } }));
+    const errors = within(await screen.findByTestId('review-errors')).getAllByRole('listitem');
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.textContent).toContain(vi_['dis.review.finding.causes.text']);
+    expect(errors[0]?.textContent).not.toContain(vi_['dis.review.finding.volumes.text']);
+    expect(within(errors[0] as HTMLElement).queryByRole('link')).toBeNull();
+  });
+
   it('says there is nothing to fix when the review is clean, and that warnings do not stop the sending', async () => {
     open();
     expect((await screen.findByTestId('review-status')).textContent).toBe(vi_['dis.review.status.ready']);

@@ -1,4 +1,4 @@
-import { DomainError, isLate, periodOf, reportingPeriods } from '@machvon/kernel';
+import { DomainError, isLate, monthlyPeriods, periodOfType, reportingPeriods } from '@machvon/kernel';
 import type { CalendarDefinition, ReportingPeriod } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -103,6 +103,8 @@ export interface CalendarPeriods {
 export interface BoundPeriod {
   calendarVersionId: string;
   startsOn: string;
+  /** The type of the period: its deadline is judged by it (a month is due on the 5th of the next one). A week when none is named. */
+  periodType?: string;
 }
 
 const CALENDAR_KEY = 'DEFAULT';
@@ -227,10 +229,10 @@ export class MasterRules {
    * The periods of a year that the reporting calendar in force on `asOf` produces (BR-MDM-08). Each period carries the version of the
    * calendar it came from: a module that stores the period stores that version with it, and judges lateness by it for ever after.
    */
-  async calendarPeriods(tx: TenantTx, year: number, asOf: string): Promise<CalendarPeriods | undefined> {
+  async calendarPeriods(tx: TenantTx, year: number, asOf: string, periodType = 'WEEK'): Promise<CalendarPeriods | undefined> {
     const rule = await this.read(tx, 'CALENDAR', CALENDAR_KEY, asOf);
     if (rule === undefined) return undefined;
-    const periods = reportingPeriods(definitionOf(rule), year).map((period) => ({ ...period, calendarVersionId: rule.versionId, calendarRevision: rule.revision }));
+    const periods = (periodType === 'MONTH' ? monthlyPeriods : reportingPeriods)(definitionOf(rule), year).map((period) => ({ ...period, calendarVersionId: rule.versionId, calendarRevision: rule.revision }));
     return { reading: rule, periods };
   }
 
@@ -241,7 +243,7 @@ export class MasterRules {
   async boundDeadline(tx: TenantTx, bound: BoundPeriod): Promise<string> {
     const rule = await this.readVersion(tx, 'CALENDAR', bound.calendarVersionId);
     if (rule === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'calendar_version_id');
-    return periodOf(definitionOf(rule), bound.startsOn).deadlineAt;
+    return periodOfType(definitionOf(rule), bound.periodType ?? 'WEEK', bound.startsOn).deadlineAt;
   }
 
   /** Whether a report handed in at `at` is late for a period, by the calendar version the period is bound to. */

@@ -34,7 +34,7 @@ async function refusal(work: Promise<unknown>): Promise<{ code: string; status: 
   throw new Error('expected a refusal');
 }
 
-const generate = (fiscalYear: number, now: string, tenant = TENANT_A, extra: { calendarCode?: string; periodType?: 'WEEK' | 'MONTH' } = {}) =>
+const generate = (fiscalYear: number, now: string, tenant = TENANT_A, extra: { calendarCode?: string; periodType?: 'WEEK' | 'MONTH' | 'QUARTER' } = {}) =>
   as((tx) => periods.generate(tx, { calendarCode: extra.calendarCode ?? 'DEFAULT', fiscalYear, periodType: extra.periodType ?? 'WEEK' }, memberId(ACTOR), at(now)), tenant);
 const byCode = async (code: string, tenant = TENANT_A): Promise<PeriodRow> => {
   const [found] = await owner<{ id: string }>('select id from machvon.reporting_period where code = $1', [code], tenant);
@@ -116,7 +116,7 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
     it('refuses a request it cannot serve and writes nothing', async () => {
       expect(await refusal(generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { calendarCode: 'OTHER' }))).toEqual({ code: 'CALENDAR_NOT_EFFECTIVE', status: 422, detail: 'calendar_code' });
       expect(await refusal(generate(2024, '2024-01-01T00:00:00Z'))).toEqual({ code: 'CALENDAR_NOT_EFFECTIVE', status: 422, detail: 'calendar_code' });
-      expect(await refusal(generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { periodType: 'MONTH' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'period_type' });
+      expect(await refusal(generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { periodType: 'QUARTER' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'period_type' });
       expect(await refusal(generate(1969, '2026-12-15T00:00:00Z'))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'fiscal_year' });
       expect(await refusal(generate(10_000, '2026-12-15T00:00:00Z'))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'fiscal_year' });
       expect(await refusal(generate(2027.5, '2026-12-15T00:00:00Z'))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'fiscal_year' });

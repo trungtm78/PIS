@@ -32,7 +32,7 @@ export const DIS_PERIOD_TRANSITION_METRIC = 'dis_period_transition_total';
 export const PERIOD_TYPES = ['WEEK', 'MONTH', 'QUARTER', 'HALF_YEAR', 'YEAR'] as const;
 export type PeriodType = (typeof PERIOD_TYPES)[number];
 /** The types the reporting calendar can produce: it counts weeks; the other types wait for a rule of the business owner. */
-const GENERATED_TYPES: ReadonlySet<PeriodType> = new Set(['WEEK']);
+const GENERATED_TYPES: ReadonlySet<PeriodType> = new Set(['WEEK', 'MONTH']);
 export type PeriodStatus = 'OPEN' | 'SOFT_CLOSED' | 'LOCKED';
 
 export interface PeriodRow {
@@ -274,7 +274,7 @@ export class DisPeriodStore {
     if (!GENERATED_TYPES.has(request.periodType)) throw invalid('period_type');
     // MDM-11 keeps one reporting calendar; a code it does not hold has no version in force.
     if (calendarCode !== REPORTING_CALENDAR_CODE) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'calendar_code');
-    const generated = await this.rules.calendarPeriods(tx, request.fiscalYear, calendarDateFor(request.fiscalYear, now));
+    const generated = await this.rules.calendarPeriods(tx, request.fiscalYear, calendarDateFor(request.fiscalYear, now), request.periodType);
     if (generated === undefined) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'calendar_code');
     const { periods, reading } = generated;
     const overlap = await tx.query(
@@ -363,7 +363,7 @@ export class DisPeriodStore {
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const reopen = period.status === 'LOCKED' ? await this.openWindow(tx, periodId, projectId, at) : null;
     if (period.status === 'LOCKED' && reopen === null) throw new DomainError('PERIOD_LOCKED', 409);
-    const bound = { calendarVersionId: period.calendarVersionId, startsOn: period.startDate };
+    const bound = { calendarVersionId: period.calendarVersionId, startsOn: period.startDate, periodType: period.periodType };
     const deadlineAt = await this.rules.boundDeadline(tx, bound);
     return { period, late: await this.rules.isLate(tx, bound, at), deadlineAt, reopen };
   }

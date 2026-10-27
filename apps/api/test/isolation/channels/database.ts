@@ -237,6 +237,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'applyReportImport',
   'buildPeriodSnapshot',
   'freezePeriodSnapshot',
+  'getSubmissionProgress',
   'listPeriodSnapshotLines',
   'listPeriodSnapshots',
   'createEarlyWarningRuleVersion',

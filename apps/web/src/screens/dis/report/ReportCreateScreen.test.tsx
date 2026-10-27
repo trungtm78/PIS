@@ -3,7 +3,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
-import { MAKER, PERIOD, PERIOD_LOCKED, PROJECT, READER, REPORT, client, mount, routeOf, world } from './test-support';
+import { MAKER, PERIOD, PERIOD_LOCKED, PROJECT, READER, REPORT, client, mount, period, routeOf, world } from './test-support';
 import ReportCreateScreen from './ReportCreateScreen';
 
 const ROUTE = routeOf('DIS-02', 'FR-DIS-02');
@@ -39,6 +39,18 @@ describe('DIS-02 choose the period and the project', () => {
     const basis = screen.getByLabelText(vi_['dis.reportCreate.basis.label']) as HTMLSelectElement;
     expect(basis.value).toBe('YTD');
     expect(within(basis).getAllByRole('option').map((option) => option.textContent)).toEqual([vi_['dis.reportBasis.period'], vi_['dis.reportBasis.ytd'], vi_['dis.reportBasis.projectToDate']]);
+  });
+
+  it('ST-DIS-015: offers only weeks for a weekly report, even when the calendar also has months', async () => {
+    const month = { ...period('00000000-0000-4000-8000-0000000000f2', '2027-M01', 'OPEN'), period_type: 'MONTH', start_date: '2027-01-01', end_date: '2027-01-31' };
+    const h = client(world({ periods: [period(PERIOD, '2027-W01', 'OPEN'), month] }));
+    mount(<ReportCreateScreen route={ROUTE} />, h, { permissions: MAKER, path: '/dis/dis-02' });
+    await screen.findByTestId('create-note');
+    await userEvent.setup().selectOptions(screen.getByLabelText(vi_['dis.reportCreate.year.label']), '2027');
+    const options = within(screen.getByLabelText(vi_['dis.reportCreate.period.label'])).getAllByRole('option').map((option) => option.textContent ?? '');
+    expect(options).toHaveLength(2);
+    expect(options.join(' ')).toContain('2027-W01');
+    expect(options.join(' ')).not.toContain('2027-M01');
   });
 
   it('asks for the week and the project before it sends anything', async () => {

@@ -88,15 +88,15 @@ interface Line {
 }
 
 /** A period of its own (the deadline is the day before `NOW` unless said) and the projects named in a snapshot of it that is frozen. */
-async function frozenWorld(options: { lines: Line[]; deadline?: string; kind?: 'PERIOD_CLOSE' | 'ADHOC'; period?: string; nationalCode?: Record<string, string> }) {
+async function frozenWorld(options: { lines: Line[]; deadline?: string; kind?: 'PERIOD_CLOSE' | 'ADHOC'; period?: string; periodType?: 'WEEK' | 'MONTH'; nationalCode?: Record<string, string> }) {
   counter += 1;
   const periodId = options.period ?? id(FAMILY, 1000 + counter);
   if (options.period === undefined) {
     await seedReplica([
       [
         `insert into machvon.reporting_period (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
-         values ($1, $2, $3, 1, $4::date, $4::date + 6, $5::timestamptz, 'DEFAULT', 'WEEK', 2027, 'OPEN', $6, $7, $7)`,
-        [TENANT_A, periodId, `WP-${counter}`, new Date(Date.UTC(2040, 0, 2) + counter * 7 * 86_400_000).toISOString().slice(0, 10), options.deadline ?? '2027-06-14T03:00:00Z', id(FAMILY, 40), memberId(AUTHOR)],
+         values ($1, $2, $3, 1, $4::date, $4::date + 6, $5::timestamptz, 'DEFAULT', $8, 2027, 'OPEN', $6, $7, $7)`,
+        [TENANT_A, periodId, `WP-${counter}`, new Date(Date.UTC(2040, 0, 2) + counter * 7 * 86_400_000).toISOString().slice(0, 10), options.deadline ?? '2027-06-14T03:00:00Z', id(FAMILY, 40), memberId(AUTHOR), options.periodType ?? 'WEEK'],
       ],
     ]);
   }
@@ -387,6 +387,18 @@ describe('DisWarningStore (the early-warning rules and warnings, ST-DIS-012)', (
       const [row] = await warnings({ projectId: a });
       expect(row).toMatchObject({ status: 'OPEN', snapshotId: newer.snapshotId });
       expect(row?.observed).toMatchObject({ observed_pct: '8.0000' });
+    });
+
+    it('ST-DIS-015: leaves the close snapshot of a monthly period alone (NOT_WEEKLY): an older month never overwrites or clears what a newer week has said', async () => {
+      await published(rule());
+      const a = await projectOf('P-MONTH');
+      const week = await frozenWorld({ lines: [{ project: 'P-MONTH', rate: '8.0000' }] });
+      expect((await evaluate(week.snapshotId)).opened).toHaveLength(1);
+      // A month that closes later, with a figure that would clear the warning, says nothing about it.
+      const month = await frozenWorld({ lines: [{ project: 'P-MONTH', rate: '60.0000' }], periodType: 'MONTH' });
+      expect(await evaluate(month.snapshotId)).toMatchObject({ skipped: 'NOT_WEEKLY', opened: [], updated: 0, cleared: [] });
+      const [row] = await warnings({ projectId: a });
+      expect(row).toMatchObject({ status: 'OPEN', snapshotId: week.snapshotId });
     });
 
     it('serialises the publication of two drafts of one code that arrive together: one revision is in force at the end, and neither of them meets the unique index', async () => {

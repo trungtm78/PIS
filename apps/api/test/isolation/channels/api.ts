@@ -203,6 +203,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'getReportRevision', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },
   { operation: 'getReportImport', method: 'GET', id: REPORT_IMPORT_FIXTURES['TNT-B'].id },
   { operation: 'applyReportImport', method: 'POST', id: REPORT_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'getSubmissionProgress', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
   { operation: 'listPeriodSnapshotLines', method: 'GET', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id },
   { operation: 'freezePeriodSnapshot', method: 'POST', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'publishEarlyWarningRule', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].ruleId, versioned: true, body: {} },

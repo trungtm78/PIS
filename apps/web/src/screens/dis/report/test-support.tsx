@@ -186,6 +186,8 @@ export interface World {
   warnings: Record<string, unknown> | ((query: Record<string, unknown>) => unknown);
   /** The pages of `listWeeklyDisbursementPlans` by query (a function of the query, or one answer for all). */
   weekly: Record<string, unknown> | ((query: Record<string, unknown>) => unknown);
+  /** The answer of `getSubmissionProgress` (a function of the query, or one answer for all); none answers 404. */
+  board: Record<string, unknown> | ((query: Record<string, unknown>, periodId: string) => unknown) | undefined;
   /** The terms of the business glossary, as `listGlossaryTerms` answers them. */
   glossary: Array<Record<string, unknown>>;
   /** The answer of `getDisbursementRates`, or one for each query; none answers 404. */
@@ -212,6 +214,7 @@ export function world(overrides: Partial<World> = {}): World {
     rules: [],
     warnings: { items: [], next_cursor: null },
     weekly: { plan_year: 2027, items: [], next_cursor: null },
+    board: undefined,
     deleted: [],
     page: pageRecord([]),
     periods: [period(PERIOD, '2027-W01', 'OPEN'), period(PERIOD_LOCKED, '2027-W02', 'LOCKED')],
@@ -245,6 +248,11 @@ export function client(state: World, command: (operation: string, input: unknown
     if (operation === 'listEarlyWarnings') {
       const query = (input as { query?: Record<string, unknown> }).query ?? {};
       return typeof state.warnings === 'function' ? state.warnings(query) : state.warnings;
+    }
+    if (operation === 'getSubmissionProgress') {
+      const request = input as { path: { id: string }; query?: Record<string, unknown> };
+      const answer = typeof state.board === 'function' ? state.board(request.query ?? {}, request.path.id) : state.board;
+      return answer ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
     }
     if (operation === 'listWeeklyDisbursementPlans') {
       const query = (input as { query?: Record<string, unknown> }).query ?? {};
@@ -326,6 +334,9 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-10" element={screen} />
                 <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
+                <Route path="/dis/dis-13" element={screen} />
+                <Route path="/prj/prj-13" element={screen} />
+                <Route path="/dis/dis-15" element={screen} />
                 <Route path="/dis/dis-12" element={screen} />
                 <Route path="/dis/dis-16" element={screen} />
                 <Route path="/dis/dis-19" element={screen} />

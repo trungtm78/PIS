@@ -4,6 +4,7 @@ import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
 import { decisionBody, generateBody, reopenBody, toPeriod, toProjectOption } from './model';
+import type { GeneratedPeriodType } from './model';
 import type { DecisionForm, PeriodMove, PeriodView, ProjectOption, ReopenForm } from './model';
 
 const root = (tenantId: string | undefined) => ['dis', tenantId] as const;
@@ -51,7 +52,7 @@ function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegis
 
 export function useGeneratePeriods() {
   const client = useApiClient();
-  return useCommand<{ year: number }>((input, attempt) => client.command('generateReportingPeriods', { body: generateBody(input.year), attempt }));
+  return useCommand<{ year: number; periodType?: GeneratedPeriodType }>((input, attempt) => client.command('generateReportingPeriods', { body: generateBody(input.year, input.periodType), attempt }));
 }
 
 export interface MoveInput {

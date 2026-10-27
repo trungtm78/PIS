@@ -14,6 +14,8 @@ export async function reviewOf(tx: TenantTx, reports: DisReportStore, periods: D
   return reviewReport({
     status: detail.status,
     deleted: detail.deleted,
+    reportType: detail.reportType,
+    narrativeCausesText: detail.narrative?.causesText ?? null,
     periodClosed,
     planInForce: effective?.id === detail.plan.id,
     cells: detail.lines.map((row) => ({

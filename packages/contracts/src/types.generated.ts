@@ -21184,6 +21184,86 @@ export interface components {
             items?: components["schemas"]["DisWeeklyPlanRow"][];
             next_cursor?: string | null;
         };
+        DisSubmissionCounts: {
+            must_report: number;
+            /** @description Handed in, including the ones that came in late. */
+            submitted: number;
+            /** @description Of the submitted, the ones whose stored lateness says they came in after the deadline. */
+            submitted_late: number;
+            draft: number;
+            not_started: number;
+            /** @description The deadline has passed and nothing was handed in (a draft or not started). */
+            overdue: number;
+        };
+        DisSubmissionUnit: {
+            unit: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            };
+            must_report: number;
+            /** @description Handed in, including the ones that came in late. */
+            submitted: number;
+            /** @description Of the submitted, the ones whose stored lateness says they came in after the deadline. */
+            submitted_late: number;
+            draft: number;
+            not_started: number;
+            /** @description The deadline has passed and nothing was handed in (a draft or not started). */
+            overdue: number;
+        };
+        DisSubmissionProject: {
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            };
+            unit: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            };
+            /** @enum {string} */
+            state: "SUBMITTED" | "DRAFT" | "NOT_STARTED";
+            is_late: boolean;
+            overdue: boolean;
+            report: {
+                /** Format: uuid */
+                id: string;
+                status: string;
+                submitted_at: string | null;
+            } | null;
+            narrative?: {
+                results?: string | null;
+                causes?: string | null;
+                solutions?: string | null;
+                proposals?: string | null;
+            } | null;
+        };
+        DisSubmissionProgress: {
+            period: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                period_type: string;
+                /** Format: date */
+                start_date: string;
+                /** Format: date */
+                end_date: string;
+                /** Format: date-time */
+                deadline_at: string;
+            };
+            deadline_passed: boolean;
+            /** Format: date-time */
+            as_of: string;
+            total: components["schemas"]["DisSubmissionCounts"];
+            units: components["schemas"]["DisSubmissionUnit"][];
+            state?: string;
+            projects?: components["schemas"]["DisSubmissionProject"][];
+            next_cursor?: string | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -49120,7 +49200,14 @@ export interface operations {
     getSubmissionProgress: {
         parameters: {
             query?: {
+                /** @description Narrows the board and the drill to one unit. */
                 unit_id?: string;
+                /** @description Asks for the exact projects a number of the board counted. */
+                state?: "MUST_REPORT" | "SUBMITTED" | "LATE_SUBMITTED" | "DRAFT" | "NOT_STARTED" | "OVERDUE";
+                /** @description With `state`: carries the narrative of the report that stands for each project (PRJ-13). */
+                with_narrative?: boolean;
+                limit?: number;
+                cursor?: string;
             };
             header?: never;
             path: {
@@ -49130,13 +49217,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            /** @description The board of the period for the projects in the scope of the caller; with `state` also the projects of that number. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["DisSubmissionProgress"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

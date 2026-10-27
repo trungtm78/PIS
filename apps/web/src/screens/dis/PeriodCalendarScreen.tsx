@@ -9,7 +9,7 @@ import { Field, StatusPill } from './components';
 import { useGeneratePeriods, useNow, usePeriods } from './hooks';
 import { fieldProblemMessage, moveLabel, problemMessage, reopenScopeLabel, reopenStatusLabel, statusLabel } from './labels';
 import { PERIOD_LOCK_PERMISSION, PERIOD_MANAGE_PERMISSION, PERIOD_STATUSES, countsOf, describeProblem, hasPassed, movesOf, periodsOf, validateYear, vietnamMoment, yearsOf } from './model';
-import type { FieldProblem, PeriodMove, PeriodStatus, PeriodView } from './model';
+import type { FieldProblem, GeneratedPeriodType, PeriodMove, PeriodStatus, PeriodView } from './model';
 import { TransitionDialog } from './TransitionDialog';
 
 const NEVER_EMPTY = (): boolean => false;
@@ -174,6 +174,7 @@ function GeneratePeriods({ year, onGenerated }: { year: number; onGenerated(year
   const { t } = useTranslation();
   const generate = useGeneratePeriods();
   const [text, setText] = useState(String(year));
+  const [periodType, setPeriodType] = useState<GeneratedPeriodType>('WEEK');
   const [problem, setProblem] = useState<FieldProblem | undefined>(undefined);
   const [done, setDone] = useState<number | undefined>(undefined);
   const refused = generate.isError ? describeProblem(generate.error) : undefined;
@@ -187,7 +188,7 @@ function GeneratePeriods({ year, onGenerated }: { year: number; onGenerated(year
     if (found !== undefined) return;
     const requested = Number(text.trim());
     generate.mutate(
-      { year: requested },
+      { year: requested, periodType },
       {
         onSuccess: () => {
           setDone(requested);
@@ -222,6 +223,12 @@ function GeneratePeriods({ year, onGenerated }: { year: number; onGenerated(year
               setProblem(undefined);
             }}
           />
+        </Field>
+        <Field id="generate-type" label={t('dis.calendar.generate.type.label')} error={undefined}>
+          <select id="generate-type" value={periodType} onChange={(event) => setPeriodType(event.target.value as GeneratedPeriodType)}>
+            <option value="WEEK">{t('dis.calendar.generate.type.week')}</option>
+            <option value="MONTH">{t('dis.calendar.generate.type.month')}</option>
+          </select>
         </Field>
         <button type="submit" className="primary" disabled={generate.isPending}>
           {t('dis.calendar.generate.submit.action')}

@@ -40501,16 +40501,61 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            },
+            "description": "Narrows the board and the drill to one unit."
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MUST_REPORT",
+                "SUBMITTED",
+                "LATE_SUBMITTED",
+                "DRAFT",
+                "NOT_STARTED",
+                "OVERDUE"
+              ]
+            },
+            "description": "Asks for the exact projects a number of the board counted."
+          },
+          {
+            "name": "with_narrative",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "With `state`: carries the narrative of the report that stands for each project (PRJ-13)."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "description": "The board of the period for the projects in the scope of the caller; with `state` also the projects of that number.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/DisSubmissionProgress"
                 }
               }
             }
@@ -149504,6 +149549,306 @@
             ]
           }
         }
+      },
+      "DisSubmissionCounts": {
+        "type": "object",
+        "properties": {
+          "must_report": {
+            "type": "integer"
+          },
+          "submitted": {
+            "type": "integer",
+            "description": "Handed in, including the ones that came in late."
+          },
+          "submitted_late": {
+            "type": "integer",
+            "description": "Of the submitted, the ones whose stored lateness says they came in after the deadline."
+          },
+          "draft": {
+            "type": "integer"
+          },
+          "not_started": {
+            "type": "integer"
+          },
+          "overdue": {
+            "type": "integer",
+            "description": "The deadline has passed and nothing was handed in (a draft or not started)."
+          }
+        },
+        "required": [
+          "must_report",
+          "submitted",
+          "submitted_late",
+          "draft",
+          "not_started",
+          "overdue"
+        ]
+      },
+      "DisSubmissionUnit": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ]
+          },
+          "must_report": {
+            "type": "integer"
+          },
+          "submitted": {
+            "type": "integer",
+            "description": "Handed in, including the ones that came in late."
+          },
+          "submitted_late": {
+            "type": "integer",
+            "description": "Of the submitted, the ones whose stored lateness says they came in after the deadline."
+          },
+          "draft": {
+            "type": "integer"
+          },
+          "not_started": {
+            "type": "integer"
+          },
+          "overdue": {
+            "type": "integer",
+            "description": "The deadline has passed and nothing was handed in (a draft or not started)."
+          }
+        },
+        "required": [
+          "unit",
+          "must_report",
+          "submitted",
+          "submitted_late",
+          "draft",
+          "not_started",
+          "overdue"
+        ]
+      },
+      "DisSubmissionProject": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ]
+          },
+          "unit": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "SUBMITTED",
+              "DRAFT",
+              "NOT_STARTED"
+            ]
+          },
+          "is_late": {
+            "type": "boolean"
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "report": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "submitted_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "status",
+                  "submitted_at"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "narrative": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "results": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "causes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "solutions": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "proposals": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "project",
+          "unit",
+          "state",
+          "is_late",
+          "overdue",
+          "report"
+        ]
+      },
+      "DisSubmissionProgress": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "period_type": {
+                "type": "string"
+              },
+              "start_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "end_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "deadline_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "period_type",
+              "start_date",
+              "end_date",
+              "deadline_at"
+            ]
+          },
+          "deadline_passed": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "total": {
+            "$ref": "#/components/schemas/DisSubmissionCounts"
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisSubmissionUnit"
+            }
+          },
+          "state": {
+            "type": "string"
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisSubmissionProject"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "period",
+          "deadline_passed",
+          "as_of",
+          "total",
+          "units"
+        ]
       }
     }
   }

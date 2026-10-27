@@ -183,7 +183,7 @@ export { VND_SCALE, creditAmount, debitAmount, entriesInForce, netOfEntries, ord
 export type { LedgerEntry, LockTarget } from './money-ledger.ts';
 export { assertOneWinner, outcomeLabel, outcomeOfError, runConcurrently, runLoops, succeeded, tallyOutcomes } from './concurrency-harness.ts';
 export type { CommandOutcome, LoopOptions, LoopRound } from './concurrency-harness.ts';
-export { CALENDAR_TIMEZONES, WEEKDAYS, assertCalendar, isLate, periodOf, reportingPeriods } from './reporting-calendar.ts';
+export { CALENDAR_TIMEZONES, MONTHLY_DEADLINE_DAY, WEEKDAYS, assertCalendar, isLate, monthlyPeriodOf, monthlyPeriods, periodOf, periodOfType, reportingPeriods } from './reporting-calendar.ts';
 export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-calendar.ts';
 export { isIsoDate, periodsOverlap, shiftDays } from './effective-period.ts';
 export { assertRuleVersions, resolveRule, ruleOfRevision } from './rule-resolver.ts';
@@ -643,3 +643,5 @@ export type { ExcludedReason, RankedUnit, Ranking, RankingUnit } from './dis-ran
 export type { RateBasis, RateFigures, RateSums } from './dis-rates.ts';
 export type { DefinitionStatus, HashedLine, PlanCell, RateNullReason, Rates, ReportedCell, SnapshotHeader, SnapshotKind, SnapshotLine, SnapshotProject, TreasuryCoverage, TreasuryEntry } from './dis-snapshot.ts';
 export { DELETION_REASON_MIN, LIFECYCLE_REASON_MAX, charactersOf, RESTORE_WINDOW_DAYS, WITHDRAWAL_REASON_MIN, deleteRefusal, deletionOf, restoreDeadline, restoreRefusal, withdrawRefusal, withdrawalOf } from './dis-lifecycle.ts';
+export { DRILL_STATES, SUBMISSION_STATES, SUBMITTED_STATUSES, inDrill, isOverdue, submissionStateOf, tallyBoard } from './dis-board.ts';
+export type { BoardProject, BoardTally, DrillState, SubmissionState } from './dis-board.ts';

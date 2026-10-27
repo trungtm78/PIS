@@ -135,11 +135,26 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       expect((await rows<{ n: string }>('select count(*)::text as n from machvon.reporting_period where fiscal_year = 2028'))[0]?.n).toBe('52');
     });
 
+    it('ST-DIS-015: generates the twelve months of 2027 beside the weeks, each due on the 5th of the next month at 03:00 UTC, bound to the calendar version, and answers a repeat with 409 PERIOD_OVERLAP', async () => {
+      expect((await generate(MANAGER, 2027)).status).toBe(200);
+      const first = await generate(MANAGER, 2027, { period_type: 'MONTH' });
+      expect(first.status).toBe(200);
+      const stored = await rows<{ code: string; start_date: string; end_date: string; deadline: string; status: string }>(
+        "select code, start_date::text, end_date::text, to_char(deadline_at at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS') as deadline, status from machvon.reporting_period where fiscal_year = 2027 and period_type = 'MONTH' order by start_date",
+      );
+      expect(stored).toHaveLength(12);
+      expect(stored[8]).toEqual({ code: 'M2027-09', start_date: '2027-09-01', end_date: '2027-09-30', deadline: '2027-10-05T03:00:00', status: 'OPEN' });
+      expect(stored[11]?.deadline).toBe('2028-01-05T03:00:00');
+      expect((await rows<{ n: string }>("select count(*)::text as n from machvon.reporting_period where period_type = 'WEEK'"))[0]).toEqual({ n: '53' });
+      const again = await generate(MANAGER, 2027, { period_type: 'MONTH' });
+      expect([again.status, again.json.code, again.json.detail]).toEqual([409, 'PERIOD_OVERLAP', 'fiscal_year']);
+    });
+
     it('refuses what the contract and the rules do not allow, naming the field', async () => {
       const unknown = await generate(MANAGER, 2027, { tenant_id: TENANT_A });
       expect([unknown.status, unknown.json.code]).toEqual([400, 'FIELD_NOT_ALLOWED']);
-      const month = await generate(MANAGER, 2027, { period_type: 'MONTH' });
-      expect([month.status, month.json.code, month.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'period_type']);
+      const quarter = await generate(MANAGER, 2027, { period_type: 'QUARTER' });
+      expect([quarter.status, quarter.json.code, quarter.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'period_type']);
       const other = await generate(MANAGER, 2027, { calendar_code: 'OTHER' });
       expect([other.status, other.json.code, other.json.detail]).toEqual([422, 'CALENDAR_NOT_EFFECTIVE', 'calendar_code']);
       const early = await generate(MANAGER, 1969);

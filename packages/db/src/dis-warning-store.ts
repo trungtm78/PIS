@@ -254,7 +254,7 @@ export interface Cleared {
 
 export interface Evaluation {
   /** Why nothing was evaluated, when nothing was. */
-  skipped: 'NOT_FROZEN' | 'NOT_CLOSE' | 'SUPERSEDED' | 'OLDER_PERIOD' | undefined;
+  skipped: 'NOT_FROZEN' | 'NOT_CLOSE' | 'SUPERSEDED' | 'OLDER_PERIOD' | 'NOT_WEEKLY' | undefined;
   rules: number;
   opened: Opened[];
   updated: number;
@@ -393,6 +393,8 @@ export class DisWarningStore {
     if (snapshot.snapshotKind !== 'PERIOD_CLOSE') return none('NOT_CLOSE');
     const period = await this.periods.find(tx, snapshot.periodId);
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'period_id');
+    // The rules read the weekly close figures; a monthly period has its own snapshots, which must neither open nor clear the warnings the weeks have said (ST-DIS-015).
+    if (period.periodType !== 'WEEK') return none('NOT_WEEKLY');
     // The warnings of a year are shared by its periods, so the evaluations of a year take turns, and an older period never overwrites what a newer one has said.
     await tx.query(`select pg_advisory_xact_lock(hashtextextended(current_setting('app.tenant_id', true) || ':warning-evaluate:' || $1, 0))`, [String(period.fiscalYear)]);
     const [newer] = await tx.query<{ id: string }>(

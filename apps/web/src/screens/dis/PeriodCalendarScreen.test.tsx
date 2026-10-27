@@ -227,6 +227,21 @@ describe('PeriodCalendarScreen (DIS-14): the calendar of the reporting periods (
       expect((screen.getByLabelText(vi_['dis.calendar.filter.year.label']) as HTMLSelectElement).value).toBe('2031');
     });
 
+    it('ST-DIS-015: generates the months of a year when the type is changed to months, and weeks stay the default', async () => {
+      const h = client(world({ periods: [] }), () => ({}));
+      mount(<PeriodCalendarScreen route={ROUTE} />, h, MANAGER, PATH);
+      const user = userEvent.setup();
+      const type = (await screen.findByLabelText(vi_['dis.calendar.generate.type.label'])) as HTMLSelectElement;
+      expect(type.value).toBe('WEEK');
+      expect(within(type).getAllByRole('option').map((option) => option.textContent)).toEqual([vi_['dis.calendar.generate.type.week'], vi_['dis.calendar.generate.type.month']]);
+      const input = screen.getByLabelText(vi_['dis.calendar.generate.year.label']);
+      await user.clear(input);
+      await user.type(input, '2031');
+      await user.selectOptions(type, 'MONTH');
+      await user.click(screen.getByRole('button', { name: vi_['dis.calendar.generate.submit.action'] }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledWith('generateReportingPeriods', expect.objectContaining({ body: { calendar_code: 'DEFAULT', fiscal_year: 2031, period_type: 'MONTH' } })));
+    });
+
     it('refuses a year that is not four digits within the calendar years, without calling the server', async () => {
       const h = client(world({ periods: [] }));
       mount(<PeriodCalendarScreen route={ROUTE} />, h, MANAGER, PATH);

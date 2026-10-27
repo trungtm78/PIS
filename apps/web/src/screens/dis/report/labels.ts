@@ -160,7 +160,7 @@ export function findingMessage(t: T, finding: Finding): string {
     case 'NEGATIVE_DELTA_EXPLANATION_REQUIRED':
       return t('dis.review.finding.fall.text');
     case 'VALIDATION_FAILED':
-      return t('dis.review.finding.volumes.text');
+      return finding.field.startsWith('narrative') ? t('dis.review.finding.causes.text') : t('dis.review.finding.volumes.text');
     case 'VOLUME_EXCEEDS_ALLOCATION':
       return finding.values.ratio_pct === null || finding.values.ratio_pct === undefined
         ? t('dis.review.finding.volumeNoCapital.text', { construction: value('construction_vnd') })

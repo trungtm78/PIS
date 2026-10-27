@@ -463,7 +463,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getReportImport': DisReportImportResponse.fromJson,
   'getReportRevision': asObject,
   'getSitePhotoChecks': asObject,
-  'getSubmissionProgress': asObject,
+  'getSubmissionProgress': DisSubmissionProgressResponse.fromJson,
   'getSystemLicense': SystemLicenseResponse.fromJson,
   'getSystemTenant': TenantDetailResponse.fromJson,
   'getSystemTenantThemeDraft': TenantThemeDraftResponse.fromJson,
@@ -4350,6 +4350,354 @@ final class DisReportSubmitResultResponseWarningsItem implements ResponseModel {
         'code': code,
         'field': field,
         'values': values,
+        ...extra,
+      };
+}
+
+final class DisSubmissionCountsResponse implements ResponseModel {
+  const DisSubmissionCountsResponse({
+    required this.mustReport,
+    required this.submitted,
+    required this.submittedLate,
+    required this.draft,
+    required this.notStarted,
+    required this.overdue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionCountsResponse.fromJson(Object? json, [String path = 'DisSubmissionCountsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionCountsResponse(
+      mustReport: requiredField(map, path, 'must_report', asInt),
+      submitted: requiredField(map, path, 'submitted', asInt),
+      submittedLate: requiredField(map, path, 'submitted_late', asInt),
+      draft: requiredField(map, path, 'draft', asInt),
+      notStarted: requiredField(map, path, 'not_started', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      extra: unknownFields(map, path, const <String>{'must_report', 'submitted', 'submitted_late', 'draft', 'not_started', 'overdue'}, strict: false),
+    );
+  }
+
+  final int mustReport;
+  final int submitted;
+  final int submittedLate;
+  final int draft;
+  final int notStarted;
+  final int overdue;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'must_report': mustReport,
+        'submitted': submitted,
+        'submitted_late': submittedLate,
+        'draft': draft,
+        'not_started': notStarted,
+        'overdue': overdue,
+        ...extra,
+      };
+}
+
+final class DisSubmissionProgressResponse implements ResponseModel {
+  const DisSubmissionProgressResponse({
+    required this.period,
+    required this.deadlinePassed,
+    required this.asOf,
+    required this.total,
+    required this.units,
+    this.state,
+    this.projects,
+    this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionProgressResponse.fromJson(Object? json, [String path = 'DisSubmissionProgressResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionProgressResponse(
+      period: requiredField(map, path, 'period', DisSubmissionProgressResponsePeriod.fromJson),
+      deadlinePassed: requiredField(map, path, 'deadline_passed', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      total: requiredField(map, path, 'total', DisSubmissionCountsResponse.fromJson),
+      units: requiredField(map, path, 'units', asList(DisSubmissionUnitResponse.fromJson)),
+      state: optionalField(map, path, 'state', asString),
+      projects: optionalField(map, path, 'projects', asList(DisSubmissionProjectResponse.fromJson)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'period', 'deadline_passed', 'as_of', 'total', 'units', 'state', 'projects', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final DisSubmissionProgressResponsePeriod period;
+  final bool deadlinePassed;
+  final String asOf;
+  final DisSubmissionCountsResponse total;
+  final List<DisSubmissionUnitResponse> units;
+  final String? state;
+  final List<DisSubmissionProjectResponse>? projects;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period': period.toJson(),
+        'deadline_passed': deadlinePassed,
+        'as_of': asOf,
+        'total': total.toJson(),
+        'units': units.map((e0) => e0.toJson()).toList(),
+        if (state != null) 'state': state,
+        if (projects != null) 'projects': projects!.map((e0) => e0.toJson()).toList(),
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class DisSubmissionProgressResponsePeriod implements ResponseModel {
+  const DisSubmissionProgressResponsePeriod({
+    required this.id,
+    required this.code,
+    required this.periodType,
+    required this.startDate,
+    required this.endDate,
+    required this.deadlineAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionProgressResponsePeriod.fromJson(Object? json, [String path = 'DisSubmissionProgressResponsePeriod']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionProgressResponsePeriod(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      periodType: requiredField(map, path, 'period_type', asString),
+      startDate: requiredField(map, path, 'start_date', asString),
+      endDate: requiredField(map, path, 'end_date', asString),
+      deadlineAt: requiredField(map, path, 'deadline_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'period_type', 'start_date', 'end_date', 'deadline_at'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String periodType;
+  final String startDate;
+  final String endDate;
+  final String deadlineAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'period_type': periodType,
+        'start_date': startDate,
+        'end_date': endDate,
+        'deadline_at': deadlineAt,
+        ...extra,
+      };
+}
+
+final class DisSubmissionProjectResponse implements ResponseModel {
+  const DisSubmissionProjectResponse({
+    required this.project,
+    required this.unit,
+    required this.state,
+    required this.isLate,
+    required this.overdue,
+    required this.report,
+    this.narrative,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionProjectResponse.fromJson(Object? json, [String path = 'DisSubmissionProjectResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionProjectResponse(
+      project: requiredField(map, path, 'project', DisSubmissionProjectResponseProject.fromJson),
+      unit: requiredField(map, path, 'unit', DisSubmissionProjectResponseUnit.fromJson),
+      state: requiredField(map, path, 'state', asString),
+      isLate: requiredField(map, path, 'is_late', asBool),
+      overdue: requiredField(map, path, 'overdue', asBool),
+      report: requiredField(map, path, 'report', asAny),
+      narrative: optionalField(map, path, 'narrative', asAny),
+      extra: unknownFields(map, path, const <String>{'project', 'unit', 'state', 'is_late', 'overdue', 'report', 'narrative'}, strict: false),
+    );
+  }
+
+  final DisSubmissionProjectResponseProject project;
+  final DisSubmissionProjectResponseUnit unit;
+  final String state;
+  final bool isLate;
+  final bool overdue;
+  final Object? report;
+  final Object? narrative;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project': project.toJson(),
+        'unit': unit.toJson(),
+        'state': state,
+        'is_late': isLate,
+        'overdue': overdue,
+        'report': report,
+        if (narrative != null) 'narrative': narrative,
+        ...extra,
+      };
+}
+
+final class DisSubmissionProjectResponseProject implements ResponseModel {
+  const DisSubmissionProjectResponseProject({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionProjectResponseProject.fromJson(Object? json, [String path = 'DisSubmissionProjectResponseProject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionProjectResponseProject(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class DisSubmissionProjectResponseUnit implements ResponseModel {
+  const DisSubmissionProjectResponseUnit({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionProjectResponseUnit.fromJson(Object? json, [String path = 'DisSubmissionProjectResponseUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionProjectResponseUnit(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class DisSubmissionUnitResponse implements ResponseModel {
+  const DisSubmissionUnitResponse({
+    required this.unit,
+    required this.mustReport,
+    required this.submitted,
+    required this.submittedLate,
+    required this.draft,
+    required this.notStarted,
+    required this.overdue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionUnitResponse.fromJson(Object? json, [String path = 'DisSubmissionUnitResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionUnitResponse(
+      unit: requiredField(map, path, 'unit', DisSubmissionUnitResponseUnit.fromJson),
+      mustReport: requiredField(map, path, 'must_report', asInt),
+      submitted: requiredField(map, path, 'submitted', asInt),
+      submittedLate: requiredField(map, path, 'submitted_late', asInt),
+      draft: requiredField(map, path, 'draft', asInt),
+      notStarted: requiredField(map, path, 'not_started', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      extra: unknownFields(map, path, const <String>{'unit', 'must_report', 'submitted', 'submitted_late', 'draft', 'not_started', 'overdue'}, strict: false),
+    );
+  }
+
+  final DisSubmissionUnitResponseUnit unit;
+  final int mustReport;
+  final int submitted;
+  final int submittedLate;
+  final int draft;
+  final int notStarted;
+  final int overdue;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit': unit.toJson(),
+        'must_report': mustReport,
+        'submitted': submitted,
+        'submitted_late': submittedLate,
+        'draft': draft,
+        'not_started': notStarted,
+        'overdue': overdue,
+        ...extra,
+      };
+}
+
+final class DisSubmissionUnitResponseUnit implements ResponseModel {
+  const DisSubmissionUnitResponseUnit({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisSubmissionUnitResponseUnit.fromJson(Object? json, [String path = 'DisSubmissionUnitResponseUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisSubmissionUnitResponseUnit(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
         ...extra,
       };
 }

@@ -407,8 +407,8 @@ export function saveBody(detail: ReportDetail, form: FundingForm): ReportDraftBo
 }
 
 /** The start of a draft: the project and the period, the basis the cumulative cells are read on; the cells start at zero and are entered on DIS-04. */
-export function createBody(input: { projectId: string; periodId: string; basis: Basis }): ReportDraftBody {
-  return { project_id: input.projectId, period_id: input.periodId, measurement_basis: input.basis, report_type: 'WEEKLY', funding_lines: [] };
+export function createBody(input: { projectId: string; periodId: string; basis: Basis; reportType?: 'WEEKLY' | 'MONTHLY' }): ReportDraftBody {
+  return { project_id: input.projectId, period_id: input.periodId, measurement_basis: input.basis, report_type: input.reportType ?? 'WEEKLY', funding_lines: [] };
 }
 
 /** The id of the resource a command answered with: the report that was made. */

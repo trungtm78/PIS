@@ -9,6 +9,8 @@ const PROGRESS = { constructionVnd: '100', acceptanceVnd: '50', treasurySubmitte
 const clean = (extra: Partial<ReviewInput> = {}): ReviewInput => ({
   status: 'DRAFT',
   deleted: false,
+  reportType: 'WEEKLY',
+  narrativeCausesText: null,
   periodClosed: false,
   planInForce: true,
   cells: [cell({ cumulativeVnd: '100', allocatedVnd: '100', nextMonthVnd: '10' }), ...Array.from({ length: 5 }, () => cell())],
@@ -147,5 +149,15 @@ describe('the percent and the window of the Treasury', () => {
     expect(treasuryWindow('PERIOD', period)).toEqual({ from: '2027-01-04', to: '2027-01-10' });
     expect(treasuryWindow('YTD', period)).toEqual({ from: '2027-01-01', to: '2027-01-10' });
     expect(treasuryWindow('PROJECT_TO_DATE', period)).toEqual({ from: null, to: '2027-01-10' });
+  });
+
+  it('AC-ST-DIS-015-2 / UAT-AC262: a monthly report cannot be sent without the causes of its narrative (422 naming narrative.causes_text), a weekly one can, and words of causes let it through', () => {
+    const monthly = reviewReport(clean({ reportType: 'MONTHLY' }));
+    expect(monthly.errors.map((entry) => [entry.code, entry.field])).toEqual([['VALIDATION_FAILED', 'narrative.causes_text']]);
+    const refusal = submitRefusal(monthly);
+    expect([refusal?.status, refusal?.detail]).toEqual([422, 'narrative.causes_text']);
+    expect(reviewReport(clean({ reportType: 'MONTHLY', narrativeCausesText: '   ' })).blocking).toBe(true);
+    expect(reviewReport(clean({ reportType: 'MONTHLY', narrativeCausesText: 'Chậm do giải phóng mặt bằng' })).blocking).toBe(false);
+    expect(reviewReport(clean()).blocking).toBe(false);
   });
 });

@@ -370,8 +370,10 @@ export function validateYear(value: string): FieldProblem | undefined {
 
 export type GenerateBody = components['schemas']['DisPeriodGenerate'];
 
-/** Only weeks are generated: the reporting calendar counts weeks, and the other period types wait for a rule of the business owner. */
-export const generateBody = (year: number): GenerateBody => ({ calendar_code: 'DEFAULT', fiscal_year: year, period_type: 'WEEK' });
+/** The period types the calendar generates: weeks, and the calendar months the monthly report is filed on (ST-DIS-015); the other types wait for a rule of the business owner. */
+export const GENERATED_PERIOD_TYPES = ['WEEK', 'MONTH'] as const;
+export type GeneratedPeriodType = (typeof GENERATED_PERIOD_TYPES)[number];
+export const generateBody = (year: number, periodType: GeneratedPeriodType = 'WEEK'): GenerateBody => ({ calendar_code: 'DEFAULT', fiscal_year: year, period_type: periodType });
 
 // ---- refusals -------------------------------------------------------------------------------------------------------
 

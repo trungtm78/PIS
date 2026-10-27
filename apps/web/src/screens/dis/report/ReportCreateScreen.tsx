@@ -47,7 +47,7 @@ function ReportCreateContent({ route }: ScreenProps) {
   const all = periods.data ?? [];
   const years = yearsOf(all, currentYear);
   const shownYear = year ?? currentYear;
-  const weeks = periodsOf(all, shownYear, '');
+  const weeks = periodsOf(all, shownYear, '').filter((period) => period.periodType === 'WEEK');
   const chosen = all.find((period) => period.id === periodId);
   const allowed = canCreate(permissions, mode);
   const described = create.isError ? describeReport(create.error) : undefined;

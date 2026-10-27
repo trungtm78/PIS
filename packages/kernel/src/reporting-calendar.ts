@@ -85,3 +85,37 @@ export function reportingPeriods(calendar: CalendarDefinition, year: number): Re
 
 /** Whether a report handed in at `at` is late for a period (`at` after the deadline; the deadline itself is still in time). */
 export const isLate = (period: Pick<ReportingPeriod, 'deadlineAt'>, at: Date): boolean => at.getTime() > Date.parse(period.deadlineAt);
+
+/**
+ * The monthly period (ST-DIS-015, an assumption of the first release until the business owner signs the deadline, D03): a calendar month, due on the 5th of the next month at the deadline time of
+ * the calendar, in its time zone. The calendar definition holds the weekly rule only; the monthly one is a constant until it is data.
+ */
+export const MONTHLY_DEADLINE_DAY = 5;
+
+function monthPeriod(calendar: CalendarDefinition, year: number, month: number): ReportingPeriod {
+  const first = Math.floor(Date.UTC(year, month - 1, 1) / DAY_MS);
+  const last = Math.floor(Date.UTC(year, month, 1) / DAY_MS) - 1;
+  const [hours, minutes] = calendar.deadlineTime.split(':').map(Number) as [number, number];
+  const zone = CALENDAR_TIMEZONES[calendar.timezone] as number;
+  const deadline = new Date(Date.UTC(year, month, MONTHLY_DEADLINE_DAY) + (hours * 60 + minutes - zone) * 60_000);
+  return { code: `M${year}-${pad(month)}`, year, number: month, startsOn: isoOf(first), endsOn: isoOf(last), deadlineAt: deadline.toISOString() };
+}
+
+/** The twelve monthly periods of a year, in order, with no gap and no overlap. */
+export function monthlyPeriods(calendar: CalendarDefinition, year: number): ReportingPeriod[] {
+  assertCalendar(calendar);
+  if (!Number.isInteger(year) || year < 1970 || year > 9999) throw new DomainError('VALIDATION_FAILED', 422, 'year');
+  return Array.from({ length: 12 }, (_, n) => monthPeriod(calendar, year, n + 1));
+}
+
+/** The monthly period that contains a business date (`YYYY-MM-DD`). */
+export function monthlyPeriodOf(calendar: CalendarDefinition, date: string): ReportingPeriod {
+  assertCalendar(calendar);
+  const [year, month] = date.split('-').map(Number) as [number, number];
+  return monthPeriod(calendar, year, month);
+}
+
+/** The period of a type that contains a date: the deadline of a period is judged by its type. */
+export function periodOfType(calendar: CalendarDefinition, periodType: string, date: string): ReportingPeriod {
+  return periodType === 'MONTH' ? monthlyPeriodOf(calendar, date) : periodOf(calendar, date);
+}

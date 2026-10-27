@@ -116,7 +116,7 @@ function useCommand<Input>(send: (input: Input, attempt: ReturnType<AttemptRegis
 /** Starts the draft of a project for a period; the answer names the report. */
 export function useCreateReport() {
   const client = useApiClient();
-  return useCommand<{ projectId: string; periodId: string; basis: Basis }>(async (input, attempt) => {
+  return useCommand<{ projectId: string; periodId: string; basis: Basis; reportType?: 'WEEKLY' | 'MONTHLY' }>(async (input, attempt) => {
     const done = await client.command('post_reports', { body: createBody(input), attempt });
     return done;
   });

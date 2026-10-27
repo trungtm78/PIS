@@ -325,6 +325,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'applyReportImport',
         'buildPeriodSnapshot',
         'freezePeriodSnapshot',
+        'getSubmissionProgress',
         'listPeriodSnapshotLines',
         'listPeriodSnapshots',
         'createEarlyWarningRuleVersion',

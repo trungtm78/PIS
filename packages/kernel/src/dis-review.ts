@@ -1,5 +1,5 @@
 import { DomainError } from './errors.ts';
-import type { MeasurementBasis, RevisionStatus } from './dis-report.ts';
+import type { MeasurementBasis, ReportType, RevisionStatus } from './dis-report.ts';
 import type { ProgressInput } from './dis-progress.ts';
 
 /** BR-DIS-07: what blocks the sending of a report (an error) and what is told and lets it through (a warning). */
@@ -28,6 +28,9 @@ export interface ReviewCell {
 export interface ReviewInput {
   status: RevisionStatus;
   deleted: boolean;
+  reportType: ReportType;
+  /** The words of the `causes` section of the narrative, or null when there are none: the monthly report cannot be sent without them. */
+  narrativeCausesText: string | null;
   /** The period takes no report: it is locked and no approved reopening covers the project. */
   periodClosed: boolean;
   /** The plan version of the report is the one in force at the end of the period. */
@@ -98,6 +101,7 @@ export function reviewReport(input: ReviewInput): Review {
     error('NEGATIVE_DELTA_EXPLANATION_REQUIRED', 'negative_delta_explanation');
   }
   if (input.progress === null) error('VALIDATION_FAILED', 'progress', { missing: 'construction_vnd' });
+  if (input.reportType === 'MONTHLY' && (input.narrativeCausesText === null || input.narrativeCausesText.trim() === '')) error('VALIDATION_FAILED', 'narrative.causes_text', { missing: 'causes_text' });
 
   const falls = input.cells.flatMap((cell) => (cell.deltaVnd !== null && cell.deltaVnd.startsWith('-') ? [BigInt(cell.deltaVnd)] : []));
   // A fall that is explained is told, not hidden: the report goes with it, and the change is what it is (never forced to zero).
