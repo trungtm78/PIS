@@ -547,7 +547,7 @@ export const TEMPLATE_FIXTURES: Readonly<Record<TenantName, { id: string; templa
 };
 
 /** A published report form, an obligation rule of it and the obligation (report shell) generated from them, per tenant (the codes and the legal text are distinctive). */
-export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCode: string; formLegalBasis: string; ruleId: string; ruleCode: string; ruleRecipient: string; reportId: string }>> = {
+export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCode: string; formLegalBasis: string; ruleId: string; ruleCode: string; ruleRecipient: string; reportId: string; packageId: string; packageSha256: string }>> = {
   'TNT-A': {
     formId: '00000000-0000-4000-a0d6-000000000001',
     formCode: 'ALPHA-FORM-0001',
@@ -556,6 +556,8 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
     ruleCode: 'ALPHA-RULE-0001',
     ruleRecipient: 'Alpha recipient agency 0001',
     reportId: '00000000-0000-4000-a0d6-000000000003',
+    packageId: '00000000-0000-4000-a0d6-000000000004',
+    packageSha256: 'a0d6'.repeat(16),
   },
   'TNT-B': {
     formId: '00000000-0000-4000-b0d6-000000000001',
@@ -565,6 +567,8 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
     ruleCode: 'BETA-RULE-0001',
     ruleRecipient: 'Beta recipient agency 0001',
     reportId: '00000000-0000-4000-b0d6-000000000003',
+    packageId: '00000000-0000-4000-b0d6-000000000004',
+    packageSha256: 'b0d6'.repeat(16),
   },
 };
 
@@ -777,6 +781,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'obligation rule code', value: MNE_FIXTURES[tenant].ruleCode },
     { kind: 'obligation rule recipient', value: MNE_FIXTURES[tenant].ruleRecipient },
     { kind: 'obligation report id', value: MNE_FIXTURES[tenant].reportId },
+    { kind: 'export package id', value: MNE_FIXTURES[tenant].packageId },
+    { kind: 'export package hash', value: MNE_FIXTURES[tenant].packageSha256 },
     { kind: 'glossary term id', value: GLOSSARY_FIXTURES[tenant].termId },
     { kind: 'glossary term code', value: GLOSSARY_FIXTURES[tenant].termCode },
     { kind: 'glossary term definition', value: GLOSSARY_FIXTURES[tenant].definition },

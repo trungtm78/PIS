@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import type { ReportField, ReportView } from './types';
-import { APPROVE_REPORT_PERMISSION, ISSUE_REPORT_PERMISSION, PREPARE_REPORT_PERMISSION } from './types';
+import { APPROVE_REPORT_PERMISSION, EXPORT_REPORT_PERMISSION, ISSUE_REPORT_PERMISSION, PREPARE_REPORT_PERMISSION } from './types';
+import type { PackageView } from './types';
 
 // ---- what a person may do with a report ----
 
@@ -31,6 +32,27 @@ export function mayRequestIssue(report: Pick<ReportView, 'status'>, permissions:
 /** The reason of a decision is five characters at least once trimmed (the server says the same). */
 export const REASON_MIN = 5;
 export const hasReason = (reason: string): boolean => reason.trim().length >= REASON_MIN;
+
+// ---- the files of an issued report (MNE-06) ----
+
+/** Whether the person may make files of the report and write down their filing: the report is issued (and not recalled), they hold the right and the system is not read-only. */
+export function mayExport(report: Pick<ReportView, 'status' | 'recalledAt'>, permissions: readonly string[] | undefined, frozen: boolean): boolean {
+  return (report.status === 'ISSUED' || report.status === 'EXPORTED' || report.status === 'SUBMITTED_EXTERNAL') && report.recalledAt === null && !frozen && (permissions === undefined || permissions.includes(EXPORT_REPORT_PERMISSION));
+}
+
+/** The hash as a screen shows it: the first twelve characters and the last four, the whole of it in the title of the cell. */
+export function shortHash(hash: string): string {
+  return hash.length <= 16 ? hash : `${hash.slice(0, 12)}…${hash.slice(-4)}`;
+}
+
+/** A file can take its receipt while it is offered: made or downloaded, not yet filed, refused or expired. */
+export const canFile = (item: Pick<PackageView, 'status'>): boolean => item.status === 'GENERATED' || item.status === 'DOWNLOADED';
+
+/** The moment of a filing written in a form field (a local date and time) as the instant the server takes, or undefined when it is not a date. */
+export function instantOf(local: string): string | undefined {
+  const time = Date.parse(local);
+  return Number.isNaN(time) ? undefined : new Date(time).toISOString();
+}
 
 // ---- the document DOC makes of the report ----
 
@@ -123,6 +145,10 @@ export function drillPath(report: Pick<ReportView, 'snapshotId'>, field: Pick<Re
 
 export type ReportReason =
   | 'conflict'
+  | 'receiptRequired'
+  | 'notIssued'
+  | 'formatUnsupported'
+  | 'packageState'
   | 'selfApproval'
   | 'templateMissing'
   | 'stateInvalid'
@@ -146,6 +172,10 @@ export interface ReportProblem {
 
 const REASON_BY_CODE: Readonly<Record<string, ReportReason>> = {
   VERSION_CONFLICT: 'conflict',
+  RECEIPT_REQUIRED: 'receiptRequired',
+  REPORT_NOT_ISSUED: 'notIssued',
+  EXPORT_FORMAT_UNSUPPORTED: 'formatUnsupported',
+  PACKAGE_STATE_INVALID: 'packageState',
   SELF_APPROVAL_DENIED: 'selfApproval',
   DOC_TEMPLATE_MISSING: 'templateMissing',
   REPORT_STATE_INVALID: 'stateInvalid',

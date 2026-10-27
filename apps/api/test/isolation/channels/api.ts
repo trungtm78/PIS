@@ -304,6 +304,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'getMneReport', method: 'GET', id: MNE_FIXTURES['TNT-B'].reportId },
   { operation: 'decideMneReport', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
   { operation: 'requestMneReportIssue', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: {} },
+  { operation: 'generateMneExportPackage', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: { target_system: 'NATIONAL_PIM_SYSTEM', formats: ['CSV'] } },
+  { operation: 'recordMneSubmissionReceipt', method: 'POST', id: MNE_FIXTURES['TNT-B'].packageId, versioned: true, body: { receipt_reference: 'ISOLATION-RECEIPT', submitted_at: '2026-10-20T08:00:00Z' } },
   { operation: 'get_resources_contractor_id', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },
   { operation: 'submitProcurementPlan', method: 'POST', id: PROCUREMENT_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideProcurementPlan', method: 'POST', id: PROCUREMENT_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'RETURN', comment: 'Isolation foreign decision attempt' } },

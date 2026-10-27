@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { DOC_STAGES, describeReportProblem, docStageOf, dong, draftsOf, drillPath, hasReason, isEditable, isOwnReport, mayDecide, mayRequestIssue, missingCells, narrativeChanges, shown } from './report-model';
+import { DOC_STAGES, describeReportProblem, docStageOf, dong, draftsOf, drillPath, canFile, hasReason, instantOf, isEditable, isOwnReport, mayDecide, mayExport, mayRequestIssue, shortHash, missingCells, narrativeChanges, shown } from './report-model';
 import { toReport } from './types';
 import type { ReportField } from './types';
 
@@ -144,6 +144,41 @@ describe('the report of MNE-03 (ST-MNE-002)', () => {
     it('says why a decision failed: the self-approval, the missing template', () => {
       expect(describeReportProblem(problem('SELF_APPROVAL_DENIED'))).toEqual({ reason: 'selfApproval', fields: [] });
       expect(describeReportProblem(problem('DOC_TEMPLATE_MISSING'))).toEqual({ reason: 'templateMissing', fields: [] });
+    });
+  });
+
+  describe('the files of an issued report (ST-MNE-004)', () => {
+    it('lets a person make files only of an issued report that was not recalled, when they hold the right and the system is not read-only', () => {
+      const rights = ['mne.report.export'];
+      for (const status of ['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL'] as const) expect(mayExport({ status, recalledAt: null }, rights, false)).toBe(true);
+      for (const status of ['DRAFT', 'IN_REVIEW', 'APPROVED', 'ISSUING', 'RETURNED', 'SUPERSEDED'] as const) expect(mayExport({ status, recalledAt: null }, rights, false)).toBe(false);
+      expect(mayExport({ status: 'ISSUED', recalledAt: '2026-10-01T00:00:00Z' }, rights, false)).toBe(false);
+      expect(mayExport({ status: 'ISSUED', recalledAt: null }, ['mne.read'], false)).toBe(false);
+      expect(mayExport({ status: 'ISSUED', recalledAt: null }, rights, true)).toBe(false);
+      expect(mayExport({ status: 'ISSUED', recalledAt: null }, undefined, false)).toBe(true);
+    });
+
+    it('shows a hash by its first twelve characters and its last four, and a short one as it is', () => {
+      expect(shortHash('a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90')).toBe('a1b2c3d4e5f6…8f90');
+      expect(shortHash('abcd')).toBe('abcd');
+    });
+
+    it('lets a package take its receipt only while it is offered', () => {
+      expect(['GENERATED', 'DOWNLOADED'].map((status) => canFile({ status: status as 'GENERATED' }))).toEqual([true, true]);
+      expect(['SUBMISSION_CONFIRMED', 'REJECTED', 'EXPIRED'].map((status) => canFile({ status: status as 'EXPIRED' }))).toEqual([false, false, false]);
+    });
+
+    it('reads the moment of a filing from a form field, and nothing from a field that is not a date', () => {
+      expect(instantOf('2026-07-09T10:30')).toBe(new Date('2026-07-09T10:30').toISOString());
+      expect(instantOf('')).toBeUndefined();
+      expect(instantOf('not a date')).toBeUndefined();
+    });
+
+    it('says why a command on a package failed', () => {
+      expect(describeReportProblem(problem('RECEIPT_REQUIRED'))).toEqual({ reason: 'receiptRequired', fields: [] });
+      expect(describeReportProblem(problem('REPORT_NOT_ISSUED'))).toEqual({ reason: 'notIssued', fields: [] });
+      expect(describeReportProblem(problem('EXPORT_FORMAT_UNSUPPORTED'))).toEqual({ reason: 'formatUnsupported', fields: [] });
+      expect(describeReportProblem(problem('PACKAGE_STATE_INVALID'))).toEqual({ reason: 'packageState', fields: [] });
     });
   });
 });

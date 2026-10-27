@@ -657,3 +657,5 @@ export { REALLOCATION_DECISIONS, REALLOCATION_STATUSES, belowFloor, decidedReall
 export type { BelowFloor, LineHold, ReallocationDecision, ReallocationStatus } from './cap-reallocation.ts';
 export { MNE_DECISIONS, MNE_FIELD_KINDS, MNE_REPORT_STATUSES, MNE_REPORT_TRANSITIONS, MNE_SNAPSHOT_METRICS, MNE_SOURCE_MODULE, assertReportState, decidedMneReport, fitsKind, missingFields, mneReportPayload, mneReportSourceRef, narrativeFaults, parseMneReportSourceRef, parseReportSchema, periodEndOfLabel, printedCell } from './mne-report.ts';
 export type { MneDecision, MneFieldKind, MneFieldSource, MnePayloadCell, MnePayloadInput, MneReportField, MneReportSchema, MneReportStatus, MneSnapshotMetric, NarrativeFault } from './mne-report.ts';
+export { UNCONFIRMED_WATERMARK, exportWatermark, MNE_EXPORT_CONNECTORS, MNE_EXPORT_FORMATS, MNE_EXPORT_TARGETS, MNE_GENERATED_FORMATS, MNE_PACKAGE_EXPIRY_DAYS, MNE_PACKAGE_STATUSES, assertExportable, checkedFormats, exportedCell, filedLate, mneExportDocument } from './mne-export.ts';
+export type { MneExportCell, MneExportFormat, MneExportInput, MneExportTarget, MnePackageStatus } from './mne-export.ts';

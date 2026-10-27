@@ -67,6 +67,8 @@ export const JOB_INTERVAL_SECONDS = {
   'land-stage-late': 3600,
   // Every 15 minutes: a request for an explanation that was asked or returned and is past its due moment becomes overdue within the quarter of an hour (ST-PRJ-006); the pass is idempotent.
   'prj-explanation-overdue': 900,
+  // Hourly: an export package of a monitoring report that nobody filed within 90 days is expired, once (ST-MNE-004); the pass is idempotent.
+  'mne-package-expiry': 3600,
   // Every 15 minutes: an approved transfer of a project between units whose day has come (by the date in Vietnam) is made within the quarter of an hour of the day starting (ST-PRJ-007); the pass is idempotent.
   'prj-transfer-apply': 900,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
@@ -226,6 +228,7 @@ export interface StandardJobDeps {
   licenseStatus?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   explanationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  packageExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   transferApply?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -588,6 +591,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overdueExplanations.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const packageExpiry = deps.packageExpiry;
+  if (packageExpiry !== undefined) {
+    handlers.push({
+      name: 'mne-package-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await packageExpiry.run(workerContext(tenantId), now)));
       },
     });
   }

@@ -154,6 +154,8 @@ export interface MatrixTargets {
   mneRuleId: string;
   /** A DRAFT report of that form for unit 2 of tenant A, made by someone other than the callers (version 1). */
   mneReportId: string;
+  /** A GENERATED package of that report (version 1). */
+  mnePackageId: string;
   /** A SURVEYED land parcel of the CONCEPT project of unit 2 of tenant A, answered for by unit 2 (version 1). */
   parcelId: string;
   /** A land section of the same project with no contract and nothing handed over (version 1). */
@@ -1116,6 +1118,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideMneReport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix check of the decision.' } }),
+  },
+  generateMneExportPackage: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/export-packages`, ifMatch: '"1"', body: { target_system: 'NATIONAL_PIM_SYSTEM', formats: ['CSV'] } }),
+  },
+  recordMneSubmissionReceipt: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-export-packages/${t.mnePackageId}/submission-receipt`, ifMatch: '"1"', body: { receipt_reference: 'MATRIX-RECEIPT', submitted_at: '2026-10-20T08:00:00Z' } }),
   },
   requestMneReportIssue: {
     referencesTenantIds: true,

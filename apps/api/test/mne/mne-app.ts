@@ -1,4 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
@@ -7,6 +10,11 @@ import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { loadPlatformTemplates } from '../../src/modules/doc/template-pack';
+import { FileService } from '../../src/modules/files/file.service';
+import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
+import { MockScanPort } from '../../src/modules/files/mock-scan';
+import { MneExportController } from '../../src/modules/mne/mne-export.controller';
+import { MNE_METRICS } from '../../src/modules/mne/tokens';
 import { MneFormsController } from '../../src/modules/mne/mne-forms.controller';
 import { MneObligationRulesController } from '../../src/modules/mne/mne-obligation-rules.controller';
 import { MneObligationsController } from '../../src/modules/mne/mne-obligations.controller';
@@ -46,6 +54,11 @@ export class MneApp {
   app!: RunningApp;
   /** The file store of DOC: the payload of a report is written here when its issue is asked for. */
   readonly files = new MockDocumentFilePort();
+  /** What the module counted: the name and the labels of each increment. */
+  readonly counted: Array<{ name: string; labels: Record<string, string> | undefined }> = [];
+  /** The object store of the tenant: the export packages are written here. */
+  objects!: FileService;
+  private root = '';
 
   async start(): Promise<void> {
     const { harness } = this;
@@ -68,7 +81,7 @@ export class MneApp {
     await harness.seedRole(TENANT_A, 4, 'MNE_SCOPED', ['mne.calendar.manage', 'mne.read'], 40);
     await harness.seedRole(TENANT_A, 5, 'MNE_ALL', ['mne.form.manage', 'mne.form.approve', 'mne.calendar.manage', 'mne.calendar.approve', 'mne.read'], 60);
     await harness.seedRole(TENANT_A, 6, 'MNE_PREPARER', ['mne.report.prepare', 'mne.read'], 40);
-    await harness.seedRole(TENANT_A, 8, 'MNE_REVIEWER', ['mne.report.approve', 'mne.report.issue', 'mne.read'], 40);
+    await harness.seedRole(TENANT_A, 8, 'MNE_REVIEWER', ['mne.report.approve', 'mne.report.issue', 'mne.report.export', 'mne.read'], 40);
     await harness.seedRole(TENANT_A, 9, 'MNE_PREPARER_REVIEWER', ['mne.report.prepare', 'mne.report.approve', 'mne.report.issue', 'mne.read'], 40);
     await harness.seedRole(TENANT_B, 1, 'MNE_ALL', ['mne.form.manage', 'mne.form.approve', 'mne.calendar.manage', 'mne.calendar.approve', 'mne.read'], 60);
     await harness.seedGrants(TENANT_A, [
@@ -86,16 +99,20 @@ export class MneApp {
     const tenants = harness.tenants as TenantDatabase;
     // The DOC library of each tenant: the layout profile of Decree 30/2020 and the platform pack with the templates MNE-TT44-M02 to M10.
     for (const tenant of [TENANT_A, TENANT_B]) await tenants.withTenant(contextFor(tenant, memberId(ADMIN)), (tx) => loadPlatformTemplates(tx, memberId(ADMIN)));
+    this.root = await mkdtemp(join(tmpdir(), 'machvon-mne-'));
+    this.objects = new FileService({ storage: new FsObjectStorage(this.root), scanner: new MockScanPort(), urlSecret: randomBytes(32), now: () => new Date() });
     this.app = await startTestApp({
       signingKey: SIGNING_KEY,
       imports: [
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MneFormsController, MneObligationRulesController, MneObligationsController, MneReportsController],
+      controllers: [MneFormsController, MneObligationRulesController, MneObligationsController, MneReportsController, MneExportController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DOCUMENT_FILE_PORT, useValue: this.files },
+        { provide: FileService, useValue: this.objects },
+        { provide: MNE_METRICS, useValue: { increment: (name: string, labels?: Record<string, string>) => void this.counted.push({ name, labels }), gauge: () => undefined } },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });
@@ -104,6 +121,7 @@ export class MneApp {
   async stop(): Promise<void> {
     if (this.app) await this.app.close();
     await this.harness.stop();
+    if (this.root !== '') await rm(this.root, { recursive: true, force: true });
   }
 
   async call(

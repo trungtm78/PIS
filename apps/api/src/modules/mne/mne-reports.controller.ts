@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { MNE_REPORT_RESOURCE, MNE_UNIT_COLUMNS, MneReportIssueStore, MneReportStore, TenantDatabase, scopePredicate } from '@machvon/db';
+import { MNE_REPORT_RESOURCE, MNE_UNIT_COLUMNS, MneExportStore, MneReportIssueStore, MneReportStore, TenantDatabase, scopePredicate } from '@machvon/db';
 import type { MneReportChange, ScopeBuilder } from '@machvon/db';
-import { DomainError, MNE_SOURCE_MODULE, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, MNE_SOURCE_MODULE, objectKey, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -14,7 +14,10 @@ import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { DOCUMENT_FILE_PORT } from '../doc/file-port';
 import type { DocumentFilePort } from '../doc/file-port';
+import { FileService } from '../files';
+import { MNE_LINK_TTL_SECONDS } from './mne-export.controller';
 import { reportDiffOf, reportViewOf } from './mne-views';
+import type { PackageLink } from './mne-views';
 
 /** The units a permission reaches, compiled over the unit columns of the report queries. */
 const unitScope =
@@ -39,11 +42,13 @@ const isRecord = (value: unknown): value is Record<string, unknown> => typeof va
 export class MneReportsController {
   private readonly reports = new MneReportStore();
   private readonly issue = new MneReportIssueStore();
+  private readonly packages = new MneExportStore();
 
   /** The file store of DOC holds the payload; an application that mounts MNE without it cannot ask DOC to issue anything. */
   constructor(
     @Inject(TenantDatabase) private readonly database: TenantDatabase,
     @Optional() @Inject(DOCUMENT_FILE_PORT) private readonly files?: DocumentFilePort,
+    @Optional() @Inject(FileService) private readonly objects?: FileService,
   ) {}
 
   @Post('mne-reports')
@@ -218,10 +223,30 @@ export class MneReportsController {
     const now = new Date();
     const read = await this.database.withTenant(tenant, async (tx) => {
       const row = await this.reports.find(tx, id.toLowerCase(), unitScope(access, PERMISSIONS.getMneReport, now));
-      return row === undefined ? undefined : { row, options: await this.reports.snapshotOptions(tx, row, vietnamDateOf(now)), document: await this.issue.documentState(tx, row) };
+      if (row === undefined) return undefined;
+      // The files are offered to who may export the report: the others see that they exist, with no way to fetch them.
+      // A report that DOC recalled gives no more links: what it said is not to be relied on or filed.
+      const exportable = (['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL'] as const).includes(row.status as 'ISSUED') && row.recalledAt === null;
+      const mayExport = exportable && (await this.reports.find(tx, row.id, unitScope(access, PERMISSIONS.generateMneExportPackage, now))) !== undefined;
+      return { row, options: await this.reports.snapshotOptions(tx, row, vietnamDateOf(now)), document: await this.issue.documentState(tx, row), packages: await this.packages.list(tx, row.id), mayExport };
     });
     if (read === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return reportViewOf(read.row, read.options, vietnamDateOf(now), read.document);
+    const links: PackageLink[] = [];
+    for (const row of read.packages) links.push({ row, download: read.mayExport && (row.status === 'GENERATED' || row.status === 'DOWNLOADED') ? await this.linkOf(tenant, row.id) : null });
+    return reportViewOf(read.row, read.options, vietnamDateOf(now), read.document, links);
+  }
+
+  /** A signed link to the file of a package, valid for a few minutes; null when the application has no object store. */
+  private async linkOf(tenant: TenantContext, packageId: string): Promise<{ url: string; expires_at: string } | null> {
+    if (this.objects === undefined) return null;
+    // A file that is not in the store (lost, or not yet passed by the antivirus) is a package with no link, not a report that cannot be read.
+    const grant = await this.objects.presignDownload(tenant, objectKey(tenant.tenantId, 'report_export', packageId), MNE_LINK_TTL_SECONDS).catch((error: unknown) => {
+      if (error instanceof DomainError) return undefined;
+      throw error;
+    });
+    if (grant === undefined) return null;
+    const query = new URLSearchParams({ tenant: tenant.tenantId, expires: String(grant.expires), signature: grant.signature });
+    return { url: `/mne-export-packages/${packageId}/file?${query.toString()}`, expires_at: new Date(grant.expires * 1000).toISOString() };
   }
 
   private async record(scope: CommandScope, action: string, change: MneReportChange): Promise<void> {

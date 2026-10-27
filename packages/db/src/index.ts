@@ -532,6 +532,8 @@ export { MNE_UNIT_COLUMNS, MneObligationStore } from './mne-obligation-store.ts'
 export type { MneGenerateRequest, MneGenerateResult, MneObligationFilter, MneObligationPage, MneObligationRow } from './mne-obligation-store.ts';
 export { MNE_REPORT_RESOURCE, MneReportStore } from './mne-report-store.ts';
 export type { MneReportChange, MneReportRow, MnePayload } from './mne-report-store.ts';
+export { MNE_PACKAGE_RESOURCE, MneExportExpiryJob, MneExportStore } from './mne-export-store.ts';
+export type { AdapterStatus as MneAdapterStatus, MnePackageRow } from './mne-export-store.ts';
 export { MneReportIssueStore, mnePayloadRef } from './mne-report-issue-store.ts';
 export type { MneReportHead, IssueRequest as MneIssueRequest } from './mne-report-issue-store.ts';
 export type { ClosedRevision as MneClosedRevision } from './mne-revision-table.ts';

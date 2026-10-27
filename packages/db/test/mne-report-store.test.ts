@@ -8,10 +8,12 @@ import { MneFormStore } from '../src/mne-form-store';
 import type { MneFormInput, MneFormRow } from '../src/mne-form-store';
 import { MneObligationRuleStore } from '../src/mne-obligation-rule-store';
 import type { MneRuleInput, MneRuleRow } from '../src/mne-obligation-rule-store';
+import { MneExportExpiryJob, MneExportStore } from '../src/mne-export-store';
 import { MneObligationStore } from '../src/mne-obligation-store';
 import { MneReportStore } from '../src/mne-report-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
+import { AuditWriter } from '../src/audit-writer';
 import { AuthzHarness, TENANT_A, contextFor, memberId, unitId } from './support/authz-fixtures';
 
 const harness = new AuthzHarness();
@@ -243,5 +245,46 @@ describe('MneReportStore (ST-MNE-002, MNE F3)', () => {
     expect(refused.code).toBe('REPORT_EXISTS');
     expect(refused.extensions?.report_id).toBe(winner);
     expect(refused.extensions?.report_id).not.toBe(earlier.row.id);
+  });
+
+  describe('the packages that nobody filed (ST-MNE-004)', () => {
+    const packages = new MneExportStore();
+    const insert = async (status: string, ageDays: number): Promise<string> => {
+      const id = randomUUID();
+      const client = new Client({ connectionString: harness.database.adminUrl });
+      await client.connect();
+      try {
+        await client.query('set session_replication_role = replica');
+        await client.query(
+          `insert into machvon.mne_export_package (tenant_id, id, mne_report_id, target_system, format, object_key, file_sha256, adapter_status, status, receipt_reference, submitted_at, receipt_recorded_by, receipt_recorded_at, created_at, created_by, updated_by)
+           values ($1, $2, $3, 'NATIONAL_PIM_SYSTEM', 'CSV', $4, $5, 'MISSING', $6, $7, $8::timestamptz, $9, $8::timestamptz, now() - make_interval(days => $10::int), $11, $11)`,
+          [TENANT_A, id, randomUUID(), `tenants/${TENANT_A}/report_export/${id}`, randomUUID().replace(/-/g, '') + randomUUID().replace(/-/g, ''), status, status === 'SUBMISSION_CONFIRMED' ? 'QG-1' : null, status === 'SUBMISSION_CONFIRMED' ? new Date().toISOString() : null, status === 'SUBMISSION_CONFIRMED' ? WORKER : null, ageDays, WORKER],
+        );
+      } finally {
+        await client.end();
+      }
+      return id;
+    };
+
+    it('expires a package that was made more than 90 days ago and not filed, once, and leaves the filed and the recent ones', async () => {
+      const old = await insert('GENERATED', 91);
+      const downloaded = await insert('DOWNLOADED', 120);
+      const recent = await insert('GENERATED', 89);
+      const filed = await insert('SUBMISSION_CONFIRMED', 400);
+      const job = new MneExportExpiryJob(new AuditWriter(harness.tenants));
+      const first = await harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, (tx) => job.run(tx, WORKER, new Date()));
+      expect(first).toEqual({ expired: 2 });
+      const status = async (id: string): Promise<string> => (await owner<{ status: string }>('select status from machvon.mne_export_package where id = $1::uuid', [id]))[0]?.status as string;
+      expect([await status(old), await status(downloaded), await status(recent), await status(filed)]).toEqual(['EXPIRED', 'EXPIRED', 'GENERATED', 'SUBMISSION_CONFIRMED']);
+      const again = await harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, (tx) => job.run(tx, WORKER, new Date()));
+      expect(again).toEqual({ expired: 0 });
+      const trail = await owner<{ n: string }>("select count(*)::text as n from machvon.audit_event where action = 'mne.package_expired' and resource_id::text = any($1::text[])", [[old, downloaded]]);
+      expect(trail).toEqual([{ n: '2' }]);
+      // An expired file is final: it takes no receipt.
+      const row = await as((tx) => packages.find(tx, old));
+      expect(row).toMatchObject({ status: 'EXPIRED' });
+      expect(row?.expiredAt).not.toBeNull();
+      await expect(as((tx) => packages.recordReceipt(tx, { id: old, expectedVersion: row?.version as number, reference: 'QG-7', submittedAt: new Date().toISOString(), receiptDocumentId: undefined, actor: memberId(MAKER), now: new Date() }))).rejects.toMatchObject({ code: 'PACKAGE_STATE_INVALID', status: 409 });
+    });
   });
 });

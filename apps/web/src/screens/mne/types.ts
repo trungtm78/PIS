@@ -240,6 +240,34 @@ export function toGeneration(raw: unknown): GenerationResult {
 export const PREPARE_REPORT_PERMISSION = 'mne.report.prepare';
 export const APPROVE_REPORT_PERMISSION = 'mne.report.approve';
 export const ISSUE_REPORT_PERMISSION = 'mne.report.issue';
+export const EXPORT_REPORT_PERMISSION = 'mne.report.export';
+export const EXPORT_TARGETS = ['NATIONAL_PIM_SYSTEM', 'RECIPIENT_AGENCY', 'LGSP'] as const;
+export type ExportTarget = (typeof EXPORT_TARGETS)[number];
+/** The formats this release makes: the XML of the national system has no specification yet. */
+export const PACKAGE_FORMATS = ['XLSX', 'PDF', 'CSV'] as const;
+export type PackageFormat = (typeof PACKAGE_FORMATS)[number];
+export const PACKAGE_STATUSES = ['GENERATED', 'DOWNLOADED', 'SUBMISSION_CONFIRMED', 'REJECTED', 'EXPIRED'] as const;
+export type PackageStatus = (typeof PACKAGE_STATUSES)[number];
+export const ADAPTER_STATUSES = ['VERIFIED', 'PROPOSED', 'MOCK', 'MISSING'] as const;
+export type AdapterStatus = (typeof ADAPTER_STATUSES)[number];
+
+/** A file made of an issued report for a target, as `getMneReport` lists it (MNE-06). */
+export interface PackageView {
+  id: string;
+  target: ExportTarget;
+  format: PackageFormat;
+  fileSha256: string;
+  fileSizeBytes: number | null;
+  adapterStatus: AdapterStatus;
+  status: PackageStatus;
+  createdAt: string;
+  receipt: { reference: string; documentId: string | null; submittedAt: string | null; recordedAt: string | null } | null;
+  /** A short-lived signed link, only for who may export; null otherwise or when the file is no longer offered. */
+  downloadUrl: string | null;
+  /** When the link stops serving, as an ISO instant; null with no link. */
+  downloadExpiresAt: string | null;
+  version: number;
+}
 export const FIELD_KINDS = ['MONEY', 'PERCENT', 'INTEGER', 'TEXT'] as const;
 export type FieldKind = (typeof FIELD_KINDS)[number];
 export const SOURCE_KINDS = ['SNAPSHOT_METRIC', 'PROJECT_COUNT', 'WARNING_COUNT', 'APPROPRIATION_TOTAL'] as const;
@@ -294,6 +322,7 @@ export interface ReportView {
   docDocumentId: string | null;
   /** The hash of the payload frozen when issue was asked for; null before. */
   payloadSha256: string | null;
+  packages: PackageView[];
   issueRequestedAt: string | null;
   issuedAt: string | null;
   recalledAt: string | null;
@@ -304,6 +333,32 @@ export interface ReportView {
 export interface ReportCommandResult {
   status: string;
   version: number;
+}
+
+/** A package as `getMneReport` lists it, or undefined when it lacks what the screen needs. */
+function toPackage(raw: unknown): PackageView | undefined {
+  if (!isRecord(raw)) return undefined;
+  const target = oneOf(raw.target_system, EXPORT_TARGETS);
+  const format = oneOf(raw.format, PACKAGE_FORMATS);
+  const status = oneOf(raw.status, PACKAGE_STATUSES);
+  const adapter = oneOf(raw.adapter_status, ADAPTER_STATUSES);
+  const id = text(raw.id);
+  if (target === undefined || format === undefined || status === undefined || adapter === undefined || id === '') return undefined;
+  const receipt = isRecord(raw.receipt) && text(raw.receipt.reference) !== '' ? { reference: text(raw.receipt.reference), documentId: nullableText(raw.receipt.document_id), submittedAt: nullableText(raw.receipt.submitted_at), recordedAt: nullableText(raw.receipt.recorded_at) } : null;
+  return {
+    id,
+    target,
+    format,
+    fileSha256: text(raw.file_sha256),
+    fileSizeBytes: typeof raw.file_size_bytes === 'number' ? raw.file_size_bytes : null,
+    adapterStatus: adapter,
+    status,
+    createdAt: text(raw.created_at),
+    receipt,
+    downloadUrl: isRecord(raw.download) && text(raw.download.url) !== '' ? text(raw.download.url) : null,
+    downloadExpiresAt: isRecord(raw.download) && text(raw.download.url) !== '' ? nullableText(raw.download.expires_at) : null,
+    version: count(raw.version),
+  };
 }
 
 /** A cell as `getMneReport` writes it, or undefined when it lacks what the screen needs. */
@@ -359,6 +414,7 @@ export function toReport(raw: unknown): ReportView | undefined {
     documentState: nullableText(raw.document_state),
     docDocumentId: nullableText(raw.doc_document_id),
     payloadSha256: nullableText(raw.payload_sha256),
+    packages: (Array.isArray(raw.packages) ? raw.packages : []).flatMap((entry) => toPackage(entry) ?? []),
     issueRequestedAt: nullableText(raw.issue_requested_at),
     issuedAt: nullableText(raw.issued_at),
     recalledAt: nullableText(raw.recalled_at),

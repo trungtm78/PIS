@@ -48,6 +48,7 @@ export interface MneReportRow {
   formRevision: number;
   formTitle: string;
   formDocTemplateCode: string;
+  formExportFormats: string[];
   formLegalConfirmationRef: string | null;
   watermarkText: string | null;
   schema: MneReportSchema;
@@ -90,6 +91,7 @@ interface ReportSql {
   form_revision: number;
   form_title: string;
   form_doc_template_code: string;
+  form_export_formats: string[];
   form_legal_confirmation_ref: string | null;
   watermark_text: string | null;
   schema_json: Record<string, unknown>;
@@ -126,7 +128,7 @@ interface ReportSql {
 }
 
 const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
-const COLUMNS = `r.id, r.form_id, f.form_code, f.revision as form_revision, f.title as form_title, f.doc_template_code as form_doc_template_code, f.legal_confirmation_ref as form_legal_confirmation_ref, f.watermark_text, f.schema_json, r.report_year,
+const COLUMNS = `r.id, r.form_id, f.form_code, f.revision as form_revision, f.title as form_title, f.doc_template_code as form_doc_template_code, f.export_formats as form_export_formats, f.legal_confirmation_ref as form_legal_confirmation_ref, f.watermark_text, f.schema_json, r.report_year,
   r.period_label, r.period_id, r.scope_unit_id, u.code as unit_code, u.name as unit_name, r.project_id, r.snapshot_id, r.due_date::text as due_date, r.revision, r.status, r.is_late, r.payload_json, r.payload_sha256,
   r.doc_document_id, r.supersedes_id, r.correction_reason, r.submitted_by, ${ISO('r.submitted_at')} as submitted_at, r.approved_by, r.decided_by, ${ISO('r.decided_at')} as decided_at, r.decision_reason, r.issue_event_id,
   ${ISO('r.issue_requested_at')} as issue_requested_at, r.payload_ref, ${ISO('r.issued_at')} as issued_at, ${ISO('r.recalled_at')} as recalled_at, r.created_by, r.version::text as version`;
@@ -150,6 +152,7 @@ const rowOf = (row: ReportSql): MneReportRow => ({
   formRevision: row.form_revision,
   formTitle: row.form_title,
   formDocTemplateCode: row.form_doc_template_code,
+  formExportFormats: row.form_export_formats,
   formLegalConfirmationRef: row.form_legal_confirmation_ref,
   watermarkText: row.watermark_text,
   schema: parseReportSchema(row.schema_json),
@@ -375,6 +378,24 @@ export class MneReportStore {
     const row = await this.find(tx, id);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return row;
+  }
+
+  /** The first package of an issued report: ISSUED to EXPORTED (a report already past that is left as it is). Returns the version the report has after. */
+  async markExported(tx: TenantTx, id: string, actor: string): Promise<number> {
+    const [row] = await tx.query<{ version: string }>(
+      `update machvon.mne_report set status = 'EXPORTED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid and status = 'ISSUED' returning version::text as version`,
+      [id, actor],
+    );
+    return row === undefined ? (await this.read(tx, id)).version : Number(row.version);
+  }
+
+  /** The filing was recorded: EXPORTED to SUBMITTED_EXTERNAL with its lateness against the due date (a report already filed by another package keeps what it has). */
+  async markFiled(tx: TenantTx, id: string, late: boolean, actor: string): Promise<number> {
+    const [row] = await tx.query<{ version: string }>(
+      `update machvon.mne_report set status = 'SUBMITTED_EXTERNAL', is_late = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid and status = 'EXPORTED' returning version::text as version`,
+      [id, late, actor],
+    );
+    return row === undefined ? (await this.read(tx, id)).version : Number(row.version);
   }
 
   /** The report with its row locked for the rest of the transaction. */

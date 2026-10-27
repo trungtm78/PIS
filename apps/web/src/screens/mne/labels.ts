@@ -1,7 +1,7 @@
 import type { Translator } from '../../i18n';
 import type { FieldProblem, GenerationProblem, Phase, ProblemView } from './model';
 import type { DocStage, ReportProblem } from './report-model';
-import type { FieldSource, Frequency, FormStatus, ReportKind, ReportStatus, ReportingRole } from './types';
+import type { AdapterStatus, ExportTarget, FieldSource, Frequency, PackageFormat, FormStatus, ReportKind, PackageStatus, ReportStatus, ReportingRole } from './types';
 
 type T = Translator['t'];
 
@@ -187,6 +187,14 @@ export function reportProblemMessage(t: T, problem: ReportProblem, labelOf: (key
   switch (problem.reason) {
     case 'conflict':
       return t('mne.report.problem.conflict');
+    case 'receiptRequired':
+      return t('mne.export.problem.receiptRequired');
+    case 'notIssued':
+      return t('mne.export.problem.notIssued');
+    case 'formatUnsupported':
+      return t('mne.export.problem.formatUnsupported');
+    case 'packageState':
+      return t('mne.export.problem.packageState');
     case 'selfApproval':
       return t('mne.report.problem.selfApproval');
     case 'templateMissing':
@@ -232,5 +240,56 @@ export function docStageLabel(t: T, stage: DocStage): string {
       return t('mne.approval.doc.published');
     case 'withdrawn':
       return t('mne.approval.doc.withdrawn');
+  }
+}
+
+export function targetLabel(t: T, target: ExportTarget): string {
+  switch (target) {
+    case 'NATIONAL_PIM_SYSTEM':
+      return t('mne.export.target.national');
+    case 'RECIPIENT_AGENCY':
+      return t('mne.export.target.recipient');
+    case 'LGSP':
+      return t('mne.export.target.lgsp');
+  }
+}
+
+export function packageStatusLabel(t: T, status: PackageStatus): string {
+  switch (status) {
+    case 'GENERATED':
+      return t('mne.export.status.generated');
+    case 'DOWNLOADED':
+      return t('mne.export.status.downloaded');
+    case 'SUBMISSION_CONFIRMED':
+      return t('mne.export.status.confirmed');
+    case 'REJECTED':
+      return t('mne.export.status.rejected');
+    case 'EXPIRED':
+      return t('mne.export.status.expired');
+  }
+}
+
+/** The badge of how far the way to the target goes: while it is only proposed, the file is filed by hand. */
+export function adapterLabel(t: T, status: AdapterStatus): string {
+  switch (status) {
+    case 'VERIFIED':
+      return t('mne.export.adapter.verified');
+    case 'PROPOSED':
+      return t('mne.export.adapter.proposed');
+    case 'MOCK':
+      return t('mne.export.adapter.mock');
+    case 'MISSING':
+      return t('mne.export.adapter.missing');
+  }
+}
+
+export function formatLabel(t: T, format: PackageFormat): string {
+  switch (format) {
+    case 'XLSX':
+      return t('mne.export.format.xlsx');
+    case 'PDF':
+      return t('mne.export.format.pdf');
+    case 'CSV':
+      return t('mne.export.format.csv');
   }
 }
