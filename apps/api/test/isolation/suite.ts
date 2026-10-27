@@ -499,6 +499,12 @@ export const TRANSFER_FIXTURES: Readonly<Record<TenantName, { id: string; reason
   'TNT-B': { id: '00000000-0000-4000-b0fc-000000000001', reason: 'Beta tenant reason to move the project to the other unit 0001' },
 };
 
+/** A proposal of reallocation of capital of each tenant (the code is distinctive: what a tenant proposes to move is confidential to it). */
+export const REALLOCATION_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0fd-000000000001', code: 'ALPHA-REALLOCATION-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0fd-000000000001', code: 'BETA-REALLOCATION-0001' },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -927,6 +933,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'explanation request id', value: EXPLANATION_FIXTURES[tenant].id },
     { kind: 'explanation question', value: EXPLANATION_FIXTURES[tenant].question },
     { kind: 'transfer request id', value: TRANSFER_FIXTURES[tenant].id },
+    { kind: 'reallocation proposal id', value: REALLOCATION_FIXTURES[tenant].id },
+    { kind: 'reallocation proposal code', value: REALLOCATION_FIXTURES[tenant].code },
     { kind: 'transfer reason', value: TRANSFER_FIXTURES[tenant].reason },
     { kind: 'period snapshot planned amount', value: PERIOD_SNAPSHOT_FIXTURES[tenant].planVnd },
     { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },

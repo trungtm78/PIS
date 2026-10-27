@@ -8,6 +8,7 @@ import { CapitalCommitments } from './commitment.port';
 import { CapitalPlanApprovalController } from './plan-approval.controller';
 import { CapitalPlanRevisionController } from './plan-revision.controller';
 import { DisbursementScheduleController } from './schedule.controller';
+import { ReallocationController } from './reallocation.controller';
 import { AllocationLineReadsController, CapitalPlanController, CapitalPlanLinesController, PlanVersionReadsController } from './plan.controller';
 
 /**
@@ -19,7 +20,7 @@ import { AllocationLineReadsController, CapitalPlanController, CapitalPlanLinesC
  */
 export const capModule = defineModule({
   code: 'CAP',
-  controllers: [AppropriationController, AppropriationReadsController, CapitalPlanController, CapitalPlanApprovalController, CapitalPlanRevisionController, CapitalPlanLinesController, PlanVersionReadsController, AllocationLineReadsController, DisbursementScheduleController, AvcPolicyController, CapitalAvailabilityController, AllocationExtensionController, AllocationExtensionReadsController, FiscalYearController, FiscalYearReadsController],
+  controllers: [AppropriationController, AppropriationReadsController, CapitalPlanController, CapitalPlanApprovalController, CapitalPlanRevisionController, ReallocationController, CapitalPlanLinesController, PlanVersionReadsController, AllocationLineReadsController, DisbursementScheduleController, AvcPolicyController, CapitalAvailabilityController, AllocationExtensionController, AllocationExtensionReadsController, FiscalYearController, FiscalYearReadsController],
   // The port the spending modules commit capital through (ST-CAP-005).
   providers: [CapitalCommitments],
 });

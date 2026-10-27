@@ -119,3 +119,33 @@
 .cap-year-facts dd {
   margin: 0;
 }
+
+.cap-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .cap-compare {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cap-line {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px 12px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+
+.cap-code {
+  display: block;
+  font-size: 12px;
+  color: var(--muted, #5b6770);
+}
+
+.cap-balance {
+  font-weight: 600;
+}

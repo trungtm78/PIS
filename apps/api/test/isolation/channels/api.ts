@@ -19,7 +19,7 @@ import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
@@ -213,6 +213,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'submitExplanation', method: 'POST', id: EXPLANATION_FIXTURES['TNT-B'].id, versioned: true, body: { response_text: 'Isolation foreign answer to a request of another tenant' } },
   { operation: 'requestProjectTransfer', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, versioned: true, body: { to_unit_id: (UNIT_FIXTURES['TNT-B'][1]?.id ?? ''), transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Isolation foreign transfer attempt' } },
   { operation: 'getProjectTransferImpact', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id, query: `to_unit_id=${UNIT_FIXTURES['TNT-B'][1]?.id ?? ''}&transfer_scope=OWNER_UNIT` },
+  { operation: 'submitReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'decideReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
+  { operation: 'applyReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision_document_id: '00000000-0000-4000-b0fd-000000000009' } },
   { operation: 'decideProjectTransfer', method: 'POST', id: TRANSFER_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
   { operation: 'reviewExplanation', method: 'POST', id: EXPLANATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'ACCEPTED', review_note: 'Isolation foreign conclusion' } },
   { operation: 'get_resources_report_revision_id', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },

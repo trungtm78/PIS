@@ -330,7 +330,11 @@
     "reviewExplanation",
     "submitExplanation",
     "requestProjectTransfer",
-    "decideProjectTransfer"
+    "decideProjectTransfer",
+    "draftReallocationProposal",
+    "submitReallocationProposal",
+    "decideReallocationProposal",
+    "applyReallocationProposal"
   ],
   "controlCommands": [
     "assignTenantOwner",

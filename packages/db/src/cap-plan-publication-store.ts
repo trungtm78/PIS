@@ -25,9 +25,14 @@ export interface CapPublishInput {
   decisionDocumentId: string;
   /** When the plan takes effect; the moment of the publication when it is not given. */
   effectiveAt?: string | undefined;
+  /**
+   * Set when the revision is the result of a reallocation (ST-CAP-010): what the publication moves is posted as TRANSFER_IN and TRANSFER_OUT, all naming the proposal as their source, instead of ALLOCATE and
+   * REDUCE naming the plan.
+   */
+  transfer?: { proposalId: string } | undefined;
 }
 
-export type PostedEntryType = 'ALLOCATE' | 'REDUCE';
+export type PostedEntryType = 'ALLOCATE' | 'REDUCE' | 'TRANSFER_IN' | 'TRANSFER_OUT';
 
 /** One entry the publication appended to the capital ledger. */
 export interface LedgerPosting {
@@ -97,6 +102,7 @@ interface BalanceRow {
   id: string;
   allocationLineId: string;
   allocatedVnd: string;
+  reservedVnd: string;
   committedVnd: string;
   disbursedVnd: string;
 }
@@ -105,6 +111,7 @@ interface BalanceSql {
   id: string;
   allocation_line_id: string;
   allocated_vnd: string;
+  reserved_vnd: string;
   committed_vnd: string;
   disbursed_vnd: string;
 }
@@ -116,7 +123,8 @@ interface Planned {
 }
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
-const floorOf = (balance: BalanceRow): string => addDecimal(balance.committedVnd, balance.disbursedVnd);
+/** What a line may not end below: what is committed and disbursed on it, and, when the publication moves capital between projects (a reallocation), what is reserved as well. */
+const floorOf = (balance: BalanceRow, includeReserved: boolean): string => addDecimal(includeReserved ? addDecimal(balance.reservedVnd, balance.committedVnd) : balance.committedVnd, balance.disbursedVnd);
 
 /** The effects of the entry types that move the allocated amount of a line; a reversal has the opposite effect of the entry it reverses. */
 const ALLOCATED_EFFECT_SQL = `(values ('ALLOCATE', 1), ('REDUCE', -1), ('TRANSFER_IN', 1), ('TRANSFER_OUT', -1), ('EXTEND_IN', 1), ('EXTEND_OUT', -1), ('LAPSE', -1)) as effect(entry_type, sign)`;
@@ -175,7 +183,8 @@ export class CapPlanPublicationStore {
 
     const balances = await this.lockedBalances(tx, previousLines);
     const released = await this.releasedOut(tx, previousLines);
-    const planned = this.plan(lines, previousLines, balances, released);
+    // The floors are judged here, under the locks of the balances: a reallocation also keeps what is reserved, so a reservation that was made after the proposal was checked is not left without its capital.
+    const planned = this.plan(lines, previousLines, balances, released, input.transfer !== undefined);
 
     if (previous !== undefined) {
       await tx.query("update machvon.capital_plan set status = 'SUPERSEDED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [previous.id, publisher]);
@@ -199,13 +208,13 @@ export class CapPlanPublicationStore {
       );
     }
 
-    const ledger = await this.apply(tx, plan, planned, [...lines, ...previousLines], appropriations, publisher);
+    const ledger = await this.apply(tx, plan, planned, [...lines, ...previousLines], appropriations, publisher, input.transfer);
     const touched = [...new Set([...lines, ...previousLines].map((line) => line.projectId))];
     const drift = await this.balanceDrift(tx, touched);
     // The ledger and the balances were written together: if they disagree now, nothing of the publication may stay.
     if (drift.length > 0) throw new BalanceDriftError(drift);
 
-    const sum = (type: PostedEntryType): string => ledger.filter((entry) => entry.entryType === type).reduce((total, entry) => addDecimal(total, entry.amountVnd), '0');
+    const sum = (...types: PostedEntryType[]): string => ledger.filter((entry) => types.includes(entry.entryType)).reduce((total, entry) => addDecimal(total, entry.amountVnd), '0');
     return {
       planId: plan.id,
       version: plan.version + 1,
@@ -216,8 +225,8 @@ export class CapPlanPublicationStore {
       effectiveAt,
       lineCount: lines.length,
       ledger,
-      allocateVnd: sum('ALLOCATE'),
-      reduceVnd: sum('REDUCE'),
+      allocateVnd: sum('ALLOCATE', 'TRANSFER_IN'),
+      reduceVnd: sum('REDUCE', 'TRANSFER_OUT'),
       totalBeforeVnd: balances.reduce((total, balance) => addDecimal(total, balance.allocatedVnd), '0'),
       totalAfterVnd: lines.reduce((total, line) => addDecimal(total, line.amountVnd), '0'),
       nationalCodeWarnings,
@@ -319,11 +328,11 @@ export class CapPlanPublicationStore {
     const ids = await tx.query<{ id: string }>('select id from machvon.allocation_balance where allocation_line_id = any($1::uuid[])', [previousLines.map((line) => line.id)]);
     await lockLedgerRows(tx, ids.map((row) => ({ table: 'allocation_balance', id: row.id })));
     const rows = await tx.query<BalanceSql>(
-      `select id, allocation_line_id, allocated_vnd::text as allocated_vnd, committed_vnd::text as committed_vnd, disbursed_vnd::text as disbursed_vnd
+      `select id, allocation_line_id, allocated_vnd::text as allocated_vnd, reserved_vnd::text as reserved_vnd, committed_vnd::text as committed_vnd, disbursed_vnd::text as disbursed_vnd
          from machvon.allocation_balance where allocation_line_id = any($1::uuid[]) order by id`,
       [previousLines.map((line) => line.id)],
     );
-    return rows.map((row) => ({ id: row.id, allocationLineId: row.allocation_line_id, allocatedVnd: row.allocated_vnd, committedVnd: row.committed_vnd, disbursedVnd: row.disbursed_vnd }));
+    return rows.map((row) => ({ id: row.id, allocationLineId: row.allocation_line_id, allocatedVnd: row.allocated_vnd, reservedVnd: row.reserved_vnd, committedVnd: row.committed_vnd, disbursedVnd: row.disbursed_vnd }));
   }
 
   /**
@@ -352,14 +361,14 @@ export class CapPlanPublicationStore {
    * a line the new revision drops is reduced to nothing. A line that would end below what is committed and disbursed on it refuses the whole publication
    * (422 REVISED_BELOW_COMMITTED), and every such line is listed.
    */
-  private plan(lines: readonly FlowLine[], previousLines: readonly FlowLine[], balances: readonly BalanceRow[], released: ReadonlyMap<string, string>): Planned[] {
+  private plan(lines: readonly FlowLine[], previousLines: readonly FlowLine[], balances: readonly BalanceRow[], released: ReadonlyMap<string, string>, includeReserved: boolean): Planned[] {
     const balanceOf = new Map(balances.map((balance) => [balance.allocationLineId, balance]));
     const previousByKey = new Map(previousLines.map((line) => [lineKey(line), line]));
     const matched = new Set<string>();
     const planned: Planned[] = [];
     const below: BelowCommitted[] = [];
     const check = (balance: BalanceRow, lineId: string, projectId: string, allocated: string): boolean => {
-      const minimum = floorOf(balance);
+      const minimum = floorOf(balance, includeReserved);
       if (compareDecimal(allocated, minimum) >= 0) return true;
       below.push({ lineId, projectId, allocatedVnd: allocated, committedVnd: balance.committedVnd, disbursedVnd: balance.disbursedVnd, minimumVnd: minimum });
       return false;
@@ -376,7 +385,7 @@ export class CapPlanPublicationStore {
       const carried = released.get(lineKey(line)) ?? '0';
       const target = compareDecimal(line.amountVnd, carried) > 0 ? subtractDecimal(line.amountVnd, carried) : '0';
       if (compareDecimal(line.amountVnd, carried) < 0 || !check(balance, line.id, line.projectId, target)) {
-        if (compareDecimal(line.amountVnd, carried) < 0) below.push({ lineId: line.id, projectId: line.projectId, allocatedVnd: line.amountVnd, committedVnd: balance.committedVnd, disbursedVnd: balance.disbursedVnd, minimumVnd: addDecimal(floorOf(balance), carried) });
+        if (compareDecimal(line.amountVnd, carried) < 0) below.push({ lineId: line.id, projectId: line.projectId, allocatedVnd: line.amountVnd, committedVnd: balance.committedVnd, disbursedVnd: balance.disbursedVnd, minimumVnd: addDecimal(floorOf(balance, includeReserved), carried) });
         continue;
       }
       const change = compareDecimal(target, balance.allocatedVnd);
@@ -411,6 +420,7 @@ export class CapPlanPublicationStore {
     lines: readonly FlowLine[],
     appropriations: ReadonlyMap<string, LockedAppropriation>,
     actor: string,
+    transfer?: { proposalId: string } | undefined,
   ): Promise<LedgerPosting[]> {
     const lineById = new Map(lines.map((line) => [line.id, line]));
     const ledger: LedgerPosting[] = [];
@@ -433,13 +443,15 @@ export class CapPlanPublicationStore {
       const appropriationId = line?.appropriationId;
       if (line === undefined || appropriationId === null || appropriationId === undefined) throw new Error('a posted line has no appropriation');
       const entryId = randomUUID();
+      // A reallocation posts the two sides of a move as TRANSFER_OUT and TRANSFER_IN under the one proposal; any other publication posts ALLOCATE and REDUCE under the plan.
+      const entryType: PostedEntryType = transfer === undefined ? step.posting.type : step.posting.type === 'ALLOCATE' ? 'TRANSFER_IN' : 'TRANSFER_OUT';
       await tx.query(
         `insert into machvon.capital_ledger_entry
            (tenant_id, id, appropriation_id, allocation_line_id, project_id, entry_type, amount_vnd, plan_year, source_ref_kind, source_ref_id, posted_by)
-         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6::numeric, $7::integer, 'CAPITAL_PLAN', $8::uuid, $9::uuid)`,
-        [entryId, appropriationId, line.id, line.projectId, step.posting.type, step.posting.amountVnd, appropriations.get(appropriationId)?.planYear, plan.id, actor],
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6::numeric, $7::integer, $10, $8::uuid, $9::uuid)`,
+        [entryId, appropriationId, line.id, line.projectId, entryType, step.posting.amountVnd, appropriations.get(appropriationId)?.planYear, transfer?.proposalId ?? plan.id, actor, transfer === undefined ? 'CAPITAL_PLAN' : 'REALLOCATION'],
       );
-      ledger.push({ entryId, entryType: step.posting.type, allocationLineId: line.id, projectId: line.projectId, appropriationId, amountVnd: step.posting.amountVnd });
+      ledger.push({ entryId, entryType, allocationLineId: line.id, projectId: line.projectId, appropriationId, amountVnd: step.posting.amountVnd });
     }
     return ledger;
   }

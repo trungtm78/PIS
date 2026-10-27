@@ -203,7 +203,7 @@ async function publish(planId: string, input: Partial<CapPublishInput> & { membe
   const version = input.version ?? (await versionOf(planId));
   const decisionDocumentId = input.decisionDocumentId ?? (await document());
   return as(
-    (tx) => publication.publish(tx, planId, version, { decisionDocumentId, effectiveAt: input.effectiveAt }, memberId(input.member ?? PUBLISHER), input.authorize ?? allow, TODAY),
+    (tx) => publication.publish(tx, planId, version, { decisionDocumentId, effectiveAt: input.effectiveAt, transfer: input.transfer }, memberId(input.member ?? PUBLISHER), input.authorize ?? allow, TODAY),
     TENANT_A,
     input.member ?? PUBLISHER,
   );
@@ -663,6 +663,41 @@ describe('CapPlanPublicationStore.publish: the revision of a published plan', ()
     const exact = await publishedPlanWithBase(base, [money(9)]);
     expect(exact.result.reduceVnd).toBe(money(1));
     expect(await balanceOfLine(exact.revision.lineIds[0] as string)).toMatchObject({ allocated: money(9), committed: money(6), disbursed: money(3) });
+  });
+
+  it('posts a reallocation as TRANSFER_OUT and TRANSFER_IN that name the proposal as their one source, with the totals unchanged and the ledger and the balances in agreement (ST-CAP-010)', async () => {
+    const base = await publishedPlan({ amounts: [money(5), money(1)] });
+    const revision = await revise(base, [money(3), money(3)]);
+    await approveRevision(revision);
+    const proposalId = randomUUID();
+    const result = await publish(revision.planId, { transfer: { proposalId } });
+    expect(result).toMatchObject({ allocateVnd: money(2), reduceVnd: money(2), totalBeforeVnd: money(6), totalAfterVnd: money(6) });
+    const entries = await owner<{ entry_type: string; amount: string; project_id: string; source_ref_kind: string; source_ref_id: string }>(
+      'select entry_type, amount_vnd::text as amount, project_id, source_ref_kind, source_ref_id from machvon.capital_ledger_entry where source_ref_id = $1::uuid order by entry_type',
+      [proposalId],
+    );
+    expect(entries).toEqual([
+      { entry_type: 'TRANSFER_IN', amount: money(2), project_id: base.projects[1], source_ref_kind: 'REALLOCATION', source_ref_id: proposalId },
+      { entry_type: 'TRANSFER_OUT', amount: money(2), project_id: base.projects[0], source_ref_kind: 'REALLOCATION', source_ref_id: proposalId },
+    ]);
+    expect(await ledgerOf(revision.planId)).toEqual([]);
+    expect(await drifted(base)).toEqual([]);
+  });
+
+  it('keeps what is reserved as well when it moves capital between projects, judged under the locks of the balances, and still lets a revision that is no reallocation go down to what is committed and disbursed (ST-CAP-010)', async () => {
+    const base = await publishedPlan({ amounts: [money(5), money(1)] });
+    await owner('update machvon.allocation_balance set reserved_vnd = $2::numeric, committed_vnd = $3::numeric where allocation_line_id = $1::uuid', [base.lineIds[0], money(2), money(1)]);
+    const move = await revise(base, [money(2), money(4)]);
+    await approveRevision(move);
+    const entriesBefore = await ledgerCount();
+    const refused = await refusal(publish(move.planId, { transfer: { proposalId: randomUUID() } }));
+    expect(refused).toMatchObject({ code: 'REVISED_BELOW_COMMITTED', status: 422, extensions: { lines: [{ line_id: move.lineIds[0], allocated_vnd: money(2), minimum_vnd: money(3) }] } });
+    expect(await statusOf(base.planId)).toBe('PUBLISHED');
+    expect(await ledgerCount()).toBe(entriesBefore);
+    // The same revision as a plain publication is judged by what is committed and disbursed only, as it always was.
+    const plain = await publish(move.planId);
+    expect(plain).toMatchObject({ reduceVnd: money(3), allocateVnd: money(3) });
+    expect(await balanceOfLine(move.lineIds[0] as string)).toMatchObject({ allocated: money(2), committed: money(1) });
   });
 
   it('lists every line that falls below its floor, a dropped line that still has a commitment among them', async () => {

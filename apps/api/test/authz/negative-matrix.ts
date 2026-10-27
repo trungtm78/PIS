@@ -902,6 +902,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/project-transfers/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix attempt to decide a transfer' } }),
   },
+  draftReallocationProposal: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/reallocation-proposals',
+      body: { code: 'MX-REALLOCATION', plan_year: 2027, scope_unit_id: t.unit2, basis_snapshot_id: t.legalHoldId, source_capital_plan_id: t.legalHoldId, reason: 'Matrix attempt to draft a reallocation of capital', lines: [{ from_allocation_line_id: t.legalHoldId, to_project_id: t.legalHoldId, amount_vnd: '1000' }] },
+    }),
+  },
+  submitReallocationProposal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reallocation-proposals/${t.legalHoldId}/submit`, ifMatch: '"1"', body: {} }),
+  },
+  decideReallocationProposal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reallocation-proposals/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix attempt to decide a reallocation' } }),
+  },
+  applyReallocationProposal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reallocation-proposals/${t.legalHoldId}/apply`, ifMatch: '"1"', body: { decision_document_id: t.legalHoldId } }),
+  },
   createReportExport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/report-exports', body: { snapshot_id: t.legalHoldId, format: 'CSV' } }),

@@ -885,3 +885,5 @@ export { EXPLANATION_OVERDUE_METRIC, EXPLANATION_RESOURCE, PrjExplanationOverdue
 export type { AutoRequestResult, ExplanationChange, ExplanationRow } from './prj-explanation-store.ts';
 export { PROJECT_TRANSFERRED_EVENT, PrjTransferApplyJob, PrjTransferStore, TRANSFER_RESOURCE, transferAppliedRecord, transferDecidedRecord, transferRequestedRecord } from './prj-transfer-store.ts';
 export type { TransferChange, TransferImpact, TransferRow } from './prj-transfer-store.ts';
+export { CapReallocationStore, REALLOCATION_APPLIED_EVENT, REALLOCATION_RESOURCE, reallocationAppliedEvent, reallocationRecord, reallocationScope } from './cap-reallocation-store.ts';
+export type { ApplyResult as ReallocationApplyResult, ReallocationChange, ReallocationLineRow, ReallocationRow } from './cap-reallocation-store.ts';
