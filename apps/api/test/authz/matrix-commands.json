@@ -165,6 +165,7 @@
     "createReportImport",
     "applyReportImport",
     "buildPeriodSnapshot",
+    "createReportExport",
     "createEarlyWarningRuleVersion",
     "publishEarlyWarningRule",
     "acknowledgeEarlyWarning",

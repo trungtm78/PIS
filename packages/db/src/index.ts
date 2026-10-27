@@ -871,6 +871,8 @@ export { DIS_WARNING_OPEN_METRIC, DisWarningStore, SEED_RULES as WARNING_SEED_RU
 export type { Cleared as ClearedWarning, Evaluation as WarningEvaluation, Opened as OpenedWarning, RuleRow as WarningRuleRow, WarningRow } from './dis-warning-store.ts';
 export { DENOMINATORS as RANKING_DENOMINATORS, DisRankingStore, RANKING_RESOURCE } from './dis-ranking-store.ts';
 export type { Computation as RankingComputation, DenominatorKind as RankingDenominator, RankingRow } from './dis-ranking-store.ts';
+export { DisExportStore, EXPORT_ACTION, EXPORT_RESOURCE_TYPE } from './dis-export-store.ts';
+export type { ExportRecord, ExportRows } from './dis-export-store.ts';
 export { DisSubmissionBoardStore } from './dis-submission-board-store.ts';
 export type { BoardProjectRow } from './dis-submission-board-store.ts';
 export { DisWeeklyPlanStore } from './dis-weekly-plan-store.ts';

@@ -862,6 +862,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getReconciliationItem({required String id, Map<String, Object?>? query}) =>
       execute('getReconciliationItem', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getReportExportDownload({required String id, Map<String, Object?>? query}) =>
+      execute('getReportExportDownload', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getReportImport({required String id, Map<String, Object?>? query}) =>
       execute('getReportImport', path: <String, Object?>{'id': id}, query: query);
 

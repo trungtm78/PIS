@@ -286,6 +286,7 @@ export const OPERATIONS = {
   "getQualityAcceptance": { method: "get", path: "/quality-acceptances/{id}", versioned: false, stepUp: null, permission: "qacceptance.read" },
   "getQualityScorecard": { method: "get", path: "/dgv/datasets/{id}/quality-scorecard", versioned: false, stepUp: null, permission: "data.quality.read" },
   "getReconciliationItem": { method: "get", path: "/reconciliation-items/{id}", versioned: false, stepUp: null, permission: "reconciliation.read" },
+  "getReportExportDownload": { method: "get", path: "/report-exports/{id}/download", versioned: false, stepUp: null, permission: "report.export" },
   "getReportImport": { method: "get", path: "/report-imports/{id}", versioned: false, stepUp: null, permission: "report.import" },
   "getReportRevision": { method: "get", path: "/reports/{id}", versioned: false, stepUp: null, permission: "report.read" },
   "getSitePhotoChecks": { method: "get", path: "/site-photos/{id}/checks", versioned: false, stepUp: null, permission: "photo.read" },

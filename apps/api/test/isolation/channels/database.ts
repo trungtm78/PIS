@@ -22,7 +22,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -238,6 +238,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'buildPeriodSnapshot',
   'freezePeriodSnapshot',
   'getSubmissionProgress',
+  'createReportExport',
+  'getReportExportDownload',
   'listPeriodSnapshotLines',
   'listPeriodSnapshots',
   'createEarlyWarningRuleVersion',
@@ -760,6 +762,10 @@ const INSERT_SCHEDULE_LINE = `insert into machvon.disbursement_schedule_line
 const INSERT_WEEKLY_COMMITMENT = `insert into machvon.disbursement_schedule_line
   (tenant_id, id, project_id, plan_year, granularity, period_id, bucket, budget_level, kind, amount_vnd, revision, is_current, created_by, updated_by)
   values ($1, gen_random_uuid(), $2, 2026, 'WEEK', $3, 'CURRENT_YEAR', 'CENTRAL', 'WEEKLY_COMMITMENT', 1000, 1, true, $4, $4) on conflict do nothing`;
+
+const INSERT_REPORT_EXPORT_RECORD = `insert into machvon.audit_event
+  (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, request_id, occurred_at)
+  values ($1, gen_random_uuid(), $3, 'dis.report_exported', 'report_export', $2, jsonb_build_object('snapshot_id', $4::text, 'format', 'CSV', 'rows', 1, 'project_ids', jsonb_build_array($5::text), 'file_sha256', repeat('a', 64)), $2, $2, '2026-01-01T00:00:00Z')`;
 
 const INSERT_PLAN_VERSION = `insert into machvon.plan_version
   (tenant_id, id, project_id, fiscal_year, revision, status, capital_plan_id, created_by, updated_by)
@@ -1360,6 +1366,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PERIOD_SNAPSHOT, [tenantId, snapshot.id, period.id, MEMBERSHIP_ID]);
     await client.query(INSERT_PERIOD_SNAPSHOT_LINE, [tenantId, snapshot.lineId, snapshot.id, project.id, home, snapshot.planVnd]);
     await client.query(FREEZE_PERIOD_SNAPSHOT, [tenantId, snapshot.id, MEMBERSHIP_ID]);
+    await client.query(INSERT_REPORT_EXPORT_RECORD, [tenantId, REPORT_EXPORT_FIXTURES[tenant].id, MEMBERSHIP_ID, snapshot.id, project.id]);
     const warning = EARLY_WARNING_FIXTURES[tenant];
     await client.query(INSERT_WARNING_RULE, [tenantId, warning.ruleId, warning.ruleName, warning.legalBasis, MEMBERSHIP_ID]);
     await client.query(INSERT_WARNING, [tenantId, warning.warningId, warning.ruleId, project.id, home, period.id, snapshot.id, warning.dedupeKey, MEMBERSHIP_ID]);

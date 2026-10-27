@@ -288,6 +288,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getQualityAcceptance': OperationDescriptor(method: 'GET', path: '/quality-acceptances/{id}', versioned: false, stepUp: null, permission: 'qacceptance.read'),
   'getQualityScorecard': OperationDescriptor(method: 'GET', path: '/dgv/datasets/{id}/quality-scorecard', versioned: false, stepUp: null, permission: 'data.quality.read'),
   'getReconciliationItem': OperationDescriptor(method: 'GET', path: '/reconciliation-items/{id}', versioned: false, stepUp: null, permission: 'reconciliation.read'),
+  'getReportExportDownload': OperationDescriptor(method: 'GET', path: '/report-exports/{id}/download', versioned: false, stepUp: null, permission: 'report.export'),
   'getReportImport': OperationDescriptor(method: 'GET', path: '/report-imports/{id}', versioned: false, stepUp: null, permission: 'report.import'),
   'getReportRevision': OperationDescriptor(method: 'GET', path: '/reports/{id}', versioned: false, stepUp: null, permission: 'report.read'),
   'getSitePhotoChecks': OperationDescriptor(method: 'GET', path: '/site-photos/{id}/checks', versioned: false, stepUp: null, permission: 'photo.read'),

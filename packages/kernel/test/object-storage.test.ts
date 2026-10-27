@@ -236,6 +236,15 @@ describe('upload validation', () => {
     expect(UPLOAD_PURPOSES.audit_export.maxBytes).toBeGreaterThan(UPLOAD_PURPOSES.document.maxBytes);
   });
 
+  it('takes the export of a frozen snapshot as CSV, a workbook or a PDF and nothing else (ST-DIS-016)', () => {
+    const xlsx = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    expect(verdict('text/csv', ascii('key,label,value\n'), 'report_export')).toEqual({ ok: true, contentType: 'text/csv' });
+    expect(verdict(xlsx, ZIP, 'report_export')).toEqual({ ok: true, contentType: xlsx });
+    expect(verdict('application/pdf', PDF, 'report_export')).toEqual({ ok: true, contentType: 'application/pdf' });
+    expect(verdict('text/plain', ascii('x'), 'report_export')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
+    expect(verdict(xlsx, PDF, 'report_export')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
+  });
+
   it('refuses a purpose it does not know', () => {
     expect(() => validateUpload({ declaredType: 'application/pdf', bytes: PDF, purpose: 'nothing' as never })).toThrow(/purpose/);
   });

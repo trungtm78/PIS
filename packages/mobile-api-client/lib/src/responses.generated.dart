@@ -460,6 +460,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getQualityAcceptance': QmsAcceptanceLineResponse.fromJson,
   'getQualityScorecard': asObject,
   'getReconciliationItem': PayReconciliationItemResponse.fromJson,
+  'getReportExportDownload': DisReportExportDownloadResponse.fromJson,
   'getReportImport': DisReportImportResponse.fromJson,
   'getReportRevision': asObject,
   'getSitePhotoChecks': asObject,
@@ -4092,6 +4093,52 @@ final class DisRatesResponse implements ResponseModel {
         if (ctmtqgSubsetVnd != null) 'ctmtqg_subset_vnd': ctmtqgSubsetVnd,
         if (legalConfirmationRefs != null) 'legal_confirmation_refs': legalConfirmationRefs,
         if (groups != null) 'groups': groups!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class DisReportExportDownloadResponse implements ResponseModel {
+  const DisReportExportDownloadResponse({
+    required this.exportId,
+    required this.url,
+    required this.expiresAt,
+    required this.format,
+    required this.rows,
+    required this.fileSha256,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportExportDownloadResponse.fromJson(Object? json, [String path = 'DisReportExportDownloadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportExportDownloadResponse(
+      exportId: requiredField(map, path, 'export_id', asString),
+      url: requiredField(map, path, 'url', asString),
+      expiresAt: requiredField(map, path, 'expires_at', asString),
+      format: requiredField(map, path, 'format', asString),
+      rows: requiredField(map, path, 'rows', asInt),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      extra: unknownFields(map, path, const <String>{'export_id', 'url', 'expires_at', 'format', 'rows', 'file_sha256'}, strict: false),
+    );
+  }
+
+  final String exportId;
+  final String url;
+  final String expiresAt;
+  final String format;
+  final int rows;
+  final String fileSha256;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'export_id': exportId,
+        'url': url,
+        'expires_at': expiresAt,
+        'format': format,
+        'rows': rows,
+        'file_sha256': fileSha256,
         ...extra,
       };
 }

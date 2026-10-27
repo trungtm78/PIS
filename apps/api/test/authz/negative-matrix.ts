@@ -878,6 +878,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/early-warnings/${t.legalHoldId}/dismiss`, ifMatch: '"1"', body: { reason: 'Matrix attempt to dismiss' } }),
   },
+  createReportExport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/report-exports', body: { snapshot_id: t.legalHoldId, format: 'CSV' } }),
+  },
   buildPeriodSnapshot: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/period-snapshots', body: { period_id: t.periodLockedId, snapshot_kind: 'PERIOD_CLOSE', treasury_cutoff_date: '2026-01-04' } }),

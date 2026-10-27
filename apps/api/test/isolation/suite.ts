@@ -475,6 +475,12 @@ export const PERIOD_SNAPSHOT_FIXTURES: Readonly<Record<TenantName, { id: string;
   'TNT-B': { id: '00000000-0000-4000-b0ff-000000000001', lineId: '00000000-0000-4000-b0ff-000000000002', planVnd: '9200007' },
 };
 
+/** The record of an export of the frozen snapshot of each tenant (the audit row that is its only record, made by the test principal): the download asks it again and finds it for its owner only. */
+export const REPORT_EXPORT_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ff-000000000003' },
+  'TNT-B': { id: '00000000-0000-4000-b0ff-000000000003' },
+};
+
 /** A draft early-warning rule and a warning of each tenant that is open (the name, the legal basis and the dedupe key are distinctive: the rules and the warnings of a tenant are internal to it). */
 export const EARLY_WARNING_FIXTURES: Readonly<Record<TenantName, { ruleId: string; ruleName: string; legalBasis: string; warningId: string; dedupeKey: string }>> = {
   'TNT-A': { ruleId: '00000000-0000-4000-a0f8-000000000001', ruleName: 'Alpha tenant slow disbursement rule 0001', legalBasis: 'Alpha tenant legal basis of the warning rule 0001', warningId: '00000000-0000-4000-a0f8-000000000002', dedupeKey: 'EW-ISO|alpha-0001|2026' },
@@ -900,6 +906,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'report import id', value: REPORT_IMPORT_FIXTURES[tenant].id },
     { kind: 'report import file hash', value: REPORT_IMPORT_FIXTURES[tenant].fileSha256 },
     { kind: 'period snapshot id', value: PERIOD_SNAPSHOT_FIXTURES[tenant].id },
+    { kind: 'report export id', value: REPORT_EXPORT_FIXTURES[tenant].id },
     { kind: 'warning rule id', value: EARLY_WARNING_FIXTURES[tenant].ruleId },
     { kind: 'warning rule name', value: EARLY_WARNING_FIXTURES[tenant].ruleName },
     { kind: 'warning rule legal basis', value: EARLY_WARNING_FIXTURES[tenant].legalBasis },

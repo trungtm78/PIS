@@ -21,13 +21,13 @@ export function useRates(query: RatesQuery, enabled = true) {
 }
 
 /** The snapshots that were frozen, newest first, what a screen of the rates lets a person choose from. */
-export function useFrozenSnapshots() {
+export function useFrozenSnapshots(enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<SnapshotView[]>({
     queryKey: [...root(tenant?.id), 'frozen'],
     queryFn: async () => toSnapshotList(await client.read('listPeriodSnapshots', { query: { status: 'FROZEN', limit: 100 } })).items,
-    enabled: tenant !== undefined,
+    enabled: tenant !== undefined && enabled,
     retry: false,
   });
 }
