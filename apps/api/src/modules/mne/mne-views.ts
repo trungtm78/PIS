@@ -194,6 +194,8 @@ function sourceViewOf(source: MneFieldSource): Record<string, unknown> {
       return { kind: source.kind, severity: source.severity };
     case 'APPROPRIATION_TOTAL':
       return { kind: source.kind, plan_year: source.planYear };
+    case 'SLOW_PROJECTS':
+      return { kind: source.kind, limit: source.limit };
   }
 }
 

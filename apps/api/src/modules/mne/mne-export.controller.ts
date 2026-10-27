@@ -56,7 +56,7 @@ const sourceText = (report: MneReportRow, key: string): string => {
   const field = report.schema.fields.find((candidate) => candidate.key === key);
   if (field?.source === null || field === undefined) return '';
   const source = field.source;
-  const detail = source.kind === 'SNAPSHOT_METRIC' ? source.metric : source.kind === 'PROJECT_COUNT' ? (source.stage ?? '') : source.kind === 'WARNING_COUNT' ? (source.severity ?? '') : String(source.planYear);
+  const detail = source.kind === 'SNAPSHOT_METRIC' ? source.metric : source.kind === 'PROJECT_COUNT' ? (source.stage ?? '') : source.kind === 'WARNING_COUNT' ? (source.severity ?? '') : source.kind === 'SLOW_PROJECTS' ? String(source.limit) : String(source.planYear);
   return detail === '' ? source.kind : `${source.kind}: ${detail}`;
 };
 

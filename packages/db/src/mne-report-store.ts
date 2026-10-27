@@ -11,9 +11,10 @@ import {
   parseReportSchema,
   periodEndOfLabel,
   rateOfSums,
+  slowProjectsText,
   versionConflict,
 } from '@machvon/kernel';
-import type { MneReportSchema, MneReportStatus } from '@machvon/kernel';
+import type { MneReportSchema, MneReportStatus, SlowProject } from '@machvon/kernel';
 import { DisSnapshotStore } from './dis-snapshot-store.ts';
 import { MasterRules } from './master-rules.ts';
 import { MneFormStore } from './mne-form-store.ts';
@@ -609,6 +610,9 @@ export class MneReportStore {
         case 'APPROPRIATION_TOTAL':
           values[field.key] = await this.appropriationTotal(tx, source.planYear);
           break;
+        case 'SLOW_PROJECTS':
+          values[field.key] = slowProjectsText(await this.slowProjects(tx, context, source.limit));
+          break;
       }
     }
     return values;
@@ -634,6 +638,31 @@ export class MneReportStore {
       [context.projectId, context.unitId, severity, OPEN_WARNING],
     );
     return Number(row?.n ?? 0);
+  }
+
+  /**
+   * The projects of the unit with an open warning of the rule EW-01 (the cumulative rate behind the expected one), the furthest behind first, each with the leader in charge now (DIS-24 reads the leader the same way).
+   * A warning that is closed is not a slow project any more; a warning of another rule says something else.
+   */
+  private async slowProjects(tx: TenantTx, context: { unitId: string; projectId: string | null }, limit: number): Promise<SlowProject[]> {
+    const rows = await tx.query<{ code: string; name: string; leader_name: string | null; gap: string }>(
+      `select p.code, p.name, lu.display_name as leader_name, w.observed_json->>'gap_points' as gap
+         from (select distinct on (w.project_id) w.* from machvon.early_warning w join machvon.early_warning_rule r on r.tenant_id = w.tenant_id and r.id = w.rule_id and r.rule_code = 'EW-01'
+                where w.status = any($3::text[])
+                order by w.project_id, case when w.observed_json->>'gap_points' ~ '^-?[0-9]+([.][0-9]+)?$' then (w.observed_json->>'gap_points')::numeric end desc nulls last, w.opened_at desc, w.id) w
+         join machvon.project p on p.tenant_id = w.tenant_id and p.id = w.project_id
+         join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
+         left join lateral (select a.leader_membership_id from machvon.project_accountability a
+                             where a.tenant_id = p.tenant_id and a.project_id = p.id and a.accountability_role = 'LEADER_IN_CHARGE' and a.status = 'ACTIVE'
+                             order by a.valid_from desc, a.id limit 1) lead on true
+         left join machvon.tenant_user_directory lu on lu.tenant_id = p.tenant_id and lu.membership_id = lead.leader_membership_id
+        where ($1::uuid is null or p.id = $1::uuid)
+          and ($1::uuid is not null or exists (select 1 from machvon.organization_unit su where su.id = $2::uuid and starts_with(ou.path, su.path)))
+        order by case when w.observed_json->>'gap_points' ~ '^-?[0-9]+([.][0-9]+)?$' then (w.observed_json->>'gap_points')::numeric end desc nulls last, p.code collate "C"
+        limit $4::int`,
+      [context.projectId, context.unitId, OPEN_WARNING, limit],
+    );
+    return rows.map((row) => ({ code: row.code, name: row.name, leader: row.leader_name, gapPoints: row.gap ?? '?' }));
   }
 
   private async appropriationTotal(tx: TenantTx, planYear: number): Promise<string> {

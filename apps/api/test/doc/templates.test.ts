@@ -286,8 +286,10 @@ describe('document template library API (ST-DOC-006)', () => {
 
       const listed = await app.call('GET', '/document-templates?group_code=REPORT_MONITORING&as_of_date=2026-10-22', { member: READER });
       const items = (listed.json.items as Array<Record<string, unknown>>).filter((item) => item.origin === 'PLATFORM_PACK');
-      expect(items.map((item) => item.template_code)).toEqual(['MNE-TT44-M02', 'MNE-TT44-M03', 'MNE-TT44-M04', 'MNE-TT44-M05', 'MNE-TT44-M06', 'MNE-TT44-M07', 'MNE-TT44-M08', 'MNE-TT44-M09', 'MNE-TT44-M10']);
-      expect(items[0]).toMatchObject({
+      expect(items.map((item) => item.template_code)).toEqual(['MNE-CV3665-WEEKLY', 'MNE-TT44-M02', 'MNE-TT44-M03', 'MNE-TT44-M04', 'MNE-TT44-M05', 'MNE-TT44-M06', 'MNE-TT44-M07', 'MNE-TT44-M08', 'MNE-TT44-M09', 'MNE-TT44-M10']);
+      // The weekly quick report waits for CXN-11 (CV 3665), the monitoring reports of Circular 44 for CXN-10.
+      expect(items[0]).toMatchObject({ template_code: 'MNE-CV3665-WEEKLY', cxn_refs: ['CXN-11'], watermark_text: 'CHƯA XÁC NHẬN PHÁP LÝ [CXN-11]', form_code: 'CV3665-WEEKLY', confirmation_status: 'PENDING_CONFIRMATION' });
+      expect(items[1]).toMatchObject({
         confirmation_status: 'PENDING_CONFIRMATION',
         cxn_refs: ['CXN-10'],
         watermark_text: 'CHƯA XÁC NHẬN PHÁP LÝ [CXN-10]',
@@ -297,7 +299,7 @@ describe('document template library API (ST-DOC-006)', () => {
         status: 'PUBLISHED',
         renders_watermarked: true,
       });
-      expect(items[0]).not.toHaveProperty('body_blocks');
+      expect(items[1]).not.toHaveProperty('body_blocks');
     });
 
     it('loads the pack once: a second load changes nothing', async () => {

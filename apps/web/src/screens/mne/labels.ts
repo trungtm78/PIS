@@ -179,6 +179,8 @@ export function sourceLabel(t: T, source: FieldSource): string {
       return t('mne.report.source.warningCount', { detail });
     case 'APPROPRIATION_TOTAL':
       return t('mne.report.source.appropriationTotal', { detail });
+    case 'SLOW_PROJECTS':
+      return t('mne.report.source.slowProjects', { detail });
   }
 }
 

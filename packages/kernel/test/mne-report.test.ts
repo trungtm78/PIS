@@ -1,4 +1,4 @@
-import { assertReportState, checkedCorrection, decidedMneReport, fitsKind, missingFields, mneReportPayload, mneReportSourceRef, narrativeFaults, parseMneReportSourceRef, parseReportSchema, periodEndOfLabel } from '../src/mne-report.ts';
+import { assertReportState, checkedCorrection, decidedMneReport, fitsKind, missingFields, mneReportPayload, mneReportSourceRef, narrativeFaults, parseMneReportSourceRef, parseReportSchema, periodEndOfLabel, slowProjectsText } from '../src/mne-report.ts';
 
 const schema = parseReportSchema({
   fields: [
@@ -117,6 +117,40 @@ describe('correction of an issued report (ST-MNE-007)', () => {
     for (const status of ['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL', 'RETURNED'] as const) expect(() => checkedCorrection({ status }, 'A reason that is long enough')).not.toThrow();
     for (const status of ['DRAFT', 'IN_REVIEW', 'APPROVED', 'ISSUING', 'SUPERSEDED'] as const) {
       expect(() => checkedCorrection({ status }, 'A reason that is long enough')).toThrow(expect.objectContaining({ code: 'REPORT_NOT_ISSUED', status: 409 }));
+    }
+  });
+});
+
+describe('the slow projects of the weekly quick report (ST-MNE-005, AC-ST-MNE-005-1)', () => {
+  it('reads a text cell filled from the slowest projects, which is locked like any figure, with a limit of 1 to 20 that defaults to 5', () => {
+    const read = (source: Record<string, unknown>, kind = 'TEXT') => parseReportSchema({ fields: [{ key: 'slow_projects', kind, source }] }).fields[0];
+    expect(read({ kind: 'SLOW_PROJECTS' })?.source).toEqual({ kind: 'SLOW_PROJECTS', limit: 5 });
+    expect(read({ kind: 'SLOW_PROJECTS', limit: 20 })?.source).toEqual({ kind: 'SLOW_PROJECTS', limit: 20 });
+    for (const limit of [0, 21, 1.5, '5', null]) {
+      expect(() => read({ kind: 'SLOW_PROJECTS', limit })).toThrow(expect.objectContaining({ code: 'VALIDATION_FAILED', detail: 'schema_json.fields[0].source.limit' }));
+    }
+    expect(() => read({ kind: 'SLOW_PROJECTS' }, 'INTEGER')).toThrow(expect.objectContaining({ detail: 'schema_json.fields[0].source' }));
+    expect(narrativeFaults(parseReportSchema({ fields: [{ key: 'slow_projects', kind: 'TEXT', source: { kind: 'SLOW_PROJECTS' } }] }), { slow_projects: 'mine' }).locked).toEqual(['slow_projects']);
+  });
+
+  it('writes the list as one line per project, the slowest first, with its leader and how far it is behind, and says so when no project is slow', () => {
+    const rows = [
+      { code: 'DA-02', name: 'Cầu Bến Lức', leader: 'Nguyễn Văn A', gapPoints: '35.5000' },
+      { code: 'DA-07', name: 'Đường tỉnh 9', leader: null, gapPoints: '12.0000' },
+    ];
+    expect(slowProjectsText(rows)).toBe('1. DA-02 - Cầu Bến Lức; lãnh đạo phụ trách: Nguyễn Văn A; chậm 35.5000 điểm so với kỳ vọng\n2. DA-07 - Đường tỉnh 9; lãnh đạo phụ trách: chưa phân công; chậm 12.0000 điểm so với kỳ vọng');
+    expect(slowProjectsText([])).toBe('Không có dự án nào đang bị cảnh báo chậm giải ngân.');
+  });
+
+  it('keeps the list within what a text cell takes, whatever the names are', () => {
+    const rows = Array.from({ length: 20 }, (_, i) => ({ code: `DA-${i}`, name: 'N'.repeat(900), leader: 'L'.repeat(900), gapPoints: '10.0000' }));
+    const text = slowProjectsText(rows);
+    expect(fitsKind('TEXT', text)).toBe(true);
+    expect(text.split('\n')).toHaveLength(20);
+    // What is shortened is the name and the leader: the gap and the words that say what the line is stay whole.
+    for (const line of text.split('\n')) {
+      expect(line).toMatch(/; lãnh đạo phụ trách: L+…; chậm 10\.0000 điểm so với kỳ vọng$/);
+      expect(line).toContain('N…');
     }
   });
 });

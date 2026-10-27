@@ -46,3 +46,20 @@
 tr.mne-late td:first-child {
   border-left: 3px solid #a22b22;
 }
+
+/* MNE-07: the lines of the slow projects and the proposals of the week. */
+.mne-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mne-lines li {
+  padding: 4px 0;
+  overflow-wrap: anywhere;
+}
+
+.mne-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

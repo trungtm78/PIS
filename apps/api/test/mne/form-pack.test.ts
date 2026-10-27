@@ -1,3 +1,4 @@
+import { parseReportSchema } from '@machvon/kernel';
 import { MneFormStore, MneObligationRuleStore } from '@machvon/db';
 import type { TenantTx } from '@machvon/db';
 import { loadFormPack, loadMnePack, parseFormPack } from '../../src/modules/mne/form-pack';
@@ -50,6 +51,21 @@ describe('the platform pack of report forms and obligation rules (ST-MNE-001, BR
     ]);
   });
 
+  it('AC-ST-MNE-005-1: gives the weekly quick report the two rates of DIS-19 and the slow projects as locked cells, and a place for the proposals', () => {
+    const weekly = pack.forms.find((form) => form.formCode === 'CV3665-WEEKLY');
+    const fields = parseReportSchema(weekly?.schemaJson).fields;
+    expect(fields.map((field) => [field.key, field.kind, field.required, field.source])).toEqual([
+      ['rate_pm_pct', 'PERCENT', true, { kind: 'SNAPSHOT_METRIC', metric: 'rate_pm_pct' }],
+      ['rate_total_pct', 'PERCENT', true, { kind: 'SNAPSHOT_METRIC', metric: 'rate_total_pct' }],
+      ['plan_total_vnd', 'MONEY', true, { kind: 'SNAPSHOT_METRIC', metric: 'plan_total_vnd' }],
+      ['disbursed_treasury_vnd', 'MONEY', true, { kind: 'SNAPSHOT_METRIC', metric: 'disbursed_treasury_vnd' }],
+      ['slow_projects', 'TEXT', true, { kind: 'SLOW_PROJECTS', limit: 5 }],
+      ['proposals', 'TEXT', false, null],
+    ]);
+    // Every form of the pack has a schema the report reads (a form that waits for its cells has none).
+    for (const form of pack.forms) expect(() => parseReportSchema(form.schemaJson)).not.toThrow();
+  });
+
   it('refuses a pack that is not well formed', () => {
     expect(() => parseFormPack(null)).toThrow('no forms or no rules');
     expect(() => parseFormPack({ pack_version: '1', forms: [], rules: [] })).not.toThrow();
@@ -88,31 +104,32 @@ describe('the platform pack of report forms and obligation rules (ST-MNE-001, BR
       await harness.stop();
     }, 60_000);
 
-    it('publishes the forms whose DOC template exists, as working assumptions, and leaves the weekly one out until DOC has its template', async () => {
+    it('publishes the forms and the rules as working assumptions, the weekly quick report with them now that DOC has its template (ST-MNE-005)', async () => {
       const result = await as((tx) => loadMnePack(tx, memberId(1)));
-      expect(result.forms.inserted).toEqual(['TT44-M02', 'TT44-M03', 'TT44-M04', 'TT44-M05', 'TT44-M06', 'TT44-M07', 'TT44-M08', 'TT44-M09', 'TT44-M10']);
-      expect(result.forms.skipped).toEqual([{ formCode: 'CV3665-WEEKLY', reason: 'DOC_TEMPLATE_MISSING' }]);
-      expect(result.rules.inserted).toEqual(['OVERALL_SEMIANNUAL', 'OVERALL_ANNUAL']);
-      expect(result.rules.skipped).toEqual([{ ruleCode: 'WEEKLY_QUICK', reason: 'FORM_NOT_EFFECTIVE' }]);
+      expect(result.forms.inserted).toEqual(['TT44-M02', 'TT44-M03', 'TT44-M04', 'TT44-M05', 'TT44-M06', 'TT44-M07', 'TT44-M08', 'TT44-M09', 'TT44-M10', 'CV3665-WEEKLY']);
+      expect(result.forms.skipped).toEqual([]);
+      expect(result.rules.inserted).toEqual(['OVERALL_SEMIANNUAL', 'OVERALL_ANNUAL', 'WEEKLY_QUICK']);
+      expect(result.rules.skipped).toEqual([]);
       const listed = await as((tx) => forms.list(tx, {}, { limit: 50 }));
-      expect(listed).toHaveLength(9);
+      expect(listed).toHaveLength(10);
       for (const form of listed) {
         expect(form).toMatchObject({ status: 'PUBLISHED', origin: 'PLATFORM_PACK', packVersion: '2026.10.1', legalConfirmationRef: null, approvedBy: null, effectiveFrom: '2026-01-01' });
-        expect(form.watermarkText).toBe('Mẫu chờ xác nhận pháp lý [CXN-10]');
+        expect(form.watermarkText).toBe(form.formCode === 'CV3665-WEEKLY' ? 'Mẫu chờ xác nhận pháp lý [CXN-11]' : 'Mẫu chờ xác nhận pháp lý [CXN-10]');
         expect(form.docTemplateId).not.toBeNull();
       }
       const half = await as((tx) => rules.inWindow(tx, { from: '2026-01-01', until: '2027-01-01' }));
       expect(half.map((row) => [row.ruleCode, row.formCode, row.reportingRole, row.dueRuleJson])).toEqual([
         ['OVERALL_ANNUAL', 'TT44-M03', 'INVESTOR', { period: 'YEAR', month: 2, day: 10, year_offset: 1 }],
         ['OVERALL_SEMIANNUAL', 'TT44-M02', 'INVESTOR', { period: 'H1', month: 7, day: 10 }],
+        ['WEEKLY_QUICK', 'CV3665-WEEKLY', 'PROVINCIAL_PEOPLE_COMMITTEE', { weekly: 'FRI', time: '16:00' }],
       ]);
     });
 
     it('changes nothing when it is loaded again', async () => {
       const again = await as((tx) => loadMnePack(tx, memberId(1)));
       expect(again.forms.inserted).toEqual([]);
-      expect(again.forms.unchanged).toHaveLength(9);
-      expect(again.rules.unchanged).toEqual(['OVERALL_SEMIANNUAL', 'OVERALL_ANNUAL']);
+      expect(again.forms.unchanged).toHaveLength(10);
+      expect(again.rules.unchanged).toEqual(['OVERALL_SEMIANNUAL', 'OVERALL_ANNUAL', 'WEEKLY_QUICK']);
     });
 
     it('gives another tenant nothing it was not given', async () => {

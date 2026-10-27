@@ -273,7 +273,7 @@ export interface PackageView {
 }
 export const FIELD_KINDS = ['MONEY', 'PERCENT', 'INTEGER', 'TEXT'] as const;
 export type FieldKind = (typeof FIELD_KINDS)[number];
-export const SOURCE_KINDS = ['SNAPSHOT_METRIC', 'PROJECT_COUNT', 'WARNING_COUNT', 'APPROPRIATION_TOTAL'] as const;
+export const SOURCE_KINDS = ['SNAPSHOT_METRIC', 'PROJECT_COUNT', 'WARNING_COUNT', 'APPROPRIATION_TOTAL', 'SLOW_PROJECTS'] as const;
 export type SourceKind = (typeof SOURCE_KINDS)[number];
 
 /** Where a locked cell comes from: the kind of source and the one detail that names it (a metric, a stage, a severity or a plan year). */
@@ -329,6 +329,10 @@ export interface ReportView {
   issueRequestedAt: string | null;
   issuedAt: string | null;
   recalledAt: string | null;
+  /** The revision of the report (1 for the first, more for each correction). */
+  revision: number;
+  /** Every revision of the report, oldest first. */
+  history: Array<{ id: string; revision: number; status: string }>;
   version: number;
 }
 
@@ -371,7 +375,7 @@ function toReportField(raw: unknown): ReportField | undefined {
   const key = text(raw.key);
   if (kind === undefined || key === '') return undefined;
   const source = isRecord(raw.source) ? oneOf(raw.source.kind, SOURCE_KINDS) : undefined;
-  const detail = isRecord(raw.source) ? (raw.source.metric ?? raw.source.stage ?? raw.source.severity ?? raw.source.plan_year ?? null) : null;
+  const detail = isRecord(raw.source) ? (raw.source.metric ?? raw.source.stage ?? raw.source.severity ?? raw.source.plan_year ?? raw.source.limit ?? null) : null;
   const value = raw.value;
   return {
     key,
@@ -421,6 +425,8 @@ export function toReport(raw: unknown): ReportView | undefined {
     issueRequestedAt: nullableText(raw.issue_requested_at),
     issuedAt: nullableText(raw.issued_at),
     recalledAt: nullableText(raw.recalled_at),
+    revision: raw.revision === undefined ? 1 : count(raw.revision),
+    history: (Array.isArray(raw.history) ? raw.history : []).flatMap((entry) => (isRecord(entry) && text(entry.id) !== '' ? [{ id: text(entry.id), revision: count(entry.revision), status: text(entry.status) }] : [])),
     version: count(raw.version),
   };
 }

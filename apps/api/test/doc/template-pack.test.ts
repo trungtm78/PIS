@@ -23,7 +23,7 @@ describe('the platform template pack (ST-DOC-006, TK-DOC-006-3)', () => {
 
   it('is data with a version: every template has its legal basis, a watermark that says it waits for confirmation, a start date and a body the renderer can fill', () => {
     expect(loaded.packVersion).toBe('2026.10.1');
-    expect(loaded.templates).toHaveLength(23);
+    expect(loaded.templates).toHaveLength(24);
     for (const template of loaded.templates) {
       expect(template.legalBasis.length).toBeGreaterThan(5);
       expect(template.watermarkText).toContain('CHƯA XÁC NHẬN PHÁP LÝ');
@@ -38,6 +38,9 @@ describe('the platform template pack (ST-DOC-006, TK-DOC-006-3)', () => {
     expect(new Set(codes).size).toBe(codes.length);
     const forms = loaded.templates.flatMap((template) => (template.formCode === undefined ? [] : [template.formCode]));
     expect(new Set(forms).size).toBe(forms.length);
+    const weekly = loaded.templates.find((template) => template.templateCode === 'MNE-CV3665-WEEKLY');
+    expect(weekly).toMatchObject({ formCode: 'CV3665-WEEKLY', groupCode: 'REPORT_MONITORING', docTypeCode: 'BC', sourceModule: 'MNE', watermarkText: 'CHƯA XÁC NHẬN PHÁP LÝ [CXN-11]' });
+    expect(weekly?.legalBasis).toContain('[CXN-11]');
     const reports = loaded.templates.filter((template) => template.templateCode.startsWith('MNE-TT44-'));
     expect(reports.map((template) => template.formCode)).toEqual(['M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10']);
     for (const report of reports) {

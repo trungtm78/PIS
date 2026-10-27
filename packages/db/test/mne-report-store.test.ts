@@ -170,6 +170,90 @@ describe('MneReportStore (ST-MNE-002, MNE F3)', () => {
     expect(submitted.row.status).toBe('IN_REVIEW');
   });
 
+  it('fills the slow projects of the weekly quick report from the open warnings EW-01 of the unit, the furthest behind first, with the leader of each, limited and locked (AC-ST-MNE-005-1)', async () => {
+    const WEEKLY = {
+      fields: [
+        { key: 'rate_pm', label: 'Rate PM', kind: 'PERCENT', required: true, source: { kind: 'SNAPSHOT_METRIC', metric: 'rate_pm_pct' } },
+        { key: 'rate_total', label: 'Rate total', kind: 'PERCENT', required: true, source: { kind: 'SNAPSHOT_METRIC', metric: 'rate_total_pct' } },
+        { key: 'slow', label: 'Slow', kind: 'TEXT', required: true, source: { kind: 'SLOW_PROJECTS', limit: 2 } },
+        { key: 'proposal', label: 'Proposal', kind: 'TEXT' },
+      ],
+    };
+    const form = await publishedForm('CV3665-WEEKLY', { reportKind: 'WEEKLY_QUICK', schemaJson: WEEKLY });
+    await publishedRule(form.id, 'WEEKLY_QUICK', { reportingRole: 'PROVINCIAL_PEOPLE_COMMITTEE', frequency: 'WEEKLY', dueRuleJson: { weekly: 'FRI', time: '16:00' } });
+    await as((tx) => obligations.generate(tx, { year: 2027, today: TODAY, actor: memberId(MAKER), scope: EVERYTHING, scopeUnitId: undefined }));
+    const week = reportingPeriods({ weekStartsOn: 'SATURDAY', deadlineWeekday: 'FRIDAY', deadlineTime: '10:00', timezone: 'Asia/Ho_Chi_Minh' }, 2027)[10] as { code: string; endsOn: string };
+    const [shell] = await owner<{ id: string; version: string }>('select id, version::text as version from machvon.mne_report where period_label = $1', [week.code]);
+    const snapshotId = await frozenSnapshot(week.endsOn);
+    const leaderId = memberId(CHECKER);
+    const projects = { far: randomUUID(), near: randomUUID(), middle: randomUUID(), closed: randomUUID(), elsewhere: randomUUID(), other: randomUUID() };
+    const client = new Client({ connectionString: harness.database.adminUrl });
+    await client.connect();
+    try {
+      await client.query('set session_replication_role = replica');
+      // The tenant has the rules of the platform (one revision each): the warnings point at two of them.
+      const rule = async (code: string): Promise<string> => ((await client.query('select id from machvon.early_warning_rule where tenant_id = $1 and rule_code = $2 order by revision limit 1', [TENANT_A, code])).rows[0] as { id: string }).id;
+      const ruleId = await rule('EW-01');
+      const otherRuleId = await rule('EW-02');
+      const seeded: [string, string, string, string, string, string][] = [
+        // project, code, owner unit, status of the warning, gap, rule of the warning
+        [projects.far, 'DA-FAR', unitId(COMMITTEE), 'OPEN', '35.5000', ruleId],
+        [projects.near, 'DA-NEAR', unitId(COMMITTEE), 'ACKNOWLEDGED', '12.0000', ruleId],
+        [projects.middle, 'DA-MIDDLE', unitId(COMMITTEE), 'EXPLANATION_REQUESTED', '20.0000', ruleId],
+        [projects.closed, 'DA-CLOSED', unitId(COMMITTEE), 'RESOLVED', '90.0000', ruleId],
+        [projects.elsewhere, 'DA-ELSEWHERE', unitId(INVESTOR), 'OPEN', '80.0000', ruleId],
+        [projects.other, 'DA-OTHERRULE', unitId(COMMITTEE), 'OPEN', '70.0000', otherRuleId],
+      ];
+      for (const [id, code, unit, status, gap, rule] of seeded) {
+        await client.query(
+          `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+           values ($1, $2, $3, $4, $5, $6, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
+          [TENANT_A, id, code, `Project ${code}`, unit, randomUUID()],
+        );
+        await client.query(
+          `insert into machvon.early_warning (tenant_id, id, rule_id, project_id, unit_id, period_id, snapshot_id, severity, observed_json, dedupe_key, status, explanation_request_id, resolution_reason, closed_at, created_by, updated_by)
+           values ($1, $2, $3, $4, $5, (select period_id from machvon.period_snapshot where id = $6), $6, 'WARNING', jsonb_build_object('gap_points', $7::text), $8, $9, case when $9 = 'EXPLANATION_REQUESTED' then gen_random_uuid() end, case when $9 = 'RESOLVED' then 'done' end, case when $9 = 'RESOLVED' then now() end, $10, $10)`,
+          [TENANT_A, randomUUID(), rule, id, unit, snapshotId, gap, `${code}|key`, status, WORKER],
+        );
+      }
+      // An older warning of the same rule that is still open for the far project (another year, another key): the project is in the list once, at its worst, and does not take the place of another.
+      await client.query(
+        `insert into machvon.early_warning (tenant_id, id, rule_id, project_id, unit_id, period_id, snapshot_id, severity, observed_json, dedupe_key, status, created_by, updated_by)
+         values ($1, $2, $3, $4, $5, (select period_id from machvon.period_snapshot where id = $6), $6, 'WARNING', jsonb_build_object('gap_points', '30.0000'), 'DA-FAR|2025', 'OPEN', $7, $7)`,
+        [TENANT_A, randomUUID(), ruleId, projects.far, unitId(COMMITTEE), snapshotId, WORKER],
+      );
+      // The leader of the far project; the leader of the middle one stopped being it, so it has none.
+      await client.query(
+        `insert into machvon.project_accountability (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
+         values ($1, $2, $3, $4, 'LEADER_IN_CHARGE', '2026-01-01', 'ACTIVE', $5, $5)`,
+        [TENANT_A, randomUUID(), projects.far, leaderId, WORKER],
+      );
+      await client.query(
+        `insert into machvon.project_accountability (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, valid_until, status, end_reason, created_by, updated_by)
+         values ($1, $2, $3, $4, 'LEADER_IN_CHARGE', '2026-01-01', '2026-03-01', 'ENDED', 'moved', $5, $5)`,
+        [TENANT_A, randomUUID(), projects.middle, leaderId, WORKER],
+      );
+    } finally {
+      await client.end();
+    }
+    const [leader] = await owner<{ display_name: string }>('select display_name from machvon.tenant_user_directory where membership_id = $1', [leaderId]);
+    const edited = await as((tx) =>
+      reports.edit(tx, { id: shell?.id as string, today: TODAY, expectedVersion: Number(shell?.version), narrative: { proposal: 'Speed up.' }, snapshotId, actor: memberId(MAKER), unitScope: EVERYTHING }),
+    );
+    // The deadline is the one of the WEEKLY rule: the Friday that closes the week.
+    expect(edited.row.dueDate).toBe(week.endsOn);
+    const values = edited.row.payload.values as Record<string, unknown>;
+    // The two rates are those of DIS-19 (nothing to divide by in this snapshot: missing, never zero); the list is the two furthest behind among the open warnings of EW-01 under the unit.
+    expect(values.rate_pm).toBeNull();
+    expect(values.slow).toBe(
+      `1. DA-FAR - Project DA-FAR; lãnh đạo phụ trách: ${leader?.display_name}; chậm 35.5000 điểm so với kỳ vọng\n2. DA-MIDDLE - Project DA-MIDDLE; lãnh đạo phụ trách: chưa phân công; chậm 20.0000 điểm so với kỳ vọng`,
+    );
+    // Locked like a figure: a hand-written text for it is refused.
+    expect(
+      await refusal(as((tx) => reports.edit(tx, { id: shell?.id as string, today: TODAY, expectedVersion: edited.row.version, narrative: { slow: 'mine' }, actor: memberId(MAKER), unitScope: EVERYTHING }))),
+    ).toMatchObject({ code: 'FIELD_SOURCE_LOCKED' });
+  });
+
   it('refuses a weekly label that the reporting calendar does not know (422 VALIDATION_FAILED)', async () => {
     const form = await publishedForm('CV3665-WEEKLY', { reportKind: 'WEEKLY_QUICK' });
     const snapshotId = await frozenSnapshot('2027-03-05');

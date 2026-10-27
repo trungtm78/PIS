@@ -21,7 +21,9 @@ export type MneFieldSource =
   /** The early warnings that are still open for the projects of the unit (of a severity when one is named). */
   | { kind: 'WARNING_COUNT'; severity: string | null }
   /** What the appropriations published for a plan year add up to. */
-  | { kind: 'APPROPRIATION_TOTAL'; planYear: number };
+  | { kind: 'APPROPRIATION_TOTAL'; planYear: number }
+  /** The projects of the unit with an open early warning of slow disbursement, the furthest behind first, written as a text (the weekly quick report). */
+  | { kind: 'SLOW_PROJECTS'; limit: number };
 
 export interface MneReportField {
   key: string;
@@ -41,6 +43,9 @@ const isRecord = (value: unknown): value is Raw => typeof value === 'object' && 
 const KEY = /^[a-z][a-z0-9_]{0,59}$/;
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
+const SLOW_PROJECTS_MAX = 20;
+const SLOW_PROJECTS_DEFAULT = 5;
+
 function sourceOf(raw: unknown, where: string): MneFieldSource | null {
   if (raw === undefined || raw === null) return null;
   if (!isRecord(raw)) throw invalid(`${where}.source`);
@@ -57,6 +62,9 @@ function sourceOf(raw: unknown, where: string): MneFieldSource | null {
     case 'APPROPRIATION_TOTAL':
       if (!Number.isInteger(raw.plan_year) || (raw.plan_year as number) < 1990 || (raw.plan_year as number) > 2100) throw invalid(`${where}.source.plan_year`);
       return { kind: 'APPROPRIATION_TOTAL', planYear: raw.plan_year as number };
+    case 'SLOW_PROJECTS':
+      if (raw.limit !== undefined && (!Number.isInteger(raw.limit) || (raw.limit as number) < 1 || (raw.limit as number) > SLOW_PROJECTS_MAX)) throw invalid(`${where}.source.limit`);
+      return { kind: 'SLOW_PROJECTS', limit: (raw.limit as number | undefined) ?? SLOW_PROJECTS_DEFAULT };
     default:
       throw invalid(`${where}.source.kind`);
   }
@@ -64,7 +72,7 @@ function sourceOf(raw: unknown, where: string): MneFieldSource | null {
 
 /**
  * The fields a form asks for, read from its `schema_json`. A form that lists none (a form that waits for the confirmation of its legal basis) has none: its report is an empty shell that takes no cell. A field with
- * a source is a figure, so it cannot be a text.
+ * a source is a figure, so it cannot be a text; the list of the slow projects is the one source that is a text, and only a text.
  */
 export function parseReportSchema(json: unknown): MneReportSchema {
   const fields = isRecord(json) && Array.isArray(json.fields) ? json.fields : [];
@@ -77,10 +85,32 @@ export function parseReportSchema(json: unknown): MneReportSchema {
       const kind = (MNE_FIELD_KINDS as readonly string[]).includes(entry.kind as string) ? (entry.kind as MneFieldKind) : undefined;
       if (kind === undefined) throw invalid(`${where}.kind`);
       const source = sourceOf(entry.source, where);
-      if (source !== null && kind === 'TEXT') throw invalid(`${where}.source`);
+      if (source !== null && (kind === 'TEXT') !== (source.kind === 'SLOW_PROJECTS')) throw invalid(`${where}.source`);
       return { key: entry.key, label: typeof entry.label === 'string' && entry.label !== '' ? entry.label : entry.key, kind, required: entry.required === true, source };
     }),
   };
+}
+
+export interface SlowProject {
+  code: string;
+  name: string;
+  leader: string | null;
+  /** How many points the project is behind the expected rate (the observed value of the warning, as the warning wrote it). */
+  gapPoints: string;
+}
+
+/** The most of each part of a line: twenty lines of the longest kind come to 3600 characters, within the 4000 of a text cell, and the leader and the gap are never what is cut off. */
+const SLOW_PART_MAX = { code: 20, name: 60, leader: 30, gap: 10 } as const;
+const cut = (text: string, max: number): string => (text.length <= max ? text : `${text.slice(0, max - 1)}…`);
+
+/** The slow projects as the text of a cell: one line each, the leader and the gap in it; the long parts of a line (the code, the name, the leader) are shortened, never the end of it, so that twenty lines always fit. */
+export function slowProjectsText(rows: readonly SlowProject[]): string {
+  if (rows.length === 0) return 'Không có dự án nào đang bị cảnh báo chậm giải ngân.';
+  return rows
+    .map((row, index) => {
+      return `${index + 1}. ${cut(row.code, SLOW_PART_MAX.code)} - ${cut(row.name, SLOW_PART_MAX.name)}; lãnh đạo phụ trách: ${cut(row.leader ?? 'chưa phân công', SLOW_PART_MAX.leader)}; chậm ${cut(row.gapPoints, SLOW_PART_MAX.gap)} điểm so với kỳ vọng`;
+    })
+    .join('\n');
 }
 
 /** The last day of the period a label names (`H1-2027`, `H2-2027`, `YEAR-2027`); null for any other label (a weekly period is read from the calendar). */
