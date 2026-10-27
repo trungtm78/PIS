@@ -325,7 +325,10 @@
     "voidOutgoingDocumentNumber",
     "waivePunchItem",
     "withdrawChangeRequest",
-    "withdrawMyConsent"
+    "withdrawMyConsent",
+    "requestExplanation",
+    "reviewExplanation",
+    "submitExplanation"
   ],
   "controlCommands": [
     "assignTenantOwner",

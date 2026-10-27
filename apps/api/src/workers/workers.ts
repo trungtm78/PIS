@@ -1,4 +1,4 @@
-import { AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, MetricsSink, TenantContext, TimerPort } from '@machvon/kernel';
@@ -89,6 +89,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const extensions = new CapAllocationExtensionStore();
   const fiscalYears = new CapFiscalYearStore();
   const stageLate = new LndStageLateJob(audit);
+  const explanationOverdue = new PrjExplanationOverdueJob(audit, deps.metrics);
   const reconciliationOverdue = new PayReconciliationOverdueJob(audit, deps.metrics);
   const capitalBalances = new CapBalanceReconcileJob(audit, deps.metrics);
   const audRecoveries = new AudRecoveryReconcileJob(audit, deps.metrics);
@@ -134,6 +135,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     extensionLapse: { run: async (ctx, now) => ({ lapsed: await deps.tenants.withTenant(ctx, (tx) => extensions.lapseDue(tx, vietnamDateOf(now), ctx.membershipId)) }) },
     // An override and the entitlement version it ends in belong to the tenant: the pass runs through the control role acting as that tenant, like the subscription cycle.
     stageLate: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => stageLate.run(tx, ctx.membershipId, now)) },
+    explanationOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => explanationOverdue.run(tx, ctx.membershipId, now)) },
     reconciliationOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => reconciliationOverdue.run(tx, ctx.membershipId, now)) },
     settlementDeadline: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => settlementDeadlines.run(tx, ctx.membershipId, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },

@@ -649,3 +649,5 @@ export { EXPORT_COLUMNS, EXPORT_FORMATS, EXPORT_PROJECT_CAP, EXPORT_ROW_CAP, PDF
 export type { DefinitionStatus as ExportDefinitionStatus, ExportColumn, ExportDocument, ExportFormat, ExportHeaderEntry, ExportInput, ExportLine, UnitScale } from './dis-export.ts';
 export { ADJUSTMENT_MONTH as FORECAST_ADJUSTMENT_MONTH, REALLOCATION_THRESHOLD_PCT, estimateYear, mergeEstimates, monthOf } from './dis-forecast.ts';
 export type { Estimate, EstimateCoverage, EstimateInput, EstimateMethod, EstimatedMonth, MonthSource } from './dis-forecast.ts';
+export { EXPLANATION_DECISIONS, EXPLANATION_DUE_WORKING_DAYS, EXPLANATION_STATUSES, EXPLANATION_SUBJECTS, MANUAL_EXPLANATION_TRIGGER, OPEN_EXPLANATION_STATUSES, answeredStatus, becomesOverdue, canReview, canRespond, concludedStatus, dueMomentOf, isAnswerLate } from './prj-explanation.ts';
+export type { ExplanationDecision, ExplanationStatus, ExplanationSubject } from './prj-explanation.ts';

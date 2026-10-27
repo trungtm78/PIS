@@ -487,6 +487,12 @@ export const EARLY_WARNING_FIXTURES: Readonly<Record<TenantName, { ruleId: strin
   'TNT-B': { ruleId: '00000000-0000-4000-b0f8-000000000001', ruleName: 'Beta tenant slow disbursement rule 0001', legalBasis: 'Beta tenant legal basis of the warning rule 0001', warningId: '00000000-0000-4000-b0f8-000000000002', dedupeKey: 'EW-ISO|beta-0001|2026' },
 };
 
+/** A request for an explanation of each tenant (the question is distinctive: the questions and answers of a tenant are internal to it). */
+export const EXPLANATION_FIXTURES: Readonly<Record<TenantName, { id: string; question: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0fb-000000000001', question: 'Alpha tenant question about the missing weekly report 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0fb-000000000001', question: 'Beta tenant question about the missing weekly report 0001' },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -912,6 +918,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'warning rule legal basis', value: EARLY_WARNING_FIXTURES[tenant].legalBasis },
     { kind: 'warning id', value: EARLY_WARNING_FIXTURES[tenant].warningId },
     { kind: 'warning dedupe key', value: EARLY_WARNING_FIXTURES[tenant].dedupeKey },
+    { kind: 'explanation request id', value: EXPLANATION_FIXTURES[tenant].id },
+    { kind: 'explanation question', value: EXPLANATION_FIXTURES[tenant].question },
     { kind: 'period snapshot planned amount', value: PERIOD_SNAPSHOT_FIXTURES[tenant].planVnd },
     { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },
     { kind: 'weekly report hash', value: REPORT_FIXTURES[tenant].payloadHash },

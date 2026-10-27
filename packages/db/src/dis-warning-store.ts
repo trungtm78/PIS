@@ -549,4 +549,46 @@ export class DisWarningStore {
     }
     return { before: current.status, warning: (await this.find(tx, id)) as WarningRow };
   }
+
+  /**
+   * A warning that an explanation was asked for (ST-PRJ-006): it moves to EXPLANATION_REQUESTED and keeps the request. It is the warning of the subject of the request and it is open (not yet handled
+   * by the request of another person); anything else is a fault of the request that names it (422 VALIDATION_FAILED), a warning that is not there is 404.
+   */
+  async linkExplanation(tx: TenantTx, warningId: string, explanationId: string, subject: { projectId: string | null; unitId: string | null }, actor: string): Promise<WarningRow> {
+    const current = await this.assertLinkable(tx, warningId, subject);
+    // A warning is acknowledged before an explanation is asked for (the database allows no shorter way): asking is a way of taking it up, so an open warning is acknowledged by the one who asks.
+    if (current.status === 'OPEN') {
+      await tx.query(
+        `update machvon.early_warning set status = 'ACKNOWLEDGED', acknowledged_by = $2::uuid, acknowledged_at = now(), acknowledgement_note = 'An explanation was requested', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid`,
+        [warningId, actor],
+      );
+    }
+    await tx.query(
+      `update machvon.early_warning set status = 'EXPLANATION_REQUESTED', explanation_request_id = $2::uuid, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,
+      [warningId, explanationId, actor],
+    );
+    return (await this.find(tx, warningId)) as WarningRow;
+  }
+
+  /** The warning, locked, when an explanation may be asked for it: it is there (404), open and not yet asked about (409), and of the subject of the request (422). */
+  async assertLinkable(tx: TenantTx, warningId: string, subject: { projectId: string | null; unitId: string | null }): Promise<WarningRow> {
+    const current = await this.find(tx, warningId, undefined, true);
+    if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'warning_id');
+    if (current.status === 'EXPLANATION_REQUESTED') throw new DomainError('EXPLANATION_ALREADY_OPEN', 409, 'warning_id');
+    if (current.status !== 'OPEN' && current.status !== 'ACKNOWLEDGED') throw new DomainError('WARNING_STATE_INVALID', 409, 'warning_id', { extensions: { warning_status: current.status } });
+    // A warning of a project carries the owner unit of the project as well: the project is the subject that counts. A warning of a unit has no project.
+    const ofSubject = subject.projectId !== null ? current.projectId === subject.projectId : current.projectId === null && current.unitId === subject.unitId;
+    if (!ofSubject) throw new DomainError('VALIDATION_FAILED', 422, 'warning_id');
+    return current;
+  }
+
+  /** The warning that waits for an explanation, resolved because the explanation was accepted (ST-PRJ-006); none when the request had no warning or it was closed in the meantime. */
+  async resolveByExplanation(tx: TenantTx, explanationId: string, actor: string): Promise<WarningRow | undefined> {
+    const rows = await tx.query<{ id: string }>(
+      `update machvon.early_warning set status = 'RESOLVED', resolution_reason = 'EXPLANATION_ACCEPTED', closed_at = now(), closed_by = $2::uuid, updated_at = now(), updated_by = $2::uuid, version = version + 1
+        where explanation_request_id = $1::uuid and status = 'EXPLANATION_REQUESTED' returning id`,
+      [explanationId, actor],
+    );
+    return rows[0] === undefined ? undefined : await this.find(tx, rows[0].id);
+  }
 }

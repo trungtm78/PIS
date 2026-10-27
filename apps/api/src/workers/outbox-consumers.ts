@@ -7,6 +7,7 @@ import { TenantStatusChangedConsumer, TENANT_STATUS_CONSUMER } from '../modules/
 import { DGV_SNAPSHOT_FROZEN_CONSUMER, SnapshotFrozenConsumer } from '../modules/dgv/snapshot-frozen.consumer';
 import { DIS_RANKING_COMPUTE_CONSUMER, RankingComputeConsumer } from '../modules/dis/ranking-compute.consumer';
 import { DIS_REGISTRATION_CONSUMER, RegistrationConsumer } from '../modules/dis/registration.consumer';
+import { ExplanationAutoConsumer, PRJ_EXPLANATION_AUTO_CONSUMER } from '../modules/prj/explanation-auto.consumer';
 import { DIS_WARNING_EVALUATE_CONSUMER, WarningEvaluateConsumer } from '../modules/dis/warning-evaluate.consumer';
 import { ISS_INTAKE_CONSUMER, IssIntakeConsumer } from '../modules/iss/intake.consumer';
 import { PlanPublishedConsumer, PRJ_PLAN_PUBLISHED_CONSUMER } from '../modules/prj/plan-published.consumer';
@@ -83,6 +84,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
   const warningEvaluate = new WarningEvaluateConsumer({ database: tenants, security });
   const rankingCompute = new RankingComputeConsumer({ database: tenants, security });
   const registration = new RegistrationConsumer({ database: tenants, security });
+  const explanationAuto = new ExplanationAutoConsumer({ database: tenants, security });
   const guestContracts = new GuestContractClosedConsumer({ database: tenants, security });
   const payRecoveries = new PayRecoveryConsumer({ database: tenants, security });
   const auditReports = new ReportConsumer({ database: tenants, security });
@@ -98,6 +100,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: DIS_WARNING_EVALUATE_CONSUMER, handle: (delivery) => warningEvaluate.handle(delivery) },
     { name: DIS_RANKING_COMPUTE_CONSUMER, handle: (delivery) => rankingCompute.handle(delivery) },
     { name: DIS_REGISTRATION_CONSUMER, handle: (delivery) => registration.handle(delivery) },
+    { name: PRJ_EXPLANATION_AUTO_CONSUMER, handle: (delivery) => explanationAuto.handle(delivery) },
     { name: ADM_GUEST_CONTRACT_CONSUMER, handle: (delivery) => guestContracts.handle(delivery) },
     { name: AUD_PAY_RECOVERY_CONSUMER, handle: (delivery) => payRecoveries.handle(delivery) },
     { name: AUD_REPORT_CONSUMER, handle: (delivery) => auditReports.handle(delivery) },

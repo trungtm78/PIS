@@ -878,6 +878,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/early-warnings/${t.legalHoldId}/dismiss`, ifMatch: '"1"', body: { reason: 'Matrix attempt to dismiss' } }),
   },
+  requestExplanation: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/explanation-requests',
+      body: { subject_kind: 'PROJECT', project_id: t.legalHoldId, trigger_code: 'MATRIX', question: 'Matrix attempt to ask for an explanation', requested_from_membership_id: t.recipientMembershipId, due_at: '2099-01-01T00:00:00Z' },
+    }),
+  },
+  submitExplanation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/explanation-requests/${t.legalHoldId}/response`, ifMatch: '"1"', body: { response_text: 'Matrix attempt to answer a request for an explanation' } }),
+  },
+  reviewExplanation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/explanation-requests/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'ACCEPTED', review_note: 'Matrix attempt to conclude' } }),
+  },
   createReportExport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/report-exports', body: { snapshot_id: t.legalHoldId, format: 'CSV' } }),

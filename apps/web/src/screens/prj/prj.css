@@ -158,3 +158,21 @@
   margin: 12px 0 0;
   font-size: 13px;
 }
+
+.prj-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .prj-compare {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.prj-code {
+  display: block;
+  font-size: 12px;
+  color: var(--muted, #5b6770);
+}

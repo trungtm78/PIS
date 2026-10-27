@@ -65,6 +65,8 @@ export const JOB_INTERVAL_SECONDS = {
   'membership-invitation-expiry': 3600,
   // Hourly: a stage of land clearance whose planned end has passed becomes late within the hour and asks ISS for its issue (ST-LND-010); the pass is idempotent.
   'land-stage-late': 3600,
+  // Every 15 minutes: a request for an explanation that was asked or returned and is past its due moment becomes overdue within the quarter of an hour (ST-PRJ-006); the pass is idempotent.
+  'prj-explanation-overdue': 900,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
   'reconciliation-overdue': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the reminders of the verification deadline of a settlement go once a morning wherever the process started; the pass is idempotent (ST-PAY-009).
@@ -221,6 +223,7 @@ export interface StandardJobDeps {
   invitationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   licenseStatus?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  explanationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Compares the balances of capital with their ledger, once a night, and reports a difference without correcting it (ST-CAP-006). */
@@ -572,6 +575,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await lateStages.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const overdueExplanations = deps.explanationOverdue;
+  if (overdueExplanations !== undefined) {
+    handlers.push({
+      name: 'prj-explanation-overdue',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overdueExplanations.run(workerContext(tenantId), now)));
       },
     });
   }

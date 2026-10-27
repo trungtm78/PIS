@@ -881,3 +881,5 @@ export { DisSubmissionBoardStore } from './dis-submission-board-store.ts';
 export type { BoardProjectRow } from './dis-submission-board-store.ts';
 export { DisWeeklyPlanStore } from './dis-weekly-plan-store.ts';
 export type { WeeklyPlanRow } from './dis-weekly-plan-store.ts';
+export { EXPLANATION_OVERDUE_METRIC, EXPLANATION_RESOURCE, PrjExplanationOverdueJob, PrjExplanationStore, explanationRequestedRecord, explanationRespondedRecord, explanationReviewedRecord, explanationScope, explanationUnitScope } from './prj-explanation-store.ts';
+export type { AutoRequestResult, ExplanationChange, ExplanationRow } from './prj-explanation-store.ts';
