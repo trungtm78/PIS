@@ -659,5 +659,7 @@ export { MNE_CORRECTABLE_STATUSES, MNE_DECISIONS, MNE_FIELD_KINDS, MNE_ISSUED_ST
 export type { MneDecision, MneFieldKind, MneFieldSource, MnePayloadCell, MnePayloadInput, MneReportField, MneReportSchema, MneReportStatus, MneSnapshotMetric, NarrativeFault, SlowProject } from './mne-report.ts';
 export { UNCONFIRMED_WATERMARK, exportWatermark, MNE_EXPORT_CONNECTORS, MNE_EXPORT_FORMATS, MNE_EXPORT_TARGETS, MNE_GENERATED_FORMATS, MNE_PACKAGE_EXPIRY_DAYS, MNE_PACKAGE_STATUSES, assertExportable, checkedFormats, exportedCell, filedLate, mneExportDocument } from './mne-export.ts';
 export type { MneExportCell, MneExportFormat, MneExportInput, MneExportTarget, MnePackageStatus } from './mne-export.ts';
-export { HOME_CONTEXT_TTL_SECONDS, HOME_STALE_DAYS, homeScopeFingerprint, homeScopeHash, homeSnapshotState, homeTiles, signHomeContext, verifyHomeContext } from './home.ts';
+export { HOME_CONTEXT_TTL_SECONDS, HOME_STALE_DAYS, homeScopeFingerprint, homeScopeHash, homeSnapshotState, homeTiles, parseHomeContext, expiredHomeContext, signHomeContext, verifyHomeContext } from './home.ts';
 export type { HomeContext, HomeSnapshotState, HomeTile, HomeTileUnit, SignedHomeContext } from './home.ts';
+export { drillChildTile, drillDimensions, drillLevelOf, reconcileChildren } from './home-drill.ts';
+export type { DrillDimension, DrillLevel, Reconciliation } from './home-drill.ts';

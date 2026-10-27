@@ -38,6 +38,12 @@ export class HomeStore {
     };
   }
 
+  /** The name of a unit (the caller has judged that the reader may read it). */
+  async unitName(tx: TenantTx, unitId: string): Promise<string | undefined> {
+    const [row] = await tx.query<{ name: string }>('select name from machvon.organization_unit where id = $1::uuid', [unitId]);
+    return row?.name;
+  }
+
   /** Whether the reader may read this unit (a unit that does not exist, or lies in another tenant, is not readable either, so the answer discloses nothing). */
   async unitReadable(tx: TenantTx, unitScope: ScopeBuilder, unitId: string): Promise<boolean> {
     const visible = unitScope(2);

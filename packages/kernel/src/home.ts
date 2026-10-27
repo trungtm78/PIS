@@ -87,10 +87,17 @@ export function homeScopeHash(input: { membershipId: string; scopeVersion: numbe
 
 export interface HomeContext {
   tenantId: string;
+  /** Who asked: a token is not another member's (an opaque id, not a name). */
+  membershipId: string;
   snapshotId: string;
   scopeHash: string;
   metricCode: string;
   unitId: string | null;
+  /** The unit alone (its own lines), as a child of a drill gives it, and not the unit with the units under it, as the filter of the center reads it: what a child shows is what opening it shows. */
+  unitExact: boolean;
+  /** Set once the drill has gone down to a project, and with it the snapshot line (the cell) once it has gone down to one. */
+  projectId: string | null;
+  lineId: string | null;
 }
 
 export interface SignedHomeContext extends HomeContext {
@@ -109,7 +116,18 @@ const mac = (payloadPart: string, key: Buffer): Buffer => createHmac('sha256', k
 /** The token of a tile: `base64url(payload).base64url(hmac)`, good for 30 minutes. The drill (HOME-10) takes it back and judges the scope again. */
 export function signHomeContext(context: HomeContext, key: Buffer, now: () => number = nowSeconds): string {
   assertKey(key);
-  const payload: SignedHomeContext = { tenantId: context.tenantId, snapshotId: context.snapshotId, scopeHash: context.scopeHash, metricCode: context.metricCode, unitId: context.unitId, exp: now() + HOME_CONTEXT_TTL_SECONDS };
+  const payload: SignedHomeContext = {
+    tenantId: context.tenantId,
+    membershipId: context.membershipId,
+    snapshotId: context.snapshotId,
+    scopeHash: context.scopeHash,
+    metricCode: context.metricCode,
+    unitId: context.unitId,
+    unitExact: context.unitExact,
+    projectId: context.projectId,
+    lineId: context.lineId,
+    exp: now() + HOME_CONTEXT_TTL_SECONDS,
+  };
   const payloadPart = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
   return `${payloadPart}.${mac(payloadPart, key).toString('base64url')}`;
 }
@@ -117,10 +135,31 @@ export function signHomeContext(context: HomeContext, key: Buffer, now: () => nu
 const text = (value: unknown): value is string => typeof value === 'string' && value !== '';
 
 /**
+ * Reads a token back, whether it is old or not: the signature, the purpose and the shape are judged, the age is not. The caller judges whose it is before it judges how old, so that an old token of another member
+ * or another tenant is refused as any token of theirs is, and is not given the means to renew it. A token that was altered, signed with another key, made for another purpose or is not one is a 400 INVALID_REQUEST.
+ */
+export function parseHomeContext(token: string, key: Buffer): SignedHomeContext {
+  return readToken(token, key);
+}
+
+/** The refusal of a token that is old: the snapshot to ask again for is in the body (a token that is good has its ids from the server). */
+export function expiredHomeContext(context: SignedHomeContext): DomainError {
+  return new DomainError('SNAPSHOT_EXPIRED', 409, undefined, {
+    extensions: { snapshot_id: context.snapshotId, metric_code: context.metricCode, unit_id: context.unitId, unit_exact: context.unitExact, project_id: context.projectId },
+  });
+}
+
+/**
  * Reads a token back. A token that was altered, signed with another key, made for another purpose or is not one is a 400 INVALID_REQUEST that says nothing of why; one that is good but old is a 409
  * SNAPSHOT_EXPIRED, which the screen answers by asking for a new token of the same snapshot (AC-ST-HOME-002-4).
  */
 export function verifyHomeContext(token: string, key: Buffer, now: () => number = nowSeconds): SignedHomeContext {
+  const context = readToken(token, key);
+  if (context.exp <= now()) throw expiredHomeContext(context);
+  return context;
+}
+
+function readToken(token: string, key: Buffer): SignedHomeContext {
   assertKey(key);
   const parts = token.split('.');
   const payloadPart = parts[0];
@@ -136,8 +175,19 @@ export function verifyHomeContext(token: string, key: Buffer, now: () => number 
     throw invalid();
   }
   const record = payload as Record<string, unknown> | null;
-  if (typeof record !== 'object' || record === null || !text(record.tenantId) || !text(record.snapshotId) || !text(record.scopeHash) || !text(record.metricCode) || typeof record.exp !== 'number') throw invalid();
-  if (record.unitId !== null && !text(record.unitId)) throw invalid();
-  if (record.exp <= now()) throw new DomainError('SNAPSHOT_EXPIRED', 409);
-  return { tenantId: record.tenantId, snapshotId: record.snapshotId, scopeHash: record.scopeHash, metricCode: record.metricCode, unitId: (record.unitId as string | null) ?? null, exp: record.exp };
+  if (typeof record !== 'object' || record === null || !text(record.tenantId) || !text(record.membershipId) || !text(record.snapshotId) || !text(record.scopeHash) || !text(record.metricCode) || typeof record.exp !== 'number') throw invalid();
+  for (const optional of [record.unitId, record.projectId, record.lineId]) if (optional !== null && !text(optional)) throw invalid();
+  const context: SignedHomeContext = {
+    tenantId: record.tenantId,
+    membershipId: record.membershipId,
+    snapshotId: record.snapshotId,
+    scopeHash: record.scopeHash,
+    metricCode: record.metricCode,
+    unitId: (record.unitId as string | null) ?? null,
+    unitExact: record.unitExact === true,
+    projectId: (record.projectId as string | null) ?? null,
+    lineId: (record.lineId as string | null) ?? null,
+    exp: record.exp,
+  };
+  return context;
 }

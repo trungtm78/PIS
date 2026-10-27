@@ -895,3 +895,5 @@ export { CapReallocationStore, REALLOCATION_APPLIED_EVENT, REALLOCATION_RESOURCE
 export type { ApplyResult as ReallocationApplyResult, ReallocationChange, ReallocationLineRow, ReallocationRow } from './cap-reallocation-store.ts';
 export { HOME_OPEN_WARNING_STATUSES, HomeStore } from './home-store.ts';
 export type { HomeCountInput, HomeCounts } from './home-store.ts';
+export { HomeDrillStore } from './home-drill-store.ts';
+export type { DrillProject, DrillRevision, DrillTransaction } from './home-drill-store.ts';

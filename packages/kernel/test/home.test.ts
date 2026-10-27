@@ -1,5 +1,5 @@
 import type { EffectiveAccess, GrantView } from '../src/effective-access.ts';
-import { homeScopeFingerprint, homeScopeHash, homeSnapshotState, homeTiles, signHomeContext, verifyHomeContext } from '../src/home.ts';
+import { expiredHomeContext, parseHomeContext, homeScopeFingerprint, homeScopeHash, homeSnapshotState, homeTiles, signHomeContext, verifyHomeContext } from '../src/home.ts';
 import type { RateFigures } from '../src/dis-rates.ts';
 
 const KEY = Buffer.alloc(32, 7);
@@ -67,12 +67,28 @@ describe('the state of the snapshot a leader is shown (AC-ST-HOME-001-5)', () =>
 });
 
 describe('the context token of a tile (BR-HOME-02, AC-ST-HOME-002-3)', () => {
-  const context = { tenantId: TENANT, snapshotId: SNAPSHOT, scopeHash: homeScopeHash({ membershipId: 'm1', scopeVersion: 3, unitId: null, grants: 'TENANT::' }), metricCode: 'DISBURSEMENT_RATE_PM', unitId: null };
+  const context = { tenantId: TENANT, snapshotId: SNAPSHOT, scopeHash: homeScopeHash({ membershipId: 'm1', scopeVersion: 3, unitId: null, grants: 'TENANT::' }), metricCode: 'DISBURSEMENT_RATE_PM', unitId: null, membershipId: 'm1', unitExact: false, projectId: null, lineId: null };
 
   it('names the tenant, the snapshot, the scope and the metric, and is good for 30 minutes', () => {
     const token = signHomeContext(context, KEY, () => 1000);
     expect(verifyHomeContext(token, KEY, () => 1000 + 1799)).toEqual({ ...context, exp: 1000 + 1800 });
-    expect(() => verifyHomeContext(token, KEY, () => 1000 + 1800)).toThrow(expect.objectContaining({ code: 'SNAPSHOT_EXPIRED', status: 409 }));
+    // An old token names the snapshot it was of, so that the screen asks again for the same one.
+    expect(() => verifyHomeContext(token, KEY, () => 1000 + 1800)).toThrow(expect.objectContaining({ code: 'SNAPSHOT_EXPIRED', status: 409, extensions: { snapshot_id: SNAPSHOT, metric_code: 'DISBURSEMENT_RATE_PM', unit_id: null, unit_exact: false, project_id: null } }));
+  });
+
+  it('reads an old token without judging its age, so that whose it is can be judged first, and still refuses a token that is not good', () => {
+    const token = signHomeContext(context, KEY, () => 1000);
+    const parsed = parseHomeContext(token, KEY);
+    expect(parsed).toMatchObject({ tenantId: TENANT, membershipId: 'm1', exp: 2800 });
+    expect(expiredHomeContext(parsed)).toMatchObject({ code: 'SNAPSHOT_EXPIRED', status: 409 });
+    expect(() => parseHomeContext(`${token}x`, KEY)).toThrow(expect.objectContaining({ code: 'INVALID_REQUEST' }));
+    expect(() => parseHomeContext(token, Buffer.alloc(32, 9))).toThrow(expect.objectContaining({ code: 'INVALID_REQUEST' }));
+  });
+
+  it('says whether the unit is the unit alone or with the units under it, and takes a token that does not say as the second', () => {
+    const exact = signHomeContext({ ...context, unitId: '00000000-0000-4000-8000-000000000012', unitExact: true }, KEY, () => 1000);
+    expect(verifyHomeContext(exact, KEY, () => 1000).unitExact).toBe(true);
+    expect(verifyHomeContext(signHomeContext(context, KEY, () => 1000), KEY, () => 1000).unitExact).toBe(false);
   });
 
   it('refuses a token that was altered, signed with another key, or is not one, without saying which', () => {

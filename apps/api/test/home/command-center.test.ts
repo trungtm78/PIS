@@ -180,7 +180,7 @@ describe('the command center over HTTP (ST-HOME-001)', () => {
     const reply = await get(`?unit_id=${unitId(NORTH)}`);
     expect(reply.status).toBe(200);
     const context = verifyHomeContext(tile(reply, 'DISBURSEMENT_RATE_PM').context_token, CONTEXT_KEY, () => Math.floor(NOW.getTime() / 1000));
-    expect(context).toMatchObject({ tenantId: TENANT_A, snapshotId: frozen, metricCode: 'DISBURSEMENT_RATE_PM', unitId: unitId(NORTH), scopeHash: homeScopeHash({ membershipId: memberId(LEADER), scopeVersion: 1, unitId: unitId(NORTH), grants: 'TENANT::' }) });
+    expect(context).toMatchObject({ tenantId: TENANT_A, membershipId: memberId(LEADER), snapshotId: frozen, metricCode: 'DISBURSEMENT_RATE_PM', unitId: unitId(NORTH), scopeHash: homeScopeHash({ membershipId: memberId(LEADER), scopeVersion: 1, unitId: unitId(NORTH), grants: 'TENANT::' }) });
     expect(context.exp - Math.floor(NOW.getTime() / 1000)).toBeGreaterThan(1700);
     expect(context.exp - Math.floor(NOW.getTime() / 1000)).toBeLessThanOrEqual(1800);
     // Another reader gets another scope hash, so the token of one is not the token of the other.

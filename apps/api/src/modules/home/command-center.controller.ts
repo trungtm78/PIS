@@ -1,16 +1,16 @@
 import { randomBytes } from 'node:crypto';
 import { Controller, Get, Inject, Optional, Query } from '@nestjs/common';
-import { PERMISSIONS } from '@machvon/contracts';
 import { DIS_RATE_NULL_METRIC, DisSnapshotStore, HomeStore, TenantDatabase, projectScope, scopePredicate } from '@machvon/db';
 import type { ScopeBuilder } from '@machvon/db';
-import { DomainError, NOOP_METRICS, addSums, homeScopeFingerprint, homeScopeHash, homeSnapshotState, homeTiles, rateOfSums, signHomeContext, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, addSums, homeSnapshotState, homeTiles, rateOfSums, signHomeContext, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { HOME_READ_PERMISSION, scopeHashOf } from './scope-hash';
 import { HOME_CLOCK, HOME_CONTEXT_KEY, HOME_METRICS } from './tokens';
 
-const READ_PERMISSION = PERMISSIONS.getCommandCenter;
+const READ_PERMISSION = HOME_READ_PERMISSION;
 /** Counted for every tile that has no figure, by the reason it gives (home_null_tile_total{reason}). */
 export const HOME_NULL_TILE_METRIC = 'home_null_tile_total';
 /** The terms the formulas are proposals under, until the business owner signs them (CXN-03). */
@@ -89,7 +89,7 @@ export class CommandCenterController {
     const { snapshot } = read;
     // BR-HOME-01: a figure is given with its scope, day, snapshot, unit and formula, or it is not given.
     if (snapshot.asOfDate === '') throw new DomainError('METRIC_UNAVAILABLE', 422, 'snapshot_id');
-    const scopeHash = homeScopeHash({ membershipId: tenant.membershipId, scopeVersion: tenant.scopeVersion, unitId: filter.unitId ?? null, grants: homeScopeFingerprint(access, READ_PERMISSION, now) });
+    const scopeHash = scopeHashOf(tenant, access, filter.unitId ?? null, now);
     const figures = rateOfSums(read.sums, 'CURRENT_YEAR');
     const tiles = homeTiles(figures, snapshot.definitionStatus).map((tile) => ({
       metric_code: tile.metricCode,
@@ -100,7 +100,7 @@ export class CommandCenterController {
       unit: tile.unit,
       formula: tile.formula,
       definition_status: tile.definitionStatus,
-      context_token: signHomeContext({ tenantId: tenant.tenantId, snapshotId: snapshot.id, scopeHash, metricCode: tile.metricCode, unitId: filter.unitId ?? null }, this.key, () => Math.floor(now.getTime() / 1000)),
+      context_token: signHomeContext({ tenantId: tenant.tenantId, membershipId: tenant.membershipId, snapshotId: snapshot.id, scopeHash, metricCode: tile.metricCode, unitId: filter.unitId ?? null, unitExact: false, projectId: null, lineId: null }, this.key, () => Math.floor(now.getTime() / 1000)),
     }));
     for (const tile of tiles) {
       if (tile.null_reason !== null) this.metrics.increment(HOME_NULL_TILE_METRIC, { reason: tile.null_reason });

@@ -34,4 +34,4 @@ The figures belong to the snapshot: a project that changes, a report that is cor
 - `denominator_kind` is accepted and echoed; both rates are always given (a rate is never shown alone).
 - The poll for a newer snapshot asks `getCommandCenter` without a snapshot; a push event (`snapshot.frozen.v1`, ST-HOME-007) will replace it.
 - The cache of the story (`t:{tenant}:home:cc:{snapshot}:{scope_hash}`, TTL 10 minutes) is not built: the reads are cheap sums, and a cache is a decision for the load test (D09, p95 2 s at 5000 projects).
-- The drill destination (HOME-10) is ST-HOME-002.
+- The drill destination (HOME-10) is ST-HOME-002 (`docs/home-drill.md`); the token of a tile carries the member and the depth of the drill for it.

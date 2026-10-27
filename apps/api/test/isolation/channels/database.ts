@@ -250,6 +250,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listEarlyWarnings',
   'getDisbursementRates',
   'getCommandCenter',
+  'explainHomeMetric',
   'getDisbursementForecast',
   'listExplanationRequests',
   'listProjectTransfers',
