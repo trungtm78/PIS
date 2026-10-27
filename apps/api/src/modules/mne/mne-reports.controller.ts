@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe
 import { PERMISSIONS } from '@machvon/contracts';
 import { MNE_REPORT_RESOURCE, MNE_UNIT_COLUMNS, MneExportStore, MneReportIssueStore, MneReportStore, TenantDatabase, scopePredicate } from '@machvon/db';
 import type { MneReportChange, ScopeBuilder } from '@machvon/db';
-import { DomainError, MNE_SOURCE_MODULE, objectKey, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, MNE_ISSUED_STATUSES, MNE_SOURCE_MODULE, objectKey, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -112,6 +112,40 @@ export class MneReportsController {
       schemaVersion: 1,
       payload: { report_id: done.row.id, ...reportDiffOf(done.row), submitted_by: scope.tenant.membershipId },
       eventKey: `${MNE_REPORT_RESOURCE}:${done.row.id}:submitted:${done.row.version}`,
+    });
+    return commandResult(scope, done.row.status, done.row.version, done.row.id);
+  }
+
+  @Post('mne-reports/:id/corrections')
+  @HttpCode(200)
+  @OperationId('correctMneReport')
+  @Command({ operation: 'correctMneReport', versioned: true })
+  async correct(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['MneCorrection']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.reports.correct(scope.tx, {
+      id: id.toLowerCase(),
+      expectedVersion: scope.expectedVersion ?? 0,
+      reason: body.correction_reason,
+      snapshotId: body.snapshot_id,
+      today: vietnamDateOf(now),
+      actor: scope.tenant.membershipId,
+      unitScope: unitScope(access, PERMISSIONS.correctMneReport, now),
+    });
+    await scope.audit({
+      action: 'mne.report.correction_started',
+      resourceType: MNE_REPORT_RESOURCE,
+      resourceId: done.row.id,
+      diff: { ...reportDiffOf(done.row), supersedes_id: done.row.supersedesId, from_status: done.previousStatus, reason: done.row.correctionReason, snapshot_attached: done.snapshotAttached },
+    });
+    // The recipients of the report and the reviewers are told that the report they hold is being corrected.
+    await scope.emit({
+      aggregateType: MNE_REPORT_RESOURCE,
+      aggregateId: done.row.id,
+      aggregateVersion: done.row.version,
+      type: 'mne.report.correction_started.v1',
+      schemaVersion: 1,
+      payload: { report_id: done.row.id, supersedes_id: done.row.supersedesId, revision: done.row.revision, ...reportDiffOf(done.row), started_by: scope.tenant.membershipId },
+      eventKey: `${MNE_REPORT_RESOURCE}:${done.row.id}:correction_started`,
     });
     return commandResult(scope, done.row.status, done.row.version, done.row.id);
   }
@@ -226,14 +260,15 @@ export class MneReportsController {
       if (row === undefined) return undefined;
       // The files are offered to who may export the report: the others see that they exist, with no way to fetch them.
       // A report that DOC recalled gives no more links: what it said is not to be relied on or filed.
-      const exportable = (['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL'] as const).includes(row.status as 'ISSUED') && row.recalledAt === null;
+      // What was issued stays downloadable after it was corrected (SUPERSEDED), unless DOC took it back.
+      const exportable = MNE_ISSUED_STATUSES.includes(row.status) && row.recalledAt === null;
       const mayExport = exportable && (await this.reports.find(tx, row.id, unitScope(access, PERMISSIONS.generateMneExportPackage, now))) !== undefined;
-      return { row, options: await this.reports.snapshotOptions(tx, row, vietnamDateOf(now)), document: await this.issue.documentState(tx, row), packages: await this.packages.list(tx, row.id), mayExport };
+      return { row, options: await this.reports.snapshotOptions(tx, row, vietnamDateOf(now)), document: await this.issue.documentState(tx, row), packages: await this.packages.list(tx, row.id), history: await this.reports.history(tx, row), mayExport };
     });
     if (read === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const links: PackageLink[] = [];
-    for (const row of read.packages) links.push({ row, download: read.mayExport && (row.status === 'GENERATED' || row.status === 'DOWNLOADED') ? await this.linkOf(tenant, row.id) : null });
-    return reportViewOf(read.row, read.options, vietnamDateOf(now), read.document, links);
+    for (const row of read.packages) links.push({ row, download: read.mayExport && (row.status === 'GENERATED' || row.status === 'DOWNLOADED' || row.status === 'SUBMISSION_CONFIRMED' || (row.status === 'EXPIRED' && read.row.status === 'SUPERSEDED')) ? await this.linkOf(tenant, row.id) : null });
+    return reportViewOf(read.row, read.options, vietnamDateOf(now), read.document, links, read.history);
   }
 
   /** A signed link to the file of a package, valid for a few minutes; null when the application has no object store. */

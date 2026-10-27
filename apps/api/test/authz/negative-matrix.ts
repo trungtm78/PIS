@@ -1119,6 +1119,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix check of the decision.' } }),
   },
+  correctMneReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/corrections`, ifMatch: '"1"', body: { correction_reason: 'Matrix check of the correction.' } }),
+  },
   generateMneExportPackage: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/export-packages`, ifMatch: '"1"', body: { target_system: 'NATIONAL_PIM_SYSTEM', formats: ['CSV'] } }),

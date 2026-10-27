@@ -144,7 +144,7 @@ describe('MneReportStore (ST-MNE-002, MNE F3)', () => {
   }, 60_000);
 
   afterEach(async () => {
-    await harness.owner(TENANT_A, [['delete from machvon.mne_report'], ['delete from machvon.mne_obligation_rule'], ['delete from machvon.mne_report_form']]);
+    await harness.owner(TENANT_A, [['delete from machvon.mne_export_package'], ['delete from machvon.mne_report'], ['delete from machvon.mne_obligation_rule'], ['delete from machvon.mne_report_form']]);
   });
 
   it('opens the weekly shell of the calendar: its week is read from the reporting calendar, so a snapshot can be attached and the report handed in', async () => {
@@ -265,6 +265,23 @@ describe('MneReportStore (ST-MNE-002, MNE F3)', () => {
       }
       return id;
     };
+
+    it('leaves the files of a report that a correction superseded: they are what was issued, and cannot be made again', async () => {
+      const id = await insert('GENERATED', 200);
+      const [row] = await owner<{ mne_report_id: string }>('select mne_report_id from machvon.mne_export_package where id = $1::uuid', [id]);
+      const client = new Client({ connectionString: harness.database.adminUrl });
+      await client.connect();
+      try {
+        await client.query('set session_replication_role = replica');
+        await client.query(`insert into machvon.mne_report (tenant_id, id, form_id, report_year, period_label, scope_unit_id, due_date, revision, status, payload_json, created_by, updated_by, approved_by, decided_by, decided_at, payload_sha256, issued_at, doc_document_id)
+           values ($1, $2, $3, 2026, 'H1-2026', $4, '2026-07-10', 1, 'SUPERSEDED', '{}'::jsonb, $5, $5, $6, $6, now(), repeat('a', 64), now(), $7)`, [TENANT_A, row?.mne_report_id, randomUUID(), unitId(INVESTOR), WORKER, randomUUID(), randomUUID()]);
+      } finally {
+        await client.end();
+      }
+      const job = new MneExportExpiryJob(new AuditWriter(harness.tenants));
+      expect(await harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, (tx) => job.run(tx, WORKER, new Date()))).toEqual({ expired: 0 });
+      expect((await owner<{ status: string }>('select status from machvon.mne_export_package where id = $1::uuid', [id]))[0]?.status).toBe('GENERATED');
+    });
 
     it('expires a package that was made more than 90 days ago and not filed, once, and leaves the filed and the recent ones', async () => {
       const old = await insert('GENERATED', 91);

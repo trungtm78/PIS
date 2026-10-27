@@ -111,6 +111,27 @@ export class MneReportConsumer {
       if (Number.isFinite(seconds)) this.metrics.gauge(MNE_ISSUE_LATENCY_METRIC, seconds);
     }
     await this.record(tx, delivery, head, 'issued', done.version, { document_id: documentId, issued_at: issuedAt });
+    if (head.supersedesId !== null) await this.superseded(tx, delivery, head, head.supersedesId);
+  }
+
+  /** The correction was issued: the revision it corrects is SUPERSEDED, once, with its own audit row and event (it stays as it was issued and downloadable). */
+  private async superseded(tx: TenantTx, delivery: Delivery, head: MneReportHead, supersededId: string): Promise<void> {
+    const done = await this.reports.supersede(tx, supersededId);
+    if (done === undefined) return;
+    const correlationId = randomUUID();
+    const facts = { report_id: done.id, superseded_by: head.id, revision: head.revision - 1, from_status: done.previousStatus, form_code: head.formCode, scope_unit_id: head.scopeUnitId, period_label: head.periodLabel, event_id: delivery.id };
+    await this.audit.recordInTx(tx, WORKER_MEMBERSHIP_ID, { action: 'mne.report_superseded', resourceType: REPORT_TYPE, resourceId: done.id, diff: facts, correlationId, requestId: randomUUID() });
+    await enqueueOutbox(tx, {
+      aggregateType: REPORT_TYPE,
+      aggregateId: done.id,
+      aggregateVersion: done.version,
+      type: 'mne.report.superseded.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: delivery.tenantId, ...facts, occurred_at: new Date().toISOString(), source_module: MNE_SOURCE_MODULE },
+      eventKey: `${REPORT_TYPE}:${done.id}:superseded`,
+      correlationId,
+      causationId: delivery.id,
+    });
   }
 
   private async rejected(tx: TenantTx, delivery: Delivery, head: MneReportHead): Promise<void> {

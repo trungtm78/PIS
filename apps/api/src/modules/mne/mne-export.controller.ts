@@ -175,7 +175,9 @@ export class MneExportController {
       now,
     });
     const late = filedLate(report.dueDate, done.row.submittedAt ?? now.toISOString());
-    await this.reports.markFiled(scope.tx, report.id, late, scope.tenant.membershipId);
+    const filedOn = vietnamDateOf(new Date(done.row.submittedAt ?? now.toISOString()));
+    await this.reports.markFiled(scope.tx, report.id, late, filedOn, scope.tenant.membershipId);
+    await this.reports.settleSuperseded(scope.tx, report.id, late, filedOn, scope.tenant.membershipId);
     await scope.audit({
       action: 'mne.package_filed',
       resourceType: MNE_PACKAGE_RESOURCE,

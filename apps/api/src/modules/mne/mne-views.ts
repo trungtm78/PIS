@@ -1,4 +1,4 @@
-import type { MneFormRow, MneObligationRow, MnePackageRow, MneReportRow, MneRuleRow } from '@machvon/db';
+import type { MneFormRow, MneObligationRow, MnePackageRow, MneReportRow, MneRevisionLine, MneRuleRow } from '@machvon/db';
 import type { MneFieldSource } from '@machvon/kernel';
 
 /** The legal confirmations a text names, as the ledger writes them: `[CXN-10]`, `[CXN-11]`. */
@@ -109,6 +109,7 @@ export function obligationViewOf(row: MneObligationRow): Record<string, unknown>
     status: row.status,
     is_late: row.isLate,
     days_late: row.daysLate,
+    filed_on: row.filedOn,
     legal_basis: row.ruleLegalBasis,
     awaiting_confirmation: row.ruleLegalConfirmationRef === null || row.formLegalConfirmationRef === null,
     cxn_refs: cxnRefsOf(row.ruleLegalBasis),
@@ -119,12 +120,12 @@ export function obligationViewOf(row: MneObligationRow): Record<string, unknown>
  * A report as MNE-03 shows it: the cells of its form with the value each holds and whether it is locked (filled from a source), the snapshot it rests on, and the confirmations its form waits for. The figures
  * come from the snapshot named in `snapshot`, so the screen can open the drill behind each cell; `snapshot_options` are the frozen snapshots a draft may be attached to.
  */
-const SETTLED: readonly string[] = ['SUBMITTED_EXTERNAL', 'SUPERSEDED'];
 const DAY_MS = 86_400_000;
 
 /** How late a report is, as the calendar says it (BR-MNE-04): an open report by today against its due date, a filed one by what was stored when it was filed. */
 function latenessOf(row: MneReportRow, today: string): { isLate: boolean; daysLate: number | null } {
-  if (SETTLED.includes(row.status)) return { isLate: row.isLate, daysLate: row.isLate ? null : 0 };
+  if (row.filedOn !== null) return { isLate: row.isLate, daysLate: Math.max(0, Math.round((Date.parse(`${row.filedOn}T00:00:00Z`) - Date.parse(`${row.dueDate}T00:00:00Z`)) / DAY_MS)) };
+  if (row.status === 'SUBMITTED_EXTERNAL') return { isLate: row.isLate, daysLate: row.isLate ? null : 0 };
   const days = Math.max(0, Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${row.dueDate}T00:00:00Z`)) / DAY_MS));
   return { isLate: days > 0, daysLate: days };
 }
@@ -135,7 +136,7 @@ export interface PackageLink {
   download: { url: string; expires_at: string } | null;
 }
 
-export function reportViewOf(row: MneReportRow, snapshotOptions: ReadonlyArray<{ id: string; asOfDate: string }>, today: string, documentState: string | null = null, packages: readonly PackageLink[] = []): Record<string, unknown> {
+export function reportViewOf(row: MneReportRow, snapshotOptions: ReadonlyArray<{ id: string; asOfDate: string }>, today: string, documentState: string | null = null, packages: readonly PackageLink[] = [], history: readonly MneRevisionLine[] = []): Record<string, unknown> {
   const meta = row.payload.meta;
   const late = latenessOf(row, today);
   return {
@@ -168,6 +169,7 @@ export function reportViewOf(row: MneReportRow, snapshotOptions: ReadonlyArray<{
     payload_sha256: row.payloadSha256,
     doc_document_id: row.docDocumentId,
     document_state: documentState,
+    history: history.map((entry) => ({ id: entry.id, revision: entry.revision, status: entry.status, correction_reason: entry.correctionReason, supersedes_id: entry.supersedesId, issued_at: entry.issuedAt, created_at: entry.createdAt, current: entry.id === row.id })),
     packages: packages.map((entry) => ({ ...packageDiffOf(entry.row), id: entry.row.id, receipt: entry.row.receiptReference === null ? null : { reference: entry.row.receiptReference, document_id: entry.row.receiptDocumentId, recorded_by: entry.row.receiptRecordedBy, recorded_at: entry.row.receiptRecordedAt, submitted_at: entry.row.submittedAt }, created_at: entry.row.createdAt, downloaded_at: entry.row.downloadedAt, version: entry.row.version, download: entry.download })),
     decision: row.decidedBy === null ? null : { by: row.decidedBy, at: row.decidedAt, reason: row.decisionReason },
     issue_requested_at: row.issueRequestedAt,

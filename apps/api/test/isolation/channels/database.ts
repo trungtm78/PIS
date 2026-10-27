@@ -570,6 +570,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'decideMneReport',
   'requestMneReportIssue',
   'generateMneExportPackage',
+  'correctMneReport',
   'recordMneSubmissionReceipt',
   'getMneReport',
   'importTreasuryStatement',

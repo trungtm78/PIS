@@ -1,4 +1,4 @@
-import { assertReportState, decidedMneReport, fitsKind, missingFields, mneReportPayload, mneReportSourceRef, narrativeFaults, parseMneReportSourceRef, parseReportSchema, periodEndOfLabel } from '../src/mne-report.ts';
+import { assertReportState, checkedCorrection, decidedMneReport, fitsKind, missingFields, mneReportPayload, mneReportSourceRef, narrativeFaults, parseMneReportSourceRef, parseReportSchema, periodEndOfLabel } from '../src/mne-report.ts';
 
 const schema = parseReportSchema({
   fields: [
@@ -101,5 +101,22 @@ describe('review, approval and issue (ST-MNE-003)', () => {
     expect(payload).toMatchObject({ title: 'Báo cáo giám sát', agency: 'Chủ đầu tư 1', place: '-' });
     expect(mneReportPayload(input)).toEqual(payload);
     expect(mneReportPayload({ ...input, asOfDate: null }).period).toBe('Kỳ báo cáo H1-2026 - Chủ đầu tư 1 (CDT-1); hạn nộp 2026-07-10');
+  });
+});
+
+describe('correction of an issued report (ST-MNE-007)', () => {
+  it('asks for a reason of ten characters at least, and returns it trimmed', () => {
+    expect(checkedCorrection({ status: 'ISSUED' }, '  The plan figure was wrong.  ')).toBe('The plan figure was wrong.');
+    for (const reason of [undefined, null, 42, '', '   ', 'too short']) {
+      expect(() => checkedCorrection({ status: 'ISSUED' }, reason)).toThrow(expect.objectContaining({ code: 'CORRECTION_REASON_REQUIRED', status: 422 }));
+    }
+    expect(() => checkedCorrection({ status: 'ISSUED' }, 'x'.repeat(2001))).toThrow(expect.objectContaining({ code: 'CORRECTION_REASON_REQUIRED' }));
+  });
+
+  it('corrects a report that was issued, exported, filed or sent back, and no other', () => {
+    for (const status of ['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL', 'RETURNED'] as const) expect(() => checkedCorrection({ status }, 'A reason that is long enough')).not.toThrow();
+    for (const status of ['DRAFT', 'IN_REVIEW', 'APPROVED', 'ISSUING', 'SUPERSEDED'] as const) {
+      expect(() => checkedCorrection({ status }, 'A reason that is long enough')).toThrow(expect.objectContaining({ code: 'REPORT_NOT_ISSUED', status: 409 }));
+    }
   });
 });

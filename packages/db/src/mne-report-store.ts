@@ -3,6 +3,7 @@ import {
   DomainError,
   addSums,
   assertReportState,
+  checkedCorrection,
   fitsKind,
   isIsoDate,
   missingFields,
@@ -80,6 +81,8 @@ export interface MneReportRow {
   payloadRef: string | null;
   issuedAt: string | null;
   recalledAt: string | null;
+  /** The day (Vietnam time) the obligation was first filed, on this report or on a correction of it; null while it has not been. */
+  filedOn: string | null;
   createdBy: string;
   version: number;
 }
@@ -123,6 +126,7 @@ interface ReportSql {
   payload_ref: string | null;
   issued_at: string | null;
   recalled_at: string | null;
+  filed_on: string | null;
   created_by: string;
   version: string;
 }
@@ -131,7 +135,7 @@ const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', '
 const COLUMNS = `r.id, r.form_id, f.form_code, f.revision as form_revision, f.title as form_title, f.doc_template_code as form_doc_template_code, f.export_formats as form_export_formats, f.legal_confirmation_ref as form_legal_confirmation_ref, f.watermark_text, f.schema_json, r.report_year,
   r.period_label, r.period_id, r.scope_unit_id, u.code as unit_code, u.name as unit_name, r.project_id, r.snapshot_id, r.due_date::text as due_date, r.revision, r.status, r.is_late, r.payload_json, r.payload_sha256,
   r.doc_document_id, r.supersedes_id, r.correction_reason, r.submitted_by, ${ISO('r.submitted_at')} as submitted_at, r.approved_by, r.decided_by, ${ISO('r.decided_at')} as decided_at, r.decision_reason, r.issue_event_id,
-  ${ISO('r.issue_requested_at')} as issue_requested_at, r.payload_ref, ${ISO('r.issued_at')} as issued_at, ${ISO('r.recalled_at')} as recalled_at, r.created_by, r.version::text as version`;
+  ${ISO('r.issue_requested_at')} as issue_requested_at, r.payload_ref, ${ISO('r.issued_at')} as issued_at, ${ISO('r.recalled_at')} as recalled_at, r.filed_on::text as filed_on, r.created_by, r.version::text as version`;
 const FROM = `machvon.mne_report r join machvon.mne_report_form f on f.tenant_id = r.tenant_id and f.id = r.form_id join machvon.organization_unit u on u.tenant_id = r.tenant_id and u.id = r.scope_unit_id`;
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -184,6 +188,7 @@ const rowOf = (row: ReportSql): MneReportRow => ({
   payloadRef: row.payload_ref,
   issuedAt: row.issued_at,
   recalledAt: row.recalled_at,
+  filedOn: row.filed_on,
   createdBy: row.created_by,
   version: Number(row.version),
 });
@@ -214,6 +219,27 @@ export interface EditInput {
   snapshotId?: string | undefined;
   actor: string;
   unitScope: ScopeBuilder;
+}
+
+export interface CorrectInput {
+  id: string;
+  expectedVersion: number;
+  reason: string;
+  snapshotId?: string | undefined;
+  today: string;
+  actor: string;
+  unitScope: ScopeBuilder;
+}
+
+/** One revision of a report as the history lists it. */
+export interface MneRevisionLine {
+  id: string;
+  revision: number;
+  status: MneReportStatus;
+  correctionReason: string | null;
+  supersedesId: string | null;
+  issuedAt: string | null;
+  createdAt: string;
 }
 
 export interface SubmitInput {
@@ -347,6 +373,58 @@ export class MneReportStore {
     return { row: await this.read(tx, current.id), previousStatus: current.status, snapshotAttached: null };
   }
 
+  /**
+   * Starts the correction of a report that was issued: a new revision, a DRAFT, that has the cells of the one it supersedes (or the figures of another frozen snapshot when one is named, which fills the locked
+   * cells again) and the reason it was started for. It supersedes the report only when DOC has issued it: until then the report stays what it is, and stays downloadable after. A report is superseded by one
+   * revision at a time (409 CORRECTION_ALREADY_OPEN naming it, and the table says the same); a reason of less than ten characters is 422 CORRECTION_REASON_REQUIRED, a report that was not issued 409 REPORT_NOT_ISSUED.
+   */
+  async correct(tx: TenantTx, input: CorrectInput): Promise<MneReportChange> {
+    const current = await this.lock(tx, input.id);
+    await this.assertUnitInScope(tx, current.scopeUnitId, input.unitScope);
+    if (current.version !== input.expectedVersion) throw versionConflict(current.version);
+    const reason = checkedCorrection(current, input.reason);
+    const [open] = await tx.query<{ id: string }>('select id from machvon.mne_report where supersedes_id = $1::uuid', [current.id]);
+    if (open !== undefined) throw new DomainError('CORRECTION_ALREADY_OPEN', 409, 'status', { extensions: { report_id: open.id } });
+    let payload: MnePayload = current.payload;
+    let snapshotId = current.snapshotId;
+    let attached: string | null = null;
+    if (input.snapshotId !== undefined) {
+      snapshotId = idOf(input.snapshotId, 'snapshot_id');
+      const periodEnd = await this.periodEnd(tx, current.periodLabel, current.reportYear, current.periodId, input.today);
+      const snapshot = await this.snapshot(tx, snapshotId, periodEnd);
+      const values = await this.fill(tx, current.schema, { snapshotId, unitId: current.scopeUnitId, projectId: current.projectId, periodEnd });
+      payload = { ...current.payload, values, meta: { ...current.payload.meta, snapshot_id: snapshotId, as_of_date: snapshot.asOfDate, form_revision: current.formRevision, rate_basis: 'CURRENT_YEAR' } };
+      attached = snapshotId;
+    }
+    const id = randomUUID();
+    await tx.query(`savepoint ${SAVEPOINT}`);
+    try {
+      await tx.query(
+        `insert into machvon.mne_report (tenant_id, id, form_id, obligation_rule_id, report_year, period_label, period_id, scope_unit_id, project_id, snapshot_id, due_date, revision, status, payload_json, supersedes_id, correction_reason, created_by, updated_by)
+         select tenant_id, $1::uuid, form_id, obligation_rule_id, report_year, period_label, period_id, scope_unit_id, project_id, $2::uuid, due_date, revision + 1, 'DRAFT', $3::jsonb, id, $4, $5::uuid, $5::uuid
+           from machvon.mne_report where id = $6::uuid`,
+        [id, snapshotId, JSON.stringify(payload), reason, input.actor, current.id],
+      );
+      await tx.query(`release savepoint ${SAVEPOINT}`);
+    } catch (error) {
+      const failure = error as { code?: string; constraint?: string };
+      if (failure.code !== UNIQUE_VIOLATION) throw error;
+      await tx.query(`rollback to savepoint ${SAVEPOINT}`);
+      throw new DomainError('CORRECTION_ALREADY_OPEN', 409, 'status');
+    }
+    return { row: await this.read(tx, id), previousStatus: current.status, snapshotAttached: attached };
+  }
+
+  /** Every revision of a report, the first to the latest: the chain of corrections (MNE-10). */
+  async history(tx: TenantTx, row: Pick<MneReportRow, 'formId' | 'scopeUnitId' | 'projectId' | 'reportYear' | 'periodLabel'>): Promise<MneRevisionLine[]> {
+    const rows = await tx.query<{ id: string; revision: number; status: MneReportStatus; correction_reason: string | null; supersedes_id: string | null; issued_at: string | null; created_at: string }>(
+      `select id, revision, status, correction_reason, supersedes_id, ${ISO('issued_at')} as issued_at, ${ISO('created_at')} as created_at
+         from machvon.mne_report where form_id = $1::uuid and scope_unit_id = $2::uuid and project_id is not distinct from $3::uuid and report_year = $4::int and period_label = $5 order by revision`,
+      [row.formId, row.scopeUnitId, row.projectId, row.reportYear, row.periodLabel],
+    );
+    return rows.map((entry) => ({ id: entry.id, revision: entry.revision, status: entry.status, correctionReason: entry.correction_reason, supersedesId: entry.supersedes_id, issuedAt: entry.issued_at, createdAt: entry.created_at }));
+  }
+
   /** One report, in the units the reader may read; a report that is not there for them does not exist. */
   async find(tx: TenantTx, id: string, scope?: ScopeBuilder): Promise<MneReportRow | undefined> {
     const predicate = scope === undefined ? undefined : scope(2);
@@ -390,12 +468,28 @@ export class MneReportStore {
   }
 
   /** The filing was recorded: EXPORTED to SUBMITTED_EXTERNAL with its lateness against the due date (a report already filed by another package keeps what it has). */
-  async markFiled(tx: TenantTx, id: string, late: boolean, actor: string): Promise<number> {
+  async markFiled(tx: TenantTx, id: string, late: boolean, filedOn: string, actor: string): Promise<number> {
     const [row] = await tx.query<{ version: string }>(
-      `update machvon.mne_report set status = 'SUBMITTED_EXTERNAL', is_late = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid and status = 'EXPORTED' returning version::text as version`,
-      [id, late, actor],
+      `update machvon.mne_report set status = 'SUBMITTED_EXTERNAL', is_late = $2, filed_on = coalesce(filed_on, $4::date), updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid and status = 'EXPORTED' returning version::text as version`,
+      [id, late, actor, filedOn],
     );
     return row === undefined ? (await this.read(tx, id)).version : Number(row.version);
+  }
+
+  /**
+   * The filing of a correction settles the obligation: the revisions it superseded that were never filed take the day and the lateness of this first filing (once: a later filing never changes them), because
+   * the calendar lists the first revision of an obligation and judges it by the day it was filed. Until then they stay open and are judged by today.
+   */
+  async settleSuperseded(tx: TenantTx, id: string, late: boolean, filedOn: string, actor: string): Promise<void> {
+    await tx.query(
+      `with recursive chain as (
+         select supersedes_id as id from machvon.mne_report where id = $1::uuid
+         union all
+         select r.supersedes_id from machvon.mne_report r join chain c on r.id = c.id where r.supersedes_id is not null)
+       update machvon.mne_report p set is_late = $2, filed_on = $4::date, updated_at = now(), updated_by = $3::uuid, version = version + 1
+        where p.id in (select id from chain where id is not null) and p.status = 'SUPERSEDED' and p.filed_on is null`,
+      [id, late, actor, filedOn],
+    );
   }
 
   /** The report with its row locked for the rest of the transaction. */

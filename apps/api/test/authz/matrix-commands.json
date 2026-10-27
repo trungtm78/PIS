@@ -48,6 +48,7 @@
     "confirmInventory",
     "confirmTreasuryManually",
     "correctMeasurement",
+    "correctMneReport",
     "createAcceptance",
     "createAuditEngagement",
     "createAuditRecommendation",

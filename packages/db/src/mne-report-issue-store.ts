@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, assertReportState, decidedMneReport, mneReportPayload, mneReportSourceRef, payloadSha256, versionConflict } from '@machvon/kernel';
+import { DomainError, MNE_CORRECTABLE_STATUSES, MNE_ISSUED_STATUSES, assertReportState, decidedMneReport, mneReportPayload, mneReportSourceRef, payloadSha256, versionConflict } from '@machvon/kernel';
 import type { MneDecision, MneReportStatus } from '@machvon/kernel';
 import { DocumentStore } from './document-store.ts';
 import { MneReportStore } from './mne-report-store.ts';
@@ -9,7 +9,6 @@ import { invalid } from './prj-stage-support.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
-const SETTLED_ISSUED: readonly MneReportStatus[] = ['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL'];
 
 export interface DecideInput {
   id: string;
@@ -49,6 +48,8 @@ export interface MneReportHead {
   formCode: string;
   scopeUnitId: string;
   periodLabel: string;
+  /** The revision this one corrects; null for a first revision. */
+  supersedesId: string | null;
   version: number;
 }
 
@@ -70,6 +71,7 @@ const headOf = (row: MneReportRow): MneReportHead => ({
   formCode: row.formCode,
   scopeUnitId: row.scopeUnitId,
   periodLabel: row.periodLabel,
+  supersedesId: row.supersedesId,
   version: row.version,
 });
 
@@ -165,6 +167,15 @@ export class MneReportIssueStore {
     return this.update(tx, head.id, `status = 'ISSUED', doc_document_id = $2::uuid, issued_at = $3::timestamptz`, [input.documentId, input.issuedAt]);
   }
 
+  /** The revision that a revision just issued corrects becomes SUPERSEDED (it stays as it was issued, and downloadable); undefined when there is none or it is not in a state to be. */
+  async supersede(tx: TenantTx, supersededId: string): Promise<{ id: string; version: number; previousStatus: MneReportStatus } | undefined> {
+    const [before] = await tx.query<{ status: MneReportStatus }>('select status from machvon.mne_report where id = $1::uuid for update', [supersededId]);
+    if (before === undefined || !MNE_CORRECTABLE_STATUSES.includes(before.status)) return undefined;
+    // A report that was never filed stays open for the calendar (late by today) until the correction is filed: the filing settles it (`settleSuperseded`).
+    const done = await this.update(tx, supersededId, `status = 'SUPERSEDED'`, []);
+    return { id: supersededId, version: done.version, previousStatus: before.status };
+  }
+
   /** DOC refused to issue it: the report is APPROVED again, to be asked for again once the cause is mended. */
   async markIssueRejected(tx: TenantTx, head: MneReportHead): Promise<{ version: number }> {
     assertReportState(head.status, ['ISSUING']);
@@ -173,7 +184,8 @@ export class MneReportIssueStore {
 
   /** DOC recalled what it issued: the report stays what it is, with the day it was recalled, and needs a correction. */
   async markRecalled(tx: TenantTx, head: MneReportHead, at: string): Promise<{ version: number }> {
-    assertReportState(head.status, SETTLED_ISSUED);
+    // DOC can take back what it issued whatever has become of it since, a revision that a correction superseded included.
+    assertReportState(head.status, MNE_ISSUED_STATUSES);
     return this.update(tx, head.id, 'recalled_at = $2::timestamptz', [at]);
   }
 

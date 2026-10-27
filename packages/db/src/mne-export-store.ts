@@ -186,11 +186,15 @@ export class MneExportStore {
     return { row: await this.read(tx, current.id), previousStatus: current.status };
   }
 
-  /** The packages nobody filed within the days they are offered: GENERATED or DOWNLOADED to EXPIRED. Returns the ones it moved. */
+  /**
+   * The packages nobody filed within the days they are offered: GENERATED or DOWNLOADED to EXPIRED. Returns the ones it moved. The files of a report that a correction superseded are left as they are: they are what was
+   * issued and offered then, and cannot be made again (a superseded report is not exported).
+   */
   async expireOlderThan(tx: TenantTx, cutoff: Date, actor: string, now: Date): Promise<MnePackageRow[]> {
     const rows = await tx.query<PackageSql>(
       `update machvon.mne_export_package set status = 'EXPIRED', expired_at = $3::timestamptz, updated_at = now(), updated_by = $2::uuid, version = version + 1
-        where status in ('GENERATED', 'DOWNLOADED') and created_at < $1::timestamptz returning ${COLUMNS}`,
+        where status in ('GENERATED', 'DOWNLOADED') and created_at < $1::timestamptz
+          and not exists (select 1 from machvon.mne_report r where r.tenant_id = mne_export_package.tenant_id and r.id = mne_export_package.mne_report_id and r.status = 'SUPERSEDED') returning ${COLUMNS}`,
       [cutoff.toISOString(), actor, now.toISOString()],
     );
     return rows.map(rowOf);

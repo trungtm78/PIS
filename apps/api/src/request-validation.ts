@@ -27,6 +27,8 @@ const FIELD_PROBLEMS: Readonly<Record<string, Readonly<Record<string, string>>>>
   createMneObligationRule: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
   // A filing by hand is recorded with the reference of the receipt (ST-MNE-004 AC-1).
   recordMneSubmissionReceipt: { receipt_reference: 'RECEIPT_REQUIRED' },
+  // The correction of an issued report is started with its reason (ST-MNE-007 AC-1).
+  correctMneReport: { correction_reason: 'CORRECTION_REASON_REQUIRED' },
   publishPermitType: { legal_basis: 'LEGAL_BASIS_REQUIRED' },
   registerAppropriation: { decision_document_id: 'DECISION_REQUIRED' },
   // A plan is published on a decision document (ST-CAP-003 AC-1).

@@ -13,7 +13,6 @@ export const MNE_UNIT_COLUMNS = { unitPath: 'u.path', unitId: 'u.id' } as const;
 
 const OPEN_REVISION = 1;
 /** Statuses whose lateness is settled by the filing, not by today. */
-const SETTLED = ['SUBMITTED_EXTERNAL', 'SUPERSEDED'] as const;
 
 /**
  * The units that owe a role, as the data model says them: an investor is a unit flagged as one, the owner agency is the owner unit of a
@@ -84,6 +83,8 @@ export interface MneObligationRow {
   isLate: boolean;
   /** Days past the due date today (BR-MNE-04); null for a filed report whose filing day this table does not keep. */
   daysLate: number | null;
+  /** The day (Vietnam time) the obligation was filed; null while it has not been, or when it was filed before the day was kept. */
+  filedOn: string | null;
 }
 
 interface ObligationSql {
@@ -109,6 +110,8 @@ interface ObligationSql {
   status: string;
   stored_is_late: boolean;
   open_days_late: number;
+  filed_on: string | null;
+  filed_days_late: number | null;
 }
 
 interface Candidate {
@@ -123,7 +126,8 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 const inForce = (rule: MneRuleRow, on: string): boolean => rule.effectiveFrom <= on && (rule.effectiveUntil === null || on < rule.effectiveUntil);
 
 const toObligation = (row: ObligationSql): MneObligationRow => {
-  const settled = (SETTLED as readonly string[]).includes(row.status);
+  // An obligation is settled by its filing: the day it was filed is kept, on the report and on the revisions it corrected. A report that was filed before the day was kept has only its stored lateness.
+  const settled = row.filed_on !== null || row.status === 'SUBMITTED_EXTERNAL';
   return {
     id: row.id,
     obligationRuleId: row.obligation_rule_id,
@@ -146,7 +150,8 @@ const toObligation = (row: ObligationSql): MneObligationRow => {
     dueDate: row.due_date,
     status: row.status,
     isLate: settled ? row.stored_is_late : row.open_days_late > 0,
-    daysLate: settled ? (row.stored_is_late ? null : 0) : row.open_days_late,
+    daysLate: settled ? (row.filed_days_late !== null ? row.filed_days_late : row.stored_is_late ? null : 0) : row.open_days_late,
+    filedOn: row.filed_on,
   };
 };
 
@@ -187,19 +192,19 @@ export class MneObligationStore {
     return result;
   }
 
-  /** The obligations of the calendar in the scope of the caller, by due date. */
+  /** The obligations of the calendar in the scope of the caller, by due date: one for each, on its first revision (a correction of the report is not another obligation). */
   async list(tx: TenantTx, filter: MneObligationFilter, page: MneObligationPage, scope: ScopeBuilder, today: string): Promise<MneObligationRow[]> {
     const predicate = scope(8);
     const rows = await tx.query<ObligationSql>(
       `select r.id, r.obligation_rule_id, o.rule_code, o.revision as rule_revision, o.reporting_role, o.recipient, o.legal_basis as rule_legal_basis,
               o.legal_confirmation_ref as rule_legal_confirmation_ref, r.form_id, f.form_code, f.revision as form_revision, f.title as form_title,
               f.legal_confirmation_ref as form_legal_confirmation_ref, r.report_year, r.period_label, r.scope_unit_id, u.code as unit_code, u.name as unit_name,
-              r.due_date::text as due_date, r.status, r.is_late as stored_is_late, greatest(0, $1::date - r.due_date) as open_days_late
+              r.due_date::text as due_date, r.status, r.is_late as stored_is_late, greatest(0, $1::date - r.due_date) as open_days_late, r.filed_on::text as filed_on, case when r.filed_on is null then null else greatest(0, r.filed_on - r.due_date) end as filed_days_late
          from machvon.mne_report r
          join machvon.mne_obligation_rule o on o.tenant_id = r.tenant_id and o.id = r.obligation_rule_id
          join machvon.mne_report_form f on f.tenant_id = r.tenant_id and f.id = r.form_id
          join machvon.organization_unit u on u.tenant_id = r.tenant_id and u.id = r.scope_unit_id
-        where ($2::int is null or r.report_year = $2::int) and ($3::uuid is null or r.scope_unit_id = $3::uuid) and ($4::text is null or r.status = $4)
+        where r.revision = ${OPEN_REVISION} and ($2::int is null or r.report_year = $2::int) and ($3::uuid is null or r.scope_unit_id = $3::uuid) and ($4::text is null or r.status = $4)
           and ($5::date is null or (r.due_date, r.id) > ($5::date, $6::uuid)) and ${predicate.sql}
         order by r.due_date, r.id limit $7`,
       [today, filter.reportYear ?? null, filter.scopeUnitId ?? null, filter.status ?? null, page.after?.dueDate ?? null, page.after?.id ?? null, page.limit, ...predicate.params],

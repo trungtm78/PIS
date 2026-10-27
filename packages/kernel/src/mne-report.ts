@@ -230,3 +230,18 @@ export function mneReportPayload(input: MnePayloadInput): Record<string, string>
     place: '-',
   };
 }
+
+// ---- correction of an issued or filed report (ST-MNE-007) ----
+
+/** The states a report is corrected from: it was issued by DOC (and may have been exported, filed or sent back by the recipient). A draft is edited, not corrected. */
+export const MNE_CORRECTABLE_STATUSES: readonly MneReportStatus[] = ['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL', 'RETURNED'];
+/** The states a superseded revision is still read in: what was issued stays downloadable. */
+export const MNE_ISSUED_STATUSES: readonly MneReportStatus[] = ['ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL', 'RETURNED', 'SUPERSEDED'];
+
+/** A correction needs the reason, of ten characters at least once trimmed (422 CORRECTION_REASON_REQUIRED) and a report that was issued (409 REPORT_NOT_ISSUED naming the state). The text of the reason is returned trimmed. */
+export function checkedCorrection(report: { status: MneReportStatus }, reason: unknown): string {
+  const text = typeof reason === 'string' ? reason.trim() : '';
+  if (text.length < 10 || text.length > 2000) throw new DomainError('CORRECTION_REASON_REQUIRED', 422, 'correction_reason');
+  if (!MNE_CORRECTABLE_STATUSES.includes(report.status)) throw new DomainError('REPORT_NOT_ISSUED', 409, 'status', { extensions: { report_status: report.status } });
+  return text;
+}
