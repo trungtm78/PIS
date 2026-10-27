@@ -129,7 +129,7 @@ function latenessOf(row: MneReportRow, today: string): { isLate: boolean; daysLa
   return { isLate: days > 0, daysLate: days };
 }
 
-export function reportViewOf(row: MneReportRow, snapshotOptions: ReadonlyArray<{ id: string; asOfDate: string }>, today: string): Record<string, unknown> {
+export function reportViewOf(row: MneReportRow, snapshotOptions: ReadonlyArray<{ id: string; asOfDate: string }>, today: string, documentState: string | null = null): Record<string, unknown> {
   const meta = row.payload.meta;
   const late = latenessOf(row, today);
   return {
@@ -161,6 +161,11 @@ export function reportViewOf(row: MneReportRow, snapshotOptions: ReadonlyArray<{
     attachments: row.payload.attachments,
     payload_sha256: row.payloadSha256,
     doc_document_id: row.docDocumentId,
+    document_state: documentState,
+    decision: row.decidedBy === null ? null : { by: row.decidedBy, at: row.decidedAt, reason: row.decisionReason },
+    issue_requested_at: row.issueRequestedAt,
+    issued_at: row.issuedAt,
+    recalled_at: row.recalledAt,
     supersedes_id: row.supersedesId,
     correction_reason: row.correctionReason,
     submitted_by: row.submittedBy,

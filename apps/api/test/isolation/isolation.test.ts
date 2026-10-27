@@ -649,6 +649,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'createMneReport',
         'editMneReport',
         'submitMneReport',
+        'decideMneReport',
+        'requestMneReportIssue',
         'getMneReport',
         'importTreasuryStatement',
         'getTreasuryImport',

@@ -161,7 +161,7 @@ export class DocumentIssueService {
       aggregateVersion: request.version,
       type: 'doc.rejected.v1',
       schemaVersion: 1,
-      payload: { source_module: request.sourceModule, source_ref: request.sourceRef, payload_sha256: request.payloadSha256, reject_code: rejection.code },
+      payload: { source_module: request.sourceModule, source_ref: request.sourceRef, payload_sha256: request.payloadSha256, source_payload_sha256: request.payloadSha256, source_event_id: request.eventId, reject_code: rejection.code },
       eventKey: `${REQUEST_TYPE}:${request.id}:rejected`,
     });
     this.metrics.increment('doc_issue_request_total', { outcome: 'rejected', reason: rejection.code });

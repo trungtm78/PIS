@@ -532,6 +532,8 @@ export { MNE_UNIT_COLUMNS, MneObligationStore } from './mne-obligation-store.ts'
 export type { MneGenerateRequest, MneGenerateResult, MneObligationFilter, MneObligationPage, MneObligationRow } from './mne-obligation-store.ts';
 export { MNE_REPORT_RESOURCE, MneReportStore } from './mne-report-store.ts';
 export type { MneReportChange, MneReportRow, MnePayload } from './mne-report-store.ts';
+export { MneReportIssueStore, mnePayloadRef } from './mne-report-issue-store.ts';
+export type { MneReportHead, IssueRequest as MneIssueRequest } from './mne-report-issue-store.ts';
 export type { ClosedRevision as MneClosedRevision } from './mne-revision-table.ts';
 export { OPEN_PERMIT_STATUSES, PERMIT_CATEGORIES, PmtPermitTypeStore } from './pmt-permit-type-store.ts';
 export type { PermitCategory, PermitTypeFilter, PermitTypeInput, PermitTypeRow, PermitTypeStatus, PermitTypeStoreOptions } from './pmt-permit-type-store.ts';

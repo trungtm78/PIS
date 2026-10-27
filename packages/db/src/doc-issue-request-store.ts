@@ -188,6 +188,15 @@ export class DocIssueRequestStore {
     return row === undefined ? undefined : toRecord(row);
   }
 
+  /**
+   * The hash of the payload the source module asked for, for the document made from its request; null for a document no module asked for. The drafter may complete the place of issue in the draft, which changes the
+   * hash of the draft but not what the module asked for: the module is answered with the hash it knows, and with the id of the event it asked with, which tells it which of its requests is answered.
+   */
+  async sourceOf(tx: TenantTx, outgoingDocumentId: string): Promise<{ source_payload_sha256: string | null; source_event_id: string | null }> {
+    const [row] = await tx.query<{ payload_sha256: string; event_id: string }>('select payload_sha256, event_id from machvon.doc_issue_request where outgoing_document_id = $1::uuid order by created_at desc limit 1', [outgoingDocumentId]);
+    return { source_payload_sha256: row?.payload_sha256 ?? null, source_event_id: row?.event_id ?? null };
+  }
+
   /** ACCEPTED to ISSUED, when the document it produced is issued; undefined when no accepted request names the document. */
   async markIssued(tx: TenantTx, outgoingDocumentId: string, actor: string): Promise<IssueRequestRecord | undefined> {
     const [row] = await tx.query<Row>(

@@ -375,8 +375,19 @@ describe('MneObligationStore (the filing calendar, ST-MNE-001, MNE F2, BR-MNE-02
     it('does not count today for a report that was filed: the filing decides', async () => {
       await publishDesignRules();
       await generate(2026);
-      const file = (unit: number, late: boolean) =>
-        owner("update machvon.mne_report set status = 'SUBMITTED_EXTERNAL', is_late = $3, doc_document_id = $1, payload_sha256 = repeat('a', 64) where scope_unit_id = $2 and period_label = 'H1-2026'", [randomUUID(), unitId(unit), late]);
+      // A report reaches the filing along the road of its states (the table refuses a jump): review, approval, issue, export, filing.
+      const file = async (unit: number, late: boolean): Promise<void> => {
+        const where = "where scope_unit_id = $1 and period_label = 'H1-2026'";
+        const steps: Array<[string, unknown[]]> = [
+          [`update machvon.mne_report set status = 'IN_REVIEW', submitted_by = $2, submitted_at = now() ${where}`, [unitId(unit), memberId(MAKER)]],
+          [`update machvon.mne_report set status = 'APPROVED', approved_by = $2, decided_by = $2, decided_at = now() ${where}`, [unitId(unit), memberId(CHECKER)]],
+          [`update machvon.mne_report set status = 'ISSUING', payload_sha256 = repeat('a', 64), payload_ref = 'tenants/x/mne/r.json', issue_event_id = gen_random_uuid(), issue_requested_at = now() ${where}`, [unitId(unit)]],
+          [`update machvon.mne_report set status = 'ISSUED', doc_document_id = $2, issued_at = now() ${where}`, [unitId(unit), randomUUID()]],
+          [`update machvon.mne_report set status = 'EXPORTED' ${where}`, [unitId(unit)]],
+          [`update machvon.mne_report set status = 'SUBMITTED_EXTERNAL', is_late = $2 ${where}`, [unitId(unit), late]],
+        ];
+        for (const [sql, params] of steps) await owner(sql, params);
+      };
       await file(2, false);
       await file(3, true);
       const rows = await listAll({}, EVERYTHING, '2027-01-01');

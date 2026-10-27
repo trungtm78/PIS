@@ -1,0 +1,13 @@
+{
+  "id": "MNE_REPORT_EXCEPTION",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "monitoring-evaluation",
+  "runbook": "docs/runbooks/alerts/MNE_REPORT_EXCEPTION.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "MNE_REPORT_EXCEPTION"
+  },
+  "summary": "An answer of DOC about a monitoring report does not fit the report it names (another hash, a missing document or reason, an unexpected order)."
+}

@@ -317,7 +317,7 @@ describe('recalling an issued document and voiding a number (ST-DOC-012)', () =>
       const reply = await voidNumber(doc.id, RECORDS_MANAGER, doc.version, { reason: 'The seal of the organisation cannot be completed', approver_user_id: memberId(SECOND_MANAGER) });
       expect(reply.status).toBe(200);
       const [rejected] = await events(doc.id, 'doc.rejected.v1');
-      expect(rejected?.payload).toEqual({ source_module: 'MNE', source_ref: 'MNE:mne_report:MR-9:r1', payload_sha256: 'd'.repeat(64), reject_code: 'NUMBER_VOIDED' });
+      expect(rejected?.payload).toEqual({ source_module: 'MNE', source_ref: 'MNE:mne_report:MR-9:r1', payload_sha256: 'd'.repeat(64), source_payload_sha256: null, source_event_id: null, reject_code: 'NUMBER_VOIDED' });
     });
   });
 });

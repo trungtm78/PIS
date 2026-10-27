@@ -1,12 +1,65 @@
 import { ApiError } from '@machvon/api-client';
 import type { ReportField, ReportView } from './types';
-import { PREPARE_REPORT_PERMISSION } from './types';
+import { APPROVE_REPORT_PERMISSION, ISSUE_REPORT_PERMISSION, PREPARE_REPORT_PERMISSION } from './types';
 
 // ---- what a person may do with a report ----
 
 /** Whether the report can be written now: a draft, for a person who prepares reports, outside the read-only mode. */
 export function isEditable(report: Pick<ReportView, 'status'>, permissions: readonly string[] | undefined, frozen: boolean): boolean {
   return report.status === 'DRAFT' && !frozen && (permissions === undefined || permissions.includes(PREPARE_REPORT_PERMISSION));
+}
+
+// ---- who may decide and ask for issue (MNE-05) ----
+
+/** Whether the person may approve or return the report now: it is in review, they hold the right, the system is not read-only, and they neither wrote it nor handed it in (the server judges it again). */
+export function mayDecide(report: Pick<ReportView, 'status' | 'createdBy' | 'submittedBy'>, permissions: readonly string[] | undefined, frozen: boolean, memberId: string | undefined): boolean {
+  if (report.status !== 'IN_REVIEW' || frozen) return false;
+  if (permissions !== undefined && !permissions.includes(APPROVE_REPORT_PERMISSION)) return false;
+  return memberId === undefined || (memberId !== report.createdBy && memberId !== report.submittedBy);
+}
+
+/** Whether the person who holds the right to approve is kept from it because they wrote the report or handed it in. */
+export function isOwnReport(report: Pick<ReportView, 'createdBy' | 'submittedBy'>, memberId: string | undefined): boolean {
+  return memberId !== undefined && (memberId === report.createdBy || memberId === report.submittedBy);
+}
+
+/** Whether the person may ask DOC to issue the report: it is approved, they hold the right and the system is not read-only. */
+export function mayRequestIssue(report: Pick<ReportView, 'status'>, permissions: readonly string[] | undefined, frozen: boolean): boolean {
+  return report.status === 'APPROVED' && !frozen && (permissions === undefined || permissions.includes(ISSUE_REPORT_PERMISSION));
+}
+
+/** The reason of a decision is five characters at least once trimmed (the server says the same). */
+export const REASON_MIN = 5;
+export const hasReason = (reason: string): boolean => reason.trim().length >= REASON_MIN;
+
+// ---- the document DOC makes of the report ----
+
+export const DOC_STAGES = ['drafting', 'awaitingSignature', 'numbered', 'published'] as const;
+export type DocStage = (typeof DOC_STAGES)[number] | 'none' | 'withdrawn';
+
+/** Where the document stands, from the state DOC keeps it in: being drafted, waiting for the signature, signed and numbered, or issued; none while DOC has made no draft, withdrawn when it was cancelled or recalled. */
+export function docStageOf(state: string | null): DocStage {
+  switch (state) {
+    case null:
+      return 'none';
+    case 'DRAFT':
+    case 'IN_REVIEW':
+      return 'drafting';
+    case 'SUBMITTED':
+      return 'awaitingSignature';
+    case 'SIGNED':
+    case 'NUMBERED':
+    case 'SEALED':
+      return 'numbered';
+    case 'ISSUED':
+    case 'DELIVERED':
+    case 'ACKNOWLEDGED':
+    case 'FILED':
+    case 'ARCHIVED':
+      return 'published';
+    default:
+      return 'withdrawn';
+  }
 }
 
 /** The text of each cell that is written by hand, as the form shows it. */
@@ -70,6 +123,8 @@ export function drillPath(report: Pick<ReportView, 'snapshotId'>, field: Pick<Re
 
 export type ReportReason =
   | 'conflict'
+  | 'selfApproval'
+  | 'templateMissing'
   | 'stateInvalid'
   | 'snapshotRequired'
   | 'snapshotNotFrozen'
@@ -91,6 +146,8 @@ export interface ReportProblem {
 
 const REASON_BY_CODE: Readonly<Record<string, ReportReason>> = {
   VERSION_CONFLICT: 'conflict',
+  SELF_APPROVAL_DENIED: 'selfApproval',
+  DOC_TEMPLATE_MISSING: 'templateMissing',
   REPORT_STATE_INVALID: 'stateInvalid',
   SNAPSHOT_REQUIRED: 'snapshotRequired',
   SNAPSHOT_NOT_FROZEN: 'snapshotNotFrozen',

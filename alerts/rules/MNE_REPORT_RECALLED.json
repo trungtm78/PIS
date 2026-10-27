@@ -1,0 +1,13 @@
+{
+  "id": "MNE_REPORT_RECALLED",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "monitoring-evaluation",
+  "runbook": "docs/runbooks/alerts/MNE_REPORT_RECALLED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "MNE_REPORT_RECALLED"
+  },
+  "summary": "DOC recalled the document of a monitoring report that was issued: a correction is needed."
+}

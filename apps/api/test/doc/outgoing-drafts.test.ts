@@ -697,7 +697,7 @@ describe('outgoing documents: compose, review and submit for signature (ST-DOC-0
       expect(cancelled.status).toBe(200);
       const events = await owner<{ type: string; payload: Record<string, unknown> }>("select type, payload from machvon.outbox_event where aggregate_id = $1 and type = 'doc.rejected.v1'", [id]);
       expect(events).toHaveLength(1);
-      expect(events[0]?.payload).toEqual({ source_module: 'MNE', source_ref: 'MNE:mne_report:x:r1', payload_sha256: 'c'.repeat(64), reject_code: 'SOURCE_WITHDRAWN' });
+      expect(events[0]?.payload).toEqual({ source_module: 'MNE', source_ref: 'MNE:mne_report:x:r1', payload_sha256: 'c'.repeat(64), source_payload_sha256: expect.any(String) as unknown, source_event_id: expect.any(String) as unknown, reject_code: 'SOURCE_WITHDRAWN' });
       const [request] = await owner<{ status: string }>("select status from machvon.doc_issue_request where source_ref = 'MNE:mne_report:x:r1'");
       expect(request?.status).toBe('CANCELLED');
     });

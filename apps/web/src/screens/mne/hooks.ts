@@ -9,6 +9,7 @@ import { toForm, toGeneration, toObligationPage, toReport, toReportResult, toRul
 import type { FormView, GenerationResult, ObligationPage, ReportCommandResult, ReportKind, ReportStatus, ReportView, RuleView } from './types';
 
 export const PAGE_SIZE = 100;
+const LIVE_INTERVAL_MS = 5000;
 
 /** Every read and every mutation of the MNE screens lives under this key of the tenant, so one command refreshes them all. */
 export const mneRoot = (tenantId: string | undefined) => ['mne', tenantId] as const;
@@ -169,7 +170,7 @@ export function useGenerateObligations() {
 }
 
 /** One report, in the units of the caller: what is shown depends on who asks, so the cache is of the member as well as the tenant. */
-export function useReport(id: string) {
+export function useReport(id: string, options: { live?: boolean } = {}) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<ReportView>({
@@ -181,6 +182,8 @@ export function useReport(id: string) {
     },
     enabled: tenant !== undefined && id !== '',
     retry: false,
+    // While DOC has the report the screen follows it: the state of the document moves without anyone asking.
+    refetchInterval: options.live === true ? (query) => (query.state.data?.status === 'ISSUING' ? LIVE_INTERVAL_MS : false) : false,
   });
 }
 
@@ -219,6 +222,36 @@ export function useSubmitReport() {
   const { attempts, settled } = useCommandSupport();
   return useMutation<ReportCommandResult, Error, { id: string; version: number }>({
     mutationFn: async (input) => toReportResult(await client.command('submitMneReport', { path: { id: input.id }, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) })),
+    onSuccess: settled,
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface DecideReportInput {
+  id: string;
+  version: number;
+  decision: 'approve' | 'return';
+  reason: string;
+}
+
+/** Approves a report in review or returns it to its preparer, with the reason (versioned: 403 SELF_APPROVAL_DENIED for who wrote or handed it in). */
+export function useDecideReport() {
+  const client = useApiClient();
+  const { attempts, settled } = useCommandSupport();
+  return useMutation<ReportCommandResult, Error, DecideReportInput>({
+    mutationFn: async (input) =>
+      toReportResult(await client.command('decideMneReport', { path: { id: input.id }, ifMatchVersion: input.version, body: { decision: input.decision, reason: input.reason }, attempt: attempts.current.forPayload(input) })),
+    onSuccess: settled,
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** Asks DOC to issue an approved report (versioned): the report is ISSUING until DOC says it issued it. */
+export function useRequestIssue() {
+  const client = useApiClient();
+  const { attempts, settled } = useCommandSupport();
+  return useMutation<ReportCommandResult, Error, { id: string; version: number }>({
+    mutationFn: async (input) => toReportResult(await client.command('requestMneReportIssue', { path: { id: input.id }, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) })),
     onSuccess: settled,
     onError: (error) => attempts.current.ended(error),
   });

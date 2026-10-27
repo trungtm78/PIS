@@ -1,4 +1,4 @@
-import { assertReportState, fitsKind, missingFields, narrativeFaults, parseReportSchema, periodEndOfLabel } from '../src/mne-report.ts';
+import { assertReportState, decidedMneReport, fitsKind, missingFields, mneReportPayload, mneReportSourceRef, narrativeFaults, parseMneReportSourceRef, parseReportSchema, periodEndOfLabel } from '../src/mne-report.ts';
 
 const schema = parseReportSchema({
   fields: [
@@ -56,5 +56,50 @@ describe('the monitoring report (ST-MNE-002, MNE F3)', () => {
   it('names the state of a report in the refusal of an action that needs another', () => {
     expect(() => assertReportState('ISSUED', ['DRAFT'])).toThrow(expect.objectContaining({ code: 'REPORT_STATE_INVALID', status: 409, extensions: { report_status: 'ISSUED' } }));
     expect(() => assertReportState('DRAFT', ['DRAFT'])).not.toThrow();
+  });
+});
+
+describe('review, approval and issue (ST-MNE-003)', () => {
+  const ID = '0a1b2c3d-0000-4000-8000-00000000abcd';
+
+  it('approves or returns a report that is in review, and nothing else', () => {
+    expect(decidedMneReport('IN_REVIEW', 'approve')).toBe('APPROVED');
+    expect(decidedMneReport('IN_REVIEW', 'return')).toBe('DRAFT');
+    for (const status of ['DRAFT', 'APPROVED', 'ISSUING', 'ISSUED', 'EXPORTED', 'SUBMITTED_EXTERNAL', 'RETURNED', 'SUPERSEDED'] as const) {
+      expect(() => decidedMneReport(status, 'approve')).toThrow(expect.objectContaining({ code: 'REPORT_STATE_INVALID', status: 409 }));
+    }
+  });
+
+  it('names a report to DOC by its id and revision, and reads that name back only when it is whole', () => {
+    expect(mneReportSourceRef(ID.toUpperCase(), 2)).toBe(`MNE:mne_report:${ID}:r2`);
+    expect(parseMneReportSourceRef(`MNE:mne_report:${ID}:r2`)).toEqual({ id: ID, revision: 2 });
+    for (const bad of [undefined, 42, '', `AUD:mne_report:${ID}:r1`, `MNE:mne_report:${ID}:r0`, `MNE:mne_report:${ID}:r1x`, `MNE:mne_report:${ID.toUpperCase()}:r1`, `MNE:mne_report:not-an-id:r1`]) {
+      expect(parseMneReportSourceRef(bad)).toBeUndefined();
+    }
+  });
+
+  it('prints money with dots, a percent with its sign, a dash for an empty cell, and the same report always gives the same payload', () => {
+    const input = {
+      title: 'Báo cáo giám sát',
+      periodLabel: 'H1-2026',
+      unitCode: 'CDT-1',
+      unitName: 'Chủ đầu tư 1',
+      dueDate: '2026-07-10',
+      asOfDate: '2026-06-30',
+      cells: [
+        { label: 'Kế hoạch', kind: 'MONEY', value: '1250000000000' },
+        { label: 'Hoàn trả', kind: 'MONEY', value: '-1500' },
+        { label: 'Tỷ lệ', kind: 'PERCENT', value: '48.0000' },
+        { label: 'Số dự án', kind: 'INTEGER', value: 4 },
+        { label: 'Đánh giá', kind: 'TEXT', value: 'Đạt kế hoạch.' },
+        { label: 'Khó khăn', kind: 'TEXT', value: null },
+      ],
+    } as const;
+    const payload = mneReportPayload(input);
+    expect((payload.body ?? '').split('\n')).toEqual(['Kế hoạch: 1.250.000.000.000 đồng', 'Hoàn trả: -1.500 đồng', 'Tỷ lệ: 48.0000%', 'Số dự án: 4', 'Đánh giá: Đạt kế hoạch.', 'Khó khăn: -']);
+    expect(payload.period).toBe('Kỳ báo cáo H1-2026 - Chủ đầu tư 1 (CDT-1); hạn nộp 2026-07-10; số liệu đến ngày 2026-06-30');
+    expect(payload).toMatchObject({ title: 'Báo cáo giám sát', agency: 'Chủ đầu tư 1', place: '-' });
+    expect(mneReportPayload(input)).toEqual(payload);
+    expect(mneReportPayload({ ...input, asOfDate: null }).period).toBe('Kỳ báo cáo H1-2026 - Chủ đầu tư 1 (CDT-1); hạn nộp 2026-07-10');
   });
 });

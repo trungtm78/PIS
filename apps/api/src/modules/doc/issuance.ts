@@ -80,6 +80,8 @@ export class OutgoingIssuance {
         source_module: issued.sourceModule,
         source_ref: issued.sourceRef,
         payload_sha256: issued.payloadSha256,
+        // What the source module asked for: the draft's own hash changes when its place of issue is completed.
+        ...(await this.requests.sourceOf(scope.tx, issued.id)),
         document_number: issued.documentNumber,
         symbol: issued.symbol,
         issued_on: issued.issuedOn,

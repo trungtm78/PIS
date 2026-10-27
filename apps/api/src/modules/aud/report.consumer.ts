@@ -72,7 +72,8 @@ export class ReportConsumer {
       this.count(delivery, 'unknown');
       return;
     }
-    const sha256 = text(delivery.payload.payload_sha256)?.toLowerCase();
+    // The hash the module asked for: DOC keeps it apart from the hash of the draft, which changes when the drafter completes the place of issue.
+    const sha256 = (text(delivery.payload.source_payload_sha256) ?? text(delivery.payload.payload_sha256))?.toLowerCase();
     if (sha256 !== head.payloadSha256) {
       this.count(delivery, 'mismatch');
       await this.exception(tx, delivery, head, 'HASH_MISMATCH');

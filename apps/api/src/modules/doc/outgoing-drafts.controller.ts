@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe
 import { PERMISSIONS } from '@machvon/contracts';
 import {
   AuditWriter,
+  DocIssueRequestStore,
   DocumentStore,
   NIL_RESOURCE_ID,
   NumberRegisterStore,
@@ -79,6 +80,7 @@ export class OutgoingDraftsController {
   private readonly outgoing = new OutgoingDocumentStore();
   private readonly drafts = new OutgoingDraftStore();
   private readonly documents = new DocumentStore();
+  private readonly requests = new DocIssueRequestStore();
   private readonly registers = new NumberRegisterStore();
   private readonly signatures = new SignatureStore();
   private readonly organisation = new SignerAuthorityStore();
@@ -413,7 +415,7 @@ export class OutgoingDraftsController {
         aggregateVersion: result.document.version,
         type: 'doc.rejected.v1',
         schemaVersion: 1,
-        payload: { source_module: document.sourceModule, source_ref: document.sourceRef, payload_sha256: document.payloadSha256, reject_code: rejectCode },
+        payload: { source_module: document.sourceModule, source_ref: document.sourceRef, payload_sha256: document.payloadSha256, ...(await this.requests.sourceOf(scope.tx, document.id)), reject_code: rejectCode },
         eventKey: `${OUTGOING_TYPE}:${document.id}:${result.document.version}:rejected`,
       });
     }

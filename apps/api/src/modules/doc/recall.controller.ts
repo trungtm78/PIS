@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { NumberRegisterStore, OUTGOING_SCOPE_COLUMNS, OutgoingDocumentStore, OutgoingDraftStore, OutgoingRecallStore, loadAccessIn, scopePredicate } from '@machvon/db';
+import { DocIssueRequestStore, NumberRegisterStore, OUTGOING_SCOPE_COLUMNS, OutgoingDocumentStore, OutgoingDraftStore, OutgoingRecallStore, loadAccessIn, scopePredicate } from '@machvon/db';
 import type { OutgoingDocumentRecord } from '@machvon/db';
 import { DomainError, NOOP_METRICS, versionConflict } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink } from '@machvon/kernel';
@@ -39,6 +39,7 @@ export class OutgoingRecallController {
   private readonly outgoing = new OutgoingDocumentStore();
   private readonly drafts = new OutgoingDraftStore();
   private readonly recalls = new OutgoingRecallStore();
+  private readonly requests = new DocIssueRequestStore();
   private readonly registers = new NumberRegisterStore();
   private readonly metrics: MetricsSink;
   private readonly clock: () => Date;
@@ -104,6 +105,7 @@ export class OutgoingRecallController {
         source_module: document.sourceModule,
         source_ref: document.sourceRef,
         payload_sha256: document.payloadSha256,
+        ...(await this.requests.sourceOf(scope.tx, document.id)),
         reason,
         document_number: document.documentNumber,
         symbol: document.symbol,
@@ -195,7 +197,7 @@ export class OutgoingRecallController {
         aggregateVersion: cancelled.version,
         type: 'doc.rejected.v1',
         schemaVersion: 1,
-        payload: { source_module: document.sourceModule, source_ref: document.sourceRef, payload_sha256: document.payloadSha256, reject_code: VOID_REJECT_CODE },
+        payload: { source_module: document.sourceModule, source_ref: document.sourceRef, payload_sha256: document.payloadSha256, ...(await this.requests.sourceOf(scope.tx, document.id)), reject_code: VOID_REJECT_CODE },
         eventKey: `${OUTGOING_TYPE}:${document.id}:${cancelled.version}:rejected`,
       });
     }

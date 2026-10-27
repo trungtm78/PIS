@@ -567,6 +567,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'createMneReport',
   'editMneReport',
   'submitMneReport',
+  'decideMneReport',
+  'requestMneReportIssue',
   'getMneReport',
   'importTreasuryStatement',
   'getTreasuryImport',

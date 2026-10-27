@@ -1113,6 +1113,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/revisions`, ifMatch: '"1"', body: { narrative: {} } }),
   },
+  decideMneReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix check of the decision.' } }),
+  },
+  requestMneReportIssue: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/issue-requests`, ifMatch: '"1"', body: {} }),
+  },
   submitMneReport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/submit`, ifMatch: '"1"', body: {} }),

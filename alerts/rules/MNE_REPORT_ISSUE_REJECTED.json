@@ -1,0 +1,13 @@
+{
+  "id": "MNE_REPORT_ISSUE_REJECTED",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "monitoring-evaluation",
+  "runbook": "docs/runbooks/alerts/MNE_REPORT_ISSUE_REJECTED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "MNE_REPORT_ISSUE_REJECTED"
+  },
+  "summary": "DOC could not issue a monitoring report that was approved: the report is APPROVED again."
+}

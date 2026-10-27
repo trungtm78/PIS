@@ -238,6 +238,8 @@ export function toGeneration(raw: unknown): GenerationResult {
 // ---- the report of MNE-03 ----
 
 export const PREPARE_REPORT_PERMISSION = 'mne.report.prepare';
+export const APPROVE_REPORT_PERMISSION = 'mne.report.approve';
+export const ISSUE_REPORT_PERMISSION = 'mne.report.issue';
 export const FIELD_KINDS = ['MONEY', 'PERCENT', 'INTEGER', 'TEXT'] as const;
 export type FieldKind = (typeof FIELD_KINDS)[number];
 export const SOURCE_KINDS = ['SNAPSHOT_METRIC', 'PROJECT_COUNT', 'WARNING_COUNT', 'APPROPRIATION_TOTAL'] as const;
@@ -283,6 +285,18 @@ export interface ReportView {
   attachments: string[];
   /** The frozen snapshots a draft may be attached to, newest first. */
   snapshotOptions: Array<{ id: string; asOfDate: string }>;
+  createdBy: string;
+  submittedBy: string | null;
+  /** The decision on the report: who, when and why (an approval and a return both leave the words). */
+  decision: { by: string; at: string | null; reason: string | null } | null;
+  /** The state of the document DOC drafted for the report, as DOC keeps it; null while DOC has not made one. */
+  documentState: string | null;
+  docDocumentId: string | null;
+  /** The hash of the payload frozen when issue was asked for; null before. */
+  payloadSha256: string | null;
+  issueRequestedAt: string | null;
+  issuedAt: string | null;
+  recalledAt: string | null;
   version: number;
 }
 
@@ -339,6 +353,15 @@ export function toReport(raw: unknown): ReportView | undefined {
     fields: (Array.isArray(raw.fields) ? raw.fields : []).flatMap((field) => toReportField(field) ?? []),
     attachments: texts(raw.attachments),
     snapshotOptions: (Array.isArray(raw.snapshot_options) ? raw.snapshot_options : []).flatMap((option) => (isRecord(option) && text(option.id) !== '' && text(option.as_of_date) !== '' ? [{ id: text(option.id), asOfDate: text(option.as_of_date) }] : [])),
+    createdBy: text(raw.created_by),
+    submittedBy: nullableText(raw.submitted_by),
+    decision: isRecord(raw.decision) && text(raw.decision.by) !== '' ? { by: text(raw.decision.by), at: nullableText(raw.decision.at), reason: nullableText(raw.decision.reason) } : null,
+    documentState: nullableText(raw.document_state),
+    docDocumentId: nullableText(raw.doc_document_id),
+    payloadSha256: nullableText(raw.payload_sha256),
+    issueRequestedAt: nullableText(raw.issue_requested_at),
+    issuedAt: nullableText(raw.issued_at),
+    recalledAt: nullableText(raw.recalled_at),
     version: count(raw.version),
   };
 }

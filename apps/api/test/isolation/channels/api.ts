@@ -302,6 +302,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'editMneReport', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: { narrative: {} } },
   { operation: 'submitMneReport', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: {} },
   { operation: 'getMneReport', method: 'GET', id: MNE_FIXTURES['TNT-B'].reportId },
+  { operation: 'decideMneReport', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
+  { operation: 'requestMneReportIssue', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: {} },
   { operation: 'get_resources_contractor_id', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },
   { operation: 'submitProcurementPlan', method: 'POST', id: PROCUREMENT_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideProcurementPlan', method: 'POST', id: PROCUREMENT_PLAN_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'RETURN', comment: 'Isolation foreign decision attempt' } },

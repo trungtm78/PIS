@@ -47,6 +47,7 @@ export interface MneReportRow {
   formCode: string;
   formRevision: number;
   formTitle: string;
+  formDocTemplateCode: string;
   formLegalConfirmationRef: string | null;
   watermarkText: string | null;
   schema: MneReportSchema;
@@ -68,7 +69,16 @@ export interface MneReportRow {
   supersedesId: string | null;
   correctionReason: string | null;
   submittedBy: string | null;
+  submittedAt: string | null;
   approvedBy: string | null;
+  decidedBy: string | null;
+  decidedAt: string | null;
+  decisionReason: string | null;
+  issueEventId: string | null;
+  issueRequestedAt: string | null;
+  payloadRef: string | null;
+  issuedAt: string | null;
+  recalledAt: string | null;
   createdBy: string;
   version: number;
 }
@@ -79,6 +89,7 @@ interface ReportSql {
   form_code: string;
   form_revision: number;
   form_title: string;
+  form_doc_template_code: string;
   form_legal_confirmation_ref: string | null;
   watermark_text: string | null;
   schema_json: Record<string, unknown>;
@@ -100,14 +111,25 @@ interface ReportSql {
   supersedes_id: string | null;
   correction_reason: string | null;
   submitted_by: string | null;
+  submitted_at: string | null;
   approved_by: string | null;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_reason: string | null;
+  issue_event_id: string | null;
+  issue_requested_at: string | null;
+  payload_ref: string | null;
+  issued_at: string | null;
+  recalled_at: string | null;
   created_by: string;
   version: string;
 }
 
-const COLUMNS = `r.id, r.form_id, f.form_code, f.revision as form_revision, f.title as form_title, f.legal_confirmation_ref as form_legal_confirmation_ref, f.watermark_text, f.schema_json, r.report_year,
+const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
+const COLUMNS = `r.id, r.form_id, f.form_code, f.revision as form_revision, f.title as form_title, f.doc_template_code as form_doc_template_code, f.legal_confirmation_ref as form_legal_confirmation_ref, f.watermark_text, f.schema_json, r.report_year,
   r.period_label, r.period_id, r.scope_unit_id, u.code as unit_code, u.name as unit_name, r.project_id, r.snapshot_id, r.due_date::text as due_date, r.revision, r.status, r.is_late, r.payload_json, r.payload_sha256,
-  r.doc_document_id, r.supersedes_id, r.correction_reason, r.submitted_by, r.approved_by, r.created_by, r.version::text as version`;
+  r.doc_document_id, r.supersedes_id, r.correction_reason, r.submitted_by, ${ISO('r.submitted_at')} as submitted_at, r.approved_by, r.decided_by, ${ISO('r.decided_at')} as decided_at, r.decision_reason, r.issue_event_id,
+  ${ISO('r.issue_requested_at')} as issue_requested_at, r.payload_ref, ${ISO('r.issued_at')} as issued_at, ${ISO('r.recalled_at')} as recalled_at, r.created_by, r.version::text as version`;
 const FROM = `machvon.mne_report r join machvon.mne_report_form f on f.tenant_id = r.tenant_id and f.id = r.form_id join machvon.organization_unit u on u.tenant_id = r.tenant_id and u.id = r.scope_unit_id`;
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -127,6 +149,7 @@ const rowOf = (row: ReportSql): MneReportRow => ({
   formCode: row.form_code,
   formRevision: row.form_revision,
   formTitle: row.form_title,
+  formDocTemplateCode: row.form_doc_template_code,
   formLegalConfirmationRef: row.form_legal_confirmation_ref,
   watermarkText: row.watermark_text,
   schema: parseReportSchema(row.schema_json),
@@ -148,7 +171,16 @@ const rowOf = (row: ReportSql): MneReportRow => ({
   supersedesId: row.supersedes_id,
   correctionReason: row.correction_reason,
   submittedBy: row.submitted_by,
+  submittedAt: row.submitted_at,
   approvedBy: row.approved_by,
+  decidedBy: row.decided_by,
+  decidedAt: row.decided_at,
+  decisionReason: row.decision_reason,
+  issueEventId: row.issue_event_id,
+  issueRequestedAt: row.issue_requested_at,
+  payloadRef: row.payload_ref,
+  issuedAt: row.issued_at,
+  recalledAt: row.recalled_at,
   createdBy: row.created_by,
   version: Number(row.version),
 });
@@ -345,7 +377,8 @@ export class MneReportStore {
     return row;
   }
 
-  private async lock(tx: TenantTx, id: string): Promise<MneReportRow> {
+  /** The report with its row locked for the rest of the transaction. */
+  async lock(tx: TenantTx, id: string): Promise<MneReportRow> {
     const found = await tx.query<{ id: string }>('select id from machvon.mne_report where id = $1::uuid for update', [idOf(id, 'id')]);
     if (found[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return this.read(tx, id);
@@ -383,7 +416,8 @@ export class MneReportStore {
     throw new DomainError('FORM_NOT_EFFECTIVE', 422, 'form_id', { extensions: { form_code: asked.formCode, period_end: periodEnd, effective_from: next?.effective_from ?? null } });
   }
 
-  private async assertUnitInScope(tx: TenantTx, unitId: string, scope: ScopeBuilder): Promise<void> {
+  /** 404 for a unit that is not there, 403 SCOPE_DENIED for one outside the units of the grant. */
+  async assertUnitInScope(tx: TenantTx, unitId: string, scope: ScopeBuilder): Promise<void> {
     const [exists] = await tx.query<{ id: string }>('select id from machvon.organization_unit where id = $1::uuid', [unitId]);
     if (exists === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'scope_unit_id');
     const predicate = scope(2);

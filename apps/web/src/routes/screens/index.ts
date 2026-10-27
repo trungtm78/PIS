@@ -211,6 +211,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'MNE-01': () => import('../../screens/mne/ObligationCalendarScreen'),
   'MNE-02': () => import('../../screens/mne/FormCatalogueScreen'),
   'MNE-03': () => import('../../screens/mne/ReportScreen'),
+  'MNE-05': () => import('../../screens/mne/ApprovalScreen'),
   'NOT-01': () => import('../../screens/not/InboxScreen'),
   'NOT-02': () => import('../../screens/not/NotificationDetailScreen'),
   'NOT-11': () => import('../../screens/not/QueueScreen'),

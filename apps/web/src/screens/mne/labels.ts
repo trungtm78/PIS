@@ -1,6 +1,6 @@
 import type { Translator } from '../../i18n';
 import type { FieldProblem, GenerationProblem, Phase, ProblemView } from './model';
-import type { ReportProblem } from './report-model';
+import type { DocStage, ReportProblem } from './report-model';
 import type { FieldSource, Frequency, FormStatus, ReportKind, ReportStatus, ReportingRole } from './types';
 
 type T = Translator['t'];
@@ -187,6 +187,10 @@ export function reportProblemMessage(t: T, problem: ReportProblem, labelOf: (key
   switch (problem.reason) {
     case 'conflict':
       return t('mne.report.problem.conflict');
+    case 'selfApproval':
+      return t('mne.report.problem.selfApproval');
+    case 'templateMissing':
+      return t('mne.report.problem.templateMissing');
     case 'stateInvalid':
       return t('mne.report.problem.stateInvalid');
     case 'snapshotRequired':
@@ -211,5 +215,22 @@ export function reportProblemMessage(t: T, problem: ReportProblem, labelOf: (key
       return t('mne.report.problem.session');
     case 'general':
       return t('mne.report.problem.general');
+  }
+}
+
+export function docStageLabel(t: T, stage: DocStage): string {
+  switch (stage) {
+    case 'none':
+      return t('mne.approval.doc.none');
+    case 'drafting':
+      return t('mne.approval.doc.drafting');
+    case 'awaitingSignature':
+      return t('mne.approval.doc.awaitingSignature');
+    case 'numbered':
+      return t('mne.approval.doc.numbered');
+    case 'published':
+      return t('mne.approval.doc.published');
+    case 'withdrawn':
+      return t('mne.approval.doc.withdrawn');
   }
 }

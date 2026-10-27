@@ -152,7 +152,7 @@ describe('issue requests and document references for source modules (ST-DOC-008)
       expect(request).toMatchObject({ status: 'REJECTED', reject_code: 'PAYLOAD_HASH_MISMATCH', outgoing_document_id: null });
       const events = await eventsOf(request.id, 'doc.rejected.v1');
       expect(events).toHaveLength(1);
-      expect(events[0]?.payload).toEqual({ source_module: 'MNE', source_ref: body.source_ref, payload_sha256: 'f'.repeat(64), reject_code: 'PAYLOAD_HASH_MISMATCH' });
+      expect(events[0]?.payload).toEqual({ source_module: 'MNE', source_ref: body.source_ref, payload_sha256: 'f'.repeat(64), source_payload_sha256: 'f'.repeat(64), source_event_id: body.event_id, reject_code: 'PAYLOAD_HASH_MISMATCH' });
       expect(await count("select count(*) as n from machvon.outgoing_document where source_ref = $1", [body.source_ref])).toBe(0);
       // The refusal is final for that key: the same call again gets the same answer and writes nothing new.
       const again = await ask(body, SOURCE, undefined);
@@ -369,6 +369,8 @@ describe('issue requests and document references for source modules (ST-DOC-008)
       const accepted = await ask(body);
       const id = accepted.json.outgoing_document_id as string;
       const requestId = accepted.json.resource_id as string;
+      // The drafter completes the place of issue: the hash of the draft is no longer the hash of the request.
+      await owner("update machvon.outgoing_document set payload_sha256 = repeat('c', 64) where id = $1", [id]);
       expect((await flow.submit(id, 1)).status).toBe(200);
       const approved = await flow.approve(id, 2);
       expect(approved.status).toBe(200);
@@ -392,7 +394,10 @@ describe('issue requests and document references for source modules (ST-DOC-008)
       expect(events[0]?.payload).toMatchObject({
         source_module: 'MNE',
         source_ref: body.source_ref,
-        payload_sha256: body.payload_sha256,
+        // What the module asked for travels apart from the hash of the draft the drafter changed.
+        payload_sha256: 'c'.repeat(64),
+        source_payload_sha256: body.payload_sha256,
+        source_event_id: body.event_id,
         document_number: issued?.document_number,
         symbol: issued?.symbol,
         file_sha256: issued?.checksum,

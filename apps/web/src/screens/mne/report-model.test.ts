@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { describeReportProblem, dong, draftsOf, drillPath, isEditable, missingCells, narrativeChanges, shown } from './report-model';
+import { DOC_STAGES, describeReportProblem, docStageOf, dong, draftsOf, drillPath, hasReason, isEditable, isOwnReport, mayDecide, mayRequestIssue, missingCells, narrativeChanges, shown } from './report-model';
 import { toReport } from './types';
 import type { ReportField } from './types';
 
@@ -100,5 +100,50 @@ describe('the report of MNE-03 (ST-MNE-002)', () => {
     expect(toReport({ ...answer, status: 'WHATEVER' })).toBeUndefined();
     expect(toReport({ ...answer, id: '' })).toBeUndefined();
     expect(toReport({ ...answer, snapshot: null })).toMatchObject({ snapshotId: null, asOfDate: null });
+  });
+
+  describe('review, approval and issue (ST-MNE-003)', () => {
+    const report = { status: 'IN_REVIEW' as const, createdBy: 'author', submittedBy: 'submitter' };
+
+    it('lets a person approve a report in review only when they hold the right and neither wrote it nor handed it in', () => {
+      const rights = ['mne.report.approve'];
+      expect(mayDecide(report, rights, false, 'someone')).toBe(true);
+      expect(mayDecide(report, rights, false, 'author')).toBe(false);
+      expect(mayDecide(report, rights, false, 'submitter')).toBe(false);
+      expect(mayDecide(report, ['mne.read'], false, 'someone')).toBe(false);
+      expect(mayDecide(report, rights, true, 'someone')).toBe(false);
+      expect(mayDecide({ ...report, status: 'APPROVED' }, rights, false, 'someone')).toBe(false);
+      expect(mayDecide(report, undefined, false, undefined)).toBe(true);
+      expect(isOwnReport(report, 'author')).toBe(true);
+      expect(isOwnReport(report, 'someone')).toBe(false);
+      expect(isOwnReport({ createdBy: 'author', submittedBy: null }, 'submitter')).toBe(false);
+    });
+
+    it('lets a person ask for the issue of an approved report only when they hold the right and the system is not read-only', () => {
+      expect(mayRequestIssue({ status: 'APPROVED' }, ['mne.report.issue'], false)).toBe(true);
+      expect(mayRequestIssue({ status: 'APPROVED' }, ['mne.report.approve'], false)).toBe(false);
+      expect(mayRequestIssue({ status: 'APPROVED' }, ['mne.report.issue'], true)).toBe(false);
+      for (const status of ['IN_REVIEW', 'ISSUING', 'ISSUED'] as const) expect(mayRequestIssue({ status }, ['mne.report.issue'], false)).toBe(false);
+    });
+
+    it('wants a reason of five characters once trimmed', () => {
+      expect(hasReason('  ok  ')).toBe(false);
+      expect(hasReason('fine!')).toBe(true);
+    });
+
+    it('reads the stage of the document from the state DOC keeps it in', () => {
+      expect(DOC_STAGES).toEqual(['drafting', 'awaitingSignature', 'numbered', 'published']);
+      expect(docStageOf(null)).toBe('none');
+      expect(['DRAFT', 'IN_REVIEW'].map(docStageOf)).toEqual(['drafting', 'drafting']);
+      expect(docStageOf('SUBMITTED')).toBe('awaitingSignature');
+      expect(['SIGNED', 'NUMBERED', 'SEALED'].map(docStageOf)).toEqual(['numbered', 'numbered', 'numbered']);
+      expect(['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED'].map(docStageOf)).toEqual(['published', 'published', 'published', 'published', 'published']);
+      expect(['CANCELLED', 'RECALLED', 'REPLACED', 'CORRECTED', 'SOMETHING'].map(docStageOf)).toEqual(['withdrawn', 'withdrawn', 'withdrawn', 'withdrawn', 'withdrawn']);
+    });
+
+    it('says why a decision failed: the self-approval, the missing template', () => {
+      expect(describeReportProblem(problem('SELF_APPROVAL_DENIED'))).toEqual({ reason: 'selfApproval', fields: [] });
+      expect(describeReportProblem(problem('DOC_TEMPLATE_MISSING'))).toEqual({ reason: 'templateMissing', fields: [] });
+    });
   });
 });

@@ -154,3 +154,79 @@ export const MNE_REPORT_TRANSITIONS: ReadonlyArray<readonly [MneReportStatus, Mn
 export function assertReportState(status: MneReportStatus, allowed: readonly MneReportStatus[]): void {
   if (!allowed.includes(status)) throw new DomainError('REPORT_STATE_INVALID', 409, 'status', { extensions: { report_status: status } });
 }
+
+// ---- review, approval and issue through the document engine (ST-MNE-003) ----
+
+export const MNE_DECISIONS = ['approve', 'return'] as const;
+export type MneDecision = (typeof MNE_DECISIONS)[number];
+
+/**
+ * What a decision gives a report that waits for it: approve makes it APPROVED, return sends it back to its preparer as a DRAFT to be changed and handed in again. A report that is not in review is 409
+ * REPORT_STATE_INVALID naming the state.
+ */
+export function decidedMneReport(status: MneReportStatus, decision: MneDecision): MneReportStatus {
+  assertReportState(status, ['IN_REVIEW']);
+  return decision === 'approve' ? 'APPROVED' : 'DRAFT';
+}
+
+/** The module DOC knows the request by, and how it names a report in its events: the id and the revision, so that a correction is another request. */
+export const MNE_SOURCE_MODULE = 'MNE';
+const SOURCE_REF = /^MNE:mne_report:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):r([1-9][0-9]{0,5})$/;
+
+export const mneReportSourceRef = (id: string, revision: number): string => `MNE:mne_report:${id.toLowerCase()}:r${revision}`;
+
+export function parseMneReportSourceRef(ref: unknown): { id: string; revision: number } | undefined {
+  if (typeof ref !== 'string') return undefined;
+  const found = SOURCE_REF.exec(ref);
+  return found === null ? undefined : { id: found[1] as string, revision: Number(found[2]) };
+}
+
+export interface MnePayloadCell {
+  label: string;
+  kind: MneFieldKind;
+  /** What the cell holds as the report keeps it; null while it has nothing. */
+  value: string | number | null;
+}
+
+export interface MnePayloadInput {
+  title: string;
+  periodLabel: string;
+  unitCode: string;
+  unitName: string;
+  dueDate: string;
+  asOfDate: string | null;
+  cells: readonly MnePayloadCell[];
+}
+
+const GROUPS = /\B(?=(\d{3})+(?!\d))/g;
+
+/** A cell the way a document prints it: whole dong with a dot between thousands, a percent with its sign, a count and a text as they are, and a dash for a cell with nothing. */
+export function printedCell(cell: MnePayloadCell): string {
+  if (cell.value === null) return '-';
+  const text = String(cell.value);
+  switch (cell.kind) {
+    case 'MONEY':
+      return `${text.startsWith('-') ? '-' : ''}${text.replace('-', '').replace(GROUPS, '.')} đồng`;
+    case 'PERCENT':
+      return `${text}%`;
+    case 'INTEGER':
+    case 'TEXT':
+      return text;
+  }
+}
+
+/**
+ * What DOC prints (the placeholders `title`, `period` and `body` of the templates MNE-TT44-*): the title of the form, the period and the unit, and one line per cell of the report. The same report always gives
+ * the same payload, which is what its hash is the hash of.
+ */
+export function mneReportPayload(input: MnePayloadInput): Record<string, string> {
+  const lines = input.cells.map((cell) => `${cell.label}: ${printedCell(cell)}`);
+  return {
+    title: input.title,
+    period: `Kỳ báo cáo ${input.periodLabel} - ${input.unitName} (${input.unitCode}); hạn nộp ${input.dueDate}${input.asOfDate === null ? '' : `; số liệu đến ngày ${input.asOfDate}`}`,
+    body: lines.join('\n'),
+    agency: input.unitName,
+    // The place of issue is in no record of the tenant; DOC requires it, and its drafter completes a dash before the report goes out.
+    place: '-',
+  };
+}
