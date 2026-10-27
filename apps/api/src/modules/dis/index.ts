@@ -1,4 +1,5 @@
 import { defineModule } from '../module-descriptor';
+import { DisbursementForecastController } from './disbursement-forecast.controller';
 import { DisbursementRatesController } from './disbursement-rates.controller';
 import { EarlyWarningController } from './early-warning.controller';
 import { PeriodReopenController } from './period-reopen.controller';
@@ -17,5 +18,5 @@ import { WeeklyPlanController } from './weekly-plan.controller';
 /** DIS, disbursement reporting: the reporting period calendar with its soft close and lock (ST-DIS-001) and the reasoned reopening of a locked period (ST-DIS-002), and the weekly report draft with its six cells of cumulative disbursement (ST-DIS-003). */
 export const disModule = defineModule({
   code: 'DIS',
-  controllers: [ReportingPeriodController, ReportingPeriodReadsController, PeriodReopenController, ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController, PeriodSnapshotController, DisbursementRatesController, EarlyWarningController, WeeklyPlanController, SubmissionProgressController, ReportExportController],
+  controllers: [ReportingPeriodController, ReportingPeriodReadsController, PeriodReopenController, ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController, PeriodSnapshotController, DisbursementRatesController, EarlyWarningController, WeeklyPlanController, SubmissionProgressController, ReportExportController, DisbursementForecastController],
 });

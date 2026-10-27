@@ -39927,7 +39927,8 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "description": "A frozen snapshot; the latest frozen close snapshot when none is named."
           },
           {
             "name": "project_id",
@@ -39945,6 +39946,25 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "description": "The projects are listed a page at a time; the totals are over all of them."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -40041,7 +40061,13 @@
           }
         },
         "x-exposure": "dto",
-        "x-exposure-reason": "Read model with DTO allowlist and object scope"
+        "x-exposure-reason": "Read model with DTO allowlist and object scope",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND",
+          "SNAPSHOT_NOT_FROZEN",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ]
       }
     },
     "/period-snapshots/{id}/lines": {
@@ -128798,12 +128824,54 @@
       "DisForecast": {
         "type": "object",
         "properties": {
-          "project_id": {
+          "snapshot_id": {
             "type": "string",
             "format": "uuid"
           },
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "treasury_cutoff_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "plan_year": {
+            "type": "integer"
+          },
+          "cutoff_month": {
+            "type": "integer"
+          },
+          "definition_status": {
+            "type": "string",
+            "enum": [
+              "PROPOSED_PENDING_SIGNOFF",
+              "SIGNED"
+            ]
+          },
+          "reallocation_threshold_pct": {
+            "type": "integer"
+          },
+          "project_id": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "disbursed_vnd": {
-            "$ref": "#/components/schemas/Money"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "months": {
             "type": "array",
@@ -128812,31 +128880,154 @@
               "additionalProperties": false,
               "required": [
                 "month",
-                "amount_vnd"
+                "amount_vnd",
+                "source"
               ],
               "properties": {
                 "month": {
                   "type": "integer"
                 },
                 "amount_vnd": {
-                  "$ref": "#/components/schemas/Money"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Money"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "FORECAST",
+                    "REGISTERED",
+                    "MISSING",
+                    "MIXED"
+                  ]
                 }
               }
             }
           },
           "eac_vnd": {
-            "$ref": "#/components/schemas/Money"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "plan_total_vnd": {
             "$ref": "#/components/schemas/Money"
           },
           "gap_vnd": {
-            "$ref": "#/components/schemas/Money"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ratio_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "PARTIAL",
+              "NONE"
+            ]
+          },
+          "reallocation_candidate": {
+            "type": [
+              "boolean",
+              "null"
+            ]
           },
           "method": {
             "type": "string"
+          },
+          "curve": {
+            "type": "array",
+            "description": "The cumulative curve of the year by month: what the Treasury paid up to the cutoff (the figure of the snapshot in the month of the cutoff), and the forecast after it; null where it is not known.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "month",
+                "actual_cumulative_vnd",
+                "forecast_cumulative_vnd"
+              ],
+              "properties": {
+                "month": {
+                  "type": "integer"
+                },
+                "actual_cumulative_vnd": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Money"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "forecast_cumulative_vnd": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Money"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisForecastProject"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
-        }
+        },
+        "required": [
+          "snapshot_id",
+          "as_of_date",
+          "treasury_cutoff_date",
+          "plan_year",
+          "cutoff_month",
+          "definition_status",
+          "reallocation_threshold_pct",
+          "project_id",
+          "disbursed_vnd",
+          "months",
+          "eac_vnd",
+          "plan_total_vnd",
+          "gap_vnd",
+          "ratio_pct",
+          "coverage",
+          "reallocation_candidate",
+          "method",
+          "curve",
+          "projects",
+          "next_cursor"
+        ]
       },
       "HomeCommandCenter": {
         "type": "object",
@@ -150006,6 +150197,135 @@
           "format",
           "rows",
           "file_sha256"
+        ]
+      },
+      "DisForecastProject": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ]
+          },
+          "disbursed_vnd": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "months": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "month",
+                "amount_vnd",
+                "source"
+              ],
+              "properties": {
+                "month": {
+                  "type": "integer"
+                },
+                "amount_vnd": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Money"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "FORECAST",
+                    "REGISTERED",
+                    "MISSING",
+                    "MIXED"
+                  ]
+                }
+              }
+            }
+          },
+          "eac_vnd": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan_total_vnd": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "gap_vnd": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ratio_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "PARTIAL",
+              "NONE"
+            ]
+          },
+          "reallocation_candidate": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "method": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "project",
+          "disbursed_vnd",
+          "months",
+          "eac_vnd",
+          "plan_total_vnd",
+          "gap_vnd",
+          "ratio_pct",
+          "coverage",
+          "reallocation_candidate",
+          "method"
         ]
       }
     }

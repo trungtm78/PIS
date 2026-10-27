@@ -647,3 +647,5 @@ export { DRILL_STATES, SUBMISSION_STATES, SUBMITTED_STATUSES, inDrill, isOverdue
 export type { BoardProject, BoardTally, DrillState, SubmissionState } from './dis-board.ts';
 export { EXPORT_COLUMNS, EXPORT_FORMATS, EXPORT_PROJECT_CAP, EXPORT_ROW_CAP, PDF_ROW_CAP, UNIT_SCALES, buildExportDocument, csvOf, scaledMoney, selectColumns, signOffNotice, xlsxOf } from './dis-export.ts';
 export type { DefinitionStatus as ExportDefinitionStatus, ExportColumn, ExportDocument, ExportFormat, ExportHeaderEntry, ExportInput, ExportLine, UnitScale } from './dis-export.ts';
+export { ADJUSTMENT_MONTH as FORECAST_ADJUSTMENT_MONTH, REALLOCATION_THRESHOLD_PCT, estimateYear, mergeEstimates, monthOf } from './dis-forecast.ts';
+export type { Estimate, EstimateCoverage, EstimateInput, EstimateMethod, EstimatedMonth, MonthSource } from './dis-forecast.ts';

@@ -234,7 +234,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
   }, 60_000);
 
   it('serves the controllers of the report in the module of DIS', () => {
-    expect(disModule.controllers.slice(-13, -6)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController]);
+    expect(disModule.controllers.slice(-14, -7)).toEqual([ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController]);
   });
 
   describe('post_reports', () => {

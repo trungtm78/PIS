@@ -15526,16 +15526,40 @@ export interface components {
         };
         DisForecast: {
             /** Format: uuid */
-            project_id?: string;
-            disbursed_vnd?: components["schemas"]["Money"];
-            months?: {
+            snapshot_id: string;
+            /** Format: date */
+            as_of_date: string;
+            /** Format: date */
+            treasury_cutoff_date: string;
+            plan_year: number;
+            cutoff_month: number;
+            /** @enum {string} */
+            definition_status: "PROPOSED_PENDING_SIGNOFF" | "SIGNED";
+            reallocation_threshold_pct: number;
+            project_id: string | null;
+            disbursed_vnd: components["schemas"]["Money"] | null;
+            months: {
                 month: number;
-                amount_vnd: components["schemas"]["Money"];
+                amount_vnd: components["schemas"]["Money"] | null;
+                /** @enum {string} */
+                source: "FORECAST" | "REGISTERED" | "MISSING" | "MIXED";
             }[];
-            eac_vnd?: components["schemas"]["Money"];
-            plan_total_vnd?: components["schemas"]["Money"];
-            gap_vnd?: components["schemas"]["Money"];
-            method?: string;
+            eac_vnd: components["schemas"]["Money"] | null;
+            plan_total_vnd: components["schemas"]["Money"];
+            gap_vnd: components["schemas"]["Money"] | null;
+            ratio_pct: string | null;
+            /** @enum {string} */
+            coverage: "COMPLETE" | "PARTIAL" | "NONE";
+            reallocation_candidate: boolean | null;
+            method: string;
+            /** @description The cumulative curve of the year by month: what the Treasury paid up to the cutoff (the figure of the snapshot in the month of the cutoff), and the forecast after it; null where it is not known. */
+            curve: {
+                month: number;
+                actual_cumulative_vnd: components["schemas"]["Money"] | null;
+                forecast_cumulative_vnd: components["schemas"]["Money"] | null;
+            }[];
+            projects: components["schemas"]["DisForecastProject"][];
+            next_cursor: string | null;
         };
         HomeCommandCenter: {
             /** Format: uuid */
@@ -21291,6 +21315,29 @@ export interface components {
             format: "XLSX" | "PDF" | "CSV";
             rows: number;
             file_sha256: string;
+        };
+        DisForecastProject: {
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            };
+            disbursed_vnd: components["schemas"]["Money"] | null;
+            months: {
+                month: number;
+                amount_vnd: components["schemas"]["Money"] | null;
+                /** @enum {string} */
+                source: "FORECAST" | "REGISTERED" | "MISSING" | "MIXED";
+            }[];
+            eac_vnd: components["schemas"]["Money"] | null;
+            plan_total_vnd: components["schemas"]["Money"];
+            gap_vnd: components["schemas"]["Money"] | null;
+            ratio_pct: string | null;
+            /** @enum {string} */
+            coverage: "COMPLETE" | "PARTIAL" | "NONE";
+            reallocation_candidate: boolean | null;
+            method: string;
         };
     };
     responses: never;
@@ -48839,9 +48886,13 @@ export interface operations {
     getDisbursementForecast: {
         parameters: {
             query?: {
+                /** @description A frozen snapshot; the latest frozen close snapshot when none is named. */
                 snapshot_id?: string;
                 project_id?: string;
                 unit_id?: string;
+                /** @description The projects are listed a page at a time; the totals are over all of them. */
+                limit?: number;
+                cursor?: string;
             };
             header?: never;
             path?: never;

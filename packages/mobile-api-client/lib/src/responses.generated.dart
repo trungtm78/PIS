@@ -3787,74 +3787,89 @@ final class DgvMaturityScoreResponse implements ResponseModel {
       };
 }
 
-final class DisForecastResponse implements ResponseModel {
-  const DisForecastResponse({
-    this.projectId,
-    this.disbursedVnd,
-    this.months,
-    this.eacVnd,
-    this.planTotalVnd,
-    this.gapVnd,
-    this.method,
+final class DisForecastProjectResponse implements ResponseModel {
+  const DisForecastProjectResponse({
+    required this.project,
+    required this.disbursedVnd,
+    required this.months,
+    required this.eacVnd,
+    required this.planTotalVnd,
+    required this.gapVnd,
+    required this.ratioPct,
+    required this.coverage,
+    required this.reallocationCandidate,
+    required this.method,
     this.extra = const <String, Object?>{},
   });
 
-  factory DisForecastResponse.fromJson(Object? json, [String path = 'DisForecastResponse']) {
+  factory DisForecastProjectResponse.fromJson(Object? json, [String path = 'DisForecastProjectResponse']) {
     final Map<String, Object?> map = asObject(json, path);
-    return DisForecastResponse(
-      projectId: optionalField(map, path, 'project_id', asString),
-      disbursedVnd: optionalField(map, path, 'disbursed_vnd', asString),
-      months: optionalField(map, path, 'months', asList(DisForecastResponseMonthsItem.fromJson)),
-      eacVnd: optionalField(map, path, 'eac_vnd', asString),
-      planTotalVnd: optionalField(map, path, 'plan_total_vnd', asString),
-      gapVnd: optionalField(map, path, 'gap_vnd', asString),
-      method: optionalField(map, path, 'method', asString),
-      extra: unknownFields(map, path, const <String>{'project_id', 'disbursed_vnd', 'months', 'eac_vnd', 'plan_total_vnd', 'gap_vnd', 'method'}, strict: false),
+    return DisForecastProjectResponse(
+      project: requiredField(map, path, 'project', DisForecastProjectResponseProject.fromJson),
+      disbursedVnd: requiredField(map, path, 'disbursed_vnd', asAny),
+      months: requiredField(map, path, 'months', asList(DisForecastProjectResponseMonthsItem.fromJson)),
+      eacVnd: requiredField(map, path, 'eac_vnd', asAny),
+      planTotalVnd: requiredField(map, path, 'plan_total_vnd', asString),
+      gapVnd: requiredField(map, path, 'gap_vnd', asAny),
+      ratioPct: requiredField(map, path, 'ratio_pct', nullable(asString)),
+      coverage: requiredField(map, path, 'coverage', asString),
+      reallocationCandidate: requiredField(map, path, 'reallocation_candidate', nullable(asBool)),
+      method: requiredField(map, path, 'method', asString),
+      extra: unknownFields(map, path, const <String>{'project', 'disbursed_vnd', 'months', 'eac_vnd', 'plan_total_vnd', 'gap_vnd', 'ratio_pct', 'coverage', 'reallocation_candidate', 'method'}, strict: false),
     );
   }
 
-  final String? projectId;
-  final String? disbursedVnd;
-  final List<DisForecastResponseMonthsItem>? months;
-  final String? eacVnd;
-  final String? planTotalVnd;
-  final String? gapVnd;
-  final String? method;
+  final DisForecastProjectResponseProject project;
+  final Object? disbursedVnd;
+  final List<DisForecastProjectResponseMonthsItem> months;
+  final Object? eacVnd;
+  final String planTotalVnd;
+  final Object? gapVnd;
+  final String? ratioPct;
+  final String coverage;
+  final bool? reallocationCandidate;
+  final String method;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        if (projectId != null) 'project_id': projectId,
-        if (disbursedVnd != null) 'disbursed_vnd': disbursedVnd,
-        if (months != null) 'months': months!.map((e0) => e0.toJson()).toList(),
-        if (eacVnd != null) 'eac_vnd': eacVnd,
-        if (planTotalVnd != null) 'plan_total_vnd': planTotalVnd,
-        if (gapVnd != null) 'gap_vnd': gapVnd,
-        if (method != null) 'method': method,
+        'project': project.toJson(),
+        'disbursed_vnd': disbursedVnd,
+        'months': months.map((e0) => e0.toJson()).toList(),
+        'eac_vnd': eacVnd,
+        'plan_total_vnd': planTotalVnd,
+        'gap_vnd': gapVnd,
+        'ratio_pct': ratioPct,
+        'coverage': coverage,
+        'reallocation_candidate': reallocationCandidate,
+        'method': method,
         ...extra,
       };
 }
 
-final class DisForecastResponseMonthsItem implements ResponseModel {
-  const DisForecastResponseMonthsItem({
+final class DisForecastProjectResponseMonthsItem implements ResponseModel {
+  const DisForecastProjectResponseMonthsItem({
     required this.month,
     required this.amountVnd,
+    required this.source,
     this.extra = const <String, Object?>{},
   });
 
-  factory DisForecastResponseMonthsItem.fromJson(Object? json, [String path = 'DisForecastResponseMonthsItem']) {
+  factory DisForecastProjectResponseMonthsItem.fromJson(Object? json, [String path = 'DisForecastProjectResponseMonthsItem']) {
     final Map<String, Object?> map = asObject(json, path);
-    return DisForecastResponseMonthsItem(
+    return DisForecastProjectResponseMonthsItem(
       month: requiredField(map, path, 'month', asInt),
-      amountVnd: requiredField(map, path, 'amount_vnd', asString),
-      extra: unknownFields(map, path, const <String>{'month', 'amount_vnd'}, strict: true),
+      amountVnd: requiredField(map, path, 'amount_vnd', asAny),
+      source: requiredField(map, path, 'source', asString),
+      extra: unknownFields(map, path, const <String>{'month', 'amount_vnd', 'source'}, strict: true),
     );
   }
 
   final int month;
-  final String amountVnd;
+  final Object? amountVnd;
+  final String source;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -3863,6 +3878,211 @@ final class DisForecastResponseMonthsItem implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'month': month,
         'amount_vnd': amountVnd,
+        'source': source,
+        ...extra,
+      };
+}
+
+final class DisForecastProjectResponseProject implements ResponseModel {
+  const DisForecastProjectResponseProject({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisForecastProjectResponseProject.fromJson(Object? json, [String path = 'DisForecastProjectResponseProject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisForecastProjectResponseProject(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class DisForecastResponse implements ResponseModel {
+  const DisForecastResponse({
+    required this.snapshotId,
+    required this.asOfDate,
+    required this.treasuryCutoffDate,
+    required this.planYear,
+    required this.cutoffMonth,
+    required this.definitionStatus,
+    required this.reallocationThresholdPct,
+    required this.projectId,
+    required this.disbursedVnd,
+    required this.months,
+    required this.eacVnd,
+    required this.planTotalVnd,
+    required this.gapVnd,
+    required this.ratioPct,
+    required this.coverage,
+    required this.reallocationCandidate,
+    required this.method,
+    required this.curve,
+    required this.projects,
+    required this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisForecastResponse.fromJson(Object? json, [String path = 'DisForecastResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisForecastResponse(
+      snapshotId: requiredField(map, path, 'snapshot_id', asString),
+      asOfDate: requiredField(map, path, 'as_of_date', asString),
+      treasuryCutoffDate: requiredField(map, path, 'treasury_cutoff_date', asString),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      cutoffMonth: requiredField(map, path, 'cutoff_month', asInt),
+      definitionStatus: requiredField(map, path, 'definition_status', asString),
+      reallocationThresholdPct: requiredField(map, path, 'reallocation_threshold_pct', asInt),
+      projectId: requiredField(map, path, 'project_id', asAny),
+      disbursedVnd: requiredField(map, path, 'disbursed_vnd', asAny),
+      months: requiredField(map, path, 'months', asList(DisForecastResponseMonthsItem.fromJson)),
+      eacVnd: requiredField(map, path, 'eac_vnd', asAny),
+      planTotalVnd: requiredField(map, path, 'plan_total_vnd', asString),
+      gapVnd: requiredField(map, path, 'gap_vnd', asAny),
+      ratioPct: requiredField(map, path, 'ratio_pct', nullable(asString)),
+      coverage: requiredField(map, path, 'coverage', asString),
+      reallocationCandidate: requiredField(map, path, 'reallocation_candidate', nullable(asBool)),
+      method: requiredField(map, path, 'method', asString),
+      curve: requiredField(map, path, 'curve', asList(DisForecastResponseCurveItem.fromJson)),
+      projects: requiredField(map, path, 'projects', asList(DisForecastProjectResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'snapshot_id', 'as_of_date', 'treasury_cutoff_date', 'plan_year', 'cutoff_month', 'definition_status', 'reallocation_threshold_pct', 'project_id', 'disbursed_vnd', 'months', 'eac_vnd', 'plan_total_vnd', 'gap_vnd', 'ratio_pct', 'coverage', 'reallocation_candidate', 'method', 'curve', 'projects', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final String snapshotId;
+  final String asOfDate;
+  final String treasuryCutoffDate;
+  final int planYear;
+  final int cutoffMonth;
+  final String definitionStatus;
+  final int reallocationThresholdPct;
+  final Object? projectId;
+  final Object? disbursedVnd;
+  final List<DisForecastResponseMonthsItem> months;
+  final Object? eacVnd;
+  final String planTotalVnd;
+  final Object? gapVnd;
+  final String? ratioPct;
+  final String coverage;
+  final bool? reallocationCandidate;
+  final String method;
+  final List<DisForecastResponseCurveItem> curve;
+  final List<DisForecastProjectResponse> projects;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'snapshot_id': snapshotId,
+        'as_of_date': asOfDate,
+        'treasury_cutoff_date': treasuryCutoffDate,
+        'plan_year': planYear,
+        'cutoff_month': cutoffMonth,
+        'definition_status': definitionStatus,
+        'reallocation_threshold_pct': reallocationThresholdPct,
+        'project_id': projectId,
+        'disbursed_vnd': disbursedVnd,
+        'months': months.map((e0) => e0.toJson()).toList(),
+        'eac_vnd': eacVnd,
+        'plan_total_vnd': planTotalVnd,
+        'gap_vnd': gapVnd,
+        'ratio_pct': ratioPct,
+        'coverage': coverage,
+        'reallocation_candidate': reallocationCandidate,
+        'method': method,
+        'curve': curve.map((e0) => e0.toJson()).toList(),
+        'projects': projects.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class DisForecastResponseCurveItem implements ResponseModel {
+  const DisForecastResponseCurveItem({
+    required this.month,
+    required this.actualCumulativeVnd,
+    required this.forecastCumulativeVnd,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisForecastResponseCurveItem.fromJson(Object? json, [String path = 'DisForecastResponseCurveItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisForecastResponseCurveItem(
+      month: requiredField(map, path, 'month', asInt),
+      actualCumulativeVnd: requiredField(map, path, 'actual_cumulative_vnd', asAny),
+      forecastCumulativeVnd: requiredField(map, path, 'forecast_cumulative_vnd', asAny),
+      extra: unknownFields(map, path, const <String>{'month', 'actual_cumulative_vnd', 'forecast_cumulative_vnd'}, strict: true),
+    );
+  }
+
+  final int month;
+  final Object? actualCumulativeVnd;
+  final Object? forecastCumulativeVnd;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'month': month,
+        'actual_cumulative_vnd': actualCumulativeVnd,
+        'forecast_cumulative_vnd': forecastCumulativeVnd,
+        ...extra,
+      };
+}
+
+final class DisForecastResponseMonthsItem implements ResponseModel {
+  const DisForecastResponseMonthsItem({
+    required this.month,
+    required this.amountVnd,
+    required this.source,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisForecastResponseMonthsItem.fromJson(Object? json, [String path = 'DisForecastResponseMonthsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisForecastResponseMonthsItem(
+      month: requiredField(map, path, 'month', asInt),
+      amountVnd: requiredField(map, path, 'amount_vnd', asAny),
+      source: requiredField(map, path, 'source', asString),
+      extra: unknownFields(map, path, const <String>{'month', 'amount_vnd', 'source'}, strict: true),
+    );
+  }
+
+  final int month;
+  final Object? amountVnd;
+  final String source;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'month': month,
+        'amount_vnd': amountVnd,
+        'source': source,
         ...extra,
       };
 }
