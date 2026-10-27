@@ -40,6 +40,8 @@ export interface ScheduleInput {
   amountVnd: string;
   ctmtqgSubsetVnd?: string | undefined;
   assumption?: string | undefined;
+  /** The accepted report this registration was taken from (the registration for next month that a report carries, ST-DIS-017). */
+  sourceReportRevisionId?: string | undefined;
 }
 
 export interface ScheduleRegistered {
@@ -220,9 +222,9 @@ export class CapScheduleStore {
     await tx.query(
       `insert into machvon.disbursement_schedule_line
          (tenant_id, id, project_id, allocation_line_id, plan_year, granularity, period_id, month, bucket, budget_level, kind, amount_vnd, ctmtqg_subset_vnd, assumption,
-          revision, is_current, supersedes_id, created_by, updated_by)
+          revision, is_current, supersedes_id, source_report_revision_id, created_by, updated_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::integer, $5, $6::uuid, $7::smallint, $8, $9, $10, $11::numeric, $12::numeric, $13,
-               $14::integer, true, $15::uuid, $16::uuid, $16::uuid)`,
+               $14::integer, true, $15::uuid, $17::uuid, $16::uuid, $16::uuid)`,
       [
         id,
         shaped.projectId,
@@ -240,6 +242,7 @@ export class CapScheduleStore {
         revision,
         current?.id ?? null,
         actor,
+        shaped.sourceReportRevisionId ?? null,
       ],
     );
     return {
@@ -259,6 +262,27 @@ export class CapScheduleStore {
       ctmtqgSubsetVnd: shaped.ctmtqgSubsetVnd ?? null,
       previousAmountVnd: current?.amount_vnd ?? null,
     };
+  }
+
+  /**
+   * Registers the amount for the key as `register` does, unless the registration now in force for the key was taken from a report that is newer than `source` (a later week, or a later revision of the same
+   * week): an old delivery of an older report must not replace what a newer report said. The order is judged under the lock of the key, so it cannot change between the check and the write. Undefined when
+   * the registration in force is the newer one and nothing was written.
+   */
+  async registerUnlessNewer(tx: TenantTx, input: ScheduleInput, source: { endDate: string; revision: number }, actor: string, scope: ScopeBuilder, now: Date): Promise<ScheduleRegistered | undefined> {
+    const shaped = this.shape(input);
+    await tx.query("select pg_advisory_xact_lock(hashtextextended('cap_schedule:' || current_setting('app.tenant_id') || ':' || $1::text, 0))", [this.keyOf(shaped)]);
+    const [current] = await tx.query<{ end_date: string; revision: number }>(
+      `select rp.end_date::text as end_date, r.revision
+         from machvon.disbursement_schedule_line s
+         join machvon.report_revision r on r.tenant_id = s.tenant_id and r.id = s.source_report_revision_id
+         join machvon.reporting_period rp on rp.tenant_id = r.tenant_id and rp.id = r.period_id
+        where s.project_id = $1::uuid and s.plan_year = $2::integer and s.granularity = $3 and s.month is not distinct from $4::smallint and s.period_id is not distinct from $5::uuid
+          and s.bucket = $6 and s.budget_level = $7 and s.kind = $8 and s.is_current`,
+      [shaped.projectId, shaped.planYear, shaped.granularity, shaped.month ?? null, shaped.periodId ?? null, shaped.bucket, shaped.budgetLevel, shaped.kind],
+    );
+    if (current !== undefined && (current.end_date > source.endDate || (current.end_date === source.endDate && current.revision > source.revision))) return undefined;
+    return this.register(tx, input, actor, scope, now);
   }
 
   /** The registrations of the projects in the scope of the caller, newest first; the current one of each key unless `history` asks for all. */
@@ -310,7 +334,9 @@ export class CapScheduleStore {
     const ctmtqgSubsetVnd = input.ctmtqgSubsetVnd === undefined ? undefined : amountOf(input.ctmtqgSubsetVnd, 'ctmtqg_subset_vnd');
     if (ctmtqgSubsetVnd !== undefined && compareDecimal(ctmtqgSubsetVnd, amountVnd) > 0) throw new DomainError('SUBSET_EXCEEDS_PARENT', 422, 'ctmtqg_subset_vnd');
     const assumption = this.assumptionOf(input);
-    return { projectId, allocationLineId, planYear, granularity: input.granularity, periodId, month, kind: input.kind, bucket: input.bucket, budgetLevel: input.budgetLevel, amountVnd, ctmtqgSubsetVnd, assumption };
+    const sourceReportRevisionId = input.sourceReportRevisionId === undefined ? undefined : asUuid(input.sourceReportRevisionId);
+    if (input.sourceReportRevisionId !== undefined && sourceReportRevisionId === undefined) throw invalid('source_report_revision_id');
+    return { projectId, allocationLineId, planYear, granularity: input.granularity, periodId, month, kind: input.kind, bucket: input.bucket, budgetLevel: input.budgetLevel, amountVnd, ctmtqgSubsetVnd, assumption, sourceReportRevisionId };
   }
 
   /** A forecast says what it rests on; the other kinds carry no assumption. */

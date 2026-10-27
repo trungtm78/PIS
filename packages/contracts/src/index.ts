@@ -11,3 +11,5 @@ export { ROOT_PATH, validateValue } from './validation.ts';
 export type { Issue, IssueKind, Schema, SchemaTable } from './validation.ts';
 export { DIS_GLOSSARY_DOMAIN, DIS_GOLDEN, DIS_GOLDEN_SESSION, DIS_GOLDEN_STATUS } from './dis-golden.ts';
 export type { GoldenCell, GoldenFixture, GoldenTransaction, GoldenUnit } from './dis-golden.ts';
+export { DIS_MOBILE_COMMANDS, DIS_MOBILE_RULES, DIS_SYNC_BUCKETS, DIS_SYNC_TABLES, DIS_SYNC_TRANSLATION, SYNC_TOKENS, bindSyncQuery, mobileContractMarkdown, operationFacts, syncRulesYaml } from './dis-sync.ts';
+export type { MobileCommand, OfflineMode, SyncBucket, SyncColumn, SyncTable } from './dis-sync.ts';

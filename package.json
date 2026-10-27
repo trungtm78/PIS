@@ -39,7 +39,9 @@
     "commands:check": "node scripts/command-coverage.mjs",
     "i18n:check": "node scripts/i18n-lint.mjs",
     "tokens:generate": "npm run tokens:generate -w @machvon/design-tokens",
-    "tokens:check": "npm run tokens:check -w @machvon/design-tokens"
+    "tokens:check": "npm run tokens:check -w @machvon/design-tokens",
+    "contracts:mobile-pack": "npm run mobile-pack -w @machvon/contracts",
+    "contracts:mobile-pack:check": "npm run mobile-pack:check -w @machvon/contracts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

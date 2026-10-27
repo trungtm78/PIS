@@ -9,6 +9,7 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
 import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
+import { RegistrationConsumer } from '../../src/modules/dis/registration.consumer';
 import { ReportImportController } from '../../src/modules/dis/report-import.controller';
 import { ReportLifecycleController } from '../../src/modules/dis/report-lifecycle.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
@@ -786,4 +787,105 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
       expect((await call('GET', `/report-imports/${randomUUID()}`, { member: MAKER })).status).toBe(404);
     });
   });
+
+  describe('web and mobile file the same report, and a phone that replays its queue (ST-DIS-017)', () => {
+    const NEXT_MONTH: Record<string, { next_month_vnd: string; next_month_ctmtqg_subset_vnd?: string }> = {
+      'CURRENT_YEAR/CENTRAL': { next_month_vnd: '100000000', next_month_ctmtqg_subset_vnd: '20000000' },
+      'CURRENT_YEAR/LOCAL': { next_month_vnd: '120000000' },
+      'CARRYOVER/CENTRAL': { next_month_vnd: '50000000' },
+      'CARRYOVER/LOCAL': { next_month_vnd: '30000000' },
+    };
+    const withRegistration = FX_DIS_001.map((line) => ({ ...line, ...(NEXT_MONTH[`${line.bucket}/${line.budget_level}`] ?? {}) }));
+    const consumer = (): RegistrationConsumer => new RegistrationConsumer({ database: harness.tenants as TenantDatabase, security: { signingKey: SIGNING_KEY } });
+    const deliver = async (reportId: string): Promise<string> => {
+      const [event] = await rows<{ id: string; payload: Record<string, unknown> }>("select id, payload from machvon.outbox_event where aggregate_id = $1 and type = 'report.accepted.v1'", [reportId]);
+      return consumer().handle({
+        id: event?.id as string,
+        tenantId: TENANT_A,
+        tenantContext: signTenantContext({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, SIGNING_KEY),
+        type: 'report.accepted.v1',
+        payload: event?.payload as Record<string, unknown>,
+      });
+    };
+    /** A week of October 2027: the registration it carries is for November. */
+    const octoberWeek = async (): Promise<string> =>
+      (await rows<{ id: string }>("select id from machvon.reporting_period where period_type = 'WEEK' and calendar_code = 'DEFAULT' and fiscal_year = 2027 and end_date between date '2027-10-17' and date '2027-10-31' order by end_date limit 1"))[0]?.id as string;
+    const fileOnWeb = async (period: string) => {
+      const { projectId, planId } = await seedProject();
+      const made = await create(draft(projectId, period, planId, { funding_lines: withRegistration }));
+      expect(made.status).toBe(200);
+      expect(await submit(idOf(made), 1)).toMatchObject({ status: 200, json: { status: 'SUBMITTED' } });
+      return { projectId, reportId: idOf(made) };
+    };
+    /** The phone files the same report from its queue: every command carries the local id, and the draft is saved before it is handed in. */
+    const fileOnPhone = async (period: string) => {
+      const { projectId, planId } = await seedProject();
+      const operation = randomUUID();
+      const made = await create(draft(projectId, period, planId, { client_operation_id: operation, funding_lines: FX_DIS_001 }));
+      expect(made.status).toBe(200);
+      const saved = await save(idOf(made), draft(projectId, period, planId, { client_operation_id: operation, funding_lines: withRegistration }), 1);
+      expect(saved.status).toBe(200);
+      expect(await submit(idOf(made), 2)).toMatchObject({ status: 200, json: { status: 'SUBMITTED' } });
+      return { projectId, reportId: idOf(made), operation };
+    };
+
+    it('AC-ST-DIS-017-1 / UAT-AC264: the web and the phone file a report each for different projects with the same structure and total 420 million, and 300 million registered for next month become the REGISTERED rows of November once both are accepted', async () => {
+      const period = await octoberWeek();
+      const web = await fileOnWeb(period);
+      const phone = await fileOnPhone(period);
+      const shape = (value: unknown): unknown => (Array.isArray(value) ? value.map(shape) : value !== null && typeof value === 'object' ? Object.fromEntries(Object.keys(value as object).sort().map((key) => [key, shape((value as Record<string, unknown>)[key])])) : typeof value);
+      const [onWeb, onPhone] = [await read(web.reportId), await read(phone.reportId)];
+      for (const found of [onWeb, onPhone]) {
+        expect(found.json).toMatchObject({ status: 'SUBMITTED', totals: { cumulative_vnd: '420000000', next_month_vnd: '300000000' } });
+      }
+      // The same payload structure: every member that the one has, the other has, with the same kind of value.
+      expect(shape(onWeb.json)).toEqual(shape(onPhone.json));
+      expect((await approve(web.reportId, 2)).status).toBe(200);
+      expect((await approve(phone.reportId, 3)).status).toBe(200);
+      expect(await deliver(web.reportId)).toBe('processed');
+      expect(await deliver(phone.reportId)).toBe('processed');
+      for (const filed of [web, phone]) {
+        const registered = await rows<{ plan_year: number; month: number; amount_vnd: string; source_report_revision_id: string }>(
+          "select plan_year, month, amount_vnd::text as amount_vnd, source_report_revision_id from machvon.disbursement_schedule_line where project_id = $1 and kind = 'REGISTERED' and is_current order by bucket, budget_level",
+          [filed.projectId],
+        );
+        expect(registered.map((row) => [row.plan_year, row.month])).toEqual([[2027, 11], [2027, 11], [2027, 11], [2027, 11]]);
+        expect(registered.reduce((sum, row) => sum + BigInt(row.amount_vnd), 0n)).toBe(300_000_000n);
+        expect(new Set(registered.map((row) => row.source_report_revision_id))).toEqual(new Set([filed.reportId]));
+      }
+    });
+
+    it('AC-ST-DIS-017-2 / MOB01: a draft made offline and sent twice after the reconnect is one revision, and a queued save that was written against a version the server has moved past is a conflict the user resolves, not a silent overwrite of money', async () => {
+      const { projectId, planId } = await seedProject();
+      const period = week();
+      const operation = randomUUID();
+      const body = draft(projectId, period, planId, { client_operation_id: operation });
+      const first = await create(body);
+      const again = await create(body);
+      expect(again).toMatchObject({ status: 200, json: { resource_id: idOf(first), resource_version: 1 } });
+      expect(await rows('select id from machvon.report_revision where project_id = $1', [projectId])).toHaveLength(1);
+      // Two devices of one person, or the phone and the web, wrote against version 1: the first save wins the version, the second finds it moved.
+      const forWeb = FX_DIS_001.map((line) => (line.bucket === 'CURRENT_YEAR' && line.budget_level === 'CENTRAL' ? { ...line, cumulative_vnd: '110000000' } : line));
+      const forPhone = FX_DIS_001.map((line) => (line.bucket === 'CURRENT_YEAR' && line.budget_level === 'CENTRAL' ? { ...line, cumulative_vnd: '120000000' } : line));
+      expect((await save(idOf(first), draft(projectId, period, planId, { funding_lines: forWeb }), 1)).status).toBe(200);
+      const stale = await save(idOf(first), draft(projectId, period, planId, { funding_lines: forPhone }), 1);
+      expect([stale.status, stale.json.code]).toEqual([409, 'VERSION_CONFLICT']);
+      // The conflict leaves the server as the web wrote it; the phone reads it and puts its figure to the user.
+      const found = (await read(idOf(first))).json.funding_lines as Array<Record<string, unknown>>;
+      expect(found.find((line) => line.bucket === 'CURRENT_YEAR' && line.budget_level === 'CENTRAL')?.cumulative_vnd).toBe('110000000');
+      expect((await state(idOf(first)))?.version).toBe('2');
+    });
+
+    it('AC-ST-DIS-017-3 / MOB02: a command that was queued under one tenant and sent under another reaches nothing: the report is not found and is not changed', async () => {
+      const { projectId, planId } = await seedProject();
+      const period = week();
+      const made = await create(draft(projectId, period, planId, { client_operation_id: randomUUID() }));
+      const before = await state(idOf(made));
+      const foreign = await call('POST', `/reports/${idOf(made)}/revisions`, { member: B_MAKER, tenantId: TENANT_B, body: draft(projectId, period, planId, { funding_lines: FX_DIS_001 }), ifMatch: '"1"' });
+      expect(foreign.status).toBe(404);
+      expect((await call('POST', `/reports/${idOf(made)}/submit`, { member: B_MAKER, tenantId: TENANT_B, body: {}, ifMatch: '"1"' })).status).toBe(404);
+      expect(await state(idOf(made))).toEqual(before);
+    });
+  });
+
 });

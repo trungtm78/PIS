@@ -873,6 +873,8 @@ export { DENOMINATORS as RANKING_DENOMINATORS, DisRankingStore, RANKING_RESOURCE
 export type { Computation as RankingComputation, DenominatorKind as RankingDenominator, RankingRow } from './dis-ranking-store.ts';
 export { DisExportStore, EXPORT_ACTION, EXPORT_RESOURCE_TYPE } from './dis-export-store.ts';
 export type { ExportRecord, ExportRows } from './dis-export-store.ts';
+export { DisRegistrationStore } from './dis-registration-store.ts';
+export type { RegistrationOutcome } from './dis-registration-store.ts';
 export { DisSubmissionBoardStore } from './dis-submission-board-store.ts';
 export type { BoardProjectRow } from './dis-submission-board-store.ts';
 export { DisWeeklyPlanStore } from './dis-weekly-plan-store.ts';

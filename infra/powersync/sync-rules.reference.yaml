@@ -1,0 +1,115 @@
+# GENERATED from packages/contracts/src/dis-sync.ts (ST-DIS-017). Do not edit: change the buckets there.
+# Status: PROPOSED REFERENCE, not deployable as it is. The queries use joins and subqueries that the PowerSync rule dialect does not take; the spike ST-KERNEL-002 (not run) translates them (see below).
+# The semantics are proven on PostgreSQL by apps/api/test/dis/mobile-sync.test.ts, which is the acceptance of that translation.
+# Translation 1: The scope of a member as a list of projects: `sync_membership_scope` rows of the kind `project`, one for each project the member reaches (a subtree grant is expanded by the projection job of MOB and ADM), so that the unit subtree is not a subquery of the data query.
+# Translation 2: The period of a report: the status of the reporting period beside the report in a projection (`OPEN` or `SOFT_CLOSED` as a column), so that the period is not a join.
+# Translation 3: The last revision handed in: a column of the projection that marks the revision of a project and period that is the latest not draft (`is_last_handed_in`), so that it is not a `NOT EXISTS`.
+# Translation 4: The time of a scope row: the dialect has no clock in a query, so the projection job adds a row at its `effective_from` and ends it at its `effective_until` (the reference checks both ends with `now()`).
+# Translation 5: The children of a report (cells, volumes, narrative): the same project and period columns copied to each, or a bucket parameter that lists the report ids, so that they are not joined to the report.
+# Isolation: PowerSync reads the WAL and does not pass row-level security, so every query carries the tenant of the token and the scope of the member.
+bucket_definitions:
+  dis_projects:
+    # The projects the member reports on: the rows named by their scope, in their tenant.
+    parameters: |
+      SELECT s.tenant_id, s.membership_id, s.scope_kind, s.scope_ref_id
+      FROM sync_membership_scope s
+      WHERE s.tenant_id = request.jwt() ->> 'tenant_id'
+        AND s.membership_id = request.jwt() ->> 'membership_id'
+        AND s.effective_from <= now() AND (s.effective_until IS NULL OR s.effective_until > now())
+        AND s.scope_kind IN ('unit_subtree', 'project')
+    data:
+      - |
+          SELECT p.id, p.tenant_id, p.code, p.name, p.status, p.owner_unit_id, p.investor_unit_id, p.version
+          FROM project p
+          WHERE p.tenant_id = bucket.tenant_id
+            AND ((bucket.scope_kind = 'project' AND p.id = bucket.scope_ref_id)
+              OR (bucket.scope_kind = 'unit_subtree' AND p.owner_unit_id IN (
+                SELECT u.id FROM organization_unit u JOIN organization_unit r ON r.tenant_id = u.tenant_id
+                WHERE r.id = bucket.scope_ref_id AND u.tenant_id = bucket.tenant_id AND starts_with(u.path, r.path))))
+  dis_periods:
+    # The reporting periods that take a report (open or soft-closed), for a member who has a scope in the tenant.
+    parameters: |
+      SELECT DISTINCT s.tenant_id
+      FROM sync_membership_scope s
+      WHERE s.tenant_id = request.jwt() ->> 'tenant_id'
+        AND s.membership_id = request.jwt() ->> 'membership_id'
+        AND s.effective_from <= now() AND (s.effective_until IS NULL OR s.effective_until > now())
+        AND s.scope_kind IN ('unit_subtree', 'project')
+    data:
+      - |
+          SELECT rp.id, rp.tenant_id, rp.code, rp.period_type, rp.start_date, rp.end_date, rp.deadline_at, rp.status
+          FROM reporting_period rp
+          WHERE rp.tenant_id = bucket.tenant_id AND rp.status IN ('OPEN', 'SOFT_CLOSED')
+  dis_reports:
+    # The reports of the projects in the scope: the member's own drafts and the last revision handed in, with their cells, volumes and narrative.
+    parameters: |
+      SELECT s.tenant_id, s.membership_id, s.scope_kind, s.scope_ref_id
+      FROM sync_membership_scope s
+      WHERE s.tenant_id = request.jwt() ->> 'tenant_id'
+        AND s.membership_id = request.jwt() ->> 'membership_id'
+        AND s.effective_from <= now() AND (s.effective_until IS NULL OR s.effective_until > now())
+        AND s.scope_kind IN ('unit_subtree', 'project')
+    data:
+      - |
+          SELECT r.id, r.tenant_id, r.project_id, r.period_id, r.plan_version_id, r.revision, r.status, r.is_current, r.version, r.report_type, r.measurement_basis, r.is_late, r.submitted_at, r.created_by
+          FROM report_revision r
+          JOIN project p ON p.tenant_id = r.tenant_id AND p.id = r.project_id
+          JOIN reporting_period rp ON rp.tenant_id = r.tenant_id AND rp.id = r.period_id
+          WHERE p.tenant_id = bucket.tenant_id
+            AND ((bucket.scope_kind = 'project' AND p.id = bucket.scope_ref_id)
+              OR (bucket.scope_kind = 'unit_subtree' AND p.owner_unit_id IN (
+                SELECT u.id FROM organization_unit u JOIN organization_unit r ON r.tenant_id = u.tenant_id
+                WHERE r.id = bucket.scope_ref_id AND u.tenant_id = bucket.tenant_id AND starts_with(u.path, r.path))))
+            AND rp.status IN ('OPEN', 'SOFT_CLOSED') AND r.deleted_at IS NULL
+            AND ((r.status = 'DRAFT' AND r.created_by = bucket.membership_id)
+              OR (r.status <> 'DRAFT' AND NOT EXISTS (
+                SELECT 1 FROM report_revision n
+                WHERE n.tenant_id = r.tenant_id AND n.project_id = r.project_id AND n.period_id = r.period_id AND n.deleted_at IS NULL AND n.status <> 'DRAFT' AND n.revision > r.revision)))
+      - |
+          SELECT f.id, f.tenant_id, f.report_revision_id, f.bucket, f.budget_level, f.disbursed_cumulative_vnd, f.ctmtqg_subset_vnd, f.next_month_registered_vnd, f.next_month_ctmtqg_subset_vnd
+          FROM funding_snapshot_line f
+          JOIN report_revision r ON r.tenant_id = f.tenant_id AND r.id = f.report_revision_id
+          JOIN project p ON p.tenant_id = r.tenant_id AND p.id = r.project_id
+          JOIN reporting_period rp ON rp.tenant_id = r.tenant_id AND rp.id = r.period_id
+          WHERE p.tenant_id = bucket.tenant_id
+            AND ((bucket.scope_kind = 'project' AND p.id = bucket.scope_ref_id)
+              OR (bucket.scope_kind = 'unit_subtree' AND p.owner_unit_id IN (
+                SELECT u.id FROM organization_unit u JOIN organization_unit r ON r.tenant_id = u.tenant_id
+                WHERE r.id = bucket.scope_ref_id AND u.tenant_id = bucket.tenant_id AND starts_with(u.path, r.path))))
+            AND rp.status IN ('OPEN', 'SOFT_CLOSED') AND r.deleted_at IS NULL
+            AND ((r.status = 'DRAFT' AND r.created_by = bucket.membership_id)
+              OR (r.status <> 'DRAFT' AND NOT EXISTS (
+                SELECT 1 FROM report_revision n
+                WHERE n.tenant_id = r.tenant_id AND n.project_id = r.project_id AND n.period_id = r.period_id AND n.deleted_at IS NULL AND n.status <> 'DRAFT' AND n.revision > r.revision)))
+      - |
+          SELECT g.id, g.tenant_id, g.report_revision_id, g.measurement_basis, g.construction_value_vnd, g.acceptance_value_vnd, g.treasury_submitted_value_vnd, g.preparing_dossier_value_vnd
+          FROM progress_snapshot g
+          JOIN report_revision r ON r.tenant_id = g.tenant_id AND r.id = g.report_revision_id
+          JOIN project p ON p.tenant_id = r.tenant_id AND p.id = r.project_id
+          JOIN reporting_period rp ON rp.tenant_id = r.tenant_id AND rp.id = r.period_id
+          WHERE p.tenant_id = bucket.tenant_id
+            AND ((bucket.scope_kind = 'project' AND p.id = bucket.scope_ref_id)
+              OR (bucket.scope_kind = 'unit_subtree' AND p.owner_unit_id IN (
+                SELECT u.id FROM organization_unit u JOIN organization_unit r ON r.tenant_id = u.tenant_id
+                WHERE r.id = bucket.scope_ref_id AND u.tenant_id = bucket.tenant_id AND starts_with(u.path, r.path))))
+            AND rp.status IN ('OPEN', 'SOFT_CLOSED') AND r.deleted_at IS NULL
+            AND ((r.status = 'DRAFT' AND r.created_by = bucket.membership_id)
+              OR (r.status <> 'DRAFT' AND NOT EXISTS (
+                SELECT 1 FROM report_revision n
+                WHERE n.tenant_id = r.tenant_id AND n.project_id = r.project_id AND n.period_id = r.period_id AND n.deleted_at IS NULL AND n.status <> 'DRAFT' AND n.revision > r.revision)))
+      - |
+          SELECT n.id, n.tenant_id, n.report_revision_id, n.results_text, n.causes_text, n.solutions_text, n.proposals_text
+          FROM report_narrative n
+          JOIN report_revision r ON r.tenant_id = n.tenant_id AND r.id = n.report_revision_id
+          JOIN project p ON p.tenant_id = r.tenant_id AND p.id = r.project_id
+          JOIN reporting_period rp ON rp.tenant_id = r.tenant_id AND rp.id = r.period_id
+          WHERE p.tenant_id = bucket.tenant_id
+            AND ((bucket.scope_kind = 'project' AND p.id = bucket.scope_ref_id)
+              OR (bucket.scope_kind = 'unit_subtree' AND p.owner_unit_id IN (
+                SELECT u.id FROM organization_unit u JOIN organization_unit r ON r.tenant_id = u.tenant_id
+                WHERE r.id = bucket.scope_ref_id AND u.tenant_id = bucket.tenant_id AND starts_with(u.path, r.path))))
+            AND rp.status IN ('OPEN', 'SOFT_CLOSED') AND r.deleted_at IS NULL
+            AND ((r.status = 'DRAFT' AND r.created_by = bucket.membership_id)
+              OR (r.status <> 'DRAFT' AND NOT EXISTS (
+                SELECT 1 FROM report_revision n
+                WHERE n.tenant_id = r.tenant_id AND n.project_id = r.project_id AND n.period_id = r.period_id AND n.deleted_at IS NULL AND n.status <> 'DRAFT' AND n.revision > r.revision)))

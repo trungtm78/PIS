@@ -9,7 +9,9 @@
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage",
     "contracts:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/generate.ts --spec ../../Design/MACHVON_Design/03_Engineering/openapi.json --out src --dart-out ../mobile-api-client/lib/src",
     "contracts:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/generate.ts --spec ../../Design/MACHVON_Design/03_Engineering/openapi.json --out src --check --dart-out ../mobile-api-client/lib/src",
-    "contracts:compat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/compat-cli.ts"
+    "contracts:compat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/compat-cli.ts",
+    "mobile-pack": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/emit-dis-sync.ts",
+    "mobile-pack:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/emit-dis-sync.ts --check"
   },
   "jest": {
     "preset": "../../jest.preset.cjs",
