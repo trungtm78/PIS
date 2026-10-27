@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, assertFourEyes, isIsoDate, versionConflict } from '@machvon/kernel';
+import { DomainError, assertFourEyes, isIsoDate, parseReportSchema, versionConflict } from '@machvon/kernel';
 import { DocumentStore } from './document-store.ts';
 import { MneRevisionTable } from './mne-revision-table.ts';
 import type { ClosedRevision } from './mne-revision-table.ts';
@@ -176,6 +176,8 @@ function checked(input: MneFormInput): CheckedForm {
   if (!isIsoDate(input.effectiveFrom)) throw invalid('effective_from');
   if (input.effectiveUntil !== undefined && (!isIsoDate(input.effectiveUntil) || input.effectiveUntil <= input.effectiveFrom)) throw invalid('effective_until');
   if (!isRecord(input.schemaJson)) throw invalid('schema_json');
+  // What a report is made of is read from here: a form whose cells cannot be read is refused when it is drafted, not when the first report is opened.
+  parseReportSchema(input.schemaJson);
   const formats = [...new Set(input.exportFormats)];
   if (formats.length === 0 || formats.length !== input.exportFormats.length || !formats.every((format) => (MNE_EXPORT_FORMATS as readonly string[]).includes(format))) throw invalid('export_formats');
   const reference = input.legalConfirmationRef === undefined || input.legalConfirmationRef.trim() === '' ? null : textOf(input.legalConfirmationRef, 'legal_confirmation_ref', 1, MAX_REFERENCE);

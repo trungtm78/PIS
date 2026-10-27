@@ -1,0 +1,117 @@
+import { ApiError } from '@machvon/api-client';
+import type { ReportField, ReportView } from './types';
+import { PREPARE_REPORT_PERMISSION } from './types';
+
+// ---- what a person may do with a report ----
+
+/** Whether the report can be written now: a draft, for a person who prepares reports, outside the read-only mode. */
+export function isEditable(report: Pick<ReportView, 'status'>, permissions: readonly string[] | undefined, frozen: boolean): boolean {
+  return report.status === 'DRAFT' && !frozen && (permissions === undefined || permissions.includes(PREPARE_REPORT_PERMISSION));
+}
+
+/** The text of each cell that is written by hand, as the form shows it. */
+export type Drafts = Readonly<Record<string, string>>;
+
+export function draftsOf(report: Pick<ReportView, 'fields'>): Drafts {
+  return Object.fromEntries(report.fields.filter((field) => !field.locked).map((field) => [field.key, field.value === null ? '' : String(field.value)]));
+}
+
+/** What the person changed: the cells whose text differs from the report, an emptied cell as null. A cell that has a source is never sent. */
+export function narrativeChanges(report: Pick<ReportView, 'fields'>, drafts: Drafts): Record<string, string | null> {
+  const changes: Record<string, string | null> = {};
+  for (const field of report.fields) {
+    if (field.locked) continue;
+    const before = field.value === null ? '' : String(field.value);
+    const after = drafts[field.key] ?? before;
+    if (after.trim() !== before.trim()) changes[field.key] = after.trim() === '' ? null : after.trim();
+  }
+  return changes;
+}
+
+/** The required cells that would still be empty once the draft is saved (the server says the same when the report is handed in). */
+export function missingCells(report: Pick<ReportView, 'fields'>, drafts: Drafts): string[] {
+  return report.fields
+    .filter((field) => field.required)
+    .filter((field) => (field.locked ? field.value === null : (drafts[field.key] ?? '').trim() === ''))
+    .map((field) => field.key);
+}
+
+// ---- how a cell is shown ----
+
+const GROUP = /\B(?=(\d{3})+(?!\d))/g;
+
+/** Whole dong with a dot between thousands, as the Vietnamese write them; a negative amount keeps its sign. */
+export function dong(amount: string): string {
+  return amount.startsWith('-') ? `-${dong(amount.slice(1))}` : amount.replace(GROUP, '.');
+}
+
+/** A locked or written value in the form of its kind; an empty cell is null so that the screen says it is empty. */
+export function shown(field: ReportField): string | null {
+  if (field.value === null) return null;
+  switch (field.kind) {
+    case 'MONEY':
+      return typeof field.value === 'string' ? dong(field.value) : String(field.value);
+    case 'PERCENT':
+      return `${String(field.value)}%`;
+    case 'INTEGER':
+    case 'TEXT':
+      return String(field.value);
+  }
+}
+
+/** The page behind a locked cell (HOME-10, the context of a figure and its trace to the source): the metric and the snapshot it came from. */
+export function drillPath(report: Pick<ReportView, 'snapshotId'>, field: Pick<ReportField, 'key' | 'source'>): string | undefined {
+  if (field.source === null || report.snapshotId === null) return undefined;
+  const query = new URLSearchParams({ source: field.source.kind, snapshot: report.snapshotId, ...(field.source.detail === null ? {} : { detail: field.source.detail }), field: field.key });
+  return `/home/home-10?${query.toString()}`;
+}
+
+// ---- why a command failed ----
+
+export type ReportReason =
+  | 'conflict'
+  | 'stateInvalid'
+  | 'snapshotRequired'
+  | 'snapshotNotFrozen'
+  | 'locked'
+  | 'missing'
+  | 'formNotEffective'
+  | 'exists'
+  | 'invalid'
+  | 'notFound'
+  | 'denied'
+  | 'session'
+  | 'general';
+
+export interface ReportProblem {
+  reason: ReportReason;
+  /** The cells the problem is about, when the server named them. */
+  fields: string[];
+}
+
+const REASON_BY_CODE: Readonly<Record<string, ReportReason>> = {
+  VERSION_CONFLICT: 'conflict',
+  REPORT_STATE_INVALID: 'stateInvalid',
+  SNAPSHOT_REQUIRED: 'snapshotRequired',
+  SNAPSHOT_NOT_FROZEN: 'snapshotNotFrozen',
+  FIELD_SOURCE_LOCKED: 'locked',
+  FORM_NOT_EFFECTIVE: 'formNotEffective',
+  REPORT_EXISTS: 'exists',
+  VALIDATION_FAILED: 'invalid',
+  INVALID_REQUEST: 'invalid',
+  FIELD_NOT_ALLOWED: 'invalid',
+  RESOURCE_NOT_FOUND: 'notFound',
+  SCOPE_DENIED: 'denied',
+  ENTITLEMENT_DENIED: 'denied',
+  SESSION_EXPIRED: 'session',
+};
+
+const textsOf = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
+
+/** Maps the failure of a command on a report to what the screen says; a VALIDATION_FAILED that lists missing cells is `missing`. */
+export function describeReportProblem(error: unknown): ReportProblem {
+  if (!(error instanceof ApiError)) return { reason: 'general', fields: [] };
+  const missing = textsOf(error.extensions.missing_fields);
+  if (error.code === 'VALIDATION_FAILED' && missing.length > 0) return { reason: 'missing', fields: missing };
+  return { reason: REASON_BY_CODE[error.code] ?? 'general', fields: textsOf(error.extensions.fields) };
+}

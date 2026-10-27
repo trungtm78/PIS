@@ -9,6 +9,7 @@ import { loadPlatformTemplates } from '../../src/modules/doc/template-pack';
 import { MneFormsController } from '../../src/modules/mne/mne-forms.controller';
 import { MneObligationRulesController } from '../../src/modules/mne/mne-obligation-rules.controller';
 import { MneObligationsController } from '../../src/modules/mne/mne-obligations.controller';
+import { MneReportsController } from '../../src/modules/mne/mne-reports.controller';
 import { ACTOR, AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -23,6 +24,8 @@ export const READER = 3; // reads the catalogue and the calendar of the whole te
 export const NOBODY = 4; // no grant
 export const SCOPED = 5; // generates and reads the calendar of the units under unit 2 only
 export const EVERYTHING = 6; // holds every MNE permission: proves that nobody publishes what they drafted
+export const PREPARER = 7; // prepares the reports of the whole tenant
+export const SCOPED_PREPARER = 8; // prepares the reports of the units under unit 2 only
 
 export const ROOT = 1;
 export const BRANCH = 2;
@@ -52,13 +55,14 @@ export class MneApp {
       await harness.seedUnits(tenant, units);
       await harness.owner(tenant, [['update machvon.organization_unit set is_investor = true where id = any($1::uuid[])', [[...INVESTORS, OUTSIDE].map(unitId)]]]);
     }
-    for (const n of [ADMIN, APPROVER, READER, NOBODY, SCOPED, EVERYTHING]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [ADMIN, APPROVER, READER, NOBODY, SCOPED, EVERYTHING, PREPARER, SCOPED_PREPARER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, ADMIN, ROOT);
     await harness.seedRole(TENANT_A, 1, 'MNE_ADMIN', ['mne.form.manage', 'mne.calendar.manage', 'mne.read'], 60);
     await harness.seedRole(TENANT_A, 2, 'MNE_APPROVER', ['mne.form.approve', 'mne.calendar.approve', 'mne.read'], 50);
     await harness.seedRole(TENANT_A, 3, 'MNE_READER', ['mne.read'], 20);
     await harness.seedRole(TENANT_A, 4, 'MNE_SCOPED', ['mne.calendar.manage', 'mne.read'], 40);
     await harness.seedRole(TENANT_A, 5, 'MNE_ALL', ['mne.form.manage', 'mne.form.approve', 'mne.calendar.manage', 'mne.calendar.approve', 'mne.read'], 60);
+    await harness.seedRole(TENANT_A, 6, 'MNE_PREPARER', ['mne.report.prepare', 'mne.read'], 40);
     await harness.seedRole(TENANT_B, 1, 'MNE_ALL', ['mne.form.manage', 'mne.form.approve', 'mne.calendar.manage', 'mne.calendar.approve', 'mne.read'], 60);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: ADMIN, role: 1, kind: 'TENANT' },
@@ -66,6 +70,8 @@ export class MneApp {
       { n: 3, member: READER, role: 3, kind: 'TENANT' },
       { n: 4, member: SCOPED, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] },
       { n: 5, member: EVERYTHING, role: 5, kind: 'TENANT' },
+      { n: 6, member: PREPARER, role: 6, kind: 'TENANT' },
+      { n: 7, member: SCOPED_PREPARER, role: 6, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: ADMIN, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -77,7 +83,7 @@ export class MneApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MneFormsController, MneObligationRulesController, MneObligationsController],
+      controllers: [MneFormsController, MneObligationRulesController, MneObligationsController, MneReportsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },

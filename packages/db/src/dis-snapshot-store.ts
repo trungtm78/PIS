@@ -371,9 +371,9 @@ export class DisSnapshotStore {
     tx: TenantTx,
     snapshotId: string,
     scope: ScopeBuilder,
-    filter: { basis: RateBasis; projectId?: string | undefined; unitId?: string | undefined; fundSourceVersionId?: string | undefined; groupBy: 'NONE' | 'UNIT' | 'PROJECT' },
+    filter: { basis: RateBasis; projectId?: string | undefined; unitId?: string | undefined; underUnitId?: string | undefined; fundSourceVersionId?: string | undefined; groupBy: 'NONE' | 'UNIT' | 'PROJECT' },
   ): Promise<Array<{ id: string | null; code: string | null; name: string | null; sums: RateSums }>> {
-    const visible = scope(6);
+    const visible = scope(7);
     const key =
       filter.groupBy === 'PROJECT'
         ? { select: 'l.project_id as id, p.code as code, p.name as name', group: 'l.project_id, p.code, p.name', order: 'p.code, l.project_id' }
@@ -401,10 +401,11 @@ export class DisSnapshotStore {
          join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
          left join machvon.organization_unit u on u.tenant_id = l.tenant_id and u.id = l.unit_id
         where l.snapshot_id = $1::uuid and l.bucket = $2 and ($3::uuid is null or l.project_id = $3::uuid) and ($4::uuid is null or l.unit_id = $4::uuid)
-          and ($5::uuid is null or l.fund_source_version_id = $5::uuid) and ${visible.sql}
+          and ($5::uuid is null or l.fund_source_version_id = $5::uuid)
+          and ($6::uuid is null or exists (select 1 from machvon.organization_unit su where su.tenant_id = l.tenant_id and su.id = $6::uuid and u.path is not null and starts_with(u.path, su.path))) and ${visible.sql}
         ${key.group === '' ? '' : `group by ${key.group}`}
         order by ${key.order}`,
-      [snapshotId, filter.basis, filter.projectId ?? null, filter.unitId ?? null, filter.fundSourceVersionId ?? null, ...visible.params],
+      [snapshotId, filter.basis, filter.projectId ?? null, filter.unitId ?? null, filter.fundSourceVersionId ?? null, filter.underUnitId ?? null, ...visible.params],
     );
     return rows.map((row) => ({
       id: row.id,

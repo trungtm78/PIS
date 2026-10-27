@@ -4,7 +4,7 @@ import type { Reply } from './mne-app';
 jest.setTimeout(120_000);
 
 /** A member who holds all four MNE write permissions, but only over the units under the branch. */
-const BRANCH_ADMIN = 7;
+const BRANCH_ADMIN = 9;
 
 const app = new MneApp();
 
@@ -42,8 +42,8 @@ describe('scope of the form and rule commands (ST-MNE-001, MNE 2)', () => {
     await app.start();
     const { harness } = app;
     await harness.seedMembership(TENANT_A, BRANCH_ADMIN, ROOT);
-    await harness.seedRole(TENANT_A, 6, 'MNE_BRANCH_ADMIN', ['mne.form.manage', 'mne.form.approve', 'mne.calendar.manage', 'mne.calendar.approve', 'mne.read'], 40);
-    await harness.seedGrants(TENANT_A, [{ n: 6, member: BRANCH_ADMIN, role: 6, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] }]);
+    await harness.seedRole(TENANT_A, 7, 'MNE_BRANCH_ADMIN', ['mne.form.manage', 'mne.form.approve', 'mne.calendar.manage', 'mne.calendar.approve', 'mne.read'], 40);
+    await harness.seedGrants(TENANT_A, [{ n: 8, member: BRANCH_ADMIN, role: 7, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] }]);
   }, 240_000);
   afterAll(() => app.stop(), 60_000);
 

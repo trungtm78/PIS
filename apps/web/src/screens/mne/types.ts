@@ -234,3 +234,117 @@ export function toGeneration(raw: unknown): GenerationResult {
     unresolvedRoles: texts(answer.unresolved_roles).flatMap((role) => oneOf(role, REPORTING_ROLES) ?? []),
   };
 }
+
+// ---- the report of MNE-03 ----
+
+export const PREPARE_REPORT_PERMISSION = 'mne.report.prepare';
+export const FIELD_KINDS = ['MONEY', 'PERCENT', 'INTEGER', 'TEXT'] as const;
+export type FieldKind = (typeof FIELD_KINDS)[number];
+export const SOURCE_KINDS = ['SNAPSHOT_METRIC', 'PROJECT_COUNT', 'WARNING_COUNT', 'APPROPRIATION_TOTAL'] as const;
+export type SourceKind = (typeof SOURCE_KINDS)[number];
+
+/** Where a locked cell comes from: the kind of source and the one detail that names it (a metric, a stage, a severity or a plan year). */
+export interface FieldSource {
+  kind: SourceKind;
+  detail: string | null;
+}
+
+/** One cell of the form of a report: filled by the system and locked when it has a source, written by hand otherwise. */
+export interface ReportField {
+  key: string;
+  label: string;
+  kind: FieldKind;
+  required: boolean;
+  locked: boolean;
+  source: FieldSource | null;
+  /** What the cell holds as the server writes it (a decimal text for money and rates, a number for a count, a text), null while empty. */
+  value: string | number | null;
+}
+
+/** A report as `getMneReport` returns it (MNE-03). */
+export interface ReportView {
+  id: string;
+  formCode: string;
+  formRevision: number;
+  formTitle: string;
+  awaitingConfirmation: boolean;
+  cxnRefs: string[];
+  watermarkText: string | null;
+  periodLabel: string;
+  reportYear: number;
+  unitCode: string;
+  unitName: string;
+  dueDate: string;
+  status: ReportStatus;
+  isLate: boolean;
+  snapshotId: string | null;
+  asOfDate: string | null;
+  fields: ReportField[];
+  attachments: string[];
+  /** The frozen snapshots a draft may be attached to, newest first. */
+  snapshotOptions: Array<{ id: string; asOfDate: string }>;
+  version: number;
+}
+
+/** What a command on a report answered: the status and the version the next command is sent with. */
+export interface ReportCommandResult {
+  status: string;
+  version: number;
+}
+
+/** A cell as `getMneReport` writes it, or undefined when it lacks what the screen needs. */
+function toReportField(raw: unknown): ReportField | undefined {
+  if (!isRecord(raw)) return undefined;
+  const kind = oneOf(raw.kind, FIELD_KINDS);
+  const key = text(raw.key);
+  if (kind === undefined || key === '') return undefined;
+  const source = isRecord(raw.source) ? oneOf(raw.source.kind, SOURCE_KINDS) : undefined;
+  const detail = isRecord(raw.source) ? (raw.source.metric ?? raw.source.stage ?? raw.source.severity ?? raw.source.plan_year ?? null) : null;
+  const value = raw.value;
+  return {
+    key,
+    label: text(raw.label) === '' ? key : text(raw.label),
+    kind,
+    required: raw.required === true,
+    locked: raw.locked === true,
+    source: source === undefined ? null : { kind: source, detail: typeof detail === 'string' || typeof detail === 'number' ? String(detail) : null },
+    value: typeof value === 'string' || (typeof value === 'number' && Number.isFinite(value)) ? value : null,
+  };
+}
+
+/** A report as the screen reads it, or undefined when the answer lacks what the screen needs (the screen shows what it can trust). */
+export function toReport(raw: unknown): ReportView | undefined {
+  if (!isRecord(raw) || !isRecord(raw.form) || !isRecord(raw.scope_unit)) return undefined;
+  const status = oneOf(raw.status, REPORT_STATUSES);
+  const id = text(raw.id);
+  if (status === undefined || id === '') return undefined;
+  const snapshot = isRecord(raw.snapshot) ? raw.snapshot : undefined;
+  return {
+    id,
+    formCode: text(raw.form.code),
+    formRevision: count(raw.form.revision),
+    formTitle: text(raw.form.title),
+    awaitingConfirmation: typeof raw.awaiting_confirmation === 'boolean' ? raw.awaiting_confirmation : raw.form.legal_confirmation_ref === null,
+    cxnRefs: texts(raw.cxn_refs),
+    watermarkText: nullableText(raw.form.watermark_text),
+    periodLabel: text(raw.period_label),
+    reportYear: count(raw.report_year),
+    unitCode: text(raw.scope_unit.code),
+    unitName: text(raw.scope_unit.name),
+    dueDate: text(raw.due_date),
+    status,
+    isLate: raw.is_late === true,
+    snapshotId: snapshot === undefined ? null : nullableText(snapshot.id),
+    asOfDate: snapshot === undefined ? null : nullableText(snapshot.as_of_date),
+    fields: (Array.isArray(raw.fields) ? raw.fields : []).flatMap((field) => toReportField(field) ?? []),
+    attachments: texts(raw.attachments),
+    snapshotOptions: (Array.isArray(raw.snapshot_options) ? raw.snapshot_options : []).flatMap((option) => (isRecord(option) && text(option.id) !== '' && text(option.as_of_date) !== '' ? [{ id: text(option.id), asOfDate: text(option.as_of_date) }] : [])),
+    version: count(raw.version),
+  };
+}
+
+/** The answer of a command: the status and the version of the resource. */
+export function toReportResult(raw: unknown): ReportCommandResult {
+  const answer = isRecord(raw) ? raw : {};
+  return { status: text(answer.status), version: count(answer.resource_version) };
+}

@@ -1,4 +1,5 @@
-import type { MneFormRow, MneObligationRow, MneRuleRow } from '@machvon/db';
+import type { MneFormRow, MneObligationRow, MneReportRow, MneRuleRow } from '@machvon/db';
+import type { MneFieldSource } from '@machvon/kernel';
 
 /** The legal confirmations a text names, as the ledger writes them: `[CXN-10]`, `[CXN-11]`. */
 const CXN_TAG = /\[(CXN-[A-Z0-9-]+)\]/g;
@@ -112,4 +113,77 @@ export function obligationViewOf(row: MneObligationRow): Record<string, unknown>
     awaiting_confirmation: row.ruleLegalConfirmationRef === null || row.formLegalConfirmationRef === null,
     cxn_refs: cxnRefsOf(row.ruleLegalBasis),
   };
+}
+
+/**
+ * A report as MNE-03 shows it: the cells of its form with the value each holds and whether it is locked (filled from a source), the snapshot it rests on, and the confirmations its form waits for. The figures
+ * come from the snapshot named in `snapshot`, so the screen can open the drill behind each cell; `snapshot_options` are the frozen snapshots a draft may be attached to.
+ */
+const SETTLED: readonly string[] = ['SUBMITTED_EXTERNAL', 'SUPERSEDED'];
+const DAY_MS = 86_400_000;
+
+/** How late a report is, as the calendar says it (BR-MNE-04): an open report by today against its due date, a filed one by what was stored when it was filed. */
+function latenessOf(row: MneReportRow, today: string): { isLate: boolean; daysLate: number | null } {
+  if (SETTLED.includes(row.status)) return { isLate: row.isLate, daysLate: row.isLate ? null : 0 };
+  const days = Math.max(0, Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${row.dueDate}T00:00:00Z`)) / DAY_MS));
+  return { isLate: days > 0, daysLate: days };
+}
+
+export function reportViewOf(row: MneReportRow, snapshotOptions: ReadonlyArray<{ id: string; asOfDate: string }>, today: string): Record<string, unknown> {
+  const meta = row.payload.meta;
+  const late = latenessOf(row, today);
+  return {
+    id: row.id,
+    form: { id: row.formId, code: row.formCode, revision: row.formRevision, title: row.formTitle, legal_confirmation_ref: row.formLegalConfirmationRef, watermark_text: row.watermarkText },
+    awaiting_confirmation: row.formLegalConfirmationRef === null,
+    cxn_refs: cxnRefsOf(row.watermarkText),
+    report_year: row.reportYear,
+    period_label: row.periodLabel,
+    period_id: row.periodId,
+    scope_unit: { id: row.scopeUnitId, code: row.unitCode, name: row.unitName },
+    project_id: row.projectId,
+    due_date: row.dueDate,
+    revision: row.revision,
+    status: row.status,
+    is_late: late.isLate,
+    days_late: late.daysLate,
+    snapshot: row.snapshotId === null ? null : { id: row.snapshotId, as_of_date: meta.as_of_date ?? null },
+    snapshot_options: snapshotOptions.map((option) => ({ id: option.id, as_of_date: option.asOfDate })),
+    fields: row.schema.fields.map((field) => ({
+      key: field.key,
+      label: field.label,
+      kind: field.kind,
+      required: field.required,
+      locked: field.source !== null,
+      source: field.source === null ? null : sourceViewOf(field.source),
+      value: field.source === null ? (row.payload.narrative[field.key] ?? null) : (row.payload.values[field.key] ?? null),
+    })),
+    attachments: row.payload.attachments,
+    payload_sha256: row.payloadSha256,
+    doc_document_id: row.docDocumentId,
+    supersedes_id: row.supersedesId,
+    correction_reason: row.correctionReason,
+    submitted_by: row.submittedBy,
+    approved_by: row.approvedBy,
+    created_by: row.createdBy,
+    version: row.version,
+  };
+}
+
+function sourceViewOf(source: MneFieldSource): Record<string, unknown> {
+  switch (source.kind) {
+    case 'SNAPSHOT_METRIC':
+      return { kind: source.kind, metric: source.metric };
+    case 'PROJECT_COUNT':
+      return { kind: source.kind, stage: source.stage };
+    case 'WARNING_COUNT':
+      return { kind: source.kind, severity: source.severity };
+    case 'APPROPRIATION_TOTAL':
+      return { kind: source.kind, plan_year: source.planYear };
+  }
+}
+
+/** A report as the audit trail and the events describe it (no cells: the figures are in the snapshot, the words in the report). */
+export function reportDiffOf(row: MneReportRow): Record<string, unknown> {
+  return { form_code: row.formCode, form_revision: row.formRevision, report_year: row.reportYear, period_label: row.periodLabel, scope_unit_id: row.scopeUnitId, project_id: row.projectId, snapshot_id: row.snapshotId, status: row.status, revision: row.revision };
 }

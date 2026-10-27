@@ -5,8 +5,8 @@ import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
 import { revisionBody, ruleBody } from './model';
 import type { RevisionValues, RuleValues } from './model';
-import { toForm, toGeneration, toObligationPage, toRule } from './types';
-import type { FormView, GenerationResult, ObligationPage, ReportKind, ReportStatus, RuleView } from './types';
+import { toForm, toGeneration, toObligationPage, toReport, toReportResult, toRule } from './types';
+import type { FormView, GenerationResult, ObligationPage, ReportCommandResult, ReportKind, ReportStatus, ReportView, RuleView } from './types';
 
 export const PAGE_SIZE = 100;
 
@@ -163,6 +163,62 @@ export function useGenerateObligations() {
   const { attempts, settled } = useCommandSupport();
   return useMutation<GenerationResult, Error, number>({
     mutationFn: async (year) => toGeneration(await client.command('generateMneObligations', { body: { report_year: year }, attempt: attempts.current.forPayload({ year }) })),
+    onSuccess: settled,
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** One report, in the units of the caller: what is shown depends on who asks, so the cache is of the member as well as the tenant. */
+export function useReport(id: string) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ReportView>({
+    queryKey: [...mneRoot(tenant?.id), 'report', tenant?.membershipId, id],
+    queryFn: async () => {
+      const report = toReport(await client.read('getMneReport', { path: { id } }));
+      if (report === undefined) throw new Error('the report could not be read');
+      return report;
+    },
+    enabled: tenant !== undefined && id !== '',
+    retry: false,
+  });
+}
+
+export interface EditReportInput {
+  id: string;
+  version: number;
+  /** The cells that changed; an emptied cell is null. */
+  narrative: Record<string, string | null>;
+  /** The frozen snapshot to attach (or to replace the one attached): the locked cells are filled again from it. */
+  snapshotId?: string | undefined;
+}
+
+/** Writes the text cells of a draft and, when one is named, attaches a snapshot (versioned: 409 VERSION_CONFLICT when the report moved). */
+export function useEditReport() {
+  const client = useApiClient();
+  const { attempts, settled } = useCommandSupport();
+  return useMutation<ReportCommandResult, Error, EditReportInput>({
+    mutationFn: async (input) =>
+      toReportResult(
+        await client.command('editMneReport', {
+          path: { id: input.id },
+          ifMatchVersion: input.version,
+          // `narrative` is a bare `object` in openapi.json, which the generator renders as a record of `never`: free JSON is the one field that needs the cast.
+          body: { narrative: input.narrative as Record<string, never>, ...(input.snapshotId === undefined ? {} : { snapshot_id: input.snapshotId }) },
+          attempt: attempts.current.forPayload(input),
+        }),
+      ),
+    onSuccess: settled,
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** Hands a draft in for review (versioned). */
+export function useSubmitReport() {
+  const client = useApiClient();
+  const { attempts, settled } = useCommandSupport();
+  return useMutation<ReportCommandResult, Error, { id: string; version: number }>({
+    mutationFn: async (input) => toReportResult(await client.command('submitMneReport', { path: { id: input.id }, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) })),
     onSuccess: settled,
     onError: (error) => attempts.current.ended(error),
   });

@@ -210,6 +210,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'MDM-37': () => import('../../screens/mdm/SuccessionScreen'),
   'MNE-01': () => import('../../screens/mne/ObligationCalendarScreen'),
   'MNE-02': () => import('../../screens/mne/FormCatalogueScreen'),
+  'MNE-03': () => import('../../screens/mne/ReportScreen'),
   'NOT-01': () => import('../../screens/not/InboxScreen'),
   'NOT-02': () => import('../../screens/not/NotificationDetailScreen'),
   'NOT-11': () => import('../../screens/not/QueueScreen'),

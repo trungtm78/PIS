@@ -840,6 +840,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     // A DRAFT report form and a DRAFT obligation rule of it, made by someone other than the callers: the MNE commands act on them.
     const mneFormId = id(0xd6, 1);
     const mneRuleId = id(0xd6, 2);
+    const mneReportId = id(0xd6, 4);
     await harness.owner(TENANT_A, [
       // The DOC template that the forms above name, published by the platform pack: a form is published only while its template is in force.
       [
@@ -858,6 +859,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         `insert into machvon.mne_obligation_rule (tenant_id, id, rule_code, form_id, reporting_role, recipient, frequency, due_rule_json, legal_basis, effective_from, revision, status, created_by, updated_by)
          values ($1, $2, 'MX-RULE', $3, 'INVESTOR', 'Matrix recipient', 'SEMIANNUAL', '{"period":"H1","month":7,"day":10}'::jsonb, 'Matrix legal basis', '2026-01-01', 1, 'DRAFT', $4, $4)`,
         [TENANT_A, mneRuleId, mneFormId, ACTOR],
+      ],
+      [
+        `insert into machvon.mne_report (tenant_id, id, form_id, report_year, period_label, scope_unit_id, due_date, revision, status, payload_json, created_by, updated_by)
+         values ($1, $2, $3, 2026, 'H1-2026', $4, date '2026-06-30', 1, 'DRAFT', '{}'::jsonb, $5, $5)`,
+        [TENANT_A, mneReportId, mneFormId, unitId(2), ACTOR],
       ],
     ]);
     // A DRAFT retention policy version made by someone other than the callers: the publication acts on it.
@@ -995,6 +1001,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       retentionDraftId,
       mneFormId,
       mneRuleId,
+      mneReportId,
       periodOpenId,
       periodSoftClosedId,
       periodLockedId,

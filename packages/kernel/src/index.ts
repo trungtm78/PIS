@@ -655,3 +655,5 @@ export { OPEN_TRANSFER_STATUSES, TRANSFER_DECISIONS, TRANSFER_SCOPES, TRANSFER_S
 export type { TransferDecision, TransferScope, TransferStatus } from './prj-transfer.ts';
 export { REALLOCATION_DECISIONS, REALLOCATION_STATUSES, belowFloor, decidedReallocation, netReductions, positiveVnd, reductionsOf } from './cap-reallocation.ts';
 export type { BelowFloor, LineHold, ReallocationDecision, ReallocationStatus } from './cap-reallocation.ts';
+export { MNE_FIELD_KINDS, MNE_REPORT_STATUSES, MNE_REPORT_TRANSITIONS, MNE_SNAPSHOT_METRICS, assertReportState, fitsKind, missingFields, narrativeFaults, parseReportSchema, periodEndOfLabel } from './mne-report.ts';
+export type { MneFieldKind, MneFieldSource, MneReportField, MneReportSchema, MneReportStatus, MneSnapshotMetric, NarrativeFault } from './mne-report.ts';

@@ -207,9 +207,18 @@ export class MneObligationStore {
     return rows.map(toObligation);
   }
 
+  /**
+   * The deadline that a rule gives the report of a period (the label of the period in the year), as the calendar would have written it, and the code of the form the rule asks for; undefined when the rule is not
+   * in force at the end of that period or asks nothing of it. Only that rule is evaluated: the calendar or the working days of another rule cannot stop it.
+   */
+  async dueDateFor(tx: TenantTx, ruleId: string, label: string, year: number, today: string): Promise<{ dueDate: string; formCode: string } | undefined> {
+    const found = (await this.candidates(tx, year, today, ruleId)).find((candidate) => candidate.label === label);
+    return found === undefined ? undefined : { dueDate: found.dueDate, formCode: found.rule.formCode };
+  }
+
   /** The rules in force at the end of each period of the year, with the period and the deadline each one gives. */
-  private async candidates(tx: TenantTx, year: number, today: string): Promise<Candidate[]> {
-    const rows = await this.rules.inWindow(tx, { from: `${year}-01-01`, until: `${year + 1}-01-01` });
+  private async candidates(tx: TenantTx, year: number, today: string, onlyRuleId?: string): Promise<Candidate[]> {
+    const rows = (await this.rules.inWindow(tx, { from: `${year}-01-01`, until: `${year + 1}-01-01` })).filter((rule) => onlyRuleId === undefined || rule.id === onlyRuleId);
     if (rows.length === 0) return [];
     const parsed = rows.map((rule) => ({ rule, due: parseDueRule(rule.frequency, rule.dueRuleJson) }));
     const working = await this.workingTest(tx, parsed.map((entry) => entry.due), year);

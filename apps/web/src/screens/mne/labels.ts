@@ -1,6 +1,7 @@
 import type { Translator } from '../../i18n';
 import type { FieldProblem, GenerationProblem, Phase, ProblemView } from './model';
-import type { Frequency, FormStatus, ReportKind, ReportStatus, ReportingRole } from './types';
+import type { ReportProblem } from './report-model';
+import type { FieldSource, Frequency, FormStatus, ReportKind, ReportStatus, ReportingRole } from './types';
 
 type T = Translator['t'];
 
@@ -163,5 +164,52 @@ export function generationMessage(t: T, problem: GenerationProblem): string {
       return t('mne.calendar.problem.session.text');
     case 'general':
       return t('mne.calendar.problem.general.text');
+  }
+}
+
+export function sourceLabel(t: T, source: FieldSource): string {
+  const detail = source.detail ?? '';
+  switch (source.kind) {
+    case 'SNAPSHOT_METRIC':
+      return t('mne.report.source.snapshotMetric', { detail });
+    case 'PROJECT_COUNT':
+      return t('mne.report.source.projectCount', { detail });
+    case 'WARNING_COUNT':
+      return t('mne.report.source.warningCount', { detail });
+    case 'APPROPRIATION_TOTAL':
+      return t('mne.report.source.appropriationTotal', { detail });
+  }
+}
+
+/** What a failed command on a report says; the cells the server named are listed by their labels. */
+export function reportProblemMessage(t: T, problem: ReportProblem, labelOf: (key: string) => string): string {
+  const fields = problem.fields.map(labelOf).join(', ');
+  switch (problem.reason) {
+    case 'conflict':
+      return t('mne.report.problem.conflict');
+    case 'stateInvalid':
+      return t('mne.report.problem.stateInvalid');
+    case 'snapshotRequired':
+      return t('mne.report.problem.snapshotRequired');
+    case 'snapshotNotFrozen':
+      return t('mne.report.problem.snapshotNotFrozen');
+    case 'locked':
+      return t('mne.report.problem.locked', { fields });
+    case 'missing':
+      return t('mne.report.problem.missing', { fields });
+    case 'formNotEffective':
+      return t('mne.report.problem.formNotEffective');
+    case 'exists':
+      return t('mne.report.problem.exists');
+    case 'invalid':
+      return t('mne.report.problem.invalid');
+    case 'notFound':
+      return t('mne.report.problem.notFound');
+    case 'denied':
+      return t('mne.report.problem.denied');
+    case 'session':
+      return t('mne.report.problem.session');
+    case 'general':
+      return t('mne.report.problem.general');
   }
 }

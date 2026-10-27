@@ -152,6 +152,8 @@ export interface MatrixTargets {
   /** A DRAFT report form and a DRAFT obligation rule of it in tenant A, made by someone other than the callers (both version 1). */
   mneFormId: string;
   mneRuleId: string;
+  /** A DRAFT report of that form for unit 2 of tenant A, made by someone other than the callers (version 1). */
+  mneReportId: string;
   /** A SURVEYED land parcel of the CONCEPT project of unit 2 of tenant A, answered for by unit 2 (version 1). */
   parcelId: string;
   /** A land section of the same project with no contract and nothing handed over (version 1). */
@@ -1101,6 +1103,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   publishMneObligationRule: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/mne-obligation-rules/${t.mneRuleId}/publish`, ifMatch: '"1"', body: {} }),
+  },
+  // A report is found by its id in the tenant of the caller: one of tenant A is a 404 for anyone else, whatever they hold.
+  createMneReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/mne-reports', body: { form_id: t.mneFormId, report_year: 2026, period_label: 'H1-2026', scope_unit_id: t.unit2 } }),
+  },
+  editMneReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/revisions`, ifMatch: '"1"', body: { narrative: {} } }),
+  },
+  submitMneReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-reports/${t.mneReportId}/submit`, ifMatch: '"1"', body: {} }),
   },
   // The rules in force and the units are the caller's own: a caller of another tenant has no rule (422 NO_EFFECTIVE_RULE) and never touches tenant A.
   generateMneObligations: {
