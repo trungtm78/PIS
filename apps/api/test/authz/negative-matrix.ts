@@ -894,6 +894,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/explanation-requests/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'ACCEPTED', review_note: 'Matrix attempt to conclude' } }),
   },
+  requestProjectTransfer: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.legalHoldId}/transfers`, ifMatch: '"1"', body: { to_unit_id: t.unit2, transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Matrix attempt to transfer a project' } }),
+  },
+  decideProjectTransfer: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-transfers/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix attempt to decide a transfer' } }),
+  },
   createReportExport: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/report-exports', body: { snapshot_id: t.legalHoldId, format: 'CSV' } }),

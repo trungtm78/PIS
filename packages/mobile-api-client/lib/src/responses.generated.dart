@@ -457,6 +457,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getOutgoingDocument': asObject,
   'getPaymentChain': asObject,
   'getProjectLifecycle': asObject,
+  'getProjectTransferImpact': PrjTransferImpactResponse.fromJson,
   'getQualityAcceptance': QmsAcceptanceLineResponse.fromJson,
   'getQualityScorecard': asObject,
   'getReconciliationItem': PayReconciliationItemResponse.fromJson,
@@ -560,6 +561,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProcurementResults': BidResultListResponse.fromJson,
   'listProjectPipeline': asObject,
   'listProjectRisks': asObject,
+  'listProjectTransfers': PrjProjectTransferPageResponse.fromJson,
   'listQualityAcceptances': QmsAcceptanceListResponse.fromJson,
   'listReallocationProposals': asObject,
   'listReconciliationItems': PayReconciliationItemPageResponse.fromJson,
@@ -15019,6 +15021,350 @@ final class PrjNationalCodeFileUploadResponse implements ResponseModel {
         'format': format,
         'columns': columns,
         'row_count': rowCount,
+        ...extra,
+      };
+}
+
+final class PrjProjectTransferPageResponse implements ResponseModel {
+  const PrjProjectTransferPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjProjectTransferPageResponse.fromJson(Object? json, [String path = 'PrjProjectTransferPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjProjectTransferPageResponse(
+      items: requiredField(map, path, 'items', asList(PrjProjectTransferResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<PrjProjectTransferResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PrjProjectTransferResponse implements ResponseModel {
+  const PrjProjectTransferResponse({
+    required this.id,
+    required this.project,
+    required this.transferScope,
+    required this.fromUnit,
+    required this.toUnit,
+    required this.effectiveDate,
+    required this.decisionDocumentId,
+    required this.reason,
+    required this.status,
+    required this.approvedBy,
+    required this.decisionReason,
+    required this.decidedAt,
+    required this.appliedAt,
+    required this.createdAt,
+    required this.createdBy,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjProjectTransferResponse.fromJson(Object? json, [String path = 'PrjProjectTransferResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjProjectTransferResponse(
+      id: requiredField(map, path, 'id', asString),
+      project: requiredField(map, path, 'project', PrjProjectTransferResponseProject.fromJson),
+      transferScope: requiredField(map, path, 'transfer_scope', asString),
+      fromUnit: requiredField(map, path, 'from_unit', PrjProjectTransferResponseFromUnit.fromJson),
+      toUnit: requiredField(map, path, 'to_unit', PrjProjectTransferResponseToUnit.fromJson),
+      effectiveDate: requiredField(map, path, 'effective_date', asString),
+      decisionDocumentId: requiredField(map, path, 'decision_document_id', asAny),
+      reason: requiredField(map, path, 'reason', asString),
+      status: requiredField(map, path, 'status', asString),
+      approvedBy: requiredField(map, path, 'approved_by', asAny),
+      decisionReason: requiredField(map, path, 'decision_reason', asAny),
+      decidedAt: requiredField(map, path, 'decided_at', asAny),
+      appliedAt: requiredField(map, path, 'applied_at', asAny),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'project', 'transfer_scope', 'from_unit', 'to_unit', 'effective_date', 'decision_document_id', 'reason', 'status', 'approved_by', 'decision_reason', 'decided_at', 'applied_at', 'created_at', 'created_by', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final PrjProjectTransferResponseProject project;
+  final String transferScope;
+  final PrjProjectTransferResponseFromUnit fromUnit;
+  final PrjProjectTransferResponseToUnit toUnit;
+  final String effectiveDate;
+  final Object? decisionDocumentId;
+  final String reason;
+  final String status;
+  final Object? approvedBy;
+  final Object? decisionReason;
+  final Object? decidedAt;
+  final Object? appliedAt;
+  final String createdAt;
+  final String createdBy;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project': project.toJson(),
+        'transfer_scope': transferScope,
+        'from_unit': fromUnit.toJson(),
+        'to_unit': toUnit.toJson(),
+        'effective_date': effectiveDate,
+        'decision_document_id': decisionDocumentId,
+        'reason': reason,
+        'status': status,
+        'approved_by': approvedBy,
+        'decision_reason': decisionReason,
+        'decided_at': decidedAt,
+        'applied_at': appliedAt,
+        'created_at': createdAt,
+        'created_by': createdBy,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class PrjProjectTransferResponseFromUnit implements ResponseModel {
+  const PrjProjectTransferResponseFromUnit({
+    required this.id,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjProjectTransferResponseFromUnit.fromJson(Object? json, [String path = 'PrjProjectTransferResponseFromUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjProjectTransferResponseFromUnit(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class PrjProjectTransferResponseProject implements ResponseModel {
+  const PrjProjectTransferResponseProject({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjProjectTransferResponseProject.fromJson(Object? json, [String path = 'PrjProjectTransferResponseProject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjProjectTransferResponseProject(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class PrjProjectTransferResponseToUnit implements ResponseModel {
+  const PrjProjectTransferResponseToUnit({
+    required this.id,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjProjectTransferResponseToUnit.fromJson(Object? json, [String path = 'PrjProjectTransferResponseToUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjProjectTransferResponseToUnit(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class PrjTransferImpactResponse implements ResponseModel {
+  const PrjTransferImpactResponse({
+    required this.projectId,
+    required this.transferScope,
+    required this.fromUnit,
+    required this.toUnit,
+    required this.reports,
+    required this.snapshotLines,
+    required this.planLines,
+    required this.usersGaining,
+    required this.usersLosing,
+    required this.membersChecked,
+    required this.partial,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjTransferImpactResponse.fromJson(Object? json, [String path = 'PrjTransferImpactResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjTransferImpactResponse(
+      projectId: requiredField(map, path, 'project_id', asString),
+      transferScope: requiredField(map, path, 'transfer_scope', asString),
+      fromUnit: requiredField(map, path, 'from_unit', PrjTransferImpactResponseFromUnit.fromJson),
+      toUnit: requiredField(map, path, 'to_unit', PrjTransferImpactResponseToUnit.fromJson),
+      reports: requiredField(map, path, 'reports', asInt),
+      snapshotLines: requiredField(map, path, 'snapshot_lines', asInt),
+      planLines: requiredField(map, path, 'plan_lines', asInt),
+      usersGaining: requiredField(map, path, 'users_gaining', asInt),
+      usersLosing: requiredField(map, path, 'users_losing', asInt),
+      membersChecked: requiredField(map, path, 'members_checked', asInt),
+      partial: requiredField(map, path, 'partial', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'project_id', 'transfer_scope', 'from_unit', 'to_unit', 'reports', 'snapshot_lines', 'plan_lines', 'users_gaining', 'users_losing', 'members_checked', 'partial', 'as_of'}, strict: true),
+    );
+  }
+
+  final String projectId;
+  final String transferScope;
+  final PrjTransferImpactResponseFromUnit fromUnit;
+  final PrjTransferImpactResponseToUnit toUnit;
+  final int reports;
+  final int snapshotLines;
+  final int planLines;
+  final int usersGaining;
+  final int usersLosing;
+  final int membersChecked;
+  final bool partial;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'transfer_scope': transferScope,
+        'from_unit': fromUnit.toJson(),
+        'to_unit': toUnit.toJson(),
+        'reports': reports,
+        'snapshot_lines': snapshotLines,
+        'plan_lines': planLines,
+        'users_gaining': usersGaining,
+        'users_losing': usersLosing,
+        'members_checked': membersChecked,
+        'partial': partial,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PrjTransferImpactResponseFromUnit implements ResponseModel {
+  const PrjTransferImpactResponseFromUnit({
+    required this.id,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjTransferImpactResponseFromUnit.fromJson(Object? json, [String path = 'PrjTransferImpactResponseFromUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjTransferImpactResponseFromUnit(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class PrjTransferImpactResponseToUnit implements ResponseModel {
+  const PrjTransferImpactResponseToUnit({
+    required this.id,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjTransferImpactResponseToUnit.fromJson(Object? json, [String path = 'PrjTransferImpactResponseToUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjTransferImpactResponseToUnit(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
         ...extra,
       };
 }

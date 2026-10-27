@@ -651,3 +651,5 @@ export { ADJUSTMENT_MONTH as FORECAST_ADJUSTMENT_MONTH, REALLOCATION_THRESHOLD_P
 export type { Estimate, EstimateCoverage, EstimateInput, EstimateMethod, EstimatedMonth, MonthSource } from './dis-forecast.ts';
 export { EXPLANATION_DECISIONS, EXPLANATION_DUE_WORKING_DAYS, EXPLANATION_STATUSES, EXPLANATION_SUBJECTS, MANUAL_EXPLANATION_TRIGGER, OPEN_EXPLANATION_STATUSES, answeredStatus, becomesOverdue, canReview, canRespond, concludedStatus, dueMomentOf, isAnswerLate } from './prj-explanation.ts';
 export type { ExplanationDecision, ExplanationStatus, ExplanationSubject } from './prj-explanation.ts';
+export { OPEN_TRANSFER_STATUSES, TRANSFER_DECISIONS, TRANSFER_SCOPES, TRANSFER_STATUSES, UNTRANSFERABLE_PROJECT_STATUSES, decidedStatus, isDueToday, stillFromUnit } from './prj-transfer.ts';
+export type { TransferDecision, TransferScope, TransferStatus } from './prj-transfer.ts';

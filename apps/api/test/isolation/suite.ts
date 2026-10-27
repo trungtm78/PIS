@@ -493,6 +493,12 @@ export const EXPLANATION_FIXTURES: Readonly<Record<TenantName, { id: string; que
   'TNT-B': { id: '00000000-0000-4000-b0fb-000000000001', question: 'Beta tenant question about the missing weekly report 0001' },
 };
 
+/** A request to transfer a project of each tenant (the reason is distinctive: what a tenant says about its own units is internal to it). */
+export const TRANSFER_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0fc-000000000001', reason: 'Alpha tenant reason to move the project to the other unit 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0fc-000000000001', reason: 'Beta tenant reason to move the project to the other unit 0001' },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -920,6 +926,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'warning dedupe key', value: EARLY_WARNING_FIXTURES[tenant].dedupeKey },
     { kind: 'explanation request id', value: EXPLANATION_FIXTURES[tenant].id },
     { kind: 'explanation question', value: EXPLANATION_FIXTURES[tenant].question },
+    { kind: 'transfer request id', value: TRANSFER_FIXTURES[tenant].id },
+    { kind: 'transfer reason', value: TRANSFER_FIXTURES[tenant].reason },
     { kind: 'period snapshot planned amount', value: PERIOD_SNAPSHOT_FIXTURES[tenant].planVnd },
     { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },
     { kind: 'weekly report hash', value: REPORT_FIXTURES[tenant].payloadHash },

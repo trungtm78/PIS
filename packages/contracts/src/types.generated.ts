@@ -14761,6 +14761,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/projects/{id}/transfer-impact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Xem trước ảnh hưởng của việc chuyển dự án (báo cáo, dòng kế hoạch, người được/mất phạm vi) */
+        get: operations["getProjectTransferImpact"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-transfers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách yêu cầu chuyển dự án theo phạm vi */
+        get: operations["listProjectTransfers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -21338,6 +21372,77 @@ export interface components {
             coverage: "COMPLETE" | "PARTIAL" | "NONE";
             reallocation_candidate: boolean | null;
             method: string;
+        };
+        PrjProjectTransfer: {
+            /** Format: uuid */
+            id: string;
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            };
+            /** @enum {string} */
+            transfer_scope: "OWNER_UNIT" | "INVESTOR_UNIT";
+            from_unit: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            to_unit: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            /** Format: date */
+            effective_date: string;
+            decision_document_id: string | null;
+            reason: string;
+            /** @enum {string} */
+            status: "REQUESTED" | "APPROVED" | "APPLIED" | "REJECTED" | "CANCELLED";
+            approved_by: string | null;
+            decision_reason: string | null;
+            decided_at: string | null;
+            applied_at: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            created_by: string;
+            version: number;
+        };
+        PrjProjectTransferPage: {
+            items: components["schemas"]["PrjProjectTransfer"][];
+            next_cursor: string | null;
+            /** Format: date */
+            as_of: string;
+        };
+        PrjTransferImpact: {
+            /** Format: uuid */
+            project_id: string;
+            /** @enum {string} */
+            transfer_scope: "OWNER_UNIT" | "INVESTOR_UNIT";
+            from_unit: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            to_unit: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            /** @description Report revisions of the project: they stay with the unit that held it on their day. */
+            reports: number;
+            /** @description Lines of snapshots of the project: they keep the unit they were built under. */
+            snapshot_lines: number;
+            /** @description Capital plan lines of the project: they follow the project. */
+            plan_lines: number;
+            users_gaining: number;
+            users_losing: number;
+            members_checked: number;
+            partial: boolean;
+            /** Format: date */
+            as_of: string;
         };
     };
     responses: never;
@@ -109052,6 +109157,200 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DisReportExportDownload"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getProjectTransferImpact: {
+        parameters: {
+            query: {
+                to_unit_id: string;
+                transfer_scope: "OWNER_UNIT" | "INVESTOR_UNIT";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrjTransferImpact"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProjectTransfers: {
+        parameters: {
+            query?: {
+                project_id?: string;
+                status?: "REQUESTED" | "APPROVED" | "APPLIED" | "REJECTED" | "CANCELLED";
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrjProjectTransferPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

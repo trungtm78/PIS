@@ -328,7 +328,9 @@
     "withdrawMyConsent",
     "requestExplanation",
     "reviewExplanation",
-    "submitExplanation"
+    "submitExplanation",
+    "requestProjectTransfer",
+    "decideProjectTransfer"
   ],
   "controlCommands": [
     "assignTenantOwner",

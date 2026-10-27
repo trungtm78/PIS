@@ -191,6 +191,14 @@ export class DisSnapshotStore {
     const visibleRows = await tx.query<{ id: string; unit_id: string }>(`select p.id, p.owner_unit_id as unit_id from ${SCOPE_FROM} where ${visible.sql}`, visible.params);
     const units = new Map(visibleRows.map((row) => [row.id, row.unit_id]));
     const { period, treasuryCutoffDate } = input;
+    // A project that was transferred after the period is attributed to the owner unit it had on the last day of the period (ST-PRJ-007): the first transfer applied after that day names the unit it left.
+    const moved = await tx.query<{ project_id: string; from_unit_id: string }>(
+      `select distinct on (project_id) project_id, from_unit_id from machvon.project_transfer
+        where status = 'APPLIED' and transfer_scope = 'OWNER_UNIT' and effective_date > $1::date and project_id = any($2::uuid[])
+        order by project_id, effective_date, applied_at, id`,
+      [period.endDate, [...units.keys()]],
+    );
+    for (const row of moved) units.set(row.project_id, row.from_unit_id);
 
     // The plan version in force at the end of the period: the newest one published up to that day, in the fiscal year of the period, and what it allocated to each cell.
     const plans = await tx.query<{ project_id: string; plan_version_id: string; bucket: PlanCell['bucket']; budget_level: PlanCell['budgetLevel'] | null; amount: string; origin: string | null; fund_source_version_id: string | null }>(

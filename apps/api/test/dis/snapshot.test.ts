@@ -303,6 +303,29 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
       expect(counted).toContainEqual({ name: 'dis_snapshot_build_total', labels: { kind: 'PERIOD_CLOSE' } });
     });
 
+    it('attributes a project that was transferred after the period to the unit it had on the last day of the period, and one that was transferred before it to the unit it has (ST-PRJ-007)', async () => {
+      const after = await seedProject(DEPARTMENT);
+      const before = await seedProject(DEPARTMENT);
+      const period = week();
+      // The first project moved to another department after the period ended, the second before it began.
+      await seedReplica([
+        ['update machvon.project set owner_unit_id = $2::uuid where id = $1::uuid', [after.projectId, unitId(ELSEWHERE)]],
+        ['update machvon.project set owner_unit_id = $2::uuid where id = $1::uuid', [before.projectId, unitId(ELSEWHERE)]],
+        [
+          `insert into machvon.project_transfer (tenant_id, id, project_id, from_unit_id, to_unit_id, transfer_scope, effective_date, reason, status, approved_by, decision_reason, decided_at, applied_at, created_by, updated_by)
+           select $1, gen_random_uuid(), x.project_id, $4, $5, 'OWNER_UNIT', x.day::date, 'Moved to another department', 'APPLIED', $6, 'Decided', now(), now(), $7, $7
+             from (values ($2::uuid, $8::text), ($3::uuid, $9::text)) as x(project_id, day)`,
+          [TENANT_A, after.projectId, before.projectId, unitId(DEPARTMENT), unitId(ELSEWHERE), memberId(MAKER), memberId(BUILDER), new Date(Date.parse(`${period.end}T00:00:00Z`) + 3 * 86_400_000).toISOString().slice(0, 10), new Date(Date.parse(`${period.start}T00:00:00Z`) - 3 * 86_400_000).toISOString().slice(0, 10)],
+        ],
+      ]);
+      await softClose(period.id);
+      const snapshotId = idOf(await build(closeBody(period)));
+      const read = await lines(snapshotId, BUILDER, '');
+      const unitOf = (code: string): unknown => items(read).find((line) => line.project_code === code)?.unit_id;
+      expect(unitOf(after.code)).toBe(unitId(DEPARTMENT));
+      expect(unitOf(before.code)).toBe(unitId(ELSEWHERE));
+    });
+
     it('keeps one audit row of the build without any amount, raises one snapshot.built.v1 with the day of the cutoff and the state of the definitions', async () => {
       const world = await standard();
       const snapshotId = idOf(await build(closeBody(world.period)));

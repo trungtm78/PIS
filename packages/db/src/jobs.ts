@@ -67,6 +67,8 @@ export const JOB_INTERVAL_SECONDS = {
   'land-stage-late': 3600,
   // Every 15 minutes: a request for an explanation that was asked or returned and is past its due moment becomes overdue within the quarter of an hour (ST-PRJ-006); the pass is idempotent.
   'prj-explanation-overdue': 900,
+  // Every 15 minutes: an approved transfer of a project between units whose day has come (by the date in Vietnam) is made within the quarter of an hour of the day starting (ST-PRJ-007); the pass is idempotent.
+  'prj-transfer-apply': 900,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
   'reconciliation-overdue': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the reminders of the verification deadline of a settlement go once a morning wherever the process started; the pass is idempotent (ST-PAY-009).
@@ -224,6 +226,7 @@ export interface StandardJobDeps {
   licenseStatus?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   stageLate?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   explanationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  transferApply?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Compares the balances of capital with their ledger, once a night, and reports a difference without correcting it (ST-CAP-006). */
@@ -585,6 +588,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overdueExplanations.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const transferApply = deps.transferApply;
+  if (transferApply !== undefined) {
+    handlers.push({
+      name: 'prj-transfer-apply',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await transferApply.run(workerContext(tenantId), now)));
       },
     });
   }

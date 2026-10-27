@@ -22,7 +22,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -251,6 +251,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getDisbursementRates',
   'getDisbursementForecast',
   'listExplanationRequests',
+  'listProjectTransfers',
+  'requestProjectTransfer',
+  'decideProjectTransfer',
+  'getProjectTransferImpact',
   'requestExplanation',
   'submitExplanation',
   'reviewExplanation',
@@ -740,6 +744,11 @@ const INSERT_EXPLANATION = `insert into machvon.explanation_request
   (tenant_id, id, subject_kind, project_id, period_id, warning_id, trigger_code, question, requested_from_membership_id, due_at, original_due_at, status, created_by, updated_by)
   select $1, $2, 'PROJECT', $3, $4, $5, 'EW-ISO', $6, $7::uuid, now() + interval '3 days', now() + interval '3 days', 'REQUESTED', $7::uuid, $7::uuid
    where not exists (select 1 from machvon.explanation_request where id = $2::uuid)`;
+
+const INSERT_TRANSFER = `insert into machvon.project_transfer
+  (tenant_id, id, project_id, from_unit_id, to_unit_id, transfer_scope, effective_date, reason, status, created_by, updated_by)
+  select $1, $2, $3, $4, $5, 'OWNER_UNIT', current_date + 30, $6, 'REQUESTED', $7::uuid, $7::uuid
+   where not exists (select 1 from machvon.project_transfer where id = $2::uuid)`;
 
 const INSERT_REPORT_LINE = `insert into machvon.funding_snapshot_line
   (tenant_id, id, report_revision_id, bucket, budget_level, disbursed_cumulative_vnd, next_month_registered_vnd, allocated_vnd)
@@ -1381,6 +1390,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_WARNING_RULE, [tenantId, warning.ruleId, warning.ruleName, warning.legalBasis, MEMBERSHIP_ID]);
     await client.query(INSERT_WARNING, [tenantId, warning.warningId, warning.ruleId, project.id, home, period.id, snapshot.id, warning.dedupeKey, MEMBERSHIP_ID]);
     await client.query(INSERT_EXPLANATION, [tenantId, EXPLANATION_FIXTURES[tenant].id, project.id, period.id, null, EXPLANATION_FIXTURES[tenant].question, MEMBERSHIP_ID]);
+    await client.query(INSERT_TRANSFER, [tenantId, TRANSFER_FIXTURES[tenant].id, project.id, home, UNIT_FIXTURES[tenant][1]?.id ?? home, TRANSFER_FIXTURES[tenant].reason, MEMBERSHIP_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);

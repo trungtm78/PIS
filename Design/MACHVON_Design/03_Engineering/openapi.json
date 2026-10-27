@@ -126030,6 +126030,298 @@
           "SCOPE_DENIED"
         ]
       }
+    },
+    "/projects/{id}/transfer-impact": {
+      "get": {
+        "operationId": "getProjectTransferImpact",
+        "summary": "Xem trước ảnh hưởng của việc chuyển dự án (báo cáo, dòng kế hoạch, người được/mất phạm vi)",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "project.transfer.request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "to_unit_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "transfer_scope",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OWNER_UNIT",
+                "INVESTOR_UNIT"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrjTransferImpact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Counts only: no row of the reports, the plan or the users is returned.",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED",
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/project-transfers": {
+      "get": {
+        "operationId": "listProjectTransfers",
+        "summary": "Danh sách yêu cầu chuyển dự án theo phạm vi",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "project.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "REQUESTED",
+                "APPROVED",
+                "APPLIED",
+                "REJECTED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrjProjectTransferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope",
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -150327,6 +150619,298 @@
           "reallocation_candidate",
           "method"
         ]
+      },
+      "PrjProjectTransfer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project",
+          "transfer_scope",
+          "from_unit",
+          "to_unit",
+          "effective_date",
+          "decision_document_id",
+          "reason",
+          "status",
+          "approved_by",
+          "decision_reason",
+          "decided_at",
+          "applied_at",
+          "created_at",
+          "created_by",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "transfer_scope": {
+            "type": "string",
+            "enum": [
+              "OWNER_UNIT",
+              "INVESTOR_UNIT"
+            ]
+          },
+          "from_unit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "to_unit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "decision_document_id": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "APPROVED",
+              "APPLIED",
+              "REJECTED",
+              "CANCELLED"
+            ]
+          },
+          "approved_by": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_reason": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decided_at": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "applied_at": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "PrjProjectTransferPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrjProjectTransfer"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PrjTransferImpact": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "transfer_scope",
+          "from_unit",
+          "to_unit",
+          "reports",
+          "snapshot_lines",
+          "plan_lines",
+          "users_gaining",
+          "users_losing",
+          "members_checked",
+          "partial",
+          "as_of"
+        ],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "transfer_scope": {
+            "type": "string",
+            "enum": [
+              "OWNER_UNIT",
+              "INVESTOR_UNIT"
+            ]
+          },
+          "from_unit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "to_unit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "reports": {
+            "type": "integer",
+            "description": "Report revisions of the project: they stay with the unit that held it on their day."
+          },
+          "snapshot_lines": {
+            "type": "integer",
+            "description": "Lines of snapshots of the project: they keep the unit they were built under."
+          },
+          "plan_lines": {
+            "type": "integer",
+            "description": "Capital plan lines of the project: they follow the project."
+          },
+          "users_gaining": {
+            "type": "integer"
+          },
+          "users_losing": {
+            "type": "integer"
+          },
+          "members_checked": {
+            "type": "integer"
+          },
+          "partial": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          }
+        }
       }
     }
   }
