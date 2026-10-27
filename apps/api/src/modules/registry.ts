@@ -4,6 +4,7 @@ import type { ModuleDescriptor } from './module-descriptor';
 import { admModule } from './adm';
 import { astModule } from './ast';
 import { audModule } from './aud';
+import { biModule } from './bi';
 import { bidModule } from './bid';
 import { capModule } from './cap';
 import { ctrModule } from './ctr';
@@ -27,7 +28,7 @@ import { sasModule } from './sas';
 import { searchModule } from './search';
 
 /** Every business module of the API, sorted by code. A slice adds one line here (one import and one entry). */
-export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, bidModule, capModule, ctrModule, dgvModule, disModule, docModule, filesModule, homeModule, iamModule, issModule, lndModule, mdmModule, mneModule, notificationsModule, orchestrationModule, payModule, pmtModule, prjModule, qmsModule, sasModule, searchModule];
+export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, biModule, bidModule, capModule, ctrModule, dgvModule, disModule, docModule, filesModule, homeModule, iamModule, issModule, lndModule, mdmModule, mneModule, notificationsModule, orchestrationModule, payModule, pmtModule, prjModule, qmsModule, sasModule, searchModule];
 
 function activeModules(options: AppModuleOptions, modules: readonly ModuleDescriptor[]): ModuleDescriptor[] {
   const codes = new Set<string>();

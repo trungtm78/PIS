@@ -1,0 +1,18 @@
+# A metric of the platform as code (ST-BI-001, BI 3 F1). A change here is reviewed in a pull request and reaches the registry
+# through the sync of the deploy pipeline; a tenant cannot change it. Changing what the number means (grain, unit, kind, expression,
+# numerator, denominator) under this code needs a later effective_from, or a new code.
+code: disbursement_rate
+grain: project
+aggregation_type: ratio
+numerator:
+  op: sum
+  args:
+    - { op: field, name: GIAI_NGAN }
+denominator:
+  op: sum
+  args:
+    - { op: field, name: KE_HOACH_TTG }
+unit: percent
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, fund]
+effective_from: "2026-01-01"

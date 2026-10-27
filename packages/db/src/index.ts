@@ -901,3 +901,5 @@ export { HomeReadStore } from './home-reads-store.ts';
 export type { HomeExplanation, HomeLeader, HomeRankingRow, HomeRule } from './home-reads-store.ts';
 export { HomeWorkStore } from './home-work-store.ts';
 export type { WorkRow } from './home-work-store.ts';
+export { BiMetricStore, METRIC_ORIGINS, METRIC_STATUSES } from './bi-metric-store.ts';
+export type { MetricFilter, MetricOrigin, MetricPage, MetricRow, MetricStatus, SyncRun, SyncRunInput, SyncStatus, TenantMetricInput } from './bi-metric-store.ts';

@@ -572,6 +572,12 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
   },
 };
 
+/** A metric of each tenant's registry (the code and the commit it came from are distinctive). */
+export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string }>> = {
+  'TNT-A': { metricId: '00000000-0000-4000-a0b1-000000000001', metricCode: 'alpha_rate_0001', sourceCommit: 'alpha0001commit' },
+  'TNT-B': { metricId: '00000000-0000-4000-b0b1-000000000001', metricCode: 'beta_rate_0001', sourceCommit: 'beta0001commit' },
+};
+
 /** An Active signing certificate of each tenant (its fingerprint and serial are distinctive; tenant administration data). */
 export const CERTIFICATE_FIXTURES: Readonly<Record<TenantName, { id: string; fingerprint: string; serial: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a00e-000000000001', fingerprint: 'a1'.repeat(32), serial: 'ALPHA0C0E71F' },
@@ -783,6 +789,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'obligation report id', value: MNE_FIXTURES[tenant].reportId },
     { kind: 'export package id', value: MNE_FIXTURES[tenant].packageId },
     { kind: 'export package hash', value: MNE_FIXTURES[tenant].packageSha256 },
+    { kind: 'metric id', value: BI_FIXTURES[tenant].metricId },
+    { kind: 'metric code', value: BI_FIXTURES[tenant].metricCode },
+    { kind: 'metric source commit', value: BI_FIXTURES[tenant].sourceCommit },
     { kind: 'glossary term id', value: GLOSSARY_FIXTURES[tenant].termId },
     { kind: 'glossary term code', value: GLOSSARY_FIXTURES[tenant].termCode },
     { kind: 'glossary term definition', value: GLOSSARY_FIXTURES[tenant].definition },

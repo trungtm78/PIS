@@ -1080,6 +1080,29 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  // The bundle named is looked up in the caller's own tenant: a caller without the right to sync is refused before it is read.
+  syncMetricRegistry: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/bi/metric-registry-syncs', body: { source_commit: 'matrix0', bundle_object_key: 'tenants/matrix/document/none', bundle_sha256: 'a'.repeat(64) } }),
+  },
+  createTenantMetricDefinition: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/bi/metric-definitions',
+      body: {
+        code: 't_matrix',
+        grain: 'project',
+        aggregation_type: 'additive',
+        expression_ast: { op: 'sum', args: [{ op: 'field', name: 'A' }] },
+        unit: 'VND',
+        null_policy: 'NULL_NOT_ZERO',
+        dimension_codes: [],
+        dataset_id: '00000000-0000-4000-8000-0000000000d1',
+        effective_from: '2026-01-01',
+      },
+    }),
+  },
   publishMneForm: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/mne-forms/${t.mneFormId}/publish`, ifMatch: '"1"', body: {} }),
