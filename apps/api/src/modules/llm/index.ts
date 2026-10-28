@@ -1,11 +1,14 @@
 import { defineModule } from '../module-descriptor';
 import { LlmEvalController } from './eval.controller';
 import { LlmFinopsController } from './finops.controller';
+import { LlmGatewayController } from './gateway.controller';
+import { LlmGatewayService } from './gateway.service';
 import { LlmKeyController } from './key.controller';
 import { MockEvalRunner } from './mock-eval-runner';
+import { MockAiGateway } from './mock-gateway';
 import { InMemoryVault, MockLiteLlm } from './mock-key-ports';
 import { LlmRegistryController } from './registry.controller';
-import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_VAULT } from './tokens';
+import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_GATEWAY, LLM_VAULT } from './tokens';
 
 /**
  * LLM, the AI gateway: the providers and models a tenant may send data to and the classification matrix that routes each class of data (ST-LLM-001), the virtual keys that let a service call a model (ST-LLM-002), the budgets, price versions and spend (ST-LLM-003), and the prompts, evaluations and profiles with their release gate (ST-LLM-004).
@@ -13,10 +16,12 @@ import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_VAULT } from './tokens';
  */
 export const llmModule = defineModule({
   code: 'LLM',
-  controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController],
+  controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController],
   providers: [
     { provide: LLM_ADMIN, useClass: MockLiteLlm },
     { provide: LLM_VAULT, useClass: InMemoryVault },
     { provide: LLM_EVAL_RUNNER, useClass: MockEvalRunner },
+    { provide: LLM_GATEWAY, useClass: MockAiGateway },
+    LlmGatewayService,
   ],
 });

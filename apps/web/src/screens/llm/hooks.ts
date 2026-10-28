@@ -1,8 +1,10 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
+import { filterQuery, toRequestPage, toRouteDecision } from './gateway-model';
+import type { RequestFilter, RequestPage, RouteDecision } from './gateway-model';
 import { datasetBody, profileBody, promptBody, toDataset, toProfile, toPrompt, toRun } from './eval-model';
 import type { DatasetEntry, DatasetValues, ProfileEntry, ProfileValues, PromptEntry, PromptValues, RunEntry } from './eval-model';
 import { budgetBody, keyBody, modelBody, policyBody, priceBody, providerBody, toBudget, toKey, toModel, toPolicyBook, toPrice, toProvider, toReservationPage, toSpend } from './llm-model';
@@ -321,4 +323,36 @@ export interface ModelApproval {
 
 export function useApproveModel() {
   return useRegistryCommand<ModelApproval>((client, input, attempt) => client.command('approveAiModel', { path: { id: input.modelId }, ifMatchVersion: input.version, attempt }));
+}
+
+// ---- the records of the gateway (ST-LLM-005) -------------------------------------------------------------------------------------------------
+
+export const REQUEST_PAGE = 50;
+
+/** The requests a page at a time, newest first, narrowed by the filter; the first page also carries the figures of the month. */
+export function useRequests(filter: RequestFilter) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useInfiniteQuery<RequestPage, Error, { pages: RequestPage[] }, readonly unknown[], string | undefined>({
+    queryKey: [...llmRoot(tenant?.id), 'requests', filter, tenant?.membershipId],
+    initialPageParam: undefined,
+    queryFn: async ({ pageParam }) => toRequestPage(await client.read('listAiRequests', { query: { limit: REQUEST_PAGE, ...filterQuery(filter), ...(pageParam === undefined ? {} : { cursor: pageParam }) } })),
+    getNextPageParam: (last) => last.next,
+    // A new filter keeps the list that is on the screen until the new one is there: the fields the reader is typing in are not taken away.
+    placeholderData: keepPreviousData,
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** How one request was classified and routed; nothing is read until a request is chosen. */
+export function useRouteDecision(requestId: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<RouteDecision | null>({
+    queryKey: [...llmRoot(tenant?.id), 'route', requestId, tenant?.membershipId],
+    queryFn: async () => toRouteDecision(await client.read('getAiRequestRoute', { path: { id: requestId as string } })) ?? null,
+    enabled: tenant !== undefined && requestId !== undefined,
+    retry: false,
+  });
 }

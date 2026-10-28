@@ -1,4 +1,5 @@
 import type { Translator } from '../../i18n';
+import type { AttemptKind, RequestStatus } from './gateway-model';
 import type { DatasetProblem, DatasetSource, MetricName, ProfileProblem, ProfileStatus, PromptProblem, PromptStatus, RouteGate, RunStatus } from './eval-model';
 
 type T = Translator['t'];
@@ -85,4 +86,50 @@ export function evalProblemMessage(t: T, problem: PromptProblem | DatasetProblem
     internationalPublicOnly: t('llm.problem.internationalPublicOnly'),
     routeAboveBaseline: t('llm.eval.problem.routeAboveBaseline'),
   }[problem];
+}
+
+export function requestStatusLabel(t: T, status: RequestStatus): string {
+  return {
+    ADMITTED: t('llm.requestStatus.admitted'),
+    REJECTED_POLICY: t('llm.requestStatus.rejectedPolicy'),
+    RESERVED: t('llm.requestStatus.reserved'),
+    DISPATCHED: t('llm.requestStatus.dispatched'),
+    COMPLETED: t('llm.requestStatus.completed'),
+    FAILED: t('llm.requestStatus.failed'),
+    CANCELLED: t('llm.requestStatus.cancelled'),
+    REJECTED_NO_CITATION: t('llm.requestStatus.noCitation'),
+    PENDING_RECONCILE: t('llm.requestStatus.pendingReconcile'),
+  }[status];
+}
+
+export function attemptKindLabel(t: T, kind: AttemptKind): string {
+  return { PRIMARY: t('llm.attemptKind.primary'), RETRY: t('llm.attemptKind.retry'), FALLBACK: t('llm.attemptKind.fallback') }[kind];
+}
+
+/** What the gateway recorded as the reason of a request that did not complete, in words. */
+export function rejectCodeLabel(t: T, code: string): string {
+  const known: Record<string, string> = {
+    AI_ROUTE_NOT_ALLOWED: t('llm.rejectCode.routeNotAllowed'),
+    AI_ROUTE_EXHAUSTED: t('llm.rejectCode.routeExhausted'),
+    BUDGET_EXCEEDED: t('llm.rejectCode.budgetExceeded'),
+    BUDGET_APPROVAL_REQUIRED: t('llm.rejectCode.budgetApproval'),
+    COST_ABOVE_LIMIT: t('llm.rejectCode.costAboveLimit'),
+    NO_CITATION: t('llm.rejectCode.noCitation'),
+    INVALID_JSON: t('llm.rejectCode.invalidJson'),
+  };
+  return known[code] ?? code;
+}
+
+export function outcomeLabel(t: T, outcome: string): string {
+  const known: Record<string, string> = {
+    SUCCESS: t('llm.outcome.success'),
+    TIMEOUT: t('llm.outcome.timeout'),
+    REFUSAL: t('llm.outcome.refusal'),
+    INVALID_JSON: t('llm.outcome.invalidJson'),
+    NO_CITATION: t('llm.outcome.noCitation'),
+    PROVIDER_ERROR: t('llm.outcome.providerError'),
+    CANCELLED: t('llm.outcome.cancelled'),
+    USAGE_MISSING: t('llm.outcome.usageMissing'),
+  };
+  return known[outcome] ?? outcome;
 }

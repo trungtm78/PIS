@@ -1,0 +1,14 @@
+{
+  "id": "LLM_INTERNATIONAL_NON_PUBLIC",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "security-oncall",
+  "runbook": "docs/runbooks/alerts/LLM_INTERNATIONAL_NON_PUBLIC.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "counter",
+    "metric": "llm_international_non_public_total",
+    "increaseAbove": 0
+  },
+  "summary": "A request that is not public data reached the point of being sent over the international route."
+}

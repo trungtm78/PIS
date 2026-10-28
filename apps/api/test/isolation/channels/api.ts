@@ -303,6 +303,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'buildBiDatasetVersion', method: 'POST', id: BI_FIXTURES['TNT-B'].datasetId, body: { as_of_period: '2026-10' } },
   { operation: 'activateAiProvider', method: 'POST', id: LLM_FIXTURES['TNT-B'].providerId, versioned: true, body: {} },
   { operation: 'get_resources_model_profile_version_id', method: 'GET', id: LLM_FIXTURES['TNT-B'].profileId },
+  { operation: 'getAiRequestRoute', method: 'GET', id: LLM_FIXTURES['TNT-B'].requestId },
+  { operation: 'get_resources_llm_attempt_id', method: 'GET', id: LLM_FIXTURES['TNT-B'].attemptId },
   { operation: 'get_resources_ai_eval_run_id', method: 'GET', id: LLM_FIXTURES['TNT-B'].runId },
   { operation: 'approveAiModel', method: 'POST', id: LLM_FIXTURES['TNT-B'].modelRefId, versioned: true, body: {} },
   { operation: 'approveAiPromptVersion', method: 'POST', id: LLM_FIXTURES['TNT-B'].promptId, versioned: true, body: {} },

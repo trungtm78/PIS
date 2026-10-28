@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { DomainError } from './errors.ts';
+import { unsupportedSchemaKeyword } from './llm-gateway.ts';
 import { BASELINE_MATRIX, CLASSIFICATIONS, ROUTES } from './llm-registry.ts';
 import type { Classification, Route } from './llm-registry.ts';
 
@@ -208,7 +209,7 @@ export function assertProfileDraft(draft: ProfileDraft): void {
   positiveInt(draft.retentionDays, 'retention_days');
   if (!(CLASSIFICATIONS as readonly string[]).includes(draft.maxClassification)) throw invalid('max_classification');
   if (draft.effort !== null && !(EFFORTS as readonly string[]).includes(draft.effort)) throw invalid('effort');
-  if (!isRecord(draft.outputSchema)) throw invalid('output_schema');
+  if (!isRecord(draft.outputSchema) || unsupportedSchemaKeyword(draft.outputSchema) !== undefined) throw invalid('output_schema');
   if (draft.allowedModelIds.length === 0 || new Set(draft.allowedModelIds).size !== draft.allowedModelIds.length) throw invalid('allowed_model_ids');
   if (new Set(draft.toolAllowlist).size !== draft.toolAllowlist.length) throw invalid('tool_allowlist');
   const writer = draft.toolAllowlist.find((tool) => !READ_ONLY_TOOLS.includes(tool));

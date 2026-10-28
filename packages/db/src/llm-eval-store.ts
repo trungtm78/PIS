@@ -365,6 +365,27 @@ export class LlmEvalStore {
     if (refused !== undefined) throw new DomainError('AI_ROUTE_NOT_ALLOWED', 422, refused);
   }
 
+  /** The profile in force for a task: the one that is PUBLISHED. */
+  async publishedProfile(tx: TenantTx, taskType: string): Promise<ProfileRow | undefined> {
+    const rows = await tx.query<Sql>(`${PROFILE} where task_type = $1 and status = 'PUBLISHED'`, [taskType]);
+    return rows[0] === undefined ? undefined : profileOf(rows[0]);
+  }
+
+  /** The models a profile may use with the route and the provider of each (for the route of a request). */
+  async modelsOfProfile(tx: TenantTx, profile: ProfileRow): Promise<Array<{ id: string; modelId: string; status: string; route: Route; providerStatus: string; providerId: string; providerCode: string; maxClassification: Classification }>> {
+    if (profile.allowedModelIds.length === 0) return [];
+    const rows = await tx.query<Sql>(
+      'select m.id, m.model_id, m.status, p.route_class, p.status as provider_status, p.id as provider_id, p.provider_code, m.max_classification from machvon.ai_model m join machvon.ai_provider p on p.id = m.provider_id where m.id = any($1::uuid[])',
+      [[...profile.allowedModelIds]],
+    );
+    const byId = new Map(rows.map((row) => [row.id as string, row] as const));
+    // In the order the profile lists them.
+    return profile.allowedModelIds.flatMap((id) => {
+      const row = byId.get(id);
+      return row === undefined ? [] : [{ id, modelId: row.model_id, status: row.status, route: row.route_class, providerStatus: row.provider_status, providerId: row.provider_id, providerCode: row.provider_code, maxClassification: row.max_classification }];
+    });
+  }
+
   async findProfile(tx: TenantTx, id: string, forUpdate = false): Promise<ProfileRow | undefined> {
     const rows = await tx.query<Sql>(`${PROFILE} where id = $1::uuid${forUpdate ? ' for update' : ''}`, [id]);
     return rows[0] === undefined ? undefined : profileOf(rows[0]);

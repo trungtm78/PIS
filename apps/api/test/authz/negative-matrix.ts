@@ -1227,6 +1227,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/ai-eval-runs', body: { profile_version_id: '00000000-0000-4000-8000-0000000000e8', dataset_version_id: '00000000-0000-4000-8000-0000000000e9', route_class: 'SELF_HOSTED' } }),
   },
+  requestAiCompletion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/ai/requests',
+      body: { task_type: 'SUMMARY', subject_module: 'BID', source_refs: [{ document_version_id: '00000000-0000-4000-8000-0000000000f0' }], input_ref: 'tenants/x/inputs/matrix-probe', input_sha256: 'a'.repeat(64) },
+    }),
+  },
   signAiEvalRun: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/ai-eval-runs/00000000-0000-4000-8000-0000000000ea/signature', ifMatch: '"1"', body: { decision: 'PASS', comment: 'Matrix probe of the signature' } }),

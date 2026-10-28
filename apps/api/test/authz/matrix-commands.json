@@ -187,6 +187,7 @@
     "rotateAiVirtualKey",
     "signAiEvalRun",
     "startAiEvalRun",
+    "requestAiCompletion",
     "withdrawReport",
     "deleteDraftReport",
     "restoreDraftReport",

@@ -253,6 +253,8 @@ describe('the profiles (ST-LLM-004, LLM-04)', () => {
   it('refuses a tool that writes, an effort a model does not take, an international route above public data, a route no model reaches, a prompt that is not approved and a threshold that is looser than the baseline', async () => {
     const w = await world();
     const field = async (overrides: Record<string, unknown>) => (await draftProfile(w, overrides)).json;
+    // A schema that says more than the gateway checks is not accepted: no answer is taken as valid by a rule that was not applied.
+    expect(await field({ output_schema: { type: 'object', oneOf: [] } })).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'output_schema' });
     expect(await field({ tool_allowlist: ['search_documents', 'delete_document'] })).toMatchObject({ code: 'TOOL_NOT_READ_ONLY', detail: 'delete_document' });
     expect(await field({ effort: 'high' })).toMatchObject({ code: 'UNSUPPORTED_PARAMETER', detail: 'effort' });
     expect(await field({ max_classification: 'INTERNAL' })).toMatchObject({ code: 'AI_ROUTE_NOT_ALLOWED', detail: 'routing_policy' });

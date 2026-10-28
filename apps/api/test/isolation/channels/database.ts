@@ -603,6 +603,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_model_profile_version',
   'get_resources_model_profile_version_id',
   'startAiEvalRun',
+  'requestAiCompletion',
+  'listAiRequests',
+  'getAiRequestRoute',
+  'get_resources_llm_attempt',
+  'get_resources_llm_attempt_id',
   'signAiEvalRun',
   'get_resources_ai_eval_run',
   'get_resources_ai_eval_run_id',
@@ -1303,6 +1308,9 @@ const INSERT_LLM_PROFILE = `insert into machvon.model_profile_version
 const INSERT_LLM_REQUEST = `insert into machvon.ai_request
   (tenant_id, id, task_type, subject_module, requested_by, profile_version_id, data_classification, classification_basis, policy_version_id, input_sha256, created_by, updated_by)
   values ($1, $2, 'SUMMARY', 'BID', $5, $3, 'INTERNAL', '{}'::jsonb, $4, $6, $5, $5) on conflict do nothing`;
+const INSERT_LLM_ATTEMPT = `insert into machvon.llm_attempt
+  (tenant_id, id, run_id, provider_request_id, actual_model, pricing_version_id, input_total, cached_input, output_total, reasoning_info, cost, currency, reconcile_status, ai_request_id, attempt_no, attempt_kind, route_class, outcome, cost_vnd)
+  values ($1, $2, null, $6, $3, $4, 10, 0, 5, 0, 0, 'VND', 'SETTLED', $5, 1, 'PRIMARY', 'SELF_HOSTED', 'SUCCESS', 0) on conflict do nothing`;
 const INSERT_LLM_BUDGET = `insert into machvon.ai_budget
   (tenant_id, id, scope_kind, period, limit_vnd, hard_stop, effective_from, created_by, updated_by)
   values ($1, $2, 'TENANT', 'MONTH', 1000000, true, '2026-01-01', $3, $3) on conflict do nothing`;
@@ -1614,6 +1622,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_BUDGET, [tenantId, llm.budgetId, ACTOR_ID]);
     await client.query(INSERT_LLM_RESERVATION, [tenantId, llm.reservationId, llm.requestId, llm.reservationNote]);
     await client.query(INSERT_LLM_PRICE, [tenantId, llm.priceId, llm.modelRefId, llm.modelCode, llm.priceSource]);
+    await client.query(INSERT_LLM_ATTEMPT, [tenantId, llm.attemptId, llm.modelCode, llm.priceId, llm.requestId, `iso-${llm.attemptId}`]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);
