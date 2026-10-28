@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
+import { BI_DRILL_SECRET } from './modules/bi/tokens';
 import { ORCHESTRATION_OPTIONS } from './modules/orchestration';
 import type { OrchestrationOptions } from './modules/orchestration';
 import { controllersOf, providersOf } from './modules/registry';
@@ -51,6 +52,8 @@ export interface AppModuleOptions {
   tenantState?: { runtime: TenantRuntimeSource; entitlementCache: EntitlementCache; authzCache: AuthzCache };
   /** Provides the orchestration port (ORCHESTRATOR) with the in-process adapter; the key signs the tenant contexts of background work. */
   orchestration?: OrchestrationOptions;
+  /** The secret the drill tokens of BI are signed from (at least 32 bytes); every replica must be given the same, or a token made by one is refused by another. */
+  biDrillSecret?: Buffer;
 }
 
 /**
@@ -87,6 +90,7 @@ export class AppModule {
       providers: [
         ...providersOf(options),
         ...(options.orchestration === undefined ? [] : [{ provide: ORCHESTRATION_OPTIONS, useValue: options.orchestration }]),
+        ...(options.biDrillSecret === undefined ? [] : [{ provide: BI_DRILL_SECRET, useValue: options.biDrillSecret }]),
         ...(options.licenses === undefined
           ? []
           : [

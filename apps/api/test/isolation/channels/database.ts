@@ -572,6 +572,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listBiDatasetVersions',
   'createBiAccessPolicy',
   'listBiAccessPolicies',
+  'post_dashboard_queries',
+  'explainBiMetric',
+  'refreshBiQueryContext',
+  'get_resources_drill_context',
+  'get_resources_drill_context_id',
   'listMneForms',
   'createMneObligationRule',
   'publishMneObligationRule',
@@ -1252,6 +1257,9 @@ const INSERT_BI_VERSION = `insert into machvon.bi_dataset_version
 const INSERT_BI_POLICY = `insert into machvon.bi_access_policy
   (tenant_id, id, dataset_id, revision, grantee_kind, grantee_ref_id, row_predicate_ast, column_masks, status, created_by, updated_by)
   values ($1, $2, $3, 1, 'MEMBERSHIP', $5, '{"op":"unit_in_scope"}'::jsonb, jsonb_build_object($4::text, 'HIDE'), 'DRAFT', $5, $5) on conflict do nothing`;
+const INSERT_BI_CONTEXT = `insert into machvon.drill_context
+  (tenant_id, id, subject_scope_hash, metric_version_id, snapshot_id, filters_ast, path, as_of, expires_at, as_of_period, dimension_path, created_by)
+  values ($1, $2, repeat('a', 64), $3, $4, '[]'::jsonb, '[]'::jsonb, now(), now() + interval '30 minutes', $5, '[]'::jsonb, $6) on conflict do nothing`;
 const INSERT_MNE_FORM = `insert into machvon.mne_report_form
   (tenant_id, id, form_code, title, report_kind, legal_basis, effective_from, schema_json, doc_template_code, export_formats, revision, status, origin, pack_version, published_at, created_by, updated_by)
   values ($1, $2, $3, 'Isolation report form', 'OVERALL_SEMIANNUAL', $4, date '2026-01-01', '{}'::jsonb, 'ISOLATION-TEMPLATE', array['XLSX'], 1, 'PUBLISHED', 'PLATFORM_PACK', 'isolation', now(), $5, $5) on conflict do nothing`;
@@ -1522,6 +1530,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_BI_DATASET, [tenantId, bi.datasetId, bi.datasetCode, bi.datasetTitle, ACTOR_ID]);
     await client.query(INSERT_BI_VERSION, [tenantId, bi.versionId, bi.datasetId, bi.versionChecksum, ACTOR_ID]);
     await client.query(INSERT_BI_POLICY, [tenantId, bi.policyId, bi.datasetId, bi.policyColumn, ACTOR_ID]);
+    await client.query(INSERT_BI_CONTEXT, [tenantId, bi.contextId, bi.metricId, bi.versionId, bi.contextPeriod, MEMBERSHIP_ID]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);

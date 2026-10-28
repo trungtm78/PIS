@@ -654,6 +654,11 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'listBiDatasetVersions',
         'createBiAccessPolicy',
         'listBiAccessPolicies',
+        'post_dashboard_queries',
+        'explainBiMetric',
+        'refreshBiQueryContext',
+        'get_resources_drill_context',
+        'get_resources_drill_context_id',
         'listMneForms',
         'createMneObligationRule',
         'publishMneObligationRule',
@@ -860,13 +865,13 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       });
       apps.push(copy);
       const operations = idBearingOf(copy);
-      expect(operations).toEqual([...API_FOREIGN_ID_CASES, 'get_resources_drill_context_id'].sort());
+      expect(operations).toEqual([...API_FOREIGN_ID_CASES, 'get_resources_dashboard_version_id'].sort());
       const report = await runIsolationSuite({
         channels: [apiChannel(copy)],
         idBearingOperations: operations,
         foreignIdCases: API_FOREIGN_ID_CASES,
       });
-      expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['get_resources_drill_context_id'] });
+      expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['get_resources_dashboard_version_id'] });
     });
   });
 });

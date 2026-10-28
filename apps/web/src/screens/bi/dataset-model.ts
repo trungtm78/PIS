@@ -133,3 +133,6 @@ const REASON_BY_CODE: Readonly<Record<string, BuildReason>> = {
 export function describeBuildProblem(error: unknown): BuildReason {
   return error instanceof ApiError ? (REASON_BY_CODE[error.code] ?? 'general') : 'general';
 }
+
+/** The badge a text names, if it is one. */
+export const badgeOf = (value: string | undefined): Badge | undefined => (includes(BADGES, value) ? value : undefined);

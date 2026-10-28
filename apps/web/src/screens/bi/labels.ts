@@ -1,5 +1,6 @@
 import type { Translator } from '../../i18n';
 import type { Badge, BuildReason, VersionStatus } from './dataset-model';
+import type { QueryReason } from './query-model';
 import type { GranteeKind, PolicyProblemKind, PolicyReason, PolicyStatus } from './policy-model';
 import type { Aggregate, Aggregation, FieldProblem, MetricOrigin, MetricStatus, NullPolicy, ProblemView } from './bi-model';
 
@@ -201,5 +202,47 @@ export function policyRefusalMessage(t: T, reason: PolicyReason, field: string):
       return t('bi.policy.refused.session');
     case 'general':
       return t('bi.policy.refused.general');
+  }
+}
+
+export function dimensionLabel(t: T, dimension: string): string {
+  switch (dimension) {
+    case 'unit':
+      return t('bi.query.dimension.unit');
+    case 'fund_source':
+      return t('bi.query.dimension.fundSource');
+    case 'project':
+      return t('bi.query.dimension.project');
+    case 'budget_level':
+      return t('bi.query.dimension.budgetLevel');
+    case 'bucket':
+      return t('bi.query.dimension.bucket');
+    default:
+      return dimension;
+  }
+}
+
+export function queryProblemMessage(t: T, reason: QueryReason, field: string): string {
+  switch (reason) {
+    case 'policy':
+      return t('bi.query.refused.policy');
+    case 'dimension':
+      return t('bi.query.refused.dimension', { field });
+    case 'metric':
+      return t('bi.query.refused.metric');
+    case 'snapshot':
+      return t('bi.query.refused.snapshot');
+    case 'scope':
+      return t('bi.query.refused.scope');
+    case 'token':
+      return t('bi.query.refused.token');
+    case 'expired':
+      return t('bi.query.refused.expired');
+    case 'invalid':
+      return t('bi.query.refused.invalid');
+    case 'session':
+      return t('bi.query.refused.session');
+    case 'general':
+      return t('bi.query.refused.general');
   }
 }

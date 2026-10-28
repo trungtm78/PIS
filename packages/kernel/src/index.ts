@@ -673,3 +673,5 @@ export { DATASET_VERSION_STATUSES, QUALITY_BADGES, certifiedRows, feedsCertified
 export type { DatasetVersionStatus, QualityBadge, QualityOfVersion, QualityRunFacts, VersionContent } from './bi-dataset.ts';
 export { COLUMN_MASKS, POLICY_GRANTEE_KINDS, columnMasksProblem, hiddenColumns, predicateProblem, requireApplicablePolicies } from './bi-policy.ts';
 export type { ColumnMask, PolicyGranteeKind, PolicyProblem, PolicyView } from './bi-policy.ts';
+export { BI_DRILL_TTL_SECONDS, DISBURSEMENT_DIMENSIONS, DISBURSEMENT_FIELDS, biScopeHash, expiredBiDrill, figureOf, measurePlanOf, parseBiDrill, queryCacheKey, reconcile, signBiDrill, tenantDrillKey } from './bi-query.ts';
+export type { BiDrillClaims, Figure, GroupSums, MeasureKind, MeasurePlan, QueryReconciliation } from './bi-query.ts';

@@ -1093,6 +1093,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { dataset_id: '00000000-0000-4000-8000-0000000000d1', grantee_kind: 'ROLE', grantee_ref_id: '00000000-0000-4000-8000-0000000000c3', row_predicate_ast: { op: 'unit_in_scope' }, column_masks: {} },
     }),
   },
+  post_dashboard_queries: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/dashboard-queries',
+      body: { metric_version_id: '00000000-0000-4000-8000-0000000000a1', snapshot_id: '00000000-0000-4000-8000-0000000000a2', dimensions: ['unit'], filters: [] },
+    }),
+  },
+  refreshBiQueryContext: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/bi/query-contexts/refresh', body: { drill_token: 'x'.repeat(40) } }),
+  },
   buildBiDatasetVersion: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions', body: { as_of_period: '2026-10' } }),

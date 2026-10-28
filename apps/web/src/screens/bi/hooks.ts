@@ -8,6 +8,8 @@ import type { Metric, MetricValues } from './bi-model';
 import { toDataset, toVersion } from './dataset-model';
 import type { Dataset, DatasetVersion } from './dataset-model';
 import { policyBody, toPolicy } from './policy-model';
+import { toQueryResult } from './query-model';
+import type { QueryResult } from './query-model';
 import type { Policy, PolicyValues } from './policy-model';
 
 /** Every read and every mutation of the BI screens lives under this key of the tenant, so one command refreshes them all. */
@@ -127,5 +129,54 @@ export function useCreatePolicy() {
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
     },
     onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** One query of a metric over a snapshot, cut by a dimension: a fresh idempotency key each time (the same question asked later gets a new answer, from the cache or not). */
+export function useRunQuery() {
+  const client = useApiClient();
+  return useMutation({
+    mutationFn: async (input: { metricId: string; snapshotId: string; dimension?: string | undefined; contextToken?: string | undefined }) =>
+      toQueryResult(
+        await client.command('post_dashboard_queries', {
+          body: { metric_version_id: input.metricId, snapshot_id: input.snapshotId, dimensions: input.dimension === undefined ? [] : [input.dimension], filters: [], ...(input.contextToken === undefined ? {} : { context_token: input.contextToken }) },
+        }),
+      ),
+  });
+}
+
+/** One step down a drill: the token of a group and the dimension to cut it by. */
+export function useExplain() {
+  const client = useApiClient();
+  return useMutation({
+    mutationFn: async (input: { token: string; dimension: string }) => toQueryResult(await client.read('explainBiMetric', { query: { drill_token: input.token, child_dimension: input.dimension } })),
+  });
+}
+
+/** A new context on the newest snapshot of the period of a token. */
+export function useRefreshContext() {
+  const client = useApiClient();
+  return useMutation({
+    mutationFn: async (token: string) => {
+      const answer = (await client.command('refreshBiQueryContext', { body: { drill_token: token } })) as unknown as { snapshot_id?: string; drill_token?: string };
+      return { snapshotId: answer.snapshot_id, token: answer.drill_token };
+    },
+  });
+}
+
+/** The tile of a metric over a snapshot, for the board: the total, with nothing cut. */
+export function useTile(metricId: string, snapshotId: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<QueryResult>({
+    queryKey: [...biRoot(tenant?.id), 'tile', tenant?.membershipId, metricId, snapshotId],
+    queryFn: async () => {
+      const result = toQueryResult(await client.command('post_dashboard_queries', { body: { metric_version_id: metricId, snapshot_id: snapshotId as string, dimensions: [], filters: [] } }));
+      if (result === undefined) throw new Error('the answer could not be read');
+      return result;
+    },
+    enabled: tenant !== undefined && snapshotId !== undefined,
+    retry: false,
+    staleTime: 60_000,
   });
 }

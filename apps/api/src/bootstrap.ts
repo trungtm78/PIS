@@ -184,6 +184,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           control: { database: control, registry },
           entitlements: { store: entitlementStore, control },
           tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
+          // The drill tokens of BI are signed from a configured secret, so that every replica and every restart reads them.
+          biDrillSecret: config.outboxSigningKey,
         }),
       ],
       controllers: [HealthController],

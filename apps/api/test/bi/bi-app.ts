@@ -14,6 +14,8 @@ import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort } from '../../src/modules/files/mock-scan';
 import { DatasetBuildController, DatasetReadsController } from '../../src/modules/bi/dataset.controller';
 import { PolicyController } from '../../src/modules/bi/policy.controller';
+import { BiQueryController } from '../../src/modules/bi/query.controller';
+import { BI_CLOCK, BI_DRILL_KEY } from '../../src/modules/bi/tokens';
 import { MetricReadsController, MetricRegistryController, TenantMetricController } from '../../src/modules/bi/metric.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -32,6 +34,15 @@ export const BUILDER = 6; // builds the versions of the datasets, and queries
 export const QUERIER = 7; // reads the datasets and their versions
 export const POLICY_ADMIN = 8; // drafts and lists the access policies
 export const POLICY_SCOPED = 9; // holds the same right over one unit only: the policies are the tenant's, so it is refused
+export const ANALYST_ALL = 10; // queries the whole tenant
+export const ANALYST_BRANCH = 11; // queries the branch (units 3, 4 and 6 under it) only
+export const ANALYST_NONE = 12; // may query, but no policy opens the dataset for them
+export const UNIT_A = 3; // under the branch
+export const UNIT_B = 4; // under the branch
+export const UNIT_OUT = 5; // outside the branch
+export const UNIT_C = 6; // under the branch
+export const DRILL_KEY = randomBytes(32);
+export const CLOCK = { now: new Date() };
 export const ROOT = 1;
 export const BRANCH = 2;
 
@@ -57,9 +68,12 @@ export class BiApp {
     const units = [
       { n: ROOT, path: `/${unitId(ROOT)}/` },
       { n: BRANCH, path: `/${unitId(BRANCH)}/`, parent: ROOT },
+      ...[UNIT_A, UNIT_B, UNIT_C].map((n) => ({ n, path: `/${unitId(BRANCH)}/${unitId(n)}/`, parent: BRANCH })),
+      { n: UNIT_OUT, path: `/${unitId(UNIT_OUT)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [PIPELINE, ANALYST, READER, NOBODY, SCOPED, BUILDER, QUERIER, POLICY_ADMIN, POLICY_SCOPED]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [PIPELINE, ANALYST, READER, NOBODY, SCOPED, BUILDER, QUERIER, POLICY_ADMIN, POLICY_SCOPED, ANALYST_ALL, ANALYST_NONE]) await harness.seedMembership(TENANT_A, n, ROOT);
+    await harness.seedMembership(TENANT_A, ANALYST_BRANCH, BRANCH);
     await harness.seedMembership(TENANT_B, PIPELINE, ROOT);
     await harness.seedRole(TENANT_A, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
     await harness.seedRole(TENANT_A, 2, 'BI_ANALYST', ['bi.metric.manage', 'metric_definition.read'], 50);
@@ -69,6 +83,8 @@ export class BiApp {
     await harness.seedRole(TENANT_A, 6, 'BI_QUERIER', ['bi.query'], 20);
     await harness.seedRole(TENANT_A, 7, 'BI_POLICY_ADMIN', ['bi.policy.manage', 'bi.query'], 50);
     await harness.seedRole(TENANT_A, 8, 'BI_POLICY_SCOPED', ['bi.policy.manage', 'bi.query'], 40);
+    await harness.seedRole(TENANT_A, 9, 'BI_ANALYST_QUERY', ['bi.query', 'drill_context.read'], 30);
+    await harness.seedRole(TENANT_A, 10, 'BI_ANALYST_NONE', ['bi.query'], 30);
     await harness.seedRole(TENANT_B, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
     await harness.seedRole(TENANT_B, 2, 'BI_BUILDER', ['bi.dataset.build', 'bi.query'], 50);
     await harness.seedGrants(TENANT_A, [
@@ -80,6 +96,11 @@ export class BiApp {
       { n: 6, member: QUERIER, role: 6, kind: 'TENANT' },
       { n: 7, member: POLICY_ADMIN, role: 7, kind: 'TENANT' },
       { n: 8, member: POLICY_SCOPED, role: 8, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] },
+      { n: 9, member: ANALYST_ALL, role: 9, kind: 'TENANT' },
+      { n: 11, member: ANALYST_NONE, role: 10, kind: 'TENANT' },
+      { n: 12, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_A)] },
+      { n: 13, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_B)] },
+      { n: 14, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_C)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: PIPELINE, role: 1, kind: 'TENANT' }]);
     await harness.seedMembership(TENANT_B, BUILDER, ROOT);
@@ -94,9 +115,11 @@ export class BiApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController],
+      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController, BiQueryController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
+        { provide: BI_DRILL_KEY, useValue: DRILL_KEY },
+        { provide: BI_CLOCK, useValue: () => new Date(CLOCK.now) },
         { provide: FileService, useValue: this.objects },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
@@ -127,8 +150,11 @@ export class BiApp {
     return { key: stored.key, sha256: object.sha256 };
   }
 
+  /** The version of the scope of a member the requests are made with: a revocation moves it, as the next request of the member would carry it. */
+  readonly scopeVersions = new Map<number, number>();
+
   async call(method: 'GET' | 'POST', url: string, options: { member: number; tenantId?: string; body?: unknown; key?: string }): Promise<Reply> {
-    const token = signTenantContext({ tenantId: options.tenantId ?? TENANT_A, membershipId: memberId(options.member), scopeVersion: 1 }, SIGNING_KEY);
+    const token = signTenantContext({ tenantId: options.tenantId ?? TENANT_A, membershipId: memberId(options.member), scopeVersion: this.scopeVersions.get(options.member) ?? 1 }, SIGNING_KEY);
     const headers: Record<string, string> = { [TENANT_HEADER]: token, 'content-type': 'application/json' };
     if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;
     const response = await fetch(`${this.app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });

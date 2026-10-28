@@ -903,6 +903,8 @@ export { HomeWorkStore } from './home-work-store.ts';
 export type { WorkRow } from './home-work-store.ts';
 export { BiDatasetStore, DISBURSEMENT_DATASET_CODE, DISBURSEMENT_JOIN_PATHS } from './bi-dataset-store.ts';
 export type { BiDatasetRow, BuildInput, BuildResult, DatasetVersionFilter, DatasetVersionRow } from './bi-dataset-store.ts';
+export { BiQueryStore, UNCLASSIFIED_KEY } from './bi-query-store.ts';
+export type { AggregateInput, AggregateRow, ContextRow, FilterOperator, PolicyNode, QueryFilter, SnapshotVersion } from './bi-query-store.ts';
 export { BiPolicyStore } from './bi-policy-store.ts';
 export type { BiPolicyStatus, PolicyInput, PolicyRow, Requester } from './bi-policy-store.ts';
 export { BiMetricStore, METRIC_ORIGINS, METRIC_STATUSES } from './bi-metric-store.ts';

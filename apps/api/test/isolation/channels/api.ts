@@ -299,6 +299,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_allocation_line_id', method: 'GET', id: CAPITAL_PLAN_FIXTURES['TNT-B'].lineId },
   { operation: 'get_resources_metric_definition_id', method: 'GET', id: BI_FIXTURES['TNT-B'].metricId },
   { operation: 'listBiDatasetVersions', method: 'GET', id: BI_FIXTURES['TNT-B'].datasetId },
+  { operation: 'get_resources_drill_context_id', method: 'GET', id: BI_FIXTURES['TNT-B'].contextId },
   { operation: 'buildBiDatasetVersion', method: 'POST', id: BI_FIXTURES['TNT-B'].datasetId, body: { as_of_period: '2026-10' } },
   { operation: 'publishMneForm', method: 'POST', id: MNE_FIXTURES['TNT-B'].formId, versioned: true, body: {} },
   { operation: 'publishMneObligationRule', method: 'POST', id: MNE_FIXTURES['TNT-B'].ruleId, versioned: true, body: {} },
