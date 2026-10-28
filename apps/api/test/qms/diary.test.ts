@@ -369,7 +369,8 @@ describe('the electronic site diary over HTTP (ST-QMS-001)', () => {
     // The device that did not hear the answer asks again with another key: the diary it made is what it is told.
     const again = await save(guest, target, { client_operation_id: '00000000-0000-4000-8000-0000000000aa' });
     expect(again).toMatchObject({ status: 200, json: { resource_id: id, status: 'DRAFT', resource_version: 1 } });
-    expect(await rows('select 1 from machvon.site_diary where contract_id = $1::uuid', [target.id])).toHaveLength(1);
+    expect(await rows('select 1 from machvon.site_diary where contract_id = $1::uuid and conflict_of_id is null', [target.id])).toHaveLength(1);
+    expect(await rows('select 1 from machvon.site_diary where contract_id = $1::uuid and conflict_of_id = $2::uuid', [target.id, id])).toHaveLength(1);
     // The same operation on another contract is a mistake.
     const other = await contract();
     const guestTwo = await guestOf(other);
@@ -391,6 +392,178 @@ describe('the electronic site diary over HTTP (ST-QMS-001)', () => {
     expect(await save(DRAFTER, suspended)).toMatchObject({ status: 409, json: { code: 'CONTRACT_STATE_INVALID' } });
     await world.owner('delete from machvon.permit_gate_rule');
     expect(await rows('select 1 from machvon.site_diary where contract_id = any($1::uuid[])', [[target.id, suspended.id]])).toHaveLength(0);
+  });
+
+  describe('ST-QMS-002: two devices, the conflict between them, and the place', () => {
+    const copiesOf = (diaryId: string) =>
+      rows<{ id: string; diary_no: string; conflict_state: string; content: Record<string, unknown>; device_id: string | null; conflict_resolution: string | null; conflict_note: string | null; conflict_discarded: Record<string, unknown> | null; status: string }>(
+        'select id, diary_no, conflict_state, content, device_id, conflict_resolution, conflict_note, conflict_discarded, status from machvon.site_diary where conflict_of_id = $1::uuid order by created_at, id',
+        [diaryId],
+      );
+    const resolve = (member: number, diaryId: string, version: number | string, body: Record<string, unknown>, key?: string) => call('POST', `/site-diaries/${diaryId}/resolve-conflict`, { member, ifMatch: `"${version}"`, ...(key === undefined ? {} : { key }), body });
+    const mine = '00000000-0000-4000-8000-0000000000d1';
+    const theirs = '00000000-0000-4000-8000-0000000000d2';
+
+    /** The diary of a day that device one wrote and device two had not read: the diary stands at version 2, and device two left a copy of its own. */
+    async function conflicted(day: string) {
+      const target = await contract();
+      const guest = await guestOf(target);
+      const first = await save(guest, target, { record_date: day, device_id: mine, content: { ...CONTENT, summary: 'Written on the first device' } });
+      const id = first.json.resource_id as string;
+      expect(await save(guest, target, { record_date: day, device_id: mine, base_server_version: 1, content: { ...CONTENT, summary: 'Written on the first device, then edited' } })).toMatchObject({ status: 200, json: { resource_version: 2 } });
+      const stale = await save(guest, target, { record_date: day, device_id: theirs, base_server_version: 1, content: { ...CONTENT, summary: 'Written on the second device' } });
+      return { target, guest, id, stale };
+    }
+
+    it('AC-ST-QMS-002-1: UAT-AC62 keeps the copy of a device that wrote over a draft it had not read, shows it, and does not touch the diary of the day', async () => {
+      const { target, guest, id, stale } = await conflicted('2026-10-20');
+      expect(stale).toMatchObject({ status: 409, json: { code: 'DIARY_SYNC_CONFLICT' } });
+      const [copy] = await copiesOf(id);
+      expect(stale.json).toMatchObject({ diary_id: id, conflict_diary_id: copy?.id, server_version: 2 });
+      expect(copy).toMatchObject({ conflict_state: 'CONFLICT_PENDING', status: 'DRAFT', device_id: theirs, content: { summary: 'Written on the second device' }, diary_no: `NK-${target.code}-20261020-C1` });
+      // No duplicate: one diary of the day, still as the first device left it, and the list shows the day once.
+      expect(await rows('select 1 from machvon.site_diary where contract_id = $1::uuid and conflict_of_id is null', [target.id])).toHaveLength(1);
+      expect((await rows<{ content: Record<string, unknown>; version: string }>('select content, version::text from machvon.site_diary where id = $1', [id]))[0]).toMatchObject({ content: { summary: 'Written on the first device, then edited' }, version: '2' });
+      expect((await list(guest, `?contract_id=${target.id}`)).json.items).toHaveLength(1);
+      // The conflict is shown on the diary, with what each device said, and the one who may write may settle it.
+      const shown = (await read(guest, id)).json;
+      expect(shown).toMatchObject({ conflict_state: 'NONE', conflict_of_id: null, actions: { resolveConflict: true } });
+      expect(shown.conflicts).toEqual([expect.objectContaining({ id: copy?.id, state: 'CONFLICT_PENDING', device_id: theirs, resolution: null, content: expect.objectContaining({ summary: 'Written on the second device' }) })]);
+      expect((await read(READER, id)).json).toMatchObject({ actions: { resolveConflict: false } });
+      expect((await audits(copy?.id as string, 'site_diary.conflict_stored'))[0]?.safe_diff).toMatchObject({ conflict_of_id: id, server_version: 2 });
+      expect(JSON.stringify((await audits(copy?.id as string, 'site_diary.conflict_stored'))[0]?.safe_diff)).not.toContain('second device');
+      // The copy is not a diary to edit, sign or lock by itself.
+      expect(await revise(guest, copy?.id as string, 1)).toMatchObject({ status: 409, json: { code: 'DIARY_STATE_INVALID' } });
+      expect(await contractorSign(guest, copy?.id as string, 1)).toMatchObject({ status: 409, json: { code: 'DIARY_STATE_INVALID' } });
+      expect(await lock(SUPERVISOR, copy?.id as string, 1)).toMatchObject({ status: 409, json: { code: 'DIARY_STATE_INVALID' } });
+      await expect(world.owner('update machvon.site_diary set content = \'{"summary": "sneaky"}\'::jsonb where id = $1', [copy?.id])).rejects.toThrow(/only settled/);
+    });
+
+    it('AC-ST-QMS-002-2: UAT-AC358 delivers the same operation twice and creates one revision, for the first save, for an update and for a copy that was kept', async () => {
+      const target = await contract();
+      const guest = await guestOf(target);
+      const created = '00000000-0000-4000-8000-0000000000e1';
+      const updated = '00000000-0000-4000-8000-0000000000e2';
+      const stale = '00000000-0000-4000-8000-0000000000e3';
+      const content = { ...CONTENT, summary: 'Offline' };
+      const first = await save(guest, target, { record_date: '2026-10-21', client_operation_id: created, content }, '00000000-0000-4000-8000-0000000001a1');
+      const id = first.json.resource_id as string;
+      expect(await save(guest, target, { record_date: '2026-10-21', client_operation_id: created, content }, '00000000-0000-4000-8000-0000000001a2')).toMatchObject({ status: 200, json: { resource_id: id, resource_version: 1 } });
+      const one = { record_date: '2026-10-21', client_operation_id: updated, base_server_version: 1, content: { ...content, summary: 'Offline, edited' } };
+      expect(await save(guest, target, one, '00000000-0000-4000-8000-0000000001a3')).toMatchObject({ status: 200, json: { resource_id: id, resource_version: 2 } });
+      expect(await save(guest, target, one, '00000000-0000-4000-8000-0000000001a4')).toMatchObject({ status: 200, json: { resource_id: id, resource_version: 2 } });
+      const two = { record_date: '2026-10-21', client_operation_id: stale, base_server_version: 1, content: { ...content, summary: 'Another device' } };
+      const kept = await save(guest, target, two, '00000000-0000-4000-8000-0000000001a5');
+      expect(kept).toMatchObject({ status: 409, json: { code: 'DIARY_SYNC_CONFLICT' } });
+      expect(await save(guest, target, two, '00000000-0000-4000-8000-0000000001a6')).toMatchObject({ status: 409, json: { code: 'DIARY_SYNC_CONFLICT', conflict_diary_id: kept.json.conflict_diary_id } });
+      expect((await stored(id))?.version).toBe('2');
+      expect(await rows('select 1 from machvon.site_diary where contract_id = $1::uuid', [target.id])).toHaveLength(2);
+      expect(await copiesOf(id)).toHaveLength(1);
+    });
+
+    it('AC-ST-QMS-002-1: UAT-AC62 settles a conflict by keeping the diary, taking the copy or merging them, and keeps what was set aside', async () => {
+      const { target, guest, id, stale } = await conflicted('2026-10-22');
+      const [kept] = await copiesOf(id);
+      // Keep the diary: the copy is set aside with the reason, and the diary is as it was.
+      const keep = await resolve(guest, id, 2, { conflict_diary_id: kept?.id, resolution: 'KEEP_PRIMARY', note: 'The first device is the engineer on site.' });
+      expect(keep).toMatchObject({ status: 200, json: { status: 'DRAFT', resource_version: 2 } });
+      expect((await stored(id))?.version).toBe('2');
+      expect((await copiesOf(id))[0]).toMatchObject({ conflict_state: 'RESOLVED', conflict_resolution: 'KEEP_PRIMARY', conflict_note: 'The first device is the engineer on site.', conflict_discarded: { summary: 'Written on the second device' } });
+      expect((await rows<{ content: Record<string, unknown> }>('select content from machvon.site_diary where id = $1', [id]))[0]?.content).toMatchObject({ summary: 'Written on the first device, then edited' });
+      expect((await audits(id, 'site_diary.conflict_resolved'))[0]?.safe_diff).toMatchObject({ resolution: 'KEEP_PRIMARY', conflict_diary_id: kept?.id });
+      expect((await events(id, 'qms.site_diary.conflict_resolved.v1'))[0]?.payload).toMatchObject({ resolution: 'KEEP_PRIMARY', conflict_diary_id: kept?.id });
+      expect(JSON.stringify((await events(id, 'qms.site_diary.conflict_resolved.v1'))[0]?.payload)).not.toContain('device');
+      // A settled copy is not settled again, and nothing edits it.
+      expect(await resolve(guest, id, 2, { conflict_diary_id: kept?.id, resolution: 'KEEP_PRIMARY', note: 'Again.' })).toMatchObject({ status: 409, json: { code: 'DIARY_STATE_INVALID' } });
+      await expect(world.owner("update machvon.site_diary set conflict_note = 'changed' where id = $1", [kept?.id])).rejects.toThrow(/settled conflict/);
+      expect((await read(guest, id)).json).toMatchObject({ actions: { resolveConflict: false }, conflicts: [expect.objectContaining({ state: 'RESOLVED', resolution: 'KEEP_PRIMARY' })] });
+      expect(stale.status).toBe(409);
+
+      // Take the copy: the diary becomes what the device wrote, and what it said before is kept on the copy.
+      const second = await save(guest, target, { record_date: '2026-10-22', device_id: theirs, base_server_version: 1, content: { ...CONTENT, summary: 'Second device, again', workforce_count: 30 } });
+      expect(second.status).toBe(409);
+      const copy = (await copiesOf(id))[1];
+      expect(copy?.diary_no).toBe(`NK-${target.code}-20261022-C2`);
+      const adopt = await resolve(guest, id, 2, { conflict_diary_id: copy?.id, resolution: 'ADOPT_CONFLICT', note: 'The second device has the head count.' });
+      expect(adopt).toMatchObject({ status: 200, json: { resource_version: 3 } });
+      expect((await rows<{ content: Record<string, unknown>; workforce_count: number }>('select content, workforce_count from machvon.site_diary where id = $1', [id]))[0]).toMatchObject({ content: { summary: 'Second device, again' }, workforce_count: 30 });
+      expect((await copiesOf(id))[1]).toMatchObject({ conflict_state: 'RESOLVED', conflict_discarded: { summary: 'Written on the first device, then edited' } });
+
+      // Merge: the diary becomes what the person wrote.
+      expect((await save(guest, target, { record_date: '2026-10-22', device_id: theirs, base_server_version: 1, content: { ...CONTENT, summary: 'Third device' } })).status).toBe(409);
+      const third = (await copiesOf(id))[2];
+      const merge = await resolve(guest, id, 3, { conflict_diary_id: third?.id, resolution: 'MERGED', merged_content: { ...CONTENT, summary: 'Both said it; the pour was at noon' }, note: 'Both are right.' });
+      expect(merge).toMatchObject({ status: 200, json: { resource_version: 4 } });
+      expect((await rows<{ content: Record<string, unknown> }>('select content from machvon.site_diary where id = $1', [id]))[0]?.content).toMatchObject({ summary: 'Both said it; the pour was at noon' });
+      expect((await copiesOf(id))[2]).toMatchObject({ conflict_resolution: 'MERGED', content: { summary: 'Third device' }, conflict_discarded: { summary: 'Second device, again' } });
+    });
+
+    it('refuses what does not settle a conflict: a resolution that is not one, merged content where there is no merge, a copy of another diary, a stale version, and a diary that was signed meanwhile', async () => {
+      const { target, guest, id } = await conflicted('2026-10-23');
+      const [copy] = await copiesOf(id);
+      const other = await conflicted('2026-10-24');
+      const [foreign] = await copiesOf(other.id);
+      const note = 'A note.';
+      expect(await resolve(guest, id, 2, { conflict_diary_id: copy?.id, resolution: 'OVERWRITE', note })).toMatchObject({ status: 422 });
+      expect(await resolve(guest, id, 2, { conflict_diary_id: copy?.id, resolution: 'KEEP_PRIMARY', merged_content: { summary: 'x' }, note })).toMatchObject({ status: 422 });
+      expect(await resolve(guest, id, 2, { conflict_diary_id: copy?.id, resolution: 'MERGED', note })).toMatchObject({ status: 422 });
+      expect(await resolve(guest, id, 2, { conflict_diary_id: copy?.id, resolution: 'KEEP_PRIMARY', note: '  ' })).toMatchObject({ status: 422 });
+      expect(await resolve(guest, id, 2, { conflict_diary_id: foreign?.id, resolution: 'KEEP_PRIMARY', note })).toMatchObject({ status: 422 });
+      expect(await resolve(guest, id, 2, { conflict_diary_id: id, resolution: 'KEEP_PRIMARY', note })).toMatchObject({ status: 422 });
+      expect(await resolve(guest, id, 1, { conflict_diary_id: copy?.id, resolution: 'KEEP_PRIMARY', note })).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+      expect(await resolve(READER, id, 2, { conflict_diary_id: copy?.id, resolution: 'KEEP_PRIMARY', note })).toMatchObject({ status: 403 });
+      expect((await copiesOf(id))[0]?.conflict_state).toBe('CONFLICT_PENDING');
+      // The contractor signed the diary of the day meanwhile: it is not written over, and the diary is kept as it is.
+      expect((await contractorSign(guest, id, 2)).status).toBe(200);
+      expect(await resolve(guest, id, 3, { conflict_diary_id: copy?.id, resolution: 'ADOPT_CONFLICT', note })).toMatchObject({ status: 409, json: { code: 'DIARY_STATE_INVALID' } });
+      expect(await resolve(guest, id, 3, { conflict_diary_id: copy?.id, resolution: 'MERGED', merged_content: { summary: 'x' }, note })).toMatchObject({ status: 409, json: { code: 'DIARY_STATE_INVALID' } });
+      expect(await resolve(guest, id, 3, { conflict_diary_id: copy?.id, resolution: 'KEEP_PRIMARY', note })).toMatchObject({ status: 200, json: { status: 'CONTRACTOR_SIGNED' } });
+      expect(await rows('select 1 from machvon.site_diary where contract_id = $1::uuid and conflict_of_id is null', [target.id])).toHaveLength(1);
+    });
+
+    it('finds the diaries with a copy that waits whatever state they are in, and settles one by keeping a diary that was replaced since (Codex review of ST-QMS-002)', async () => {
+      const { target, guest, id } = await conflicted('2026-10-27');
+      const calm = (await save(guest, target, { record_date: '2026-10-28' })).json.resource_id as string;
+      const waiting = async () => ((await list(guest, `?contract_id=${target.id}&has_conflict=true`)).json.items as Array<{ id: string }>).map((item) => item.id);
+      expect(await waiting()).toEqual([id]);
+      expect((await list(guest, `?contract_id=${target.id}`)).json.items).toHaveLength(2);
+      expect((await list(guest, '?has_conflict=maybe')).status).toBe(422);
+      // The diary is signed, locked and replaced by a correction that is locked in its turn: the copy still waits, and the diary can still be kept.
+      expect((await contractorSign(guest, id, 2)).status).toBe(200);
+      expect((await remark(SUPERVISOR, id, 3)).status).toBe(200);
+      expect((await lock(SUPERVISOR, id, 4)).status).toBe(200);
+      expect(await waiting()).toEqual([id]);
+      const revision = (await correct(guest, id)).json.resource_id as string;
+      expect((await contractorSign(guest, revision, 1)).status).toBe(200);
+      expect((await remark(SUPERVISOR, revision, 2)).status).toBe(200);
+      expect((await lock(SUPERVISOR, revision, 3)).status).toBe(200);
+      expect((await stored(id))?.status).toBe('SUPERSEDED');
+      expect(await waiting()).toEqual([id]);
+      const [copy] = await copiesOf(id);
+      const version = Number((await stored(id))?.version);
+      const kept = await resolve(guest, id, version, { conflict_diary_id: copy?.id, resolution: 'KEEP_PRIMARY', note: 'The diary was replaced since.' });
+      expect(kept).toMatchObject({ status: 200, json: { status: 'SUPERSEDED', resource_version: version } });
+      expect((await stored(id))?.version).toBe(String(version));
+      expect((await copiesOf(id))[0]).toMatchObject({ conflict_state: 'RESOLVED', conflict_resolution: 'KEEP_PRIMARY' });
+      expect(await waiting()).toEqual([]);
+      expect(calm).not.toBe(id);
+    });
+
+    it('AC-ST-QMS-002-3: UAT-AC367 does not keep a place without the consent to it, and keeps one with it', async () => {
+      const target = await contract();
+      const guest = await guestOf(target);
+      const place = { lat: 10.8, lng: 106.7 };
+      const refused = await save(guest, target, { record_date: '2026-10-25', content: { ...CONTENT, location: place } });
+      expect(refused).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'content.geo_consent' } });
+      expect(await save(guest, target, { record_date: '2026-10-25', content: { ...CONTENT, location: place, geo_consent: false } })).toMatchObject({ status: 422 });
+      expect(await save(guest, target, { record_date: '2026-10-25', content: { ...CONTENT, location: { lat: 100, lng: 0 }, geo_consent: true } })).toMatchObject({ status: 422, json: { detail: 'content.location' } });
+      expect(await rows('select 1 from machvon.site_diary where contract_id = $1::uuid', [target.id])).toHaveLength(0);
+      const kept = await save(guest, target, { record_date: '2026-10-25', content: { ...CONTENT, location: place, geo_consent: true } });
+      expect(kept.status).toBe(200);
+      expect((await rows<{ content: Record<string, unknown> }>('select content from machvon.site_diary where id = $1', [kept.json.resource_id as string]))[0]?.content).toMatchObject({ location: place, geo_consent: true });
+      // A revision and the content of a settled conflict follow the same rule.
+      expect(await revise(guest, kept.json.resource_id as string, 1, { ...CONTENT, location: place })).toMatchObject({ status: 422 });
+    });
   });
 
   it('answers a revision that was made before with what it did, at whatever version the retry names, and does not apply it twice (Codex review of ST-QMS-001)', async () => {

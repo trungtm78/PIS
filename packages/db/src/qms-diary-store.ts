@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { DIARY_SIGNATURE_VALUE, DIARY_STATUSES, DomainError, SIGNATURE_METHODS, assertDiaryContent, assertDiaryTransition, assertSignatureMethod, diaryHashOf, legalEffectOf, requiresPermitGate, rolesSignableBy, versionConflict, vietnamDateOf } from '@machvon/kernel';
-import type { DiaryContent, DiaryStatus, SignatureMethod, SignerRole } from '@machvon/kernel';
+import { DIARY_SIGNATURE_VALUE, DIARY_STATUSES, DomainError, SIGNATURE_METHODS, assertConflictResolution, assertDiaryContent, assertDiaryTransition, assertSignatureMethod, diaryHashOf, legalEffectOf, requiresPermitGate, rolesSignableBy, versionConflict, vietnamDateOf } from '@machvon/kernel';
+import type { ConflictResolution, DiaryContent, DiaryStatus, SignatureMethod, SignerRole } from '@machvon/kernel';
 import { CtrContractStore, SCOPE_FROM as CONTRACT_SCOPE_FROM, TIMESTAMP } from './ctr-contract-store.ts';
 import type { ContractPlace, ContractScopes } from './ctr-contract-store.ts';
 import { assertGateOpen } from './permit-gate-guard.ts';
@@ -22,6 +22,9 @@ const CORRECTION_OPEN = 'site_diary_correction_open_uq';
 const CLIENT_OPERATION = 'diary_client_operation';
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
+
+/** The refusal that a device is answered with when it saved over a draft it had not read at its version: the diary of the day, the copy that was kept for it and the version to read (409 `DIARY_SYNC_CONFLICT`). */
+export const conflictRefusal = (kept: QmsDiaryResult): DomainError => new DomainError('DIARY_SYNC_CONFLICT', 409, 'base_server_version', { extensions: { diary_id: kept.conflict?.mainId ?? null, conflict_diary_id: kept.id, server_version: kept.conflict?.mainVersion ?? null } });
 
 const idOf = (value: string, field: string): string => {
   if (!UUID.test(value)) throw invalid(field);
@@ -45,6 +48,13 @@ export interface SaveInput {
   baseServerVersion?: number | undefined;
   content: unknown;
   deviceId?: string | undefined;
+}
+
+export interface ResolveInput {
+  conflictDiaryId: string;
+  resolution: string;
+  mergedContent?: unknown;
+  note: string;
 }
 
 export interface ReviseInput {
@@ -78,6 +88,8 @@ export interface QmsDiaryResult {
   status: DiaryStatus;
   version: number;
   correctionOfId: string | null;
+  /** Set when the command kept a copy of a device in conflict with the main diary instead of changing the main diary: the main diary, and the version it stands at. */
+  conflict: { mainId: string; mainVersion: number } | null;
   /** False when the command found that it had been done (the client operation was seen before) and changed nothing. */
   replayed: boolean;
   signerRole: SignerRole | null;
@@ -97,6 +109,22 @@ export interface DiarySignature {
   valid: boolean;
 }
 
+/** A copy that a device left when it saved over a draft it had not read at its version: what it said, from which device, and how a person settled it. */
+export interface DiaryConflictCopy {
+  id: string;
+  diaryNo: string;
+  state: 'CONFLICT_PENDING' | 'RESOLVED';
+  deviceId: string | null;
+  author: { membershipId: string; displayName: string };
+  createdAt: string;
+  content: DiaryContent;
+  resolution: ConflictResolution | null;
+  note: string | null;
+  /** What the settling set aside, kept as it was: the copy itself for a main diary that was kept, the main diary as it stood for a copy that was taken or merged. */
+  discarded: DiaryContent | null;
+  resolvedAt: string | null;
+}
+
 export interface QmsDiaryLine {
   id: string;
   diaryNo: string;
@@ -114,6 +142,11 @@ export interface QmsDiaryLine {
   lockedAt: string | null;
   correctionOfId: string | null;
   correctionReason: string | null;
+  /** NONE for a diary of the day; CONFLICT_PENDING or RESOLVED for the copy of a device (it points at the diary of the day). */
+  conflictState: 'NONE' | 'CONFLICT_PENDING' | 'RESOLVED';
+  conflictOfId: string | null;
+  /** The copies that devices left for this diary, oldest first. */
+  conflicts: DiaryConflictCopy[];
   author: { membershipId: string; displayName: string };
   signatures: DiarySignature[];
   /** What the regime says about the value of an in-app signature: until the business confirms it (CXN-EXE-05) every diary says that it is not settled. */
@@ -139,6 +172,9 @@ interface LockSql {
   content: DiaryContent;
   content_hash: string | null;
   correction_of_id: string | null;
+  conflict_of_id: string | null;
+  /** Only where the row was read to be answered again: the version the main diary stands at now. */
+  main_version?: string | null;
   author_id: string;
   version: string;
 }
@@ -162,6 +198,8 @@ interface LineSql {
   locked_at: string | null;
   correction_of_id: string | null;
   correction_reason: string | null;
+  conflict_state: 'NONE' | 'CONFLICT_PENDING' | 'RESOLVED';
+  conflict_of_id: string | null;
   author_id: string;
   author_name: string | null;
   created_at: string;
@@ -186,7 +224,7 @@ interface SignatureSql {
 }
 
 const SELECT = `select d.id, d.diary_no, c.id as contract_id, c.code as contract_code, c.status as contract_status, c.project_id, d.record_date::text as record_date, d.status, d.content, d.content_hash, d.weather_code,
-       d.workforce_count, d.supervisor_remark, d.owner_note, d.lock_reason, ${TIMESTAMP('d.locked_at')} as locked_at, d.correction_of_id, d.correction_reason, d.author_id, au.display_name as author_name,
+       d.workforce_count, d.supervisor_remark, d.owner_note, d.lock_reason, ${TIMESTAMP('d.locked_at')} as locked_at, d.correction_of_id, d.correction_reason, d.conflict_state, d.conflict_of_id, d.author_id, au.display_name as author_name,
        ${TIMESTAMP('d.created_at')} as created_at, ${TIMESTAMP('d.updated_at')} as updated_at, d.version::text as version,
        ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path
   from ${CONTRACT_SCOPE_FROM}
@@ -221,7 +259,10 @@ export class QmsDiaryStore {
     if (input.baseServerVersion !== undefined && (!Number.isInteger(input.baseServerVersion) || input.baseServerVersion < 1)) throw invalid('base_server_version');
     const contract = await this.contracts.lock(tx, contractId, scopes);
     const seen = await this.seenOperation(tx, operationId, contractId);
-    if (seen !== undefined) return seen;
+    if (seen !== undefined) {
+      if (seen.conflict !== null) throw conflictRefusal(seen);
+      return seen;
+    }
     if (contract.status !== 'ACTIVE') throw new DomainError('CONTRACT_STATE_INVALID', 409, 'contract_id', { extensions: { contract_status: contract.status } });
     const today = vietnamDateOf(now);
     if (recordDate > today) throw invalid('record_date');
@@ -239,7 +280,8 @@ export class QmsDiaryStore {
       // A correction is revised and signed through its own commands, never saved over by the device of the day.
       if (main.status !== 'DRAFT' || main.correction_of_id !== null) throw new DomainError('DIARY_STATE_INVALID', 409, 'status', { extensions: { diary_status: main.status, diary_id: main.id } });
       if (input.baseServerVersion === undefined) throw new DomainError('DIARY_DAY_EXISTS', 409, 'record_date', { extensions: { diary_id: main.id, server_version: Number(main.version) } });
-      if (input.baseServerVersion !== Number(main.version)) throw new DomainError('DIARY_SYNC_CONFLICT', 409, 'base_server_version', { extensions: { diary_id: main.id, server_version: Number(main.version) } });
+      // Read at another version: nothing is overwritten, and what the device wrote is kept as a copy of its own for a person to settle.
+      if (input.baseServerVersion !== Number(main.version)) return this.keepConflict(tx, main, { contractId, contractCode, projectId: contract.projectId, recordDate, operationId, content: input.content as DiaryContent, weatherCode, workforceCount, deviceId }, actor);
       await tx.query('update machvon.site_diary set content = $2::jsonb, weather_code = $3, workforce_count = $4, device_id = coalesce($5::uuid, device_id), updated_at = now(), updated_by = $6::uuid, version = version + 1 where id = $1::uuid', [
         main.id,
         JSON.stringify(input.content),
@@ -249,7 +291,23 @@ export class QmsDiaryStore {
         actor,
       ]);
       await tx.query("insert into machvon.site_diary_operation (tenant_id, client_operation_id, diary_id, resulting_version) values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::bigint)", [operationId, main.id, Number(main.version) + 1]);
-      return { id: main.id, diaryNo: main.diary_no, contractId, contractCode, projectId: contract.projectId, recordDate, fromStatus: 'DRAFT', status: 'DRAFT', version: Number(main.version) + 1, correctionOfId: null, replayed: false, signerRole: null, signatureMethod: null, legalEffect: null };
+      return {
+        id: main.id,
+        diaryNo: main.diary_no,
+        contractId,
+        contractCode,
+        projectId: contract.projectId,
+        recordDate,
+        fromStatus: 'DRAFT',
+        status: 'DRAFT',
+        version: Number(main.version) + 1,
+        correctionOfId: null,
+        conflict: null,
+        replayed: false,
+        signerRole: null,
+        signatureMethod: null,
+        legalEffect: null,
+      };
     }
     const id = randomUUID();
     const diaryNo = `NK-${contractCode}-${recordDate.replace(/-/g, '')}`;
@@ -266,7 +324,7 @@ export class QmsDiaryStore {
       if (failure.code === UNIQUE_VIOLATION && failure.constraint === CLIENT_OPERATION) throw invalid('client_operation_id');
       throw error;
     }
-    return { id, diaryNo, contractId, contractCode, projectId: contract.projectId, recordDate, fromStatus: null, status: 'DRAFT', version: 1, correctionOfId: null, replayed: false, signerRole: null, signatureMethod: null, legalEffect: null };
+    return { id, diaryNo, contractId, contractCode, projectId: contract.projectId, recordDate, fromStatus: null, status: 'DRAFT', version: 1, correctionOfId: null, conflict: null, replayed: false, signerRole: null, signatureMethod: null, legalEffect: null };
   }
 
   /**
@@ -287,12 +345,99 @@ export class QmsDiaryStore {
     }
     const held = await this.lock(tx, id, expectedVersion, scopes);
     assertDiaryTransition('revise', held.status);
-    if (held.contract_status !== 'ACTIVE') throw new DomainError('CONTRACT_STATE_INVALID', 409, 'contract_id', { extensions: { contract_status: held.contract_status } });
-    const facts = (await tx.query<{ advance_category: string }>('select advance_category from machvon.contract where id = $1::uuid', [held.contract_id]))[0];
-    if (requiresPermitGate(facts?.advance_category ?? '')) await assertGateOpen(this.gates, tx, held.project_id, START_GATE, vietnamDateOf(now));
+    await this.assertWritable(tx, held, now);
     await tx.query('update machvon.site_diary set content = $2::jsonb, weather_code = $3, workforce_count = $4, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid', [id, JSON.stringify(input.content), weatherCode, workforceCount, actor]);
     await tx.query("insert into machvon.site_diary_operation (tenant_id, client_operation_id, diary_id, resulting_version) values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::bigint)", [operationId, id, Number(held.version) + 1]);
     return this.resultOf(held, held.status, 'DRAFT', null);
+  }
+
+  /** A draft is written only while the contract is being performed (409 `CONTRACT_STATE_INVALID`) and the permits of the start of construction are open (409 `PERMIT_GATE_BLOCKED`). */
+  private async assertWritable(tx: TenantTx, held: LockSql, now: Date): Promise<void> {
+    if (held.contract_status !== 'ACTIVE') throw new DomainError('CONTRACT_STATE_INVALID', 409, 'contract_id', { extensions: { contract_status: held.contract_status } });
+    const facts = (await tx.query<{ advance_category: string }>('select advance_category from machvon.contract where id = $1::uuid', [held.contract_id]))[0];
+    if (requiresPermitGate(facts?.advance_category ?? '')) await assertGateOpen(this.gates, tx, held.project_id, START_GATE, vietnamDateOf(now));
+  }
+
+  /**
+   * Keeps what a stale device wrote as a copy of its own: a draft that points at the diary of the day (CONFLICT_PENDING), under the operation of the device, so that the same operation again is told the same. The diary of
+   * the day is not touched.
+   */
+  private async keepConflict(
+    tx: TenantTx,
+    main: { id: string; diary_no: string; version: string },
+    input: { contractId: string; contractCode: string; projectId: string; recordDate: string; operationId: string; content: DiaryContent; weatherCode: string | null; workforceCount: number | null; deviceId: string | null },
+    actor: string,
+  ): Promise<QmsDiaryResult> {
+    const copies = Number((await tx.query<{ n: string }>('select count(*)::text as n from machvon.site_diary where conflict_of_id = $1::uuid', [main.id]))[0]?.n ?? '0');
+    const id = randomUUID();
+    const diaryNo = `${main.diary_no}-C${copies + 1}`;
+    try {
+      await tx.query(
+        `insert into machvon.site_diary
+           (tenant_id, id, project_id, contract_id, record_date, client_operation_id, content, author_id, version, diary_no, status, weather_code, workforce_count, device_id, conflict_of_id, conflict_state, created_by, updated_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::date, $5::uuid, $6::jsonb, $7::uuid, 1, $8, 'DRAFT', $9, $10, $11::uuid, $12::uuid, 'CONFLICT_PENDING', $7::uuid, $7::uuid)`,
+        [id, input.projectId, input.contractId, input.recordDate, input.operationId, JSON.stringify(input.content), actor, diaryNo, input.weatherCode, input.workforceCount, input.deviceId, main.id],
+      );
+    } catch (error) {
+      const failure = error as { code?: string; constraint?: string };
+      if (failure.code === UNIQUE_VIOLATION && failure.constraint === CLIENT_OPERATION) throw invalid('client_operation_id');
+      throw error;
+    }
+    return {
+      id,
+      diaryNo,
+      contractId: input.contractId,
+      contractCode: input.contractCode,
+      projectId: input.projectId,
+      recordDate: input.recordDate,
+      fromStatus: null,
+      status: 'DRAFT',
+      version: 1,
+      correctionOfId: null,
+      conflict: { mainId: main.id, mainVersion: Number(main.version) },
+      replayed: false,
+      signerRole: null,
+      signatureMethod: null,
+      legalEffect: null,
+    };
+  }
+
+  /**
+   * A person settles the conflict of a device with the diary of the day: keep the diary (the copy is set aside), take the copy (the diary becomes what the device wrote) or merge them (the diary becomes the content
+   * that the person wrote). Nothing is lost: the copy stays with how it was settled, and what was set aside is kept with it (`conflict_discarded`). The diary is changed only while it is a draft (409
+   * `DIARY_STATE_INVALID`; keeping it changes nothing of it and is open in every state) and under the rules of a draft (the contract in force, the permits open); a copy that is not of this diary, or was settled, is not settled again.
+   */
+  async resolveConflict(tx: TenantTx, id: string, expectedVersion: number, input: ResolveInput, actor: string, scopes: ContractScopes, now: Date): Promise<QmsDiaryResult> {
+    const note = textOf(input.note, 'note');
+    const conflictId = idOf(input.conflictDiaryId, 'conflict_diary_id');
+    const { resolution, merged } = assertConflictResolution({ resolution: input.resolution, mergedContent: input.mergedContent });
+    const held = await this.lock(tx, id, expectedVersion, scopes);
+    const copy = (
+      await tx.query<{ id: string; content: DiaryContent; weather_code: string | null; workforce_count: number | null; conflict_state: string; conflict_of_id: string | null }>(
+        'select id, content, weather_code, workforce_count, conflict_state, conflict_of_id from machvon.site_diary where id = $1::uuid for update',
+        [conflictId],
+      )
+    )[0];
+    if (copy === undefined || copy.conflict_of_id !== held.id) throw invalid('conflict_diary_id');
+    if (copy.conflict_state !== 'CONFLICT_PENDING') throw new DomainError('DIARY_STATE_INVALID', 409, 'conflict_diary_id', { extensions: { conflict_state: copy.conflict_state } });
+    let discarded: DiaryContent = copy.content;
+    if (resolution !== 'KEEP_PRIMARY') {
+      // The diary takes what the copy said, or what the person wrote: only a draft is written over, and under the rules of a draft.
+      assertDiaryTransition('revise', held.status);
+      await this.assertWritable(tx, held, now);
+      const next = resolution === 'ADOPT_CONFLICT' ? copy.content : (merged as DiaryContent);
+      const { weatherCode, workforceCount } = assertDiaryContent(next);
+      discarded = held.content;
+      await tx.query('update machvon.site_diary set content = $2::jsonb, weather_code = $3, workforce_count = $4, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid', [held.id, JSON.stringify(next), weatherCode, workforceCount, actor]);
+    }
+    await tx.query(
+      `update machvon.site_diary set conflict_state = 'RESOLVED', conflict_resolution = $2, conflict_note = $3, conflict_discarded = $4::jsonb, conflict_resolved_by = $5::uuid, conflict_resolved_at = now(),
+         updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid`,
+      [copy.id, resolution, note, JSON.stringify(discarded), actor],
+    );
+    // Keeping the diary changes nothing of it, in whatever state it is (a replaced diary included): it stands at the version it had. The other two ways moved it.
+    const result = this.resultOf(held, held.status, held.status, null);
+    return resolution === 'KEEP_PRIMARY' ? { ...result, version: Number(held.version) } : result;
   }
 
   /** The contractor signs the draft over the hash of what it says (BR-QMS-02). The diary is then kept as it is. */
@@ -390,13 +535,14 @@ export class QmsDiaryStore {
       return seen;
     }
     const rows = await tx.query<LockSql>(
-      `select d.id, d.diary_no, c.id as contract_id, c.code as contract_code, c.status as contract_status, c.project_id, d.record_date::text as record_date, d.status, d.content, d.content_hash, d.correction_of_id, d.author_id, d.version::text as version
+      `select d.id, d.diary_no, c.id as contract_id, c.code as contract_code, c.status as contract_status, c.project_id, d.record_date::text as record_date, d.status, d.content, d.content_hash, d.correction_of_id, d.conflict_of_id, d.author_id, d.version::text as version
          from machvon.site_diary d join machvon.contract c on c.tenant_id = d.tenant_id and c.id = d.contract_id where d.id = $1::uuid for update of d`,
       [id],
     );
     const original = rows[0];
     if (original === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (contract.status !== 'ACTIVE') throw new DomainError('CONTRACT_STATE_INVALID', 409, 'contract_id', { extensions: { contract_status: contract.status } });
+    if (original.conflict_of_id !== null) throw new DomainError('DIARY_STATE_INVALID', 409, 'status', { extensions: { conflict_of_id: original.conflict_of_id } });
     if (original.status !== 'LOCKED') throw new DomainError('DIARY_STATE_INVALID', 409, 'status', { extensions: { diary_status: original.status } });
     const base = original.diary_no.replace(/-R\d+$/, '');
     // The revisions of the day are counted by what they are (the contract, the day and that they correct), not by a pattern made of the number, whose characters (a backslash, % or _ in a contract code) are not all literal.
@@ -427,6 +573,7 @@ export class QmsDiaryStore {
       status: 'DRAFT',
       version: 1,
       correctionOfId: id,
+      conflict: null,
       replayed: false,
       signerRole: null,
       signatureMethod: null,
@@ -439,18 +586,18 @@ export class QmsDiaryStore {
     tx: TenantTx,
     scope: ScopeBuilder,
     viewer: string,
-    filter: { contractId?: string | undefined; status?: string | undefined; from?: string | undefined; to?: string | undefined; limit: number; after?: { code: string; id: string } | undefined },
+    filter: { contractId?: string | undefined; status?: string | undefined; from?: string | undefined; to?: string | undefined; hasConflict?: boolean | undefined; limit: number; after?: { code: string; id: string } | undefined },
   ): Promise<{ lines: QmsDiaryLine[]; next: { code: string; id: string } | undefined }> {
     if (filter.status !== undefined && !(DIARY_STATUSES as readonly string[]).includes(filter.status)) throw invalid('status');
     const from = filter.from === undefined ? null : dateOf(filter.from, 'from');
     const to = filter.to === undefined ? null : dateOf(filter.to, 'to');
     if (filter.after !== undefined) dateOf(filter.after.code, 'cursor');
-    const predicate = scope(7);
+    const predicate = scope(8);
     const rows = await tx.query<LineSql>(
-      `${SELECT} where ${predicate.sql} and ($1::uuid is null or d.contract_id = $1::uuid) and ($2::text is null or d.status = $2) and ($3::date is null or d.record_date >= $3::date) and ($4::date is null or d.record_date <= $4::date)
+      `${SELECT} where ${predicate.sql} and d.conflict_of_id is null and (not $7::boolean or exists (select 1 from machvon.site_diary k where k.tenant_id = d.tenant_id and k.conflict_of_id = d.id and k.conflict_state = 'CONFLICT_PENDING')) and ($1::uuid is null or d.contract_id = $1::uuid) and ($2::text is null or d.status = $2) and ($3::date is null or d.record_date >= $3::date) and ($4::date is null or d.record_date <= $4::date)
          and ($5::date is null or (d.record_date, d.id) < ($5::date, $6::uuid))
         order by d.record_date desc, d.id desc limit ${filter.limit + 1}`,
-      [filter.contractId ?? null, filter.status ?? null, from, to, filter.after?.code ?? null, filter.after?.id ?? null, ...predicate.params],
+      [filter.contractId ?? null, filter.status ?? null, from, to, filter.after?.code ?? null, filter.after?.id ?? null, filter.hasConflict === true, ...predicate.params],
     );
     const page = rows.slice(0, filter.limit);
     const last = page.at(-1);
@@ -469,7 +616,7 @@ export class QmsDiaryStore {
   private async seenOperation(tx: TenantTx, operationId: string, contractId: string): Promise<QmsDiaryResult | undefined> {
     const kept = (await tx.query<{ resulting_version: string }>('select resulting_version::text as resulting_version from machvon.site_diary_operation where client_operation_id = $1::uuid', [operationId]))[0];
     const rows = await tx.query<LockSql & { contract_code: string }>(
-      `select d.id, d.diary_no, c.id as contract_id, c.code as contract_code, c.status as contract_status, c.project_id, d.record_date::text as record_date, d.status, d.content, d.content_hash, d.correction_of_id, d.author_id, d.version::text as version
+      `select (select m.version::text from machvon.site_diary m where m.id = d.conflict_of_id) as main_version, d.id, d.diary_no, c.id as contract_id, c.code as contract_code, c.status as contract_status, c.project_id, d.record_date::text as record_date, d.status, d.content, d.content_hash, d.correction_of_id, d.conflict_of_id, d.author_id, d.version::text as version
          from machvon.site_diary d join machvon.contract c on c.tenant_id = d.tenant_id and c.id = d.contract_id
         where d.client_operation_id = $1::uuid or d.id = (select o.diary_id from machvon.site_diary_operation o where o.client_operation_id = $1::uuid)`,
       [operationId],
@@ -486,6 +633,10 @@ export class QmsDiaryStore {
   private async lines(tx: TenantTx, rows: LineSql[], viewer: string): Promise<QmsDiaryLine[]> {
     if (rows.length === 0) return [];
     const signatures = await this.signaturesOf(
+      tx,
+      rows.map((row) => row.id),
+    );
+    const copies = await this.copiesOf(
       tx,
       rows.map((row) => row.id),
     );
@@ -514,6 +665,9 @@ export class QmsDiaryStore {
         lockedAt: row.locked_at,
         correctionOfId: row.correction_of_id,
         correctionReason: row.correction_reason,
+        conflictState: row.conflict_state,
+        conflictOfId: row.conflict_of_id,
+        conflicts: copies.filter((copy) => copy.mainId === row.id).map((copy) => copy.copy),
         author: { membershipId: row.author_id, displayName: row.author_name ?? '' },
         signatures: own.map((signature) => ({
           role: signature.signer_role,
@@ -540,6 +694,47 @@ export class QmsDiaryStore {
       });
     }
     return lines;
+  }
+
+  /** The copies that devices left for these diaries, oldest first, with how each was settled. */
+  private async copiesOf(tx: TenantTx, ids: readonly string[]): Promise<Array<{ mainId: string; copy: DiaryConflictCopy }>> {
+    const rows = await tx.query<{
+      id: string;
+      diary_no: string;
+      conflict_of_id: string;
+      conflict_state: 'CONFLICT_PENDING' | 'RESOLVED';
+      device_id: string | null;
+      author_id: string;
+      author_name: string | null;
+      created_at: string;
+      content: DiaryContent;
+      conflict_resolution: ConflictResolution | null;
+      conflict_note: string | null;
+      conflict_discarded: DiaryContent | null;
+      conflict_resolved_at: string | null;
+    }>(
+      `select d.id, d.diary_no, d.conflict_of_id, d.conflict_state, d.device_id, d.author_id, au.display_name as author_name, ${TIMESTAMP('d.created_at')} as created_at, d.content, d.conflict_resolution, d.conflict_note,
+              d.conflict_discarded, ${TIMESTAMP('d.conflict_resolved_at')} as conflict_resolved_at
+         from machvon.site_diary d left join machvon.tenant_user_directory au on au.tenant_id = d.tenant_id and au.membership_id = d.author_id
+        where d.conflict_of_id = any($1::uuid[]) order by d.created_at, d.id`,
+      [ids],
+    );
+    return rows.map((row) => ({
+      mainId: row.conflict_of_id,
+      copy: {
+        id: row.id,
+        diaryNo: row.diary_no,
+        state: row.conflict_state,
+        deviceId: row.device_id,
+        author: { membershipId: row.author_id, displayName: row.author_name ?? '' },
+        createdAt: row.created_at,
+        content: row.content,
+        resolution: row.conflict_resolution,
+        note: row.conflict_note,
+        discarded: row.conflict_discarded,
+        resolvedAt: row.conflict_resolved_at,
+      },
+    }));
   }
 
   private async signaturesOf(tx: TenantTx, ids: readonly string[]): Promise<SignatureSql[]> {
@@ -584,13 +779,15 @@ export class QmsDiaryStore {
     if (peek[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     await this.contracts.lock(tx, peek[0].contract_id, scopes);
     const rows = await tx.query<LockSql>(
-      `select d.id, d.diary_no, c.id as contract_id, c.code as contract_code, c.status as contract_status, c.project_id, d.record_date::text as record_date, d.status, d.content, d.content_hash, d.correction_of_id, d.author_id, d.version::text as version
+      `select d.id, d.diary_no, c.id as contract_id, c.code as contract_code, c.status as contract_status, c.project_id, d.record_date::text as record_date, d.status, d.content, d.content_hash, d.correction_of_id, d.conflict_of_id, d.author_id, d.version::text as version
          from machvon.site_diary d join machvon.contract c on c.tenant_id = d.tenant_id and c.id = d.contract_id
         where d.id = $1::uuid for update of d`,
       [id],
     );
     const row = rows[0];
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    // The copy of a device is settled through the diary it points at; it is never edited, signed or locked by itself.
+    if (row.conflict_of_id !== null) throw new DomainError('DIARY_STATE_INVALID', 409, 'status', { extensions: { conflict_of_id: row.conflict_of_id } });
     if (Number(row.version) !== expectedVersion) throw versionConflict(Number(row.version));
     return row;
   }
@@ -607,6 +804,7 @@ export class QmsDiaryStore {
       status,
       version: Number(held.version) + 1,
       correctionOfId: held.correction_of_id,
+      conflict: held.conflict_of_id === null ? null : { mainId: held.conflict_of_id, mainVersion: Number(held.main_version ?? 0) },
       replayed: false,
       signerRole: signer?.role ?? null,
       signatureMethod: signer?.method ?? null,

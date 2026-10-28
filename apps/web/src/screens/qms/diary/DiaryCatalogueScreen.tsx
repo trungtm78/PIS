@@ -9,7 +9,7 @@ import { useContracts } from '../../ctr/hooks';
 import { NewDiaryDialog } from './DiaryDialogs';
 import { useDiaries } from './hooks';
 import { roleLabel, statusLabel } from './labels';
-import { DIARY_ROLES, DIARY_STATUSES, NO_FILTER, canWrite, composeLink, reviewLink, vietnamToday } from './model';
+import { DIARY_ROLES, DIARY_STATUSES, NO_FILTER, canWrite, composeLink, pendingConflicts, reviewLink, vietnamToday } from './model';
 import type { DiaryFilter } from './model';
 import '../qms.css';
 
@@ -77,6 +77,11 @@ function CatalogueContent({ route }: ScreenProps) {
           </select>
         </div>
         <div className="field">
+          <label htmlFor="diary-filter-conflict">
+            <input id="diary-filter-conflict" type="checkbox" checked={filter.hasConflict} onChange={(event) => change({ hasConflict: event.target.checked })} /> {t('qms.diary.filter.conflict')}
+          </label>
+        </div>
+        <div className="field">
           <label htmlFor="diary-filter-from">{t('qms.diary.filter.from')}</label>
           <input id="diary-filter-from" type="date" value={filter.from} onChange={(event) => change({ from: event.target.value })} />
         </div>
@@ -111,6 +116,11 @@ function CatalogueContent({ route }: ScreenProps) {
                       <strong>{line.diaryNo}</strong>
                       <small className="sub qms-regime">{line.contract.code}</small>
                       {line.correctionOfId === null ? null : <span className="qms-badge">{t('qms.diary.correction.badge')}</span>}
+                      {pendingConflicts(line).length === 0 ? null : (
+                        <span className="qms-badge warning" data-testid="conflicts-waiting">
+                          {t('qms.diary.conflicts.count', { count: pendingConflicts(line).length })}
+                        </span>
+                      )}
                     </td>
                     <td data-testid="day">{line.recordDate}</td>
                     <td data-testid="chain">
@@ -135,7 +145,7 @@ function CatalogueContent({ route }: ScreenProps) {
                       <Link className="button" to={composeLink(line.id)} data-open={line.id}>
                         {t('qms.diary.open.action')}
                       </Link>
-                      {line.actions.supervise || line.actions.ownerConfirm || line.actions.lock ? (
+                      {line.actions.supervise || line.actions.ownerConfirm || line.actions.lock || line.actions.resolveConflict ? (
                         <Link className="button" to={reviewLink(line.id)} data-review={line.id}>
                           {t('qms.diary.review.action')}
                         </Link>

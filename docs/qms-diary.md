@@ -19,7 +19,7 @@ the remark of the supervisor is kept once written, and `machvon_app` has no `DEL
 | the contract has a permit to start works (START_CONSTRUCTION gate) | 409 `PERMIT_GATE_BLOCKED` |
 | the content is a non-empty object of at most 64 KiB; `weather_code` is an upper-case code; `workforce_count` is a whole number from 0 to 1,000,000 (`assertDiaryContent`) | 422 `VALIDATION_FAILED` |
 | one main diary per contract and day; a second save of the same day without the version it was based on | 409 `DIARY_DAY_EXISTS` |
-| a save based on a version other than the one that is held (an offline client that fell behind) | 409 `DIARY_SYNC_CONFLICT` |
+| a save based on a version other than the one that is held (an offline client that fell behind) | 409 `DIARY_SYNC_CONFLICT`, after the commit of the copy that was kept for the device (see the conflict below) |
 | the diary is a draft | 409 `DIARY_STATE_INVALID` |
 
 The number is `NK-{contract code}-{yyyymmdd}` (`-R{n}` for a correction). Every save carries `client_operation_id`: the same one again answers the first answer (`replayed`), it does not write twice. The diary keeps the operation that made it; an update of a draft (a save of the day or a revision) keeps its operation in `site_diary_operation` (append-only), so that a device that did not hear the answer and asks again with another key of the request is told what the update did and not that the draft moved on. A day whose diary was replaced by a correction has a diary: saving it is 409 `DIARY_STATE_INVALID`, and a correction is revised and signed through its own commands, never saved over. `reviseSiteDiaryDraft` is held to the same rules as a save: the contract must be `ACTIVE` and the permits of the start of construction open.
@@ -62,14 +62,40 @@ content, the remark or the note.
 |---|---|
 | QMS-01 (`DiaryCatalogueScreen`) | the catalogue with filters (contract, status, days), the chain of signatures per diary and the drafting of a new diary |
 | QMS-02 (`DiaryComposeScreen`, `?diary=`) | the draft as a form saved as the version it was read at; signing as the contractor; correcting a locked diary; the note on the value of an in-app signature |
-| QMS-03 (`DiaryReviewScreen`, `?diary=`) | the remark of the supervisor, the confirmation of the owner and the lock; without `?diary=`, the queue of diaries that wait for the caller |
+| QMS-03 (`DiaryReviewScreen`, `?diary=`) | the remark of the supervisor, the confirmation of the owner, the lock and the settling of a conflict (`resolveDiaryConflict`); without `?diary=`, the queue of diaries that wait for the caller |
 
 Each has the seven states, forms that name the problem before anything is sent, and the refusals of the server in words. The server judges every command again.
 
 ## Not in this story
 
 - The lock after three working days without a supervisor (a scheduled job; the story's `lockReason` is already carried) and its alert.
-- `resolveDiaryConflict` and the conflict copies of an offline client (ST-QMS-002), `getDiaryCoverage` (days without a diary).
+- `getDiaryCoverage` (days without a diary).
 - Photos and attachments of the diary (ST-QMS-003).
 - Checking the serial of a certificate against the DOC adapter; today the serial is kept as given.
 - The value of an in-app signature (CXN-EXE-05) is a constant on the view, to be replaced by the business rule when it is settled.
+
+## Offline: the conflict of two devices and the place (ST-QMS-002, QMS-09)
+
+The phone writes the diary offline and sends commands with their `client_operation_id`; the server is the judge of what goes in (the Flutter app, the queue on the device and the sync rules of PowerSync are outside this repository's
+environment: DONE_PENDING_ENV, see TODOS).
+
+**Conflict.** A device that saves over a draft it had not read at its version (`base_server_version` is not the version held) does not overwrite anything and does not make a second diary: its content is kept as a **copy** (a draft
+with `conflict_of_id` pointing at the diary of the day, `conflict_state = CONFLICT_PENDING`, number `…-C{n}`, the `device_id`), the transaction commits, and the device is answered 409 `DIARY_SYNC_CONFLICT` with `diary_id`,
+`conflict_diary_id` and `server_version` (`refuseAfterCommit`). The same operation again is answered with the same refusal and the same copy. A copy is never edited, signed, locked or corrected by itself (409
+`DIARY_STATE_INVALID`, and the triggers of V1463/V1464 say the same); the list shows the diary of the day once, and the copies are shown on it (`conflicts`, `actions.resolveConflict`).
+
+**Settling** (`resolveDiaryConflict`, `diary.write`, versioned on the diary of the day, V1464): `conflict_diary_id`, `resolution` and a `note` (1 to 2000 characters; 422 otherwise).
+
+| resolution | what happens | when |
+|---|---|---|
+| `KEEP_PRIMARY` | the diary stays as it is; the copy is set aside | any state of the diary |
+| `ADOPT_CONFLICT` | the diary takes the content of the copy | the diary is a draft (409 `DIARY_STATE_INVALID` otherwise) and a draft may be written (contract `ACTIVE`, permits open) |
+| `MERGED` | the diary takes `merged_content` (the same content rules as any diary) | as `ADOPT_CONFLICT`; `merged_content` only here (422 otherwise) |
+
+The copy becomes `RESOLVED` with the resolution, the note, who and when, and `conflict_discarded`: what was set aside, kept as it was (the copy itself for `KEEP_PRIMARY`, the diary as it stood for the other two). A settled copy is kept
+as it is (trigger) and is not settled again; a copy of another diary is 422 `VALIDATION_FAILED` (`conflict_diary_id`). The diary's version moves with every settling, so that the devices read it again. Audit
+(`site_diary.conflict_stored`, `site_diary.conflict_resolved`) and the event `qms.site_diary.conflict_resolved.v1` carry ids, the resolution and the version, never the words of either side.
+
+**The place.** A diary keeps a place (`content.location` = `{lat, lng}`) only with the consent to it (`content.geo_consent: true`): a place without the consent, or one that is not a place, is refused with 422
+`VALIDATION_FAILED` (`content.geo_consent` / `content.location`) in a save, a revision, a correction and a merge, and nothing is stored. The device does not send a place when the person refused the permission, and wipes what it
+holds of the previous tenant when the tenant changes (device side, outside this repository's environment).

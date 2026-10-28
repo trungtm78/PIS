@@ -54,9 +54,40 @@ export function assertDiaryContent(content: unknown): { weatherCode: string | nu
   if (Buffer.byteLength(JSON.stringify(content), 'utf8') > MAX_DIARY_BYTES) throw new DomainError('VALIDATION_FAILED', 422, 'content');
   const weather = content.weather_code;
   if (weather !== undefined && weather !== null && !(typeof weather === 'string' && WEATHER_CODE.test(weather))) throw new DomainError('VALIDATION_FAILED', 422, 'content.weather_code');
+  assertDiaryLocation(content);
   const workforce = content.workforce_count;
   if (workforce !== undefined && workforce !== null && !(typeof workforce === 'number' && Number.isInteger(workforce) && workforce >= 0 && workforce <= 1_000_000)) throw new DomainError('VALIDATION_FAILED', 422, 'content.workforce_count');
   return { weatherCode: typeof weather === 'string' ? weather : null, workforceCount: typeof workforce === 'number' ? workforce : null };
+}
+
+/**
+ * A place is kept in a diary only with the consent of the person it was taken from (ST-QMS-002, the consent to the location): `location` is a latitude and a longitude and comes with `geo_consent: true`. A device
+ * that has no consent sends no place, and a place that comes without it is refused, not kept and not silently dropped (422 `VALIDATION_FAILED`).
+ */
+function assertDiaryLocation(content: Record<string, unknown>): void {
+  const place = content.location;
+  if (place === undefined || place === null) return;
+  if (content.geo_consent !== true) throw new DomainError('VALIDATION_FAILED', 422, 'content.geo_consent');
+  const latitude = isRecord(place) ? place.lat : undefined;
+  const longitude = isRecord(place) ? place.lng : undefined;
+  const sound = typeof latitude === 'number' && Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && typeof longitude === 'number' && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
+  if (!sound) throw new DomainError('VALIDATION_FAILED', 422, 'content.location');
+}
+
+/** The ways a person settles the conflict of two devices (QMS 3.1): keep the main diary, take the copy of the other device, or write what both said. */
+export const CONFLICT_RESOLUTIONS = ['KEEP_PRIMARY', 'ADOPT_CONFLICT', 'MERGED'] as const;
+export type ConflictResolution = (typeof CONFLICT_RESOLUTIONS)[number];
+
+/** 422 `VALIDATION_FAILED` unless the resolution is one of the three, `MERGED` comes with the content that merges them and the others come with none. */
+export function assertConflictResolution(input: { resolution: unknown; mergedContent: unknown }): { resolution: ConflictResolution; merged: DiaryContent | null } {
+  const resolution = CONFLICT_RESOLUTIONS.find((candidate) => candidate === input.resolution);
+  if (resolution === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'resolution');
+  if (resolution !== 'MERGED') {
+    if (input.mergedContent !== undefined && input.mergedContent !== null) throw new DomainError('VALIDATION_FAILED', 422, 'merged_content');
+    return { resolution, merged: null };
+  }
+  assertDiaryContent(input.mergedContent);
+  return { resolution, merged: input.mergedContent as DiaryContent };
 }
 
 /** JSON with sorted keys and numbers written as strings (BR-QMS-02), so that the same content always gives the same text, whatever order it was written in. */

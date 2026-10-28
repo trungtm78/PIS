@@ -7,7 +7,7 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ContentFields, CorrectDialog, SignDialog } from './DiaryDialogs';
-import { DiaryContent, DiaryTitle, OtherContent, LegalNote, SignatureChain } from './DiaryParts';
+import { ConflictPanel, DiaryContent, DiaryTitle, OtherContent, LegalNote, SignatureChain } from './DiaryParts';
 import { useDiary, useReviseDiary } from './hooks';
 import { formProblemMessage, problemMessage } from './labels';
 import { canAct, catalogueLink, contentOf, describeProblem, formOf, reviewLink, validateDiary } from './model';
@@ -104,6 +104,7 @@ function ComposeContent({ route }: ScreenProps) {
                   {t('qms.diary.draft.saved')}
                 </p>
               ) : null}
+              <ConflictPanel line={line} />
               <h2>{t('qms.diary.signatures.title')}</h2>
               <SignatureChain line={line} />
               {writable ? (
@@ -125,7 +126,7 @@ function ComposeContent({ route }: ScreenProps) {
                   {t('qms.diary.draft.unsaved')}
                 </p>
               ) : null}
-              {line.status === 'DRAFT' || line.status === 'SUPERSEDED' ? null : (
+              {(line.status === 'DRAFT' || line.status === 'SUPERSEDED') && !line.actions.resolveConflict ? null : (
                 <Link className="button" to={reviewLink(line.id)} data-testid="to-review">
                   {t('qms.diary.review.action')}
                 </Link>

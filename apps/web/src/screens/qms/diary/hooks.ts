@@ -4,7 +4,7 @@ import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
 import { filterQuery, toDiaryLine, toDiaryPage } from './model';
-import type { CorrectBody, DiaryFilter, DiaryLine, DiaryPage, SaveBody, SignBody } from './model';
+import type { CorrectBody, DiaryFilter, DiaryLine, DiaryPage, ResolveBody, SaveBody, SignBody } from './model';
 
 export const DIARY_PAGE = 50;
 
@@ -89,6 +89,11 @@ export function useOwnerConfirm() {
 export function useLockDiary() {
   const client = useApiClient();
   return useCommand<VersionedInput<{ reason?: string }>>((input, attempt) => client.command('lockSiteDiary', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+}
+
+export function useResolveConflict() {
+  const client = useApiClient();
+  return useCommand<VersionedInput<ResolveBody>>((input, attempt) => client.command('resolveDiaryConflict', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
 }
 
 export function useCorrectDiary() {

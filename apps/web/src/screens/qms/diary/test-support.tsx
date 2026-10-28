@@ -25,7 +25,7 @@ export const signature = (role: string, name: string, overrides: Record<string, 
   ...overrides,
 });
 
-const NONE = { revise: false, contractorSign: false, supervise: false, ownerConfirm: false, lock: false, correct: false };
+const NONE = { resolveConflict: false, revise: false, contractorSign: false, supervise: false, ownerConfirm: false, lock: false, correct: false };
 export const actions = (on: Partial<Record<keyof typeof NONE, boolean>> = {}) => ({ ...NONE, ...on });
 
 /** A diary as the list and the read by id answer it: a draft the caller may edit and sign, unless the test says otherwise. */
@@ -45,10 +45,29 @@ export const diary = (n: number, overrides: Record<string, unknown> = {}) => ({
   correction_reason: null,
   author: { membership_id: uuid('00d1', 1), display_name: 'Nhà thầu An Phát' },
   signatures: [],
+  conflict_state: 'NONE',
+  conflict_of_id: null,
+  conflicts: [],
   signature_value: { cxn: 'CXN-EXE-05', awaiting_confirmation: true },
   signable_roles: ['CONTRACTOR'],
   actions: actions({ revise: true, contractorSign: true }),
   version: 2,
+  ...overrides,
+});
+
+/** The copy that a second device left for a diary, waiting to be settled unless the test says otherwise. */
+export const copy = (n: number, overrides: Record<string, unknown> = {}) => ({
+  id: diaryId(80 + n),
+  diary_no: `NK-HD-A-002-20261021-C${n}`,
+  state: 'CONFLICT_PENDING',
+  device_id: `00000000-0000-4000-8000-0000000000d${n}`,
+  author: { membership_id: '00000000-0000-4000-8000-00d100000001', display_name: 'Kỹ sư B' },
+  created_at: '2026-10-25T04:00:00.000Z',
+  content: { summary: `Việc ghi trên thiết bị thứ ${n + 1}`, workforce_count: 30 },
+  resolution: null,
+  note: null,
+  discarded: null,
+  resolved_at: null,
   ...overrides,
 });
 
@@ -76,7 +95,8 @@ export function client(state: World, command: (operation: string, input: unknown
           (query.contract_id === undefined || (item.contract as { id: string }).id === query.contract_id) &&
           (query.status === undefined || item.status === query.status) &&
           (query.from === undefined || (item.record_date as string) >= String(query.from)) &&
-          (query.to === undefined || (item.record_date as string) <= String(query.to)),
+          (query.to === undefined || (item.record_date as string) <= String(query.to)) &&
+          (query.has_conflict === undefined || ((item.conflicts as Array<{ state: string }>) ?? []).some((entry) => entry.state === 'CONFLICT_PENDING')),
       );
       const start = query.cursor === undefined ? 0 : Number(query.cursor);
       const slice = items.slice(start, start + state.page);

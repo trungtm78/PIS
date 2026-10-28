@@ -45,7 +45,27 @@ export interface DiarySignature {
   valid: boolean;
 }
 
+/** The ways a person settles the conflict of two devices. */
+export const CONFLICT_RESOLUTIONS = ['KEEP_PRIMARY', 'ADOPT_CONFLICT', 'MERGED'] as const;
+export type ConflictResolution = (typeof CONFLICT_RESOLUTIONS)[number];
+
+/** What a device left when it saved over a draft it had not read at its version, and how a person settled it. */
+export interface ConflictCopy {
+  id: string;
+  diaryNo: string;
+  state: 'CONFLICT_PENDING' | 'RESOLVED';
+  deviceId: string | null;
+  author: string;
+  createdAt: string;
+  content: Raw;
+  resolution: ConflictResolution | null;
+  note: string | null;
+  discarded: Raw | null;
+  resolvedAt: string | null;
+}
+
 export interface DiaryActions {
+  resolveConflict: boolean;
   revise: boolean;
   contractorSign: boolean;
   supervise: boolean;
@@ -69,6 +89,8 @@ export interface DiaryLine {
   lockReason: string | null;
   correctionOfId: string | null;
   correctionReason: string | null;
+  /** The copies that devices left for this diary, oldest first. */
+  conflicts: ConflictCopy[];
   author: string;
   signatures: DiarySignature[];
   /** What the regime says about the value of an in-app signature: while the business has not confirmed it (the CXN), the screen says so. */
@@ -87,6 +109,30 @@ function toSignature(raw: unknown): DiarySignature | undefined {
   if (row === undefined || role === undefined || method === undefined || effect === undefined || signedAt === undefined) return undefined;
   return { role, signerName: text(row.signer_name) ?? '', method, legalEffect: effect, certSerial: nullableText(row.cert_serial), signedAt, valid: row.valid === true };
 }
+
+function toConflictCopy(raw: unknown): ConflictCopy | undefined {
+  const row = asRecord(raw);
+  const id = text(row?.id);
+  const state = row?.state === 'CONFLICT_PENDING' || row?.state === 'RESOLVED' ? row.state : undefined;
+  const createdAt = text(row?.created_at);
+  if (row === undefined || id === undefined || state === undefined || createdAt === undefined) return undefined;
+  const author = asRecord(row.author);
+  return {
+    id,
+    diaryNo: text(row.diary_no) ?? '',
+    state,
+    deviceId: nullableText(row.device_id),
+    author: text(author?.display_name) ?? '',
+    createdAt,
+    content: asRecord(row.content) ?? {},
+    resolution: oneOf(CONFLICT_RESOLUTIONS, row.resolution) ?? null,
+    note: nullableText(row.note),
+    discarded: asRecord(row.discarded) ?? null,
+    resolvedAt: nullableText(row.resolved_at),
+  };
+}
+
+export const pendingConflicts = (line: DiaryLine): ConflictCopy[] => line.conflicts.filter((copy) => copy.state === 'CONFLICT_PENDING');
 
 export function toDiaryLine(raw: unknown): DiaryLine | undefined {
   const row = asRecord(raw);
@@ -113,12 +159,14 @@ export function toDiaryLine(raw: unknown): DiaryLine | undefined {
     lockReason: nullableText(row.lock_reason),
     correctionOfId: nullableText(row.correction_of_id),
     correctionReason: nullableText(row.correction_reason),
+    conflicts: Array.isArray(row.conflicts) ? row.conflicts.flatMap((entry) => toConflictCopy(entry) ?? []) : [],
     author: text(author?.display_name) ?? '',
     signatures: Array.isArray(row.signatures) ? row.signatures.flatMap((entry) => toSignature(entry) ?? []) : [],
     // Until the server says otherwise the value of an in-app signature is not settled: the screen never claims more than it was told.
     signatureValue: { cxn: text(value?.cxn) ?? 'CXN-EXE-05', awaitingConfirmation: value?.awaiting_confirmation !== false },
     signableRoles: Array.isArray(row.signable_roles) ? row.signable_roles.flatMap((role) => oneOf(DIARY_ROLES, role) ?? []) : [],
     actions: {
+      resolveConflict: actions.resolveConflict === true,
       revise: actions.revise === true,
       contractorSign: actions.contractorSign === true,
       supervise: actions.supervise === true,
@@ -176,8 +224,10 @@ export interface DiaryFilter {
   status: string;
   from: string;
   to: string;
+  /** Only the diaries that have a copy of a device that nobody has settled. */
+  hasConflict: boolean;
 }
-export const NO_FILTER: DiaryFilter = { contractId: '', status: '', from: '', to: '' };
+export const NO_FILTER: DiaryFilter = { contractId: '', status: '', from: '', to: '', hasConflict: false };
 
 /** What the filter asks the server for: only what was chosen and is well formed. */
 export function filterQuery(filter: DiaryFilter): Record<string, string> {
@@ -186,6 +236,7 @@ export function filterQuery(filter: DiaryFilter): Record<string, string> {
     ...(oneOf(DIARY_STATUSES, filter.status) === undefined ? {} : { status: filter.status }),
     ...(DATE.test(filter.from) ? { from: filter.from } : {}),
     ...(DATE.test(filter.to) ? { to: filter.to } : {}),
+    ...(filter.hasConflict ? { has_conflict: 'true' } : {}),
   };
 }
 
@@ -303,6 +354,43 @@ export const validateReason = (reason: string, required: boolean): FormProblem |
   if (required && trimmed === '') return 'required';
   return trimmed.length > MAX_TEXT ? 'tooLong' : undefined;
 };
+
+export interface ResolveForm {
+  conflictId: string;
+  resolution: ConflictResolution | '';
+  note: string;
+  /** What the person wrote for a merge: the fields of the form over what the diary held. */
+  merged: DiaryForm;
+}
+
+export const emptyResolve = (line: DiaryLine): ResolveForm => ({ conflictId: pendingConflicts(line)[0]?.id ?? '', resolution: '', note: '', merged: formOf(line) });
+
+export function validateResolve(form: ResolveForm, line: DiaryLine): Partial<Record<'conflictId' | 'resolution' | 'note' | 'merged', FormProblem>> {
+  const problems: Partial<Record<'conflictId' | 'resolution' | 'note' | 'merged', FormProblem>> = {};
+  if (!pendingConflicts(line).some((copy) => copy.id === form.conflictId)) problems.conflictId = 'required';
+  if (form.resolution === '') problems.resolution = 'required';
+  const note = form.note.trim();
+  if (note === '') problems.note = 'required';
+  else if (note.length > MAX_TEXT) problems.note = 'tooLong';
+  if (form.resolution === 'MERGED' && Object.keys(validateDiary(form.merged, '9999-12-31', false)).length > 0) problems.merged = 'required';
+  return problems;
+}
+
+export interface ResolveBody {
+  conflict_diary_id: string;
+  resolution: ConflictResolution;
+  merged_content?: Raw;
+  note: string;
+}
+
+export function resolveBody(form: ResolveForm, line: DiaryLine): ResolveBody {
+  return {
+    conflict_diary_id: form.conflictId,
+    resolution: form.resolution === '' ? 'KEEP_PRIMARY' : form.resolution,
+    ...(form.resolution === 'MERGED' ? { merged_content: contentOf(form.merged, line.content) } : {}),
+    note: form.note.trim(),
+  };
+}
 
 export interface CorrectBody {
   content: Raw;

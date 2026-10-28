@@ -4,11 +4,11 @@ import { useTranslation } from '../../../i18n';
 import type { ContractLine } from '../../ctr/model';
 import { Field } from '../../ctr/components';
 import { CommandFrame } from '../CommandFrame';
-import { useContractorSign, useCorrectDiary, useLockDiary, useOwnerConfirm, useSaveDiary, useSupervise } from './hooks';
-import { OtherContent } from './DiaryParts';
-import { formProblemMessage, methodLabel, problemMessage, weatherLabel, weatherOptions } from './labels';
-import { SIGNATURE_METHODS, contentOf, describeProblem, emptyDiary, emptySign, formOf, saveBody, signBody, validateDiary, validateReason, validateSign } from './model';
-import type { DiaryForm, DiaryLine, SignForm } from './model';
+import { useContractorSign, useCorrectDiary, useLockDiary, useOwnerConfirm, useResolveConflict, useSaveDiary, useSupervise } from './hooks';
+import { ContentFacts, OtherContent } from './DiaryParts';
+import { formProblemMessage, methodLabel, problemMessage, resolutionLabel, weatherLabel, weatherOptions } from './labels';
+import { CONFLICT_RESOLUTIONS, SIGNATURE_METHODS, contentOf, describeProblem, emptyDiary, emptyResolve, emptySign, formOf, pendingConflicts, resolveBody, saveBody, signBody, validateDiary, validateReason, validateResolve, validateSign } from './model';
+import type { DiaryForm, DiaryLine, ResolveForm, SignForm } from './model';
 import '../qms.css';
 
 interface FrameProps {
@@ -195,6 +195,73 @@ export function LockDialog({ line, onClose }: { line: DiaryLine; onClose(): void
       <p className="sub">{t('qms.diary.lock.hint')}</p>
       <Field id="lock-reason" label={t('qms.diary.field.lockReason')} error={submitted && problem !== undefined ? formProblemMessage(t, problem) : undefined}>
         <textarea id="lock-reason" rows={2} value={reason} onChange={(event) => setReason(event.target.value)} />
+      </Field>
+    </Frame>
+  );
+}
+
+/**
+ * Settling the conflict of a device with the diary of the day: the copy that is settled, what is done (keep the diary, take the copy, or write what both said), and why. A diary that is not a draft any more is only
+ * kept; the other two ways are offered while it is a draft. The copy stays with how it was settled, so nothing is lost.
+ */
+export function ResolveDialog({ line, onClose }: { line: DiaryLine; onClose(): void }) {
+  const { t } = useTranslation();
+  const resolve = useResolveConflict();
+  const [opened] = useState(() => ({ id: line.id, version: line.version }));
+  const [form, setForm] = useState<ResolveForm>(() => emptyResolve(line));
+  const [submitted, setSubmitted] = useState(false);
+  const pending = pendingConflicts(line);
+  const copy = pending.find((candidate) => candidate.id === form.conflictId);
+  const problems = validateResolve(form, line);
+  const draft = line.status === 'DRAFT';
+  const shownMerged = (field: keyof DiaryForm): string | undefined => {
+    const problem = validateDiary(form.merged, '9999-12-31', false)[field];
+    return submitted && form.resolution === 'MERGED' && problem !== undefined ? formProblemMessage(t, problem) : undefined;
+  };
+  const show = (field: 'conflictId' | 'resolution' | 'note' | 'merged'): string | undefined => {
+    const problem = problems[field];
+    return submitted && problem !== undefined ? formProblemMessage(t, problem) : undefined;
+  };
+  const send = (event: FormEvent): void => {
+    event.preventDefault();
+    setSubmitted(true);
+    if (resolve.isPending || Object.keys(problems).length > 0) return;
+    resolve.mutate({ id: opened.id, version: opened.version, body: resolveBody(form, line) }, { onSuccess: onClose });
+  };
+  return (
+    <Frame title={t('qms.diary.resolve.title', { no: line.diaryNo })} error={resolve.error} hasError={resolve.isError} pending={resolve.isPending} submitLabel={t('qms.diary.resolve.submit')} onSubmit={send} onClose={onClose}>
+      <Field id="resolve-copy" label={t('qms.diary.resolve.copy')} error={show('conflictId')}>
+        <select id="resolve-copy" value={form.conflictId} onChange={(event) => setForm({ ...form, conflictId: event.target.value })}>
+          {pending.map((candidate) => (
+            <option key={candidate.id} value={candidate.id}>
+              {candidate.diaryNo} · {candidate.author}
+            </option>
+          ))}
+        </select>
+      </Field>
+      {copy === undefined ? null : (
+        <div data-testid="resolve-compare">
+          <p className="sub">{t('qms.diary.resolve.theirs')}</p>
+          <ContentFacts content={copy.content} prefix="resolve-copy" />
+          <p className="sub">{t('qms.diary.resolve.ours')}</p>
+          <ContentFacts content={line.content} prefix="resolve-main" />
+        </div>
+      )}
+      <Field id="resolve-resolution" label={t('qms.diary.resolve.resolution')} error={show('resolution')}>
+        <select id="resolve-resolution" value={form.resolution} onChange={(event) => setForm({ ...form, resolution: CONFLICT_RESOLUTIONS.find((resolution) => resolution === event.target.value) ?? '' })}>
+          <option value="">{t('qms.diary.resolve.resolution.choose')}</option>
+          {CONFLICT_RESOLUTIONS.filter((resolution) => resolution === 'KEEP_PRIMARY' || draft).map((resolution) => (
+            <option key={resolution} value={resolution}>
+              {resolutionLabel(t, resolution)}
+            </option>
+          ))}
+        </select>
+      </Field>
+      {draft ? null : <p className="sub">{t('qms.diary.resolve.onlyKeep')}</p>}
+      {form.resolution === 'MERGED' ? <ContentFields form={form.merged} set={(change) => setForm({ ...form, merged: { ...form.merged, ...change } })} shown={shownMerged} prefix="merge" /> : null}
+      {form.resolution === 'MERGED' ? <OtherContent content={line.content} /> : null}
+      <Field id="resolve-note" label={t('qms.diary.resolve.note')} error={show('note')}>
+        <textarea id="resolve-note" rows={3} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
       </Field>
     </Frame>
   );

@@ -550,6 +550,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'confirmSiteDiaryByOwner',
   'lockSiteDiary',
   'correctSiteDiary',
+  'resolveDiaryConflict',
   'get_resources_site_diary',
   'get_resources_site_diary_id',
   'decideQualityAcceptance',

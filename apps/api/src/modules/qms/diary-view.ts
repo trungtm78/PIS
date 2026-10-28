@@ -9,9 +9,10 @@ export interface DiaryPermissions {
   ownerConfirm: string;
   lock: string;
   correct: string;
+  resolveConflict: string;
 }
 
-type Action = 'revise' | 'contractorSign' | 'supervise' | 'ownerConfirm' | 'lock' | 'correct';
+type Action = 'revise' | 'contractorSign' | 'supervise' | 'ownerConfirm' | 'lock' | 'correct' | 'resolveConflict';
 
 /**
  * What the caller may do with the diary as it stands: the command applies to its status and the caller holds the permission over the contract; a role is offered only to someone on the side of the contract that signs
@@ -29,6 +30,8 @@ export function diaryActionsOf(line: QmsDiaryLine, access: EffectiveAccess, now:
       ownerConfirm: line.status === 'SUPERVISED' && signable('OWNER', permissions.ownerConfirm),
       lock: (line.status === 'SUPERVISED' || line.status === 'OWNER_CONFIRMED') && holds(permissions.lock),
       correct: line.status === 'LOCKED' && holds(permissions.correct),
+      // A copy of a device waits for a person; the way of settling it that changes the diary is open only while the diary is a draft (the screen offers it so).
+      resolveConflict: line.conflictOfId === null && line.conflicts.some((copy) => copy.state === 'CONFLICT_PENDING') && holds(permissions.resolveConflict),
     },
     signableRoles: line.viewerSignableRoles.filter((role) => (role === 'CONTRACTOR' ? holds(permissions.contractorSign) : role === 'SUPERVISOR' ? holds(permissions.supervise) : role === 'OWNER' && holds(permissions.ownerConfirm))),
   };
@@ -53,6 +56,21 @@ export function diaryView(line: QmsDiaryLine, shown: ReturnType<typeof diaryActi
     locked_at: line.lockedAt,
     correction_of_id: line.correctionOfId,
     correction_reason: line.correctionReason,
+    conflict_state: line.conflictState,
+    conflict_of_id: line.conflictOfId,
+    conflicts: line.conflicts.map((copy) => ({
+      id: copy.id,
+      diary_no: copy.diaryNo,
+      state: copy.state,
+      device_id: copy.deviceId,
+      author: { membership_id: copy.author.membershipId, display_name: copy.author.displayName },
+      created_at: copy.createdAt,
+      content: copy.content,
+      resolution: copy.resolution,
+      note: copy.note,
+      discarded: copy.discarded,
+      resolved_at: copy.resolvedAt,
+    })),
     author: { membership_id: line.author.membershipId, display_name: line.author.displayName },
     signatures: line.signatures.map((signature) => ({
       role: signature.role,

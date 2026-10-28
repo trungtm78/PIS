@@ -6,7 +6,7 @@ import { contractId } from '../../ctr/test-support';
 import DiaryCatalogueScreen from './DiaryCatalogueScreen';
 import DiaryComposeScreen from './DiaryComposeScreen';
 import DiaryReviewScreen from './DiaryReviewScreen';
-import { CONTRACTOR, READER, actions, client, diary, diaryId, mount, routeOf, signature, world } from './test-support';
+import { CONTRACTOR, READER, actions, client, copy, diary, diaryId, mount, routeOf, signature, world } from './test-support';
 import type { World } from './test-support';
 
 const OK = { operation_id: 'o', status: 'DRAFT', resource_version: 3, resource_id: diaryId(9) };
@@ -615,6 +615,155 @@ describe('one operation per payload, and the content the server takes (Codex rev
     fireEvent.click(screen.getByRole('button', { name: word('qms.diary.draft.save') }));
     await waitFor(() => expect(commandsOf(h, 'reviseSiteDiaryDraft')).toHaveLength(1));
     expect(commandsOf(h, 'reviseSiteDiaryDraft')[0]?.body.content).toMatchObject({ weather_code: 'FOG', workforce_count: 15 });
+  });
+});
+
+describe('the conflict of two devices (ST-QMS-002, QMS-01, QMS-02, QMS-03)', () => {
+  const conflicted = (overrides: Record<string, unknown> = {}) => diary(1, { version: 4, actions: actions({ revise: true, contractorSign: true, resolveConflict: true }), conflicts: [copy(1)], ...overrides });
+
+  it('AC-ST-QMS-002-1: UAT-AC62 shows on the catalogue and the diary that a device left a copy that waits, and what it said', async () => {
+    catalogue(world({ diaries: [conflicted(), diary(2)] }));
+    await screen.findByTestId('diaries');
+    expect(within(row(diaryId(1))).getByTestId('conflicts-waiting').textContent).toBe(text('qms.diary.conflicts.count', { count: 1 }));
+    expect(within(row(diaryId(2))).queryByTestId('conflicts-waiting')).toBeNull();
+    expect(row(diaryId(1)).querySelector('[data-review]')).not.toBeNull();
+    cleanup();
+    compose(world({ diaries: [conflicted()] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR });
+    const panel = await screen.findByTestId('conflicts');
+    expect(within(panel).getByTestId('conflict-summary').textContent).toBe('Việc ghi trên thiết bị thứ 2');
+    expect(within(panel).getByTestId('conflict-state').textContent).toBe(word('qms.diary.conflicts.pending'));
+    expect(within(panel).getByText(text('qms.diary.conflicts.device', { device: '00000000-0000-4000-8000-0000000000d1' }), { exact: false })).toBeTruthy();
+    expect(screen.getByTestId('to-review').getAttribute('href')).toBe(`/qms/qms-03?diary=${diaryId(1)}`);
+  });
+
+  it('shows everything a copy says, the weather, the workforce, the notes and the rest, on the diary and where it is settled (Codex review of ST-QMS-002)', async () => {
+    const whole = copy(1, { content: { summary: 'Thiết bị hai', weather_code: 'RAIN', workforce_count: 44, notes: 'Mưa từ trưa', equipment: ['máy trộn'] } });
+    review(world({ diaries: [diary(1, { version: 4, actions: actions({ revise: true, resolveConflict: true }), conflicts: [whole] })] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR });
+    const panel = await screen.findByTestId('conflicts');
+    expect(within(panel).getByTestId('conflict-weather').textContent).toBe(word('qms.diary.weather.rain'));
+    expect(within(panel).getByTestId('conflict-workforce').textContent).toBe('44');
+    expect(within(panel).getByTestId('conflict-notes').textContent).toBe('Mưa từ trưa');
+    expect(within(panel).getByTestId('other-content').textContent).toContain('máy trộn');
+    fireEvent.click(screen.getByRole('button', { name: word('qms.diary.resolve.action') }));
+    expect(within(dialog()).getByTestId('resolve-copy-workforce').textContent).toBe('44');
+    expect(within(dialog()).getByTestId('resolve-copy-notes').textContent).toBe('Mưa từ trưa');
+    expect(within(dialog()).getByTestId('resolve-main-workforce').textContent).toBe('12');
+    expect(within(dialog()).getByTestId('resolve-main-weather').textContent).toBe(word('qms.diary.weather.sunny'));
+  });
+
+  it('shows a diary once in the queue when it waits for two reasons (Codex review of ST-QMS-002)', async () => {
+    review(world({ diaries: [conflicted({ status: 'SUPERVISED', signatures: [signature('CONTRACTOR', 'Nhà thầu')], actions: actions({ ownerConfirm: true, lock: true, resolveConflict: true }) })] }), { permissions: CONTRACTOR });
+    await screen.findByTestId('queue');
+    expect(rows()).toEqual([diaryId(1)]);
+  });
+
+  it('finds the diaries with a copy that waits whatever state they are in, in the queue and with a filter on the catalogue (Codex review of ST-QMS-002)', async () => {
+    const locked = conflicted({ status: 'LOCKED', actions: actions({ resolveConflict: true }) });
+    review(world({ diaries: [locked, diary(2)] }), { permissions: CONTRACTOR });
+    await screen.findByTestId('queue');
+    expect(rows()).toEqual([diaryId(1)]);
+    cleanup();
+    const h = catalogue(world({ diaries: [locked, diary(2)] }));
+    await screen.findByTestId('diaries');
+    expect(rows()).toEqual([diaryId(1), diaryId(2)]);
+    fireEvent.click(document.getElementById('diary-filter-conflict') as HTMLElement);
+    await waitFor(() => expect(rows()).toEqual([diaryId(1)]));
+    expect(readsOf(h, 'get_resources_site_diary').at(-1)?.query).toMatchObject({ has_conflict: 'true' });
+  });
+
+  it('shows how a copy was settled and what the settling said, and offers nothing more for it', async () => {
+    review(world({ diaries: [diary(1, { conflicts: [copy(1, { state: 'RESOLVED', resolution: 'ADOPT_CONFLICT', note: 'Bản thứ hai đúng', resolved_at: '2026-10-25T05:00:00.000Z' })] })] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR });
+    const panel = await screen.findByTestId('conflicts');
+    expect(within(panel).getByTestId('conflict-state').textContent).toBe(word('qms.diary.conflicts.resolved'));
+    expect(within(panel).getByTestId('conflict-resolution').textContent).toBe(`${text('qms.diary.conflicts.how', { resolution: word('qms.diary.resolution.adopt') })} — Bản thứ hai đúng`);
+    expect(screen.queryByTestId('conflicts-waiting')).toBeNull();
+    expect(screen.queryByRole('button', { name: word('qms.diary.resolve.action') })).toBeNull();
+  });
+
+  it('asks for the copy, the way and the reason before it sends anything', async () => {
+    const h = review(world({ diaries: [conflicted()] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR });
+    fireEvent.click(await screen.findByRole('button', { name: word('qms.diary.resolve.action') }));
+    expect(within(dialog()).getByTestId('resolve-copy-summary').textContent).toBe('Việc ghi trên thiết bị thứ 2');
+    expect(within(dialog()).getByTestId('resolve-main-summary').textContent).toBe('Đổ bê tông móng đợt 1');
+    submit(word('qms.diary.resolve.submit'));
+    expect(within(dialog()).getAllByText(word('qms.diary.problem.required'))).toHaveLength(2);
+    pick('resolve-resolution', 'MERGED');
+    pick('resolve-note', 'Ghép lại');
+    pick('merge-summary', '');
+    submit(word('qms.diary.resolve.submit'));
+    expect(within(dialog()).getByText(word('qms.diary.problem.required'))).toBeTruthy();
+    expect(commandsOf(h, 'resolveDiaryConflict')).toHaveLength(0);
+  });
+
+  it('keeps the diary, under the version shown, with the reason', async () => {
+    const h = review(world({ diaries: [conflicted()] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR });
+    fireEvent.click(await screen.findByRole('button', { name: word('qms.diary.resolve.action') }));
+    pick('resolve-resolution', 'KEEP_PRIMARY');
+    pick('resolve-note', '  Kỹ sư thứ nhất có mặt  ');
+    submit(word('qms.diary.resolve.submit'));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    const [sent] = commandsOf(h, 'resolveDiaryConflict');
+    expect(sent).toEqual({ path: { id: diaryId(1) }, ifMatchVersion: 4, body: { conflict_diary_id: copy(1).id, resolution: 'KEEP_PRIMARY', note: 'Kỹ sư thứ nhất có mặt' }, attempt: expect.anything() });
+  });
+
+  it('takes the copy of the device, and merges the two with the content that the person wrote', async () => {
+    const h = review(world({ diaries: [conflicted({ content: { summary: 'Đổ bê tông', other_client: { photos: 2 } } })] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR });
+    fireEvent.click(await screen.findByRole('button', { name: word('qms.diary.resolve.action') }));
+    pick('resolve-resolution', 'ADOPT_CONFLICT');
+    pick('resolve-note', 'Bản của thiết bị đầy đủ hơn');
+    submit(word('qms.diary.resolve.submit'));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(commandsOf(h, 'resolveDiaryConflict')[0]?.body).toEqual({ conflict_diary_id: copy(1).id, resolution: 'ADOPT_CONFLICT', note: 'Bản của thiết bị đầy đủ hơn' });
+    fireEvent.click(await screen.findByRole('button', { name: word('qms.diary.resolve.action') }));
+    pick('resolve-resolution', 'MERGED');
+    expect(
+      within(dialog())
+        .getAllByTestId('other-content')
+        .map((entry) => entry.textContent)
+        .join(' '),
+    ).toContain('photos');
+    pick('merge-summary', 'Cả hai đều đúng');
+    pick('merge-workforce', '25');
+    pick('resolve-note', 'Ghép số nhân lực');
+    submit(word('qms.diary.resolve.submit'));
+    await waitFor(() => expect(commandsOf(h, 'resolveDiaryConflict')).toHaveLength(2));
+    expect(commandsOf(h, 'resolveDiaryConflict')[1]?.body).toMatchObject({ resolution: 'MERGED', merged_content: { summary: 'Cả hai đều đúng', workforce_count: 25, other_client: { photos: 2 } }, note: 'Ghép số nhân lực' });
+  });
+
+  it('offers only to keep the diary once it was signed, and says what the server refused, in words', async () => {
+    review(world({ diaries: [conflicted({ status: 'CONTRACTOR_SIGNED', signatures: [signature('CONTRACTOR', 'Nhà thầu')], actions: actions({ supervise: true, resolveConflict: true }) })] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR });
+    fireEvent.click(await screen.findByRole('button', { name: word('qms.diary.resolve.action') }));
+    expect(Array.from((document.getElementById('resolve-resolution') as HTMLSelectElement).options).map((option) => option.value)).toEqual(['', 'KEEP_PRIMARY']);
+    expect(within(dialog()).getByText(word('qms.diary.resolve.onlyKeep'))).toBeTruthy();
+    cleanup();
+    const cases: Array<[Error, string]> = [
+      [refusal('DIARY_STATE_INVALID', 409), 'qms.diary.error.diaryState'],
+      [refusal('VERSION_CONFLICT', 409), 'qms.diary.error.versionConflict'],
+      [refusal('VALIDATION_FAILED'), 'qms.diary.error.validation'],
+    ];
+    for (const [error, key] of cases) {
+      review(world({ diaries: [conflicted()] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR, command: () => Promise.reject(error) });
+      fireEvent.click(await screen.findByRole('button', { name: word('qms.diary.resolve.action') }));
+      pick('resolve-resolution', 'KEEP_PRIMARY');
+      pick('resolve-note', 'Lý do');
+      submit(word('qms.diary.resolve.submit'));
+      expect((await within(dialog()).findByTestId('refusal')).textContent).toBe(word(key));
+      cleanup();
+    }
+  });
+
+  it('offers no way to settle it to whoever the server says may not, or in a read-only session, and lists the drafts with a copy that waits in the queue', async () => {
+    review(world({ diaries: [conflicted({ actions: actions() })] }), { query: `?diary=${diaryId(1)}`, permissions: READER });
+    await screen.findByTestId('conflicts');
+    expect(screen.queryByRole('button', { name: word('qms.diary.resolve.action') })).toBeNull();
+    cleanup();
+    review(world({ diaries: [conflicted()] }), { query: `?diary=${diaryId(1)}`, permissions: CONTRACTOR, mode: 'READ_ONLY' });
+    await screen.findByTestId('conflicts');
+    expect(screen.queryByRole('button', { name: word('qms.diary.resolve.action') })).toBeNull();
+    cleanup();
+    review(world({ diaries: [conflicted(), diary(2)] }), { permissions: CONTRACTOR });
+    await screen.findByTestId('queue');
+    expect(rows()).toEqual([diaryId(1)]);
   });
 });
 

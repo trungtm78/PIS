@@ -2,10 +2,35 @@ import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import { effectLabel, formProblemMessage, methodLabel, problemMessage, roleLabel, statusLabel, weatherLabel } from './labels';
-import { DIARY_STATUSES, NO_FILTER, SIGNATURE_METHODS, canWrite, contentOf, describeProblem, emptyDiary, emptySign, filterQuery, formOf, otherContent, saveBody, signBody, signedRoles, toDiaryLine, toDiaryPage, validateDiary, validateReason, validateSign, vietnamToday } from './model';
+import {
+  DIARY_STATUSES,
+  NO_FILTER,
+  SIGNATURE_METHODS,
+  canWrite,
+  contentOf,
+  describeProblem,
+  emptyDiary,
+  emptySign,
+  emptyResolve,
+  filterQuery,
+  formOf,
+  otherContent,
+  pendingConflicts,
+  resolveBody,
+  saveBody,
+  signBody,
+  signedRoles,
+  toDiaryLine,
+  toDiaryPage,
+  validateResolve,
+  validateDiary,
+  validateReason,
+  validateSign,
+  vietnamToday,
+} from './model';
 import type { Problem } from './model';
 import { contractId } from '../../ctr/test-support';
-import { actions, diary, signature } from './test-support';
+import { actions, copy, diary, signature } from './test-support';
 
 const problem = (code: string, status = 422, extensions: Record<string, unknown> = {}, detail?: string) => new ApiError({ status, code, correlationId: 'c', extensions, ...(detail === undefined ? {} : { detail }) });
 const lineOf = (raw: unknown) => {
@@ -56,8 +81,8 @@ describe('toDiaryLine', () => {
 describe('the filter, the form and the commands', () => {
   it('asks the server only for what was chosen and is well formed', () => {
     expect(filterQuery(NO_FILTER)).toEqual({});
-    expect(filterQuery({ contractId: '00000000-0000-4000-8000-000000000001', status: 'LOCKED', from: '2026-10-01', to: '2026-10-31' })).toEqual({ contract_id: '00000000-0000-4000-8000-000000000001', status: 'LOCKED', from: '2026-10-01', to: '2026-10-31' });
-    expect(filterQuery({ contractId: 'x', status: 'NOPE', from: '1/1/2026', to: '' })).toEqual({});
+    expect(filterQuery({ contractId: '00000000-0000-4000-8000-000000000001', status: 'LOCKED', from: '2026-10-01', to: '2026-10-31', hasConflict: true })).toEqual({ contract_id: '00000000-0000-4000-8000-000000000001', status: 'LOCKED', from: '2026-10-01', to: '2026-10-31', has_conflict: 'true' });
+    expect(filterQuery({ contractId: 'x', status: 'NOPE', from: '1/1/2026', to: '', hasConflict: false })).toEqual({});
   });
 
   it('validates the draft: the contract, a real day that has come, the work, the number and the weather', () => {
@@ -88,6 +113,36 @@ describe('the filter, the form and the commands', () => {
     // Whatever the form says replaces it.
     expect(contentOf({ ...form, notes: 'ghi chú', workforceCount: '3' }, base)).toMatchObject({ notes: 'ghi chú', workforce_count: 3 });
     expect(otherContent({ summary: 'a', notes: 'b', weather_code: 'RAIN', workforce_count: 3 })).toEqual({});
+  });
+
+  it('reads the copies that devices left, and what the caller may do about them', () => {
+    const line = lineOf(diary(1, { conflicts: [copy(1), copy(2, { state: 'RESOLVED', resolution: 'MERGED', note: 'Ghép', discarded: { summary: 'cũ' }, resolved_at: '2026-10-25T05:00:00.000Z' }), { id: 'x' }], actions: actions({ resolveConflict: true }) }));
+    expect(line.conflicts.map((entry) => [entry.diaryNo.slice(-2), entry.state, entry.resolution])).toEqual([
+      ['C1', 'CONFLICT_PENDING', null],
+      ['C2', 'RESOLVED', 'MERGED'],
+    ]);
+    expect(line.conflicts[0]).toMatchObject({ author: 'Kỹ sư B', deviceId: '00000000-0000-4000-8000-0000000000d1', content: { workforce_count: 30 } });
+    expect(line.conflicts[1]).toMatchObject({ note: 'Ghép', discarded: { summary: 'cũ' } });
+    expect(pendingConflicts(line).map((entry) => entry.id)).toEqual([copy(1).id]);
+    expect(line.actions.resolveConflict).toBe(true);
+    expect(lineOf(diary(1)).conflicts).toEqual([]);
+  });
+
+  it('validates the settling of a conflict and builds what is sent: the copy, the way, the reason, and the merged content for a merge', () => {
+    const line = lineOf(diary(1, { conflicts: [copy(1)], content: { summary: 'Đổ bê tông', other_client: 1 } }));
+    const form = emptyResolve(line);
+    expect(form).toMatchObject({ conflictId: copy(1).id, resolution: '', note: '' });
+    expect(validateResolve(form, line)).toEqual({ resolution: 'required', note: 'required' });
+    expect(validateResolve({ ...form, conflictId: 'other', resolution: 'KEEP_PRIMARY', note: 'x' }, line)).toEqual({ conflictId: 'required' });
+    expect(validateResolve({ ...form, resolution: 'KEEP_PRIMARY', note: 'x'.repeat(2001) }, line)).toEqual({ note: 'tooLong' });
+    expect(validateResolve({ ...form, resolution: 'MERGED', note: 'x', merged: { ...form.merged, summary: '' } }, line)).toEqual({ merged: 'required' });
+    expect(resolveBody({ ...form, resolution: 'ADOPT_CONFLICT', note: ' Vì sao ' }, line)).toEqual({ conflict_diary_id: copy(1).id, resolution: 'ADOPT_CONFLICT', note: 'Vì sao' });
+    expect(resolveBody({ ...form, resolution: 'MERGED', note: 'Ghép', merged: { ...form.merged, summary: 'Cả hai', workforceCount: '9' } }, line)).toEqual({
+      conflict_diary_id: copy(1).id,
+      resolution: 'MERGED',
+      merged_content: { summary: 'Cả hai', other_client: 1, workforce_count: 9, weather_code: 'SUNNY' },
+      note: 'Ghép',
+    });
   });
 
   it('reads a diary back into the form', () => {

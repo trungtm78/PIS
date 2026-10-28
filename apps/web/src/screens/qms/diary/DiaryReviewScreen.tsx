@@ -5,8 +5,8 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { LockDialog, SignDialog } from './DiaryDialogs';
-import { DiaryContent, DiaryTitle, LegalNote, SignatureChain } from './DiaryParts';
+import { LockDialog, ResolveDialog, SignDialog } from './DiaryDialogs';
+import { ConflictPanel, DiaryContent, DiaryTitle, LegalNote, SignatureChain } from './DiaryParts';
 import { useDiaries, useDiary } from './hooks';
 import { statusLabel } from './labels';
 import { NO_FILTER, canAct, catalogueLink, composeLink, reviewLink } from './model';
@@ -24,7 +24,7 @@ export default function DiaryReviewScreen({ route }: ScreenProps) {
   return <ReviewContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
-type Dialog = { kind: 'supervise' } | { kind: 'owner' } | { kind: 'lock' };
+type Dialog = { kind: 'supervise' } | { kind: 'owner' } | { kind: 'lock' } | { kind: 'resolve' };
 
 function ReviewContent({ route }: ScreenProps) {
   const { t } = useTranslation();
@@ -49,7 +49,7 @@ function ReviewContent({ route }: ScreenProps) {
   );
 }
 
-const waits = (line: DiaryLine): boolean => line.actions.supervise || line.actions.ownerConfirm || line.actions.lock;
+const waits = (line: DiaryLine): boolean => line.actions.supervise || line.actions.ownerConfirm || line.actions.lock || line.actions.resolveConflict;
 
 /** The diaries that wait for the caller: the ones the contractor signed, the ones the supervisor remarked on and the ones the owner confirmed. */
 function Queue() {
@@ -57,10 +57,14 @@ function Queue() {
   const signed = useDiaries({ ...NO_FILTER, status: 'CONTRACTOR_SIGNED' });
   const supervised = useDiaries({ ...NO_FILTER, status: 'SUPERVISED' });
   const confirmed = useDiaries({ ...NO_FILTER, status: 'OWNER_CONFIRMED' });
-  const queries = [signed, supervised, confirmed];
+  // A diary waits too when a device left a copy of its own that nobody has settled, in whatever state the diary is (it may have been signed, locked or replaced since).
+  const conflicted = useDiaries({ ...NO_FILTER, hasConflict: true });
+  const queries = [signed, supervised, confirmed, conflicted];
   const lines = queries
     .flatMap((query) => (query.data?.pages ?? []).flatMap((page) => page.lines))
     .filter(waits)
+    // A diary that waits for two reasons (signed and with a copy that waits) is in two of the lists and is shown once.
+    .filter((line, index, all) => all.findIndex((other) => other.id === line.id) === index)
     .sort((left, right) => left.recordDate.localeCompare(right.recordDate) || left.diaryNo.localeCompare(right.diaryNo));
   const failed = queries.find((query) => query.error !== null && query.error !== undefined);
   const state = useScreenState({
@@ -127,8 +131,14 @@ function Review({ id }: { id: string }) {
             <DiaryContent line={line} />
             <h2>{t('qms.diary.signatures.title')}</h2>
             <SignatureChain line={line} />
+            <ConflictPanel line={line} />
             {writable ? (
               <div className="actions">
+                {line.actions.resolveConflict ? (
+                  <button type="button" className="primary" data-action="resolve" onClick={() => setDialog({ kind: 'resolve' })}>
+                    {t('qms.diary.resolve.action')}
+                  </button>
+                ) : null}
                 {line.actions.supervise ? (
                   <button type="button" className="primary" data-action="supervise" onClick={() => setDialog({ kind: 'supervise' })}>
                     {t('qms.diary.sign.supervisor.action')}
@@ -155,6 +165,7 @@ function Review({ id }: { id: string }) {
       {dialog?.kind === 'supervise' && line !== undefined ? <SignDialog line={line} kind="supervisor" onClose={() => setDialog(undefined)} /> : null}
       {dialog?.kind === 'owner' && line !== undefined ? <SignDialog line={line} kind="owner" onClose={() => setDialog(undefined)} /> : null}
       {dialog?.kind === 'lock' && line !== undefined ? <LockDialog line={line} onClose={() => setDialog(undefined)} /> : null}
+      {dialog?.kind === 'resolve' && line !== undefined ? <ResolveDialog line={line} onClose={() => setDialog(undefined)} /> : null}
     </>
   );
 }

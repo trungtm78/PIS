@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { QmsDiaryStore, TenantDatabase, contractScope } from '@machvon/db';
+import { QmsDiaryStore, TenantDatabase, conflictRefusal, contractScope } from '@machvon/db';
 import type { ContractScopes, QmsDiaryResult } from '@machvon/db';
 import { DomainError, asUuid } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -27,6 +27,7 @@ const ACTION_PERMISSIONS: DiaryPermissions = {
   ownerConfirm: PERMISSIONS.confirmSiteDiaryByOwner,
   lock: PERMISSIONS.lockSiteDiary,
   correct: PERMISSIONS.correctSiteDiary,
+  resolveConflict: PERMISSIONS.resolveDiaryConflict,
 };
 
 const scopesFor = (access: EffectiveAccess, permission: string, now: Date): ContractScopes => ({ update: contractScope(access, permission, now), read: contractScope(access, READ_PERMISSION, now) });
@@ -54,6 +55,18 @@ export class DiaryController {
       scopesFor(access, ACTION_PERMISSIONS.write, now),
       now,
     );
+    if (done.conflict !== null) {
+      // The device wrote over a draft it had not read at its version: its copy is kept (the answer is the refusal, after the commit) and the diary of the day is not touched.
+      await scope.audit({
+        action: 'site_diary.conflict_stored',
+        resourceType: RESOURCE_TYPE,
+        resourceId: done.id,
+        classification: CLASSIFICATION,
+        diff: { diary_no: done.diaryNo, conflict_of_id: done.conflict.mainId, contract_id: done.contractId, record_date: done.recordDate, server_version: done.conflict.mainVersion },
+      });
+      scope.refuseAfterCommit(conflictRefusal(done));
+      return commandResult(scope, 'CONFLICT_PENDING', done.version, done.id);
+    }
     await this.written(scope, done, done.fromStatus === null ? 'site_diary.drafted' : 'site_diary.revised', done.fromStatus === null ? 'qms.site_diary.drafted.v1' : 'qms.site_diary.revised.v1', now);
     return commandResult(scope, done.status, done.version, done.id);
   }
@@ -148,8 +161,28 @@ export class DiaryController {
     return commandResult(scope, done.status, done.version, done.id);
   }
 
+  @Post('site-diaries/:id/resolve-conflict')
+  @HttpCode(200)
+  @OperationId('resolveDiaryConflict')
+  @Command({ operation: 'resolveDiaryConflict', versioned: true })
+  async resolveConflict(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['QmsResolveDiaryConflict']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.diaries.resolveConflict(
+      scope.tx,
+      id.toLowerCase(),
+      scope.expectedVersion ?? 0,
+      { conflictDiaryId: body.conflict_diary_id, resolution: body.resolution, mergedContent: body.merged_content, note: body.note },
+      scope.tenant.membershipId,
+      scopesFor(access, ACTION_PERMISSIONS.resolveConflict, now),
+      now,
+    );
+    // The audit row names the copy and how it was settled; what each side said stays in the rows of the diary, not in the audit or the event.
+    await this.written(scope, done, 'site_diary.conflict_resolved', 'qms.site_diary.conflict_resolved.v1', now, undefined, { conflict_diary_id: body.conflict_diary_id, resolution: body.resolution });
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
   /** The audit row and the event of a command: ids, the day, statuses and roles, never the words of the diary beyond the reason that the audit row keeps. */
-  private async written(scope: CommandScope, done: QmsDiaryResult, action: string, type: string, now: Date, reason?: string): Promise<void> {
+  private async written(scope: CommandScope, done: QmsDiaryResult, action: string, type: string, now: Date, reason?: string, more: Record<string, unknown> = {}): Promise<void> {
     if (done.replayed) {
       // A client operation that was seen before changed nothing: it is audited as the read that it is, and says nothing new.
       await scope.audit({ action: 'site_diary.replayed', resourceType: RESOURCE_TYPE, resourceId: done.id, classification: CLASSIFICATION, diff: { diary_no: done.diaryNo, status: done.status } });
@@ -165,6 +198,7 @@ export class DiaryController {
       signer_role: done.signerRole,
       signature_method: done.signatureMethod,
       legal_effect: done.legalEffect,
+      ...more,
     };
     await scope.audit({
       action,
@@ -181,7 +215,8 @@ export class DiaryController {
       type,
       schemaVersion: 1,
       payload: { tenant_id: scope.tenant.tenantId, site_diary_id: done.id, ...facts, status: done.status, from_status: done.fromStatus, version: done.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
-      eventKey: `${RESOURCE_TYPE}:${done.id}:${done.version}`,
+      // Keeping a diary does not move its version, so the event of settling a copy is told apart by the copy.
+      eventKey: `${RESOURCE_TYPE}:${done.id}:${done.version}${typeof more.conflict_diary_id === 'string' ? `:${more.conflict_diary_id}` : ''}`,
     });
   }
 }
@@ -202,6 +237,7 @@ export class DiaryReadsController {
     @Query('status') status?: unknown,
     @Query('from') from?: unknown,
     @Query('to') to?: unknown,
+    @Query('has_conflict') hasConflict?: unknown,
     @Query('cursor') cursor?: unknown,
     @Query('limit') limit?: unknown,
   ): Promise<{ items: Array<Record<string, unknown>>; next_cursor: string | null; as_of: string }> {
@@ -212,10 +248,16 @@ export class DiaryReadsController {
       if (typeof value !== 'string') throw new DomainError('VALIDATION_FAILED', 422, name);
       return value;
     };
+    // The diaries that have a copy of a device that nobody has settled, whatever state they are in: `has_conflict=true`.
+    const flag = (name: string, value: unknown): boolean | undefined => {
+      if (value === undefined) return undefined;
+      if (value !== 'true' && value !== 'false') throw new DomainError('VALIDATION_FAILED', 422, name);
+      return value === 'true';
+    };
     const page = parsePageRequest(limit, cursor);
     const now = new Date();
     const found = await this.database.withTenant(tenant, (tx) =>
-      this.diaries.list(tx, contractScope(access, READ_PERMISSION, now), tenant.membershipId, { contractId: contract?.toLowerCase(), status: text('status', status), from: text('from', from), to: text('to', to), limit: page.limit, after: page.after }),
+      this.diaries.list(tx, contractScope(access, READ_PERMISSION, now), tenant.membershipId, { contractId: contract?.toLowerCase(), status: text('status', status), from: text('from', from), to: text('to', to), hasConflict: flag('has_conflict', hasConflict), limit: page.limit, after: page.after }),
     );
     return {
       items: found.lines.map((line) => diaryView(line, diaryActionsOf(line, access, now, ACTION_PERMISSIONS))),

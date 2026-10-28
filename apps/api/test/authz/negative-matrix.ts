@@ -1648,6 +1648,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/corrections`, body: { content: { summary: 'Matrix probe of the correction' }, correction_reason: REASON, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
   },
+  resolveDiaryConflict: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/resolve-conflict`, ifMatch: '"1"', body: { conflict_diary_id: '00000000-0000-4000-8000-0000000000e7', resolution: 'KEEP_PRIMARY', note: REASON } }),
+  },
   signQualityAcceptance: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/quality-acceptances/${t.acceptanceId}/sign`, ifMatch: '"1"', body: { signer_role: 'OWNER', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e5' } }),

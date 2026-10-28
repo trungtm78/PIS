@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../../i18n';
-import type { DiaryStatus, FormProblem, LegalEffect, Problem, SignatureMethod } from './model';
+import type { ConflictResolution, DiaryStatus, FormProblem, LegalEffect, Problem, SignatureMethod } from './model';
 import { WEATHER_CODES } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -18,6 +18,17 @@ export function statusLabel(t: Translate, status: DiaryStatus): string {
       return t('qms.diary.status.locked');
     case 'SUPERSEDED':
       return t('qms.diary.status.superseded');
+  }
+}
+
+export function resolutionLabel(t: Translate, resolution: ConflictResolution): string {
+  switch (resolution) {
+    case 'KEEP_PRIMARY':
+      return t('qms.diary.resolution.keep');
+    case 'ADOPT_CONFLICT':
+      return t('qms.diary.resolution.adopt');
+    case 'MERGED':
+      return t('qms.diary.resolution.merge');
   }
 }
 

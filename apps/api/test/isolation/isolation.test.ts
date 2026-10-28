@@ -633,6 +633,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'confirmSiteDiaryByOwner',
         'lockSiteDiary',
         'correctSiteDiary',
+        'resolveDiaryConflict',
         'get_resources_site_diary',
         'get_resources_site_diary_id',
         'decideQualityAcceptance',

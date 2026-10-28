@@ -1,4 +1,4 @@
-import { DIARY_SIGNATURE_VALUE, DIARY_SIGNING_ROLE, assertDiaryContent, assertDiaryTransition, assertSignatureMethod, diaryCanonical, diaryHashOf } from '../src/index.ts';
+import { CONFLICT_RESOLUTIONS, DIARY_SIGNATURE_VALUE, DIARY_SIGNING_ROLE, assertConflictResolution, assertDiaryContent, assertDiaryTransition, assertSignatureMethod, diaryCanonical, diaryHashOf } from '../src/index.ts';
 import type { DomainError } from '../src/index.ts';
 
 const thrown = (run: () => unknown): DomainError => {
@@ -82,5 +82,31 @@ describe('the turns of a diary (ST-QMS-001, QMS 4)', () => {
     expect(() => assertSignatureMethod('DIGITAL_CERT', 'SN-1')).not.toThrow();
     expect(thrown(() => assertSignatureMethod('DIGITAL_CERT', null)).code).toBe('SIGNATURE_METHOD_NOT_ACCEPTED');
     expect(thrown(() => assertSignatureMethod('IN_APP_OTP', 'SN-1')).code).toBe('SIGNATURE_METHOD_NOT_ACCEPTED');
+  });
+});
+
+describe('the offline diary: the place and the conflict of two devices (ST-QMS-002)', () => {
+  it('AC-ST-QMS-002-3: UAT-AC367 keeps a place only with the consent to it, and neither drops it silently nor takes one that is not a place', () => {
+    expect(assertDiaryContent({ summary: 'x', location: { lat: 10.8, lng: 106.7 }, geo_consent: true })).toEqual({ weatherCode: null, workforceCount: null });
+    expect(() => assertDiaryContent({ summary: 'x', geo_consent: false })).not.toThrow();
+    expect(() => assertDiaryContent({ summary: 'x', location: null })).not.toThrow();
+    for (const content of [{ location: { lat: 10.8, lng: 106.7 } }, { location: { lat: 10.8, lng: 106.7 }, geo_consent: false }, { location: { lat: 10.8, lng: 106.7 }, geo_consent: 'true' }]) {
+      const error = thrown(() => assertDiaryContent({ summary: 'x', ...content }));
+      expect([error.code, error.status, error.detail]).toEqual(['VALIDATION_FAILED', 422, 'content.geo_consent']);
+    }
+    for (const location of ['here', [], { lat: 91, lng: 0 }, { lat: 0, lng: -181 }, { lat: '10', lng: 1 }, { lat: Number.NaN, lng: 1 }, {}]) {
+      expect(thrown(() => assertDiaryContent({ summary: 'x', geo_consent: true, location })).detail).toBe('content.location');
+    }
+  });
+
+  it('AC-ST-QMS-002-1: UAT-AC62 takes the three ways of settling a conflict, merged content only for the merge', () => {
+    expect(CONFLICT_RESOLUTIONS).toEqual(['KEEP_PRIMARY', 'ADOPT_CONFLICT', 'MERGED']);
+    expect(assertConflictResolution({ resolution: 'KEEP_PRIMARY', mergedContent: undefined })).toEqual({ resolution: 'KEEP_PRIMARY', merged: null });
+    expect(assertConflictResolution({ resolution: 'ADOPT_CONFLICT', mergedContent: null })).toEqual({ resolution: 'ADOPT_CONFLICT', merged: null });
+    expect(assertConflictResolution({ resolution: 'MERGED', mergedContent: { summary: 'both' } })).toEqual({ resolution: 'MERGED', merged: { summary: 'both' } });
+    expect(thrown(() => assertConflictResolution({ resolution: 'OVERWRITE', mergedContent: undefined })).detail).toBe('resolution');
+    expect(thrown(() => assertConflictResolution({ resolution: 'KEEP_PRIMARY', mergedContent: { summary: 'x' } })).detail).toBe('merged_content');
+    expect(thrown(() => assertConflictResolution({ resolution: 'MERGED', mergedContent: undefined })).detail).toBe('content');
+    expect(thrown(() => assertConflictResolution({ resolution: 'MERGED', mergedContent: { weather_code: 'x y' } })).detail).toBe('content.weather_code');
   });
 });
