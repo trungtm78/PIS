@@ -682,7 +682,7 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> extendIssueDeadline(IssExtendIssueDeadline body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('extendIssueDeadline', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> fileIncomingDocument(DocDossierItem body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+  Future<Object?> fileIncomingDocument(DocIncomingFiling body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('fileIncomingDocument', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> fileLandComplaint(LndFileLandComplaint body, {CommandAttempt? attempt}) =>

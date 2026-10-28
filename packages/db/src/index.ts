@@ -502,6 +502,8 @@ export type { TreasuryConnectorView, TreasuryImportCounts, TreasuryImportInput, 
 export { PayTreasuryTransactionStore, TREASURY_MANUAL_PROVIDER } from './pay-treasury-transaction-store.ts';
 export type { ManualConfirmationInput, ManualConfirmationResult, TreasuryCallbackInput, TreasuryCallbackResult, TreasuryMatchStatus, TreasurySourceKind, TreasuryTransactionRow } from './pay-treasury-transaction-store.ts';
 export { QmsDiaryStore, conflictRefusal } from './qms-diary-store.ts';
+export { DOSSIER_SCOPE_COLUMNS, DocDossierStore } from './doc-dossier-store.ts';
+export type { DossierFilters, DossierItemRecord, DossierPageAnchor, DossierRecord, FileableDocument, NewDossier as NewDocDossier, RetentionRuleRecord, RuleFilters } from './doc-dossier-store.ts';
 export { DocIncomingStore } from './doc-incoming-store.ts';
 export type { IncomingAssignment, IncomingFilters, IncomingPage, IncomingPageAnchor, IncomingRecord, NewIncoming } from './doc-incoming-store.ts';
 export { QmsPhotoStore } from './qms-photo-store.ts';

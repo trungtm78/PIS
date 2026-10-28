@@ -37,7 +37,7 @@ const READ = PERMISSIONS.getIncomingDocument;
  * The scope of a letter for a permission: the letter is in reach when the unit of its register or the unit it was given to lies in a scope of a grant that carries the permission, when the caller took it in or is its handler,
  * and, for a letter that has no register yet (its unit is chosen by the register it is entered in), when the permission is held at all. Compiled over the aliases `ru` (the unit of the register), `au` (the unit it was given to) and `i` of the queries of the store.
  */
-function incomingScope(access: EffectiveAccess, permission: string, now: Date, membershipId: string) {
+export function incomingScope(access: EffectiveAccess, permission: string, now: Date, membershipId: string) {
   return (first: number) => {
     const home = scopePredicate(access, permission, now, { unitPath: 'ru.path', unitId: 'ru.id' }, first);
     const given = scopePredicate(access, permission, now, { unitPath: 'au.path', unitId: 'au.id' }, first + home.params.length);
@@ -307,7 +307,7 @@ export class IncomingController {
       // The answer is a letter of ours that was issued (status ISSUED or later), not a draft, and one that the caller may read: another unit's letter is as good as none.
       const issued = await this.outgoing.find(scope.tx, response, (first) => scopePredicate(access, PERMISSIONS.getOutgoingDocument, now, OUTGOING_SCOPE_COLUMNS, first));
       if (issued === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'response_outgoing_id');
-      if (!['ISSUED', 'DELIVERED', 'ACKNOWLEDGED'].includes(issued.status)) throw new DomainError('RESPONSE_DOCUMENT_NOT_ISSUED', 422, 'response_outgoing_id');
+      if (!['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED'].includes(issued.status)) throw new DomainError('RESPONSE_DOCUMENT_NOT_ISSUED', 422, 'response_outgoing_id');
     }
     // Resolving late is allowed, and is recorded: how many working days after the deadline.
     const lateDays = letter.dueOn === null ? 0 : workingDaysLate(letter.dueOn, vietnamDateOf(now), await this.calendar(scope.tx, now, [letter.dueOn]));

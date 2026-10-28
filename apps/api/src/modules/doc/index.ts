@@ -4,6 +4,7 @@ import { DocumentVersionReadsController, DocumentsController } from './documents
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from './file-port';
 import type { DocumentFilePort } from './file-port';
 import type { MetricsSink } from '@machvon/kernel';
+import { DossierReadsController, DossiersController } from './dossier.controller';
 import { IncomingController, IncomingReadsController } from './incoming.controller';
 import { OutgoingController } from './outgoing.controller';
 import { UnconfiguredEmailChannel } from './distribution-channel';
@@ -37,6 +38,8 @@ export const docModule = defineModule({
   controllers: [
     IncomingController,
     IncomingReadsController,
+    DossiersController,
+    DossierReadsController,
     DocumentsController,
     DocumentVersionReadsController,
     OutgoingController,

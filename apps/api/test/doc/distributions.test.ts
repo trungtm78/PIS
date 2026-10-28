@@ -106,6 +106,19 @@ describe('distributing an issued document and tracking the receipts (ST-DOC-010)
     expect(await distributionsOf(doc.id)).toHaveLength(2);
   });
 
+  it('still records the receipts and retries the deliveries of a document that has been filed, and keeps it FILED (ST-DOC-013)', async () => {
+    const doc = await issued();
+    expect((await dispatch(doc.id, DISTRIBUTOR, doc.version, [paper(INTERNAL_RECIPIENT), paper(EXTERNAL_RECIPIENT)])).status).toBe(200);
+    const [first, second] = await distributionsOf(doc.id);
+    if (first === undefined || second === undefined) throw new Error('rows are missing');
+    expect((await acknowledge(first.id, DISTRIBUTOR, Number(first.version), { acknowledged_at: NOW.toISOString() })).status).toBe(200);
+    // The archivist files it while the other receipt is still to come.
+    await owner("update machvon.outgoing_document set status = 'FILED' where id = $1", [doc.id]);
+    const late = await acknowledge(second.id, DISTRIBUTOR, Number(second.version), { acknowledged_at: NOW.toISOString() });
+    expect(late).toMatchObject({ status: 200, json: { status: 'ACKNOWLEDGED', document_status: 'FILED' } });
+    expect(await status(doc.id)).toMatchObject({ status: 'FILED' });
+  });
+
   it('delivers to the inbox of a unit at once, and counts only the recipients that must acknowledge', async () => {
     const doc = await issued({ recipients: [INTERNAL_RECIPIENT, EXTERNAL_RECIPIENT, THIRD_RECIPIENT] });
     const sent = await dispatch(doc.id, DISTRIBUTOR, doc.version, [

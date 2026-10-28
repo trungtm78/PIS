@@ -305,6 +305,18 @@ export const DIARY_FIXTURES: Readonly<Record<TenantName, { id: string; diaryNo: 
   'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', diaryNo: 'BETA-DIARY-NO-0001', summary: 'Beta site diary summary 0001', operationId: '00000000-0000-4000-b0ce-000000000002' },
 };
 
+/** The retention rule of each tenant (its legal basis is distinctive; tenant data). */
+export const RETENTION_RULE_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d2-000000000001', legalBasis: 'Alpha retention legal basis 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d2-000000000001', legalBasis: 'Beta retention legal basis 0001' },
+};
+
+/** The open dossier of each tenant (its code and title are distinctive; tenant data). */
+export const DOSSIER_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d1-000000000001', code: 'ALPHA-DOSSIER-0001', title: 'Alpha dossier title 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d1-000000000001', code: 'BETA-DOSSIER-0001', title: 'Beta dossier title 0001' },
+};
+
 /** The incoming letter of each tenant, only received (its sender and symbol are distinctive; tenant data). */
 export const INCOMING_FIXTURES: Readonly<Record<TenantName, { id: string; documentId: string; title: string; sender: string; symbol: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d0-000000000001', documentId: '00000000-0000-4000-a0d0-000000000002', title: 'Alpha incoming letter title 0001', sender: 'Alpha Ministry Sender 0001', symbol: 'ALPHA-IN-0001/SYM' },
@@ -1102,6 +1114,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'incoming document title', value: INCOMING_FIXTURES[tenant].title },
     { kind: 'incoming document sender', value: INCOMING_FIXTURES[tenant].sender },
     { kind: 'incoming document symbol', value: INCOMING_FIXTURES[tenant].symbol },
+    { kind: 'dossier id', value: DOSSIER_FIXTURES[tenant].id },
+    { kind: 'dossier code', value: DOSSIER_FIXTURES[tenant].code },
+    { kind: 'dossier title', value: DOSSIER_FIXTURES[tenant].title },
+    { kind: 'retention rule id', value: RETENTION_RULE_FIXTURES[tenant].id },
+    { kind: 'retention rule legal basis', value: RETENTION_RULE_FIXTURES[tenant].legalBasis },
     { kind: 'site photo caption', value: PHOTO_FIXTURES[tenant].caption },
     { kind: 'site photo hash', value: PHOTO_FIXTURES[tenant].sha256 },
     { kind: 'quality acceptance record no', value: ACCEPTANCE_FIXTURES[tenant].recordNo },

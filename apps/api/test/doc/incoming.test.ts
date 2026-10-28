@@ -324,9 +324,9 @@ describe('incoming documents over HTTP (ST-DOC-011)', () => {
         await tx.query(
           `insert into machvon.outgoing_document (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, created_by, updated_by)
            values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4, $5::uuid, $6::uuid, $6::uuid, $6::uuid, $6::uuid)`,
-          [id, document.id, app.layoutProfileId, status === 'ISSUED' ? 'SUBMITTED' : status, unitId(unit), memberId(ADMIN)],
+          [id, document.id, app.layoutProfileId, 'SUBMITTED', unitId(unit), memberId(ADMIN)],
         );
-        if (status === 'ISSUED') {
+        if (status !== 'SUBMITTED') {
           // Issued means numbered and sealed: the number is taken from the register of the incoming letters only as a row to point at.
           const allocation = randomUUID();
           await tx.query(
@@ -334,7 +334,7 @@ describe('incoming documents over HTTP (ST-DOC-011)', () => {
              values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::int, $4, $5::uuid, date '2026-10-23', $6::uuid)`,
             [allocation, registerId, 9000 + (counter += 1), 'KQ-' + counter, document.id, memberId(ADMIN)],
           );
-          await tx.query("update machvon.outgoing_document set status = 'ISSUED', allocation_id = $2::uuid, issued_at = now(), sealed_at = now() where id = $1::uuid", [id, allocation]);
+          await tx.query("update machvon.outgoing_document set status = $3, allocation_id = $2::uuid, issued_at = now(), sealed_at = now() where id = $1::uuid", [id, allocation, status]);
         }
       });
       return id;
@@ -349,6 +349,11 @@ describe('incoming documents over HTTP (ST-DOC-011)', () => {
     expect(await resolve(INCOMING_STAFF, letter.id, 4, { resolution_summary: 'Đã trả lời.', response_outgoing_id: draft })).toMatchObject({ status: 422, json: { code: 'RESPONSE_DOCUMENT_NOT_ISSUED' } });
     expect(await resolve(INCOMING_STAFF, letter.id, 4, { resolution_summary: 'Đã trả lời.', response_outgoing_id: mine })).toMatchObject({ status: 200, json: { status: 'RESOLVED' } });
     expect((await show(INCOMING_STAFF, letter.id)).json.response_outgoing_id).toBe(mine);
+    // An answer that the archivist filed meanwhile is still an issued answer.
+    const filedAnswer = await seed(2, 'FILED');
+    const second = await assigned('2026-12-31');
+    expect((await start(INCOMING_STAFF, second.id, 3)).status).toBe(200);
+    expect(await resolve(INCOMING_STAFF, second.id, 4, { resolution_summary: 'Đã trả lời.', response_outgoing_id: filedAnswer })).toMatchObject({ status: 200, json: { status: 'RESOLVED' } });
   });
 
   it('advertises the work on a letter only to a handler whose membership may work it, and sends the reminder to the memberships of the handler', async () => {

@@ -237,6 +237,20 @@
       "location": "numerator_disbursed_vnd",
       "reason": "the numerator of a rate with nothing reported is null with its reason instead of the text 0 (a missing figure is not zero); the read had no client",
       "change_request": "ST-DIS-010"
+    },
+    {
+      "operation": "fileIncomingDocument",
+      "kind": "FIELD_REMOVED",
+      "location": "document_id",
+      "reason": "fileIncomingDocument took a dossier item ({document_id}), which names a document and not the dossier the letter goes into; its own body now names the dossier (the letter is the one in the path), and nothing called it before",
+      "change_request": "ST-DOC-013"
+    },
+    {
+      "operation": "fileIncomingDocument",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "dossier_id",
+      "reason": "fileIncomingDocument took a dossier item ({document_id}), which names a document and not the dossier the letter goes into; its own body now names the dossier (the letter is the one in the path), and nothing called it before",
+      "change_request": "ST-DOC-013"
     }
   ]
 }

@@ -498,3 +498,5 @@ export { BUDGET_PERIODS, BUDGET_SCOPE_ORDER, assertBudgetDraft, assertPriceDraft
 export type { AttemptCost, BudgetPeriod, BudgetScope, CachedSemantics, Price, ReserveDecision, ScopeBalance, Usage } from './llm-finops.ts';
 export { DEFAULT_THRESHOLDS, EFFORTS, READ_ONLY_TOOLS, assertDatasetDraft, assertProfileDraft, assertPromptDraft, assertSignable, judgeMetrics, metricsJson, parseRoutingPolicy, parseThresholds, releaseGate, sha256Of, thresholdsJson } from './llm-eval.ts';
 export type { DatasetDraft, EvalCase, EvalMetrics, EvalRunnerPort, EvalStatus, GateInput, GateResult, ProfileDraft, PromptDraft, RoutingPolicy, RunView, Thresholds } from './llm-eval.ts';
+export { DEFAULT_RULE_SET_ORDER, DOSSIER_STATUSES, RETENTION_CLASSES, RETENTION_RULE_SETS, RETENTION_START_BASES, addMonths, assertDisposable, canMoveDossier, disposalBlocker, planRetention, selectRetentionRule } from './doc-dossier.ts';
+export type { DisposalBlocker, DossierStatus, RetentionClass, RetentionPlan, RetentionRuleSet, RetentionRuleView, RetentionStartBasis } from './doc-dossier.ts';

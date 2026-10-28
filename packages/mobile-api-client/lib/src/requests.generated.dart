@@ -4353,6 +4353,22 @@ final class DocIncomingAssign implements RequestModel {
       };
 }
 
+final class DocIncomingFiling implements RequestModel {
+  const DocIncomingFiling({
+    required this.dossierId,
+    this.ordinal,
+  });
+
+  final String dossierId;
+  final int? ordinal;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'dossier_id': dossierId,
+        if (ordinal != null) 'ordinal': ordinal,
+      };
+}
+
 final class DocIncomingReceive implements RequestModel {
   const DocIncomingReceive({
     required this.title,

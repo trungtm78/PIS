@@ -14,6 +14,7 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { DocumentVersionReadsController, DocumentsController } from '../../src/modules/doc/documents.controller';
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { PdfLibRenderer, loadRendererResources } from '../../src/modules/doc/pdf-renderer';
+import { DossierReadsController, DossiersController } from '../../src/modules/doc/dossier.controller';
 import { IncomingController, IncomingReadsController } from '../../src/modules/doc/incoming.controller';
 import { OutgoingController } from '../../src/modules/doc/outgoing.controller';
 import { OutgoingDraftsController } from '../../src/modules/doc/outgoing-drafts.controller';
@@ -69,6 +70,9 @@ export const INCOMING_CLERK = 25; // receives, registers and rejects the incomin
 export const INCOMING_CHIEF = 26; // assigns the incoming documents of unit 2 (the chief of the office)
 export const INCOMING_STAFF = 27; // works the incoming documents given to them in unit 2
 export const INCOMING_STAFF_TWO = 28; // the same right, for letters that are not given to them
+export const ARCHIVIST = 30; // opens, fills and closes the dossiers of unit 2 and reads the retention rules
+export const ARCHIVIST_OUTSIDE = 31; // the same rights, but only on unit 1 itself
+export const DOSSIER_READER = 32; // reads the dossiers of unit 2 and nothing more
 export const INCOMING_OUTSIDE = 29; // the same rights as the clerk, but only on unit 1 itself // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
 
 export interface Reply {
@@ -148,6 +152,9 @@ export class DocApp {
       INCOMING_STAFF,
       INCOMING_STAFF_TWO,
       INCOMING_OUTSIDE,
+      ARCHIVIST,
+      ARCHIVIST_OUTSIDE,
+      DOSSIER_READER,
     ])
       await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
@@ -175,7 +182,12 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 18, 'DOC_INCOMING_CLERK', ['doc.incoming.receive', 'doc.incoming.register', 'doc.incoming.read', 'doc.file.upload', 'document_version.read', 'doc.outgoing.read'], 30);
     await harness.seedRole(TENANT_A, 19, 'DOC_INCOMING_CHIEF', ['doc.incoming.assign', 'doc.incoming.read'], 40);
     await harness.seedRole(TENANT_A, 20, 'DOC_INCOMING_STAFF', ['doc.incoming.process', 'doc.incoming.read', 'document_version.read', 'doc.outgoing.read'], 20);
+    await harness.seedRole(TENANT_A, 21, 'DOC_ARCHIVIST', ['doc.dossier.manage', 'doc.dossier.read', 'doc.retention.read', 'doc.incoming.read'], 30);
+    await harness.seedRole(TENANT_A, 22, 'DOC_DOSSIER_READER', ['doc.dossier.read'], 20);
     await harness.seedGrants(TENANT_A, [
+      { n: 36, member: ARCHIVIST, role: 21, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 37, member: ARCHIVIST_OUTSIDE, role: 21, kind: 'UNIT_ONLY', refs: [unitId(1)] },
+      { n: 38, member: DOSSIER_READER, role: 22, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 30, member: INCOMING_CLERK, role: 18, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 31, member: INCOMING_CHIEF, role: 19, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 32, member: INCOMING_STAFF, role: 20, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -235,6 +247,8 @@ export class DocApp {
         DocumentDistributionsController,
         OutgoingRecallController,
         IncomingController,
+        DossiersController,
+        DossierReadsController,
         IncomingReadsController,
       ],
       providers: [

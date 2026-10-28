@@ -14,7 +14,8 @@ const CLOCK_SKEW_MS = 5 * 60_000;
 /** The states in which new recipients can be added: the document is out and nobody has yet confirmed it was received by all. */
 const DISTRIBUTABLE: readonly OutgoingStatus[] = ['ISSUED', 'DELIVERED'];
 /** The states in which a recipient can still be sent to again or acknowledge. */
-const TRACKABLE: readonly OutgoingStatus[] = ['ISSUED', 'DELIVERED', 'ACKNOWLEDGED'];
+// A document that has been filed (ST-DOC-013) is still delivered and acknowledged: its failed deliveries are tried again and its receipts recorded; its status stays FILED.
+const TRACKABLE: readonly OutgoingStatus[] = ['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED'];
 
 export interface DistributionChange {
   record: DistributionRecord;

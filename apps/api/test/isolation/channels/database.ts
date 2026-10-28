@@ -53,6 +53,8 @@ import {
   ACCEPTANCE_FIXTURES,
   ADVANCE_FIXTURES,
   DIARY_FIXTURES,
+  DOSSIER_FIXTURES,
+  RETENTION_RULE_FIXTURES,
   INCOMING_FIXTURES,
   PHOTO_FIXTURES,
   BOQ_FIXTURES,
@@ -616,6 +618,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'rejectIncomingDocument',
   'listIncomingDocuments',
   'getIncomingDocument',
+  'createDossier',
+  'addDocumentToDossier',
+  'closeDossier',
+  'fileIncomingDocument',
+  'listDossiers',
+  'getDossier',
+  'listDocumentRetentionRules',
   'getSitePhotoChecks',
   'get_resources_site_photo',
   'get_resources_site_photo_id',
@@ -1187,6 +1196,10 @@ const INSERT_ACCEPTANCE = `insert into machvon.quality_acceptance
 
 const INSERT_INCOMING_DOCUMENT = `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by)
   values ($1, $2, 'INCOMING', 'QD', $3, 'INTERNAL', $4, $4) on conflict do nothing`;
+const INSERT_RETENTION_RULE = `insert into machvon.doc_retention_rule (tenant_id, id, rule_set, category_code, class_code, retention_years, start_basis, legal_basis, effective_from, status, created_by, updated_by)
+  values ($1, $2, 'TT74_2025_BTC', 'ISOLATION_CATEGORY', 'Y20', 20, 'FROM_CLOSED', $3, date '2026-01-01', 'PUBLISHED', $4, $4) on conflict (tenant_id, id) do nothing`;
+const INSERT_DOSSIER = `insert into machvon.dossier (tenant_id, id, dossier_code, year, title, organization_unit_id, category_code, created_by, updated_by)
+  values ($1, $2, $3, 2026, $4, $5, 'PROJECT_INVESTMENT', $6, $6) on conflict do nothing`;
 const INSERT_INCOMING = `insert into machvon.incoming_document (tenant_id, id, document_id, status, channel, received_at, received_by, sender_name, original_symbol, original_issued_on, created_by, updated_by)
   values ($1, $2, $3, 'RECEIVED', 'UPLOAD', now(), $4, $5, $6, date '2026-10-19', $4, $4) on conflict do nothing`;
 
@@ -1681,6 +1694,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const incoming = INCOMING_FIXTURES[tenant];
     await client.query(INSERT_INCOMING_DOCUMENT, [tenantId, incoming.documentId, incoming.title, MEMBERSHIP_ID]);
     await client.query(INSERT_INCOMING, [tenantId, incoming.id, incoming.documentId, MEMBERSHIP_ID, incoming.sender, incoming.symbol]);
+    const rule = RETENTION_RULE_FIXTURES[tenant];
+    await client.query(INSERT_RETENTION_RULE, [tenantId, rule.id, rule.legalBasis, MEMBERSHIP_ID]);
+    const dossier = DOSSIER_FIXTURES[tenant];
+    await client.query(INSERT_DOSSIER, [tenantId, dossier.id, dossier.code, dossier.title, home, MEMBERSHIP_ID]);
     const photo = PHOTO_FIXTURES[tenant];
     await client.query(INSERT_PHOTO, [tenantId, photo.id, project.id, draft.id, photo.operationId, `tenants/${tenantId}/site_photo/${photo.id}`, photo.sha256, photo.caption, MEMBERSHIP_ID]);
     const measurement = MEASUREMENT_FIXTURES[tenant];

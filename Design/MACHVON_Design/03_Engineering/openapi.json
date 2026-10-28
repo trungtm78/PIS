@@ -99881,7 +99881,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DocDossierItem"
+                "$ref": "#/components/schemas/DocIncomingFiling"
               }
             }
           }
@@ -152971,6 +152971,24 @@
           "as_of": {
             "type": "string",
             "format": "date"
+          }
+        }
+      },
+      "DocIncomingFiling": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "dossier_id"
+        ],
+        "properties": {
+          "dossier_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The OPEN dossier the resolved letter is filed into"
+          },
+          "ordinal": {
+            "type": "integer",
+            "minimum": 1
           }
         }
       }

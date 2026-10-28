@@ -294,6 +294,11 @@ export class DocIncomingStore {
     await this.advance(tx, id, input.expectedVersion, 'resolve', 'resolution_summary = $3, response_outgoing_id = $4::uuid, resolved_at = $5::timestamptz, late_days = $6::int, is_overdue = (is_overdue or $6::int > 0), overdue_since = case when $6::int > 0 then coalesce(overdue_since, ($5::timestamptz at time zone \'Asia/Ho_Chi_Minh\')::date) else overdue_since end', [input.summary, input.responseOutgoingId ?? null, input.resolvedAt.toISOString(), input.lateDays], input.actor);
   }
 
+  /** FILED: the resolved letter has been put into a dossier. */
+  async markFiled(tx: TenantTx, id: string, input: { expectedVersion: number; actor: string }): Promise<void> {
+    await this.advance(tx, id, input.expectedVersion, 'file', '', [], input.actor);
+  }
+
   async markRejected(tx: TenantTx, id: string, input: { expectedVersion: number; reason: string; duplicateOfId: string | undefined; actor: string }): Promise<void> {
     // A letter that is refused as a copy points at the one that stays.
     await this.advance(tx, id, input.expectedVersion, 'reject', 'rejection_reason = $3, duplicate_of_id = coalesce($4::uuid, duplicate_of_id)', [input.reason, input.duplicateOfId ?? null], input.actor);

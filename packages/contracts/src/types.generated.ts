@@ -21541,6 +21541,14 @@ export interface components {
             /** Format: date */
             as_of: string;
         };
+        DocIncomingFiling: {
+            /**
+             * Format: uuid
+             * @description The OPEN dossier the resolved letter is filed into
+             */
+            dossier_id: string;
+            ordinal?: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -90752,7 +90760,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DocDossierItem"];
+                "application/json": components["schemas"]["DocIncomingFiling"];
             };
         };
         responses: {

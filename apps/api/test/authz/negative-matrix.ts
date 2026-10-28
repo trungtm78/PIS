@@ -182,6 +182,8 @@ export interface MatrixTargets {
   diaryId: string;
   /** An incoming document that was only received (version 1), taken in by someone other than the callers. */
   incomingId: string;
+  /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
+  dossierId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1679,6 +1681,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   rejectIncomingDocument: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/rejection`, ifMatch: '"1"', body: { rejection_reason: 'Matrix probe of the rejection of a letter' } }),
+  },
+  createDossier: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/dossiers', body: { dossier_code: 'DS-MATRIX', year: 2026, title: 'Matrix probe of a dossier', organization_unit_id: '00000000-0000-4000-8000-0000000000e7', category_code: 'PROJECT_INVESTMENT' } }),
+  },
+  addDocumentToDossier: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dossiers/${t.dossierId}/items`, ifMatch: '"1"', body: { document_id: '00000000-0000-4000-8000-0000000000e8' } }),
+  },
+  closeDossier: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dossiers/${t.dossierId}/closure`, ifMatch: '"1"', body: {} }),
+  },
+  fileIncomingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/filing`, ifMatch: '"1"', body: { dossier_id: t.dossierId } }),
   },
   registerSitePhoto: {
     referencesTenantIds: true,

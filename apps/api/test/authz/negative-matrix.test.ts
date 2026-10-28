@@ -298,6 +298,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text, ',' order by id) from machvon.site_photo where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(register_id::text, ''), ',' order by id) from machvon.incoming_document where tenant_id = $1),
     (select count(*)::text from machvon.document_number_allocation where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dossier where tenant_id = $1),
+    (select count(*)::text from machvon.dossier_item where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_obligation_rule where tenant_id = $1),
     (select count(*)::text from machvon.mne_report where tenant_id = $1),
@@ -483,6 +485,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           `insert into machvon.incoming_document (tenant_id, id, document_id, status, channel, received_at, received_by, sender_name, created_by, updated_by)
            values ($1, $2, $3, 'RECEIVED', 'UPLOAD', now(), $4, 'Matrix sender', $4, $4)`,
           [TENANT_A, id(0x77, 50), id(0x77, 51), memberId(RECIPIENT)],
+        ],
+        [
+          `insert into machvon.dossier (tenant_id, id, dossier_code, year, title, organization_unit_id, category_code, created_by, updated_by)
+           values ($1, $2, 'DS-MX-SEED', 2026, 'Matrix dossier', $3, 'PROJECT_INVESTMENT', $4, $4)`,
+          [TENANT_A, id(0x77, 52), unitId(2), memberId(RECIPIENT)],
         ],
       ];
       for (const [sql, params] of statements) await seeder.query(sql, params);
@@ -1032,6 +1039,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       acceptanceId: id(0x77, 20),
       diaryId: id(0x77, 40),
       incomingId: id(0x77, 50),
+      dossierId: id(0x77, 52),
       qualityContractId,
       qualityRuleId,
       qualitySnapshotId,
