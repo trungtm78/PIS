@@ -54,6 +54,7 @@
     "createAuditEngagement",
     "createAuditRecommendation",
     "createAvcPolicyVersion",
+    "createBiAccessPolicy",
     "createCapitalPlan",
     "createCapitalPlanRevision",
     "createChangeRequest",

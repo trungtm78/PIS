@@ -135,7 +135,7 @@ const toRun = (row: Sql): SyncRun => ({
 const SYNC_RUN_COLUMNS = 'id, source_commit, bundle_sha256, bundle_object_key, added_count, revised_count, retired_count, status, error_json, triggered_by, created_at';
 
 /** The dimensions a dataset offers: what its join paths declare under `dimensions` (a list of codes, or an object keyed by code); a dataset that declares none offers none. */
-function datasetDimensions(joinPaths: unknown): string[] {
+export function datasetDimensions(joinPaths: unknown): string[] {
   const declared = (joinPaths as { dimensions?: unknown } | null)?.dimensions;
   if (Array.isArray(declared)) return declared.filter((item): item is string => typeof item === 'string');
   if (typeof declared === 'object' && declared !== null) return Object.keys(declared);

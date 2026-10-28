@@ -573,7 +573,7 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
 };
 
 /** A metric of each tenant's registry (the code and the commit it came from are distinctive). */
-export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string; datasetId: string; datasetCode: string; datasetTitle: string; versionId: string; versionChecksum: string }>> = {
+export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string; datasetId: string; datasetCode: string; datasetTitle: string; versionId: string; versionChecksum: string; policyId: string; policyColumn: string }>> = {
   'TNT-A': {
     metricId: '00000000-0000-4000-a0b1-000000000001',
     metricCode: 'alpha_rate_0001',
@@ -583,6 +583,8 @@ export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metric
     datasetTitle: 'Alpha dataset of the disbursement 0001',
     versionId: '00000000-0000-4000-a0b1-000000000003',
     versionChecksum: 'a0b1'.repeat(16),
+    policyId: '00000000-0000-4000-a0b1-000000000004',
+    policyColumn: 'alpha_secret_column',
   },
   'TNT-B': {
     metricId: '00000000-0000-4000-b0b1-000000000001',
@@ -593,6 +595,8 @@ export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metric
     datasetTitle: 'Beta dataset of the disbursement 0001',
     versionId: '00000000-0000-4000-b0b1-000000000003',
     versionChecksum: 'b0b1'.repeat(16),
+    policyId: '00000000-0000-4000-b0b1-000000000004',
+    policyColumn: 'beta_secret_column',
   },
 };
 
@@ -815,6 +819,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'bi dataset title', value: BI_FIXTURES[tenant].datasetTitle },
     { kind: 'bi dataset version id', value: BI_FIXTURES[tenant].versionId },
     { kind: 'bi dataset version checksum', value: BI_FIXTURES[tenant].versionChecksum },
+    { kind: 'bi access policy id', value: BI_FIXTURES[tenant].policyId },
+    { kind: 'bi access policy column', value: BI_FIXTURES[tenant].policyColumn },
     { kind: 'glossary term id', value: GLOSSARY_FIXTURES[tenant].termId },
     { kind: 'glossary term code', value: GLOSSARY_FIXTURES[tenant].termCode },
     { kind: 'glossary term definition', value: GLOSSARY_FIXTURES[tenant].definition },

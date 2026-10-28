@@ -503,6 +503,7 @@
   "listAuditRecommendations": {},
   "listAuditRecoveryLinks": {},
   "listAvcPolicies": {},
+  "listBiAccessPolicies": {},
   "listBiDatasets": {},
   "listBiDatasetVersions": {},
   "listBiQueryRuns": {},

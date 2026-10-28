@@ -570,6 +570,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'buildBiDatasetVersion',
   'listBiDatasets',
   'listBiDatasetVersions',
+  'createBiAccessPolicy',
+  'listBiAccessPolicies',
   'listMneForms',
   'createMneObligationRule',
   'publishMneObligationRule',
@@ -1247,6 +1249,9 @@ const INSERT_BI_DATASET = `insert into machvon.bi_dataset
 const INSERT_BI_VERSION = `insert into machvon.bi_dataset_version
   (tenant_id, id, dataset_id, as_of_period, built_at, row_count, checksum_sha256, status, created_by, updated_by)
   values ($1, $2, $3, '2026-10', now(), 10, $4, 'FROZEN', $5, $5) on conflict do nothing`;
+const INSERT_BI_POLICY = `insert into machvon.bi_access_policy
+  (tenant_id, id, dataset_id, revision, grantee_kind, grantee_ref_id, row_predicate_ast, column_masks, status, created_by, updated_by)
+  values ($1, $2, $3, 1, 'MEMBERSHIP', $5, '{"op":"unit_in_scope"}'::jsonb, jsonb_build_object($4::text, 'HIDE'), 'DRAFT', $5, $5) on conflict do nothing`;
 const INSERT_MNE_FORM = `insert into machvon.mne_report_form
   (tenant_id, id, form_code, title, report_kind, legal_basis, effective_from, schema_json, doc_template_code, export_formats, revision, status, origin, pack_version, published_at, created_by, updated_by)
   values ($1, $2, $3, 'Isolation report form', 'OVERALL_SEMIANNUAL', $4, date '2026-01-01', '{}'::jsonb, 'ISOLATION-TEMPLATE', array['XLSX'], 1, 'PUBLISHED', 'PLATFORM_PACK', 'isolation', now(), $5, $5) on conflict do nothing`;
@@ -1516,6 +1521,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_METRIC, [tenantId, bi.metricId, bi.metricCode, bi.sourceCommit, ACTOR_ID]);
     await client.query(INSERT_BI_DATASET, [tenantId, bi.datasetId, bi.datasetCode, bi.datasetTitle, ACTOR_ID]);
     await client.query(INSERT_BI_VERSION, [tenantId, bi.versionId, bi.datasetId, bi.versionChecksum, ACTOR_ID]);
+    await client.query(INSERT_BI_POLICY, [tenantId, bi.policyId, bi.datasetId, bi.policyColumn, ACTOR_ID]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);

@@ -652,6 +652,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'buildBiDatasetVersion',
         'listBiDatasets',
         'listBiDatasetVersions',
+        'createBiAccessPolicy',
+        'listBiAccessPolicies',
         'listMneForms',
         'createMneObligationRule',
         'publishMneObligationRule',

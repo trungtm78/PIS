@@ -7,6 +7,8 @@ import { metricBody, toMetric } from './bi-model';
 import type { Metric, MetricValues } from './bi-model';
 import { toDataset, toVersion } from './dataset-model';
 import type { Dataset, DatasetVersion } from './dataset-model';
+import { policyBody, toPolicy } from './policy-model';
+import type { Policy, PolicyValues } from './policy-model';
 
 /** Every read and every mutation of the BI screens lives under this key of the tenant, so one command refreshes them all. */
 export const biRoot = (tenantId: string | undefined) => ['bi', tenantId] as const;
@@ -92,6 +94,34 @@ export function useBuildVersion() {
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
     mutationFn: (values: BuildValues) => client.command('buildBiDatasetVersion', { path: { id: values.datasetId }, body: { as_of_period: values.asOfPeriod.trim() }, attempt: attempts.current.forPayload(values) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** The row and column policies, of one dataset when it is named. */
+export function usePolicies(datasetId: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<Policy[]>({
+    queryKey: [...biRoot(tenant?.id), 'policies', tenant?.membershipId, datasetId ?? ''],
+    queryFn: async () => (await client.readAll('listBiAccessPolicies', datasetId === undefined ? undefined : { query: { dataset_id: datasetId } })).flatMap((raw) => toPolicy(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** Drafts a policy: one idempotency attempt per intention, the cached reads refreshed on success. */
+export function useCreatePolicy() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (values: PolicyValues) => client.command('createBiAccessPolicy', { body: policyBody(values), attempt: attempts.current.forPayload(values) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });

@@ -671,3 +671,5 @@ export { METRIC_AGGREGATIONS, METRIC_MAX_BUNDLE, NULL_POLICIES, TENANT_METRIC_PR
 export type { MetricAggregation, MetricDefinition, MetricFields, MetricNode, MetricProblem, MetricProblemCode, MetricSyncPlan, NullPolicy, NullReason, PeriodPoint, RatioFigure, RegisteredMetric } from './bi-metric.ts';
 export { DATASET_VERSION_STATUSES, QUALITY_BADGES, certifiedRows, feedsCertified, isSameBuild, qualityOfVersion, versionChecksum } from './bi-dataset.ts';
 export type { DatasetVersionStatus, QualityBadge, QualityOfVersion, QualityRunFacts, VersionContent } from './bi-dataset.ts';
+export { COLUMN_MASKS, POLICY_GRANTEE_KINDS, columnMasksProblem, hiddenColumns, predicateProblem, requireApplicablePolicies } from './bi-policy.ts';
+export type { ColumnMask, PolicyGranteeKind, PolicyProblem, PolicyView } from './bi-policy.ts';

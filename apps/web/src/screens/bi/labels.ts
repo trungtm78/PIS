@@ -1,5 +1,6 @@
 import type { Translator } from '../../i18n';
 import type { Badge, BuildReason, VersionStatus } from './dataset-model';
+import type { GranteeKind, PolicyProblemKind, PolicyReason, PolicyStatus } from './policy-model';
 import type { Aggregate, Aggregation, FieldProblem, MetricOrigin, MetricStatus, NullPolicy, ProblemView } from './bi-model';
 
 type T = Translator['t'];
@@ -146,5 +147,59 @@ export function buildProblemMessage(t: T, reason: BuildReason): string {
       return t('bi.dataset.refused.session');
     case 'general':
       return t('bi.dataset.refused.general');
+  }
+}
+
+export function granteeKindLabel(t: T, kind: GranteeKind): string {
+  switch (kind) {
+    case 'ROLE':
+      return t('bi.policy.grantee.role');
+    case 'UNIT_TREE':
+      return t('bi.policy.grantee.unitTree');
+    case 'MEMBERSHIP':
+      return t('bi.policy.grantee.membership');
+  }
+}
+
+export function policyStatusLabel(t: T, status: PolicyStatus): string {
+  switch (status) {
+    case 'DRAFT':
+      return t('bi.policy.status.draft');
+    case 'ACTIVE':
+      return t('bi.policy.status.active');
+    case 'RETIRED':
+      return t('bi.policy.status.retired');
+  }
+}
+
+export function policyFieldMessage(t: T, kind: PolicyProblemKind): string {
+  switch (kind) {
+    case 'required':
+      return t('bi.policy.problem.required');
+    case 'invalidId':
+      return t('bi.policy.problem.invalidId');
+    case 'invalidName':
+      return t('bi.policy.problem.invalidName');
+    case 'needsCondition':
+      return t('bi.policy.problem.needsCondition');
+    case 'bothMasks':
+      return t('bi.policy.problem.bothMasks');
+  }
+}
+
+export function policyRefusalMessage(t: T, reason: PolicyReason, field: string): string {
+  switch (reason) {
+    case 'predicate':
+      return t('bi.policy.refused.predicate');
+    case 'dimension':
+      return t('bi.policy.refused.dimension', { field });
+    case 'invalid':
+      return t('bi.policy.refused.invalid', { field });
+    case 'denied':
+      return t('bi.policy.refused.denied');
+    case 'session':
+      return t('bi.policy.refused.session');
+    case 'general':
+      return t('bi.policy.refused.general');
   }
 }
