@@ -1363,6 +1363,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesSiteDiaryId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_site_diary_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesSitePhoto({Map<String, Object?>? query}) =>
+      execute('get_resources_site_photo', query: query);
+
+  Future<Object?> getResourcesSitePhotoId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_site_photo_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesSubscription({Map<String, Object?>? query}) =>
       execute('get_resources_subscription', query: query);
 

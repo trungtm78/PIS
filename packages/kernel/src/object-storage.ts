@@ -82,8 +82,7 @@ function assertSecret(secret: Uint8Array | string): Buffer {
   return buffer;
 }
 
-const signatureOf = (method: string, key: string, expires: number, secret: Buffer): string =>
-  createHmac('sha256', secret).update(`${method}\n${key}\n${expires}`).digest('hex');
+const signatureOf = (method: string, key: string, expires: number, secret: Buffer): string => createHmac('sha256', secret).update(`${method}\n${key}\n${expires}`).digest('hex');
 
 const secondsOf = (moment: Date): number => Math.floor(moment.getTime() / 1000);
 
@@ -113,15 +112,14 @@ export function verifyUrl(grant: PresignedGrant, secret: Uint8Array | string, no
   return secondsOf(now) >= grant.expires ? 'EXPIRED' : 'OK';
 }
 
-export type UploadPurpose = 'document' | 'logo' | 'import' | 'audit_export' | 'report_export';
+export type UploadPurpose = 'document' | 'logo' | 'import' | 'audit_export' | 'report_export' | 'site_photo';
 
 interface TypeRule {
   /** Whether the first bytes are a signature of this type. */
   matches(bytes: Uint8Array): boolean;
 }
 
-const startsWith = (bytes: Uint8Array, signature: readonly number[], offset = 0): boolean =>
-  bytes.length >= offset + signature.length && signature.every((value, index) => bytes[offset + index] === value);
+const startsWith = (bytes: Uint8Array, signature: readonly number[], offset = 0): boolean => bytes.length >= offset + signature.length && signature.every((value, index) => bytes[offset + index] === value);
 
 const ascii = (text: string): number[] => [...text].map((character) => character.charCodeAt(0));
 const OOXML_PREFIX = 'application/vnd.openxmlformats-officedocument.';
@@ -173,6 +171,8 @@ export const UPLOAD_PURPOSES: Readonly<Record<UploadPurpose, { allowed: readonly
   audit_export: { allowed: ['text/csv', 'text/plain'], maxBytes: 64 * MEBIBYTE },
   // The export of a frozen snapshot (ST-DIS-016): CSV, a workbook, or a PDF.
   report_export: { allowed: ['text/csv', SPREADSHEET, 'application/pdf'], maxBytes: 64 * MEBIBYTE },
+  // A photo of the site (ST-QMS-003): an image and nothing else; the register reads it, and a photo is not an office file.
+  site_photo: { allowed: IMAGES, maxBytes: 15 * MEBIBYTE },
 };
 
 export type UploadVerdict = { ok: true; contentType: string } | { ok: false; code: 'FILE_TYPE_NOT_ALLOWED' | 'PAYLOAD_TOO_LARGE'; status: 422 | 413 };

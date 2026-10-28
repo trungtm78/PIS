@@ -73,7 +73,12 @@ describe('negative authorization matrix generator', () => {
       const mine = cases.filter((matrixCase) => matrixCase.operationId === operation.operationId);
       const roleCases = mine.filter((matrixCase) => matrixCase.kind === 'role').map((matrixCase) => matrixCase.roleCode);
       const holders = roles.filter((role) => role.permissions.some((held) => held === operation.permission || (held.endsWith('.*') && operation.permission.startsWith(held.slice(0, -1)))));
-      expect(roleCases.sort()).toEqual(roles.filter((role) => !holders.includes(role)).map((role) => role.code).sort());
+      expect(roleCases.sort()).toEqual(
+        roles
+          .filter((role) => !holders.includes(role))
+          .map((role) => role.code)
+          .sort(),
+      );
       expect(mine.filter((matrixCase) => matrixCase.kind === 'wrong-tenant')).toHaveLength(1);
       expect(mine.filter((matrixCase) => matrixCase.kind === 'control-plane')).toHaveLength(1);
     }
@@ -94,12 +99,7 @@ describe('negative authorization matrix generator', () => {
     });
 
     it('reports a request that the guard let through, with its changed state', () => {
-      expect(evaluateGuardDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
-        'answered 201 instead of 403',
-        'code undefined instead of SCOPE_DENIED',
-        '0 DENIED audit rows instead of 1',
-        'tenant state changed',
-      ]);
+      expect(evaluateGuardDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual(['answered 201 instead of 403', 'code undefined instead of SCOPE_DENIED', '0 DENIED audit rows instead of 1', 'tenant state changed']);
     });
 
     it('reports a refusal with another code, a missing audit row or a changed state each on its own', () => {
@@ -113,11 +113,7 @@ describe('negative authorization matrix generator', () => {
       expect(evaluateWrongTenant({ ...refused, status: 201, deniedRows: 0 }, ['abc'], false)).toEqual([]);
       expect(evaluateWrongTenant({ ...refused, status: 201, text: 'ABC', deniedRows: 0, stateChanged: true }, ['abc'], false)).toEqual(['body exposes data of another tenant', 'tenant state changed']);
       expect(evaluateWrongTenant({ ...refused, status: 404, deniedRows: 0 }, ['abc'])).toEqual([]);
-      expect(evaluateWrongTenant({ status: 200, code: undefined, text: 'Contains ABC', deniedRows: 0, stateChanged: true }, ['abc'])).toEqual([
-        'answered 200 instead of 403 or 404',
-        'body exposes data of another tenant',
-        'tenant state changed',
-      ]);
+      expect(evaluateWrongTenant({ status: 200, code: undefined, text: 'Contains ABC', deniedRows: 0, stateChanged: true }, ['abc'])).toEqual(['answered 200 instead of 403 or 404', 'body exposes data of another tenant', 'tenant state changed']);
     });
   });
 });
@@ -164,9 +160,74 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['decideProjectAppraisal', 'releaseLegalHold', 'publishSecurityPolicy', 'publishAvcPolicy', 'decideDoaMatrix', 'decideMasterChangeRequest', 'post_master_records_id_publish', 'decideMasterImport', 'publishMasterImport', 'decideGlossaryTerm', 'publishGlossaryTerm', 'publishDocumentTemplate', 'confirmDocumentTemplateLegalBasis', 'verifyContractor', 'verifyGuarantee', 'releaseGuarantee', 'decideAppropriation', 'decideAllocationExtension', 'reopenFiscalYear', 'decideCapitalPlan', 'post_plans_id_publish', 'decidePeriodReopen', 'publishMneForm', 'publishMneObligationRule', 'publishRetentionPolicy', 'decideProcurementPlan', 'approveCriteriaVersion', 'grantPermitGateWaiver', 'approveQualityRuleVersion']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual([
+      'decideProjectAppraisal',
+      'releaseLegalHold',
+      'publishSecurityPolicy',
+      'publishAvcPolicy',
+      'decideDoaMatrix',
+      'decideMasterChangeRequest',
+      'post_master_records_id_publish',
+      'decideMasterImport',
+      'publishMasterImport',
+      'decideGlossaryTerm',
+      'publishGlossaryTerm',
+      'publishDocumentTemplate',
+      'confirmDocumentTemplateLegalBasis',
+      'verifyContractor',
+      'verifyGuarantee',
+      'releaseGuarantee',
+      'decideAppropriation',
+      'decideAllocationExtension',
+      'reopenFiscalYear',
+      'decideCapitalPlan',
+      'post_plans_id_publish',
+      'decidePeriodReopen',
+      'publishMneForm',
+      'publishMneObligationRule',
+      'publishRetentionPolicy',
+      'decideProcurementPlan',
+      'approveCriteriaVersion',
+      'grantPermitGateWaiver',
+      'approveQualityRuleVersion',
+    ]);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual([
+      'SECURITY_ADMIN',
+      'SECURITY_ADMIN',
+      'TENANT_ADMIN',
+      'TENANT_ADMIN',
+      'TENANT_ADMIN',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+      'TENANT_OWNER',
+    ]);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -175,23 +236,14 @@ describe('maker-checker and MFA replay cases', () => {
 
     it('accepts a step-up refusal and reports a command that went through, a wrong code, no audit row and a changed state', () => {
       expect(evaluateStepUpDenial(refused)).toEqual([]);
-      expect(evaluateStepUpDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
-        'answered 201 instead of 403',
-        'code undefined instead of MFA_REQUIRED',
-        '0 DENIED audit rows instead of 1',
-        'tenant state changed',
-      ]);
+      expect(evaluateStepUpDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual(['answered 201 instead of 403', 'code undefined instead of MFA_REQUIRED', '0 DENIED audit rows instead of 1', 'tenant state changed']);
       expect(evaluateStepUpDenial({ ...refused, code: 'SCOPE_DENIED' })).toHaveLength(1);
     });
 
     it('accepts a self-approval refusal that changed nothing and reports an approval that went through', () => {
       const selfApproval: Observation = { status: 403, code: 'SELF_APPROVAL_DENIED', text: '{}', deniedRows: 0, stateChanged: false };
       expect(evaluateSelfApproval(selfApproval)).toEqual([]);
-      expect(evaluateSelfApproval({ status: 200, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
-        'answered 200 instead of 403',
-        'code undefined instead of SELF_APPROVAL_DENIED',
-        'tenant state changed',
-      ]);
+      expect(evaluateSelfApproval({ status: 200, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual(['answered 200 instead of 403', 'code undefined instead of SELF_APPROVAL_DENIED', 'tenant state changed']);
       expect(evaluateSelfApproval({ ...selfApproval, code: 'SCOPE_DENIED' })).toHaveLength(1);
     });
   });
@@ -243,6 +295,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.quality_acceptance where tenant_id = $1),
     (select count(*)::text from machvon.qms_signature where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(content_hash, ''), ',' order by id) from machvon.site_diary where tenant_id = $1),
+    (select string_agg(id::text, ',' order by id) from machvon.site_photo where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_obligation_rule where tenant_id = $1),
     (select count(*)::text from machvon.mne_report where tenant_id = $1),
@@ -255,15 +308,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
   const fingerprint = async (): Promise<string> => (await admin.query<{ fingerprint: string }>(FINGERPRINT, [TENANT_A])).rows[0]?.fingerprint ?? '';
-  const deniedRows = async (operationId: string, member: string): Promise<number> =>
-    Number(
-      (
-        await admin.query<{ n: string }>("select count(*) as n from machvon.audit_event where action = $1 and outcome = 'DENIED' and actor_id = $2", [
-          `authz.denied:${operationId}`,
-          member,
-        ])
-      ).rows[0]?.n,
-    );
+  const deniedRows = async (operationId: string, member: string): Promise<number> => Number((await admin.query<{ n: string }>("select count(*) as n from machvon.audit_event where action = $1 and outcome = 'DENIED' and actor_id = $2", [`authz.denied:${operationId}`, member])).rows[0]?.n);
 
   async function send(request: MatrixRequest, caller: { tenantId: string; member: number; claims: Record<string, unknown> }): Promise<Reply> {
     const token = signTenantContext(contextFor(caller.tenantId, memberId(caller.member)), SIGNING_KEY);
@@ -304,8 +349,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     };
   }
 
-  const roleId = async (tenant: string, code: string): Promise<string> =>
-    (await admin.query<{ id: string }>('select id from machvon.role_definition where tenant_id = $1 and code = $2', [tenant, code])).rows[0]?.id ?? '';
+  const roleId = async (tenant: string, code: string): Promise<string> => (await admin.query<{ id: string }>('select id from machvon.role_definition where tenant_id = $1 and code = $2', [tenant, code])).rows[0]?.id ?? '';
 
   const giveSystemRole = (tenant: string, member: number, grantN: number, roleUuid: string): Promise<unknown> =>
     harness.owner(tenant, [
@@ -360,19 +404,13 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           [TENANT_A, memberId_, id(0x77, 3)],
         ],
         [`update machvon.project set status = 'IMPLEMENTATION', project_group = 'B' where id = $1`, [project]],
-        [
-          `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status) values ($1, $2, $3, 'MX-PKG', 1000, 'OPEN', 1, 'AWARDED')`,
-          [TENANT_A, pkg, project],
-        ],
+        [`insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status) values ($1, $2, $3, 'MX-PKG', 1000, 'OPEN', 1, 'AWARDED')`, [TENANT_A, pkg, project]],
         [
           `insert into machvon.procurement_result (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, outcome, status, decision_document_id, submitted_by, approved_by, approved_at, created_by, updated_by)
            values ($1, $2, $3, $4, 1000, 'AWARDED', 'APPROVED', $5, $6, $7, now(), $6, $6)`,
           [TENANT_A, id(0x77, 11), pkg, contractorId, id(0x78, 1), memberId(RECIPIENT), memberId(SECOND_OWNER)],
         ],
-        [
-          `insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2026, 1, $4, 'APPROVED', now())`,
-          [TENANT_A, id(0x77, 12), project, id(0x78, 1)],
-        ],
+        [`insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2026, 1, $4, 'APPROVED', now())`, [TENANT_A, id(0x77, 12), project, id(0x78, 1)]],
         [
           `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, title, is_joint_venture, contract_value_vnd, estimate_ceiling_vnd, created_by)
            values ($1, $2, $3, $4, $5, 'MX-DRAFT', 'LUMP_SUM', 'VND', 'DRAFT', 1, 'Matrix draft', true, 1000, 1000, $6)`,
@@ -607,10 +645,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       [TENANT_A, id(0x79, n), `MX-FIXTURE-${n}`, status, ACTOR],
     ];
     // The record and its version point at each other: the version is inserted first, then the record names it.
-    const masterCurrent = (recordN: number, versionN: number): [string, unknown[]] => [
-      'update machvon.master_record set current_version_id = $2 where id = $1',
-      [id(0x79, recordN), id(0x79, versionN)],
-    ];
+    const masterCurrent = (recordN: number, versionN: number): [string, unknown[]] => ['update machvon.master_record set current_version_id = $2 where id = $1', [id(0x79, recordN), id(0x79, versionN)]];
     const masterVersion = (n: number, recordN: number, status: string): [string, unknown[]] => [
       `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, created_by, updated_by)
        values ($1, $2, $3, 'MATRIX', $4, 1, 'Matrix fixture', '{}', '2026-01-01', $5, 'TENANT', $6, $6)`,
@@ -633,10 +668,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       masterVersion(9, 8, 'EFFECTIVE'),
       masterCurrent(8, 9),
       masterChange(5, 8, 'IN_REVIEW'),
-      [
-        `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'AREA', 'MX-AREA', 'EFFECTIVE', $3, $3)`,
-        [TENANT_A, id(0x8a, 2), ACTOR],
-      ],
+      [`insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'AREA', 'MX-AREA', 'EFFECTIVE', $3, $3)`, [TENANT_A, id(0x8a, 2), ACTOR]],
       [
         `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
          values ($1, $2, $3, 'AREA', 'MX-AREA', 1, 'Matrix area', '{}', '2020-01-01', 'EFFECTIVE', 'TENANT', now(), $4, $4)`,
@@ -743,14 +775,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const permitDossierId = id(0x7d, 1);
     const permitId = id(0x7d, 2);
     await harness.owner(TENANT_A, [
-      [
-        'insert into machvon.permit_dossier (tenant_id, id, project_id, owner_unit_id, created_by, updated_by) values ($1, $2, $3, $4, $5, $5)',
-        [TENANT_A, permitDossierId, projectId, unitId(2), ACTOR],
-      ],
-      [
-        "insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, status, created_by, updated_by) values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $5)",
-        [TENANT_A, permitId, permitDossierId, permitTypeId, ACTOR],
-      ],
+      ['insert into machvon.permit_dossier (tenant_id, id, project_id, owner_unit_id, created_by, updated_by) values ($1, $2, $3, $4, $5, $5)', [TENANT_A, permitDossierId, projectId, unitId(2), ACTOR]],
+      ["insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, status, created_by, updated_by) values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $5)", [TENANT_A, permitId, permitDossierId, permitTypeId, ACTOR]],
     ]);
     // A land parcel of that project, answered for by unit 2: the notice command acts on it.
     const parcelId = id(0xb2, 1);
@@ -763,12 +789,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     ]);
     // A section of that project: the handover command acts on it.
     const sectionId = id(0xb2, 2);
-    await harness.owner(TENANT_A, [
-      [
-        `insert into machvon.land_handover_section (tenant_id, id, project_id, code, name, required_area_m2, status, created_by, updated_by) values ($1, $2, $3, 'MX-SEC', 'Matrix section', 100, 'NOT_READY', $4, $4)`,
-        [TENANT_A, sectionId, projectId, ACTOR],
-      ],
-    ]);
+    await harness.owner(TENANT_A, [[`insert into machvon.land_handover_section (tenant_id, id, project_id, code, name, required_area_m2, status, created_by, updated_by) values ($1, $2, $3, 'MX-SEC', 'Matrix section', 100, 'NOT_READY', $4, $4)`, [TENANT_A, sectionId, projectId, ACTOR]]]);
     // Who answers for that project and a task force of its unit: the assignment commands act on them.
     const accountabilityId = id(0xb3, 1);
     const taskForceId = id(0xb3, 2);
@@ -822,10 +843,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
                case $6::text when 'OPEN' then null else $5::date + interval '4 hours' end, $7, $8, $8)`,
       [TENANT_A, periodId, code, start, end, status, id(0x79, 2), ACTOR],
     ];
-    await harness.owner(TENANT_A, [
-      matrixPeriod(periodOpenId, 'MX-W2026-01', '2026-01-03', '2026-01-09', 'OPEN'),
-      matrixPeriod(periodSoftClosedId, 'MX-W2026-02', '2026-01-10', '2026-01-16', 'SOFT_CLOSED'),
-    ]);
+    await harness.owner(TENANT_A, [matrixPeriod(periodOpenId, 'MX-W2026-01', '2026-01-03', '2026-01-09', 'OPEN'), matrixPeriod(periodSoftClosedId, 'MX-W2026-02', '2026-01-10', '2026-01-16', 'SOFT_CLOSED')]);
     // A locked period, and a request to reopen it made by someone other than the callers: the reopening commands act on them.
     const periodLockedId = id(0xd5, 3);
     const reopenRequestId = id(0xd5, 4);
@@ -905,7 +923,10 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     // A DRAFT procurement plan and one IN_REVIEW of two projects of unit 2, each on a line of capital in a published plan, made by someone other than the callers.
     const bidDraftObject = id(0xb5, 1);
     const bidReviewObject = id(0xb5, 2);
-    await harness.owner(TENANT_A, [[seedBidPlan(bidDraftObject, ACTOR, 'DRAFT'), []], [seedBidPlan(bidReviewObject, ACTOR), []]]);
+    await harness.owner(TENANT_A, [
+      [seedBidPlan(bidDraftObject, ACTOR, 'DRAFT'), []],
+      [seedBidPlan(bidReviewObject, ACTOR), []],
+    ]);
     // A package of an approved plan in the CONCEPT project of unit 2 and a draft of its criteria: the criteria commands act on them.
     const criteriaPackageId = id(0xb6, 1);
     const criteriaDraftId = id(0xb6, 2);
@@ -918,13 +939,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       [
         `insert into machvon.criteria_version (tenant_id, id, package_id, revision, criteria_json, legal_basis, weights_sum, status, created_by, version)
          values ($1, $2, $3, 1, $4::jsonb, 'Matrix legal basis', 100, 'DRAFT', $5, 1)`,
-        [
-          TENANT_A,
-          criteriaDraftId,
-          criteriaPackageId,
-          JSON.stringify({ criteria: [{ code: 'MX1', name: 'Matrix criterion', kind: 'SCORED', weight: 100, max_score: 10, threshold: 5, mandatory: false, required_evidence: [] }] }),
-          ACTOR,
-        ],
+        [TENANT_A, criteriaDraftId, criteriaPackageId, JSON.stringify({ criteria: [{ code: 'MX1', name: 'Matrix criterion', kind: 'SCORED', weight: 100, max_score: 10, threshold: 5, mandatory: false, required_evidence: [] }] }), ACTOR],
       ],
     ]);
     // A declaration of conflict of interest of that package, made by the actor of the seed and waiting for a decision.
@@ -1126,17 +1141,21 @@ describe('negative authorization matrix against the real application (ST-IAM-004
 
   const cases = negativeCasesFor(operationsOf(MATRIX_COMMANDS), SYSTEM_ROLES);
 
-  it.each(MATRIX_COMMANDS)('%s: every generated case is refused and changes nothing', async (operationId) => {
-    const mine = cases.filter((matrixCase) => matrixCase.operationId === operationId);
-    expect(mine.length).toBeGreaterThan(2);
-    const failures: string[] = [];
-    for (const matrixCase of mine) {
-      const observation = await observe(matrixCase);
-      const problems = matrixCase.kind === 'wrong-tenant' ? evaluateWrongTenant(observation, TENANT_A_MARKERS, COMMAND_FIXTURES[operationId]?.referencesTenantIds ?? true) : evaluateGuardDenial(observation);
-      for (const problem of problems) failures.push(`${matrixCase.id}: ${problem}`);
-    }
-    expect(failures).toEqual([]);
-  }, 300_000);
+  it.each(MATRIX_COMMANDS)(
+    '%s: every generated case is refused and changes nothing',
+    async (operationId) => {
+      const mine = cases.filter((matrixCase) => matrixCase.operationId === operationId);
+      expect(mine.length).toBeGreaterThan(2);
+      const failures: string[] = [];
+      for (const matrixCase of mine) {
+        const observation = await observe(matrixCase);
+        const problems = matrixCase.kind === 'wrong-tenant' ? evaluateWrongTenant(observation, TENANT_A_MARKERS, COMMAND_FIXTURES[operationId]?.referencesTenantIds ?? true) : evaluateGuardDenial(observation);
+        for (const problem of problems) failures.push(`${matrixCase.id}: ${problem}`);
+      }
+      expect(failures).toEqual([]);
+    },
+    300_000,
+  );
 
   const MAKER_BASE = 0x74;
 
@@ -1183,9 +1202,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
 
       const stateBefore = await fingerprint();
       const reply = await send(request, { tenantId: TENANT_A, member: maker, claims: aal2() });
-      expect(
-        evaluateSelfApproval({ status: reply.status, code: reply.json.code, text: reply.text, deniedRows: 0, stateChanged: (await fingerprint()) !== stateBefore }),
-      ).toEqual([]);
+      expect(evaluateSelfApproval({ status: reply.status, code: reply.json.code, text: reply.text, deniedRows: 0, stateChanged: (await fingerprint()) !== stateBefore })).toEqual([]);
 
       const approved = await send(request, { tenantId: TENANT_A, member: checker, claims: aal2() });
       expect(approved.status).toBe(200);

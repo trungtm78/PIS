@@ -453,6 +453,8 @@ export const OPERATIONS = {
   "get_resources_signing_certificate_id": { method: "get", path: "/resources/signing_certificate/{id}", versioned: false, stepUp: null, permission: "adm.signature.read" },
   "get_resources_site_diary": { method: "get", path: "/resources/site_diary", versioned: false, stepUp: null, permission: "site_diary.read" },
   "get_resources_site_diary_id": { method: "get", path: "/resources/site_diary/{id}", versioned: false, stepUp: null, permission: "site_diary.read" },
+  "get_resources_site_photo": { method: "get", path: "/resources/site_photo", versioned: false, stepUp: null, permission: "photo.read" },
+  "get_resources_site_photo_id": { method: "get", path: "/resources/site_photo/{id}", versioned: false, stepUp: null, permission: "photo.read" },
   "get_resources_subscription": { method: "get", path: "/resources/subscription", versioned: false, stepUp: null, permission: "subscription.read" },
   "get_resources_subscription_id": { method: "get", path: "/resources/subscription/{id}", versioned: false, stepUp: null, permission: "subscription.read" },
   "get_resources_support_access_grant": { method: "get", path: "/resources/support_access_grant", versioned: false, stepUp: null, permission: "support_access_grant.read" },

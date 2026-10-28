@@ -3,11 +3,67 @@ import type { OpenApiDocument } from '@machvon/contracts';
 import { fillPath, operationPath } from '../endpoint-enumerator';
 import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
-import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_ATTEMPT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MASTER_FIXTURES, MASTER_IMPORT_FIXTURES, CROSSWALK_FIXTURES, SLA_POLICY_FIXTURES, DATASET_FIXTURES, GLOSSARY_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import {
+  AUDIT_EVENT_FIXTURES,
+  CERTIFICATE_FIXTURES,
+  CONSENT_FIXTURES,
+  DELIVERY_ATTEMPT_FIXTURES,
+  DOCUMENT_FIXTURES,
+  GRANT_FIXTURES,
+  LEGAL_HOLD_FIXTURES,
+  MASTER_FIXTURES,
+  MASTER_IMPORT_FIXTURES,
+  CROSSWALK_FIXTURES,
+  SLA_POLICY_FIXTURES,
+  DATASET_FIXTURES,
+  GLOSSARY_FIXTURES,
+  MEMBERSHIP_FIXTURES,
+  NOTIFICATION_FIXTURES,
+  POLICY_FIXTURES,
+  ROLE_FIXTURES,
+  TENANT_IDS,
+  UNIT_FIXTURES,
+} from '../suite';
 import { WORK_CALENDAR_FIXTURES } from '../suite';
-import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, CONCLUSION_FIXTURES, ENGAGEMENT_FIXTURES, ESCALATION_FIXTURES, COMPLAINT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
+import {
+  ACCOUNTABILITY_FIXTURES,
+  APPRAISAL_FIXTURES,
+  CONCLUSION_FIXTURES,
+  ENGAGEMENT_FIXTURES,
+  ESCALATION_FIXTURES,
+  COMPLAINT_FIXTURES,
+  HOUSEHOLD_FIXTURES,
+  INVENTORY_FIXTURES,
+  ISSUE_FIXTURES,
+  PAYMENT_COMP_FIXTURES,
+  PLAN_COMP_FIXTURES,
+  PACKAGE_FIXTURES,
+  PARCEL_FIXTURES,
+  PROJECT_FIXTURES,
+  PETITION_FIXTURES,
+  PROPOSAL_FIXTURES,
+  RESULT_FIXTURES,
+  SECTION_FIXTURES,
+} from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, DIARY_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import {
+  ACCEPTANCE_FIXTURES,
+  ADVANCE_FIXTURES,
+  DIARY_FIXTURES,
+  PHOTO_FIXTURES,
+  BOQ_FIXTURES,
+  CHANGE_FIXTURES,
+  CONTRACT_FIXTURES,
+  GUARANTEE_FIXTURES,
+  CRITERIA_FIXTURES,
+  HANDOVER_FIXTURES,
+  INSPECTION_FIXTURES,
+  MEASUREMENT_FIXTURES,
+  NONCONFORMANCE_FIXTURES,
+  PAYMENT_FIXTURES,
+  PROCUREMENT_PLAN_FIXTURES,
+  WORK_ACCEPTANCE_FIXTURES,
+} from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -211,7 +267,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'acknowledgeEarlyWarning', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].warningId, versioned: true, body: { reason: 'Isolation foreign acknowledgement' } },
   { operation: 'dismissEarlyWarning', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].warningId, versioned: true, body: { reason: 'Isolation foreign dismissal' } },
   { operation: 'submitExplanation', method: 'POST', id: EXPLANATION_FIXTURES['TNT-B'].id, versioned: true, body: { response_text: 'Isolation foreign answer to a request of another tenant' } },
-  { operation: 'requestProjectTransfer', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, versioned: true, body: { to_unit_id: (UNIT_FIXTURES['TNT-B'][1]?.id ?? ''), transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Isolation foreign transfer attempt' } },
+  { operation: 'requestProjectTransfer', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, versioned: true, body: { to_unit_id: UNIT_FIXTURES['TNT-B'][1]?.id ?? '', transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Isolation foreign transfer attempt' } },
   { operation: 'getProjectTransferImpact', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id, query: `to_unit_id=${UNIT_FIXTURES['TNT-B'][1]?.id ?? ''}&transfer_scope=OWNER_UNIT` },
   { operation: 'submitReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
@@ -341,7 +397,12 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     method: 'POST',
     id: CONTRACT_FIXTURES['TNT-B'].id,
     versioned: true,
-    body: { parties: [{ contractor_id: CONTRACTOR_FIXTURES['TNT-B'].id, role: 'LEAD', share_pct: '60', work_value_vnd: '600' }, { contractor_id: CONTRACTOR_FIXTURES['TNT-A'].id, role: 'MEMBER', share_pct: '40', work_value_vnd: '400' }] },
+    body: {
+      parties: [
+        { contractor_id: CONTRACTOR_FIXTURES['TNT-B'].id, role: 'LEAD', share_pct: '60', work_value_vnd: '600' },
+        { contractor_id: CONTRACTOR_FIXTURES['TNT-A'].id, role: 'MEMBER', share_pct: '40', work_value_vnd: '400' },
+      ],
+    },
   },
   { operation: 'cancelContractDraft', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancel attempt' } },
   { operation: 'submitContractForReview', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign review attempt' } },
@@ -422,6 +483,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_quality_nonconformance_id', method: 'GET', id: NONCONFORMANCE_FIXTURES['TNT-B'].id },
   { operation: 'createQualityAcceptance', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, body: { acceptance_scope: 'WORK_ITEM', record_no: 'Isolation foreign draft', document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
   { operation: 'get_resources_site_diary_id', method: 'GET', id: DIARY_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_site_photo_id', method: 'GET', id: PHOTO_FIXTURES['TNT-B'].id },
+  { operation: 'getSitePhotoChecks', method: 'GET', id: PHOTO_FIXTURES['TNT-B'].id },
   { operation: 'reviseSiteDiaryDraft', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { content: { summary: 'Isolation probe' }, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
   { operation: 'signSiteDiaryByContractor', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
   { operation: 'addSupervisorRemark', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { remark: 'Isolation probe', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
@@ -727,8 +790,7 @@ export function createApiChannel(options: ApiChannelOptions): IsolationChannel {
       await seedTenantUnits(options.ownerUrl, tenant);
       await seedTenantAuthz(options.ownerUrl, tenant);
     },
-    foreignAttempts:
-      options.attempts === true ? async (user) => inBatches(FOREIGN_ATTEMPT_SPECS, ATTEMPTS_AT_ONCE, (spec) => attempt(options, spec, user)) : undefined,
+    foreignAttempts: options.attempts === true ? async (user) => inBatches(FOREIGN_ATTEMPT_SPECS, ATTEMPTS_AT_ONCE, (spec) => attempt(options, spec, user)) : undefined,
     readAs(user, target) {
       const targetId = UNIT_FIXTURES[target][0]?.id ?? '';
       return get(options.baseUrl, fillPath(detailPath, targetId), tokenFor(user, options.signingKey));
@@ -738,4 +800,3 @@ export function createApiChannel(options: ApiChannelOptions): IsolationChannel {
     },
   };
 }
-

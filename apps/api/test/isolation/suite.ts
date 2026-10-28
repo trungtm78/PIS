@@ -229,8 +229,26 @@ export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; titl
 
 /** A handover of the draft contract of each tenant with one punch item (the number and the description are distinctive; tenant data). */
 export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; handoverNo: string; itemDescription: string; assetId: string; assetCode: string; warrantyId: string; warrantyScope: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0d3-000000000001', itemId: '00000000-0000-4000-a0d3-000000000002', handoverNo: 'ALPHA-HANDOVER-NO-0001', itemDescription: 'ALPHA-PUNCH-ITEM-0001', assetId: '00000000-0000-4000-a0d3-000000000003', assetCode: 'ALPHA-ASSET-CODE-0001', warrantyId: '00000000-0000-4000-a0d3-000000000004', warrantyScope: 'ALPHA-WARRANTY-SCOPE-0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0d3-000000000001', itemId: '00000000-0000-4000-b0d3-000000000002', handoverNo: 'BETA-HANDOVER-NO-0001', itemDescription: 'BETA-PUNCH-ITEM-0001', assetId: '00000000-0000-4000-b0d3-000000000003', assetCode: 'BETA-ASSET-CODE-0001', warrantyId: '00000000-0000-4000-b0d3-000000000004', warrantyScope: 'BETA-WARRANTY-SCOPE-0001' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0d3-000000000001',
+    itemId: '00000000-0000-4000-a0d3-000000000002',
+    handoverNo: 'ALPHA-HANDOVER-NO-0001',
+    itemDescription: 'ALPHA-PUNCH-ITEM-0001',
+    assetId: '00000000-0000-4000-a0d3-000000000003',
+    assetCode: 'ALPHA-ASSET-CODE-0001',
+    warrantyId: '00000000-0000-4000-a0d3-000000000004',
+    warrantyScope: 'ALPHA-WARRANTY-SCOPE-0001',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0d3-000000000001',
+    itemId: '00000000-0000-4000-b0d3-000000000002',
+    handoverNo: 'BETA-HANDOVER-NO-0001',
+    itemDescription: 'BETA-PUNCH-ITEM-0001',
+    assetId: '00000000-0000-4000-b0d3-000000000003',
+    assetCode: 'BETA-ASSET-CODE-0001',
+    warrantyId: '00000000-0000-4000-b0d3-000000000004',
+    warrantyScope: 'BETA-WARRANTY-SCOPE-0001',
+  },
 };
 
 /** A non-conformance of the draft contract of each tenant with one corrective action (the title and the description of the action are distinctive; tenant data). */
@@ -285,6 +303,12 @@ export const ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string; reco
 export const DIARY_FIXTURES: Readonly<Record<TenantName, { id: string; diaryNo: string; summary: string; operationId: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0ce-000000000001', diaryNo: 'ALPHA-DIARY-NO-0001', summary: 'Alpha site diary summary 0001', operationId: '00000000-0000-4000-a0ce-000000000002' },
   'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', diaryNo: 'BETA-DIARY-NO-0001', summary: 'Beta site diary summary 0001', operationId: '00000000-0000-4000-b0ce-000000000002' },
+};
+
+/** The registered photo of the contract of each tenant (its caption and its hash are distinctive; tenant data). */
+export const PHOTO_FIXTURES: Readonly<Record<TenantName, { id: string; operationId: string; sha256: string; caption: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0cf-000000000001', operationId: '00000000-0000-4000-a0cf-000000000002', sha256: 'a0cf'.repeat(16), caption: 'Alpha site photo caption 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0cf-000000000001', operationId: '00000000-0000-4000-b0cf-000000000002', sha256: 'b0cf'.repeat(16), caption: 'Beta site photo caption 0001' },
 };
 
 /** A petition of the contractor of each tenant on its package, received and waiting for an answer. */
@@ -579,7 +603,44 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
 };
 
 /** A provider, a model and a classification policy of each tenant's AI registry (the code, the model and the legal basis are distinctive). */
-export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string; profileId: string; requestId: string; budgetId: string; reservationId: string; reservationNote: string; priceId: string; priceSource: string; promptId: string; promptName: string; promptSha: string; datasetId: string; datasetCode: string; runId: string; attemptId: string; killId: string; killScope: string; killReason: string; decisionId: string; decisionRationale: string }>> = {
+export const LLM_FIXTURES: Readonly<
+  Record<
+    TenantName,
+    {
+      providerId: string;
+      providerCode: string;
+      providerName: string;
+      modelRefId: string;
+      modelCode: string;
+      policyId: string;
+      policyBasis: string;
+      keyId: string;
+      keyAlias: string;
+      keyFingerprint: string;
+      keySecretRef: string;
+      keyLiteLlmRef: string;
+      profileId: string;
+      requestId: string;
+      budgetId: string;
+      reservationId: string;
+      reservationNote: string;
+      priceId: string;
+      priceSource: string;
+      promptId: string;
+      promptName: string;
+      promptSha: string;
+      datasetId: string;
+      datasetCode: string;
+      runId: string;
+      attemptId: string;
+      killId: string;
+      killScope: string;
+      killReason: string;
+      decisionId: string;
+      decisionRationale: string;
+    }
+  >
+> = {
   'TNT-A': {
     providerId: '00000000-0000-4000-a0d7-000000000001',
     providerCode: 'ALPHA-PROVIDER-0001',
@@ -649,7 +710,9 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
 };
 
 /** A metric of each tenant's registry (the code and the commit it came from are distinctive). */
-export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string; datasetId: string; datasetCode: string; datasetTitle: string; versionId: string; versionChecksum: string; policyId: string; policyColumn: string; contextId: string; contextPeriod: string }>> = {
+export const BI_FIXTURES: Readonly<
+  Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string; datasetId: string; datasetCode: string; datasetTitle: string; versionId: string; versionChecksum: string; policyId: string; policyColumn: string; contextId: string; contextPeriod: string }>
+> = {
   'TNT-A': {
     metricId: '00000000-0000-4000-a0b1-000000000001',
     metricCode: 'alpha_rate_0001',
@@ -755,9 +818,7 @@ export const INTEGRATION_FIXTURES: Readonly<Record<TenantName, { connectorId: st
 };
 
 /** A number register and a stored document version of each tenant (the register code and the object key are distinctive). */
-export const DOCUMENT_FIXTURES: Readonly<
-  Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string; distributionId: string }>
-> = {
+export const DOCUMENT_FIXTURES: Readonly<Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string; distributionId: string }>> = {
   'TNT-A': {
     registerId: '00000000-0000-4000-a00b-000000000001',
     registerCode: 'ALPHA-REGISTER-0001',
@@ -1030,6 +1091,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'site diary id', value: DIARY_FIXTURES[tenant].id },
     { kind: 'site diary number', value: DIARY_FIXTURES[tenant].diaryNo },
     { kind: 'site diary summary', value: DIARY_FIXTURES[tenant].summary },
+    { kind: 'site photo id', value: PHOTO_FIXTURES[tenant].id },
+    { kind: 'site photo caption', value: PHOTO_FIXTURES[tenant].caption },
+    { kind: 'site photo hash', value: PHOTO_FIXTURES[tenant].sha256 },
     { kind: 'quality acceptance record no', value: ACCEPTANCE_FIXTURES[tenant].recordNo },
     { kind: 'measurement reference', value: MEASUREMENT_FIXTURES[tenant].referenceNo },
     { kind: 'boq item id', value: BOQ_FIXTURES[tenant].itemId },

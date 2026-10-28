@@ -502,6 +502,8 @@ export type { TreasuryConnectorView, TreasuryImportCounts, TreasuryImportInput, 
 export { PayTreasuryTransactionStore, TREASURY_MANUAL_PROVIDER } from './pay-treasury-transaction-store.ts';
 export type { ManualConfirmationInput, ManualConfirmationResult, TreasuryCallbackInput, TreasuryCallbackResult, TreasuryMatchStatus, TreasurySourceKind, TreasuryTransactionRow } from './pay-treasury-transaction-store.ts';
 export { QmsDiaryStore, conflictRefusal } from './qms-diary-store.ts';
+export { QmsPhotoStore } from './qms-photo-store.ts';
+export type { PhotoChecks as QmsPhotoChecks, PhotoFile as QmsPhotoFile, PhotoScopes as QmsPhotoScopes, QmsPhotoLine, QmsPhotoResult, RegisterPhotoInput as QmsRegisterPhotoInput } from './qms-photo-store.ts';
 export type {
   CorrectInput as QmsCorrectDiaryInput,
   DiarySignature as QmsDiarySignature,

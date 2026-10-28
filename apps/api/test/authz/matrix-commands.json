@@ -314,6 +314,7 @@
     "lockSiteDiary",
     "correctSiteDiary",
     "resolveDiaryConflict",
+    "registerSitePhoto",
     "softCloseReportingPeriod",
     "stageMasterImport",
     "startAuditEngagement",

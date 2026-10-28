@@ -390,6 +390,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_signing_certificate_id': GetResourcesSigningCertificateIdResponse.fromJson,
   'get_resources_site_diary': GetResourcesSiteDiaryResponse.fromJson,
   'get_resources_site_diary_id': GetResourcesSiteDiaryIdResponse.fromJson,
+  'get_resources_site_photo': GetResourcesSitePhotoResponse.fromJson,
+  'get_resources_site_photo_id': GetResourcesSitePhotoIdResponse.fromJson,
   'get_resources_subscription': GetResourcesSubscriptionResponse.fromJson,
   'get_resources_subscription_id': GetResourcesSubscriptionIdResponse.fromJson,
   'get_resources_support_access_grant': GetResourcesSupportAccessGrantResponse.fromJson,
@@ -11086,6 +11088,82 @@ final class GetResourcesSiteDiaryResponse implements ResponseModel {
   factory GetResourcesSiteDiaryResponse.fromJson(Object? json, [String path = 'GetResourcesSiteDiaryResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesSiteDiaryResponse(
+      items: optionalField(map, path, 'items', asList(asObject)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      snapshotId: optionalField(map, path, 'snapshot_id', asString),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>>? items;
+  final String? nextCursor;
+  final String? snapshotId;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items,
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        if (snapshotId != null) 'snapshot_id': snapshotId,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class GetResourcesSitePhotoIdResponse implements ResponseModel {
+  const GetResourcesSitePhotoIdResponse({
+    this.items,
+    this.nextCursor,
+    this.snapshotId,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesSitePhotoIdResponse.fromJson(Object? json, [String path = 'GetResourcesSitePhotoIdResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesSitePhotoIdResponse(
+      items: optionalField(map, path, 'items', asList(asObject)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      snapshotId: optionalField(map, path, 'snapshot_id', asString),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>>? items;
+  final String? nextCursor;
+  final String? snapshotId;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items,
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        if (snapshotId != null) 'snapshot_id': snapshotId,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class GetResourcesSitePhotoResponse implements ResponseModel {
+  const GetResourcesSitePhotoResponse({
+    this.items,
+    this.nextCursor,
+    this.snapshotId,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesSitePhotoResponse.fromJson(Object? json, [String path = 'GetResourcesSitePhotoResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesSitePhotoResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),

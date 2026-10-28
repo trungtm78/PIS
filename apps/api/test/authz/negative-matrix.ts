@@ -913,7 +913,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/reallocation-proposals',
-      body: { code: 'MX-REALLOCATION', plan_year: 2027, scope_unit_id: t.unit2, basis_snapshot_id: t.legalHoldId, source_capital_plan_id: t.legalHoldId, reason: 'Matrix attempt to draft a reallocation of capital', lines: [{ from_allocation_line_id: t.legalHoldId, to_project_id: t.legalHoldId, amount_vnd: '1000' }] },
+      body: {
+        code: 'MX-REALLOCATION',
+        plan_year: 2027,
+        scope_unit_id: t.unit2,
+        basis_snapshot_id: t.legalHoldId,
+        source_capital_plan_id: t.legalHoldId,
+        reason: 'Matrix attempt to draft a reallocation of capital',
+        lines: [{ from_allocation_line_id: t.legalHoldId, to_project_id: t.legalHoldId, amount_vnd: '1000' }],
+      },
     }),
   },
   submitReallocationProposal: {
@@ -1579,9 +1587,7 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
         package_id: t.criteriaPackageId,
         contractor_id: t.contractorId,
         submitted_at: '2026-09-01T03:00:00Z',
-        documents: [
-          { part: 'TECHNICAL', title: 'Matrix volume', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/document/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) },
-        ],
+        documents: [{ part: 'TECHNICAL', title: 'Matrix volume', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/document/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) }],
       },
     }),
   },
@@ -1647,6 +1653,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   correctSiteDiary: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/corrections`, body: { content: { summary: 'Matrix probe of the correction' }, correction_reason: REASON, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+  },
+  registerSitePhoto: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/site-photos', body: { client_operation_id: '00000000-0000-4000-8000-0000000000e8', project_id: t.projectId, object_key: 'tenants/00000000-0000-4000-8000-000000000001/site_photo/00000000-0000-4000-8000-000000000002', file_sha256: 'a'.repeat(64) } }),
   },
   resolveDiaryConflict: {
     referencesTenantIds: true,
@@ -1985,7 +1995,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The handover of a work and its punch list: a caller that is refused drafts none, lists no defect, answers none, verifies none, waives none and decides none.
   createHandover: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/handovers', body: { project_id: t.contractProjectId, contract_id: t.draftContractId, recipient_unit_id: t.recipientMembershipId, handover_kind: 'COMPLETION', handover_no: REASON, quality_acceptance_id: t.draftContractId, document_version_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/handovers',
+      body: { project_id: t.contractProjectId, contract_id: t.draftContractId, recipient_unit_id: t.recipientMembershipId, handover_kind: 'COMPLETION', handover_no: REASON, quality_acceptance_id: t.draftContractId, document_version_id: t.documentVersionId },
+    }),
   },
   addPunchItem: {
     referencesTenantIds: true,

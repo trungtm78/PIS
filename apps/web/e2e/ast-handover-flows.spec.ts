@@ -67,7 +67,7 @@ async function seed(): Promise<Seeded> {
     );
     await client.query(
       `insert into machvon.site_photo (tenant_id, id, project_id, contract_id, client_operation_id, object_key, file_sha256, scan_status, uploaded_by, created_by)
-       values ($1, $2, $3, $4, gen_random_uuid(), 'tenants/e2e/photo.jpg', repeat('a', 64), 'CLEAN', $5, $5)`,
+       values ($1, $2, $3, $4, gen_random_uuid(), 'tenants/e2e/photo-' || $2::uuid::text || '.jpg', repeat('a', 64), 'CLEAN', $5, $5)`,
       [tenant, photoId, project.id, contractId, MAKER],
     );
   } finally {

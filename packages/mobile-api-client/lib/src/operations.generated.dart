@@ -455,6 +455,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'get_resources_signing_certificate_id': OperationDescriptor(method: 'GET', path: '/resources/signing_certificate/{id}', versioned: false, stepUp: null, permission: 'adm.signature.read'),
   'get_resources_site_diary': OperationDescriptor(method: 'GET', path: '/resources/site_diary', versioned: false, stepUp: null, permission: 'site_diary.read'),
   'get_resources_site_diary_id': OperationDescriptor(method: 'GET', path: '/resources/site_diary/{id}', versioned: false, stepUp: null, permission: 'site_diary.read'),
+  'get_resources_site_photo': OperationDescriptor(method: 'GET', path: '/resources/site_photo', versioned: false, stepUp: null, permission: 'photo.read'),
+  'get_resources_site_photo_id': OperationDescriptor(method: 'GET', path: '/resources/site_photo/{id}', versioned: false, stepUp: null, permission: 'photo.read'),
   'get_resources_subscription': OperationDescriptor(method: 'GET', path: '/resources/subscription', versioned: false, stepUp: null, permission: 'subscription.read'),
   'get_resources_subscription_id': OperationDescriptor(method: 'GET', path: '/resources/subscription/{id}', versioned: false, stepUp: null, permission: 'subscription.read'),
   'get_resources_support_access_grant': OperationDescriptor(method: 'GET', path: '/resources/support_access_grant', versioned: false, stepUp: null, permission: 'support_access_grant.read'),

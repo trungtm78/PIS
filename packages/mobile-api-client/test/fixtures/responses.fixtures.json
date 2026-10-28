@@ -386,6 +386,8 @@
   "get_resources_signing_certificate_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_site_diary": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_site_diary_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
+  "get_resources_site_photo": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
+  "get_resources_site_photo_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_subscription": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_subscription_id": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},
   "get_resources_support_access_grant": {"items":[{}],"next_cursor":"sample","snapshot_id":"sample","as_of":"2026-01-01T00:00:00Z"},

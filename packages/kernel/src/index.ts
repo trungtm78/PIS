@@ -415,6 +415,10 @@ export { ACCEPTANCE_COMMANDS, ACCEPTANCE_SCOPES, ACCEPTANCE_STATUSES, SIGNATURE_
 export type { AcceptanceCommand, AcceptanceContent, AcceptanceScope, AcceptanceStatus, SignatureMethod, SignerStanding } from './qms-acceptance.ts';
 export { CONFLICT_RESOLUTIONS, DIARY_COMMANDS, DIARY_SIGNATURE_VALUE, DIARY_SIGNING_ROLE, DIARY_STATUSES, MAX_DIARY_BYTES, assertConflictResolution, assertDiaryContent, assertDiaryTransition, assertSignatureMethod, diaryCanonical, diaryHashOf } from './qms-diary.ts';
 export type { ConflictResolution, DiaryCommand, DiaryContent, DiaryStatus } from './qms-diary.ts';
+export { PHOTO_CHECKS_DUPLICATE, PHOTO_CHECKS_EXIF, PHOTO_CHECKS_GEOFENCE, PHOTO_CHECKS_SUMMARY, PHOTO_CHECKS_TIME, PHOTO_EXIF_GPS_SKEW_MS, PHOTO_GPS_ACCURACY_M, PHOTO_TIME_TOLERANCE_MS, PHOTO_ZONE_RADIUS_M, accuracyOf, checkExif, checkGeofence, checkTime, decimalOf, distanceMetres, photoDay, readExif, summariseChecks } from './qms-photo.ts';
+export type { ExifData, PhotoDuplicateCheck, PhotoExifCheck, PhotoGeofenceCheck, PhotoSummary, PhotoTimeCheck } from './qms-photo.ts';
+export { exifJpeg, strippedJpeg } from './qms-photo-fixture.ts';
+export type { ExifJpegInput } from './qms-photo-fixture.ts';
 export { WORK_ACCEPTANCE_COMMANDS, WORK_ACCEPTANCE_STATUSES, assertWithinContractValue, assertWorkAcceptanceTransition, isAccepted, lineAmount, notApproved, sumAmounts } from './ctr-acceptance.ts';
 export type { WorkAcceptanceCommand, WorkAcceptanceStatus } from './ctr-acceptance.ts';
 export { LEDGER_ENTRY_KINDS, LEDGER_RULES, REVERSAL_OF, ZERO_BALANCE, ZERO_DELTA, advanceOutstanding, applyDelta, assertEntryShape, assertLedgerInvariants, brokenRule, dong, isReversal, negate, totalOf as totalOfLedger } from './pay-ledger.ts';

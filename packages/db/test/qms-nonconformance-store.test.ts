@@ -102,7 +102,7 @@ async function seedContract(options: { status?: string } = {}): Promise<Seeded> 
       [pendingPhoto, 'PENDING'],
     ].map(([photoId, scan]): [string, unknown[]] => [
       `insert into machvon.site_photo (tenant_id, id, project_id, contract_id, client_operation_id, object_key, file_sha256, scan_status, uploaded_by, created_by)
-         values ($1, $2, $3, $4, gen_random_uuid(), 'tenants/qms/photo.jpg', repeat('a', 64), $5, $6, $6)`,
+         values ($1, $2, $3, $4, gen_random_uuid(), 'tenants/qms/photo-' || $2::uuid::text || '.jpg', repeat('a', 64), $5, $6, $6)`,
       [TENANT_A, photoId, line.projectId, contractId, scan, memberId(FIXER)],
     ]),
   ]);

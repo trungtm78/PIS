@@ -112,7 +112,7 @@ describe('the handover and its punch list over HTTP (ST-AST-001)', () => {
       ],
       [
         `insert into machvon.site_photo (tenant_id, id, project_id, contract_id, client_operation_id, object_key, file_sha256, scan_status, uploaded_by, created_by)
-         values ($1, $2, $3, $4, gen_random_uuid(), 'tenants/ast/photo.jpg', repeat('a', 64), 'CLEAN', $5, $5)`,
+         values ($1, $2, $3, $4, gen_random_uuid(), 'tenants/ast/photo-' || $2::uuid::text || '.jpg', repeat('a', 64), 'CLEAN', $5, $5)`,
         [TENANT_A, photo, line.projectId, contractId, memberId(GUEST)],
       ],
     ]);

@@ -634,6 +634,10 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'lockSiteDiary',
         'correctSiteDiary',
         'resolveDiaryConflict',
+        'registerSitePhoto',
+        'getSitePhotoChecks',
+        'get_resources_site_photo',
+        'get_resources_site_photo_id',
         'get_resources_site_diary',
         'get_resources_site_diary_id',
         'decideQualityAcceptance',
@@ -846,9 +850,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     it('shows a TNT-A session nothing of TNT-B, even with an explicit tenant_id predicate', async () => {
       const channel = createDatabaseChannel({ ownerUrl, database: tenantDatabase });
       for (const tenant of TENANT_NAMES) await channel.seed(tenant);
-      const rows = await tenantDatabase.withTenant(contextOf('TNT-A'), (tx) =>
-        tx.query('select id from machvon.organization_unit where tenant_id = $1', [TENANT_IDS['TNT-B']]),
-      );
+      const rows = await tenantDatabase.withTenant(contextOf('TNT-A'), (tx) => tx.query('select id from machvon.organization_unit where tenant_id = $1', [TENANT_IDS['TNT-B']]));
       expect(rows).toEqual([]);
     });
   });
