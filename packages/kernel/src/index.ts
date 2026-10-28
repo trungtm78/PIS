@@ -675,8 +675,8 @@ export { COLUMN_MASKS, POLICY_GRANTEE_KINDS, columnMasksProblem, hiddenColumns, 
 export type { ColumnMask, PolicyGranteeKind, PolicyProblem, PolicyView } from './bi-policy.ts';
 export { BI_DRILL_TTL_SECONDS, DISBURSEMENT_DIMENSIONS, DISBURSEMENT_FIELDS, biScopeHash, expiredBiDrill, figureOf, measurePlanOf, parseBiDrill, queryCacheKey, reconcile, signBiDrill, tenantDrillKey } from './bi-query.ts';
 export type { BiDrillClaims, Figure, GroupSums, MeasureKind, MeasurePlan, QueryReconciliation } from './bi-query.ts';
-export { GatewayFailure, MAX_CHECK_RETRIES, classifySources, followsSchema, planRoute, postCheck, requiresCitations, unsupportedSchemaKeyword } from './llm-gateway.ts';
-export type { AiGatewayPort, Classified, GatewayCall, GatewayFailureKind, GatewayResult, PostCheck, RouteCandidate, RoutePlan, RoutePlanInput, SourceClass } from './llm-gateway.ts';
+export { GatewayFailure, MAX_CHECK_RETRIES, KILL_SCOPES, assertKillScope, classifySources, followsSchema, killedBy, planRoute, postCheck, requiresCitations, unsupportedSchemaKeyword } from './llm-gateway.ts';
+export type { AiGatewayPort, Classified, GatewayCall, GatewayFailureKind, GatewayResult, KillProbe, KillScope, KillSwitch, PostCheck, RouteCandidate, RoutePlan, RoutePlanInput, SourceClass } from './llm-gateway.ts';
 export { BASELINE_MATRIX, CLASSIFICATIONS, ROUTES, assertActivation, assertModelRegistration, assertPolicyDraft, assertProviderRegistration, assertPublishable, baselineViolations, parseMatrix, routesFor } from './llm-registry.ts';
 export type { Classification, Matrix, PublishedPolicy, Route } from './llm-registry.ts';
 export { KEY_ROTATION_HOURS, KEY_SCOPES, assertKeyDraft, fingerprintOf, rotationDeadline, scrubSecrets, secretRefOf } from './llm-keys.ts';

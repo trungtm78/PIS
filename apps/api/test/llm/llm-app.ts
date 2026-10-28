@@ -6,6 +6,7 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
+import { LlmEmergencyController } from '../../src/modules/llm/emergency.controller';
 import { LlmEvalController } from '../../src/modules/llm/eval.controller';
 import { LlmFinopsController } from '../../src/modules/llm/finops.controller';
 import { LlmGatewayController } from '../../src/modules/llm/gateway.controller';
@@ -41,6 +42,9 @@ export const PUBLISHER = 14; // publishes profiles
 export const EVAL_BOTH = 15; // starts and signs evaluations: the rule, not the guard, keeps the two apart
 export const INVOKER = 16; // asks the gateway for an answer
 export const AUDITOR = 17; // reads how requests were routed and the attempts
+export const EMERGENCY = 18; // engages the emergency stop
+export const EMERGENCY_TWO = 19; // another person, who may release it
+export const DECIDER = 20; // decides what is done with an answer of the AI
 export const ROOT = 1;
 export const BRANCH = 2;
 
@@ -67,7 +71,7 @@ export class LlmApp {
       { n: BRANCH, path: `/${unitId(BRANCH)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [AI_ADMIN, SECURITY, SECURITY_TWO, READER, NOBODY, SCOPED, DUAL, KEY_ADMIN, KEY_READER, FINOPS, PROMPT_AUTHOR, PROMPT_APPROVER, EXPERT, PUBLISHER, EVAL_BOTH, INVOKER, AUDITOR]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [AI_ADMIN, SECURITY, SECURITY_TWO, READER, NOBODY, SCOPED, DUAL, KEY_ADMIN, KEY_READER, FINOPS, PROMPT_AUTHOR, PROMPT_APPROVER, EXPERT, PUBLISHER, EVAL_BOTH, INVOKER, AUDITOR, EMERGENCY, EMERGENCY_TWO, DECIDER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, AI_ADMIN, ROOT);
     const MANAGE = ['llm.provider.manage', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
     const APPROVE = ['llm.provider.approve', 'llm.policy.approve', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
@@ -86,6 +90,8 @@ export class LlmApp {
     await harness.seedRole(TENANT_A, 12, 'AI_PUBLISHER', ['llm.publish', ...EVAL_READS], 50);
     await harness.seedRole(TENANT_A, 14, 'AI_INVOKER', ['ai.invoke'], 30);
     await harness.seedRole(TENANT_A, 15, 'AI_AUDITOR', ['llm.audit.read', 'llm_attempt.read'], 30);
+    await harness.seedRole(TENANT_A, 16, 'AI_EMERGENCY', ['llm.emergency', 'llm.audit.read'], 60);
+    await harness.seedRole(TENANT_A, 17, 'AI_DECIDER', ['ai.decide', 'llm.audit.read'], 30);
     await harness.seedRole(TENANT_A, 13, 'AI_EVAL_BOTH', ['llm.eval.manage', 'llm.eval.sign', ...EVAL_READS], 50);
     await harness.seedRole(TENANT_B, 1, 'AI_ADMIN', [...MANAGE, 'llm.key.manage', 'llm.key.read', 'llm.finops', 'budget_reservation.read'], 50);
     await harness.seedGrants(TENANT_A, [
@@ -105,6 +111,9 @@ export class LlmApp {
       { n: 14, member: EVAL_BOTH, role: 13, kind: 'TENANT' },
       { n: 15, member: INVOKER, role: 14, kind: 'TENANT' },
       { n: 16, member: AUDITOR, role: 15, kind: 'TENANT' },
+      { n: 17, member: EMERGENCY, role: 16, kind: 'TENANT' },
+      { n: 18, member: EMERGENCY_TWO, role: 16, kind: 'TENANT' },
+      { n: 19, member: DECIDER, role: 17, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: AI_ADMIN, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -114,14 +123,14 @@ export class LlmApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController],
+      controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController, LlmEmergencyController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: LLM_ADMIN, useValue: this.litellm },
         { provide: LLM_VAULT, useValue: this.vault },
         { provide: LLM_EVAL_RUNNER, useValue: this.runner },
         { provide: LLM_GATEWAY, useValue: this.gateway },
-        { provide: LLM_METRICS, useValue: { gauge: () => undefined, increment: (name: string, labels: Record<string, string> = {}) => this.metrics.push({ name, labels }) } },
+        { provide: LLM_METRICS, useValue: { gauge: (name: string, value: number, labels: Record<string, string> = {}) => this.metrics.push({ name, labels: { ...labels, value: String(value) } }), increment: (name: string, labels: Record<string, string> = {}) => this.metrics.push({ name, labels }) } },
         LlmGatewayService,
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
@@ -160,7 +169,7 @@ export class LlmApp {
 
   /** Removes the registry of a tenant so that a test starts from nothing. */
   reset(tenantId: string = TENANT_A): Promise<unknown[]> {
-    return this.harness.owner(tenantId, [['delete from machvon.llm_attempt'], ['update machvon.ai_request set budget_reservation_id = null'], ['delete from machvon.budget_reservation'], ['delete from machvon.ai_request'], ['delete from machvon.ai_eval_run'], ['delete from machvon.model_profile_version'], ['delete from machvon.ai_eval_case'], ['delete from machvon.ai_eval_dataset_version'], ['delete from machvon.ai_prompt_version'], ['delete from machvon.ai_virtual_key'], ['delete from machvon.ai_budget_counter'], ['delete from machvon.ai_budget'], ['delete from machvon.pricing_version'], ['delete from machvon.ai_model'], ['delete from machvon.ai_provider'], ['delete from machvon.ai_classification_policy_version']]);
+    return this.harness.owner(tenantId, [['alter table machvon.ai_decision_record disable trigger ai_decision_record_guard'], ['delete from machvon.ai_decision_record'], ['alter table machvon.ai_decision_record enable trigger ai_decision_record_guard'], ['delete from machvon.llm_attempt'], ['update machvon.ai_request set budget_reservation_id = null'], ['delete from machvon.budget_reservation'], ['delete from machvon.ai_request'], ['delete from machvon.ai_kill_switch'], ['delete from machvon.ai_eval_run'], ['delete from machvon.model_profile_version'], ['delete from machvon.ai_eval_case'], ['delete from machvon.ai_eval_dataset_version'], ['delete from machvon.ai_prompt_version'], ['delete from machvon.ai_virtual_key'], ['delete from machvon.ai_budget_counter'], ['delete from machvon.ai_budget'], ['delete from machvon.pricing_version'], ['delete from machvon.ai_model'], ['delete from machvon.ai_provider'], ['delete from machvon.ai_classification_policy_version']]);
   }
 }
 

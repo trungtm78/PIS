@@ -917,6 +917,8 @@ export { LlmRegistryStore } from './llm-registry-store.ts';
 export type { ModelRow, PolicyVersionRow, ProviderRow } from './llm-registry-store.ts';
 export { LlmFinopsStore } from './llm-finops-store.ts';
 export type { BudgetInput, BudgetRow, BudgetWithCounter, CounterRow, PriceRow, ReservationRow, ReserveResult, SettleInput, SettleResult } from './llm-finops-store.ts';
+export { AiDecisionStore, LlmEmergencyStore } from './llm-emergency-store.ts';
+export type { AiDecisionInput, AiDecisionRow, KillSwitchRow, StoppedRequest } from './llm-emergency-store.ts';
 export { LlmGatewayStore } from './llm-gateway-store.ts';
 export type { AiRequestRow, AttemptRow, NewRequest, RequestFinish, RequestStatus, RequestSummary } from './llm-gateway-store.ts';
 export { LlmEvalStore } from './llm-eval-store.ts';

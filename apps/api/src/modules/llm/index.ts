@@ -1,4 +1,5 @@
 import { defineModule } from '../module-descriptor';
+import { LlmEmergencyController } from './emergency.controller';
 import { LlmEvalController } from './eval.controller';
 import { LlmFinopsController } from './finops.controller';
 import { LlmGatewayController } from './gateway.controller';
@@ -16,7 +17,7 @@ import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_GATEWAY, LLM_VAULT } from './tokens';
  */
 export const llmModule = defineModule({
   code: 'LLM',
-  controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController],
+  controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController, LlmEmergencyController],
   providers: [
     { provide: LLM_ADMIN, useClass: MockLiteLlm },
     { provide: LLM_VAULT, useClass: InMemoryVault },

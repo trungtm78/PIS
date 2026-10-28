@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { GatewayFailure } from '@machvon/kernel';
 import type { AiGatewayPort, GatewayCall, GatewayFailureKind, GatewayResult } from '@machvon/kernel';
 
-export type MockStep = { fail: GatewayFailureKind } | { output: string; usage?: Partial<GatewayResult['usage']> } | ((call: GatewayCall) => GatewayResult);
+export type MockStep = { fail: GatewayFailureKind } | { output: string; usage?: Partial<GatewayResult['usage']> } | ((call: GatewayCall) => GatewayResult | Promise<GatewayResult>);
 
 /**
  * The stand-in of the models until the gateway goes through LiteLLM (ST-LLM-005 keeps the port, the adapter is for the deployment): a test scripts what each model answers, in order, by the identifier the provider knows it by;
@@ -10,6 +10,9 @@ export type MockStep = { fail: GatewayFailureKind } | { output: string; usage?: 
  */
 export class MockAiGateway implements AiGatewayPort {
   readonly calls: GatewayCall[] = [];
+  /** The provider request ids that a provider could still cancel: the others cannot be stopped once they were sent. */
+  readonly cancelable = new Set<string>();
+  readonly cancelled: string[] = [];
   private readonly scripts = new Map<string, MockStep[]>();
   private sequence = 0;
 
@@ -18,8 +21,16 @@ export class MockAiGateway implements AiGatewayPort {
     this.scripts.set(providerModelId, [...steps]);
   }
 
+  async cancel(providerRequestId: string): Promise<boolean> {
+    if (!this.cancelable.has(providerRequestId)) return false;
+    this.cancelled.push(providerRequestId);
+    return true;
+  }
+
   clear(): void {
     this.calls.length = 0;
+    this.cancelable.clear();
+    this.cancelled.length = 0;
     this.scripts.clear();
     this.sequence = 0;
   }

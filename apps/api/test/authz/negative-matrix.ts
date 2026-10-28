@@ -1227,6 +1227,31 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/ai-eval-runs', body: { profile_version_id: '00000000-0000-4000-8000-0000000000e8', dataset_version_id: '00000000-0000-4000-8000-0000000000e9', route_class: 'SELF_HOSTED' } }),
   },
+  engageAiKillSwitch: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-kill-switches', body: { scope_kind: 'TENANT', reason: 'Matrix probe of the emergency stop' } }),
+  },
+  releaseAiKillSwitch: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-kill-switches/00000000-0000-4000-8000-0000000000f1/release', ifMatch: '"1"', body: { release_reason: 'Matrix probe of the release' } }),
+  },
+  recordAiDecision: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/ai-decisions',
+      body: {
+        ai_request_id: '00000000-0000-4000-8000-0000000000f2',
+        subject_module: 'PAY',
+        subject_kind: 'alert',
+        subject_id: '00000000-0000-4000-8000-0000000000f3',
+        ai_output_sha256: 'a'.repeat(64),
+        action_kind: 'MONEY',
+        decision: 'ACCEPTED',
+        rationale: 'Matrix probe of the decision record',
+      },
+    }),
+  },
   requestAiCompletion: {
     referencesTenantIds: false,
     build: () => ({

@@ -1,4 +1,4 @@
-import { GatewayFailure, assertProfileDraft, classifySources, followsSchema, planRoute, postCheck, requiresCitations, unsupportedSchemaKeyword } from '../src/index.ts';
+import { GatewayFailure, assertKillScope, assertProfileDraft, classifySources, followsSchema, killedBy, planRoute, postCheck, requiresCitations, unsupportedSchemaKeyword } from '../src/index.ts';
 import type { DomainError, RouteCandidate, RoutePlanInput } from '../src/index.ts';
 
 type Class = 'PUBLIC' | 'INTERNAL' | 'CONFIDENTIAL' | 'PERSONAL' | 'IMPORTANT_CORE';
@@ -216,5 +216,42 @@ describe('the checks after the answer (ST-LLM-005, LLM F1 step 7)', () => {
   it('says only the kind of a failure of the provider', () => {
     const failure = new GatewayFailure('TIMEOUT');
     expect([failure.kind, failure.message, failure.name]).toEqual(['TIMEOUT', 'TIMEOUT', 'GatewayFailure']);
+  });
+});
+
+describe('the emergency stop (ST-LLM-006, LLM F7, BR-LLM-12)', () => {
+  const P = '3f9a1c2e-0b4d-4d3a-9c1e-7a2c5d6e8f10';
+  const M = '4a0b2d3f-1c5e-4e4b-8d2f-8b3d6e7f9a21';
+
+  it('AC-ST-LLM-006-1: UAT-AC21 knows what a switch is for: the whole tenant needs no reference, a provider or a model needs its id, a task needs its name', () => {
+    expect(assertKillScope('TENANT', undefined)).toBeNull();
+    expect(assertKillScope('TENANT', '  ')).toBeNull();
+    expect(assertKillScope('PROVIDER', P.toUpperCase())).toBe(P);
+    expect(assertKillScope('MODEL', M)).toBe(M);
+    expect(assertKillScope('PROFILE', 'BID_ANALYSIS')).toBe('BID_ANALYSIS');
+    expect(assertKillScope('TASK_TYPE', ' SUMMARY ')).toBe('SUMMARY');
+    for (const bad of [['TENANT', 'x'], ['PROVIDER', 'VN-HOST'], ['MODEL', undefined], ['PROFILE', 'x'], ['TASK_TYPE', 'x'.repeat(61)], ['GALAXY', undefined]] as const) {
+      expect([bad[0], thrown(() => assertKillScope(bad[0], bad[1])).code]).toEqual([bad[0], 'VALIDATION_FAILED']);
+    }
+  });
+
+  it('AC-ST-LLM-006-1: UAT-AC21 stops a probe by the scope of a switch: the tenant stops everything, a task its own requests, a provider or a model only the candidates that are on it', () => {
+    const tenant = { id: 't', scopeKind: 'TENANT' as const, scopeRef: null };
+    const profile = { id: 'p', scopeKind: 'PROFILE' as const, scopeRef: 'BID_ANALYSIS' };
+    const task = { id: 'k', scopeKind: 'TASK_TYPE' as const, scopeRef: 'SUMMARY' };
+    const provider = { id: 'v', scopeKind: 'PROVIDER' as const, scopeRef: P };
+    const model = { id: 'm', scopeKind: 'MODEL' as const, scopeRef: M };
+    expect(killedBy([], { taskType: 'SUMMARY' })).toBeUndefined();
+    expect(killedBy([tenant], { taskType: 'ANYTHING' })?.id).toBe('t');
+    expect(killedBy([profile], { taskType: 'BID_ANALYSIS' })?.id).toBe('p');
+    expect(killedBy([profile], { taskType: 'SUMMARY' })).toBeUndefined();
+    expect(killedBy([task], { taskType: 'SUMMARY' })?.id).toBe('k');
+    // A provider or a model is stopped only when the probe is on it: a request that has not chosen one is not.
+    expect(killedBy([provider], { taskType: 'SUMMARY' })).toBeUndefined();
+    expect(killedBy([provider], { taskType: 'SUMMARY', providerId: P.toUpperCase() })?.id).toBe('v');
+    expect(killedBy([provider], { taskType: 'SUMMARY', providerId: M })).toBeUndefined();
+    expect(killedBy([model], { taskType: 'SUMMARY', modelRefId: M })?.id).toBe('m');
+    expect(killedBy([model], { taskType: 'SUMMARY', providerId: P, modelRefId: null })).toBeUndefined();
+    expect(killedBy([provider, model, task], { taskType: 'OTHER', providerId: P, modelRefId: M })?.id).toBe('v');
   });
 });

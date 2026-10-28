@@ -125,6 +125,8 @@ export class GatewayFailure extends Error {
 
 export interface AiGatewayPort {
   complete(call: GatewayCall): Promise<GatewayResult>;
+  /** Asks the provider to stop a request that is still running; true when it did. A provider that cannot stop one answers false, and the answer is discarded when it comes. */
+  cancel?(providerRequestId: string): Promise<boolean>;
 }
 
 // ---- the checks after the answer ----------------------------------------------------------------------------------------------------------------
@@ -296,3 +298,53 @@ export function postCheck(input: { output: string; outputSchema: unknown; source
 
 /** How many times the same model is asked again for an answer that failed the checks (the answer was paid for; one more try is the limit). */
 export const MAX_CHECK_RETRIES = 1;
+
+// ---- the emergency stop -------------------------------------------------------------------------------------------------------------------------
+
+export const KILL_SCOPES = ['TENANT', 'PROVIDER', 'MODEL', 'PROFILE', 'TASK_TYPE'] as const;
+export type KillScope = (typeof KILL_SCOPES)[number];
+
+export interface KillSwitch {
+  id: string;
+  scopeKind: KillScope;
+  scopeRef: string | null;
+}
+
+/** What a request or an attempt is, as far as a switch is concerned: the task, and (for an attempt or a request that has chosen) the provider and the model. */
+export interface KillProbe {
+  taskType: string;
+  providerId?: string | null | undefined;
+  modelRefId?: string | null | undefined;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** LLM F7: what a switch is for. The whole tenant needs no reference; a provider or a model is named by its id in the registry; a profile or a task type by the name of the task. */
+export function assertKillScope(kind: string, ref: string | undefined): string | null {
+  if (!(KILL_SCOPES as readonly string[]).includes(kind)) throw new DomainError('VALIDATION_FAILED', 422, 'scope_kind');
+  const text = ref?.trim() ?? '';
+  if (kind === 'TENANT') {
+    if (text !== '') throw new DomainError('VALIDATION_FAILED', 422, 'scope_ref');
+    return null;
+  }
+  if ((kind === 'PROVIDER' || kind === 'MODEL') && !UUID.test(text)) throw new DomainError('VALIDATION_FAILED', 422, 'scope_ref');
+  if ((kind === 'PROFILE' || kind === 'TASK_TYPE') && (text.length < 2 || text.length > 60)) throw new DomainError('VALIDATION_FAILED', 422, 'scope_ref');
+  return kind === 'PROVIDER' || kind === 'MODEL' ? text.toLowerCase() : text;
+}
+
+/** The first of the switches that engaged and stops this probe. A provider or a model that is not chosen yet is not stopped by a switch of its own. */
+export function killedBy(switches: readonly KillSwitch[], probe: KillProbe): KillSwitch | undefined {
+  return switches.find((entry) => {
+    switch (entry.scopeKind) {
+      case 'TENANT':
+        return true;
+      case 'PROFILE':
+      case 'TASK_TYPE':
+        return entry.scopeRef === probe.taskType;
+      case 'PROVIDER':
+        return probe.providerId !== undefined && probe.providerId !== null && entry.scopeRef?.toLowerCase() === probe.providerId.toLowerCase();
+      case 'MODEL':
+        return probe.modelRefId !== undefined && probe.modelRefId !== null && entry.scopeRef?.toLowerCase() === probe.modelRefId.toLowerCase();
+    }
+  });
+}

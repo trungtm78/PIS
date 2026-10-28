@@ -1,0 +1,14 @@
+{
+  "id": "LLM_KILL_SWITCH_SLOW",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "security-oncall",
+  "runbook": "docs/runbooks/alerts/LLM_KILL_SWITCH_SLOW.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "llm_kill_switch_latency_ms",
+    "above": 5000
+  },
+  "summary": "An emergency stop of the AI gateway took more than five seconds to take effect."
+}

@@ -3,6 +3,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
+import { decisionQuery, engageBody, toDecisionPage, toKillSwitch } from './emergency-model';
+import type { DecisionFilter, DecisionPage, EngageValues, KillSwitchEntry } from './emergency-model';
 import { filterQuery, toRequestPage, toRouteDecision } from './gateway-model';
 import type { RequestFilter, RequestPage, RouteDecision } from './gateway-model';
 import { datasetBody, profileBody, promptBody, toDataset, toProfile, toPrompt, toRun } from './eval-model';
@@ -353,6 +355,48 @@ export function useRouteDecision(requestId: string | undefined) {
     queryKey: [...llmRoot(tenant?.id), 'route', requestId, tenant?.membershipId],
     queryFn: async () => toRouteDecision(await client.read('getAiRequestRoute', { path: { id: requestId as string } })) ?? null,
     enabled: tenant !== undefined && requestId !== undefined,
+    retry: false,
+  });
+}
+
+// ---- the emergency stop and the decisions (ST-LLM-006) ----------------------------------------------------------------------------------------
+
+export function useKillSwitches() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<KillSwitchEntry[]>({
+    queryKey: [...llmRoot(tenant?.id), 'kill-switches', tenant?.membershipId],
+    queryFn: async () => (await client.readAll('listAiKillSwitches')).flatMap((raw) => toKillSwitch(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+export function useEngageKillSwitch() {
+  return useRegistryCommand<EngageValues>((client, values, attempt) => client.command('engageAiKillSwitch', { body: engageBody(values), attempt }));
+}
+
+export interface KillRelease {
+  switchId: string;
+  version: number;
+  reason: string;
+}
+
+export function useReleaseKillSwitch() {
+  return useRegistryCommand<KillRelease>((client, input, attempt) => client.command('releaseAiKillSwitch', { path: { id: input.switchId }, ifMatchVersion: input.version, body: { release_reason: input.reason.trim() }, attempt }));
+}
+
+/** The decisions of people about the answers of the AI, a page at a time, newest first. */
+export function useDecisions(filter: DecisionFilter) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useInfiniteQuery<DecisionPage, Error, { pages: DecisionPage[] }, readonly unknown[], string | undefined>({
+    queryKey: [...llmRoot(tenant?.id), 'decisions', filter, tenant?.membershipId],
+    initialPageParam: undefined,
+    queryFn: async ({ pageParam }) => toDecisionPage(await client.read('listAiDecisionRecords', { query: { limit: REQUEST_PAGE, ...decisionQuery(filter), ...(pageParam === undefined ? {} : { cursor: pageParam }) } })),
+    getNextPageParam: (last) => last.next,
+    placeholderData: keepPreviousData,
+    enabled: tenant !== undefined,
     retry: false,
   });
 }

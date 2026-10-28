@@ -1,4 +1,6 @@
 import type { Translator } from '../../i18n';
+import { MIN_REASON } from './emergency-model';
+import type { ActionKind, Decision, EngageProblem, KillScope, KillState } from './emergency-model';
 import type { AttemptKind, RequestStatus } from './gateway-model';
 import type { DatasetProblem, DatasetSource, MetricName, ProfileProblem, ProfileStatus, PromptProblem, PromptStatus, RouteGate, RunStatus } from './eval-model';
 
@@ -132,4 +134,24 @@ export function outcomeLabel(t: T, outcome: string): string {
     USAGE_MISSING: t('llm.outcome.usageMissing'),
   };
   return known[outcome] ?? outcome;
+}
+
+export function killScopeLabel(t: T, scope: KillScope): string {
+  return { TENANT: t('llm.killScope.tenant'), PROVIDER: t('llm.killScope.provider'), MODEL: t('llm.killScope.model'), PROFILE: t('llm.killScope.profile'), TASK_TYPE: t('llm.killScope.taskType') }[scope];
+}
+
+export function killStateLabel(t: T, state: KillState): string {
+  return { ENGAGED: t('llm.killState.engaged'), RELEASED: t('llm.killState.released') }[state];
+}
+
+export function decisionLabel(t: T, decision: Decision): string {
+  return { ACCEPTED: t('llm.decision.accepted'), ACCEPTED_WITH_CHANGE: t('llm.decision.acceptedWithChange'), REJECTED: t('llm.decision.rejected') }[decision];
+}
+
+export function actionKindLabel(t: T, action: ActionKind): string {
+  return { WRITE: t('llm.actionKind.write'), MONEY: t('llm.actionKind.money'), DECISION: t('llm.actionKind.decision'), PUBLISH: t('llm.actionKind.publish') }[action];
+}
+
+export function engageProblemMessage(t: T, problem: EngageProblem): string {
+  return { required: t('llm.problem.required'), invalidId: t('llm.emergency.problem.invalidId'), shortReason: t('llm.emergency.problem.shortReason', { count: MIN_REASON }), noRef: t('llm.emergency.problem.noRef') }[problem];
 }

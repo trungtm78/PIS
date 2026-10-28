@@ -1,7 +1,7 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { LlmEvalStore, LlmFinopsStore, LlmGatewayStore, LlmRegistryStore, TenantDatabase } from '@machvon/db';
+import { LlmEmergencyStore, LlmEvalStore, LlmFinopsStore, LlmGatewayStore, LlmRegistryStore, TenantDatabase } from '@machvon/db';
 import type { AiRequestRow } from '@machvon/db';
-import { CLASSIFICATIONS, DomainError, GatewayFailure, MAX_CHECK_RETRIES, NOOP_METRICS, asUuid, classifySources, estimateVnd, planRoute, postCheck, unsupportedSchemaKeyword, vietnamDateOf } from '@machvon/kernel';
+import { CLASSIFICATIONS, DomainError, GatewayFailure, MAX_CHECK_RETRIES, NOOP_METRICS, asUuid, classifySources, estimateVnd, killedBy, planRoute, postCheck, unsupportedSchemaKeyword, vietnamDateOf } from '@machvon/kernel';
 import type { AiGatewayPort, BudgetScope, MetricsSink, Price, RouteCandidate } from '@machvon/kernel';
 import type { CommandScope } from '../../command-scope';
 import { LLM_GATEWAY, LLM_METRICS } from './tokens';
@@ -38,6 +38,7 @@ export class LlmGatewayService {
   private readonly evals = new LlmEvalStore();
   private readonly registry = new LlmRegistryStore();
   private readonly finops = new LlmFinopsStore();
+  private readonly emergency = new LlmEmergencyStore();
   private readonly metrics: MetricsSink;
 
   constructor(
@@ -81,6 +82,12 @@ export class LlmGatewayService {
       inputSha256: input.inputSha256,
     });
     const now = new Date();
+    // A request is stopped at the door by a switch of the tenant or of its task; a switch of a provider or a model only takes those candidates out. Postgres is read at every request (BR-LLM-12).
+    const switches = await this.emergency.engaged(tx);
+    const stopped = killedBy(switches, { taskType: input.taskType });
+    if (stopped !== undefined) return this.reject(scope, admitted, new DomainError('AI_KILL_SWITCH_ENGAGED', 503, stopped.scopeKind), 'AI_KILL_SWITCH_ENGAGED');
+    // The models that a switch of their provider or of themselves takes out: kept apart, to tell whether the switches are what left the request with nothing.
+    const stoppedPool: RouteCandidate[] = [];
 
     // The models the profile may use that can be called now: approved, on an active provider, with a price whose figures are all known.
     const prices = new Map<string, { id: string; price: Price }>();
@@ -91,17 +98,25 @@ export class LlmGatewayService {
       if (CLASSIFICATIONS.indexOf(model.maxClassification) < CLASSIFICATIONS.indexOf(classified.classification)) continue;
       const row = await this.finops.priceAt(tx, model.id, now);
       if (row === undefined || row.cachedSemantics === null || row.fxRateToVnd === null) continue;
+      if (killedBy(switches, { taskType: input.taskType, providerId: model.providerId, modelRefId: model.id }) !== undefined) {
+        stoppedPool.push({ modelRefId: model.id, modelId: model.modelId, providerId: model.providerId, providerCode: model.providerCode, route: model.route, pricingVersionId: row.id });
+        continue;
+      }
       prices.set(model.id, { id: row.id, price: { inputPerMillion: row.inputPerMillion, cachedPerMillion: row.cachedPerMillion, outputPerMillion: row.outputPerMillion, cachedSemantics: row.cachedSemantics, fxRateToVnd: row.fxRateToVnd } });
       candidates.push({ modelRefId: model.id, modelId: model.modelId, providerId: model.providerId, providerCode: model.providerCode, route: model.route, pricingVersionId: row.id });
     }
-    const plan = planRoute({
-      classification: classified.classification,
-      profileMax: profile.maxClassification as typeof classified.classification,
-      profileRoutes: profile.routingPolicy.routes,
-      policy: policy === undefined ? undefined : { matrix: policy.matrix, internationalEnabled: policy.internationalEnabled },
-      candidates,
-      primaryModelId: profile.modelId,
-    });
+    const planFor = (models: RouteCandidate[]) =>
+      planRoute({
+        classification: classified.classification,
+        profileMax: profile.maxClassification as typeof classified.classification,
+        profileRoutes: profile.routingPolicy.routes,
+        policy: policy === undefined ? undefined : { matrix: policy.matrix, internationalEnabled: policy.internationalEnabled },
+        candidates: models,
+        primaryModelId: profile.modelId,
+      });
+    const plan = planFor(candidates);
+    // Nothing is left to serve the request, and a switch is the reason (the request could have been served without the switches): that is what the caller is told.
+    if (!plan.ok && stoppedPool.length > 0 && planFor([...candidates, ...stoppedPool]).ok) return this.reject(scope, admitted, new DomainError('AI_KILL_SWITCH_ENGAGED', 503, 'provider'), 'AI_KILL_SWITCH_ENGAGED');
     if (!plan.ok) return this.reject(scope, admitted, new DomainError(plan.code, 422, plan.detail), plan.code);
 
     // The budget is held before a model is called, at the dearest of the models the request may fall back to, for every answer that may be paid for: the first and the ones asked again after a failed check.
@@ -131,8 +146,20 @@ export class LlmGatewayService {
     let last: RouteCandidate = first;
     let accepted: { output: string; outputSha256: string; citations: number } | undefined;
     let checkFailure: 'INVALID_JSON' | 'REJECTED_NO_CITATION' | undefined;
+    let killed = false;
+    let passedOver = false;
     await this.requests.finish(tx, admitted.id, { status: 'DISPATCHED', routeClass: first.route }, actor);
     outer: for (const candidate of plan.attempts) {
+      // A switch that was engaged since: the request stops, or only this model is passed over.
+      const engagedNow = await this.emergency.engagedSince(tx, admitted.pageKey);
+      if (killedBy(engagedNow, { taskType: input.taskType }) !== undefined) {
+        killed = true;
+        break;
+      }
+      if (killedBy(engagedNow, { taskType: input.taskType, providerId: candidate.providerId, modelRefId: candidate.modelRefId }) !== undefined) {
+        passedOver = true;
+        continue;
+      }
       // Defence in depth: a route that is not allowed for the class of the request is not called, whatever the plan says.
       if (candidate.route === 'INTERNATIONAL' && classified.classification !== 'PUBLIC') {
         this.metrics.increment('llm_international_non_public_total', { tenant_id: scope.tenant.tenantId });
@@ -161,6 +188,11 @@ export class LlmGatewayService {
           });
           const check = postCheck({ output: result.output, outputSchema: profile.outputSchema, sourceIds });
           paid.push({ candidate, kind, attemptNo, providerRequestId: result.providerRequestId, usage: result.usage, latencyMs: result.latencyMs, check });
+          // The answer came after the scope was stopped: it was paid for and it is thrown away.
+          if (killedBy(await this.emergency.engagedSince(tx, admitted.pageKey), { taskType: input.taskType, providerId: candidate.providerId, modelRefId: candidate.modelRefId }) !== undefined) {
+            killed = true;
+            break outer;
+          }
           if (check.ok) {
             accepted = { output: result.output, outputSha256: check.outputSha256, citations: check.citations };
             break outer;
@@ -172,6 +204,11 @@ export class LlmGatewayService {
           const failure = error instanceof GatewayFailure ? error.kind : 'PROVIDER_ERROR';
           if (failure === 'TIMEOUT') timedOut = true;
           await this.requests.failedAttempt(tx, { requestId: admitted.id, attemptNo, kind, route: candidate.route, providerId: candidate.providerId, actualModel: candidate.modelId, pricingVersionId: candidate.pricingVersionId, outcome: failure, latencyMs: Date.now() - started });
+          // A scope that was stopped while the call ran ends the request, as it does when the call answers: it is not sent on to another model.
+          if (killedBy(await this.emergency.engagedSince(tx, admitted.pageKey), { taskType: input.taskType, providerId: candidate.providerId, modelRefId: candidate.modelRefId }) !== undefined) {
+            killed = true;
+            break outer;
+          }
           // A retry that fails to answer ends the request on the failure of the checks it was asked again for; it is not sent to another model.
           if (kind !== 'RETRY') checkFailure = undefined;
           break;
@@ -180,6 +217,9 @@ export class LlmGatewayService {
       // An answer that failed the checks twice ends the request: another model is not asked to answer what this one was asked.
       if (checkFailure !== undefined) break;
     }
+
+    // Every model that was left was stopped by a switch while the request ran: it is stopped, not exhausted.
+    if (passedOver && accepted === undefined && checkFailure === undefined) killed = true;
 
     // The cost: every answer that was paid for is settled; the last one releases what is left of the hold.
     let costVnd = 0n;
@@ -204,9 +244,17 @@ export class LlmGatewayService {
     }
     // Only a hold that is still open waits: a paid answer that went over the hold has settled it as an exception, and that stands.
     if (timedOut && (await this.finops.findReservation(tx, reservationId))?.status === 'RESERVED') await this.finops.markPendingReconcile(tx, reservationId, 'TIMEOUT_NO_USAGE');
+    // A switch engaged after the last look, while the cost was settled, stops the request before it is called complete.
+    if (!killed && accepted !== undefined && killedBy(await this.emergency.engagedSince(tx, admitted.pageKey), { taskType: input.taskType, providerId: last.providerId, modelRefId: last.modelRefId }) !== undefined) {
+      killed = true;
+      accepted = undefined;
+    }
     const common = { routeClass: last.route, providerId: last.providerId, modelRefId: last.modelRefId, costVnd: costVnd.toString() };
     let finished: AiRequestRow;
-    if (accepted !== undefined) {
+    if (killed) {
+      finished = await this.requests.finish(tx, admitted.id, { ...common, status: 'CANCELLED', rejectCode: 'AI_KILL_SWITCH_ENGAGED', completed: true }, actor);
+      if (paid.length === 0 && !timedOut) await this.finops.release(tx, reservationId, 'KILL_SWITCH');
+    } else if (accepted !== undefined) {
       finished = await this.requests.finish(tx, admitted.id, { ...common, status: 'COMPLETED', outputSha256: accepted.outputSha256, citationsCount: accepted.citations, completed: true }, actor);
     } else if (checkFailure === 'REJECTED_NO_CITATION') {
       finished = await this.requests.finish(tx, admitted.id, { ...common, status: 'REJECTED_NO_CITATION', rejectCode: 'NO_CITATION', completed: true }, actor);

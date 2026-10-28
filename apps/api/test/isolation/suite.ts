@@ -573,7 +573,7 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
 };
 
 /** A provider, a model and a classification policy of each tenant's AI registry (the code, the model and the legal basis are distinctive). */
-export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string; profileId: string; requestId: string; budgetId: string; reservationId: string; reservationNote: string; priceId: string; priceSource: string; promptId: string; promptName: string; promptSha: string; datasetId: string; datasetCode: string; runId: string; attemptId: string }>> = {
+export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string; profileId: string; requestId: string; budgetId: string; reservationId: string; reservationNote: string; priceId: string; priceSource: string; promptId: string; promptName: string; promptSha: string; datasetId: string; datasetCode: string; runId: string; attemptId: string; killId: string; killScope: string; killReason: string; decisionId: string; decisionRationale: string }>> = {
   'TNT-A': {
     providerId: '00000000-0000-4000-a0d7-000000000001',
     providerCode: 'ALPHA-PROVIDER-0001',
@@ -601,6 +601,11 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     datasetCode: 'ALPHA-EVAL-0001',
     runId: '00000000-0000-4000-a0d7-00000000000c',
     attemptId: '00000000-0000-4000-a0d7-00000000000d',
+    killId: '00000000-0000-4000-a0d7-00000000000e',
+    killScope: 'ALPHA-STOP-0001',
+    killReason: 'Alpha tenant emergency stop reason 0001',
+    decisionId: '00000000-0000-4000-a0d7-00000000000f',
+    decisionRationale: 'Alpha tenant decision rationale 0001 of the person',
   },
   'TNT-B': {
     providerId: '00000000-0000-4000-b0d7-000000000001',
@@ -629,6 +634,11 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     datasetCode: 'BETA-EVAL-0001',
     runId: '00000000-0000-4000-b0d7-00000000000c',
     attemptId: '00000000-0000-4000-b0d7-00000000000d',
+    killId: '00000000-0000-4000-b0d7-00000000000e',
+    killScope: 'BETA-STOP-0001',
+    killReason: 'Beta tenant emergency stop reason 0001',
+    decisionId: '00000000-0000-4000-b0d7-00000000000f',
+    decisionRationale: 'Beta tenant decision rationale 0001 of the person',
   },
 };
 
@@ -899,6 +909,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'ai eval dataset code', value: LLM_FIXTURES[tenant].datasetCode },
     { kind: 'ai eval run id', value: LLM_FIXTURES[tenant].runId },
     { kind: 'ai attempt id', value: LLM_FIXTURES[tenant].attemptId },
+    { kind: 'ai kill switch id', value: LLM_FIXTURES[tenant].killId },
+    { kind: 'ai kill switch scope', value: LLM_FIXTURES[tenant].killScope },
+    { kind: 'ai kill switch reason', value: LLM_FIXTURES[tenant].killReason },
+    { kind: 'ai decision id', value: LLM_FIXTURES[tenant].decisionId },
+    { kind: 'ai decision rationale', value: LLM_FIXTURES[tenant].decisionRationale },
     { kind: 'ai model profile id', value: LLM_FIXTURES[tenant].profileId },
     { kind: 'metric id', value: BI_FIXTURES[tenant].metricId },
     { kind: 'metric code', value: BI_FIXTURES[tenant].metricCode },

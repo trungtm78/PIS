@@ -1,7 +1,10 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { sha256Of } from '@machvon/kernel';
-import { AI_ADMIN, AUDITOR, FINOPS, INVOKER, LlmApp, NOBODY, PROMPT_APPROVER, PROMPT_AUTHOR, READER, SCOPED, SECURITY, TENANT_A, TENANT_B, memberId } from './llm-app';
+import { GatewayFailure, sha256Of } from '@machvon/kernel';
+import { AiDecisionStore } from '@machvon/db';
+import type { TenantTx } from '@machvon/db';
+import { AI_ADMIN, AUDITOR, DECIDER, EMERGENCY, EMERGENCY_TWO, FINOPS, INVOKER, LlmApp, NOBODY, PROMPT_APPROVER, PROMPT_AUTHOR, READER, SCOPED, SECURITY, TENANT_A, TENANT_B, memberId } from './llm-app';
 import type { Reply } from './llm-app';
+import { contextFor } from '../../../../packages/db/test/support/authz-fixtures';
 
 const app = new LlmApp();
 jest.setTimeout(240_000);
@@ -571,5 +574,323 @@ describe('who may ask and who may read (ST-LLM-005)', () => {
     expect(foreign.status).toBe(202);
     const route = await app.call('GET', `/ai/requests/${foreign.json.resource_id as string}/route`, { member: AUDITOR, tenantId: TENANT_B });
     expect([401, 403, 404]).toContain(route.status);
+  });
+});
+
+// ---- the emergency stop and the decisions of people (ST-LLM-006) ------------------------------------------------------------------------------
+
+const withTx = <T>(work: (tx: TenantTx) => Promise<T>): Promise<T> => app.harness.tenants.withTenant(contextFor(TENANT_A, memberId(DECIDER)), work);
+const engage = (body: Record<string, unknown>, member = EMERGENCY): Promise<Reply> => app.call('POST', '/ai-kill-switches', { member, body: { reason: 'Suspected leak of data through the output', ...body } });
+const release = (id: string, version: string, member = EMERGENCY_TWO, reason = 'The cause was found and fixed'): Promise<Reply> =>
+  app.call('POST', `/ai-kill-switches/${id}/release`, { member, ifMatch: version, body: { release_reason: reason } });
+
+/** A request that is in the state the gateway leaves it in while it waits or while a model is called: the rows it points at are the ones of the world. */
+async function inFlight(status: 'ADMITTED' | 'RESERVED' | 'DISPATCHED', providerRequestId?: string, taskType = 'SUMMARY'): Promise<string> {
+  const id = randomUUID();
+  const profile = (await app.rows<{ id: string }>('select id from machvon.model_profile_version'))[0]?.id as string;
+  const provider = (await app.rows<{ id: string }>("select id from machvon.ai_provider where provider_code = 'VN-HOST'"))[0]?.id as string;
+  const model = (await app.rows<{ id: string }>("select id from machvon.ai_model where model_id = 'dom-model'"))[0]?.id as string;
+  await app.rows(
+    `insert into machvon.ai_request (tenant_id, id, task_type, subject_module, requested_by, profile_version_id, data_classification, classification_basis, status, route_class, provider_id, model_ref_id, input_sha256, created_by, updated_by)
+     values ($1, $2, $6, 'BID', $3, $4, 'INTERNAL', '[]'::jsonb, $5, $7, $8, $9, repeat('f', 64), $3, $3)`,
+    [TENANT_A, id, memberId(INVOKER), profile, status, taskType, status === 'ADMITTED' ? null : 'DOMESTIC_HOSTED', status === 'ADMITTED' ? null : provider, status === 'ADMITTED' ? null : model],
+  );
+  if (providerRequestId !== undefined) {
+    const price = (await app.rows<{ id: string }>('select id from machvon.pricing_version limit 1'))[0]?.id as string;
+    await app.rows(
+      `insert into machvon.llm_attempt (tenant_id, id, provider_request_id, actual_model, pricing_version_id, input_total, cached_input, output_total, reasoning_info, cost, currency, reconcile_status, ai_request_id, attempt_no, attempt_kind, route_class, outcome)
+       values ($1, gen_random_uuid(), $2, 'dom-model', $3, 0, 0, 0, 0, 0, 'VND', 'PENDING', $4, 1, 'PRIMARY', 'DOMESTIC_HOSTED', 'TIMEOUT')`,
+      [TENANT_A, providerRequestId, price, id],
+    );
+  }
+  return id;
+}
+
+describe('the emergency stop of the gateway (ST-LLM-006, LLM F7, LLM-18)', () => {
+  it('AC-ST-LLM-006-1: UAT-AC21 stops a profile at once: new requests are refused, what waited is cancelled, a request that was sent is cancelled when the provider can and otherwise has its answer thrown away, and the one who engaged cannot release it', async () => {
+    await world();
+    const waiting = [await inFlight('ADMITTED'), await inFlight('ADMITTED'), await inFlight('RESERVED'), await inFlight('RESERVED'), await inFlight('RESERVED')];
+    const sent = [await inFlight('DISPATCHED', 'prov-1'), await inFlight('DISPATCHED', 'prov-2'), await inFlight('DISPATCHED', 'prov-3')];
+    app.gateway.cancelable.add('prov-1');
+    app.gateway.cancelable.add('prov-2');
+    // A hold that waited is given back.
+    await app.rows(
+      `insert into machvon.budget_reservation (tenant_id, id, request_id, scope_json, reserved_amount, currency, status, expires_at) values ($1, gen_random_uuid(), $2, '[]'::jsonb, 100, 'VND', 'RESERVED', now() + interval '10 minutes')`,
+      [TENANT_A, waiting[2]],
+    );
+
+    const started = Date.now();
+    const engaged = await engage({ scope_kind: 'PROFILE', scope_ref: 'SUMMARY' });
+    expect([engaged.status, engaged.json.status, engaged.json.affected_requests, engaged.json.cancelled, engaged.json.dispatched]).toEqual([200, 'ENGAGED', 8, 5, 3]);
+    const states = await app.rows<{ id: string; status: string; killed_pending: boolean; reject_code: string | null }>('select id, status, killed_pending, reject_code from machvon.ai_request');
+    const of = (id: string) => states.find((row) => row.id === id) as { status: string; killed_pending: boolean; reject_code: string | null };
+    for (const id of waiting) expect(of(id)).toMatchObject({ status: 'CANCELLED', reject_code: 'AI_KILL_SWITCH_ENGAGED' });
+    expect([of(sent[0] as string).status, of(sent[1] as string).status]).toEqual(['CANCELLED', 'CANCELLED']);
+    expect(of(sent[2] as string)).toMatchObject({ status: 'DISPATCHED', killed_pending: true });
+    expect(app.gateway.cancelled.sort()).toEqual(['prov-1', 'prov-2']);
+    // A request that its provider cancelled says when and why, like the others.
+    const cancelledSent = await app.rows<{ completed_at: Date | null; reject_code: string | null }>('select completed_at, reject_code from machvon.ai_request where id = any($1::uuid[])', [[sent[0], sent[1]]]);
+    expect(cancelledSent.every((row) => row.completed_at !== null && row.reject_code === 'AI_KILL_SWITCH_ENGAGED')).toBe(true);
+    expect((await app.rows<{ status: string }>('select status from machvon.budget_reservation'))[0]?.status).toBe('RELEASED');
+
+    // A new request is refused, and what is refused is kept.
+    const refused = await ask([await doc('INTERNAL')]);
+    expect(Date.now() - started).toBeLessThan(5000);
+    expect([refused.status, refused.json.code, refused.json.detail]).toEqual([503, 'AI_KILL_SWITCH_ENGAGED', 'PROFILE']);
+    expect(app.gateway.calls).toHaveLength(0);
+    expect((await app.rows<{ status: string; reject_code: string }>("select status, reject_code from machvon.ai_request where id not in (select unnest($1::uuid[]))", [[...waiting, ...sent]]))[0]).toEqual({ status: 'REJECTED_POLICY', reject_code: 'AI_KILL_SWITCH_ENGAGED' });
+    expect(app.metrics.find((metric) => metric.name === 'llm_requests_total')?.labels).toMatchObject({ status: 'REJECTED_POLICY' });
+
+    // Another task is not stopped.
+    expect((await ask([await doc('INTERNAL')], { task_type: 'OTHER' })).json.code).toBe('AI_ROUTE_NOT_ALLOWED');
+
+    // The one who engaged it cannot release it, another person can, and then requests are served again.
+    const id = engaged.json.resource_id as string;
+    const own = await release(id, etag(engaged), EMERGENCY);
+    expect([own.status, own.json.code]).toEqual([403, 'SELF_APPROVAL_DENIED']);
+    expect((await release(id, '"9"')).json.code).toBe('VERSION_CONFLICT');
+    expect((await release(id, etag(engaged), EMERGENCY_TWO, 'short')).status).toBe(422);
+    const released = await release(id, etag(engaged));
+    expect([released.status, released.json.status]).toEqual([200, 'RELEASED']);
+    expect((await release(id, etag(released))).json.code).toBe('KILL_SWITCH_NOT_ENGAGED');
+    expect((await ask([await doc('INTERNAL')])).json.status).toBe('COMPLETED');
+    expect((await audits('llm.kill_switch_engaged'))[0]?.safe_diff).toMatchObject({ scope_kind: 'PROFILE', scope_ref: 'SUMMARY', affected_requests: 8, cancelled: 5, sent: 3 });
+    expect((await audits('llm.kill_switch_released'))[0]?.safe_diff).toMatchObject({ engaged_by: memberId(EMERGENCY) });
+    expect((await events('llm.kill_switch.engaged.v1')).length).toBe(1);
+    expect(Number(app.metrics.find((metric) => metric.name === 'llm_kill_switch_latency_ms')?.labels.value)).toBeLessThan(5000);
+  });
+
+  it('refuses a scope that is not one, a second switch of the same scope, and every other way of engaging or releasing it that is not allowed', async () => {
+    await world();
+    expect((await engage({ scope_kind: 'TENANT', scope_ref: 'x' })).status).toBe(422);
+    expect((await engage({ scope_kind: 'PROVIDER', scope_ref: randomUUID() })).status).toBe(422);
+    expect((await engage({ scope_kind: 'MODEL', scope_ref: 'dom-model' })).status).toBe(422);
+    expect((await engage({ scope_kind: 'TASK_TYPE' })).status).toBe(422);
+    expect((await engage({ scope_kind: 'TENANT', reason: 'short' })).status).toBe(422);
+    expect((await engage({ scope_kind: 'GALAXY' })).status).toBe(422);
+    const first = await engage({ scope_kind: 'TENANT' });
+    expect([first.status, first.json.affected_requests]).toEqual([200, 0]);
+    const twice = await engage({ scope_kind: 'TENANT' }, EMERGENCY_TWO);
+    expect([twice.status, twice.json.code]).toEqual([409, 'KILL_SWITCH_ALREADY_ENGAGED']);
+    for (const member of [INVOKER, AUDITOR, READER, NOBODY, SCOPED]) expect((await engage({ scope_kind: 'TASK_TYPE', scope_ref: 'SUMMARY' }, member)).status).toBe(403);
+    expect((await release(first.json.resource_id as string, etag(first), AUDITOR)).status).toBe(403);
+    expect((await release(randomUUID(), '"1"')).status).toBe(404);
+    // The database holds the same: a released switch does not engage again, and the scope and the reason do not change.
+    await expect(app.rows("update machvon.ai_kill_switch set reason = 'something else than before'")).rejects.toThrow(/do not change/);
+    await expect(app.rows("update machvon.ai_kill_switch set scope_ref = 'X', scope_kind = 'TASK_TYPE'")).rejects.toThrow(/do not change|ai_kill_switch_scope_chk/);
+    await expect(app.rows("insert into machvon.ai_kill_switch (tenant_id, id, scope_kind, scope_ref, reason, state, engaged_by, created_by, updated_by) values ($1, gen_random_uuid(), 'TENANT', null, 'a second one of the tenant', 'ENGAGED', $2, $2, $2)", [TENANT_A, memberId(EMERGENCY)])).rejects.toThrow(/ai_kill_switch_engaged_uq/);
+    const done = await release(first.json.resource_id as string, etag(first));
+    expect(done.status).toBe(200);
+    await expect(app.rows("update machvon.ai_kill_switch set state = 'ENGAGED'")).rejects.toThrow(/released|ai_kill_switch_release_chk/);
+    const listed = await app.call('GET', '/ai-kill-switches?state=RELEASED', { member: AUDITOR });
+    expect((listed.json.items as Array<Record<string, unknown>>).map((item) => [item.scope_kind, item.state, item.release_approved_by])).toEqual([['TENANT', 'RELEASED', memberId(EMERGENCY_TWO)]]);
+    expect((await app.call('GET', '/ai-kill-switches?state=NOPE', { member: AUDITOR })).status).toBe(422);
+    expect((await app.call('GET', '/ai-kill-switches', { member: INVOKER })).status).toBe(403);
+  });
+
+  it('stops a whole tenant at the door, and takes a provider or a model out of the candidates without stopping the others', async () => {
+    const w = await world();
+    const dom = (await app.rows<{ id: string }>("select id from machvon.ai_provider where provider_code = 'VN-HOST'"))[0]?.id as string;
+    const tenant = await engage({ scope_kind: 'TENANT' });
+    expect((await ask([await doc('INTERNAL')])).json.detail).toBe('TENANT');
+    await release(tenant.json.resource_id as string, etag(tenant));
+
+    // A provider that is stopped is not called; the request goes to the next route.
+    const provider = await engage({ scope_kind: 'PROVIDER', scope_ref: dom });
+    const around = await ask([await doc('INTERNAL')]);
+    expect([around.json.status, around.json.route_class]).toEqual(['COMPLETED', 'SELF_HOSTED']);
+    expect(app.gateway.calls.map((call) => call.providerModelId)).toEqual(['self-model']);
+    await release(provider.json.resource_id as string, etag(provider));
+
+    app.gateway.clear();
+    const model = await engage({ scope_kind: 'MODEL', scope_ref: w.domestic });
+    expect((await ask([await doc('INTERNAL')])).json.route_class).toBe('SELF_HOSTED');
+    // When nothing is left that is not stopped, the caller is told that a switch is the reason.
+    const second = await engage({ scope_kind: 'MODEL', scope_ref: w.selfHosted as string });
+    const none = await ask([await doc('INTERNAL')]);
+    expect([none.status, none.json.code]).toEqual([503, 'AI_KILL_SWITCH_ENGAGED']);
+    expect((await release(model.json.resource_id as string, etag(model))).status).toBe(200);
+    expect((await release(second.json.resource_id as string, etag(second))).status).toBe(200);
+  });
+
+  it('throws away the answer of a request whose provider or model was stopped while it answered, and not the one of a request that began after the stop was released', async () => {
+    const w = await world();
+    const dom = (await app.rows<{ id: string }>("select id from machvon.ai_provider where provider_code = 'VN-HOST'"))[0]?.id as string;
+    app.gateway.script('dom-model', [
+      async (call) => {
+        await engage({ scope_kind: 'PROVIDER', scope_ref: dom });
+        return { providerRequestId: 'late-p1', output: JSON.stringify({ summary: 'late', citations: call.sourceIds.slice(0, 1).map((id) => ({ document_version_id: id })) }), usage: { inputTotal: 900, cachedInput: 0, outputTotal: 100 }, latencyMs: 50 };
+      },
+    ]);
+    const reply = await ask([await doc('INTERNAL')]);
+    // The answer of the provider that was stopped is not used, and the request is not sent on to another model: it ends cancelled.
+    expect([reply.json.status, reply.json.reject_code]).toEqual(['CANCELLED', 'AI_KILL_SWITCH_ENGAGED']);
+    expect((await request(reply.json.resource_id as string)).output_sha256).toBeNull();
+    // After the release the provider serves again, and a request that began after the stop is not touched by it.
+    const listed = await app.call('GET', '/ai-kill-switches?state=ENGAGED', { member: AUDITOR });
+    const item = (listed.json.items as Array<{ id: string; version: number }>)[0] as { id: string; version: number };
+    expect((await release(item.id, `"${item.version}"`)).status).toBe(200);
+    const later = await ask([await doc('INTERNAL')]);
+    expect([later.json.status, later.json.route_class]).toEqual(['COMPLETED', 'DOMESTIC_HOSTED']);
+    expect(w.domestic).toBeTruthy();
+  });
+
+  it('tells that a switch is the reason when it left the request with nothing, whether the switch came before the plan or while the request ran, and not when the plan had nothing anyway', async () => {
+    const w = await world({ international: false });
+    const self = w.selfHosted as string;
+    // Before the plan: the domestic model is stopped and the self-hosted one is on a route that the class does not take (important data goes to self-hosted only, so use a profile that has the domestic route only).
+    await app.rows("update machvon.model_profile_version set routing_policy = '{\"routes\":[\"DOMESTIC_HOSTED\"],\"thresholds\":{}}'::jsonb");
+    const stop = await engage({ scope_kind: 'MODEL', scope_ref: w.domestic });
+    const before = await ask([await doc('INTERNAL')]);
+    expect([before.status, before.json.code]).toEqual([503, 'AI_KILL_SWITCH_ENGAGED']);
+    await release(stop.json.resource_id as string, etag(stop));
+    // A model that is stopped but would not have served the request anyway is not the reason.
+    const other = await engage({ scope_kind: 'MODEL', scope_ref: self });
+    const plain = await ask([await doc('IMPORTANT_CORE')]);
+    expect([plain.status, plain.json.code]).toEqual([422, 'AI_ROUTE_NOT_ALLOWED']);
+    await release(other.json.resource_id as string, etag(other));
+
+    // While the request ran: the first model fails and the next is stopped meanwhile.
+    await app.rows("update machvon.model_profile_version set routing_policy = '{\"routes\":[\"DOMESTIC_HOSTED\",\"SELF_HOSTED\"],\"thresholds\":{}}'::jsonb");
+    app.gateway.script('dom-model', [
+      async () => {
+        await engage({ scope_kind: 'MODEL', scope_ref: self });
+        throw new GatewayFailure('PROVIDER_ERROR');
+      },
+    ]);
+    const during = await ask([await doc('INTERNAL')]);
+    expect([during.json.status, during.json.reject_code]).toEqual(['CANCELLED', 'AI_KILL_SWITCH_ENGAGED']);
+
+    // A call that fails while its own scope is stopped ends the request as stopped, with nothing left to try, and not as exhausted.
+    await app.rows('delete from machvon.ai_kill_switch');
+    await app.rows("update machvon.model_profile_version set routing_policy = '{\"routes\":[\"DOMESTIC_HOSTED\"],\"thresholds\":{}}'::jsonb");
+    app.gateway.script('dom-model', [
+      async () => {
+        await engage({ scope_kind: 'MODEL', scope_ref: w.domestic });
+        throw new GatewayFailure('TIMEOUT');
+      },
+    ]);
+    const failing = await ask([await doc('INTERNAL')]);
+    expect([failing.json.status, failing.json.reject_code]).toEqual(['CANCELLED', 'AI_KILL_SWITCH_ENGAGED']);
+  });
+
+  it('AC-ST-LLM-006-1: UAT-AC21 throws away the answer of a request whose scope was stopped while a model was called, and the request is cancelled; what was paid for is settled', async () => {
+    await world();
+    let stopped: Reply | undefined;
+    app.gateway.script('dom-model', [
+      async (call) => {
+        // The security officer engages the switch while the model is answering.
+        stopped = await engage({ scope_kind: 'TASK_TYPE', scope_ref: 'SUMMARY' });
+        // ... and another person releases it before the model has answered: the request that it overlapped is stopped all the same.
+        expect((await release(stopped.json.resource_id as string, etag(stopped))).status).toBe(200);
+        return { providerRequestId: 'late-1', output: JSON.stringify({ summary: 'late', citations: call.sourceIds.slice(0, 1).map((id) => ({ document_version_id: id })) }), usage: { inputTotal: 900, cachedInput: 0, outputTotal: 100 }, latencyMs: 50 };
+      },
+    ]);
+    const reply = await ask([await doc('INTERNAL')]);
+    expect([reply.status, reply.json.status, reply.json.reject_code]).toEqual([202, 'CANCELLED', 'AI_KILL_SWITCH_ENGAGED']);
+    expect(stopped?.status).toBe(200);
+    const stored = await request(reply.json.resource_id as string);
+    expect([stored.output_sha256, stored.citations_count]).toEqual([null, null]);
+    expect(Number(stored.cost_vnd)).toBeGreaterThan(0);
+    expect((await app.rows<{ status: string }>('select status from machvon.budget_reservation'))[0]?.status).toBe('SETTLED');
+    expect(app.gateway.calls).toHaveLength(1);
+  });
+});
+
+describe('the decisions of people about what an AI answered (ST-LLM-006, LLM F8, LLM-20)', () => {
+  const decide = (body: Record<string, unknown>, member = DECIDER): Promise<Reply> =>
+    app.call('POST', '/ai-decisions', {
+      member,
+      body: { subject_module: 'PAY', subject_kind: 'alert_amount', subject_id: randomUUID(), action_kind: 'MONEY', decision: 'ACCEPTED_WITH_CHANGE', rationale: 'The amount was checked against the ledger and corrected', ...body },
+    });
+
+  it('AC-ST-LLM-006-2: UAT-AC468 asks the command that uses an answer for a decision of a person: none is 422 AI_DECISION_REQUIRED, one about another answer 422 AI_OUTPUT_HASH_MISMATCH, then it succeeds and says what it did, once', async () => {
+    await world();
+    const answered = await ask([await doc('INTERNAL')]);
+    const requestId = answered.json.resource_id as string;
+    const hash = (await request(requestId)).output_sha256 as string;
+    const subject = randomUUID();
+    const store = new AiDecisionStore();
+    const ask9 = (overrides: Record<string, unknown> = {}) => withTx((tx) => store.require(tx, { aiRequestId: requestId, aiOutputSha256: hash, subjectKind: 'alert_amount', subjectId: subject, actionKind: 'MONEY', ...overrides }));
+    const code = async (run: () => Promise<unknown>): Promise<[string | undefined, string | undefined]> => {
+      try {
+        await run();
+        return [undefined, undefined];
+      } catch (error) {
+        return [(error as { code?: string }).code, (error as { detail?: string }).detail];
+      }
+    };
+    // 1. The command is called with no record.
+    expect(await code(() => ask9())).toEqual(['AI_DECISION_REQUIRED', 'ai_decision_record']);
+    // 2. A record about another answer is not made: the hash must be the one the request gave.
+    const wrong = await decide({ ai_request_id: requestId, subject_id: subject, ai_output_sha256: 'b'.repeat(64) });
+    expect([wrong.status, wrong.json.code]).toEqual([422, 'AI_OUTPUT_HASH_MISMATCH']);
+    // ... and a command that holds another answer than the request gave is refused too.
+    expect(await code(() => ask9({ aiOutputSha256: 'b'.repeat(64) }))).toEqual(['AI_OUTPUT_HASH_MISMATCH', 'ai_output_sha256']);
+    // 3. The person decides, with a rationale of twenty characters, and the command goes through.
+    expect((await decide({ ai_request_id: requestId, subject_id: subject, ai_output_sha256: hash, rationale: 'too short' })).status).toBe(422);
+    const rejected = await decide({ ai_request_id: requestId, subject_id: subject, ai_output_sha256: hash, decision: 'REJECTED', rationale: 'The amount does not match the ledger at all' });
+    expect(rejected.status).toBe(200);
+    expect(await code(() => ask9())).toEqual(['AI_DECISION_REQUIRED', 'REJECTED']);
+    const accepted = await decide({ ai_request_id: requestId, subject_id: subject, ai_output_sha256: hash });
+    expect([accepted.status, accepted.json.status]).toEqual([200, 'ACCEPTED_WITH_CHANGE']);
+    const found = await ask9();
+    expect([found.id, found.decision, found.decidedBy]).toEqual([accepted.json.resource_id, 'ACCEPTED_WITH_CHANGE', memberId(DECIDER)]);
+    await withTx((tx) => store.markApplied(tx, found.id, 'approvePaymentAlert', 7));
+    const stored = (await app.rows<{ applied_operation_id: string; applied_resource_version: string }>('select applied_operation_id, applied_resource_version::text from machvon.ai_decision_record where id = $1', [found.id]))[0];
+    expect(stored).toEqual({ applied_operation_id: 'approvePaymentAlert', applied_resource_version: '7' });
+    expect(await code(() => withTx((tx) => store.markApplied(tx, found.id, 'again', 8)))).toEqual(['IDEMPOTENCY_CONFLICT', 'applied_operation_id']);
+    // A decision of another subject, and of another kind of action, is not this one.
+    expect(await code(() => ask9({ subjectId: randomUUID() }))).toEqual(['AI_DECISION_REQUIRED', 'ai_decision_record']);
+    expect(await code(() => ask9({ actionKind: 'WRITE' }))).toEqual(['AI_DECISION_REQUIRED', 'ai_decision_record']);
+    // The record is written once: no change but the one above, and no deletion, whoever asks.
+    await expect(app.rows("update machvon.ai_decision_record set rationale = 'a rationale of another kind written later'")).rejects.toThrow(/not changed/);
+    await expect(app.rows("update machvon.ai_decision_record set decision = 'REJECTED' where id = $1", [found.id])).rejects.toThrow(/not changed/);
+    await expect(app.rows('delete from machvon.ai_decision_record')).rejects.toThrow(/not deleted/);
+    expect((await audits('llm.decision_recorded')).length).toBe(2);
+    expect(JSON.stringify((await audits('llm.decision_recorded')).map((row) => row.safe_diff))).not.toContain('ledger');
+    expect((await events('llm.decision.recorded.v1')).length).toBe(2);
+  });
+
+  it('measures the rationale after what looks like a secret was taken out of it: a rationale that is only a token is a validation error, not a failure of the server', async () => {
+    await world();
+    const answered = await ask([await doc('INTERNAL')]);
+    const requestId = answered.json.resource_id as string;
+    const hash = (await request(requestId)).output_sha256 as string;
+    const token = 'sk-live-1234567890abcdefghijklmnopqrstuvwx';
+    const refused = await decide({ ai_request_id: requestId, ai_output_sha256: hash, rationale: token });
+    expect([refused.status, refused.json.code, refused.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'rationale']);
+    const kept = await decide({ ai_request_id: requestId, ai_output_sha256: hash, rationale: `The ledger was checked, see ${token} for the note` });
+    expect(kept.status).toBe(200);
+    expect(JSON.stringify(await app.rows('select rationale from machvon.ai_decision_record'))).not.toContain(token);
+    // The reason of a switch is kept without the secret too.
+    const stop = await engage({ scope_kind: 'TENANT', reason: `Leak seen with ${token} in the output` });
+    expect(stop.status).toBe(200);
+    expect(JSON.stringify(await app.rows('select reason from machvon.ai_kill_switch'))).not.toContain(token);
+  });
+
+  it('records a decision only about an answer that was given, to who may decide, and lists the records with the filters', async () => {
+    await world();
+    const answered = await ask([await doc('INTERNAL')]);
+    const requestId = answered.json.resource_id as string;
+    const hash = (await request(requestId)).output_sha256 as string;
+    expect((await decide({ ai_request_id: randomUUID(), ai_output_sha256: hash })).status).toBe(404);
+    const refused = await ask([await doc('IMPORTANT_CORE')]);
+    expect(refused.status).toBe(202);
+    for (const bad of [{ decision: 'MAYBE' }, { action_kind: 'DELETE' }, { ai_output_sha256: 'xyz' }, { subject_id: 'not-a-uuid' }]) expect((await decide({ ai_request_id: requestId, ai_output_sha256: hash, ...bad })).status).toBe(422);
+    for (const member of [INVOKER, AUDITOR, NOBODY, SCOPED]) expect((await decide({ ai_request_id: requestId, ai_output_sha256: hash }, member)).status).toBe(403);
+    const mine = await decide({ ai_request_id: requestId, ai_output_sha256: hash, subject_module: 'pay' });
+    const other = await decide({ ai_request_id: requestId, ai_output_sha256: hash, subject_module: 'BID', decision: 'REJECTED', rationale: 'The proposal does not follow the criteria' });
+    expect([mine.status, other.status]).toEqual([200, 200]);
+    const all = await app.call('GET', '/ai-decisions', { member: AUDITOR });
+    expect((all.json.items as Array<Record<string, unknown>>).map((item) => [item.subject_module, item.decision])).toEqual([['BID', 'REJECTED'], ['PAY', 'ACCEPTED_WITH_CHANGE']]);
+    expect(((all.json.items as Array<Record<string, unknown>>)[1] as Record<string, unknown>).decided_by).toBe(memberId(DECIDER));
+    expect(((await app.call('GET', `/ai-decisions?ai_request_id=${requestId}&decision=REJECTED`, { member: AUDITOR })).json.items as unknown[]).length).toBe(1);
+    expect(((await app.call('GET', '/ai-decisions?subject_module=pay', { member: AUDITOR })).json.items as unknown[]).length).toBe(1);
+    const page = await app.call('GET', '/ai-decisions?limit=1', { member: AUDITOR });
+    expect([(page.json.items as unknown[]).length, typeof page.json.next_cursor]).toEqual([1, 'string']);
+    expect(((await app.call('GET', `/ai-decisions?limit=1&cursor=${encodeURIComponent(page.json.next_cursor as string)}`, { member: AUDITOR })).json.next_cursor)).toBeNull();
+    for (const bad of ['decision=X', 'ai_request_id=nope', 'limit=0', 'cursor=bad']) expect((await app.call('GET', `/ai-decisions?${bad}`, { member: AUDITOR })).status).toBe(422);
+    expect((await app.call('GET', '/ai-decisions', { member: INVOKER })).status).toBe(403);
   });
 });

@@ -604,6 +604,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_model_profile_version_id',
   'startAiEvalRun',
   'requestAiCompletion',
+  'engageAiKillSwitch',
+  'releaseAiKillSwitch',
+  'listAiKillSwitches',
+  'recordAiDecision',
+  'listAiDecisionRecords',
   'listAiRequests',
   'getAiRequestRoute',
   'get_resources_llm_attempt',
@@ -1311,6 +1316,12 @@ const INSERT_LLM_REQUEST = `insert into machvon.ai_request
 const INSERT_LLM_ATTEMPT = `insert into machvon.llm_attempt
   (tenant_id, id, run_id, provider_request_id, actual_model, pricing_version_id, input_total, cached_input, output_total, reasoning_info, cost, currency, reconcile_status, ai_request_id, attempt_no, attempt_kind, route_class, outcome, cost_vnd)
   values ($1, $2, null, $6, $3, $4, 10, 0, 5, 0, 0, 'VND', 'SETTLED', $5, 1, 'PRIMARY', 'SELF_HOSTED', 'SUCCESS', 0) on conflict do nothing`;
+const INSERT_LLM_KILL = `insert into machvon.ai_kill_switch
+  (tenant_id, id, scope_kind, scope_ref, reason, state, engaged_by, created_by, updated_by)
+  values ($1, $2, 'TASK_TYPE', $3, $4, 'ENGAGED', $5, $5, $5) on conflict do nothing`;
+const INSERT_LLM_DECISION = `insert into machvon.ai_decision_record
+  (tenant_id, id, ai_request_id, subject_module, subject_kind, subject_id, ai_output_sha256, action_kind, decision, rationale, decided_by)
+  values ($1, $2, $3, 'PAY', 'alert', $2, $4, 'MONEY', 'ACCEPTED', $5, $6) on conflict do nothing`;
 const INSERT_LLM_BUDGET = `insert into machvon.ai_budget
   (tenant_id, id, scope_kind, period, limit_vnd, hard_stop, effective_from, created_by, updated_by)
   values ($1, $2, 'TENANT', 'MONTH', 1000000, true, '2026-01-01', $3, $3) on conflict do nothing`;
@@ -1623,6 +1634,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_RESERVATION, [tenantId, llm.reservationId, llm.requestId, llm.reservationNote]);
     await client.query(INSERT_LLM_PRICE, [tenantId, llm.priceId, llm.modelRefId, llm.modelCode, llm.priceSource]);
     await client.query(INSERT_LLM_ATTEMPT, [tenantId, llm.attemptId, llm.modelCode, llm.priceId, llm.requestId, `iso-${llm.attemptId}`]);
+    await client.query(INSERT_LLM_KILL, [tenantId, llm.killId, llm.killScope, llm.killReason, ACTOR_ID]);
+    await client.query(INSERT_LLM_DECISION, [tenantId, llm.decisionId, llm.requestId, 'd'.repeat(64), llm.decisionRationale, ACTOR_ID]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);
