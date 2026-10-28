@@ -1,6 +1,8 @@
 import { DomainError, ND30_A4_STANDARD, canonicalJson, layoutProfileOf, sha256Hex, validateSymbolPattern } from '@machvon/kernel';
 import type { LayoutProfile } from '@machvon/kernel';
 import { assertTimestampCursor, timestampKey } from './keyset.ts';
+import type { EffectiveAccess } from '@machvon/kernel';
+import { scopePredicate } from './scope-version.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -238,7 +240,11 @@ const VERSION_COLUMNS = `v.id, v.document_id, v.version, v.object_key, v.checksu
 // The owner unit of a version is the issuer unit of its document: scope predicates read `ou.path` and `ou.id`.
 const VERSION_FROM = `from machvon.document_version v
   join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id
-  left join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.issuer_unit_id`;
+  left join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.issuer_unit_id
+  left join machvon.incoming_document inc on inc.tenant_id = d.tenant_id and inc.document_id = d.id
+  left join machvon.document_number_register ir on ir.tenant_id = inc.tenant_id and ir.id = inc.register_id
+  left join machvon.organization_unit hu on hu.tenant_id = ir.tenant_id and hu.id = ir.organization_unit_id
+  left join machvon.organization_unit iu on iu.tenant_id = inc.tenant_id and iu.id = inc.assigned_unit_id`;
 
 /**
  * The subject of the files of a sealed proposal (ST-BID-004): they are confidential until the bids are opened and then for the evaluators who declared, so the reads of this module,
@@ -250,6 +256,22 @@ const NOT_SEALED = `d.subject_module is distinct from '${SEALED_SUBJECT_MODULE}'
 
 /** The columns of the owner unit a scope predicate for versions is compiled against. */
 export const VERSION_SCOPE_COLUMNS = { unitPath: 'ou.path', unitId: 'ou.id' } as const;
+
+/**
+ * The scope of the reads of versions: the unit that issues the document or, for an incoming letter (which has no issuer), the unit of its register, the unit it was given to, and whoever took it in
+ * (ST-DOC-011): the people who work a letter can read its file.
+ */
+export function versionScope(access: EffectiveAccess, permission: string, now: Date, membershipId: string): ScopeBuilder {
+  return (first) => {
+    const issuer = scopePredicate(access, permission, now, VERSION_SCOPE_COLUMNS, first);
+    // The permission is not held anywhere, or held over the whole tenant: nothing to add.
+    if (issuer.sql === 'false' || issuer.sql === 'true') return issuer;
+    const home = scopePredicate(access, permission, now, { unitPath: 'hu.path', unitId: 'hu.id' }, first + issuer.params.length);
+    const given = scopePredicate(access, permission, now, { unitPath: 'iu.path', unitId: 'iu.id' }, first + issuer.params.length + home.params.length);
+    const receiver = `$${first + issuer.params.length + home.params.length + given.params.length}::uuid`;
+    return { sql: `(${issuer.sql} or (inc.id is not null and (${home.sql} or ${given.sql} or inc.received_by = ${receiver})))`, params: [...issuer.params, ...home.params, ...given.params, membershipId] };
+  };
+}
 
 function toProfile(row: ProfileRow): LayoutProfileRecord {
   return {

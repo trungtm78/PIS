@@ -14,6 +14,7 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { DocumentVersionReadsController, DocumentsController } from '../../src/modules/doc/documents.controller';
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { PdfLibRenderer, loadRendererResources } from '../../src/modules/doc/pdf-renderer';
+import { IncomingController, IncomingReadsController } from '../../src/modules/doc/incoming.controller';
 import { OutgoingController } from '../../src/modules/doc/outgoing.controller';
 import { OutgoingDraftsController } from '../../src/modules/doc/outgoing-drafts.controller';
 import { IssueRequestsController } from '../../src/modules/doc/issue-requests.controller';
@@ -63,7 +64,12 @@ export const ISSUER_DISTRIBUTOR = 20; // issues and distributes in unit 2
 export const RECALLER = 21; // recalls the issued documents of unit 2 (a leader)
 export const RECORDS_MANAGER = 22; // voids the numbers of the documents of unit 2 and may approve a void
 export const SECOND_MANAGER = 23; // the same right: the second person of a void
-export const OUTSIDE_MANAGER = 24; // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
+export const OUTSIDE_MANAGER = 24;
+export const INCOMING_CLERK = 25; // receives, registers and rejects the incoming documents of unit 2 and reads them
+export const INCOMING_CHIEF = 26; // assigns the incoming documents of unit 2 (the chief of the office)
+export const INCOMING_STAFF = 27; // works the incoming documents given to them in unit 2
+export const INCOMING_STAFF_TWO = 28; // the same right, for letters that are not given to them
+export const INCOMING_OUTSIDE = 29; // the same rights as the clerk, but only on unit 1 itself // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
 
 export interface Reply {
   status: number;
@@ -112,7 +118,38 @@ export class DocApp {
       { n: 2, path: `/${unitId(1)}/${unitId(2)}/`, parent: 1 },
     ]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: `/${unitId(1)}/` }]);
-    for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY, DRAFTER, LEADER, CLERK, MAKER, REVIEWER, BOARD, SOURCE, SOURCE_UNIT, REFERENCER, EXT_CLERK, EXT_OUTSIDE, ISSUER, DISTRIBUTOR, LEGAL_ISSUER, LEGAL_UNIT, ISSUER_DISTRIBUTOR, RECALLER, RECORDS_MANAGER, SECOND_MANAGER, OUTSIDE_MANAGER]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [
+      ADMIN,
+      UNIT_TWO_CLERK,
+      NOBODY,
+      RENDERER_ONLY,
+      DRAFTER,
+      LEADER,
+      CLERK,
+      MAKER,
+      REVIEWER,
+      BOARD,
+      SOURCE,
+      SOURCE_UNIT,
+      REFERENCER,
+      EXT_CLERK,
+      EXT_OUTSIDE,
+      ISSUER,
+      DISTRIBUTOR,
+      LEGAL_ISSUER,
+      LEGAL_UNIT,
+      ISSUER_DISTRIBUTOR,
+      RECALLER,
+      RECORDS_MANAGER,
+      SECOND_MANAGER,
+      OUTSIDE_MANAGER,
+      INCOMING_CLERK,
+      INCOMING_CHIEF,
+      INCOMING_STAFF,
+      INCOMING_STAFF_TWO,
+      INCOMING_OUTSIDE,
+    ])
+      await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
     const all = ['doc.render', 'doc.type.manage', 'doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.verify', 'doc.signature.read', 'doc.file.upload'];
     for (const tenant of [TENANT_A, TENANT_B]) {
@@ -135,7 +172,16 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 15, 'DOC_ISSUER_DISTRIBUTOR', ['doc.outgoing.read', 'doc.outgoing.issue', 'doc.distribution.manage'], 30);
     await harness.seedRole(TENANT_A, 16, 'DOC_RECALLER', ['doc.outgoing.read', 'doc.outgoing.recall'], 40);
     await harness.seedRole(TENANT_A, 17, 'DOC_RECORDS_MANAGER', ['doc.outgoing.read', 'doc.outgoing.void_number', 'doc.register.read'], 40);
+    await harness.seedRole(TENANT_A, 18, 'DOC_INCOMING_CLERK', ['doc.incoming.receive', 'doc.incoming.register', 'doc.incoming.read', 'doc.file.upload', 'document_version.read', 'doc.outgoing.read'], 30);
+    await harness.seedRole(TENANT_A, 19, 'DOC_INCOMING_CHIEF', ['doc.incoming.assign', 'doc.incoming.read'], 40);
+    await harness.seedRole(TENANT_A, 20, 'DOC_INCOMING_STAFF', ['doc.incoming.process', 'doc.incoming.read', 'document_version.read', 'doc.outgoing.read'], 20);
     await harness.seedGrants(TENANT_A, [
+      { n: 30, member: INCOMING_CLERK, role: 18, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 31, member: INCOMING_CHIEF, role: 19, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 32, member: INCOMING_STAFF, role: 20, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 33, member: INCOMING_STAFF_TWO, role: 20, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 34, member: INCOMING_OUTSIDE, role: 18, kind: 'UNIT_ONLY', refs: [unitId(1)] },
+      { n: 35, member: INCOMING_OUTSIDE, role: 19, kind: 'UNIT_ONLY', refs: [unitId(1)] },
       { n: 20, member: RECALLER, role: 16, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 21, member: RECORDS_MANAGER, role: 17, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 22, member: SECOND_MANAGER, role: 17, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -174,11 +220,23 @@ export class DocApp {
     };
     this.app = await startTestApp({
       signingKey: SIGNING_KEY,
-      imports: [
-        CommandModule.register({ database: tenants }),
-        PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
+      imports: [CommandModule.register({ database: tenants }), PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) })],
+      controllers: [
+        DocumentsController,
+        DocumentVersionReadsController,
+        OutgoingController,
+        OutgoingDraftsController,
+        IssueRequestsController,
+        SignedDocumentsController,
+        DocumentFilesController,
+        RegistersController,
+        SignaturesController,
+        OutgoingIssuanceController,
+        DocumentDistributionsController,
+        OutgoingRecallController,
+        IncomingController,
+        IncomingReadsController,
       ],
-      controllers: [DocumentsController, DocumentVersionReadsController, OutgoingController, OutgoingDraftsController, IssueRequestsController, SignedDocumentsController, DocumentFilesController, RegistersController, SignaturesController, OutgoingIssuanceController, DocumentDistributionsController, OutgoingRecallController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DOCUMENT_FILE_PORT, useValue: this.files },
@@ -212,11 +270,7 @@ export class DocApp {
     if (this.objectRoot !== '') await rm(this.objectRoot, { recursive: true, force: true });
   }
 
-  async call(
-    method: 'GET' | 'POST',
-    url: string,
-    options: { member: number; tenantId?: string; body?: unknown; ifMatch?: string; key?: string },
-  ): Promise<Reply> {
+  async call(method: 'GET' | 'POST', url: string, options: { member: number; tenantId?: string; body?: unknown; ifMatch?: string; key?: string }): Promise<Reply> {
     const token = signTenantContext({ tenantId: options.tenantId ?? TENANT_A, membershipId: memberId(options.member), scopeVersion: 1 }, SIGNING_KEY);
     const headers: Record<string, string> = { [TENANT_HEADER]: token, 'content-type': 'application/json' };
     if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;

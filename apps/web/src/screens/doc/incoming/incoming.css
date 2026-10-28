@@ -1,0 +1,30 @@
+/* DOC-11..13: the intake form, the ledger of the incoming letters and the handling of one letter. */
+.incoming-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.incoming-meta {
+  display: block;
+  margin-top: 2px;
+}
+
+.incoming-chip {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.incoming-chip.warning {
+  border-color: var(--shell-warning, #b45309);
+}
+
+.incoming-chip.danger {
+  border-color: var(--shell-danger, #b91c1c);
+}

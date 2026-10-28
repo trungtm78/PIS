@@ -50,6 +50,7 @@ export interface RegisterPageAnchor {
 export interface RegisterPage {
   year?: number | undefined;
   direction?: RegisterDirection | undefined;
+  status?: 'OPEN' | 'CLOSED' | undefined;
   limit: number;
   after?: RegisterPageAnchor | undefined;
 }
@@ -208,13 +209,13 @@ export class NumberRegisterStore {
 
   /** Registers by code, in keyset pages of the code and the id. */
   async listRegisters(tx: TenantTx, page: RegisterPage, scope?: ScopeBuilder): Promise<RegisterRecord[]> {
-    const predicate = scope?.(6);
+    const predicate = scope?.(7);
     const rows = await tx.query<RegisterRow>(
       `select ${REGISTER_COLUMNS} from machvon.document_number_register
-        where ($1::int is null or year = $1) and ($2::text is null or direction = $2)
+        where ($1::int is null or year = $1) and ($2::text is null or direction = $2) and ($6::text is null or status = $6)
           and ($3::text is null or (register_code, id) > ($3, $4::uuid)) and ${predicate === undefined ? 'true' : IN_SCOPE(predicate.sql)}
         order by register_code, id limit $5`,
-      [page.year ?? null, page.direction ?? null, page.after?.code ?? null, page.after?.id ?? null, page.limit, ...(predicate?.params ?? [])],
+      [page.year ?? null, page.direction ?? null, page.after?.code ?? null, page.after?.id ?? null, page.limit, page.status ?? null, ...(predicate?.params ?? [])],
     );
     return rows.map(toRegister);
   }

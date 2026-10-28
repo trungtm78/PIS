@@ -124,7 +124,7 @@ export { LegalHoldStore } from './legal-hold-store.ts';
 export type { HoldKind, HoldPageAnchor, HoldScope, HoldScopeKind, LegalHoldRow, NewLegalHold, ScopeRef } from './legal-hold-store.ts';
 export { LEGAL_HOLD_SQLSTATE, asLegalHoldViolation, assertNotOnHold, isHeld } from './purge-guard.ts';
 export type { PurgeResource } from './purge-guard.ts';
-export { DocumentStore, VERSION_SCOPE_COLUMNS } from './document-store.ts';
+export { DocumentStore, VERSION_SCOPE_COLUMNS, versionScope } from './document-store.ts';
 export type { Classification, DocTypeRecord, DocumentKind, DocumentVersionRecord, LayoutProfileRecord, NewDocType, NewDocument, NewDocumentVersion, ScanStatus, SymbolKind, TemplateBlock, TemplateGroup, TemplateRecord, VersionPage, VersionPageAnchor, VersionStage } from './document-store.ts';
 export { DocumentTemplateStore, rendersWatermarked } from './document-template-store.ts';
 export type { ClosedRevision, ConfirmationStatus, LegalConfirmationInput, NewTemplateRevision, PackLoadResult, PackTemplate, TemplateDetail, TemplateFilter, TemplateOrigin, TemplatePack, TemplatePageRequest, TemplateStatus, TemplateSummary } from './document-template-store.ts';
@@ -502,6 +502,8 @@ export type { TreasuryConnectorView, TreasuryImportCounts, TreasuryImportInput, 
 export { PayTreasuryTransactionStore, TREASURY_MANUAL_PROVIDER } from './pay-treasury-transaction-store.ts';
 export type { ManualConfirmationInput, ManualConfirmationResult, TreasuryCallbackInput, TreasuryCallbackResult, TreasuryMatchStatus, TreasurySourceKind, TreasuryTransactionRow } from './pay-treasury-transaction-store.ts';
 export { QmsDiaryStore, conflictRefusal } from './qms-diary-store.ts';
+export { DocIncomingStore } from './doc-incoming-store.ts';
+export type { IncomingAssignment, IncomingFilters, IncomingPage, IncomingPageAnchor, IncomingRecord, NewIncoming } from './doc-incoming-store.ts';
 export { QmsPhotoStore } from './qms-photo-store.ts';
 export type { PhotoChecks as QmsPhotoChecks, PhotoFile as QmsPhotoFile, PhotoScopes as QmsPhotoScopes, QmsPhotoLine, QmsPhotoResult, RegisterPhotoInput as QmsRegisterPhotoInput } from './qms-photo-store.ts';
 export type {

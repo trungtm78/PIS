@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { AuditWriter, DocumentStore, TenantDatabase, scopePredicate, VERSION_SCOPE_COLUMNS } from '@machvon/db';
+import { AuditWriter, DocumentStore, TenantDatabase, versionScope } from '@machvon/db';
 import type { DocTypeRecord, DocumentVersionRecord } from '@machvon/db';
 import { DomainError, NOOP_METRICS } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, PdfRenderer, TenantContext } from '@machvon/kernel';
@@ -168,7 +168,7 @@ export class DocumentsController {
     const now = this.clock();
     // A version the caller cannot see is indistinguishable from one that does not exist.
     const version = await this.database.withTenant(tenant, (tx) =>
-      this.store.findVersion(tx, id, (first) => scopePredicate(access, DOWNLOAD_PERMISSION, now, VERSION_SCOPE_COLUMNS, first)),
+      this.store.findVersion(tx, id, versionScope(access, DOWNLOAD_PERMISSION, now, tenant.membershipId)),
     );
     if (version === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (version.scanStatus === 'PENDING') throw new DomainError('SCAN_PENDING', 409);
@@ -208,7 +208,7 @@ export class DocumentVersionReadsController {
       this.store.listVersions(
         tx,
         { limit: request.limit + 1, after: request.after === undefined ? undefined : { sortKey: request.after.code, id: request.after.id } },
-        (first) => scopePredicate(access, VERSION_READ_PERMISSION, now, VERSION_SCOPE_COLUMNS, first),
+        versionScope(access, VERSION_READ_PERMISSION, now, tenant.membershipId),
       ),
     );
     const shown = rows.slice(0, request.limit);
@@ -228,7 +228,7 @@ export class DocumentVersionReadsController {
   ): Promise<Record<string, unknown>> {
     const now = new Date();
     const row = await this.database.withTenant(tenant, (tx) =>
-      this.store.findVersion(tx, id, (first) => scopePredicate(access, VERSION_READ_PERMISSION, now, VERSION_SCOPE_COLUMNS, first)),
+      this.store.findVersion(tx, id, versionScope(access, VERSION_READ_PERMISSION, now, tenant.membershipId)),
     );
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return versionView(row);

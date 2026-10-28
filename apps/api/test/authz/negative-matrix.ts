@@ -180,6 +180,8 @@ export interface MatrixTargets {
   acceptanceId: string;
   /** A site diary in DRAFT (version 1) of the draft contract, written by someone other than the callers. */
   diaryId: string;
+  /** An incoming document that was only received (version 1), taken in by someone other than the callers. */
+  incomingId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1653,6 +1655,30 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   correctSiteDiary: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/corrections`, body: { content: { summary: 'Matrix probe of the correction' }, correction_reason: REASON, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+  },
+  receiveIncomingDocument: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/incoming-documents', body: { title: 'Matrix probe of an incoming letter', doc_type_code: 'CV', channel: 'UPLOAD', file_object_key: 'tenants/00000000-0000-4000-8000-000000000001/document/00000000-0000-4000-8000-000000000002', file_sha256: 'a'.repeat(64), sender_name: 'Matrix sender' } }),
+  },
+  registerIncomingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/registration`, ifMatch: '"1"', body: {} }),
+  },
+  assignIncomingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/assignment`, ifMatch: '"1"', body: { assigned_unit_id: '00000000-0000-4000-8000-0000000000e7' } }),
+  },
+  startIncomingDocumentProcessing: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/processing`, ifMatch: '"1"', body: {} }),
+  },
+  resolveIncomingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/resolution`, ifMatch: '"1"', body: { resolution_summary: 'Matrix probe of the resolution' } }),
+  },
+  rejectIncomingDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/rejection`, ifMatch: '"1"', body: { rejection_reason: 'Matrix probe of the rejection of a letter' } }),
   },
   registerSitePhoto: {
     referencesTenantIds: true,

@@ -1,3 +1,4 @@
+import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
 import { AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
@@ -145,6 +146,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     explanationOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => explanationOverdue.run(tx, ctx.membershipId, now)) },
     packageExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => packageExpiry.run(tx, ctx.membershipId, now)) },
     transferApply: { run: (ctx, now) => applyDueTransfers(deps.tenants, transferApply, ctx, now) },
+    incomingOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => markOverdueIncoming(tx, ctx.tenantId, now, { audit, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) })) },
     reconciliationOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => reconciliationOverdue.run(tx, ctx.membershipId, now)) },
     settlementDeadline: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => settlementDeadlines.run(tx, ctx.membershipId, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },

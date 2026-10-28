@@ -184,11 +184,11 @@ export class WorkCalendarStore {
    * stores a deadline calls it with the year of the start. A year without a published version is absent from the set, and a
    * deadline that needs it is refused rather than guessed.
    */
-  async source(tx: TenantTx, calendarCode: string, fromYear: number): Promise<WorkCalendarSource> {
+  async source(tx: TenantTx, calendarCode: string, fromYear: number, toYear: number = fromYear + YEARS_AHEAD): Promise<WorkCalendarSource> {
     const rows = await tx.query<Row>(
       `select ${COLUMNS} from machvon.work_calendar_version
         where calendar_code = $1 and status = 'Published' and year between $2::int and $3::int`,
-      [calendarCode, fromYear, fromYear + YEARS_AHEAD],
+      [calendarCode, fromYear, Math.max(toYear, fromYear)],
     );
     const byYear = new Map(rows.map((row) => [row.year, toRow(row).content]));
     return { forYear: (year) => byYear.get(year) };

@@ -53,6 +53,7 @@ import {
   ACCEPTANCE_FIXTURES,
   ADVANCE_FIXTURES,
   DIARY_FIXTURES,
+  INCOMING_FIXTURES,
   PHOTO_FIXTURES,
   BOQ_FIXTURES,
   CHANGE_FIXTURES,
@@ -607,6 +608,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'correctSiteDiary',
   'resolveDiaryConflict',
   'registerSitePhoto',
+  'receiveIncomingDocument',
+  'registerIncomingDocument',
+  'assignIncomingDocument',
+  'startIncomingDocumentProcessing',
+  'resolveIncomingDocument',
+  'rejectIncomingDocument',
+  'listIncomingDocuments',
+  'getIncomingDocument',
   'getSitePhotoChecks',
   'get_resources_site_photo',
   'get_resources_site_photo_id',
@@ -1176,6 +1185,11 @@ const INSERT_ACCEPTANCE = `insert into machvon.quality_acceptance
   (tenant_id, id, project_id, contract_id, inspection_id, record_no, acceptance_scope, document_version_id, status, required_roles, content_hash, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, $6, 'WORK_ITEM', $7, 'DRAFT', '["CONTRACTOR","SUPERVISOR","OWNER"]'::jsonb, repeat('a', 64), $8, $8, 1) on conflict do nothing`;
 
+const INSERT_INCOMING_DOCUMENT = `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by)
+  values ($1, $2, 'INCOMING', 'QD', $3, 'INTERNAL', $4, $4) on conflict do nothing`;
+const INSERT_INCOMING = `insert into machvon.incoming_document (tenant_id, id, document_id, status, channel, received_at, received_by, sender_name, original_symbol, original_issued_on, created_by, updated_by)
+  values ($1, $2, $3, 'RECEIVED', 'UPLOAD', now(), $4, $5, $6, date '2026-10-19', $4, $4) on conflict do nothing`;
+
 const INSERT_PHOTO = `insert into machvon.site_photo
   (tenant_id, id, project_id, contract_id, client_operation_id, object_key, file_sha256, scan_status, caption, uploaded_by, created_by)
   values ($1, $2, $3, $4, $5, $6, $7, 'CLEAN', $8, $9, $9) on conflict do nothing`;
@@ -1664,6 +1678,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_ACCEPTANCE, [tenantId, acceptance.id, project.id, draft.id, inspection.id, acceptance.recordNo, documents.versionId, ACTOR_ID]);
     const diary = DIARY_FIXTURES[tenant];
     await client.query(INSERT_DIARY, [tenantId, diary.id, project.id, draft.id, diary.operationId, JSON.stringify({ summary: diary.summary }), MEMBERSHIP_ID, diary.diaryNo]);
+    const incoming = INCOMING_FIXTURES[tenant];
+    await client.query(INSERT_INCOMING_DOCUMENT, [tenantId, incoming.documentId, incoming.title, MEMBERSHIP_ID]);
+    await client.query(INSERT_INCOMING, [tenantId, incoming.id, incoming.documentId, MEMBERSHIP_ID, incoming.sender, incoming.symbol]);
     const photo = PHOTO_FIXTURES[tenant];
     await client.query(INSERT_PHOTO, [tenantId, photo.id, project.id, draft.id, photo.operationId, `tenants/${tenantId}/site_photo/${photo.id}`, photo.sha256, photo.caption, MEMBERSHIP_ID]);
     const measurement = MEASUREMENT_FIXTURES[tenant];

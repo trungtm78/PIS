@@ -305,6 +305,12 @@ export const DIARY_FIXTURES: Readonly<Record<TenantName, { id: string; diaryNo: 
   'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', diaryNo: 'BETA-DIARY-NO-0001', summary: 'Beta site diary summary 0001', operationId: '00000000-0000-4000-b0ce-000000000002' },
 };
 
+/** The incoming letter of each tenant, only received (its sender and symbol are distinctive; tenant data). */
+export const INCOMING_FIXTURES: Readonly<Record<TenantName, { id: string; documentId: string; title: string; sender: string; symbol: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d0-000000000001', documentId: '00000000-0000-4000-a0d0-000000000002', title: 'Alpha incoming letter title 0001', sender: 'Alpha Ministry Sender 0001', symbol: 'ALPHA-IN-0001/SYM' },
+  'TNT-B': { id: '00000000-0000-4000-b0d0-000000000001', documentId: '00000000-0000-4000-b0d0-000000000002', title: 'Beta incoming letter title 0001', sender: 'Beta Ministry Sender 0001', symbol: 'BETA-IN-0001/SYM' },
+};
+
 /** The registered photo of the contract of each tenant (its caption and its hash are distinctive; tenant data). */
 export const PHOTO_FIXTURES: Readonly<Record<TenantName, { id: string; operationId: string; sha256: string; caption: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0cf-000000000001', operationId: '00000000-0000-4000-a0cf-000000000002', sha256: 'a0cf'.repeat(16), caption: 'Alpha site photo caption 0001' },
@@ -1092,6 +1098,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'site diary number', value: DIARY_FIXTURES[tenant].diaryNo },
     { kind: 'site diary summary', value: DIARY_FIXTURES[tenant].summary },
     { kind: 'site photo id', value: PHOTO_FIXTURES[tenant].id },
+    { kind: 'incoming document id', value: INCOMING_FIXTURES[tenant].id },
+    { kind: 'incoming document title', value: INCOMING_FIXTURES[tenant].title },
+    { kind: 'incoming document sender', value: INCOMING_FIXTURES[tenant].sender },
+    { kind: 'incoming document symbol', value: INCOMING_FIXTURES[tenant].symbol },
     { kind: 'site photo caption', value: PHOTO_FIXTURES[tenant].caption },
     { kind: 'site photo hash', value: PHOTO_FIXTURES[tenant].sha256 },
     { kind: 'quality acceptance record no', value: ACCEPTANCE_FIXTURES[tenant].recordNo },
