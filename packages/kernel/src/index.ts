@@ -681,3 +681,5 @@ export { KEY_ROTATION_HOURS, KEY_SCOPES, assertKeyDraft, fingerprintOf, rotation
 export type { KeyDraft, KeyScope, LiteLlmAdminPort, SecretVaultPort } from './llm-keys.ts';
 export { BUDGET_PERIODS, BUDGET_SCOPE_ORDER, assertBudgetDraft, assertPriceDraft, availableOf, costOf, crossesThreshold, decideReservation, estimateVnd, fromScaled, periodStartOf, settlementOf, toScaled } from './llm-finops.ts';
 export type { AttemptCost, BudgetPeriod, BudgetScope, CachedSemantics, Price, ReserveDecision, ScopeBalance, Usage } from './llm-finops.ts';
+export { DEFAULT_THRESHOLDS, EFFORTS, READ_ONLY_TOOLS, assertDatasetDraft, assertProfileDraft, assertPromptDraft, assertSignable, judgeMetrics, metricsJson, parseRoutingPolicy, parseThresholds, releaseGate, sha256Of, thresholdsJson } from './llm-eval.ts';
+export type { DatasetDraft, EvalCase, EvalMetrics, EvalRunnerPort, EvalStatus, GateInput, GateResult, ProfileDraft, PromptDraft, RoutingPolicy, RunView, Thresholds } from './llm-eval.ts';

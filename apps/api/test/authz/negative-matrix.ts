@@ -1171,6 +1171,70 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  // The evaluation gate of the AI gateway is the tenant's (ST-LLM-004): a caller without the right is refused before the body is read.
+  approveAiModel: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-models/00000000-0000-4000-8000-0000000000e6/approval', ifMatch: '"1"', body: {} }),
+  },
+  createAiPromptVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/ai-prompts',
+      body: { task_type: 'SUMMARY', name: 'matrix', template_object_key: 'tenants/matrix/prompts/a.txt', template_sha256: 'a'.repeat(64), input_schema: { type: 'object', properties: { text: { type: 'string' } } }, output_schema: { type: 'object', properties: { text: { type: 'string' } } } },
+    }),
+  },
+  reviseAiPromptVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'PUT',
+      path: '/ai-prompts/00000000-0000-4000-8000-0000000000e7',
+      ifMatch: '"1"',
+      body: { task_type: 'SUMMARY', name: 'matrix', template_object_key: 'tenants/matrix/prompts/a.txt', template_sha256: 'a'.repeat(64), input_schema: { type: 'object', properties: { text: { type: 'string' } } }, output_schema: { type: 'object', properties: { text: { type: 'string' } } } },
+    }),
+  },
+  approveAiPromptVersion: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-prompts/00000000-0000-4000-8000-0000000000e7/approval', ifMatch: '"1"', body: {} }),
+  },
+  createAiEvalDataset: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-eval-datasets', body: { dataset_code: 'EV-MATRIX', task_type: 'SUMMARY', source: 'SYNTHETIC', cases: [{ case_code: 'c1', input_ref: 'inputs/c1.txt', expected: {} }] } }),
+  },
+  createModelProfileVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/model-profiles',
+      body: {
+        task_type: 'SUMMARY',
+        model_id: 'matrix-model',
+        allowed_model_ids: ['00000000-0000-4000-8000-0000000000e6'],
+        output_cap: 1000,
+        max_input_tokens: 8000,
+        timeout_ms: 30000,
+        concurrency_limit: 4,
+        output_schema: {},
+        tool_allowlist: [],
+        max_classification: 'PUBLIC',
+        routing_policy: { routes: ['SELF_HOSTED'] },
+        prompt_version_id: '00000000-0000-4000-8000-0000000000e7',
+        retention_days: 90,
+      },
+    }),
+  },
+  startAiEvalRun: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-eval-runs', body: { profile_version_id: '00000000-0000-4000-8000-0000000000e8', dataset_version_id: '00000000-0000-4000-8000-0000000000e9', route_class: 'SELF_HOSTED' } }),
+  },
+  signAiEvalRun: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-eval-runs/00000000-0000-4000-8000-0000000000ea/signature', ifMatch: '"1"', body: { decision: 'PASS', comment: 'Matrix probe of the signature' } }),
+  },
+  post_model_profiles_id_publish: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/model-profiles/00000000-0000-4000-8000-0000000000e8/publish', ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix probe of the release', evidence_ids: [] } }),
+  },
   post_dashboard_queries: {
     referencesTenantIds: false,
     build: () => ({

@@ -6,11 +6,13 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
+import { LlmEvalController } from '../../src/modules/llm/eval.controller';
 import { LlmFinopsController } from '../../src/modules/llm/finops.controller';
 import { LlmKeyController } from '../../src/modules/llm/key.controller';
+import { MockEvalRunner } from '../../src/modules/llm/mock-eval-runner';
 import { InMemoryVault, MockLiteLlm } from '../../src/modules/llm/mock-key-ports';
 import { LlmRegistryController } from '../../src/modules/llm/registry.controller';
-import { LLM_ADMIN, LLM_VAULT } from '../../src/modules/llm/tokens';
+import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_VAULT } from '../../src/modules/llm/tokens';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -29,6 +31,11 @@ export const DUAL = 7; // holds the right to register and the right to approve: 
 export const KEY_ADMIN = 8; // makes, rotates and revokes the virtual keys, and lists them
 export const KEY_READER = 9; // lists the keys only
 export const FINOPS = 10; // sets the budgets and the prices, reads the spend and the reservations
+export const PROMPT_AUTHOR = 11; // drafts prompts, datasets and profiles, and starts evaluations
+export const PROMPT_APPROVER = 12; // approves prompts
+export const EXPERT = 13; // signs evaluations
+export const PUBLISHER = 14; // publishes profiles
+export const EVAL_BOTH = 15; // starts and signs evaluations: the rule, not the guard, keeps the two apart
 export const ROOT = 1;
 export const BRANCH = 2;
 
@@ -43,6 +50,7 @@ export class LlmApp {
   app!: RunningApp;
   readonly litellm = new MockLiteLlm();
   readonly vault = new InMemoryVault();
+  readonly runner = new MockEvalRunner();
 
   async start(): Promise<void> {
     const { harness } = this;
@@ -52,7 +60,7 @@ export class LlmApp {
       { n: BRANCH, path: `/${unitId(BRANCH)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [AI_ADMIN, SECURITY, SECURITY_TWO, READER, NOBODY, SCOPED, DUAL, KEY_ADMIN, KEY_READER, FINOPS]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [AI_ADMIN, SECURITY, SECURITY_TWO, READER, NOBODY, SCOPED, DUAL, KEY_ADMIN, KEY_READER, FINOPS, PROMPT_AUTHOR, PROMPT_APPROVER, EXPERT, PUBLISHER, EVAL_BOTH]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, AI_ADMIN, ROOT);
     const MANAGE = ['llm.provider.manage', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
     const APPROVE = ['llm.provider.approve', 'llm.policy.approve', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
@@ -64,6 +72,12 @@ export class LlmApp {
     await harness.seedRole(TENANT_A, 6, 'AI_KEY_ADMIN', ['llm.key.manage', 'llm.key.read'], 50);
     await harness.seedRole(TENANT_A, 7, 'AI_KEY_READER', ['llm.key.read'], 20);
     await harness.seedRole(TENANT_A, 8, 'AI_FINOPS', ['llm.finops', 'budget_reservation.read', 'llm.provider.read'], 50);
+    const EVAL_READS = ['llm.prompt.read', 'llm.eval.read', 'model_profile_version.read', 'ai_eval_run.read', 'llm.provider.read'];
+    await harness.seedRole(TENANT_A, 9, 'AI_PROMPT_AUTHOR', ['llm.prompt.manage', 'llm.eval.manage', 'llm.profile.manage', ...EVAL_READS], 50);
+    await harness.seedRole(TENANT_A, 10, 'AI_PROMPT_APPROVER', ['llm.prompt.approve', ...EVAL_READS], 50);
+    await harness.seedRole(TENANT_A, 11, 'AI_EXPERT', ['llm.eval.sign', ...EVAL_READS], 50);
+    await harness.seedRole(TENANT_A, 12, 'AI_PUBLISHER', ['llm.publish', ...EVAL_READS], 50);
+    await harness.seedRole(TENANT_A, 13, 'AI_EVAL_BOTH', ['llm.eval.manage', 'llm.eval.sign', ...EVAL_READS], 50);
     await harness.seedRole(TENANT_B, 1, 'AI_ADMIN', [...MANAGE, 'llm.key.manage', 'llm.key.read', 'llm.finops', 'budget_reservation.read'], 50);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: AI_ADMIN, role: 1, kind: 'TENANT' },
@@ -75,6 +89,11 @@ export class LlmApp {
       { n: 7, member: KEY_ADMIN, role: 6, kind: 'TENANT' },
       { n: 8, member: KEY_READER, role: 7, kind: 'TENANT' },
       { n: 9, member: FINOPS, role: 8, kind: 'TENANT' },
+      { n: 10, member: PROMPT_AUTHOR, role: 9, kind: 'TENANT' },
+      { n: 11, member: PROMPT_APPROVER, role: 10, kind: 'TENANT' },
+      { n: 12, member: EXPERT, role: 11, kind: 'TENANT' },
+      { n: 13, member: PUBLISHER, role: 12, kind: 'TENANT' },
+      { n: 14, member: EVAL_BOTH, role: 13, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: AI_ADMIN, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -84,11 +103,12 @@ export class LlmApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController],
+      controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: LLM_ADMIN, useValue: this.litellm },
         { provide: LLM_VAULT, useValue: this.vault },
+        { provide: LLM_EVAL_RUNNER, useValue: this.runner },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });
@@ -99,7 +119,7 @@ export class LlmApp {
     await this.harness.stop();
   }
 
-  async call(method: 'GET' | 'POST', url: string, options: { member: number; tenantId?: string; body?: unknown; key?: string; ifMatch?: string }): Promise<Reply> {
+  async call(method: 'GET' | 'POST' | 'PUT', url: string, options: { member: number; tenantId?: string; body?: unknown; key?: string; ifMatch?: string }): Promise<Reply> {
     const token = signTenantContext({ tenantId: options.tenantId ?? TENANT_A, membershipId: memberId(options.member), scopeVersion: 1 }, SIGNING_KEY);
     const headers: Record<string, string> = { [TENANT_HEADER]: token, 'content-type': 'application/json' };
     if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;
@@ -126,7 +146,7 @@ export class LlmApp {
 
   /** Removes the registry of a tenant so that a test starts from nothing. */
   reset(tenantId: string = TENANT_A): Promise<unknown[]> {
-    return this.harness.owner(tenantId, [['delete from machvon.ai_virtual_key'], ['delete from machvon.llm_attempt'], ['update machvon.ai_request set budget_reservation_id = null'], ['delete from machvon.budget_reservation'], ['delete from machvon.ai_request'], ['delete from machvon.ai_budget_counter'], ['delete from machvon.ai_budget'], ['delete from machvon.pricing_version'], ['delete from machvon.ai_model'], ['delete from machvon.ai_provider'], ['delete from machvon.ai_classification_policy_version']]);
+    return this.harness.owner(tenantId, [['delete from machvon.ai_eval_run'], ['delete from machvon.model_profile_version'], ['delete from machvon.ai_eval_case'], ['delete from machvon.ai_eval_dataset_version'], ['delete from machvon.ai_prompt_version'], ['delete from machvon.ai_virtual_key'], ['delete from machvon.llm_attempt'], ['update machvon.ai_request set budget_reservation_id = null'], ['delete from machvon.budget_reservation'], ['delete from machvon.ai_request'], ['delete from machvon.ai_budget_counter'], ['delete from machvon.ai_budget'], ['delete from machvon.pricing_version'], ['delete from machvon.ai_model'], ['delete from machvon.ai_provider'], ['delete from machvon.ai_classification_policy_version']]);
   }
 }
 

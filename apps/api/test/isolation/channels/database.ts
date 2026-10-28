@@ -591,6 +591,21 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getAiSpendSummary',
   'get_resources_budget_reservation',
   'get_resources_budget_reservation_id',
+  'approveAiModel',
+  'createAiPromptVersion',
+  'reviseAiPromptVersion',
+  'approveAiPromptVersion',
+  'listAiPrompts',
+  'createAiEvalDataset',
+  'listAiEvalDatasets',
+  'createModelProfileVersion',
+  'post_model_profiles_id_publish',
+  'get_resources_model_profile_version',
+  'get_resources_model_profile_version_id',
+  'startAiEvalRun',
+  'signAiEvalRun',
+  'get_resources_ai_eval_run',
+  'get_resources_ai_eval_run_id',
   'post_dashboard_queries',
   'explainBiMetric',
   'refreshBiQueryContext',
@@ -1297,6 +1312,15 @@ const INSERT_LLM_RESERVATION = `insert into machvon.budget_reservation
 const INSERT_LLM_PRICE = `insert into machvon.pricing_version
   (tenant_id, id, provider, model_id, currency, effective_from, input_per_million, cached_per_million, output_per_million, source_url, model_ref_id, cached_semantics, reasoning_in_output, fx_rate_to_vnd, fx_source)
   values ($1, $2, 'Isolation provider', $4, 'USD', '2026-01-01', 1, 1, 1, $5, $3, 'INCLUDED_IN_INPUT', true, 25000, 'isolation') on conflict do nothing`;
+const INSERT_LLM_PROMPT = `insert into machvon.ai_prompt_version
+  (tenant_id, id, task_type, name, revision, template_object_key, template_sha256, input_schema, output_schema, status, created_by, updated_by)
+  values ($1, $2, 'SUMMARY', $3, 1, 'tenants/isolation/prompts/p.txt', $4, '{}'::jsonb, '{}'::jsonb, 'DRAFT', $5, $5) on conflict do nothing`;
+const INSERT_LLM_DATASET = `insert into machvon.ai_eval_dataset_version
+  (tenant_id, id, dataset_code, revision, task_type, source, max_classification, case_count, status, created_by, updated_by)
+  values ($1, $2, $3, 1, 'SUMMARY', 'SYNTHETIC', 'PUBLIC', 0, 'APPROVED', $4, $4) on conflict do nothing`;
+const INSERT_LLM_RUN = `insert into machvon.ai_eval_run
+  (tenant_id, id, profile_version_id, dataset_version_id, results_json, cost, review_status, route_class, started_by, started_at)
+  values ($1, $2, $3, $4, '{}'::jsonb, 0, 'PENDING_SIGNATURE', 'SELF_HOSTED', $5, now()) on conflict do nothing`;
 const INSERT_LLM_POLICY = `insert into machvon.ai_classification_policy_version
   (tenant_id, id, revision, matrix_json, international_enabled, legal_basis, effective_from, status, created_by, updated_by)
   values ($1, $2, 1, '{"PUBLIC":["SELF_HOSTED"],"INTERNAL":["SELF_HOSTED"],"CONFIDENTIAL":["SELF_HOSTED"],"PERSONAL":["SELF_HOSTED"],"IMPORTANT_CORE":["SELF_HOSTED"]}'::jsonb, false, $3, now(), 'DRAFT', $4, $4) on conflict do nothing`;
@@ -1583,6 +1607,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_KEY, [tenantId, llm.keyId, llm.keyAlias, llm.keyLiteLlmRef, llm.keyFingerprint, llm.keySecretRef, ACTOR_ID]);
     await client.query(INSERT_LLM_POLICY, [tenantId, llm.policyId, llm.policyBasis, ACTOR_ID]);
     await client.query(INSERT_LLM_PROFILE, [tenantId, llm.profileId]);
+    await client.query(INSERT_LLM_PROMPT, [tenantId, llm.promptId, llm.promptName, llm.promptSha, ACTOR_ID]);
+    await client.query(INSERT_LLM_DATASET, [tenantId, llm.datasetId, llm.datasetCode, ACTOR_ID]);
+    await client.query(INSERT_LLM_RUN, [tenantId, llm.runId, llm.profileId, llm.datasetId, ACTOR_ID]);
     await client.query(INSERT_LLM_REQUEST, [tenantId, llm.requestId, llm.profileId, llm.policyId, ACTOR_ID, 'c'.repeat(64)]);
     await client.query(INSERT_LLM_BUDGET, [tenantId, llm.budgetId, ACTOR_ID]);
     await client.query(INSERT_LLM_RESERVATION, [tenantId, llm.reservationId, llm.requestId, llm.reservationNote]);

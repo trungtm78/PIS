@@ -8,10 +8,10 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from '../mne/components';
 import '../dis/dis.css';
-import { useModels, useProviders, useRegisterModel } from './hooks';
+import { useApproveModel, useModels, useProviders, useRegisterModel } from './hooks';
 import { capabilityLabel, classificationLabel, modelStatusLabel, problemMessage, refusalMessage } from './labels';
-import { CAPABILITIES, CLASSIFICATIONS, EMPTY_MODEL, PROVIDER_MANAGE, describeLlmProblem, validateModel } from './llm-model';
-import type { Capability, Classification, ModelErrors, ModelValues, Provider } from './llm-model';
+import { CAPABILITIES, CLASSIFICATIONS, EMPTY_MODEL, PROVIDER_APPROVE, PROVIDER_MANAGE, describeLlmProblem, validateModel } from './llm-model';
+import type { Capability, Classification, ModelEntry, ModelErrors, ModelValues, Provider } from './llm-model';
 
 /**
  * LLM-03: the catalogue of the models (ST-LLM-001, LLM F2): for each model the provider that serves it, the window it reads and the output it gives, the most sensitive class of data it may be sent (never above its
@@ -27,13 +27,18 @@ function ModelsContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const may = (permissions === undefined || permissions.includes(PROVIDER_MANAGE)) && mode !== 'READ_ONLY';
+  const mayApprove = (permissions === undefined || permissions.includes(PROVIDER_APPROVE)) && mode !== 'READ_ONLY';
   const [params, setParams] = useSearchParams();
   const providers = useProviders();
   const models = useModels();
   const asked = params.get('provider') ?? '';
   const providerOf = (id: string): Provider | undefined => (providers.data ?? []).find((provider) => provider.id === id);
   const shown = (models.data ?? []).filter((model) => asked === '' || model.providerId === asked);
-  const state = useScreenState({ isLoading: providers.isLoading || models.isLoading, error: providers.error ?? models.error, data: models.data === undefined || providers.data === undefined ? undefined : { rows: models.data } });
+  const state = useScreenState({
+    isLoading: providers.isLoading || models.isLoading,
+    error: providers.error ?? models.error,
+    data: models.data === undefined || providers.data === undefined ? undefined : { rows: models.data },
+  });
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -74,6 +79,7 @@ function ModelsContent({ route }: ScreenProps) {
               <th scope="col">{t('llm.models.column.max')}</th>
               <th scope="col">{t('llm.models.column.capabilities')}</th>
               <th scope="col">{t('llm.models.column.status')}</th>
+              <th scope="col">{t('llm.models.column.action')}</th>
             </tr>
           </thead>
           <tbody>
@@ -91,6 +97,7 @@ function ModelsContent({ route }: ScreenProps) {
                   {modelStatusLabel(t, model.status)}
                   {model.status === 'APPROVED' ? null : <span className="sub"> · {t('llm.models.notUsable')}</span>}
                 </td>
+                <td>{mayApprove && (model.status === 'PROPOSED' || model.status === 'EVAL_PENDING') ? <ApproveModel model={model} /> : null}</td>
               </tr>
             ))}
           </tbody>
@@ -99,6 +106,24 @@ function ModelsContent({ route }: ScreenProps) {
         {may ? <ModelForm providers={providers.data ?? []} /> : null}
       </StateBoundary>
     </section>
+  );
+}
+
+function ApproveModel({ model }: { model: ModelEntry }) {
+  const { t } = useTranslation();
+  const approve = useApproveModel();
+  const refused = approve.isError ? describeLlmProblem(approve.error) : undefined;
+  return (
+    <>
+      <button type="button" className="btn" disabled={approve.isPending} onClick={() => approve.mutate({ modelId: model.id, version: model.version })}>
+        {t('llm.models.approve')}
+      </button>
+      {refused === undefined ? null : (
+        <p className="callout warning" role="alert" data-testid="model-approve-refused">
+          {refusalMessage(t, refused.reason, refused.detail)}
+        </p>
+      )}
+    </>
   );
 }
 

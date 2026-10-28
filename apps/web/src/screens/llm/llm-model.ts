@@ -98,6 +98,7 @@ export interface ModelEntry {
   maxClassification: Classification;
   capabilities: Capability[];
   status: ModelStatus;
+  version: number;
 }
 
 export function toModel(raw: unknown): ModelEntry | undefined {
@@ -109,9 +110,21 @@ export function toModel(raw: unknown): ModelEntry | undefined {
   const status = oneOf(MODEL_STATUSES, row?.status);
   const contextWindow = whole(row?.context_window);
   const maxOutput = whole(row?.max_output);
-  if (row === undefined || id === undefined || providerId === undefined || modelId === undefined || max === undefined || status === undefined || contextWindow === undefined || maxOutput === undefined) return undefined;
+  const version = whole(row?.version);
+  if (row === undefined || id === undefined || providerId === undefined || modelId === undefined || max === undefined || status === undefined || contextWindow === undefined || maxOutput === undefined || version === undefined) return undefined;
   const capabilities = asRecord(row.capabilities) ?? {};
-  return { id, providerId, modelId, modelVersion: nullableText(row.model_version), contextWindow, maxOutput, maxClassification: max, capabilities: CAPABILITIES.filter((name) => capabilities[name] === true), status };
+  return {
+    id,
+    providerId,
+    modelId,
+    modelVersion: nullableText(row.model_version),
+    contextWindow,
+    maxOutput,
+    maxClassification: max,
+    capabilities: CAPABILITIES.filter((name) => capabilities[name] === true),
+    status,
+    version,
+  };
 }
 
 export interface PolicyEntry {
@@ -377,7 +390,10 @@ export function validateKey(values: KeyValues, today: string): KeyErrors {
   else if (values.expiresOn <= today) errors.expiresOn = 'pastDate';
   // A key that reaches no model serves nothing: the screen asks for at least one.
   if (values.modelIds.length === 0) errors.modelIds = 'needsModel';
-  for (const [field, value] of [['rpmLimit', values.rpmLimit], ['tpmLimit', values.tpmLimit]] as const) {
+  for (const [field, value] of [
+    ['rpmLimit', values.rpmLimit],
+    ['tpmLimit', values.tpmLimit],
+  ] as const) {
     if (value.trim() !== '' && (!/^[0-9]{1,8}$/.test(value.trim()) || Number(value) < 1)) errors[field] = 'invalidNumber';
   }
   return errors;
@@ -428,7 +444,16 @@ export function toCounter(raw: unknown): Counter | null {
   const held = amount(row?.reserved_open_vnd);
   const available = amount(row?.available_vnd);
   if (row === undefined || limit === undefined || settled === undefined || held === undefined || available === undefined) return null;
-  return { periodStart: text(row.period_start) ?? '', limit, settled, held, available, requests: whole(row.request_count) ?? 0, exceptions: whole(row.exception_count) ?? 0, blocked: row.blocked === true };
+  return {
+    periodStart: text(row.period_start) ?? '',
+    limit,
+    settled,
+    held,
+    available,
+    requests: whole(row.request_count) ?? 0,
+    exceptions: whole(row.exception_count) ?? 0,
+    blocked: row.blocked === true,
+  };
 }
 
 export interface BudgetEntry {
@@ -485,7 +510,17 @@ export interface BudgetValues {
   maxConcurrent: string;
   effectiveFrom: string;
 }
-export const EMPTY_BUDGET: BudgetValues = { scope: 'TENANT', scopeRefId: '', period: 'MONTH', limit: '', softThresholdPct: '80', hardStop: true, maxRequestsPerDay: '', maxConcurrent: '', effectiveFrom: '' };
+export const EMPTY_BUDGET: BudgetValues = {
+  scope: 'TENANT',
+  scopeRefId: '',
+  period: 'MONTH',
+  limit: '',
+  softThresholdPct: '80',
+  hardStop: true,
+  maxRequestsPerDay: '',
+  maxConcurrent: '',
+  effectiveFrom: '',
+};
 export type BudgetProblem = 'required' | 'invalidReference' | 'invalidAmount' | 'invalidPercent' | 'invalidNumber' | 'invalidDate';
 export type BudgetErrors = Partial<Record<'scopeRefId' | 'limit' | 'softThresholdPct' | 'maxRequestsPerDay' | 'maxConcurrent' | 'effectiveFrom', BudgetProblem>>;
 
@@ -500,7 +535,10 @@ export function validateBudget(values: BudgetValues): BudgetErrors {
   if (!/^[0-9]{1,24}$/.test(values.limit.trim())) errors.limit = values.limit.trim() === '' ? 'required' : 'invalidAmount';
   const percent = Number(values.softThresholdPct);
   if (!/^[0-9]{1,3}$/.test(values.softThresholdPct.trim()) || percent < 1 || percent > 100) errors.softThresholdPct = 'invalidPercent';
-  for (const [field, value] of [['maxRequestsPerDay', values.maxRequestsPerDay], ['maxConcurrent', values.maxConcurrent]] as const) {
+  for (const [field, value] of [
+    ['maxRequestsPerDay', values.maxRequestsPerDay],
+    ['maxConcurrent', values.maxConcurrent],
+  ] as const) {
     if (value.trim() !== '' && (!/^[0-9]{1,10}$/.test(value.trim()) || Number(value) < 1 || Number(value) > 2_147_483_647)) errors[field] = 'invalidNumber';
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(values.effectiveFrom) || Number.isNaN(Date.parse(values.effectiveFrom))) errors.effectiveFrom = 'invalidDate';
@@ -578,7 +616,20 @@ export interface PriceValues {
   fxRateToVnd: string;
   fxSource: string;
 }
-export const EMPTY_PRICE: PriceValues = { modelRefId: '', provider: '', currency: 'USD', inputPerMillion: '', cachedPerMillion: '', outputPerMillion: '', cachedSemantics: 'INCLUDED_IN_INPUT', reasoningInOutput: true, effectiveFrom: '', sourceUrl: '', fxRateToVnd: '', fxSource: '' };
+export const EMPTY_PRICE: PriceValues = {
+  modelRefId: '',
+  provider: '',
+  currency: 'USD',
+  inputPerMillion: '',
+  cachedPerMillion: '',
+  outputPerMillion: '',
+  cachedSemantics: 'INCLUDED_IN_INPUT',
+  reasoningInOutput: true,
+  effectiveFrom: '',
+  sourceUrl: '',
+  fxRateToVnd: '',
+  fxSource: '',
+};
 export type PriceProblem = 'required' | 'invalidCurrency' | 'invalidRate' | 'invalidDate' | 'invalidSource' | 'invalidFx';
 export type PriceErrors = Partial<Record<'modelRefId' | 'provider' | 'currency' | 'inputPerMillion' | 'cachedPerMillion' | 'outputPerMillion' | 'effectiveFrom' | 'sourceUrl' | 'fxRateToVnd' | 'fxSource', PriceProblem>>;
 
@@ -589,7 +640,11 @@ export function validatePrice(values: PriceValues): PriceErrors {
   if (values.modelRefId === '') errors.modelRefId = 'required';
   if (values.provider.trim().length < 2) errors.provider = 'required';
   if (!/^[A-Z]{3}$/.test(values.currency.trim())) errors.currency = 'invalidCurrency';
-  for (const [field, value] of [['inputPerMillion', values.inputPerMillion], ['cachedPerMillion', values.cachedPerMillion], ['outputPerMillion', values.outputPerMillion]] as const) {
+  for (const [field, value] of [
+    ['inputPerMillion', values.inputPerMillion],
+    ['cachedPerMillion', values.cachedPerMillion],
+    ['outputPerMillion', values.outputPerMillion],
+  ] as const) {
     if (!RATE.test(value.trim())) errors[field] = 'invalidRate';
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(values.effectiveFrom) || Number.isNaN(Date.parse(values.effectiveFrom))) errors.effectiveFrom = 'invalidDate';
@@ -635,7 +690,16 @@ export function toReservation(raw: unknown): ReservationEntry | undefined {
   const held = amount(row?.reserved_amount);
   const status = oneOf(RESERVATION_STATUSES, row?.status);
   if (row === undefined || id === undefined || requestId === undefined || held === undefined || status === undefined) return undefined;
-  return { id, requestId, amount: held, status, expiresAt: text(row.expires_at) ?? '', settledAmount: amount(row.settled_amount) ?? null, releasedAmount: amount(row.released_amount) ?? null, note: nullableText(row.reconcile_note) };
+  return {
+    id,
+    requestId,
+    amount: held,
+    status,
+    expiresAt: text(row.expires_at) ?? '',
+    settledAmount: amount(row.settled_amount) ?? null,
+    releasedAmount: amount(row.released_amount) ?? null,
+    note: nullableText(row.reconcile_note),
+  };
 }
 
 /** A page of the list of reservations: the rows and where the next page begins (none when this is the last). */
@@ -701,6 +765,14 @@ export type LlmReason =
   | 'sourceRequired'
   | 'reservationState'
   | 'matrixInvalid'
+  | 'promptImmutable'
+  | 'evalRequired'
+  | 'evalMissing'
+  | 'evalNotPassed'
+  | 'evalNotFinished'
+  | 'unsupportedParameter'
+  | 'routeNotAllowed'
+  | 'toolNotReadOnly'
   | 'weakensBaseline'
   | 'stale'
   | 'state'
@@ -728,6 +800,16 @@ const REASON_BY_CODE: Readonly<Record<string, LlmReason>> = {
   RESERVATION_NOT_ACTIVE: 'reservationState',
   POLICY_MATRIX_INVALID: 'matrixInvalid',
   POLICY_WEAKENS_BASELINE: 'weakensBaseline',
+  PROMPT_IMMUTABLE: 'promptImmutable',
+  PROMPT_SCHEMA_INVALID: 'invalid',
+  EVAL_REQUIRED: 'evalRequired',
+  EVAL_MISSING_FOR_ROUTE: 'evalMissing',
+  EVAL_NOT_PASSED: 'evalNotPassed',
+  EVAL_NOT_FINISHED: 'evalNotFinished',
+  EVAL_CASE_CLASSIFICATION_INVALID: 'invalid',
+  UNSUPPORTED_PARAMETER: 'unsupportedParameter',
+  AI_ROUTE_NOT_ALLOWED: 'routeNotAllowed',
+  TOOL_NOT_READ_ONLY: 'toolNotReadOnly',
   VERSION_CONFLICT: 'stale',
   STAGE_TRANSITION_DENIED: 'state',
   VALIDATION_FAILED: 'invalid',

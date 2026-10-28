@@ -895,6 +895,7 @@ export const REQUEST_BODIES: Readonly<Record<string, string>> = {
   "reviewMaturityEvidence": "DgvEvidenceReview",
   "reviewOcrPage": "BidOcrReview",
   "reviewSystemTenantTheme": "TenantThemeReviewRequest",
+  "reviseAiPromptVersion": "LlmPromptDraft",
   "reviseContractDraft": "CtrReviseContractDraft",
   "revisePaymentDraft": "PayRevisePaymentDraft",
   "revisePlan": "LndRevisePlan",

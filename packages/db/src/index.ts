@@ -917,3 +917,5 @@ export { LlmRegistryStore } from './llm-registry-store.ts';
 export type { ModelRow, PolicyVersionRow, ProviderRow } from './llm-registry-store.ts';
 export { LlmFinopsStore } from './llm-finops-store.ts';
 export type { BudgetInput, BudgetRow, BudgetWithCounter, CounterRow, PriceRow, ReservationRow, ReserveResult, SettleInput, SettleResult } from './llm-finops-store.ts';
+export { LlmEvalStore } from './llm-eval-store.ts';
+export type { EvalDatasetRow, EvalRunRow, ProfileInput, ProfileRow, PromptInput, PromptRow, RunPlan } from './llm-eval-store.ts';

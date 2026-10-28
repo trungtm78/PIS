@@ -76,6 +76,22 @@ export function refusalMessage(t: T, reason: LlmReason, detail: string): string 
       return t('llm.reason.reservationState');
     case 'matrixInvalid':
       return t('llm.reason.matrixInvalid');
+    case 'promptImmutable':
+      return t('llm.reason.promptImmutable');
+    case 'evalRequired':
+      return t('llm.reason.evalRequired');
+    case 'evalMissing':
+      return t('llm.reason.evalMissing');
+    case 'evalNotPassed':
+      return t('llm.reason.evalNotPassed');
+    case 'evalNotFinished':
+      return t('llm.reason.evalNotFinished');
+    case 'unsupportedParameter':
+      return t('llm.reason.unsupportedParameter');
+    case 'routeNotAllowed':
+      return t('llm.reason.routeNotAllowed');
+    case 'toolNotReadOnly':
+      return t('llm.reason.toolNotReadOnly');
     case 'weakensBaseline':
       return t('llm.reason.weakensBaseline', { levels: detail });
     case 'stale':

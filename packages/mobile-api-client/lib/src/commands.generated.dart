@@ -79,6 +79,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> applyReportImport({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('applyReportImport', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> approveAiModel({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('approveAiModel', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> approveAiPromptVersion({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('approveAiPromptVersion', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -1489,11 +1492,17 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAiClassificationPolicies({Map<String, Object?>? query}) =>
       execute('listAiClassificationPolicies', query: query);
 
+  Future<Object?> listAiEvalDatasets({Map<String, Object?>? query}) =>
+      execute('listAiEvalDatasets', query: query);
+
   Future<Object?> listAiModels({Map<String, Object?>? query}) =>
       execute('listAiModels', query: query);
 
   Future<Object?> listAiPricingVersions({Map<String, Object?>? query}) =>
       execute('listAiPricingVersions', query: query);
+
+  Future<Object?> listAiPrompts({Map<String, Object?>? query}) =>
+      execute('listAiPrompts', query: query);
 
   Future<Object?> listAiProviders({Map<String, Object?>? query}) =>
       execute('listAiProviders', query: query);
@@ -2385,6 +2394,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> reviewSystemTenantTheme(Object body, {required String tenantId, CommandAttempt? attempt}) =>
       execute('reviewSystemTenantTheme', path: <String, Object?>{'tenantId': tenantId}, body: body, attempt: attempt);
+
+  Future<Object?> reviseAiPromptVersion(LlmPromptDraft body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('reviseAiPromptVersion', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> reviseContractDraft(CtrReviseContractDraft body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('reviseContractDraft', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

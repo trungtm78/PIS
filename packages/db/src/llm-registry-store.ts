@@ -209,6 +209,23 @@ export class LlmRegistryStore {
     return (await tx.query<Sql>(`${MODEL} where id = $1::uuid`, [id])).map(model)[0] as ModelRow;
   }
 
+  /**
+   * Approves a model so that it can be used: by someone other than the person who registered it, and only while its provider is active. Whether a route may serve traffic is a matter of the evaluation of the profile
+   * that uses it (ST-LLM-004); approving the model says that the model itself may be put to that test and used.
+   */
+  async approveModel(tx: TenantTx, id: string, input: { actor: string; expectedVersion: number }): Promise<ModelRow> {
+    const rows = await tx.query<Sql>(`${MODEL} where id = $1::uuid for update`, [id]);
+    if (rows[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const current = model(rows[0]);
+    if (current.version !== input.expectedVersion) throw new DomainError('VERSION_CONFLICT', 409);
+    if (current.status !== 'PROPOSED' && current.status !== 'EVAL_PENDING') throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
+    const owner = await this.findProvider(tx, current.providerId);
+    if (owner === undefined || owner.status !== 'ACTIVE') throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'provider');
+    if (current.createdBy === input.actor) throw new DomainError('SELF_APPROVAL_DENIED', 403);
+    await tx.query("update machvon.ai_model set status = 'APPROVED', approved_by = $2::uuid, updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [id, input.actor]);
+    return model((await tx.query<Sql>(`${MODEL} where id = $1::uuid`, [id]))[0] as Sql);
+  }
+
   // ---- classification policies -------------------------------------------------------------------------------------------------------------
 
   async policies(tx: TenantTx): Promise<PolicyVersionRow[]> {

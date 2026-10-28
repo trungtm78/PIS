@@ -573,7 +573,7 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
 };
 
 /** A provider, a model and a classification policy of each tenant's AI registry (the code, the model and the legal basis are distinctive). */
-export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string; profileId: string; requestId: string; budgetId: string; reservationId: string; reservationNote: string; priceId: string; priceSource: string }>> = {
+export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string; profileId: string; requestId: string; budgetId: string; reservationId: string; reservationNote: string; priceId: string; priceSource: string; promptId: string; promptName: string; promptSha: string; datasetId: string; datasetCode: string; runId: string }>> = {
   'TNT-A': {
     providerId: '00000000-0000-4000-a0d7-000000000001',
     providerCode: 'ALPHA-PROVIDER-0001',
@@ -594,6 +594,12 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     reservationNote: 'alpha reconcile note 0001',
     priceId: '00000000-0000-4000-a0d7-000000000009',
     priceSource: 'https://alpha.example/pricing-0001',
+    promptId: '00000000-0000-4000-a0d7-00000000000a',
+    promptName: 'alpha-prompt-0001',
+    promptSha: 'a0d7'.repeat(16),
+    datasetId: '00000000-0000-4000-a0d7-00000000000b',
+    datasetCode: 'ALPHA-EVAL-0001',
+    runId: '00000000-0000-4000-a0d7-00000000000c',
   },
   'TNT-B': {
     providerId: '00000000-0000-4000-b0d7-000000000001',
@@ -615,6 +621,12 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     reservationNote: 'beta reconcile note 0001',
     priceId: '00000000-0000-4000-b0d7-000000000009',
     priceSource: 'https://beta.example/pricing-0001',
+    promptId: '00000000-0000-4000-b0d7-00000000000a',
+    promptName: 'beta-prompt-0001',
+    promptSha: 'b0d7'.repeat(16),
+    datasetId: '00000000-0000-4000-b0d7-00000000000b',
+    datasetCode: 'BETA-EVAL-0001',
+    runId: '00000000-0000-4000-b0d7-00000000000c',
   },
 };
 
@@ -878,6 +890,13 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'ai budget reservation note', value: LLM_FIXTURES[tenant].reservationNote },
     { kind: 'ai pricing version id', value: LLM_FIXTURES[tenant].priceId },
     { kind: 'ai pricing source', value: LLM_FIXTURES[tenant].priceSource },
+    { kind: 'ai prompt id', value: LLM_FIXTURES[tenant].promptId },
+    { kind: 'ai prompt name', value: LLM_FIXTURES[tenant].promptName },
+    { kind: 'ai prompt hash', value: LLM_FIXTURES[tenant].promptSha },
+    { kind: 'ai eval dataset id', value: LLM_FIXTURES[tenant].datasetId },
+    { kind: 'ai eval dataset code', value: LLM_FIXTURES[tenant].datasetCode },
+    { kind: 'ai eval run id', value: LLM_FIXTURES[tenant].runId },
+    { kind: 'ai model profile id', value: LLM_FIXTURES[tenant].profileId },
     { kind: 'metric id', value: BI_FIXTURES[tenant].metricId },
     { kind: 'metric code', value: BI_FIXTURES[tenant].metricCode },
     { kind: 'metric source commit', value: BI_FIXTURES[tenant].sourceCommit },

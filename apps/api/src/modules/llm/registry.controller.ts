@@ -186,6 +186,26 @@ export class LlmRegistryController {
     return commandResult(scope, 'PROPOSED', created.version, created.id);
   }
 
+  @Post('ai-models/:id/approval')
+  @HttpCode(200)
+  @OperationId('approveAiModel')
+  @Command({ operation: 'approveAiModel', versioned: true })
+  async approveModel(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
+    this.whole(access, PERMISSIONS.approveAiModel);
+    const approved = await this.registry.approveModel(scope.tx, id, { actor: scope.tenant.membershipId, expectedVersion: scope.expectedVersion ?? 0 });
+    await scope.audit({ action: 'llm.model_approved', resourceType: MODEL, resourceId: id, diff: { model_id: approved.modelId, provider_id: approved.providerId, max_classification: approved.maxClassification } });
+    await scope.emit({
+      aggregateType: MODEL,
+      aggregateId: id,
+      aggregateVersion: approved.version,
+      type: 'llm.model.approved.v1',
+      schemaVersion: 1,
+      payload: { model_ref_id: id, provider_id: approved.providerId, model_id: approved.modelId },
+      eventKey: `${MODEL}:${id}:${approved.version}`,
+    });
+    return commandResult(scope, 'APPROVED', approved.version, id);
+  }
+
   @Get('ai-models')
   @OperationId('listAiModels')
   async models(
