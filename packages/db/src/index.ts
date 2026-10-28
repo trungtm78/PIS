@@ -909,3 +909,5 @@ export { BiPolicyStore } from './bi-policy-store.ts';
 export type { BiPolicyStatus, PolicyInput, PolicyRow, Requester } from './bi-policy-store.ts';
 export { BiMetricStore, METRIC_ORIGINS, METRIC_STATUSES } from './bi-metric-store.ts';
 export type { MetricFilter, MetricOrigin, MetricPage, MetricRow, MetricStatus, SyncRun, SyncRunInput, SyncStatus, TenantMetricInput } from './bi-metric-store.ts';
+export { LlmRegistryStore } from './llm-registry-store.ts';
+export type { ModelRow, PolicyVersionRow, ProviderRow } from './llm-registry-store.ts';

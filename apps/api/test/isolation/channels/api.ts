@@ -10,7 +10,7 @@ import { CONTRACTOR_FIXTURES } from '../suite';
 import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
-import { BI_FIXTURES, MNE_FIXTURES } from '../suite';
+import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { DOA_FIXTURES } from '../suite';
@@ -301,6 +301,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'listBiDatasetVersions', method: 'GET', id: BI_FIXTURES['TNT-B'].datasetId },
   { operation: 'get_resources_drill_context_id', method: 'GET', id: BI_FIXTURES['TNT-B'].contextId },
   { operation: 'buildBiDatasetVersion', method: 'POST', id: BI_FIXTURES['TNT-B'].datasetId, body: { as_of_period: '2026-10' } },
+  { operation: 'activateAiProvider', method: 'POST', id: LLM_FIXTURES['TNT-B'].providerId, versioned: true, body: {} },
+  { operation: 'publishAiClassificationPolicy', method: 'POST', id: LLM_FIXTURES['TNT-B'].policyId, versioned: true, body: {} },
   { operation: 'publishMneForm', method: 'POST', id: MNE_FIXTURES['TNT-B'].formId, versioned: true, body: {} },
   { operation: 'publishMneObligationRule', method: 'POST', id: MNE_FIXTURES['TNT-B'].ruleId, versioned: true, body: {} },
   { operation: 'editMneReport', method: 'POST', id: MNE_FIXTURES['TNT-B'].reportId, versioned: true, body: { narrative: {} } },

@@ -572,6 +572,28 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
   },
 };
 
+/** A provider, a model and a classification policy of each tenant's AI registry (the code, the model and the legal basis are distinctive). */
+export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string }>> = {
+  'TNT-A': {
+    providerId: '00000000-0000-4000-a0d7-000000000001',
+    providerCode: 'ALPHA-PROVIDER-0001',
+    providerName: 'Alpha model provider 0001',
+    modelRefId: '00000000-0000-4000-a0d7-000000000002',
+    modelCode: 'alpha-model-0001',
+    policyId: '00000000-0000-4000-a0d7-000000000003',
+    policyBasis: 'Alpha tenant AI routing basis 0001',
+  },
+  'TNT-B': {
+    providerId: '00000000-0000-4000-b0d7-000000000001',
+    providerCode: 'BETA-PROVIDER-0001',
+    providerName: 'Beta model provider 0001',
+    modelRefId: '00000000-0000-4000-b0d7-000000000002',
+    modelCode: 'beta-model-0001',
+    policyId: '00000000-0000-4000-b0d7-000000000003',
+    policyBasis: 'Beta tenant AI routing basis 0001',
+  },
+};
+
 /** A metric of each tenant's registry (the code and the commit it came from are distinctive). */
 export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string; datasetId: string; datasetCode: string; datasetTitle: string; versionId: string; versionChecksum: string; policyId: string; policyColumn: string; contextId: string; contextPeriod: string }>> = {
   'TNT-A': {
@@ -815,6 +837,13 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'obligation report id', value: MNE_FIXTURES[tenant].reportId },
     { kind: 'export package id', value: MNE_FIXTURES[tenant].packageId },
     { kind: 'export package hash', value: MNE_FIXTURES[tenant].packageSha256 },
+    { kind: 'ai provider id', value: LLM_FIXTURES[tenant].providerId },
+    { kind: 'ai provider code', value: LLM_FIXTURES[tenant].providerCode },
+    { kind: 'ai provider name', value: LLM_FIXTURES[tenant].providerName },
+    { kind: 'ai model id', value: LLM_FIXTURES[tenant].modelRefId },
+    { kind: 'ai model code', value: LLM_FIXTURES[tenant].modelCode },
+    { kind: 'ai classification policy id', value: LLM_FIXTURES[tenant].policyId },
+    { kind: 'ai classification policy basis', value: LLM_FIXTURES[tenant].policyBasis },
     { kind: 'metric id', value: BI_FIXTURES[tenant].metricId },
     { kind: 'metric code', value: BI_FIXTURES[tenant].metricCode },
     { kind: 'metric source commit', value: BI_FIXTURES[tenant].sourceCommit },

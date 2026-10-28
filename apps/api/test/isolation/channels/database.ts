@@ -6,7 +6,7 @@ import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_
 import { QUALITY_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
-import { BI_FIXTURES, MNE_FIXTURES } from '../suite';
+import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
@@ -572,6 +572,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listBiDatasetVersions',
   'createBiAccessPolicy',
   'listBiAccessPolicies',
+  'registerAiProvider',
+  'activateAiProvider',
+  'registerAiModel',
+  'createAiClassificationPolicy',
+  'publishAiClassificationPolicy',
+  'listAiProviders',
+  'listAiModels',
+  'listAiClassificationPolicies',
   'post_dashboard_queries',
   'explainBiMetric',
   'refreshBiQueryContext',
@@ -1254,6 +1262,15 @@ const INSERT_BI_DATASET = `insert into machvon.bi_dataset
 const INSERT_BI_VERSION = `insert into machvon.bi_dataset_version
   (tenant_id, id, dataset_id, as_of_period, built_at, row_count, checksum_sha256, status, created_by, updated_by)
   values ($1, $2, $3, '2026-10', now(), 10, $4, 'FROZEN', $5, $5) on conflict do nothing`;
+const INSERT_LLM_PROVIDER = `insert into machvon.ai_provider
+  (tenant_id, id, provider_code, name, region_country, route_class, max_classification, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 'VN', 'DOMESTIC_HOSTED', 'PUBLIC', 'PROPOSED', $5, $5) on conflict do nothing`;
+const INSERT_LLM_MODEL = `insert into machvon.ai_model
+  (tenant_id, id, provider_id, model_id, capabilities, context_window, max_output, max_classification, status, created_by, updated_by)
+  values ($1, $2, $3, $4, '{}'::jsonb, 8000, 1000, 'PUBLIC', 'PROPOSED', $5, $5) on conflict do nothing`;
+const INSERT_LLM_POLICY = `insert into machvon.ai_classification_policy_version
+  (tenant_id, id, revision, matrix_json, international_enabled, legal_basis, effective_from, status, created_by, updated_by)
+  values ($1, $2, 1, '{"PUBLIC":["SELF_HOSTED"],"INTERNAL":["SELF_HOSTED"],"CONFIDENTIAL":["SELF_HOSTED"],"PERSONAL":["SELF_HOSTED"],"IMPORTANT_CORE":["SELF_HOSTED"]}'::jsonb, false, $3, now(), 'DRAFT', $4, $4) on conflict do nothing`;
 const INSERT_BI_POLICY = `insert into machvon.bi_access_policy
   (tenant_id, id, dataset_id, revision, grantee_kind, grantee_ref_id, row_predicate_ast, column_masks, status, created_by, updated_by)
   values ($1, $2, $3, 1, 'MEMBERSHIP', $5, '{"op":"unit_in_scope"}'::jsonb, jsonb_build_object($4::text, 'HIDE'), 'DRAFT', $5, $5) on conflict do nothing`;
@@ -1531,6 +1548,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_BI_VERSION, [tenantId, bi.versionId, bi.datasetId, bi.versionChecksum, ACTOR_ID]);
     await client.query(INSERT_BI_POLICY, [tenantId, bi.policyId, bi.datasetId, bi.policyColumn, ACTOR_ID]);
     await client.query(INSERT_BI_CONTEXT, [tenantId, bi.contextId, bi.metricId, bi.versionId, bi.contextPeriod, MEMBERSHIP_ID]);
+    const llm = LLM_FIXTURES[tenant];
+    await client.query(INSERT_LLM_PROVIDER, [tenantId, llm.providerId, llm.providerCode, llm.providerName, ACTOR_ID]);
+    await client.query(INSERT_LLM_MODEL, [tenantId, llm.modelRefId, llm.providerId, llm.modelCode, ACTOR_ID]);
+    await client.query(INSERT_LLM_POLICY, [tenantId, llm.policyId, llm.policyBasis, ACTOR_ID]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);

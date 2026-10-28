@@ -1093,6 +1093,40 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { dataset_id: '00000000-0000-4000-8000-0000000000d1', grantee_kind: 'ROLE', grantee_ref_id: '00000000-0000-4000-8000-0000000000c3', row_predicate_ast: { op: 'unit_in_scope' }, column_masks: {} },
     }),
   },
+  // The registry of the AI gateway (ST-LLM-001) is the tenant's: a caller without the right is refused before the body is read.
+  registerAiProvider: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-providers', body: { provider_code: 'MATRIX-1', name: 'Matrix provider', region_country: 'VN', route_class: 'DOMESTIC_HOSTED', max_classification: 'PUBLIC' } }),
+  },
+  activateAiProvider: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-providers/00000000-0000-4000-8000-0000000000e1/activation', ifMatch: '"1"', body: {} }),
+  },
+  registerAiModel: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/ai-models',
+      body: { provider_id: '00000000-0000-4000-8000-0000000000e1', model_id: 'matrix-model', capabilities: {}, context_window: 8000, max_output: 1000, max_classification: 'PUBLIC' },
+    }),
+  },
+  createAiClassificationPolicy: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/ai-classification-policies',
+      body: {
+        matrix: { PUBLIC: ['SELF_HOSTED'], INTERNAL: ['SELF_HOSTED'], CONFIDENTIAL: ['SELF_HOSTED'], PERSONAL: ['SELF_HOSTED'], IMPORTANT_CORE: ['SELF_HOSTED'] },
+        international_enabled: false,
+        legal_basis: 'Matrix basis',
+        effective_from: '2026-01-01T00:00:00.000Z',
+      },
+    }),
+  },
+  publishAiClassificationPolicy: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-classification-policies/00000000-0000-4000-8000-0000000000e2/publish', ifMatch: '"1"', body: {} }),
+  },
   post_dashboard_queries: {
     referencesTenantIds: false,
     build: () => ({

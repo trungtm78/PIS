@@ -675,3 +675,5 @@ export { COLUMN_MASKS, POLICY_GRANTEE_KINDS, columnMasksProblem, hiddenColumns, 
 export type { ColumnMask, PolicyGranteeKind, PolicyProblem, PolicyView } from './bi-policy.ts';
 export { BI_DRILL_TTL_SECONDS, DISBURSEMENT_DIMENSIONS, DISBURSEMENT_FIELDS, biScopeHash, expiredBiDrill, figureOf, measurePlanOf, parseBiDrill, queryCacheKey, reconcile, signBiDrill, tenantDrillKey } from './bi-query.ts';
 export type { BiDrillClaims, Figure, GroupSums, MeasureKind, MeasurePlan, QueryReconciliation } from './bi-query.ts';
+export { BASELINE_MATRIX, CLASSIFICATIONS, ROUTES, assertActivation, assertModelRegistration, assertPolicyDraft, assertProviderRegistration, assertPublishable, baselineViolations, parseMatrix, routesFor } from './llm-registry.ts';
+export type { Classification, Matrix, PublishedPolicy, Route } from './llm-registry.ts';

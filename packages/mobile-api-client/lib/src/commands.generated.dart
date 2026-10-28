@@ -1483,6 +1483,15 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAffectedHouseholds({Map<String, Object?>? query}) =>
       execute('listAffectedHouseholds', query: query);
 
+  Future<Object?> listAiClassificationPolicies({Map<String, Object?>? query}) =>
+      execute('listAiClassificationPolicies', query: query);
+
+  Future<Object?> listAiModels({Map<String, Object?>? query}) =>
+      execute('listAiModels', query: query);
+
+  Future<Object?> listAiProviders({Map<String, Object?>? query}) =>
+      execute('listAiProviders', query: query);
+
   Future<Object?> listAiRequests({Map<String, Object?>? query}) =>
       execute('listAiRequests', query: query);
 
