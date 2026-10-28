@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -29,6 +29,8 @@ export default function CatalogScreen({ route }: ScreenProps) {
 function CatalogContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions } = useSession();
+  // A link from another screen (BI-07) names the entry it means: that row is marked as the current one.
+  const selected = useSearchParams()[0].get('dataset');
   const [draft, setDraft] = useState<CatalogFilter>(NO_FILTER);
   const [applied, setApplied] = useState<CatalogFilter>(NO_FILTER);
   const datasets = useCatalog(applied);
@@ -107,7 +109,7 @@ function CatalogContent({ route }: ScreenProps) {
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id} data-dataset-id={row.id} data-dataset-code={row.datasetCode} data-classification={row.classification}>
+                  <tr key={row.id} data-dataset-id={row.id} data-dataset-code={row.datasetCode} data-classification={row.classification} aria-current={row.id === selected ? 'true' : undefined} className={row.id === selected ? 'dgv-selected' : undefined}>
                     <td>
                       {row.title}
                       <code className="dgv-code">{row.datasetCode}</code>

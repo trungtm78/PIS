@@ -1,4 +1,5 @@
 import type { Translator } from '../../i18n';
+import type { Badge, BuildReason, VersionStatus } from './dataset-model';
 import type { Aggregate, Aggregation, FieldProblem, MetricOrigin, MetricStatus, NullPolicy, ProblemView } from './bi-model';
 
 type T = Translator['t'];
@@ -90,5 +91,60 @@ export function problemMessage(t: T, problem: ProblemView): string {
       return t('bi.metric.refused.session');
     case 'general':
       return t('bi.metric.refused.general');
+  }
+}
+
+export function badgeLabel(t: T, badge: Badge): string {
+  switch (badge) {
+    case 'NOT_ASSESSED':
+      return t('bi.dataset.badge.notAssessed');
+    case 'PASSED':
+      return t('bi.dataset.badge.passed');
+    case 'WARNING':
+      return t('bi.dataset.badge.warning');
+    case 'FAILED':
+      return t('bi.dataset.badge.failed');
+    case 'STALE':
+      return t('bi.dataset.badge.stale');
+  }
+}
+
+export function versionStatusLabel(t: T, status: VersionStatus): string {
+  switch (status) {
+    case 'BUILDING':
+      return t('bi.dataset.status.building');
+    case 'FROZEN':
+      return t('bi.dataset.status.frozen');
+    case 'SUPERSEDED':
+      return t('bi.dataset.status.superseded');
+    case 'FAILED':
+      return t('bi.dataset.status.failed');
+  }
+}
+
+export function refreshLabel(t: T, policy: string): string {
+  return policy === 'ON_SNAPSHOT_FROZEN' ? t('bi.dataset.refresh.onFrozen') : policy === 'SCHEDULED' ? t('bi.dataset.refresh.scheduled') : policy;
+}
+
+export function sourceKindLabel(t: T, kind: string): string {
+  return kind === 'PERIOD_SNAPSHOT' ? t('bi.dataset.source.periodSnapshot') : kind;
+}
+
+export function buildProblemMessage(t: T, reason: BuildReason): string {
+  switch (reason) {
+    case 'running':
+      return t('bi.dataset.refused.running');
+    case 'notFrozen':
+      return t('bi.dataset.refused.notFrozen');
+    case 'invalid':
+      return t('bi.dataset.refused.invalid');
+    case 'denied':
+      return t('bi.dataset.refused.denied');
+    case 'notFound':
+      return t('bi.dataset.refused.notFound');
+    case 'session':
+      return t('bi.dataset.refused.session');
+    case 'general':
+      return t('bi.dataset.refused.general');
   }
 }

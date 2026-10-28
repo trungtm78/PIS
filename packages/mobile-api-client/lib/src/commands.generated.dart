@@ -1516,6 +1516,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAvcPolicies({Map<String, Object?>? query}) =>
       execute('listAvcPolicies', query: query);
 
+  Future<Object?> listBiDatasetVersions({required String id, Map<String, Object?>? query}) =>
+      execute('listBiDatasetVersions', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> listBiDatasets({Map<String, Object?>? query}) =>
+      execute('listBiDatasets', query: query);
+
   Future<Object?> listBiQueryRuns({Map<String, Object?>? query}) =>
       execute('listBiQueryRuns', query: query);
 

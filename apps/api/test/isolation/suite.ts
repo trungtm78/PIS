@@ -573,9 +573,27 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
 };
 
 /** A metric of each tenant's registry (the code and the commit it came from are distinctive). */
-export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string }>> = {
-  'TNT-A': { metricId: '00000000-0000-4000-a0b1-000000000001', metricCode: 'alpha_rate_0001', sourceCommit: 'alpha0001commit' },
-  'TNT-B': { metricId: '00000000-0000-4000-b0b1-000000000001', metricCode: 'beta_rate_0001', sourceCommit: 'beta0001commit' },
+export const BI_FIXTURES: Readonly<Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string; datasetId: string; datasetCode: string; datasetTitle: string; versionId: string; versionChecksum: string }>> = {
+  'TNT-A': {
+    metricId: '00000000-0000-4000-a0b1-000000000001',
+    metricCode: 'alpha_rate_0001',
+    sourceCommit: 'alpha0001commit',
+    datasetId: '00000000-0000-4000-a0b1-000000000002',
+    datasetCode: 'ALPHA-DATASET-0001',
+    datasetTitle: 'Alpha dataset of the disbursement 0001',
+    versionId: '00000000-0000-4000-a0b1-000000000003',
+    versionChecksum: 'a0b1'.repeat(16),
+  },
+  'TNT-B': {
+    metricId: '00000000-0000-4000-b0b1-000000000001',
+    metricCode: 'beta_rate_0001',
+    sourceCommit: 'beta0001commit',
+    datasetId: '00000000-0000-4000-b0b1-000000000002',
+    datasetCode: 'BETA-DATASET-0001',
+    datasetTitle: 'Beta dataset of the disbursement 0001',
+    versionId: '00000000-0000-4000-b0b1-000000000003',
+    versionChecksum: 'b0b1'.repeat(16),
+  },
 };
 
 /** An Active signing certificate of each tenant (its fingerprint and serial are distinctive; tenant administration data). */
@@ -792,6 +810,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'metric id', value: BI_FIXTURES[tenant].metricId },
     { kind: 'metric code', value: BI_FIXTURES[tenant].metricCode },
     { kind: 'metric source commit', value: BI_FIXTURES[tenant].sourceCommit },
+    { kind: 'bi dataset id', value: BI_FIXTURES[tenant].datasetId },
+    { kind: 'bi dataset code', value: BI_FIXTURES[tenant].datasetCode },
+    { kind: 'bi dataset title', value: BI_FIXTURES[tenant].datasetTitle },
+    { kind: 'bi dataset version id', value: BI_FIXTURES[tenant].versionId },
+    { kind: 'bi dataset version checksum', value: BI_FIXTURES[tenant].versionChecksum },
     { kind: 'glossary term id', value: GLOSSARY_FIXTURES[tenant].termId },
     { kind: 'glossary term code', value: GLOSSARY_FIXTURES[tenant].termCode },
     { kind: 'glossary term definition', value: GLOSSARY_FIXTURES[tenant].definition },

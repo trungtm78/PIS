@@ -21,6 +21,7 @@
     "assignReconciliationItem",
     "attachAuditEvidence",
     "attachPaymentDocument",
+    "buildBiDatasetVersion",
     "cancelAdvance",
     "cancelAuditEngagement",
     "cancelContractDraft",

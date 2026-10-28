@@ -901,5 +901,7 @@ export { HomeReadStore } from './home-reads-store.ts';
 export type { HomeExplanation, HomeLeader, HomeRankingRow, HomeRule } from './home-reads-store.ts';
 export { HomeWorkStore } from './home-work-store.ts';
 export type { WorkRow } from './home-work-store.ts';
+export { BiDatasetStore, DISBURSEMENT_DATASET_CODE, DISBURSEMENT_JOIN_PATHS } from './bi-dataset-store.ts';
+export type { BiDatasetRow, BuildInput, BuildResult, DatasetVersionFilter, DatasetVersionRow } from './bi-dataset-store.ts';
 export { BiMetricStore, METRIC_ORIGINS, METRIC_STATUSES } from './bi-metric-store.ts';
 export type { MetricFilter, MetricOrigin, MetricPage, MetricRow, MetricStatus, SyncRun, SyncRunInput, SyncStatus, TenantMetricInput } from './bi-metric-store.ts';

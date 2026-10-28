@@ -567,6 +567,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'createTenantMetricDefinition',
   'get_resources_metric_definition',
   'get_resources_metric_definition_id',
+  'buildBiDatasetVersion',
+  'listBiDatasets',
+  'listBiDatasetVersions',
   'listMneForms',
   'createMneObligationRule',
   'publishMneObligationRule',
@@ -1238,6 +1241,12 @@ const INSERT_TEMPLATE = `insert into machvon.document_template
 const INSERT_METRIC = `insert into machvon.metric_definition
   (tenant_id, id, code, revision, grain, aggregation_type, expression_ast, unit, owner_id, status, origin, source_commit, definition_sha256, null_policy, dimension_codes, effective_from, created_by)
   values ($1, $2, $3, 1, 'project', 'additive', '{"op":"sum","args":[{"op":"field","name":"A"}]}'::jsonb, 'VND', $5, 'CERTIFIED', 'PLATFORM_CODE', $4, repeat('e', 64), 'NULL_NOT_ZERO', '[]'::jsonb, date '2026-01-01', $5) on conflict do nothing`;
+const INSERT_BI_DATASET = `insert into machvon.bi_dataset
+  (tenant_id, id, dataset_code, title, source_kind, grain, join_paths, owner_user_id, created_by, updated_by)
+  values ($1, $2, $3, $4, 'PERIOD_SNAPSHOT', 'project', '{"dimensions":["unit"]}'::jsonb, $5, $5, $5) on conflict do nothing`;
+const INSERT_BI_VERSION = `insert into machvon.bi_dataset_version
+  (tenant_id, id, dataset_id, as_of_period, built_at, row_count, checksum_sha256, status, created_by, updated_by)
+  values ($1, $2, $3, '2026-10', now(), 10, $4, 'FROZEN', $5, $5) on conflict do nothing`;
 const INSERT_MNE_FORM = `insert into machvon.mne_report_form
   (tenant_id, id, form_code, title, report_kind, legal_basis, effective_from, schema_json, doc_template_code, export_formats, revision, status, origin, pack_version, published_at, created_by, updated_by)
   values ($1, $2, $3, 'Isolation report form', 'OVERALL_SEMIANNUAL', $4, date '2026-01-01', '{}'::jsonb, 'ISOLATION-TEMPLATE', array['XLSX'], 1, 'PUBLISHED', 'PLATFORM_PACK', 'isolation', now(), $5, $5) on conflict do nothing`;
@@ -1505,6 +1514,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_TEMPLATE, [tenantId, template.id, template.templateCode, documents.layoutProfileId, template.legalBasis, ACTOR_ID]);
     const bi = BI_FIXTURES[tenant];
     await client.query(INSERT_METRIC, [tenantId, bi.metricId, bi.metricCode, bi.sourceCommit, ACTOR_ID]);
+    await client.query(INSERT_BI_DATASET, [tenantId, bi.datasetId, bi.datasetCode, bi.datasetTitle, ACTOR_ID]);
+    await client.query(INSERT_BI_VERSION, [tenantId, bi.versionId, bi.datasetId, bi.versionChecksum, ACTOR_ID]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);

@@ -507,6 +507,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAuditRecommendations': asObject,
   'listAuditRecoveryLinks': asObject,
   'listAvcPolicies': asObject,
+  'listBiDatasets': asObject,
+  'listBiDatasetVersions': asObject,
   'listBiQueryRuns': asObject,
   'listCapitalLedger': asObject,
   'listCapitalPlanLines': asObject,

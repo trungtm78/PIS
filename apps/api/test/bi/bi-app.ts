@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
+import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
@@ -11,6 +12,7 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort } from '../../src/modules/files/mock-scan';
+import { DatasetBuildController, DatasetReadsController } from '../../src/modules/bi/dataset.controller';
 import { MetricReadsController, MetricRegistryController, TenantMetricController } from '../../src/modules/bi/metric.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -25,6 +27,8 @@ export const ANALYST = 2; // drafts the metrics of the tenant
 export const READER = 3; // reads the catalogue
 export const NOBODY = 4; // no grant
 export const SCOPED = 5; // holds the sync and the draft on one unit only: the registry is the tenant's, so it is refused
+export const BUILDER = 6; // builds the versions of the datasets, and queries
+export const QUERIER = 7; // reads the datasets and their versions
 export const ROOT = 1;
 export const BRANCH = 2;
 
@@ -52,20 +56,27 @@ export class BiApp {
       { n: BRANCH, path: `/${unitId(BRANCH)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [PIPELINE, ANALYST, READER, NOBODY, SCOPED]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [PIPELINE, ANALYST, READER, NOBODY, SCOPED, BUILDER, QUERIER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, PIPELINE, ROOT);
     await harness.seedRole(TENANT_A, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
     await harness.seedRole(TENANT_A, 2, 'BI_ANALYST', ['bi.metric.manage', 'metric_definition.read'], 50);
     await harness.seedRole(TENANT_A, 3, 'BI_READER', ['metric_definition.read'], 20);
     await harness.seedRole(TENANT_A, 4, 'BI_SCOPED', ['bi.metric.sync', 'bi.metric.manage', 'metric_definition.read'], 40);
+    await harness.seedRole(TENANT_A, 5, 'BI_BUILDER', ['bi.dataset.build', 'bi.query'], 50);
+    await harness.seedRole(TENANT_A, 6, 'BI_QUERIER', ['bi.query'], 20);
     await harness.seedRole(TENANT_B, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
+    await harness.seedRole(TENANT_B, 2, 'BI_BUILDER', ['bi.dataset.build', 'bi.query'], 50);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: PIPELINE, role: 1, kind: 'TENANT' },
       { n: 2, member: ANALYST, role: 2, kind: 'TENANT' },
       { n: 3, member: READER, role: 3, kind: 'TENANT' },
       { n: 4, member: SCOPED, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] },
+      { n: 5, member: BUILDER, role: 5, kind: 'TENANT' },
+      { n: 6, member: QUERIER, role: 6, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: PIPELINE, role: 1, kind: 'TENANT' }]);
+    await harness.seedMembership(TENANT_B, BUILDER, ROOT);
+    await harness.seedGrants(TENANT_B, [{ n: 2, member: BUILDER, role: 2, kind: 'TENANT' }]);
     await this.seedDatasets();
     const tenants = harness.tenants as TenantDatabase;
     this.root = await mkdtemp(join(tmpdir(), 'machvon-bi-'));
@@ -76,7 +87,7 @@ export class BiApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController],
+      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: this.objects },
@@ -121,10 +132,34 @@ export class BiApp {
     return Number((await this.harness.owner<{ n: string }>(tenantId, [[sql, params]]))[0]?.n);
   }
 
+  /** Runs statements with the foreign keys and the triggers off, as the fixtures of other modules do: the rows of DIS and DGV are given the few columns BI reads. */
+  async seedReplica(statements: Array<[string, unknown[]]>): Promise<void> {
+    const client = new Client({ connectionString: this.harness.database.adminUrl });
+    await client.connect();
+    try {
+      await client.query('set session_replication_role = replica');
+      for (const [sql, params] of statements) await client.query(sql, params);
+    } finally {
+      await client.end();
+    }
+  }
+
+  /** Removes the datasets, their versions and the snapshots and runs behind them so that a test starts from nothing. */
+  resetDatasets(tenantId: string = TENANT_A): Promise<unknown[]> {
+    return this.harness.owner(tenantId, [
+      ['delete from machvon.bi_dataset_version'],
+      ["delete from machvon.bi_dataset where dataset_code not in ('DS-DISB', 'DS-OLD')"],
+      ['delete from machvon.quality_run'],
+      ['delete from machvon.period_snapshot'],
+      ['delete from machvon.reporting_period'],
+      ['delete from machvon.dataset'],
+    ]);
+  }
+
   /** Removes the metrics and the runs of a tenant so that a test starts from nothing. */
   reset(tenantId: string = TENANT_A): Promise<unknown[]> {
     return this.harness.owner(tenantId, [['delete from machvon.metric_definition'], ['delete from machvon.bi_metric_sync_run']]);
   }
 }
 
-export { TENANT_A, TENANT_B, memberId, unitId };
+export { TENANT_A, TENANT_B, contextFor, memberId, unitId };

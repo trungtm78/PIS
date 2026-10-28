@@ -506,6 +506,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listAuditRecommendations': OperationDescriptor(method: 'GET', path: '/audit-recommendations', versioned: false, stepUp: null, permission: 'aud.read'),
   'listAuditRecoveryLinks': OperationDescriptor(method: 'GET', path: '/audit-engagements/{id}/recovery-links', versioned: false, stepUp: null, permission: 'aud.read'),
   'listAvcPolicies': OperationDescriptor(method: 'GET', path: '/avc-policies', versioned: false, stepUp: null, permission: 'capital.read'),
+  'listBiDatasetVersions': OperationDescriptor(method: 'GET', path: '/bi/datasets/{id}/versions', versioned: false, stepUp: null, permission: 'bi.query'),
+  'listBiDatasets': OperationDescriptor(method: 'GET', path: '/bi/datasets', versioned: false, stepUp: null, permission: 'bi.query'),
   'listBiQueryRuns': OperationDescriptor(method: 'GET', path: '/bi/query-runs', versioned: false, stepUp: null, permission: 'bi.admin.read'),
   'listCapitalLedger': OperationDescriptor(method: 'GET', path: '/capital-ledger', versioned: false, stepUp: null, permission: 'capital.ledger.read'),
   'listCapitalPlanLines': OperationDescriptor(method: 'GET', path: '/capital-plans/{id}/lines', versioned: false, stepUp: null, permission: 'capital.read'),

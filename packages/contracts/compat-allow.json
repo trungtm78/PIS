@@ -223,6 +223,20 @@
       "location": "query:status",
       "reason": "the status filter names the four statuses of an item of difference instead of any text; the operation had no client",
       "change_request": "ST-PAY-007"
+    },
+    {
+      "operation": "getDisbursementRates",
+      "kind": "ENUM_TIGHTENED",
+      "location": "query:bucket",
+      "reason": "the bucket filter names the two buckets of the plan (current year, carried over) instead of any text; the filter had no client",
+      "change_request": "ST-DIS-010"
+    },
+    {
+      "operation": "getDisbursementRates",
+      "kind": "FIELD_RETYPED",
+      "location": "numerator_disbursed_vnd",
+      "reason": "the numerator of a rate with nothing reported is null with its reason instead of the text 0 (a missing figure is not zero); the read had no client",
+      "change_request": "ST-DIS-010"
     }
   ]
 }

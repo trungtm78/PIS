@@ -8,6 +8,9 @@
 .dgv-filters .formfooter {
   grid-column: 1 / -1;
 }
+.dgv-selected {
+  font-weight: 600;
+}
 .dgv-code {
   display: block;
   font-size: 11px;

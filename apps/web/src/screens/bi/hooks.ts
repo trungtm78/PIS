@@ -5,6 +5,8 @@ import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
 import { metricBody, toMetric } from './bi-model';
 import type { Metric, MetricValues } from './bi-model';
+import { toDataset, toVersion } from './dataset-model';
+import type { Dataset, DatasetVersion } from './dataset-model';
 
 /** Every read and every mutation of the BI screens lives under this key of the tenant, so one command refreshes them all. */
 export const biRoot = (tenantId: string | undefined) => ['bi', tenantId] as const;
@@ -45,6 +47,51 @@ export function useCreateMetric() {
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
     mutationFn: (values: MetricValues) => client.command('createTenantMetricDefinition', { body: metricBody(values), attempt: attempts.current.forPayload(values) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+/** The datasets of BI, with the approved joins and the version that serves. */
+export function useDatasets() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<Dataset[]>({
+    queryKey: [...biRoot(tenant?.id), 'datasets', tenant?.membershipId],
+    queryFn: async () => (await client.readAll('listBiDatasets')).flatMap((raw) => toDataset(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** The versions of one dataset by period, the newest first. */
+export function useDatasetVersions(datasetId: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<DatasetVersion[]>({
+    queryKey: [...biRoot(tenant?.id), 'dataset-versions', tenant?.membershipId, datasetId],
+    queryFn: async () => (await client.readAll('listBiDatasetVersions', { path: { id: datasetId as string } })).flatMap((raw) => toVersion(raw) ?? []),
+    enabled: tenant !== undefined && datasetId !== undefined,
+    retry: false,
+  });
+}
+
+export interface BuildValues {
+  datasetId: string;
+  asOfPeriod: string;
+}
+
+/** Builds the version of a period: one idempotency attempt per intention, the cached reads refreshed on success. */
+export function useBuildVersion() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (values: BuildValues) => client.command('buildBiDatasetVersion', { path: { id: values.datasetId }, body: { as_of_period: values.asOfPeriod.trim() }, attempt: attempts.current.forPayload(values) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });

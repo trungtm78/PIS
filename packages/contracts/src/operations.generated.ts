@@ -504,6 +504,8 @@ export const OPERATIONS = {
   "listAuditRecommendations": { method: "get", path: "/audit-recommendations", versioned: false, stepUp: null, permission: "aud.read" },
   "listAuditRecoveryLinks": { method: "get", path: "/audit-engagements/{id}/recovery-links", versioned: false, stepUp: null, permission: "aud.read" },
   "listAvcPolicies": { method: "get", path: "/avc-policies", versioned: false, stepUp: null, permission: "capital.read" },
+  "listBiDatasetVersions": { method: "get", path: "/bi/datasets/{id}/versions", versioned: false, stepUp: null, permission: "bi.query" },
+  "listBiDatasets": { method: "get", path: "/bi/datasets", versioned: false, stepUp: null, permission: "bi.query" },
   "listBiQueryRuns": { method: "get", path: "/bi/query-runs", versioned: false, stepUp: null, permission: "bi.admin.read" },
   "listCapitalLedger": { method: "get", path: "/capital-ledger", versioned: false, stepUp: null, permission: "capital.ledger.read" },
   "listCapitalPlanLines": { method: "get", path: "/capital-plans/{id}/lines", versioned: false, stepUp: null, permission: "capital.read" },

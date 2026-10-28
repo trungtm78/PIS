@@ -45,6 +45,17 @@ describe('CatalogScreen (DGV-04): the data catalogue (UI-DGV-04)', () => {
     expect(screen.getByRole('table', { name: vi_['dgv.catalog.table.aria'] })).toBeTruthy();
   });
 
+  it('marks the entry a link from another screen names (BI-07), and no other', async () => {
+    mount(<CatalogScreen route={ROUTE} />, client(world({ datasets: DATASETS })), READER, `/dgv/dgv-04?dataset=${DATASETS[1]?.id as string}`);
+    await ready();
+    const current = rows().filter((row) => row.getAttribute('aria-current') === 'true');
+    expect(current.map((row) => row.getAttribute('data-dataset-code'))).toEqual(['DS-LAND']);
+    cleanup();
+    mount(<CatalogScreen route={ROUTE} />, client(world({ datasets: DATASETS })), READER, '/dgv/dgv-04?dataset=00000000-0000-4000-8000-0000000000ee');
+    await ready();
+    expect(rows().filter((row) => row.hasAttribute('aria-current'))).toEqual([]);
+  });
+
   it('shows a dataset that was never assessed with the neutral badge "not assessed", not as passed or failed', async () => {
     mount(<CatalogScreen route={ROUTE} />, client(world({ datasets: [dataset(1)] })), READER, '/dgv/dgv-04');
     await ready();

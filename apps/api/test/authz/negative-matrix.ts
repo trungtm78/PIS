@@ -1085,6 +1085,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/bi/metric-registry-syncs', body: { source_commit: 'matrix0', bundle_object_key: 'tenants/matrix/document/none', bundle_sha256: 'a'.repeat(64) } }),
   },
+  buildBiDatasetVersion: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions', body: { as_of_period: '2026-10' } }),
+  },
   createTenantMetricDefinition: {
     referencesTenantIds: false,
     build: () => ({
