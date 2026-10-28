@@ -1,8 +1,8 @@
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
-import { AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
-import type { AlertSink, JobRunRecord, MetricsSink, TenantContext, TimerPort } from '@machvon/kernel';
+import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
 import type { Pool } from 'pg';
 
 export interface WorkersDeps {
@@ -27,6 +27,8 @@ export interface WorkersDeps {
   payloads?: PayloadRemover;
   /** The adapters that process inbound provider events, by provider; without any, the inbox job is not scheduled (ST-ADM-018). */
   inboxHandlers?: InboxHandlerRegistry;
+  /** The ports the virtual keys are kept through (ST-LLM-002): the sweep that revokes the old key of a rotation is scheduled only with them. */
+  llmKeys?: { litellm: LiteLlmAdminPort; vault: SecretVaultPort };
   /** Sends the due notifications and reconciles the lost results (ST-NOT-002); without it the delivery jobs are not scheduled. */
   notificationDelivery?: { dispatchDue(ctx: TenantContext): Promise<unknown>; reconcile(ctx: TenantContext): Promise<unknown> };
 }
@@ -99,6 +101,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const settlementDeadlines = new PaySettlementDeadlineJob(audit, deps.metrics);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
+  const keySweep = deps.llmKeys === undefined ? undefined : new LlmKeySweepJob(audit, deps.llmKeys.litellm, deps.llmKeys.vault, log);
   const handlers = standardJobs({
     tenantIds: () => registeredTenantIds(deps.control),
     seal: new AuditSealJob(deps.tenants, { alerts }),
@@ -147,6 +150,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     audRecoveryReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => audRecoveries.run(tx, ctx.membershipId, now)) },
     // Licenses are control-plane rows too: the pass of a tenant runs through the control role acting as that tenant.
     licenseStatus: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => licenseStatus.run(tx, ctx.membershipId, now)) },
+    ...(keySweep === undefined ? {} : { llmKeySweep: { run: (ctx: TenantContext, now: Date) => deps.tenants.withTenant(ctx, (tx) => keySweep.run(tx, ctx.membershipId, now)) } }),
     invitationExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => invitationExpiry.run(tx, ctx.membershipId, now)) },
     overrideExpiry: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => overrides.expireDue(tx, now)) },
     accessCache: deps.accessCache,

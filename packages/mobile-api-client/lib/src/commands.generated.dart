@@ -1495,6 +1495,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAiRequests({Map<String, Object?>? query}) =>
       execute('listAiRequests', query: query);
 
+  Future<Object?> listAiVirtualKeys({Map<String, Object?>? query}) =>
+      execute('listAiVirtualKeys', query: query);
+
   Future<Object?> listAllocationExtensions({Map<String, Object?>? query}) =>
       execute('listAllocationExtensions', query: query);
 

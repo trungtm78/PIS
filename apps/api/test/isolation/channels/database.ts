@@ -580,6 +580,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listAiProviders',
   'listAiModels',
   'listAiClassificationPolicies',
+  'createAiVirtualKey',
+  'rotateAiVirtualKey',
+  'revokeAiVirtualKey',
+  'listAiVirtualKeys',
   'post_dashboard_queries',
   'explainBiMetric',
   'refreshBiQueryContext',
@@ -1268,6 +1272,9 @@ const INSERT_LLM_PROVIDER = `insert into machvon.ai_provider
 const INSERT_LLM_MODEL = `insert into machvon.ai_model
   (tenant_id, id, provider_id, model_id, capabilities, context_window, max_output, max_classification, status, created_by, updated_by)
   values ($1, $2, $3, $4, '{}'::jsonb, 8000, 1000, 'PUBLIC', 'PROPOSED', $5, $5) on conflict do nothing`;
+const INSERT_LLM_KEY = `insert into machvon.ai_virtual_key
+  (tenant_id, id, key_alias, litellm_key_ref, fingerprint, secret_ref, scope_kind, status, expires_at, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, $6, 'TENANT', 'ACTIVE', now() + interval '300 days', $7, $7) on conflict do nothing`;
 const INSERT_LLM_POLICY = `insert into machvon.ai_classification_policy_version
   (tenant_id, id, revision, matrix_json, international_enabled, legal_basis, effective_from, status, created_by, updated_by)
   values ($1, $2, 1, '{"PUBLIC":["SELF_HOSTED"],"INTERNAL":["SELF_HOSTED"],"CONFIDENTIAL":["SELF_HOSTED"],"PERSONAL":["SELF_HOSTED"],"IMPORTANT_CORE":["SELF_HOSTED"]}'::jsonb, false, $3, now(), 'DRAFT', $4, $4) on conflict do nothing`;
@@ -1551,6 +1558,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const llm = LLM_FIXTURES[tenant];
     await client.query(INSERT_LLM_PROVIDER, [tenantId, llm.providerId, llm.providerCode, llm.providerName, ACTOR_ID]);
     await client.query(INSERT_LLM_MODEL, [tenantId, llm.modelRefId, llm.providerId, llm.modelCode, ACTOR_ID]);
+    await client.query(INSERT_LLM_KEY, [tenantId, llm.keyId, llm.keyAlias, llm.keyLiteLlmRef, llm.keyFingerprint, llm.keySecretRef, ACTOR_ID]);
     await client.query(INSERT_LLM_POLICY, [tenantId, llm.policyId, llm.policyBasis, ACTOR_ID]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);

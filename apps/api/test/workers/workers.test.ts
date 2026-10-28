@@ -1,5 +1,6 @@
 import { ControlDatabase, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { Pool } from 'pg';
+import { InMemoryVault, MockLiteLlm } from '../../src/modules/llm/mock-key-ports';
 import { startWorkers } from '../../src/workers/workers';
 import type { RunningWorkers, WorkersDeps } from '../../src/workers/workers';
 import { ManualTimers, until } from '../support/manual-timers';
@@ -57,6 +58,13 @@ describe('startWorkers without a reachable database', () => {
     const running = start(depsWith(collecting));
     expect(running.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'aud-recovery-reconcile', 'access-cache-expiry']);
     expect(timers.delays()).toEqual([5, 10, 60, 60, 60, 300, 300, 900, 900, 900, 900, 900, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 3600, 21_600, 86_400].map((seconds) => seconds * 1000));
+  });
+
+  it('schedules the sweep of the virtual keys every five minutes where the ports of the keys are bound (ST-LLM-002), and not otherwise', () => {
+    expect(start(depsWith(collecting)).jobs).not.toContain('llm-key-sweep');
+    const running = start({ ...depsWith(collecting), llmKeys: { litellm: new MockLiteLlm(), vault: new InMemoryVault() } });
+    expect(running.jobs).toContain('llm-key-sweep');
+    expect(timers.delays()).toContain(300_000);
   });
 
   it('takes an interval override of the caller (the end-to-end stack polls its relay faster)', () => {

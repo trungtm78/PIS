@@ -160,6 +160,19 @@ export class IdempotencyStore {
     return rows[0]?.status === 'IN_PROGRESS';
   }
 
+  /**
+   * What a record says about the command that held it, read outside the command: a record that is COMPLETED was completed inside the business transaction, so the transaction committed. It is how a command whose commit
+   * ended in an error (the connection was lost before the acknowledgement) finds out whether it was committed or rolled back. `undefined` is a record that is not completed: the transaction did not commit.
+   */
+  async completedOutcome(ctx: TenantContext, recordId: string): Promise<{ httpStatus: number; response: unknown } | undefined> {
+    return this.database.withTenant(ctx, async (tx) => {
+      // The command holds the row lock of its record for the whole of its transaction (claimInTx): taking the lock here waits until that transaction has ended, committed or rolled back, so a commit that is still running is not taken for a rollback. A transaction that does not end within the wait leaves the outcome unknown (the lock times out).
+      await tx.query("set local lock_timeout = '10s'");
+      const [row] = await tx.query<{ http_status: number | null; response_ref: unknown; status: string }>('select status, http_status, response_ref from machvon.idempotency_record where id = $1::uuid for update', [recordId]);
+      return row !== undefined && row.status === 'COMPLETED' && row.http_status !== null ? { httpStatus: row.http_status, response: row.response_ref } : undefined;
+    });
+  }
+
   async completeInTx(tx: TenantTx, recordId: string, outcome: CompletedOutcome): Promise<void> {
     const resource = await this.referenceOf(tx, outcome);
     await tx.query(

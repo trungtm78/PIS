@@ -128,6 +128,47 @@ describe('IdempotencyStore', () => {
     expect(await store.begin(A1, input(keyHash, HASH_2))).toEqual({ kind: 'conflict' });
   });
 
+  it('tells a command whose commit failed to answer whether it went through: only a completed record means that the transaction committed (ST-LLM-002)', async () => {
+    const keyHash = nextKey();
+    const recordId = await start(A1, keyHash);
+    expect(await store.completedOutcome(A1, recordId)).toBeUndefined();
+    // A transaction that completes the record and then fails leaves it as it was.
+    await expect(tenantDb.withTenant(A1, async (tx) => {
+      await store.completeInTx(tx, recordId, { httpStatus: 200, response: success({ ok: true }) });
+      throw new Error('the commit failed');
+    })).rejects.toThrow('the commit failed');
+    expect(await store.completedOutcome(A1, recordId)).toBeUndefined();
+    await tenantDb.withTenant(A1, (tx) => store.completeInTx(tx, recordId, { httpStatus: 200, response: success({ ok: true }) }));
+    expect(await store.completedOutcome(A1, recordId)).toEqual({ httpStatus: 200, response: success({ ok: true }) });
+    // A record of another tenant is not seen.
+    expect(await store.completedOutcome(B1, recordId)).toBeUndefined();
+  });
+
+  it('waits for a transaction that is still committing before it says what the record holds, so that a commit in flight is not taken for a rollback', async () => {
+    const keyHash = nextKey();
+    const recordId = await start(A1, keyHash);
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    let locked: () => void = () => undefined;
+    const taken = new Promise<void>((resolve) => (locked = resolve));
+    // The command: it claims the record, completes it and goes on for a while before the commit is through.
+    const command = tenantDb.withTenant(A1, async (tx) => {
+      expect(await store.claimInTx(tx, recordId)).toBe(true);
+      await store.completeInTx(tx, recordId, { httpStatus: 200, response: success({ ok: true }) });
+      locked();
+      await held;
+    });
+    await taken;
+    const asked = store.completedOutcome(A1, recordId);
+    let answered = false;
+    void asked.then(() => (answered = true));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(answered).toBe(false);
+    release();
+    await command;
+    expect(await asked).toEqual({ httpStatus: 200, response: success({ ok: true }) });
+  });
+
   it('lets the same key start again after a retryable failure, on the same record', async () => {
     const keyHash = nextKey();
     const recordId = await start(A1, keyHash);

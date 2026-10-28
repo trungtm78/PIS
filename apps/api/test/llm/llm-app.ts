@@ -6,7 +6,10 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
+import { LlmKeyController } from '../../src/modules/llm/key.controller';
+import { InMemoryVault, MockLiteLlm } from '../../src/modules/llm/mock-key-ports';
 import { LlmRegistryController } from '../../src/modules/llm/registry.controller';
+import { LLM_ADMIN, LLM_VAULT } from '../../src/modules/llm/tokens';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -22,6 +25,8 @@ export const READER = 4; // reads the registry only
 export const NOBODY = 5; // no grant
 export const SCOPED = 6; // holds the rights over one unit only: the registry is the tenant's, so it is refused
 export const DUAL = 7; // holds the right to register and the right to approve: the rule, not the guard, keeps them apart
+export const KEY_ADMIN = 8; // makes, rotates and revokes the virtual keys, and lists them
+export const KEY_READER = 9; // lists the keys only
 export const ROOT = 1;
 export const BRANCH = 2;
 
@@ -34,6 +39,8 @@ export interface Reply {
 export class LlmApp {
   readonly harness = new AuthzHarness();
   app!: RunningApp;
+  readonly litellm = new MockLiteLlm();
+  readonly vault = new InMemoryVault();
 
   async start(): Promise<void> {
     const { harness } = this;
@@ -43,7 +50,7 @@ export class LlmApp {
       { n: BRANCH, path: `/${unitId(BRANCH)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [AI_ADMIN, SECURITY, SECURITY_TWO, READER, NOBODY, SCOPED, DUAL]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [AI_ADMIN, SECURITY, SECURITY_TWO, READER, NOBODY, SCOPED, DUAL, KEY_ADMIN, KEY_READER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, AI_ADMIN, ROOT);
     const MANAGE = ['llm.provider.manage', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
     const APPROVE = ['llm.provider.approve', 'llm.policy.approve', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
@@ -52,7 +59,9 @@ export class LlmApp {
     await harness.seedRole(TENANT_A, 3, 'AI_READER', ['llm.provider.read', 'llm.policy.read'], 20);
     await harness.seedRole(TENANT_A, 4, 'AI_SCOPED', [...MANAGE, ...APPROVE], 40);
     await harness.seedRole(TENANT_A, 5, 'AI_DUAL', [...MANAGE, ...APPROVE], 55);
-    await harness.seedRole(TENANT_B, 1, 'AI_ADMIN', MANAGE, 50);
+    await harness.seedRole(TENANT_A, 6, 'AI_KEY_ADMIN', ['llm.key.manage', 'llm.key.read'], 50);
+    await harness.seedRole(TENANT_A, 7, 'AI_KEY_READER', ['llm.key.read'], 20);
+    await harness.seedRole(TENANT_B, 1, 'AI_ADMIN', [...MANAGE, 'llm.key.manage', 'llm.key.read'], 50);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: AI_ADMIN, role: 1, kind: 'TENANT' },
       { n: 2, member: SECURITY, role: 2, kind: 'TENANT' },
@@ -60,6 +69,8 @@ export class LlmApp {
       { n: 4, member: READER, role: 3, kind: 'TENANT' },
       { n: 5, member: SCOPED, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] },
       { n: 6, member: DUAL, role: 5, kind: 'TENANT' },
+      { n: 7, member: KEY_ADMIN, role: 6, kind: 'TENANT' },
+      { n: 8, member: KEY_READER, role: 7, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: AI_ADMIN, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -69,9 +80,11 @@ export class LlmApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [LlmRegistryController],
+      controllers: [LlmRegistryController, LlmKeyController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
+        { provide: LLM_ADMIN, useValue: this.litellm },
+        { provide: LLM_VAULT, useValue: this.vault },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });
@@ -109,7 +122,7 @@ export class LlmApp {
 
   /** Removes the registry of a tenant so that a test starts from nothing. */
   reset(tenantId: string = TENANT_A): Promise<unknown[]> {
-    return this.harness.owner(tenantId, [['delete from machvon.ai_model'], ['delete from machvon.ai_provider'], ['delete from machvon.ai_classification_policy_version']]);
+    return this.harness.owner(tenantId, [['delete from machvon.ai_virtual_key'], ['delete from machvon.ai_model'], ['delete from machvon.ai_provider'], ['delete from machvon.ai_classification_policy_version']]);
   }
 }
 

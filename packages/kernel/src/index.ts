@@ -677,3 +677,5 @@ export { BI_DRILL_TTL_SECONDS, DISBURSEMENT_DIMENSIONS, DISBURSEMENT_FIELDS, biS
 export type { BiDrillClaims, Figure, GroupSums, MeasureKind, MeasurePlan, QueryReconciliation } from './bi-query.ts';
 export { BASELINE_MATRIX, CLASSIFICATIONS, ROUTES, assertActivation, assertModelRegistration, assertPolicyDraft, assertProviderRegistration, assertPublishable, baselineViolations, parseMatrix, routesFor } from './llm-registry.ts';
 export type { Classification, Matrix, PublishedPolicy, Route } from './llm-registry.ts';
+export { KEY_ROTATION_HOURS, KEY_SCOPES, assertKeyDraft, fingerprintOf, rotationDeadline, scrubSecrets, secretRefOf } from './llm-keys.ts';
+export type { KeyDraft, KeyScope, LiteLlmAdminPort, SecretVaultPort } from './llm-keys.ts';

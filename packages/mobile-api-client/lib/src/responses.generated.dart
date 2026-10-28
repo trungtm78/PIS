@@ -500,6 +500,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAiModels': asObject,
   'listAiProviders': asObject,
   'listAiRequests': asObject,
+  'listAiVirtualKeys': asObject,
   'listAllocationExtensions': AllocationExtensionPageResponse.fromJson,
   'listAnalysisFindings': asObject,
   'listAppropriations': asObject,

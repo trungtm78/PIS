@@ -212,6 +212,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'BI-18': () => import('../../screens/bi/DatasetVersionsScreen'),
   'LLM-02': () => import('../../screens/llm/ProvidersScreen'),
   'LLM-03': () => import('../../screens/llm/ModelsScreen'),
+  'LLM-06': () => import('../../screens/llm/KeysScreen'),
   'LLM-19': () => import('../../screens/llm/PolicyMatrixScreen'),
   'HOME-01': () => import('../../screens/home/OverviewScreen'),
   'HOME-02': () => import('../../screens/home/MyWorkScreen'),

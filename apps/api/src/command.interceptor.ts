@@ -114,6 +114,10 @@ export class CommandInterceptor implements NestInterceptor {
     // An attempt that lost its claim must not settle: the record belongs to the attempt that took it over.
     let ownsRecord = true;
     const afterCommit: Array<() => void | Promise<void>> = [];
+    const afterRollback: Array<() => void | Promise<void>> = [];
+    let committed = false;
+    // The handler returned and the transaction was asked to commit: if it then fails, the outcome is not known until the record of the command is read.
+    let handlerReturned = false;
     let refusal: DomainError | undefined;
     try {
       const body = await this.runnerFor(options).withTenant(tenant, async (tx) => {
@@ -135,6 +139,9 @@ export class CommandInterceptor implements NestInterceptor {
           afterCommit: (callback) => {
             afterCommit.push(callback);
           },
+          afterRollback: (callback) => {
+            afterRollback.push(callback);
+          },
           refuseAfterCommit: (error) => {
             refusal ??= error;
           },
@@ -146,12 +153,14 @@ export class CommandInterceptor implements NestInterceptor {
         }
         request[COMMAND_SCOPE_KEY] = scope;
         const result: unknown = await lastValueFrom(next.handle(), { defaultValue: undefined });
+        handlerReturned = true;
         if (audited === 0) throw new Error(`command ${options.operation} wrote no audit entry`);
         // A refusal that is itself a record: what the command wrote commits, and the stored answer is the refusal.
         const answer: Pick<CompletedOutcome, 'httpStatus' | 'response'> = refusal === undefined ? { httpStatus, response: { kind: 'success', body: result } } : { httpStatus: refusal.status, response: problemOf(refusal) };
         await this.store.completeInTx(tx, begin.recordId, { ...answer, ...this.referenceOf(options, touched) });
         return result;
       });
+      committed = true;
       await this.runAfterCommit(afterCommit, correlationId);
       if (refusal !== undefined) {
         // The record is already completed with the refusal: it is not settled again.
@@ -161,6 +170,13 @@ export class CommandInterceptor implements NestInterceptor {
       this.setEtag(response, body, options.versionField);
       return body;
     } catch (error) {
+      // The transaction is rolled back and its connection is free: what the command did outside the database is taken back now (the last thing done first).
+      if (!committed) {
+        const known = handlerReturned ? await this.commitOutcome(tenant, begin.recordId, correlationId) : 'rolled back';
+        // A commit that failed to answer may have gone through: what it made outside the database is then kept (taking it back would break what is stored), and the stored answer is the one of the retry.
+        if (known === 'rolled back') await this.runAfterRollback(afterRollback, correlationId);
+        else ownsRecord = false;
+      }
       if (ownsRecord) await this.settle(tenant, begin.recordId, options.operation, { requestId, correlationId }, error);
       throw error;
     }
@@ -177,6 +193,27 @@ export class CommandInterceptor implements NestInterceptor {
   // The command is committed: a failing callback is logged, the others still run, and the answer stays a success.
   private async runAfterCommit(callbacks: ReadonlyArray<() => void | Promise<void>>, correlationId: string): Promise<void> {
     for (const callback of callbacks) {
+      try {
+        await callback();
+      } catch (callbackError) {
+        this.logger.error(callbackError, correlationId);
+      }
+    }
+  }
+
+  // After a failure that came when the handler had returned: the record of the command was completed inside the transaction, so a COMPLETED record means that the commit went through. When it cannot be read, the outcome stays unknown.
+  private async commitOutcome(tenant: TenantContext, recordId: string, correlationId: string): Promise<'rolled back' | 'committed' | 'unknown'> {
+    try {
+      return (await this.store.completedOutcome(tenant, recordId)) === undefined ? 'rolled back' : 'committed';
+    } catch (lookupError) {
+      this.logger.error(lookupError, correlationId);
+      return 'unknown';
+    }
+  }
+
+  // The command was rolled back: each compensation runs, last registered first, and a failing one is logged without stopping the rest.
+  private async runAfterRollback(callbacks: ReadonlyArray<() => void | Promise<void>>, correlationId: string): Promise<void> {
+    for (const callback of [...callbacks].reverse()) {
       try {
         await callback();
       } catch (callbackError) {

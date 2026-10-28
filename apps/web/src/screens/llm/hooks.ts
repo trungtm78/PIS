@@ -3,8 +3,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { modelBody, policyBody, providerBody, toModel, toPolicyBook, toProvider } from './llm-model';
-import type { ModelEntry, ModelValues, PolicyBook, PolicyValues, Provider, ProviderValues } from './llm-model';
+import { keyBody, modelBody, policyBody, providerBody, toKey, toModel, toPolicyBook, toProvider } from './llm-model';
+import type { KeyEntry, KeyValues, ModelEntry, ModelValues, PolicyBook, PolicyValues, Provider, ProviderValues } from './llm-model';
 
 /** Every read and every mutation of the AI registry screens lives under this key of the tenant, so one command refreshes them all. */
 export const llmRoot = (tenantId: string | undefined) => ['llm', tenantId] as const;
@@ -37,6 +37,17 @@ export function usePolicies() {
   return useQuery<PolicyBook>({
     queryKey: [...llmRoot(tenant?.id), 'policies', tenant?.membershipId],
     queryFn: async () => toPolicyBook(await client.readAll('listAiClassificationPolicies')),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+export function useKeys() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<KeyEntry[]>({
+    queryKey: [...llmRoot(tenant?.id), 'keys', tenant?.membershipId],
+    queryFn: async () => (await client.readAll('listAiVirtualKeys')).flatMap((raw) => toKey(raw) ?? []),
     enabled: tenant !== undefined,
     retry: false,
   });
@@ -89,4 +100,27 @@ export interface PublishInput {
 
 export function usePublishPolicy() {
   return useRegistryCommand<PublishInput>((client, input, attempt) => client.command('publishAiClassificationPolicy', { path: { id: input.policyId }, ifMatchVersion: input.version, attempt }));
+}
+
+export function useCreateKey() {
+  return useRegistryCommand<KeyValues>((client, values, attempt) => client.command('createAiVirtualKey', { body: keyBody(values), attempt }));
+}
+
+export interface KeyAction {
+  keyId: string;
+  version: number;
+}
+
+export function useRotateKey() {
+  return useRegistryCommand<KeyAction>((client, input, attempt) => client.command('rotateAiVirtualKey', { path: { id: input.keyId }, ifMatchVersion: input.version, attempt }));
+}
+
+export interface RevokeInput extends KeyAction {
+  reason: string;
+}
+
+export function useRevokeKey() {
+  return useRegistryCommand<RevokeInput>((client, input, attempt) =>
+    client.command('revokeAiVirtualKey', { path: { id: input.keyId }, ifMatchVersion: input.version, body: { reason: input.reason.trim() }, attempt }),
+  );
 }

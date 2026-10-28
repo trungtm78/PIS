@@ -20,6 +20,11 @@ export interface CommandScope {
    */
   afterCommit(callback: () => void | Promise<void>): void;
   /**
+   * Registers work for after the command transaction was rolled back and its connection released: what the command did outside the database (a key made at a service, a file stored) and must now take back.
+   * It runs in reverse order of registration, whatever made the command fail (the handler, the stored answer, the commit), never after a commit; a failure of its own is logged and the others still run.
+   */
+  afterRollback(callback: () => void | Promise<void>): void;
+  /**
    * Makes the command commit what it wrote (its effects, audit row and events) and then answer with this refusal instead of a result: for a command whose refusal is itself a record, such as an
    * amount that does not agree and opens a difference. The refusal is stored as the answer of the idempotency key, so the same key gets it again; the first call wins when it is called twice.
    */

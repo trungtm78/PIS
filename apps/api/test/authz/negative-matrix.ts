@@ -1127,6 +1127,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/ai-classification-policies/00000000-0000-4000-8000-0000000000e2/publish', ifMatch: '"1"', body: {} }),
   },
+  // The virtual keys are the tenant's (ST-LLM-002): a caller without the right is refused before the body is read.
+  createAiVirtualKey: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/ai-virtual-keys',
+      body: { key_alias: 'matrix-key', scope_kind: 'TENANT', allowed_model_ids: ['00000000-0000-4000-8000-0000000000e3'], expires_at: '2999-01-01T00:00:00.000Z' },
+    }),
+  },
+  rotateAiVirtualKey: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-virtual-keys/00000000-0000-4000-8000-0000000000e4/rotation', ifMatch: '"1"', body: {} }),
+  },
+  revokeAiVirtualKey: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-virtual-keys/00000000-0000-4000-8000-0000000000e4/revocation', ifMatch: '"1"', body: { reason: 'Matrix probe of the key revocation' } }),
+  },
   post_dashboard_queries: {
     referencesTenantIds: false,
     build: () => ({

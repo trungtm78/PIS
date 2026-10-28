@@ -573,7 +573,7 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
 };
 
 /** A provider, a model and a classification policy of each tenant's AI registry (the code, the model and the legal basis are distinctive). */
-export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string }>> = {
+export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string }>> = {
   'TNT-A': {
     providerId: '00000000-0000-4000-a0d7-000000000001',
     providerCode: 'ALPHA-PROVIDER-0001',
@@ -582,6 +582,11 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     modelCode: 'alpha-model-0001',
     policyId: '00000000-0000-4000-a0d7-000000000003',
     policyBasis: 'Alpha tenant AI routing basis 0001',
+    keyId: '00000000-0000-4000-a0d7-000000000004',
+    keyAlias: 'alpha-key-0001',
+    keyFingerprint: 'a0d7a0d7…a0d7',
+    keySecretRef: 'secret://tenants/alpha/litellm/a0d7-0004',
+    keyLiteLlmRef: 'litellm-alpha-key-0004',
   },
   'TNT-B': {
     providerId: '00000000-0000-4000-b0d7-000000000001',
@@ -591,6 +596,11 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     modelCode: 'beta-model-0001',
     policyId: '00000000-0000-4000-b0d7-000000000003',
     policyBasis: 'Beta tenant AI routing basis 0001',
+    keyId: '00000000-0000-4000-b0d7-000000000004',
+    keyAlias: 'beta-key-0001',
+    keyFingerprint: 'b0d7b0d7…b0d7',
+    keySecretRef: 'secret://tenants/beta/litellm/b0d7-0004',
+    keyLiteLlmRef: 'litellm-beta-key-0004',
   },
 };
 
@@ -844,6 +854,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'ai model code', value: LLM_FIXTURES[tenant].modelCode },
     { kind: 'ai classification policy id', value: LLM_FIXTURES[tenant].policyId },
     { kind: 'ai classification policy basis', value: LLM_FIXTURES[tenant].policyBasis },
+    { kind: 'ai virtual key id', value: LLM_FIXTURES[tenant].keyId },
+    { kind: 'ai virtual key alias', value: LLM_FIXTURES[tenant].keyAlias },
+    { kind: 'ai virtual key fingerprint', value: LLM_FIXTURES[tenant].keyFingerprint },
+    { kind: 'ai virtual key secret reference', value: LLM_FIXTURES[tenant].keySecretRef },
+    { kind: 'ai virtual key litellm reference', value: LLM_FIXTURES[tenant].keyLiteLlmRef },
     { kind: 'metric id', value: BI_FIXTURES[tenant].metricId },
     { kind: 'metric code', value: BI_FIXTURES[tenant].metricCode },
     { kind: 'metric source commit', value: BI_FIXTURES[tenant].sourceCommit },

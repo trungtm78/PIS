@@ -79,6 +79,8 @@ export const JOB_INTERVAL_SECONDS = {
   'capital-balance-reconcile': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the recovered amount of each recommendation of AUD is compared with its ledger once a night wherever the process started; nothing is changed by it (ST-AUD-004).
   'aud-recovery-reconcile': 3600,
+  // Every 5 minutes: the old key of a rotation is revoked at the end of its last day and a key that reached its expiry is recorded as revoked, after LiteLLM has stopped it (ST-LLM-002); the pass is idempotent.
+  'llm-key-sweep': 300,
   'access-cache-expiry': 60,
 } as const;
 
@@ -237,6 +239,8 @@ export interface StandardJobDeps {
   audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The pass over the virtual keys of a tenant (ST-LLM-002): a rotating key whose last day is over, and a key past its expiry, are stopped at LiteLLM and recorded as revoked. */
+  llmKeySweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -654,6 +658,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         const now = (deps.clock ?? (() => new Date()))();
         if (vietnamHourOf(now) !== AUD_RECONCILE_HOUR) return;
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await audRecoveries.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const keySweep = deps.llmKeySweep;
+  if (keySweep !== undefined) {
+    handlers.push({
+      name: 'llm-key-sweep',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await keySweep.run(workerContext(tenantId), now)));
       },
     });
   }

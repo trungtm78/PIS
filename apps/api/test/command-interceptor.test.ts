@@ -20,6 +20,7 @@ function harness(claimed: boolean, options: { handler?: unknown; body?: unknown 
     begin: jest.fn().mockResolvedValue({ kind: 'started', recordId: 'record-1' }),
     claimInTx: jest.fn().mockResolvedValue(claimed),
     completeInTx: jest.fn().mockResolvedValue(undefined),
+    completedOutcome: jest.fn().mockResolvedValue(undefined),
     finishOutsideTx: finish,
   } as unknown as IdempotencyStore;
   const database = { withTenant: (_ctx: unknown, work: (tx: TenantTx) => Promise<unknown>) => work({ query: jest.fn() }) } as unknown as TenantDatabase;
@@ -211,5 +212,81 @@ describe('CommandInterceptor refusal that commits what the command wrote (ST-PAY
     const { interceptor, context, next, store } = runRefusing(() => undefined);
     expect(await settle(interceptor, context, next)).toEqual({ ok: true });
     expect(store.completeInTx).toHaveBeenCalledWith(expect.anything(), 'record-1', expect.objectContaining({ response: { kind: 'success', body: { ok: true } } }));
+  });
+});
+
+describe('CommandInterceptor after-rollback callbacks', () => {
+  // A handler that writes its audit entry and registers compensations the way a command does through the scope; the commit itself can be made to fail.
+  function run(register: (scope: { afterRollback(callback: () => void | Promise<void>): void; afterCommit(callback: () => void | Promise<void>): void }) => void, options: { fail?: boolean; failCompletion?: boolean } = {}) {
+    const calls: string[] = [];
+    const { interceptor, context, next, handle, store } = harness(true);
+    const request = (context.switchToHttp().getRequest() as unknown) as { commandScope?: { audit(entry: unknown): Promise<string>; afterRollback(callback: () => void | Promise<void>): void; afterCommit(callback: () => void | Promise<void>): void } };
+    handle.mockImplementation((() => {
+      const scope = request.commandScope;
+      if (scope === undefined) throw new Error('no scope');
+      return from(
+        (async () => {
+          await scope.audit({ action: 'a', resourceType: 'r', resourceId: '00000000-0000-4000-8000-000000000001', diff: {} });
+          register(scope);
+          if (options.fail === true) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+          return { ok: true };
+        })(),
+      );
+    }) as never);
+    (interceptor as unknown as { audit: { recordInTx: jest.Mock } }).audit = { recordInTx: jest.fn().mockResolvedValue('audit-1') };
+    (store.completeInTx as jest.Mock).mockImplementation(() => (options.failCompletion === true ? Promise.reject(new Error('the commit failed')) : Promise.resolve()));
+    return { interceptor, context, next, calls, store: store as typeof store & { completedOutcome: jest.Mock } };
+  }
+  const settle = (interceptor: CommandInterceptor, context: ExecutionContext, next: CallHandler): Promise<unknown> =>
+    new Promise((resolve) => interceptor.intercept(context, next).subscribe({ next: resolve, error: resolve }));
+
+  it('runs the compensations, last registered first, when the handler fails, before the error is answered', async () => {
+    const { interceptor, context, next, calls } = run(
+      (scope) => {
+        scope.afterRollback(() => void calls.push('first'));
+        scope.afterRollback(async () => {
+          await Promise.resolve();
+          calls.push('second');
+        });
+      },
+      { fail: true },
+    );
+    expect(await settle(interceptor, context, next)).toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
+    expect(calls).toEqual(['second', 'first']);
+  });
+
+  it('runs them when it is the completion of the stored answer or the commit that fails, after the handler had returned', async () => {
+    const { interceptor, context, next, calls } = run((scope) => scope.afterRollback(() => void calls.push('taken back')), { failCompletion: true });
+    expect(await settle(interceptor, context, next)).toBeInstanceOf(Error);
+    expect(calls).toEqual(['taken back']);
+  });
+
+  it('does not take anything back when the commit failed to answer and the record of the command says it went through, nor when the record cannot be read', async () => {
+    const committed = run((scope) => scope.afterRollback(() => void committedCalls.push('taken back')), { failCompletion: true });
+    const committedCalls: string[] = [];
+    committed.store.completedOutcome.mockResolvedValue({ httpStatus: 200, response: { kind: 'success', body: { ok: true } } });
+    expect(await settle(committed.interceptor, committed.context, committed.next)).toBeInstanceOf(Error);
+    expect(committedCalls).toEqual([]);
+    const unreadable = run((scope) => scope.afterRollback(() => void unreadableCalls.push('taken back')), { failCompletion: true });
+    const unreadableCalls: string[] = [];
+    unreadable.store.completedOutcome.mockRejectedValue(new Error('the database is gone'));
+    expect(await settle(unreadable.interceptor, unreadable.context, unreadable.next)).toBeInstanceOf(Error);
+    expect(unreadableCalls).toEqual([]);
+  });
+
+  it('does not run them after a commit, and keeps going when one of them fails', async () => {
+    const committed = run((scope) => scope.afterRollback(() => void committedCalls.push('ran')));
+    const committedCalls: string[] = [];
+    expect(await settle(committed.interceptor, committed.context, committed.next)).toEqual({ ok: true });
+    expect(committedCalls).toEqual([]);
+    const failing = run(
+      (scope) => {
+        scope.afterRollback(() => void failing.calls.push('still ran'));
+        scope.afterRollback(() => Promise.reject(new Error('LiteLLM down')));
+      },
+      { fail: true },
+    );
+    expect(await settle(failing.interceptor, failing.context, failing.next)).toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
+    expect(failing.calls).toEqual(['still ran']);
   });
 });

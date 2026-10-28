@@ -18,7 +18,7 @@ import {
 } from '@machvon/db';
 import type { DeliveryEngine, InboxHandlerRegistry } from '@machvon/db';
 import { ConsoleSpanExporter, NoopSpanExporter, OtlpHttpSpanExporter, Tracer, loadErrorRegistry } from '@machvon/kernel';
-import type { AlertSink, SpanExporter, TimerPort } from '@machvon/kernel';
+import type { AlertSink, LiteLlmAdminPort, SecretVaultPort, SpanExporter, TimerPort } from '@machvon/kernel';
 import { Pool } from 'pg';
 import { createAlertSink } from './alerts/alert-sinks';
 import { AppModule } from './app.module';
@@ -31,6 +31,7 @@ import { DatabaseReadinessProbe, expectedMigrations } from './health/database-pr
 import { HealthController, READINESS_PROBE } from './health/health.controller';
 import type { ReadinessProbe } from './health/health.controller';
 import { INVITATION_MAILER } from './modules/adm/invitation-mailer';
+import { LLM_ADMIN, LLM_VAULT } from './modules/llm/tokens';
 import type { InvitationMailer } from './modules/adm/invitation-mailer';
 import { ADM_INBOX_HANDLERS } from './modules/adm/tokens';
 import { CHANNEL_ADAPTERS } from './notifications/delivery/channel-adapters';
@@ -256,6 +257,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           alerts,
           publish: createOutboxPublisher(consumers),
           accessCache: authzCache,
+          // The old key of a rotation is revoked at the end of its last day through the same ports the controllers use (ST-LLM-002).
+          llmKeys: { litellm: app.get<LiteLlmAdminPort>(LLM_ADMIN, { strict: false }), vault: app.get<SecretVaultPort>(LLM_VAULT, { strict: false }) },
           // The retention job removes the stored payloads of expired inbox events through the same object store the API serves (ST-ADM-017).
           payloads: app.get(FileService, { strict: false }),
           // The adapters that modules register for their inbound provider events are served by the inbox job (ST-ADM-018).

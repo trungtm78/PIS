@@ -496,6 +496,7 @@
   "listAiModels": {},
   "listAiProviders": {},
   "listAiRequests": {},
+  "listAiVirtualKeys": {},
   "listAllocationExtensions": {"items":[{"id":"00000000-0000-4000-8000-000000000001","allocation_line_id":"00000000-0000-4000-8000-000000000001","project_id":"00000000-0000-4000-8000-000000000001","from_plan_year":1,"extended_to":"2026-01-01","amount_vnd":"sample","reason_code":"GPMB_CHAM","justification":"sample","approving_document_id":"00000000-0000-4000-8000-000000000001","status":"REQUESTED","new_allocation_line_id":"00000000-0000-4000-8000-000000000001","new_appropriation_id":"00000000-0000-4000-8000-000000000001","requested_by":"00000000-0000-4000-8000-000000000001","decided_by":"00000000-0000-4000-8000-000000000001","decided_at":"2026-01-01T00:00:00Z","decision_reason":"sample","version":1}],"next_cursor":"sample"},
   "listAnalysisFindings": {},
   "listAppropriations": {},

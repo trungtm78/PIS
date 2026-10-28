@@ -4,6 +4,7 @@ export const PROVIDER_MANAGE = 'llm.provider.manage';
 export const PROVIDER_APPROVE = 'llm.provider.approve';
 export const POLICY_MANAGE = 'llm.policy.manage';
 export const POLICY_APPROVE = 'llm.policy.approve';
+export const KEY_MANAGE = 'llm.key.manage';
 
 export const CLASSIFICATIONS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'PERSONAL', 'IMPORTANT_CORE'] as const;
 export type Classification = (typeof CLASSIFICATIONS)[number];
@@ -292,6 +293,97 @@ export function policyBody(values: PolicyValues) {
   };
 }
 
+// ---- virtual keys ---------------------------------------------------------------------------------------------------------------------------
+
+export const KEY_SCOPES = ['TENANT', 'UNIT', 'PROJECT', 'SERVICE'] as const;
+export type KeyScope = (typeof KEY_SCOPES)[number];
+export const KEY_STATUSES = ['ACTIVE', 'ROTATING', 'REVOKED'] as const;
+export type KeyStatus = (typeof KEY_STATUSES)[number];
+
+/** A key as it is shown: the alias, the fingerprint and the state. The server sends nothing else of the secret, and nothing here could show it. */
+export interface KeyEntry {
+  id: string;
+  alias: string;
+  fingerprint: string;
+  scope: KeyScope;
+  modelIds: string[];
+  rpmLimit: number | null;
+  tpmLimit: number | null;
+  status: KeyStatus;
+  expiresAt: string;
+  rotatedFromId: string | null;
+  revokedReason: string | null;
+  version: number;
+}
+
+const rate = (value: unknown): number | null => (typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : null);
+
+export function toKey(raw: unknown): KeyEntry | undefined {
+  const row = asRecord(raw);
+  const id = text(row?.id);
+  const alias = text(row?.key_alias);
+  const fingerprint = text(row?.fingerprint);
+  const scope = oneOf(KEY_SCOPES, row?.scope_kind);
+  const status = oneOf(KEY_STATUSES, row?.status);
+  const version = whole(row?.version);
+  if (row === undefined || id === undefined || alias === undefined || fingerprint === undefined || scope === undefined || status === undefined || version === undefined) return undefined;
+  return {
+    id,
+    alias,
+    fingerprint,
+    scope,
+    modelIds: Array.isArray(row.allowed_model_ids) ? row.allowed_model_ids.filter((entry): entry is string => typeof entry === 'string') : [],
+    rpmLimit: rate(row.rpm_limit),
+    tpmLimit: rate(row.tpm_limit),
+    status,
+    expiresAt: text(row.expires_at) ?? '',
+    rotatedFromId: nullableText(row.rotated_from_id),
+    revokedReason: nullableText(row.revoked_reason),
+    version,
+  };
+}
+
+export interface KeyValues {
+  alias: string;
+  scope: KeyScope;
+  modelIds: string[];
+  expiresOn: string;
+  rpmLimit: string;
+  tpmLimit: string;
+}
+export const EMPTY_KEY: KeyValues = { alias: '', scope: 'TENANT', modelIds: [], expiresOn: '', rpmLimit: '', tpmLimit: '' };
+export type KeyProblem = 'required' | 'invalidAlias' | 'invalidDate' | 'pastDate' | 'invalidNumber' | 'needsModel';
+export type KeyErrors = Partial<Record<'alias' | 'expiresOn' | 'rpmLimit' | 'tpmLimit' | 'modelIds', KeyProblem>>;
+
+const ALIAS = /^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$/;
+
+export function validateKey(values: KeyValues, today: string): KeyErrors {
+  const errors: KeyErrors = {};
+  if (values.alias.trim() === '') errors.alias = 'required';
+  else if (!ALIAS.test(values.alias.trim())) errors.alias = 'invalidAlias';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(values.expiresOn) || Number.isNaN(Date.parse(values.expiresOn))) errors.expiresOn = 'invalidDate';
+  else if (values.expiresOn <= today) errors.expiresOn = 'pastDate';
+  // A key that reaches no model serves nothing: the screen asks for at least one.
+  if (values.modelIds.length === 0) errors.modelIds = 'needsModel';
+  for (const [field, value] of [['rpmLimit', values.rpmLimit], ['tpmLimit', values.tpmLimit]] as const) {
+    if (value.trim() !== '' && (!/^[0-9]{1,8}$/.test(value.trim()) || Number(value) < 1)) errors[field] = 'invalidNumber';
+  }
+  return errors;
+}
+
+export function keyBody(values: KeyValues) {
+  return {
+    key_alias: values.alias.trim(),
+    scope_kind: values.scope,
+    allowed_model_ids: values.modelIds,
+    expires_at: new Date(`${values.expiresOn}T23:59:59.000+07:00`).toISOString(),
+    ...(values.rpmLimit.trim() === '' ? {} : { rpm_limit: Number(values.rpmLimit) }),
+    ...(values.tpmLimit.trim() === '' ? {} : { tpm_limit: Number(values.tpmLimit) }),
+  };
+}
+
+export const MIN_REVOKE_REASON = 10;
+
 // ---- refusals -------------------------------------------------------------------------------------------------------------------------------
 
 export type LlmReason =
@@ -302,6 +394,10 @@ export type LlmReason =
   | 'duplicateProvider'
   | 'duplicateModel'
   | 'aboveProvider'
+  | 'aliasDuplicate'
+  | 'keyState'
+  | 'modelNotApproved'
+  | 'unavailable'
   | 'matrixInvalid'
   | 'weakensBaseline'
   | 'stale'
@@ -319,6 +415,10 @@ const REASON_BY_CODE: Readonly<Record<string, LlmReason>> = {
   PROVIDER_CODE_DUPLICATE: 'duplicateProvider',
   MODEL_DUPLICATE: 'duplicateModel',
   CLASSIFICATION_ABOVE_PROVIDER: 'aboveProvider',
+  KEY_ALIAS_DUPLICATE: 'aliasDuplicate',
+  KEY_STATE_INVALID: 'keyState',
+  MODEL_NOT_APPROVED: 'modelNotApproved',
+  PROVIDER_UNAVAILABLE: 'unavailable',
   POLICY_MATRIX_INVALID: 'matrixInvalid',
   POLICY_WEAKENS_BASELINE: 'weakensBaseline',
   VERSION_CONFLICT: 'stale',

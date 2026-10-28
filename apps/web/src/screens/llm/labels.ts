@@ -1,5 +1,5 @@
 import type { Translator } from '../../i18n';
-import type { Capability, Classification, LlmReason, ModelProblem, ModelStatus, PolicyProblem, PolicyStatus, ProviderProblem, ProviderStatus, Route } from './llm-model';
+import type { Capability, Classification, KeyProblem, KeyScope, KeyStatus, LlmReason, ModelProblem, ModelStatus, PolicyProblem, PolicyStatus, ProviderProblem, ProviderStatus, Route } from './llm-model';
 
 type T = Translator['t'];
 
@@ -56,6 +56,14 @@ export function refusalMessage(t: T, reason: LlmReason, detail: string): string 
       return t('llm.reason.duplicateModel');
     case 'aboveProvider':
       return t('llm.reason.aboveProvider');
+    case 'aliasDuplicate':
+      return t('llm.reason.aliasDuplicate');
+    case 'keyState':
+      return t('llm.reason.keyState');
+    case 'modelNotApproved':
+      return t('llm.reason.modelNotApproved');
+    case 'unavailable':
+      return t('llm.reason.unavailable');
     case 'matrixInvalid':
       return t('llm.reason.matrixInvalid');
     case 'weakensBaseline':
@@ -75,7 +83,15 @@ export function refusalMessage(t: T, reason: LlmReason, detail: string): string 
   }
 }
 
-export function problemMessage(t: T, problem: ProviderProblem | ModelProblem | PolicyProblem): string {
+export function keyScopeLabel(t: T, scope: KeyScope): string {
+  return { TENANT: t('llm.keyScope.tenant'), UNIT: t('llm.keyScope.unit'), PROJECT: t('llm.keyScope.project'), SERVICE: t('llm.keyScope.service') }[scope];
+}
+
+export function keyStatusLabel(t: T, status: KeyStatus): string {
+  return { ACTIVE: t('llm.keyStatus.active'), ROTATING: t('llm.keyStatus.rotating'), REVOKED: t('llm.keyStatus.revoked') }[status];
+}
+
+export function problemMessage(t: T, problem: ProviderProblem | ModelProblem | PolicyProblem | KeyProblem): string {
   return {
     required: t('llm.problem.required'),
     invalidCode: t('llm.problem.invalidCode'),
@@ -89,5 +105,8 @@ export function problemMessage(t: T, problem: ProviderProblem | ModelProblem | P
     needsD07: t('llm.problem.needsD07'),
     invalidDate: t('llm.problem.invalidDate'),
     importantCore: t('llm.problem.importantCore'),
+    invalidAlias: t('llm.problem.invalidAlias'),
+    pastDate: t('llm.problem.pastDate'),
+    needsModel: t('llm.problem.needsModel'),
   }[problem];
 }
