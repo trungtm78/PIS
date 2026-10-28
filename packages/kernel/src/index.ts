@@ -413,6 +413,8 @@ export { CHECKLIST_OUTCOMES, INSPECTION_COMMANDS, INSPECTION_RESULTS, INSPECTION
 export type { ChecklistAnswer, ChecklistItem, ChecklistOutcome, InspectionCommand, InspectionResult, InspectionStatus, InspectionType, RegimeRule, SignerRole } from './qms-inspection.ts';
 export { ACCEPTANCE_COMMANDS, ACCEPTANCE_SCOPES, ACCEPTANCE_STATUSES, SIGNATURE_METHODS, assertAcceptanceTransition, assertSignaturesComplete, canonicalContent, legalEffectOf, missingSigners, rolesSignableBy, scopeAccepts } from './qms-acceptance.ts';
 export type { AcceptanceCommand, AcceptanceContent, AcceptanceScope, AcceptanceStatus, SignatureMethod, SignerStanding } from './qms-acceptance.ts';
+export { DIARY_COMMANDS, DIARY_SIGNATURE_VALUE, DIARY_SIGNING_ROLE, DIARY_STATUSES, MAX_DIARY_BYTES, assertDiaryContent, assertDiaryTransition, assertSignatureMethod, diaryCanonical, diaryHashOf } from './qms-diary.ts';
+export type { DiaryCommand, DiaryContent, DiaryStatus } from './qms-diary.ts';
 export { WORK_ACCEPTANCE_COMMANDS, WORK_ACCEPTANCE_STATUSES, assertWithinContractValue, assertWorkAcceptanceTransition, isAccepted, lineAmount, notApproved, sumAmounts } from './ctr-acceptance.ts';
 export type { WorkAcceptanceCommand, WorkAcceptanceStatus } from './ctr-acceptance.ts';
 export { LEDGER_ENTRY_KINDS, LEDGER_RULES, REVERSAL_OF, ZERO_BALANCE, ZERO_DELTA, advanceOutstanding, applyDelta, assertEntryShape, assertLedgerInvariants, brokenRule, dong, isReversal, negate, totalOf as totalOfLedger } from './pay-ledger.ts';

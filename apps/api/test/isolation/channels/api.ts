@@ -7,7 +7,7 @@ import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, CONSENT_FIXTURES, DELIVERY_
 import { WORK_CALENDAR_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, CONCLUSION_FIXTURES, ENGAGEMENT_FIXTURES, ESCALATION_FIXTURES, COMPLAINT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, ISSUE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PACKAGE_FIXTURES, PARCEL_FIXTURES, PROJECT_FIXTURES, PETITION_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, DIARY_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, CRITERIA_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, PROCUREMENT_PLAN_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { QUALITY_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -421,6 +421,13 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'reopenNonconformance', method: 'POST', id: NONCONFORMANCE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign reopen attempt' } },
   { operation: 'get_resources_quality_nonconformance_id', method: 'GET', id: NONCONFORMANCE_FIXTURES['TNT-B'].id },
   { operation: 'createQualityAcceptance', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, body: { acceptance_scope: 'WORK_ITEM', record_no: 'Isolation foreign draft', document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
+  { operation: 'get_resources_site_diary_id', method: 'GET', id: DIARY_FIXTURES['TNT-B'].id },
+  { operation: 'reviseSiteDiaryDraft', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { content: { summary: 'Isolation probe' }, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
+  { operation: 'signSiteDiaryByContractor', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
+  { operation: 'addSupervisorRemark', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { remark: 'Isolation probe', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
+  { operation: 'confirmSiteDiaryByOwner', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
+  { operation: 'lockSiteDiary', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the lock' } },
+  { operation: 'correctSiteDiary', method: 'POST', id: DIARY_FIXTURES['TNT-B'].id, body: { content: { summary: 'Isolation probe' }, correction_reason: 'Isolation probe of the correction', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
   { operation: 'signQualityAcceptance', method: 'POST', id: ACCEPTANCE_FIXTURES['TNT-B'].id, versioned: true, body: { signer_role: 'OWNER', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } },
   { operation: 'decideQualityAcceptance', method: 'POST', id: ACCEPTANCE_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision attempt' } },
   { operation: 'revokeQualityAcceptance', method: 'POST', id: ACCEPTANCE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign revocation attempt' } },

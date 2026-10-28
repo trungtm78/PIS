@@ -242,6 +242,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select count(*)::text from machvon.payment_document where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.quality_acceptance where tenant_id = $1),
     (select count(*)::text from machvon.qms_signature where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || coalesce(content_hash, ''), ',' order by id) from machvon.site_diary where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_obligation_rule where tenant_id = $1),
     (select count(*)::text from machvon.mne_report where tenant_id = $1),
@@ -427,6 +428,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           `insert into machvon.quality_acceptance (tenant_id, id, project_id, contract_id, inspection_id, record_no, acceptance_scope, document_version_id, status, required_roles, content_hash, created_by, updated_by, version)
            values ($1, $2, $3, $4, $5, 'QA-MX', 'WORK_ITEM', $6, 'DRAFT', '["CONTRACTOR","SUPERVISOR","OWNER"]'::jsonb, repeat('a', 64), $7, $7, 1)`,
           [TENANT_A, id(0x77, 20), project, draftId, id(0x77, 19), id(0x77, 9), memberId(RECIPIENT)],
+        ],
+        [
+          `insert into machvon.site_diary (tenant_id, id, project_id, contract_id, record_date, client_operation_id, content, author_id, version, diary_no, status, created_by, updated_by)
+           values ($1, $2, $3, $4, '2026-10-19', $5, '{"summary": "Matrix"}'::jsonb, $6, 1, 'NK-MX-20261019', 'DRAFT', $6, $6)`,
+          [TENANT_A, id(0x77, 40), project, draftId, id(0x77, 41), memberId(RECIPIENT)],
         ],
       ];
       for (const [sql, params] of statements) await seeder.query(sql, params);
@@ -997,6 +1003,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       petitionId,
       inspectionId: id(0x77, 19),
       acceptanceId: id(0x77, 20),
+      diaryId: id(0x77, 40),
       qualityContractId,
       qualityRuleId,
       qualitySnapshotId,

@@ -178,6 +178,8 @@ export interface MatrixTargets {
   inspectionId: string;
   /** Quality acceptance minutes in DRAFT (version 1) of the draft contract, drafted by someone other than the callers. */
   acceptanceId: string;
+  /** A site diary in DRAFT (version 1) of the draft contract, written by someone other than the callers. */
+  diaryId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
   qualityRuleId: string;
@@ -1617,6 +1619,34 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   createQualityAcceptance: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/quality-acceptances`, body: { acceptance_scope: 'WORK_ITEM', record_no: 'QA-MX-NEW', document_version_id: t.draftContractId } }),
+  },
+  saveSiteDiaryDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/site-diaries', body: { contract_id: t.draftContractId, record_date: '2026-10-20', client_operation_id: '00000000-0000-4000-8000-0000000000e6', content: { summary: 'Matrix probe of the diary' } } }),
+  },
+  reviseSiteDiaryDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/draft`, ifMatch: '"1"', body: { content: { summary: 'Matrix probe of the diary' }, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+  },
+  signSiteDiaryByContractor: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/contractor-sign`, ifMatch: '"1"', body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+  },
+  addSupervisorRemark: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/supervisor-remark`, ifMatch: '"1"', body: { remark: 'Matrix probe of the remark', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+  },
+  confirmSiteDiaryByOwner: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/owner-confirm`, ifMatch: '"1"', body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+  },
+  lockSiteDiary: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/lock`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  correctSiteDiary: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/corrections`, body: { content: { summary: 'Matrix probe of the correction' }, correction_reason: REASON, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
   },
   signQualityAcceptance: {
     referencesTenantIds: true,

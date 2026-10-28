@@ -281,6 +281,12 @@ export const ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string; reco
   'TNT-B': { id: '00000000-0000-4000-b0cb-000000000001', recordNo: 'BETA-ACCEPTANCE-NO-0001' },
 };
 
+/** The diary of a day of the contract of each tenant (its summary and its number are distinctive; tenant data). */
+export const DIARY_FIXTURES: Readonly<Record<TenantName, { id: string; diaryNo: string; summary: string; operationId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ce-000000000001', diaryNo: 'ALPHA-DIARY-NO-0001', summary: 'Alpha site diary summary 0001', operationId: '00000000-0000-4000-a0ce-000000000002' },
+  'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', diaryNo: 'BETA-DIARY-NO-0001', summary: 'Beta site diary summary 0001', operationId: '00000000-0000-4000-b0ce-000000000002' },
+};
+
 /** A petition of the contractor of each tenant on its package, received and waiting for an answer. */
 export const PETITION_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bc-000000000001' },
@@ -1021,6 +1027,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'corrective action id', value: NONCONFORMANCE_FIXTURES[tenant].actionId },
     { kind: 'corrective action description', value: NONCONFORMANCE_FIXTURES[tenant].actionDescription },
     { kind: 'quality acceptance id', value: ACCEPTANCE_FIXTURES[tenant].id },
+    { kind: 'site diary id', value: DIARY_FIXTURES[tenant].id },
+    { kind: 'site diary number', value: DIARY_FIXTURES[tenant].diaryNo },
+    { kind: 'site diary summary', value: DIARY_FIXTURES[tenant].summary },
     { kind: 'quality acceptance record no', value: ACCEPTANCE_FIXTURES[tenant].recordNo },
     { kind: 'measurement reference', value: MEASUREMENT_FIXTURES[tenant].referenceNo },
     { kind: 'boq item id', value: BOQ_FIXTURES[tenant].itemId },

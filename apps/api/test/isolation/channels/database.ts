@@ -12,7 +12,7 @@ import { WAIVER_FIXTURES } from '../suite';
 import { TICKET_FIXTURES } from '../suite';
 import { ACCOUNTABILITY_FIXTURES, APPRAISAL_FIXTURES, COMPLAINT_FIXTURES, CONCLUSION_FIXTURES, ENGAGEMENT_FIXTURES, HOUSEHOLD_FIXTURES, INVENTORY_FIXTURES, PACKAGE_FIXTURES, PAYMENT_COMP_FIXTURES, PLAN_COMP_FIXTURES, PARCEL_FIXTURES, PETITION_FIXTURES, PROJECT_FIXTURES, PROPOSAL_FIXTURES, RESULT_FIXTURES, SECTION_FIXTURES, STAGE_FIXTURES } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
-import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
+import { ACCEPTANCE_FIXTURES, ADVANCE_FIXTURES, DIARY_FIXTURES, BOQ_FIXTURES, CHANGE_FIXTURES, CONTRACT_FIXTURES, GUARANTEE_FIXTURES, HANDOVER_FIXTURES, INSPECTION_FIXTURES, LEDGER_FIXTURES, MEASUREMENT_FIXTURES, NONCONFORMANCE_FIXTURES, PAYMENT_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, WORK_ACCEPTANCE_FIXTURES } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
 import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES } from '../suite';
@@ -543,6 +543,15 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_quality_nonconformance_id',
   'createQualityAcceptance',
   'signQualityAcceptance',
+  'saveSiteDiaryDraft',
+  'reviseSiteDiaryDraft',
+  'signSiteDiaryByContractor',
+  'addSupervisorRemark',
+  'confirmSiteDiaryByOwner',
+  'lockSiteDiary',
+  'correctSiteDiary',
+  'get_resources_site_diary',
+  'get_resources_site_diary_id',
   'decideQualityAcceptance',
   'revokeQualityAcceptance',
   'listQualityAcceptances',
@@ -1115,6 +1124,10 @@ const INSERT_ACCEPTANCE = `insert into machvon.quality_acceptance
   (tenant_id, id, project_id, contract_id, inspection_id, record_no, acceptance_scope, document_version_id, status, required_roles, content_hash, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, $6, 'WORK_ITEM', $7, 'DRAFT', '["CONTRACTOR","SUPERVISOR","OWNER"]'::jsonb, repeat('a', 64), $8, $8, 1) on conflict do nothing`;
 
+const INSERT_DIARY = `insert into machvon.site_diary
+  (tenant_id, id, project_id, contract_id, record_date, client_operation_id, content, author_id, version, diary_no, status, supervisor_remark, created_by, updated_by)
+  values ($1, $2, $3, $4, '2026-10-19', $5, $6::jsonb, $7, 1, $8, 'DRAFT', null, $7, $7) on conflict do nothing`;
+
 const INSERT_BOQ_ITEM = `insert into machvon.boq_item
   (tenant_id, id, contract_id, business_key, description, unit_code, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 'M3', $6, $6) on conflict do nothing`;
@@ -1593,6 +1606,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CORRECTIVE_ACTION, [tenantId, ncr.actionId, ncr.id, ncr.actionDescription, MEMBERSHIP_ID]);
     const acceptance = ACCEPTANCE_FIXTURES[tenant];
     await client.query(INSERT_ACCEPTANCE, [tenantId, acceptance.id, project.id, draft.id, inspection.id, acceptance.recordNo, documents.versionId, ACTOR_ID]);
+    const diary = DIARY_FIXTURES[tenant];
+    await client.query(INSERT_DIARY, [tenantId, diary.id, project.id, draft.id, diary.operationId, JSON.stringify({ summary: diary.summary }), MEMBERSHIP_ID, diary.diaryNo]);
     const measurement = MEASUREMENT_FIXTURES[tenant];
     await client.query(INSERT_MEASUREMENT, [tenantId, measurement.id, draft.id, draft.revisionId, boq.lineId, boq.itemId, PERIOD_FIXTURES[tenant].id, documents.versionId, measurement.referenceNo, ACTOR_ID]);
     const workAcceptance = WORK_ACCEPTANCE_FIXTURES[tenant];

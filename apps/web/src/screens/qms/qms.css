@@ -15,6 +15,20 @@
 .qms-badge.danger {
   border-color: var(--shell-danger, #b91c1c);
 }
+.qms-plain {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.qms-other {
+  margin: 4px 0 12px;
+  padding: 8px;
+  overflow: auto;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 4px;
+  font-size: 12px;
+}
 .qms-dialog-body {
   padding: 16px;
 }
