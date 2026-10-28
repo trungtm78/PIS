@@ -1144,6 +1144,33 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/ai-virtual-keys/00000000-0000-4000-8000-0000000000e4/revocation', ifMatch: '"1"', body: { reason: 'Matrix probe of the key revocation' } }),
   },
+  // The money of the AI gateway is the tenant's (ST-LLM-003): a caller without the right is refused before the body is read.
+  createAiBudget: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-budgets', body: { scope_kind: 'TENANT', period: 'MONTH', limit_vnd: '1000', hard_stop: true, effective_from: '2026-01-01' } }),
+  },
+  registerPricingVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/ai-pricing-versions',
+      body: {
+        provider: 'Matrix provider',
+        model_id: 'matrix-model',
+        model_ref_id: '00000000-0000-4000-8000-0000000000e5',
+        currency: 'USD',
+        effective_from: '2026-01-01T00:00:00.000Z',
+        input_per_million: '1.00',
+        cached_per_million: '0.50',
+        output_per_million: '2.00',
+        cached_semantics: 'INCLUDED_IN_INPUT',
+        reasoning_in_output: true,
+        source_url: 'https://matrix.example/pricing',
+        fx_rate_to_vnd: '25000',
+        fx_source: 'Matrix',
+      },
+    }),
+  },
   post_dashboard_queries: {
     referencesTenantIds: false,
     build: () => ({

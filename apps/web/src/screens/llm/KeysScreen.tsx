@@ -10,7 +10,7 @@ import '../dis/dis.css';
 import { useCreateKey, useKeys, useModels, useRevokeKey, useRotateKey } from './hooks';
 import { keyScopeLabel, keyStatusLabel, problemMessage, refusalMessage } from './labels';
 import { ApiError } from '@machvon/api-client';
-import { EMPTY_KEY, KEY_MANAGE, KEY_SCOPES, MIN_REVOKE_REASON, describeLlmProblem, validateKey } from './llm-model';
+import { EMPTY_KEY, KEY_MANAGE, KEY_SCOPES, MIN_REVOKE_REASON, describeLlmProblem, validateKey, vietnamDay } from './llm-model';
 import type { KeyEntry, KeyErrors, KeyScope, KeyValues, ModelEntry } from './llm-model';
 
 /**
@@ -24,7 +24,7 @@ export default function KeysScreen({ route }: ScreenProps) {
   return <KeysContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
-const day = (iso: string): string => iso.slice(0, 10);
+const day = (iso: string): string => vietnamDay(iso);
 
 function KeysContent({ route }: ScreenProps) {
   const { t } = useTranslation();
@@ -157,7 +157,7 @@ function KeyRow({ entry, may }: { entry: KeyEntry; may: boolean }) {
 function KeyForm({ models, modelsLoading, modelsError, onRetry }: { models: readonly ModelEntry[]; modelsLoading: boolean; modelsError: unknown; onRetry: () => void }) {
   const { t } = useTranslation();
   const create = useCreateKey();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = vietnamDay(new Date().toISOString());
   const [values, setValues] = useState<KeyValues>(EMPTY_KEY);
   const [errors, setErrors] = useState<KeyErrors>({});
   const refused = create.isError ? describeLlmProblem(create.error) : undefined;

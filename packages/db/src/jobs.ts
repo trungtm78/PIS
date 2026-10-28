@@ -81,6 +81,8 @@ export const JOB_INTERVAL_SECONDS = {
   'aud-recovery-reconcile': 3600,
   // Every 5 minutes: the old key of a rotation is revoked at the end of its last day and a key that reached its expiry is recorded as revoked, after LiteLLM has stopped it (ST-LLM-002); the pass is idempotent.
   'llm-key-sweep': 300,
+  // Every 5 minutes: a reservation held for a request that never came back, past its end, waits for the reconciliation instead of being released, and the age of the oldest open one is reported (ST-LLM-003); the pass is idempotent.
+  'llm-reservation-expiry': 300,
   'access-cache-expiry': 60,
 } as const;
 
@@ -241,6 +243,8 @@ export interface StandardJobDeps {
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the virtual keys of a tenant (ST-LLM-002): a rotating key whose last day is over, and a key past its expiry, are stopped at LiteLLM and recorded as revoked. */
   llmKeySweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The pass over the budget reservations of a tenant (ST-LLM-003): an open reservation past its end becomes PENDING_RECONCILE and keeps its hold. */
+  llmReservationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -668,6 +672,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await keySweep.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const reservationExpiry = deps.llmReservationExpiry;
+  if (reservationExpiry !== undefined) {
+    handlers.push({
+      name: 'llm-reservation-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await reservationExpiry.run(workerContext(tenantId), now)));
       },
     });
   }

@@ -139,7 +139,7 @@ describe('the pure rules of the registry screens (ST-LLM-001)', () => {
     const staged = { ...base, legalBasis: 'Luat 2026', matrix: { ...base.matrix, PUBLIC: ['DOMESTIC_HOSTED', 'SELF_HOSTED', 'INTERNATIONAL'] as never } };
     expect((policyBody(staged).matrix as Record<string, string[]>).PUBLIC).not.toContain('INTERNATIONAL');
     const on = policyBody({ ...staged, internationalEnabled: true, d07Ref: ' D07-1 ' });
-    expect(on).toMatchObject({ international_enabled: true, d07_approval_ref: 'D07-1', effective_from: '2026-10-01T00:00:00.000Z' });
+    expect(on).toMatchObject({ international_enabled: true, d07_approval_ref: 'D07-1', effective_from: '2026-09-30T17:00:00.000Z' });
     expect((on.matrix as Record<string, string[]>).PUBLIC).toContain('INTERNATIONAL');
   });
 
@@ -444,6 +444,13 @@ describe('LLM-19 classification and routing policy (ST-LLM-001, LLM BR-LLM-01)',
     expect([open(preview, 'PERSONAL', 'DOMESTIC_HOSTED'), open(preview, 'INTERNAL', 'SELF_HOSTED'), open(preview, 'PERSONAL', 'SELF_HOSTED')]).toEqual(['false', 'false', 'true']);
     expect([open(screen.getByTestId('policy-matrix'), 'PERSONAL', 'DOMESTIC_HOSTED'), open(screen.getByTestId('policy-matrix'), 'INTERNAL', 'SELF_HOSTED')]).toEqual(['true', 'true']);
     expect(screen.getByTestId('policy-matrix-00000000-0000-4000-8000-0000000000e1')).toBeTruthy();
+  });
+
+  it('shows the effective date of a policy as the day in Viet Nam it was entered for', async () => {
+    mount(<PolicyMatrixScreen route={POLICY} />, client({ ...normal(), policies: [rawPolicy({ effective_from: '2026-10-27T17:00:00.000Z' })] }), { permissions: ADMIN });
+    const rows = within(await screen.findByTestId('policy-revisions')).getAllByRole('row');
+    expect(rows[1]?.textContent).toContain('2026-10-28');
+    expect(rows[1]?.textContent).not.toContain('2026-10-27');
   });
 
   it('offers no publishing to who cannot approve, and no draft form to who cannot manage', async () => {

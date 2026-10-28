@@ -915,3 +915,5 @@ export { KEY_REVOKED_EVENT, LlmKeySweepJob } from './llm-key-sweep-job.ts';
 export type { LlmKeySweepResult } from './llm-key-sweep-job.ts';
 export { LlmRegistryStore } from './llm-registry-store.ts';
 export type { ModelRow, PolicyVersionRow, ProviderRow } from './llm-registry-store.ts';
+export { LlmFinopsStore } from './llm-finops-store.ts';
+export type { BudgetInput, BudgetRow, BudgetWithCounter, CounterRow, PriceRow, ReservationRow, ReserveResult, SettleInput, SettleResult } from './llm-finops-store.ts';

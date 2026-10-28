@@ -573,7 +573,7 @@ export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCod
 };
 
 /** A provider, a model and a classification policy of each tenant's AI registry (the code, the model and the legal basis are distinctive). */
-export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string }>> = {
+export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; providerCode: string; providerName: string; modelRefId: string; modelCode: string; policyId: string; policyBasis: string; keyId: string; keyAlias: string; keyFingerprint: string; keySecretRef: string; keyLiteLlmRef: string; profileId: string; requestId: string; budgetId: string; reservationId: string; reservationNote: string; priceId: string; priceSource: string }>> = {
   'TNT-A': {
     providerId: '00000000-0000-4000-a0d7-000000000001',
     providerCode: 'ALPHA-PROVIDER-0001',
@@ -587,6 +587,13 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     keyFingerprint: 'a0d7a0d7…a0d7',
     keySecretRef: 'secret://tenants/alpha/litellm/a0d7-0004',
     keyLiteLlmRef: 'litellm-alpha-key-0004',
+    profileId: '00000000-0000-4000-a0d7-000000000005',
+    requestId: '00000000-0000-4000-a0d7-000000000006',
+    budgetId: '00000000-0000-4000-a0d7-000000000007',
+    reservationId: '00000000-0000-4000-a0d7-000000000008',
+    reservationNote: 'alpha reconcile note 0001',
+    priceId: '00000000-0000-4000-a0d7-000000000009',
+    priceSource: 'https://alpha.example/pricing-0001',
   },
   'TNT-B': {
     providerId: '00000000-0000-4000-b0d7-000000000001',
@@ -601,6 +608,13 @@ export const LLM_FIXTURES: Readonly<Record<TenantName, { providerId: string; pro
     keyFingerprint: 'b0d7b0d7…b0d7',
     keySecretRef: 'secret://tenants/beta/litellm/b0d7-0004',
     keyLiteLlmRef: 'litellm-beta-key-0004',
+    profileId: '00000000-0000-4000-b0d7-000000000005',
+    requestId: '00000000-0000-4000-b0d7-000000000006',
+    budgetId: '00000000-0000-4000-b0d7-000000000007',
+    reservationId: '00000000-0000-4000-b0d7-000000000008',
+    reservationNote: 'beta reconcile note 0001',
+    priceId: '00000000-0000-4000-b0d7-000000000009',
+    priceSource: 'https://beta.example/pricing-0001',
   },
 };
 
@@ -859,6 +873,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'ai virtual key fingerprint', value: LLM_FIXTURES[tenant].keyFingerprint },
     { kind: 'ai virtual key secret reference', value: LLM_FIXTURES[tenant].keySecretRef },
     { kind: 'ai virtual key litellm reference', value: LLM_FIXTURES[tenant].keyLiteLlmRef },
+    { kind: 'ai budget id', value: LLM_FIXTURES[tenant].budgetId },
+    { kind: 'ai budget reservation id', value: LLM_FIXTURES[tenant].reservationId },
+    { kind: 'ai budget reservation note', value: LLM_FIXTURES[tenant].reservationNote },
+    { kind: 'ai pricing version id', value: LLM_FIXTURES[tenant].priceId },
+    { kind: 'ai pricing source', value: LLM_FIXTURES[tenant].priceSource },
     { kind: 'metric id', value: BI_FIXTURES[tenant].metricId },
     { kind: 'metric code', value: BI_FIXTURES[tenant].metricCode },
     { kind: 'metric source commit', value: BI_FIXTURES[tenant].sourceCommit },

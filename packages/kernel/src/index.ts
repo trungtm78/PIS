@@ -679,3 +679,5 @@ export { BASELINE_MATRIX, CLASSIFICATIONS, ROUTES, assertActivation, assertModel
 export type { Classification, Matrix, PublishedPolicy, Route } from './llm-registry.ts';
 export { KEY_ROTATION_HOURS, KEY_SCOPES, assertKeyDraft, fingerprintOf, rotationDeadline, scrubSecrets, secretRefOf } from './llm-keys.ts';
 export type { KeyDraft, KeyScope, LiteLlmAdminPort, SecretVaultPort } from './llm-keys.ts';
+export { BUDGET_PERIODS, BUDGET_SCOPE_ORDER, assertBudgetDraft, assertPriceDraft, availableOf, costOf, crossesThreshold, decideReservation, estimateVnd, fromScaled, periodStartOf, settlementOf, toScaled } from './llm-finops.ts';
+export type { AttemptCost, BudgetPeriod, BudgetScope, CachedSemantics, Price, ReserveDecision, ScopeBalance, Usage } from './llm-finops.ts';

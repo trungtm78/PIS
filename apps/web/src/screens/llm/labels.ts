@@ -1,5 +1,5 @@
 import type { Translator } from '../../i18n';
-import type { Capability, Classification, KeyProblem, KeyScope, KeyStatus, LlmReason, ModelProblem, ModelStatus, PolicyProblem, PolicyStatus, ProviderProblem, ProviderStatus, Route } from './llm-model';
+import type { BudgetPeriod, BudgetProblem, BudgetScope, CachedSemantics, Capability, Classification, KeyProblem, KeyScope, KeyStatus, LlmReason, ModelProblem, ModelStatus, PolicyProblem, PolicyStatus, PriceProblem, ProviderProblem, ProviderStatus, ReservationStatus, Route } from './llm-model';
 
 type T = Translator['t'];
 
@@ -64,6 +64,16 @@ export function refusalMessage(t: T, reason: LlmReason, detail: string): string 
       return t('llm.reason.modelNotApproved');
     case 'unavailable':
       return t('llm.reason.unavailable');
+    case 'budgetDuplicate':
+      return t('llm.reason.budgetDuplicate');
+    case 'childExceeds':
+      return t('llm.reason.childExceeds');
+    case 'priceOverlap':
+      return t('llm.reason.priceOverlap');
+    case 'sourceRequired':
+      return t('llm.reason.sourceRequired');
+    case 'reservationState':
+      return t('llm.reason.reservationState');
     case 'matrixInvalid':
       return t('llm.reason.matrixInvalid');
     case 'weakensBaseline':
@@ -89,6 +99,43 @@ export function keyScopeLabel(t: T, scope: KeyScope): string {
 
 export function keyStatusLabel(t: T, status: KeyStatus): string {
   return { ACTIVE: t('llm.keyStatus.active'), ROTATING: t('llm.keyStatus.rotating'), REVOKED: t('llm.keyStatus.revoked') }[status];
+}
+
+export function budgetScopeLabel(t: T, scope: BudgetScope): string {
+  return { TENANT: t('llm.budgetScope.tenant'), UNIT: t('llm.budgetScope.unit'), PROJECT: t('llm.budgetScope.project'), USER: t('llm.budgetScope.user') }[scope];
+}
+
+export function budgetPeriodLabel(t: T, period: BudgetPeriod): string {
+  return { MONTH: t('llm.budgetPeriod.month'), QUARTER: t('llm.budgetPeriod.quarter'), YEAR: t('llm.budgetPeriod.year') }[period];
+}
+
+export function cachedSemanticsLabel(t: T, semantics: CachedSemantics): string {
+  return { INCLUDED_IN_INPUT: t('llm.cached.included'), SEPARATE: t('llm.cached.separate') }[semantics];
+}
+
+export function reservationStatusLabel(t: T, status: ReservationStatus): string {
+  return {
+    RESERVED: t('llm.reservation.reserved'),
+    SETTLED: t('llm.reservation.settled'),
+    RELEASED: t('llm.reservation.released'),
+    PENDING_RECONCILE: t('llm.reservation.pending'),
+    EXCEPTION: t('llm.reservation.exception'),
+  }[status];
+}
+
+export function financeProblemMessage(t: T, problem: BudgetProblem | PriceProblem): string {
+  return {
+    required: t('llm.problem.required'),
+    invalidReference: t('llm.problem.invalidReference'),
+    invalidAmount: t('llm.problem.invalidAmount'),
+    invalidPercent: t('llm.problem.invalidPercent'),
+    invalidNumber: t('llm.problem.invalidNumber'),
+    invalidDate: t('llm.problem.invalidDate'),
+    invalidCurrency: t('llm.problem.invalidCurrency'),
+    invalidRate: t('llm.problem.invalidRate'),
+    invalidSource: t('llm.problem.invalidSource'),
+    invalidFx: t('llm.problem.invalidFx'),
+  }[problem];
 }
 
 export function problemMessage(t: T, problem: ProviderProblem | ModelProblem | PolicyProblem | KeyProblem): string {

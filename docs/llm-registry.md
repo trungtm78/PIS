@@ -34,6 +34,7 @@ Every command writes an audit row (`llm.provider_registered`, `llm.provider_acti
 
 - The reads of the registry are the tenant's (`SCOPE_DENIED` for who holds the right over a unit only). The permissions `llm.provider.read` and `llm.policy.read` are new in the contract; they are not in any role of the design yet and must be granted with the permission matrix of the roles.
 - A provider that takes more than public data needs its data agreement to be activated (an assumption of the design's "has a data agreement"); a public-only provider does not.
+- The date of a policy is a day in Viet Nam (it begins at midnight there, UTC+7), and the form begins on that day.
 - A policy is in force when it is published; a draft dated in the future waits and cannot be published before its date.
 - A tenant with no published policy has no `ai_request.policy_version_id` to point at: the baseline policy row that the gateway (ST-LLM-005) records on a request is made there, not here.
 - Making a model `APPROVED`, the virtual keys, the budgets, the pricing and the gateway itself are the next stories of the module (ST-LLM-002..006).

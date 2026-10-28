@@ -1,5 +1,5 @@
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
-import { AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
+import { AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
 import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
@@ -101,6 +101,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const settlementDeadlines = new PaySettlementDeadlineJob(audit, deps.metrics);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
+  const finops = new LlmFinopsStore();
   const keySweep = deps.llmKeys === undefined ? undefined : new LlmKeySweepJob(audit, deps.llmKeys.litellm, deps.llmKeys.vault, log);
   const handlers = standardJobs({
     tenantIds: () => registeredTenantIds(deps.control),
@@ -151,6 +152,15 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     // Licenses are control-plane rows too: the pass of a tenant runs through the control role acting as that tenant.
     licenseStatus: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => licenseStatus.run(tx, ctx.membershipId, now)) },
     ...(keySweep === undefined ? {} : { llmKeySweep: { run: (ctx: TenantContext, now: Date) => deps.tenants.withTenant(ctx, (tx) => keySweep.run(tx, ctx.membershipId, now)) } }),
+    llmReservationExpiry: {
+      run: (ctx, now) =>
+        deps.tenants.withTenant(ctx, async (tx) => {
+          const result = await finops.expireDue(tx, now);
+          // The age of the oldest reservation still open, for the alert that a hold has been waiting too long.
+          deps.metrics?.gauge('llm_budget_reservation_age_seconds', result.oldestAgeSeconds, { tenant_id: ctx.tenantId });
+          return result;
+        }),
+    },
     invitationExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => invitationExpiry.run(tx, ctx.membershipId, now)) },
     overrideExpiry: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => overrides.expireDue(tx, now)) },
     accessCache: deps.accessCache,

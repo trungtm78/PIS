@@ -9,7 +9,7 @@ import { Field } from '../mne/components';
 import '../dis/dis.css';
 import { useDraftPolicy, usePolicies, usePublishPolicy } from './hooks';
 import { classificationLabel, policyStatusLabel, problemMessage, refusalMessage, routeLabel } from './labels';
-import { BASELINE, CLASSIFICATIONS, POLICY_APPROVE, POLICY_MANAGE, ROUTES, describeLlmProblem, initialPolicy, matrixInForce, validatePolicy } from './llm-model';
+import { BASELINE, CLASSIFICATIONS, POLICY_APPROVE, POLICY_MANAGE, ROUTES, describeLlmProblem, initialPolicy, matrixInForce, validatePolicy, vietnamDay } from './llm-model';
 import type { Classification, Matrix, PolicyEntry, PolicyErrors, PolicyValues, Route } from './llm-model';
 
 /**
@@ -120,7 +120,7 @@ function PolicyRow({ policy, mayPublish }: { policy: PolicyEntry; mayPublish: bo
         <td>{policyStatusLabel(t, policy.status)}</td>
         <td>{policy.internationalEnabled ? t('llm.policy.international.on', { ref: policy.d07Ref ?? '' }) : t('llm.policy.international.off')}</td>
         <td>{policy.legalBasis}</td>
-        <td>{policy.effectiveFrom.slice(0, 10)}</td>
+        <td>{vietnamDay(policy.effectiveFrom)}</td>
         <td>
           {mayPublish && policy.status === 'DRAFT' ? (
             <button type="button" className="btn" disabled={publish.isPending} onClick={() => publish.mutate({ policyId: policy.id, version: policy.version })}>
@@ -155,7 +155,7 @@ function PolicyRow({ policy, mayPublish }: { policy: PolicyEntry; mayPublish: bo
 function DraftForm({ matrix }: { matrix: Matrix }) {
   const { t } = useTranslation();
   const draft = useDraftPolicy();
-  const [values, setValues] = useState<PolicyValues>(() => initialPolicy(matrix, new Date().toISOString().slice(0, 10)));
+  const [values, setValues] = useState<PolicyValues>(() => initialPolicy(matrix, vietnamDay(new Date().toISOString())));
   const [errors, setErrors] = useState<PolicyErrors>({});
   const refused = draft.isError ? describeLlmProblem(draft.error) : undefined;
   const set = <K extends keyof PolicyValues>(field: K, value: PolicyValues[K]): void => {

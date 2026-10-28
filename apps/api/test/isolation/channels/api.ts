@@ -302,6 +302,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_drill_context_id', method: 'GET', id: BI_FIXTURES['TNT-B'].contextId },
   { operation: 'buildBiDatasetVersion', method: 'POST', id: BI_FIXTURES['TNT-B'].datasetId, body: { as_of_period: '2026-10' } },
   { operation: 'activateAiProvider', method: 'POST', id: LLM_FIXTURES['TNT-B'].providerId, versioned: true, body: {} },
+  { operation: 'getAiSpendSummary', method: 'GET', id: LLM_FIXTURES['TNT-B'].budgetId },
+  { operation: 'get_resources_budget_reservation_id', method: 'GET', id: LLM_FIXTURES['TNT-B'].reservationId },
   { operation: 'rotateAiVirtualKey', method: 'POST', id: LLM_FIXTURES['TNT-B'].keyId, versioned: true, body: {} },
   { operation: 'revokeAiVirtualKey', method: 'POST', id: LLM_FIXTURES['TNT-B'].keyId, versioned: true, body: { reason: 'Isolation probe of the key revocation' } },
   { operation: 'publishAiClassificationPolicy', method: 'POST', id: LLM_FIXTURES['TNT-B'].policyId, versioned: true, body: {} },
