@@ -500,3 +500,5 @@ export { DEFAULT_THRESHOLDS, EFFORTS, READ_ONLY_TOOLS, assertDatasetDraft, asser
 export type { DatasetDraft, EvalCase, EvalMetrics, EvalRunnerPort, EvalStatus, GateInput, GateResult, ProfileDraft, PromptDraft, RoutingPolicy, RunView, Thresholds } from './llm-eval.ts';
 export { DEFAULT_RULE_SET_ORDER, DOSSIER_STATUSES, RETENTION_CLASSES, RETENTION_RULE_SETS, RETENTION_START_BASES, addMonths, assertDisposable, canMoveDossier, disposalBlocker, planRetention, selectRetentionRule } from './doc-dossier.ts';
 export type { DisposalBlocker, DossierStatus, RetentionClass, RetentionPlan, RetentionRuleSet, RetentionRuleView, RetentionStartBasis } from './doc-dossier.ts';
+export { EXCEPTION_DECISIONS, INCIDENT_DECISIONS, INCIDENT_STATUSES, INCIDENT_WORK_STATUSES, MAX_WAIVER_DAYS, assertAssignable, assertRerunPassed, assertVerifiable, assertWorkStep, judgeExceptionDecision, maskReference, maskValue, nextWorkStep, resolutionText } from './dgv-incident.ts';
+export type { ExceptionDecision, IncidentDecision, IncidentStatus, IncidentWorkStatus, RerunEvidence } from './dgv-incident.ts';

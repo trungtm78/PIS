@@ -182,6 +182,9 @@ export interface MatrixTargets {
   diaryId: string;
   /** An incoming document that was only received (version 1), taken in by someone other than the callers. */
   incomingId: string;
+  /** An OPEN quality incident of the quality dataset (version 1), and an OPEN quality exception of its run (version 1), both made by someone other than the callers. */
+  qualityIncidentId: string;
+  qualityExceptionId: string;
   /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
   dossierId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
@@ -1697,6 +1700,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   fileIncomingDocument: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/filing`, ifMatch: '"1"', body: { dossier_id: t.dossierId } }),
+  },
+  assignQualityIncident: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/quality-incidents/${t.qualityIncidentId}/assignment`, ifMatch: '"1"', body: { assignee_user_id: '00000000-0000-4000-8000-0000000000e7', due_at: '2999-01-01T00:00:00.000Z' } }),
+  },
+  transitionQualityIncident: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/quality-incidents/${t.qualityIncidentId}/transition`, ifMatch: '"1"', body: { to_status: 'ACKNOWLEDGED' } }),
+  },
+  verifyQualityIncident: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/quality-incidents/${t.qualityIncidentId}/verification`, ifMatch: '"1"', body: { decision: 'REOPEN', note: 'Matrix probe of the verification' } }),
+  },
+  post_quality_exceptions_id_decision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/quality-exceptions/${t.qualityExceptionId}/decision`, ifMatch: '"1"', body: { decision: 'RESOLVED', reason: 'Matrix probe of the decision' } }),
   },
   registerSitePhoto: {
     referencesTenantIds: true,

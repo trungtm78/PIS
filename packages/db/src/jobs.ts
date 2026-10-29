@@ -73,6 +73,8 @@ export const JOB_INTERVAL_SECONDS = {
   'prj-transfer-apply': 900,
   // Hourly: a letter that is assigned or being processed and whose deadline has passed on a working day is marked overdue, once, and the handler is told (ST-DOC-011, BR-DOC-18); the pass is idempotent.
   'incoming-overdue': 3600,
+  // Every 15 minutes: an incident of data quality past its due time is marked and its owner told once, and a waiver that has ended is followed by an open exception within the quarter of an hour (ST-DGV-003); the pass is idempotent.
+  'dgv-incident-sweep': 900,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
   'reconciliation-overdue': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the reminders of the verification deadline of a settlement go once a morning wherever the process started; the pass is idempotent (ST-PAY-009).
@@ -237,6 +239,7 @@ export interface StandardJobDeps {
   packageExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   transferApply?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   incomingOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  dgvIncidentSweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Compares the balances of capital with their ledger, once a night, and reports a difference without correcting it (ST-CAP-006). */
@@ -632,6 +635,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overdueLetters.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const dgvSweep = deps.dgvIncidentSweep;
+  if (dgvSweep !== undefined) {
+    handlers.push({
+      name: 'dgv-incident-sweep',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await dgvSweep.run(workerContext(tenantId), now)));
       },
     });
   }

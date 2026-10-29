@@ -600,6 +600,7 @@ describe('standard jobs', () => {
       packageExpiry: { run: async () => ({ expired: 0 }) },
       transferApply: { run: async () => ({ applied: 0 }) },
       incomingOverdue: { run: async () => ({ marked: 0 }) },
+      dgvIncidentSweep: { run: async () => ({ breached: 0, reopened: 0 }) },
       reconciliationOverdue: { run: async () => ({ reported: 0 }) },
       capitalBalanceReconcile: { run: async () => ({ drift: [] }) },
       settlementDeadline: { run: async () => ({ overdue: 0 }) },
@@ -608,7 +609,7 @@ describe('standard jobs', () => {
       llmReservationExpiry: { run: async () => ({ expired: 0, oldestAgeSeconds: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'dgv-incident-sweep', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

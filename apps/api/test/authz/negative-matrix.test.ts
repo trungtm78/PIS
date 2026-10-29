@@ -298,6 +298,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text, ',' order by id) from machvon.site_photo where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(register_id::text, ''), ',' order by id) from machvon.incoming_document where tenant_id = $1),
     (select count(*)::text from machvon.document_number_allocation where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || coalesce(assignee_user_id::text, ''), ',' order by id) from machvon.quality_incident where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.quality_exception where tenant_id = $1),
+    (select count(*)::text from machvon.quality_incident_event where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dossier where tenant_id = $1),
     (select count(*)::text from machvon.dossier_item where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
@@ -1015,6 +1018,25 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, qualitySnapshotId, periodOpenId, ACTOR],
       ],
     ]);
+    // An OPEN quality incident and an OPEN quality exception, of a finished run of the quality dataset, made by someone other than the callers.
+    const qualityRunId = id(0xde, 5);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.quality_run (tenant_id, id, dataset_contract_id, snapshot_id, rule_version_ids, passed_count, failed_count, quarantined_count, started_at, finished_at, dataset_id, trigger, status, overall_result, score, hard_fail, certified_blocked)
+         values ($1, $2, $3, $4, jsonb_build_array($5::text), 1, 0, 0, now(), now(), $6, 'MANUAL', 'COMPLETED', 'FAILED', 70, false, false)`,
+        [TENANT_A, qualityRunId, qualityContractId, qualitySnapshotId, qualityRuleId, qualityDatasetId],
+      ],
+      [
+        `insert into machvon.quality_incident (tenant_id, id, rule_id, dataset_version_id, affected_refs, severity, owner_id, status, due_at, title, run_id, sla_hours)
+         values ($1, $2, $3, $4, '[]'::jsonb, 'HIGH', $5, 'OPEN', now() + interval '1 day', 'Matrix incident', $6, 24)`,
+        [TENANT_A, id(0xde, 6), qualityRuleId, qualitySnapshotId, glossaryOwnerId, qualityRunId],
+      ],
+      [
+        `insert into machvon.quality_exception (tenant_id, id, run_id, record_reference, owner_id, reason, status, evidence, rule_version_id, incident_id)
+         values ($1, $2, $3, '{"row_id":"matrix"}'::jsonb, $4, 'Matrix exception', 'OPEN', '{}'::jsonb, $5, $6)`,
+        [TENANT_A, id(0xde, 7), qualityRunId, glossaryOwnerId, qualityRuleId, id(0xde, 6)],
+      ],
+    ]);
     // A DRAFT availability control policy made by someone other than the callers: the publication of a policy is judged against it.
     const avcPolicyId = id(0xdf, 1);
     await harness.owner(TENANT_A, [
@@ -1039,6 +1061,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       acceptanceId: id(0x77, 20),
       diaryId: id(0x77, 40),
       incomingId: id(0x77, 50),
+      qualityIncidentId: id(0xde, 6),
+      qualityExceptionId: id(0xde, 7),
       dossierId: id(0x77, 52),
       qualityContractId,
       qualityRuleId,

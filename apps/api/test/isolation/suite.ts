@@ -403,6 +403,12 @@ export const QUALITY_FIXTURES: Readonly<Record<TenantName, { contractId: string;
   'TNT-B': { contractId: '00000000-0000-4000-b0d2-000000000001', ruleId: '00000000-0000-4000-b0d2-000000000002', ruleCode: 'BETA-QUALITY-RULE-0001', runId: '00000000-0000-4000-b0d2-000000000003' },
 };
 
+/** An OPEN quality incident of the quality rule above and an OPEN exception of its run (their title and reason are distinctive; tenant data). */
+export const QUALITY_INCIDENT_FIXTURES: Readonly<Record<TenantName, { incidentId: string; exceptionId: string; title: string; reason: string }>> = {
+  'TNT-A': { incidentId: '00000000-0000-4000-a0d3-000000000001', exceptionId: '00000000-0000-4000-a0d3-000000000002', title: 'Alpha quality incident title 0001', reason: 'Alpha quality exception reason 0001' },
+  'TNT-B': { incidentId: '00000000-0000-4000-b0d3-000000000001', exceptionId: '00000000-0000-4000-b0d3-000000000002', title: 'Beta quality incident title 0001', reason: 'Beta quality exception reason 0001' },
+};
+
 /** An ACTIVE SLA policy of each tenant (its code is distinctive; tenant configuration). */
 export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0e1-000000000001', code: 'ALPHA-SLA-POLICY-0001' },
@@ -1148,6 +1154,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'quality rule id', value: QUALITY_FIXTURES[tenant].ruleId },
     { kind: 'quality rule code', value: QUALITY_FIXTURES[tenant].ruleCode },
     { kind: 'quality run id', value: QUALITY_FIXTURES[tenant].runId },
+    { kind: 'quality incident id', value: QUALITY_INCIDENT_FIXTURES[tenant].incidentId },
+    { kind: 'quality incident title', value: QUALITY_INCIDENT_FIXTURES[tenant].title },
+    { kind: 'quality exception id', value: QUALITY_INCIDENT_FIXTURES[tenant].exceptionId },
+    { kind: 'quality exception reason', value: QUALITY_INCIDENT_FIXTURES[tenant].reason },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },

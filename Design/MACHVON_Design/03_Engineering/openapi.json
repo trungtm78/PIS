@@ -3012,7 +3012,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Decision"
+                "$ref": "#/components/schemas/DgvExceptionDecision"
               }
             }
           }
@@ -153052,6 +153052,41 @@
           "ordinal": {
             "type": "integer",
             "minimum": 1
+          }
+        }
+      },
+      "DgvExceptionDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "RESOLVED",
+              "WAIVED"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          },
+          "waiver_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Required for a waiver: after now and at most 180 days on"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 50
           }
         }
       }

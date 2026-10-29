@@ -1885,7 +1885,7 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> postPlansIdPublish(CapPublish body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('post_plans_id_publish', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> postQualityExceptionsIdDecision(Decision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+  Future<Object?> postQualityExceptionsIdDecision(DgvExceptionDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('post_quality_exceptions_id_decision', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> postReports(ReportDraft body, {CommandAttempt? attempt}) =>

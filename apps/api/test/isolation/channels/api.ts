@@ -67,7 +67,7 @@ import {
   WORK_ACCEPTANCE_FIXTURES,
 } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
-import { QUALITY_FIXTURES } from '../suite';
+import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
@@ -328,6 +328,12 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'getQualityScorecard', method: 'GET', id: DATASET_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_quality_rule_version_id', method: 'GET', id: QUALITY_FIXTURES['TNT-B'].ruleId },
   { operation: 'get_resources_quality_run_id', method: 'GET', id: QUALITY_FIXTURES['TNT-B'].runId },
+  { operation: 'get_resources_quality_incident_id', method: 'GET', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].incidentId },
+  { operation: 'get_resources_quality_exception_id', method: 'GET', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].exceptionId },
+  { operation: 'assignQualityIncident', method: 'POST', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].incidentId, versioned: true, body: { assignee_user_id: '00000000-0000-4000-8000-0000000000e7', due_at: '2999-01-01T00:00:00.000Z' } },
+  { operation: 'transitionQualityIncident', method: 'POST', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].incidentId, versioned: true, body: { to_status: 'ACKNOWLEDGED' } },
+  { operation: 'verifyQualityIncident', method: 'POST', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].incidentId, versioned: true, body: { decision: 'REOPEN', note: 'Isolation probe of the verification' } },
+  { operation: 'post_quality_exceptions_id_decision', method: 'POST', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].exceptionId, versioned: true, body: { decision: 'RESOLVED', reason: 'Isolation probe of the decision' } },
   {
     operation: 'assignDatasetOwnership',
     method: 'POST',

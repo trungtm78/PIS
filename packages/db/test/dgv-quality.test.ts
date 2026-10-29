@@ -475,7 +475,14 @@ describe('quality rules, runs on frozen snapshots and scorecards (ST-DGV-002)', 
       expect((await owner<{ incident_id: string }>("select incident_id from machvon.quality_rule_result res where run_id = $1 and incident_id is not null", [rerun.id]))[0]?.incident_id).toBe(firstIncident);
       expect(Number((await owner<{ n: string }>('select count(*)::text as n from machvon.quality_incident where id = $1', [firstIncident]))[0]?.n)).toBe(1);
 
-      await owner("update machvon.quality_incident set status = 'CLOSED' where id = $1", [firstIncident]);
+      // Closed the way the chain of ST-DGV-003 closes it: handled, resolved, verified by someone else.
+      await owner(
+        "update machvon.quality_incident set status = 'ASSIGNED', assignee_user_id = owner_id where id = $1",
+        [firstIncident],
+      );
+      for (const step of ['ACKNOWLEDGED', 'IN_PROGRESS']) await owner('update machvon.quality_incident set status = $2 where id = $1', [firstIncident, step]);
+      await owner("update machvon.quality_incident set status = 'RESOLVED_PENDING_VERIFICATION', root_cause = 'Cause written for the test.', remediation = 'Measure written for the test.', resolved_at = now() where id = $1", [firstIncident]);
+      await owner("update machvon.quality_incident set status = 'CLOSED', verified_by = gen_random_uuid(), verified_at = now(), closed_at = now() where id = $1", [firstIncident]);
       const third = await newSnapshot({ lines: [{ project: 'dangling' }, {}] });
       const again = await request(world, third.id);
       await drain(newJob().job);

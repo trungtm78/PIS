@@ -6,6 +6,7 @@ import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
 import { LATEST_RUN_JOIN } from './dgv-dataset-store.ts';
 import { countSnapshotRows, evaluateExpression, loadSnapshot, qualitySourceOf } from './dgv-quality-source.ts';
 import type { Evaluation, QualitySource } from './dgv-quality-source.ts';
+import { lockIncidentOf } from './dgv-incident-store.ts';
 import { enqueueOutbox } from './outbox.ts';
 import type { TenantDatabase, TenantTx } from './tenant-database.ts';
 
@@ -199,6 +200,8 @@ export class DgvQualityRunJob {
    * not a second problem), otherwise a new one owned by the owner of the dataset, due by the SLA of its severity. An integrity failure is CRITICAL.
    */
   private async openIncident(tx: TenantTx, run: LockedRun, item: Measured): Promise<string> {
+    // Together with the end of a waiver, which may reopen an incident of the same rule: one at a time.
+    await lockIncidentOf(tx, run.dataset_id, item.rule.code);
     const open = await tx.query<{ id: string }>(
       `select i.id from machvon.quality_incident i
          join machvon.quality_run r on r.tenant_id = i.tenant_id and r.id = i.run_id

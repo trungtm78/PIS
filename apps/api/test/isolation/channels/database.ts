@@ -22,7 +22,7 @@ import {
   TENANT_IDS,
   UNIT_FIXTURES,
 } from '../suite';
-import { QUALITY_FIXTURES } from '../suite';
+import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -626,6 +626,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getDossier',
   'listDocumentRetentionRules',
   'getDocumentOverview',
+  'assignQualityIncident',
+  'transitionQualityIncident',
+  'verifyQualityIncident',
+  'post_quality_exceptions_id_decision',
+  'get_resources_quality_incident',
+  'get_resources_quality_incident_id',
+  'get_resources_quality_exception',
+  'get_resources_quality_exception_id',
   'getSitePhotoChecks',
   'get_resources_site_photo',
   'get_resources_site_photo_id',
@@ -1075,6 +1083,14 @@ const INSERT_QUALITY_RULE = `insert into machvon.quality_rule_version
 const INSERT_QUALITY_RUN = `insert into machvon.quality_run
   (tenant_id, id, dataset_contract_id, snapshot_id, rule_version_ids, passed_count, failed_count, quarantined_count, started_at, finished_at, dataset_id, trigger, status, overall_result, score, hard_fail, certified_blocked)
   values ($1, $2, $3, gen_random_uuid(), jsonb_build_array($4::text), 1, 0, 0, now(), now(), $5, 'MANUAL', 'COMPLETED', 'PASSED', 100, false, false) on conflict do nothing`;
+
+const INSERT_QUALITY_INCIDENT = `insert into machvon.quality_incident
+  (tenant_id, id, rule_id, dataset_version_id, affected_refs, severity, owner_id, status, due_at, title, run_id, sla_hours)
+  values ($1, $2, $3, gen_random_uuid(), '[]'::jsonb, 'HIGH', $4, 'OPEN', now() + interval '1 day', $5, $6, 24) on conflict do nothing`;
+
+const INSERT_QUALITY_EXCEPTION = `insert into machvon.quality_exception
+  (tenant_id, id, run_id, record_reference, owner_id, reason, status, evidence, rule_version_id, incident_id)
+  values ($1, $2, $3, '{"row_id":"isolation"}'::jsonb, $4, $5, 'OPEN', '{}'::jsonb, $6, $7) on conflict do nothing`;
 
 const INSERT_GLOSSARY_TERM = `insert into machvon.glossary_term
   (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, created_by, updated_by)
@@ -1597,6 +1613,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_QUALITY_CONTRACT, [tenantId, quality.contractId, dataset.datasetCode, MEMBERSHIP_ID, dataset.id]);
     await client.query(INSERT_QUALITY_RULE, [tenantId, quality.ruleId, quality.contractId, dataset.id, quality.ruleCode, ACTOR_ID]);
     await client.query(INSERT_QUALITY_RUN, [tenantId, quality.runId, quality.contractId, quality.ruleId, dataset.id]);
+    const qualityIncident = QUALITY_INCIDENT_FIXTURES[tenant];
+    await client.query(INSERT_QUALITY_INCIDENT, [tenantId, qualityIncident.incidentId, quality.ruleId, MEMBERSHIP_ID, qualityIncident.title, quality.runId]);
+    await client.query(INSERT_QUALITY_EXCEPTION, [tenantId, qualityIncident.exceptionId, quality.runId, MEMBERSHIP_ID, qualityIncident.reason, quality.ruleId, qualityIncident.incidentId]);
     const term = GLOSSARY_FIXTURES[tenant];
     await client.query(INSERT_GLOSSARY_TERM, [tenantId, term.termId, term.termCode, term.definition, MEMBERSHIP_ID, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];

@@ -251,6 +251,13 @@
       "location": "dossier_id",
       "reason": "fileIncomingDocument took a dossier item ({document_id}), which names a document and not the dossier the letter goes into; its own body now names the dossier (the letter is the one in the path), and nothing called it before",
       "change_request": "ST-DOC-013"
+    },
+    {
+      "operation": "post_quality_exceptions_id_decision",
+      "kind": "ENUM_TIGHTENED",
+      "location": "decision",
+      "reason": "post_quality_exceptions_id_decision was a scaffold with the generic Decision body (approve, return, reject); an exception is resolved or waived (BR-DGV-06), so the body now names the decision, the reason and the end of a waiver",
+      "change_request": "ST-DGV-003"
     }
   ]
 }

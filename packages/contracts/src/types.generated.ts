@@ -21566,6 +21566,17 @@ export interface components {
             dossier_id: string;
             ordinal?: number;
         };
+        DgvExceptionDecision: {
+            /** @enum {string} */
+            decision: "RESOLVED" | "WAIVED";
+            reason: string;
+            /**
+             * Format: date-time
+             * @description Required for a waiver: after now and at most 180 days on
+             */
+            waiver_expires_at?: string;
+            evidence_ids?: string[];
+        };
     };
     responses: never;
     parameters: never;
@@ -23607,7 +23618,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["Decision"];
+                "application/json": components["schemas"]["DgvExceptionDecision"];
             };
         };
         responses: {

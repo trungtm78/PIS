@@ -502,6 +502,10 @@ export type { TreasuryConnectorView, TreasuryImportCounts, TreasuryImportInput, 
 export { PayTreasuryTransactionStore, TREASURY_MANUAL_PROVIDER } from './pay-treasury-transaction-store.ts';
 export type { ManualConfirmationInput, ManualConfirmationResult, TreasuryCallbackInput, TreasuryCallbackResult, TreasuryMatchStatus, TreasurySourceKind, TreasuryTransactionRow } from './pay-treasury-transaction-store.ts';
 export { QmsDiaryStore, conflictRefusal } from './qms-diary-store.ts';
+export { DgvIncidentStore } from './dgv-incident-store.ts';
+export { DgvIncidentSweepJob, EXCEPTION_REOPENED_EVENT, INCIDENT_SLA_BREACHED_EVENT } from './dgv-incident-job.ts';
+export type { DgvSweepSummary } from './dgv-incident-job.ts';
+export type { ExceptionFilters, ExceptionRecord, IncidentEventRecord, IncidentFilters, IncidentRecord, SweepResult } from './dgv-incident-store.ts';
 export { DOSSIER_SCOPE_COLUMNS, DocDossierStore } from './doc-dossier-store.ts';
 export type { DossierFilters, DossierItemRecord, DossierPageAnchor, DossierRecord, FileableDocument, NewDossier as NewDocDossier, RetentionRuleRecord, RuleFilters } from './doc-dossier-store.ts';
 export { DocIncomingStore } from './doc-incoming-store.ts';

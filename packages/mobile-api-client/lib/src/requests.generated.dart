@@ -3472,6 +3472,28 @@ final class DgvEvidenceReview implements RequestModel {
       };
 }
 
+final class DgvExceptionDecision implements RequestModel {
+  const DgvExceptionDecision({
+    required this.decision,
+    required this.reason,
+    this.waiverExpiresAt,
+    this.evidenceIds,
+  });
+
+  final String decision;
+  final String reason;
+  final String? waiverExpiresAt;
+  final List<String>? evidenceIds;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+        if (waiverExpiresAt != null) 'waiver_expires_at': waiverExpiresAt,
+        if (evidenceIds != null) 'evidence_ids': evidenceIds,
+      };
+}
+
 final class DgvGlossaryBind implements RequestModel {
   const DgvGlossaryBind({
     required this.glossaryTermId,

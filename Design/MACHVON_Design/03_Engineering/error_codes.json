@@ -5193,6 +5193,14 @@
       "module": "BID",
       "statusBasis": "convention",
       "source": "spec:BID"
+    },
+    "EXCEPTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Exception state invalid",
+      "meaning": "Raised by post_quality_exceptions_id_decision (POST /quality-exceptions/{id}/decision) when the exception has been decided already",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "story:ST-DGV-003"
     }
   }
 }
