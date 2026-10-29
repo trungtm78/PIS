@@ -1120,6 +1120,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       otherDeviceId: id(0xde, 10),
       workflowDraftId: id(0xde, 11),
       approvalTaskId: id(0xde, 15),
+      workflowInstanceId: id(0xde, 13),
       qualityDatasetId,
       dossierId: id(0x77, 52),
       qualityContractId,

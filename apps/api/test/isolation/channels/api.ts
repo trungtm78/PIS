@@ -336,6 +336,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'updateWorkflowDraft', method: 'PUT', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { business_type: 'report.accept', definition: { steps: [], terminal: {} } } },
   { operation: 'publishWorkflowVersion', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { reason: 'Isolation probe of the publication' } },
   { operation: 'decideApprovalTask', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].taskId, versioned: true, body: { decision: 'approve' } },
+  { operation: 'reassignApprovalTask', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].taskId, versioned: true, body: { new_assignee_membership_id: '00000000-0000-4000-8000-0000000000f1', reason: 'Isolation probe of the reassignment' } },
+  { operation: 'cancelWorkflowInstance', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].instanceId, versioned: true, body: { reason: 'Isolation probe of the cancellation' } },
   { operation: 'revokeMySession', method: 'POST', id: SELF_FIXTURES['TNT-B'].sessionId, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'revokeMyDevice', method: 'POST', id: SELF_FIXTURES['TNT-B'].deviceId, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'get_resources_quality_incident_id', method: 'GET', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].incidentId },

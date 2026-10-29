@@ -1,8 +1,8 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { ApprovalStore, TenantDatabase } from '@machvon/db';
 import type { ApprovalTaskRecord, WorkflowInstanceRecord, WorkflowVersionRecord } from '@machvon/db';
-import { DomainError, asUuid } from '@machvon/kernel';
-import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, asUuid } from '@machvon/kernel';
+import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
@@ -15,12 +15,15 @@ import { CurrentTenant } from '../../tenant-context.decorator';
 import { APPROVAL_FINAL_COMMANDS, effectsOf } from './approval.service';
 import type { FinalCommandRegistry } from './approval.service';
 import { holdsOnWholeTenant } from './tenant-authority';
+import { ADM_METRICS } from './tokens';
 
 const MANAGE = 'adm.workflow.manage';
 const PUBLISH = 'adm.workflow.publish';
 const OPERATE = 'adm.workflow.operate';
 const VERSION_RESOURCE = 'workflow_version';
 const TASK_RESOURCE = 'approval_task';
+/** The counter of the approvals the owning module refused at their end (BR-ADM-07): any increase is an alert for the operators. */
+export const GUARD_REJECTED_METRIC = 'workflow_guard_rejected_total';
 const STATUSES: readonly string[] = ['Draft', 'Published', 'Superseded', 'Retired'];
 const INSTANCE_STATUSES: readonly string[] = ['Running', 'Completed', 'Cancelled', 'Failed'];
 const TASK_STATUSES: readonly string[] = ['Pending', 'Decided', 'Reassigned', 'Cancelled', 'Expired'];
@@ -62,7 +65,7 @@ function instanceView(row: WorkflowInstanceRecord): Record<string, unknown> {
   };
 }
 
-function taskView(row: ApprovalTaskRecord, membershipId: string): Record<string, unknown> {
+function taskView(row: ApprovalTaskRecord, membershipId: string, operates = false): Record<string, unknown> {
   return {
     id: row.id,
     workflow_instance_id: row.workflowInstanceId,
@@ -80,8 +83,16 @@ function taskView(row: ApprovalTaskRecord, membershipId: string): Record<string,
     resource: { type: row.resourceType, id: row.resourceId },
     created_at: row.createdAt,
     version: row.version,
+    step_name: row.stepName,
+    // What the monitor (ADM-18) shows beside the task: the figure and the definition the instance runs by, and the version the cancellation is asked at.
+    instance: { id: row.workflowInstanceId, version: row.instanceVersion, status: row.instanceStatus, amount_vnd: row.amountVnd, document_type: row.documentType, unit_id: row.unitId, workflow_revision: row.workflowRevision },
+    overdue: row.status === 'Pending' && Date.parse(row.dueAt) < Date.now(),
+    overdue_reminders: row.overdueReminders,
+    escalated_at: row.escalatedAt,
+    escalated_from_id: row.escalatedFromId,
+    reassigned_from_id: row.reassignedFromId,
     // The server judges again: this only says whether the screen should offer it.
-    actions: { decide: row.status === 'Pending' && (row.assigneeId === membershipId || row.delegatedToMe) },
+    actions: { decide: row.status === 'Pending' && (row.assigneeId === membershipId || row.delegatedToMe), reassign: operates && row.status === 'Pending', cancel: operates && row.status === 'Pending' && row.instanceStatus === 'Running' },
   };
 }
 
@@ -93,7 +104,14 @@ function taskView(row: ApprovalTaskRecord, membershipId: string): Record<string,
 export class ApprovalCommandsController {
   private readonly store = new ApprovalStore();
 
-  constructor(@Inject(APPROVAL_FINAL_COMMANDS) private readonly commands: FinalCommandRegistry) {}
+  private readonly metrics: MetricsSink;
+
+  constructor(
+    @Inject(APPROVAL_FINAL_COMMANDS) private readonly commands: FinalCommandRegistry,
+    @Optional() @Inject(ADM_METRICS) metrics?: MetricsSink,
+  ) {
+    this.metrics = metrics ?? NOOP_METRICS;
+  }
 
   @Post('workflow-definitions')
   @HttpCode(200)
@@ -137,6 +155,32 @@ export class ApprovalCommandsController {
     return commandResult(scope, 'PUBLISHED', done.version.version, done.version.id);
   }
 
+  @Post('workflow-instances/:instanceId/cancel')
+  @HttpCode(202)
+  @OperationId('cancelWorkflowInstance')
+  @Command({ operation: 'cancelWorkflowInstance', versioned: true })
+  async cancel(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('instanceId', ParseUUIDPipe) instanceId: string, @Body() body: Schemas['ReasonOnly']): Promise<CommandResult> {
+    assertHolds(access, OPERATE);
+    const ended = await this.store.cancelInstance(scope.tx, effectsOf(scope), { instanceId: instanceId.toLowerCase(), expectedVersion: scope.expectedVersion ?? 0, reason: body.reason.trim(), now: new Date() });
+    return commandResult(scope, 'CANCELLED', ended.version, ended.id);
+  }
+
+  @Post('approval-tasks/:taskId/reassign')
+  @HttpCode(200)
+  @OperationId('reassignApprovalTask')
+  @Command({ operation: 'reassignApprovalTask', versioned: true })
+  async reassign(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('taskId', ParseUUIDPipe) taskId: string, @Body() body: Schemas['TaskReassign']): Promise<CommandResult> {
+    assertHolds(access, OPERATE);
+    const done = await this.store.reassignTask(scope.tx, effectsOf(scope), {
+      taskId: taskId.toLowerCase(),
+      expectedVersion: scope.expectedVersion ?? 0,
+      newAssignee: body.new_assignee_membership_id.toLowerCase(),
+      reason: body.reason,
+      now: new Date(),
+    });
+    return commandResult(scope, 'REASSIGNED', done.task.version, done.task.id);
+  }
+
   @Post('approval-tasks/:taskId/decision')
   @HttpCode(200)
   @OperationId('decideApprovalTask')
@@ -166,6 +210,7 @@ export class ApprovalCommandsController {
       ...(body.reason === undefined ? {} : { reason: body.reason }),
       diff: { decision, step_id: result.task.stepId, step: result.step, outcome: result.outcome, final_command: result.finalCommand, instance_id: result.instance.id },
     });
+    if (result.outcome === 'GUARD_REJECTED') this.metrics.increment(GUARD_REJECTED_METRIC, { business_type: result.instance.businessType });
     return commandResult(scope, result.instance.status === 'Running' ? 'DECIDED' : (result.outcome ?? 'DECIDED'), result.task.version, result.task.id);
   }
 }
@@ -276,7 +321,7 @@ export class ApprovalTaskReadsController {
     };
     const viewer = { membershipId: tenant.membershipId, all: holdsOnWholeTenant(access, OPERATE) };
     const rows = await this.database.withTenant(tenant, (tx) => this.store.listTasks(tx, viewer, filters, { limit: request.limit + 1, after: request.after }));
-    return pageOf(rows, request.limit, (row) => taskView(row, tenant.membershipId));
+    return pageOf(rows, request.limit, (row) => taskView(row, tenant.membershipId, viewer.all));
   }
 
   @Get(':id')
@@ -291,6 +336,6 @@ export class ApprovalTaskReadsController {
       return visible.length > 0 ? task : undefined;
     });
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return { ...taskView(found, tenant.membershipId), as_of: new Date().toISOString() };
+    return { ...taskView(found, tenant.membershipId, all), as_of: new Date().toISOString() };
   }
 }

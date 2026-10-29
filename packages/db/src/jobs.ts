@@ -1,4 +1,6 @@
 import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
+import { APPROVAL_OPEN_GAUGE, APPROVAL_OVERDUE_GAUGE } from './approval-sla-job.ts';
+import type { SlaSweepResult } from './approval-store.ts';
 import { DGV_NOT_ASSESSED_GAUGE } from './dgv-quality-run-job.ts';
 import type { AuditSealJob } from './audit-seal-job.ts';
 import type { ControlDatabase } from './control-database.ts';
@@ -44,6 +46,8 @@ export const JOB_INTERVAL_SECONDS = {
   // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
   // Every 15 minutes: an issue that reaches 100 or 150 percent of its SLA is escalated within a quarter of an hour; the pass is idempotent (ST-ISS-004).
   'issue-sla': 900,
+  // Every 5 minutes: an approval task is reminded at 80 percent of the working time to its deadline and dealt with at the deadline as its step says (ST-ADM-013); the pass is idempotent.
+  'approval-sla': 300,
   'integration-inbox': 60,
   // Every 5 seconds, like the outbox relay: a retry on the schedule of 30 seconds is taken up within seconds of its time (ST-NOT-002, BR-NOT-03); the pass is idempotent.
   'notification-dispatch': 5,
@@ -210,6 +214,8 @@ export interface StandardJobDeps {
    * working time has reached; tells how many issues are open and how many escalations wait, for the gauges.
    */
   issueSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaPassResult> };
+  /** The pass over the open approval tasks of a tenant (ST-ADM-013): the reminders, the escalations and the expiries of the SLA; tells how many tasks are open and overdue, for the gauges. */
+  approvalSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaSweepResult> };
   /** Takes up the inbound provider events that are due and have an adapter, and retries the failed ones when their wait is over (ST-ADM-018). */
   inbox?: { processDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
   /** Sends the notifications that are due on each channel, and reconciles the sends whose result was lost (ST-NOT-002); the API process has the adapters. */
@@ -498,6 +504,29 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
           for (const [severity, count] of Object.entries(open)) metrics.gauge(OPEN_ISSUES_GAUGE, count, { severity });
           metrics.gauge(PENDING_ESCALATIONS_GAUGE, pending);
+        }
+      },
+    });
+  }
+  const approvals = deps.approvalSla;
+  if (approvals !== undefined) {
+    handlers.push({
+      name: 'approval-sla',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let open = 0;
+        let overdue = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            const pass = await approvals.run(workerContext(tenantId), now);
+            open += pass.open;
+            overdue += pass.overdue;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
+          metrics.gauge(APPROVAL_OPEN_GAUGE, open);
+          metrics.gauge(APPROVAL_OVERDUE_GAUGE, overdue);
         }
       },
     });

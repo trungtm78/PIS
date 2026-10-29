@@ -1,0 +1,9 @@
+/* ADM-18: a task past its deadline is red (UI-ADM-18). */
+.adm-approvals tr.late {
+  background: #f9dcd9;
+  color: #8a1f17;
+}
+
+.adm-approvals tr.late code {
+  color: inherit;
+}

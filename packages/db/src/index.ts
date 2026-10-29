@@ -667,5 +667,6 @@ export { LlmEvalStore } from './llm-eval-store.ts';
 export type { EvalDatasetRow, EvalRunRow, ProfileInput, ProfileRow, PromptInput, PromptRow, RunPlan } from './llm-eval-store.ts';
 export { IamSelfStore } from './iam-self-store.ts';
 export type { DeviceRevocation, DeviceView, ProfileRecord, SessionRevocation, SessionView } from './iam-self-store.ts';
-export { ApprovalStore } from './approval-store.ts';
-export type { ApprovalEffects, DecisionResult, FinalCommand, InstanceRecord as WorkflowInstanceRecord, StartInput as ApprovalStartInput, TaskRecord as ApprovalTaskRecord, VersionRecord as WorkflowVersionRecord } from './approval-store.ts';
+export { ApprovalStore, SLA_PASS_LIMIT as APPROVAL_SLA_PASS_LIMIT } from './approval-store.ts';
+export { APPROVAL_OPEN_GAUGE, APPROVAL_OVERDUE_GAUGE, APPROVAL_SLA_BREACH_METRIC, ApprovalSlaJob } from './approval-sla-job.ts';
+export type { ApprovalEffects, DecisionResult, FinalCommand, SlaSweepResult as ApprovalSlaSweepResult, InstanceRecord as WorkflowInstanceRecord, StartInput as ApprovalStartInput, TaskRecord as ApprovalTaskRecord, VersionRecord as WorkflowVersionRecord } from './approval-store.ts';

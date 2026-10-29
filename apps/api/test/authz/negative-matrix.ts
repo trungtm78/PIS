@@ -193,6 +193,7 @@ export interface MatrixTargets {
   /** A DRAFT workflow definition (version 1) written by someone other than the callers, and a PENDING approval task (version 1) of a running instance, given to someone other than the callers. */
   workflowDraftId: string;
   approvalTaskId: string;
+  workflowInstanceId: string;
   qualityDatasetId: string;
   /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
   dossierId: string;
@@ -1765,6 +1766,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideApprovalTask: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/approval-tasks/${t.approvalTaskId}/decision`, ifMatch: '"1"', body: { decision: 'approve' } }),
+  },
+  reassignApprovalTask: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/approval-tasks/${t.approvalTaskId}/reassign`, ifMatch: '"1"', body: { new_assignee_membership_id: '00000000-0000-4000-8000-0000000000f1', reason: REASON } }),
+  },
+  cancelWorkflowInstance: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/workflow-instances/${t.workflowInstanceId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   registerSitePhoto: {
     referencesTenantIds: true,

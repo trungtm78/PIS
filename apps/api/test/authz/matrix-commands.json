@@ -338,6 +338,8 @@
     "updateWorkflowDraft",
     "publishWorkflowVersion",
     "decideApprovalTask",
+    "reassignApprovalTask",
+    "cancelWorkflowInstance",
     "post_quality_exceptions_id_decision",
     "softCloseReportingPeriod",
     "stageMasterImport",

@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
+import { ADM_METRICS } from './modules/adm/tokens';
 import { BI_DRILL_SECRET } from './modules/bi/tokens';
 import { ORCHESTRATION_OPTIONS } from './modules/orchestration';
 import type { OrchestrationOptions } from './modules/orchestration';
@@ -92,6 +93,8 @@ export class AppModule {
       ],
       providers: [
         ...providersOf(options),
+        // The sink the policy guard counts the decisions in is the one the ADM controllers count their alerts in (`workflow_guard_rejected_total`); without one they stay silent.
+        ...(options.policy?.metrics === undefined ? [] : [{ provide: ADM_METRICS, useValue: options.policy.metrics }]),
         ...(options.orchestration === undefined ? [] : [{ provide: ORCHESTRATION_OPTIONS, useValue: options.orchestration }]),
         ...(options.biDrillSecret === undefined ? [] : [{ provide: BI_DRILL_SECRET, useValue: options.biDrillSecret }]),
         ...(options.licenses === undefined

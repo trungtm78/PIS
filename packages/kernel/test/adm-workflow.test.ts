@@ -1,6 +1,6 @@
 import { DomainError } from '../src/errors';
-import { BUSINESS_TYPES, advance, assertValidDefinition, businessTypeOf, finalCommandKey, requiredApprovals, validateDefinition } from '../src/adm-workflow';
-import type { WorkflowDefinition, WorkflowStep } from '../src/adm-workflow';
+import { BUSINESS_TYPES, advance, assertValidDefinition, businessTypeOf, finalCommandKey, requiredApprovals, slaAction, validateDefinition } from '../src/adm-workflow';
+import type { TaskClock, WorkflowDefinition, WorkflowStep } from '../src/adm-workflow';
 
 const UNIT = '00000000-0000-4000-8000-000000000001';
 const MEMBER_A = '00000000-0000-4000-8000-0000000000a1';
@@ -129,5 +129,46 @@ describe('what a decision does to an instance', () => {
 
   it('sends the final command with a key that names the instance and the sequence of the decision', () => {
     expect(finalCommandKey('inst-1', 3)).toBe('wf:inst-1:final:3');
+  });
+});
+
+describe('slaAction (ST-ADM-013, ADM 3.7 item 4)', () => {
+  const t = (iso: string): Date => new Date(iso);
+  const clock = (overrides: Partial<TaskClock> = {}): TaskClock => ({ remindAt: t('2026-03-02T09:00:00Z'), remindedAt: null, dueAt: t('2026-03-02T17:00:00Z'), nextReminderAt: null, escalatedAt: null, ...overrides });
+
+  it('does nothing before the reminder point', () => {
+    expect(slaAction(clock(), 'REMIND', t('2026-03-02T08:59:59Z'))).toBe('NONE');
+  });
+
+  it('reminds once at the reminder point and not again before the deadline', () => {
+    expect(slaAction(clock(), 'REMIND', t('2026-03-02T09:00:00Z'))).toBe('REMIND_BEFORE_DUE');
+    expect(slaAction(clock({ remindedAt: t('2026-03-02T09:05:00Z') }), 'REMIND', t('2026-03-02T16:59:59Z'))).toBe('NONE');
+  });
+
+  it('at the deadline REMIND reminds again and repeats only when the next reminder is due', () => {
+    expect(slaAction(clock({ remindedAt: t('2026-03-02T09:05:00Z') }), 'REMIND', t('2026-03-02T17:00:00Z'))).toBe('OVERDUE_REMIND');
+    const sent = clock({ remindedAt: t('2026-03-02T09:05:00Z'), nextReminderAt: t('2026-03-03T17:00:00Z') });
+    expect(slaAction(sent, 'REMIND', t('2026-03-03T16:59:00Z'))).toBe('NONE');
+    expect(slaAction(sent, 'REMIND', t('2026-03-03T17:00:00Z'))).toBe('OVERDUE_REMIND');
+  });
+
+  it('at the deadline ESCALATE gives the task to the escalation target once and then only reminds', () => {
+    expect(slaAction(clock(), 'ESCALATE', t('2026-03-02T17:00:00Z'))).toBe('ESCALATE');
+    const escalated = clock({ escalatedAt: t('2026-03-02T17:01:00Z'), nextReminderAt: t('2026-03-03T17:01:00Z') });
+    expect(slaAction(escalated, 'ESCALATE', t('2026-03-02T18:00:00Z'))).toBe('NONE');
+    expect(slaAction(escalated, 'ESCALATE', t('2026-03-03T17:01:00Z'))).toBe('OVERDUE_REMIND');
+  });
+
+  it('at the deadline EXPIRE expires the task, even when the reminder was never sent', () => {
+    expect(slaAction(clock(), 'EXPIRE', t('2026-03-02T17:00:00Z'))).toBe('EXPIRE');
+  });
+
+  it('a task found late after the reminder point and the deadline is dealt with as overdue, not reminded twice', () => {
+    expect(slaAction(clock(), 'REMIND', t('2026-03-05T10:00:00Z'))).toBe('OVERDUE_REMIND');
+  });
+
+  it('a task without a reminder point is only judged at its deadline', () => {
+    expect(slaAction(clock({ remindAt: null }), 'REMIND', t('2026-03-02T12:00:00Z'))).toBe('NONE');
+    expect(slaAction(clock({ remindAt: null }), 'REMIND', t('2026-03-02T17:00:00Z'))).toBe('OVERDUE_REMIND');
   });
 });

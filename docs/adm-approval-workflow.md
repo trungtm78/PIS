@@ -66,3 +66,31 @@ completes as `GUARD_REJECTED`, nothing of the record changes, and `adm.workflow_
 
 `WorkflowScreen`: the business type, the versions with their state, the steps of the chosen one beside what changed from the previous revision (steps added, removed, changed and which fields), the step builder (it
 starts from the workflow in force), and the publication with a reason. A refused definition shows the message and the list of JSON paths with a sentence for each code, and keeps the form.
+
+## Operations on a running approval (ST-ADM-013)
+
+`cancelWorkflowInstance` (202) and `reassignApprovalTask` (200) need `adm.workflow.operate` through a grant on the whole tenant (a grant on a unit subtree is 403 `SCOPE_DENIED`), a reason of 10 characters and the `If-Match` of the record read (the instance for the cancellation, the task for the reassignment).
+
+* **Cancel**: only a running instance (409 `WORKFLOW_STATE_INVALID` otherwise). Its pending tasks become Cancelled, the instance Cancelled with the outcome `CANCELLED`, the audit row `workflow.instance_cancelled` carries the reason and `adm.workflow_instance.cancelled.v1` says `by: OPERATOR`. The record in the owning module is **not** touched: the module reads the event (the module that withdraws its own record calls `ApprovalService.cancel`, which ends the instance the same way with `by: MODULE`).
+* **Reassign**: only a pending task (409 `TASK_ALREADY_DECIDED`). The new assignee has to be able to decide the task as the step asks, with the grants as they are now: the right `approval.decide` over the place of the approval and, by the rule of the step, the role in the unit, the DoA band, or a place in the list of members. Otherwise 403 `APPROVER_NOT_AUTHORIZED` with the cause (`NOT_AUTHORISED`, `IN_STEP` for a person who has a task or an approval in the step already, `APPROVED_EARLIER` for a person who approved a step before a DoA step); the maker, judged on the person, is 403 `SELF_APPROVAL_DENIED`; the same person or an unknown member is 422. The old task is Reassigned (with the reason), the new one is Pending with the **same deadline and reminder point**, and `adm.approval_task.reassigned.v1` has `reason: OPERATOR`.
+
+### The SLA of a task
+
+A task gets `due_at` and `remind_at` when it is created: the deadline is the working time of the step on the calendar `WORKDAY_VN` and the reminder point is 80 percent of that working time (with no calendar published the deadline is counted in days of 8 hours and the reminder is 80 percent of the elapsed time). The job `approval-sla` (every 5 minutes, `ApprovalStore.sweepSla`, at most 500 tasks per tenant and pass, the oldest deadline first) judges each pending task under the lock of its instance (an instance a command holds is left to the next pass) by the pure rule `slaAction` of the kernel:
+
+| time | `on_timeout` | what happens |
+| --- | --- | --- |
+| from `remind_at`, before the deadline | any | one reminder `adm.approval_task.reminded.v1` (`kind: BEFORE_DUE`) |
+| from the deadline | REMIND | an overdue reminder (`kind: OVERDUE`), repeated every working day |
+| from the deadline | ESCALATE | the task is also given to the member `escalate_to` (a new Pending task, `escalated_from_task_id`, its own deadline), once, then reminders as REMIND; `adm.approval_task.escalated.v1`, audit `approval.escalated`. A target who cannot hold the task (the maker, already in the step, no right to decide) is said: audit `approval.escalation_failed` and an overdue reminder with `escalation_failed`; the escalation is not tried again |
+| from the deadline | EXPIRE | the task becomes Expired (`adm.approval_task.expired.v1`); when the approvals given and the tasks still open cannot reach the number the step needs, the instance ends `Completed` with the outcome `EXPIRED` (`adm.workflow_instance.completed.v1`, `command: null`) and the other open tasks are Cancelled |
+
+The task that the step escalates to decides it whatever the rule of the step says about the first assignee (the definition names them and a second administrator published it); they still need `approval.decide` over the place. Reminders do not change the version of a task, so an operator's `If-Match` is not spoiled by a reminder.
+
+Telemetry: the counter `approval_sla_breach_total` (once for each task found past its deadline), the gauges `approval_task_open_total` and `approval_task_overdue_total` (alert `ADM_APPROVAL_OVERDUE`), and the counter `workflow_guard_rejected_total` (alert `ADM_WORKFLOW_GUARD_REJECTED`, any increase). No personal data in any of them.
+
+## ADM-18
+
+`ApprovalMonitorScreen`: the pending tasks of the tenant (the record, the type, the amount, the current step, the assignee, the SLA deadline, the version of the workflow, the state) with a filter by type and by late; the late rows are red and come first. Each row offers "reassign" (a member chosen from the active staff and a reason) and "cancel the approval" (a reason) only where the server says the viewer may (`actions.reassign`, `actions.cancel` of `get_resources_approval_task`), and nothing while read-only. The server judges again and the screen says in words why it refused (not authorised, the maker, already decided, not running, changed meanwhile).
+
+`get_resources_approval_task(_id)` now also answers, for the monitor, `step_name`, `instance` (id, version, status, amount, document type, unit, workflow revision), `overdue`, `overdue_reminders`, `escalated_at`, `escalated_from_id`, `reassigned_from_id` and `actions`.

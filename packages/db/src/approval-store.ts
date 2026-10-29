@@ -1,5 +1,5 @@
-import { DomainError, activeGrants, addWorkingTime, advanceWorkflow, assertValidDefinition, businessTypeOf, canonicalJson, finalCommandKey, requiredApprovals, scopeContains, sha256Hex, vietnamDateOf, versionConflict, withinDelegation } from '@machvon/kernel';
-import type { ApprovalDecisionKind, ApprovalWorkflowDefinition, EffectiveAccess, ResourceRef, WorkflowOutcome, WorkflowStep } from '@machvon/kernel';
+import { DomainError, activeGrants, addWorkingTime, advanceWorkflow, assertValidDefinition, businessTypeOf, canonicalJson, finalCommandKey, requiredApprovals, scopeContains, sha256Hex, slaAction, vietnamDateOf, versionConflict, withinDelegation } from '@machvon/kernel';
+import type { ApprovalDecisionKind, ApprovalSlaAction, ApprovalWorkflowDefinition, EffectiveAccess, ResourceRef, WorkflowOutcome, WorkflowStep } from '@machvon/kernel';
 import { randomUUID } from 'node:crypto';
 import { DoaMatrixStore } from './doa-matrix-store.ts';
 import { loadAccessIn } from './effective-access-store.ts';
@@ -17,6 +17,12 @@ const APPROVAL_CALENDAR_CODE = 'WORKDAY_VN';
 const DECIDE_PERMISSION = 'approval.decide';
 /** The most approvers a step gives its task to: a band that has many holders is not asked of all of them. */
 const MAX_TASKS_PER_STEP = 20;
+/** The most tasks one pass of the SLA job looks at for a tenant; the rest wait for the next pass, the oldest deadline first. */
+export const SLA_PASS_LIMIT = 500;
+/** The share of the working time to the deadline at which an approver is reminded. */
+const REMINDER_SHARE = 0.8;
+/** A working day, the time between two reminders of an overdue task. */
+const WORKING_DAY_MINUTES = 8 * 60;
 
 /** What the engine writes beside the state: the audit trail and the events. The caller's command scope (or a workflow activity) provides both. */
 export interface ApprovalEffects {
@@ -91,6 +97,18 @@ export interface TaskRecord {
   createdAt: string;
   version: number;
   sortKey: string;
+  /** What the monitor (ADM-18) shows beside the task: the instance it belongs to, the figure and the definition it runs by. */
+  instanceVersion: number;
+  instanceStatus: InstanceRecord['status'];
+  amountVnd: string | null;
+  documentType: string;
+  unitId: string;
+  workflowRevision: number;
+  stepName: string | null;
+  escalatedAt: string | null;
+  overdueReminders: number;
+  reassignedFromId: string | null;
+  escalatedFromId: string | null;
 }
 
 interface VersionRow {
@@ -197,9 +215,21 @@ interface TaskRow {
   created_at: string;
   version: string;
   sort_key: string;
+  instance_version: string;
+  instance_status: InstanceRecord['status'];
+  amount_vnd: string | null;
+  document_type: string;
+  unit_id: string;
+  workflow_revision: number;
+  step_name: string | null;
+  escalated_at: string | null;
+  overdue_reminders: number;
+  reassigned_from_id: string | null;
+  escalated_from_id: string | null;
 }
 
 const TASK_FROM = `machvon.approval_task t join machvon.workflow_instance i on i.tenant_id = t.tenant_id and i.id = t.workflow_instance_id
+  join machvon.workflow_version v on v.tenant_id = i.tenant_id and v.id = i.workflow_version_id
   left join machvon.tenant_user_directory a on a.tenant_id = t.tenant_id and a.membership_id = t.assignee_id`;
 /** Whether the member holds a delegation of approval.decide from the assignee of the task whose scope contains the unit of its instance: the delegate may see the task and decide it. */
 const delegatedTo = (member: string, assignee: string, unit: string, at: string): string => `exists (
@@ -208,7 +238,9 @@ const delegatedTo = (member: string, assignee: string, unit: string, at: string)
      and exists (select 1 from unnest(d.permissions) p where p = 'approval.decide' or p = 'approval.*' or p = '*')
      and ${SCOPE_CONTAINS_UNIT("d.scope_json->>'kind'", "array(select jsonb_array_elements_text(coalesce(d.scope_json->'ref_ids', '[]'::jsonb))::uuid)", unit)})`;
 const taskColumns = (delegated: string): string => `t.id, t.workflow_instance_id, t.step_id, t.step_index, t.assignee_id, a.display_name as assignee_name, t.on_behalf_of_id, ${TIME('t.due_at')} as due_at, t.status, t.decision, t.reason, ${TIME('t.decided_at')} as decided_at,
-  t.decided_by, i.business_type, i.resource_type, i.resource_id, ${TIME('t.created_at')} as created_at, t.version::text as version, ${TIME('t.created_at')} as sort_key, ${delegated} as delegated_to_me`;
+  t.decided_by, i.business_type, i.resource_type, i.resource_id, ${TIME('t.created_at')} as created_at, t.version::text as version, ${TIME('t.created_at')} as sort_key, ${delegated} as delegated_to_me,
+  i.version::text as instance_version, i.status as instance_status, i.amount_vnd::text as amount_vnd, i.document_type, i.unit_id, v.revision as workflow_revision, v.definition_json->'steps'->t.step_index->>'name' as step_name,
+  ${TIME('t.escalated_at')} as escalated_at, t.overdue_reminders, t.reassigned_from_task_id as reassigned_from_id, t.escalated_from_task_id as escalated_from_id`;
 const TASK_COLUMNS = taskColumns('false');
 const toTask = (row: TaskRow): TaskRecord => ({
   id: row.id,
@@ -231,6 +263,17 @@ const toTask = (row: TaskRow): TaskRecord => ({
   createdAt: row.created_at,
   version: Number(row.version),
   sortKey: row.sort_key,
+  instanceVersion: Number(row.instance_version),
+  instanceStatus: row.instance_status,
+  amountVnd: row.amount_vnd,
+  documentType: row.document_type,
+  unitId: row.unit_id,
+  workflowRevision: row.workflow_revision,
+  stepName: row.step_name,
+  escalatedAt: row.escalated_at,
+  overdueReminders: row.overdue_reminders,
+  reassignedFromId: row.reassigned_from_id,
+  escalatedFromId: row.escalated_from_id,
 });
 
 export interface StartInput {
@@ -252,6 +295,24 @@ export interface DecideInput {
   returnToStep: string | undefined;
   now: Date;
   finish: FinalCommand;
+}
+
+/** What one pass of the SLA did for a tenant, and the figures of its gauges. */
+export interface SlaSweepResult {
+  /** Reminders before the deadline. */
+  reminded: number;
+  /** Reminders of tasks past their deadline. */
+  overdueReminded: number;
+  /** The tasks found past their deadline for the first time (reminded, escalated or expired): the breaches. */
+  breached: number;
+  escalated: number;
+  /** Escalations that could not be made: the target cannot hold the task. */
+  escalationFailed: number;
+  expired: number;
+  instancesExpired: number;
+  /** The pending tasks of the tenant after the pass, and how many of them are past their deadline. */
+  open: number;
+  overdue: number;
 }
 
 /** What a decision did, for the audit row and the answer. */
@@ -410,20 +471,34 @@ export class ApprovalStore {
   async cancel(tx: TenantTx, effects: ApprovalEffects, input: { resourceType: string; resourceId: string; reason: string; now: Date }): Promise<boolean> {
     const [row] = await tx.query<InstanceRow>(`select ${INSTANCE_COLUMNS} from machvon.workflow_instance i where i.resource_type = $1 and i.resource_id = $2::uuid and i.status = 'Running' for update`, [input.resourceType, input.resourceId]);
     if (row === undefined) return false;
+    await this.endCancelled(tx, effects, toInstance(row), input.reason, input.now, 'MODULE');
+    return true;
+  }
+
+  /** `cancelWorkflowInstance` (ADM-18): an operator ends a running instance with a reason. 409 `WORKFLOW_STATE_INVALID` when it is not running, 409 `VERSION_CONFLICT` when it changed since the operator read it. The record in the owning module is not touched: the event tells the module. */
+  async cancelInstance(tx: TenantTx, effects: ApprovalEffects, input: { instanceId: string; expectedVersion: number; reason: string; now: Date }): Promise<InstanceRecord> {
+    const [row] = await tx.query<InstanceRow>(`select ${INSTANCE_COLUMNS} from machvon.workflow_instance i where i.id = $1::uuid for update`, [input.instanceId]);
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const instance = toInstance(row);
+    if (instance.status !== 'Running') throw new DomainError('WORKFLOW_STATE_INVALID', 409, 'status');
+    if (instance.version !== input.expectedVersion) throw versionConflict(instance.version);
+    await this.endCancelled(tx, effects, instance, input.reason, input.now, 'OPERATOR');
+    return (await this.findInstance(tx, instance.id)) ?? instance;
+  }
+
+  private async endCancelled(tx: TenantTx, effects: ApprovalEffects, instance: InstanceRecord, reason: string, now: Date, by: 'MODULE' | 'OPERATOR'): Promise<void> {
     await tx.query("update machvon.approval_task set status = 'Cancelled', version = version + 1 where workflow_instance_id = $1::uuid and status = 'Pending'", [instance.id]);
-    await tx.query("update machvon.workflow_instance set status = 'Cancelled', outcome = 'CANCELLED', ended_at = $2::timestamptz, version = version + 1 where id = $1::uuid", [instance.id, input.now.toISOString()]);
-    await effects.audit({ action: 'workflow.instance_cancelled', resourceType: 'workflow_instance', resourceId: instance.id, reason: input.reason, diff: { business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId } });
+    await tx.query("update machvon.workflow_instance set status = 'Cancelled', outcome = 'CANCELLED', ended_at = $2::timestamptz, version = version + 1 where id = $1::uuid", [instance.id, now.toISOString()]);
+    await effects.audit({ action: 'workflow.instance_cancelled', resourceType: 'workflow_instance', resourceId: instance.id, reason, diff: { business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, by } });
     await effects.emit({
       aggregateType: 'workflow_instance',
       aggregateId: instance.id,
       aggregateVersion: instance.version + 1,
       type: 'adm.workflow_instance.cancelled.v1',
       schemaVersion: 1,
-      payload: { instance_id: instance.id, business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId },
+      payload: { instance_id: instance.id, business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, outcome: 'CANCELLED', by },
       eventKey: `workflow_instance:${instance.id}:cancelled`,
     });
-    return true;
   }
 
   // ---- deciding a task ---------------------------------------------------------------------------------------------------------------
@@ -484,7 +559,7 @@ export class ApprovalStore {
     // The grants as they are now: a band or a role the approver no longer holds is not decided under.
     const authority = await loadAccessIn(tx, onBehalfOf ?? caller);
     const place = await this.placeOf(tx, instance.unitId);
-    if (!(await this.authorised(tx, step, instance, authority, place, input.now))) throw new DomainError('APPROVER_NOT_AUTHORIZED', 403, 'approver');
+    if (!(await this.authorised(tx, step, instance, authority, place, input.now, task.escalatedFromId !== null))) throw new DomainError('APPROVER_NOT_AUTHORIZED', 403, 'approver');
 
     // One person is one approval in a step: someone who already decided in this step (as themselves or for another assignee) does not decide again.
     const [already] = await tx.query<{ n: string }>(
@@ -566,6 +641,199 @@ export class ApprovalStore {
     return { kind: 'DECIDED', task: decided ?? task, instance: after ?? instance, step: stepResult, outcome, finalCommand, createdTaskIds: created };
   }
 
+  // ---- the operations on a running approval (ADM-18) -----------------------------------------------------------------------------------
+
+  /**
+   * `reassignApprovalTask` (ADM 3.7 item 8): an operator gives a pending task to another person. The new assignee has to be able to decide it as the step asks, as the grants are now (403 `APPROVER_NOT_AUTHORIZED`), and is
+   * never the maker (403 `SELF_APPROVAL_DENIED`). The old task is Reassigned; the new one is Pending with the same deadline and the same clock. 409 `TASK_ALREADY_DECIDED` when the task is no longer pending, 409
+   * `VERSION_CONFLICT` when it changed since the operator read it.
+   */
+  async reassignTask(tx: TenantTx, effects: ApprovalEffects, input: { taskId: string; expectedVersion: number; newAssignee: string; reason: string; now: Date }): Promise<{ from: TaskRecord; task: TaskRecord }> {
+    const [peek] = await tx.query<{ workflow_instance_id: string }>('select workflow_instance_id from machvon.approval_task where id = $1::uuid', [input.taskId]);
+    if (peek === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await tx.query('select id from machvon.workflow_instance where id = $1::uuid for update', [peek.workflow_instance_id]);
+    const [locked] = await tx.query<TaskRow>(`select ${TASK_COLUMNS} from ${TASK_FROM} where t.id = $1::uuid for update of t`, [input.taskId]);
+    if (locked === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const task = toTask(locked);
+    const { instance, definition, stepEnteredSeq } = await this.instanceOf(tx, task.workflowInstanceId);
+    if (task.status !== 'Pending' || instance.status !== 'Running') throw new DomainError('TASK_ALREADY_DECIDED', 409, 'status');
+    if (task.version !== input.expectedVersion) throw versionConflict(task.version);
+    if (input.newAssignee === task.assigneeId) throw invalid('new_assignee_membership_id');
+    const step = definition.steps[task.stepIndex];
+    if (step === undefined) throw new DomainError('WORKFLOW_DEFINITION_INVALID', 422, '$.steps');
+    const verdict = await this.canHold(tx, step, instance, definition, task.stepIndex, stepEnteredSeq, input.newAssignee, input.now);
+    if (verdict === 'UNKNOWN') throw invalid('new_assignee_membership_id');
+    if (verdict === 'MAKER') throw new DomainError('SELF_APPROVAL_DENIED', 403, 'new_assignee_membership_id');
+    if (verdict !== 'OK') throw new DomainError('APPROVER_NOT_AUTHORIZED', 403, 'new_assignee_membership_id', { extensions: { cause: verdict } });
+
+    await tx.query("update machvon.approval_task set status = 'Reassigned', reason = $2, version = version + 1 where id = $1::uuid", [task.id, input.reason.trim()]);
+    const [row] = await tx.query<{ id: string }>(
+      `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, remind_at, reminded_at, next_reminder_at, overdue_reminders, escalated_at, escalated_from_task_id, reassigned_from_task_id, step_id, step_index, status)
+       select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, due_at, remind_at, reminded_at, next_reminder_at, overdue_reminders, escalated_at, escalated_from_task_id, id, step_id, step_index, 'Pending' from machvon.approval_task where id = $3::uuid returning id`,
+      [instance.id, input.newAssignee, task.id],
+    );
+    const created = row?.id as string;
+    await effects.audit({ action: 'approval.reassigned', resourceType: 'approval_task', resourceId: task.id, reason: input.reason.trim(), diff: { instance_id: instance.id, step_id: task.stepId, from_membership_id: task.assigneeId, to_membership_id: input.newAssignee, new_task_id: created } });
+    await effects.emit({
+      aggregateType: 'approval_task',
+      aggregateId: task.id,
+      aggregateVersion: task.version + 1,
+      type: 'adm.approval_task.reassigned.v1',
+      schemaVersion: 1,
+      payload: { task_id: task.id, new_task_id: created, instance_id: instance.id, from_membership_id: task.assigneeId, to_membership_id: input.newAssignee, reason: 'OPERATOR', due_at: task.dueAt },
+      eventKey: `approval_task:${task.id}:reassigned`,
+    });
+    const from = (await this.findTask(tx, task.id)) ?? task;
+    return { from, task: (await this.findTask(tx, created)) as TaskRecord };
+  }
+
+  private async instanceOf(tx: TenantTx, instanceId: string): Promise<{ instance: InstanceRecord; definition: ApprovalWorkflowDefinition; stepEnteredSeq: number }> {
+    const [row] = await tx.query<InstanceRow & { definition_json: unknown; step_entered_seq: number }>(
+      `select ${INSTANCE_COLUMNS}, v.definition_json, i.step_entered_seq from machvon.workflow_instance i join machvon.workflow_version v on v.tenant_id = i.tenant_id and v.id = i.workflow_version_id where i.id = $1::uuid`,
+      [instanceId],
+    );
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return { instance: toInstance(row), definition: row.definition_json as ApprovalWorkflowDefinition, stepEnteredSeq: row.step_entered_seq };
+  }
+
+  /**
+   * Whether a member may be given a task of this step now: they exist, are not the maker (judged on the person), are not in the step already (a task open or an approval given since the step was entered), did not approve
+   * a step before a DoA step, and hold the authority the step asks for as their grants are now.
+   */
+  private async canHold(tx: TenantTx, step: WorkflowStep, instance: InstanceRecord, definition: ApprovalWorkflowDefinition, stepIndex: number, stepEnteredSeq: number, membershipId: string, now: Date, escalating = false): Promise<'OK' | 'UNKNOWN' | 'MAKER' | 'IN_STEP' | 'APPROVED_EARLIER' | 'NOT_AUTHORISED'> {
+    const user = await this.userOf(tx, membershipId);
+    if (user === undefined) return 'UNKNOWN';
+    if (user === (await this.userOf(tx, instance.initiatorId))) return 'MAKER';
+    const [inStep] = await tx.query<{ n: string }>(
+      `select count(*)::text as n from machvon.approval_task t join machvon.membership m on m.tenant_id = t.tenant_id and m.id = coalesce(t.decided_by, t.assignee_id)
+        where t.workflow_instance_id = $1::uuid and t.step_index = $2 and m.user_id = $4::uuid and (t.status = 'Pending' or (t.status = 'Decided' and t.decision_seq > $3::integer))`,
+      [instance.id, stepIndex, stepEnteredSeq, user],
+    );
+    if (Number(inStep?.n ?? 0) > 0) return 'IN_STEP';
+    if (step.assignee_rule.type === 'DOA' && (await this.previousApprovers(tx, instance.id, definition, stepIndex)).has(user)) return 'APPROVED_EARLIER';
+    const access = await loadAccessIn(tx, membershipId);
+    return (await this.authorised(tx, step, instance, access, await this.placeOf(tx, instance.unitId), now, escalating)) ? 'OK' : 'NOT_AUTHORISED';
+  }
+
+  // ---- the SLA of the open tasks (ADM 3.7 item 4) ----------------------------------------------------------------------------------------
+
+  /**
+   * One pass of the SLA over the open tasks of the tenant, the oldest deadline first, at most `SLA_PASS_LIMIT`: a reminder at 80 percent of the working time; at the deadline what the step says (REMIND: a reminder every working day,
+   * ESCALATE: the task is also given to the step's escalation target, once, EXPIRE: the task expires, and the instance with it when the step can no longer reach the approvals it needs). Every task is judged under the lock of its
+   * instance and is left to the next pass when a command holds that lock, so a pass and a decision never undo each other. A pass repeated at the same time changes nothing.
+   */
+  async sweepSla(tx: TenantTx, effects: ApprovalEffects, now: Date): Promise<SlaSweepResult> {
+    const result: SlaSweepResult = { reminded: 0, overdueReminded: 0, breached: 0, escalated: 0, escalationFailed: 0, expired: 0, instancesExpired: 0, open: 0, overdue: 0 };
+    const candidates = await tx.query<{ id: string; workflow_instance_id: string }>(
+      `select t.id, t.workflow_instance_id from machvon.approval_task t join machvon.workflow_instance i on i.tenant_id = t.tenant_id and i.id = t.workflow_instance_id
+        where t.status = 'Pending' and i.status = 'Running' and ((t.reminded_at is null and t.remind_at <= $1::timestamptz) or t.due_at <= $1::timestamptz) and (t.next_reminder_at is null or t.next_reminder_at <= $1::timestamptz)
+        order by t.due_at, t.id limit $2::int`,
+      [now.toISOString(), SLA_PASS_LIMIT],
+    );
+    for (const candidate of candidates) {
+      // The instance first, as a decision does; one that a command holds is left to the next pass.
+      const [free] = await tx.query<{ id: string }>('select id from machvon.workflow_instance where id = $1::uuid and status = \'Running\' for update skip locked', [candidate.workflow_instance_id]);
+      if (free === undefined) continue;
+      const [locked] = await tx.query<TaskRow>(`select ${TASK_COLUMNS} from ${TASK_FROM} where t.id = $1::uuid and t.status = 'Pending' for update of t`, [candidate.id]);
+      if (locked === undefined) continue;
+      await this.judge(tx, effects, toTask(locked), now, result);
+    }
+    const [counts] = await tx.query<{ open: string; overdue: string }>("select count(*)::text as open, (count(*) filter (where due_at <= $1::timestamptz))::text as overdue from machvon.approval_task where status = 'Pending'", [now.toISOString()]);
+    result.open = Number(counts?.open ?? 0);
+    result.overdue = Number(counts?.overdue ?? 0);
+    return result;
+  }
+
+  private async judge(tx: TenantTx, effects: ApprovalEffects, task: TaskRecord, now: Date, result: SlaSweepResult): Promise<void> {
+    const [clockRow] = await tx.query<{ remind_at: string | null; reminded_at: string | null; next_reminder_at: string | null; escalated_at: string | null }>(
+      `select ${TIME('remind_at')} as remind_at, ${TIME('reminded_at')} as reminded_at, ${TIME('next_reminder_at')} as next_reminder_at, ${TIME('escalated_at')} as escalated_at from machvon.approval_task where id = $1::uuid`,
+      [task.id],
+    );
+    const at = (value: string | null | undefined): Date | null => (value === null || value === undefined ? null : new Date(value));
+    const { instance, definition, stepEnteredSeq } = await this.instanceOf(tx, task.workflowInstanceId);
+    const step = definition.steps[task.stepIndex];
+    if (step === undefined) return;
+    const action: ApprovalSlaAction = slaAction({ remindAt: at(clockRow?.remind_at), remindedAt: at(clockRow?.reminded_at), dueAt: new Date(task.dueAt), nextReminderAt: at(clockRow?.next_reminder_at), escalatedAt: at(clockRow?.escalated_at) }, step.on_timeout, now);
+    const subject = { task_id: task.id, instance_id: instance.id, business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, step_id: task.stepId, assignee_id: task.assigneeId, due_at: task.dueAt };
+    const remind = async (kind: 'BEFORE_DUE' | 'OVERDUE', extra: Record<string, unknown> = {}): Promise<void> => {
+      const sent = task.overdueReminders + (kind === 'OVERDUE' ? 1 : 0);
+      if (kind === 'BEFORE_DUE') await tx.query('update machvon.approval_task set reminded_at = $2::timestamptz where id = $1::uuid', [task.id, now.toISOString()]);
+      else {
+        const next = await this.dueOf(tx, WORKING_DAY_MINUTES, now);
+        await tx.query('update machvon.approval_task set reminded_at = coalesce(reminded_at, $2::timestamptz), next_reminder_at = $3::timestamptz, overdue_reminders = overdue_reminders + 1 where id = $1::uuid', [task.id, now.toISOString(), next.toISOString()]);
+      }
+      await effects.emit({ aggregateType: 'approval_task', aggregateId: task.id, aggregateVersion: task.version, type: 'adm.approval_task.reminded.v1', schemaVersion: 1, payload: { ...subject, kind, ...extra }, eventKey: `approval_task:${task.id}:reminded:${kind === 'BEFORE_DUE' ? 0 : sent}` });
+      if (kind === 'BEFORE_DUE') result.reminded += 1;
+      else result.overdueReminded += 1;
+    };
+    const clockEscalated = clockRow?.escalated_at !== null && clockRow?.escalated_at !== undefined;
+    // A task that was escalated is counted once, when it escalated; the task it escalated to is a task of its own and is counted when its own deadline passes.
+    if (action === 'EXPIRE' || action === 'ESCALATE' || (action === 'OVERDUE_REMIND' && task.overdueReminders === 0 && !(clockEscalated && task.escalatedFromId === null))) result.breached += 1;
+    switch (action) {
+      case 'NONE':
+        return;
+      case 'REMIND_BEFORE_DUE':
+        await remind('BEFORE_DUE');
+        return;
+      case 'OVERDUE_REMIND':
+        await remind('OVERDUE');
+        return;
+      case 'ESCALATE': {
+        const target = step.escalate_to as string;
+        const verdict = await this.canHold(tx, step, instance, definition, task.stepIndex, stepEnteredSeq, target, now, true);
+        const next = await this.dueOf(tx, WORKING_DAY_MINUTES, now);
+        // Whether it worked or not, the escalation is tried once: a target who cannot hold the task is said so and the task goes on being reminded.
+        await tx.query('update machvon.approval_task set escalated_at = $2::timestamptz, next_reminder_at = $3::timestamptz where id = $1::uuid', [task.id, now.toISOString(), next.toISOString()]);
+        // Several tasks of a step share one target: the first to be late gives them the task, and for the others there is nothing more to give.
+        if (verdict === 'IN_STEP') return;
+        if (verdict !== 'OK') {
+          await effects.audit({ action: 'approval.escalation_failed', resourceType: 'approval_task', resourceId: task.id, diff: { instance_id: instance.id, step_id: task.stepId, escalate_to: target, cause: verdict } });
+          await effects.emit({ aggregateType: 'approval_task', aggregateId: task.id, aggregateVersion: task.version, type: 'adm.approval_task.reminded.v1', schemaVersion: 1, payload: { ...subject, kind: 'OVERDUE', escalation_failed: verdict }, eventKey: `approval_task:${task.id}:reminded:escalation` });
+          result.escalationFailed += 1;
+          return;
+        }
+        const minutes = Math.max(1, Math.round(step.sla_working_hours * 60));
+        const { due, remind: remindAt } = await this.clockOf(tx, minutes, now);
+        const [row] = await tx.query<{ id: string }>(
+          `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, remind_at, escalated_at, escalated_from_task_id, step_id, step_index, status)
+           values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3::timestamptz, $4::timestamptz, $5::timestamptz, $6::uuid, $7, $8, 'Pending') returning id`,
+          [instance.id, target, due.toISOString(), remindAt.toISOString(), now.toISOString(), task.id, task.stepId, task.stepIndex],
+        );
+        await effects.audit({ action: 'approval.escalated', resourceType: 'approval_task', resourceId: task.id, diff: { instance_id: instance.id, step_id: task.stepId, escalated_to: target, new_task_id: row?.id } });
+        await effects.emit({ aggregateType: 'approval_task', aggregateId: task.id, aggregateVersion: task.version, type: 'adm.approval_task.escalated.v1', schemaVersion: 1, payload: { ...subject, new_task_id: row?.id, escalated_to: target }, eventKey: `approval_task:${task.id}:escalated` });
+        result.escalated += 1;
+        return;
+      }
+      case 'EXPIRE': {
+        await tx.query("update machvon.approval_task set status = 'Expired', version = version + 1 where id = $1::uuid", [task.id]);
+        await effects.audit({ action: 'approval.task_expired', resourceType: 'approval_task', resourceId: task.id, diff: { instance_id: instance.id, step_id: task.stepId, due_at: task.dueAt } });
+        await effects.emit({ aggregateType: 'approval_task', aggregateId: task.id, aggregateVersion: task.version + 1, type: 'adm.approval_task.expired.v1', schemaVersion: 1, payload: subject, eventKey: `approval_task:${task.id}:expired` });
+        result.expired += 1;
+        // The step is lost when the approvals given and the tasks still open cannot reach what it needs.
+        const [given] = await tx.query<{ approvals: string }>(
+          "select count(distinct m.user_id)::text as approvals from machvon.approval_task t join machvon.membership m on m.tenant_id = t.tenant_id and m.id = t.decided_by where t.workflow_instance_id = $1::uuid and t.step_index = $2 and t.status = 'Decided' and t.decision = 'approve' and t.decision_seq > $3::integer",
+          [instance.id, task.stepIndex, stepEnteredSeq],
+        );
+        const [open] = await tx.query<{ n: string }>("select count(*)::text as n from machvon.approval_task where workflow_instance_id = $1::uuid and step_index = $2 and status = 'Pending'", [instance.id, task.stepIndex]);
+        if (Number(given?.approvals ?? 0) + Number(open?.n ?? 0) >= requiredApprovals(step, instance.doaLevels ?? undefined)) return;
+        await tx.query("update machvon.approval_task set status = 'Cancelled', version = version + 1 where workflow_instance_id = $1::uuid and status = 'Pending'", [instance.id]);
+        await tx.query("update machvon.workflow_instance set status = 'Completed', outcome = 'EXPIRED', ended_at = $2::timestamptz, version = version + 1 where id = $1::uuid", [instance.id, now.toISOString()]);
+        await effects.audit({ action: 'workflow.instance_expired', resourceType: 'workflow_instance', resourceId: instance.id, diff: { business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, step_id: task.stepId } });
+        await effects.emit({
+          aggregateType: 'workflow_instance',
+          aggregateId: instance.id,
+          aggregateVersion: instance.version + 1,
+          type: 'adm.workflow_instance.completed.v1',
+          schemaVersion: 1,
+          payload: { instance_id: instance.id, business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, outcome: 'EXPIRED', command: null },
+          eventKey: `workflow_instance:${instance.id}:completed`,
+        });
+        result.instancesExpired += 1;
+        return;
+      }
+    }
+  }
+
   /** Gives a task that the maker would decide to another eligible person (never the maker, never the one who tried), with the same due time. Returns the member it went to, or null when there is none. */
   private async reassign(tx: TenantTx, effects: ApprovalEffects, instance: InstanceRecord, definition: ApprovalWorkflowDefinition, task: TaskRecord, excludedUsers: ReadonlySet<string>, now: Date): Promise<string | null> {
     const step = definition.steps[task.stepIndex] as WorkflowStep;
@@ -575,9 +843,9 @@ export class ApprovalStore {
     if (chosen === undefined) return null;
     await tx.query("update machvon.approval_task set status = 'Reassigned', version = version + 1 where id = $1::uuid", [task.id]);
     const [row] = await tx.query<{ id: string }>(
-      `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3::timestamptz, $4, $5, 'Pending') returning id`,
-      [instance.id, chosen, task.dueAt, task.stepId, task.stepIndex],
+      `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, remind_at, reminded_at, next_reminder_at, overdue_reminders, escalated_at, escalated_from_task_id, reassigned_from_task_id, step_id, step_index, status)
+       select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, due_at, remind_at, reminded_at, next_reminder_at, overdue_reminders, escalated_at, escalated_from_task_id, id, $4::text, $5::integer, 'Pending' from machvon.approval_task where id = $3::uuid returning id`,
+      [instance.id, chosen, task.id, task.stepId, task.stepIndex],
     );
     await effects.emit({
       aggregateType: 'approval_task',
@@ -620,11 +888,14 @@ export class ApprovalStore {
   }
 
   /** Whether the approver, with the grants they hold now, may decide a task of this step of this instance. */
-  private async authorised(tx: TenantTx, step: WorkflowStep, instance: InstanceRecord, access: EffectiveAccess, place: ResourceRef, now: Date): Promise<boolean> {
+  private async authorised(tx: TenantTx, step: WorkflowStep, instance: InstanceRecord, access: EffectiveAccess, place: ResourceRef, now: Date, escalating = false): Promise<boolean> {
     if (!access.membershipActive) return false;
     const rule = step.assignee_rule;
     // Whatever names the approver, the right to decide has to be held over the place of the approval, or the decision is refused at the door and the step can never finish.
     if (!withinDelegation(access, now, DECIDE_PERMISSION, place, 0)) return false;
+    // The person the step escalates to is named by the definition itself, which a second administrator published: they decide the task they were escalated, whatever the rule of the step says of the first assignee. Only for an
+    // escalation: when the step opens, or an operator reassigns an ordinary task, the rule of the step holds for them as for anyone.
+    if (escalating && step.escalate_to !== undefined && step.escalate_to === access.membershipId) return true;
     if (rule.type === 'SPECIFIC') return (rule.membership_ids ?? []).includes(access.membershipId);
     if (rule.type === 'ROLE_IN_UNIT') {
       const unit = await this.placeOf(tx, rule.unit_id as string);
@@ -672,13 +943,28 @@ export class ApprovalStore {
   }
 
   /** The time by which a step is due: working time on the calendar of the tenant, or elapsed days of 8 working hours when the calendar of the year is not published. */
-  private async dueOf(tx: TenantTx, hours: number, now: Date): Promise<Date> {
+  private async dueOf(tx: TenantTx, minutes: number, now: Date): Promise<Date> {
     const source = await this.calendars.source(tx, APPROVAL_CALENDAR_CODE, Number(vietnamDateOf(now).slice(0, 4)));
     try {
-      return addWorkingTime(source, now, { hours });
+      return addWorkingTime(source, now, { minutes });
     } catch (error) {
       if (!(error instanceof DomainError) || error.code !== 'CALENDAR_NOT_EFFECTIVE') throw error;
-      return new Date(now.getTime() + Math.ceil(hours / 8) * 24 * HOUR_MS);
+      return new Date(now.getTime() + Math.ceil(minutes / WORKING_DAY_MINUTES) * 24 * HOUR_MS);
+    }
+  }
+
+  /**
+   * The deadline of a step of N working minutes and its reminder point, 80 percent of the working time to it on the calendar of the tenant; with no calendar published the deadline is counted in days of 8 hours (rounded up)
+   * and the reminder is 80 percent of the elapsed time to it.
+   */
+  private async clockOf(tx: TenantTx, minutes: number, now: Date): Promise<{ due: Date; remind: Date }> {
+    const source = await this.calendars.source(tx, APPROVAL_CALENDAR_CODE, Number(vietnamDateOf(now).slice(0, 4)));
+    try {
+      return { due: addWorkingTime(source, now, { minutes }), remind: addWorkingTime(source, now, { minutes: Math.max(1, Math.round(minutes * REMINDER_SHARE)) }) };
+    } catch (error) {
+      if (!(error instanceof DomainError) || error.code !== 'CALENDAR_NOT_EFFECTIVE') throw error;
+      const due = new Date(now.getTime() + Math.ceil(minutes / WORKING_DAY_MINUTES) * 24 * HOUR_MS);
+      return { due, remind: new Date(now.getTime() + Math.floor((due.getTime() - now.getTime()) * REMINDER_SHARE)) };
     }
   }
 
@@ -691,13 +977,15 @@ export class ApprovalStore {
     const approvers = await this.eligible(tx, step, instance, step.assignee_rule.type === 'DOA' ? excluded : new Set(initiatorUser === undefined ? [] : [initiatorUser]), now);
     const needed = requiredApprovals(step, instance.doaLevels ?? undefined);
     if (approvers.length < needed) throw new DomainError('NO_ELIGIBLE_APPROVER', 422, step.id, { extensions: { needed, eligible: approvers.length } });
-    const due = await this.dueOf(tx, step.sla_working_hours, now);
+    const minutes = Math.max(1, Math.round(step.sla_working_hours * 60));
+    // The reminder is at 80 percent of the working time to the deadline, counted on the same calendar.
+    const { due, remind } = await this.clockOf(tx, minutes, now);
     const ids: string[] = [];
     for (const assignee of approvers) {
       const [row] = await tx.query<{ id: string }>(
-        `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status)
-         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3::timestamptz, $4, $5, 'Pending') returning id`,
-        [instance.id, assignee, due.toISOString(), step.id, index],
+        `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, remind_at, step_id, step_index, status)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3::timestamptz, $4::timestamptz, $5, $6, 'Pending') returning id`,
+        [instance.id, assignee, due.toISOString(), remind.toISOString(), step.id, index],
       );
       if (row !== undefined) ids.push(row.id);
     }

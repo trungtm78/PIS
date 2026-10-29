@@ -1,0 +1,14 @@
+{
+  "id": "ADM_WORKFLOW_GUARD_REJECTED",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/ADM_WORKFLOW_GUARD_REJECTED.md",
+  "adapter": "log",
+  "source": {
+    "type": "counter",
+    "metric": "workflow_guard_rejected_total",
+    "increaseAbove": 0
+  },
+  "summary": "The owning module refused the end of an approval that was granted: the instance ended as GUARD_REJECTED and the record was left unchanged."
+}

@@ -199,3 +199,27 @@ export function advance(definition: WorkflowDefinition, stepIndex: number, decis
 
 /** The key the final command of an instance is sent with, so that a retry of the activity never applies it twice (ADM 3.7 item 6). */
 export const finalCommandKey = (instanceId: string, sequence: number): string => `wf:${instanceId}:final:${sequence}`;
+
+/** The times of a pending task that the SLA judges (ADM 3.7 item 4): the point 80 percent of the working time to the deadline, the deadline, and when the last reminder was sent. */
+export interface TaskClock {
+  remindAt: Date | null;
+  remindedAt: Date | null;
+  dueAt: Date;
+  /** When the next reminder of an overdue task is due; empty until the first one is sent. */
+  nextReminderAt: Date | null;
+  escalatedAt: Date | null;
+}
+
+export type SlaAction = 'NONE' | 'REMIND_BEFORE_DUE' | 'OVERDUE_REMIND' | 'ESCALATE' | 'EXPIRE';
+
+/**
+ * What the SLA asks of a pending task now: a reminder once at 80 percent; at the deadline what the step says (`on_timeout`): REMIND repeats the reminder when the next one is due (every working day), ESCALATE gives the task to
+ * the escalation target once and then goes on reminding, EXPIRE ends the task. A task found after its deadline is dealt with as overdue and never gets the reminder of the time before it.
+ */
+export function slaAction(clock: TaskClock, onTimeout: TimeoutAction, now: Date): SlaAction {
+  const at = now.getTime();
+  if (at < clock.dueAt.getTime()) return clock.remindAt !== null && clock.remindedAt === null && at >= clock.remindAt.getTime() ? 'REMIND_BEFORE_DUE' : 'NONE';
+  if (onTimeout === 'EXPIRE') return 'EXPIRE';
+  if (onTimeout === 'ESCALATE' && clock.escalatedAt === null) return 'ESCALATE';
+  return clock.nextReminderAt === null || at >= clock.nextReminderAt.getTime() ? 'OVERDUE_REMIND' : 'NONE';
+}

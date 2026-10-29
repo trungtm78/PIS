@@ -647,6 +647,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'updateWorkflowDraft',
   'publishWorkflowVersion',
   'decideApprovalTask',
+  'reassignApprovalTask',
+  'cancelWorkflowInstance',
   'get_resources_workflow_version',
   'get_resources_workflow_version_id',
   'get_resources_workflow_instance',

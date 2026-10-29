@@ -1,0 +1,14 @@
+{
+  "id": "ADM_APPROVAL_OVERDUE",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "workflow-operations",
+  "runbook": "docs/runbooks/alerts/ADM_APPROVAL_OVERDUE.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "approval_task_overdue_total",
+    "above": 0
+  },
+  "summary": "An approval task waits for a decision past the deadline of its step."
+}
