@@ -11,7 +11,7 @@ import { FileService } from '../../src/modules/files';
 import type { ObjectStoragePort } from '@machvon/kernel';
 import { FOREIGN_ATTEMPT_SPECS, attempt, createApiChannel, tokenFor } from './channels/api';
 import type { ForeignAttemptSpec } from './channels/api';
-import { DOCUMENT_FIXTURES, HOUSEHOLD_FIXTURES, MASTER_IMPORT_FIXTURES, PROJECT_FIXTURES, REPORT_EXPORT_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
+import { DOCUMENT_FIXTURES, HOUSEHOLD_FIXTURES, MASTER_IMPORT_FIXTURES, PROJECT_FIXTURES, REPORT_EXPORT_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, exportManifestObjectId, exportManifestOf, runIsolationSuite } from './suite';
 import type { ForeignAttempt, IsolationChannel } from './suite';
 import { TENANT_HEADER } from './test-auth.guard';
 import { ERROR_CODES_PATH, loadOpenApi, startIsolationDatabase, startTestApp } from './test-app';
@@ -66,6 +66,8 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
     const owner = { tenantId: TENANT_IDS['TNT-B'], membershipId: '00000000-0000-4000-8000-000000000001', scopeVersion: 1 };
     await storage.put(owner, MASTER_IMPORT_FIXTURES['TNT-B'].fileObjectKey, Buffer.from('code,name\nB1,Beta\n'), { contentType: 'text/csv' });
     await files.scan(owner, MASTER_IMPORT_FIXTURES['TNT-B'].fileObjectKey);
+    // The manifest of the export of TNT-B: the export is found, and then its manifest is read from the store.
+    await storage.put(owner, objectKey(TENANT_IDS['TNT-B'], 'tenant_export', exportManifestObjectId('TNT-B')), Buffer.from(exportManifestOf('TNT-B')), { contentType: 'application/json' });
     const exportKey = objectKey(TENANT_IDS['TNT-B'], 'report_export', REPORT_EXPORT_FIXTURES['TNT-B'].id);
     await storage.put(owner, exportKey, Buffer.from('key,label,value\r\n'), { contentType: 'text/csv' });
     await files.scan(owner, exportKey);
@@ -143,7 +145,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
 
   // These cases find a row and then read a stored file. The isolation suite seeds the rows only: with no file behind them the answer is 404
   // whoever asks, so a lookup that leaked would go unseen. With the files in place the 404 can only come from the lookup.
-  const FILE_BACKED = ['getDocumentVersionDownload', 'verifyDocumentSignatures', 'getDocumentSignatureReport', 'applyMasterImport', 'getReportExportDownload'];
+  const FILE_BACKED = ['getDocumentVersionDownload', 'verifyDocumentSignatures', 'getDocumentSignatureReport', 'applyMasterImport', 'getReportExportDownload', 'getTenantExportManifest', 'downloadTenantExportFile'];
 
   it('still answers 404 to another tenant for the cases that read a stored file, when the file of the object exists', async () => {
     const options = { baseUrl: app.baseUrl, signingKey: SIGNING_KEY, ownerUrl, doc };

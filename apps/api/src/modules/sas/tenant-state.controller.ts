@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post } from '@nestjs/common';
-import { accessPolicyOf, resumeTenant, suspendTenant } from '@machvon/db';
+import { accessPolicyOf, archiveTenantState, offboardTenant, resumeTenant, suspendTenant } from '@machvon/db';
 import type { StateChange } from '@machvon/db';
 import { Command, Scope } from '../../command.decorator';
 import type { CommandScope } from '../../command-scope';
@@ -58,6 +58,42 @@ export class TenantStateController {
       scope.tx,
       { tenantId, expectedVersion: scope.expectedVersion ?? 0, restoreTenantId: scope.tenant.tenantId },
       (changed) => this.record(scope, changed, 'tenant.resumed', body.reason, {}),
+    );
+    return this.result(scope, change);
+  }
+
+  /**
+   * Starts the offboarding of an Active or Suspended tenant (ST-SAS-016, SAS-17): it becomes read-only and may export, for the window of days agreed from the end of its contract. The reminders to its owner (day 0, 30, 60 and
+   * seven days before the window ends) are the notifications' (NOT-004..006); the event of the change is what they follow.
+   */
+  @Post(':tenantId/offboard')
+  @HttpCode(202)
+  @OperationId('startTenantOffboarding')
+  @Command({ operation: 'startTenantOffboarding', plane: 'control', versioned: true })
+  async offboard(
+    @Scope() scope: CommandScope,
+    @Param('tenantId', ParseUUIDPipe) tenantId: string,
+    @Body() body: Schemas['TenantOffboard'],
+  ): Promise<TenantLifecycleResult> {
+    const change = await offboardTenant(
+      scope.tx,
+      { tenantId, contractEndDate: body.contract_end_date, exportWindowDays: body.export_window_days, reason: body.reason, expectedVersion: scope.expectedVersion ?? 0, restoreTenantId: scope.tenant.tenantId },
+      (changed) => this.record(scope, changed, 'tenant.offboarding_started', body.reason, { contract_end_date: body.contract_end_date, export_window_days: body.export_window_days, export_window_ends_at: changed.exportWindowEndsAt?.toISOString() }),
+    );
+    return this.result(scope, change);
+  }
+
+  /**
+   * Archives an Offboarding tenant (ST-SAS-016): its people can no longer sign in. It needs an export that was Delivered or a window that has ended (409 EXPORT_NOT_CONFIRMED). The purge that follows keeps what a legal hold
+   * holds (BR-PL): the archive does not delete anything itself.
+   */
+  @Post(':tenantId/archive')
+  @HttpCode(200)
+  @OperationId('archiveTenant')
+  @Command({ operation: 'archiveTenant', plane: 'control', versioned: true })
+  async archive(@Scope() scope: CommandScope, @Param('tenantId', ParseUUIDPipe) tenantId: string, @Body() body: Schemas['ReasonOnly']): Promise<TenantLifecycleResult> {
+    const change = await archiveTenantState(scope.tx, { tenantId, expectedVersion: scope.expectedVersion ?? 0, restoreTenantId: scope.tenant.tenantId }, (changed) =>
+      this.record(scope, changed, 'tenant.archived', body.reason, {}),
     );
     return this.result(scope, change);
   }

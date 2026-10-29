@@ -4,6 +4,8 @@ import { holdsPermission } from '@machvon/kernel';
 
 /** Ids in tenant A that the command fixtures act on; the test seeds them. */
 export interface MatrixTargets {
+  /** The tenant of the callers (tenant A): the export names it in the path. */
+  tenantId: string;
   unit2: string;
   unit3: string;
   customRoleId: string;
@@ -380,6 +382,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/signing-certificates',
       body: { kind: 'ORGANIZATION', organization_unit_id: t.unit2, certificate_pem: '-----BEGIN CERTIFICATE-----\nMATRIX\n-----END CERTIFICATE-----', provider_code: 'MATRIX-CA' },
     }),
+  },
+  post_tenants_id_export: {
+    referencesTenantIds: false,
+    build: (t) => ({ method: 'POST', path: `/tenants/${t.tenantId}/export`, ifMatch: '"0"', body: { scope: 'FULL', reason: REASON } }),
   },
   post_support_access_id_approve: {
     referencesTenantIds: true,

@@ -3,6 +3,8 @@ import { APPROVAL_OPEN_GAUGE, APPROVAL_OVERDUE_GAUGE } from './approval-sla-job.
 import { DELEGATION_ACTIVE_GAUGE } from './delegation-store.ts';
 import type { DelegationPassResult } from './delegation-store.ts';
 import { SUPPORT_ACCESS_ACTIVE_GAUGE } from './support-access-store.ts';
+import { TENANT_EXPORT_PENDING_GAUGE } from './tenant-export-store.ts';
+import type { ExportPassResult } from './tenant-export-store.ts';
 import type { SupportPassResult } from './support-access-store.ts';
 import type { SlaSweepResult } from './approval-store.ts';
 import { DGV_NOT_ASSESSED_GAUGE } from './dgv-quality-run-job.ts';
@@ -59,6 +61,8 @@ export const JOB_INTERVAL_SECONDS = {
   'delegation-lifecycle': 60,
   // Every minute: an approved support access grant whose first instant has come is put in force, one whose window ended is Expired and a request nobody decided on within a week lapses (ST-SAS-015); the pass is idempotent.
   'support-access-lifecycle': 60,
+  // Every minute: the exports of the data of a tenant that wait are made (one REPEATABLE READ snapshot, the files and the manifest stored), a link that ended without a delivery is Expired and a job lost with its process is Failed (ST-SAS-016).
+  'tenant-export': 60,
   // Every 5 minutes: an approval task is reminded at 80 percent of the working time to its deadline and dealt with at the deadline as its step says (ST-ADM-013); the pass is idempotent.
   'approval-sla': 300,
   'integration-inbox': 60,
@@ -237,6 +241,8 @@ export interface StandardJobDeps {
   delegationLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DelegationPassResult> };
   /** The pass over the support access grants of a tenant (ST-SAS-015): puts the approved ones in force, ends the ones whose window is over, lapses the requests nobody decided on; tells how many are in force, for the gauge. */
   supportAccessLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SupportPassResult> };
+  /** The pass over the exports of a tenant (ST-SAS-016): makes the ones that wait, ends the links that are over; tells how many wait or run, for the gauge. */
+  tenantExport?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<ExportPassResult>; pending(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<number> };
   /** The pass over the open approval tasks of a tenant (ST-ADM-013): the reminders, the escalations and the expiries of the SLA; tells how many tasks are open and overdue, for the gauges. */
   approvalSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaSweepResult> };
   /** Takes up the inbound provider events that are due and have an adapter, and retries the failed ones when their wait is over (ST-ADM-018). */
@@ -588,6 +594,36 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         } finally {
           // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
           metrics.gauge(SUPPORT_ACCESS_ACTIVE_GAUGE, active);
+        }
+      },
+    });
+  }
+  const exports = deps.tenantExport;
+  if (exports !== undefined) {
+    handlers.push({
+      name: 'tenant-export',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        const tenantIds = await deps.tenantIds();
+        // The backlog of each tenant, counted on its own: a tenant that cannot be counted keeps what it had.
+        const backlog = new Map<string, number>();
+        const count = (): Promise<void> =>
+          eachTenant(tenantIds, async (tenantId) => {
+            backlog.set(tenantId, await exports.pending(workerContext(tenantId)));
+          }).catch(() => undefined);
+        const total = (): number => [...backlog.values()].reduce((sum, value) => sum + value, 0);
+        // Counted before any export is made, so a pass that drains it, or one that hangs on a large tenant, still tells how much waited.
+        await count();
+        metrics.gauge(TENANT_EXPORT_PENDING_GAUGE, total());
+        try {
+          await eachTenant(tenantIds, async (tenantId) => {
+            await exports.run(workerContext(tenantId), now);
+          });
+        } finally {
+          // What is left after the pass: counted again, so a tenant whose pass failed still shows the exports that wait for it.
+          await count();
+          metrics.gauge(TENANT_EXPORT_PENDING_GAUGE, total());
         }
       },
     });

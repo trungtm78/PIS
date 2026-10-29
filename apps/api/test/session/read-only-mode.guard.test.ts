@@ -50,6 +50,14 @@ class ModeController {
     return { ok: true };
   }
 
+  // The export of all the data of the tenant is the tenant's own right while it is read-only, though no plan feature gates it (ST-SAS-016).
+  @Post('tenant-export')
+  @HttpCode(200)
+  @OperationId('post_tenants_id_export')
+  exportTenant(): { ok: true } {
+    return { ok: true };
+  }
+
   @Post('open')
   @HttpCode(200)
   @Public()
@@ -98,6 +106,10 @@ describe('ReadOnlyModeGuard', () => {
 
   it('lets an export through while the tenant is read-only', async () => {
     expect((await call('POST', '/mode/export', 'readonly')).status).toBe(200);
+  });
+
+  it('lets the export of the data of the tenant through while it is read-only, as it does for a feature export', async () => {
+    expect((await call('POST', '/mode/tenant-export', 'readonly')).status).toBe(200);
   });
 
   it('changes nothing for a full session', async () => {

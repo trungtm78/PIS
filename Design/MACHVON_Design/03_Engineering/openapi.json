@@ -130406,6 +130406,443 @@
           }
         }
       }
+    },
+    "/tenants/{id}/exports": {
+      "get": {
+        "operationId": "listTenantExports",
+        "summary": "Các lần xuất dữ liệu của tenant, mới nhất trước (SAS-17)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "tenant.export",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The tenant of the caller",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantExportPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/tenants/{tenantId}/exports": {
+      "get": {
+        "operationId": "listSystemTenantExports",
+        "summary": "Các lần xuất dữ liệu của một tenant, cửa sổ offboarding và legal hold đang hiệu lực, cho System Admin quyết định lưu trữ (SAS-17)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "x-plane": "control",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemTenantExports"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant-exports/{id}/manifest": {
+      "get": {
+        "operationId": "getTenantExportManifest",
+        "summary": "manifest.json của một lần xuất đã sẵn sàng: tệp, kích thước, sha256, số dòng theo bảng (SAS-17)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "tenant.export",
+        "x-error-codes": [
+          "EXPORT_STATE_INVALID",
+          "EXPORT_EXPIRED",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The export",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The manifest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantExportManifest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "EXPORT_STATE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "EXPORT_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenant-exports/{id}/file": {
+      "get": {
+        "operationId": "downloadTenantExportFile",
+        "summary": "Xin link tải (hiệu lực vài phút) cho một tệp của lần xuất theo path trong manifest; kiểm quyền lại mỗi lần xin; tải đủ mọi tệp thì lần xuất thành Delivered (SAS-17)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "tenant.export",
+        "x-error-codes": [
+          "EXPORT_STATE_INVALID",
+          "EXPORT_EXPIRED",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The export",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": true,
+            "description": "A path listed in the manifest",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A signed link that serves the bytes of the file for a few minutes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantExportLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "EXPORT_STATE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "EXPORT_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -155509,6 +155946,389 @@
           "grant_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "TenantExport": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "scope",
+          "requested_at",
+          "encrypted",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Running",
+              "Ready",
+              "Delivered",
+              "Failed",
+              "Expired"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "BUSINESS_DATA_ONLY"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "snapshot_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "ready_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "delivered_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "file_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "total_bytes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "manifest_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "row_counts": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "files_downloaded": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "encrypted": {
+            "type": "boolean"
+          },
+          "encryption_key_fingerprint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "TenantExportPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "exports_version"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantExport"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exports_version": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The number of exports the tenant has asked for: the If-Match of the next request (409 VERSION_CONFLICT when somebody asked meanwhile)"
+          }
+        }
+      },
+      "TenantExportManifest": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "job_id",
+          "tenant_id",
+          "scope",
+          "snapshot_at",
+          "files",
+          "row_counts"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "integer"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "BUSINESS_DATA_ONLY"
+            ]
+          },
+          "snapshot_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "bytes",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "bytes": {
+                  "type": "integer"
+                },
+                "sha256": {
+                  "type": "string"
+                },
+                "table": {
+                  "type": "string"
+                },
+                "rows": {
+                  "type": "integer"
+                },
+                "encryption": {
+                  "type": "object",
+                  "properties": {
+                    "algorithm": {
+                      "type": "string"
+                    },
+                    "wrapped_key": {
+                      "type": "string"
+                    },
+                    "plaintext_sha256": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "row_counts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "omitted_columns": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "encryption_key_fingerprint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "missing_files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Objects that rows refer to and no store returned: the export holds the reference without the file"
+          },
+          "withheld_files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Objects that rows refer to and the antivirus has not passed (pending or infected): they are not in the export"
+          },
+          "unreadable_tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tables of the tenant that the export could not read, so they are not in it"
+          }
+        }
+      },
+      "SystemTenantExports": {
+        "type": "object",
+        "required": [
+          "tenant_status",
+          "legal_holds_active",
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "tenant_status": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Provisioning",
+              "Active",
+              "Failed",
+              "Suspended",
+              "Offboarding",
+              "Archived"
+            ]
+          },
+          "tenant_version": {
+            "type": "integer"
+          },
+          "contract_end_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "export_window_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "export_window_ends_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "offboarding_started_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "archived_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "legal_holds_active": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The legal holds in force on the tenant: the purge that follows the archive skips what they hold"
+          },
+          "export_delivered": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantExport"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "TenantExportLink": {
+        "type": "object",
+        "required": [
+          "export_id",
+          "path",
+          "url",
+          "expires_at",
+          "bytes",
+          "sha256"
+        ],
+        "properties": {
+          "export_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "path": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Relative to the API; the signature is the only credential, valid for a few minutes"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "bytes": {
+            "type": "integer"
+          },
+          "sha256": {
+            "type": "string",
+            "description": "The hash the bytes must have: the owner checks it after the download"
           }
         }
       }

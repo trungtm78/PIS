@@ -625,6 +625,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> dissolveTaskForce(DisPeriodTransition body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('dissolveTaskForce', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> downloadTenantExportFile({required String id, Map<String, Object?>? query}) =>
+      execute('downloadTenantExportFile', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> draftCapitalAllocation(CapAllocationDraft body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('draftCapitalAllocation', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -903,6 +906,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getTenantEntitlements({required String tenantId, Map<String, Object?>? query}) =>
       execute('getTenantEntitlements', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
+  Future<Object?> getTenantExportManifest({required String id, Map<String, Object?>? query}) =>
+      execute('getTenantExportManifest', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getTenantSubscription({required String tenantId, Map<String, Object?>? query}) =>
       execute('getTenantSubscription', path: <String, Object?>{'tenantId': tenantId}, query: query);
@@ -1783,6 +1789,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listSourceMappings({Map<String, Object?>? query}) =>
       execute('listSourceMappings', query: query);
 
+  Future<Object?> listSystemTenantExports({required String tenantId, Map<String, Object?>? query}) =>
+      execute('listSystemTenantExports', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
   Future<Object?> listSystemTenantLicenses({required String tenantId, Map<String, Object?>? query}) =>
       execute('listSystemTenantLicenses', path: <String, Object?>{'tenantId': tenantId}, query: query);
 
@@ -1794,6 +1803,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listTenantEntitlementOverrides({required String tenantId, Map<String, Object?>? query}) =>
       execute('listTenantEntitlementOverrides', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
+  Future<Object?> listTenantExports({required String id, Map<String, Object?>? query}) =>
+      execute('listTenantExports', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> listTenantInvoices({required String tenantId, Map<String, Object?>? query}) =>
       execute('listTenantInvoices', path: <String, Object?>{'tenantId': tenantId}, query: query);

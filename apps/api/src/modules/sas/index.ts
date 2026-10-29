@@ -15,6 +15,7 @@ import { SubscriptionController } from './subscription.controller';
 import { SubscriptionReadsController } from './subscription-reads.controller';
 import { SupportAccessController, SupportAccessReadsController, SupportAccessRequestController } from './support-access.controller';
 import { SupportTokenController } from './support-token.controller';
+import { SystemTenantExportsController, TenantExportController, TenantExportFilesController } from './tenant-export.controller';
 import { TenantOwnerController } from './tenant-owner.controller';
 import { TenantStateController } from './tenant-state.controller';
 import { TenantThemeController } from './tenant-theme.controller';
@@ -36,7 +37,7 @@ const SAS_INBOX_REGISTRATION = Symbol('SAS_INBOX_REGISTRATION');
  */
 export const sasModule = defineModule({
   code: 'SAS',
-  controllers: [TenantThemeController, UsageController, SubscriptionReadsController, InvoiceLinesController, SupportAccessController, SupportAccessReadsController],
+  controllers: [TenantThemeController, UsageController, SubscriptionReadsController, InvoiceLinesController, SupportAccessController, SupportAccessReadsController, TenantExportController, TenantExportFilesController],
   providers: [
     { provide: ThemeStore, useFactory: () => new ThemeStore() },
     { provide: UsageMeterStore, useFactory: () => new UsageMeterStore() },
@@ -45,7 +46,7 @@ export const sasModule = defineModule({
     { provide: SupportAccessStore, useFactory: () => new SupportAccessStore() },
   ],
   controlPlane: {
-    controllers: [SupportAccessRequestController, SupportTokenController, TenantStateController, TenantOwnerController, ThemeController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
+    controllers: [SupportAccessRequestController, SupportTokenController, SystemTenantExportsController, TenantStateController, TenantOwnerController, ThemeController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
     providers: [
       // The exchange of a grant for a support token writes its audit rows outside a command.
       { provide: AuditWriter, useFactory: (database: TenantDatabase) => new AuditWriter(database), inject: [TenantDatabase] },

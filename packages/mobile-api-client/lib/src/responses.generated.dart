@@ -210,6 +210,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'dispatchOutgoingDocument': CommandResultResponse.fromJson,
   'disputeAuditRecommendation': CommandResultResponse.fromJson,
   'dissolveTaskForce': CommandResultResponse.fromJson,
+  'downloadTenantExportFile': TenantExportLinkResponse.fromJson,
   'draftCapitalAllocation': CommandResultResponse.fromJson,
   'draftCompensationPlan': CommandResultResponse.fromJson,
   'draftReallocationProposal': CommandResultResponse.fromJson,
@@ -480,6 +481,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getSystemTenant': TenantDetailResponse.fromJson,
   'getSystemTenantThemeDraft': TenantThemeDraftResponse.fromJson,
   'getTenantEntitlements': EntitlementViewResponse.fromJson,
+  'getTenantExportManifest': TenantExportManifestResponse.fromJson,
   'getTenantSubscription': TenantSubscriptionResponse.fromJson,
   'getTenantUsage': UsageSummaryResponse.fromJson,
   'getTreasuryImport': asObject,
@@ -596,10 +598,12 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listReconciliations': ListReconciliationsResponse.fromJson,
   'listRetentionHolds': PayCumulativeLedgerResponse.fromJson,
   'listSourceMappings': ListSourceMappingsResponse.fromJson,
+  'listSystemTenantExports': SystemTenantExportsResponse.fromJson,
   'listSystemTenantLicenses': SystemLicensePageResponse.fromJson,
   'listSystemTenants': TenantSummaryPageResponse.fromJson,
   'listSystemTenantThemeVersions': ListSystemTenantThemeVersionsResponse.fromJson,
   'listTenantEntitlementOverrides': EntitlementOverridePageResponse.fromJson,
+  'listTenantExports': TenantExportPageResponse.fromJson,
   'listTenantInvoices': TenantInvoicesResponse.fromJson,
   'listTenantSelectionCandidates': TenantSelectionCandidatesResponse.fromJson,
   'listTreasuryImports': asObject,
@@ -18193,6 +18197,72 @@ final class SystemLicenseResponse implements ResponseModel {
       };
 }
 
+final class SystemTenantExportsResponse implements ResponseModel {
+  const SystemTenantExportsResponse({
+    required this.tenantStatus,
+    required this.legalHoldsActive,
+    required this.items,
+    required this.nextCursor,
+    this.tenantVersion,
+    this.contractEndDate,
+    this.exportWindowDays,
+    this.exportWindowEndsAt,
+    this.offboardingStartedAt,
+    this.archivedAt,
+    this.exportDelivered,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SystemTenantExportsResponse.fromJson(Object? json, [String path = 'SystemTenantExportsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SystemTenantExportsResponse(
+      tenantStatus: requiredField(map, path, 'tenant_status', asString),
+      tenantVersion: optionalField(map, path, 'tenant_version', asInt),
+      contractEndDate: optionalField(map, path, 'contract_end_date', nullable(asString)),
+      exportWindowDays: optionalField(map, path, 'export_window_days', nullable(asInt)),
+      exportWindowEndsAt: optionalField(map, path, 'export_window_ends_at', nullable(asString)),
+      offboardingStartedAt: optionalField(map, path, 'offboarding_started_at', nullable(asString)),
+      archivedAt: optionalField(map, path, 'archived_at', nullable(asString)),
+      legalHoldsActive: requiredField(map, path, 'legal_holds_active', asInt),
+      exportDelivered: optionalField(map, path, 'export_delivered', asBool),
+      items: requiredField(map, path, 'items', asList(TenantExportResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'tenant_status', 'tenant_version', 'contract_end_date', 'export_window_days', 'export_window_ends_at', 'offboarding_started_at', 'archived_at', 'legal_holds_active', 'export_delivered', 'items', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final String tenantStatus;
+  final int? tenantVersion;
+  final String? contractEndDate;
+  final int? exportWindowDays;
+  final String? exportWindowEndsAt;
+  final String? offboardingStartedAt;
+  final String? archivedAt;
+  final int legalHoldsActive;
+  final bool? exportDelivered;
+  final List<TenantExportResponse> items;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'tenant_status': tenantStatus,
+        if (tenantVersion != null) 'tenant_version': tenantVersion,
+        if (contractEndDate != null) 'contract_end_date': contractEndDate,
+        if (exportWindowDays != null) 'export_window_days': exportWindowDays,
+        if (exportWindowEndsAt != null) 'export_window_ends_at': exportWindowEndsAt,
+        if (offboardingStartedAt != null) 'offboarding_started_at': offboardingStartedAt,
+        if (archivedAt != null) 'archived_at': archivedAt,
+        'legal_holds_active': legalHoldsActive,
+        if (exportDelivered != null) 'export_delivered': exportDelivered,
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
 final class TenantDetailResponse implements ResponseModel {
   const TenantDetailResponse({
     required this.id,
@@ -18323,6 +18393,330 @@ final class TenantDetailResponseProvisioningStepsItem implements ResponseModel {
         if (status != null) 'status': status,
         if (attempts != null) 'attempts': attempts,
         if (errorCode != null) 'error_code': errorCode,
+        ...extra,
+      };
+}
+
+final class TenantExportLinkResponse implements ResponseModel {
+  const TenantExportLinkResponse({
+    required this.exportId,
+    required this.path,
+    required this.url,
+    required this.expiresAt,
+    required this.bytes,
+    required this.sha256,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantExportLinkResponse.fromJson(Object? json, [String path = 'TenantExportLinkResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantExportLinkResponse(
+      exportId: requiredField(map, path, 'export_id', asString),
+      path: requiredField(map, path, 'path', asString),
+      url: requiredField(map, path, 'url', asString),
+      expiresAt: requiredField(map, path, 'expires_at', asString),
+      bytes: requiredField(map, path, 'bytes', asInt),
+      sha256: requiredField(map, path, 'sha256', asString),
+      extra: unknownFields(map, path, const <String>{'export_id', 'path', 'url', 'expires_at', 'bytes', 'sha256'}, strict: false),
+    );
+  }
+
+  final String exportId;
+  final String path;
+  final String url;
+  final String expiresAt;
+  final int bytes;
+  final String sha256;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'export_id': exportId,
+        'path': path,
+        'url': url,
+        'expires_at': expiresAt,
+        'bytes': bytes,
+        'sha256': sha256,
+        ...extra,
+      };
+}
+
+final class TenantExportManifestResponse implements ResponseModel {
+  const TenantExportManifestResponse({
+    required this.schemaVersion,
+    required this.jobId,
+    required this.tenantId,
+    required this.scope,
+    required this.snapshotAt,
+    required this.files,
+    required this.rowCounts,
+    this.omittedColumns,
+    this.encryptionKeyFingerprint,
+    this.missingFiles,
+    this.withheldFiles,
+    this.unreadableTables,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantExportManifestResponse.fromJson(Object? json, [String path = 'TenantExportManifestResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantExportManifestResponse(
+      schemaVersion: requiredField(map, path, 'schema_version', asInt),
+      jobId: requiredField(map, path, 'job_id', asString),
+      tenantId: requiredField(map, path, 'tenant_id', asString),
+      scope: requiredField(map, path, 'scope', asString),
+      snapshotAt: requiredField(map, path, 'snapshot_at', asString),
+      files: requiredField(map, path, 'files', asList(TenantExportManifestResponseFilesItem.fromJson)),
+      rowCounts: requiredField(map, path, 'row_counts', asMap(asInt)),
+      omittedColumns: optionalField(map, path, 'omitted_columns', asMap(asList(asString))),
+      encryptionKeyFingerprint: optionalField(map, path, 'encryption_key_fingerprint', nullable(asString)),
+      missingFiles: optionalField(map, path, 'missing_files', asList(asString)),
+      withheldFiles: optionalField(map, path, 'withheld_files', asList(asString)),
+      unreadableTables: optionalField(map, path, 'unreadable_tables', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'schema_version', 'job_id', 'tenant_id', 'scope', 'snapshot_at', 'files', 'row_counts', 'omitted_columns', 'encryption_key_fingerprint', 'missing_files', 'withheld_files', 'unreadable_tables'}, strict: false),
+    );
+  }
+
+  final int schemaVersion;
+  final String jobId;
+  final String tenantId;
+  final String scope;
+  final String snapshotAt;
+  final List<TenantExportManifestResponseFilesItem> files;
+  final Map<String, int> rowCounts;
+  final Map<String, List<String>>? omittedColumns;
+  final String? encryptionKeyFingerprint;
+  final List<String>? missingFiles;
+  final List<String>? withheldFiles;
+  final List<String>? unreadableTables;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'schema_version': schemaVersion,
+        'job_id': jobId,
+        'tenant_id': tenantId,
+        'scope': scope,
+        'snapshot_at': snapshotAt,
+        'files': files.map((e0) => e0.toJson()).toList(),
+        'row_counts': rowCounts,
+        if (omittedColumns != null) 'omitted_columns': omittedColumns,
+        if (encryptionKeyFingerprint != null) 'encryption_key_fingerprint': encryptionKeyFingerprint,
+        if (missingFiles != null) 'missing_files': missingFiles,
+        if (withheldFiles != null) 'withheld_files': withheldFiles,
+        if (unreadableTables != null) 'unreadable_tables': unreadableTables,
+        ...extra,
+      };
+}
+
+final class TenantExportManifestResponseFilesItem implements ResponseModel {
+  const TenantExportManifestResponseFilesItem({
+    required this.path,
+    required this.bytes,
+    required this.sha256,
+    this.table,
+    this.rows,
+    this.encryption,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantExportManifestResponseFilesItem.fromJson(Object? json, [String path = 'TenantExportManifestResponseFilesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantExportManifestResponseFilesItem(
+      path: requiredField(map, path, 'path', asString),
+      bytes: requiredField(map, path, 'bytes', asInt),
+      sha256: requiredField(map, path, 'sha256', asString),
+      table: optionalField(map, path, 'table', asString),
+      rows: optionalField(map, path, 'rows', asInt),
+      encryption: optionalField(map, path, 'encryption', TenantExportManifestResponseFilesItemEncryption.fromJson),
+      extra: unknownFields(map, path, const <String>{'path', 'bytes', 'sha256', 'table', 'rows', 'encryption'}, strict: false),
+    );
+  }
+
+  final String path;
+  final int bytes;
+  final String sha256;
+  final String? table;
+  final int? rows;
+  final TenantExportManifestResponseFilesItemEncryption? encryption;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'path': path,
+        'bytes': bytes,
+        'sha256': sha256,
+        if (table != null) 'table': table,
+        if (rows != null) 'rows': rows,
+        if (encryption != null) 'encryption': encryption!.toJson(),
+        ...extra,
+      };
+}
+
+final class TenantExportManifestResponseFilesItemEncryption implements ResponseModel {
+  const TenantExportManifestResponseFilesItemEncryption({
+    this.algorithm,
+    this.wrappedKey,
+    this.plaintextSha256,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantExportManifestResponseFilesItemEncryption.fromJson(Object? json, [String path = 'TenantExportManifestResponseFilesItemEncryption']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantExportManifestResponseFilesItemEncryption(
+      algorithm: optionalField(map, path, 'algorithm', asString),
+      wrappedKey: optionalField(map, path, 'wrapped_key', asString),
+      plaintextSha256: optionalField(map, path, 'plaintext_sha256', asString),
+      extra: unknownFields(map, path, const <String>{'algorithm', 'wrapped_key', 'plaintext_sha256'}, strict: false),
+    );
+  }
+
+  final String? algorithm;
+  final String? wrappedKey;
+  final String? plaintextSha256;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (algorithm != null) 'algorithm': algorithm,
+        if (wrappedKey != null) 'wrapped_key': wrappedKey,
+        if (plaintextSha256 != null) 'plaintext_sha256': plaintextSha256,
+        ...extra,
+      };
+}
+
+final class TenantExportPageResponse implements ResponseModel {
+  const TenantExportPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.exportsVersion,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantExportPageResponse.fromJson(Object? json, [String path = 'TenantExportPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantExportPageResponse(
+      items: requiredField(map, path, 'items', asList(TenantExportResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      exportsVersion: requiredField(map, path, 'exports_version', asInt),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'exports_version'}, strict: false),
+    );
+  }
+
+  final List<TenantExportResponse> items;
+  final String? nextCursor;
+  final int exportsVersion;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'exports_version': exportsVersion,
+        ...extra,
+      };
+}
+
+final class TenantExportResponse implements ResponseModel {
+  const TenantExportResponse({
+    required this.id,
+    required this.status,
+    required this.scope,
+    required this.requestedAt,
+    required this.encrypted,
+    required this.version,
+    this.reason,
+    this.snapshotAt,
+    this.readyAt,
+    this.expiresAt,
+    this.deliveredAt,
+    this.fileCount,
+    this.totalBytes,
+    this.manifestSha256,
+    this.rowCounts,
+    this.filesDownloaded,
+    this.encryptionKeyFingerprint,
+    this.errorCode,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantExportResponse.fromJson(Object? json, [String path = 'TenantExportResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantExportResponse(
+      id: requiredField(map, path, 'id', asString),
+      status: requiredField(map, path, 'status', asString),
+      scope: requiredField(map, path, 'scope', asString),
+      reason: optionalField(map, path, 'reason', asString),
+      requestedAt: requiredField(map, path, 'requested_at', asString),
+      snapshotAt: optionalField(map, path, 'snapshot_at', nullable(asString)),
+      readyAt: optionalField(map, path, 'ready_at', nullable(asString)),
+      expiresAt: optionalField(map, path, 'expires_at', nullable(asString)),
+      deliveredAt: optionalField(map, path, 'delivered_at', nullable(asString)),
+      fileCount: optionalField(map, path, 'file_count', nullable(asInt)),
+      totalBytes: optionalField(map, path, 'total_bytes', nullable(asString)),
+      manifestSha256: optionalField(map, path, 'manifest_sha256', nullable(asString)),
+      rowCounts: optionalField(map, path, 'row_counts', nullable(asMap(asInt))),
+      filesDownloaded: optionalField(map, path, 'files_downloaded', asList(asString)),
+      encrypted: requiredField(map, path, 'encrypted', asBool),
+      encryptionKeyFingerprint: optionalField(map, path, 'encryption_key_fingerprint', nullable(asString)),
+      errorCode: optionalField(map, path, 'error_code', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'status', 'scope', 'reason', 'requested_at', 'snapshot_at', 'ready_at', 'expires_at', 'delivered_at', 'file_count', 'total_bytes', 'manifest_sha256', 'row_counts', 'files_downloaded', 'encrypted', 'encryption_key_fingerprint', 'error_code', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String status;
+  final String scope;
+  final String? reason;
+  final String requestedAt;
+  final String? snapshotAt;
+  final String? readyAt;
+  final String? expiresAt;
+  final String? deliveredAt;
+  final int? fileCount;
+  final String? totalBytes;
+  final String? manifestSha256;
+  final Map<String, int>? rowCounts;
+  final List<String>? filesDownloaded;
+  final bool encrypted;
+  final String? encryptionKeyFingerprint;
+  final String? errorCode;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'status': status,
+        'scope': scope,
+        if (reason != null) 'reason': reason,
+        'requested_at': requestedAt,
+        if (snapshotAt != null) 'snapshot_at': snapshotAt,
+        if (readyAt != null) 'ready_at': readyAt,
+        if (expiresAt != null) 'expires_at': expiresAt,
+        if (deliveredAt != null) 'delivered_at': deliveredAt,
+        if (fileCount != null) 'file_count': fileCount,
+        if (totalBytes != null) 'total_bytes': totalBytes,
+        if (manifestSha256 != null) 'manifest_sha256': manifestSha256,
+        if (rowCounts != null) 'row_counts': rowCounts,
+        if (filesDownloaded != null) 'files_downloaded': filesDownloaded,
+        'encrypted': encrypted,
+        if (encryptionKeyFingerprint != null) 'encryption_key_fingerprint': encryptionKeyFingerprint,
+        if (errorCode != null) 'error_code': errorCode,
+        'version': version,
         ...extra,
       };
 }

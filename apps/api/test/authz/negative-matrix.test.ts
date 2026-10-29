@@ -1201,6 +1201,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       registerId,
       documentVersionId,
       certificateId,
+      tenantId: TENANT_A,
       supportGrantId,
       policyId,
       workCalendarId,

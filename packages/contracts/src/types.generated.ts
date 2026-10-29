@@ -15099,6 +15099,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tenants/{id}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các lần xuất dữ liệu của tenant, mới nhất trước (SAS-17) */
+        get: operations["listTenantExports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/tenants/{tenantId}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các lần xuất dữ liệu của một tenant, cửa sổ offboarding và legal hold đang hiệu lực, cho System Admin quyết định lưu trữ (SAS-17) */
+        get: operations["listSystemTenantExports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tenant-exports/{id}/manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** manifest.json của một lần xuất đã sẵn sàng: tệp, kích thước, sha256, số dòng theo bảng (SAS-17) */
+        get: operations["getTenantExportManifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tenant-exports/{id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Xin link tải (hiệu lực vài phút) cho một tệp của lần xuất theo path trong manifest; kiểm quyền lại mỗi lần xin; tải đủ mọi tệp thì lần xuất thành Delivered (SAS-17) */
+        get: operations["downloadTenantExportFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -21909,6 +21977,109 @@ export interface components {
             expires_in: number;
             /** Format: uuid */
             grant_id: string;
+        };
+        TenantExport: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "Requested" | "Running" | "Ready" | "Delivered" | "Failed" | "Expired";
+            /** @enum {string} */
+            scope: "FULL" | "BUSINESS_DATA_ONLY";
+            reason?: string;
+            /** Format: date-time */
+            requested_at: string;
+            /** Format: date-time */
+            snapshot_at?: string | null;
+            /** Format: date-time */
+            ready_at?: string | null;
+            /** Format: date-time */
+            expires_at?: string | null;
+            /** Format: date-time */
+            delivered_at?: string | null;
+            file_count?: number | null;
+            total_bytes?: string | null;
+            manifest_sha256?: string | null;
+            row_counts?: {
+                [key: string]: number;
+            } | null;
+            files_downloaded?: string[];
+            encrypted: boolean;
+            encryption_key_fingerprint?: string | null;
+            error_code?: string | null;
+            version: number;
+        };
+        TenantExportPage: {
+            items: components["schemas"]["TenantExport"][];
+            next_cursor: string | null;
+            /** @description The number of exports the tenant has asked for: the If-Match of the next request (409 VERSION_CONFLICT when somebody asked meanwhile) */
+            exports_version: number;
+        };
+        TenantExportManifest: {
+            schema_version: number;
+            /** Format: uuid */
+            job_id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            /** @enum {string} */
+            scope: "FULL" | "BUSINESS_DATA_ONLY";
+            /** Format: date-time */
+            snapshot_at: string;
+            files: {
+                path: string;
+                bytes: number;
+                sha256: string;
+                table?: string;
+                rows?: number;
+                encryption?: {
+                    algorithm?: string;
+                    wrapped_key?: string;
+                    plaintext_sha256?: string;
+                };
+            }[];
+            row_counts: {
+                [key: string]: number;
+            };
+            omitted_columns?: {
+                [key: string]: string[];
+            };
+            encryption_key_fingerprint?: string | null;
+            /** @description Objects that rows refer to and no store returned: the export holds the reference without the file */
+            missing_files?: string[];
+            /** @description Objects that rows refer to and the antivirus has not passed (pending or infected): they are not in the export */
+            withheld_files?: string[];
+            /** @description Tables of the tenant that the export could not read, so they are not in it */
+            unreadable_tables?: string[];
+        };
+        SystemTenantExports: {
+            /** @enum {string} */
+            tenant_status: "Requested" | "Provisioning" | "Active" | "Failed" | "Suspended" | "Offboarding" | "Archived";
+            tenant_version?: number;
+            /** Format: date */
+            contract_end_date?: string | null;
+            export_window_days?: number | null;
+            /** Format: date-time */
+            export_window_ends_at?: string | null;
+            /** Format: date-time */
+            offboarding_started_at?: string | null;
+            /** Format: date-time */
+            archived_at?: string | null;
+            /** @description The legal holds in force on the tenant: the purge that follows the archive skips what they hold */
+            legal_holds_active: number;
+            export_delivered?: boolean;
+            items: components["schemas"]["TenantExport"][];
+            next_cursor: string | null;
+        };
+        TenantExportLink: {
+            /** Format: uuid */
+            export_id: string;
+            path: string;
+            /** @description Relative to the API; the signature is the only credential, valid for a few minutes */
+            url: string;
+            /** Format: date-time */
+            expires_at: string;
+            bytes: number;
+            /** @description The hash the bytes must have: the owner checks it after the download */
+            sha256: string;
         };
     };
     responses: never;
@@ -112708,6 +112879,322 @@ export interface operations {
             };
             /** @description RESOURCE_NOT_FOUND */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTenantExports: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The tenant of the caller */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantExportPage"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listSystemTenantExports: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemTenantExports"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getTenantExportManifest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The export */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The manifest */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantExportManifest"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description EXPORT_STATE_INVALID */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description EXPORT_EXPIRED */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    downloadTenantExportFile: {
+        parameters: {
+            query: {
+                /** @description A path listed in the manifest */
+                path: string;
+            };
+            header?: never;
+            path: {
+                /** @description The export */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A signed link that serves the bytes of the file for a few minutes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantExportLink"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description EXPORT_STATE_INVALID */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description EXPORT_EXPIRED */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

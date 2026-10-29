@@ -140,11 +140,11 @@ export interface SupportOperation {
 
 // The audit trail of the tenant (its reads and its export) is the tenant's own record of what the operator does: no grant gives it to the operator.
 // Nor do they give what reads across modules without asking each one (the global search, the home screen, the sync of the mobile client): their results are not narrowed by the modules of a grant.
-const WITHHELD_PREFIXES = ['tenant.support.', 'system.', 'audit.', 'audit_event.', 'search.', 'home.', 'sync.'];
+const WITHHELD_PREFIXES = ['tenant.support.', 'system.', 'audit.', 'audit_event.', 'search.', 'home.', 'sync.', 'tenant.export'];
 
 /**
  * The permissions a grant gives the operator: those of the operations of the modules it names, on the tenant plane, and for a read-only grant only the operations that read (GET). What
- * the tenant approves for itself (`tenant.support.*`), the control plane (`system.*`), the audit trail of the tenant (`audit.*`, `audit_event.*`: its reads and its export), what reads across modules (`search.*`, `home.*`, `sync.*`) and what asks for a second factor are never given: an operator cannot approve, extend or revoke
+ * the tenant approves for itself (`tenant.support.*`), the control plane (`system.*`), the audit trail of the tenant (`audit.*`, `audit_event.*`: its reads and its export), what reads across modules (`search.*`, `home.*`, `sync.*`, and the export of all the data of the tenant, `tenant.export`) and what asks for a second factor are never given: an operator cannot approve, extend or revoke
  * their own access, and does not reach the grants of roles.
  */
 export function supportPermissions(operations: readonly SupportOperation[], modules: readonly string[], mode: SupportAccessMode): string[] {

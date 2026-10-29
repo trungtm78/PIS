@@ -412,7 +412,8 @@
     "decideReallocationProposal",
     "applyReallocationProposal",
     "post_support_access_id_approve",
-    "revokeSupportAccess"
+    "revokeSupportAccess",
+    "post_tenants_id_export"
   ],
   "controlCommands": [
     "assignTenantOwner",
@@ -444,7 +445,9 @@
     "suspendTenant",
     "uploadSystemTenantThemeAsset",
     "requestSupportAccess",
-    "issueSupportAccessToken"
+    "issueSupportAccessToken",
+    "archiveTenant",
+    "startTenantOffboarding"
   ],
   "identityCommands": [
     "acceptInvitation",

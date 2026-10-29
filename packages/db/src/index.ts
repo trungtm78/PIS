@@ -94,8 +94,8 @@ export { ENTITLEMENT_CHANGED_EVENT, EntitlementStore, effectiveLimits, recordCur
 export type { EntitlementCause, EntitlementStoreOptions, RecordEntitlementInput } from './entitlement-store.ts';
 export { INFRASTRUCTURE_STEPS, IsolationProbeError, PLATFORM_DOMAIN, PROVISIONING_STEPS, TENANT_STATUSES, TenantRegistry, assertTenantTransition, isTenantTransition } from './tenant-registry.ts';
 export type { ProvisioningStep, RequestMeta, RunRow, StepState, StepStates, StepStatus, TenantPage, TenantRequestInput, TenantRequested, TenantRow, TenantStatus } from './tenant-registry.ts';
-export { SUSPENSION_REASONS, accessPolicyOf, assertPolicyMatchesReason, resumeTenant, suspendTenant } from './tenant-state.ts';
-export type { ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, SuspensionReason } from './tenant-state.ts';
+export { SUSPENSION_REASONS, accessPolicyOf, assertPolicyMatchesReason, archiveTenantState, offboardTenant, offboardingOf, resumeTenant, suspendTenant } from './tenant-state.ts';
+export type { ArchiveInput, OffboardInput, OffboardingState, ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, SuspensionReason } from './tenant-state.ts';
 export { ROOT_UNIT_CODE, TENANT_OWNER_ROLE, TRIAL_DAYS, TenantBootstrapStore } from './tenant-bootstrap-store.ts';
 export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.ts';
 export { PlanStore, planInvalid } from './plan-store.ts';
@@ -682,3 +682,5 @@ export { BillingPaymentStore, MATCH_BATCH, PAYMENT_MATCHED_EVENT, PAYMENT_UNMATC
 export type { PassResult as PaymentPassResult, PaymentRow, PaymentStatus, RecordPaymentInput } from './billing-payment-store.ts';
 export { SUPPORT_ACCESS_ACTIVE_GAUGE, SUPPORT_ACCESS_APPROVED_EVENT, SUPPORT_ACCESS_REQUESTED_EVENT, SUPPORT_ACCESS_REVOKED_EVENT, SupportAccessStore } from './support-access-store.ts';
 export type { SupportApproval, SupportGrantRow, SupportPassResult, SupportRequest } from './support-access-store.ts';
+export { TENANT_EXPORT_DELIVERED_EVENT, TENANT_EXPORT_PENDING_GAUGE, TENANT_EXPORT_READY_EVENT, TenantExportStore } from './tenant-export-store.ts';
+export type { ExportJobRow, ExportJobStatus, ExportPassResult, ExportReady, ExportRequest } from './tenant-export-store.ts';

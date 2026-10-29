@@ -81,6 +81,28 @@ export class FileService {
   }
 
   /**
+   * Stores a file the platform made itself for this tenant (the files of an export): it is not an upload and is not scanned, it is CLEAN as soon as it is stored. Returns the key.
+   */
+  async storeGenerated(tenant: TenantContext, kind: string, id: string, bytes: Uint8Array, contentType: string): Promise<string> {
+    const key = objectKey(tenant.tenantId, kind, id);
+    const stored = await this.storage.put(tenant, key, bytes, { contentType });
+    await this.storage.setScanStatus(tenant, key, 'CLEAN', stored.sha256);
+    return key;
+  }
+
+  /** The bytes of a stored file of this tenant as they are, for the platform to serve what it made (404 when there is none, as for a foreign key). */
+  async readStored(tenant: TenantContext, key: string): Promise<{ object: StoredObject; bytes: Uint8Array }> {
+    const stored = await this.storage.get(tenant, key);
+    if (stored === undefined) throw notFound();
+    return stored;
+  }
+
+  /** The files of one kind of this tenant, sorted by key (the attachments an export copies). */
+  listKind(tenant: TenantContext, kind: string): Promise<StoredObject[]> {
+    return this.storage.list(tenant, kind);
+  }
+
+  /**
    * Removes a stored file of this tenant for good: the purge of an expired inbox payload (ST-ADM-017). False when the tenant has no such
    * file, which is how a file of another tenant looks too. Only a job that has checked the legal hold may call it.
    */

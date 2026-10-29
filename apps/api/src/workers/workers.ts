@@ -1,5 +1,7 @@
 import { DelegationLifecycleJob } from '../modules/adm/delegation-lifecycle';
 import { SupportAccessJob } from '../modules/sas/support-access.job';
+import { TenantExportJob } from '../modules/sas/tenant-export.job';
+import type { FileService } from '../modules/files/file.service';
 import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.port';
 import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
@@ -38,6 +40,10 @@ export interface WorkersDeps {
   llmKeys?: { litellm: LiteLlmAdminPort; vault: SecretVaultPort };
   /** The port through which the reorganisation saga moves a project to the successor unit (XM-ADM-02); until the module that owns projects binds one, the saga stops at the first project. */
   reorganizationProjects?: ReorganizationProjectPort;
+  /** The object store the exports of the data of a tenant are written to and the attachments are read from (ST-SAS-016); without it the export job is not scheduled. */
+  exportFiles?: Pick<FileService, 'storeGenerated' | 'readStored' | 'listKind'>;
+  /** The store of the document module: the files that rows refer to and the file service does not hold are read from it for the export. */
+  documentFiles?: { get(key: string): Promise<{ bytes: Uint8Array } | undefined> };
   /** The provider of e-invoices (ST-SAS-011); the MOCK when none is given. */
   einvoiceProvider?: EInvoiceProviderPort;
   /** Sends the due notifications and reconciles the lost results (ST-NOT-002); without it the delivery jobs are not scheduled. */
@@ -154,6 +160,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     unitReorganization: { run: (ctx, now) => unitReorganization.run(ctx, now) },
     delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
     supportAccessLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => supportAccessLifecycle.run(tx, ctx.membershipId, now)) },
+    ...(deps.exportFiles === undefined ? {} : { tenantExport: new TenantExportJob(deps.tenants, deps.exportFiles, audit, deps.documentFiles) }),
     approvalSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => approvalSla.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),
     ...(deps.notificationDelivery === undefined ? {} : { notificationDelivery: deps.notificationDelivery }),

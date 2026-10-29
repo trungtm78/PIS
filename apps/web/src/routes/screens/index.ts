@@ -287,6 +287,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'SAS-14': () => import('../../screens/sas/LicenseRenewScreen'),
   'SAS-15': () => import('../../screens/sas/LicenseActionScreen'),
   'SAS-16': () => import('../../screens/sas/LicenseHistoryScreen'),
+  'SAS-17': () => import('../../screens/sas/OffboardingScreen'),
   'SAS-19': () => import('../../screens/sas/SupportAccessScreen'),
   'SAS-22': () => import('../../screens/sas/ProvisioningRunScreen'),
   'SAS-25': () => import('../../screens/sas/EntitlementsScreen'),

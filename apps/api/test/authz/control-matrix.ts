@@ -80,6 +80,9 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'listBillingPayments', permission: PERMISSIONS.listBillingPayments, method: 'GET', path: '/system/payments' },
   { operationId: 'matchBillingPayment', permission: PERMISSIONS.matchBillingPayment, method: 'POST', path: '/system/payments/{paymentId}/match' },
   { operationId: 'requestSupportAccess', permission: PERMISSIONS.requestSupportAccess, method: 'POST', path: '/support-access' },
+  { operationId: 'startTenantOffboarding', permission: PERMISSIONS.startTenantOffboarding, method: 'POST', path: '/system/tenants/{tenantId}/offboard' },
+  { operationId: 'archiveTenant', permission: PERMISSIONS.archiveTenant, method: 'POST', path: '/system/tenants/{tenantId}/archive' },
+  { operationId: 'listSystemTenantExports', permission: PERMISSIONS.listSystemTenantExports, method: 'GET', path: '/system/tenants/{tenantId}/exports' },
   { operationId: 'issueSupportAccessToken', permission: PERMISSIONS.issueSupportAccessToken, method: 'POST', path: '/support-access/{id}/token' },
 ];
 

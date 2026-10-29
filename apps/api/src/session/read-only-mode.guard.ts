@@ -14,6 +14,8 @@ import type { TenantRuntimeSource } from './tenant-runtime';
 
 const READ_METHODS: ReadonlySet<string> = new Set(['GET', 'HEAD', 'OPTIONS']);
 const EXPORT_FEATURE = 'export';
+/** Exports that no plan feature gates: the export of all the data of a tenant is the tenant's own right while it is read-only, suspended or leaving (ST-SAS-016). */
+const TENANT_DATA_EXPORTS: ReadonlySet<string> = new Set(['post_tenants_id_export']);
 
 /**
  * A session issued while the tenant is suspended carries `mode = READ_ONLY` (IAM 3.2, SAS 3.6): it may read and
@@ -51,6 +53,7 @@ export class ReadOnlyModeGuard implements CanActivate {
 
 function isExport(operationId: string | undefined): boolean {
   if (operationId === undefined) return false;
+  if (TENANT_DATA_EXPORTS.has(operationId)) return true;
   const permission = (PERMISSIONS as Record<string, string>)[operationId];
   return permission !== undefined && featureOf(permission) === EXPORT_FEATURE;
 }

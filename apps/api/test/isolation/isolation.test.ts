@@ -809,6 +809,10 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'get_resources_support_access_grant_id',
         'post_support_access_id_approve',
         'revokeSupportAccess',
+        'post_tenants_id_export',
+        'listTenantExports',
+        'getTenantExportManifest',
+        'downloadTenantExportFile',
       ].sort(),
     );
   });

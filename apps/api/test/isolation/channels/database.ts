@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { PERMISSIONS } from '@machvon/contracts';
+import { objectKey } from '@machvon/kernel';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
 import {
@@ -82,7 +83,7 @@ import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
 import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
-import { INVOICE_FIXTURES, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
+import { EXPORT_FIXTURES, INVOICE_FIXTURES, exportManifestObjectId, exportManifestSha, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -785,6 +786,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_support_access_grant_id',
   'post_support_access_id_approve',
   'revokeSupportAccess',
+  'post_tenants_id_export',
+  'listTenantExports',
+  'getTenantExportManifest',
+  'downloadTenantExportFile',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -1114,6 +1119,10 @@ const INSERT_INVOICE_LINE = `insert into machvon.invoice_line
 const INSERT_SUPPORT_GRANT = `insert into machvon.support_access_grant
   (tenant_id, id, ticket_reference, operator_id, scope_json, expires_at, request_reason, access_mode, status)
   values ($1, $2, $3, '00000000-0000-4000-8000-0000000000c1', '{"modules":["PRJ"],"resource_ids":[],"duration_minutes":60}'::jsonb, now() + interval '1 hour', $4, 'READ_ONLY', 'Requested') on conflict (tenant_id, id) do nothing`;
+
+const INSERT_EXPORT = `insert into machvon.tenant_export_job
+  (tenant_id, id, scope_json, format, status, requested_by, reason, manifest_storage_key, manifest_sha256, file_count, snapshot_at, ready_at, expires_at)
+  values ($1, $2, '{"scope":"FULL"}'::jsonb, 'JSONL_CSV_BUNDLE', 'Ready', '00000000-0000-4000-8000-0000000000c1', $3, $4, $5, 1, now(), now(), now() + interval '3 days') on conflict (tenant_id, id) do nothing`;
 
 const INSERT_USAGE_EVENT = `insert into machvon.usage_meter_event
   (tenant_id, id, meter, external_event_key, quantity, occurred_at, source_reference, unit)
@@ -1700,6 +1709,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_INVOICE_LINE, [tenantId, invoice.lineId, invoice.invoiceId, invoice.description]);
     const support = SUPPORT_FIXTURES[tenant];
     await client.query(INSERT_SUPPORT_GRANT, [tenantId, support.id, support.ticket, support.reason]);
+    const exported = EXPORT_FIXTURES[tenant];
+    await client.query(INSERT_EXPORT, [tenantId, exported.id, exported.reason, objectKey(tenantId, 'tenant_export', exportManifestObjectId(tenant)), exportManifestSha(tenant)]);
     const usage = USAGE_FIXTURES[tenant];
     await client.query(INSERT_USAGE_EVENT, [tenantId, usage.id, usage.externalKey, usage.sourceReference]);
     const dataset = DATASET_FIXTURES[tenant];

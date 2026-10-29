@@ -120,6 +120,7 @@ describe('what a grant gives', () => {
     op('approveSupport', 'tenant.support.approve', 'SAS', 'POST'),
     op('exportAuditLog', 'audit.export', 'ADM', 'POST'),
     op('searchGlobal', 'search.use', 'ADM', 'GET'),
+    op('exportTenant', 'tenant.export', 'ADM', 'POST'),
     op('getHome', 'home.read', 'ADM', 'GET'),
     op('pullSync', 'sync.pull', 'ADM', 'GET'),
     op('listAuditEvents', 'audit.read', 'ADM', 'GET'),

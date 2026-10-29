@@ -55,6 +55,8 @@ import { DocumentIssueService } from './modules/doc/issue-request.service';
 import { createOutboxConsumers } from './workers/outbox-consumers';
 import { createOutboxPublisher } from './workers/outbox-publisher';
 import { startWorkers } from './workers/workers';
+import { DOCUMENT_FILE_PORT } from './modules/doc/file-port';
+import type { DocumentFilePort } from './modules/doc/file-port';
 import type { RunningWorkers } from './workers/workers';
 
 /** Sets the operation id of the handler on the request, so the request span can name it (an allowlisted attribute). */
@@ -261,6 +263,9 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           llmKeys: { litellm: app.get<LiteLlmAdminPort>(LLM_ADMIN, { strict: false }), vault: app.get<SecretVaultPort>(LLM_VAULT, { strict: false }) },
           // The retention job removes the stored payloads of expired inbox events through the same object store the API serves (ST-ADM-017).
           payloads: app.get(FileService, { strict: false }),
+          // The exports of the data of a tenant are written to the same object store and read from it for the attachments (ST-SAS-016).
+          exportFiles: app.get(FileService, { strict: false }),
+          documentFiles: app.get<DocumentFilePort>(DOCUMENT_FILE_PORT, { strict: false }),
           // The adapters that modules register for their inbound provider events are served by the inbox job (ST-ADM-018).
           inboxHandlers: app.get<InboxHandlerRegistry>(ADM_INBOX_HANDLERS, { strict: false }),
           // The sends that are due go out, and the ones whose result was lost are asked about (ST-NOT-002).

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 /** Names of the fixture tenants in Design/MACHVON_Design/03_Engineering/test_fixtures.json. */
 export type TenantName = 'TNT-A' | 'TNT-B';
 
@@ -480,6 +481,19 @@ export const SUPPORT_FIXTURES: Readonly<Record<TenantName, { id: string; ticket:
   'TNT-A': { id: '00000000-0000-4000-a0ae-000000000001', ticket: 'ALPHA-SUPPORT-TICKET-0001', reason: 'Alpha support access reason 0001' },
   'TNT-B': { id: '00000000-0000-4000-b0ae-000000000001', ticket: 'BETA-SUPPORT-TICKET-0001', reason: 'Beta support access reason 0001' },
 };
+
+/** An export of the data of each tenant, Ready (the ids are distinctive; the reason is tenant data: what the owner said the export was for). */
+export const EXPORT_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0af-000000000001', reason: 'Alpha tenant data export reason 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0af-000000000001', reason: 'Beta tenant data export reason 0001' },
+};
+
+/** The manifest the stored object of the export of a tenant holds (no files: the manifest is the one file left to download), and its hash, which the row of the job records. */
+export const exportManifestOf = (tenant: TenantName): string =>
+  `${JSON.stringify({ schema_version: 1, job_id: EXPORT_FIXTURES[tenant].id, tenant_id: TENANT_IDS[tenant], scope: 'FULL', snapshot_at: '2026-10-30T00:00:00.000Z', files: [], row_counts: {}, omitted_columns: {}, encryption_key_fingerprint: null }, null, 2)}\n`;
+/** The id of the stored object that holds the manifest of the export of a tenant: the job and a hash of the path `manifest.json`, as the job and the download name it. */
+export const exportManifestObjectId = (tenant: TenantName): string => `${EXPORT_FIXTURES[tenant].id}.${createHash('sha256').update('manifest.json').digest('hex').slice(0, 32)}`;
+export const exportManifestSha = (tenant: TenantName): string => createHash('sha256').update(exportManifestOf(tenant)).digest('hex');
 
 /** A usage event of each tenant (the key and the source are distinctive; tenant usage data, the record a tenant is billed from). */
 export const USAGE_FIXTURES: Readonly<Record<TenantName, { id: string; externalKey: string; sourceReference: string }>> = {
@@ -1006,6 +1020,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'invoice code', value: INVOICE_FIXTURES[tenant].invoiceCode },
     { kind: 'invoice line description', value: INVOICE_FIXTURES[tenant].description },
     { kind: 'support access grant id', value: SUPPORT_FIXTURES[tenant].id },
+    { kind: 'tenant export id', value: EXPORT_FIXTURES[tenant].id },
+    { kind: 'tenant export reason', value: EXPORT_FIXTURES[tenant].reason },
     { kind: 'support access ticket', value: SUPPORT_FIXTURES[tenant].ticket },
     { kind: 'support access reason', value: SUPPORT_FIXTURES[tenant].reason },
     { kind: 'usage event id', value: USAGE_FIXTURES[tenant].id },
