@@ -256,6 +256,7 @@ export const OPERATIONS = {
   "getDisbursementForecast": { method: "get", path: "/disbursement-forecasts", versioned: false, stepUp: null, permission: "disbursement.read" },
   "getDisbursementRankings": { method: "get", path: "/home/rankings", versioned: false, stepUp: null, permission: "home.read" },
   "getDisbursementRates": { method: "get", path: "/disbursement-rates", versioned: false, stepUp: null, permission: "disbursement.read" },
+  "getDocumentOverview": { method: "get", path: "/document-overview", versioned: false, stepUp: null, permission: "doc.overview.read" },
   "getDocumentSignatureReport": { method: "get", path: "/document-versions/{id}/signature-report", versioned: false, stepUp: null, permission: "doc.signature.read" },
   "getDocumentTemplate": { method: "get", path: "/document-templates/{id}", versioned: false, stepUp: null, permission: "doc.template.read" },
   "getDocumentTimeline": { method: "get", path: "/documents/{id}/timeline", versioned: false, stepUp: null, permission: "doc.outgoing.read" },

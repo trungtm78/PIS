@@ -220,7 +220,7 @@ export class DocIncomingStore {
     const predicate = scope?.(8);
     const rows = await tx.query<Row>(
       `select ${COLUMNS} from ${FROM}
-        where ${predicate?.sql ?? 'true'} and ($1::text is null or i.status = $1) and ($2::uuid is null or i.assigned_unit_id = $2::uuid) and ($3::boolean is null or i.is_overdue = $3::boolean)
+        where ${predicate?.sql ?? 'true'} and ($1::text is null or i.status = $1) and ($2::uuid is null or i.assigned_unit_id = $2::uuid) and ($3::boolean is null or (i.is_overdue and i.status in ('ASSIGNED', 'PROCESSING')) = $3::boolean)
           and ($4::int is null or extract(year from i.received_at at time zone 'Asia/Ho_Chi_Minh') = $4::int) and ($5::timestamptz is null or (i.received_at, i.id) < ($5::timestamptz, $6::uuid))
         order by i.received_at desc, i.id desc limit $7::int`,
       [filters.status ?? null, filters.assignedUnitId ?? null, filters.overdue ?? null, filters.year ?? null, page.after?.code ?? null, page.after?.id ?? null, page.limit + 1, ...(predicate?.params ?? [])],
@@ -228,6 +228,13 @@ export class DocIncomingStore {
     const shown = rows.slice(0, page.limit);
     const last = shown.at(-1);
     return { records: shown.map(toRecord), next: rows.length > page.limit && last !== undefined ? { code: last.sort_key, id: last.id } : undefined };
+  }
+
+  /** How many letters are overdue now (assigned or being processed and past their deadline), in the scope of the caller: the figure of the filter `overdue` of the ledger. */
+  async countOverdue(tx: TenantTx, scope?: ScopeBuilder): Promise<number> {
+    const predicate = scope?.(1);
+    const [row] = await tx.query<{ n: string }>(`select count(*)::text as n from ${FROM} where i.is_overdue and i.status in ('ASSIGNED', 'PROCESSING') and ${predicate?.sql ?? 'true'}`, [...(predicate?.params ?? [])]);
+    return Number(row?.n ?? 0);
   }
 
   /** A letter already in the register with the same sender, symbol and day (BR-DOC-18), if any: the one that a new letter would duplicate. */

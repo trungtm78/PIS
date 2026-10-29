@@ -50,7 +50,7 @@ export function incomingScope(access: EffectiveAccess, permission: string, now: 
 }
 
 /** Whether any active grant of the caller carries the permission, over whatever scope: the unit of a letter that was only received is chosen by the register it is entered in. */
-function holdsAnywhere(access: EffectiveAccess, permission: string, now: Date): boolean {
+export function holdsAnywhere(access: EffectiveAccess, permission: string, now: Date): boolean {
   return activeGrants(access, now).some((grant) => holdsPermission(new Set(grant.permissions), permission));
 }
 
@@ -84,7 +84,8 @@ function incomingView(record: IncomingRecord, extra: { overdueDays: number | nul
     duplicate_of_id: record.duplicateOfId !== null && extra.hiddenLinks?.has(record.duplicateOfId) === true ? null : record.duplicateOfId,
     duplicate_override_reason: record.duplicateOverrideReason,
     rejection_reason: record.rejectionReason,
-    is_overdue: record.isOverdue,
+    // Overdue now: assigned or being processed and past the deadline (a letter resolved late keeps its late days and is not overdue any more).
+    is_overdue: record.isOverdue && isWorkable(record.status),
     overdue_since: record.overdueSince,
     overdue_days: extra.overdueDays,
     file_sha256: record.fileSha256,

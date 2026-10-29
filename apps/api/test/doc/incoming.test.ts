@@ -403,7 +403,9 @@ describe('incoming documents over HTTP (ST-DOC-011)', () => {
       app.now = new Date('2026-10-23T03:00:00Z');
     }
     expect(await stored(letter.id)).toMatchObject({ status: 'RESOLVED', late_days: 1, is_overdue: true });
-    expect(((await list(INCOMING_CHIEF, '?overdue=true&limit=200')).json.items as Array<{ id: string }>).map((item) => item.id)).toContain(letter.id);
+    // Late when it was resolved, and no longer overdue: the filter and the overview count the letters that are late now.
+    expect(((await list(INCOMING_CHIEF, '?overdue=true&limit=200')).json.items as Array<{ id: string }>).map((item) => item.id)).not.toContain(letter.id);
+    expect((await show(INCOMING_CHIEF, letter.id)).json).toMatchObject({ status: 'RESOLVED', late_days: 1, is_overdue: false, overdue_days: null });
     // Ten spaces are not a reason, for a copy or for a refusal.
     const original = await received({ original_symbol: 'TRIM-1/BTC', original_issued_on: '2026-09-25', sender_name: 'Bộ Nội vụ' });
     expect(original.reply.status).toBe(200);

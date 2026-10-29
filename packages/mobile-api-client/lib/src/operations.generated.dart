@@ -258,6 +258,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getDisbursementForecast': OperationDescriptor(method: 'GET', path: '/disbursement-forecasts', versioned: false, stepUp: null, permission: 'disbursement.read'),
   'getDisbursementRankings': OperationDescriptor(method: 'GET', path: '/home/rankings', versioned: false, stepUp: null, permission: 'home.read'),
   'getDisbursementRates': OperationDescriptor(method: 'GET', path: '/disbursement-rates', versioned: false, stepUp: null, permission: 'disbursement.read'),
+  'getDocumentOverview': OperationDescriptor(method: 'GET', path: '/document-overview', versioned: false, stepUp: null, permission: 'doc.overview.read'),
   'getDocumentSignatureReport': OperationDescriptor(method: 'GET', path: '/document-versions/{id}/signature-report', versioned: false, stepUp: null, permission: 'doc.signature.read'),
   'getDocumentTemplate': OperationDescriptor(method: 'GET', path: '/document-templates/{id}', versioned: false, stepUp: null, permission: 'doc.template.read'),
   'getDocumentTimeline': OperationDescriptor(method: 'GET', path: '/documents/{id}/timeline', versioned: false, stepUp: null, permission: 'doc.outgoing.read'),

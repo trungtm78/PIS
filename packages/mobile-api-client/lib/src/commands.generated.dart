@@ -772,6 +772,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getDisbursementRates({Map<String, Object?>? query}) =>
       execute('getDisbursementRates', query: query);
 
+  Future<Object?> getDocumentOverview({Map<String, Object?>? query}) =>
+      execute('getDocumentOverview', query: query);
+
   Future<Object?> getDocumentSignatureReport({required String id, Map<String, Object?>? query}) =>
       execute('getDocumentSignatureReport', path: <String, Object?>{'id': id}, query: query);
 

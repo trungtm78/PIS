@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -39,7 +39,10 @@ function OutgoingListContent({ route }: ScreenProps) {
   const canCreate = holds(CREATE_DOCUMENT_PERMISSION);
   const thisYear = new Date().getFullYear();
   const years = Array.from({ length: YEARS_BACK + 1 }, (_, index) => String(thisYear - index));
-  const initial: DraftFilter = { status: '', docTypeCode: '', year: '' };
+  // A link from the overview (DOC-01) names the state it leads to; a state that is not one of ours is ignored.
+  const [search] = useSearchParams();
+  const named = DOCUMENT_STATUSES.find((status) => status === search.get('status'));
+  const initial: DraftFilter = { status: named ?? '', docTypeCode: '', year: '' };
   const [draft, setDraft] = useState<DraftFilter>(initial);
   const [applied, setApplied] = useState<DraftFilter>(initial);
   const list = useDraftList(applied);

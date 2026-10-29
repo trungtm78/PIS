@@ -625,6 +625,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listDossiers',
   'getDossier',
   'listDocumentRetentionRules',
+  'getDocumentOverview',
   'getSitePhotoChecks',
   'get_resources_site_photo',
   'get_resources_site_photo_id',

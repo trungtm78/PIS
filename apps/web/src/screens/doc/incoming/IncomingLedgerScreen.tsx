@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -24,7 +24,9 @@ export default function IncomingLedgerScreen({ route }: ScreenProps) {
 function LedgerContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { permissions, mode } = useSession();
-  const [filter, setFilter] = useState<IncomingFilter>(NO_FILTER);
+  // A link from the overview (DOC-01) names the filter it leads to (`?overdue=true`, `?status=`); what is not one of ours is ignored.
+  const [search] = useSearchParams();
+  const [filter, setFilter] = useState<IncomingFilter>(() => ({ ...NO_FILTER, status: INCOMING_STATUSES.find((status) => status === search.get('status')) ?? '', overdue: search.get('overdue') === 'true' }));
   const list = useIncomings(filter);
   const lines = useMemo(() => (list.data?.pages ?? []).flatMap((page) => page.lines), [list.data]);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });

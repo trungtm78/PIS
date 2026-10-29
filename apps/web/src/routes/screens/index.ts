@@ -100,6 +100,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'DIS-23': () => import('../../screens/dis/forecast/ForecastScreen'),
   'DIS-24': () => import('../../screens/dis/weekly/WeeklyPlanScreen'),
   'DIS-25': () => import('../../screens/dis/definitions/DefinitionsScreen'),
+  'DOC-01': () => import('../../screens/doc/overview/DocumentOverviewScreen'),
   'DOC-02': () => import('../../screens/doc/OutgoingEditorScreen'),
   'DOC-03': () => import('../../screens/doc/OutgoingListScreen'),
   'DOC-04': () => import('../../screens/doc/OutgoingReviewScreen'),

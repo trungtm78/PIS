@@ -16,6 +16,7 @@ import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/
 import { PdfLibRenderer, loadRendererResources } from '../../src/modules/doc/pdf-renderer';
 import { DossierReadsController, DossiersController } from '../../src/modules/doc/dossier.controller';
 import { IncomingController, IncomingReadsController } from '../../src/modules/doc/incoming.controller';
+import { DocumentOverviewController } from '../../src/modules/doc/overview.controller';
 import { OutgoingController } from '../../src/modules/doc/outgoing.controller';
 import { OutgoingDraftsController } from '../../src/modules/doc/outgoing-drafts.controller';
 import { IssueRequestsController } from '../../src/modules/doc/issue-requests.controller';
@@ -73,6 +74,10 @@ export const INCOMING_STAFF_TWO = 28; // the same right, for letters that are no
 export const ARCHIVIST = 30; // opens, fills and closes the dossiers of unit 2 and reads the retention rules
 export const ARCHIVIST_OUTSIDE = 31; // the same rights, but only on unit 1 itself
 export const DOSSIER_READER = 32; // reads the dossiers of unit 2 and nothing more
+export const OVERVIEW_UNIT_TWO = 33; // reads the overview over unit 2: outgoing, incoming and templates
+export const OVERVIEW_UNIT_ONE = 34; // the same rights, but only on unit 1 itself
+export const OVERVIEW_INCOMING = 35; // the overview and the incoming letters of unit 2, nothing else
+export const OVERVIEW_ONLY = 36; // the overview and no right to read any kind of document
 export const INCOMING_OUTSIDE = 29; // the same rights as the clerk, but only on unit 1 itself // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
 
 export interface Reply {
@@ -155,6 +160,10 @@ export class DocApp {
       ARCHIVIST,
       ARCHIVIST_OUTSIDE,
       DOSSIER_READER,
+      OVERVIEW_UNIT_TWO,
+      OVERVIEW_UNIT_ONE,
+      OVERVIEW_INCOMING,
+      OVERVIEW_ONLY,
     ])
       await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
@@ -184,7 +193,14 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 20, 'DOC_INCOMING_STAFF', ['doc.incoming.process', 'doc.incoming.read', 'document_version.read', 'doc.outgoing.read'], 20);
     await harness.seedRole(TENANT_A, 21, 'DOC_ARCHIVIST', ['doc.dossier.manage', 'doc.dossier.read', 'doc.retention.read', 'doc.incoming.read'], 30);
     await harness.seedRole(TENANT_A, 22, 'DOC_DOSSIER_READER', ['doc.dossier.read'], 20);
+    await harness.seedRole(TENANT_A, 23, 'DOC_OVERVIEW_ALL', ['doc.overview.read', 'doc.outgoing.read', 'doc.incoming.read', 'doc.template.read'], 30);
+    await harness.seedRole(TENANT_A, 24, 'DOC_OVERVIEW_INCOMING', ['doc.overview.read', 'doc.incoming.read'], 20);
+    await harness.seedRole(TENANT_A, 25, 'DOC_OVERVIEW_ONLY', ['doc.overview.read'], 10);
     await harness.seedGrants(TENANT_A, [
+      { n: 39, member: OVERVIEW_UNIT_TWO, role: 23, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 40, member: OVERVIEW_UNIT_ONE, role: 23, kind: 'UNIT_ONLY', refs: [unitId(1)] },
+      { n: 41, member: OVERVIEW_INCOMING, role: 24, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 42, member: OVERVIEW_ONLY, role: 25, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 36, member: ARCHIVIST, role: 21, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 37, member: ARCHIVIST_OUTSIDE, role: 21, kind: 'UNIT_ONLY', refs: [unitId(1)] },
       { n: 38, member: DOSSIER_READER, role: 22, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -249,6 +265,7 @@ export class DocApp {
         IncomingController,
         DossiersController,
         DossierReadsController,
+        DocumentOverviewController,
         IncomingReadsController,
       ],
       providers: [

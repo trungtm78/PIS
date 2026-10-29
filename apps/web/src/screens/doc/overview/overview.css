@@ -1,0 +1,28 @@
+/* DOC-01: the tiles of the overview of the documents. */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.overview-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+}
+
+.overview-count {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.overview-count.none {
+  font-size: 14px;
+  font-weight: 400;
+}

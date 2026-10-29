@@ -278,6 +278,12 @@ export class DocumentTemplateStore {
   }
 
   /** The revisions of the tenant by code and revision, narrowed by group, status and the date they are in force on. */
+  /** How many published templates wait for the legal confirmation of their basis (the tile of the overview). */
+  async countPendingConfirmation(tx: TenantTx): Promise<number> {
+    const [row] = await tx.query<{ n: string }>("select count(*)::text as n from machvon.document_template where status = 'PUBLISHED' and confirmation_status = 'PENDING_CONFIRMATION'");
+    return Number(row?.n ?? 0);
+  }
+
   async list(tx: TenantTx, filter: TemplateFilter, page: TemplatePageRequest): Promise<TemplateSummary[]> {
     const rows = await tx.query<SummaryRow>(
       `select ${SUMMARY_COLUMNS} ${FROM}

@@ -362,6 +362,18 @@ export class OutgoingDocumentStore {
   }
 
   /** Newest first, in keyset pages of the creation time and the id. */
+  /** How many outgoing documents stand in each of the given states, in the scope of the caller (the queues of the overview). A state with none is 0. */
+  async countByStatus(tx: TenantTx, statuses: readonly OutgoingStatus[], scope?: ScopeBuilder): Promise<Record<string, number>> {
+    const predicate = scope?.(2);
+    const rows = await tx.query<{ status: string; n: string }>(
+      `select o.status, count(*)::text as n from machvon.outgoing_document o where o.status = any($1::text[]) and ${predicate === undefined ? 'true' : IN_SCOPE(predicate.sql)} group by o.status`,
+      [statuses, ...(predicate?.params ?? [])],
+    );
+    const counted = Object.fromEntries(statuses.map((status) => [status, 0]));
+    for (const row of rows) counted[row.status] = Number(row.n);
+    return counted;
+  }
+
   async list(tx: TenantTx, filters: OutgoingFilters, page: OutgoingPage, scope?: ScopeBuilder): Promise<OutgoingDocumentRecord[]> {
     assertTimestampCursor(page.after?.sortKey);
     const predicate = scope?.(8);
