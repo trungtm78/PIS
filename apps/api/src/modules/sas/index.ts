@@ -1,5 +1,6 @@
-import { BillingStore, EINVOICE_PROVIDER, EntitlementOverrideStore, PlanStore, SubscriptionStore, TenantBootstrapStore, ThemeStore, UsageMeterStore, sharedMockEInvoiceProvider } from '@machvon/db';
+import { AuditWriter, BillingStore, EINVOICE_PROVIDER, EntitlementOverrideStore, PlanStore, SubscriptionStore, SupportAccessStore, TenantBootstrapStore, ThemeStore, UsageMeterStore, sharedMockEInvoiceProvider } from '@machvon/db';
 import type { InboxHandlerRegistry } from '@machvon/db';
+import { TenantDatabase } from '@machvon/db';
 import { WEBHOOK_PAYLOADS } from '../../notifications/delivery/webhook-support';
 import type { WebhookPayloadStore } from '../../notifications/delivery/webhook-support';
 import { ADM_INBOX_HANDLERS } from '../adm/tokens';
@@ -12,6 +13,8 @@ import { EInvoiceWebhookController, PaymentWebhookController, registerPaymentCal
 import { PlanController } from './plan.controller';
 import { SubscriptionController } from './subscription.controller';
 import { SubscriptionReadsController } from './subscription-reads.controller';
+import { SupportAccessController, SupportAccessReadsController, SupportAccessRequestController } from './support-access.controller';
+import { SupportTokenController } from './support-token.controller';
 import { TenantOwnerController } from './tenant-owner.controller';
 import { TenantStateController } from './tenant-state.controller';
 import { TenantThemeController } from './tenant-theme.controller';
@@ -27,22 +30,25 @@ const SAS_INBOX_REGISTRATION = Symbol('SAS_INBOX_REGISTRATION');
 /**
  * SAS, the system administration of the control plane: the tenant lifecycle commands of ST-SAS-004, the owner assignment
  * of ST-SAS-006, the tenant themes of ST-SAS-005, the plan catalogue of ST-SAS-007, the usage metering of ST-SAS-010 and the
- * subscriptions of ST-SAS-008, the entitlement overrides of ST-SAS-009 and the billing run and e-invoice of ST-SAS-011. The tenant registry of ST-SAS-001 stays in apps/api/src/system-tenants.controller.ts.
+ * subscriptions of ST-SAS-008, the entitlement overrides of ST-SAS-009 and the billing run and e-invoice of ST-SAS-011, and the controlled support access of ST-SAS-015 (the request is a control command; the approval, the revocation and the reads are the tenant's). The tenant registry of ST-SAS-001 stays in apps/api/src/system-tenants.controller.ts.
  * The commands and the System Admin reads need the control plane; the read of the published theme by a member of the tenant
  * (getMyPublishedTheme) needs only the tenant database and is active without it.
  */
 export const sasModule = defineModule({
   code: 'SAS',
-  controllers: [TenantThemeController, UsageController, SubscriptionReadsController, InvoiceLinesController],
+  controllers: [TenantThemeController, UsageController, SubscriptionReadsController, InvoiceLinesController, SupportAccessController, SupportAccessReadsController],
   providers: [
     { provide: ThemeStore, useFactory: () => new ThemeStore() },
     { provide: UsageMeterStore, useFactory: () => new UsageMeterStore() },
     { provide: SubscriptionStore, useFactory: () => new SubscriptionStore() },
     { provide: BillingStore, useFactory: () => new BillingStore() },
+    { provide: SupportAccessStore, useFactory: () => new SupportAccessStore() },
   ],
   controlPlane: {
-    controllers: [TenantStateController, TenantOwnerController, ThemeController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
+    controllers: [SupportAccessRequestController, SupportTokenController, TenantStateController, TenantOwnerController, ThemeController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
     providers: [
+      // The exchange of a grant for a support token writes its audit rows outside a command.
+      { provide: AuditWriter, useFactory: (database: TenantDatabase) => new AuditWriter(database), inject: [TenantDatabase] },
       { provide: TenantBootstrapStore, useFactory: () => new TenantBootstrapStore() },
       { provide: PlanStore, useFactory: () => new PlanStore() },
       { provide: EntitlementOverrideStore, useFactory: () => new EntitlementOverrideStore() },

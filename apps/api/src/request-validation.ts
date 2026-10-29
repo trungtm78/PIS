@@ -4,9 +4,9 @@ import { DomainError } from '@machvon/kernel';
 
 /**
  * Operations whose acceptance criteria answer a broken rule of a well typed value as 400 INVALID_REQUEST
- * (ST-ADM-005 AC-4: a custom role of rank 95 is 400). Every other operation answers 422 VALIDATION_FAILED.
+ * (ST-ADM-005 AC-4: a custom role of rank 95 is 400; ST-SAS-015 AC-2: a support access request for 600 minutes is 400). Every other operation answers 422 VALIDATION_FAILED.
  */
-const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole', 'updateCustomRole', 'grantRole', 'revokeRoleGrant']);
+const RULE_AS_INVALID_REQUEST: ReadonlySet<string> = new Set(['createCustomRole', 'updateCustomRole', 'grantRole', 'revokeRoleGrant', 'requestSupportAccess']);
 
 /**
  * Operations whose acceptance criteria answer a missing field as 422 VALIDATION_FAILED naming it

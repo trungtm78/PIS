@@ -23,6 +23,8 @@ interface TestClaims {
   aal2At?: string;
   sid?: string;
   roles?: string[];
+  /** A support token (act=support): the grant it acts under; the operator is the membership of the tenant context. */
+  support?: { grantId: string };
 }
 
 function claimsOf(header: string | string[] | undefined): TestClaims {
@@ -61,6 +63,7 @@ export class TestAuthGuard implements CanActivate {
       aal2At: claims.aal2At === undefined ? undefined : new Date(claims.aal2At),
       sessionId: claims.sid ?? 'test-session',
       ...(claims.roles === undefined ? {} : { roles: claims.roles }),
+      ...(claims.support === undefined ? {} : { support: { grantId: claims.support.grantId, operatorId: tenant.membershipId } }),
     };
     return true;
   }

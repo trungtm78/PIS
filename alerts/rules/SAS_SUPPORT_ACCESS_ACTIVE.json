@@ -1,0 +1,14 @@
+{
+  "id": "SAS_SUPPORT_ACCESS_ACTIVE",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/SAS_SUPPORT_ACCESS_ACTIVE.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "support_access_active",
+    "above": 5
+  },
+  "summary": "More than five support access grants are in force at once: operators of the platform are inside the data of several tenants."
+}

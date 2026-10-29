@@ -1,6 +1,7 @@
 // Minimal structural view of the OpenAPI 3.1 document: only what lint and generation read.
 export interface OpenApiOperation {
   operationId?: string;
+  tags?: unknown;
   'x-permission'?: unknown;
   'x-exposure'?: unknown;
   responses?: Record<string, unknown>;

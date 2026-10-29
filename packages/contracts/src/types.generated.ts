@@ -15082,6 +15082,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/support-access/{id}/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đổi một grant truy cập hỗ trợ đang hiệu lực lấy token act=support (SAS-19); không bao giờ lưu vào bản ghi idempotency */
+        post: operations["issueSupportAccessToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -21880,6 +21897,18 @@ export interface components {
             /** @description The payments of the platform that wait for a person, or of one status, the latest first */
             items: components["schemas"]["BillingPayment"][];
             next_cursor: string | null;
+        };
+        SupportTokenRequest: {
+            /** Format: uuid */
+            tenant_id: string;
+        };
+        SupportToken: {
+            access_token: string;
+            /** @enum {string} */
+            token_type: "Bearer";
+            expires_in: number;
+            /** Format: uuid */
+            grant_id: string;
         };
     };
     responses: never;
@@ -40110,6 +40139,10 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description The status as it is now (an approved grant whose window has ended is Expired before the lifecycle pass says so) */
+                status?: "Requested" | "Approved" | "Active" | "Expired" | "Revoked" | "Rejected";
+                /** @description true: only the grants that let their operator in at this moment */
+                in_force?: boolean;
             };
             header?: never;
             path?: never;
@@ -112612,6 +112645,77 @@ export interface operations {
                 };
             };
             /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    issueSupportAccessToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description A short-lived tenant token with act=support; it ends with the grant */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportToken"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED: the grant is not in force, or was given to somebody else */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
             429: {
                 headers: {
                     [name: string]: unknown;

@@ -41,10 +41,13 @@ describe('control-plane authorization matrix generator', () => {
     expect(verdict('listTenantInvoices')).toEqual(verdict('listSystemTenants'));
     expect(verdict('listBillingPayments')).toEqual(verdict('listSystemTenants'));
     for (const operationId of ['createSubscription', 'previewPlanChange', 'changeSubscriptionPlan', 'cancelSubscription', 'requestEntitlementOverride', 'decideEntitlementOverride', 'revokeEntitlementOverride', 'runBillingCycle', 'issueEInvoice', 'createAdjustmentInvoice', 'createReplacementInvoice', 'matchBillingPayment']) expect(verdict(operationId)).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'allow', SupportOperator: 'deny' });
+    // Only the Support Operator asks for access to a tenant (and the System Admin, who holds every system permission); nobody else of the platform does.
+    expect(verdict('issueSupportAccessToken')).toEqual(verdict('requestSupportAccess'));
+    expect(verdict('requestSupportAccess')).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'deny', SupportOperator: 'allow' });
     for (const operationId of ['listPlanVersions', 'createPlanVersion', 'publishPlanVersion']) expect(verdict(operationId)).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'allow', SupportOperator: 'deny' });
   });
 
   it('derives the permission from the generated table', () => {
-    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(5).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage']);
+    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(5).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.support.request', 'system.support.request']);
   });
 });

@@ -25,6 +25,7 @@ interface CommandRequest {
   params: Record<string, string>;
   body: unknown;
   tenantContext?: unknown;
+  principal?: { support?: { operatorId?: string } };
   [COMMAND_SCOPE_KEY]?: CommandScope;
 }
 
@@ -71,6 +72,8 @@ export class CommandInterceptor implements NestInterceptor {
     const request = http.getRequest<CommandRequest>();
     const response = http.getResponse<CommandResponse>();
     const tenant = tenantContextOf(request);
+    // A command run under a support access grant is audited as an impersonation, with the operator it was given to (ST-SAS-015).
+    const impersonatorId = request.principal?.support?.operatorId;
     const key = parseIdempotencyKey(request.headers['idempotency-key']);
     const ifMatchHeader = options.versioned === true ? request.headers['if-match'] : undefined;
     const expectedVersion = options.versioned === true ? parseIfMatch(ifMatchHeader) : null;
@@ -133,7 +136,7 @@ export class CommandInterceptor implements NestInterceptor {
           audit: async (entry) => {
             audited += 1;
             if (entry.resourceId !== NIL_RESOURCE_ID) touched.push({ type: entry.resourceType, id: entry.resourceId });
-            return this.audit.recordInTx(tx, tenant.membershipId, { ...entry, correlationId, requestId });
+            return this.audit.recordInTx(tx, tenant.membershipId, { ...entry, correlationId, requestId, ...(impersonatorId === undefined ? {} : { impersonatorId }) });
           },
           emit: (event) => enqueueOutbox(tx, { ...event, correlationId }),
           afterCommit: (callback) => {

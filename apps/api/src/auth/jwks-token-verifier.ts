@@ -105,6 +105,14 @@ export class JwksTokenVerifier implements TokenVerifier {
     if (audience === undefined || audiences.length !== 1) throw sessionExpired();
     if (tenantId === undefined || membershipId === undefined || scopeVersion === undefined || sessionId === undefined) throw sessionExpired();
     if (typeof mode !== 'string' || !MODES.has(mode)) throw sessionExpired();
+    // `act` is the actor of the token: only `support` exists, and it names the grant and the operator, who is the membership of the context (the operator has no membership of the tenant).
+    let support: VerifiedTenantToken['support'];
+    if (payload.act !== undefined) {
+      const grantId = uuidClaim(payload.gid);
+      const operatorId = uuidClaim(payload.opr);
+      if (payload.act !== 'support' || audience !== 'tenant' || grantId === undefined || operatorId === undefined || operatorId !== membershipId) throw sessionExpired();
+      support = { grantId, operatorId };
+    }
     return {
       tenant: { tenantId, membershipId, scopeVersion },
       sessionId,
@@ -113,6 +121,7 @@ export class JwksTokenVerifier implements TokenVerifier {
       mode: mode as 'FULL' | 'READ_ONLY',
       roles: stringList(payload.roles),
       expiresAt: new Date((payload.exp as number) * 1000),
+      ...(support === undefined ? {} : { support }),
     };
   }
 

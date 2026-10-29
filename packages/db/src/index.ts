@@ -680,3 +680,5 @@ export { EINVOICE_PROVIDER, EInvoiceProviderUnavailable, MockEInvoiceProvider, s
 export type { EInvoiceIssueLine, EInvoiceIssueRequest, EInvoiceIssued, EInvoiceProviderPort } from './einvoice-provider.ts';
 export { BillingPaymentStore, MATCH_BATCH, PAYMENT_MATCHED_EVENT, PAYMENT_UNMATCHED_GAUGE } from './billing-payment-store.ts';
 export type { PassResult as PaymentPassResult, PaymentRow, PaymentStatus, RecordPaymentInput } from './billing-payment-store.ts';
+export { SUPPORT_ACCESS_ACTIVE_GAUGE, SUPPORT_ACCESS_APPROVED_EVENT, SUPPORT_ACCESS_REQUESTED_EVENT, SUPPORT_ACCESS_REVOKED_EVENT, SupportAccessStore } from './support-access-store.ts';
+export type { SupportApproval, SupportGrantRow, SupportPassResult, SupportRequest } from './support-access-store.ts';

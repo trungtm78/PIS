@@ -518,3 +518,5 @@ export { PAYABLE_INVOICE_STATUSES, PAYMENT_METHODS, autoMatch, invoiceCodesIn, j
 export type { BillingPaymentMethod, EInvoiceCallback, MatchVerdict, PaymentCallback, PaymentCandidate } from './sas-payment.ts';
 export { CORRECTION_KINDS, MAX_CORRECTION_LINES, MIN_AGREEMENT_REF, MIN_CORRECTION_REASON, correctionDefects, judgeCorrection, priceCorrection, receivableVnd } from './sas-correction.ts';
 export type { CorrectionDefect, CorrectionInput, CorrectionKind, CorrectionLine, CorrectionRefusal, StandingInvoice } from './sas-correction.ts';
+export { OPEN_SUPPORT_STATUSES, SUPPORT_MAX_MINUTES, SUPPORT_MAX_REASON, SUPPORT_MAX_WINDOW_MS, SUPPORT_MIN_MINUTES, SUPPORT_MIN_REASON, SUPPORT_REQUEST_LAPSE_MS, SUPPORT_START_LEAD_MS, approvalPatch, assertRevocable, isFullyApproved, isSupportGrantLive, reachesResource, supportPermissions, supportRequestDefects, supportStatusAt } from './sas-support-access.ts';
+export type { ApprovalPatch, SupportAccessMode, SupportGrantFacts, SupportGrantStatus, SupportOperation, SupportRequestInput } from './sas-support-access.ts';

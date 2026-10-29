@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import type { DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import type { TenantTokenIssuer } from './auth/tenant-token-issuer';
+import { SUPPORT_TOKEN_ISSUER } from './modules/sas/support-token.controller';
 import { ControlDatabase, EntitlementStore, LicenseStore, TenantDatabase, TenantRegistry } from '@machvon/db';
 import type { AuthzCache, EntitlementCache } from '@machvon/db';
 import type { RegisteredError } from '@machvon/kernel';
@@ -54,6 +56,8 @@ export interface AppModuleOptions {
   tenantState?: { runtime: TenantRuntimeSource; entitlementCache: EntitlementCache; authzCache: AuthzCache };
   /** Provides the orchestration port (ORCHESTRATOR) with the in-process adapter; the key signs the tenant contexts of background work. */
   orchestration?: OrchestrationOptions;
+  /** The issuer of the support tokens of the exchange `issueSupportAccessToken` (ST-SAS-015); defaults to the issuer of the session module. Without either the exchange answers 503 SIGNING_KEY_UNAVAILABLE. */
+  supportIssuer?: TenantTokenIssuer;
   /** The secret the drill tokens of BI are signed from (at least 32 bytes); every replica must be given the same, or a token made by one is refused by another. */
   biDrillSecret?: Buffer;
 }
@@ -106,6 +110,7 @@ export class AppModule {
         ...(options.tenantState === undefined ? [] : [{ provide: TENANT_STATE_EFFECTS, useValue: new CacheTenantStateEffects(options.tenantState) }]),
         { provide: TenantDatabase, useValue: options.database },
         // A session revoked here reaches the deny-list the authentication guard consults, and the identity provider's logout where it is connected.
+        { provide: SUPPORT_TOKEN_ISSUER, useValue: options.supportIssuer ?? options.session?.issuer },
         { provide: SESSION_REVOCATION, useValue: options.session?.denyList ?? { revoke: () => undefined } },
         { provide: IDENTITY_LOGOUT, useValue: options.session?.identityLogout ?? new NoIdentityLogout() },
         ...(options.entitlements === undefined

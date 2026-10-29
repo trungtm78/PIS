@@ -410,7 +410,9 @@
     "draftReallocationProposal",
     "submitReallocationProposal",
     "decideReallocationProposal",
-    "applyReallocationProposal"
+    "applyReallocationProposal",
+    "post_support_access_id_approve",
+    "revokeSupportAccess"
   ],
   "controlCommands": [
     "assignTenantOwner",
@@ -440,7 +442,9 @@
     "runBillingCycle",
     "suspendLicense",
     "suspendTenant",
-    "uploadSystemTenantThemeAsset"
+    "uploadSystemTenantThemeAsset",
+    "requestSupportAccess",
+    "issueSupportAccessToken"
   ],
   "identityCommands": [
     "acceptInvitation",

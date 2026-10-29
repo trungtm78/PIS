@@ -39,7 +39,7 @@ const key = (code: string): string => `iam.role.${code}.name`;
  */
 export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'TENANT_OWNER', name: key('TENANT_OWNER'), rank: 99, permissions: TENANT_PLANE_PREFIXES.map((prefix) => `${prefix}.*`), guestAllowed: false },
-  { code: 'TENANT_ADMIN', name: key('TENANT_ADMIN'), rank: 90, permissions: ['iam.*', 'adm.*', 'audit.read'], guestAllowed: false },
+  { code: 'TENANT_ADMIN', name: key('TENANT_ADMIN'), rank: 90, permissions: ['iam.*', 'adm.*', 'audit.read', 'tenant.support.approve', 'support_access_grant.read'], guestAllowed: false },
   { code: 'SECURITY_ADMIN', name: key('SECURITY_ADMIN'), rank: 85, permissions: ['adm.security.*', 'audit.*', 'legal_hold.manage'], guestAllowed: false },
   { code: 'UNIT_ADMIN', name: key('UNIT_ADMIN'), rank: 70, permissions: ['iam.member.*', 'iam.role.grant', 'iam.unit.manage'], guestAllowed: false },
   // PENDING SIGN-OFF: "read business records within scope" names no permission.

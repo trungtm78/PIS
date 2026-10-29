@@ -71,6 +71,11 @@ export class AuditWriter {
     return insertEntry(tx, actorId, 'SUCCESS', entry);
   }
 
+  /** Outcome SUCCESS in a transaction of its own, for what happened outside a command and still must leave a trace (the use of a support access grant). */
+  record(ctx: TenantContext, entry: AuditEntry): Promise<string> {
+    return this.database.withTenant(ctx, (tx) => insertEntry(tx, ctx.membershipId, 'SUCCESS', entry));
+  }
+
   /** Outcome DENIED in a separate transaction, so it survives the rollback of the denied command. */
   recordDenied(ctx: TenantContext, entry: AuditEntry): Promise<string> {
     return this.database.withTenant(ctx, (tx) => insertEntry(tx, ctx.membershipId, 'DENIED', entry));

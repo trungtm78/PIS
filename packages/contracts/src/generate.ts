@@ -54,6 +54,53 @@ export function generatePlanes(doc: OpenApiDocument): Record<string, string> {
   return planes;
 }
 
+// The module of the resource reads and the other operations that carry no tag, by the first segment of their permission. A resource that is not named here, and whose prefix no tagged operation owns alone, belongs to no
+// module: no support access grant reaches it (a grant fails closed). Left out on purpose: `proposal`, `device_registration`, `outbox_event`, `audit_event` (the audit trail, the devices of a person and the internals of the platform).
+const RESOURCE_MODULES: Readonly<Record<string, string>> = {
+  organization_unit: 'ADM', membership: 'ADM', role_grant: 'ADM', workflow_version: 'ADM', workflow_instance: 'ADM', approval_task: 'ADM',
+  plan_version: 'CAP', allocation_line: 'CAP', budget_reservation: 'CAP',
+  reporting_period: 'DIS', report_revision: 'DIS', funding_snapshot_line: 'DIS', progress_snapshot: 'DIS',
+  document_version: 'DOC',
+  llm_attempt: 'LLM', model_profile_version: 'LLM', ai_eval_run: 'LLM',
+  conversation: 'OMNI', channel_message: 'OMNI', channel_account: 'OMNI', contact: 'OMNI', contact_consent: 'OMNI',
+  notification_instance: 'NOT', delivery_attempt: 'NOT', notification_template_version: 'NOT',
+  metric_definition: 'BI', dashboard_version: 'BI', drill_context: 'BI',
+  license_revision: 'SAS', usage_meter_event: 'SAS', invoice_line: 'SAS', support_access_grant: 'SAS',
+  master_record_version: 'MDM', integration_cursor: 'MDM',
+  data_contract_version: 'DGV', dataset_contract: 'DGV', quality_rule_version: 'DGV', quality_run: 'DGV', quality_exception: 'DGV',
+  criteria_version: 'BID', procurement_package: 'BID',
+  contract_revision: 'CTR', boq_line: 'CTR', change_request: 'CTR',
+  site_diary: 'QMS', quality_nonconformance: 'QMS', quality_incident: 'QMS',
+  advance_ledger_entry: 'PAY', settlement_revision: 'PAY',
+  asset_record: 'AST',
+  analysis_run: 'AUD', analysis_finding: 'AUD',
+  maturity_assessment: 'MNE', maturity_evidence: 'MNE',
+};
+
+// Maps every operationId to the module it belongs to: its first tag, else the module of its resource (RESOURCE_MODULES), else the only module whose tagged operations share the first segment of its permission; an operation
+// that none of these places has none. A support access grant is scoped by module (ST-SAS-015).
+export function generateModules(doc: OpenApiDocument): Record<string, string> {
+  const entries = listOperations(doc);
+  const tagOf = (operation: OpenApiOperation): string | undefined => {
+    const tags = operation.tags;
+    const first = Array.isArray(tags) ? tags[0] : undefined;
+    return typeof first === 'string' && first !== '' ? first : undefined;
+  };
+  const prefixOf = (operation: OpenApiOperation): string => String(operation['x-permission']).split('.')[0] ?? '';
+  const owners = new Map<string, Set<string>>();
+  for (const { operation } of entries) {
+    const tag = tagOf(operation);
+    if (tag !== undefined) owners.set(prefixOf(operation), (owners.get(prefixOf(operation)) ?? new Set<string>()).add(tag));
+  }
+  const modules: Record<string, string> = {};
+  for (const { id, operation } of entries) {
+    const sole = owners.get(prefixOf(operation));
+    const module = tagOf(operation) ?? RESOURCE_MODULES[prefixOf(operation)] ?? (sole?.size === 1 ? [...sole][0] : undefined);
+    if (module !== undefined) modules[id] = module;
+  }
+  return modules;
+}
+
 export interface OperationDescriptor {
   method: string;
   path: string;
@@ -136,6 +183,7 @@ export function renderPermissionsModule(
   permissions: Record<string, string>,
   stepUp: Record<string, string> = {},
   planes: Record<string, string> = {},
+  modules: Record<string, string> = {},
 ): string {
   return [
     GENERATED_BANNER.trimEnd(),
@@ -144,6 +192,7 @@ export function renderPermissionsModule(
     '',
     ...renderTable('STEP_UP', stepUp),
     ...renderTable('PLANES', planes),
+    ...renderTable('MODULES', modules),
   ].join('\n');
 }
 
@@ -183,7 +232,7 @@ export async function main(argv: string[], io: Io = stdoutIo): Promise<number> {
   if (findings.length > 0) return 1;
 
   const outputs: Array<{ directory: string; name: string; content: string }> = Object.entries({
-    [PERMISSIONS_FILE]: renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc)),
+    [PERMISSIONS_FILE]: renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc), generateModules(doc)),
     [OPERATIONS_FILE]: renderOperationsModule(generateOperations(doc)),
     [REQUEST_SCHEMAS_FILE]: renderRequestSchemasModule(generateRequestSchemas(doc)),
     [TYPES_FILE]: await generateTypes(doc),

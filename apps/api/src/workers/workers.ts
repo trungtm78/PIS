@@ -1,4 +1,5 @@
 import { DelegationLifecycleJob } from '../modules/adm/delegation-lifecycle';
+import { SupportAccessJob } from '../modules/sas/support-access.job';
 import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.port';
 import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
@@ -96,6 +97,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   // The module that owns projects is not bound to the reorganisation saga yet (XM-ADM-02): until it is, the saga stops at the first project it has to move.
   const unitReorganization = new UnitReorganizationJob(deps.tenants, audit, deps.reorganizationProjects ?? new UnboundProjectTransferPort());
   const delegationLifecycle = new DelegationLifecycleJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
+  const supportAccessLifecycle = new SupportAccessJob(audit);
   const approvalSla = new ApprovalSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const issueSla = new IssSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const dgvQuality = new DgvQualityRunJob(deps.tenants, audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
@@ -151,6 +153,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     issueSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => issueSla.run(tx, ctx.membershipId, now)) },
     unitReorganization: { run: (ctx, now) => unitReorganization.run(ctx, now) },
     delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
+    supportAccessLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => supportAccessLifecycle.run(tx, ctx.membershipId, now)) },
     approvalSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => approvalSla.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),
     ...(deps.notificationDelivery === undefined ? {} : { notificationDelivery: deps.notificationDelivery }),

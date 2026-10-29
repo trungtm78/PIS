@@ -500,6 +500,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'inviteMember': CommandResultResponse.fromJson,
   'issueEInvoice': CommandResultResponse.fromJson,
   'issueOutgoingDocument': CommandResultResponse.fromJson,
+  'issueSupportAccessToken': SupportTokenResponse.fromJson,
   'linkAuditRecovery': CommandResultResponse.fromJson,
   'linkConversationResource': CommandResultResponse.fromJson,
   'linkHouseholdParcel': CommandResultResponse.fromJson,
@@ -17904,6 +17905,44 @@ final class SubscriptionResponsePaymentTerms implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         if (dueDays != null) 'due_days': dueDays,
         if (method != null) 'method': method,
+        ...extra,
+      };
+}
+
+final class SupportTokenResponse implements ResponseModel {
+  const SupportTokenResponse({
+    required this.accessToken,
+    required this.tokenType,
+    required this.expiresIn,
+    required this.grantId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SupportTokenResponse.fromJson(Object? json, [String path = 'SupportTokenResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SupportTokenResponse(
+      accessToken: requiredField(map, path, 'access_token', asString),
+      tokenType: requiredField(map, path, 'token_type', asString),
+      expiresIn: requiredField(map, path, 'expires_in', asInt),
+      grantId: requiredField(map, path, 'grant_id', asString),
+      extra: unknownFields(map, path, const <String>{'access_token', 'token_type', 'expires_in', 'grant_id'}, strict: false),
+    );
+  }
+
+  final String accessToken;
+  final String tokenType;
+  final int expiresIn;
+  final String grantId;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'access_token': accessToken,
+        'token_type': tokenType,
+        'expires_in': expiresIn,
+        'grant_id': grantId,
         ...extra,
       };
 }

@@ -10320,6 +10320,19 @@ final class SupportTicketCreate implements RequestModel {
       };
 }
 
+final class SupportTokenRequest implements RequestModel {
+  const SupportTokenRequest({
+    required this.tenantId,
+  });
+
+  final String tenantId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'tenant_id': tenantId,
+      };
+}
+
 final class SyncAttachmentComplete implements RequestModel {
   const SyncAttachmentComplete({
     required this.sha256,

@@ -26,6 +26,8 @@ export interface VerifiedTenantToken {
   mode: 'FULL' | 'READ_ONLY';
   roles: readonly string[];
   expiresAt: Date;
+  /** Present only on a support token (`act=support`, ST-SAS-015): the grant it acts under and the operator it was given to. Ordinary tenant tokens never carry it. */
+  support?: { grantId: string; operatorId: string };
 }
 
 /**

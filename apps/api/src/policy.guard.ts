@@ -13,8 +13,10 @@ import type { DelegationDoor } from './delegated-door';
 import { operationIdOf } from './operation-id.decorator';
 import { PUBLIC_METADATA_KEY } from './public.decorator';
 import { principalOf } from './principal';
+import type { Principal, SupportClaim } from './principal';
 import type { EntitlementGate, EntitlementVerdict } from './entitlements/entitlement-gate';
 import type { SessionDenyList } from './session-deny-list';
+import type { SupportDoor, SupportGate } from './support-gate';
 
 /** Request property that the guard fills with the EffectiveAccess it decided on, for handlers that narrow by scope. */
 export const ACCESS_REQUEST_KEY = 'effectiveAccess';
@@ -40,6 +42,8 @@ export interface PolicyOptions {
   entitlements?: EntitlementGate;
   /** Lets a delegate through the door of the operations in DELEGABLE_OPERATIONS; the command narrows it. */
   delegations?: DelegationDoor;
+  /** The door of the support tokens (ST-SAS-015): without it a support token is refused. */
+  support?: SupportGate;
   now?: () => Date;
 }
 
@@ -63,6 +67,8 @@ interface PolicyRequest {
   method: string;
   headers: Record<string, string | string[] | undefined>;
   principal?: unknown;
+  url?: string;
+  originalUrl?: string;
   [ACCESS_REQUEST_KEY]?: EffectiveAccess;
 }
 
@@ -118,8 +124,10 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     // A control-plane operation is judged on the realm roles of the token; there are no tenant grants behind it.
     // A control operation never falls back to tenant grants: a principal without roles has no access at all.
     const controlRoles = policy.plane === 'control' ? (principal.roles ?? []) : undefined;
+    // A support token is judged on its grant, on every request, and on nothing else: the operator has no membership and no grant of roles in the tenant.
+    const door = principal.support === undefined ? undefined : await this.supportDoor(request, principal, operationId);
     const [access, sessionRevoked] = await Promise.all([
-      controlRoles === undefined ? this.options.access.load(principal.tenant) : controlAccessOf(controlRoles, principal.tenant.membershipId),
+      door !== undefined ? door.access : controlRoles === undefined ? this.options.access.load(principal.tenant) : controlAccessOf(controlRoles, principal.tenant.membershipId),
       this.options.denyList.isRevoked(principal.sessionId),
     ]);
     // A delegate reaches the operations that can be delegated with the delegation alone; the command judges the rest.
@@ -153,6 +161,8 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     });
     if (decision.allow) {
       request[ACCESS_REQUEST_KEY] = access;
+      // Every request of an operator inside a grant is a trace of its own; if it cannot be written the request does not go on.
+      if (door !== undefined && principal.support !== undefined) await this.recordSupportUse(principal.tenant, principal.support, door, operationId, request);
       return true;
     }
     const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
@@ -160,14 +170,45 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     request.headers['x-correlation-id'] = correlationId;
     // A refused command is audited; so is a call of the wrong plane, whatever it asks: an operator of the platform who reaches for the business data of a tenant leaves a trace even when it only reads (IAM 3.6, NFR-PRIVACY-02).
     if (decision.status === 403 && (Reflect.getMetadata(COMMAND_METADATA_KEY, handler) !== undefined || decision.reason === 'PLANE')) {
-      await this.recordDenied(principal.tenant, operationId, decision.reason, correlationId);
+      await this.recordDenied(principal.tenant, operationId, decision.reason, correlationId, principal.support?.operatorId);
     }
     // The reason of an entitlement denial (FEATURE_OFF, LICENSE_GRACE, ...) is safe to show: it names no data of anyone.
     throw new DomainError(decision.code, decision.status, decision.reason === 'ENTITLEMENT' ? verdict?.reason : undefined);
   }
 
+  /**
+   * The door of a support token: the grant must let the operator in now and reach this operation and this path. Otherwise the answer is 403 SCOPE_DENIED, the same as for any request out of reach, with a denied audit row
+   * that names the operator as the impersonator; the grant is judged again on the next request, so a revocation or the end of the window takes effect at once.
+   */
+  private async supportDoor(request: PolicyRequest, principal: Principal, operationId: string): Promise<SupportDoor> {
+    const claim = principal.support as SupportClaim;
+    const gate = this.options.support;
+    const door = gate === undefined ? undefined : await gate.open(principal.tenant, claim, (this.options.now ?? (() => new Date()))());
+    if (gate !== undefined && door !== undefined && gate.reaches(door, operationId, request.originalUrl ?? request.url ?? '')) return door;
+    const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
+    request.headers['x-correlation-id'] = correlationId;
+    this.options.metrics?.increment('authz_decision_total', { outcome: 'deny', reason: 'SUPPORT_GRANT' });
+    await this.recordDenied(principal.tenant, operationId, 'SUPPORT_GRANT', correlationId, claim.operatorId);
+    throw new DomainError('SCOPE_DENIED', 403);
+  }
+
+  private async recordSupportUse(tenant: Principal['tenant'], claim: SupportClaim, door: SupportDoor, operationId: string, request: PolicyRequest): Promise<void> {
+    const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
+    request.headers['x-correlation-id'] = correlationId;
+    await this.options.audit.record(tenant, {
+      action: 'support_access.used',
+      resourceType: 'support_access_grant',
+      resourceId: door.grant.id,
+      diff: { operation: operationId, method: request.method, access_mode: door.grant.accessMode },
+      classification: 'CONFIDENTIAL',
+      correlationId,
+      requestId: randomUUID(),
+      impersonatorId: claim.operatorId,
+    });
+  }
+
   // The denial answer is what matters to the caller; a failed audit write is logged and does not hide it.
-  private async recordDenied(tenant: Parameters<AuditWriter['recordDenied']>[0], operationId: string, reason: string, correlationId: string): Promise<void> {
+  private async recordDenied(tenant: Parameters<AuditWriter['recordDenied']>[0], operationId: string, reason: string, correlationId: string, impersonatorId?: string): Promise<void> {
     try {
       await this.options.audit.recordDenied(tenant, {
         action: `authz.denied:${operationId}`,
@@ -176,6 +217,7 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
         diff: { reason },
         correlationId,
         requestId: randomUUID(),
+        ...(impersonatorId === undefined ? {} : { impersonatorId }),
       });
     } catch (error) {
       this.logger.error(error, correlationId);

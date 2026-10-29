@@ -475,6 +475,12 @@ export const INVOICE_FIXTURES: Readonly<Record<TenantName, { invoiceId: string; 
   'TNT-B': { invoiceId: '00000000-0000-4000-b0ad-000000000001', lineId: '00000000-0000-4000-b0ad-000000000002', invoiceCode: 'BETA-INVOICE-0001', description: 'Beta plan fee January 0001' },
 };
 
+/** A support access request of each tenant (the ticket and the reason are distinctive; tenant data: who asked to see what). */
+export const SUPPORT_FIXTURES: Readonly<Record<TenantName, { id: string; ticket: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ae-000000000001', ticket: 'ALPHA-SUPPORT-TICKET-0001', reason: 'Alpha support access reason 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0ae-000000000001', ticket: 'BETA-SUPPORT-TICKET-0001', reason: 'Beta support access reason 0001' },
+};
+
 /** A usage event of each tenant (the key and the source are distinctive; tenant usage data, the record a tenant is billed from). */
 export const USAGE_FIXTURES: Readonly<Record<TenantName, { id: string; externalKey: string; sourceReference: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0ab-000000000001', externalKey: 'alpha-usage-event-0001', sourceReference: 'alpha-campaign-0001' },
@@ -999,6 +1005,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'subscription contract reference', value: SUBSCRIPTION_FIXTURES[tenant].contractRef },
     { kind: 'invoice code', value: INVOICE_FIXTURES[tenant].invoiceCode },
     { kind: 'invoice line description', value: INVOICE_FIXTURES[tenant].description },
+    { kind: 'support access grant id', value: SUPPORT_FIXTURES[tenant].id },
+    { kind: 'support access ticket', value: SUPPORT_FIXTURES[tenant].ticket },
+    { kind: 'support access reason', value: SUPPORT_FIXTURES[tenant].reason },
     { kind: 'usage event id', value: USAGE_FIXTURES[tenant].id },
     { kind: 'usage event key', value: USAGE_FIXTURES[tenant].externalKey },
     { kind: 'usage event source', value: USAGE_FIXTURES[tenant].sourceReference },

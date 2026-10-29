@@ -497,6 +497,7 @@ export const OPERATIONS = {
   "inviteMember": { method: "post", path: "/memberships/invitations", versioned: false, stepUp: null, permission: "iam.member.invite" },
   "issueEInvoice": { method: "post", path: "/system/invoices/{invoiceId}/issue", versioned: true, stepUp: null, permission: "system.billing.manage" },
   "issueOutgoingDocument": { method: "post", path: "/outgoing-documents/{id}/issuance", versioned: true, stepUp: null, permission: "doc.outgoing.issue" },
+  "issueSupportAccessToken": { method: "post", path: "/support-access/{id}/token", versioned: false, stepUp: null, permission: "system.support.request" },
   "linkAuditRecovery": { method: "post", path: "/audit-recommendations/{id}/recoveries", versioned: true, stepUp: null, permission: "aud.recovery.record" },
   "linkConversationResource": { method: "post", path: "/conversations/{conversationId}/links", versioned: true, stepUp: null, permission: "omni.conversation.reply" },
   "linkHouseholdParcel": { method: "post", path: "/affected-households/{id}/parcels", versioned: false, stepUp: null, permission: "land.household.write" },

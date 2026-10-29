@@ -22,6 +22,8 @@ const TENANT_TOKEN = 'tenant-token';
 const READ_ONLY_TOKEN = 'read-only-token';
 const CONTROL_TOKEN = 'control-token';
 const IDENTITY_TOKEN = 'identity-token';
+const SUPPORT_TOKEN = 'support-token';
+const GRANT = '00000000-0000-4000-8000-0000000000e1';
 
 interface RequestView {
   [TENANT_REQUEST_KEY]?: unknown;
@@ -67,6 +69,7 @@ describe('AuthGuard', () => {
   beforeAll(async () => {
     verifier.registerTenant(TENANT_TOKEN, { tenant: TENANT, sessionId: SESSION_ID, assurance: 'aal2', aal2At: NOW, audience: 'tenant', mode: 'FULL', roles: [], expiresAt: NOW });
     verifier.registerTenant(READ_ONLY_TOKEN, { tenant: TENANT, sessionId: 'sid-read-only', assurance: 'aal1', audience: 'tenant', mode: 'READ_ONLY', roles: [], expiresAt: NOW });
+    verifier.registerTenant(SUPPORT_TOKEN, { tenant: TENANT, sessionId: 'sid-support', assurance: 'aal1', audience: 'tenant', mode: 'FULL', roles: [], expiresAt: NOW, support: { grantId: GRANT, operatorId: TENANT.membershipId } });
     verifier.registerIdentity(CONTROL_TOKEN, { subject: SUBJECT, sessionId: 'sid-control', assurance: 'aal2', aal2At: NOW, audience: 'control-client', roles: ['SystemAdmin'] });
     verifier.registerIdentity(IDENTITY_TOKEN, { subject: SUBJECT, sessionId: 'sid-identity', assurance: 'aal1', audience: 'tenant-client', roles: [] });
     const options: AuthGuardOptions = { verifier, denyList, controlAudience: 'machvon-control', audienceOf: (token) => (token === CONTROL_TOKEN ? ['machvon-control'] : token === IDENTITY_TOKEN ? ['machvon-web'] : ['machvon-api']) };
@@ -94,6 +97,26 @@ describe('AuthGuard', () => {
     expect(reply.json.tenant).toEqual(TENANT);
     expect(reply.json.principal).toMatchObject({ tenant: TENANT, audience: 'tenant', assurance: 'aal2', sessionId: SESSION_ID });
     expect(reply.json.authenticated).toMatchObject({ mode: 'FULL', roles: [], audience: 'tenant' });
+  });
+
+  it('puts the grant and the operator of a support token on the principal, and asks no tenant session for it: what ends the token is its grant (ST-SAS-015)', async () => {
+    const asked: Array<string | undefined> = [];
+    const spy = jest.spyOn(denyList, 'isRevoked').mockImplementation((_sessionId: string, tenantId?: string) => {
+      asked.push(tenantId);
+      return Promise.resolve(false);
+    });
+    try {
+      const reply = await get('/probe/me', `Bearer ${SUPPORT_TOKEN}`);
+      expect(reply.status).toBe(200);
+      expect(reply.json.principal).toMatchObject({ audience: 'tenant', support: { grantId: GRANT, operatorId: TENANT.membershipId } });
+      expect(asked).toEqual([undefined]);
+      asked.length = 0;
+      // An ordinary tenant token is still asked about its session in its tenant.
+      await get('/probe/me', `Bearer ${TENANT_TOKEN}`);
+      expect(asked).toEqual([TENANT.tenantId]);
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it('carries the READ_ONLY mode of a tenant token to the request', async () => {

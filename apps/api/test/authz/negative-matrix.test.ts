@@ -596,6 +596,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const contractMemberId = id(0x77, 10);
     await seedDraftContract(contractorId, draftContractId, contractMemberId);
     const certificateId = id(0x75, 1);
+    const supportGrantId = id(0xa3, 1);
     const policyId = id(0x76, 1);
     const workCalendarId = id(0xa0, 1);
     const doaDraftId = id(0xa1, 1);
@@ -603,6 +604,13 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const outgoingDocumentId = id(0x78, 3);
     const signingSessionId = id(0x78, 4);
     const distributionId = id(0x78, 5);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.support_access_grant (tenant_id, id, ticket_reference, operator_id, scope_json, expires_at, request_reason, access_mode, status, version)
+         values ($1, $2, 'SUP-2026-000001', $3, '{"modules":["PRJ"],"resource_ids":[],"duration_minutes":60}'::jsonb, now() + interval '1 hour', 'Matrix fixture request', 'READ_ONLY', 'Requested', 1)`,
+        [TENANT_A, supportGrantId, ACTOR],
+      ],
+    ]);
     const layoutProfileId = (await harness.tenants.withTenant(contextFor(TENANT_A, memberId(1)), (tx) => new DocumentStore().seedDefaults(tx, ACTOR))).layoutProfileId;
     await harness.owner(TENANT_A, [
       [
@@ -1193,6 +1201,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       registerId,
       documentVersionId,
       certificateId,
+      supportGrantId,
       policyId,
       workCalendarId,
       doaDraftId,

@@ -79,5 +79,7 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'createReplacementInvoice', permission: PERMISSIONS.createReplacementInvoice, method: 'POST', path: '/system/invoices/{invoiceId}/replacements' },
   { operationId: 'listBillingPayments', permission: PERMISSIONS.listBillingPayments, method: 'GET', path: '/system/payments' },
   { operationId: 'matchBillingPayment', permission: PERMISSIONS.matchBillingPayment, method: 'POST', path: '/system/payments/{paymentId}/match' },
+  { operationId: 'requestSupportAccess', permission: PERMISSIONS.requestSupportAccess, method: 'POST', path: '/support-access' },
+  { operationId: 'issueSupportAccessToken', permission: PERMISSIONS.issueSupportAccessToken, method: 'POST', path: '/support-access/{id}/token' },
 ];
 

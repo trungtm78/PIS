@@ -499,6 +499,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'inviteMember': OperationDescriptor(method: 'POST', path: '/memberships/invitations', versioned: false, stepUp: null, permission: 'iam.member.invite'),
   'issueEInvoice': OperationDescriptor(method: 'POST', path: '/system/invoices/{invoiceId}/issue', versioned: true, stepUp: null, permission: 'system.billing.manage'),
   'issueOutgoingDocument': OperationDescriptor(method: 'POST', path: '/outgoing-documents/{id}/issuance', versioned: true, stepUp: null, permission: 'doc.outgoing.issue'),
+  'issueSupportAccessToken': OperationDescriptor(method: 'POST', path: '/support-access/{id}/token', versioned: false, stepUp: null, permission: 'system.support.request'),
   'linkAuditRecovery': OperationDescriptor(method: 'POST', path: '/audit-recommendations/{id}/recoveries', versioned: true, stepUp: null, permission: 'aud.recovery.record'),
   'linkConversationResource': OperationDescriptor(method: 'POST', path: '/conversations/{conversationId}/links', versioned: true, stepUp: null, permission: 'omni.conversation.reply'),
   'linkHouseholdParcel': OperationDescriptor(method: 'POST', path: '/affected-households/{id}/parcels', versioned: false, stepUp: null, permission: 'land.household.write'),

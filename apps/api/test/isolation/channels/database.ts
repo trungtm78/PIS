@@ -82,7 +82,7 @@ import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
 import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
-import { INVOICE_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
+import { INVOICE_FIXTURES, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -781,6 +781,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_subscription_id',
   'get_resources_invoice_line',
   'get_resources_invoice_line_id',
+  'get_resources_support_access_grant',
+  'get_resources_support_access_grant_id',
+  'post_support_access_id_approve',
+  'revokeSupportAccess',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -1106,6 +1110,10 @@ const INSERT_INVOICE = `insert into machvon.invoice
 const INSERT_INVOICE_LINE = `insert into machvon.invoice_line
   (tenant_id, id, invoice_id, line_no, line_kind, description, amount_vnd, vat_category, vat_vnd)
   values ($1, $2, $3, 1, 'SUBSCRIPTION', $4, 1000, 'NOT_SUBJECT', 0) on conflict (tenant_id, id) do nothing`;
+
+const INSERT_SUPPORT_GRANT = `insert into machvon.support_access_grant
+  (tenant_id, id, ticket_reference, operator_id, scope_json, expires_at, request_reason, access_mode, status)
+  values ($1, $2, $3, '00000000-0000-4000-8000-0000000000c1', '{"modules":["PRJ"],"resource_ids":[],"duration_minutes":60}'::jsonb, now() + interval '1 hour', $4, 'READ_ONLY', 'Requested') on conflict (tenant_id, id) do nothing`;
 
 const INSERT_USAGE_EVENT = `insert into machvon.usage_meter_event
   (tenant_id, id, meter, external_event_key, quantity, occurred_at, source_reference, unit)
@@ -1690,6 +1698,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const invoice = INVOICE_FIXTURES[tenant];
     await client.query(INSERT_INVOICE, [tenantId, invoice.invoiceId, subscription.id, invoice.invoiceCode]);
     await client.query(INSERT_INVOICE_LINE, [tenantId, invoice.lineId, invoice.invoiceId, invoice.description]);
+    const support = SUPPORT_FIXTURES[tenant];
+    await client.query(INSERT_SUPPORT_GRANT, [tenantId, support.id, support.ticket, support.reason]);
     const usage = USAGE_FIXTURES[tenant];
     await client.query(INSERT_USAGE_EVENT, [tenantId, usage.id, usage.externalKey, usage.sourceReference]);
     const dataset = DATASET_FIXTURES[tenant];

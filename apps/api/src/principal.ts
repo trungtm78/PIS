@@ -18,6 +18,25 @@ export interface Principal {
   sessionId: string;
   /** Realm roles of a control-plane token (SystemAdmin, ...); the tenant plane has none. */
   roles?: readonly string[];
+  /**
+   * Set when the token is a support token (`act=support`, ST-SAS-015): the operator of the platform who acts in the tenant under a support access grant. The membership of the tenant context is the operator's
+   * identifier, not a member of the tenant; the policy guard judges the grant on every request and gives the permissions of the grant instead of those of a membership.
+   */
+  support?: SupportClaim;
+}
+
+/** What a support token says: the grant it acts under and the operator it was given to. */
+export interface SupportClaim {
+  grantId: string;
+  operatorId: string;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function supportClaimOf(source: unknown): SupportClaim {
+  const { grantId, operatorId } = (typeof source === 'object' && source !== null ? source : {}) as Record<string, unknown>;
+  if (typeof grantId !== 'string' || typeof operatorId !== 'string' || !UUID.test(grantId) || !UUID.test(operatorId)) throw invalidPrincipal();
+  return { grantId: grantId.toLowerCase(), operatorId: operatorId.toLowerCase() };
 }
 
 function invalidPrincipal(): DomainError {
@@ -32,12 +51,15 @@ function invalidPrincipal(): DomainError {
 export function principalOf(request: { [PRINCIPAL_REQUEST_KEY]?: unknown }): Principal {
   const source = request[PRINCIPAL_REQUEST_KEY];
   if (typeof source !== 'object' || source === null) throw invalidPrincipal();
-  const { tenant, audience, assurance, aal2At, sessionId, roles } = source as Record<string, unknown>;
+  const { tenant, audience, assurance, aal2At, sessionId, roles, support } = source as Record<string, unknown>;
   const context = parseTenantContext(tenant);
   if (!PLANES.includes(audience as Plane)) throw invalidPrincipal();
   if (assurance !== 'aal1' && assurance !== 'aal2') throw invalidPrincipal();
   if (aal2At !== undefined && !(aal2At instanceof Date && !Number.isNaN(aal2At.getTime()))) throw invalidPrincipal();
   if (typeof sessionId !== 'string' || sessionId === '' || sessionId.length > MAX_SESSION_ID_LENGTH) throw invalidPrincipal();
   if (roles !== undefined && !(Array.isArray(roles) && roles.every((role) => typeof role === 'string'))) throw invalidPrincipal();
-  return { tenant: context, audience: audience as Plane, assurance, aal2At: aal2At as Date | undefined, sessionId, ...(roles === undefined ? {} : { roles: roles as readonly string[] }) };
+  const claim = support === undefined ? undefined : supportClaimOf(support);
+  // A support token acts on the tenant plane only, as the operator the grant was given to.
+  if (claim !== undefined && (audience !== 'tenant' || claim.operatorId !== context.membershipId.toLowerCase())) throw invalidPrincipal();
+  return { tenant: context, audience: audience as Plane, assurance, aal2At: aal2At as Date | undefined, sessionId, ...(roles === undefined ? {} : { roles: roles as readonly string[] }), ...(claim === undefined ? {} : { support: claim }) };
 }

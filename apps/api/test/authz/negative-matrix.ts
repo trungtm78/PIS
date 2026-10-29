@@ -76,6 +76,8 @@ export interface MatrixTargets {
   documentVersionId: string;
   /** An Active signing certificate of tenant A (version 1). */
   certificateId: string;
+  /** A support access request of tenant A waiting for its approvers (version 1), asked for by an operator of the platform. */
+  supportGrantId: string;
   /** A security policy draft of tenant A made by someone other than the callers (version 1). */
   policyId: string;
   /** A working calendar draft of tenant A (version 1). */
@@ -378,6 +380,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/signing-certificates',
       body: { kind: 'ORGANIZATION', organization_unit_id: t.unit2, certificate_pem: '-----BEGIN CERTIFICATE-----\nMATRIX\n-----END CERTIFICATE-----', provider_code: 'MATRIX-CA' },
     }),
+  },
+  post_support_access_id_approve: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/support-access/${t.supportGrantId}/approve`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  revokeSupportAccess: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/support-access/${t.supportGrantId}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   revokeSigningCertificate: {
     referencesTenantIds: true,

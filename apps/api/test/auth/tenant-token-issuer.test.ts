@@ -1,7 +1,7 @@
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createPublicKey } from 'node:crypto';
+import { createPublicKey, sign } from 'node:crypto';
 import { issuerFromEnvironment, issuerKeyFromPem } from '../../src/auth/tenant-token-issuer';
 import type { LocalTenantTokenIssuer } from '../../src/auth/tenant-token-issuer';
 import { JwksTokenVerifier } from '../../src/auth/jwks-token-verifier';
@@ -52,6 +52,44 @@ async function failure(work: Promise<unknown>): Promise<unknown> {
 
 describe('LocalTenantTokenIssuer', () => {
   const aal2At = new Date((NOW_SECONDS - 60) * 1000);
+
+  describe('a support token (ST-SAS-015)', () => {
+    const GRANT = '00000000-0000-4000-8000-0000000000e1';
+    const support = (grantEndsAt: Date, operatorId: string = TENANT.membershipId) => ({ grantId: GRANT, operatorId, grantEndsAt });
+
+    it('carries act=support, the grant and the operator, lives no longer than the grant, and is read back by the verifier', async () => {
+      const issuer = newIssuer();
+      const issued = await issuer.issue({ tenant: TENANT, sessionId: SESSION_ID, assurance: 'aal1', mode: 'FULL', now: NOW, support: support(new Date(NOW.getTime() + 120_000)) });
+      expect(issued.expiresInSeconds).toBe(120);
+      expect(decode(issued.accessToken).payload).toMatchObject({ act: 'support', gid: GRANT, opr: TENANT.membershipId, exp: NOW_SECONDS + 120 });
+      await expect(verifierFor(issuer).verifyTenantToken(issued.accessToken)).resolves.toMatchObject({ tenant: TENANT, support: { grantId: GRANT, operatorId: TENANT.membershipId } });
+      const long = await issuer.issue({ tenant: TENANT, sessionId: SESSION_ID, assurance: 'aal1', mode: 'FULL', now: NOW, support: support(new Date(NOW.getTime() + 8 * 3_600_000)) });
+      expect(long.expiresInSeconds).toBe(300);
+    });
+
+    it('is never issued for a grant that has ended, or for an operator who is not the membership of the context', async () => {
+      const issuer = newIssuer();
+      expect(await failure(issuer.issue({ tenant: TENANT, sessionId: SESSION_ID, assurance: 'aal1', mode: 'FULL', now: NOW, support: support(NOW) }))).toMatchObject({ code: 'VALIDATION_FAILED' });
+      expect(await failure(issuer.issue({ tenant: TENANT, sessionId: SESSION_ID, assurance: 'aal1', mode: 'FULL', now: NOW, support: support(new Date(NOW.getTime() + 60_000), '00000000-0000-4000-8000-0000000000e2') }))).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+
+    it('is not carried by an ordinary token, and the verifier refuses a signed token whose act is not support or whose grant, operator or audience is wrong', async () => {
+      const signing = issuerKey();
+      const issuer = newIssuer(signing);
+      const ordinary = await issuer.issue({ tenant: TENANT, sessionId: SESSION_ID, assurance: 'aal1', mode: 'FULL', now: NOW });
+      expect(decode(ordinary.accessToken).payload).not.toHaveProperty('act');
+      expect((await verifierFor(issuer).verifyTenantToken(ordinary.accessToken)).support).toBeUndefined();
+      const signed = (extra: Record<string, unknown>): string => {
+        const input = `${Buffer.from(JSON.stringify({ alg: 'ES256', typ: 'JWT', kid: signing.kid })).toString('base64url')}.${Buffer.from(JSON.stringify({ ...decode(ordinary.accessToken).payload, ...extra })).toString('base64url')}`;
+        return `${input}.${sign('sha256', Buffer.from(input), { key: signing.privateKey, dsaEncoding: 'ieee-p1363' }).toString('base64url')}`;
+      };
+      const good = { act: 'support', gid: GRANT, opr: TENANT.membershipId };
+      await expect(verifierFor(issuer).verifyTenantToken(signed(good))).resolves.toMatchObject({ support: { grantId: GRANT, operatorId: TENANT.membershipId } });
+      for (const bad of [{ act: 'admin' }, { act: 'support' }, { ...good, gid: 'not-a-uuid' }, { ...good, opr: '00000000-0000-4000-8000-0000000000e2' }, { ...good, aud: 'machvon-control' }, { act: ['support'], gid: GRANT, opr: TENANT.membershipId }]) {
+        expect(await failure(verifierFor(issuer).verifyTenantToken(signed(bad)))).toMatchObject({ code: 'SESSION_EXPIRED' });
+      }
+    });
+  });
 
   it('issues an ES256 token valid for 300 seconds that carries the tenant context, the session and the mode', async () => {
     const issuer = newIssuer();

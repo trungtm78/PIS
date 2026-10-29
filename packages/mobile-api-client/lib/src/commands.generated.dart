@@ -1495,6 +1495,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> issueOutgoingDocument(DocIssuance body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('issueOutgoingDocument', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> issueSupportAccessToken(SupportTokenRequest body, {required String id, CommandAttempt? attempt}) =>
+      execute('issueSupportAccessToken', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
   Future<Object?> linkAuditRecovery(AudRecoveryLink body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('linkAuditRecovery', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 

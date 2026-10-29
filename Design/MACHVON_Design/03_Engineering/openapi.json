@@ -26479,6 +26479,30 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "The status as it is now (an approved grant whose window has ended is Expired before the lifecycle pass says so)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Requested",
+                "Approved",
+                "Active",
+                "Expired",
+                "Revoked",
+                "Rejected"
+              ]
+            }
+          },
+          {
+            "name": "in_force",
+            "in": "query",
+            "description": "true: only the grants that let their operator in at this moment",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -130281,6 +130305,107 @@
           }
         }
       }
+    },
+    "/support-access/{id}/token": {
+      "post": {
+        "operationId": "issueSupportAccessToken",
+        "summary": "Đổi một grant truy cập hỗ trợ đang hiệu lực lấy token act=support (SAS-19); không bao giờ lưu vào bản ghi idempotency",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.support.request",
+        "x-plane": "control",
+        "x-required-role": "SupportOperator",
+        "x-audit-action": "support_access.token_issued",
+        "x-error-codes": [
+          "SCOPE_DENIED",
+          "RESOURCE_NOT_FOUND",
+          "VALIDATION_FAILED"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupportTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A short-lived tenant token with act=support; it ends with the grant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED: the grant is not in force, or was given to somebody else",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -155342,6 +155467,48 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "SupportTokenRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenant_id"
+        ],
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "SupportToken": {
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type",
+          "expires_in",
+          "grant_id"
+        ],
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          },
+          "expires_in": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "grant_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       }

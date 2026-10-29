@@ -496,6 +496,7 @@
   "inviteMember": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "issueEInvoice": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "issueOutgoingDocument": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
+  "issueSupportAccessToken": {"access_token":"sample","token_type":"Bearer","expires_in":1,"grant_id":"00000000-0000-4000-8000-000000000001"},
   "linkAuditRecovery": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "linkConversationResource": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "linkHouseholdParcel": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":1,"resource_id":"00000000-0000-4000-8000-000000000001"},

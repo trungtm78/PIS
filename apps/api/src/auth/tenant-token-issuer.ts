@@ -13,6 +13,11 @@ export interface IssueInput {
   aal2At?: Date;
   mode: 'FULL' | 'READ_ONLY';
   now: Date;
+  /**
+   * A support token (ST-SAS-015): `act=support`, the grant it acts under (`gid`) and the operator it was given to (`opr`, who is the membership of the context: the operator has no membership of the tenant). Only
+   * the issue of a token for an operator under a grant sets it, and it lives no longer than the grant (`grantEndsAt`); ordinary tenant tokens never carry it.
+   */
+  support?: { grantId: string; operatorId: string; grantEndsAt: Date };
 }
 
 export interface JsonWebKeySet {
@@ -85,6 +90,10 @@ export class LocalTenantTokenIssuer implements TenantTokenIssuer {
     if (input.sessionId === '') throw new DomainError('VALIDATION_FAILED', 422, 'session');
     const issuedAt = Math.floor(input.now.getTime() / 1000);
     const second = input.assurance === 'aal2' && input.aal2At !== undefined;
+    if (input.support !== undefined && input.support.operatorId !== tenant.membershipId) throw new DomainError('VALIDATION_FAILED', 422, 'operator');
+    // A support token ends with its grant, if that comes before the usual lifetime.
+    const lifetime = input.support === undefined ? TENANT_TOKEN_TTL_SECONDS : Math.min(TENANT_TOKEN_TTL_SECONDS, Math.floor(input.support.grantEndsAt.getTime() / 1000) - issuedAt);
+    if (lifetime <= 0) throw new DomainError('VALIDATION_FAILED', 422, 'grant');
     const payload = {
       iss: this.options.issuer,
       aud: this.audience,
@@ -97,13 +106,14 @@ export class LocalTenantTokenIssuer implements TenantTokenIssuer {
       amr: second ? ['pwd', 'otp'] : ['pwd'],
       ...(second ? { auth_time: Math.floor((input.aal2At as Date).getTime() / 1000) } : {}),
       mode: input.mode,
+      ...(input.support === undefined ? {} : { act: 'support', gid: input.support.grantId, opr: input.support.operatorId }),
       iat: issuedAt,
-      exp: issuedAt + TENANT_TOKEN_TTL_SECONDS,
+      exp: issuedAt + lifetime,
     };
     const header = { alg: 'ES256', typ: 'JWT', kid: this.options.signingKey.kid };
     const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
     const signature = sign('sha256', Buffer.from(signingInput), { key: this.options.signingKey.privateKey, dsaEncoding: 'ieee-p1363' });
-    return { accessToken: `${signingInput}.${base64url(signature)}`, expiresInSeconds: TENANT_TOKEN_TTL_SECONDS };
+    return { accessToken: `${signingInput}.${base64url(signature)}`, expiresInSeconds: lifetime };
   }
 }
 

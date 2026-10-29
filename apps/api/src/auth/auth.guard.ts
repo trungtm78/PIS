@@ -91,10 +91,11 @@ export class AuthGuard implements CanActivate {
 
   private async authenticateTenant(request: AuthRequest, token: string): Promise<void> {
     const verified = await this.options.verifier.verifyTenantToken(token);
-    await this.refuseRevoked(verified.sessionId, verified.tenant.tenantId);
+    // The session of a support token is the operator's own, of the control plane, which no tenant tracks: what ends a support token is its grant, which the policy guard judges on every request.
+    await this.refuseRevoked(verified.sessionId, verified.support === undefined ? verified.tenant.tenantId : undefined);
     this.fill(request, {
       tenant: verified.tenant,
-      principal: { tenant: verified.tenant, audience: verified.audience, assurance: verified.assurance, aal2At: verified.aal2At, sessionId: verified.sessionId },
+      principal: { tenant: verified.tenant, audience: verified.audience, assurance: verified.assurance, aal2At: verified.aal2At, sessionId: verified.sessionId, ...(verified.support === undefined ? {} : { support: verified.support }) },
       token: { audience: verified.audience, roles: verified.roles, mode: verified.mode, expiresAt: verified.expiresAt },
     });
   }
