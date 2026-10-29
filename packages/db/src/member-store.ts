@@ -180,7 +180,8 @@ export class MemberStore {
   }
 
   async unitOf(tx: TenantTx, unitId: string): Promise<UnitRecord | undefined> {
-    const rows = await tx.query<UnitRecord>('select id, path, status from machvon.organization_unit where id = $1::uuid', [unitId]);
+    // Shared lock of the row, held to the end of the transaction: a reorganisation cannot retire the unit between this look and the membership that is inserted after it (the retirement waits for the invitation and then sees it).
+    const rows = await tx.query<UnitRecord>('select id, path, status from machvon.organization_unit where id = $1::uuid for share', [unitId]);
     return rows[0];
   }
 

@@ -1,8 +1,10 @@
 import { DelegationLifecycleJob } from '../modules/adm/delegation-lifecycle';
+import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.port';
+import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
 import { ApprovalSlaJob, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
-import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, TenantDatabase } from '@machvon/db';
+import type { ControlDatabase, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, ReorganizationProjectPort, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
 import type { Pool } from 'pg';
@@ -31,6 +33,8 @@ export interface WorkersDeps {
   inboxHandlers?: InboxHandlerRegistry;
   /** The ports the virtual keys are kept through (ST-LLM-002): the sweep that revokes the old key of a rotation is scheduled only with them. */
   llmKeys?: { litellm: LiteLlmAdminPort; vault: SecretVaultPort };
+  /** The port through which the reorganisation saga moves a project to the successor unit (XM-ADM-02); until the module that owns projects binds one, the saga stops at the first project. */
+  reorganizationProjects?: ReorganizationProjectPort;
   /** Sends the due notifications and reconciles the lost results (ST-NOT-002); without it the delivery jobs are not scheduled. */
   notificationDelivery?: { dispatchDue(ctx: TenantContext): Promise<unknown>; reconcile(ctx: TenantContext): Promise<unknown> };
 }
@@ -85,6 +89,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const petitionDue = new BidPetitionDue(audit);
   const permitExpiry = new PmtPermitExpiry(audit);
   const waiverExpiry = new PmtWaiverExpiry(audit);
+  // The module that owns projects is not bound to the reorganisation saga yet (XM-ADM-02): until it is, the saga stops at the first project it has to move.
+  const unitReorganization = new UnitReorganizationJob(deps.tenants, audit, deps.reorganizationProjects ?? new UnboundProjectTransferPort());
   const delegationLifecycle = new DelegationLifecycleJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const approvalSla = new ApprovalSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const issueSla = new IssSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
@@ -136,6 +142,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     permitExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => permitExpiry.run(tx, ctx.membershipId, now)) },
     gateWaiverExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => waiverExpiry.run(tx, ctx.membershipId, now)) },
     issueSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => issueSla.run(tx, ctx.membershipId, now)) },
+    unitReorganization: { run: (ctx, now) => unitReorganization.run(ctx, now) },
     delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
     approvalSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => approvalSla.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),

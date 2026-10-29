@@ -196,6 +196,8 @@ export interface MatrixTargets {
   workflowInstanceId: string;
   /** An ACTIVE delegation (version 1) from someone other than the callers. */
   delegationId: string;
+  /** A reorganisation of units that waits for approval (version 1), proposed by someone other than the callers. */
+  reorganizationId: string;
   qualityDatasetId: string;
   /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
   dossierId: string;
@@ -1768,6 +1770,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideApprovalTask: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/approval-tasks/${t.approvalTaskId}/decision`, ifMatch: '"1"', body: { decision: 'approve' } }),
+  },
+  proposeUnitReorganization: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/unit-reorganizations',
+      body: { kind: 'DISSOLVE', effective_from: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10), legal_basis_ref: 'Matrix legal basis 1', predecessor_unit_ids: [t.recipientMembershipId], successors: [{ existing_unit_id: t.memberRoleId }], mapping: {} },
+    }),
+  },
+  decideUnitReorganization: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/unit-reorganizations/${t.reorganizationId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
   },
   createDelegation: {
     referencesTenantIds: true,

@@ -472,6 +472,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'get_resources_tenant_id': OperationDescriptor(method: 'GET', path: '/resources/tenant/{id}', versioned: false, stepUp: null, permission: 'tenant.read'),
   'get_resources_treasury_transaction': OperationDescriptor(method: 'GET', path: '/resources/treasury_transaction', versioned: false, stepUp: null, permission: 'treasury_transaction.read'),
   'get_resources_treasury_transaction_id': OperationDescriptor(method: 'GET', path: '/resources/treasury_transaction/{id}', versioned: false, stepUp: null, permission: 'treasury_transaction.read'),
+  'get_resources_unit_reorganization': OperationDescriptor(method: 'GET', path: '/resources/unit_reorganization', versioned: false, stepUp: null, permission: 'iam.unit.reorganize.read'),
+  'get_resources_unit_reorganization_id': OperationDescriptor(method: 'GET', path: '/resources/unit_reorganization/{id}', versioned: false, stepUp: null, permission: 'iam.unit.reorganize.read'),
   'get_resources_usage_meter_event': OperationDescriptor(method: 'GET', path: '/resources/usage_meter_event', versioned: false, stepUp: null, permission: 'usage_meter_event.read'),
   'get_resources_usage_meter_event_id': OperationDescriptor(method: 'GET', path: '/resources/usage_meter_event/{id}', versioned: false, stepUp: null, permission: 'usage_meter_event.read'),
   'get_resources_work_calendar_version': OperationDescriptor(method: 'GET', path: '/resources/work_calendar_version', versioned: false, stepUp: null, permission: 'adm.calendar.read'),

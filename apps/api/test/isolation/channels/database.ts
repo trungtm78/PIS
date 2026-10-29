@@ -22,7 +22,7 @@ import {
   TENANT_IDS,
   UNIT_FIXTURES,
 } from '../suite';
-import { DELEGATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
+import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -656,6 +656,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_approval_task',
   'get_resources_approval_task_id',
   'createDelegation',
+  'proposeUnitReorganization',
+  'decideUnitReorganization',
+  'get_resources_unit_reorganization',
+  'get_resources_unit_reorganization_id',
   'revokeDelegation',
   'get_resources_delegation_grant',
   'get_resources_delegation_grant_id',
@@ -1148,6 +1152,9 @@ const INSERT_WORKFLOW_VERSION = `insert into machvon.workflow_version
 const INSERT_WORKFLOW_INSTANCE = `insert into machvon.workflow_instance
   (tenant_id, id, workflow_version_id, resource_type, resource_id, resource_version, status, started_at, temporal_workflow_id, initiator_membership_id, initiator_user_id, document_type, unit_id, business_type)
   select $1::uuid, $2::uuid, $3::uuid, 'report', $4::uuid, 1, 'Running', now(), 'appr:' || $2::text, m.id, m.user_id, 'REPORT_ACCEPT', m.organization_id, 'report.accept' from machvon.membership m where m.id = $5::uuid on conflict do nothing`;
+
+const INSERT_REORGANIZATION = `insert into machvon.unit_reorganization (tenant_id, id, kind, effective_from, legal_basis_ref, mapping_json, status, requested_by)
+  values ($1, $2, 'DISSOLVE', date '2099-01-01', $3, '{"predecessor_unit_ids":[],"successors":[],"mapping":{"memberships":[],"projects":[]}}'::jsonb, 'PendingApproval', $4) on conflict do nothing`;
 
 const INSERT_DELEGATION = `insert into machvon.delegation_grant
   (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, valid_from, valid_until, reason, status)
@@ -1694,6 +1701,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_APPROVAL_TASK, [tenantId, flow.taskId, flow.instanceId, MEMBERSHIP_ID]);
     const delegation = DELEGATION_FIXTURES[tenant];
     await client.query(INSERT_DELEGATION, [tenantId, delegation.id, MEMBERSHIP_ID, member.id, delegation.reason]);
+    const reorganization = REORGANIZATION_FIXTURES[tenant];
+    await client.query(INSERT_REORGANIZATION, [tenantId, reorganization.id, reorganization.legalBasis, member.id]);
     const term = GLOSSARY_FIXTURES[tenant];
     await client.query(INSERT_GLOSSARY_TERM, [tenantId, term.termId, term.termCode, term.definition, MEMBERSHIP_ID, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];

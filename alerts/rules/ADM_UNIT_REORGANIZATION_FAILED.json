@@ -1,0 +1,14 @@
+{
+  "id": "ADM_UNIT_REORGANIZATION_FAILED",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/ADM_UNIT_REORGANIZATION_FAILED.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "unit_reorganization_failed_total",
+    "above": 0
+  },
+  "summary": "A reorganisation of organisation units stopped on a step and waits for the cause to be mended and for a new decision."
+}

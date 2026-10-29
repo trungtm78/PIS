@@ -1414,6 +1414,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesTreasuryTransactionId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_treasury_transaction_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesUnitReorganization({Map<String, Object?>? query}) =>
+      execute('get_resources_unit_reorganization', query: query);
+
+  Future<Object?> getResourcesUnitReorganizationId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_unit_reorganization_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesUsageMeterEvent({Map<String, Object?>? query}) =>
       execute('get_resources_usage_meter_event', query: query);
 

@@ -67,7 +67,7 @@ import {
   WORK_ACCEPTANCE_FIXTURES,
 } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
-import { DELEGATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
+import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
@@ -334,6 +334,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_workflow_instance_id', method: 'GET', id: WORKFLOW_FIXTURES['TNT-B'].instanceId },
   { operation: 'get_resources_approval_task_id', method: 'GET', id: WORKFLOW_FIXTURES['TNT-B'].taskId },
   { operation: 'get_resources_delegation_grant_id', method: 'GET', id: DELEGATION_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_unit_reorganization_id', method: 'GET', id: REORGANIZATION_FIXTURES['TNT-B'].id },
+  { operation: 'decideUnitReorganization', method: 'POST', id: REORGANIZATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation probe of the decision', evidence_ids: [] } },
   { operation: 'revokeDelegation', method: 'POST', id: DELEGATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'updateWorkflowDraft', method: 'PUT', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { business_type: 'report.accept', definition: { steps: [], terminal: {} } } },
   { operation: 'publishWorkflowVersion', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { reason: 'Isolation probe of the publication' } },

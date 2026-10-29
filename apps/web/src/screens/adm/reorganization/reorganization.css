@@ -1,0 +1,19 @@
+/* ADM-16: the wizard steps and the timeline of the saga. */
+.adm-reorg .reorg-wizard {
+  display: flex;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-reorg .reorg-wizard li[aria-current='step'] {
+  font-weight: 700;
+}
+
+.adm-reorg .reorg-unit {
+  display: block;
+}
+
+.adm-reorg .reorg-steps {
+  padding-left: 20px;
+}

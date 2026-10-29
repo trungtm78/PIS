@@ -18,6 +18,8 @@ import { RetentionPoliciesController } from './retention-policy.controller';
 import { RetentionPolicyReadsController, RetentionReviewReadsController } from './retention-reads.controller';
 import { SecurityPoliciesController, SecurityPolicyReadsController } from './security-policy.controller';
 import { ADM_ENVIRONMENT, ADM_INBOX_HANDLERS, ADM_INBOX_PROCESSOR } from './tokens';
+import { REORGANIZATION_PROJECT_PORT, UnboundProjectTransferPort } from './unit-reorganization.port';
+import { UnitReorganizationCommandsController, UnitReorganizationReadsController } from './unit-reorganization.controller';
 import { WorkCalendarReadsController, WorkCalendarsController } from './work-calendar.controller';
 
 /**
@@ -54,12 +56,16 @@ export const admModule = defineModule({
     ApprovalTaskReadsController,
     DelegationCommandsController,
     DelegationReadsController,
+    UnitReorganizationCommandsController,
+    UnitReorganizationReadsController,
   ],
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [
     // The approval engine (ST-ADM-012): the business modules call ApprovalService.start inside their submit, and register the final commands of their business types in the registry (test doubles until they do).
     { provide: APPROVAL_FINAL_COMMANDS, useFactory: () => new FinalCommandRegistry() },
     ApprovalService,
+    // The module that owns projects is not bound to the reorganisation saga yet (XM-ADM-02): the saga stops at the first project it has to move.
+    { provide: REORGANIZATION_PROJECT_PORT, useValue: new UnboundProjectTransferPort() },
     { provide: INVITATION_MAILER, useValue: new MockInvitationMailer() },
     // The adapters of inbound provider events are registered here by the module that owns the provider (ST-ADM-018; NOT registers its channels, ST-NOT-002).
     // One registry per application, not per process: an application started twice in one process (the tests do) must not find the handlers of the first.

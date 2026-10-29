@@ -470,6 +470,8 @@ export const OPERATIONS = {
   "get_resources_tenant_id": { method: "get", path: "/resources/tenant/{id}", versioned: false, stepUp: null, permission: "tenant.read" },
   "get_resources_treasury_transaction": { method: "get", path: "/resources/treasury_transaction", versioned: false, stepUp: null, permission: "treasury_transaction.read" },
   "get_resources_treasury_transaction_id": { method: "get", path: "/resources/treasury_transaction/{id}", versioned: false, stepUp: null, permission: "treasury_transaction.read" },
+  "get_resources_unit_reorganization": { method: "get", path: "/resources/unit_reorganization", versioned: false, stepUp: null, permission: "iam.unit.reorganize.read" },
+  "get_resources_unit_reorganization_id": { method: "get", path: "/resources/unit_reorganization/{id}", versioned: false, stepUp: null, permission: "iam.unit.reorganize.read" },
   "get_resources_usage_meter_event": { method: "get", path: "/resources/usage_meter_event", versioned: false, stepUp: null, permission: "usage_meter_event.read" },
   "get_resources_usage_meter_event_id": { method: "get", path: "/resources/usage_meter_event/{id}", versioned: false, stepUp: null, permission: "usage_meter_event.read" },
   "get_resources_work_calendar_version": { method: "get", path: "/resources/work_calendar_version", versioned: false, stepUp: null, permission: "adm.calendar.read" },

@@ -308,6 +308,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.workflow_instance where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.approval_task where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.delegation_grant where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.unit_reorganization where tenant_id = $1),
+    (select count(*)::text from machvon.organization_unit_succession where tenant_id = $1),
     (select string_agg(id::text || coalesce(revoked_at::text, ''), ',' order by id) from machvon.user_session where tenant_id = $1),
     (select string_agg(id::text || coalesce(revoked_at::text, '') || coalesce(push_secret_ref, ''), ',' order by id) from machvon.device_registration where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dossier where tenant_id = $1),
@@ -1090,6 +1092,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0xde, 15), id(0xde, 13), glossaryOwnerId],
       ],
       [
+        `insert into machvon.unit_reorganization (tenant_id, id, kind, effective_from, legal_basis_ref, mapping_json, status, requested_by)
+         values ($1, $2, 'DISSOLVE', date '2099-01-01', 'Matrix fixture reorganisation', '{"predecessor_unit_ids":[],"successors":[],"mapping":{"memberships":[],"projects":[]}}'::jsonb, 'PendingApproval', $3)`,
+        [TENANT_A, id(0xde, 17), glossaryOwnerId],
+      ],
+      [
         `insert into machvon.delegation_grant (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, valid_from, valid_until, reason, status)
          values ($1, $2, $3, $4, '{approval.decide}', '{"kind":"UNIT_ONLY","ref_ids":[]}'::jsonb, now(), now() + interval '30 days', 'Matrix fixture delegation', 'Active')`,
         [TENANT_A, id(0xde, 16), glossaryOwnerId, memberId(SECOND_OWNER)],
@@ -1128,6 +1135,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       approvalTaskId: id(0xde, 15),
       workflowInstanceId: id(0xde, 13),
       delegationId: id(0xde, 16),
+      reorganizationId: id(0xde, 17),
       qualityDatasetId,
       dossierId: id(0x77, 52),
       qualityContractId,

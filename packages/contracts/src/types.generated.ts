@@ -5718,6 +5718,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/resources/unit_reorganization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các đề xuất tổ chức lại đơn vị và tiến độ áp dụng (ADM-16) */
+        get: operations["get_resources_unit_reorganization"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resources/unit_reorganization/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một đề xuất tổ chức lại đơn vị: ánh xạ, các bước đã làm và kết quả (ADM-16) */
+        get: operations["get_resources_unit_reorganization_id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/memberships/invitations": {
         parameters: {
             query?: never;
@@ -56448,6 +56482,265 @@ export interface operations {
             };
             /** @description RATE_LIMIT */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    get_resources_unit_reorganization: {
+        parameters: {
+            query?: {
+                status?: "Draft" | "PendingApproval" | "Approved" | "Applying" | "Applied" | "Failed" | "Cancelled";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items?: Record<string, never>[];
+                        next_cursor?: string | null;
+                        snapshot_id?: string;
+                        /** Format: date-time */
+                        as_of?: string;
+                    };
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / license / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Budget / rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Provider unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    get_resources_unit_reorganization_id: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id?: string;
+                        /** @enum {string} */
+                        kind?: "MERGE" | "SPLIT" | "TRANSFER" | "RENAME" | "DISSOLVE";
+                        /** Format: date */
+                        effective_from?: string;
+                        legal_basis_ref?: string;
+                        /** @enum {string} */
+                        status?: "Draft" | "PendingApproval" | "Approved" | "Applying" | "Applied" | "Failed" | "Cancelled";
+                        predecessors?: {
+                            /** Format: uuid */
+                            id?: string;
+                            code?: string | null;
+                            name?: string | null;
+                            status?: string | null;
+                        }[];
+                        successors?: {
+                            /** Format: uuid */
+                            id?: string;
+                            code?: string | null;
+                            name?: string | null;
+                            status?: string | null;
+                        }[];
+                        new_unit?: Record<string, never> | null;
+                        mapping?: {
+                            memberships?: number;
+                            projects?: number;
+                            /** Format: uuid */
+                            default_successor_unit_id?: string | null;
+                        };
+                        requested_by?: {
+                            /** Format: uuid */
+                            id?: string | null;
+                            name?: string | null;
+                        };
+                        approved_by?: {
+                            /** Format: uuid */
+                            id?: string | null;
+                            name?: string | null;
+                        };
+                        /** Format: date-time */
+                        decided_at?: string | null;
+                        decision_reason?: string | null;
+                        /** Format: date-time */
+                        applied_at?: string | null;
+                        result_summary?: Record<string, never> | null;
+                        steps?: {
+                            key?: string;
+                            /** Format: date-time */
+                            done_at?: string;
+                        }[];
+                        /** Format: date-time */
+                        created_at?: string;
+                        version?: number;
+                        actions?: {
+                            decide?: boolean;
+                        };
+                        /** Format: date-time */
+                        as_of?: string;
+                    };
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / license / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Budget / rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Provider unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

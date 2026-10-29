@@ -3513,6 +3513,14 @@
       "statusBasis": "convention",
       "source": "spec:LLM"
     },
+    "PROJECT_TRANSFER_UNAVAILABLE": {
+      "status": 503,
+      "title": "Project transfer unavailable",
+      "meaning": "The module that owns projects is not bound to the reorganisation saga (XM-ADM-02): the step that moves a project stops the saga, which is carried on when it is decided again.",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "spec:ADM"
+    },
     "PROVIDER_UNAVAILABLE": {
       "status": 503,
       "title": "Provider unavailable",

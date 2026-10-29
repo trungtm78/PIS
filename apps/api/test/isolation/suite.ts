@@ -433,6 +433,12 @@ export const DELEGATION_FIXTURES: Readonly<Record<TenantName, { id: string; reas
   'TNT-B': { id: '00000000-0000-4000-b0d7-000000000001', reason: 'BETA-DELEGATION-REASON-0001' },
 };
 
+/** A reorganisation of units that waits for approval in each tenant (its legal basis is distinctive; tenant data). */
+export const REORGANIZATION_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d8-000000000001', legalBasis: 'ALPHA-REORGANIZATION-BASIS-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d8-000000000001', legalBasis: 'BETA-REORGANIZATION-BASIS-0001' },
+};
+
 /** An ACTIVE SLA policy of each tenant (its code is distinctive; tenant configuration). */
 export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0e1-000000000001', code: 'ALPHA-SLA-POLICY-0001' },
@@ -1196,6 +1202,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'approval task id', value: WORKFLOW_FIXTURES[tenant].taskId },
     { kind: 'workflow resource id', value: WORKFLOW_FIXTURES[tenant].resourceId },
     { kind: 'delegation id', value: DELEGATION_FIXTURES[tenant].id },
+    { kind: 'reorganization id', value: REORGANIZATION_FIXTURES[tenant].id },
+    { kind: 'reorganization legal basis', value: REORGANIZATION_FIXTURES[tenant].legalBasis },
     { kind: 'delegation reason', value: DELEGATION_FIXTURES[tenant].reason },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },

@@ -537,6 +537,24 @@ describe('standard jobs', () => {
     expect(gauges).toEqual([4]);
   });
 
+  it('unit-reorganization: sums the reorganisations that stopped on a step of every tenant into the gauge, whatever tenant fails (ST-ADM-015)', async () => {
+    const gauges: Array<[string, number]> = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B, PLATFORM_TENANT_ID],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      unitReorganization: {
+        run: async (ctx) => {
+          if (ctx.tenantId === TENANT_B) throw new Error('boom');
+          return { stopped: 2 };
+        },
+      },
+      metrics: { increment: () => undefined, gauge: (name, value) => void gauges.push([name, value]) },
+    });
+    await expect(handlers.find((handler) => handler.name === 'unit-reorganization')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(gauges).toEqual([['unit_reorganization_failed_total', 4]]);
+  });
+
   it('approval-sla: sums the open and overdue approval tasks of every tenant into the gauges, whatever tenant fails (ST-ADM-013)', async () => {
     const gauges: Array<[string, number]> = [];
     const clock = new Date('2026-08-12T07:00:00Z');
@@ -612,6 +630,7 @@ describe('standard jobs', () => {
       permitExpiry: { run: async () => ({ expiring: {} }) },
       gateWaiverExpiry: { run: async () => ({ active: 0 }) },
       issueSla: { run: async () => ({ overdueMarked: 0, escalated: { 2: 0, 3: 0 }, withoutTaskForce: 0, withoutCalendar: 0, open: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }, pending: 0 }) },
+      unitReorganization: { run: async () => ({ stopped: 0 }) },
       delegationLifecycle: { run: async () => ({ activated: 0, expired: 0, sourceEnded: 0, active: 0 }) },
       approvalSla: { run: async () => ({ reminded: 0, overdueReminded: 0, breached: 0, escalated: 0, escalationFailed: 0, expired: 0, instancesExpired: 0, open: 0, overdue: 0 }) },
       inbox: { processDue: async () => undefined },
@@ -637,7 +656,7 @@ describe('standard jobs', () => {
       llmReservationExpiry: { run: async () => ({ expired: 0, oldestAgeSeconds: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'delegation-lifecycle', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'dgv-incident-sweep', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'unit-reorganization', 'delegation-lifecycle', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'dgv-quality-run', 'subscription-cycle', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'dgv-incident-sweep', 'reconciliation-overdue', 'settlement-deadline', 'capital-balance-reconcile', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

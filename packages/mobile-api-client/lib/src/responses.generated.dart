@@ -404,6 +404,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_tenant_id': GetResourcesTenantIdResponse.fromJson,
   'get_resources_treasury_transaction': GetResourcesTreasuryTransactionResponse.fromJson,
   'get_resources_treasury_transaction_id': GetResourcesTreasuryTransactionIdResponse.fromJson,
+  'get_resources_unit_reorganization': GetResourcesUnitReorganizationResponse.fromJson,
+  'get_resources_unit_reorganization_id': GetResourcesUnitReorganizationIdResponse.fromJson,
   'get_resources_usage_meter_event': GetResourcesUsageMeterEventResponse.fromJson,
   'get_resources_usage_meter_event_id': GetResourcesUsageMeterEventIdResponse.fromJson,
   'get_resources_work_calendar_version': GetResourcesWorkCalendarVersionResponse.fromJson,
@@ -11776,6 +11778,372 @@ final class GetResourcesTreasuryTransactionResponse implements ResponseModel {
   factory GetResourcesTreasuryTransactionResponse.fromJson(Object? json, [String path = 'GetResourcesTreasuryTransactionResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesTreasuryTransactionResponse(
+      items: optionalField(map, path, 'items', asList(asObject)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      snapshotId: optionalField(map, path, 'snapshot_id', asString),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>>? items;
+  final String? nextCursor;
+  final String? snapshotId;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items,
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        if (snapshotId != null) 'snapshot_id': snapshotId,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponse implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponse({
+    this.id,
+    this.kind,
+    this.effectiveFrom,
+    this.legalBasisRef,
+    this.status,
+    this.predecessors,
+    this.successors,
+    this.newUnit,
+    this.mapping,
+    this.requestedBy,
+    this.approvedBy,
+    this.decidedAt,
+    this.decisionReason,
+    this.appliedAt,
+    this.resultSummary,
+    this.steps,
+    this.createdAt,
+    this.version,
+    this.actions,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponse.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponse(
+      id: optionalField(map, path, 'id', asString),
+      kind: optionalField(map, path, 'kind', asString),
+      effectiveFrom: optionalField(map, path, 'effective_from', asString),
+      legalBasisRef: optionalField(map, path, 'legal_basis_ref', asString),
+      status: optionalField(map, path, 'status', asString),
+      predecessors: optionalField(map, path, 'predecessors', asList(GetResourcesUnitReorganizationIdResponsePredecessorsItem.fromJson)),
+      successors: optionalField(map, path, 'successors', asList(GetResourcesUnitReorganizationIdResponseSuccessorsItem.fromJson)),
+      newUnit: optionalField(map, path, 'new_unit', nullable(asObject)),
+      mapping: optionalField(map, path, 'mapping', GetResourcesUnitReorganizationIdResponseMapping.fromJson),
+      requestedBy: optionalField(map, path, 'requested_by', GetResourcesUnitReorganizationIdResponseRequestedBy.fromJson),
+      approvedBy: optionalField(map, path, 'approved_by', GetResourcesUnitReorganizationIdResponseApprovedBy.fromJson),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: optionalField(map, path, 'decision_reason', nullable(asString)),
+      appliedAt: optionalField(map, path, 'applied_at', nullable(asString)),
+      resultSummary: optionalField(map, path, 'result_summary', nullable(asObject)),
+      steps: optionalField(map, path, 'steps', asList(GetResourcesUnitReorganizationIdResponseStepsItem.fromJson)),
+      createdAt: optionalField(map, path, 'created_at', asString),
+      version: optionalField(map, path, 'version', asInt),
+      actions: optionalField(map, path, 'actions', GetResourcesUnitReorganizationIdResponseActions.fromJson),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'effective_from', 'legal_basis_ref', 'status', 'predecessors', 'successors', 'new_unit', 'mapping', 'requested_by', 'approved_by', 'decided_at', 'decision_reason', 'applied_at', 'result_summary', 'steps', 'created_at', 'version', 'actions', 'as_of'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? kind;
+  final String? effectiveFrom;
+  final String? legalBasisRef;
+  final String? status;
+  final List<GetResourcesUnitReorganizationIdResponsePredecessorsItem>? predecessors;
+  final List<GetResourcesUnitReorganizationIdResponseSuccessorsItem>? successors;
+  final Map<String, Object?>? newUnit;
+  final GetResourcesUnitReorganizationIdResponseMapping? mapping;
+  final GetResourcesUnitReorganizationIdResponseRequestedBy? requestedBy;
+  final GetResourcesUnitReorganizationIdResponseApprovedBy? approvedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? appliedAt;
+  final Map<String, Object?>? resultSummary;
+  final List<GetResourcesUnitReorganizationIdResponseStepsItem>? steps;
+  final String? createdAt;
+  final int? version;
+  final GetResourcesUnitReorganizationIdResponseActions? actions;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (kind != null) 'kind': kind,
+        if (effectiveFrom != null) 'effective_from': effectiveFrom,
+        if (legalBasisRef != null) 'legal_basis_ref': legalBasisRef,
+        if (status != null) 'status': status,
+        if (predecessors != null) 'predecessors': predecessors!.map((e0) => e0.toJson()).toList(),
+        if (successors != null) 'successors': successors!.map((e0) => e0.toJson()).toList(),
+        if (newUnit != null) 'new_unit': newUnit,
+        if (mapping != null) 'mapping': mapping!.toJson(),
+        if (requestedBy != null) 'requested_by': requestedBy!.toJson(),
+        if (approvedBy != null) 'approved_by': approvedBy!.toJson(),
+        if (decidedAt != null) 'decided_at': decidedAt,
+        if (decisionReason != null) 'decision_reason': decisionReason,
+        if (appliedAt != null) 'applied_at': appliedAt,
+        if (resultSummary != null) 'result_summary': resultSummary,
+        if (steps != null) 'steps': steps!.map((e0) => e0.toJson()).toList(),
+        if (createdAt != null) 'created_at': createdAt,
+        if (version != null) 'version': version,
+        if (actions != null) 'actions': actions!.toJson(),
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponseActions implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponseActions({
+    this.decide,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponseActions.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponseActions(
+      decide: optionalField(map, path, 'decide', asBool),
+      extra: unknownFields(map, path, const <String>{'decide'}, strict: false),
+    );
+  }
+
+  final bool? decide;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (decide != null) 'decide': decide,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponseApprovedBy implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponseApprovedBy({
+    this.id,
+    this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponseApprovedBy.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponseApprovedBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponseApprovedBy(
+      id: optionalField(map, path, 'id', nullable(asString)),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (name != null) 'name': name,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponseMapping implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponseMapping({
+    this.memberships,
+    this.projects,
+    this.defaultSuccessorUnitId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponseMapping.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponseMapping']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponseMapping(
+      memberships: optionalField(map, path, 'memberships', asInt),
+      projects: optionalField(map, path, 'projects', asInt),
+      defaultSuccessorUnitId: optionalField(map, path, 'default_successor_unit_id', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'memberships', 'projects', 'default_successor_unit_id'}, strict: false),
+    );
+  }
+
+  final int? memberships;
+  final int? projects;
+  final String? defaultSuccessorUnitId;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (memberships != null) 'memberships': memberships,
+        if (projects != null) 'projects': projects,
+        if (defaultSuccessorUnitId != null) 'default_successor_unit_id': defaultSuccessorUnitId,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponsePredecessorsItem implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponsePredecessorsItem({
+    this.id,
+    this.code,
+    this.name,
+    this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponsePredecessorsItem.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponsePredecessorsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponsePredecessorsItem(
+      id: optionalField(map, path, 'id', asString),
+      code: optionalField(map, path, 'code', nullable(asString)),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      status: optionalField(map, path, 'status', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'status'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? code;
+  final String? name;
+  final String? status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (code != null) 'code': code,
+        if (name != null) 'name': name,
+        if (status != null) 'status': status,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponseRequestedBy implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponseRequestedBy({
+    this.id,
+    this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponseRequestedBy.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponseRequestedBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponseRequestedBy(
+      id: optionalField(map, path, 'id', nullable(asString)),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (name != null) 'name': name,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponseStepsItem implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponseStepsItem({
+    this.key,
+    this.doneAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponseStepsItem.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponseStepsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponseStepsItem(
+      key: optionalField(map, path, 'key', asString),
+      doneAt: optionalField(map, path, 'done_at', asString),
+      extra: unknownFields(map, path, const <String>{'key', 'done_at'}, strict: false),
+    );
+  }
+
+  final String? key;
+  final String? doneAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (key != null) 'key': key,
+        if (doneAt != null) 'done_at': doneAt,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationIdResponseSuccessorsItem implements ResponseModel {
+  const GetResourcesUnitReorganizationIdResponseSuccessorsItem({
+    this.id,
+    this.code,
+    this.name,
+    this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationIdResponseSuccessorsItem.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationIdResponseSuccessorsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationIdResponseSuccessorsItem(
+      id: optionalField(map, path, 'id', asString),
+      code: optionalField(map, path, 'code', nullable(asString)),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      status: optionalField(map, path, 'status', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'status'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? code;
+  final String? name;
+  final String? status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (code != null) 'code': code,
+        if (name != null) 'name': name,
+        if (status != null) 'status': status,
+        ...extra,
+      };
+}
+
+final class GetResourcesUnitReorganizationResponse implements ResponseModel {
+  const GetResourcesUnitReorganizationResponse({
+    this.items,
+    this.nextCursor,
+    this.snapshotId,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesUnitReorganizationResponse.fromJson(Object? json, [String path = 'GetResourcesUnitReorganizationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesUnitReorganizationResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),

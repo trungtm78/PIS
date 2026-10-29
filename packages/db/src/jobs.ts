@@ -13,6 +13,7 @@ import { OPEN_ISSUES_GAUGE, PENDING_ESCALATIONS_GAUGE } from './iss-sla-job.ts';
 import type { SlaPassResult } from './iss-sla-job.ts';
 import { SLA_SEVERITIES } from './iss-sla-policy-store.ts';
 import { RETENTION_PENDING_GAUGE } from './retention-job.ts';
+import { REORGANIZATION_FAILED_GAUGE } from './unit-reorganization-store.ts';
 import { NOOP_METRICS } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 
@@ -48,6 +49,8 @@ export const JOB_INTERVAL_SECONDS = {
   // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
   // Every 15 minutes: an issue that reaches 100 or 150 percent of its SLA is escalated within a quarter of an hour; the pass is idempotent (ST-ISS-004).
   'issue-sla': 900,
+  // Every minute: a reorganisation of organisation units that is being applied and whose day has come is carried out, a step at a time (ST-ADM-015); the pass is idempotent.
+  'unit-reorganization': 60,
   // Every minute: a delegation whose first instant has come is put in force, one whose window ended or whose delegator lost the authority it passed on is Ended (ST-ADM-014); the pass is idempotent.
   'delegation-lifecycle': 60,
   // Every 5 minutes: an approval task is reminded at 80 percent of the working time to its deadline and dealt with at the deadline as its step says (ST-ADM-013); the pass is idempotent.
@@ -218,6 +221,8 @@ export interface StandardJobDeps {
    * working time has reached; tells how many issues are open and how many escalations wait, for the gauges.
    */
   issueSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaPassResult> };
+  /** The pass over the reorganisations of organisation units of a tenant (ST-ADM-015): carries out the ones whose day has come; tells how many have stopped on a step, for the gauge. */
+  unitReorganization?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ stopped: number }> };
   /** The pass over the delegations of a tenant that are not over (ST-ADM-014): puts the waiting ones in force and ends the ones whose window or source is over; tells how many are in force, for the gauge. */
   delegationLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DelegationPassResult> };
   /** The pass over the open approval tasks of a tenant (ST-ADM-013): the reminders, the escalations and the expiries of the SLA; tells how many tasks are open and overdue, for the gauges. */
@@ -510,6 +515,25 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
           for (const [severity, count] of Object.entries(open)) metrics.gauge(OPEN_ISSUES_GAUGE, count, { severity });
           metrics.gauge(PENDING_ESCALATIONS_GAUGE, pending);
+        }
+      },
+    });
+  }
+  const reorganizations = deps.unitReorganization;
+  if (reorganizations !== undefined) {
+    handlers.push({
+      name: 'unit-reorganization',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let stopped = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            stopped += (await reorganizations.run(workerContext(tenantId), now)).stopped;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(REORGANIZATION_FAILED_GAUGE, stopped);
         }
       },
     });
