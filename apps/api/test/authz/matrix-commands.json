@@ -421,6 +421,7 @@
     "decideEntitlementOverride",
     "issueEInvoice",
     "post_licenses",
+    "matchBillingPayment",
     "post_licenses_id_revoke",
     "previewPlanChange",
     "publishPlanVersion",
@@ -442,6 +443,8 @@
   "identityCommands": [
     "acceptInvitation",
     "receiveChannelWebhook",
+    "receiveEInvoiceWebhook",
+    "receivePaymentWebhook",
     "selectTenantContext"
   ]
 }

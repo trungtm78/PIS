@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { BillingStore, ControlDatabase, EINVOICE_PROVIDER, actingAsTenant, tenantOfInvoice } from '@machvon/db';
+import { BillingPaymentStore, BillingStore, ControlDatabase, EINVOICE_PROVIDER, actingAsTenant, tenantOfInvoice } from '@machvon/db';
 import type { ApprovalEffects, EInvoiceProviderPort } from '@machvon/db';
 import { DomainError, addDays, isBillingPeriod, vietnamDateOf } from '@machvon/kernel';
 import { commandResult } from '../../command-result';
@@ -18,6 +18,8 @@ import { invoiceView } from './invoice-view';
  */
 @Controller('system')
 export class BillingController {
+  private readonly payments = new BillingPaymentStore();
+
   constructor(
     @Inject(BillingStore) private readonly store: BillingStore,
     @Inject(ControlDatabase) private readonly control: ControlDatabase,
@@ -42,9 +44,9 @@ export class BillingController {
       const rows = await this.store.list(tx, { limit: page.limit + 1, after: page.after === undefined ? undefined : { periodStart: page.after.code, id: page.after.id } });
       const shown = rows.slice(0, page.limit);
       const last = shown[shown.length - 1];
-      const [lines, state] = [await this.store.linesOf(tx, shown.map((row) => row.id)), await this.store.subscriptionState(tx)];
+      const [lines, state, paid] = [await this.store.linesOf(tx, shown.map((row) => row.id)), await this.store.subscriptionState(tx), await this.payments.ofInvoices(tx, shown.map((row) => row.id))];
       return {
-        items: shown.map((row) => invoiceView(row, lines.filter((line) => line.invoiceId === row.id))),
+        items: shown.map((row) => invoiceView(row, lines.filter((line) => line.invoiceId === row.id), paid.filter((payment) => payment.invoiceId === row.id))),
         next_cursor: rows.length > page.limit && last !== undefined ? encodeCursor({ code: last.periodStart, id: last.id }) : null,
         ...(state === undefined ? {} : { subscription_status: state.status }),
         ...(state?.pastDueSince == null ? {} : { past_due_since: state.pastDueSince.toISOString() }),

@@ -2,7 +2,7 @@ import { DomainError, ISSUE_MAX_ATTEMPTS, ISSUE_WINDOW_MS, addDays, billingPerio
 import type { BillingPeriod, InvoiceLineDraft, MeteredFeature, PlanBillingCycle, PricedInvoiceLine, VatCategory } from '@machvon/kernel';
 import type { ApprovalEffects } from './approval-store.ts';
 import { EInvoiceProviderUnavailable } from './einvoice-provider.ts';
-import type { EInvoiceIssueRequest, EInvoiceProviderPort } from './einvoice-provider.ts';
+import type { EInvoiceIssued, EInvoiceIssueRequest, EInvoiceProviderPort } from './einvoice-provider.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 export type InvoiceStatus = 'Draft' | 'Discarded' | 'PendingIssue' | 'IssueFailed' | 'Issued' | 'Sent' | 'PartiallyPaid' | 'Paid' | 'Overdue' | 'Adjusted' | 'Replaced';
@@ -416,23 +416,7 @@ export class BillingStore {
     if (invoice.issueAttempts >= 1 && first?.issue_started_at != null && now.getTime() - first.issue_started_at.getTime() > ISSUE_WINDOW_MS) return this.giveUp(tx, effects, invoice, invoice.issueAttempts);
     try {
       const issued = await provider.issue(request);
-      await tx.query(
-        `update machvon.invoice set status = 'Issued', einvoice_provider = $2, einvoice_template_code = $3, einvoice_series = $4, einvoice_number = $5, tax_authority_code = $6, lookup_code = $7, provider_ref = $8,
-           issued_at = $9::timestamptz, issue_attempts = $10, next_attempt_at = null, issue_error = null, version = version + 1 where id = $1::uuid`,
-        [invoice.id, provider.name, issued.templateCode, issued.series, issued.number, issued.taxAuthorityCode, issued.lookupCode, issued.providerRef, now.toISOString(), attempts],
-      );
-      const done = (await this.find(tx, invoice.id)) as InvoiceRow;
-      await effects.audit({ action: 'invoice.issued', resourceType: RESOURCE_TYPE, resourceId: invoice.id, diff: { number: issued.number, series: issued.series, template: issued.templateCode, attempts } });
-      await effects.emit({
-        aggregateType: RESOURCE_TYPE,
-        aggregateId: invoice.id,
-        aggregateVersion: done.version,
-        eventKey: `invoice:${invoice.id}:issued`,
-        type: INVOICE_ISSUED_EVENT,
-        schemaVersion: 1,
-        payload: { invoice_id: invoice.id, subscription_id: invoice.subscriptionId, einvoice_number: issued.number, series: issued.series, total_vnd: invoice.totalVnd },
-      });
-      return { invoice: done, outcome: 'ISSUED' };
+      return { invoice: await this.markIssued(tx, effects, invoice, provider.name, issued, attempts, now), outcome: 'ISSUED' };
     } catch (error) {
       if (!(error instanceof EInvoiceProviderUnavailable)) throw error;
       const started = (await tx.query<{ issue_started_at: Date }>('select issue_started_at from machvon.invoice where id = $1::uuid', [invoice.id]))[0]?.issue_started_at ?? now;
@@ -441,6 +425,43 @@ export class BillingStore {
       await tx.query("update machvon.invoice set issue_attempts = $2, next_attempt_at = $3::timestamptz, issue_error = 'EINVOICE_PROVIDER_UNAVAILABLE', version = version + 1 where id = $1::uuid", [invoice.id, attempts, next.toISOString()]);
       return { invoice: (await this.find(tx, invoice.id)) as InvoiceRow, outcome: 'PENDING' };
     }
+  }
+
+  /** The invoice is Issued with what the provider answered: the answer to an attempt, or the callback of a provider that answers later. */
+  private async markIssued(tx: TenantTx, effects: ApprovalEffects, invoice: InvoiceRow, providerName: string, issued: EInvoiceIssued, attempts: number, now: Date): Promise<InvoiceRow> {
+    await tx.query(
+      `update machvon.invoice set status = 'Issued', einvoice_provider = $2, einvoice_template_code = $3, einvoice_series = $4, einvoice_number = $5, tax_authority_code = $6, lookup_code = $7, provider_ref = $8,
+         issued_at = $9::timestamptz, issue_attempts = $10, next_attempt_at = null, issue_error = null, version = version + 1 where id = $1::uuid`,
+      [invoice.id, providerName, issued.templateCode, issued.series, issued.number, issued.taxAuthorityCode, issued.lookupCode, issued.providerRef, now.toISOString(), attempts],
+    );
+    const done = (await this.find(tx, invoice.id)) as InvoiceRow;
+    await effects.audit({ action: 'invoice.issued', resourceType: RESOURCE_TYPE, resourceId: invoice.id, diff: { number: issued.number, series: issued.series, template: issued.templateCode, attempts } });
+    await effects.emit({
+      aggregateType: RESOURCE_TYPE,
+      aggregateId: invoice.id,
+      aggregateVersion: done.version,
+      eventKey: `invoice:${invoice.id}:issued`,
+      type: INVOICE_ISSUED_EVENT,
+      schemaVersion: 1,
+      payload: { invoice_id: invoice.id, subscription_id: invoice.subscriptionId, einvoice_number: issued.number, series: issued.series, total_vnd: invoice.totalVnd },
+    });
+    return done;
+  }
+
+  /**
+   * The callback of a provider that answered later (SAS.md 3.7: the code of the tax authority and the number): an invoice that is waiting for the provider, or could not be issued, becomes Issued with it; one that
+   * is already Issued with the same number is left as it is (the callback came twice); one that is Issued with another number, or is not on its way to be issued, is refused (409): it is never rewritten.
+   */
+  async completeIssue(tx: TenantTx, effects: ApprovalEffects, invoiceId: string, issued: EInvoiceIssued, providerName: string, now: Date): Promise<{ invoice: InvoiceRow; changed: boolean }> {
+    const invoice = await this.find(tx, invoiceId, true);
+    if (invoice === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (invoice.status === 'PendingIssue' || invoice.status === 'IssueFailed') {
+      if (invoice.status === 'IssueFailed') await tx.query("update machvon.invoice set status = 'PendingIssue', next_attempt_at = null, version = version + 1 where id = $1::uuid", [invoice.id]);
+      const waiting = (await this.find(tx, invoice.id)) as InvoiceRow;
+      return { invoice: await this.markIssued(tx, effects, waiting, providerName, issued, waiting.issueAttempts, now), changed: true };
+    }
+    if (invoice.number === issued.number && invoice.series === issued.series && invoice.templateCode === issued.templateCode && invoice.provider === providerName && invoice.status !== 'Draft' && invoice.status !== 'Discarded') return { invoice, changed: false };
+    throw new DomainError('EINVOICE_STATE_INVALID', 409, 'reference_key', { extensions: { status: invoice.status } });
   }
 
   /** The end of the tries: the invoice is IssueFailed, once, and says so. */
@@ -488,6 +509,9 @@ export class BillingStore {
    */
   async sweepOverdue(tx: TenantTx, effects: ApprovalEffects, today: string, now: Date): Promise<BillingOverdueResult> {
     const result: BillingOverdueResult = { overdue: [], pastDue: [], suspensionProposed: [] };
+    // The locks are taken in the order of the billing run and of a settlement: the subscriptions first (by id), then their invoices.
+    const owners = await tx.query<{ subscription_id: string }>("select distinct subscription_id from machvon.invoice where status in ('Issued', 'Sent', 'PartiallyPaid') and due_at < $1::date order by subscription_id", [today]);
+    if (owners.length > 0) await tx.query('select id from machvon.subscription where id = any($1::uuid[]) order by id for update', [owners.map((owner) => owner.subscription_id)]);
     const late = await tx.query<InvoiceDbRow>(`select ${INVOICE_COLUMNS} from machvon.invoice where status in ('Issued', 'Sent', 'PartiallyPaid') and due_at < $1::date order by due_at, id for update`, [today]);
     for (const row of late) {
       await tx.query("update machvon.invoice set status = 'Overdue', version = version + 1 where id = $1::uuid", [row.id]);
@@ -508,7 +532,7 @@ export class BillingStore {
       await tx.query('update machvon.subscription set suspension_proposed_at = $2::timestamptz, version = version + 1 where id = $1::uuid', [subscription.id, now.toISOString()]);
       result.suspensionProposed.push(subscription.id);
       await effects.audit({ action: 'billing.suspension_proposed', resourceType: 'subscription', resourceId: subscription.id, diff: { past_due_since: subscription.past_due_since.toISOString(), decided_by: 'SYSTEM_ADMIN_ONLY' } });
-      await effects.emit({ aggregateType: 'subscription', aggregateId: subscription.id, aggregateVersion: Number(subscription.version) + 1, eventKey: `subscription:${subscription.id}:suspension_proposed`, type: SUSPENSION_PROPOSED_EVENT, schemaVersion: 1, payload: { subscription_id: subscription.id, past_due_since: subscription.past_due_since.toISOString() } });
+      await effects.emit({ aggregateType: 'subscription', aggregateId: subscription.id, aggregateVersion: Number(subscription.version) + 1, eventKey: `subscription:${subscription.id}:suspension_proposed:${subscription.past_due_since.toISOString()}`, type: SUSPENSION_PROPOSED_EVENT, schemaVersion: 1, payload: { subscription_id: subscription.id, past_due_since: subscription.past_due_since.toISOString() } });
     }
     return result;
   }

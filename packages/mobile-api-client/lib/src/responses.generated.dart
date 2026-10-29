@@ -531,6 +531,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listBiAccessPolicies': asObject,
   'listBiDatasets': asObject,
   'listBiDatasetVersions': asObject,
+  'listBillingPayments': BillingPaymentListResponse.fromJson,
   'listBiQueryRuns': asObject,
   'listCapitalLedger': asObject,
   'listCapitalPlanLines': asObject,
@@ -2309,6 +2310,132 @@ final class BiDrillExplanationResponse implements ResponseModel {
         'drill_token': drillToken,
         'served_from_cache': servedFromCache,
         'built_at': builtAt,
+        ...extra,
+      };
+}
+
+final class BillingPaymentListResponse implements ResponseModel {
+  const BillingPaymentListResponse({
+    required this.items,
+    required this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BillingPaymentListResponse.fromJson(Object? json, [String path = 'BillingPaymentListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BillingPaymentListResponse(
+      items: requiredField(map, path, 'items', asList(BillingPaymentResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor'}, strict: true),
+    );
+  }
+
+  final List<BillingPaymentResponse> items;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class BillingPaymentResponse implements ResponseModel {
+  const BillingPaymentResponse({
+    required this.id,
+    required this.provider,
+    required this.txnRef,
+    required this.amountVnd,
+    required this.method,
+    required this.receivedAt,
+    required this.matchStatus,
+    required this.memo,
+    required this.version,
+    this.invoiceId,
+    this.matchedAt,
+    this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BillingPaymentResponse.fromJson(Object? json, [String path = 'BillingPaymentResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BillingPaymentResponse(
+      id: requiredField(map, path, 'id', asString),
+      provider: requiredField(map, path, 'provider', asString),
+      txnRef: requiredField(map, path, 'txn_ref', asString),
+      amountVnd: requiredField(map, path, 'amount_vnd', asString),
+      method: requiredField(map, path, 'method', asString),
+      receivedAt: requiredField(map, path, 'received_at', asString),
+      matchStatus: requiredField(map, path, 'match_status', asString),
+      memo: requiredField(map, path, 'memo', asString),
+      invoiceId: optionalField(map, path, 'invoice_id', asString),
+      matchedAt: optionalField(map, path, 'matched_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      actions: optionalField(map, path, 'actions', BillingPaymentResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'provider', 'txn_ref', 'amount_vnd', 'method', 'received_at', 'match_status', 'memo', 'invoice_id', 'matched_at', 'version', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String provider;
+  final String txnRef;
+  final String amountVnd;
+  final String method;
+  final String receivedAt;
+  final String matchStatus;
+  final String memo;
+  final String? invoiceId;
+  final String? matchedAt;
+  final int version;
+  final BillingPaymentResponseActions? actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'provider': provider,
+        'txn_ref': txnRef,
+        'amount_vnd': amountVnd,
+        'method': method,
+        'received_at': receivedAt,
+        'match_status': matchStatus,
+        'memo': memo,
+        if (invoiceId != null) 'invoice_id': invoiceId,
+        if (matchedAt != null) 'matched_at': matchedAt,
+        'version': version,
+        if (actions != null) 'actions': actions!.toJson(),
+        ...extra,
+      };
+}
+
+final class BillingPaymentResponseActions implements ResponseModel {
+  const BillingPaymentResponseActions({
+    required this.match,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BillingPaymentResponseActions.fromJson(Object? json, [String path = 'BillingPaymentResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BillingPaymentResponseActions(
+      match: requiredField(map, path, 'match', asBool),
+      extra: unknownFields(map, path, const <String>{'match'}, strict: true),
+    );
+  }
+
+  final bool match;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'match': match,
         ...extra,
       };
 }
@@ -12707,6 +12834,7 @@ final class InvoiceResponse implements ResponseModel {
     this.einvoice,
     this.nextAttemptAt,
     this.issueError,
+    this.payments,
     this.extra = const <String, Object?>{},
   });
 
@@ -12733,7 +12861,8 @@ final class InvoiceResponse implements ResponseModel {
       version: requiredField(map, path, 'version', asInt),
       lines: requiredField(map, path, 'lines', asList(InvoiceLineResponse.fromJson)),
       actions: requiredField(map, path, 'actions', InvoiceResponseActions.fromJson),
-      extra: unknownFields(map, path, const <String>{'id', 'subscription_id', 'invoice_code', 'period_start', 'period_end', 'kind', 'status', 'subtotal_vnd', 'vat_vnd', 'total_vnd', 'buyer', 'due_at', 'issued_at', 'einvoice', 'issue_attempts', 'next_attempt_at', 'issue_error', 'version', 'lines', 'actions'}, strict: true),
+      payments: optionalField(map, path, 'payments', asList(BillingPaymentResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'subscription_id', 'invoice_code', 'period_start', 'period_end', 'kind', 'status', 'subtotal_vnd', 'vat_vnd', 'total_vnd', 'buyer', 'due_at', 'issued_at', 'einvoice', 'issue_attempts', 'next_attempt_at', 'issue_error', 'version', 'lines', 'actions', 'payments'}, strict: true),
     );
   }
 
@@ -12757,6 +12886,7 @@ final class InvoiceResponse implements ResponseModel {
   final int version;
   final List<InvoiceLineResponse> lines;
   final InvoiceResponseActions actions;
+  final List<BillingPaymentResponse>? payments;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -12783,6 +12913,7 @@ final class InvoiceResponse implements ResponseModel {
         'version': version,
         'lines': lines.map((e0) => e0.toJson()).toList(),
         'actions': actions.toJson(),
+        if (payments != null) 'payments': payments!.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }

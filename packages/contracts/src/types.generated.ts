@@ -14623,6 +14623,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/system/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hàng đợi đối soát: khoản thu chưa ghép hoặc chờ xem xét, mới nhất trước, phân trang theo cursor (SAS-10); chỉ control plane */
+        get: operations["listBillingPayments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/allocation-extensions": {
         parameters: {
             query?: never;
@@ -21804,6 +21821,8 @@ export interface components {
             actions: {
                 issue: boolean;
             };
+            /** @description The payments that matched the invoice */
+            payments?: components["schemas"]["BillingPayment"][];
         };
         TenantInvoices: {
             /** @description The invoices of the tenant, the latest period first */
@@ -21818,6 +21837,35 @@ export interface components {
             suspension_proposed_at?: string;
             /** @description The cursor of the next (older) page, null on the last */
             next_cursor?: string | null;
+        };
+        BillingPayment: {
+            /** Format: uuid */
+            id: string;
+            provider: string;
+            txn_ref: string;
+            /** @description Integer VND as decimal string */
+            amount_vnd: string;
+            /** @enum {string} */
+            method: "BANK_TRANSFER" | "GATEWAY" | "TREASURY_TRANSFER";
+            /** Format: date-time */
+            received_at: string;
+            /** @enum {string} */
+            match_status: "Unmatched" | "PendingReview" | "Matched" | "Reversed";
+            /** @description The note of the transfer, where the payer writes the code of the invoice */
+            memo: string;
+            /** Format: uuid */
+            invoice_id?: string;
+            /** Format: date-time */
+            matched_at?: string;
+            version: number;
+            actions?: {
+                match: boolean;
+            };
+        };
+        BillingPaymentList: {
+            /** @description The payments of the platform that wait for a person, or of one status, the latest first */
+            items: components["schemas"]["BillingPayment"][];
+            next_cursor: string | null;
         };
     };
     responses: never;
@@ -110251,6 +110299,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TenantInvoices"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listBillingPayments: {
+        parameters: {
+            query?: {
+                /** @description Only the payments of this status; both when omitted */
+                status?: "Unmatched" | "PendingReview";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The payments that wait for a person, with their notes and amounts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingPaymentList"];
                 };
             };
             /** @description SESSION_EXPIRED */

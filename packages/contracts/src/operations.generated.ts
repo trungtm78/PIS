@@ -529,6 +529,7 @@ export const OPERATIONS = {
   "listBiDatasetVersions": { method: "get", path: "/bi/datasets/{id}/versions", versioned: false, stepUp: null, permission: "bi.query" },
   "listBiDatasets": { method: "get", path: "/bi/datasets", versioned: false, stepUp: null, permission: "bi.query" },
   "listBiQueryRuns": { method: "get", path: "/bi/query-runs", versioned: false, stepUp: null, permission: "bi.admin.read" },
+  "listBillingPayments": { method: "get", path: "/system/payments", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "listCapitalLedger": { method: "get", path: "/capital-ledger", versioned: false, stepUp: null, permission: "capital.ledger.read" },
   "listCapitalPlanLines": { method: "get", path: "/capital-plans/{id}/lines", versioned: false, stepUp: null, permission: "capital.read" },
   "listCompensationPayments": { method: "get", path: "/compensation-plans/{id}/payments", versioned: false, stepUp: null, permission: "land.read" },

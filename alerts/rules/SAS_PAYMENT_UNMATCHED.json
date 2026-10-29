@@ -1,0 +1,14 @@
+{
+  "id": "SAS_PAYMENT_UNMATCHED",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/SAS_PAYMENT_UNMATCHED.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "payment_unmatched_total",
+    "above": 3
+  },
+  "summary": "More than three payments that came in wait for a person to match them with an invoice."
+}

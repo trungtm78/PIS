@@ -9,9 +9,12 @@ export async function actingAsTenant<T>(tx: TenantTx, tenantId: string, restoreT
   const known = await tx.query('select 1 from machvon.tenant where id = $1::uuid', [tenantId]);
   if (known.length === 0) throw new DomainError('RESOURCE_NOT_FOUND', 404);
   await tx.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
-  const result = await work();
-  await tx.query("select set_config('app.tenant_id', $1, true)", [restoreTenantId]);
-  return result;
+  try {
+    return await work();
+  } finally {
+    // Also when the work is refused: a caller that goes on with the transaction after a refusal must be back in its own tenant. If the transaction itself is broken the restore fails too, and the refusal stands.
+    await tx.query("select set_config('app.tenant_id', $1, true)", [restoreTenantId]).catch(() => undefined);
+  }
 }
 
 /** The tenant a subscription belongs to, or undefined (a control command that names only the subscription finds the tenant to act as through this). */

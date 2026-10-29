@@ -1,5 +1,6 @@
-import type { InvoiceLineRow, InvoiceRow } from '@machvon/db';
+import type { InvoiceLineRow, InvoiceRow, PaymentRow } from '@machvon/db';
 import type { Schemas } from '../../contract-types';
+import { paymentView } from './payment-view';
 
 export const invoiceLineView = (row: InvoiceLineRow): Schemas['InvoiceLine'] => ({
   id: row.id,
@@ -18,7 +19,7 @@ export const invoiceLineView = (row: InvoiceLineRow): Schemas['InvoiceLine'] => 
 /** The statuses from which the invoice can be sent to the provider. */
 export const ISSUABLE: readonly string[] = ['Draft', 'IssueFailed'];
 
-export const invoiceView = (row: InvoiceRow, lines: readonly InvoiceLineRow[]): Schemas['Invoice'] => ({
+export const invoiceView = (row: InvoiceRow, lines: readonly InvoiceLineRow[], payments: readonly PaymentRow[] = []): Schemas['Invoice'] => ({
   id: row.id,
   subscription_id: row.subscriptionId,
   invoice_code: row.invoiceCode,
@@ -49,5 +50,6 @@ export const invoiceView = (row: InvoiceRow, lines: readonly InvoiceLineRow[]): 
   ...(row.issueError === null ? {} : { issue_error: row.issueError }),
   version: row.version,
   lines: lines.map(invoiceLineView),
+  payments: payments.map(paymentView),
   actions: { issue: ISSUABLE.includes(row.status) },
 });

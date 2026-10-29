@@ -75,5 +75,7 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'runBillingCycle', permission: PERMISSIONS.runBillingCycle, method: 'POST', path: '/system/billing-runs' },
   { operationId: 'issueEInvoice', permission: PERMISSIONS.issueEInvoice, method: 'POST', path: '/system/invoices/{invoiceId}/issue' },
   { operationId: 'listTenantInvoices', permission: PERMISSIONS.listTenantInvoices, method: 'GET', path: '/system/tenants/{tenantId}/invoices' },
+  { operationId: 'listBillingPayments', permission: PERMISSIONS.listBillingPayments, method: 'GET', path: '/system/payments' },
+  { operationId: 'matchBillingPayment', permission: PERMISSIONS.matchBillingPayment, method: 'POST', path: '/system/payments/{paymentId}/match' },
 ];
 

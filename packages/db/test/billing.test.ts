@@ -590,6 +590,20 @@ describe('the billing run and the e-invoice (ST-SAS-011, SAS.md BR-SAS-13 and BR
       expect(await inTenant(TENANT_A, (tx) => store.sweepOverdue(tx, recorder(), '2026-03-06', next))).toEqual({ overdue: [], pastDue: [], suspensionProposed: [] });
     });
 
+    it('gives each episode of being past due its own proposal event, so that a later one is published too', async () => {
+      await issuedDue(TENANT_C, '2026-03-05');
+      await inTenant(TENANT_C, (tx) => store.sweepOverdue(tx, recorder(), '2026-03-06', new Date('2026-03-06T03:00:00Z')));
+      const first = recorder();
+      await inTenant(TENANT_C, (tx) => store.sweepOverdue(tx, first, '2026-04-05', new Date('2026-04-05T03:00:00Z')));
+      // The subscription recovered and fell behind again at another time: a second proposal is a second event.
+      await admin("update machvon.subscription set past_due_since = '2026-06-01T00:00:00Z', suspension_proposed_at = null where tenant_id = $1 and status = 'PastDue'", [TENANT_C]);
+      const second = recorder();
+      await inTenant(TENANT_C, (tx) => store.sweepOverdue(tx, second, '2026-07-05', new Date('2026-07-05T03:00:00Z')));
+      const keys = [...first.events, ...second.events].filter((event) => event.type === 'sas.billing.suspension_proposed.v1').map((event) => event.eventKey);
+      expect(keys).toHaveLength(2);
+      expect(new Set(keys).size).toBe(2);
+    });
+
     it('proposes a suspension after thirty days past due, once, and suspends nothing', async () => {
       await issuedDue(TENANT_B, '2026-03-05');
       await inTenant(TENANT_B, (tx) => store.sweepOverdue(tx, recorder(), '2026-03-06', new Date('2026-03-06T03:00:00Z')));

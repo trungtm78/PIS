@@ -13,6 +13,7 @@ import { OPEN_ISSUES_GAUGE, PENDING_ESCALATIONS_GAUGE } from './iss-sla-job.ts';
 import type { SlaPassResult } from './iss-sla-job.ts';
 import { SLA_SEVERITIES } from './iss-sla-policy-store.ts';
 import { RETENTION_PENDING_GAUGE } from './retention-job.ts';
+import { PAYMENT_UNMATCHED_GAUGE } from './billing-payment-store.ts';
 import { EINVOICE_FAILED_GAUGE } from './billing-store.ts';
 import { REORGANIZATION_FAILED_GAUGE } from './unit-reorganization-store.ts';
 import { NOOP_METRICS } from '@machvon/kernel';
@@ -67,6 +68,8 @@ export const JOB_INTERVAL_SECONDS = {
   'subscription-cycle': 3600,
   // Every 5 minutes: the invoices of the periods that closed are made, a provider that did not answer is asked again (10 minutes after the first failure, then 1, 4 and 12 hours, five attempts in 24 hours), and an invoice past its due day is Overdue (ST-SAS-011); the pass is idempotent.
   'einvoice-billing': 300,
+  // Every minute: a payment that came in and waits is matched with the invoice its note names when the amount is exactly what is outstanding, or sent to review (ST-SAS-012); the pass is idempotent.
+  'payment-reconciliation': 60,
   // Hourly: a request to carry capital over that nobody decided lapses within the hour of its last day (ST-CAP-007); the pass is idempotent.
   'allocation-extension-lapse': 3600,
   // Every 15 minutes: a fiscal year whose reopening has ended is locked again and the capital that came back lapses again (ST-CAP-008); the pass is idempotent.
@@ -246,6 +249,8 @@ export interface StandardJobDeps {
   subscriptionCycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The billing pass of a tenant (ST-SAS-011): the invoices of the periods that closed, the retries of the provider and the invoices past their due day; tells how many invoices are IssueFailed, for the gauge. */
   einvoiceBilling?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ failed: number }> };
+  /** The pass over the payments of the platform that wait (ST-SAS-012): one pass for the platform, not one for each tenant; tells how many wait for a person, for the gauge. */
+  paymentReconciliation?: { run(now: Date): Promise<{ waiting: number }> };
   /** Lets the requests to carry capital over to the next year lapse once their last day has passed (ST-CAP-007); tells how many lapsed. */
   extensionLapse?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ lapsed: number }> };
   /** Locks again the fiscal years whose reopening has ended (ST-CAP-008); tells which years. */
@@ -637,6 +642,18 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
           metrics.gauge(EINVOICE_FAILED_GAUGE, failed);
         }
+      },
+    });
+  }
+  const reconciliation = deps.paymentReconciliation;
+  if (reconciliation !== undefined) {
+    handlers.push({
+      name: 'payment-reconciliation',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        const { waiting } = await reconciliation.run(now);
+        metrics.gauge(PAYMENT_UNMATCHED_GAUGE, waiting);
       },
     });
   }

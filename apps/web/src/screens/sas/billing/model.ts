@@ -19,6 +19,25 @@ export interface InvoiceLineView {
   vatVnd: string;
 }
 
+export const PAYMENT_STATUSES = ['Unmatched', 'PendingReview', 'Matched', 'Reversed'] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+export const PAYMENT_METHODS = ['BANK_TRANSFER', 'GATEWAY', 'TREASURY_TRANSFER'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export interface PaymentView {
+  id: string;
+  provider: string;
+  txnRef: string;
+  amountVnd: string;
+  method: PaymentMethod;
+  receivedAt: string;
+  status: PaymentStatus;
+  memo: string;
+  invoiceId: string | undefined;
+  version: number;
+  canMatch: boolean;
+}
+
 export interface InvoiceView {
   id: string;
   invoiceCode: string;
@@ -32,6 +51,10 @@ export interface InvoiceView {
   issuedAt: string | undefined;
   series: string | undefined;
   number: string | undefined;
+  /** The code the tax authority gave the invoice, and the code to look it up with. */
+  taxAuthorityCode: string | undefined;
+  lookupCode: string | undefined;
+  payments: PaymentView[];
   issueAttempts: number;
   nextAttemptAt: string | undefined;
   issueError: string | undefined;
@@ -62,6 +85,25 @@ function toLine(raw: unknown): InvoiceLineView | undefined {
   return { id: row.id, lineNo: count(row.line_no), kind: oneOf(row.kind, LINE_KINDS, 'SUBSCRIPTION'), description: text(row.description), amountVnd: text(row.amount_vnd) || '0', vatCategory: text(row.vat_category), vatVnd: text(row.vat_vnd) || '0' };
 }
 
+export function toPayment(raw: unknown): PaymentView | undefined {
+  const row: Raw = isRecord(raw) ? raw : {};
+  if (typeof row.id !== 'string') return undefined;
+  const actions: Raw = isRecord(row.actions) ? row.actions : {};
+  return {
+    id: row.id,
+    provider: text(row.provider),
+    txnRef: text(row.txn_ref),
+    amountVnd: text(row.amount_vnd) || '0',
+    method: oneOf(row.method, PAYMENT_METHODS, 'BANK_TRANSFER'),
+    receivedAt: text(row.received_at),
+    status: oneOf(row.match_status, PAYMENT_STATUSES, 'Unmatched'),
+    memo: text(row.memo),
+    invoiceId: optionalText(row.invoice_id),
+    version: count(row.version),
+    canMatch: actions.match === true,
+  };
+}
+
 function toInvoice(raw: unknown): InvoiceView | undefined {
   const row: Raw = isRecord(raw) ? raw : {};
   if (typeof row.id !== 'string') return undefined;
@@ -80,6 +122,9 @@ function toInvoice(raw: unknown): InvoiceView | undefined {
     issuedAt: optionalText(row.issued_at),
     series: optionalText(einvoice.series),
     number: optionalText(einvoice.number),
+    taxAuthorityCode: optionalText(einvoice.tax_authority_code),
+    lookupCode: optionalText(einvoice.lookup_code),
+    payments: Array.isArray(row.payments) ? row.payments.flatMap((payment) => toPayment(payment) ?? []) : [],
     issueAttempts: count(row.issue_attempts),
     nextAttemptAt: optionalText(row.next_attempt_at),
     issueError: optionalText(row.issue_error),

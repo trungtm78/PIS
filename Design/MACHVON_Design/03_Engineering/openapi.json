@@ -127113,6 +127113,93 @@
         "x-required-role": "SystemAdmin"
       }
     },
+    "/system/payments": {
+      "get": {
+        "operationId": "listBillingPayments",
+        "summary": "Hàng đợi đối soát: khoản thu chưa ghép hoặc chờ xem xét, mới nhất trước, phân trang theo cursor (SAS-10); chỉ control plane",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Unmatched",
+                "PendingReview"
+              ]
+            },
+            "description": "Only the payments of this status; both when omitted"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The payments that wait for a person, with their notes and amounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingPaymentList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Khoản thu chưa ghép của nền tảng; chỉ control plane",
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      }
+    },
     "/allocation-extensions": {
       "get": {
         "operationId": "listAllocationExtensions",
@@ -155083,6 +155170,13 @@
                 "type": "boolean"
               }
             }
+          },
+          "payments": {
+            "type": "array",
+            "description": "The payments that matched the invoice",
+            "items": {
+              "$ref": "#/components/schemas/BillingPayment"
+            }
           }
         }
       },
@@ -155118,6 +155212,109 @@
               "null"
             ],
             "description": "The cursor of the next (older) page, null on the last"
+          }
+        }
+      },
+      "BillingPayment": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "provider",
+          "txn_ref",
+          "amount_vnd",
+          "method",
+          "received_at",
+          "match_status",
+          "memo",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "txn_ref": {
+            "type": "string"
+          },
+          "amount_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "BANK_TRANSFER",
+              "GATEWAY",
+              "TREASURY_TRANSFER"
+            ]
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "match_status": {
+            "type": "string",
+            "enum": [
+              "Unmatched",
+              "PendingReview",
+              "Matched",
+              "Reversed"
+            ]
+          },
+          "memo": {
+            "type": "string",
+            "description": "The note of the transfer, where the payer writes the code of the invoice"
+          },
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matched_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "match"
+            ],
+            "properties": {
+              "match": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "BillingPaymentList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "The payments of the platform that wait for a person, or of one status, the latest first",
+            "items": {
+              "$ref": "#/components/schemas/BillingPayment"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }

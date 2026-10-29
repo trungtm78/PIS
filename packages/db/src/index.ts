@@ -678,3 +678,5 @@ export { DEFAULT_DUE_DAYS, EINVOICE_FAILED_GAUGE, INVOICE_DRAFTED_EVENT, INVOICE
 export type { BillingRunResult, InvoiceLineRow, InvoiceRow, InvoiceStatus, IssueOutcome, BillingOverdueResult } from './billing-store.ts';
 export { EINVOICE_PROVIDER, EInvoiceProviderUnavailable, MockEInvoiceProvider, sharedMockEInvoiceProvider } from './einvoice-provider.ts';
 export type { EInvoiceIssueLine, EInvoiceIssueRequest, EInvoiceIssued, EInvoiceProviderPort } from './einvoice-provider.ts';
+export { BillingPaymentStore, MATCH_BATCH, PAYMENT_MATCHED_EVENT, PAYMENT_UNMATCHED_GAUGE, SUBSCRIPTION_RECOVERED_EVENT } from './billing-payment-store.ts';
+export type { PassResult as PaymentPassResult, PaymentRow, PaymentStatus, RecordPaymentInput } from './billing-payment-store.ts';

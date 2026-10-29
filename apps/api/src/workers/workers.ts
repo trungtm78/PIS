@@ -1,10 +1,11 @@
 import { DelegationLifecycleJob } from '../modules/adm/delegation-lifecycle';
 import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.port';
 import { BillingJob } from '../modules/sas/billing.job';
+import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
-import { ApprovalSlaJob, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
+import { ApprovalSlaJob, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
 import type { ControlDatabase, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, ReorganizationProjectPort, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
@@ -101,6 +102,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const subscriptions = new SubscriptionStore();
   // The provider of e-invoices is the MOCK until a contract with a real one exists (D05/D06); the process shares one, as the commands do.
   const billing = new BillingJob(audit, deps.einvoiceProvider ?? sharedMockEInvoiceProvider());
+  const payments = new BillingPaymentStore();
   const overrides = new EntitlementOverrideStore();
   const licenseStatus = new LicenseStatusJob(audit);
   const invitationExpiry = new InvitationExpiryJob(audit);
@@ -158,6 +160,10 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     subscriptionCycle: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => subscriptions.runCycle(tx, now)) },
     // The invoices are tenant rows and the plans are control-plane rows: the pass of a tenant runs through the control role acting as that tenant.
     einvoiceBilling: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => billing.run(tx, ctx.membershipId, now)) },
+    // The payments that wait belong to the platform tenant and are matched with invoices of every tenant: one pass for the platform, through the control role.
+    paymentReconciliation: {
+      run: (now) => payments.pass((work) => deps.control.withTenantOf(PLATFORM_TENANT_ID, work), (tx) => effectsOf(audit, tx, WORKER_MEMBERSHIP_ID), { platformTenantId: PLATFORM_TENANT_ID, workerMembershipId: WORKER_MEMBERSHIP_ID, now }),
+    },
     // A year whose reopening has ended is locked by the job, which is a person of its own: the worker membership.
     fiscalYearRelock: { run: async (ctx, now) => ({ years: (await deps.tenants.withTenant(ctx, (tx) => fiscalYears.relockDue(tx, now, ctx.membershipId))).years }) },
     extensionLapse: { run: async (ctx, now) => ({ lapsed: await deps.tenants.withTenant(ctx, (tx) => extensions.lapseDue(tx, vietnamDateOf(now), ctx.membershipId)) }) },

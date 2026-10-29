@@ -1,8 +1,14 @@
 import { BillingStore, EINVOICE_PROVIDER, EntitlementOverrideStore, PlanStore, SubscriptionStore, TenantBootstrapStore, ThemeStore, UsageMeterStore, sharedMockEInvoiceProvider } from '@machvon/db';
+import type { InboxHandlerRegistry } from '@machvon/db';
+import { WEBHOOK_PAYLOADS } from '../../notifications/delivery/webhook-support';
+import type { WebhookPayloadStore } from '../../notifications/delivery/webhook-support';
+import { ADM_INBOX_HANDLERS } from '../adm/tokens';
 import { defineModule } from '../module-descriptor';
 import { BillingController } from './billing.controller';
 import { EntitlementOverrideController } from './entitlement-override.controller';
 import { InvoiceLinesController } from './invoice-lines.controller';
+import { PaymentController } from './payment.controller';
+import { EInvoiceWebhookController, PaymentWebhookController, registerPaymentCallbacks } from './payment-webhook.controller';
 import { PlanController } from './plan.controller';
 import { SubscriptionController } from './subscription.controller';
 import { SubscriptionReadsController } from './subscription-reads.controller';
@@ -12,6 +18,11 @@ import { TenantThemeController } from './tenant-theme.controller';
 import { ThemeController } from './theme.controller';
 import { UsageController } from './usage.controller';
 import { UsageControlController } from './usage-control.controller';
+import { WEBHOOK_PROVIDERS, defaultWebhookProviders } from './webhook-providers';
+import type { WebhookProviderRegistry } from './webhook-providers';
+
+/** Where the inbox handlers of the payment and e-invoice providers are registered (it provides the names of the providers). */
+const SAS_INBOX_REGISTRATION = Symbol('SAS_INBOX_REGISTRATION');
 
 /**
  * SAS, the system administration of the control plane: the tenant lifecycle commands of ST-SAS-004, the owner assignment
@@ -30,13 +41,20 @@ export const sasModule = defineModule({
     { provide: BillingStore, useFactory: () => new BillingStore() },
   ],
   controlPlane: {
-    controllers: [TenantStateController, TenantOwnerController, ThemeController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController],
+    controllers: [TenantStateController, TenantOwnerController, ThemeController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
     providers: [
       { provide: TenantBootstrapStore, useFactory: () => new TenantBootstrapStore() },
       { provide: PlanStore, useFactory: () => new PlanStore() },
       { provide: EntitlementOverrideStore, useFactory: () => new EntitlementOverrideStore() },
       // The provider of e-invoices is the MOCK until a contract with a real one exists (D05/D06): the same instance serves the commands and the worker.
       { provide: EINVOICE_PROVIDER, useFactory: () => sharedMockEInvoiceProvider() },
+      // The providers whose callbacks the control plane takes: none in production until a contract with a real one exists (D05/D06).
+      { provide: WEBHOOK_PROVIDERS, useFactory: () => defaultWebhookProviders(process.env.MACHVON_ENVIRONMENT) },
+      {
+        provide: SAS_INBOX_REGISTRATION,
+        useFactory: (registry: InboxHandlerRegistry, providers: WebhookProviderRegistry, payloads: WebhookPayloadStore) => registerPaymentCallbacks(registry, providers, payloads),
+        inject: [ADM_INBOX_HANDLERS, WEBHOOK_PROVIDERS, WEBHOOK_PAYLOADS],
+      },
     ],
   },
 });

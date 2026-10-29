@@ -514,3 +514,5 @@ export { ASSIGNEE_RULE_TYPES, BUSINESS_TYPES, MAX_MIN_APPROVALS, MAX_SLA_WORKING
 export type { Advance as WorkflowAdvance, AssigneeRule, BusinessTypeSpec, DefinitionDefect, Decision as ApprovalDecisionKind, Outcome as WorkflowOutcome, SlaAction as ApprovalSlaAction, TaskClock as ApprovalTaskClock, WorkflowDefinition as ApprovalWorkflowDefinition, WorkflowStep } from './adm-workflow.ts';
 export { INVOICE_LINE_KINDS, ISSUE_MAX_ATTEMPTS, ISSUE_WINDOW_MS, SUSPENSION_PROPOSAL_DAYS, VAT_CATEGORIES, invoiceCodeOf, invoiceTotals, isBillingPeriod, isInvoiceOverdue, isVatCategory, nextIssueAttempt, priceForDays, priceLine, suspensionProposed, usageLine, vatOf } from './sas-billing.ts';
 export type { InvoiceLineDraft, InvoiceLineKind, InvoiceTotals, MeteredFeature, PricedInvoiceLine, VatCategory } from './sas-billing.ts';
+export { PAYABLE_INVOICE_STATUSES, PAYMENT_METHODS, autoMatch, invoiceCodesIn, judgeMatch, outstandingVnd, parseEInvoiceCallback, parsePaymentCallback } from './sas-payment.ts';
+export type { BillingPaymentMethod, EInvoiceCallback, MatchVerdict, PaymentCallback, PaymentCandidate } from './sas-payment.ts';

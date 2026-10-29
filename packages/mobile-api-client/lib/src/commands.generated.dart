@@ -1591,6 +1591,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listBiQueryRuns({Map<String, Object?>? query}) =>
       execute('listBiQueryRuns', query: query);
 
+  Future<Object?> listBillingPayments({Map<String, Object?>? query}) =>
+      execute('listBillingPayments', query: query);
+
   Future<Object?> listCapitalLedger({Map<String, Object?>? query}) =>
       execute('listCapitalLedger', query: query);
 

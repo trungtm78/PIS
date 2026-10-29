@@ -55,7 +55,7 @@ export async function startTestApp(options: TestAppOptions): Promise<RunningApp>
   const moduleRef = await Test.createTestingModule({
     imports: [{ module: IsolationTestModule, imports: options.imports ?? [], controllers: options.controllers ?? [], providers }],
   }).compile();
-  const app: INestApplication = moduleRef.createNestApplication();
+  const app: INestApplication = moduleRef.createNestApplication({ rawBody: true });
   await app.listen(0, '127.0.0.1');
   const { port } = app.getHttpServer().address() as AddressInfo;
   return { baseUrl: `http://127.0.0.1:${port}`, implementedOperations: implementedOperationIdsOf(app), get: <T>(token: unknown) => app.get<T>(token as never, { strict: false }), close: () => app.close() };

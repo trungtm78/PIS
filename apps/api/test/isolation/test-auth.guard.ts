@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { DomainError, verifyTenantContext } from '@machvon/kernel';
 import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
+import { PUBLIC_METADATA_KEY } from '../../src/public.decorator';
 import { TENANT_REQUEST_KEY } from '../../src/tenant-context.decorator';
 
 export const TENANT_HEADER = 'x-tenant-context';
@@ -36,11 +38,16 @@ function claimsOf(header: string | string[] | undefined): TestClaims {
 export class TestAuthGuard implements CanActivate {
   private readonly signingKey: Buffer;
 
-  constructor(@Inject(TEST_SIGNING_KEY) signingKey: Buffer) {
+  constructor(
+    @Inject(TEST_SIGNING_KEY) signingKey: Buffer,
+    @Inject(Reflector) private readonly reflector: Reflector,
+  ) {
     this.signingKey = signingKey;
   }
 
   canActivate(context: ExecutionContext): boolean {
+    // A route that is public (a provider callback, authenticated by its signature) has no caller to trust: it gets through without a tenant, as it does in the application.
+    if (this.reflector.getAllAndOverride<boolean | undefined>(PUBLIC_METADATA_KEY, [context.getHandler(), context.getClass()]) === true) return true;
     const request = context.switchToHttp().getRequest<GuardedRequest>();
     const token = request.headers[TENANT_HEADER];
     if (typeof token !== 'string') throw new DomainError('TENANT_CONTEXT_INVALID', 400);
