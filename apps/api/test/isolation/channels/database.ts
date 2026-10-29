@@ -22,7 +22,7 @@ import {
   TENANT_IDS,
   UNIT_FIXTURES,
 } from '../suite';
-import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES } from '../suite';
+import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SOURCE_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -630,6 +630,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'transitionQualityIncident',
   'verifyQualityIncident',
   'post_quality_exceptions_id_decision',
+  'proposeSourceMapping',
+  'decideSourceMapping',
+  'runReconciliation',
+  'listSourceMappings',
+  'listReconciliations',
+  'getReconciliation',
+  'listBatchGates',
   'get_resources_quality_incident',
   'get_resources_quality_incident_id',
   'get_resources_quality_exception',
@@ -1091,6 +1098,18 @@ const INSERT_QUALITY_INCIDENT = `insert into machvon.quality_incident
 const INSERT_QUALITY_EXCEPTION = `insert into machvon.quality_exception
   (tenant_id, id, run_id, record_reference, owner_id, reason, status, evidence, rule_version_id, incident_id)
   values ($1, $2, $3, '{"row_id":"isolation"}'::jsonb, $4, $5, 'OPEN', '{}'::jsonb, $6, $7) on conflict do nothing`;
+
+const INSERT_SOURCE_MAPPING = `insert into machvon.dataset_source_mapping
+  (tenant_id, id, dataset_id, source_system, source_field, target_field, unit, status, created_by, updated_by)
+  values ($1, $2, $3, 'PAY', $4, 'amount_vnd', 'VND', 'PROPOSED', $5, $5) on conflict do nothing`;
+
+const INSERT_RECONCILIATION = `insert into machvon.reconciliation_run
+  (tenant_id, id, recon_code, source_a, source_b, as_of_period, basis, count_a, count_b, total_a_vnd, total_b_vnd, tolerance_vnd, differences_json, result, owner_user_id, dataset_id, created_by, updated_by)
+  values ($1, $2, $3, 'PAY.treasury_transaction', 'DIS.report_accepted', '2026-10', 'VND, ngày Kho bạc thanh toán', 0, 0, 0, 0, 0, '[]'::jsonb, 'MATCHED', $4, $5, $4, $4) on conflict do nothing`;
+
+const INSERT_BATCH_GATE = `insert into machvon.dataset_batch_gate
+  (tenant_id, id, dataset_id, source_system, batch_ref, outcome, reason, row_count, fields, gated_by)
+  values ($1, $2, $3, 'PAY', $4, 'QUARANTINED', 'MAPPING_NOT_CONFIRMED', 3, '[]'::jsonb, $5) on conflict do nothing`;
 
 const INSERT_GLOSSARY_TERM = `insert into machvon.glossary_term
   (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, created_by, updated_by)
@@ -1616,6 +1635,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const qualityIncident = QUALITY_INCIDENT_FIXTURES[tenant];
     await client.query(INSERT_QUALITY_INCIDENT, [tenantId, qualityIncident.incidentId, quality.ruleId, MEMBERSHIP_ID, qualityIncident.title, quality.runId]);
     await client.query(INSERT_QUALITY_EXCEPTION, [tenantId, qualityIncident.exceptionId, quality.runId, MEMBERSHIP_ID, qualityIncident.reason, quality.ruleId, qualityIncident.incidentId]);
+    const source = SOURCE_FIXTURES[tenant];
+    await client.query(INSERT_SOURCE_MAPPING, [tenantId, source.mappingId, dataset.id, source.sourceField, MEMBERSHIP_ID]);
+    await client.query(INSERT_RECONCILIATION, [tenantId, source.reconId, source.reconCode, MEMBERSHIP_ID, dataset.id]);
+    await client.query(INSERT_BATCH_GATE, [tenantId, source.gateId, dataset.id, source.batchRef, MEMBERSHIP_ID]);
     const term = GLOSSARY_FIXTURES[tenant];
     await client.query(INSERT_GLOSSARY_TERM, [tenantId, term.termId, term.termCode, term.definition, MEMBERSHIP_ID, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];

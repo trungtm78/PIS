@@ -868,6 +868,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getQualityScorecard({required String id, Map<String, Object?>? query}) =>
       execute('getQualityScorecard', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getReconciliation({required String id, Map<String, Object?>? query}) =>
+      execute('getReconciliation', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getReconciliationItem({required String id, Map<String, Object?>? query}) =>
       execute('getReconciliationItem', path: <String, Object?>{'id': id}, query: query);
 
@@ -1558,6 +1561,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAvcPolicies({Map<String, Object?>? query}) =>
       execute('listAvcPolicies', query: query);
 
+  Future<Object?> listBatchGates({Map<String, Object?>? query}) =>
+      execute('listBatchGates', query: query);
+
   Future<Object?> listBiAccessPolicies({Map<String, Object?>? query}) =>
       execute('listBiAccessPolicies', query: query);
 
@@ -1741,8 +1747,14 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listReconciliationItems({Map<String, Object?>? query}) =>
       execute('listReconciliationItems', query: query);
 
+  Future<Object?> listReconciliations({Map<String, Object?>? query}) =>
+      execute('listReconciliations', query: query);
+
   Future<Object?> listRetentionHolds({required String id, Map<String, Object?>? query}) =>
       execute('listRetentionHolds', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> listSourceMappings({Map<String, Object?>? query}) =>
+      execute('listSourceMappings', query: query);
 
   Future<Object?> listSystemTenantLicenses({required String tenantId, Map<String, Object?>? query}) =>
       execute('listSystemTenantLicenses', path: <String, Object?>{'tenantId': tenantId}, query: query);

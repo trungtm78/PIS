@@ -5201,6 +5201,14 @@
       "module": "DGV",
       "statusBasis": "convention",
       "source": "story:ST-DGV-003"
+    },
+    "MAPPING_STATE_INVALID": {
+      "status": 409,
+      "title": "Mapping state invalid",
+      "meaning": "Raised by decideSourceMapping (POST /dgv/source-mappings/{id}/decision) when the mapping is not waiting for a decision",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "story:ST-DGV-004"
     }
   }
 }

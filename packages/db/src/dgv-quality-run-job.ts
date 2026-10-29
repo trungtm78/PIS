@@ -20,6 +20,8 @@ export const QUALITY_INCIDENT_OPENED_EVENT = 'dgv.incident.opened.v1';
 const BATCH = 20;
 /** How often the job takes a run up before it gives the run up as FAILED (EXECUTION_FAILED) instead of retrying it for ever. */
 export const MAX_RUN_ATTEMPTS = 5;
+/** The most rows of a quarantine that are listed one by one as exceptions (the sample the rule keeps). */
+const QUARANTINE_LISTED = 50;
 const RUN_RESOURCE = 'quality_run';
 const INCIDENT_RESOURCE = 'quality_incident';
 
@@ -159,6 +161,7 @@ export class DgvQualityRunJob {
     for (const item of measured) {
       if (item.result === 'FAIL') item.incidentId = await this.openIncident(tx, run, item);
       await this.writeResult(tx, run.id, item);
+      await this.quarantine(tx, run, item);
     }
     if (verdict.overall === undefined) {
       await this.finishFailed(tx, run, 'NO_RULE_MEASURED', measured);
@@ -246,6 +249,21 @@ export class DgvQualityRunJob {
       causationId: run.id,
     });
     return id;
+  }
+
+  /**
+   * The rows a QUARANTINE rule kept out of the dataset are listed as open exceptions, each with the owner of the dataset: the sample the rule keeps (up to ${QUARANTINE_LISTED} ids) is what a person can work through, the count
+   * of the rest is in the result. The exceptions are resolved or waived like any other (ST-DGV-003).
+   */
+  private async quarantine(tx: TenantTx, run: LockedRun, item: Measured): Promise<void> {
+    if (item.quarantined === 0 || item.evaluation === null) return;
+    for (const rowId of item.evaluation.sampleIds.slice(0, QUARANTINE_LISTED)) {
+      await tx.query(
+        `insert into machvon.quality_exception (tenant_id, id, run_id, record_reference, owner_id, reason, status, evidence, rule_version_id, incident_id)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::jsonb, $3::uuid, $4, 'OPEN', $5::jsonb, $6::uuid, $7::uuid)`,
+        [run.id, JSON.stringify({ row_id: rowId }), run.owner_user_id, `QUARANTINED: ${item.rule.code}`, JSON.stringify({ rule_code: item.rule.code, dimension: item.rule.dimension, action: 'QUARANTINE' }), item.rule.id, item.incidentId],
+      );
+    }
   }
 
   private async writeResult(tx: TenantTx, runId: string, item: Measured): Promise<void> {

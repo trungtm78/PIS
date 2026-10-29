@@ -56,6 +56,7 @@ function incidentView(incident: IncidentRecord, access: EffectiveAccess, members
     closed_at: incident.closedAt,
     reopened_count: incident.reopenedCount,
     run_id: incident.runId,
+    reconciliation_id: incident.reconciliationId,
     created_at: incident.createdAt,
     version: incident.version,
     actions: {

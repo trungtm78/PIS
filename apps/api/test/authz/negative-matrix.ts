@@ -185,6 +185,9 @@ export interface MatrixTargets {
   /** An OPEN quality incident of the quality dataset (version 1), and an OPEN quality exception of its run (version 1), both made by someone other than the callers. */
   qualityIncidentId: string;
   qualityExceptionId: string;
+  /** A PROPOSED mapping of a field of a source into the quality dataset (version 1), proposed by someone other than the callers, and the dataset itself. */
+  sourceMappingId: string;
+  qualityDatasetId: string;
   /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
   dossierId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
@@ -1716,6 +1719,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   post_quality_exceptions_id_decision: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/quality-exceptions/${t.qualityExceptionId}/decision`, ifMatch: '"1"', body: { decision: 'RESOLVED', reason: 'Matrix probe of the decision' } }),
+  },
+  proposeSourceMapping: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/dgv/source-mappings', body: { dataset_id: t.qualityDatasetId, source_system: 'PAY', source_field: 'so_tien', target_field: 'amount_vnd', unit: 'VND' } }),
+  },
+  decideSourceMapping: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/source-mappings/${t.sourceMappingId}/decision`, ifMatch: '"1"', body: { decision: 'CONFIRMED', note: 'Matrix probe of the decision' } }),
+  },
+  runReconciliation: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/dgv/reconciliations', body: { recon_code: 'MATRIX-RECON', source_a: 'PAY.treasury_transaction', source_b: 'DIS.report_accepted', as_of_period: '2026-10', basis: 'VND, ngày Kho bạc thanh toán', tolerance_vnd: '0' } }),
   },
   registerSitePhoto: {
     referencesTenantIds: true,

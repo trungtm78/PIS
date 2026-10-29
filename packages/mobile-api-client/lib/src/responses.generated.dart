@@ -464,6 +464,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getProjectTransferImpact': PrjTransferImpactResponse.fromJson,
   'getQualityAcceptance': QmsAcceptanceLineResponse.fromJson,
   'getQualityScorecard': asObject,
+  'getReconciliation': asObject,
   'getReconciliationItem': PayReconciliationItemResponse.fromJson,
   'getReportExportDownload': DisReportExportDownloadResponse.fromJson,
   'getReportImport': DisReportImportResponse.fromJson,
@@ -521,6 +522,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAuditRecommendations': asObject,
   'listAuditRecoveryLinks': asObject,
   'listAvcPolicies': asObject,
+  'listBatchGates': ListBatchGatesResponse.fromJson,
   'listBiAccessPolicies': asObject,
   'listBiDatasets': asObject,
   'listBiDatasetVersions': asObject,
@@ -582,7 +584,9 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listQualityAcceptances': QmsAcceptanceListResponse.fromJson,
   'listReallocationProposals': asObject,
   'listReconciliationItems': PayReconciliationItemPageResponse.fromJson,
+  'listReconciliations': ListReconciliationsResponse.fromJson,
   'listRetentionHolds': PayCumulativeLedgerResponse.fromJson,
+  'listSourceMappings': ListSourceMappingsResponse.fromJson,
   'listSystemTenantLicenses': SystemLicensePageResponse.fromJson,
   'listSystemTenants': TenantSummaryPageResponse.fromJson,
   'listSystemTenantThemeVersions': ListSystemTenantThemeVersionsResponse.fromJson,
@@ -12057,6 +12061,40 @@ final class HomeMetricTileResponse implements ResponseModel {
       };
 }
 
+final class ListBatchGatesResponse implements ResponseModel {
+  const ListBatchGatesResponse({
+    this.items,
+    this.nextCursor,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ListBatchGatesResponse.fromJson(Object? json, [String path = 'ListBatchGatesResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ListBatchGatesResponse(
+      items: optionalField(map, path, 'items', asList(asObject)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>>? items;
+  final String? nextCursor;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items,
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
 final class ListIssueAssigneesResponse implements ResponseModel {
   const ListIssueAssigneesResponse({
     this.items,
@@ -12113,6 +12151,74 @@ final class ListIssueAssigneesResponseItemsItem implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'membership_id': membershipId,
         'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class ListReconciliationsResponse implements ResponseModel {
+  const ListReconciliationsResponse({
+    this.items,
+    this.nextCursor,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ListReconciliationsResponse.fromJson(Object? json, [String path = 'ListReconciliationsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ListReconciliationsResponse(
+      items: optionalField(map, path, 'items', asList(asObject)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>>? items;
+  final String? nextCursor;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items,
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ListSourceMappingsResponse implements ResponseModel {
+  const ListSourceMappingsResponse({
+    this.items,
+    this.nextCursor,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ListSourceMappingsResponse.fromJson(Object? json, [String path = 'ListSourceMappingsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ListSourceMappingsResponse(
+      items: optionalField(map, path, 'items', asList(asObject)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>>? items;
+  final String? nextCursor;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items,
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        if (asOf != null) 'as_of': asOf,
         ...extra,
       };
 }

@@ -524,6 +524,11 @@ describe('quality rules, runs on frozen snapshots and scorecards (ST-DGV-002)', 
       expect(byCode['R-WARN-ACTION']).toMatchObject({ result: 'WARN', incident_id: null });
       const incident = (await owner<{ severity: string; sla_hours: number }>('select severity, sla_hours from machvon.quality_incident where run_id = $1', [started.id]))[0];
       expect(incident).toEqual({ severity: 'HIGH', sla_hours: 24 });
+      // AC-ST-DGV-004-3: the rows kept out are listed as open exceptions of the owner of the dataset, with the incident of the rule; the rules that only warn keep nothing out.
+      const kept = await owner<{ status: string; owner_id: string; reason: string; incident_id: string | null; record_reference: { row_id: string } }>('select status, owner_id, reason, incident_id, record_reference from machvon.quality_exception where run_id = $1', [started.id]);
+      expect(kept).toHaveLength(1);
+      expect(kept[0]).toMatchObject({ status: 'OPEN', owner_id: memberId(OWNER), reason: 'QUARANTINED: R-QUARANTINE', incident_id: byCode['R-QUARANTINE']?.incident_id });
+      expect(kept[0]?.record_reference.row_id).toEqual(expect.any(String));
     });
 
     it('blocks certified figures on a failed HARD_BLOCK rule of a plain dataset without making it a hard fail', async () => {

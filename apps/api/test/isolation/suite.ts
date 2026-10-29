@@ -409,6 +409,12 @@ export const QUALITY_INCIDENT_FIXTURES: Readonly<Record<TenantName, { incidentId
   'TNT-B': { incidentId: '00000000-0000-4000-b0d3-000000000001', exceptionId: '00000000-0000-4000-b0d3-000000000002', title: 'Beta quality incident title 0001', reason: 'Beta quality exception reason 0001' },
 };
 
+/** A PROPOSED mapping of a field of a source into the dataset above, a reconciliation of two sources and a batch kept out by the gate (their field, code and reference are distinctive; tenant data). */
+export const SOURCE_FIXTURES: Readonly<Record<TenantName, { mappingId: string; sourceField: string; reconId: string; reconCode: string; gateId: string; batchRef: string }>> = {
+  'TNT-A': { mappingId: '00000000-0000-4000-a0d4-000000000001', sourceField: 'alpha_source_field_0001', reconId: '00000000-0000-4000-a0d4-000000000002', reconCode: 'ALPHA-RECON-0001', gateId: '00000000-0000-4000-a0d4-000000000003', batchRef: 'ALPHA-BATCH-0001' },
+  'TNT-B': { mappingId: '00000000-0000-4000-b0d4-000000000001', sourceField: 'beta_source_field_0001', reconId: '00000000-0000-4000-b0d4-000000000002', reconCode: 'BETA-RECON-0001', gateId: '00000000-0000-4000-b0d4-000000000003', batchRef: 'BETA-BATCH-0001' },
+};
+
 /** An ACTIVE SLA policy of each tenant (its code is distinctive; tenant configuration). */
 export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0e1-000000000001', code: 'ALPHA-SLA-POLICY-0001' },
@@ -1158,6 +1164,12 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'quality incident title', value: QUALITY_INCIDENT_FIXTURES[tenant].title },
     { kind: 'quality exception id', value: QUALITY_INCIDENT_FIXTURES[tenant].exceptionId },
     { kind: 'quality exception reason', value: QUALITY_INCIDENT_FIXTURES[tenant].reason },
+    { kind: 'source mapping id', value: SOURCE_FIXTURES[tenant].mappingId },
+    { kind: 'source mapping field', value: SOURCE_FIXTURES[tenant].sourceField },
+    { kind: 'reconciliation id', value: SOURCE_FIXTURES[tenant].reconId },
+    { kind: 'reconciliation code', value: SOURCE_FIXTURES[tenant].reconCode },
+    { kind: 'batch gate id', value: SOURCE_FIXTURES[tenant].gateId },
+    { kind: 'batch reference', value: SOURCE_FIXTURES[tenant].batchRef },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },

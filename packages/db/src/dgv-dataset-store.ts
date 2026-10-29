@@ -167,9 +167,9 @@ export const LATEST_RUN_JOIN = `left join lateral (select r.id, r.finished_at, r
                       where r.tenant_id = d.tenant_id and r.dataset_id = d.id and r.status = 'COMPLETED'
                       order by r.finished_at desc, r.id desc limit 1) run on true`;
 
-/** The incidents of the quality runs of the dataset `d` that are not closed (`open_incidents`) and the ones past their due time (`overdue_incidents`). */
-const INCIDENT_COUNTS_SQL = `(select count(*) filter (where i.status <> 'CLOSED') from machvon.quality_incident i join machvon.quality_run ir on ir.tenant_id = i.tenant_id and ir.id = i.run_id where ir.dataset_id = d.id)::text as open_incidents,
-  (select count(*) filter (where i.status <> 'CLOSED' and i.due_at < now()) from machvon.quality_incident i join machvon.quality_run ir on ir.tenant_id = i.tenant_id and ir.id = i.run_id where ir.dataset_id = d.id)::text as overdue_incidents`;
+/** The incidents of the quality runs and of the reconciliations of the dataset `d` that are not closed (`open_incidents`) and the ones past their due time (`overdue_incidents`). */
+const INCIDENT_COUNTS_SQL = `(select count(*) filter (where i.status <> 'CLOSED') from machvon.quality_incident i left join machvon.quality_run ir on ir.tenant_id = i.tenant_id and ir.id = i.run_id left join machvon.reconciliation_run ic on ic.tenant_id = i.tenant_id and ic.id = i.reconciliation_id where coalesce(ir.dataset_id, ic.dataset_id) = d.id)::text as open_incidents,
+  (select count(*) filter (where i.status <> 'CLOSED' and i.due_at < now()) from machvon.quality_incident i left join machvon.quality_run ir on ir.tenant_id = i.tenant_id and ir.id = i.run_id left join machvon.reconciliation_run ic on ic.tenant_id = i.tenant_id and ic.id = i.reconciliation_id where coalesce(ir.dataset_id, ic.dataset_id) = d.id)::text as overdue_incidents`;
 
 /**
  * The badge of BR-DGV-04: NOT_ASSESSED without a finished run, STALE when the run is older than the freshness SLO of the dataset, otherwise the

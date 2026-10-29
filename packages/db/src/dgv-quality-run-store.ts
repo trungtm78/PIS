@@ -333,8 +333,8 @@ export class DgvQualityRunStore {
     }
     const incidents = await tx.query<{ open: string; overdue: string }>(
       `select (count(*) filter (where i.status <> 'CLOSED'))::text as open, (count(*) filter (where i.status <> 'CLOSED' and i.due_at < now()))::text as overdue
-         from machvon.quality_incident i join machvon.quality_run r on r.tenant_id = i.tenant_id and r.id = i.run_id
-        where r.dataset_id = $1::uuid`,
+         from machvon.quality_incident i left join machvon.quality_run r on r.tenant_id = i.tenant_id and r.id = i.run_id left join machvon.reconciliation_run c on c.tenant_id = i.tenant_id and c.id = i.reconciliation_id
+        where coalesce(r.dataset_id, c.dataset_id) = $1::uuid`,
       [datasetId],
     );
     let ageSeconds: number | null = null;

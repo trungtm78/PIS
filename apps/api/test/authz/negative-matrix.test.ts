@@ -301,6 +301,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text || coalesce(assignee_user_id::text, ''), ',' order by id) from machvon.quality_incident where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.quality_exception where tenant_id = $1),
     (select count(*)::text from machvon.quality_incident_event where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dataset_source_mapping where tenant_id = $1),
+    (select count(*)::text from machvon.reconciliation_run where tenant_id = $1),
+    (select count(*)::text from machvon.dataset_batch_gate where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dossier where tenant_id = $1),
     (select count(*)::text from machvon.dossier_item where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
@@ -1037,6 +1040,14 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0xde, 7), qualityRunId, glossaryOwnerId, qualityRuleId, id(0xde, 6)],
       ],
     ]);
+    // A PROPOSED mapping of a field of a source into that dataset, proposed by someone other than the callers: the decision command acts on it.
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.dataset_source_mapping (tenant_id, id, dataset_id, source_system, source_field, target_field, unit, status, created_by, updated_by)
+         values ($1, $2, $3, 'PAY', 'matrix_field', 'matrix_target', 'VND', 'PROPOSED', $4, $4)`,
+        [TENANT_A, id(0xde, 8), qualityDatasetId, glossaryOwnerId],
+      ],
+    ]);
     // A DRAFT availability control policy made by someone other than the callers: the publication of a policy is judged against it.
     const avcPolicyId = id(0xdf, 1);
     await harness.owner(TENANT_A, [
@@ -1063,6 +1074,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       incomingId: id(0x77, 50),
       qualityIncidentId: id(0xde, 6),
       qualityExceptionId: id(0xde, 7),
+      sourceMappingId: id(0xde, 8),
+      qualityDatasetId,
       dossierId: id(0x77, 52),
       qualityContractId,
       qualityRuleId,

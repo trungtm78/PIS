@@ -3710,6 +3710,7 @@ final class DgvReconRequest implements RequestModel {
     required this.asOfPeriod,
     required this.basis,
     required this.toleranceVnd,
+    this.datasetId,
   });
 
   final String reconCode;
@@ -3718,6 +3719,7 @@ final class DgvReconRequest implements RequestModel {
   final String asOfPeriod;
   final String basis;
   final String toleranceVnd;
+  final String? datasetId;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -3727,6 +3729,7 @@ final class DgvReconRequest implements RequestModel {
         'as_of_period': asOfPeriod,
         'basis': basis,
         'tolerance_vnd': toleranceVnd,
+        if (datasetId != null) 'dataset_id': datasetId,
       };
 }
 

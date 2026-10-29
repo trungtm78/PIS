@@ -31,7 +31,10 @@ export interface IncidentRecord {
   closedAt: string | null;
   reopenedCount: number;
   slaBreachedAt: string | null;
-  runId: string;
+  /** The run of the rule that failed; none for an incident that is about a reconciliation. */
+  runId: string | null;
+  /** The reconciliation the incident is about; none for an incident of a rule. */
+  reconciliationId: string | null;
   createdAt: string;
   version: number;
   /** The ordering key of the list and of its cursor: the moment of creation to the microsecond. */
@@ -111,7 +114,8 @@ interface IncidentRow {
   closed_at: string | null;
   reopened_count: number;
   sla_breached_at: string | null;
-  run_id: string;
+  run_id: string | null;
+  reconciliation_id: string | null;
   created_at: string;
   version: string;
   sort_key: string;
@@ -119,13 +123,14 @@ interface IncidentRow {
 
 /** The incident `i` with the dataset of its run, the rule it failed and the readable names of its owner and handler. A dataset the viewer may not see is not here (DATASET_VISIBLE over `d`). */
 const FROM = `machvon.quality_incident i
-  join machvon.quality_run r on r.tenant_id = i.tenant_id and r.id = i.run_id
-  join machvon.dataset d on d.tenant_id = r.tenant_id and d.id = r.dataset_id
-  join machvon.quality_rule_version v on v.tenant_id = i.tenant_id and v.id = i.rule_id
+  left join machvon.quality_run r on r.tenant_id = i.tenant_id and r.id = i.run_id
+  left join machvon.reconciliation_run rc on rc.tenant_id = i.tenant_id and rc.id = i.reconciliation_id
+  join machvon.dataset d on d.tenant_id = i.tenant_id and d.id = coalesce(r.dataset_id, rc.dataset_id)
+  left join machvon.quality_rule_version v on v.tenant_id = i.tenant_id and v.id = i.rule_id
   left join machvon.tenant_user_directory own on own.tenant_id = i.tenant_id and own.membership_id = i.owner_id
   left join machvon.tenant_user_directory asg on asg.tenant_id = i.tenant_id and asg.membership_id = i.assignee_user_id`;
 
-const COLUMNS = `i.id, i.title, d.id as dataset_id, d.dataset_code, v.code as rule_code, v.dimension, i.severity, i.status, i.owner_id, own.display_name as owner_name, i.assignee_user_id, asg.display_name as assignee_name,
+const COLUMNS = `i.id, i.title, d.id as dataset_id, d.dataset_code, coalesce(v.code, rc.recon_code) as rule_code, coalesce(v.dimension, 'RECONCILIATION') as dimension, i.reconciliation_id, i.severity, i.status, i.owner_id, own.display_name as owner_name, i.assignee_user_id, asg.display_name as assignee_name,
   ${TIME('i.due_at')} as due_at, i.sla_hours, i.root_cause, i.remediation, ${TIME('i.resolved_at')} as resolved_at, i.verified_by, ${TIME('i.verified_at')} as verified_at, ${TIME('i.closed_at')} as closed_at,
   i.reopened_count, ${TIME('i.sla_breached_at')} as sla_breached_at, i.run_id, ${TIME('i.created_at')} as created_at, i.version::text as version, to_char(i.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as sort_key`;
 
@@ -153,6 +158,7 @@ const toIncident = (row: IncidentRow): IncidentRecord => ({
   reopenedCount: row.reopened_count,
   slaBreachedAt: row.sla_breached_at,
   runId: row.run_id,
+  reconciliationId: row.reconciliation_id,
   createdAt: row.created_at,
   version: Number(row.version),
   sortKey: row.sort_key,
@@ -309,6 +315,7 @@ export class DgvIncidentStore {
    * What the latest run of the dataset found for the rule of the incident after it was resolved: the run that finished last, with the result of the rule in it (none when the rule was not in that run).
    */
   async rerunEvidence(tx: TenantTx, incident: IncidentRecord): Promise<{ resolvedAt: string; rerun: { finishedAt: string; result: 'PASS' | 'WARN' | 'FAIL' | 'ERROR' } | undefined }> {
+    if (incident.reconciliationId !== null) return this.reconciliationEvidence(tx, incident);
     const [run] = await tx.query<{ finished_at: string; result: 'PASS' | 'WARN' | 'FAIL' | 'ERROR' | null }>(
       `select ${TIME('r.finished_at')} as finished_at,
               case when r.status = 'FAILED' then 'ERROR' else (select res.result from machvon.quality_rule_result res join machvon.quality_rule_version rv on rv.tenant_id = res.tenant_id and rv.id = res.rule_version_id
@@ -319,6 +326,17 @@ export class DgvIncidentStore {
       [incident.datasetId, incident.ruleCode, incident.id, incident.resolvedAt],
     );
     return { resolvedAt: incident.resolvedAt ?? '', rerun: run === undefined ? undefined : { finishedAt: run.finished_at, result: run.result ?? 'ERROR' } };
+  }
+
+  /** For an incident about a reconciliation: the latest reconciliation of the same code and period made after the resolution; matched (or within the tolerance) is a pass. */
+  private async reconciliationEvidence(tx: TenantTx, incident: IncidentRecord): Promise<{ resolvedAt: string; rerun: { finishedAt: string; result: 'PASS' | 'WARN' | 'FAIL' | 'ERROR' } | undefined }> {
+    const [run] = await tx.query<{ created_at: string; result: string }>(
+      `select ${TIME('n.created_at')} as created_at, n.result
+         from machvon.reconciliation_run n join machvon.reconciliation_run o on o.tenant_id = n.tenant_id and o.recon_code = n.recon_code and o.as_of_period = n.as_of_period and o.dataset_id is not distinct from n.dataset_id and o.id = $1::uuid
+        where n.created_at > $2::timestamptz order by n.created_at desc, n.id desc limit 1`,
+      [incident.reconciliationId, incident.resolvedAt],
+    );
+    return { resolvedAt: incident.resolvedAt ?? '', rerun: run === undefined ? undefined : { finishedAt: run.created_at, result: run.result === 'DIFFERENT' ? 'FAIL' : 'PASS' } };
   }
 
   /** CLOSE (only another person, after a run that passes) or REOPEN (the work was not enough: the handler keeps the incident). */
@@ -407,7 +425,7 @@ export class DgvIncidentStore {
       // The incident the exception goes back to: its own when that is still being worked or can be reopened, but if it is closed and a later failure of the same rule on the same dataset opened another one, that one (a
       // dataset has one incident at a time for a rule, ST-DGV-002): the old one is left closed.
       let target = old.incident_id === null ? undefined : await this.system(tx, old.incident_id);
-      if (target !== undefined && target.status === 'CLOSED') {
+      if (target !== undefined && target.status === 'CLOSED' && target.reconciliationId === null) {
         await lockIncidentOf(tx, target.datasetId, target.ruleCode);
         const active = await this.activeFor(tx, target);
         if (active !== undefined) target = active;
