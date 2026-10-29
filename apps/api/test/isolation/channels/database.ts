@@ -22,7 +22,7 @@ import {
   TENANT_IDS,
   UNIT_FIXTURES,
 } from '../suite';
-import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
+import { DELEGATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -655,6 +655,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_workflow_instance_id',
   'get_resources_approval_task',
   'get_resources_approval_task_id',
+  'createDelegation',
+  'revokeDelegation',
+  'get_resources_delegation_grant',
+  'get_resources_delegation_grant_id',
   'get_resources_quality_incident',
   'get_resources_quality_incident_id',
   'get_resources_quality_exception',
@@ -1144,6 +1148,10 @@ const INSERT_WORKFLOW_VERSION = `insert into machvon.workflow_version
 const INSERT_WORKFLOW_INSTANCE = `insert into machvon.workflow_instance
   (tenant_id, id, workflow_version_id, resource_type, resource_id, resource_version, status, started_at, temporal_workflow_id, initiator_membership_id, initiator_user_id, document_type, unit_id, business_type)
   select $1::uuid, $2::uuid, $3::uuid, 'report', $4::uuid, 1, 'Running', now(), 'appr:' || $2::text, m.id, m.user_id, 'REPORT_ACCEPT', m.organization_id, 'report.accept' from machvon.membership m where m.id = $5::uuid on conflict do nothing`;
+
+const INSERT_DELEGATION = `insert into machvon.delegation_grant
+  (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, valid_from, valid_until, reason, status)
+  values ($1, $2, $3, $4, '{approval.decide}', '{"kind":"UNIT_SUBTREE","ref_ids":[]}'::jsonb, now() - interval '1 hour', now() + interval '30 days', $5, 'Active') on conflict do nothing`;
 
 const INSERT_APPROVAL_TASK = `insert into machvon.approval_task
   (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status)
@@ -1684,6 +1692,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_WORKFLOW_VERSION, [tenantId, flow.versionId, MEMBERSHIP_ID, ACTOR_ID]);
     await client.query(INSERT_WORKFLOW_INSTANCE, [tenantId, flow.instanceId, flow.versionId, flow.resourceId, MEMBERSHIP_ID]);
     await client.query(INSERT_APPROVAL_TASK, [tenantId, flow.taskId, flow.instanceId, MEMBERSHIP_ID]);
+    const delegation = DELEGATION_FIXTURES[tenant];
+    await client.query(INSERT_DELEGATION, [tenantId, delegation.id, MEMBERSHIP_ID, member.id, delegation.reason]);
     const term = GLOSSARY_FIXTURES[tenant];
     await client.query(INSERT_GLOSSARY_TERM, [tenantId, term.termId, term.termCode, term.definition, MEMBERSHIP_ID, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];

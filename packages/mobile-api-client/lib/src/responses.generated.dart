@@ -288,6 +288,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_data_retention_policy_id': GetResourcesDataRetentionPolicyIdResponse.fromJson,
   'get_resources_dataset_contract': GetResourcesDatasetContractResponse.fromJson,
   'get_resources_dataset_contract_id': GetResourcesDatasetContractIdResponse.fromJson,
+  'get_resources_delegation_grant': GetResourcesDelegationGrantResponse.fromJson,
+  'get_resources_delegation_grant_id': GetResourcesDelegationGrantIdResponse.fromJson,
   'get_resources_delivery_attempt': GetResourcesDeliveryAttemptResponse.fromJson,
   'get_resources_delivery_attempt_id': GetResourcesDeliveryAttemptIdResponse.fromJson,
   'get_resources_device_registration': GetResourcesDeviceRegistrationResponse.fromJson,
@@ -7414,6 +7416,228 @@ final class GetResourcesDatasetContractResponse implements ResponseModel {
   factory GetResourcesDatasetContractResponse.fromJson(Object? json, [String path = 'GetResourcesDatasetContractResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesDatasetContractResponse(
+      items: optionalField(map, path, 'items', asList(asObject)),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      snapshotId: optionalField(map, path, 'snapshot_id', asString),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>>? items;
+  final String? nextCursor;
+  final String? snapshotId;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items,
+        if (nextCursor != null) 'next_cursor': nextCursor,
+        if (snapshotId != null) 'snapshot_id': snapshotId,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class GetResourcesDelegationGrantIdResponse implements ResponseModel {
+  const GetResourcesDelegationGrantIdResponse({
+    this.id,
+    this.delegator,
+    this.delegate,
+    this.permissions,
+    this.scopeKind,
+    this.scopeRefIds,
+    this.validFrom,
+    this.validUntil,
+    this.reason,
+    this.legalBasisRef,
+    this.status,
+    this.revokedAt,
+    this.revokeReason,
+    this.endedAt,
+    this.endReason,
+    this.createdAt,
+    this.version,
+    this.actions,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesDelegationGrantIdResponse.fromJson(Object? json, [String path = 'GetResourcesDelegationGrantIdResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesDelegationGrantIdResponse(
+      id: optionalField(map, path, 'id', asString),
+      delegator: optionalField(map, path, 'delegator', GetResourcesDelegationGrantIdResponseDelegator.fromJson),
+      delegate: optionalField(map, path, 'delegate', GetResourcesDelegationGrantIdResponseDelegate.fromJson),
+      permissions: optionalField(map, path, 'permissions', asList(asString)),
+      scopeKind: optionalField(map, path, 'scope_kind', asString),
+      scopeRefIds: optionalField(map, path, 'scope_ref_ids', asList(asString)),
+      validFrom: optionalField(map, path, 'valid_from', asString),
+      validUntil: optionalField(map, path, 'valid_until', asString),
+      reason: optionalField(map, path, 'reason', asString),
+      legalBasisRef: optionalField(map, path, 'legal_basis_ref', nullable(asString)),
+      status: optionalField(map, path, 'status', asString),
+      revokedAt: optionalField(map, path, 'revoked_at', nullable(asString)),
+      revokeReason: optionalField(map, path, 'revoke_reason', nullable(asString)),
+      endedAt: optionalField(map, path, 'ended_at', nullable(asString)),
+      endReason: optionalField(map, path, 'end_reason', nullable(asString)),
+      createdAt: optionalField(map, path, 'created_at', asString),
+      version: optionalField(map, path, 'version', asInt),
+      actions: optionalField(map, path, 'actions', GetResourcesDelegationGrantIdResponseActions.fromJson),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'delegator', 'delegate', 'permissions', 'scope_kind', 'scope_ref_ids', 'valid_from', 'valid_until', 'reason', 'legal_basis_ref', 'status', 'revoked_at', 'revoke_reason', 'ended_at', 'end_reason', 'created_at', 'version', 'actions', 'as_of'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final GetResourcesDelegationGrantIdResponseDelegator? delegator;
+  final GetResourcesDelegationGrantIdResponseDelegate? delegate;
+  final List<String>? permissions;
+  final String? scopeKind;
+  final List<String>? scopeRefIds;
+  final String? validFrom;
+  final String? validUntil;
+  final String? reason;
+  final String? legalBasisRef;
+  final String? status;
+  final String? revokedAt;
+  final String? revokeReason;
+  final String? endedAt;
+  final String? endReason;
+  final String? createdAt;
+  final int? version;
+  final GetResourcesDelegationGrantIdResponseActions? actions;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (delegator != null) 'delegator': delegator!.toJson(),
+        if (delegate != null) 'delegate': delegate!.toJson(),
+        if (permissions != null) 'permissions': permissions,
+        if (scopeKind != null) 'scope_kind': scopeKind,
+        if (scopeRefIds != null) 'scope_ref_ids': scopeRefIds,
+        if (validFrom != null) 'valid_from': validFrom,
+        if (validUntil != null) 'valid_until': validUntil,
+        if (reason != null) 'reason': reason,
+        if (legalBasisRef != null) 'legal_basis_ref': legalBasisRef,
+        if (status != null) 'status': status,
+        if (revokedAt != null) 'revoked_at': revokedAt,
+        if (revokeReason != null) 'revoke_reason': revokeReason,
+        if (endedAt != null) 'ended_at': endedAt,
+        if (endReason != null) 'end_reason': endReason,
+        if (createdAt != null) 'created_at': createdAt,
+        if (version != null) 'version': version,
+        if (actions != null) 'actions': actions!.toJson(),
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class GetResourcesDelegationGrantIdResponseActions implements ResponseModel {
+  const GetResourcesDelegationGrantIdResponseActions({
+    this.revoke,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesDelegationGrantIdResponseActions.fromJson(Object? json, [String path = 'GetResourcesDelegationGrantIdResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesDelegationGrantIdResponseActions(
+      revoke: optionalField(map, path, 'revoke', asBool),
+      extra: unknownFields(map, path, const <String>{'revoke'}, strict: false),
+    );
+  }
+
+  final bool? revoke;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (revoke != null) 'revoke': revoke,
+        ...extra,
+      };
+}
+
+final class GetResourcesDelegationGrantIdResponseDelegate implements ResponseModel {
+  const GetResourcesDelegationGrantIdResponseDelegate({
+    this.id,
+    this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesDelegationGrantIdResponseDelegate.fromJson(Object? json, [String path = 'GetResourcesDelegationGrantIdResponseDelegate']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesDelegationGrantIdResponseDelegate(
+      id: optionalField(map, path, 'id', asString),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (name != null) 'name': name,
+        ...extra,
+      };
+}
+
+final class GetResourcesDelegationGrantIdResponseDelegator implements ResponseModel {
+  const GetResourcesDelegationGrantIdResponseDelegator({
+    this.id,
+    this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesDelegationGrantIdResponseDelegator.fromJson(Object? json, [String path = 'GetResourcesDelegationGrantIdResponseDelegator']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesDelegationGrantIdResponseDelegator(
+      id: optionalField(map, path, 'id', asString),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (name != null) 'name': name,
+        ...extra,
+      };
+}
+
+final class GetResourcesDelegationGrantResponse implements ResponseModel {
+  const GetResourcesDelegationGrantResponse({
+    this.items,
+    this.nextCursor,
+    this.snapshotId,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GetResourcesDelegationGrantResponse.fromJson(Object? json, [String path = 'GetResourcesDelegationGrantResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GetResourcesDelegationGrantResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),

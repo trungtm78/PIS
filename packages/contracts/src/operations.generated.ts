@@ -354,6 +354,8 @@ export const OPERATIONS = {
   "get_resources_data_retention_policy_id": { method: "get", path: "/resources/data_retention_policy/{id}", versioned: false, stepUp: null, permission: "adm.retention.read" },
   "get_resources_dataset_contract": { method: "get", path: "/resources/dataset_contract", versioned: false, stepUp: null, permission: "dataset_contract.read" },
   "get_resources_dataset_contract_id": { method: "get", path: "/resources/dataset_contract/{id}", versioned: false, stepUp: null, permission: "dataset_contract.read" },
+  "get_resources_delegation_grant": { method: "get", path: "/resources/delegation_grant", versioned: false, stepUp: null, permission: "iam.delegation.read" },
+  "get_resources_delegation_grant_id": { method: "get", path: "/resources/delegation_grant/{id}", versioned: false, stepUp: null, permission: "iam.delegation.read" },
   "get_resources_delivery_attempt": { method: "get", path: "/resources/delivery_attempt", versioned: false, stepUp: null, permission: "delivery_attempt.read" },
   "get_resources_delivery_attempt_id": { method: "get", path: "/resources/delivery_attempt/{id}", versioned: false, stepUp: null, permission: "delivery_attempt.read" },
   "get_resources_device_registration": { method: "get", path: "/resources/device_registration", versioned: false, stepUp: null, permission: "device_registration.read" },

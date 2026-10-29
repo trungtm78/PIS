@@ -130,8 +130,10 @@ describe('getMyEffectiveAccess (ST-IAM-005, IAM-09)', () => {
       try {
         await delegation.query('set session_replication_role = replica');
         await delegation.query(
-          `insert into machvon.delegation_grant (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, valid_from, valid_until, reason, status)
-           values ($1, $2, $3, $4, array['approval.decide'], '{"kind":"UNIT_SUBTREE","ref_ids":[]}'::jsonb, ${from}, ${until}, 'cover', $5)`,
+          // An ended or revoked delegation carries when and why, as the table asks.
+          `insert into machvon.delegation_grant (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, valid_from, valid_until, reason, status, ended_at, end_reason, revoked_by, revoked_at, revoke_reason)
+           values ($1, $2, $3, $4, array['approval.decide'], '{"kind":"UNIT_SUBTREE","ref_ids":[]}'::jsonb, ${from}, ${until}, 'cover', $5::text,
+                   case when $5::text = 'Ended' then now() end, case when $5::text = 'Ended' then 'EXPIRED' end, case when $5::text = 'Revoked' then $3::uuid end, case when $5::text = 'Revoked' then now() end, case when $5::text = 'Revoked' then 'cover' end)`,
           [TENANT_A, id(0x55, counter), memberId(DELEGATOR), memberId(ME), status],
         );
       } finally {

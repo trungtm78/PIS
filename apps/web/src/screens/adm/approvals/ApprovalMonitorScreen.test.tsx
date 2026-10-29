@@ -48,7 +48,7 @@ interface World {
   failing: boolean;
 }
 
-function open(state: Partial<World> = {}, options: { permissions?: readonly string[]; mode?: 'FULL' | 'READ_ONLY'; command?: (operation: string, input: unknown) => unknown } = {}): Harness & { world: World } {
+function open(state: Partial<World> = {}, options: { permissions?: readonly string[]; mode?: 'FULL' | 'READ_ONLY'; command?: (operation: string, input: unknown) => unknown } = {}): Harness & { world: World; queries: { getQueryCache(): { getAll(): Array<{ queryKey: readonly unknown[] }> } } } {
   const world: World = { tasks: [], failing: false, ...state };
   const h = baseHarness(() => new Error('unexpected read'), options.command);
   (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string) => {
@@ -56,8 +56,8 @@ function open(state: Partial<World> = {}, options: { permissions?: readonly stri
     if (operation === 'get_resources_membership') return Promise.resolve(MEMBERS);
     return Promise.reject(new Error(`unexpected readAll ${operation}`));
   });
-  mountInSession(<ApprovalMonitorScreen route={ROUTE} />, h, { permissions: options.permissions ?? OPERATOR, ...(options.mode === undefined ? {} : { mode: options.mode }) }, '/adm/adm-18');
-  return { ...h, world };
+  const mounted = mountInSession(<ApprovalMonitorScreen route={ROUTE} />, h, { permissions: options.permissions ?? OPERATOR, ...(options.mode === undefined ? {} : { mode: options.mode }) }, '/adm/adm-18');
+  return { ...h, world, queries: mounted.queries };
 }
 
 const commandsCalled = (h: Harness, operation: string): Array<{ path?: Record<string, string>; body?: Record<string, unknown>; ifMatchVersion?: number }> =>
@@ -198,6 +198,28 @@ describe('ApprovalMonitorScreen (ADM-18): the approvals that run', () => {
     const denied = open({ tasks: [task(1)] }, { permissions: [] });
     await waitFor(() => expect(screen.queryByTestId('tasks')).toBeNull());
     expect(denied.client.readAll).not.toHaveBeenCalled();
+  });
+
+  it('reads the directory in the scope of the membership that is signed in: its query is keyed by the tenant and the membership, so switching memberships never shows the other directory', async () => {
+    const h = open({ tasks: [task(1)] });
+    await screen.findByTestId('tasks');
+    fireEvent.click(document.querySelector('[data-action="reassign"]') as HTMLElement);
+    await waitFor(() =>
+      expect(
+        h.queries
+          .getQueryCache()
+          .getAll()
+          .some((query) => query.queryKey.includes('assignees')),
+      ).toBe(true),
+    );
+    const key =
+      h.queries
+        .getQueryCache()
+        .getAll()
+        .find((query) => query.queryKey.includes('assignees'))?.queryKey ?? [];
+    expect(key.slice(0, 2)).toEqual(['adm', 'approvals']);
+    expect(typeof key[2]).toBe('string');
+    expect(typeof key[3]).toBe('string');
   });
 });
 

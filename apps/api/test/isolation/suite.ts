@@ -427,6 +427,12 @@ export const WORKFLOW_FIXTURES: Readonly<Record<TenantName, { versionId: string;
   'TNT-B': { versionId: '00000000-0000-4000-b0d6-000000000001', instanceId: '00000000-0000-4000-b0d6-000000000002', taskId: '00000000-0000-4000-b0d6-000000000003', resourceId: '00000000-0000-4000-b0d6-000000000004' },
 };
 
+/** An ACTIVE delegation of each tenant from the fixture membership to the second one (its reason is distinctive; tenant data). */
+export const DELEGATION_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d7-000000000001', reason: 'ALPHA-DELEGATION-REASON-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d7-000000000001', reason: 'BETA-DELEGATION-REASON-0001' },
+};
+
 /** An ACTIVE SLA policy of each tenant (its code is distinctive; tenant configuration). */
 export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0e1-000000000001', code: 'ALPHA-SLA-POLICY-0001' },
@@ -1189,6 +1195,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'workflow instance id', value: WORKFLOW_FIXTURES[tenant].instanceId },
     { kind: 'approval task id', value: WORKFLOW_FIXTURES[tenant].taskId },
     { kind: 'workflow resource id', value: WORKFLOW_FIXTURES[tenant].resourceId },
+    { kind: 'delegation id', value: DELEGATION_FIXTURES[tenant].id },
+    { kind: 'delegation reason', value: DELEGATION_FIXTURES[tenant].reason },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },

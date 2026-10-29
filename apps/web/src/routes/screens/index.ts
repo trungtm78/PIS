@@ -10,6 +10,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'ADM-03': () => import('../../screens/adm/RolesGrantsScreen'),
   'ADM-17': () => import('../../screens/adm/GuestContractorsScreen'),
   'ADM-05': () => import('../../screens/adm/SharedCatalogueScreen'),
+  'ADM-04': () => import('../../screens/adm/delegations/DelegationScreen'),
   'ADM-06': () => import('../../screens/adm/workflow/WorkflowScreen'),
   'ADM-18': () => import('../../screens/adm/approvals/ApprovalMonitorScreen'),
   'ADM-07': () => import('../../screens/adm/WorkCalendarScreen'),

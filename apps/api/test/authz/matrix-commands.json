@@ -340,6 +340,8 @@
     "decideApprovalTask",
     "reassignApprovalTask",
     "cancelWorkflowInstance",
+    "createDelegation",
+    "revokeDelegation",
     "post_quality_exceptions_id_decision",
     "softCloseReportingPeriod",
     "stageMasterImport",

@@ -6,9 +6,8 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { Field } from '../../dgv/components';
-import { useMembers } from '../../dgv/hooks';
 import { CommandFrame } from '../../qms/CommandFrame';
-import { useCancelInstance, useOpenTasks, useReassign } from './hooks';
+import { useAssignees, useCancelInstance, useOpenTasks, useReassign } from './hooks';
 import { BUSINESS_TYPES, businessTypeLabel, problemMessage } from './labels';
 import { NO_FILTER, READ_PERMISSION, REASON_MIN, applyFilters, byUrgency, describeProblem } from './model';
 import type { Filters, MonitorTask } from './model';
@@ -144,7 +143,7 @@ function MonitorContent({ route }: ScreenProps) {
 function ReassignDialog({ task, onClose }: { task: MonitorTask; onClose: () => void }) {
   const { t } = useTranslation();
   const reassign = useReassign();
-  const members = useMembers(true);
+  const members = useAssignees(true);
   const [to, setTo] = useState('');
   const [reason, setReason] = useState('');
   const [submitted, setSubmitted] = useState(false);

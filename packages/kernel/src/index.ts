@@ -506,5 +506,7 @@ export { DIFFERENCE_KINDS, RECON_BASIS, RECON_SOURCE_A, RECON_SOURCE_B, assertCo
 export type { ConfirmedMapping, ReconDifference, DifferenceKind, GateOutcome, ReconOutcome, ReconResult, ReportedLine, TreasuryLine } from './dgv-recon.ts';
 export { PROFILE_LOCALES, isTimeZone, maskEmail, parseProfilePatch } from './iam-profile.ts';
 export type { ProfileLocale, ProfilePatch } from './iam-profile.ts';
+export { DELEGABLE_PERMISSIONS, DELEGATION_SCOPE_KINDS, MAX_DELEGATION_DAYS, assertValidDelegation, delegationAt, delegatorHolds, validateDelegation } from './adm-delegation.ts';
+export type { DelegationDefect, DelegationRequest } from './adm-delegation.ts';
 export { ASSIGNEE_RULE_TYPES, BUSINESS_TYPES, MAX_MIN_APPROVALS, MAX_SLA_WORKING_HOURS, MAX_STEPS, OUTCOMES as WORKFLOW_OUTCOMES, TIMEOUT_ACTIONS, advance as advanceWorkflow, assertValidDefinition, businessTypeOf, finalCommandKey, requiredApprovals, slaAction, validateDefinition } from './adm-workflow.ts';
 export type { Advance as WorkflowAdvance, AssigneeRule, BusinessTypeSpec, DefinitionDefect, Decision as ApprovalDecisionKind, Outcome as WorkflowOutcome, SlaAction as ApprovalSlaAction, TaskClock as ApprovalTaskClock, WorkflowDefinition as ApprovalWorkflowDefinition, WorkflowStep } from './adm-workflow.ts';

@@ -394,7 +394,12 @@ describe('the approval engine (ST-ADM-012, ADM 3.7)', () => {
       expect(await mineOf()).toEqual([]);
       expect(await refusal(decide(DELEGATE, task.id, task.version, 'approve'))).toMatchObject({ code: 'APPROVER_NOT_AUTHORIZED', status: 403 });
       // The same delegation, widened to the unit of the approval.
-      await owner("update machvon.delegation_grant set scope_json = jsonb_build_object('kind', 'UNIT_ONLY', 'ref_ids', jsonb_build_array($2::text)) where id = $1", [grant?.id, unitId(ROOT)]);
+      // What a delegation grants never changes in life (a guard trigger says so); the fixture widens it as a record from before the rule.
+      await harness.owner(TENANT_A, [
+        ['alter table machvon.delegation_grant disable trigger delegation_grant_guard', []],
+        ["update machvon.delegation_grant set scope_json = jsonb_build_object('kind', 'UNIT_ONLY', 'ref_ids', jsonb_build_array($2::text)) where id = $1", [grant?.id, unitId(ROOT)]],
+        ['alter table machvon.delegation_grant enable trigger delegation_grant_guard', []],
+      ]);
       const seen = await mineOf();
       expect(seen.map((row) => [row.assigneeId, row.delegatedToMe])).toEqual([[memberId(LEADER_B), true]]);
       expect((await as((tx) => store.findTask(tx, task.id, memberId(DELEGATE)), DELEGATE))?.delegatedToMe).toBe(true);
@@ -417,7 +422,7 @@ describe('the approval engine (ST-ADM-012, ADM 3.7)', () => {
       // Whoever decided keeps seeing it after the delegation ended.
       const task = await taskOf(instance.id, LEADER_C);
       expect(await decide(OFFICER, task.id, task.version, 'approve')).toMatchObject({ kind: 'DECIDED' });
-      await owner("update machvon.delegation_grant set status = 'Ended' where delegate_membership_id = $1", [memberId(OFFICER)]);
+      await owner("update machvon.delegation_grant set status = 'Ended', ended_at = now(), end_reason = 'EXPIRED' where delegate_membership_id = $1", [memberId(OFFICER)]);
       expect(await seen()).toBe(1);
     });
 

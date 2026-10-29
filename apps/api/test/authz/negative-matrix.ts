@@ -194,6 +194,8 @@ export interface MatrixTargets {
   workflowDraftId: string;
   approvalTaskId: string;
   workflowInstanceId: string;
+  /** An ACTIVE delegation (version 1) from someone other than the callers. */
+  delegationId: string;
   qualityDatasetId: string;
   /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
   dossierId: string;
@@ -1766,6 +1768,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideApprovalTask: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/approval-tasks/${t.approvalTaskId}/decision`, ifMatch: '"1"', body: { decision: 'approve' } }),
+  },
+  createDelegation: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/delegations',
+      body: { delegate_membership_id: t.recipientMembershipId, permissions: ['approval.decide'], scope_kind: 'UNIT_SUBTREE', scope_ref_ids: ['00000000-0000-4000-8000-0000000000d1'], valid_from: '2099-01-01T00:00:00Z', valid_until: '2099-01-08T00:00:00Z', reason: REASON },
+    }),
+  },
+  revokeDelegation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/delegations/${t.delegationId}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   reassignApprovalTask: {
     referencesTenantIds: true,

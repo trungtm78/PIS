@@ -1066,6 +1066,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesDatasetContractId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_dataset_contract_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesDelegationGrant({Map<String, Object?>? query}) =>
+      execute('get_resources_delegation_grant', query: query);
+
+  Future<Object?> getResourcesDelegationGrantId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_delegation_grant_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesDeliveryAttempt({Map<String, Object?>? query}) =>
       execute('get_resources_delivery_attempt', query: query);
 

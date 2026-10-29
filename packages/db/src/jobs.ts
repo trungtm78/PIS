@@ -1,5 +1,7 @@
 import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
 import { APPROVAL_OPEN_GAUGE, APPROVAL_OVERDUE_GAUGE } from './approval-sla-job.ts';
+import { DELEGATION_ACTIVE_GAUGE } from './delegation-store.ts';
+import type { DelegationPassResult } from './delegation-store.ts';
 import type { SlaSweepResult } from './approval-store.ts';
 import { DGV_NOT_ASSESSED_GAUGE } from './dgv-quality-run-job.ts';
 import type { AuditSealJob } from './audit-seal-job.ts';
@@ -46,6 +48,8 @@ export const JOB_INTERVAL_SECONDS = {
   // Every minute: an event of the integration inbox waits at most a minute after its time has come (1, 5, 30 minutes between attempts, ST-ADM-018); the pass is idempotent.
   // Every 15 minutes: an issue that reaches 100 or 150 percent of its SLA is escalated within a quarter of an hour; the pass is idempotent (ST-ISS-004).
   'issue-sla': 900,
+  // Every minute: a delegation whose first instant has come is put in force, one whose window ended or whose delegator lost the authority it passed on is Ended (ST-ADM-014); the pass is idempotent.
+  'delegation-lifecycle': 60,
   // Every 5 minutes: an approval task is reminded at 80 percent of the working time to its deadline and dealt with at the deadline as its step says (ST-ADM-013); the pass is idempotent.
   'approval-sla': 300,
   'integration-inbox': 60,
@@ -214,6 +218,8 @@ export interface StandardJobDeps {
    * working time has reached; tells how many issues are open and how many escalations wait, for the gauges.
    */
   issueSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaPassResult> };
+  /** The pass over the delegations of a tenant that are not over (ST-ADM-014): puts the waiting ones in force and ends the ones whose window or source is over; tells how many are in force, for the gauge. */
+  delegationLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DelegationPassResult> };
   /** The pass over the open approval tasks of a tenant (ST-ADM-013): the reminders, the escalations and the expiries of the SLA; tells how many tasks are open and overdue, for the gauges. */
   approvalSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaSweepResult> };
   /** Takes up the inbound provider events that are due and have an adapter, and retries the failed ones when their wait is over (ST-ADM-018). */
@@ -504,6 +510,25 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
           for (const [severity, count] of Object.entries(open)) metrics.gauge(OPEN_ISSUES_GAUGE, count, { severity });
           metrics.gauge(PENDING_ESCALATIONS_GAUGE, pending);
+        }
+      },
+    });
+  }
+  const delegations = deps.delegationLifecycle;
+  if (delegations !== undefined) {
+    handlers.push({
+      name: 'delegation-lifecycle',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let active = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            active += (await delegations.run(workerContext(tenantId), now)).active;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(DELEGATION_ACTIVE_GAUGE, active);
         }
       },
     });

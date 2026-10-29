@@ -356,6 +356,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'get_resources_data_retention_policy_id': OperationDescriptor(method: 'GET', path: '/resources/data_retention_policy/{id}', versioned: false, stepUp: null, permission: 'adm.retention.read'),
   'get_resources_dataset_contract': OperationDescriptor(method: 'GET', path: '/resources/dataset_contract', versioned: false, stepUp: null, permission: 'dataset_contract.read'),
   'get_resources_dataset_contract_id': OperationDescriptor(method: 'GET', path: '/resources/dataset_contract/{id}', versioned: false, stepUp: null, permission: 'dataset_contract.read'),
+  'get_resources_delegation_grant': OperationDescriptor(method: 'GET', path: '/resources/delegation_grant', versioned: false, stepUp: null, permission: 'iam.delegation.read'),
+  'get_resources_delegation_grant_id': OperationDescriptor(method: 'GET', path: '/resources/delegation_grant/{id}', versioned: false, stepUp: null, permission: 'iam.delegation.read'),
   'get_resources_delivery_attempt': OperationDescriptor(method: 'GET', path: '/resources/delivery_attempt', versioned: false, stepUp: null, permission: 'delivery_attempt.read'),
   'get_resources_delivery_attempt_id': OperationDescriptor(method: 'GET', path: '/resources/delivery_attempt/{id}', versioned: false, stepUp: null, permission: 'delivery_attempt.read'),
   'get_resources_device_registration': OperationDescriptor(method: 'GET', path: '/resources/device_registration', versioned: false, stepUp: null, permission: 'device_registration.read'),

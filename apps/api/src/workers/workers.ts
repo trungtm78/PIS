@@ -1,3 +1,4 @@
+import { DelegationLifecycleJob } from '../modules/adm/delegation-lifecycle';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
 import { ApprovalSlaJob, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, standardJobs } from '@machvon/db';
@@ -84,6 +85,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const petitionDue = new BidPetitionDue(audit);
   const permitExpiry = new PmtPermitExpiry(audit);
   const waiverExpiry = new PmtWaiverExpiry(audit);
+  const delegationLifecycle = new DelegationLifecycleJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const approvalSla = new ApprovalSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const issueSla = new IssSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const dgvQuality = new DgvQualityRunJob(deps.tenants, audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
@@ -134,6 +136,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     permitExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => permitExpiry.run(tx, ctx.membershipId, now)) },
     gateWaiverExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => waiverExpiry.run(tx, ctx.membershipId, now)) },
     issueSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => issueSla.run(tx, ctx.membershipId, now)) },
+    delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
     approvalSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => approvalSla.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),
     ...(deps.notificationDelivery === undefined ? {} : { notificationDelivery: deps.notificationDelivery }),

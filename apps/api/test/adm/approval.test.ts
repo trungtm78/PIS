@@ -211,7 +211,7 @@ describe('the approval workflows over HTTP (ST-ADM-012)', () => {
     expect(await call('POST', `/approval-tasks/${task?.id}/decision`, { member: DELEGATE, ifMatch, body, claims: SECOND_FACTOR })).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
     expect((await rows<{ decided_by: string; on_behalf_of_id: string }>('select decided_by, on_behalf_of_id from machvon.approval_task where id = $1', [task?.id]))[0]).toEqual({ decided_by: memberId(DELEGATE), on_behalf_of_id: memberId(LEADER_B) });
     // They still see the task they decided once the delegation has ended.
-    await rows("update machvon.delegation_grant set status = 'Ended' where delegate_membership_id = $1", [memberId(DELEGATE)]);
+    await rows("update machvon.delegation_grant set status = 'Ended', ended_at = now(), end_reason = 'EXPIRED' where delegate_membership_id = $1", [memberId(DELEGATE)]);
     expect(await call('GET', `/resources/approval_task/${task?.id}`, { member: DELEGATE })).toMatchObject({ status: 200, json: { id: task?.id, status: 'Decided' } });
   });
 

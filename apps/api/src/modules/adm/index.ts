@@ -5,6 +5,7 @@ import { APPROVAL_FINAL_COMMANDS, ApprovalService, FinalCommandRegistry } from '
 import { AuditEventsController } from './audit-events.controller';
 import { AuditExportsController } from './audit-export.controller';
 import { SigningCertificateReadsController, SigningCertificatesController } from './certificates.controller';
+import { DelegationCommandsController, DelegationReadsController } from './delegation.controller';
 import { DoaMatricesController, DoaMatrixReadsController } from './doa-matrix.controller';
 import { GuestContractorController } from './guest-contractor.controller';
 import { INVITATION_MAILER, MockInvitationMailer } from './invitation-mailer';
@@ -51,6 +52,8 @@ export const admModule = defineModule({
     WorkflowVersionReadsController,
     WorkflowInstanceReadsController,
     ApprovalTaskReadsController,
+    DelegationCommandsController,
+    DelegationReadsController,
   ],
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [

@@ -1,0 +1,19 @@
+/* ADM-04: the bar shows how much of the 90 days a delegation takes; it never runs past the whole bar (UI-ADM-04). */
+.adm-delegation .delegation-bar {
+  height: 8px;
+  max-width: 240px;
+  margin-top: 4px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #e8e3e5;
+}
+
+.adm-delegation .delegation-bar-fill {
+  height: 100%;
+  max-width: 100%;
+  background: #1f6f3a;
+}
+
+.adm-delegation .delegation-permission {
+  display: block;
+}
