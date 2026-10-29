@@ -22,15 +22,12 @@ export function toPaymentPage(raw: unknown): PaymentPage {
   };
 }
 
-/** The invoices a payment can settle: the ones that were issued and are not paid (the server judges the same, and the amount). */
-export const PAYABLE = ['Issued', 'Sent', 'PartiallyPaid', 'Overdue'] as const;
-export const payableInvoices = (invoices: readonly InvoiceView[]): InvoiceView[] => invoices.filter((invoice) => (PAYABLE as readonly string[]).includes(invoice.status));
+/** The invoices a payment can settle: issued and not paid (an adjusted one still owes what its adjustments left of it), never an adjustment (it is folded into the invoice it adjusts) and never a replaced one. The server judges the same, and the amount. */
+export const PAYABLE = ['Issued', 'Sent', 'PartiallyPaid', 'Overdue', 'Adjusted'] as const;
+export const payableInvoices = (invoices: readonly InvoiceView[]): InvoiceView[] => invoices.filter((invoice) => invoice.kind !== 'ADJUSTMENT' && (PAYABLE as readonly string[]).includes(invoice.status));
 
-/** What an invoice has been paid so far and what is left, in whole VND, from the payments that matched it. */
-export function outstandingOf(invoice: Pick<InvoiceView, 'totalVnd' | 'payments'>): string {
-  const paid = invoice.payments.filter((payment) => payment.status === 'Matched').reduce((sum, payment) => sum + BigInt(/^-?[0-9]{1,24}$/.test(payment.amountVnd) ? payment.amountVnd : '0'), 0n);
-  return (BigInt(/^-?[0-9]{1,24}$/.test(invoice.totalVnd) ? invoice.totalVnd : '0') - paid).toString();
-}
+/** What is still owed on an invoice, as the server works it out (it knows the adjustments and the invoices that were replaced, which a page of the list may not have). */
+export const outstandingOf = (invoice: Pick<InvoiceView, 'outstandingVnd'>): string => invoice.outstandingVnd;
 
 export const MIN_REASON = 10;
 export const MAX_REASON = 2000;

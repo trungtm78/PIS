@@ -1,5 +1,5 @@
-import { DomainError, ISSUE_MAX_ATTEMPTS, ISSUE_WINDOW_MS, addDays, billingPeriodAt, daysInPeriod, invoiceCodeOf, invoiceTotals, isBillingPeriod, nextIssueAttempt, priceForDays, priceLine, suspensionProposed, usageLine, versionConflict, vietnamDateOf } from '@machvon/kernel';
-import type { BillingPeriod, InvoiceLineDraft, MeteredFeature, PlanBillingCycle, PricedInvoiceLine, VatCategory } from '@machvon/kernel';
+import { DomainError, ISSUE_MAX_ATTEMPTS, ISSUE_WINDOW_MS, addDays, billingPeriodAt, daysInPeriod, invoiceCodeOf, invoiceTotals, isBillingPeriod, judgeCorrection, nextIssueAttempt, priceCorrection, priceForDays, priceLine, receivableVnd, correctionDefects, suspensionProposed, usageLine, versionConflict, vietnamDateOf } from '@machvon/kernel';
+import type { BillingPeriod, CorrectionInput, CorrectionKind, InvoiceLineDraft, MeteredFeature, PlanBillingCycle, PricedInvoiceLine, VatCategory } from '@machvon/kernel';
 import type { ApprovalEffects } from './approval-store.ts';
 import { EInvoiceProviderUnavailable } from './einvoice-provider.ts';
 import type { EInvoiceIssued, EInvoiceIssueRequest, EInvoiceProviderPort } from './einvoice-provider.ts';
@@ -28,6 +28,10 @@ export interface InvoiceRow {
   providerRef: string | null;
   issuedAt: Date | null;
   dueAt: string | null;
+  /** The invoice a correction corrects, and why, with the document of the buyer's agreement. */
+  relatedInvoiceId: string | null;
+  correctionReason: string | null;
+  agreementDocumentRef: string | null;
   issueAttempts: number;
   nextAttemptAt: Date | null;
   issueError: string | null;
@@ -87,6 +91,9 @@ interface InvoiceDbRow {
   provider_ref: string | null;
   issued_at: Date | null;
   due_at: string | null;
+  related_invoice_id: string | null;
+  correction_reason: string | null;
+  agreement_document_ref: string | null;
   issue_attempts: number;
   next_attempt_at: Date | null;
   issue_error: string | null;
@@ -126,7 +133,7 @@ const SUBSCRIPTION_COLUMNS = `id, plan_version_id, cycle, billing_anchor::text, 
 const BILLABLE_SQL = "(status in ('Active', 'PastDue') or (status = 'Cancelled' and cancel_at_period_end) or status = 'Expired')";
 
 const INVOICE_COLUMNS = `id, subscription_id, invoice_code, period_start::text, period_end::text, kind, status, subtotal_vnd::text, vat_vnd::text, total_vnd::text, buyer_snapshot, einvoice_provider, einvoice_template_code,
-  einvoice_series, einvoice_number, tax_authority_code, lookup_code, provider_ref, issued_at, due_at::text, issue_attempts, next_attempt_at, issue_error, version::text`;
+  einvoice_series, einvoice_number, tax_authority_code, lookup_code, provider_ref, issued_at, due_at::text, related_invoice_id, correction_reason, agreement_document_ref, issue_attempts, next_attempt_at, issue_error, version::text`;
 const LINE_COLUMNS = 'id, invoice_id, line_no, line_kind, description, amount_vnd::text, vat_category, vat_vnd::text, meter, trim_scale(quantity)::text as quantity, trim_scale(unit_price)::text as unit_price';
 
 const invoiceOf = (row: InvoiceDbRow): InvoiceRow => ({
@@ -150,6 +157,9 @@ const invoiceOf = (row: InvoiceDbRow): InvoiceRow => ({
   providerRef: row.provider_ref,
   issuedAt: row.issued_at,
   dueAt: row.due_at,
+  relatedInvoiceId: row.related_invoice_id,
+  correctionReason: row.correction_reason,
+  agreementDocumentRef: row.agreement_document_ref,
   issueAttempts: row.issue_attempts,
   nextAttemptAt: row.next_attempt_at,
   issueError: row.issue_error,
@@ -172,6 +182,16 @@ const lineOf = (row: LineDbRow): InvoiceLineRow => ({
 
 const isLive = (subscription: Pick<SubscriptionDbRow, 'status'>): boolean => subscription.status === 'Active' || subscription.status === 'PastDue';
 
+/**
+ * What an invoice stands for when an adjustment of it is judged: its total and the adjustments of it that were issued, and, so that adjustments cannot together take more than it stands for, the **reductions** that wait for the
+ * provider or could not be issued (a late answer may still issue them). An increase that is not issued yet is not counted: it may never be issued, and a reduction must not lean on it.
+ */
+const STANDING_FOR_ADJUSTMENT_SQL = `(o.total_vnd + coalesce((select sum(case when a.status in ('PendingIssue', 'IssueFailed') then least(a.total_vnd, 0) else a.total_vnd end) from machvon.invoice a
+  where a.related_invoice_id = o.id and a.kind = 'ADJUSTMENT' $AND and a.status in ('PendingIssue', 'IssueFailed', 'Issued', 'Sent', 'PartiallyPaid', 'Paid', 'Overdue')), 0))::text`;
+
+/** The invoices that can be corrected: issued ones (an unissued invoice is issued or discarded, never corrected). */
+const CORRECTABLE_STATUSES: readonly string[] = ['Issued', 'Sent', 'PartiallyPaid', 'Paid', 'Overdue', 'Adjusted'];
+
 /** Days to pay when the subscription names none. */
 export const DEFAULT_DUE_DAYS = 15;
 export const INVOICE_DRAFTED_EVENT = 'sas.invoice.drafted.v1';
@@ -180,6 +200,9 @@ export const INVOICE_ISSUE_FAILED_EVENT = 'sas.invoice.issue_failed.v1';
 export const INVOICE_OVERDUE_EVENT = 'sas.invoice.overdue.v1';
 export const SUBSCRIPTION_PAST_DUE_EVENT = 'sas.subscription.past_due.v1';
 export const SUSPENSION_PROPOSED_EVENT = 'sas.billing.suspension_proposed.v1';
+export const INVOICE_CORRECTION_CREATED_EVENT = 'sas.invoice.correction_created.v1';
+export const INVOICE_CORRECTED_EVENT = 'sas.invoice.corrected.v1';
+export const SUBSCRIPTION_RECOVERED_EVENT = 'sas.subscription.recovered.v1';
 /** The gauge of the invoices that could not be issued (IssueFailed), per tenant: the alert of the story. */
 export const EINVOICE_FAILED_GAUGE = 'einvoice_issue_failed_invoices';
 const RESOURCE_TYPE = 'invoice';
@@ -387,16 +410,30 @@ export class BillingStore {
    * went out finds it Issued (or on its way) and is refused. `expectedVersion` is the ETag of the command.
    */
   async issue(tx: TenantTx, effects: ApprovalEffects, provider: EInvoiceProviderPort, invoiceId: string, expectedVersion: number | undefined, now: Date): Promise<{ invoice: InvoiceRow; outcome: IssueOutcome }> {
-    const invoice = await this.find(tx, invoiceId, true);
-    if (invoice === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    // The locks are taken in one order everywhere: the subscription, then its invoices (the billing run, the sweep, a settlement and a correction that is issued all do).
+    const peeked = await this.find(tx, invoiceId);
+    if (peeked === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await this.lockSubscription(tx, peeked.subscriptionId);
+    const invoice = (await this.find(tx, invoiceId, true)) as InvoiceRow;
     if (invoice.status !== 'Draft' && invoice.status !== 'IssueFailed') throw new DomainError('EINVOICE_STATE_INVALID', 409, 'status', { extensions: { status: invoice.status } });
     if (expectedVersion !== undefined && expectedVersion !== invoice.version) throw versionConflict(invoice.version);
+    // A correction is judged again as it goes out, under the lock of the invoice it corrects: two adjustments made as drafts one after the other do not both go out if together they take more than the invoice stands for.
+    if (invoice.kind !== 'ORIGINAL' && invoice.relatedInvoiceId !== null) await this.assertCorrectionStands(tx, invoice);
     await tx.query("update machvon.invoice set status = 'PendingIssue', issue_attempts = 0, issue_started_at = $2::timestamptz, next_attempt_at = null, issue_error = null, version = version + 1 where id = $1::uuid", [invoiceId, now.toISOString()]);
     return this.attempt(tx, effects, provider, (await this.find(tx, invoiceId)) as InvoiceRow, now);
   }
 
   /** One attempt at the provider for an invoice that is PendingIssue; the answer, a failure that will be tried again, or the end of the tries, is recorded. */
   async attempt(tx: TenantTx, effects: ApprovalEffects, provider: EInvoiceProviderPort, invoice: InvoiceRow, now: Date): Promise<{ invoice: InvoiceRow; outcome: IssueOutcome }> {
+    // A correction is judged every time the provider is asked, the worker's tries included: an original that was replaced meanwhile, or room that is gone, ends the tries (the invoice cannot be issued, and says why).
+    if (invoice.kind !== 'ORIGINAL' && invoice.relatedInvoiceId !== null) {
+      try {
+        await this.assertCorrectionStands(tx, invoice);
+      } catch (error) {
+        if (!(error instanceof DomainError)) throw error;
+        return this.giveUp(tx, effects, invoice, invoice.issueAttempts, error.code);
+      }
+    }
     const lines = await this.linesOf(tx, [invoice.id]);
     const request: EInvoiceIssueRequest = {
       referenceKey: invoice.id,
@@ -445,7 +482,86 @@ export class BillingStore {
       schemaVersion: 1,
       payload: { invoice_id: invoice.id, subscription_id: invoice.subscriptionId, einvoice_number: issued.number, series: issued.series, total_vnd: invoice.totalVnd },
     });
+    // A correction that is issued is what makes the invoice it corrects Adjusted or Replaced: until then the original stands as it was.
+    if (invoice.kind !== 'ORIGINAL' && invoice.relatedInvoiceId !== null) {
+      await this.markCorrected(tx, effects, invoice);
+      // What the correction did (a replacement that is already paid) is part of the answer.
+      return (await this.find(tx, invoice.id)) as InvoiceRow;
+    }
     return done;
+  }
+
+  private async lockSubscription(tx: TenantTx, subscriptionId: string): Promise<void> {
+    await tx.query('select id from machvon.subscription where id = $1::uuid for update', [subscriptionId]);
+  }
+
+  /**
+   * After something changed what is owed on a subscription (a payment, a correction that was issued): the day an adjusted invoice was noted as overdue is cleared once nothing is owed on it, and a subscription that was
+   * past due is Active again, with the proposal to suspend it gone, when no invoice of it that is owed is overdue. The subscription is locked by the caller.
+   */
+  async reconcile(tx: TenantTx, effects: ApprovalEffects, subscriptionId: string): Promise<void> {
+    await tx.query("update machvon.invoice set overdue_since = null, version = version + 1 where subscription_id = $1::uuid and status = 'Adjusted' and overdue_since is not null and machvon.invoice_outstanding(id) <= 0", [subscriptionId]);
+    const [still] = await tx.query<{ n: string }>(
+      "select count(*)::text as n from machvon.invoice where subscription_id = $1::uuid and kind <> 'ADJUSTMENT' and ((status = 'Overdue' and machvon.invoice_outstanding(id) > 0) or (status = 'Adjusted' and overdue_since is not null))",
+      [subscriptionId],
+    );
+    if (Number(still?.n ?? 0) > 0) return;
+    const moved = await tx.query<{ version: string }>("update machvon.subscription set status = 'Active', past_due_since = null, suspension_proposed_at = null, version = version + 1 where id = $1::uuid and status = 'PastDue' returning version::text", [subscriptionId]);
+    if (moved[0] === undefined) return;
+    await effects.audit({ action: 'subscription.recovered', resourceType: 'subscription', resourceId: subscriptionId, diff: { tenant_status_unchanged: true } });
+    await effects.emit({ aggregateType: 'subscription', aggregateId: subscriptionId, aggregateVersion: Number(moved[0].version), eventKey: `subscription:${subscriptionId}:recovered:${moved[0].version}`, type: SUBSCRIPTION_RECOVERED_EVENT, schemaVersion: 1, payload: { subscription_id: subscriptionId } });
+  }
+
+  private async assertCorrectionStands(tx: TenantTx, correction: InvoiceRow): Promise<void> {
+    const original = await this.find(tx, correction.relatedInvoiceId as string, true);
+    if (original === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (correction.kind === 'REPLACEMENT') {
+      if (original.status === 'Replaced') throw new DomainError('EINVOICE_ALREADY_REPLACED', 409, 'invoice_id');
+      // Another replacement that is alive (a draft, on its way or issued) is the one: one that could not be issued, and was made again, does not come back beside it.
+      const [other] = await tx.query<{ id: string }>("select id from machvon.invoice where related_invoice_id = $1::uuid and kind = 'REPLACEMENT' and id <> $2::uuid and status not in ('Discarded', 'IssueFailed') limit 1", [original.id, correction.id]);
+      if (other !== undefined) throw new DomainError('EINVOICE_ALREADY_REPLACED', 409, 'invoice_id', { extensions: { replacement_id: other.id } });
+    } else if (original.status === 'Replaced') {
+      throw new DomainError('EINVOICE_ADJUSTMENT_INVALID', 422, 'invoice_id', { extensions: { reason: 'ALREADY_REPLACED' } });
+    }
+    if (!CORRECTABLE_STATUSES.includes(original.status)) throw new DomainError('EINVOICE_STATE_INVALID', 409, 'invoice_id', { extensions: { status: original.status } });
+    if (correction.kind !== 'ADJUSTMENT') return;
+    const [standing] = await tx.query<{ standing: string }>(
+      `select ${STANDING_FOR_ADJUSTMENT_SQL.replace('$AND', 'and a.id <> $2::uuid')} as standing from machvon.invoice o where o.id = $1::uuid`,
+      [original.id, correction.id],
+    );
+    const refusal = judgeCorrection('ADJUSTMENT', correction.totalVnd, standing?.standing ?? original.totalVnd);
+    if (refusal !== undefined) throw new DomainError('EINVOICE_ADJUSTMENT_INVALID', 422, 'lines', { extensions: { reason: refusal, standing_vnd: standing?.standing ?? original.totalVnd } });
+  }
+
+  private async markCorrected(tx: TenantTx, effects: ApprovalEffects, correction: InvoiceRow): Promise<void> {
+    const target = correction.kind === 'REPLACEMENT' ? 'Replaced' : 'Adjusted';
+    const from = correction.kind === 'REPLACEMENT' ? "('Issued', 'Sent', 'PartiallyPaid', 'Paid', 'Overdue', 'Adjusted')" : "('Issued', 'Sent', 'PartiallyPaid', 'Paid', 'Overdue')";
+    // Whether the invoice was overdue when it was corrected: a replacement takes over the delinquency of what it replaces (it has the same due day), and an adjusted invoice keeps the day it fell due (its status cannot say it).
+    const [before] = await tx.query<{ status: string; overdue_since: string | null }>('select status, overdue_since::text from machvon.invoice where id = $1::uuid', [correction.relatedInvoiceId]);
+    const wasOverdue = before !== undefined && (before.status === 'Overdue' || before.overdue_since !== null);
+    const moved = await tx.query<{ version: string }>(
+      `update machvon.invoice set status = $2, overdue_since = case when status = 'Overdue' and $2 = 'Adjusted' then coalesce(overdue_since, (now() at time zone 'Asia/Ho_Chi_Minh')::date) else overdue_since end, version = version + 1
+        where id = $1::uuid and status in ${from} and status <> $2 returning version::text`,
+      [correction.relatedInvoiceId, target],
+    );
+    // A replacement that earlier payments already cover is paid; and what the correction did to what is owed (whether or not the invoice changed status: a second adjustment of an adjusted invoice does too) may end the
+    // delinquency of the subscription.
+    if (correction.kind === 'REPLACEMENT') {
+      await tx.query("update machvon.invoice set status = 'Paid', version = version + 1 where id = $1::uuid and status = 'Issued' and machvon.invoice_outstanding(id) <= 0", [correction.id]);
+      if (wasOverdue) await tx.query("update machvon.invoice set status = 'Overdue', version = version + 1 where id = $1::uuid and status = 'Issued' and machvon.invoice_outstanding(id) > 0", [correction.id]);
+    }
+    await this.reconcile(tx, effects, correction.subscriptionId);
+    if (moved[0] === undefined) return;
+    await effects.audit({ action: `invoice.${target.toLowerCase()}`, resourceType: RESOURCE_TYPE, resourceId: correction.relatedInvoiceId as string, diff: { by_invoice_id: correction.id, kind: correction.kind } });
+    await effects.emit({
+      aggregateType: RESOURCE_TYPE,
+      aggregateId: correction.relatedInvoiceId as string,
+      aggregateVersion: Number(moved[0].version),
+      eventKey: `invoice:${correction.relatedInvoiceId}:${target.toLowerCase()}:${correction.id}`,
+      type: INVOICE_CORRECTED_EVENT,
+      schemaVersion: 1,
+      payload: { invoice_id: correction.relatedInvoiceId, status: target, by_invoice_id: correction.id },
+    });
   }
 
   /**
@@ -453,9 +569,13 @@ export class BillingStore {
    * is already Issued with the same number is left as it is (the callback came twice); one that is Issued with another number, or is not on its way to be issued, is refused (409): it is never rewritten.
    */
   async completeIssue(tx: TenantTx, effects: ApprovalEffects, invoiceId: string, issued: EInvoiceIssued, providerName: string, now: Date): Promise<{ invoice: InvoiceRow; changed: boolean }> {
-    const invoice = await this.find(tx, invoiceId, true);
-    if (invoice === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const peeked = await this.find(tx, invoiceId);
+    if (peeked === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await this.lockSubscription(tx, peeked.subscriptionId);
+    const invoice = (await this.find(tx, invoiceId, true)) as InvoiceRow;
     if (invoice.status === 'PendingIssue' || invoice.status === 'IssueFailed') {
+      // A correction that the provider answers for late is judged as it goes out too: what it reserved is still its own, and an invoice that was replaced in the meantime refuses it.
+      if (invoice.kind !== 'ORIGINAL' && invoice.relatedInvoiceId !== null) await this.assertCorrectionStands(tx, invoice);
       if (invoice.status === 'IssueFailed') await tx.query("update machvon.invoice set status = 'PendingIssue', next_attempt_at = null, version = version + 1 where id = $1::uuid", [invoice.id]);
       const waiting = (await this.find(tx, invoice.id)) as InvoiceRow;
       return { invoice: await this.markIssued(tx, effects, waiting, providerName, issued, waiting.issueAttempts, now), changed: true };
@@ -464,9 +584,100 @@ export class BillingStore {
     throw new DomainError('EINVOICE_STATE_INVALID', 409, 'reference_key', { extensions: { status: invoice.status } });
   }
 
+  /**
+   * Makes the correction of an issued invoice as a Draft, linked to it (SAS.md 3.7 item 4): an adjustment (lines that add to or take from what was invoiced) or a replacement (the whole invoice again). The reason and
+   * the agreement document are required, and so are lines that are whole VND, not zero, with a VAT category. An adjustment may not take more than the invoice still stands for (422 EINVOICE_ADJUSTMENT_INVALID), a
+   * replacement must be for more than nothing, and an invoice has one live replacement (409 EINVOICE_ALREADY_REPLACED). An invoice that is not issued yet is 409 EINVOICE_STATE_INVALID: it is issued or discarded, not
+   * corrected. The new invoice goes out through `issue` like any other, and only when it is issued does the original become Adjusted or Replaced.
+   */
+  async createCorrection(tx: TenantTx, effects: ApprovalEffects, input: { kind: CorrectionKind; invoiceId: string; correction: CorrectionInput; buyer?: { code: string; name: string } | undefined }): Promise<InvoiceRow> {
+    const defects = correctionDefects(input.correction);
+    if (defects.length > 0) throw new DomainError('VALIDATION_FAILED', 422, (defects[0] as { field: string }).field, { extensions: { defects } });
+    // The subscription first, then the invoice it corrects, as everywhere (the correction that is inserted takes a share of the subscription too).
+    const peeked = await this.find(tx, input.invoiceId);
+    if (peeked === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await this.lockSubscription(tx, peeked.subscriptionId);
+    const original = (await this.find(tx, input.invoiceId, true)) as InvoiceRow;
+    if (input.kind === 'REPLACEMENT' && original.status === 'Replaced') throw new DomainError('EINVOICE_ALREADY_REPLACED', 409, 'invoice_id');
+    if (original.kind === 'ADJUSTMENT' || original.status === 'Replaced') throw new DomainError('EINVOICE_ADJUSTMENT_INVALID', 422, 'invoice_id', { extensions: { reason: original.kind === 'ADJUSTMENT' ? 'CORRECTION_OF_ADJUSTMENT' : 'ALREADY_REPLACED' } });
+    if (!CORRECTABLE_STATUSES.includes(original.status)) throw new DomainError('EINVOICE_STATE_INVALID', 409, 'invoice_id', { extensions: { status: original.status } });
+    if (input.kind === 'REPLACEMENT') {
+      const [live] = await tx.query<{ id: string }>("select id from machvon.invoice where related_invoice_id = $1::uuid and kind = 'REPLACEMENT' and status not in ('Discarded', 'IssueFailed') limit 1", [original.id]);
+      if (live !== undefined) throw new DomainError('EINVOICE_ALREADY_REPLACED', 409, 'invoice_id', { extensions: { replacement_id: live.id } });
+    }
+    const priced = priceCorrection(input.kind, input.correction.lines);
+    const [standing] = await tx.query<{ standing: string }>(
+      `select ${STANDING_FOR_ADJUSTMENT_SQL.replace('$AND', '')} as standing from machvon.invoice o where o.id = $1::uuid`,
+      [original.id],
+    );
+    const refusal = judgeCorrection(input.kind, priced.totalVnd, standing?.standing ?? original.totalVnd);
+    if (refusal !== undefined) throw new DomainError('EINVOICE_ADJUSTMENT_INVALID', 422, 'lines', { extensions: { reason: refusal, standing_vnd: standing?.standing ?? original.totalVnd } });
+    const [counted] = await tx.query<{ n: string }>('select count(*)::text as n from machvon.invoice where related_invoice_id = $1::uuid and kind = $2', [original.id, input.kind]);
+    const code = `${original.invoiceCode}-${input.kind === 'ADJUSTMENT' ? 'A' : 'R'}${Number(counted?.n ?? 0) + 1}`;
+    const buyer = input.buyer ?? original.buyer;
+    let id: string;
+    try {
+      const [row] = await tx.query<{ id: string }>(
+        `insert into machvon.invoice (tenant_id, id, subscription_id, invoice_code, period_start, period_end, kind, related_invoice_id, correction_reason, agreement_document_ref, status, subtotal_vnd, vat_vnd, total_vnd, buyer_snapshot, due_at)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2, $3::date, $4::date, $5, $6::uuid, $7, $8, 'Draft', $9::numeric, $10::numeric, $11::numeric, $12::jsonb, $13::date) returning id`,
+        [original.subscriptionId, code, original.periodStart, original.periodEnd, input.kind, original.id, input.correction.reason.trim(), input.correction.agreementRef.trim(), priced.subtotalVnd, priced.vatVnd, priced.totalVnd, JSON.stringify(buyer), original.dueAt],
+      );
+      id = (row as { id: string }).id;
+    } catch (error) {
+      // Two replacements asked for together: the table lets one live (a unique index), the other is told what the first would have been.
+      if (input.kind === 'REPLACEMENT' && (error as { code?: string }).code === '23505') throw new DomainError('EINVOICE_ALREADY_REPLACED', 409, 'invoice_id');
+      throw error;
+    }
+    for (const [index, line] of priced.lines.entries()) {
+      await tx.query(
+        `insert into machvon.invoice_line (tenant_id, id, invoice_id, line_no, line_kind, description, amount_vnd, vat_category, vat_vnd)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::int, $3, $4, $5::numeric, $6, $7::numeric)`,
+        [id, index + 1, line.kind, line.description, line.amountVnd, line.vatCategory, line.vatVnd],
+      );
+    }
+    const created = (await this.find(tx, id)) as InvoiceRow;
+    await effects.audit({
+      action: input.kind === 'ADJUSTMENT' ? 'einvoice.adjustment_created' : 'einvoice.replacement_created',
+      resourceType: RESOURCE_TYPE,
+      resourceId: id,
+      reason: input.correction.reason.trim(),
+      diff: { related_invoice_id: original.id, agreement_document_ref: input.correction.agreementRef.trim(), total_vnd: created.totalVnd, lines: priced.lines.length },
+    });
+    await effects.emit({
+      aggregateType: RESOURCE_TYPE,
+      aggregateId: id,
+      aggregateVersion: created.version,
+      eventKey: `invoice:${id}:correction_created`,
+      type: INVOICE_CORRECTION_CREATED_EVENT,
+      schemaVersion: 1,
+      payload: { invoice_id: id, related_invoice_id: original.id, kind: input.kind, total_vnd: created.totalVnd },
+    });
+    return created;
+  }
+
+  /**
+   * What each invoice stands for (its total and the adjustments of it that were issued: what the screens of the correction work from) and what is still owed on it (that, less what was paid on it and on what it replaced:
+   * what the screens of the reconciliation work from), whichever pages of invoices they have read.
+   */
+  async standings(tx: TenantTx, invoiceIds: readonly string[]): Promise<Map<string, { standing: string; outstanding: string }>> {
+    if (invoiceIds.length === 0) return new Map();
+    const rows = await tx.query<{ id: string; standing: string; outstanding: string }>(
+      "select i.id, (i.total_vnd + coalesce((select sum(a.total_vnd) from machvon.invoice a where a.related_invoice_id = i.id and a.kind = 'ADJUSTMENT' and a.status in ('Issued', 'Sent', 'PartiallyPaid', 'Paid', 'Overdue')), 0))::text as standing, machvon.invoice_outstanding(i.id)::text as outstanding from machvon.invoice i where i.id = any($1::uuid[])",
+      [invoiceIds],
+    );
+    return new Map(rows.map((row) => [row.id, { standing: row.standing, outstanding: row.outstanding }]));
+  }
+
+  /** What the tenant owes for a subscription (or for all of them): the invoices that stand less what was paid on them (SAS.md 3.7 item 4). */
+  async receivable(tx: TenantTx, subscriptionId?: string): Promise<string> {
+    const invoices = await tx.query<{ id: string; kind: string; status: string; total_vnd: string; related_invoice_id: string | null }>('select id, kind, status, total_vnd::text, related_invoice_id from machvon.invoice where ($1::uuid is null or subscription_id = $1::uuid)', [subscriptionId ?? null]);
+    const [paid] = await tx.query<{ paid: string }>("select coalesce(sum(amount_vnd), 0)::text as paid from machvon.billing_payment where match_status = 'Matched' and invoice_id = any($1::uuid[])", [invoices.map((invoice) => invoice.id)]);
+    return receivableVnd(invoices.map((invoice) => ({ id: invoice.id, kind: invoice.kind, status: invoice.status, totalVnd: invoice.total_vnd, relatedInvoiceId: invoice.related_invoice_id })), paid?.paid ?? '0');
+  }
+
   /** The end of the tries: the invoice is IssueFailed, once, and says so. */
-  private async giveUp(tx: TenantTx, effects: ApprovalEffects, invoice: InvoiceRow, attempts: number): Promise<{ invoice: InvoiceRow; outcome: IssueOutcome }> {
-    await tx.query("update machvon.invoice set status = 'IssueFailed', issue_attempts = $2, next_attempt_at = null, issue_error = 'EINVOICE_PROVIDER_UNAVAILABLE', version = version + 1 where id = $1::uuid", [invoice.id, attempts]);
+  private async giveUp(tx: TenantTx, effects: ApprovalEffects, invoice: InvoiceRow, attempts: number, errorCode = 'EINVOICE_PROVIDER_UNAVAILABLE'): Promise<{ invoice: InvoiceRow; outcome: IssueOutcome }> {
+    await tx.query("update machvon.invoice set status = 'IssueFailed', issue_attempts = $2, next_attempt_at = null, issue_error = $3, version = version + 1 where id = $1::uuid", [invoice.id, attempts, errorCode]);
     const failed = (await this.find(tx, invoice.id)) as InvoiceRow;
     await effects.audit({ action: 'invoice.issue_failed', resourceType: RESOURCE_TYPE, resourceId: invoice.id, diff: { attempts, max_attempts: ISSUE_MAX_ATTEMPTS } });
     await effects.emit({
@@ -483,9 +694,16 @@ export class BillingStore {
 
   /** The invoices waiting for another attempt whose time has come, the oldest first. */
   async retryDue(tx: TenantTx, effects: ApprovalEffects, provider: EInvoiceProviderPort, now: Date, limit = 50): Promise<Array<{ invoice: InvoiceRow; outcome: IssueOutcome }>> {
-    const due = await tx.query<InvoiceDbRow>(`select ${INVOICE_COLUMNS} from machvon.invoice where status = 'PendingIssue' and next_attempt_at <= $1::timestamptz order by next_attempt_at, id limit $2::int for update skip locked`, [now.toISOString(), limit]);
+    const due = await tx.query<{ id: string; subscription_id: string }>("select id, subscription_id from machvon.invoice where status = 'PendingIssue' and next_attempt_at <= $1::timestamptz order by next_attempt_at, id limit $2::int", [now.toISOString(), limit]);
     const outcomes: Array<{ invoice: InvoiceRow; outcome: IssueOutcome }> = [];
-    for (const row of due) outcomes.push(await this.attempt(tx, effects, provider, invoiceOf(row), now));
+    // The subscriptions in the order of their ids, as the run of a period and the overdue sweep take them: two passes that meet on two subscriptions never wait for each other's.
+    due.sort((a, b) => (a.subscription_id < b.subscription_id ? -1 : a.subscription_id > b.subscription_id ? 1 : a.id < b.id ? -1 : 1));
+    for (const candidate of due) {
+      // The subscription first, then the invoice, as everywhere; an invoice that someone else holds, or that is no longer waiting, is left alone.
+      await this.lockSubscription(tx, candidate.subscription_id);
+      const [row] = await tx.query<InvoiceDbRow>(`select ${INVOICE_COLUMNS} from machvon.invoice where id = $1::uuid and status = 'PendingIssue' and next_attempt_at <= $2::timestamptz for update skip locked`, [candidate.id, now.toISOString()]);
+      if (row !== undefined) outcomes.push(await this.attempt(tx, effects, provider, invoiceOf(row), now));
+    }
     return outcomes;
   }
 
@@ -509,16 +727,20 @@ export class BillingStore {
    */
   async sweepOverdue(tx: TenantTx, effects: ApprovalEffects, today: string, now: Date): Promise<BillingOverdueResult> {
     const result: BillingOverdueResult = { overdue: [], pastDue: [], suspensionProposed: [] };
+    // What falls due and is still owed: an issued invoice past its due day with something left to pay (what its adjustments left of it, less what was paid on it and on what it replaced). One that was settled by
+    // earlier payments is not overdue, and an adjustment is never a debt of its own. An adjusted invoice cannot become Overdue (the table lets it go to Replaced only), so the day is noted on it instead.
     // The locks are taken in the order of the billing run and of a settlement: the subscriptions first (by id), then their invoices.
-    const owners = await tx.query<{ subscription_id: string }>("select distinct subscription_id from machvon.invoice where status in ('Issued', 'Sent', 'PartiallyPaid') and due_at < $1::date order by subscription_id", [today]);
+    const owed = `i.kind <> 'ADJUSTMENT' and i.due_at < $1::date and (i.status in ('Issued', 'Sent', 'PartiallyPaid') or (i.status = 'Adjusted' and i.overdue_since is null)) and machvon.invoice_outstanding(i.id) > 0`;
+    const owners = await tx.query<{ subscription_id: string }>(`select distinct i.subscription_id from machvon.invoice i where ${owed} order by i.subscription_id`, [today]);
     if (owners.length > 0) await tx.query('select id from machvon.subscription where id = any($1::uuid[]) order by id for update', [owners.map((owner) => owner.subscription_id)]);
-    const late = await tx.query<InvoiceDbRow>(`select ${INVOICE_COLUMNS} from machvon.invoice where status in ('Issued', 'Sent', 'PartiallyPaid') and due_at < $1::date order by due_at, id for update`, [today]);
+    const late = await tx.query<InvoiceDbRow>(`select ${INVOICE_COLUMNS} from machvon.invoice i where ${owed} order by i.due_at, i.id for update`, [today]);
     for (const row of late) {
-      await tx.query("update machvon.invoice set status = 'Overdue', version = version + 1 where id = $1::uuid", [row.id]);
+      if (row.status === 'Adjusted') await tx.query('update machvon.invoice set overdue_since = $2::date, version = version + 1 where id = $1::uuid', [row.id, today]);
+      else await tx.query("update machvon.invoice set status = 'Overdue', version = version + 1 where id = $1::uuid", [row.id]);
       const invoice = (await this.find(tx, row.id)) as InvoiceRow;
       result.overdue.push(invoice);
-      await effects.audit({ action: 'invoice.overdue', resourceType: RESOURCE_TYPE, resourceId: row.id, diff: { due_at: row.due_at, total_vnd: row.total_vnd } });
-      await effects.emit({ aggregateType: RESOURCE_TYPE, aggregateId: row.id, aggregateVersion: invoice.version, eventKey: `invoice:${row.id}:overdue`, type: INVOICE_OVERDUE_EVENT, schemaVersion: 1, payload: { invoice_id: row.id, subscription_id: row.subscription_id, due_at: row.due_at, total_vnd: row.total_vnd } });
+      await effects.audit({ action: 'invoice.overdue', resourceType: RESOURCE_TYPE, resourceId: row.id, diff: { due_at: row.due_at, total_vnd: row.total_vnd, status: row.status } });
+      await effects.emit({ aggregateType: RESOURCE_TYPE, aggregateId: row.id, aggregateVersion: invoice.version, eventKey: `invoice:${row.id}:overdue:${invoice.version}`, type: INVOICE_OVERDUE_EVENT, schemaVersion: 1, payload: { invoice_id: row.id, subscription_id: row.subscription_id, due_at: row.due_at, total_vnd: row.total_vnd } });
       const moved = await tx.query<{ id: string; version: string }>("update machvon.subscription set status = 'PastDue', past_due_since = coalesce(past_due_since, $2::timestamptz), version = version + 1 where id = $1::uuid and status = 'Active' returning id, version::text", [row.subscription_id, now.toISOString()]);
       if (moved[0] !== undefined) {
         result.pastDue.push(moved[0].id);

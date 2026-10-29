@@ -48,13 +48,13 @@ describe('the billing run and the e-invoice over HTTP (ST-SAS-011)', () => {
     return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
   }
 
-  async function plan(price: string): Promise<string> {
+  async function plan(price: string, vat = 'VAT_10'): Promise<string> {
     counter += 1;
     const id = randomUUID();
     await admin(
       `insert into machvon.product_plan_version (id, plan_code, revision, name, status, billing_cycles, base_price_vnd, vat_category, legal_terms_ref)
-       values ($1, $2, 1, $3, 'Draft', $4::text[], $5::numeric, 'VAT_10', 'TERMS-1')`,
-      [id, `bill-${counter}`, `Plan ${counter}`, ['ANNUAL', 'MONTHLY'], price],
+       values ($1, $2, 1, $3, 'Draft', $4::text[], $5::numeric, $6, 'TERMS-1')`,
+      [id, `bill-${counter}`, `Plan ${counter}`, ['ANNUAL', 'MONTHLY'], price, vat],
     );
     await admin("insert into machvon.plan_feature (id, plan_version_id, feature_code, limit_kind, limit_value, grace_behavior, expired_behavior) values (gen_random_uuid(), $1, 'member.seats', 'QUOTA', 50, 'READ_ONLY', 'DENY')", [id]);
     await admin("update machvon.product_plan_version set status = 'Published', published_by = $2, published_at = now() where id = $1", [id, OPERATOR]);
@@ -62,7 +62,7 @@ describe('the billing run and the e-invoice over HTTP (ST-SAS-011)', () => {
   }
 
   /** An Active tenant whose first member holds BILLING_VIEWER, with a monthly subscription anchored on 1 January. */
-  async function tenant(price = '1000000'): Promise<{ tenantId: string; viewer: string; subscriptionId: string }> {
+  async function tenant(price = '1000000', vat = 'VAT_10'): Promise<{ tenantId: string; viewer: string; subscriptionId: string }> {
     const created = await harness.request();
     const tenantId = created.tenantId;
     await harness.registry.transition(tenantId, 'Requested', 'Provisioning');
@@ -89,7 +89,7 @@ describe('the billing run and the e-invoice over HTTP (ST-SAS-011)', () => {
       await owner.end();
     }
     const subscription = await call('POST', `/system/tenants/${tenantId}/subscriptions`, {
-      payload: { plan_version_id: await plan(price), cycle: 'MONTHLY', billing_anchor: ANCHOR, payment_terms: { due_days: 15, method: 'BANK_TRANSFER' } },
+      payload: { plan_version_id: await plan(price, vat), cycle: 'MONTHLY', billing_anchor: ANCHOR, payment_terms: { due_days: 15, method: 'BANK_TRANSFER' } },
     });
     expect(subscription.status).toBe(201);
     return { tenantId, viewer, subscriptionId: subscription.json.resource_id as string };
@@ -252,6 +252,73 @@ describe('the billing run and the e-invoice over HTTP (ST-SAS-011)', () => {
     // A cursor that is well formed but is not a period of the list is refused, not a failure of the database.
     const stray = await call('GET', `/system/tenants/${tenantId}/invoices?cursor=${encodeURIComponent(encodeCursor({ code: 'not-a-date', id: randomUUID() }))}`);
     expect([stray.status, stray.json.code, stray.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'cursor']);
+  });
+
+  describe('the correction of an issued invoice (ST-SAS-013)', () => {
+    const correction = (lines: Array<{ description: string; amount_vnd: string; vat_category: string }>, overrides: Record<string, unknown> = {}) => ({ correction_reason: 'The plan was billed at the wrong price.', agreement_document_ref: 'BB-2026/0042', lines, ...overrides });
+    const reduction = (amount: string) => [{ description: 'Reduction of the plan price', amount_vnd: amount, vat_category: 'NOT_SUBJECT' }];
+    const post = (invoiceId: string, kind: 'adjustments' | 'replacements', payload: unknown, options: { roles?: string[]; audience?: string } = {}): Promise<Reply> => call('POST', `/system/invoices/${invoiceId}/${kind}`, { ...options, payload });
+    const statusOf = async (tenantId: string, id: string): Promise<unknown> => (await invoicesOf(tenantId)).find((invoice) => invoice.id === id)?.status;
+
+    async function issued(price = '365000000', vat = 'NOT_SUBJECT'): Promise<{ tenantId: string; invoiceId: string }> {
+      const { tenantId } = await tenant(price, vat);
+      await runBilling([tenantId]);
+      const [draft] = await invoicesOf(tenantId);
+      expect((await issue(draft?.id as string, draft?.version as number)).status).toBe(202);
+      return { tenantId, invoiceId: draft?.id as string };
+    }
+
+    it('AC-ST-SAS-013-1 UAT-AC165: an issued invoice of 365,000,000 VND adjusted by -36,500,000 becomes Adjusted and the receivable is 328,500,000; the second replacement is 409 EINVOICE_ALREADY_REPLACED', async () => {
+      const { tenantId, invoiceId } = await issued();
+      const adjustment = await post(invoiceId, 'adjustments', correction(reduction('-36500000')));
+      expect([adjustment.status, adjustment.json.status]).toEqual([201, 'DRAFTED']);
+      const draft = (await invoicesOf(tenantId)).find((invoice) => invoice.id === adjustment.json.resource_id);
+      expect(draft).toMatchObject({ kind: 'ADJUSTMENT', status: 'Draft', related_invoice_id: invoiceId, correction_reason: 'The plan was billed at the wrong price.', agreement_document_ref: 'BB-2026/0042', total_vnd: '-36500000', actions: { issue: true } });
+      expect((await call('GET', `/system/tenants/${tenantId}/invoices`)).json.receivable_vnd).toBe('365000000');
+      expect((await issue(draft?.id as string, draft?.version as number)).status).toBe(202);
+      expect(await statusOf(tenantId, invoiceId)).toBe('Adjusted');
+      expect((await call('GET', `/system/tenants/${tenantId}/invoices`)).json.receivable_vnd).toBe('328500000');
+      // What the invoice stands for comes with the invoice, so a screen that read one page of the list still knows it.
+      expect((await invoicesOf(tenantId)).find((invoice) => invoice.id === invoiceId)).toMatchObject({ standing_vnd: '328500000', total_vnd: '365000000' });
+      const first = await post(invoiceId, 'replacements', correction([{ description: 'Plan at the right price', amount_vnd: '328500000', vat_category: 'NOT_SUBJECT' }]));
+      expect(first.status).toBe(201);
+      const second = await post(invoiceId, 'replacements', correction([{ description: 'Plan again', amount_vnd: '328500000', vat_category: 'NOT_SUBJECT' }]));
+      expect([second.status, second.json.code]).toEqual([409, 'EINVOICE_ALREADY_REPLACED']);
+      // The audit trail has what a person said: the reason on the creation of the correction.
+      const audits = await admin<{ reason: string | null }>("select reason from machvon.audit_event where action = 'einvoice.adjustment_created' and tenant_id = $1", [tenantId]);
+      expect(audits[0]?.reason).toBe('The plan was billed at the wrong price.');
+    });
+
+    it('refuses what is not well formed (422 with the field), an adjustment of more than the invoice stands for, and one that changes nothing', async () => {
+      const { tenantId, invoiceId } = await issued('1000000', 'NOT_SUBJECT');
+      const short = await post(invoiceId, 'adjustments', correction(reduction('-1'), { correction_reason: 'too short' }));
+      expect(short.status).toBe(422);
+      const noRef = await post(invoiceId, 'adjustments', correction(reduction('-1'), { agreement_document_ref: 'abc' }));
+      expect(noRef.status).toBe(422);
+      const zero = await post(invoiceId, 'adjustments', correction(reduction('0')));
+      expect([zero.status, zero.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      const noLines = await post(invoiceId, 'adjustments', correction([]));
+      expect(noLines.status).toBe(422);
+      const tooMuch = await post(invoiceId, 'adjustments', correction(reduction('-1000001')));
+      expect([tooMuch.status, tooMuch.json.code]).toEqual([422, 'EINVOICE_ADJUSTMENT_INVALID']);
+      const nothing = await post(invoiceId, 'adjustments', correction([...reduction('5'), ...reduction('-5')]));
+      expect([nothing.status, nothing.json.code]).toEqual([422, 'EINVOICE_ADJUSTMENT_INVALID']);
+      const empty = await post(invoiceId, 'replacements', correction(reduction('-5')));
+      expect([empty.status, empty.json.code]).toEqual([422, 'EINVOICE_ADJUSTMENT_INVALID']);
+      expect((await invoicesOf(tenantId)).filter((invoice) => invoice.kind !== 'ORIGINAL')).toEqual([]);
+    });
+
+    it('refuses to correct an invoice that is not issued (409), one that does not exist (404), and a caller that may not (403)', async () => {
+      const { tenantId } = await tenant();
+      await runBilling([tenantId]);
+      const [draft] = await invoicesOf(tenantId);
+      const notYet = await post(draft?.id as string, 'adjustments', correction(reduction('-1')));
+      expect([notYet.status, notYet.json.code]).toEqual([409, 'EINVOICE_STATE_INVALID']);
+      expect((await post(randomUUID(), 'replacements', correction(reduction('1')))).status).toBe(404);
+      const { invoiceId } = await issued();
+      expect((await post(invoiceId, 'adjustments', correction(reduction('-1')), { audience: 'tenant' })).status).toBe(403);
+      expect((await post(invoiceId, 'replacements', correction(reduction('1')), { roles: ['Viewer'] })).status).toBe(403);
+    });
   });
 
   it('shows the invoice lines to the billing viewer of the tenant and to nobody of another tenant', async () => {

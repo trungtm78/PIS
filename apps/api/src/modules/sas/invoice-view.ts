@@ -19,7 +19,7 @@ export const invoiceLineView = (row: InvoiceLineRow): Schemas['InvoiceLine'] => 
 /** The statuses from which the invoice can be sent to the provider. */
 export const ISSUABLE: readonly string[] = ['Draft', 'IssueFailed'];
 
-export const invoiceView = (row: InvoiceRow, lines: readonly InvoiceLineRow[], payments: readonly PaymentRow[] = []): Schemas['Invoice'] => ({
+export const invoiceView = (row: InvoiceRow, lines: readonly InvoiceLineRow[], payments: readonly PaymentRow[] = [], amounts?: { standing: string; outstanding: string }): Schemas['Invoice'] => ({
   id: row.id,
   subscription_id: row.subscriptionId,
   invoice_code: row.invoiceCode,
@@ -48,8 +48,12 @@ export const invoiceView = (row: InvoiceRow, lines: readonly InvoiceLineRow[], p
   issue_attempts: row.issueAttempts,
   ...(row.nextAttemptAt === null ? {} : { next_attempt_at: row.nextAttemptAt.toISOString() }),
   ...(row.issueError === null ? {} : { issue_error: row.issueError }),
+  ...(row.relatedInvoiceId === null ? {} : { related_invoice_id: row.relatedInvoiceId }),
+  ...(row.correctionReason === null ? {} : { correction_reason: row.correctionReason }),
+  ...(row.agreementDocumentRef === null ? {} : { agreement_document_ref: row.agreementDocumentRef }),
   version: row.version,
   lines: lines.map(invoiceLineView),
   payments: payments.map(paymentView),
+  ...(amounts === undefined ? {} : { standing_vnd: amounts.standing, outstanding_vnd: amounts.outstanding }),
   actions: { issue: ISSUABLE.includes(row.status) },
 });

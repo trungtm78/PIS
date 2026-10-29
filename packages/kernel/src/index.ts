@@ -516,3 +516,5 @@ export { INVOICE_LINE_KINDS, ISSUE_MAX_ATTEMPTS, ISSUE_WINDOW_MS, SUSPENSION_PRO
 export type { InvoiceLineDraft, InvoiceLineKind, InvoiceTotals, MeteredFeature, PricedInvoiceLine, VatCategory } from './sas-billing.ts';
 export { PAYABLE_INVOICE_STATUSES, PAYMENT_METHODS, autoMatch, invoiceCodesIn, judgeMatch, outstandingVnd, parseEInvoiceCallback, parsePaymentCallback } from './sas-payment.ts';
 export type { BillingPaymentMethod, EInvoiceCallback, MatchVerdict, PaymentCallback, PaymentCandidate } from './sas-payment.ts';
+export { CORRECTION_KINDS, MAX_CORRECTION_LINES, MIN_AGREEMENT_REF, MIN_CORRECTION_REASON, correctionDefects, judgeCorrection, priceCorrection, receivableVnd } from './sas-correction.ts';
+export type { CorrectionDefect, CorrectionInput, CorrectionKind, CorrectionLine, CorrectionRefusal, StandingInvoice } from './sas-correction.ts';

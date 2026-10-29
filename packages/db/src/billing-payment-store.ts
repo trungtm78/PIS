@@ -69,7 +69,6 @@ const paymentOf = (row: PaymentDbRow): PaymentRow => ({
 });
 
 export const PAYMENT_MATCHED_EVENT = 'sas.payment.matched.v1';
-export const SUBSCRIPTION_RECOVERED_EVENT = 'sas.subscription.recovered.v1';
 /** The gauge of the payments that wait for a person (Unmatched and PendingReview): the alert of the story. */
 export const PAYMENT_UNMATCHED_GAUGE = 'payment_unmatched_total';
 /** How many payments one pass of the matching worker looks at. */
@@ -132,17 +131,21 @@ export class BillingPaymentStore {
     return Number(row?.n ?? 0);
   }
 
-  private async paidOf(tx: TenantTx, invoiceId: string): Promise<string> {
-    const [row] = await tx.query<{ paid: string }>("select coalesce(sum(amount_vnd), 0)::text as paid from machvon.billing_payment where invoice_id = $1::uuid and match_status = 'Matched'", [invoiceId]);
-    return row?.paid ?? '0';
+  /**
+   * What is still owed on an invoice (the one definition of the database: `invoice_outstanding`): its total and the adjustments of it that were issued (one waiting for the provider is not yet a credit), less what was paid
+   * on it and on the invoices it replaced, back along the chain (a replacement is the whole invoice again).
+   */
+  private async outstandingOf(tx: TenantTx, invoiceId: string): Promise<string> {
+    const [row] = await tx.query<{ outstanding: string }>('select machvon.invoice_outstanding($1::uuid)::text as outstanding', [invoiceId]);
+    return row?.outstanding ?? '0';
   }
 
   /** The invoices a payment's note names, in any tenant, with what is still to be paid of each. */
   async candidates(tx: TenantTx, memo: string): Promise<PaymentCandidate[]> {
     const found = new Map<string, PaymentCandidate>();
     for (const code of invoiceCodesIn(memo)) {
-      const rows = await tx.query<{ tenant_id: string; invoice_id: string; status: string; total_vnd: string; paid_vnd: string }>('select tenant_id, invoice_id, status, total_vnd::text, paid_vnd::text from machvon.invoice_by_code($1)', [code]);
-      for (const row of rows) found.set(row.invoice_id, { tenantId: row.tenant_id, invoiceId: row.invoice_id, status: row.status, outstandingVnd: outstandingVnd(row.total_vnd, row.paid_vnd) });
+      const rows = await tx.query<{ tenant_id: string; invoice_id: string; kind: string; status: string; total_vnd: string; paid_vnd: string }>('select tenant_id, invoice_id, kind, status, total_vnd::text, paid_vnd::text from machvon.invoice_by_code($1)', [code]);
+      for (const row of rows) found.set(row.invoice_id, { tenantId: row.tenant_id, invoiceId: row.invoice_id, kind: row.kind, status: row.status, outstandingVnd: outstandingVnd(row.total_vnd, row.paid_vnd) });
     }
     return [...found.values()];
   }
@@ -168,11 +171,15 @@ export class BillingPaymentStore {
       const invoice = await this.invoices.find(tx, input.invoiceId, true);
       if (invoice === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'invoice_id');
       if (!PAYABLE_INVOICE_STATUSES.includes(invoice.status)) throw new DomainError('EINVOICE_STATE_INVALID', 409, 'invoice_id', { extensions: { status: invoice.status } });
-      const outstanding = outstandingVnd(invoice.totalVnd, await this.paidOf(tx, invoice.id));
+      // An adjustment is folded into the invoice it adjusts and is never paid by itself.
+      if (invoice.kind === 'ADJUSTMENT') throw new DomainError('EINVOICE_STATE_INVALID', 409, 'invoice_id', { extensions: { status: invoice.status, kind: invoice.kind } });
+      const outstanding = await this.outstandingOf(tx, invoice.id);
       if (judgeMatch(waiting.amountVnd, outstanding) !== 'MATCH') throw new DomainError('AMOUNT_MISMATCH', 422, 'invoice_id', { extensions: { outstanding_vnd: outstanding, payment_vnd: waiting.amountVnd } });
       const [adopted] = await tx.query<{ id: string }>('select machvon.billing_payment_adopt($1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::uuid) as id', [input.platformTenantId, waiting.id, tenantId, invoice.id, input.matchedBy]);
       const payment = (await this.find(tx, (adopted as { id: string }).id)) as PaymentRow;
-      await tx.query("update machvon.invoice set status = 'Paid', version = version + 1 where id = $1::uuid", [invoice.id]);
+      // An adjusted invoice stays Adjusted (the table lets it go to Replaced only): what was paid says it is settled.
+      if (invoice.status !== 'Adjusted') await tx.query("update machvon.invoice set status = 'Paid', version = version + 1 where id = $1::uuid", [invoice.id]);
+      else await tx.query('update machvon.invoice set overdue_since = null, version = version + 1 where id = $1::uuid', [invoice.id]);
       const settled = (await this.invoices.find(tx, invoice.id)) as InvoiceRow;
       await effects.audit({ action: 'billing.payment_matched', resourceType: 'billing_payment', resourceId: payment.id, ...(input.reason === undefined ? {} : { reason: input.reason }), diff: { invoice_id: invoice.id, amount_vnd: payment.amountVnd, provider: payment.provider } });
       await effects.emit({
@@ -184,19 +191,9 @@ export class BillingPaymentStore {
         schemaVersion: 1,
         payload: { payment_id: payment.id, invoice_id: invoice.id, subscription_id: invoice.subscriptionId, amount_vnd: payment.amountVnd },
       });
-      await this.recover(tx, effects, invoice.subscriptionId, invoice.id);
+      await this.invoices.reconcile(tx, effects, invoice.subscriptionId);
       return { payment, invoice: settled };
     });
-  }
-
-  /** A subscription that was past due because of an invoice goes back to Active when no invoice of it is still overdue. */
-  private async recover(tx: TenantTx, effects: ApprovalEffects, subscriptionId: string, paidInvoiceId: string): Promise<void> {
-    const [still] = await tx.query<{ n: string }>("select count(*)::text as n from machvon.invoice where subscription_id = $1::uuid and status = 'Overdue' and id <> $2::uuid", [subscriptionId, paidInvoiceId]);
-    if (Number(still?.n ?? 0) > 0) return;
-    const moved = await tx.query<{ version: string }>("update machvon.subscription set status = 'Active', past_due_since = null, suspension_proposed_at = null, version = version + 1 where id = $1::uuid and status = 'PastDue' returning version::text", [subscriptionId]);
-    if (moved[0] === undefined) return;
-    await effects.audit({ action: 'subscription.recovered', resourceType: 'subscription', resourceId: subscriptionId, diff: { invoice_id: paidInvoiceId } });
-    await effects.emit({ aggregateType: 'subscription', aggregateId: subscriptionId, aggregateVersion: Number(moved[0].version), eventKey: `subscription:${subscriptionId}:recovered:${moved[0].version}`, type: SUBSCRIPTION_RECOVERED_EVENT, schemaVersion: 1, payload: { subscription_id: subscriptionId, invoice_id: paidInvoiceId } });
   }
 
   /**

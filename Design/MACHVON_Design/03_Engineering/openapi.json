@@ -155177,6 +155177,28 @@
             "items": {
               "$ref": "#/components/schemas/BillingPayment"
             }
+          },
+          "related_invoice_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The invoice a correction (an adjustment or a replacement) corrects"
+          },
+          "correction_reason": {
+            "type": "string"
+          },
+          "agreement_document_ref": {
+            "type": "string",
+            "description": "The document in which the buyer agreed to the correction (CXN-INV-02)"
+          },
+          "standing_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "What the invoice stands for: its total and the adjustments of it that were issued; the most an adjustment may take off"
+          },
+          "outstanding_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "What is still owed on the invoice: what it stands for, less what was paid on it and on the invoices it replaced; the amount a payment must be to settle it"
           }
         }
       },
@@ -155212,6 +155234,11 @@
               "null"
             ],
             "description": "The cursor of the next (older) page, null on the last"
+          },
+          "receivable_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "What the tenant owes: the originals that are not replaced, the adjustments and replacements that were issued, less what was paid"
           }
         }
       },

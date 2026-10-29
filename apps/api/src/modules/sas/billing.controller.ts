@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Qu
 import { BillingPaymentStore, BillingStore, ControlDatabase, EINVOICE_PROVIDER, actingAsTenant, tenantOfInvoice } from '@machvon/db';
 import type { ApprovalEffects, EInvoiceProviderPort } from '@machvon/db';
 import { DomainError, addDays, isBillingPeriod, vietnamDateOf } from '@machvon/kernel';
+import type { CorrectionKind } from '@machvon/kernel';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import { Command, Scope } from '../../command.decorator';
@@ -10,6 +11,14 @@ import type { Schemas } from '../../contract-types';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { invoiceView } from './invoice-view';
+
+/** The buyer a correction names, when it names one: a code and a name, text and not empty; anything else is refused (the buyer of the invoice stays when none is given). */
+function buyerOf(raw: unknown): { code: string; name: string } | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  const value = raw as Record<string, unknown>;
+  if (typeof value.code !== 'string' || typeof value.name !== 'string' || value.code.trim() === '' || value.name.trim() === '' || value.code.length > 200 || value.name.length > 500) throw new DomainError('VALIDATION_FAILED', 422, 'buyer_snapshot');
+  return { code: value.code, name: value.name };
+}
 
 /**
  * The billing run and the e-invoice on the control plane (ST-SAS-011, SAS-09, SAS.md 3.7): a System Admin or a Billing Operator runs the billing for a period and issues the Draft invoices through
@@ -44,10 +53,11 @@ export class BillingController {
       const rows = await this.store.list(tx, { limit: page.limit + 1, after: page.after === undefined ? undefined : { periodStart: page.after.code, id: page.after.id } });
       const shown = rows.slice(0, page.limit);
       const last = shown[shown.length - 1];
-      const [lines, state, paid] = [await this.store.linesOf(tx, shown.map((row) => row.id)), await this.store.subscriptionState(tx), await this.payments.ofInvoices(tx, shown.map((row) => row.id))];
+      const [lines, state, paid, receivable, standings] = [await this.store.linesOf(tx, shown.map((row) => row.id)), await this.store.subscriptionState(tx), await this.payments.ofInvoices(tx, shown.map((row) => row.id)), await this.store.receivable(tx), await this.store.standings(tx, shown.map((row) => row.id))];
       return {
-        items: shown.map((row) => invoiceView(row, lines.filter((line) => line.invoiceId === row.id), paid.filter((payment) => payment.invoiceId === row.id))),
+        items: shown.map((row) => invoiceView(row, lines.filter((line) => line.invoiceId === row.id), paid.filter((payment) => payment.invoiceId === row.id), standings.get(row.id))),
         next_cursor: rows.length > page.limit && last !== undefined ? encodeCursor({ code: last.periodStart, id: last.id }) : null,
+        receivable_vnd: receivable,
         ...(state === undefined ? {} : { subscription_status: state.status }),
         ...(state?.pastDueSince == null ? {} : { past_due_since: state.pastDueSince.toISOString() }),
         ...(state?.suspensionProposedAt == null ? {} : { suspension_proposed_at: state.suspensionProposedAt.toISOString() }),
@@ -94,6 +104,43 @@ export class BillingController {
       const { invoice, outcome } = await this.store.issue(scope.tx, this.effectsOf(scope), this.provider, invoiceId, scope.expectedVersion ?? undefined, new Date());
       await scope.audit({ action: 'einvoice.issue_requested', resourceType: 'invoice', resourceId: invoiceId, reason: body.reason, diff: { outcome, attempts: invoice.issueAttempts } });
       return commandResult(scope, outcome === 'ISSUED' ? 'ISSUED' : outcome === 'PENDING' ? 'PENDING_ISSUE' : 'ISSUE_FAILED', invoice.version, invoiceId);
+    });
+  }
+
+  /**
+   * Corrects an issued invoice by an adjustment (lines that add to or take from what was invoiced, a negative line for a reduction), as a Draft linked to it (ST-SAS-013, SAS-24). There is no way to cancel an invoice: a mistake
+   * is corrected like this or by a replacement. The reason and the document of the buyer's agreement are required; an adjustment that changes nothing, or takes more than the invoice stands for, is 422
+   * EINVOICE_ADJUSTMENT_INVALID; an invoice that is not issued is 409 EINVOICE_STATE_INVALID. The adjustment is issued like any invoice, and the original becomes Adjusted when it is.
+   */
+  @Post('invoices/:invoiceId/adjustments')
+  @HttpCode(201)
+  @OperationId('createAdjustmentInvoice')
+  @Command({ operation: 'createAdjustmentInvoice', plane: 'control' })
+  async adjust(@Scope() scope: CommandScope, @Param('invoiceId', ParseUUIDPipe) invoiceId: string, @Body() body: Schemas['InvoiceCorrection']): Promise<CommandResult> {
+    return this.correct(scope, 'ADJUSTMENT', invoiceId, body);
+  }
+
+  /** Replaces an issued invoice by a whole new one, once for each invoice (409 EINVOICE_ALREADY_REPLACED), with the same reason and agreement; the original becomes Replaced when the replacement is issued. */
+  @Post('invoices/:invoiceId/replacements')
+  @HttpCode(201)
+  @OperationId('createReplacementInvoice')
+  @Command({ operation: 'createReplacementInvoice', plane: 'control' })
+  async replace(@Scope() scope: CommandScope, @Param('invoiceId', ParseUUIDPipe) invoiceId: string, @Body() body: Schemas['InvoiceCorrection']): Promise<CommandResult> {
+    return this.correct(scope, 'REPLACEMENT', invoiceId, body);
+  }
+
+  private async correct(scope: CommandScope, kind: CorrectionKind, invoiceId: string, body: Schemas['InvoiceCorrection']): Promise<CommandResult> {
+    const tenantId = await tenantOfInvoice(scope.tx, invoiceId);
+    if (tenantId === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return actingAsTenant(scope.tx, tenantId, scope.tenant.tenantId, async () => {
+      const buyer = buyerOf(body.buyer_snapshot);
+      const created = await this.store.createCorrection(scope.tx, this.effectsOf(scope), {
+        kind,
+        invoiceId,
+        buyer,
+        correction: { reason: body.correction_reason, agreementRef: body.agreement_document_ref, lines: body.lines.map((line) => ({ description: line.description, amountVnd: line.amount_vnd, vatCategory: line.vat_category })) },
+      });
+      return commandResult(scope, 'DRAFTED', created.version, created.id);
     });
   }
 

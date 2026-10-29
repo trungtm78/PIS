@@ -21823,6 +21823,18 @@ export interface components {
             };
             /** @description The payments that matched the invoice */
             payments?: components["schemas"]["BillingPayment"][];
+            /**
+             * Format: uuid
+             * @description The invoice a correction (an adjustment or a replacement) corrects
+             */
+            related_invoice_id?: string;
+            correction_reason?: string;
+            /** @description The document in which the buyer agreed to the correction (CXN-INV-02) */
+            agreement_document_ref?: string;
+            /** @description What the invoice stands for: its total and the adjustments of it that were issued; the most an adjustment may take off */
+            standing_vnd?: string;
+            /** @description What is still owed on the invoice: what it stands for, less what was paid on it and on the invoices it replaced; the amount a payment must be to settle it */
+            outstanding_vnd?: string;
         };
         TenantInvoices: {
             /** @description The invoices of the tenant, the latest period first */
@@ -21837,6 +21849,8 @@ export interface components {
             suspension_proposed_at?: string;
             /** @description The cursor of the next (older) page, null on the last */
             next_cursor?: string | null;
+            /** @description What the tenant owes: the originals that are not replaced, the adjustments and replacements that were issued, less what was paid */
+            receivable_vnd?: string;
         };
         BillingPayment: {
             /** Format: uuid */

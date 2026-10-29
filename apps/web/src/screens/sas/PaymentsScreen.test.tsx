@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import PaymentsScreen from './PaymentsScreen';
-import { toPayment } from './billing/model';
+import { toPayment, toTenantInvoices } from './billing/model';
 import { outstandingOf, payableInvoices, toPaymentPage } from './payments/model';
 import { harness, mount, routeOf } from './test-support';
 
@@ -226,18 +226,21 @@ describe('the model of SAS-10', () => {
     expect(toPaymentPage(undefined)).toEqual({ items: [], nextCursor: undefined });
   });
 
-  it('offers the invoices that were issued and are not paid, with what is left to pay of each', () => {
-    const views = [invoice('a1'), invoice('a2', { status: 'Paid' }), invoice('a3', { status: 'Draft' }), invoice('a4', { status: 'Overdue' }), invoice('a5', { status: 'PendingIssue' })].map((raw) => ({ ...raw, id: raw.id }));
-    const model = views.map((raw) => ({ id: raw.id, status: raw.status, totalVnd: raw.total_vnd, payments: [] }));
-    expect(payableInvoices(model as never).map((entry) => entry.id)).toEqual(['a1', 'a4']);
-    const paid = {
-      totalVnd: '1100000',
-      payments: [
-        { status: 'Matched', amountVnd: '100000' },
-        { status: 'Reversed', amountVnd: '5' },
-      ],
-    };
-    expect(outstandingOf(paid as never)).toBe('1000000');
-    expect(outstandingOf({ totalVnd: 'x', payments: [] } as never)).toBe('0');
+  it('offers the invoices that were issued and are not paid, adjusted ones too and never an adjustment, with what is left to pay as the server says', () => {
+    const views = [
+      invoice('a1'),
+      invoice('a2', { status: 'Paid' }),
+      invoice('a3', { status: 'Draft' }),
+      invoice('a4', { status: 'Overdue' }),
+      invoice('a5', { status: 'PendingIssue' }),
+      invoice('a6', { status: 'Adjusted', outstanding_vnd: '750000' }),
+      invoice('a7', { kind: 'ADJUSTMENT', status: 'Issued' }),
+      invoice('a8', { status: 'Replaced' }),
+    ];
+    const items = toTenantInvoices({ items: views }).items;
+    expect(payableInvoices(items).map((entry) => entry.id)).toEqual(['a1', 'a4', 'a6']);
+    expect(outstandingOf(items[5] as never)).toBe('750000');
+    // Without the server's figure the total stands in.
+    expect(outstandingOf(items[0] as never)).toBe('1100000');
   });
 });

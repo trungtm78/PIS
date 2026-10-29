@@ -441,6 +441,24 @@ describe('the billing run and the e-invoice (ST-SAS-011, SAS.md BR-SAS-13 and BR
       expect(await inTenant(TENANT_A, (tx) => store.failedCount(tx))).toBe(0);
     });
 
+    it('goes through the invoices waiting for a retry by the id of their subscription, not by the hour they wait for, so that it takes the locks in the order the run of a period does', async () => {
+      const provider = newProvider();
+      const waiting: InvoiceRow[] = [];
+      for (let n = 0; n < 2; n += 1) {
+        await subscribe(TENANT_C, { price: String(100000 + n) });
+        const [made] = (await run(TENANT_C)).created;
+        provider.failNext(1);
+        waiting.push((await issue(provider, made as InvoiceRow, recorder(), NOW, TENANT_C)).invoice);
+      }
+      const byId = [...waiting].sort((a, b) => (a.subscriptionId < b.subscriptionId ? -1 : 1));
+      // The one with the higher subscription id waits for the earlier hour.
+      await admin('update machvon.invoice set next_attempt_at = $2::timestamptz where id = $1', [byId[1]?.id, new Date(NOW.getTime() + 60_000).toISOString()]);
+      await admin('update machvon.invoice set next_attempt_at = $2::timestamptz where id = $1', [byId[0]?.id, new Date(NOW.getTime() + 120_000).toISOString()]);
+      const retried = await inTenant(TENANT_C, (tx) => store.retryDue(tx, recorder(), newProvider(), new Date(NOW.getTime() + 11 * 60_000)));
+      const ids = new Set(byId.map((invoice) => invoice.id));
+      expect(retried.map((entry) => entry.invoice.id).filter((id) => ids.has(id))).toEqual(byId.map((invoice) => invoice.id));
+    });
+
     it('does not ask the provider once the 24 hours are over: a worker that comes back late ends the tries without a call, even if the provider would answer', async () => {
       const provider = newProvider();
       const invoice = await draft();
@@ -483,6 +501,210 @@ describe('the billing run and the e-invoice (ST-SAS-011, SAS.md BR-SAS-13 and BR
       }
       expect(current.status).toBe('IssueFailed');
       expect(current.issueAttempts).toBe(3);
+    });
+  });
+
+  describe('the correction of an issued invoice (ST-SAS-013)', () => {
+    const REASON_TEXT = 'The plan was billed at the wrong price.';
+    const AGREEMENT = 'BB-2026/0042';
+    const line = (description: string, amountVnd: string, vatCategory = 'NOT_SUBJECT') => ({ description, amountVnd, vatCategory });
+
+    async function issuedOf(tenant: string, price: string): Promise<InvoiceRow> {
+      await subscribe(tenant, { price });
+      const made = (await run(tenant)).created[0] as InvoiceRow;
+      return (await inTenant(tenant, (tx) => store.issue(tx, recorder(), newProvider(), made.id, made.version, NOW))).invoice;
+    }
+    const correct = (tenant: string, kind: 'ADJUSTMENT' | 'REPLACEMENT', invoice: InvoiceRow, lines: Array<{ description: string; amountVnd: string; vatCategory: string }>, effects = recorder()) =>
+      inTenant(tenant, (tx) => store.createCorrection(tx, effects, { kind, invoiceId: invoice.id, correction: { reason: REASON_TEXT, agreementRef: AGREEMENT, lines } }));
+    const issueIt = (tenant: string, invoice: InvoiceRow) => inTenant(tenant, (tx) => store.issue(tx, recorder(), newProvider(), invoice.id, invoice.version, NOW));
+    const statusOf = async (tenant: string, id: string) => (await inTenant(tenant, (tx) => store.find(tx, id)))?.status;
+
+    it('adjusts an issued invoice of 365,000,000 VND by -36,500,000: the original becomes Adjusted when the adjustment is issued, the receivable is 328,500,000, and a second replacement is refused (AC-ST-SAS-013-1)', async () => {
+      const original = await issuedOf(TENANT_A, '365000000');
+      const effects = recorder();
+      const adjustment = await correct(TENANT_A, 'ADJUSTMENT', original, [line('Reduction of the plan price', '-36500000')], effects);
+      expect(adjustment).toMatchObject({ kind: 'ADJUSTMENT', status: 'Draft', relatedInvoiceId: original.id, correctionReason: REASON_TEXT, agreementDocumentRef: AGREEMENT, subtotalVnd: '-36500000', vatVnd: '0', totalVnd: '-36500000', invoiceCode: `${original.invoiceCode}-A1` });
+      expect(effects.audits.map((entry) => entry.action)).toEqual(['einvoice.adjustment_created']);
+      expect(effects.events.map((event) => event.type)).toEqual(['sas.invoice.correction_created.v1']);
+      // Until the adjustment is issued the original stands as it was.
+      expect(await statusOf(TENANT_A, original.id)).toBe('Issued');
+      expect(await inTenant(TENANT_A, (tx) => store.receivable(tx, original.subscriptionId))).toBe('365000000');
+      const issuing = recorder();
+      expect((await inTenant(TENANT_A, (tx) => store.issue(tx, issuing, newProvider(), adjustment.id, adjustment.version, NOW))).outcome).toBe('ISSUED');
+      expect(await statusOf(TENANT_A, original.id)).toBe('Adjusted');
+      expect(issuing.audits.map((entry) => entry.action)).toEqual(['invoice.issued', 'invoice.adjusted']);
+      expect(await inTenant(TENANT_A, (tx) => store.receivable(tx, original.subscriptionId))).toBe('328500000');
+      // Two replacements: the first is made, the second is refused and makes nothing.
+      const first = await correct(TENANT_A, 'REPLACEMENT', (await inTenant(TENANT_A, (tx) => store.find(tx, original.id))) as InvoiceRow, [line('Plan at the right price', '328500000')]);
+      expect(first).toMatchObject({ kind: 'REPLACEMENT', relatedInvoiceId: original.id, totalVnd: '328500000', invoiceCode: `${original.invoiceCode}-R1` });
+      await expect(correct(TENANT_A, 'REPLACEMENT', original, [line('Plan again', '328500000')])).rejects.toMatchObject({ code: 'EINVOICE_ALREADY_REPLACED', status: 409 });
+      expect((await admin<{ n: string }>("select count(*)::text as n from machvon.invoice where related_invoice_id = $1 and kind = 'REPLACEMENT'", [original.id]))[0]?.n).toBe('1');
+      // When the replacement is issued the original is Replaced, and the receivable is the replacement's, not the adjustment's on top of it.
+      await issueIt(TENANT_A, first);
+      expect(await statusOf(TENANT_A, original.id)).toBe('Replaced');
+      expect(await inTenant(TENANT_A, (tx) => store.receivable(tx, original.subscriptionId))).toBe('328500000');
+    });
+
+    it('prices a correction as an invoice is priced: the VAT of each line rounded half up, a reduction mirroring the VAT of the same size', async () => {
+      const original = await issuedOf(TENANT_B, '1000000');
+      const adjustment = await correct(TENANT_B, 'ADJUSTMENT', original, [line('Up', '7', 'VAT_8'), line('Down', '-107', 'VAT_10')]);
+      const lines = await inTenant(TENANT_B, (tx) => store.linesOf(tx, [adjustment.id]));
+      expect(lines.map((entry) => [entry.lineNo, entry.kind, entry.amountVnd, entry.vatVnd])).toEqual([[1, 'ADJUSTMENT', '7', '1'], [2, 'ADJUSTMENT', '-107', '-11']]);
+      expect(adjustment).toMatchObject({ subtotalVnd: '-100', vatVnd: '-10', totalVnd: '-110' });
+    });
+
+    it('refuses an adjustment that takes more than the invoice stands for, one that changes nothing, and what is not well formed (422), and makes nothing', async () => {
+      const original = await issuedOf(TENANT_C, '1000000');
+      const before = Number((await admin<{ n: string }>('select count(*)::text as n from machvon.invoice where related_invoice_id = $1', [original.id]))[0]?.n);
+      await expect(correct(TENANT_C, 'ADJUSTMENT', original, [line('Too much', '-1000001')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', status: 422, extensions: { reason: 'ADJUSTMENT_BELOW_ZERO', standing_vnd: '1000000' } });
+      await expect(correct(TENANT_C, 'ADJUSTMENT', original, [line('Up', '5', 'VAT_10'), line('Down', '-5', 'VAT_10')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', extensions: { reason: 'ADJUSTMENT_ZERO' } });
+      await expect(inTenant(TENANT_C, (tx) => store.createCorrection(tx, recorder(), { kind: 'ADJUSTMENT', invoiceId: original.id, correction: { reason: 'short', agreementRef: '12', lines: [] } }))).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+      expect(Number((await admin<{ n: string }>('select count(*)::text as n from machvon.invoice where related_invoice_id = $1', [original.id]))[0]?.n)).toBe(before);
+      // The reductions add up: after -600,000 issued, another -500,000 would take more than is left.
+      const first = await correct(TENANT_C, 'ADJUSTMENT', original, [line('Reduction', '-600000')]);
+      await issueIt(TENANT_C, first);
+      await expect(correct(TENANT_C, 'ADJUSTMENT', original, [line('Reduction', '-500000')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', extensions: { standing_vnd: '400000' } });
+      const second = await correct(TENANT_C, 'ADJUSTMENT', (await inTenant(TENANT_C, (tx) => store.find(tx, original.id))) as InvoiceRow, [line('Reduction', '-400000')]);
+      expect(second.invoiceCode).toBe(`${original.invoiceCode}-A2`);
+    });
+
+    it('judges an adjustment again as it goes out: two drafts of -600,000 on an invoice of 1,000,000 do not both go out, and one waiting for the provider already counts', async () => {
+      const original = await issuedOf(TENANT_B, '1000000');
+      const first = await correct(TENANT_B, 'ADJUSTMENT', original, [line('Reduction', '-600000')]);
+      const second = await correct(TENANT_B, 'ADJUSTMENT', original, [line('Reduction', '-600000')]);
+      const provider = newProvider();
+      const calls = provider.calls;
+      expect((await inTenant(TENANT_B, (tx) => store.issue(tx, recorder(), provider, first.id, first.version, NOW))).outcome).toBe('ISSUED');
+      await expect(inTenant(TENANT_B, (tx) => store.issue(tx, recorder(), provider, second.id, second.version, NOW))).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', status: 422, extensions: { reason: 'ADJUSTMENT_BELOW_ZERO', standing_vnd: '400000' } });
+      // The second was not sent to the provider and stays a draft.
+      expect(provider.calls).toBe(calls + 1);
+      expect(await statusOf(TENANT_B, second.id)).toBe('Draft');
+      // One that waits for the provider counts as well as one that was issued.
+      const third = await correct(TENANT_C, 'ADJUSTMENT', await issuedOf(TENANT_C, '1000000'), [line('Reduction', '-600000')]);
+      const fourth = await correct(TENANT_C, 'ADJUSTMENT', (await inTenant(TENANT_C, (tx) => store.find(tx, third.relatedInvoiceId as string))) as InvoiceRow, [line('Reduction', '-300000')]);
+      const down = newProvider();
+      down.failNext(1);
+      expect((await inTenant(TENANT_C, (tx) => store.issue(tx, recorder(), down, third.id, third.version, NOW))).outcome).toBe('PENDING');
+      const fifth = await correct(TENANT_C, 'ADJUSTMENT', (await inTenant(TENANT_C, (tx) => store.find(tx, third.relatedInvoiceId as string))) as InvoiceRow, [line('Reduction', '-400000')]);
+      expect((await inTenant(TENANT_C, (tx) => store.issue(tx, recorder(), newProvider(), fifth.id, fifth.version, NOW))).outcome).toBe('ISSUED');
+      await expect(inTenant(TENANT_C, (tx) => store.issue(tx, recorder(), newProvider(), fourth.id, fourth.version, NOW))).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID' });
+    });
+
+    it('does not let a reduction lean on an increase that is not issued, and keeps the room of a reduction that could not be issued until it is issued', async () => {
+      const original = await issuedOf(TENANT_A, '1000000');
+      const increase = await correct(TENANT_A, 'ADJUSTMENT', original, [line('Increase', '1000000')]);
+      const down = newProvider();
+      down.failNext(1);
+      expect((await inTenant(TENANT_A, (tx) => store.issue(tx, recorder(), down, increase.id, increase.version, NOW))).outcome).toBe('PENDING');
+      // The increase waits for the provider: it may never be issued, so a reduction of more than the invoice stands for is refused.
+      await expect(correct(TENANT_A, 'ADJUSTMENT', original, [line('Reduction', '-1500000')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', extensions: { standing_vnd: '1000000' } });
+      // A reduction that could not be issued keeps its room: another one that would not fit beside it is refused, and a late answer for the first is accepted.
+      const reduction = await correct(TENANT_B, 'ADJUSTMENT', await issuedOf(TENANT_B, '1000000'), [line('Reduction', '-800000')]);
+      const failing = newProvider();
+      failing.failNext(1);
+      expect((await inTenant(TENANT_B, (tx) => store.issue(tx, recorder(), failing, reduction.id, reduction.version, NOW))).outcome).toBe('PENDING');
+      await admin("update machvon.invoice set status = 'IssueFailed', next_attempt_at = null where id = $1", [reduction.id]);
+      const original2 = (await inTenant(TENANT_B, (tx) => store.find(tx, reduction.relatedInvoiceId as string))) as InvoiceRow;
+      await expect(correct(TENANT_B, 'ADJUSTMENT', original2, [line('Another', '-800000')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', extensions: { standing_vnd: '200000' } });
+      const late = await inTenant(TENANT_B, (tx) => store.completeIssue(tx, recorder(), reduction.id, { providerRef: 'R', templateCode: '1', series: 'C26TMV', number: '0000555', taxAuthorityCode: 'CQT', lookupCode: 'LK' }, 'MOCK', NOW));
+      expect(late.invoice.status).toBe('Issued');
+      expect(await statusOf(TENANT_B, original2.id)).toBe('Adjusted');
+    });
+
+    it('judges a correction again on the tries of the worker: an adjustment waiting for the provider whose invoice was replaced meanwhile ends as IssueFailed and is never issued', async () => {
+      const original = await issuedOf(TENANT_A, '1000000');
+      const adjustment = await correct(TENANT_A, 'ADJUSTMENT', original, [line('Reduction', '-100000')]);
+      const down = newProvider();
+      down.failNext(1);
+      expect((await inTenant(TENANT_A, (tx) => store.issue(tx, recorder(), down, adjustment.id, adjustment.version, NOW))).outcome).toBe('PENDING');
+      const replacement = await correct(TENANT_A, 'REPLACEMENT', original, [line('Plan again', '900000')]);
+      await issueIt(TENANT_A, replacement);
+      expect(await statusOf(TENANT_A, original.id)).toBe('Replaced');
+      const provider = newProvider();
+      // (Another test of the tenant may have left an invoice waiting too: this one is found by its id.)
+      const retried = (await inTenant(TENANT_A, (tx) => store.retryDue(tx, recorder(), provider, new Date(NOW.getTime() + 11 * 60_000)))).find((entry) => entry.invoice.id === adjustment.id);
+      expect(retried?.outcome).toBe('FAILED');
+      expect(retried?.invoice).toMatchObject({ id: adjustment.id, status: 'IssueFailed', issueError: 'EINVOICE_ADJUSTMENT_INVALID' });
+      expect(provider.issuedCount).toBeLessThanOrEqual(1);
+      // The original is not Adjusted by it, and what the tenant owes is the replacement's.
+      expect(await inTenant(TENANT_A, (tx) => store.receivable(tx, original.subscriptionId))).toBe('900000');
+    });
+
+    it('does not count an adjustment as a debt that falls due: an issued reduction past its due day is not Overdue and does not make the subscription past due', async () => {
+      const original = await issuedOf(TENANT_C, '1000000');
+      const adjustment = await correct(TENANT_C, 'ADJUSTMENT', original, [line('Reduction', '-1000000')]);
+      await issueIt(TENANT_C, adjustment);
+      await admin('alter table machvon.invoice disable trigger invoice_guard');
+      await admin("update machvon.invoice set due_at = '2026-03-01' where subscription_id = $1", [original.subscriptionId]);
+      await admin('alter table machvon.invoice enable trigger invoice_guard');
+      const swept = await inTenant(TENANT_C, (tx) => store.sweepOverdue(tx, recorder(), '2026-03-05', NOW));
+      expect(swept).toEqual({ overdue: [], pastDue: [], suspensionProposed: [] });
+      expect(await statusOf(TENANT_C, adjustment.id)).toBe('Issued');
+      expect((await admin<{ status: string }>('select status from machvon.subscription where id = $1', [original.subscriptionId]))[0]?.status).toBe('Active');
+    });
+
+    it('does not bring back a replacement that could not be issued beside the one that was made after it', async () => {
+      const original = await issuedOf(TENANT_B, '70000');
+      const first = await correct(TENANT_B, 'REPLACEMENT', original, [line('Plan again', '60000')]);
+      const down = newProvider();
+      down.failNext(1);
+      expect((await inTenant(TENANT_B, (tx) => store.issue(tx, recorder(), down, first.id, first.version, NOW))).outcome).toBe('PENDING');
+      await admin("update machvon.invoice set status = 'IssueFailed', next_attempt_at = null where id = $1", [first.id]);
+      // The first could not be issued: a second may be made in its place.
+      const second = await correct(TENANT_B, 'REPLACEMENT', original, [line('Plan again, fixed', '61000')]);
+      const failed = (await inTenant(TENANT_B, (tx) => store.find(tx, first.id))) as InvoiceRow;
+      await expect(inTenant(TENANT_B, (tx) => store.issue(tx, recorder(), newProvider(), failed.id, failed.version, NOW))).rejects.toMatchObject({ code: 'EINVOICE_ALREADY_REPLACED', status: 409, extensions: { replacement_id: second.id } });
+      // The late answer of the provider for the first is refused too, and the second goes out.
+      await expect(inTenant(TENANT_B, (tx) => store.completeIssue(tx, recorder(), first.id, { providerRef: 'R', templateCode: '1', series: 'C26TMV', number: '0000777', taxAuthorityCode: 'CQT', lookupCode: 'LK' }, 'MOCK', NOW))).rejects.toMatchObject({ code: 'EINVOICE_ALREADY_REPLACED' });
+      expect((await issueIt(TENANT_B, second)).outcome).toBe('ISSUED');
+      expect(await statusOf(TENANT_B, original.id)).toBe('Replaced');
+    });
+
+    it('refuses a replacement for nothing, which would be the cancellation that does not exist', async () => {
+      const original = await issuedOf(TENANT_A, '2000000');
+      await expect(correct(TENANT_A, 'REPLACEMENT', original, [line('Nothing', '-5')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', extensions: { reason: 'REPLACEMENT_NOT_ABOVE_ZERO' } });
+    });
+
+    it('refuses to correct what is not issued (409), what does not exist (404), a correction itself (422) and an invoice that was replaced', async () => {
+      await subscribe(TENANT_B, { price: '10' });
+      const draft = (await run(TENANT_B)).created[0] as InvoiceRow;
+      await expect(correct(TENANT_B, 'ADJUSTMENT', draft, [line('x', '-1')])).rejects.toMatchObject({ code: 'EINVOICE_STATE_INVALID', status: 409 });
+      await expect(correct(TENANT_B, 'REPLACEMENT', { ...draft, id: randomUUID() }, [line('x', '1')])).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      const original = await issuedOf(TENANT_C, '5000');
+      const adjustment = await correct(TENANT_C, 'ADJUSTMENT', original, [line('x', '-1')]);
+      await expect(correct(TENANT_C, 'ADJUSTMENT', adjustment, [line('x', '-1')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', extensions: { reason: 'CORRECTION_OF_ADJUSTMENT' } });
+      const replacement = await correct(TENANT_C, 'REPLACEMENT', original, [line('again', '4000')]);
+      await issueIt(TENANT_C, replacement);
+      await expect(correct(TENANT_C, 'REPLACEMENT', original, [line('and again', '4000')])).rejects.toMatchObject({ code: 'EINVOICE_ALREADY_REPLACED', status: 409 });
+      await expect(correct(TENANT_C, 'ADJUSTMENT', original, [line('x', '-1')])).rejects.toMatchObject({ code: 'EINVOICE_ADJUSTMENT_INVALID', extensions: { reason: 'ALREADY_REPLACED' } });
+    });
+
+    it('lets a replacement that was discarded be made again, and keeps one live replacement for each invoice in the table', async () => {
+      const original = await issuedOf(TENANT_A, '9000');
+      const first = await correct(TENANT_A, 'REPLACEMENT', original, [line('a', '8000')]);
+      await admin("update machvon.invoice set status = 'Discarded', version = version + 1 where id = $1", [first.id]);
+      const second = await correct(TENANT_A, 'REPLACEMENT', original, [line('b', '8500')]);
+      expect(second.invoiceCode).toBe(`${original.invoiceCode}-R2`);
+      const duplicate = await sqlError(
+        `insert into machvon.invoice (tenant_id, id, subscription_id, invoice_code, period_start, period_end, kind, related_invoice_id, correction_reason, status, subtotal_vnd, vat_vnd, total_vnd, buyer_snapshot)
+         values ($1, gen_random_uuid(), $2, 'INV-OTHER-R', '2026-02-01', '2026-02-28', 'REPLACEMENT', $3, 'a reason that is long enough', 'Draft', 1, 0, 1, '{}')`,
+        [TENANT_A, original.subscriptionId, original.id],
+      );
+      expect(duplicate?.code).toBe('23505');
+    });
+
+    it('refuses a correction in the table without its reason and its link, and an original without a reduction below zero', async () => {
+      const original = await issuedOf(TENANT_B, '3000');
+      const base = [TENANT_B, original.subscriptionId, original.id];
+      const insert = (reason: string, related: string | null) =>
+        sqlError(
+          `insert into machvon.invoice (tenant_id, id, subscription_id, invoice_code, period_start, period_end, kind, related_invoice_id, correction_reason, status, subtotal_vnd, vat_vnd, total_vnd, buyer_snapshot)
+           values ($1, gen_random_uuid(), $2, 'INV-X-' || gen_random_uuid()::text, '2026-02-01', '2026-02-28', 'ADJUSTMENT', $3, $4, 'Draft', -1, 0, -1, '{}')`,
+          [base[0], base[1], related, reason],
+        );
+      expect((await insert('short', original.id))?.code).toBe('23514');
+      expect((await insert('a reason that is long enough', null))?.code).toBe('23514');
+      expect(await insert('a reason that is long enough', original.id)).toBeUndefined();
     });
   });
 

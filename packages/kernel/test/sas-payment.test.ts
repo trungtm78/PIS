@@ -46,6 +46,12 @@ describe('the payment callbacks and their matching (ST-SAS-012, SAS.md 3.7)', ()
     expect(invoiceCodesIn('INV-20260101-3FA85F64-1000')).toEqual([]);
     expect(invoiceCodesIn('INV-20260101-3FA85F64-100')).toEqual(['INV-20260101-3FA85F64-100']);
     expect(invoiceCodesIn('(INV-20260101-3FA85F64), thanks')).toEqual(['INV-20260101-3FA85F64']);
+    // The code of a correction names the correction, not the invoice it corrects.
+    expect(invoiceCodesIn('CK inv-20260101-3fa85f64-r1 va INV-20260101-3FA85F64-A2')).toEqual(['INV-20260101-3FA85F64-R1', 'INV-20260101-3FA85F64-A2']);
+    expect(invoiceCodesIn('INV-20260101-3FA85F64-2-R1')).toEqual(['INV-20260101-3FA85F64-2-R1']);
+    expect(invoiceCodesIn('INV-20260101-3FA85F64-R1-R1')).toEqual(['INV-20260101-3FA85F64-R1-R1']);
+    expect(invoiceCodesIn('INV-20260101-3FA85F64-X1')).toEqual([]);
+    expect(invoiceCodesIn('INV-20260101-3FA85F64-R1000')).toEqual([]);
   });
 
   it('settles an invoice only for exactly what is still to be paid', () => {
@@ -58,11 +64,15 @@ describe('the payment callbacks and their matching (ST-SAS-012, SAS.md 3.7)', ()
   });
 
   describe('what the matching worker does', () => {
-    const candidate = (overrides: Partial<{ status: string; outstandingVnd: string }> = {}) => ({ tenantId: 't1', invoiceId: 'i1', status: 'Issued', outstandingVnd: '1100000', ...overrides });
+    const candidate = (overrides: Partial<{ status: string; outstandingVnd: string; kind: string }> = {}) => ({ tenantId: 't1', invoiceId: 'i1', status: 'Issued', outstandingVnd: '1100000', ...overrides });
 
     it('settles the one payable invoice whose outstanding amount the payment equals', () => {
       expect(autoMatch('1100000', [candidate()], 1)).toEqual({ verdict: 'MATCH', candidate: candidate() });
       expect(autoMatch('1100000', [candidate({ status: 'Overdue' })], 1).verdict).toBe('MATCH');
+      // An adjusted invoice still owes what its adjustments left of it; an adjustment is not paid by itself.
+      expect(autoMatch('1100000', [candidate({ status: 'Adjusted' })], 1).verdict).toBe('MATCH');
+      expect(autoMatch('1100000', [candidate({ kind: 'ADJUSTMENT' })], 1).verdict).toBe('REVIEW');
+      expect(autoMatch('1100000', [candidate({ status: 'Replaced' })], 1).verdict).toBe('REVIEW');
     });
 
     it('leaves a payment whose note names no invoice Unmatched', () => {

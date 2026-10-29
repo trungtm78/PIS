@@ -38,8 +38,16 @@ export interface PaymentView {
   canMatch: boolean;
 }
 
+export const INVOICE_KINDS = ['ORIGINAL', 'ADJUSTMENT', 'REPLACEMENT'] as const;
+export type InvoiceKind = (typeof INVOICE_KINDS)[number];
+
 export interface InvoiceView {
   id: string;
+  kind: InvoiceKind;
+  /** The invoice a correction corrects, with why and the document of the buyer's agreement. */
+  relatedInvoiceId: string | undefined;
+  correctionReason: string | undefined;
+  agreementDocumentRef: string | undefined;
   invoiceCode: string;
   periodStart: string;
   periodEnd: string;
@@ -47,6 +55,10 @@ export interface InvoiceView {
   subtotalVnd: string;
   vatVnd: string;
   totalVnd: string;
+  /** What the invoice stands for: its total and the adjustments of it that were issued. */
+  standingVnd: string;
+  /** What is still owed on the invoice: the amount a payment must be to settle it. */
+  outstandingVnd: string;
   dueAt: string | undefined;
   issuedAt: string | undefined;
   series: string | undefined;
@@ -68,6 +80,8 @@ export interface TenantInvoices {
   subscriptionStatus: string | undefined;
   pastDueSince: string | undefined;
   suspensionProposedAt: string | undefined;
+  /** What the tenant owes: the invoices that stand, less what was paid. */
+  receivableVnd: string | undefined;
   /** The cursor of the next (older) page of invoices. */
   nextCursor: string | undefined;
 }
@@ -111,6 +125,10 @@ function toInvoice(raw: unknown): InvoiceView | undefined {
   const actions: Raw = isRecord(row.actions) ? row.actions : {};
   return {
     id: row.id,
+    kind: oneOf(row.kind, INVOICE_KINDS, 'ORIGINAL'),
+    relatedInvoiceId: optionalText(row.related_invoice_id),
+    correctionReason: optionalText(row.correction_reason),
+    agreementDocumentRef: optionalText(row.agreement_document_ref),
     invoiceCode: text(row.invoice_code),
     periodStart: text(row.period_start),
     periodEnd: text(row.period_end),
@@ -118,6 +136,8 @@ function toInvoice(raw: unknown): InvoiceView | undefined {
     subtotalVnd: text(row.subtotal_vnd) || '0',
     vatVnd: text(row.vat_vnd) || '0',
     totalVnd: text(row.total_vnd) || '0',
+    standingVnd: text(row.standing_vnd) || text(row.total_vnd) || '0',
+    outstandingVnd: text(row.outstanding_vnd) || text(row.standing_vnd) || text(row.total_vnd) || '0',
     dueAt: optionalText(row.due_at),
     issuedAt: optionalText(row.issued_at),
     series: optionalText(einvoice.series),
@@ -141,6 +161,7 @@ export function toTenantInvoices(raw: unknown): TenantInvoices {
     subscriptionStatus: optionalText(view.subscription_status),
     pastDueSince: optionalText(view.past_due_since),
     suspensionProposedAt: optionalText(view.suspension_proposed_at),
+    receivableVnd: optionalText(view.receivable_vnd),
     nextCursor: optionalText(view.next_cursor),
   };
 }

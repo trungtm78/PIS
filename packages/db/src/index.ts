@@ -674,9 +674,9 @@ export { DELEGATION_ACTIVE_GAUGE, DELEGATION_PASS_LIMIT, DelegationStore } from 
 export type { DelegationEndReason, DelegationPassResult, DelegationRecord as DelegationGrantRecord, DelegationStatus, NewDelegation } from './delegation-store.ts';
 export { APPROVAL_OPEN_GAUGE, APPROVAL_OVERDUE_GAUGE, APPROVAL_SLA_BREACH_METRIC, ApprovalSlaJob } from './approval-sla-job.ts';
 export type { ApprovalEffects, DecisionResult, FinalCommand, SlaSweepResult as ApprovalSlaSweepResult, InstanceRecord as WorkflowInstanceRecord, StartInput as ApprovalStartInput, TaskRecord as ApprovalTaskRecord, VersionRecord as WorkflowVersionRecord } from './approval-store.ts';
-export { DEFAULT_DUE_DAYS, EINVOICE_FAILED_GAUGE, INVOICE_DRAFTED_EVENT, INVOICE_ISSUED_EVENT, INVOICE_ISSUE_FAILED_EVENT, INVOICE_OVERDUE_EVENT, SUBSCRIPTION_PAST_DUE_EVENT, SUSPENSION_PROPOSED_EVENT, BillingStore } from './billing-store.ts';
+export { DEFAULT_DUE_DAYS, EINVOICE_FAILED_GAUGE, SUBSCRIPTION_RECOVERED_EVENT, INVOICE_CORRECTED_EVENT, INVOICE_CORRECTION_CREATED_EVENT, INVOICE_DRAFTED_EVENT, INVOICE_ISSUED_EVENT, INVOICE_ISSUE_FAILED_EVENT, INVOICE_OVERDUE_EVENT, SUBSCRIPTION_PAST_DUE_EVENT, SUSPENSION_PROPOSED_EVENT, BillingStore } from './billing-store.ts';
 export type { BillingRunResult, InvoiceLineRow, InvoiceRow, InvoiceStatus, IssueOutcome, BillingOverdueResult } from './billing-store.ts';
 export { EINVOICE_PROVIDER, EInvoiceProviderUnavailable, MockEInvoiceProvider, sharedMockEInvoiceProvider } from './einvoice-provider.ts';
 export type { EInvoiceIssueLine, EInvoiceIssueRequest, EInvoiceIssued, EInvoiceProviderPort } from './einvoice-provider.ts';
-export { BillingPaymentStore, MATCH_BATCH, PAYMENT_MATCHED_EVENT, PAYMENT_UNMATCHED_GAUGE, SUBSCRIPTION_RECOVERED_EVENT } from './billing-payment-store.ts';
+export { BillingPaymentStore, MATCH_BATCH, PAYMENT_MATCHED_EVENT, PAYMENT_UNMATCHED_GAUGE } from './billing-payment-store.ts';
 export type { PassResult as PaymentPassResult, PaymentRow, PaymentStatus, RecordPaymentInput } from './billing-payment-store.ts';

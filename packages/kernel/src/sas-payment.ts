@@ -7,9 +7,9 @@
 const MAX_EVENT = 200;
 const MAX_MEMO = 500;
 const WHOLE_VND = /^[0-9]{1,24}$/;
-/** A code of an invoice (`invoiceCodeOf`): the period, the start of the subscription id and, for a replaced draft, its revision. */
+/** A code of an invoice (`invoiceCodeOf`): the period, the start of the subscription id, for a replaced draft its revision, and for a correction `-A<n>` (adjustment) or `-R<n>` (replacement) after the code it corrects. */
 // A code is a whole word: not part of a longer run of letters and digits, and not the front of a longer revision (`-1000` is not the revision `-100`).
-const INVOICE_CODE = /(?<![0-9A-Za-z])INV-\d{8}-[0-9A-F]{8}(?:-\d{1,3})?(?![0-9A-Za-z]|-\d)/gi;
+const INVOICE_CODE = /(?<![0-9A-Za-z])INV-\d{8}-[0-9A-F]{8}(?:-\d{1,3})?(?:-[AR]\d{1,3})*(?![0-9A-Za-z]|-[0-9A-Za-z])/gi;
 
 export const PAYMENT_METHODS = ['BANK_TRANSFER', 'GATEWAY', 'TREASURY_TRANSFER'] as const;
 export type BillingPaymentMethod = (typeof PAYMENT_METHODS)[number];
@@ -94,10 +94,10 @@ export function judgeMatch(paymentVnd: string, outstanding: string): MatchVerdic
   return BigInt(outstanding) > 0n && BigInt(paymentVnd) === BigInt(outstanding) ? 'MATCH' : 'AMOUNT_MISMATCH';
 }
 
-export type PaymentCandidate = { tenantId: string; invoiceId: string; status: string; outstandingVnd: string };
+export type PaymentCandidate = { tenantId: string; invoiceId: string; status: string; outstandingVnd: string; kind?: string };
 
-/** The invoice statuses a payment can settle. */
-export const PAYABLE_INVOICE_STATUSES: readonly string[] = ['Issued', 'Sent', 'PartiallyPaid', 'Overdue'];
+/** The invoice statuses a payment can settle (an adjusted invoice still owes what its adjustments left of it; a replaced one owes nothing, its replacement does). */
+export const PAYABLE_INVOICE_STATUSES: readonly string[] = ['Issued', 'Sent', 'PartiallyPaid', 'Overdue', 'Adjusted'];
 
 /**
  * What the matching worker does with a payment given the invoices its note names (`namedCodes` is how many codes the note holds, found or not): it settles the one invoice that is payable and whose outstanding amount the payment equals; a note that names no
@@ -108,6 +108,7 @@ export function autoMatch(paymentVnd: string, candidates: readonly PaymentCandid
   if (namedCodes > 1) return { verdict: 'REVIEW' };
   if (candidates.length === 0) return { verdict: 'UNMATCHED' };
   const [only] = candidates;
-  if (candidates.length > 1 || only === undefined || !PAYABLE_INVOICE_STATUSES.includes(only.status)) return { verdict: 'REVIEW' };
+  // An adjustment is folded into the invoice it adjusts and is never paid by itself.
+  if (candidates.length > 1 || only === undefined || only.kind === 'ADJUSTMENT' || !PAYABLE_INVOICE_STATUSES.includes(only.status)) return { verdict: 'REVIEW' };
   return judgeMatch(paymentVnd, only.outstandingVnd) === 'MATCH' ? { verdict: 'MATCH', candidate: only } : { verdict: 'REVIEW' };
 }

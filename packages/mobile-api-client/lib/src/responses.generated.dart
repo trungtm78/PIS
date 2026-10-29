@@ -12835,6 +12835,11 @@ final class InvoiceResponse implements ResponseModel {
     this.nextAttemptAt,
     this.issueError,
     this.payments,
+    this.relatedInvoiceId,
+    this.correctionReason,
+    this.agreementDocumentRef,
+    this.standingVnd,
+    this.outstandingVnd,
     this.extra = const <String, Object?>{},
   });
 
@@ -12862,7 +12867,12 @@ final class InvoiceResponse implements ResponseModel {
       lines: requiredField(map, path, 'lines', asList(InvoiceLineResponse.fromJson)),
       actions: requiredField(map, path, 'actions', InvoiceResponseActions.fromJson),
       payments: optionalField(map, path, 'payments', asList(BillingPaymentResponse.fromJson)),
-      extra: unknownFields(map, path, const <String>{'id', 'subscription_id', 'invoice_code', 'period_start', 'period_end', 'kind', 'status', 'subtotal_vnd', 'vat_vnd', 'total_vnd', 'buyer', 'due_at', 'issued_at', 'einvoice', 'issue_attempts', 'next_attempt_at', 'issue_error', 'version', 'lines', 'actions', 'payments'}, strict: true),
+      relatedInvoiceId: optionalField(map, path, 'related_invoice_id', asString),
+      correctionReason: optionalField(map, path, 'correction_reason', asString),
+      agreementDocumentRef: optionalField(map, path, 'agreement_document_ref', asString),
+      standingVnd: optionalField(map, path, 'standing_vnd', asString),
+      outstandingVnd: optionalField(map, path, 'outstanding_vnd', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'subscription_id', 'invoice_code', 'period_start', 'period_end', 'kind', 'status', 'subtotal_vnd', 'vat_vnd', 'total_vnd', 'buyer', 'due_at', 'issued_at', 'einvoice', 'issue_attempts', 'next_attempt_at', 'issue_error', 'version', 'lines', 'actions', 'payments', 'related_invoice_id', 'correction_reason', 'agreement_document_ref', 'standing_vnd', 'outstanding_vnd'}, strict: true),
     );
   }
 
@@ -12887,6 +12897,11 @@ final class InvoiceResponse implements ResponseModel {
   final List<InvoiceLineResponse> lines;
   final InvoiceResponseActions actions;
   final List<BillingPaymentResponse>? payments;
+  final String? relatedInvoiceId;
+  final String? correctionReason;
+  final String? agreementDocumentRef;
+  final String? standingVnd;
+  final String? outstandingVnd;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -12914,6 +12929,11 @@ final class InvoiceResponse implements ResponseModel {
         'lines': lines.map((e0) => e0.toJson()).toList(),
         'actions': actions.toJson(),
         if (payments != null) 'payments': payments!.map((e0) => e0.toJson()).toList(),
+        if (relatedInvoiceId != null) 'related_invoice_id': relatedInvoiceId,
+        if (correctionReason != null) 'correction_reason': correctionReason,
+        if (agreementDocumentRef != null) 'agreement_document_ref': agreementDocumentRef,
+        if (standingVnd != null) 'standing_vnd': standingVnd,
+        if (outstandingVnd != null) 'outstanding_vnd': outstandingVnd,
         ...extra,
       };
 }
@@ -18275,6 +18295,7 @@ final class TenantInvoicesResponse implements ResponseModel {
     this.pastDueSince,
     this.suspensionProposedAt,
     this.nextCursor,
+    this.receivableVnd,
     this.extra = const <String, Object?>{},
   });
 
@@ -18286,7 +18307,8 @@ final class TenantInvoicesResponse implements ResponseModel {
       pastDueSince: optionalField(map, path, 'past_due_since', asString),
       suspensionProposedAt: optionalField(map, path, 'suspension_proposed_at', asString),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'items', 'subscription_status', 'past_due_since', 'suspension_proposed_at', 'next_cursor'}, strict: true),
+      receivableVnd: optionalField(map, path, 'receivable_vnd', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'subscription_status', 'past_due_since', 'suspension_proposed_at', 'next_cursor', 'receivable_vnd'}, strict: true),
     );
   }
 
@@ -18295,6 +18317,7 @@ final class TenantInvoicesResponse implements ResponseModel {
   final String? pastDueSince;
   final String? suspensionProposedAt;
   final String? nextCursor;
+  final String? receivableVnd;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -18306,6 +18329,7 @@ final class TenantInvoicesResponse implements ResponseModel {
         if (pastDueSince != null) 'past_due_since': pastDueSince,
         if (suspensionProposedAt != null) 'suspension_proposed_at': suspensionProposedAt,
         if (nextCursor != null) 'next_cursor': nextCursor,
+        if (receivableVnd != null) 'receivable_vnd': receivableVnd,
         ...extra,
       };
 }

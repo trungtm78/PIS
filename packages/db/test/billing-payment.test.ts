@@ -362,11 +362,191 @@ describe('the payments that come in and their reconciliation (ST-SAS-012, SAS.md
     });
   });
 
+  describe('after an invoice was corrected (ST-SAS-013)', () => {
+    const line = (description: string, amountVnd: string) => ({ description, amountVnd, vatCategory: 'NOT_SUBJECT' });
+    const correct = (tenant: string, kind: 'ADJUSTMENT' | 'REPLACEMENT', invoice: InvoiceRow, lines: Array<{ description: string; amountVnd: string; vatCategory: string }>) =>
+      inTenant(tenant, (tx) => billing.createCorrection(tx, recorder(), { kind, invoiceId: invoice.id, correction: { reason: 'The plan was billed at the wrong price.', agreementRef: 'BB-2026/0042', lines } }));
+    const issueIt = (tenant: string, invoice: InvoiceRow) => inTenant(tenant, (tx) => billing.issue(tx, recorder(), new MockEInvoiceProvider(), invoice.id, invoice.version, NOW));
+    const reload = (tenant: string, id: string) => inTenant(tenant, (tx) => billing.find(tx, id)) as Promise<InvoiceRow>;
+
+    it('settles an adjusted invoice for what its adjustments left of it, and leaves it Adjusted', async () => {
+      const original = await issuedInvoice(TENANT_A, '1000000');
+      const adjustment = await correct(TENANT_A, 'ADJUSTMENT', original, [line('Reduction', '-250000')]);
+      await issueIt(TENANT_A, adjustment);
+      expect((await reload(TENANT_A, original.id)).status).toBe('Adjusted');
+      // A payment of the old total is not what is outstanding; one of 750,000 is.
+      const found = await asPlatform((tx) => payments.candidates(tx, `CK ${original.invoiceCode}`));
+      expect(found).toEqual([{ tenantId: TENANT_A, invoiceId: original.id, kind: 'ORIGINAL', status: 'Adjusted', outstandingVnd: '750000' }]);
+      const wrong = await arrived('1000000', '');
+      await expect(matchBy(wrong, original)).rejects.toMatchObject({ code: 'AMOUNT_MISMATCH', extensions: { outstanding_vnd: '750000' } });
+      const right = await arrived('750000', `INV ${original.invoiceCode}`);
+      expect((await passOf()).matched).toBe(1);
+      expect((await inTenant(TENANT_A, (tx) => payments.ofInvoices(tx, [original.id]))).map((payment) => [payment.status, payment.amountVnd])).toEqual([['Matched', '750000']]);
+      expect((await reload(TENANT_A, original.id)).status).toBe('Adjusted');
+      // Nothing is outstanding any more: another payment is for a person.
+      expect(await asPlatform((tx) => payments.find(tx, right.id))).toBeUndefined();
+      const again = await asPlatform((tx) => payments.candidates(tx, original.invoiceCode));
+      expect(again[0]?.outstandingVnd).toBe('0');
+    });
+
+    it('puts a subscription past due for an adjusted invoice that fell due and is still owed, once, and gives it back when the rest is paid', async () => {
+      const original = await issuedInvoice(TENANT_B, '1000000');
+      await issueIt(TENANT_B, await correct(TENANT_B, 'ADJUSTMENT', original, [line('Reduction', '-200000')]));
+      expect((await reload(TENANT_B, original.id)).status).toBe('Adjusted');
+      await admin('alter table machvon.invoice disable trigger invoice_guard');
+      await admin("update machvon.invoice set due_at = '2026-03-01' where subscription_id = $1", [original.subscriptionId]);
+      await admin('alter table machvon.invoice enable trigger invoice_guard');
+      const effects = recorder();
+      const swept = await inTenant(TENANT_B, (tx) => billing.sweepOverdue(tx, effects, '2026-03-05', NOW));
+      expect(swept.overdue.map((invoice) => invoice.id)).toEqual([original.id]);
+      expect(swept.pastDue).toHaveLength(1);
+      expect(effects.audits.map((entry) => entry.action)).toEqual(['invoice.overdue', 'subscription.past_due']);
+      expect((await admin<{ status: string; overdue_since: string | null }>('select status, overdue_since::text from machvon.invoice where id = $1', [original.id]))[0]).toEqual({ status: 'Adjusted', overdue_since: '2026-03-05' });
+      // An adjusted invoice that is settled and falls due again is a new episode with its own event: the key says which.
+      await admin('update machvon.invoice set overdue_since = null where id = $1', [original.id]);
+      const again = recorder();
+      await inTenant(TENANT_B, (tx) => billing.sweepOverdue(tx, again, '2026-03-06', new Date('2026-03-06T03:00:00Z')));
+      const keys = [...effects.events, ...again.events].filter((event) => event.type === 'sas.invoice.overdue.v1').map((event) => event.eventKey);
+      expect(keys).toHaveLength(2);
+      expect(new Set(keys).size).toBe(2);
+      // The next pass does not say it again.
+      expect(await inTenant(TENANT_B, (tx) => billing.sweepOverdue(tx, recorder(), '2026-03-06', new Date('2026-03-06T03:00:00Z')))).toEqual({ overdue: [], pastDue: [], suspensionProposed: [] });
+      // What is left of the invoice is paid: the day is cleared and the subscription is Active again.
+      await matchBy(await arrived('800000', ''), original);
+      expect((await admin<{ status: string; overdue_since: string | null }>('select status, overdue_since::text from machvon.invoice where id = $1', [original.id]))[0]).toEqual({ status: 'Adjusted', overdue_since: null });
+      expect((await admin<{ status: string }>('select status from machvon.subscription where id = $1', [original.subscriptionId]))[0]?.status).toBe('Active');
+    });
+
+    it('calls a replacement paid when the payments on the invoice it replaces already cover it, and never overdue', async () => {
+      const original = await issuedInvoice(TENANT_A, '1000000');
+      await matchBy(await arrived('1000000', ''), original);
+      expect((await reload(TENANT_A, original.id)).status).toBe('Paid');
+      const replacement = await correct(TENANT_A, 'REPLACEMENT', original, [line('Plan at the right price', '900000')]);
+      const answered = (await issueIt(TENANT_A, replacement)).invoice;
+      // The answer is the invoice as it is committed: already Paid, with its version.
+      expect([answered.status, answered.version]).toEqual(['Paid', (await reload(TENANT_A, replacement.id)).version]);
+      expect((await reload(TENANT_A, original.id)).status).toBe('Replaced');
+      expect((await reload(TENANT_A, replacement.id)).status).toBe('Paid');
+      await admin('alter table machvon.invoice disable trigger invoice_guard');
+      await admin("update machvon.invoice set due_at = '2026-03-01' where subscription_id = $1", [original.subscriptionId]);
+      await admin('alter table machvon.invoice enable trigger invoice_guard');
+      expect(await inTenant(TENANT_A, (tx) => billing.sweepOverdue(tx, recorder(), '2026-03-05', NOW))).toEqual({ overdue: [], pastDue: [], suspensionProposed: [] });
+      expect((await admin<{ status: string }>('select status from machvon.subscription where id = $1', [original.subscriptionId]))[0]?.status).toBe('Active');
+    });
+
+    it('gives a subscription back its Active state when an adjustment clears the debt that made it past due', async () => {
+      const original = await issuedInvoice(TENANT_B, '500000');
+      await admin('alter table machvon.invoice disable trigger invoice_guard');
+      await admin("update machvon.invoice set due_at = '2026-03-01' where id = $1", [original.id]);
+      await admin('alter table machvon.invoice enable trigger invoice_guard');
+      await inTenant(TENANT_B, (tx) => billing.sweepOverdue(tx, recorder(), '2026-03-05', NOW));
+      expect((await admin<{ status: string }>('select status from machvon.subscription where id = $1', [original.subscriptionId]))[0]?.status).toBe('PastDue');
+      const effects = recorder();
+      const adjustment = await correct(TENANT_B, 'ADJUSTMENT', await reload(TENANT_B, original.id), [line('Everything forgiven', '-500000')]);
+      await inTenant(TENANT_B, (tx) => billing.issue(tx, effects, new MockEInvoiceProvider(), adjustment.id, adjustment.version, NOW));
+      expect((await admin<{ status: string; past_due_since: string | null }>('select status, past_due_since::text from machvon.subscription where id = $1', [original.subscriptionId]))[0]).toEqual({ status: 'Active', past_due_since: null });
+      expect(effects.audits.map((entry) => entry.action)).toEqual(['invoice.issued', 'subscription.recovered', 'invoice.adjusted']);
+    });
+
+    it('keeps the delinquency of an overdue invoice that is partly forgiven, and ends it when a second adjustment forgives the rest', async () => {
+      const original = await issuedInvoice(TENANT_A, '700000');
+      await admin('alter table machvon.invoice disable trigger invoice_guard');
+      await admin("update machvon.invoice set due_at = '2026-03-01' where id = $1", [original.id]);
+      await admin('alter table machvon.invoice enable trigger invoice_guard');
+      await inTenant(TENANT_A, (tx) => billing.sweepOverdue(tx, recorder(), '2026-03-05', NOW));
+      const status = async () => (await admin<{ status: string; suspension_proposed_at: string | null }>('select status, suspension_proposed_at::text from machvon.subscription where id = $1', [original.subscriptionId]))[0];
+      expect((await status())?.status).toBe('PastDue');
+      // Part of it is forgiven: it is Adjusted, still owed, and the subscription stays past due with its day.
+      await issueIt(TENANT_A, await correct(TENANT_A, 'ADJUSTMENT', await reload(TENANT_A, original.id), [line('Part forgiven', '-200000')]));
+      expect((await reload(TENANT_A, original.id)).status).toBe('Adjusted');
+      expect((await admin<{ overdue_since: string | null }>('select overdue_since::text from machvon.invoice where id = $1', [original.id]))[0]?.overdue_since).not.toBeNull();
+      expect((await status())?.status).toBe('PastDue');
+      // The rest is forgiven by a second adjustment of the adjusted invoice: nothing is owed, the day is cleared, the subscription is Active.
+      await issueIt(TENANT_A, await correct(TENANT_A, 'ADJUSTMENT', await reload(TENANT_A, original.id), [line('The rest forgiven', '-500000')]));
+      expect((await admin<{ overdue_since: string | null }>('select overdue_since::text from machvon.invoice where id = $1', [original.id]))[0]?.overdue_since).toBeNull();
+      expect((await status())?.status).toBe('Active');
+    });
+
+    it('carries the delinquency of an overdue invoice over to the replacement that still owes, and answers with the replacement as it is after the correction', async () => {
+      const original = await issuedInvoice(TENANT_B, '800000');
+      await admin('alter table machvon.invoice disable trigger invoice_guard');
+      await admin("update machvon.invoice set due_at = '2026-03-01' where id = $1", [original.id]);
+      await admin('alter table machvon.invoice enable trigger invoice_guard');
+      await inTenant(TENANT_B, (tx) => billing.sweepOverdue(tx, recorder(), '2026-03-05', NOW));
+      const replacement = await correct(TENANT_B, 'REPLACEMENT', await reload(TENANT_B, original.id), [line('Plan at the right price', '700000')]);
+      const done = (await issueIt(TENANT_B, replacement)).invoice;
+      expect((await reload(TENANT_B, original.id)).status).toBe('Replaced');
+      // The replacement keeps the delinquency (Overdue), the subscription stays past due, and the answer says so, with the version that is committed.
+      expect(done.status).toBe('Overdue');
+      expect(done.version).toBe((await reload(TENANT_B, replacement.id)).version);
+      expect((await admin<{ status: string }>('select status from machvon.subscription where id = $1', [original.subscriptionId]))[0]?.status).toBe('PastDue');
+      // Paid in full, it ends the delinquency.
+      await matchBy(await arrived('700000', ''), done);
+      expect((await admin<{ status: string }>('select status from machvon.subscription where id = $1', [original.subscriptionId]))[0]?.status).toBe('Active');
+    });
+
+    it('lets the overdue sweep and a settlement of an adjusted invoice run together, whichever comes first', async () => {
+      const original = await issuedInvoice(TENANT_C, '600000');
+      await issueIt(TENANT_C, await correct(TENANT_C, 'ADJUSTMENT', original, [line('Reduction', '-100000')]));
+      await admin('alter table machvon.invoice disable trigger invoice_guard');
+      await admin("update machvon.invoice set due_at = '2026-03-01' where subscription_id = $1", [original.subscriptionId]);
+      await admin('alter table machvon.invoice enable trigger invoice_guard');
+      const payment = await arrived('500000', '');
+      await Promise.all([inTenant(TENANT_C, (tx) => billing.sweepOverdue(tx, recorder(), '2026-03-05', NOW)), matchBy(payment, original)]);
+      const row = (await admin<{ status: string; overdue_since: string | null }>('select status, overdue_since::text from machvon.invoice where id = $1', [original.id]))[0];
+      expect(row).toEqual({ status: 'Adjusted', overdue_since: null });
+      expect((await admin<{ status: string }>('select status from machvon.subscription where id = $1', [original.subscriptionId]))[0]?.status).toBe('Active');
+    });
+
+    it('does not take a reduction that is not issued for a credit: the invoice is still owed in full until it is', async () => {
+      const original = await issuedInvoice(TENANT_C, '100000');
+      const adjustment = await correct(TENANT_C, 'ADJUSTMENT', original, [line('Reduction', '-20000')]);
+      const down = new MockEInvoiceProvider();
+      down.failNext(1);
+      expect((await inTenant(TENANT_C, (tx) => billing.issue(tx, recorder(), down, adjustment.id, adjustment.version, NOW))).outcome).toBe('PENDING');
+      expect((await asPlatform((tx) => payments.candidates(tx, original.invoiceCode)))[0]?.outstandingVnd).toBe('100000');
+      await expect(matchBy(await arrived('80000', ''), original)).rejects.toMatchObject({ code: 'AMOUNT_MISMATCH', extensions: { outstanding_vnd: '100000' } });
+    });
+
+    it('does not let an adjustment be paid by itself, and sends a note that names it to a person', async () => {
+      const original = await issuedInvoice(TENANT_B, '500000');
+      const adjustment = await correct(TENANT_B, 'ADJUSTMENT', original, [line('Increase', '100000')]);
+      await issueIt(TENANT_B, adjustment);
+      const payment = await arrived('100000', `CK ${adjustment.invoiceCode}`);
+      await expect(matchBy(payment, adjustment)).rejects.toMatchObject({ code: 'EINVOICE_STATE_INVALID', status: 409 });
+      expect((await passOf()).review).toBe(1);
+      expect((await asPlatform((tx) => payments.find(tx, payment.id)))?.status).toBe('PendingReview');
+      // The increase is part of what the original is paid for.
+      expect((await asPlatform((tx) => payments.candidates(tx, original.invoiceCode)))[0]?.outstandingVnd).toBe('600000');
+    });
+
+    it('asks a replacement for its total less what was paid on the invoice it replaced, and no longer lets the replaced invoice be paid', async () => {
+      const original = await issuedInvoice(TENANT_C, '1000000');
+      await matchBy(await arrived('400000', ''), original).catch(() => undefined);
+      // A part payment is not accepted (the amount is not the outstanding one): put it in by the table owner, as a payment that matched earlier.
+      await admin(
+        `insert into machvon.billing_payment (tenant_id, id, invoice_id, provider, provider_txn_ref, amount_vnd, method, received_at, match_status, matched_by, matched_at, memo)
+         values ($1, gen_random_uuid(), $2, 'mock-bank', $3, 400000, 'BANK_TRANSFER', now(), 'Matched', $4, now(), '')`,
+        [TENANT_C, original.id, `TXN-EARLIER-${randomUUID()}`, WORKER],
+      );
+      const replacement = await correct(TENANT_C, 'REPLACEMENT', original, [line('Plan at the right price', '900000')]);
+      await issueIt(TENANT_C, replacement);
+      expect((await reload(TENANT_C, original.id)).status).toBe('Replaced');
+      const found = await asPlatform((tx) => payments.candidates(tx, `${replacement.invoiceCode} ${original.invoiceCode}`));
+      const byId = new Map(found.map((entry) => [entry.invoiceId, entry]));
+      expect(byId.get(replacement.id)).toMatchObject({ kind: 'REPLACEMENT', status: 'Issued', outstandingVnd: '500000' });
+      expect(byId.get(original.id)).toMatchObject({ status: 'Replaced' });
+      const payment = await arrived('1000000', `CK ${original.invoiceCode}`);
+      expect((await passOf()).matched).toBe(0);
+      await expect(matchBy(payment, original)).rejects.toMatchObject({ code: 'EINVOICE_STATE_INVALID' });
+    });
+  });
+
   describe('the invoices a note names', () => {
     it('are found in any tenant by their code, without the discarded ones, with what is outstanding of each', async () => {
       const invoice = await issuedInvoice(TENANT_A, '900000');
       const found = await asPlatform((tx) => payments.candidates(tx, `x ${invoice.invoiceCode} y`));
-      expect(found).toEqual([{ tenantId: TENANT_A, invoiceId: invoice.id, status: 'Issued', outstandingVnd: '900000' }]);
+      expect(found).toEqual([{ tenantId: TENANT_A, invoiceId: invoice.id, kind: 'ORIGINAL', status: 'Issued', outstandingVnd: '900000' }]);
       expect(await asPlatform((tx) => payments.candidates(tx, 'nothing here'))).toEqual([]);
     });
   });
