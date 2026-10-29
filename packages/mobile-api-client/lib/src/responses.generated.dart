@@ -313,7 +313,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_integration_event_inbox': GetResourcesIntegrationEventInboxResponse.fromJson,
   'get_resources_integration_event_inbox_id': GetResourcesIntegrationEventInboxIdResponse.fromJson,
   'get_resources_invoice_line': GetResourcesInvoiceLineResponse.fromJson,
-  'get_resources_invoice_line_id': GetResourcesInvoiceLineIdResponse.fromJson,
+  'get_resources_invoice_line_id': InvoiceLineResponse.fromJson,
   'get_resources_issue': GetResourcesIssueResponse.fromJson,
   'get_resources_issue_id': GetResourcesIssueIdResponse.fromJson,
   'get_resources_legal_hold': GetResourcesLegalHoldResponse.fromJson,
@@ -598,6 +598,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listSystemTenants': TenantSummaryPageResponse.fromJson,
   'listSystemTenantThemeVersions': ListSystemTenantThemeVersionsResponse.fromJson,
   'listTenantEntitlementOverrides': EntitlementOverridePageResponse.fromJson,
+  'listTenantInvoices': TenantInvoicesResponse.fromJson,
   'listTenantSelectionCandidates': TenantSelectionCandidatesResponse.fromJson,
   'listTreasuryImports': asObject,
   'listUpcomingLandDeadlines': asObject,
@@ -8502,44 +8503,6 @@ final class GetResourcesIntegrationEventInboxResponse implements ResponseModel {
       };
 }
 
-final class GetResourcesInvoiceLineIdResponse implements ResponseModel {
-  const GetResourcesInvoiceLineIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesInvoiceLineIdResponse.fromJson(Object? json, [String path = 'GetResourcesInvoiceLineIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesInvoiceLineIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
 final class GetResourcesInvoiceLineResponse implements ResponseModel {
   const GetResourcesInvoiceLineResponse({
     this.items,
@@ -8552,7 +8515,7 @@ final class GetResourcesInvoiceLineResponse implements ResponseModel {
   factory GetResourcesInvoiceLineResponse.fromJson(Object? json, [String path = 'GetResourcesInvoiceLineResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesInvoiceLineResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
+      items: optionalField(map, path, 'items', asList(InvoiceLineResponse.fromJson)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),
       asOf: optionalField(map, path, 'as_of', asString),
@@ -8560,7 +8523,7 @@ final class GetResourcesInvoiceLineResponse implements ResponseModel {
     );
   }
 
-  final List<Map<String, Object?>>? items;
+  final List<InvoiceLineResponse>? items;
   final String? nextCursor;
   final String? snapshotId;
   final String? asOf;
@@ -8570,7 +8533,7 @@ final class GetResourcesInvoiceLineResponse implements ResponseModel {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
+        if (items != null) 'items': items!.map((e0) => e0.toJson()).toList(),
         if (nextCursor != null) 'next_cursor': nextCursor,
         if (snapshotId != null) 'snapshot_id': snapshotId,
         if (asOf != null) 'as_of': asOf,
@@ -12652,6 +12615,276 @@ final class HomeMetricTileResponse implements ResponseModel {
         if (formula != null) 'formula': formula,
         if (definitionStatus != null) 'definition_status': definitionStatus,
         if (contextToken != null) 'context_token': contextToken,
+        ...extra,
+      };
+}
+
+final class InvoiceLineResponse implements ResponseModel {
+  const InvoiceLineResponse({
+    required this.id,
+    required this.invoiceId,
+    required this.lineNo,
+    required this.kind,
+    required this.description,
+    required this.amountVnd,
+    required this.vatCategory,
+    required this.vatVnd,
+    this.meter,
+    this.quantity,
+    this.unitPriceVnd,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory InvoiceLineResponse.fromJson(Object? json, [String path = 'InvoiceLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return InvoiceLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      invoiceId: requiredField(map, path, 'invoice_id', asString),
+      lineNo: requiredField(map, path, 'line_no', asInt),
+      kind: requiredField(map, path, 'kind', asString),
+      description: requiredField(map, path, 'description', asString),
+      amountVnd: requiredField(map, path, 'amount_vnd', asString),
+      vatCategory: requiredField(map, path, 'vat_category', asString),
+      vatVnd: requiredField(map, path, 'vat_vnd', asString),
+      meter: optionalField(map, path, 'meter', asString),
+      quantity: optionalField(map, path, 'quantity', asString),
+      unitPriceVnd: optionalField(map, path, 'unit_price_vnd', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'invoice_id', 'line_no', 'kind', 'description', 'amount_vnd', 'vat_category', 'vat_vnd', 'meter', 'quantity', 'unit_price_vnd'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String invoiceId;
+  final int lineNo;
+  final String kind;
+  final String description;
+  final String amountVnd;
+  final String vatCategory;
+  final String vatVnd;
+  final String? meter;
+  final String? quantity;
+  final String? unitPriceVnd;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'invoice_id': invoiceId,
+        'line_no': lineNo,
+        'kind': kind,
+        'description': description,
+        'amount_vnd': amountVnd,
+        'vat_category': vatCategory,
+        'vat_vnd': vatVnd,
+        if (meter != null) 'meter': meter,
+        if (quantity != null) 'quantity': quantity,
+        if (unitPriceVnd != null) 'unit_price_vnd': unitPriceVnd,
+        ...extra,
+      };
+}
+
+final class InvoiceResponse implements ResponseModel {
+  const InvoiceResponse({
+    required this.id,
+    required this.subscriptionId,
+    required this.invoiceCode,
+    required this.periodStart,
+    required this.periodEnd,
+    required this.kind,
+    required this.status,
+    required this.subtotalVnd,
+    required this.vatVnd,
+    required this.totalVnd,
+    required this.buyer,
+    required this.issueAttempts,
+    required this.version,
+    required this.lines,
+    required this.actions,
+    this.dueAt,
+    this.issuedAt,
+    this.einvoice,
+    this.nextAttemptAt,
+    this.issueError,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory InvoiceResponse.fromJson(Object? json, [String path = 'InvoiceResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return InvoiceResponse(
+      id: requiredField(map, path, 'id', asString),
+      subscriptionId: requiredField(map, path, 'subscription_id', asString),
+      invoiceCode: requiredField(map, path, 'invoice_code', asString),
+      periodStart: requiredField(map, path, 'period_start', asString),
+      periodEnd: requiredField(map, path, 'period_end', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      status: requiredField(map, path, 'status', asString),
+      subtotalVnd: requiredField(map, path, 'subtotal_vnd', asString),
+      vatVnd: requiredField(map, path, 'vat_vnd', asString),
+      totalVnd: requiredField(map, path, 'total_vnd', asString),
+      buyer: requiredField(map, path, 'buyer', InvoiceResponseBuyer.fromJson),
+      dueAt: optionalField(map, path, 'due_at', asString),
+      issuedAt: optionalField(map, path, 'issued_at', asString),
+      einvoice: optionalField(map, path, 'einvoice', InvoiceResponseEinvoice.fromJson),
+      issueAttempts: requiredField(map, path, 'issue_attempts', asInt),
+      nextAttemptAt: optionalField(map, path, 'next_attempt_at', asString),
+      issueError: optionalField(map, path, 'issue_error', asString),
+      version: requiredField(map, path, 'version', asInt),
+      lines: requiredField(map, path, 'lines', asList(InvoiceLineResponse.fromJson)),
+      actions: requiredField(map, path, 'actions', InvoiceResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'subscription_id', 'invoice_code', 'period_start', 'period_end', 'kind', 'status', 'subtotal_vnd', 'vat_vnd', 'total_vnd', 'buyer', 'due_at', 'issued_at', 'einvoice', 'issue_attempts', 'next_attempt_at', 'issue_error', 'version', 'lines', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String subscriptionId;
+  final String invoiceCode;
+  final String periodStart;
+  final String periodEnd;
+  final String kind;
+  final String status;
+  final String subtotalVnd;
+  final String vatVnd;
+  final String totalVnd;
+  final InvoiceResponseBuyer buyer;
+  final String? dueAt;
+  final String? issuedAt;
+  final InvoiceResponseEinvoice? einvoice;
+  final int issueAttempts;
+  final String? nextAttemptAt;
+  final String? issueError;
+  final int version;
+  final List<InvoiceLineResponse> lines;
+  final InvoiceResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'subscription_id': subscriptionId,
+        'invoice_code': invoiceCode,
+        'period_start': periodStart,
+        'period_end': periodEnd,
+        'kind': kind,
+        'status': status,
+        'subtotal_vnd': subtotalVnd,
+        'vat_vnd': vatVnd,
+        'total_vnd': totalVnd,
+        'buyer': buyer.toJson(),
+        if (dueAt != null) 'due_at': dueAt,
+        if (issuedAt != null) 'issued_at': issuedAt,
+        if (einvoice != null) 'einvoice': einvoice!.toJson(),
+        'issue_attempts': issueAttempts,
+        if (nextAttemptAt != null) 'next_attempt_at': nextAttemptAt,
+        if (issueError != null) 'issue_error': issueError,
+        'version': version,
+        'lines': lines.map((e0) => e0.toJson()).toList(),
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class InvoiceResponseActions implements ResponseModel {
+  const InvoiceResponseActions({
+    required this.issue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory InvoiceResponseActions.fromJson(Object? json, [String path = 'InvoiceResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return InvoiceResponseActions(
+      issue: requiredField(map, path, 'issue', asBool),
+      extra: unknownFields(map, path, const <String>{'issue'}, strict: true),
+    );
+  }
+
+  final bool issue;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'issue': issue,
+        ...extra,
+      };
+}
+
+final class InvoiceResponseBuyer implements ResponseModel {
+  const InvoiceResponseBuyer({
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory InvoiceResponseBuyer.fromJson(Object? json, [String path = 'InvoiceResponseBuyer']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return InvoiceResponseBuyer(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'name'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class InvoiceResponseEinvoice implements ResponseModel {
+  const InvoiceResponseEinvoice({
+    required this.provider,
+    required this.templateCode,
+    required this.series,
+    required this.number,
+    this.taxAuthorityCode,
+    this.lookupCode,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory InvoiceResponseEinvoice.fromJson(Object? json, [String path = 'InvoiceResponseEinvoice']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return InvoiceResponseEinvoice(
+      provider: requiredField(map, path, 'provider', asString),
+      templateCode: requiredField(map, path, 'template_code', asString),
+      series: requiredField(map, path, 'series', asString),
+      number: requiredField(map, path, 'number', asString),
+      taxAuthorityCode: optionalField(map, path, 'tax_authority_code', asString),
+      lookupCode: optionalField(map, path, 'lookup_code', asString),
+      extra: unknownFields(map, path, const <String>{'provider', 'template_code', 'series', 'number', 'tax_authority_code', 'lookup_code'}, strict: true),
+    );
+  }
+
+  final String provider;
+  final String templateCode;
+  final String series;
+  final String number;
+  final String? taxAuthorityCode;
+  final String? lookupCode;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'provider': provider,
+        'template_code': templateCode,
+        'series': series,
+        'number': number,
+        if (taxAuthorityCode != null) 'tax_authority_code': taxAuthorityCode,
+        if (lookupCode != null) 'lookup_code': lookupCode,
         ...extra,
       };
 }
@@ -17900,6 +18133,48 @@ final class TenantDetailResponseProvisioningStepsItem implements ResponseModel {
         if (status != null) 'status': status,
         if (attempts != null) 'attempts': attempts,
         if (errorCode != null) 'error_code': errorCode,
+        ...extra,
+      };
+}
+
+final class TenantInvoicesResponse implements ResponseModel {
+  const TenantInvoicesResponse({
+    required this.items,
+    this.subscriptionStatus,
+    this.pastDueSince,
+    this.suspensionProposedAt,
+    this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantInvoicesResponse.fromJson(Object? json, [String path = 'TenantInvoicesResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantInvoicesResponse(
+      items: requiredField(map, path, 'items', asList(InvoiceResponse.fromJson)),
+      subscriptionStatus: optionalField(map, path, 'subscription_status', asString),
+      pastDueSince: optionalField(map, path, 'past_due_since', asString),
+      suspensionProposedAt: optionalField(map, path, 'suspension_proposed_at', asString),
+      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'items', 'subscription_status', 'past_due_since', 'suspension_proposed_at', 'next_cursor'}, strict: true),
+    );
+  }
+
+  final List<InvoiceResponse> items;
+  final String? subscriptionStatus;
+  final String? pastDueSince;
+  final String? suspensionProposedAt;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        if (subscriptionStatus != null) 'subscription_status': subscriptionStatus,
+        if (pastDueSince != null) 'past_due_since': pastDueSince,
+        if (suspensionProposedAt != null) 'suspension_proposed_at': suspensionProposedAt,
+        if (nextCursor != null) 'next_cursor': nextCursor,
         ...extra,
       };
 }

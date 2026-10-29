@@ -82,7 +82,7 @@ import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
 import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
-import { SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
+import { INVOICE_FIXTURES, SUBSCRIPTION_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -779,6 +779,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_usage_meter_event_id',
   'get_resources_subscription',
   'get_resources_subscription_id',
+  'get_resources_invoice_line',
+  'get_resources_invoice_line_id',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -1096,6 +1098,14 @@ const INSERT_SETTLEMENT = `insert into machvon.settlement_revision
 const INSERT_SUBSCRIPTION = `insert into machvon.subscription
   (tenant_id, id, plan_version_id, cycle, billing_anchor, status, payment_terms, current_period_start, current_period_end, procurement_contract_ref)
   values ($1, $2, '00000000-0000-4000-9000-000000000001', 'ANNUAL', date '2026-01-01', 'Active', '{"due_days":30,"method":"BANK_TRANSFER"}'::jsonb, date '2026-01-01', date '2026-12-31', $3) on conflict (tenant_id, id) do nothing`;
+
+const INSERT_INVOICE = `insert into machvon.invoice
+  (tenant_id, id, subscription_id, invoice_code, period_start, period_end, kind, status, subtotal_vnd, vat_vnd, total_vnd, buyer_snapshot, due_at)
+  values ($1, $2, $3, $4, date '2026-01-01', date '2026-01-31', 'ORIGINAL', 'Draft', 1000, 0, 1000, '{"code":"isolation","name":"Isolation"}'::jsonb, date '2026-02-15') on conflict (tenant_id, id) do nothing`;
+
+const INSERT_INVOICE_LINE = `insert into machvon.invoice_line
+  (tenant_id, id, invoice_id, line_no, line_kind, description, amount_vnd, vat_category, vat_vnd)
+  values ($1, $2, $3, 1, 'SUBSCRIPTION', $4, 1000, 'NOT_SUBJECT', 0) on conflict (tenant_id, id) do nothing`;
 
 const INSERT_USAGE_EVENT = `insert into machvon.usage_meter_event
   (tenant_id, id, meter, external_event_key, quantity, occurred_at, source_reference, unit)
@@ -1677,6 +1687,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_SETTLEMENT, [tenantId, settlement.id, project.id, settlement.note, MEMBERSHIP_ID]);
     const subscription = SUBSCRIPTION_FIXTURES[tenant];
     await client.query(INSERT_SUBSCRIPTION, [tenantId, subscription.id, subscription.contractRef]);
+    const invoice = INVOICE_FIXTURES[tenant];
+    await client.query(INSERT_INVOICE, [tenantId, invoice.invoiceId, subscription.id, invoice.invoiceCode]);
+    await client.query(INSERT_INVOICE_LINE, [tenantId, invoice.lineId, invoice.invoiceId, invoice.description]);
     const usage = USAGE_FIXTURES[tenant];
     await client.query(INSERT_USAGE_EVENT, [tenantId, usage.id, usage.externalKey, usage.sourceReference]);
     const dataset = DATASET_FIXTURES[tenant];

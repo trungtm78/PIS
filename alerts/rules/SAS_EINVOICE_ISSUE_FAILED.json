@@ -1,0 +1,14 @@
+{
+  "id": "SAS_EINVOICE_ISSUE_FAILED",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/SAS_EINVOICE_ISSUE_FAILED.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "einvoice_issue_failed_invoices",
+    "above": 0
+  },
+  "summary": "An invoice could not be issued at the e-invoice provider in five attempts over 24 hours and waits for a Billing Operator to issue it again."
+}

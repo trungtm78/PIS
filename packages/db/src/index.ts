@@ -106,7 +106,7 @@ export { CapFiscalYearStore } from './cap-fiscal-year-store.ts';
 export type { CloseYearInput, ClosedYear, FiscalYearRow, LapseSummary, RelockOutcome, ReopenYearInput } from './cap-fiscal-year-store.ts';
 export { CapAllocationExtensionStore, extensionInvalid } from './cap-allocation-extension-store.ts';
 export type { DecideExtensionInput, ExtensionApplied, ExtensionDecision, ExtensionFilter, ExtensionRow, ExtensionStatus, RequestExtensionInput } from './cap-allocation-extension-store.ts';
-export { actingAsTenant, tenantOfOverride, tenantOfSubscription } from './acting-as.ts';
+export { actingAsTenant, tenantOfInvoice, tenantOfOverride, tenantOfSubscription } from './acting-as.ts';
 export { LIVE_STATUSES, SubscriptionStore } from './subscription-store.ts';
 export type { ApplyPlanChangeInput, CreateSubscriptionInput, CycleOutcome, PaymentMethod, PlanChangePreview, PlanSummaryRow, PlanChangeRequest, PlanChangeRow, SubscriptionRow, SubscriptionStatus } from './subscription-store.ts';
 export { MAX_CLOCK_SKEW_MS, UsageMeterStore } from './usage-meter-store.ts';
@@ -674,3 +674,7 @@ export { DELEGATION_ACTIVE_GAUGE, DELEGATION_PASS_LIMIT, DelegationStore } from 
 export type { DelegationEndReason, DelegationPassResult, DelegationRecord as DelegationGrantRecord, DelegationStatus, NewDelegation } from './delegation-store.ts';
 export { APPROVAL_OPEN_GAUGE, APPROVAL_OVERDUE_GAUGE, APPROVAL_SLA_BREACH_METRIC, ApprovalSlaJob } from './approval-sla-job.ts';
 export type { ApprovalEffects, DecisionResult, FinalCommand, SlaSweepResult as ApprovalSlaSweepResult, InstanceRecord as WorkflowInstanceRecord, StartInput as ApprovalStartInput, TaskRecord as ApprovalTaskRecord, VersionRecord as WorkflowVersionRecord } from './approval-store.ts';
+export { DEFAULT_DUE_DAYS, EINVOICE_FAILED_GAUGE, INVOICE_DRAFTED_EVENT, INVOICE_ISSUED_EVENT, INVOICE_ISSUE_FAILED_EVENT, INVOICE_OVERDUE_EVENT, SUBSCRIPTION_PAST_DUE_EVENT, SUSPENSION_PROPOSED_EVENT, BillingStore } from './billing-store.ts';
+export type { BillingRunResult, InvoiceLineRow, InvoiceRow, InvoiceStatus, IssueOutcome, BillingOverdueResult } from './billing-store.ts';
+export { EINVOICE_PROVIDER, EInvoiceProviderUnavailable, MockEInvoiceProvider, sharedMockEInvoiceProvider } from './einvoice-provider.ts';
+export type { EInvoiceIssueLine, EInvoiceIssueRequest, EInvoiceIssued, EInvoiceProviderPort } from './einvoice-provider.ts';

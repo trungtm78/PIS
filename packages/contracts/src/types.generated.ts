@@ -14606,6 +14606,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/system/tenants/{tenantId}/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hóa đơn của một tenant với dòng, trạng thái phát hành và cảnh báo quá hạn, mới nhất trước, phân trang theo cursor (SAS-09); chỉ control plane */
+        get: operations["listTenantInvoices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/allocation-extensions": {
         parameters: {
             query?: never;
@@ -21721,6 +21738,86 @@ export interface components {
              */
             waiver_expires_at?: string;
             evidence_ids?: string[];
+        };
+        InvoiceLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            invoice_id: string;
+            line_no: number;
+            /** @enum {string} */
+            kind: "SUBSCRIPTION" | "USAGE" | "ADJUSTMENT" | "DISCOUNT";
+            description: string;
+            /** @description Integer VND as decimal string */
+            amount_vnd: string;
+            /** @enum {string} */
+            vat_category: "NOT_SUBJECT" | "VAT_0" | "VAT_5" | "VAT_8" | "VAT_10";
+            /** @description Integer VND as decimal string */
+            vat_vnd: string;
+            meter?: string;
+            quantity?: string;
+            /** @description Integer VND as decimal string */
+            unit_price_vnd?: string;
+        };
+        Invoice: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            subscription_id: string;
+            invoice_code: string;
+            /** Format: date */
+            period_start: string;
+            /** Format: date */
+            period_end: string;
+            /** @enum {string} */
+            kind: "ORIGINAL" | "ADJUSTMENT" | "REPLACEMENT";
+            /** @enum {string} */
+            status: "Draft" | "Discarded" | "PendingIssue" | "IssueFailed" | "Issued" | "Sent" | "PartiallyPaid" | "Paid" | "Overdue" | "Adjusted" | "Replaced";
+            /** @description Integer VND as decimal string */
+            subtotal_vnd: string;
+            /** @description Integer VND as decimal string */
+            vat_vnd: string;
+            /** @description Integer VND as decimal string */
+            total_vnd: string;
+            buyer: {
+                code: string;
+                name: string;
+            };
+            /** Format: date */
+            due_at?: string;
+            /** Format: date-time */
+            issued_at?: string;
+            einvoice?: {
+                provider: string;
+                template_code: string;
+                series: string;
+                number: string;
+                tax_authority_code?: string;
+                lookup_code?: string;
+            };
+            issue_attempts: number;
+            /** Format: date-time */
+            next_attempt_at?: string;
+            issue_error?: string;
+            version: number;
+            lines: components["schemas"]["InvoiceLine"][];
+            actions: {
+                issue: boolean;
+            };
+        };
+        TenantInvoices: {
+            /** @description The invoices of the tenant, the latest period first */
+            items: components["schemas"]["Invoice"][];
+            subscription_status?: string;
+            /** Format: date-time */
+            past_due_since?: string;
+            /**
+             * Format: date-time
+             * @description Set once a subscription has been 30 days past due: a suspension is only proposed, and only a System Admin decides it (BR-SAS-04)
+             */
+            suspension_proposed_at?: string;
+            /** @description The cursor of the next (older) page, null on the last */
+            next_cursor?: string | null;
         };
     };
     responses: never;
@@ -31836,7 +31933,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        items?: Record<string, never>[];
+                        items?: components["schemas"]["InvoiceLine"][];
                         next_cursor?: string | null;
                         snapshot_id?: string;
                         /** Format: date-time */
@@ -31938,13 +32035,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["InvoiceLine"];
                 };
             };
             /** @description Invalid request */
@@ -110108,6 +110199,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TenantSubscription"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTenantInvoices: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The invoices of the tenant, the latest period first, with their lines and the state of the subscription that bills them */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantInvoices"];
                 };
             };
             /** @description SESSION_EXPIRED */

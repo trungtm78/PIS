@@ -25,3 +25,9 @@ export async function tenantOfOverride(tx: TenantTx, overrideId: string): Promis
   const [row] = await tx.query<{ tenant_id: string | null }>('select machvon.override_tenant_of($1::uuid) as tenant_id', [overrideId]);
   return row?.tenant_id ?? undefined;
 }
+
+/** The tenant an invoice belongs to, or undefined (the issue of an invoice names only the invoice). */
+export async function tenantOfInvoice(tx: TenantTx, invoiceId: string): Promise<string | undefined> {
+  const [row] = await tx.query<{ tenant_id: string | null }>('select machvon.invoice_tenant_of($1::uuid) as tenant_id', [invoiceId]);
+  return row?.tenant_id ?? undefined;
+}

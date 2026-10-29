@@ -14734,7 +14734,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/InvoiceLine"
                       }
                     },
                     "next_cursor": {
@@ -14881,28 +14881,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/InvoiceLine"
                 }
               }
             }
@@ -127050,6 +127029,90 @@
         "x-required-role": "SystemAdmin"
       }
     },
+    "/system/tenants/{tenantId}/invoices": {
+      "get": {
+        "operationId": "listTenantInvoices",
+        "summary": "Hóa đơn của một tenant với dòng, trạng thái phát hành và cảnh báo quá hạn, mới nhất trước, phân trang theo cursor (SAS-09); chỉ control plane",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The invoices of the tenant, the latest period first, with their lines and the state of the subscription that bills them",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantInvoices"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Hóa đơn của một tenant; chỉ control plane",
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      }
+    },
     "/allocation-extensions": {
       "get": {
         "operationId": "listAllocationExtensions",
@@ -154782,6 +154845,279 @@
               "format": "uuid"
             },
             "maxItems": 50
+          }
+        }
+      },
+      "InvoiceLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "invoice_id",
+          "line_no",
+          "kind",
+          "description",
+          "amount_vnd",
+          "vat_category",
+          "vat_vnd"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoice_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "line_no": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "SUBSCRIPTION",
+              "USAGE",
+              "ADJUSTMENT",
+              "DISCOUNT"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "vat_category": {
+            "type": "string",
+            "enum": [
+              "NOT_SUBJECT",
+              "VAT_0",
+              "VAT_5",
+              "VAT_8",
+              "VAT_10"
+            ]
+          },
+          "vat_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "meter": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "unit_price_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          }
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "subscription_id",
+          "invoice_code",
+          "period_start",
+          "period_end",
+          "kind",
+          "status",
+          "subtotal_vnd",
+          "vat_vnd",
+          "total_vnd",
+          "buyer",
+          "issue_attempts",
+          "version",
+          "lines",
+          "actions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invoice_code": {
+            "type": "string"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ORIGINAL",
+              "ADJUSTMENT",
+              "REPLACEMENT"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Discarded",
+              "PendingIssue",
+              "IssueFailed",
+              "Issued",
+              "Sent",
+              "PartiallyPaid",
+              "Paid",
+              "Overdue",
+              "Adjusted",
+              "Replaced"
+            ]
+          },
+          "subtotal_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "vat_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "total_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,24}$",
+            "description": "Integer VND as decimal string"
+          },
+          "buyer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "name"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "einvoice": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "provider",
+              "template_code",
+              "series",
+              "number"
+            ],
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "template_code": {
+                "type": "string"
+              },
+              "series": {
+                "type": "string"
+              },
+              "number": {
+                "type": "string"
+              },
+              "tax_authority_code": {
+                "type": "string"
+              },
+              "lookup_code": {
+                "type": "string"
+              }
+            }
+          },
+          "issue_attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "next_attempt_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "issue_error": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLine"
+            }
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "issue"
+            ],
+            "properties": {
+              "issue": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "TenantInvoices": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "The invoices of the tenant, the latest period first",
+            "items": {
+              "$ref": "#/components/schemas/Invoice"
+            }
+          },
+          "subscription_status": {
+            "type": "string"
+          },
+          "past_due_since": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "suspension_proposed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Set once a subscription has been 30 days past due: a suspension is only proposed, and only a System Admin decides it (BR-SAS-04)"
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The cursor of the next (older) page, null on the last"
           }
         }
       }

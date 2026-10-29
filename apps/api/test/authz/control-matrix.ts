@@ -72,5 +72,8 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'decideEntitlementOverride', permission: PERMISSIONS.decideEntitlementOverride, method: 'POST', path: '/system/entitlement-overrides/{overrideId}/decision' },
   { operationId: 'revokeEntitlementOverride', permission: PERMISSIONS.revokeEntitlementOverride, method: 'POST', path: '/system/entitlement-overrides/{overrideId}/revoke' },
   { operationId: 'listTenantEntitlementOverrides', permission: PERMISSIONS.listTenantEntitlementOverrides, method: 'GET', path: '/system/tenants/{tenantId}/entitlement-overrides' },
+  { operationId: 'runBillingCycle', permission: PERMISSIONS.runBillingCycle, method: 'POST', path: '/system/billing-runs' },
+  { operationId: 'issueEInvoice', permission: PERMISSIONS.issueEInvoice, method: 'POST', path: '/system/invoices/{invoiceId}/issue' },
+  { operationId: 'listTenantInvoices', permission: PERMISSIONS.listTenantInvoices, method: 'GET', path: '/system/tenants/{tenantId}/invoices' },
 ];
 

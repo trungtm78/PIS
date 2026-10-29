@@ -419,6 +419,7 @@
     "createPlanVersion",
     "createSubscription",
     "decideEntitlementOverride",
+    "issueEInvoice",
     "post_licenses",
     "post_licenses_id_revoke",
     "previewPlanChange",
@@ -433,6 +434,7 @@
     "retryTenantProvisioning",
     "reviewSystemTenantTheme",
     "revokeEntitlementOverride",
+    "runBillingCycle",
     "suspendLicense",
     "suspendTenant",
     "uploadSystemTenantThemeAsset"

@@ -1,0 +1,29 @@
+/* SAS-09: the billing run and the invoices of a tenant. The shared cards, tables, pills and callouts do the rest. */
+.sas-billing .card + .card,
+.sas-billing .card + .callout {
+  margin-top: 16px;
+}
+
+.sas-billing .billing-run,
+.sas-billing .billing-issue {
+  margin-top: 8px;
+}
+
+.sas-billing .field-error {
+  color: #a22b22;
+  display: block;
+}
+
+.sas-billing td.amount,
+.sas-billing th.amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sas-billing details.billing-lines {
+  margin-top: 8px;
+}
+
+.sas-billing td code {
+  word-break: break-all;
+}

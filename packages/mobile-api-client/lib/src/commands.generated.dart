@@ -1789,6 +1789,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listTenantEntitlementOverrides({required String tenantId, Map<String, Object?>? query}) =>
       execute('listTenantEntitlementOverrides', path: <String, Object?>{'tenantId': tenantId}, query: query);
 
+  Future<Object?> listTenantInvoices({required String tenantId, Map<String, Object?>? query}) =>
+      execute('listTenantInvoices', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
   Future<Object?> listTenantSelectionCandidates({Map<String, Object?>? query}) =>
       execute('listTenantSelectionCandidates', query: query);
 

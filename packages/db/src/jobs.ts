@@ -13,6 +13,7 @@ import { OPEN_ISSUES_GAUGE, PENDING_ESCALATIONS_GAUGE } from './iss-sla-job.ts';
 import type { SlaPassResult } from './iss-sla-job.ts';
 import { SLA_SEVERITIES } from './iss-sla-policy-store.ts';
 import { RETENTION_PENDING_GAUGE } from './retention-job.ts';
+import { EINVOICE_FAILED_GAUGE } from './billing-store.ts';
 import { REORGANIZATION_FAILED_GAUGE } from './unit-reorganization-store.ts';
 import { NOOP_METRICS } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
@@ -64,6 +65,8 @@ export const JOB_INTERVAL_SECONDS = {
   'dgv-quality-run': 10,
   // Hourly: a trial that has ended, a plan that waited for its day and a billing period that has passed are dealt with within the hour (ST-SAS-008); the pass is idempotent.
   'subscription-cycle': 3600,
+  // Every 5 minutes: the invoices of the periods that closed are made, a provider that did not answer is asked again (10 minutes after the first failure, then 1, 4 and 12 hours, five attempts in 24 hours), and an invoice past its due day is Overdue (ST-SAS-011); the pass is idempotent.
+  'einvoice-billing': 300,
   // Hourly: a request to carry capital over that nobody decided lapses within the hour of its last day (ST-CAP-007); the pass is idempotent.
   'allocation-extension-lapse': 3600,
   // Every 15 minutes: a fiscal year whose reopening has ended is locked again and the capital that came back lapses again (ST-CAP-008); the pass is idempotent.
@@ -241,6 +244,8 @@ export interface StandardJobDeps {
    * that has passed gives way to the next and a subscription set to end ends. It reads the plan catalogue, so it runs through the control plane.
    */
   subscriptionCycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The billing pass of a tenant (ST-SAS-011): the invoices of the periods that closed, the retries of the provider and the invoices past their due day; tells how many invoices are IssueFailed, for the gauge. */
+  einvoiceBilling?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ failed: number }> };
   /** Lets the requests to carry capital over to the next year lapse once their last day has passed (ST-CAP-007); tells how many lapsed. */
   extensionLapse?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ lapsed: number }> };
   /** Locks again the fiscal years whose reopening has ended (ST-CAP-008); tells which years. */
@@ -613,6 +618,25 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await subscriptions.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const billing = deps.einvoiceBilling;
+  if (billing !== undefined) {
+    handlers.push({
+      name: 'einvoice-billing',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let failed = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            failed += (await billing.run(workerContext(tenantId), now)).failed;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
+          metrics.gauge(EINVOICE_FAILED_GAUGE, failed);
+        }
       },
     });
   }
