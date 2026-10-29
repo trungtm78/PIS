@@ -1,5 +1,7 @@
 import { InboxHandlerRegistry, IntegrationInboxProcessor, TenantDatabase } from '@machvon/db';
 import { defineModule } from '../module-descriptor';
+import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
+import { APPROVAL_FINAL_COMMANDS, ApprovalService, FinalCommandRegistry } from './approval.service';
 import { AuditEventsController } from './audit-events.controller';
 import { AuditExportsController } from './audit-export.controller';
 import { SigningCertificateReadsController, SigningCertificatesController } from './certificates.controller';
@@ -19,7 +21,7 @@ import { WorkCalendarReadsController, WorkCalendarsController } from './work-cal
 
 /**
  * ADM, the tenant administration: the audit trail (ST-ADM-002), its sealed export (ST-ADM-016), legal holds (ST-ADM-003), retention policy versions (ST-ADM-017), integration connectors and the inbox replay (ST-ADM-018), members and invitations
- * (ST-ADM-006), guest contractors (ST-ADM-007), signing certificates (ST-ADM-008), security policy versions (ST-ADM-009), working calendar versions (ST-ADM-010) and the delegation-of-authority matrix (ST-ADM-011).
+ * (ST-ADM-006), guest contractors (ST-ADM-007), signing certificates (ST-ADM-008), security policy versions (ST-ADM-009), working calendar versions (ST-ADM-010) the delegation-of-authority matrix (ST-ADM-011) and the approval workflows (ST-ADM-012).
  */
 export const admModule = defineModule({
   code: 'ADM',
@@ -45,9 +47,16 @@ export const admModule = defineModule({
     WorkCalendarReadsController,
     DoaMatricesController,
     DoaMatrixReadsController,
+    ApprovalCommandsController,
+    WorkflowVersionReadsController,
+    WorkflowInstanceReadsController,
+    ApprovalTaskReadsController,
   ],
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [
+    // The approval engine (ST-ADM-012): the business modules call ApprovalService.start inside their submit, and register the final commands of their business types in the registry (test doubles until they do).
+    { provide: APPROVAL_FINAL_COMMANDS, useFactory: () => new FinalCommandRegistry() },
+    ApprovalService,
     { provide: INVITATION_MAILER, useValue: new MockInvitationMailer() },
     // The adapters of inbound provider events are registered here by the module that owns the provider (ST-ADM-018; NOT registers its channels, ST-NOT-002).
     // One registry per application, not per process: an application started twice in one process (the tests do) must not find the handlers of the first.

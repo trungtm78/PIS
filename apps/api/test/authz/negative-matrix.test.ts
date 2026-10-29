@@ -304,6 +304,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dataset_source_mapping where tenant_id = $1),
     (select count(*)::text from machvon.reconciliation_run where tenant_id = $1),
     (select count(*)::text from machvon.dataset_batch_gate where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.workflow_version where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.workflow_instance where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.approval_task where tenant_id = $1),
     (select string_agg(id::text || coalesce(revoked_at::text, ''), ',' order by id) from machvon.user_session where tenant_id = $1),
     (select string_agg(id::text || coalesce(revoked_at::text, '') || coalesce(push_secret_ref, ''), ',' order by id) from machvon.device_registration where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dossier where tenant_id = $1),
@@ -1063,6 +1066,29 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0xde, 10), glossaryOwnerId],
       ],
     ]);
+    // A DRAFT workflow definition written by someone other than the callers, and a running instance with a PENDING task given to someone other than the callers.
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, created_by, definition_hash, version)
+         values ($1, $2, 'report.accept', 1, '{"steps":[],"terminal":{}}'::jsonb, 'Draft', 'APPROVAL', $3, repeat('a', 64), 1)`,
+        [TENANT_A, id(0xde, 11), glossaryOwnerId],
+      ],
+      [
+        `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, created_by, published_by, published_at, definition_hash, version)
+         values ($1, $2, 'report.accept', 2, '{"steps":[],"terminal":{}}'::jsonb, 'Published', 'APPROVAL', $3, $4, now(), repeat('b', 64), 2)`,
+        [TENANT_A, id(0xde, 12), glossaryOwnerId, ACTOR],
+      ],
+      [
+        `insert into machvon.workflow_instance (tenant_id, id, workflow_version_id, resource_type, resource_id, resource_version, status, started_at, temporal_workflow_id, initiator_membership_id, initiator_user_id, document_type, unit_id, business_type)
+         values ($1, $2, $3, 'report', $4, 1, 'Running', now(), 'appr:matrix', $5, (select user_id from machvon.membership where id = $5), 'REPORT_ACCEPT', $6, 'report.accept')`,
+        [TENANT_A, id(0xde, 13), id(0xde, 12), id(0xde, 14), glossaryOwnerId, unitId(2)],
+      ],
+      [
+        `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status)
+         values ($1, $2, $3, $4, now() + interval '1 day', 'review', 0, 'Pending')`,
+        [TENANT_A, id(0xde, 15), id(0xde, 13), glossaryOwnerId],
+      ],
+    ]);
     // A DRAFT availability control policy made by someone other than the callers: the publication of a policy is judged against it.
     const avcPolicyId = id(0xdf, 1);
     await harness.owner(TENANT_A, [
@@ -1092,6 +1118,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       sourceMappingId: id(0xde, 8),
       otherSessionId: id(0xde, 9),
       otherDeviceId: id(0xde, 10),
+      workflowDraftId: id(0xde, 11),
+      approvalTaskId: id(0xde, 15),
       qualityDatasetId,
       dossierId: id(0x77, 52),
       qualityContractId,

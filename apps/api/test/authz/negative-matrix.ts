@@ -190,6 +190,9 @@ export interface MatrixTargets {
   /** A live session and a live device of someone other than the callers: the sign-out commands reach neither. */
   otherSessionId: string;
   otherDeviceId: string;
+  /** A DRAFT workflow definition (version 1) written by someone other than the callers, and a PENDING approval task (version 1) of a running instance, given to someone other than the callers. */
+  workflowDraftId: string;
+  approvalTaskId: string;
   qualityDatasetId: string;
   /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
   dossierId: string;
@@ -1746,6 +1749,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   revokeMyDevice: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/me/devices/${t.otherDeviceId}/revoke`, body: { reason: REASON } }),
+  },
+  createWorkflowDraft: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/workflow-definitions', body: { business_type: 'report.accept', definition: { steps: [{ id: 'review', name: 'Rà soát', assignee_rule: { type: 'DOA' }, min_approvals: 1, sla_working_hours: 16, on_timeout: 'REMIND' }], terminal: { approved: 'acceptReport', returned: 'returnReport', rejected: 'rejectReport' } } } }),
+  },
+  updateWorkflowDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'PUT', path: `/workflow-definitions/${t.workflowDraftId}`, ifMatch: '"1"', body: { business_type: 'report.accept', definition: { steps: [{ id: 'review', name: 'Rà soát', assignee_rule: { type: 'DOA' }, min_approvals: 1, sla_working_hours: 16, on_timeout: 'REMIND' }], terminal: { approved: 'acceptReport', returned: 'returnReport', rejected: 'rejectReport' } } } }),
+  },
+  publishWorkflowVersion: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/workflow-definitions/${t.workflowDraftId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  decideApprovalTask: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/approval-tasks/${t.approvalTaskId}/decision`, ifMatch: '"1"', body: { decision: 'approve' } }),
   },
   registerSitePhoto: {
     referencesTenantIds: true,

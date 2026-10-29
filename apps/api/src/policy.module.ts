@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuditWriter } from '@machvon/db';
 import type { EffectiveAccessStore, TenantDatabase } from '@machvon/db';
 import type { MetricsSink } from '@machvon/kernel';
+import { DelegationDoor } from './delegated-door';
 import type { EntitlementGate } from './entitlements/entitlement-gate';
 import { POLICY_OPTIONS, PolicyGuard, operationPolicies } from './policy.guard';
 import type { OperationPolicy, PolicyOptions } from './policy.guard';
@@ -39,6 +40,7 @@ export class PolicyModule {
       metrics: options.metrics,
       entitled: options.entitled,
       entitlements: options.entitlements,
+      delegations: new DelegationDoor(options.database),
       now: options.now,
     };
     return {

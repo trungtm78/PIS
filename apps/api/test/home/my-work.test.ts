@@ -114,9 +114,9 @@ describe('my work over HTTP (ST-HOME-004)', () => {
     const taskId = id(FAMILY, 7000 + counter);
     const instanceId = id(FAMILY, 7500 + counter);
     await seedReplica([
-      ['insert into machvon.workflow_instance (tenant_id, id, workflow_version_id, resource_type, resource_id, resource_version, status, started_at, temporal_workflow_id, initiator_membership_id, initiator_user_id, document_type, unit_id) values ($1, $2, $3, $4, $5, 1, $6, now(), $7, $8, $9, $4, $10)', [TENANT_A, instanceId, id(FAMILY, 32), 'reallocation_proposal', randomUUID(), 'Running', `wf-${instanceId}`, memberId(ASKER), id(0x60, ASKER), unitId(ROOT)]],
+      [`insert into machvon.workflow_instance (tenant_id, id, workflow_version_id, resource_type, resource_id, resource_version, status, started_at, temporal_workflow_id, initiator_membership_id, initiator_user_id, document_type, unit_id, business_type) values ($1, $2, $3, $4, $5, 1, $6, now(), $7, $8, $9, $4, $10, 'report.accept')`, [TENANT_A, instanceId, id(FAMILY, 32), 'reallocation_proposal', randomUUID(), 'Running', `wf-${instanceId}`, memberId(ASKER), id(0x60, ASKER), unitId(ROOT)]],
       [
-        `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, decision, decided_at, decided_by, step_id, status) values ($1, $2, $3, $4, $5::timestamptz, $6::text, $7::timestamptz, case when $6::text is null then null else $4::uuid end, 'review', case when $6::text is null then 'Pending' else 'Decided' end)`,
+        `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, decision, decided_at, decided_by, step_id, step_index, status) values ($1, $2, $3, $4, $5::timestamptz, $6::text, $7::timestamptz, case when $6::text is null then null else $4::uuid end, 'review', 0, case when $6::text is null then 'Pending' else 'Decided' end)`,
         [TENANT_A, taskId, instanceId, memberId(member), dueAt, decided ? 'approve' : null, decided ? NOW.toISOString() : null],
       ],
     ]);

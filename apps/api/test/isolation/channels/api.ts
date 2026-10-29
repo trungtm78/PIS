@@ -67,7 +67,7 @@ import {
   WORK_ACCEPTANCE_FIXTURES,
 } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
-import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES } from '../suite';
+import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
@@ -330,6 +330,12 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_quality_run_id', method: 'GET', id: QUALITY_FIXTURES['TNT-B'].runId },
   { operation: 'decideSourceMapping', method: 'POST', id: SOURCE_FIXTURES['TNT-B'].mappingId, versioned: true, body: { decision: 'CONFIRMED', note: 'Isolation probe of the decision' } },
   { operation: 'getReconciliation', method: 'GET', id: SOURCE_FIXTURES['TNT-B'].reconId },
+  { operation: 'get_resources_workflow_version_id', method: 'GET', id: WORKFLOW_FIXTURES['TNT-B'].versionId },
+  { operation: 'get_resources_workflow_instance_id', method: 'GET', id: WORKFLOW_FIXTURES['TNT-B'].instanceId },
+  { operation: 'get_resources_approval_task_id', method: 'GET', id: WORKFLOW_FIXTURES['TNT-B'].taskId },
+  { operation: 'updateWorkflowDraft', method: 'PUT', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { business_type: 'report.accept', definition: { steps: [], terminal: {} } } },
+  { operation: 'publishWorkflowVersion', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { reason: 'Isolation probe of the publication' } },
+  { operation: 'decideApprovalTask', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].taskId, versioned: true, body: { decision: 'approve' } },
   { operation: 'revokeMySession', method: 'POST', id: SELF_FIXTURES['TNT-B'].sessionId, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'revokeMyDevice', method: 'POST', id: SELF_FIXTURES['TNT-B'].deviceId, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'get_resources_quality_incident_id', method: 'GET', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].incidentId },

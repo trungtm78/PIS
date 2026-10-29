@@ -5217,6 +5217,22 @@
       "module": "IAM",
       "statusBasis": "convention",
       "source": "story:ST-IAM-006"
+    },
+    "WORKFLOW_ALREADY_RUNNING": {
+      "status": 409,
+      "title": "Workflow already running",
+      "meaning": "Raised when a business module starts an approval (ApprovalService.start) for a record that already has a running instance",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "story:ST-ADM-012"
+    },
+    "NO_ELIGIBLE_APPROVER": {
+      "status": 422,
+      "title": "No eligible approver",
+      "meaning": "Raised when a step of a workflow has fewer eligible approvers than the approvals it needs (the maker and earlier approvers are left out), so ApprovalService.start or a decision cannot open it",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "story:ST-ADM-012"
     }
   }
 }

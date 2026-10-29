@@ -33,7 +33,7 @@ interface DelegationRow {
 }
 
 // The scope of a grant or a delegation contains a unit when it is the whole tenant, names the unit (UNIT_ONLY) or names a unit at or above it (UNIT_SUBTREE).
-const SCOPE_CONTAINS_UNIT = (kind: string, refIds: string, unitParam: string): string => `(
+export const SCOPE_CONTAINS_UNIT = (kind: string, refIds: string, unitParam: string): string => `(
     ${kind} = 'TENANT'
     or (${kind} = 'UNIT_ONLY' and ${unitParam}::uuid = any(${refIds}))
     or (${kind} = 'UNIT_SUBTREE' and exists (

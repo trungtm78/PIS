@@ -5,9 +5,11 @@ import { MetadataScanner, ModulesContainer, Reflector } from '@nestjs/core';
 import { PERMISSIONS, PLANES, STEP_UP } from '@machvon/contracts';
 import { NIL_RESOURCE_ID } from '@machvon/db';
 import type { AuditWriter, EffectiveAccessStore } from '@machvon/db';
-import { DomainError, asUuid, controlAccessOf, decide } from '@machvon/kernel';
+import { DomainError, asUuid, controlAccessOf, decide, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, Plane } from '@machvon/kernel';
 import { COMMAND_METADATA_KEY } from './command.decorator';
+import { DELEGABLE_OPERATIONS, withDelegatedPermission } from './delegated-door';
+import type { DelegationDoor } from './delegated-door';
 import { operationIdOf } from './operation-id.decorator';
 import { PUBLIC_METADATA_KEY } from './public.decorator';
 import { principalOf } from './principal';
@@ -36,6 +38,8 @@ export interface PolicyOptions {
   entitled?: (tenantId: string, permission: string) => boolean;
   /** Entitlement of the tenant's plan and license (BR-SAS-10): asked on the tenant plane, before the permission decision. */
   entitlements?: EntitlementGate;
+  /** Lets a delegate through the door of the operations in DELEGABLE_OPERATIONS; the command narrows it. */
+  delegations?: DelegationDoor;
   now?: () => Date;
 }
 
@@ -118,6 +122,11 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
       controlRoles === undefined ? this.options.access.load(principal.tenant) : controlAccessOf(controlRoles, principal.tenant.membershipId),
       this.options.denyList.isRevoked(principal.sessionId),
     ]);
+    // A delegate reaches the operations that can be delegated with the delegation alone; the command judges the rest.
+    let decided = access;
+    if (DELEGABLE_OPERATIONS.has(operationId) && principal.audience === 'tenant' && this.options.delegations !== undefined && !holdsPermission(effectivePermissions(access, now), policy.permission)) {
+      if (await this.options.delegations.holds(principal.tenant, policy.permission, now)) decided = withDelegatedPermission(access, policy.permission);
+    }
     const { entitled, entitlements } = this.options;
     // The plan gate is evaluated before the decision (it reads a cache or the database); the decision applies it after the permission check.
     const verdict: EntitlementVerdict | undefined =
@@ -131,7 +140,7 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
         sessionRevoked,
         tokenScopeVersion: principal.tenant.scopeVersion,
       },
-      access,
+      access: decided,
       now,
       entitled:
         entitled === undefined && verdict === undefined

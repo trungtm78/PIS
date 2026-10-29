@@ -667,3 +667,5 @@ export { LlmEvalStore } from './llm-eval-store.ts';
 export type { EvalDatasetRow, EvalRunRow, ProfileInput, ProfileRow, PromptInput, PromptRow, RunPlan } from './llm-eval-store.ts';
 export { IamSelfStore } from './iam-self-store.ts';
 export type { DeviceRevocation, DeviceView, ProfileRecord, SessionRevocation, SessionView } from './iam-self-store.ts';
+export { ApprovalStore } from './approval-store.ts';
+export type { ApprovalEffects, DecisionResult, FinalCommand, InstanceRecord as WorkflowInstanceRecord, StartInput as ApprovalStartInput, TaskRecord as ApprovalTaskRecord, VersionRecord as WorkflowVersionRecord } from './approval-store.ts';

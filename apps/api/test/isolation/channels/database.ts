@@ -22,7 +22,7 @@ import {
   TENANT_IDS,
   UNIT_FIXTURES,
 } from '../suite';
-import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES } from '../suite';
+import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -643,6 +643,16 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getMyProfile',
   'listMySessions',
   'listMyDevices',
+  'createWorkflowDraft',
+  'updateWorkflowDraft',
+  'publishWorkflowVersion',
+  'decideApprovalTask',
+  'get_resources_workflow_version',
+  'get_resources_workflow_version_id',
+  'get_resources_workflow_instance',
+  'get_resources_workflow_instance_id',
+  'get_resources_approval_task',
+  'get_resources_approval_task_id',
   'get_resources_quality_incident',
   'get_resources_quality_incident_id',
   'get_resources_quality_exception',
@@ -1124,6 +1134,18 @@ const INSERT_USER_SESSION = `insert into machvon.user_session
 const INSERT_DEVICE = `insert into machvon.device_registration
   (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, app_version)
   values ($1, $2, $3, $4, 'secret://isolation', 'android', now(), repeat('b', 64), '1.0.0') on conflict do nothing`;
+
+const INSERT_WORKFLOW_VERSION = `insert into machvon.workflow_version
+  (tenant_id, id, business_type, revision, definition_json, status, kind, created_by, published_by, published_at, definition_hash, version)
+  values ($1, $2, 'report.accept', 1, '{"steps":[],"terminal":{}}'::jsonb, 'Published', 'APPROVAL', $3, $4, now(), repeat('c', 64), 2) on conflict do nothing`;
+
+const INSERT_WORKFLOW_INSTANCE = `insert into machvon.workflow_instance
+  (tenant_id, id, workflow_version_id, resource_type, resource_id, resource_version, status, started_at, temporal_workflow_id, initiator_membership_id, initiator_user_id, document_type, unit_id, business_type)
+  select $1::uuid, $2::uuid, $3::uuid, 'report', $4::uuid, 1, 'Running', now(), 'appr:' || $2::text, m.id, m.user_id, 'REPORT_ACCEPT', m.organization_id, 'report.accept' from machvon.membership m where m.id = $5::uuid on conflict do nothing`;
+
+const INSERT_APPROVAL_TASK = `insert into machvon.approval_task
+  (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status)
+  values ($1, $2, $3, $4, now() + interval '1 day', 'review', 0, 'Pending') on conflict do nothing`;
 
 const INSERT_GLOSSARY_TERM = `insert into machvon.glossary_term
   (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, created_by, updated_by)
@@ -1656,6 +1678,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const own = SELF_FIXTURES[tenant];
     await client.query(INSERT_USER_SESSION, [tenantId, own.sessionId, MEMBERSHIP_ID, `idp-${own.sessionId}`]);
     await client.query(INSERT_DEVICE, [tenantId, own.deviceId, MEMBERSHIP_ID, own.devicePublicId]);
+    const flow = WORKFLOW_FIXTURES[tenant];
+    await client.query(INSERT_WORKFLOW_VERSION, [tenantId, flow.versionId, MEMBERSHIP_ID, ACTOR_ID]);
+    await client.query(INSERT_WORKFLOW_INSTANCE, [tenantId, flow.instanceId, flow.versionId, flow.resourceId, MEMBERSHIP_ID]);
+    await client.query(INSERT_APPROVAL_TASK, [tenantId, flow.taskId, flow.instanceId, MEMBERSHIP_ID]);
     const term = GLOSSARY_FIXTURES[tenant];
     await client.query(INSERT_GLOSSARY_TERM, [tenantId, term.termId, term.termCode, term.definition, MEMBERSHIP_ID, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];
