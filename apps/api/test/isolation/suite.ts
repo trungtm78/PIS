@@ -415,6 +415,12 @@ export const SOURCE_FIXTURES: Readonly<Record<TenantName, { mappingId: string; s
   'TNT-B': { mappingId: '00000000-0000-4000-b0d4-000000000001', sourceField: 'beta_source_field_0001', reconId: '00000000-0000-4000-b0d4-000000000002', reconCode: 'BETA-RECON-0001', gateId: '00000000-0000-4000-b0d4-000000000003', batchRef: 'BETA-BATCH-0001' },
 };
 
+/** A live session and a live device of the member of each tenant (their ids are distinctive; tenant data). */
+export const SELF_FIXTURES: Readonly<Record<TenantName, { sessionId: string; deviceId: string; devicePublicId: string }>> = {
+  'TNT-A': { sessionId: '00000000-0000-4000-a0d5-000000000001', deviceId: '00000000-0000-4000-a0d5-000000000002', devicePublicId: 'alpha-device-public-0001' },
+  'TNT-B': { sessionId: '00000000-0000-4000-b0d5-000000000001', deviceId: '00000000-0000-4000-b0d5-000000000002', devicePublicId: 'beta-device-public-0001' },
+};
+
 /** An ACTIVE SLA policy of each tenant (its code is distinctive; tenant configuration). */
 export const SLA_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0e1-000000000001', code: 'ALPHA-SLA-POLICY-0001' },
@@ -1170,6 +1176,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'reconciliation code', value: SOURCE_FIXTURES[tenant].reconCode },
     { kind: 'batch gate id', value: SOURCE_FIXTURES[tenant].gateId },
     { kind: 'batch reference', value: SOURCE_FIXTURES[tenant].batchRef },
+    { kind: 'session id', value: SELF_FIXTURES[tenant].sessionId },
+    { kind: 'device id', value: SELF_FIXTURES[tenant].deviceId },
+    { kind: 'device public id', value: SELF_FIXTURES[tenant].devicePublicId },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },

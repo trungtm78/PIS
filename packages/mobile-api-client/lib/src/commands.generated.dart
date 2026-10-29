@@ -841,6 +841,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getMyNotificationPreferences({Map<String, Object?>? query}) =>
       execute('getMyNotificationPreferences', query: query);
 
+  Future<Object?> getMyProfile({Map<String, Object?>? query}) =>
+      execute('getMyProfile', query: query);
+
   Future<Object?> getMyPublishedTheme({Map<String, Object?>? query}) =>
       execute('getMyPublishedTheme', query: query);
 
@@ -1690,8 +1693,14 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listMyConsents({Map<String, Object?>? query}) =>
       execute('listMyConsents', query: query);
 
+  Future<Object?> listMyDevices({Map<String, Object?>? query}) =>
+      execute('listMyDevices', query: query);
+
   Future<Object?> listMyNotifications({Map<String, Object?>? query}) =>
       execute('listMyNotifications', query: query);
+
+  Future<Object?> listMySessions({Map<String, Object?>? query}) =>
+      execute('listMySessions', query: query);
 
   Future<Object?> listOutgoingDocuments({Map<String, Object?>? query}) =>
       execute('listOutgoingDocuments', query: query);

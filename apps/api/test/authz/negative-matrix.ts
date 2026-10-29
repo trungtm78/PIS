@@ -187,6 +187,9 @@ export interface MatrixTargets {
   qualityExceptionId: string;
   /** A PROPOSED mapping of a field of a source into the quality dataset (version 1), proposed by someone other than the callers, and the dataset itself. */
   sourceMappingId: string;
+  /** A live session and a live device of someone other than the callers: the sign-out commands reach neither. */
+  otherSessionId: string;
+  otherDeviceId: string;
   qualityDatasetId: string;
   /** An OPEN dossier of unit 2 (version 1), opened by someone other than the callers. */
   dossierId: string;
@@ -1731,6 +1734,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   runReconciliation: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/dgv/reconciliations', body: { recon_code: 'MATRIX-RECON', source_a: 'PAY.treasury_transaction', source_b: 'DIS.report_accepted', as_of_period: '2026-10', basis: 'VND, ngày Kho bạc thanh toán', tolerance_vnd: '0' } }),
+  },
+  updateMyProfile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'PUT', path: '/me/profile', ifMatch: '"1"', body: { display_name: 'Matrix Probe' } }),
+  },
+  revokeMySession: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/me/sessions/${t.otherSessionId}/revoke`, body: { reason: REASON } }),
+  },
+  revokeMyDevice: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/me/devices/${t.otherDeviceId}/revoke`, body: { reason: REASON } }),
   },
   registerSitePhoto: {
     referencesTenantIds: true,

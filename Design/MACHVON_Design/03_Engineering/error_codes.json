@@ -5209,6 +5209,14 @@
       "module": "DGV",
       "statusBasis": "convention",
       "source": "story:ST-DGV-004"
+    },
+    "SESSION_CURRENT": {
+      "status": 422,
+      "title": "Session current",
+      "meaning": "Raised by revokeMySession (POST /me/sessions/{sessionId}/revoke) when the session asked for is the one the request is made with",
+      "module": "IAM",
+      "statusBasis": "convention",
+      "source": "story:ST-IAM-006"
     }
   }
 }

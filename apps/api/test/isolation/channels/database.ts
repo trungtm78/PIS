@@ -22,7 +22,7 @@ import {
   TENANT_IDS,
   UNIT_FIXTURES,
 } from '../suite';
-import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SOURCE_FIXTURES } from '../suite';
+import { QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
@@ -637,6 +637,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listReconciliations',
   'getReconciliation',
   'listBatchGates',
+  'updateMyProfile',
+  'revokeMySession',
+  'revokeMyDevice',
+  'getMyProfile',
+  'listMySessions',
+  'listMyDevices',
   'get_resources_quality_incident',
   'get_resources_quality_incident_id',
   'get_resources_quality_exception',
@@ -1110,6 +1116,14 @@ const INSERT_RECONCILIATION = `insert into machvon.reconciliation_run
 const INSERT_BATCH_GATE = `insert into machvon.dataset_batch_gate
   (tenant_id, id, dataset_id, source_system, batch_ref, outcome, reason, row_count, fields, gated_by)
   values ($1, $2, $3, 'PAY', $4, 'QUARANTINED', 'MAPPING_NOT_CONFIRMED', 3, '[]'::jsonb, $5) on conflict do nothing`;
+
+const INSERT_USER_SESSION = `insert into machvon.user_session
+  (tenant_id, id, user_account_id, membership_id, idp_session_id, assurance_level, ip_hash, user_agent_summary)
+  select $1::uuid, $2::uuid, m.user_id, m.id, $4, 'aal1', repeat('a', 64), 'Isolation browser' from machvon.membership m where m.id = $3::uuid on conflict do nothing`;
+
+const INSERT_DEVICE = `insert into machvon.device_registration
+  (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, app_version)
+  values ($1, $2, $3, $4, 'secret://isolation', 'android', now(), repeat('b', 64), '1.0.0') on conflict do nothing`;
 
 const INSERT_GLOSSARY_TERM = `insert into machvon.glossary_term
   (tenant_id, id, term_code, term_vi, definition, domain, owner_membership_id, revision, status, created_by, updated_by)
@@ -1639,6 +1653,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_SOURCE_MAPPING, [tenantId, source.mappingId, dataset.id, source.sourceField, MEMBERSHIP_ID]);
     await client.query(INSERT_RECONCILIATION, [tenantId, source.reconId, source.reconCode, MEMBERSHIP_ID, dataset.id]);
     await client.query(INSERT_BATCH_GATE, [tenantId, source.gateId, dataset.id, source.batchRef, MEMBERSHIP_ID]);
+    const own = SELF_FIXTURES[tenant];
+    await client.query(INSERT_USER_SESSION, [tenantId, own.sessionId, MEMBERSHIP_ID, `idp-${own.sessionId}`]);
+    await client.query(INSERT_DEVICE, [tenantId, own.deviceId, MEMBERSHIP_ID, own.devicePublicId]);
     const term = GLOSSARY_FIXTURES[tenant];
     await client.query(INSERT_GLOSSARY_TERM, [tenantId, term.termId, term.termCode, term.definition, MEMBERSHIP_ID, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];

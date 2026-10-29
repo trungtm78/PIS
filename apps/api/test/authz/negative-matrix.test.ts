@@ -304,6 +304,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dataset_source_mapping where tenant_id = $1),
     (select count(*)::text from machvon.reconciliation_run where tenant_id = $1),
     (select count(*)::text from machvon.dataset_batch_gate where tenant_id = $1),
+    (select string_agg(id::text || coalesce(revoked_at::text, ''), ',' order by id) from machvon.user_session where tenant_id = $1),
+    (select string_agg(id::text || coalesce(revoked_at::text, '') || coalesce(push_secret_ref, ''), ',' order by id) from machvon.device_registration where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.dossier where tenant_id = $1),
     (select count(*)::text from machvon.dossier_item where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.mne_report_form where tenant_id = $1),
@@ -1048,6 +1050,19 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0xde, 8), qualityDatasetId, glossaryOwnerId],
       ],
     ]);
+    // A live session and a live device of someone other than the callers: the sign-out commands act on them.
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.user_session (tenant_id, id, user_account_id, membership_id, idp_session_id, assurance_level, ip_hash, user_agent_summary)
+         values ($1, $2, (select user_id from machvon.membership where id = $3), $3, 'matrix-session', 'aal1', repeat('a', 64), 'Matrix browser')`,
+        [TENANT_A, id(0xde, 9), glossaryOwnerId],
+      ],
+      [
+        `insert into machvon.device_registration (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, app_version)
+         values ($1, $2, $3, 'matrix-device', 'secret://matrix', 'android', now(), repeat('b', 64), '1.0.0')`,
+        [TENANT_A, id(0xde, 10), glossaryOwnerId],
+      ],
+    ]);
     // A DRAFT availability control policy made by someone other than the callers: the publication of a policy is judged against it.
     const avcPolicyId = id(0xdf, 1);
     await harness.owner(TENANT_A, [
@@ -1075,6 +1090,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       qualityIncidentId: id(0xde, 6),
       qualityExceptionId: id(0xde, 7),
       sourceMappingId: id(0xde, 8),
+      otherSessionId: id(0xde, 9),
+      otherDeviceId: id(0xde, 10),
       qualityDatasetId,
       dossierId: id(0x77, 52),
       qualityContractId,

@@ -9,6 +9,7 @@ import { AcceptInvitationController } from './accept-invitation.controller';
 import { AcceptInvitationService } from './accept-invitation.service';
 import { IDENTITY_OPTIONS, IdentityGuard } from './identity.guard';
 import { InviteeGuard } from './invitee.guard';
+import type { IdentityLogout } from './self.controller';
 import { SelectTenantController } from './select-tenant.controller';
 import { SelectTenantService } from './select-tenant.service';
 import type { UserSessionDenyList } from './user-session-deny-list';
@@ -21,6 +22,8 @@ export interface SessionModuleOptions {
   issuer: TenantTokenIssuer;
   /** The deny-list the authentication guard also consults: a tenant switch revokes in it at once. */
   denyList: UserSessionDenyList;
+  /** The identity provider's end of a sign-out (Keycloak back-channel logout), for the sign-outs of IAM-06; none until it is connected. */
+  identityLogout?: IdentityLogout;
   metrics?: MetricsSink;
   now?: () => Date;
 }

@@ -48190,6 +48190,68 @@
       }
     },
     "/me/profile": {
+      "get": {
+        "operationId": "getMyProfile",
+        "summary": "Hồ sơ cá nhân của tôi (IAM-05), kèm version để cập nhật",
+        "tags": [
+          "IAM"
+        ],
+        "x-permission": "profile.self",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant"
+      },
       "put": {
         "operationId": "updateMyProfile",
         "summary": "Cập nhật hồ sơ cá nhân (IAM-05): display_name, locale, time_zone, phone",
@@ -48329,6 +48391,221 @@
         "x-audit-action": "user.profile_updated"
       }
     },
+    "/me/sessions": {
+      "get": {
+        "operationId": "listMySessions",
+        "summary": "Các phiên đăng nhập của tôi, phiên hiện tại được đánh dấu (IAM-06)",
+        "tags": [
+          "IAM"
+        ],
+        "x-permission": "session.self",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "current": {
+                            "type": "boolean"
+                          },
+                          "assurance_level": {
+                            "type": "string",
+                            "enum": [
+                              "aal1",
+                              "aal2"
+                            ]
+                          },
+                          "user_agent_summary": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "last_seen_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "device": {
+                            "type": [
+                              "object",
+                              "null"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "as_of": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant"
+      }
+    },
+    "/me/devices": {
+      "get": {
+        "operationId": "listMyDevices",
+        "summary": "Các thiết bị của tôi, thiết bị đã gỡ vẫn nằm trong lịch sử (IAM-06)",
+        "tags": [
+          "IAM"
+        ],
+        "x-permission": "session.self",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "platform": {
+                            "type": "string"
+                          },
+                          "device_public_id": {
+                            "type": "string"
+                          },
+                          "last_seen_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "revoked_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "ACTIVE",
+                              "REVOKED"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "as_of": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant"
+      }
+    },
     "/me/sessions/{sessionId}/revoke": {
       "post": {
         "operationId": "revokeMySession",
@@ -48442,7 +48719,8 @@
           }
         },
         "x-error-codes": [
-          "RESOURCE_NOT_FOUND"
+          "RESOURCE_NOT_FOUND",
+          "SESSION_CURRENT"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -133142,6 +133420,12 @@
           },
           "email_masked": {
             "type": "string"
+          },
+          "phone_masked": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "locale": {
             "type": "string"

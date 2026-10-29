@@ -665,3 +665,5 @@ export { LlmGatewayStore } from './llm-gateway-store.ts';
 export type { AiRequestRow, AttemptRow, NewRequest, RequestFinish, RequestStatus, RequestSummary } from './llm-gateway-store.ts';
 export { LlmEvalStore } from './llm-eval-store.ts';
 export type { EvalDatasetRow, EvalRunRow, ProfileInput, ProfileRow, PromptInput, PromptRow, RunPlan } from './llm-eval-store.ts';
+export { IamSelfStore } from './iam-self-store.ts';
+export type { DeviceRevocation, DeviceView, ProfileRecord, SessionRevocation, SessionView } from './iam-self-store.ts';

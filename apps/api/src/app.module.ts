@@ -25,6 +25,7 @@ import { RoleDefinitionsController } from './role-definitions.controller';
 import { RoleGrantReadsController, RoleGrantsController } from './role-grants.controller';
 import { RolesController } from './roles.controller';
 import { MembershipsController } from './session/memberships.controller';
+import { IDENTITY_LOGOUT, NoIdentityLogout, SESSION_REVOCATION, SelfServiceController } from './session/self.controller';
 import type { TenantRuntimeSource } from './session/tenant-runtime';
 import { SessionModule } from './session/session.module';
 import type { SessionModuleOptions } from './session/session.module';
@@ -75,6 +76,8 @@ export class AppModule {
       controllers: [
         OrganizationUnitsController,
         MembershipsController,
+        // What a person does with their own profile, sessions and devices (IAM-05, IAM-06).
+        SelfServiceController,
         OrgUnitCommandsController,
         RolesController,
         RoleGrantsController,
@@ -99,6 +102,9 @@ export class AppModule {
             ]),
         ...(options.tenantState === undefined ? [] : [{ provide: TENANT_STATE_EFFECTS, useValue: new CacheTenantStateEffects(options.tenantState) }]),
         { provide: TenantDatabase, useValue: options.database },
+        // A session revoked here reaches the deny-list the authentication guard consults, and the identity provider's logout where it is connected.
+        { provide: SESSION_REVOCATION, useValue: options.session?.denyList ?? { revoke: () => undefined } },
+        { provide: IDENTITY_LOGOUT, useValue: options.session?.identityLogout ?? new NoIdentityLogout() },
         ...(options.entitlements === undefined
           ? []
           : [

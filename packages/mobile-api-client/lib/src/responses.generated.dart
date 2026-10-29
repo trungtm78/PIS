@@ -455,6 +455,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getMyEffectiveAccess': EffectiveAccessResponse.fromJson,
   'getMyEntitlements': EntitlementViewResponse.fromJson,
   'getMyNotificationPreferences': PreferenceViewResponse.fromJson,
+  'getMyProfile': UserProfileResponse.fromJson,
   'getMyPublishedTheme': TenantThemeVersionResponse.fromJson,
   'getMyUsage': UsageSummaryResponse.fromJson,
   'getMyWork': asObject,
@@ -565,7 +566,9 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMneObligationRules': asObject,
   'listMneObligations': MneObligationStatusResponse.fromJson,
   'listMyConsents': ConsentPageResponse.fromJson,
+  'listMyDevices': ListMyDevicesResponse.fromJson,
   'listMyNotifications': NotificationPageResponse.fromJson,
+  'listMySessions': ListMySessionsResponse.fromJson,
   'listOutgoingDocuments': asObject,
   'listOverdueAdvances': asObject,
   'listPaymentForms': PayPaymentFormPageResponse.fromJson,
@@ -12155,6 +12158,162 @@ final class ListIssueAssigneesResponseItemsItem implements ResponseModel {
       };
 }
 
+final class ListMyDevicesResponse implements ResponseModel {
+  const ListMyDevicesResponse({
+    this.items,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ListMyDevicesResponse.fromJson(Object? json, [String path = 'ListMyDevicesResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ListMyDevicesResponse(
+      items: optionalField(map, path, 'items', asList(ListMyDevicesResponseItemsItem.fromJson)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ListMyDevicesResponseItemsItem>? items;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items!.map((e0) => e0.toJson()).toList(),
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ListMyDevicesResponseItemsItem implements ResponseModel {
+  const ListMyDevicesResponseItemsItem({
+    this.id,
+    this.platform,
+    this.devicePublicId,
+    this.lastSeenAt,
+    this.revokedAt,
+    this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ListMyDevicesResponseItemsItem.fromJson(Object? json, [String path = 'ListMyDevicesResponseItemsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ListMyDevicesResponseItemsItem(
+      id: optionalField(map, path, 'id', asString),
+      platform: optionalField(map, path, 'platform', asString),
+      devicePublicId: optionalField(map, path, 'device_public_id', asString),
+      lastSeenAt: optionalField(map, path, 'last_seen_at', asString),
+      revokedAt: optionalField(map, path, 'revoked_at', nullable(asString)),
+      status: optionalField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'platform', 'device_public_id', 'last_seen_at', 'revoked_at', 'status'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? platform;
+  final String? devicePublicId;
+  final String? lastSeenAt;
+  final String? revokedAt;
+  final String? status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (platform != null) 'platform': platform,
+        if (devicePublicId != null) 'device_public_id': devicePublicId,
+        if (lastSeenAt != null) 'last_seen_at': lastSeenAt,
+        if (revokedAt != null) 'revoked_at': revokedAt,
+        if (status != null) 'status': status,
+        ...extra,
+      };
+}
+
+final class ListMySessionsResponse implements ResponseModel {
+  const ListMySessionsResponse({
+    this.items,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ListMySessionsResponse.fromJson(Object? json, [String path = 'ListMySessionsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ListMySessionsResponse(
+      items: optionalField(map, path, 'items', asList(ListMySessionsResponseItemsItem.fromJson)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ListMySessionsResponseItemsItem>? items;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (items != null) 'items': items!.map((e0) => e0.toJson()).toList(),
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ListMySessionsResponseItemsItem implements ResponseModel {
+  const ListMySessionsResponseItemsItem({
+    this.id,
+    this.current,
+    this.assuranceLevel,
+    this.userAgentSummary,
+    this.createdAt,
+    this.lastSeenAt,
+    this.device,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ListMySessionsResponseItemsItem.fromJson(Object? json, [String path = 'ListMySessionsResponseItemsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ListMySessionsResponseItemsItem(
+      id: optionalField(map, path, 'id', asString),
+      current: optionalField(map, path, 'current', asBool),
+      assuranceLevel: optionalField(map, path, 'assurance_level', asString),
+      userAgentSummary: optionalField(map, path, 'user_agent_summary', asString),
+      createdAt: optionalField(map, path, 'created_at', asString),
+      lastSeenAt: optionalField(map, path, 'last_seen_at', asString),
+      device: optionalField(map, path, 'device', nullable(asObject)),
+      extra: unknownFields(map, path, const <String>{'id', 'current', 'assurance_level', 'user_agent_summary', 'created_at', 'last_seen_at', 'device'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final bool? current;
+  final String? assuranceLevel;
+  final String? userAgentSummary;
+  final String? createdAt;
+  final String? lastSeenAt;
+  final Map<String, Object?>? device;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (current != null) 'current': current,
+        if (assuranceLevel != null) 'assurance_level': assuranceLevel,
+        if (userAgentSummary != null) 'user_agent_summary': userAgentSummary,
+        if (createdAt != null) 'created_at': createdAt,
+        if (lastSeenAt != null) 'last_seen_at': lastSeenAt,
+        if (device != null) 'device': device,
+        ...extra,
+      };
+}
+
 final class ListReconciliationsResponse implements ResponseModel {
   const ListReconciliationsResponse({
     this.items,
@@ -17893,6 +18052,7 @@ final class UserProfileResponse implements ResponseModel {
     required this.displayName,
     required this.version,
     this.emailMasked,
+    this.phoneMasked,
     this.locale,
     this.timeZone,
     this.extra = const <String, Object?>{},
@@ -17904,16 +18064,18 @@ final class UserProfileResponse implements ResponseModel {
       id: requiredField(map, path, 'id', asString),
       displayName: requiredField(map, path, 'display_name', asString),
       emailMasked: optionalField(map, path, 'email_masked', asString),
+      phoneMasked: optionalField(map, path, 'phone_masked', nullable(asString)),
       locale: optionalField(map, path, 'locale', asString),
       timeZone: optionalField(map, path, 'time_zone', asString),
       version: requiredField(map, path, 'version', asInt),
-      extra: unknownFields(map, path, const <String>{'id', 'display_name', 'email_masked', 'locale', 'time_zone', 'version'}, strict: true),
+      extra: unknownFields(map, path, const <String>{'id', 'display_name', 'email_masked', 'phone_masked', 'locale', 'time_zone', 'version'}, strict: true),
     );
   }
 
   final String id;
   final String displayName;
   final String? emailMasked;
+  final String? phoneMasked;
   final String? locale;
   final String? timeZone;
   final int version;
@@ -17926,6 +18088,7 @@ final class UserProfileResponse implements ResponseModel {
         'id': id,
         'display_name': displayName,
         if (emailMasked != null) 'email_masked': emailMasked,
+        if (phoneMasked != null) 'phone_masked': phoneMasked,
         if (locale != null) 'locale': locale,
         if (timeZone != null) 'time_zone': timeZone,
         'version': version,
