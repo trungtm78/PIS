@@ -74839,8 +74839,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/ContractorScorecard"
                 }
               }
             }
@@ -74905,7 +74904,10 @@
               }
             }
           }
-        }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/payment-requests": {
@@ -132047,6 +132049,92 @@
         "x-plane": "tenant",
         "x-error-codes": []
       }
+    },
+    "/contractor-scorecards": {
+      "get": {
+        "operationId": "listScorecardContractors",
+        "summary": "Nhà thầu có hợp đồng trong phạm vi của người đọc, để chọn bảng điểm cần xem (CTR-23)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.read",
+        "parameters": [],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "The contractors with a contract in the scope of the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScorecardContractors"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -159558,6 +159646,537 @@
                 },
                 "label": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContractorScorecard": {
+        "type": "object",
+        "required": [
+          "contractor",
+          "contracts",
+          "evaluations",
+          "violations",
+          "summary",
+          "rule",
+          "as_of"
+        ],
+        "properties": {
+          "contractor": {
+            "type": "object",
+            "required": [
+              "id",
+              "legal_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "legal_name": {
+                "type": "string"
+              }
+            }
+          },
+          "contracts": {
+            "type": "array",
+            "description": "The contracts of the contractor that the caller reads, with what they may do on each",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "code",
+                "status",
+                "allowed"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "allowed": {
+                  "type": "object",
+                  "required": [
+                    "evaluate",
+                    "record_violation"
+                  ],
+                  "properties": {
+                    "evaluate": {
+                      "type": "boolean"
+                    },
+                    "record_violation": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "evaluations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "contract_id",
+                "contract_code",
+                "evaluation_kind",
+                "period_label",
+                "revision",
+                "scores",
+                "overall_score",
+                "rating",
+                "status",
+                "evaluated_by",
+                "created_at",
+                "allowed",
+                "version"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contract_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contract_code": {
+                  "type": "string"
+                },
+                "evaluation_kind": {
+                  "type": "string",
+                  "enum": [
+                    "PERIODIC",
+                    "COMPLETION",
+                    "TERMINATION"
+                  ]
+                },
+                "period_label": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "integer"
+                },
+                "scores": {
+                  "type": "object",
+                  "required": [
+                    "quality",
+                    "schedule",
+                    "safety_env",
+                    "cooperation",
+                    "financial"
+                  ],
+                  "properties": {
+                    "quality": {
+                      "type": "integer"
+                    },
+                    "schedule": {
+                      "type": "integer"
+                    },
+                    "safety_env": {
+                      "type": "integer"
+                    },
+                    "cooperation": {
+                      "type": "integer"
+                    },
+                    "financial": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "overall_score": {
+                  "type": "string",
+                  "description": "Weighted by the rule CTR.SCORECARD, two decimal places"
+                },
+                "rating": {
+                  "type": "string",
+                  "enum": [
+                    "EXCELLENT",
+                    "GOOD",
+                    "FAIR",
+                    "POOR"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "DRAFT",
+                    "SUBMITTED",
+                    "APPROVED",
+                    "SUPERSEDED"
+                  ]
+                },
+                "evaluated_by": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "approved_by": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "approved_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "supersedes_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "remarks": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "approval_note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "allowed": {
+                  "type": "object",
+                  "required": [
+                    "approve"
+                  ],
+                  "properties": {
+                    "approve": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "version": {
+                  "type": "integer",
+                  "description": "The If-Match of the approval"
+                }
+              }
+            }
+          },
+          "violations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "contract_id",
+                "contract_code",
+                "violation_kind",
+                "severity",
+                "occurred_on",
+                "description",
+                "penalty_kind",
+                "penalty_amount_vnd",
+                "source_module",
+                "status",
+                "recorded_by",
+                "created_at",
+                "allowed",
+                "version"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contract_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contract_code": {
+                  "type": "string"
+                },
+                "violation_kind": {
+                  "type": "string",
+                  "enum": [
+                    "DELAY",
+                    "QUALITY",
+                    "SAFETY",
+                    "ENVIRONMENT",
+                    "FALSE_DOCUMENT",
+                    "ABANDONMENT",
+                    "OTHER"
+                  ]
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "MINOR",
+                    "MAJOR",
+                    "CRITICAL"
+                  ]
+                },
+                "occurred_on": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "evidence_document_version_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "penalty_kind": {
+                  "type": "string",
+                  "enum": [
+                    "NONE",
+                    "WARNING",
+                    "LIQUIDATED_DAMAGES",
+                    "TERMINATION",
+                    "DEBARMENT_PROPOSAL"
+                  ]
+                },
+                "penalty_amount_vnd": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "decision_document_version_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "source_module": {
+                  "type": "string",
+                  "enum": [
+                    "CTR",
+                    "QMS",
+                    "PAY",
+                    "ISS",
+                    "AUD"
+                  ]
+                },
+                "source_ref_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "RECORDED",
+                    "CONFIRMED",
+                    "APPEALED",
+                    "REVOKED"
+                  ]
+                },
+                "recorded_by": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "confirmed_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "allowed": {
+                  "type": "object",
+                  "required": [
+                    "confirm"
+                  ],
+                  "properties": {
+                    "confirm": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "version": {
+                  "type": "integer",
+                  "description": "The If-Match of the confirmation"
+                }
+              }
+            }
+          },
+          "summary": {
+            "type": "object",
+            "required": [
+              "approved_count",
+              "average_overall_score",
+              "confirmed_violations",
+              "evaluation_count",
+              "violation_count"
+            ],
+            "properties": {
+              "approved_count": {
+                "type": "integer"
+              },
+              "average_overall_score": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Average of the approved evaluations that stand, two decimal places; none when there is no approved evaluation"
+              },
+              "confirmed_violations": {
+                "type": "object",
+                "required": [
+                  "MINOR",
+                  "MAJOR",
+                  "CRITICAL"
+                ],
+                "properties": {
+                  "MINOR": {
+                    "type": "integer"
+                  },
+                  "MAJOR": {
+                    "type": "integer"
+                  },
+                  "CRITICAL": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "evaluation_count": {
+                "type": "integer",
+                "description": "Every evaluation the caller reads in the range; the list holds at most 500 of them"
+              },
+              "violation_count": {
+                "type": "integer",
+                "description": "Every violation the caller reads in the range; the list holds at most 500 of them"
+              }
+            },
+            "description": "Counted over everything the caller reads in the range, not over the rows of the lists"
+          },
+          "rule": {
+            "type": "object",
+            "description": "The rule CTR.SCORECARD the scores are weighted by; its thresholds await the signature of the business owner (R-CTR-05)",
+            "required": [
+              "key",
+              "weights_pct",
+              "thresholds",
+              "awaiting_confirmation"
+            ],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "weights_pct": {
+                "type": "object",
+                "required": [
+                  "quality",
+                  "schedule",
+                  "safety_env",
+                  "cooperation",
+                  "financial"
+                ],
+                "properties": {
+                  "quality": {
+                    "type": "integer"
+                  },
+                  "schedule": {
+                    "type": "integer"
+                  },
+                  "safety_env": {
+                    "type": "integer"
+                  },
+                  "cooperation": {
+                    "type": "integer"
+                  },
+                  "financial": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "thresholds": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "min",
+                    "rating"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer"
+                    },
+                    "rating": {
+                      "type": "string",
+                      "enum": [
+                        "EXCELLENT",
+                        "GOOD",
+                        "FAIR",
+                        "POOR"
+                      ]
+                    }
+                  }
+                }
+              },
+              "awaiting_confirmation": {
+                "type": "boolean"
+              }
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ScorecardContractors": {
+        "type": "object",
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "The contractors that hold a contract the caller reads, by name; at most 500",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "legal_name",
+                "contract_count"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "legal_name": {
+                  "type": "string"
+                },
+                "contract_count": {
+                  "type": "integer"
                 }
               }
             }

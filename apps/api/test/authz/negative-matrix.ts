@@ -87,6 +87,9 @@ export interface MatrixTargets {
   inventoryId: string;
   /** A plan of compensation: the command that names it in the path needs no row to be refused. */
   planId: string;
+  /** An evaluation of a contractor and a violation of one: the command that names it in the path needs no row to be refused. */
+  evaluationId: string;
+  violationId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -2422,6 +2425,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   releaseRetention: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/retention-holds/${t.retentionHoldId}/release`, ifMatch: '"1"', body: { amount_vnd: '1', reason: REASON } }),
+  },
+  // The scorecard of a contractor: a caller that is refused evaluates, approves, records and confirms nothing.
+  evaluateContractor: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.contractId}/performance-evaluations`, body: { evaluation_kind: 'PERIODIC', period_label: '2026-Q3', score_quality: 80, score_schedule: 70, score_safety_env: 90, score_cooperation: 60, score_financial: 100 } }),
+  },
+  approveContractorEvaluation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/performance-evaluations/${t.evaluationId}/approve`, ifMatch: '"1"', body: {} }),
+  },
+  recordContractorViolation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contracts/${t.contractId}/violations`, body: { violation_kind: 'DELAY', severity: 'MAJOR', occurred_on: '2026-09-01', description: REASON } }),
+  },
+  confirmContractorViolation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/violations/${t.violationId}/confirm`, ifMatch: '"1"', body: { penalty_kind: 'NONE' } }),
   },
   // The warranty of a work: a caller that is refused creates no obligation and closes none.
   createWarrantyObligation: {

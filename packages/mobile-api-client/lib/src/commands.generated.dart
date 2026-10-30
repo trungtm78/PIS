@@ -1819,6 +1819,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listRoutingPolicies({Map<String, Object?>? query}) =>
       execute('listRoutingPolicies', query: query);
 
+  Future<Object?> listScorecardContractors({Map<String, Object?>? query}) =>
+      execute('listScorecardContractors', query: query);
+
   Future<Object?> listSourceMappings({Map<String, Object?>? query}) =>
       execute('listSourceMappings', query: query);
 

@@ -359,6 +359,29 @@ export { ASSET_STATUSES, VALUE_BASES, assertAssetTransfer, assertValueWithinCont
 export type { AssetStatus, ValueBasis } from './ast-asset.ts';
 export { CLAIM_STATUSES, CONSTRUCTION_GRADES, WARRANTY_STATUSES, assertWarrantyClosure, assertWarrantyPeriod, effectiveWarrantyStatus, hasRunOut, isOpenClaim, minimumMonths, warrantyEndsOn } from './ast-warranty.ts';
 export type { ClaimStatus, ConstructionGrade, WarrantyClosure, WarrantyMinimums, WarrantyStatus } from './ast-warranty.ts';
+export {
+  CRITERIA,
+  EVALUATION_KINDS,
+  EVALUATION_STATUSES,
+  PENALTY_KINDS,
+  RATINGS,
+  SCORECARD_RULE,
+  SEVERITIES,
+  VIOLATION_KINDS,
+  VIOLATION_SOURCES,
+  VIOLATION_STATUSES,
+  assertConfirmation,
+  assertEvaluable,
+  assertEvaluation,
+  assertNotTheAuthor,
+  assertViolable,
+  assertViolation,
+  needsDecisionDocument,
+  overallHundredths,
+  overallScoreOf,
+  ratingOf,
+} from './ctr-scorecard.ts';
+export type { ConfirmationInput, Criterion, EvaluationInput, EvaluationKind, PenaltyKind, Rating, Scores, Severity, ViolationInput, ViolationKind, ViolationSource } from './ctr-scorecard.ts';
 export { RELEASE_BLOCKERS, RELEASE_CONDITIONS, RETENTION_STATUSES, assertNotTheMaker, assertReleasable, assertReleaseAmount, assertSomethingHeld, releaseBlocker, retentionLeft, statusAfterRelease } from './ctr-retention.ts';
 export type { ReleaseBlocker, ReleaseCondition, ReleaseFacts, RetentionStatus } from './ctr-retention.ts';
 export { CLOSURE_GUARDS, assertContractClosure, unmetClosureGuards } from './contract-closure.ts';

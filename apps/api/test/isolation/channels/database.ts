@@ -69,6 +69,7 @@ import {
   INSPECTION_FIXTURES,
   LEDGER_FIXTURES,
   MEASUREMENT_FIXTURES,
+  SCORECARD_FIXTURES,
   NONCONFORMANCE_FIXTURES,
   PAYMENT_FIXTURES,
   RECONCILIATION_FIXTURES,
@@ -574,6 +575,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getContractSummary',
   'getCumulativeLedger',
   'releaseRetention',
+  'evaluateContractor',
+  'approveContractorEvaluation',
+  'recordContractorViolation',
+  'confirmContractorViolation',
+  'getContractorScorecard',
+  'listScorecardContractors',
   'listRetentionHolds',
   'createPaymentRequest',
   'revisePaymentDraft',
@@ -1323,6 +1330,15 @@ const INSERT_CHANGE_REQUEST = `insert into machvon.change_request
   values ($1, $2, $3, $4, 0, 0, $5, 'SUBMITTED', 1, 'CE-001', 'EVENT', $6, $6, $6) on conflict do nothing`;
 
 /** A measurement of the BOQ line of the draft contract, SUBMITTED by $10 with one piece of evidence. */
+/** An evaluation of the contractor of the draft contract that waits for approval, and a violation that waits for confirmation. */
+const INSERT_EVALUATION = `insert into machvon.contractor_performance
+  (tenant_id, id, contract_id, contractor_id, evaluation_kind, period_label, revision, score_quality, score_schedule, score_safety_env, score_cooperation, score_financial, overall_score, rating, remarks, status, evaluated_by, created_by, updated_by)
+  values ($1, $2, $3, $4, 'PERIODIC', '2026-Q3', 1, 80, 70, 90, 60, 100, 80.50, 'GOOD', $5, 'SUBMITTED', $6, $6, $6) on conflict do nothing`;
+
+const INSERT_VIOLATION = `insert into machvon.contractor_violation
+  (tenant_id, id, contract_id, contractor_id, violation_kind, severity, occurred_on, description, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 'DELAY', 'MAJOR', date '2026-09-01', $5, 'RECORDED', $6, $6) on conflict do nothing`;
+
 const INSERT_MEASUREMENT = `insert into machvon.measurement
   (tenant_id, id, contract_id, contract_revision_id, boq_line_id, boq_item_id, period_id, quantity_period, quantity_cumulative, revision, status, evidence_refs, reference_no, submitted_by, submitted_at, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, $6, $7, 1, 0, 1, 'SUBMITTED', jsonb_build_array(jsonb_build_object('document_version_id', $8::text)), $9, $10, now(), $10, $10, 1) on conflict do nothing`;
@@ -1941,6 +1957,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PHOTO, [tenantId, photo.id, project.id, draft.id, photo.operationId, `tenants/${tenantId}/site_photo/${photo.id}`, photo.sha256, photo.caption, MEMBERSHIP_ID]);
     const measurement = MEASUREMENT_FIXTURES[tenant];
     await client.query(INSERT_MEASUREMENT, [tenantId, measurement.id, draft.id, draft.revisionId, boq.lineId, boq.itemId, PERIOD_FIXTURES[tenant].id, documents.versionId, measurement.referenceNo, ACTOR_ID]);
+    const scorecard = SCORECARD_FIXTURES[tenant];
+    await client.query(INSERT_EVALUATION, [tenantId, scorecard.evaluationId, draft.id, contractor.id, scorecard.remarks, ACTOR_ID]);
+    await client.query(INSERT_VIOLATION, [tenantId, scorecard.violationId, draft.id, contractor.id, scorecard.description, ACTOR_ID]);
     const workAcceptance = WORK_ACCEPTANCE_FIXTURES[tenant];
     await client.query(INSERT_WORK_ACCEPTANCE, [tenantId, workAcceptance.id, draft.id, measurement.id, documents.versionId, workAcceptance.acceptanceNo, period.id, ACTOR_ID]);
     await client.query(INSERT_WORK_ACCEPTANCE_LINE, [tenantId, workAcceptance.id, measurement.id, boq.itemId, draft.revisionId, ACTOR_ID]);

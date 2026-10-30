@@ -6,6 +6,7 @@ import { ContractController, ContractReadsController, ContractRevisionReadsContr
 import { ContractLifecycleController } from './lifecycle.controller';
 import { MeasurementController, MeasurementReadsController } from './measurement.controller';
 import { RetentionController, RetentionReadsController } from './retention.controller';
+import { ScorecardController, ScorecardReadsController } from './scorecard.controller';
 import { ExpiringGuaranteesController, GuaranteeController, GuaranteeReadsController } from './guarantee.controller';
 
 /**
@@ -17,7 +18,8 @@ import { ExpiringGuaranteesController, GuaranteeController, GuaranteeReadsContro
  * changes of a project, fixed by its first request, and the change events, the PCOs and the COs raised, promoted, evaluated and withdrawn along it (ST-CTR-006); the decision of a change order and the revisions of the contract it makes (ST-CTR-007); the quantities of work
  * recorded per BOQ item and period, sent, approved and corrected, within the quantity of the revision in force (ST-CTR-008); the acceptance of approved measurements, priced from the revision in force on the day,
  * sent, decided by another person and revoked while no payment request holds it (ST-CTR-009); the retention held back from the payments, released by the chief accountant when its condition is met and
- * never above what is held or by whoever put it on hold (ST-CTR-010).
+ * never above what is held or by whoever put it on hold (ST-CTR-010); the scorecard of a contractor, whose evaluations are weighted by the rule CTR.SCORECARD and approved by another person, and the log of its violations,
+ * confirmed by another person and, for a sanction, with the document that decides it (ST-CTR-014).
  */
 export const ctrModule = defineModule({
   code: 'CTR',
@@ -39,5 +41,7 @@ export const ctrModule = defineModule({
     GuaranteeReadsController,
     RetentionController,
     RetentionReadsController,
+    ScorecardController,
+    ScorecardReadsController,
   ],
 });

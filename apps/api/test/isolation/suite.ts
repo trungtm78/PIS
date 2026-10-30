@@ -366,6 +366,12 @@ export const MEASUREMENT_FIXTURES: Readonly<Record<TenantName, { id: string; ref
   'TNT-B': { id: '00000000-0000-4000-b0c9-000000000001', referenceNo: 'BETA-MEASUREMENT-0001' },
 };
 
+/** An evaluation of the contractor of each tenant that waits for approval, and a violation that waits for confirmation (the words are distinctive; tenant data about a contractor). */
+export const SCORECARD_FIXTURES: Readonly<Record<TenantName, { evaluationId: string; remarks: string; violationId: string; description: string }>> = {
+  'TNT-A': { evaluationId: '00000000-0000-4000-a0e4-000000000001', remarks: 'ALPHA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-a0e4-000000000002', description: 'ALPHA-VIOLATION-WORDS-0001' },
+  'TNT-B': { evaluationId: '00000000-0000-4000-b0e4-000000000001', remarks: 'BETA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-b0e4-000000000002', description: 'BETA-VIOLATION-WORDS-0001' },
+};
+
 /**
  * A BOQ line of each tenant under that draft revision with its stable item, and two guarantees of the contract (a PENDING_VERIFICATION one and an
  * ACTIVE one), each with a distinctive key, wording, number and issuer (tenant financial data).
@@ -1175,6 +1181,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'change request id', value: CHANGE_FIXTURES[tenant].id },
     { kind: 'change request reason', value: CHANGE_FIXTURES[tenant].reason },
     { kind: 'measurement id', value: MEASUREMENT_FIXTURES[tenant].id },
+    { kind: 'contractor evaluation id', value: SCORECARD_FIXTURES[tenant].evaluationId },
+    { kind: 'contractor evaluation remarks', value: SCORECARD_FIXTURES[tenant].remarks },
+    { kind: 'contractor violation id', value: SCORECARD_FIXTURES[tenant].violationId },
+    { kind: 'contractor violation description', value: SCORECARD_FIXTURES[tenant].description },
     { kind: 'work acceptance id', value: WORK_ACCEPTANCE_FIXTURES[tenant].id },
     { kind: 'work acceptance number', value: WORK_ACCEPTANCE_FIXTURES[tenant].acceptanceNo },
     { kind: 'payment request id', value: PAYMENT_FIXTURES[tenant].id },

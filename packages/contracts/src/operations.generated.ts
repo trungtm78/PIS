@@ -605,6 +605,7 @@ export const OPERATIONS = {
   "listReconciliations": { method: "get", path: "/dgv/reconciliations", versioned: false, stepUp: null, permission: "data.quality.read" },
   "listRetentionHolds": { method: "get", path: "/contracts/{id}/retention-holds", versioned: false, stepUp: null, permission: "ledger.read" },
   "listRoutingPolicies": { method: "get", path: "/conversation-routing-policies", versioned: false, stepUp: null, permission: "omni.policy.manage" },
+  "listScorecardContractors": { method: "get", path: "/contractor-scorecards", versioned: false, stepUp: null, permission: "contractor.performance.read" },
   "listSourceMappings": { method: "get", path: "/dgv/source-mappings", versioned: false, stepUp: null, permission: "data.mapping.read" },
   "listSystemTenantExports": { method: "get", path: "/system/tenants/{tenantId}/exports", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "listSystemTenantLicenses": { method: "get", path: "/system/tenants/{tenantId}/licenses", versioned: false, stepUp: null, permission: "system.tenant.read" },

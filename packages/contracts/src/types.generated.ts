@@ -15292,6 +15292,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/contractor-scorecards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Nhà thầu có hợp đồng trong phạm vi của người đọc, để chọn bảng điểm cần xem (CTR-23) */
+        get: operations["listScorecardContractors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -22783,6 +22800,148 @@ export interface components {
             issue_types: {
                 code: string;
                 label: string;
+            }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        ContractorScorecard: {
+            contractor: {
+                /** Format: uuid */
+                id: string;
+                legal_name: string;
+            };
+            /** @description The contracts of the contractor that the caller reads, with what they may do on each */
+            contracts: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+                allowed: {
+                    evaluate: boolean;
+                    record_violation: boolean;
+                };
+            }[];
+            evaluations: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                contract_id: string;
+                contract_code: string;
+                /** @enum {string} */
+                evaluation_kind: "PERIODIC" | "COMPLETION" | "TERMINATION";
+                period_label: string;
+                revision: number;
+                scores: {
+                    quality: number;
+                    schedule: number;
+                    safety_env: number;
+                    cooperation: number;
+                    financial: number;
+                };
+                /** @description Weighted by the rule CTR.SCORECARD, two decimal places */
+                overall_score: string;
+                /** @enum {string} */
+                rating: "EXCELLENT" | "GOOD" | "FAIR" | "POOR";
+                /** @enum {string} */
+                status: "DRAFT" | "SUBMITTED" | "APPROVED" | "SUPERSEDED";
+                /** Format: uuid */
+                evaluated_by: string;
+                /** Format: uuid */
+                approved_by?: string | null;
+                /** Format: date-time */
+                approved_at?: string | null;
+                /** Format: uuid */
+                supersedes_id?: string | null;
+                remarks?: string | null;
+                approval_note?: string | null;
+                /** Format: date-time */
+                created_at: string;
+                allowed: {
+                    approve: boolean;
+                };
+                /** @description The If-Match of the approval */
+                version: number;
+            }[];
+            violations: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                contract_id: string;
+                contract_code: string;
+                /** @enum {string} */
+                violation_kind: "DELAY" | "QUALITY" | "SAFETY" | "ENVIRONMENT" | "FALSE_DOCUMENT" | "ABANDONMENT" | "OTHER";
+                /** @enum {string} */
+                severity: "MINOR" | "MAJOR" | "CRITICAL";
+                /** Format: date */
+                occurred_on: string;
+                description: string;
+                /** Format: uuid */
+                evidence_document_version_id?: string | null;
+                /** @enum {string} */
+                penalty_kind: "NONE" | "WARNING" | "LIQUIDATED_DAMAGES" | "TERMINATION" | "DEBARMENT_PROPOSAL";
+                penalty_amount_vnd: string;
+                /** Format: uuid */
+                decision_document_version_id?: string | null;
+                /** @enum {string} */
+                source_module: "CTR" | "QMS" | "PAY" | "ISS" | "AUD";
+                /** Format: uuid */
+                source_ref_id?: string | null;
+                /** @enum {string} */
+                status: "RECORDED" | "CONFIRMED" | "APPEALED" | "REVOKED";
+                /** Format: uuid */
+                recorded_by: string;
+                /** Format: date-time */
+                confirmed_at?: string | null;
+                /** Format: date-time */
+                created_at: string;
+                allowed: {
+                    confirm: boolean;
+                };
+                /** @description The If-Match of the confirmation */
+                version: number;
+            }[];
+            /** @description Counted over everything the caller reads in the range, not over the rows of the lists */
+            summary: {
+                approved_count: number;
+                /** @description Average of the approved evaluations that stand, two decimal places; none when there is no approved evaluation */
+                average_overall_score: string | null;
+                confirmed_violations: {
+                    MINOR: number;
+                    MAJOR: number;
+                    CRITICAL: number;
+                };
+                /** @description Every evaluation the caller reads in the range; the list holds at most 500 of them */
+                evaluation_count: number;
+                /** @description Every violation the caller reads in the range; the list holds at most 500 of them */
+                violation_count: number;
+            };
+            /** @description The rule CTR.SCORECARD the scores are weighted by; its thresholds await the signature of the business owner (R-CTR-05) */
+            rule: {
+                key: string;
+                weights_pct: {
+                    quality: number;
+                    schedule: number;
+                    safety_env: number;
+                    cooperation: number;
+                    financial: number;
+                };
+                thresholds: {
+                    min: number;
+                    /** @enum {string} */
+                    rating: "EXCELLENT" | "GOOD" | "FAIR" | "POOR";
+                }[];
+                awaiting_confirmation: boolean;
+            };
+            /** Format: date-time */
+            as_of: string;
+        };
+        ScorecardContractors: {
+            /** @description The contractors that hold a contract the caller reads, by name; at most 500 */
+            items: {
+                /** Format: uuid */
+                id: string;
+                legal_name: string;
+                contract_count: number;
             }[];
             /** Format: date-time */
             as_of: string;
@@ -74512,9 +74671,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ContractorScorecard"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -114880,6 +115037,80 @@ export interface operations {
                 };
             };
             /** @description Provider unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listScorecardContractors: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The contractors with a contract in the scope of the caller */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScorecardContractors"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;

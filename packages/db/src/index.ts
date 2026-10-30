@@ -498,6 +498,8 @@ export type { BoqImportMode, BoqImportRequest, BoqImportResult, BoqLineFilter, B
 export { ALERT_THRESHOLDS, CtrGuaranteeStore, GUARANTEE_KINDS, GUARANTEE_STATUSES, thresholdFor } from './ctr-guarantee-store.ts';
 export type { AlertThreshold, ExpiringRow, GuaranteeKind, GuaranteeMove, GuaranteeRow, GuaranteeStatus, GuaranteeVerification, GuaranteeVerificationStatus, GuaranteeExtension, GuaranteeRelease, NewGuarantee } from './ctr-guarantee-store.ts';
 export { CtrGuaranteeExpiry } from './ctr-guarantee-expiry.ts';
+export { APPROVE_PERMISSION as SCORECARD_APPROVE_PERMISSION, CONFIRM_PERMISSION as VIOLATION_CONFIRM_PERMISSION, CtrScorecardStore, EVALUATE_PERMISSION as SCORECARD_EVALUATE_PERMISSION, READ_PERMISSION as SCORECARD_READ_PERMISSION, RECORD_PERMISSION as VIOLATION_RECORD_PERMISSION } from './ctr-scorecard-store.ts';
+export type { EvaluationLine as ScorecardEvaluationLine, EvaluationResult as ScorecardEvaluationResult, Scorecard as ContractorScorecard, ScorecardContract, ScorecardRange, ViolationLine as ScorecardViolationLine, ViolationResult as ScorecardViolationResult } from './ctr-scorecard-store.ts';
 export { CtrRetentionDue } from './ctr-retention-due.ts';
 export type { RetentionDueResult } from './ctr-retention-due.ts';
 export { CtrRetentionStore } from './ctr-retention-store.ts';
