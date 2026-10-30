@@ -27,6 +27,13 @@ describe('renderTemplate', () => {
     expect(renderTemplate({ body: 'Plain' }, undefined, {})).toEqual({ text: 'Plain' });
   });
 
+  it('does not take what a plain object inherits for a value: a variable named constructor or toString that the event did not supply fails the render', () => {
+    const inherited = { properties: { constructor: {}, toString: {} } };
+    expect(() => renderTemplate({ body: '{{constructor}}' }, inherited, {})).toThrow(expect.objectContaining({ code: 'TEMPLATE_INVALID' }));
+    expect(() => renderTemplate({ body: '{{toString}}' }, inherited, {})).toThrow(expect.objectContaining({ code: 'TEMPLATE_INVALID' }));
+    expect(renderTemplate({ body: '{{constructor}}' }, inherited, { constructor: 'own' })).toEqual({ text: 'own' });
+  });
+
   it('fails the render, so nothing is sent half filled, when a placeholder is undeclared or unsupplied', () => {
     expect(() => renderTemplate({ body: '{{secret}}' }, schema, { secret: 'x' })).toThrow(DomainError);
     expect(() => renderTemplate({ body: '{{project}}' }, schema, {})).toThrow(expect.objectContaining({ code: 'TEMPLATE_INVALID' }));

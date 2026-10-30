@@ -1729,6 +1729,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listNotificationEventTypes({Map<String, Object?>? query}) =>
       execute('listNotificationEventTypes', query: query);
 
+  Future<Object?> listNotificationTestRecipients({Map<String, Object?>? query}) =>
+      execute('listNotificationTestRecipients', query: query);
+
   Future<Object?> listNotificationWorkflows({Map<String, Object?>? query}) =>
       execute('listNotificationWorkflows', query: query);
 
@@ -2586,6 +2589,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> setChannelLimits(ChannelLimits body, {required String channelAccountId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('setChannelLimits', path: <String, Object?>{'channelAccountId': channelAccountId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> setNotificationTestRecipients(NotificationTestRecipients body, {CommandAttempt? attempt}) =>
+      execute('setNotificationTestRecipients', body: body, attempt: attempt);
 
   Future<Object?> shareDashboard(BiShare body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('shareDashboard', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

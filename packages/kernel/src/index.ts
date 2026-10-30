@@ -524,3 +524,5 @@ export { DEFAULT_EXPORT_WINDOW_DAYS, EXPORT_LINK_TTL_MS, MANIFEST_SCHEMA_VERSION
 export type { ExportManifest, ExportScopeKind, ManifestFile, OffboardingInput } from './sas-offboarding.ts';
 export { CHALLENGE_TTL_DAYS, DOMAIN_RESERVATION_DAYS, RECHECK_EVERY_DAYS, TLS_LIFETIME_DAYS, TLS_RENEW_BEFORE_DAYS, assertHostnameAllowed, certificateEndsAt, challengeAnswered, challengeEndsAt, challengeRecordName, dueForRecheck, hashOf, isReserved, needsRenewal, newChallenge, normalizeHostname, reservedUntil } from './sas-domain.ts';
 export type { DomainKind } from './sas-domain.ts';
+export { PROVIDER_CHANNELS, RESTRICTED_CHANNELS, TEMPLATE_CHANNELS, TEMPLATE_LOCALES, TEMPLATE_PURPOSES, VARIABLE_CLASSIFICATIONS, VARIABLE_TYPES, assertTemplateAllowed, assertTemplateIdentity, declaredVariables, isPush, placeholdersOf, sampleVariablesOf } from './notification-template.ts';
+export type { TemplateChannel, TemplateInput, TemplateVariable, VariableClassification } from './notification-template.ts';

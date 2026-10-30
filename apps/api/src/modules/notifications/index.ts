@@ -14,6 +14,7 @@ import { ContactConsentReadsController, MyConsentsController } from '../../notif
 import { NotificationInstancesController, NotificationsController } from '../../notifications/notifications.controller';
 import { MyPreferencesController } from '../../notifications/preferences/preferences.controller';
 import { MyPreferencesReadController } from '../../notifications/preferences/preferences-read.controller';
+import { NotificationTemplatesController } from '../../notifications/templates/templates.controller';
 import { NotificationWorkflowsController } from '../../notifications/workflows/workflows.controller';
 import { ADM_INBOX_HANDLERS } from '../adm/tokens';
 import { defineModule } from '../module-descriptor';
@@ -38,6 +39,7 @@ export const notificationsModule = defineModule({
     MyConsentsController,
     ContactConsentReadsController,
     NotificationWorkflowsController,
+    NotificationTemplatesController,
   ],
   // The provider webhook finds its tenant through the control plane (the channel account of the receipt), so it is active only where the application has one.
   controlPlane: { controllers: [ChannelWebhookController] },

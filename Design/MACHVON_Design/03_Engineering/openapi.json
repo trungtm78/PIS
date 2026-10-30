@@ -22625,6 +22625,42 @@
         "x-permission": "notification_template_version.read",
         "parameters": [
           {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "InReview",
+                "PendingProvider",
+                "Active",
+                "Rejected",
+                "Retired"
+              ]
+            }
+          },
+          {
             "name": "cursor",
             "in": "query",
             "schema": {
@@ -22648,28 +22684,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/NotificationTemplateVersionPage"
                 }
               }
             }
@@ -22800,28 +22815,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/NotificationTemplateVersion"
                 }
               }
             }
@@ -63759,11 +63753,23 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "PROVIDER_UNAVAILABLE",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           }
         },
         "x-error-codes": [
           "TEST_RECIPIENT_NOT_ALLOWED",
-          "TEMPLATE_INVALID"
+          "TEMPLATE_INVALID",
+          "CHANNEL_ACCOUNT_UNKNOWN",
+          "PROVIDER_UNAVAILABLE"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -131121,6 +131127,168 @@
           }
         }
       }
+    },
+    "/notification-test-recipients": {
+      "get": {
+        "operationId": "listNotificationTestRecipients",
+        "summary": "Danh sách người được nhận tin gửi thử của tenant (NOT-08)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "notification.template.manage",
+        "x-plane": "tenant",
+        "x-error-codes": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationTestRecipients"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "setNotificationTestRecipients",
+        "summary": "Đặt danh sách người nhận tin gửi thử (tối đa 10 thành viên đang hoạt động) (NOT-08)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "notification.template.manage",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "Scope tenant+subject+operation+key; same key+same body replays the stored result; same key+different body -> 409 IDEMPOTENCY_CONFLICT; in-flight -> 409 IDEMPOTENCY_IN_PROGRESS."
+          }
+        ],
+        "x-error-codes": [
+          "TEST_RECIPIENT_NOT_ALLOWED"
+        ],
+        "x-plane": "tenant",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationTestRecipients"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Committed result (replayed on idempotent retry)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED / SIGNATURE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "IDEMPOTENCY_CONFLICT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "TEST_RECIPIENT_NOT_ALLOWED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-audit-action": "notification.test_recipients_set"
+      }
     }
   },
   "components": {
@@ -156894,6 +157062,155 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "NotificationTemplateVersion": {
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "channel",
+          "locale",
+          "revision",
+          "purpose",
+          "content_ast",
+          "variable_schema",
+          "lockscreen_safe",
+          "status",
+          "provider_status",
+          "created_by",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "IN_APP",
+              "EMAIL",
+              "SMS",
+              "PUSH_FCM",
+              "PUSH_APNS",
+              "ZALO_ZNS",
+              "ZALO_OA",
+              "WHATSAPP"
+            ]
+          },
+          "locale": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "content_ast": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "variable_schema": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "lockscreen_safe": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "InReview",
+              "PendingProvider",
+              "Active",
+              "Rejected",
+              "Retired"
+            ]
+          },
+          "provider_status": {
+            "type": "string",
+            "enum": [
+              "NOT_REQUIRED",
+              "PENDING_PROVIDER",
+              "PROVIDER_APPROVED",
+              "PROVIDER_REJECTED"
+            ]
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "approved_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "supersedes_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "NotificationTemplateVersionPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationTemplateVersion"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NotificationTestRecipients": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "membership_ids"
+        ],
+        "properties": {
+          "membership_ids": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The people a test message may be sent to (at most ten, Active members of the tenant)"
           }
         }
       }

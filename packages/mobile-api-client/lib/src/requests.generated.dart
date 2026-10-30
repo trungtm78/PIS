@@ -7558,6 +7558,19 @@ final class MneReportEdit implements RequestModel {
       };
 }
 
+final class NotificationTestRecipients implements RequestModel {
+  const NotificationTestRecipients({
+    required this.membershipIds,
+  });
+
+  final List<String> membershipIds;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_ids': membershipIds,
+      };
+}
+
 final class NotificationWorkflowDraft implements RequestModel {
   const NotificationWorkflowDraft({
     required this.eventType,

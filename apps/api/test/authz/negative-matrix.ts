@@ -17,6 +17,8 @@ export interface MatrixTargets {
   notificationId: string;
   /** The notification workflow in force of tenant A (kind NOTIFICATION): the publication names it in the path. */
   notificationWorkflowId: string;
+  /** A Draft template revision of tenant A: the review and the test send name it in the path. */
+  notificationTemplateId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
   consentId: string;
   /** An Active tenant-wide legal hold of tenant A. */
@@ -2628,6 +2630,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   post_notification_workflows_id_publish: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/notification-workflows/${t.notificationWorkflowId}/publish`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
+  },
+  createTemplateRevision: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/notification-templates', body: { code: 'matrix.template', channel: 'EMAIL', locale: 'vi-VN', purpose: 'OPERATIONAL', content_ast: { body: 'Hello' }, variable_schema: {} } }),
+  },
+  submitTemplateRevision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-templates/${t.notificationTemplateId}/submit`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  decideTemplateRevision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-templates/${t.notificationTemplateId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
+  },
+  sendTestNotification: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-templates/${t.notificationTemplateId}/test-sends`, body: { test_recipient_ids: [t.recipientMembershipId], sample_variables: {} } }),
+  },
+  setNotificationTestRecipients: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'PUT', path: '/notification-test-recipients', body: { membership_ids: [] } }),
   },
   updateMyNotificationPreferences: {
     referencesTenantIds: false,

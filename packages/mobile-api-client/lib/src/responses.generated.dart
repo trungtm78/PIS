@@ -339,8 +339,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_model_profile_version_id': GetResourcesModelProfileVersionIdResponse.fromJson,
   'get_resources_notification_instance': GetResourcesNotificationInstanceResponse.fromJson,
   'get_resources_notification_instance_id': GetResourcesNotificationInstanceIdResponse.fromJson,
-  'get_resources_notification_template_version': GetResourcesNotificationTemplateVersionResponse.fromJson,
-  'get_resources_notification_template_version_id': GetResourcesNotificationTemplateVersionIdResponse.fromJson,
+  'get_resources_notification_template_version': NotificationTemplateVersionPageResponse.fromJson,
+  'get_resources_notification_template_version_id': NotificationTemplateVersionResponse.fromJson,
   'get_resources_organization_unit': GetResourcesOrganizationUnitResponse.fromJson,
   'get_resources_organization_unit_id': GetResourcesOrganizationUnitIdResponse.fromJson,
   'get_resources_outbox_event': GetResourcesOutboxEventResponse.fromJson,
@@ -578,6 +578,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMyNotifications': NotificationPageResponse.fromJson,
   'listMySessions': ListMySessionsResponse.fromJson,
   'listNotificationEventTypes': NotificationEventTypePageResponse.fromJson,
+  'listNotificationTestRecipients': NotificationTestRecipientsResponse.fromJson,
   'listNotificationWorkflows': NotificationWorkflowPageResponse.fromJson,
   'listOutgoingDocuments': asObject,
   'listOverdueAdvances': asObject,
@@ -864,6 +865,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'sendTestNotification': CommandResultResponse.fromJson,
   'setChangeChainTiers': CommandResultResponse.fromJson,
   'setChannelLimits': CommandResultResponse.fromJson,
+  'setNotificationTestRecipients': CommandResultResponse.fromJson,
   'shareDashboard': CommandResultResponse.fromJson,
   'signAiEvalRun': CommandResultResponse.fromJson,
   'signOffEvaluationReport': CommandResultResponse.fromJson,
@@ -9512,82 +9514,6 @@ final class GetResourcesNotificationInstanceResponse implements ResponseModel {
       };
 }
 
-final class GetResourcesNotificationTemplateVersionIdResponse implements ResponseModel {
-  const GetResourcesNotificationTemplateVersionIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesNotificationTemplateVersionIdResponse.fromJson(Object? json, [String path = 'GetResourcesNotificationTemplateVersionIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesNotificationTemplateVersionIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesNotificationTemplateVersionResponse implements ResponseModel {
-  const GetResourcesNotificationTemplateVersionResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesNotificationTemplateVersionResponse.fromJson(Object? json, [String path = 'GetResourcesNotificationTemplateVersionResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesNotificationTemplateVersionResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
 final class GetResourcesOrganizationUnitIdResponse implements ResponseModel {
   const GetResourcesOrganizationUnitIdResponse({
     this.items,
@@ -13820,6 +13746,152 @@ final class NotificationPageResponseItemsItem implements ResponseModel {
         if (ackRequired != null) 'ack_required': ackRequired,
         if (acknowledgedAt != null) 'acknowledged_at': acknowledgedAt,
         if (resourceRef != null) 'resource_ref': resourceRef,
+        ...extra,
+      };
+}
+
+final class NotificationTemplateVersionPageResponse implements ResponseModel {
+  const NotificationTemplateVersionPageResponse({
+    required this.items,
+    required this.nextCursor,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory NotificationTemplateVersionPageResponse.fromJson(Object? json, [String path = 'NotificationTemplateVersionPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return NotificationTemplateVersionPageResponse(
+      items: requiredField(map, path, 'items', asList(NotificationTemplateVersionResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<NotificationTemplateVersionResponse> items;
+  final String? nextCursor;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class NotificationTemplateVersionResponse implements ResponseModel {
+  const NotificationTemplateVersionResponse({
+    required this.id,
+    required this.code,
+    required this.channel,
+    required this.locale,
+    required this.revision,
+    required this.purpose,
+    required this.contentAst,
+    required this.variableSchema,
+    required this.lockscreenSafe,
+    required this.status,
+    required this.providerStatus,
+    required this.createdBy,
+    required this.createdAt,
+    required this.version,
+    this.approvedBy,
+    this.supersedesId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory NotificationTemplateVersionResponse.fromJson(Object? json, [String path = 'NotificationTemplateVersionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return NotificationTemplateVersionResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      channel: requiredField(map, path, 'channel', asString),
+      locale: requiredField(map, path, 'locale', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      purpose: requiredField(map, path, 'purpose', asString),
+      contentAst: requiredField(map, path, 'content_ast', asObject),
+      variableSchema: requiredField(map, path, 'variable_schema', asObject),
+      lockscreenSafe: requiredField(map, path, 'lockscreen_safe', asBool),
+      status: requiredField(map, path, 'status', asString),
+      providerStatus: requiredField(map, path, 'provider_status', asString),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      approvedBy: optionalField(map, path, 'approved_by', nullable(asString)),
+      supersedesId: optionalField(map, path, 'supersedes_id', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'channel', 'locale', 'revision', 'purpose', 'content_ast', 'variable_schema', 'lockscreen_safe', 'status', 'provider_status', 'created_by', 'approved_by', 'supersedes_id', 'created_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String channel;
+  final String locale;
+  final int revision;
+  final String purpose;
+  final Map<String, Object?> contentAst;
+  final Map<String, Object?> variableSchema;
+  final bool lockscreenSafe;
+  final String status;
+  final String providerStatus;
+  final String createdBy;
+  final String? approvedBy;
+  final String? supersedesId;
+  final String createdAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'channel': channel,
+        'locale': locale,
+        'revision': revision,
+        'purpose': purpose,
+        'content_ast': contentAst,
+        'variable_schema': variableSchema,
+        'lockscreen_safe': lockscreenSafe,
+        'status': status,
+        'provider_status': providerStatus,
+        'created_by': createdBy,
+        if (approvedBy != null) 'approved_by': approvedBy,
+        if (supersedesId != null) 'supersedes_id': supersedesId,
+        'created_at': createdAt,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class NotificationTestRecipientsResponse implements ResponseModel {
+  const NotificationTestRecipientsResponse({
+    required this.membershipIds,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory NotificationTestRecipientsResponse.fromJson(Object? json, [String path = 'NotificationTestRecipientsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return NotificationTestRecipientsResponse(
+      membershipIds: requiredField(map, path, 'membership_ids', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'membership_ids'}, strict: true),
+    );
+  }
+
+  final List<String> membershipIds;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_ids': membershipIds,
         ...extra,
       };
 }

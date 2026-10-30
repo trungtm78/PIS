@@ -44,7 +44,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'UNIT_ADMIN', name: key('UNIT_ADMIN'), rank: 70, permissions: ['iam.member.*', 'iam.role.grant', 'iam.unit.manage'], guestAllowed: false },
   // PENDING SIGN-OFF: "read business records within scope" names no permission.
   { code: 'LEADER', name: key('LEADER'), rank: 60, permissions: ['approval.decide'], guestAllowed: false },
-  { code: 'NOTIFICATION_ADMIN', name: key('NOTIFICATION_ADMIN'), rank: 50, permissions: ['notification.*'], guestAllowed: false },
+  { code: 'NOTIFICATION_ADMIN', name: key('NOTIFICATION_ADMIN'), rank: 50, permissions: ['notification.*', 'notification_template_version.read'], guestAllowed: false },
   { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*'], guestAllowed: false },
   // PENDING SIGN-OFF: "appraise, return/accept" names no permission.
   { code: 'SPECIALIST', name: key('SPECIALIST'), rank: 40, permissions: [], guestAllowed: false },

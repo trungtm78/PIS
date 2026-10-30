@@ -98,7 +98,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   const LISTS_WITHOUT_ROWS: string[] = ['getAuditOverview', 'getCommandCenter', 'getDisbursementForecast', 'getDisbursementRates', 'getDocumentOverview', 'getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyProfile', 'getMyUsage'];
   // The capital available on a line or an appropriation names what it reads in its query (the line or the appropriation): it is not a list.
   // The drill of a figure names what it reads in a signed token of the member (another member's or another tenant's token is a 400 of its own, tested with the drill): it is not a list either.
-  const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability', 'getPaymentChain', 'explainHomeMetric', 'getDisbursementRankings', 'explainBiMetric']);
+  const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability', 'getPaymentChain', 'explainHomeMetric', 'getDisbursementRankings', 'explainBiMetric', 'listNotificationTestRecipients']);
 
   // The isolation suite reads one list (the organization units) as the other tenant. Every other list read is a place where a missing tenant
   // predicate would show the rows of another tenant, so each one is read here as TNT-A, and what comes back is judged by the markers of TNT-B.

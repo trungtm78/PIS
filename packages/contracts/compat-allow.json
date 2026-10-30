@@ -286,6 +286,41 @@
       "location": "snapshot_id",
       "reason": "the read of one invoice line is the line itself, not a page",
       "change_request": "ST-SAS-011"
+    },
+    {
+      "operation": "get_resources_notification_template_version",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the template reads were scaffolds with a generic page and no client; they now return the typed template revisions",
+      "change_request": "ST-NOT-005"
+    },
+    {
+      "operation": "get_resources_notification_template_version_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one template revision is the revision itself, not a page",
+      "change_request": "ST-NOT-005"
+    },
+    {
+      "operation": "get_resources_notification_template_version_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one template revision is the revision itself, not a page",
+      "change_request": "ST-NOT-005"
+    },
+    {
+      "operation": "get_resources_notification_template_version_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one template revision is the revision itself, not a page",
+      "change_request": "ST-NOT-005"
+    },
+    {
+      "operation": "get_resources_notification_template_version_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one template revision is the revision itself, not a page",
+      "change_request": "ST-NOT-005"
     }
   ]
 }

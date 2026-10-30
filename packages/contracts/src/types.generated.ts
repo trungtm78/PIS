@@ -15186,6 +15186,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notification-test-recipients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách người được nhận tin gửi thử của tenant (NOT-08) */
+        get: operations["listNotificationTestRecipients"];
+        /** Đặt danh sách người nhận tin gửi thử (tối đa 10 thành viên đang hoạt động) (NOT-08) */
+        put: operations["setNotificationTestRecipients"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -22178,6 +22196,46 @@ export interface components {
         NotificationWorkflowPage: {
             items: components["schemas"]["NotificationWorkflow"][];
             next_cursor: string | null;
+        };
+        NotificationTemplateVersion: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            /** @enum {string} */
+            channel: "IN_APP" | "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_ZNS" | "ZALO_OA" | "WHATSAPP";
+            locale: string;
+            revision: number;
+            purpose: string;
+            content_ast: {
+                [key: string]: unknown;
+            };
+            variable_schema: {
+                [key: string]: unknown;
+            };
+            lockscreen_safe: boolean;
+            /** @enum {string} */
+            status: "Draft" | "InReview" | "PendingProvider" | "Active" | "Rejected" | "Retired";
+            /** @enum {string} */
+            provider_status: "NOT_REQUIRED" | "PENDING_PROVIDER" | "PROVIDER_APPROVED" | "PROVIDER_REJECTED";
+            /** Format: uuid */
+            created_by: string;
+            /** Format: uuid */
+            approved_by?: string | null;
+            /** Format: uuid */
+            supersedes_id?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            version: number;
+        };
+        NotificationTemplateVersionPage: {
+            items: components["schemas"]["NotificationTemplateVersion"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of?: string;
+        };
+        NotificationTestRecipients: {
+            /** @description The people a test message may be sent to (at most ten, Active members of the tenant) */
+            membership_ids: string[];
         };
     };
     responses: never;
@@ -37753,6 +37811,10 @@ export interface operations {
     get_resources_notification_template_version: {
         parameters: {
             query?: {
+                code?: string;
+                channel?: string;
+                locale?: string;
+                status?: "Draft" | "InReview" | "PendingProvider" | "Active" | "Rejected" | "Retired";
                 cursor?: string;
                 limit?: number;
             };
@@ -37768,13 +37830,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["NotificationTemplateVersionPage"];
                 };
             };
             /** @description Invalid request */
@@ -37871,13 +37927,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["NotificationTemplateVersion"];
                 };
             };
             /** @description Invalid request */
@@ -66200,6 +66250,15 @@ export interface operations {
             };
             /** @description RATE_LIMIT */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description PROVIDER_UNAVAILABLE */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -113476,6 +113535,134 @@ export interface operations {
             };
             /** @description SCOPE_DENIED */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listNotificationTestRecipients: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationTestRecipients"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    setNotificationTestRecipients: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Scope tenant+subject+operation+key; same key+same body replays the stored result; same key+different body -> 409 IDEMPOTENCY_CONFLICT; in-flight -> 409 IDEMPOTENCY_IN_PROGRESS. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationTestRecipients"];
+            };
+        };
+        responses: {
+            /** @description Committed result (replayed on idempotent retry) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED / SIGNATURE_INVALID */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description IDEMPOTENCY_CONFLICT */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description TEST_RECIPIENT_NOT_ALLOWED */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

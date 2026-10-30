@@ -76,6 +76,8 @@ export type { BoundSession, OpenSessionInput, SessionAssurance, SessionRecord } 
 export { DEFAULT_MFA_REQUIRED_ROLES, loadSelectionFacts } from './tenant-selection.ts';
 export type { SelectionFacts } from './tenant-selection.ts';
 export { runInTransaction } from './tenant-database.ts';
+export { MAX_TEST_RECIPIENTS, NotificationTemplateStore } from './notification-template-store.ts';
+export type { NewNotificationTemplate, NotificationTemplateRecord, NotificationTemplateStatus } from './notification-template-store.ts';
 export { NotificationWorkflowStore } from './notification-workflow-store.ts';
 export type { EventTypeEntry, NotificationWorkflowRecord } from './notification-workflow-store.ts';
 export { NotificationStore } from './notification-store.ts';

@@ -27,7 +27,8 @@ export function variablesOf(payload: Record<string, unknown> | null): Record<str
 function substitute(text: string, declared: ReadonlySet<string>, variables: Readonly<Record<string, string>>): string {
   return text.replace(PLACEHOLDER, (_whole, name: string) => {
     // A placeholder the template did not declare, or one the event did not supply, is a broken message: it is not sent half filled.
-    const value = declared.has(name) ? variables[name] : undefined;
+    // Own values only: a variable named constructor or toString is not the function a plain object inherits.
+    const value = declared.has(name) && Object.hasOwn(variables, name) ? variables[name] : undefined;
     if (value === undefined) throw new DomainError('TEMPLATE_INVALID', 422, 'variable');
     return value;
   });
