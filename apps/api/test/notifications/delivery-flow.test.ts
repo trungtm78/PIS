@@ -2,14 +2,18 @@ import { createHmac, randomUUID } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { enqueueOutbox } from '@machvon/db';
+import { WORKER_MEMBERSHIP_ID, enqueueOutbox } from '@machvon/db';
+import type { IntegrationInboxProcessor } from '@machvon/db';
 import { Client } from 'pg';
 import { InMemorySpanExporter } from '@machvon/kernel';
 import { bootstrap } from '../../src/bootstrap';
 import type { RunningApi } from '../../src/bootstrap';
 import { createAlertSink } from '../../src/alerts/alert-sinks';
+import { ADM_INBOX_PROCESSOR } from '../../src/modules/adm/tokens';
 import { CHANNEL_ADAPTERS } from '../../src/notifications/delivery/channel-adapters';
 import type { ChannelAdapterRegistry, InMemoryChannelAdapter } from '../../src/notifications/delivery/channel-adapters';
+import { WEBHOOK_PAYLOADS } from '../../src/notifications/delivery/webhook-support';
+import type { WebhookPayloadStore } from '../../src/notifications/delivery/webhook-support';
 import { TENANT_A, contextFor, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { READER, startBootstrapFixture } from '../support/bootstrap-fixture';
 import type { BootstrapFixture } from '../support/bootstrap-fixture';
@@ -25,7 +29,7 @@ const PROVIDER = 'smtp-relay';
 const TICK = 5_000;
 const RECONCILE_TICK = 300_000;
 const TEST_TIMEOUT = 90_000;
-const PERMISSIONS = ['organization_unit.read', 'iam.unit.manage', 'delivery_attempt.read', 'omni.channel.manage', 'channel_account.read'];
+const PERMISSIONS = ['organization_unit.read', 'iam.unit.manage', 'delivery_attempt.read', 'omni.channel.manage', 'channel_account.read', 'adm.integration.operate'];
 
 interface Reply {
   status: number;
@@ -326,7 +330,7 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect(notification?.status).toBe('Delivered');
   }, TEST_TIMEOUT);
 
-  it('AC-ST-OMNI-004-1 UAT-AC24: a signed message that a person wrote to the account opens a conversation with a contact, once however often the provider sends it, and a stop word ends the consents', async () => {
+  it('AC-ST-OMNI-004-1 UAT-AC196: a signed message that a person wrote to the account opens a conversation with a contact, once however often the provider sends it, and a stop word ends the consents', async () => {
     const { api } = await start();
     const inbound = (id: string, message: string, text: string): Record<string, unknown> => ({
       id,
@@ -362,6 +366,38 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect((await rows<{ status: string }>('select status from machvon.contact_consent where contact_id = $1', [opened?.contact_id]))[0]?.status).toBe('Withdrawn');
     expect((await rows<{ n: string }>("select count(*)::text as n from machvon.audit_event where action = 'contact_consent.withdrawn' and safe_diff ->> 'by' = 'stop_keyword'"))[0]?.n).toBe('1');
     expect((await conversations()).length).toBe(1);
+  }, TEST_TIMEOUT);
+
+  it('AC-ST-OMNI-004-2 UAT-AC138: a message event that failed because the account was not Active is replayed to PROCESSED once, and a second replay is 409 INBOX_STATE_INVALID', async () => {
+    const { api } = await start();
+    const worker = { tenantId: TENANT_A, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 };
+    const body = Buffer.from(JSON.stringify({ id: 'e-replay-1', account: 'relay-1', type: 'message.inbound', at: new Date().toISOString(), inbound: { message: 'replay-1', thread: 'thread-replay', from: 'replay@example.com', name: 'Replay', text: 'Xin chào' } }));
+    const reference = await api.app.get<WebhookPayloadStore>(WEBHOOK_PAYLOADS, { strict: false }).put(worker, PROVIDER, 'e-replay-1', body);
+    const [row] = await rows<{ id: string }>(
+      `insert into machvon.integration_event_inbox (tenant_id, id, provider, event_key, payload_hash, payload_reference, received_at, status, signature_key_id, provider_event_type, channel_account_id)
+       values ($1, gen_random_uuid(), $2, 'e-replay-1', repeat('d', 64), $3, now(), 'RECEIVED', 'k1', 'message.inbound', $4) returning id`,
+      [TENANT_A, PROVIDER, reference, ACCOUNT],
+    );
+    // The provider's credential expired between the receipt and the processing: the message waits as a failure for an operator.
+    await rows("update machvon.channel_account set status = 'CredentialExpired' where id = $1", [ACCOUNT]);
+    await api.app.get<IntegrationInboxProcessor>(ADM_INBOX_PROCESSOR, { strict: false }).processOne(worker, row?.id as string);
+    const [failed] = await rows<{ status: string; error_code: string; version: string }>('select status, error_code, version::text as version from machvon.integration_event_inbox where id = $1', [row?.id]);
+    expect(failed).toMatchObject({ status: 'FAILED', error_code: 'CHANNEL_ACCOUNT_STATE_INVALID' });
+    expect((await rows('select 1 from machvon.conversation where external_thread_id = $1', ['thread-replay'])).length).toBe(0);
+    await rows("update machvon.channel_account set status = 'Active' where id = $1", [ACCOUNT]);
+    const replay = (version: string): Promise<Response> =>
+      fetch(`http://127.0.0.1:${api.port}/integration-inbox/${row?.id}/replay`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${fixture.token}`, 'content-type': 'application/json', 'idempotency-key': randomUUID(), 'if-match': `"${version}"` },
+        body: JSON.stringify({ reason: 'The credential of the account was renewed.' }),
+      });
+    expect((await replay(failed?.version as string)).status).toBe(202);
+    await until(async () => (await rows<{ status: string }>('select status from machvon.integration_event_inbox where id = $1', [row?.id]))[0]?.status === 'PROCESSED', 'the replayed message to be processed');
+    expect((await rows<{ n: string }>('select count(*)::text as n from machvon.channel_message m join machvon.conversation c on c.id = m.conversation_id where c.external_thread_id = $1', ['thread-replay']))[0]?.n).toBe('1');
+    const [done] = await rows<{ version: string }>('select version::text as version from machvon.integration_event_inbox where id = $1', [row?.id]);
+    const again = await replay(done?.version as string);
+    expect(again.status).toBe(409);
+    expect(((await again.json()) as { code: string }).code).toBe('INBOX_STATE_INVALID');
   }, TEST_TIMEOUT);
 
   it('AC-ST-OMNI-001-3 UAT-PLAN-50: once the supervisor disables the account, a webhook for it is 404 CHANNEL_ACCOUNT_UNKNOWN', async () => {

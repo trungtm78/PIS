@@ -138,7 +138,7 @@ describe('the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMN
   }, 60_000);
 
   describe('a message that comes in', () => {
-    it('AC-ST-OMNI-004-1 UAT-AC24: from someone the tenant does not know, opens a New conversation with a new contact, whose identity the provider vouches for on WhatsApp, with a window of 24 hours', async () => {
+    it('from someone the tenant does not know, opens a New conversation with a new contact, whose identity the provider vouches for on WhatsApp, with a window of 24 hours', async () => {
       const outcome = received(await inbound(whatsappAccount, { sender: { externalId: '84912345678', displayName: 'Trần Văn Nam' }, text: 'Xin chào' }));
       expect(outcome).toMatchObject({ created: true, reopened: false, newContact: true, withdrawn: [] });
       const row = await conversation(outcome.conversationId);
@@ -163,7 +163,7 @@ describe('the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMN
       expect((await rows<{ status: string }>('select status from machvon.contact_identity where contact_id = $1', [row?.contact_id]))[0]?.status).toBe('Pending');
     });
 
-    it('is one message when the provider sends it twice, and the second message of a thread goes into the same conversation, the later of the two deciding the window', async () => {
+    it('AC-ST-OMNI-004-1 UAT-AC196: is one message when the provider sends it twice, and the second message of a thread goes into the same conversation, the later of the two deciding the window', async () => {
       const first = received(await inbound(whatsappAccount, { providerMessageId: 'dup-1', externalThreadId: 'thread-dup', sender: { externalId: '84900000001', displayName: 'A' } }));
       expect(await inbound(whatsappAccount, { providerMessageId: 'dup-1', externalThreadId: 'thread-dup', sender: { externalId: '84900000001', displayName: 'A' } })).toEqual({ kind: 'DUPLICATE', conversationId: first.conversationId });
       const second = received(await inbound(whatsappAccount, { providerMessageId: 'dup-2', externalThreadId: 'thread-dup', sender: { externalId: '84900000001', displayName: 'A' }, occurredAt: new Date('2026-10-30T05:00:00.000Z') }));
@@ -206,7 +206,7 @@ describe('the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMN
       await expect(inbound(randomUUID())).rejects.toMatchObject({ code: 'CHANNEL_ACCOUNT_UNKNOWN' });
     });
 
-    it('AC-ST-OMNI-004-2 UAT-AC25: a message that is only STOP ends every consent of the contact on that channel, and a sentence with the word in it ends none', async () => {
+    it('a message that is only STOP ends every consent of the contact on that channel, and a sentence with the word in it ends none', async () => {
       const first = received(await inbound(smsAccount, { externalThreadId: 'thread-stop', sender: { externalId: '0987000111', displayName: 'D' } }));
       const [row] = await rows<{ contact_id: string }>('select contact_id from machvon.conversation where id = $1', [first.conversationId]);
       // The number is verified by a document, then two consents are taken on SMS and one on e-mail.
@@ -293,7 +293,7 @@ describe('the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMN
       return { id: made.conversationId, version: Number((await conversation(made.conversationId))?.version) };
     }
 
-    it('AC-ST-OMNI-004-3 UAT-AC26: a supervisor gives a New conversation to an agent: it is Assigned, with the moment, one trail row and one event', async () => {
+    it('a supervisor gives a New conversation to an agent: it is Assigned, with the moment, one trail row and one event', async () => {
       const target = await fresh();
       const done = await assign(target.id, AGENT, target.version, SUPERVISOR, 'The queue of the whole tenant');
       expect(done.status).toBe(200);
@@ -326,7 +326,7 @@ describe('the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMN
       expect((await assign(target.id, AGENT, target.version)).json.code).toBe('VERSION_CONFLICT');
     });
 
-    it('is 422 ASSIGNEE_NOT_ELIGIBLE for a member who may not answer, or answers elsewhere, and is a queue of a unit: only the members whose scope holds it', async () => {
+    it('AC-ST-OMNI-004-3 UAT-PLAN-51: is 422 ASSIGNEE_NOT_ELIGIBLE for a member who may not answer, or answers elsewhere, and is a queue of a unit: only the members whose scope holds it', async () => {
       const target = await fresh(1);
       // No grant at all; a member who answers in another unit only; a member who has the permission to assign but not to answer.
       for (const member of [NOBODY, OTHER_UNIT_AGENT, UNIT_SUPERVISOR]) {
@@ -413,7 +413,7 @@ describe('the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMN
   });
 
   describe('what is read', () => {
-    it('AC-ST-OMNI-004-4: shows a reader the conversations of the queues in their scope and those assigned to them, and a supervisor of the tenant all of them', async () => {
+    it('shows a reader the conversations of the queues in their scope and those assigned to them, and a supervisor of the tenant all of them', async () => {
       const inUnit1 = received(await inbound(emailAccount));
       const inUnit2 = received(await inbound(emailAccount));
       const unqueued = received(await inbound(emailAccount));

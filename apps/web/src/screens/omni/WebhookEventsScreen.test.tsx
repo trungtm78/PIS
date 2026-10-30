@@ -44,7 +44,7 @@ const row = async (id: string): Promise<HTMLElement> =>
   })) as HTMLElement;
 
 describe('OMNI-11 the webhook events and their reconciliation (UI-OMNI-11)', () => {
-  it('UI-OMNI-11: shows the events of the channel accounts only, with the provider, the key, the signature, when they came, the state, the attempts and the error', async () => {
+  it('AC-ST-OMNI-004-4 UI-OMNI-11: shows the events of the channel accounts only, with the provider, the key, the signature, when they came, the state, the attempts and the error', async () => {
     open(READER, () => [
       event(),
       event({ id: 'event-2', event_key: 'evt-101', status: 'FAILED', attempts: 3, error_code: 'PROVIDER_DOWN' }),

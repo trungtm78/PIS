@@ -65,7 +65,7 @@ const row = async (id = 'conversation-1'): Promise<HTMLElement> =>
   })) as HTMLElement;
 
 describe('OMNI-01 the unified inbox (UI-OMNI-01)', () => {
-  it('AC-ST-OMNI-004-4 UI-OMNI-01: shows each conversation with its channel, contact, state, assignee, queue, deadline and window', async () => {
+  it('UI-OMNI-01: shows each conversation with its channel, contact, state, assignee, queue, deadline and window', async () => {
     open(SUPERVISOR, {
       list: () =>
         page([
@@ -136,7 +136,7 @@ describe('OMNI-01 the unified inbox (UI-OMNI-01)', () => {
     expect(screen.queryByRole('button', { name: vi_['omni.inbox.more.action'] })).toBeNull();
   });
 
-  it('AC-ST-OMNI-004-3 UI-OMNI-01: gives a conversation to a member of the list read for it, with the version it read and an optional reason, and says it was done', async () => {
+  it('UI-OMNI-01: gives a conversation to a member of the list read for it, with the version it read and an optional reason, and says it was done', async () => {
     const { h } = open(SUPERVISOR, { command: () => ({ operation_id: 'o', status: 'ASSIGNED', resource_version: 3, resource_id: 'conversation-1' }) });
     const first = await row();
     fireEvent.click(within(first).getByRole('button', { name: vi_['omni.inbox.assign.aria'].replace('{name}', 'Trần Văn Nam') }));
