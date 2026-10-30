@@ -2637,6 +2637,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/sync/batches', body: { device_id: '00000000-0000-4000-8000-0000000000a1', items: [{ idempotency_key: 'matrix-sync-key-000001', command_type: 'issue.create', base_server_version: 0, payload: {} }] } }),
   },
+  post_sync_attachments: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/sync/attachments', body: { device_id: '00000000-0000-4000-8000-0000000000a1', sha256: 'a'.repeat(64), size_bytes: 1024, mime: 'image/jpeg' } }),
+  },
+  post_sync_attachments_id_complete: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/sync/attachments/00000000-0000-4000-8000-0000000000a2/complete', body: { sha256: 'a'.repeat(64) } }),
+  },
   registerDevice: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/devices', body: { device_public_id: 'matrix-device-public-0001', platform: 'android', push_token: 'matrix-push-token', permission_state: 'granted', app_version: '1.0.0' } }),

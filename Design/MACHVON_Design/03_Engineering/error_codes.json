@@ -397,6 +397,30 @@
       "statusBasis": "spec",
       "source": "spec:DGV"
     },
+    "ATTACHMENT_CHUNKS_MISSING": {
+      "status": 409,
+      "title": "Attachment chunks missing",
+      "meaning": "Hoàn tất khi chưa đủ khối → 409 ATTACHMENT_CHUNKS_MISSING.",
+      "module": "MOB",
+      "statusBasis": "spec",
+      "source": "spec:MOB"
+    },
+    "ATTACHMENT_NOT_CLEAN": {
+      "status": 409,
+      "title": "Attachment not clean",
+      "meaning": "Tệp chưa quét xong hoặc bị nhiễm không được liên kết vào hồ sơ → 409 ATTACHMENT_NOT_CLEAN (BR-MOB-03).",
+      "module": "MOB",
+      "statusBasis": "spec",
+      "source": "spec:MOB"
+    },
+    "ATTACHMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Attachment state invalid",
+      "meaning": "Gửi khối hoặc hoàn tất cho tệp không còn ở trạng thái UPLOADING → 409 ATTACHMENT_STATE_INVALID.",
+      "module": "MOB",
+      "statusBasis": "spec",
+      "source": "spec:MOB"
+    },
     "AVC_BLOCKED": {
       "status": 422,
       "title": "Avc blocked",
@@ -700,6 +724,14 @@
       "module": "QMS",
       "statusBasis": "spec",
       "source": "spec:QMS"
+    },
+    "CHECKSUM_MISMATCH": {
+      "status": 422,
+      "title": "Checksum mismatch",
+      "meaning": "Kích thước hoặc SHA-256 của tệp ghép lại khác khai báo → 422 CHECKSUM_MISMATCH; các khối bị bỏ để gửi lại.",
+      "module": "MOB",
+      "statusBasis": "spec",
+      "source": "spec:MOB"
     },
     "CHILD_EXCEEDS_PARENT": {
       "status": 422,

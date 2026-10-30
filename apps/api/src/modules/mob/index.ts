@@ -1,5 +1,6 @@
 import { HttpSyncOperationInvoker, SYNC_OPERATION_INVOKER } from '../../sync/operation-invoker';
 import { BatchSlots, SYNC_BATCH_SLOTS, SyncSlotGuard, SyncSlotInterceptor } from '../../sync/batch-slots';
+import { SyncAttachmentsController } from '../../sync/attachments.controller';
 import { SyncController } from '../../sync/sync.controller';
 import { defineModule } from '../module-descriptor';
 
@@ -9,7 +10,7 @@ import { defineModule } from '../module-descriptor';
  */
 export const mobModule = defineModule({
   code: 'MOB',
-  controllers: [SyncController],
+  controllers: [SyncController, SyncAttachmentsController],
   providers: [
     { provide: SYNC_OPERATION_INVOKER, useClass: HttpSyncOperationInvoker },
     // A batch holds a database connection while its commands, each needing one, are carried out: few batches at once (SYNC_MAX_CONCURRENT_BATCHES, 3 for a pool of 10; keep it under half the pool).

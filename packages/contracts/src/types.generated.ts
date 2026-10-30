@@ -15204,6 +15204,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sync/attachments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trạng thái của một tệp đang tải lên theo khối: các khối đã nhận và liên kết mới cho các khối còn thiếu */
+        get: operations["get_sync_attachments_id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -22301,6 +22318,48 @@ export interface components {
             next_cursor: string | null;
             /** Format: date-time */
             as_of?: string;
+        };
+        SyncAttachmentStarted: {
+            operation_id: string;
+            /** @enum {string} */
+            status: "UPLOADING";
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** @description Every chunk has this size but the last, which is what is left */
+            chunk_bytes: number;
+            chunk_count: number;
+            /**
+             * Format: date-time
+             * @description When the links of `chunks` stop working; ask again for the missing ones
+             */
+            expires_at: string;
+            chunks: {
+                index: number;
+                /** @description Where to PUT the bytes of this chunk: signed for this chunk and the tenant, valid for a few minutes */
+                url: string;
+            }[];
+        };
+        SyncAttachmentStatus: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "UPLOADING" | "SCANNING" | "CLEAN" | "INFECTED";
+            size_bytes: number;
+            chunk_bytes: number;
+            chunk_count: number;
+            /** @description The chunks the server holds: an interrupted upload does not send them again */
+            received: number[];
+            /** @description Why the file was refused (FILE_INFECTED) */
+            reason?: string | null;
+            /** Format: date-time */
+            expires_at?: string | null;
+            /** @description Fresh links for the chunks still to send; empty once the file is no longer being uploaded */
+            chunks: {
+                index: number;
+                /** @description Where to PUT the bytes of this chunk: signed for this chunk and the tenant, valid for a few minutes */
+                url: string;
+            }[];
         };
     };
     responses: never;
@@ -69721,7 +69780,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["SyncAttachmentStarted"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -69794,8 +69853,6 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
-                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
-                "If-Match"?: string;
             };
             path: {
                 id: string;
@@ -113713,6 +113770,91 @@ export interface operations {
                 };
             };
             /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    get_sync_attachments_id: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncAttachmentStatus"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure (period locked, license expired) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limited */
             429: {
                 headers: {
                     [name: string]: unknown;

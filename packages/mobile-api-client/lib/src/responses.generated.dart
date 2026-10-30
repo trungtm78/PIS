@@ -415,6 +415,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_workflow_instance_id': GetResourcesWorkflowInstanceIdResponse.fromJson,
   'get_resources_workflow_version': GetResourcesWorkflowVersionResponse.fromJson,
   'get_resources_workflow_version_id': GetResourcesWorkflowVersionIdResponse.fromJson,
+  'get_sync_attachments_id': SyncAttachmentStatusResponse.fromJson,
   'get_sync_commands_key': SyncCommandStatusResponse.fromJson,
   'getAdvanceRecoveryPlan': PayAdvanceRecoveryPlanResponse.fromJson,
   'getAiRequestRoute': LlmRouteDecisionResponse.fromJson,
@@ -659,7 +660,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'post_reports_id_submit': DisReportSubmitResultResponse.fromJson,
   'post_settlements_id_close': CommandResultResponse.fromJson,
   'post_support_access_id_approve': CommandResultResponse.fromJson,
-  'post_sync_attachments': CommandResultResponse.fromJson,
+  'post_sync_attachments': SyncAttachmentStartedResponse.fromJson,
   'post_sync_attachments_id_complete': CommandResultResponse.fromJson,
   'post_sync_batches': SyncBatchResultResponse.fromJson,
   'post_tenants_id_export': CommandResultResponse.fromJson,
@@ -18258,6 +18259,178 @@ final class SupportTokenResponse implements ResponseModel {
         'token_type': tokenType,
         'expires_in': expiresIn,
         'grant_id': grantId,
+        ...extra,
+      };
+}
+
+final class SyncAttachmentStartedResponse implements ResponseModel {
+  const SyncAttachmentStartedResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.chunkBytes,
+    required this.chunkCount,
+    required this.expiresAt,
+    required this.chunks,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SyncAttachmentStartedResponse.fromJson(Object? json, [String path = 'SyncAttachmentStartedResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SyncAttachmentStartedResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      chunkBytes: requiredField(map, path, 'chunk_bytes', asInt),
+      chunkCount: requiredField(map, path, 'chunk_count', asInt),
+      expiresAt: requiredField(map, path, 'expires_at', asString),
+      chunks: requiredField(map, path, 'chunks', asList(SyncAttachmentStartedResponseChunksItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'chunk_bytes', 'chunk_count', 'expires_at', 'chunks'}, strict: false),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final int chunkBytes;
+  final int chunkCount;
+  final String expiresAt;
+  final List<SyncAttachmentStartedResponseChunksItem> chunks;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'chunk_bytes': chunkBytes,
+        'chunk_count': chunkCount,
+        'expires_at': expiresAt,
+        'chunks': chunks.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class SyncAttachmentStartedResponseChunksItem implements ResponseModel {
+  const SyncAttachmentStartedResponseChunksItem({
+    required this.index,
+    required this.url,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SyncAttachmentStartedResponseChunksItem.fromJson(Object? json, [String path = 'SyncAttachmentStartedResponseChunksItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SyncAttachmentStartedResponseChunksItem(
+      index: requiredField(map, path, 'index', asInt),
+      url: requiredField(map, path, 'url', asString),
+      extra: unknownFields(map, path, const <String>{'index', 'url'}, strict: false),
+    );
+  }
+
+  final int index;
+  final String url;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'index': index,
+        'url': url,
+        ...extra,
+      };
+}
+
+final class SyncAttachmentStatusResponse implements ResponseModel {
+  const SyncAttachmentStatusResponse({
+    required this.id,
+    required this.status,
+    required this.sizeBytes,
+    required this.chunkBytes,
+    required this.chunkCount,
+    required this.received,
+    required this.chunks,
+    this.reason,
+    this.expiresAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SyncAttachmentStatusResponse.fromJson(Object? json, [String path = 'SyncAttachmentStatusResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SyncAttachmentStatusResponse(
+      id: requiredField(map, path, 'id', asString),
+      status: requiredField(map, path, 'status', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      chunkBytes: requiredField(map, path, 'chunk_bytes', asInt),
+      chunkCount: requiredField(map, path, 'chunk_count', asInt),
+      received: requiredField(map, path, 'received', asList(asInt)),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      expiresAt: optionalField(map, path, 'expires_at', nullable(asString)),
+      chunks: requiredField(map, path, 'chunks', asList(SyncAttachmentStatusResponseChunksItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'status', 'size_bytes', 'chunk_bytes', 'chunk_count', 'received', 'reason', 'expires_at', 'chunks'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String status;
+  final int sizeBytes;
+  final int chunkBytes;
+  final int chunkCount;
+  final List<int> received;
+  final String? reason;
+  final String? expiresAt;
+  final List<SyncAttachmentStatusResponseChunksItem> chunks;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'status': status,
+        'size_bytes': sizeBytes,
+        'chunk_bytes': chunkBytes,
+        'chunk_count': chunkCount,
+        'received': received,
+        if (reason != null) 'reason': reason,
+        if (expiresAt != null) 'expires_at': expiresAt,
+        'chunks': chunks.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class SyncAttachmentStatusResponseChunksItem implements ResponseModel {
+  const SyncAttachmentStatusResponseChunksItem({
+    required this.index,
+    required this.url,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SyncAttachmentStatusResponseChunksItem.fromJson(Object? json, [String path = 'SyncAttachmentStatusResponseChunksItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SyncAttachmentStatusResponseChunksItem(
+      index: requiredField(map, path, 'index', asInt),
+      url: requiredField(map, path, 'url', asString),
+      extra: unknownFields(map, path, const <String>{'index', 'url'}, strict: false),
+    );
+  }
+
+  final int index;
+  final String url;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'index': index,
+        'url': url,
         ...extra,
       };
 }

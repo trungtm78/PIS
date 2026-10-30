@@ -1450,6 +1450,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesWorkflowVersionId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_workflow_version_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getSyncAttachmentsId({required String id, Map<String, Object?>? query}) =>
+      execute('get_sync_attachments_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getSyncCommandsKey({required String idempotencyKey, Map<String, Object?>? query}) =>
       execute('get_sync_commands_key', path: <String, Object?>{'idempotencyKey': idempotencyKey}, query: query);
 

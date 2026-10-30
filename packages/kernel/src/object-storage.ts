@@ -112,7 +112,7 @@ export function verifyUrl(grant: PresignedGrant, secret: Uint8Array | string, no
   return secondsOf(now) >= grant.expires ? 'EXPIRED' : 'OK';
 }
 
-export type UploadPurpose = 'document' | 'logo' | 'import' | 'audit_export' | 'report_export' | 'site_photo';
+export type UploadPurpose = 'document' | 'logo' | 'import' | 'audit_export' | 'report_export' | 'site_photo' | 'sync_attachment';
 
 interface TypeRule {
   /** Whether the first bytes are a signature of this type. */
@@ -173,6 +173,8 @@ export const UPLOAD_PURPOSES: Readonly<Record<UploadPurpose, { allowed: readonly
   report_export: { allowed: ['text/csv', SPREADSHEET, 'application/pdf'], maxBytes: 64 * MEBIBYTE },
   // A photo of the site (ST-QMS-003): an image and nothing else; the register reads it, and a photo is not an office file.
   site_photo: { allowed: IMAGES, maxBytes: 15 * MEBIBYTE },
+  // An attachment a phone uploads in chunks (ST-MOB-009): a photo or a PDF, up to 50 MiB.
+  sync_attachment: { allowed: ['image/jpeg', 'image/png', 'application/pdf'], maxBytes: 50 * MEBIBYTE },
 };
 
 export type UploadVerdict = { ok: true; contentType: string } | { ok: false; code: 'FILE_TYPE_NOT_ALLOWED' | 'PAYLOAD_TOO_LARGE'; status: 422 | 413 };

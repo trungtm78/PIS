@@ -34,6 +34,8 @@
     "createTemplateRevision",
     "registerDevice",
     "post_sync_batches",
+    "post_sync_attachments",
+    "post_sync_attachments_id_complete",
     "connectChannelAccount",
     "verifyChannelAccount",
     "updateChannelAccount",

@@ -417,9 +417,9 @@ export const SOURCE_FIXTURES: Readonly<Record<TenantName, { mappingId: string; s
 };
 
 /** A live session and a live device of the member of each tenant (their ids are distinctive; tenant data). */
-export const SELF_FIXTURES: Readonly<Record<TenantName, { sessionId: string; deviceId: string; devicePublicId: string }>> = {
-  'TNT-A': { sessionId: '00000000-0000-4000-a0d5-000000000001', deviceId: '00000000-0000-4000-a0d5-000000000002', devicePublicId: 'alpha-device-public-0001' },
-  'TNT-B': { sessionId: '00000000-0000-4000-b0d5-000000000001', deviceId: '00000000-0000-4000-b0d5-000000000002', devicePublicId: 'beta-device-public-0001' },
+export const SELF_FIXTURES: Readonly<Record<TenantName, { sessionId: string; deviceId: string; devicePublicId: string; attachmentId: string }>> = {
+  'TNT-A': { sessionId: '00000000-0000-4000-a0d5-000000000001', deviceId: '00000000-0000-4000-a0d5-000000000002', devicePublicId: 'alpha-device-public-0001', attachmentId: '00000000-0000-4000-a0d5-000000000003' },
+  'TNT-B': { sessionId: '00000000-0000-4000-b0d5-000000000001', deviceId: '00000000-0000-4000-b0d5-000000000002', devicePublicId: 'beta-device-public-0001', attachmentId: '00000000-0000-4000-b0d5-000000000003' },
 };
 
 /** A published workflow definition, a running instance of it and a pending task of the instance (their ids and business type are distinctive; tenant data). */
@@ -1229,6 +1229,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'batch reference', value: SOURCE_FIXTURES[tenant].batchRef },
     { kind: 'session id', value: SELF_FIXTURES[tenant].sessionId },
     { kind: 'device id', value: SELF_FIXTURES[tenant].deviceId },
+    { kind: 'upload id', value: SELF_FIXTURES[tenant].attachmentId },
     { kind: 'device public id', value: SELF_FIXTURES[tenant].devicePublicId },
     { kind: 'workflow version id', value: WORKFLOW_FIXTURES[tenant].versionId },
     { kind: 'workflow instance id', value: WORKFLOW_FIXTURES[tenant].instanceId },

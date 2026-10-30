@@ -484,6 +484,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'get_resources_workflow_instance_id': OperationDescriptor(method: 'GET', path: '/resources/workflow_instance/{id}', versioned: false, stepUp: null, permission: 'workflow_instance.read'),
   'get_resources_workflow_version': OperationDescriptor(method: 'GET', path: '/resources/workflow_version', versioned: false, stepUp: null, permission: 'workflow_version.read'),
   'get_resources_workflow_version_id': OperationDescriptor(method: 'GET', path: '/resources/workflow_version/{id}', versioned: false, stepUp: null, permission: 'workflow_version.read'),
+  'get_sync_attachments_id': OperationDescriptor(method: 'GET', path: '/sync/attachments/{id}', versioned: false, stepUp: null, permission: 'sync.upload'),
   'get_sync_commands_key': OperationDescriptor(method: 'GET', path: '/sync/commands/{idempotencyKey}', versioned: false, stepUp: null, permission: 'sync.submit'),
   'grantMyConsent': OperationDescriptor(method: 'POST', path: '/me/consents', versioned: false, stepUp: null, permission: 'notification.self'),
   'grantPermitGateWaiver': OperationDescriptor(method: 'POST', path: '/permit-gate-waivers', versioned: false, stepUp: null, permission: 'permit.gate.waive'),

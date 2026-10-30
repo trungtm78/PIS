@@ -482,6 +482,7 @@ export const OPERATIONS = {
   "get_resources_workflow_instance_id": { method: "get", path: "/resources/workflow_instance/{id}", versioned: false, stepUp: null, permission: "workflow_instance.read" },
   "get_resources_workflow_version": { method: "get", path: "/resources/workflow_version", versioned: false, stepUp: null, permission: "workflow_version.read" },
   "get_resources_workflow_version_id": { method: "get", path: "/resources/workflow_version/{id}", versioned: false, stepUp: null, permission: "workflow_version.read" },
+  "get_sync_attachments_id": { method: "get", path: "/sync/attachments/{id}", versioned: false, stepUp: null, permission: "sync.upload" },
   "get_sync_commands_key": { method: "get", path: "/sync/commands/{idempotencyKey}", versioned: false, stepUp: null, permission: "sync.submit" },
   "grantMyConsent": { method: "post", path: "/me/consents", versioned: false, stepUp: null, permission: "notification.self" },
   "grantPermitGateWaiver": { method: "post", path: "/permit-gate-waivers", versioned: false, stepUp: null, permission: "permit.gate.waive" },

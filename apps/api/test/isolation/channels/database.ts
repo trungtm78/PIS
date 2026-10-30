@@ -146,6 +146,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'registerDevice',
   'post_sync_batches',
   'get_sync_commands_key',
+  'post_sync_attachments',
+  'post_sync_attachments_id_complete',
+  'get_sync_attachments_id',
   'connectChannelAccount',
   'verifyChannelAccount',
   'updateChannelAccount',
@@ -1195,6 +1198,10 @@ const INSERT_DEVICE = `insert into machvon.device_registration
   (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, app_version)
   values ($1, $2, $3, $4, 'secret://isolation', 'android', now(), repeat('b', 64), '1.0.0') on conflict do nothing`;
 
+const INSERT_SYNC_ATTACHMENT = `insert into machvon.sync_attachment
+  (tenant_id, id, device_id, membership_id, sha256, size_bytes, mime, chunk_bytes, status, storage_key)
+  values ($1::uuid, $2::uuid, $3::uuid, $4::uuid, repeat('c', 64), 1024, 'image/jpeg', 1048576, 'UPLOADING', 'tenants/' || $1::text || '/sync_attachment/' || $2::text) on conflict do nothing`;
+
 const INSERT_WORKFLOW_VERSION = `insert into machvon.workflow_version
   (tenant_id, id, business_type, revision, definition_json, status, kind, created_by, published_by, published_at, definition_hash, version)
   values ($1, $2, 'report.accept', 1, '{"steps":[],"terminal":{}}'::jsonb, 'Published', 'APPROVAL', $3, $4, now(), repeat('c', 64), 2) on conflict do nothing`;
@@ -1752,6 +1759,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const own = SELF_FIXTURES[tenant];
     await client.query(INSERT_USER_SESSION, [tenantId, own.sessionId, MEMBERSHIP_ID, `idp-${own.sessionId}`]);
     await client.query(INSERT_DEVICE, [tenantId, own.deviceId, MEMBERSHIP_ID, own.devicePublicId]);
+    await client.query(INSERT_SYNC_ATTACHMENT, [tenantId, own.attachmentId, own.deviceId, MEMBERSHIP_ID]);
     const flow = WORKFLOW_FIXTURES[tenant];
     await client.query(INSERT_WORKFLOW_VERSION, [tenantId, flow.versionId, MEMBERSHIP_ID, ACTOR_ID]);
     await client.query(INSERT_WORKFLOW_INSTANCE, [tenantId, flow.instanceId, flow.versionId, flow.resourceId, MEMBERSHIP_ID]);

@@ -126,4 +126,36 @@ export class FileService {
     if (parts === undefined) throw new DomainError('SIGNATURE_INVALID', 401);
     return this.download({ tenantId: parts.tenantId, membershipId: LINK_MEMBERSHIP_ID, scopeVersion: 0 }, grant.key);
   }
+
+  /** A link to send one chunk of a file to one key, valid for at most five minutes (ST-MOB-009). */
+  presignUpload(key: string, ttlSeconds: number = MAX_PRESIGN_TTL_SECONDS): PresignedGrant {
+    return signUrl({ method: 'PUT', key, ttlSeconds, now: this.now(), secret: this.urlSecret });
+  }
+
+  /**
+   * Checks a link to send a chunk: a forged, altered, expired or foreign link all answer the same 401 SIGNATURE_INVALID. Returns the tenant the key names, which is the tenant the chunk is kept for: the link names no
+   * person, the member who asked for it was judged when it was issued.
+   */
+  redeemUpload(grant: PresignedGrant): { tenantId: string; kind: string; id: string } {
+    if (grant.method !== 'PUT' || verifyUrl(grant, this.urlSecret, this.now()) !== 'OK') throw new DomainError('SIGNATURE_INVALID', 401);
+    const parts = parseObjectKey(grant.key);
+    if (parts === undefined) throw new DomainError('SIGNATURE_INVALID', 401);
+    return parts;
+  }
+
+  /** Keeps a chunk (or any bytes that are not yet a file anyone may open) under the tenant prefix; it is never served. */
+  async storePart(tenantId: string, key: string, bytes: Uint8Array): Promise<void> {
+    await this.storage.put({ tenantId, membershipId: LINK_MEMBERSHIP_ID, scopeVersion: 0 }, key, bytes, { contentType: 'application/octet-stream' });
+  }
+
+  /** Gives back the bytes of a part, or undefined when there is none. */
+  async readPart(tenantId: string, key: string): Promise<Uint8Array | undefined> {
+    return (await this.storage.get({ tenantId, membershipId: LINK_MEMBERSHIP_ID, scopeVersion: 0 }, key))?.bytes;
+  }
+
+  /** Stores a file put together from parts under its key, as PENDING, and has it scanned: the verdict is returned and recorded on the object. */
+  async storeAndScan(tenant: TenantContext, key: string, bytes: Uint8Array, contentType: string): Promise<ScanStatus> {
+    await this.storage.put(tenant, key, bytes, { contentType });
+    return (await this.scan(tenant, key)).scanStatus;
+  }
 }

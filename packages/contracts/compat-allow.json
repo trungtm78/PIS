@@ -405,6 +405,13 @@
       "location": "header:If-Match",
       "reason": "the operation starts something new (a batch of queued commands, an upload) and changes no record that has a version; the idempotency key is what makes it safe to send again, and nothing sent If-Match to it",
       "change_request": "ST-MOB-009"
+    },
+    {
+      "operation": "post_sync_attachments_id_complete",
+      "kind": "PARAMETER_REMOVED",
+      "location": "header:If-Match",
+      "reason": "an upload has no version: the file is put together once, from the chunks it holds, and completing it twice answers the same; nothing sent If-Match to it",
+      "change_request": "ST-MOB-009"
     }
   ]
 }

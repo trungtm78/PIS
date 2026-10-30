@@ -40,3 +40,16 @@ For a command whose answer the phone lost (UNKNOWN on the phone): `accepted` wit
 ## Not here
 
 The Flutter app, the encrypted store, the queue states, retry and backoff, MOB-41 and MOB-43; the PowerSync rules (ST-MOB-007); the attachments (ST-MOB-009); a `server_copy` in a conflict answer (the app reads the record through the read operation of its module).
+
+# Attachments uploaded in chunks (ST-MOB-009, MOB 5 BR-MOB-03, MOB-19)
+
+A phone uploads a photo or a PDF (JPEG, PNG or PDF, 1 byte to 50 MiB) in chunks of 1 MiB, in any order and as often as it needs, so a cut network costs the chunks in flight and nothing more.
+
+1. **Start** — `POST /sync/attachments` (`post_sync_attachments`, `sync.upload`): `device_id` (a live device of the member), `sha256`, `size_bytes`, `mime`. The answer holds `resource_id`, `chunk_bytes`, `chunk_count`, `expires_at` and `chunks`: for each chunk a link `/sync/attachments/{id}/chunks/{index}?tenant=&expires=&signature=` signed for that chunk, generation (`epoch`) and tenant, valid for 5 minutes at most. When the chunks are dropped (a checksum or type refusal) the generation goes up, so the old links stop working (409) and the cleanup of the old chunks cannot touch a new one; a chunk is kept and acknowledged with the upload row locked, the way the completion reads it. The attachment is `UPLOADING`; its storage key is `tenants/{tenant_id}/sync_attachment/{id}` (the database refuses another prefix).
+2. **Send** — `PUT` the bytes of a chunk to its link (public, authenticated by the signature only, as the export links): a forged, altered, expired or foreign link (another tenant, another chunk) all answer 401 `SIGNATURE_INVALID`; a chunk has exactly its size (422 `VALIDATION_FAILED` `chunk`, 413 when longer); the same chunk twice is one; an upload that is over is 409 `ATTACHMENT_STATE_INVALID`.
+3. **Resume** — `GET /sync/attachments/{id}` (`get_sync_attachments_id`, `sync.upload`, the member's own): `status`, `received` (the chunks the server holds) and fresh links for the chunks still missing, so the chunks that arrived are not sent again. Another member's upload is 404.
+4. **Complete** — `POST /sync/attachments/{id}/complete` (`post_sync_attachments_id_complete`, `{sha256}`): fewer chunks than there should be is 409 `ATTACHMENT_CHUNKS_MISSING` (with the missing ones). The server puts the chunks together and compares the size and the SHA-256 with what was declared at the start and with what the phone says now (422 `CHECKSUM_MISMATCH`, and the chunks are dropped to be sent again), judges the file by its bytes against the type (422 `FILE_TYPE_NOT_ALLOWED`: a script renamed to .jpg), stores it, has it scanned, and the attachment is `CLEAN` or `INFECTED` (`reason` `FILE_INFECTED`; the user starts a new upload to try again). The path is UPLOADING → SCANNING → CLEAN | INFECTED, and the database keeps it (V1103). The chunks are removed after the commit. `sync.attachment_clean.v1` is written for a CLEAN file.
+
+**Linking**: a record takes an attachment only when it is CLEAN — `SyncAttachmentStore.linkableKey` answers its storage key, else 409 `ATTACHMENT_NOT_CLEAN`; the file service refuses to serve an INFECTED object as well.
+
+Audit rows: `sync.attachment_started|completed|refused` with the size, the type and the status — never the checksum, the key or a link.

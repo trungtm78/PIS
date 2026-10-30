@@ -68621,7 +68621,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/SyncAttachmentStarted"
                 }
               }
             }
@@ -68725,15 +68725,6 @@
               "type": "string",
               "minLength": 16
             }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Strong ETag of the current resource version; required for changes to versioned records."
           }
         ],
         "requestBody": {
@@ -131247,6 +131238,109 @@
         },
         "x-audit-action": "notification.test_recipients_set"
       }
+    },
+    "/sync/attachments/{id}": {
+      "get": {
+        "operationId": "get_sync_attachments_id",
+        "summary": "Trạng thái của một tệp đang tải lên theo khối: các khối đã nhận và liên kết mới cho các khối còn thiếu",
+        "tags": [
+          "MOB"
+        ],
+        "x-permission": "sync.upload",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncAttachmentStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -157404,6 +157498,149 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "SyncAttachmentStarted": {
+        "type": "object",
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "chunk_bytes",
+          "chunk_count",
+          "expires_at",
+          "chunks"
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UPLOADING"
+            ]
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chunk_bytes": {
+            "type": "integer",
+            "description": "Every chunk has this size but the last, which is what is left"
+          },
+          "chunk_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the links of `chunks` stop working; ask again for the missing ones"
+          },
+          "chunks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "index",
+                "url"
+              ],
+              "properties": {
+                "index": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "url": {
+                  "type": "string",
+                  "description": "Where to PUT the bytes of this chunk: signed for this chunk and the tenant, valid for a few minutes"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SyncAttachmentStatus": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "size_bytes",
+          "chunk_bytes",
+          "chunk_count",
+          "received",
+          "chunks"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UPLOADING",
+              "SCANNING",
+              "CLEAN",
+              "INFECTED"
+            ]
+          },
+          "size_bytes": {
+            "type": "integer"
+          },
+          "chunk_bytes": {
+            "type": "integer"
+          },
+          "chunk_count": {
+            "type": "integer"
+          },
+          "received": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "The chunks the server holds: an interrupted upload does not send them again"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why the file was refused (FILE_INFECTED)"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "chunks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "index",
+                "url"
+              ],
+              "properties": {
+                "index": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "url": {
+                  "type": "string",
+                  "description": "Where to PUT the bytes of this chunk: signed for this chunk and the tenant, valid for a few minutes"
+                }
+              }
+            },
+            "description": "Fresh links for the chunks still to send; empty once the file is no longer being uploaded"
           }
         }
       }

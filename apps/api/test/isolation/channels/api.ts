@@ -120,6 +120,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_channel_account_id', method: 'GET', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId },
   // The lookup of a queued command is by the key the phone made, in the tenant and for the member who asks: another tenant's key is not received (200, nothing of it), not an error.
   { operation: 'get_sync_commands_key', method: 'GET', id: 'isolation-foreign-sync-key-0001', expectedStatuses: [200, 404] },
+  // An upload of another tenant is not there for this one, as one that never was: 404.
+  { operation: 'get_sync_attachments_id', method: 'GET', id: SELF_FIXTURES['TNT-B'].attachmentId },
+  { operation: 'post_sync_attachments_id_complete', method: 'POST', id: SELF_FIXTURES['TNT-B'].attachmentId, body: { sha256: 'a'.repeat(64) } },
   { operation: 'verifyChannelAccount', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId, versioned: true, body: { reason: 'Isolation foreign verification attempt' } },
   { operation: 'updateChannelAccount', method: 'PUT', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId, versioned: true, body: { display_name: 'Isolation foreign rename', reason: 'Isolation foreign update attempt' } },
   { operation: 'disableChannelAccount', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId, versioned: true, body: { reason: 'Isolation foreign disable attempt' } },
