@@ -1758,3 +1758,12 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-OMNI-005 (gap, SLA): the first answer of the conversation is not recorded for the SLA (BR-OMNI-06, ST-OMNI-006).
 - ST-OMNI-005 (gap, STOP): a stop word ends the consents at once, but a message already queued is failed only when the dispatcher takes it up (within one pass), not at the moment of the withdrawal.
 - ST-OMNI-005 (observability): no metric or alert for the failed replies yet; the status and the code are on the message.
+
+### ST-OMNI-006 (routing policy, SLA in working time and canned replies, slice OMNI-1)
+- ST-OMNI-006 (decision, scope): the policies and the replies are the tenant's: `omni.policy.manage` on the whole tenant reads and changes them (the supervisor of one unit does not), as the directory and the consents.
+- ST-OMNI-006 (decision, publication): a version can be published only if its calendar is published for the year of today (422 `POLICY_INVALID` on `calendar_code`); publishing a version that is not a Draft is 409 `POLICY_STATE_INVALID` (new code, not in OMNI.md).
+- ST-OMNI-006 (decision, window): the deadlines are counted on the default working window of ADM (08:00-12:00, 13:00-17:00, BR-ADM-08), the one of the worked example (Friday 16:50 + 30 minutes is Monday 08:20); ISS keeps its own window.
+- ST-OMNI-006 (decision, rules): a rule narrows by one or more channels and by words found in the **first message** only; a later message does not route again. Keywords are kept folded (no accents, no case). A reply of the contract's `classification` enum was widened to the five classes so that a confidential class is a 422 on the field and not a refusal of the shape of the request.
+- ST-OMNI-006 (gap, breach): the job that raises the SLA breach every minute and tells the supervisors through NOT is not built; nor is the measure of the first answer (the first outbound minus the first inbound, in working time, BR-OMNI-06) and the rate of OMNI-10 (BR-OMNI-09).
+- ST-OMNI-006 (gap, use): the agent cannot yet pick a canned reply in the composer of OMNI-02 (the replies are made and read here); a reply cannot be retired by the API (there is no operation for it, only the state in the table), and has no language field.
+- ST-OMNI-006 (gap, calendar): a conversation of a year with no published calendar has no deadline and nothing says so to anyone; the calendar of the next year must be published before the year ends.

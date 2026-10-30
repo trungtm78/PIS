@@ -10143,7 +10143,7 @@ final class RoutingPolicyDraft implements RequestModel {
     required this.resolutionHours,
   });
 
-  final List<Map<String, Object?>> rules;
+  final List<RoutingRule> rules;
   final String calendarCode;
   final int firstResponseMinutes;
   final int resolutionHours;
@@ -10154,6 +10154,28 @@ final class RoutingPolicyDraft implements RequestModel {
         'calendar_code': calendarCode,
         'first_response_minutes': firstResponseMinutes,
         'resolution_hours': resolutionHours,
+      };
+}
+
+final class RoutingRule implements RequestModel {
+  const RoutingRule({
+    required this.queueUnitId,
+    this.channels,
+    this.keywords,
+    this.priority,
+  });
+
+  final List<String>? channels;
+  final List<String>? keywords;
+  final String queueUnitId;
+  final String? priority;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (channels != null) 'channels': channels,
+        if (keywords != null) 'keywords': keywords,
+        'queue_unit_id': queueUnitId,
+        if (priority != null) 'priority': priority,
       };
 }
 

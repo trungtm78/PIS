@@ -889,6 +889,12 @@ export const CONVERSATION_FIXTURES: Readonly<Record<TenantName, { id: string; me
   'TNT-B': { id: '00000000-0000-4000-b0a7-000000000001', messageId: '00000000-0000-4000-b0a7-000000000001', text: 'beta-conversation-text-0001' },
 };
 
+/** A routing policy and a canned reply of each tenant (the code and the text are distinctive and must never be shown to the other tenant); the reply has the id of the policy, since a case names one id for every parameter of its path. */
+export const ROUTING_FIXTURES: Readonly<Record<TenantName, { policyId: string; replyId: string; replyCode: string; replyText: string }>> = {
+  'TNT-A': { policyId: '00000000-0000-4000-a0a8-000000000001', replyId: '00000000-0000-4000-a0a8-000000000001', replyCode: 'alpha.reply.0001', replyText: 'alpha-canned-reply-text-0001' },
+  'TNT-B': { policyId: '00000000-0000-4000-b0a8-000000000001', replyId: '00000000-0000-4000-b0a8-000000000001', replyCode: 'beta.reply.0001', replyText: 'beta-canned-reply-text-0001' },
+};
+
 /** A draft integration connector and a failed inbox event of each tenant (the code, the endpoint and the event key are distinctive; the payload reference must never be shown). */
 export const INTEGRATION_FIXTURES: Readonly<Record<TenantName, { connectorId: string; connectorCode: string; endpoint: string; eventId: string; eventKey: string; payloadReference: string }>> = {
   'TNT-A': {
@@ -1012,6 +1018,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contact consent id', value: CONTACT_FIXTURES[tenant].consentId },
     { kind: 'conversation id', value: CONVERSATION_FIXTURES[tenant].id },
     { kind: 'conversation message text', value: CONVERSATION_FIXTURES[tenant].text },
+    { kind: 'canned reply text', value: ROUTING_FIXTURES[tenant].replyText },
+    { kind: 'canned reply code', value: ROUTING_FIXTURES[tenant].replyCode },
     { kind: 'campaign name', value: DELIVERY_ATTEMPT_FIXTURES[tenant].campaignName },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
     { kind: 'certificate id', value: CERTIFICATE_FIXTURES[tenant].id },

@@ -67704,6 +67704,129 @@
           }
         },
         "x-audit-action": "omni.routing_policy_created"
+      },
+      "get": {
+        "operationId": "listRoutingPolicies",
+        "summary": "Các phiên bản chính sách định tuyến và SLA, mới nhất trước (OMNI-07)",
+        "tags": [
+          "OMNI"
+        ],
+        "x-permission": "omni.policy.manage",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list, in the tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutingPolicyList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / license / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Budget / rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Provider unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant",
+        "x-error-codes": []
       }
     },
     "/conversation-routing-policies/{policyId}/publish": {
@@ -67839,7 +67962,8 @@
         },
         "x-error-codes": [
           "POLICY_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "POLICY_STATE_INVALID"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -67974,6 +68098,129 @@
           }
         },
         "x-audit-action": "omni.canned_reply_created"
+      },
+      "get": {
+        "operationId": "listCannedReplies",
+        "summary": "Các mẫu trả lời nhanh theo mã (OMNI-08)",
+        "tags": [
+          "OMNI"
+        ],
+        "x-permission": "omni.policy.manage",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list, in the tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CannedReplyList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / license / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Budget / rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Provider unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant",
+        "x-error-codes": []
       }
     },
     "/canned-replies/{replyId}": {
@@ -138706,20 +138953,26 @@
         "properties": {
           "rules": {
             "type": "array",
+            "maxItems": 50,
             "items": {
-              "type": "object"
-            }
+              "$ref": "#/components/schemas/RoutingRule"
+            },
+            "description": "In the order they are tried: the first that fits routes the conversation"
           },
           "calendar_code": {
             "type": "string"
           },
           "first_response_minutes": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 10080,
+            "description": "Minutes of working time for the first answer"
           },
           "resolution_hours": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 2400,
+            "description": "Hours of working time for the resolution"
           }
         }
       },
@@ -138755,8 +139008,12 @@
             "type": "string",
             "enum": [
               "PUBLIC",
-              "INTERNAL"
-            ]
+              "INTERNAL",
+              "CONFIDENTIAL",
+              "PERSONAL",
+              "IMPORTANT_CORE"
+            ],
+            "description": "Only PUBLIC and INTERNAL are kept; the others are 422"
           }
         }
       },
@@ -158878,6 +159135,230 @@
                 }
               }
             }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RoutingRule": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "queue_unit_id"
+        ],
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "EMAIL",
+                "SMS",
+                "ZALO_OA",
+                "WHATSAPP"
+              ]
+            },
+            "description": "The channels the rule is for; none means every channel"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "description": "Words one of which must be in the first message, any case and accents; none means no word is asked for"
+          },
+          "queue_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unit whose queue the conversation goes to"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "NORMAL",
+              "LOW"
+            ]
+          }
+        }
+      },
+      "RoutingPolicyView": {
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "status",
+          "rules",
+          "calendar_code",
+          "first_response_minutes",
+          "resolution_hours",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Published",
+              "Superseded"
+            ]
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutingRule"
+            }
+          },
+          "calendar_code": {
+            "type": "string"
+          },
+          "first_response_minutes": {
+            "type": "integer"
+          },
+          "resolution_hours": {
+            "type": "integer"
+          },
+          "published_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "description": "The If-Match of the publication"
+          }
+        }
+      },
+      "RoutingPolicyList": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "units",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutingPolicyView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The units a rule may name as a queue: given with the policy, so that whoever manages it needs no other permission to choose one"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CannedReplyView": {
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "title",
+          "body_text",
+          "channels",
+          "classification",
+          "status",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body_text": {
+            "type": "string"
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "INTERNAL"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Active",
+              "Retired"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "description": "The If-Match of the change"
+          }
+        }
+      },
+      "CannedReplyList": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CannedReplyView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "as_of": {
             "type": "string",

@@ -7705,7 +7705,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các phiên bản chính sách định tuyến và SLA, mới nhất trước (OMNI-07) */
+        get: operations["listRoutingPolicies"];
         put?: never;
         /** Tạo phiên bản phân công & SLA (OMNI-07) */
         post: operations["createRoutingPolicyVersion"];
@@ -7739,7 +7740,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các mẫu trả lời nhanh theo mã (OMNI-08) */
+        get: operations["listCannedReplies"];
         put?: never;
         /** Tạo mẫu trả lời nhanh (OMNI-08), chỉ PUBLIC/INTERNAL */
         post: operations["createCannedReply"];
@@ -17103,9 +17105,12 @@ export interface components {
             reason: string;
         };
         RoutingPolicyDraft: {
-            rules: Record<string, never>[];
+            /** @description In the order they are tried: the first that fits routes the conversation */
+            rules: components["schemas"]["RoutingRule"][];
             calendar_code: string;
+            /** @description Minutes of working time for the first answer */
             first_response_minutes: number;
+            /** @description Hours of working time for the resolution */
             resolution_hours: number;
         };
         CannedReplyUpsert: {
@@ -17113,8 +17118,11 @@ export interface components {
             title: string;
             body_text: string;
             channels: string[];
-            /** @enum {string} */
-            classification: "PUBLIC" | "INTERNAL";
+            /**
+             * @description Only PUBLIC and INTERNAL are kept; the others are 422
+             * @enum {string}
+             */
+            classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE";
         };
         TenantSummaryPage: {
             items: {
@@ -22673,6 +22681,66 @@ export interface components {
                 membership_id: string;
                 display_name: string;
             }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        RoutingRule: {
+            /** @description The channels the rule is for; none means every channel */
+            channels?: ("EMAIL" | "SMS" | "ZALO_OA" | "WHATSAPP")[];
+            /** @description Words one of which must be in the first message, any case and accents; none means no word is asked for */
+            keywords?: string[];
+            /**
+             * Format: uuid
+             * @description The unit whose queue the conversation goes to
+             */
+            queue_unit_id: string;
+            /** @enum {string} */
+            priority?: "HIGH" | "NORMAL" | "LOW";
+        };
+        RoutingPolicyView: {
+            /** Format: uuid */
+            id: string;
+            revision: number;
+            /** @enum {string} */
+            status: "Draft" | "Published" | "Superseded";
+            rules: components["schemas"]["RoutingRule"][];
+            calendar_code: string;
+            first_response_minutes: number;
+            resolution_hours: number;
+            /** Format: date-time */
+            published_at?: string | null;
+            /** @description The If-Match of the publication */
+            version: number;
+        };
+        RoutingPolicyList: {
+            items: components["schemas"]["RoutingPolicyView"][];
+            next_cursor: string | null;
+            /** @description The units a rule may name as a queue: given with the policy, so that whoever manages it needs no other permission to choose one */
+            units: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        CannedReplyView: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            title: string;
+            body_text: string;
+            channels: string[];
+            /** @enum {string} */
+            classification: "PUBLIC" | "INTERNAL";
+            /** @enum {string} */
+            status: "Active" | "Retired";
+            /** @description The If-Match of the change */
+            version: number;
+        };
+        CannedReplyList: {
+            items: components["schemas"]["CannedReplyView"][];
+            next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
         };
@@ -69371,6 +69439,101 @@ export interface operations {
             };
         };
     };
+    listRoutingPolicies: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The list, in the tenant */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoutingPolicyList"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / license / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Budget / rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Provider unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     createRoutingPolicyVersion: {
         parameters: {
             query?: never;
@@ -69555,6 +69718,101 @@ export interface operations {
             };
             /** @description RATE_LIMIT */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listCannedReplies: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The list, in the tenant */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CannedReplyList"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / license / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Budget / rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Provider unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

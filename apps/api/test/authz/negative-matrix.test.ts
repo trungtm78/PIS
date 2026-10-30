@@ -569,6 +569,16 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0x7f, 5), id(0x7f, 3)],
       ],
       [
+        `insert into machvon.conversation_routing_policy (tenant_id, id, revision, rules_json, calendar_code, first_response_minutes, resolution_hours, status, created_by)
+         values ($1, $2, 1, '[]'::jsonb, 'MATRIX-CALENDAR', 30, 24, 'Draft', $3)`,
+        [TENANT_A, id(0x7f, 7), ACTOR],
+      ],
+      [
+        `insert into machvon.canned_reply (tenant_id, id, code, title, body_text, channels, classification, status, created_by)
+         values ($1, $2, 'matrix.reply.fixture', 'Matrix fixture', 'Matrix fixture text', '{EMAIL}', 'PUBLIC', 'Active', $3)`,
+        [TENANT_A, id(0x7f, 8), ACTOR],
+      ],
+      [
         `insert into machvon.conversation (tenant_id, id, channel_account_id, external_thread_id, verified_contact_id, resource_links, status, contact_id)
          values ($1, $2, $3, 'matrix-thread', null, '[]'::jsonb, 'New', $4)`,
         [TENANT_A, id(0x7f, 6), id(0x7b, 1), id(0x7f, 3)],
@@ -1236,6 +1246,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       contactIdentityId: id(0x7f, 4),
       contactConsentId: id(0x7f, 5),
       conversationId: id(0x7f, 6),
+      routingPolicyId: id(0x7f, 7),
+      cannedReplyId: id(0x7f, 8),
       channelAccountId: id(0x7b, 1),
       consentId: id(0x7e, 1),
       legalHoldId,

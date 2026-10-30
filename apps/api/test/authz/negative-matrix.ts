@@ -27,6 +27,9 @@ export interface MatrixTargets {
   contactConsentId: string;
   /** A New conversation of tenant A (version 1): the assignment names it in the path. */
   conversationId: string;
+  /** A Draft routing policy and a canned reply of tenant A (version 1): the publication and the change name them in the path. */
+  routingPolicyId: string;
+  cannedReplyId: string;
   /** A channel account of tenant A (version 1): the verification, the change and the closing name it in the path. */
   channelAccountId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
@@ -2692,6 +2695,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   reopenConversation: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/reopen`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createRoutingPolicyVersion: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/conversation-routing-policies', body: { rules: [], calendar_code: 'MATRIX-CALENDAR', first_response_minutes: 30, resolution_hours: 24 } }),
+  },
+  publishRoutingPolicy: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/conversation-routing-policies/${t.routingPolicyId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createCannedReply: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/canned-replies', body: { code: 'matrix.reply.new', title: 'Matrix', body_text: 'Matrix reply', channels: ['EMAIL'], classification: 'PUBLIC' } }),
+  },
+  updateCannedReply: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'PUT', path: `/canned-replies/${t.cannedReplyId}`, ifMatch: '"1"', body: { code: 'matrix.reply.fixture', title: 'Matrix', body_text: 'Matrix reply changed', channels: ['EMAIL'], classification: 'PUBLIC' } }),
   },
   assignConversation: {
     referencesTenantIds: true,

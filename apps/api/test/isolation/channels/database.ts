@@ -9,6 +9,7 @@ import {
   CONSENT_FIXTURES,
   CONTACT_FIXTURES,
   CONVERSATION_FIXTURES,
+  POLICY_FIXTURES,
   DELIVERY_ATTEMPT_FIXTURES,
   DOCUMENT_FIXTURES,
   GRANT_FIXTURES,
@@ -20,7 +21,7 @@ import {
   GLOSSARY_FIXTURES,
   MEMBERSHIP_FIXTURES,
   NOTIFICATION_FIXTURES,
-  POLICY_FIXTURES,
+  ROUTING_FIXTURES,
   ROLE_FIXTURES,
   TENANT_IDS,
   UNIT_FIXTURES,
@@ -164,6 +165,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_contact',
   'get_resources_contact_id',
   'assignConversation',
+  'createRoutingPolicyVersion',
+  'publishRoutingPolicy',
+  'listRoutingPolicies',
+  'createCannedReply',
+  'updateCannedReply',
+  'listCannedReplies',
   'sendConversationMessage',
   'resolveConversation',
   'reopenConversation',
@@ -1113,6 +1120,10 @@ const INSERT_CONTACT = `insert into machvon.contact (tenant_id, id, display_name
 const INSERT_CONTACT_CONSENT = `insert into machvon.contact_consent (tenant_id, id, contact_id, membership_id, channel, purpose, status, evidence_reference, effective_at, legal_basis, consent_text_version, capture_method)
   values ($1, $2, $3, null, 'EMAIL', 'REMINDER', 'Granted', 'isolation-contact-consent', now(), 'CONSENT', 'isolation-1', 'IN_APP') on conflict do nothing`;
 
+const INSERT_ROUTING_POLICY = `insert into machvon.conversation_routing_policy (tenant_id, id, revision, rules_json, calendar_code, first_response_minutes, resolution_hours, status, created_by)
+  values ($1, $2, 1, '[]'::jsonb, 'ISOLATION-CALENDAR', 30, 24, 'Draft', $3) on conflict do nothing`;
+const INSERT_CANNED_REPLY = `insert into machvon.canned_reply (tenant_id, id, code, title, body_text, channels, classification, status, created_by)
+  values ($1, $2, $3, 'Isolation reply', $4, '{EMAIL}', 'PUBLIC', 'Active', $5) on conflict do nothing`;
 const INSERT_CONVERSATION = `insert into machvon.conversation (tenant_id, id, channel_account_id, external_thread_id, verified_contact_id, resource_links, status, contact_id)
   values ($1, $2, $3, 'isolation-thread', null, '[]'::jsonb, 'New', $4) on conflict do nothing`;
 const INSERT_CONVERSATION_MESSAGE = `insert into machvon.channel_message (tenant_id, id, conversation_id, provider_message_id, kind, content_reference, sent_at, direction, classification, body_text)
@@ -1702,6 +1713,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CONTACT, [tenantId, CONTACT_FIXTURES[tenant].id, CONTACT_FIXTURES[tenant].name]);
     await client.query(INSERT_CONTACT_IDENTITY, [tenantId, CONTACT_FIXTURES[tenant].identityId, CONTACT_FIXTURES[tenant].id]);
     await client.query(INSERT_CONTACT_CONSENT, [tenantId, CONTACT_FIXTURES[tenant].consentId, CONTACT_FIXTURES[tenant].id]);
+    await client.query(INSERT_ROUTING_POLICY, [tenantId, ROUTING_FIXTURES[tenant].policyId, MEMBERSHIP_ID]);
+    await client.query(INSERT_CANNED_REPLY, [tenantId, ROUTING_FIXTURES[tenant].replyId, ROUTING_FIXTURES[tenant].replyCode, ROUTING_FIXTURES[tenant].replyText, MEMBERSHIP_ID]);
     await client.query(INSERT_CONVERSATION, [tenantId, CONVERSATION_FIXTURES[tenant].id, attempt.accountId, CONTACT_FIXTURES[tenant].id]);
     await client.query(INSERT_CONVERSATION_MESSAGE, [tenantId, CONVERSATION_FIXTURES[tenant].messageId, CONVERSATION_FIXTURES[tenant].id, CONVERSATION_FIXTURES[tenant].text]);
     await client.query(INSERT_CONSENT, [tenantId, CONSENT_FIXTURES[tenant].id, MEMBERSHIP_ID]);

@@ -1,5 +1,6 @@
 import {
   ANSWER_PERMISSION,
+  addWorkingTime,
   DomainError,
   SENDER_AUTHENTICATED_CHANNELS,
   assigneeEligible,
@@ -10,7 +11,9 @@ import {
   isStopKeyword,
   maskIdentity,
   normaliseIdentity,
+  routeOf,
   versionConflict,
+  vietnamDateOf,
   windowExpiresAt,
 } from '@machvon/kernel';
 import type { Assignment, ConversationStatus, EffectiveAccess } from '@machvon/kernel';
@@ -22,6 +25,8 @@ import { assertTimestampCursor } from './keyset.ts';
 import { scopePredicate } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
+import { RoutingPolicyStore } from './routing-policy-store.ts';
+import { WorkCalendarStore } from './work-calendar-store.ts';
 
 const TIME = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
 const TENANT = "nullif(current_setting('app.tenant_id', true), '')::uuid";
@@ -196,6 +201,8 @@ export interface ScopeOf {
 export class ConversationStore {
   private readonly contacts = new ContactStore();
   private readonly consents = new ContactConsentStore();
+  private readonly policies = new RoutingPolicyStore();
+  private readonly calendars = new WorkCalendarStore();
 
   // ---- what comes in ----------------------------------------------------------------------------------------------------------------
 
@@ -244,11 +251,14 @@ export class ConversationStore {
     let conversationId: string;
     const created = existing === undefined;
     if (existing === undefined) {
+      const routing = await this.routingOf(tx, account.channel, input.text, input.occurredAt);
       const [made] = await tx.query<{ id: string }>(
-        `insert into machvon.conversation (tenant_id, id, channel_account_id, external_thread_id, verified_contact_id, resource_links, status, contact_id, previous_conversation_id)
+        `insert into machvon.conversation
+           (tenant_id, id, channel_account_id, external_thread_id, verified_contact_id, resource_links, status, contact_id, previous_conversation_id, queue_unit_id, priority, routing_policy_id, sla_first_response_due_at, sla_resolution_due_at)
          values (${TENANT}, gen_random_uuid(), $1::uuid, $2, null, '[]'::jsonb, 'New', $3::uuid,
-           (select p.id from machvon.conversation p where p.channel_account_id = $1::uuid and p.external_thread_id = $2 and p.status = 'Closed' order by p.created_at desc, p.id desc limit 1)) returning id`,
-        [input.channelAccountId, input.externalThreadId, contact.contactId],
+           (select p.id from machvon.conversation p where p.channel_account_id = $1::uuid and p.external_thread_id = $2 and p.status = 'Closed' order by p.created_at desc, p.id desc limit 1),
+           $4::uuid, $5, $6::uuid, $7::timestamptz, $8::timestamptz) returning id`,
+        [input.channelAccountId, input.externalThreadId, contact.contactId, routing.queueUnitId, routing.priority, routing.policyId, routing.firstResponseDueAt?.toISOString() ?? null, routing.resolutionDueAt?.toISOString() ?? null],
       );
       conversationId = (made as { id: string }).id;
     } else {
@@ -282,6 +292,36 @@ export class ConversationStore {
       for (const live of await this.consents.liveOfContact(tx, contact.contactId, consentChannel)) withdrawn.push(await this.consents.withdrawOfContact(tx, live.id, live.version, STOP_REASON));
     }
     return { kind: 'RECEIVED', conversationId, messageId: message.id, created, reopened, newContact, withdrawn };
+  }
+
+  /**
+   * The queue, the priority and the deadlines a conversation that begins is given by the policy in force (OMNI.md 3.1 step 5, BR-OMNI-06): the first rule that fits the channel and the words of the first message gives the unit and the
+   * priority, and the deadlines are counted in working time on the published calendar of the policy from the moment the message came. No policy, or no rule that fits, leaves the queue of the whole tenant; a year with no published calendar
+   * leaves no deadline (the conversation is still taken in). The version of the policy is kept with the conversation.
+   */
+  private async routingOf(
+    tx: TenantTx,
+    channel: string,
+    text: string,
+    start: Date,
+  ): Promise<{ policyId: string | null; queueUnitId: string | null; priority: string; firstResponseDueAt: Date | undefined; resolutionDueAt: Date | undefined }> {
+    const policy = await this.policies.inForce(tx);
+    if (policy === undefined) return { policyId: null, queueUnitId: null, priority: 'NORMAL', firstResponseDueAt: undefined, resolutionDueAt: undefined };
+    const routed = routeOf(policy.rules, { channel, text });
+    const year = Number(vietnamDateOf(start).slice(0, 4));
+    const source = await this.calendars.source(tx, policy.calendarCode, year);
+    // Each deadline is counted on its own: one that runs into a year with no published calendar has none, and the other is still given.
+    const counted = (duration: { minutes?: number; hours?: number }): Date | undefined => {
+      try {
+        return addWorkingTime(source, start, duration);
+      } catch (error) {
+        if (error instanceof DomainError && error.code === 'CALENDAR_NOT_EFFECTIVE') return undefined;
+        throw error;
+      }
+    };
+    const firstResponseDueAt = counted({ minutes: policy.firstResponseMinutes });
+    const resolutionDueAt = counted({ hours: policy.resolutionHours });
+    return { policyId: policy.id, queueUnitId: routed?.queueUnitId ?? null, priority: routed?.priority ?? 'NORMAL', firstResponseDueAt, resolutionDueAt };
   }
 
   // ---- what is read -----------------------------------------------------------------------------------------------------------------

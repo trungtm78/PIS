@@ -540,6 +540,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listBillingPayments': BillingPaymentListResponse.fromJson,
   'listBiQueryRuns': asObject,
   'listCampaigns': CampaignPageResponse.fromJson,
+  'listCannedReplies': CannedReplyListResponse.fromJson,
   'listCapitalLedger': asObject,
   'listCapitalPlanLines': asObject,
   'listCompensationPayments': asObject,
@@ -605,6 +606,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listReconciliationItems': PayReconciliationItemPageResponse.fromJson,
   'listReconciliations': ListReconciliationsResponse.fromJson,
   'listRetentionHolds': PayCumulativeLedgerResponse.fromJson,
+  'listRoutingPolicies': RoutingPolicyListResponse.fromJson,
   'listSourceMappings': ListSourceMappingsResponse.fromJson,
   'listSystemTenantExports': SystemTenantExportsResponse.fromJson,
   'listSystemTenantLicenses': SystemLicensePageResponse.fromJson,
@@ -2805,6 +2807,94 @@ final class CampaignViewResponseSegmentUnitsItem implements ResponseModel {
         'id': id,
         'name': name,
         'code': code,
+        ...extra,
+      };
+}
+
+final class CannedReplyListResponse implements ResponseModel {
+  const CannedReplyListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CannedReplyListResponse.fromJson(Object? json, [String path = 'CannedReplyListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CannedReplyListResponse(
+      items: requiredField(map, path, 'items', asList(CannedReplyViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<CannedReplyViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CannedReplyViewResponse implements ResponseModel {
+  const CannedReplyViewResponse({
+    required this.id,
+    required this.code,
+    required this.title,
+    required this.bodyText,
+    required this.channels,
+    required this.classification,
+    required this.status,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CannedReplyViewResponse.fromJson(Object? json, [String path = 'CannedReplyViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CannedReplyViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      title: requiredField(map, path, 'title', asString),
+      bodyText: requiredField(map, path, 'body_text', asString),
+      channels: requiredField(map, path, 'channels', asList(asString)),
+      classification: requiredField(map, path, 'classification', asString),
+      status: requiredField(map, path, 'status', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'title', 'body_text', 'channels', 'classification', 'status', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String title;
+  final String bodyText;
+  final List<String> channels;
+  final String classification;
+  final String status;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'title': title,
+        'body_text': bodyText,
+        'channels': channels,
+        'classification': classification,
+        'status': status,
+        'version': version,
         ...extra,
       };
 }
@@ -18609,6 +18699,170 @@ final class RoleDefinitionViewResponse implements ResponseModel {
         'guest_allowed': guestAllowed,
         'status': status,
         'version': version,
+        ...extra,
+      };
+}
+
+final class RoutingPolicyListResponse implements ResponseModel {
+  const RoutingPolicyListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.units,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RoutingPolicyListResponse.fromJson(Object? json, [String path = 'RoutingPolicyListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RoutingPolicyListResponse(
+      items: requiredField(map, path, 'items', asList(RoutingPolicyViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      units: requiredField(map, path, 'units', asList(RoutingPolicyListResponseUnitsItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'units', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<RoutingPolicyViewResponse> items;
+  final String? nextCursor;
+  final List<RoutingPolicyListResponseUnitsItem> units;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'units': units.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class RoutingPolicyListResponseUnitsItem implements ResponseModel {
+  const RoutingPolicyListResponseUnitsItem({
+    required this.id,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RoutingPolicyListResponseUnitsItem.fromJson(Object? json, [String path = 'RoutingPolicyListResponseUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RoutingPolicyListResponseUnitsItem(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class RoutingPolicyViewResponse implements ResponseModel {
+  const RoutingPolicyViewResponse({
+    required this.id,
+    required this.revision,
+    required this.status,
+    required this.rules,
+    required this.calendarCode,
+    required this.firstResponseMinutes,
+    required this.resolutionHours,
+    required this.version,
+    this.publishedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RoutingPolicyViewResponse.fromJson(Object? json, [String path = 'RoutingPolicyViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RoutingPolicyViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      status: requiredField(map, path, 'status', asString),
+      rules: requiredField(map, path, 'rules', asList(RoutingRuleResponse.fromJson)),
+      calendarCode: requiredField(map, path, 'calendar_code', asString),
+      firstResponseMinutes: requiredField(map, path, 'first_response_minutes', asInt),
+      resolutionHours: requiredField(map, path, 'resolution_hours', asInt),
+      publishedAt: optionalField(map, path, 'published_at', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'revision', 'status', 'rules', 'calendar_code', 'first_response_minutes', 'resolution_hours', 'published_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final int revision;
+  final String status;
+  final List<RoutingRuleResponse> rules;
+  final String calendarCode;
+  final int firstResponseMinutes;
+  final int resolutionHours;
+  final String? publishedAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'revision': revision,
+        'status': status,
+        'rules': rules.map((e0) => e0.toJson()).toList(),
+        'calendar_code': calendarCode,
+        'first_response_minutes': firstResponseMinutes,
+        'resolution_hours': resolutionHours,
+        if (publishedAt != null) 'published_at': publishedAt,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class RoutingRuleResponse implements ResponseModel {
+  const RoutingRuleResponse({
+    required this.queueUnitId,
+    this.channels,
+    this.keywords,
+    this.priority,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RoutingRuleResponse.fromJson(Object? json, [String path = 'RoutingRuleResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RoutingRuleResponse(
+      channels: optionalField(map, path, 'channels', asList(asString)),
+      keywords: optionalField(map, path, 'keywords', asList(asString)),
+      queueUnitId: requiredField(map, path, 'queue_unit_id', asString),
+      priority: optionalField(map, path, 'priority', asString),
+      extra: unknownFields(map, path, const <String>{'channels', 'keywords', 'queue_unit_id', 'priority'}, strict: true),
+    );
+  }
+
+  final List<String>? channels;
+  final List<String>? keywords;
+  final String queueUnitId;
+  final String? priority;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (channels != null) 'channels': channels,
+        if (keywords != null) 'keywords': keywords,
+        'queue_unit_id': queueUnitId,
+        if (priority != null) 'priority': priority,
         ...extra,
       };
 }

@@ -566,3 +566,5 @@ export {
   withAbsoluteLinks,
 } from './omni-message.ts';
 export type { ConsentWord, MessageDraft, MessageKind, MessagePurpose, SendFacts } from './omni-message.ts';
+export { CANNED_BODY_MAX, CANNED_CHANNELS, CANNED_CLASSIFICATIONS, CANNED_TITLE_MAX, FIRST_RESPONSE_MINUTES_MAX, MAX_RULES, POLICY_CHANNELS, POLICY_PRIORITIES, RESOLUTION_HOURS_MAX, assertCannedReply, assertPolicy, assertPublishReason, foldText, routeOf } from './omni-policy.ts';
+export type { CannedReplyDraft, PolicyDraft, PolicyPriority, Routed, RoutingRule } from './omni-policy.ts';

@@ -5289,6 +5289,14 @@
       "module": "OMNI",
       "statusBasis": "convention",
       "source": "openapi"
+    },
+    "POLICY_STATE_INVALID": {
+      "status": 409,
+      "title": "Policy state invalid",
+      "meaning": "A routing policy is published once, from a Draft: a version that is already published or superseded is not published again (OMNI.md 3.1).",
+      "module": "OMNI",
+      "statusBasis": "convention",
+      "source": "openapi"
     }
   }
 }

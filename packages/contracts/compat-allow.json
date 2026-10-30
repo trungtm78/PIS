@@ -559,6 +559,13 @@
       "location": "query:limit",
       "reason": "the read of one record is not paged",
       "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "createRoutingPolicyVersion",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "rules[].queue_unit_id",
+      "reason": "the rules of a routing policy were free objects; each now names the unit whose queue it is, with the channels and words it is narrowed by (nothing called the operation before)",
+      "change_request": "ST-OMNI-006"
     }
   ]
 }
