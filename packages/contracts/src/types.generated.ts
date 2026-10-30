@@ -8489,7 +8489,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các lần xuất hồ sơ nhà thầu: của người xuất, hoặc của cả tenant với người có quyền toàn tenant (CTR-24) */
+        get: operations["listContractorExports"];
         put?: never;
         /** Xuất tệp đánh giá/vi phạm nhà thầu để cung cấp cơ sở dữ liệu quốc gia (NĐ 214/2025 Đ19–20) */
         post: operations["exportContractorRecords"];
@@ -15301,6 +15302,23 @@ export interface paths {
         };
         /** Nhà thầu có hợp đồng trong phạm vi của người đọc, để chọn bảng điểm cần xem (CTR-23) */
         get: operations["listScorecardContractors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contractor-exports/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Liên kết ký ngắn hạn để tải tệp của một lần xuất (CTR-24) */
+        get: operations["getContractorExportDownload"];
         put?: never;
         post?: never;
         delete?: never;
@@ -22945,6 +22963,54 @@ export interface components {
             }[];
             /** Format: date-time */
             as_of: string;
+        };
+        ContractorExportBatch: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            scope: "PERFORMANCE" | "VIOLATION" | "BOTH";
+            /** Format: date */
+            period_from: string;
+            /** Format: date */
+            period_to: string;
+            /** @enum {string} */
+            format: "CSV" | "JSON";
+            row_count: number;
+            file_sha256: string;
+            /** @enum {string} */
+            status: "GENERATED" | "SUBMITTED_EXTERNALLY" | "CONFIRMED" | "FAILED";
+            /** @description The receipt number the national system gave, written down by hand */
+            submitted_ref?: string | null;
+            /** Format: date */
+            submitted_on?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            version: number;
+        };
+        ContractorExportPage: {
+            items: components["schemas"]["ContractorExportBatch"][];
+            next_cursor: string | null;
+            /** @description The adapter to the national database today: a file is proposed and its API is missing (CXN-EXE-01) */
+            adapter: {
+                /** @enum {string} */
+                state: "PROPOSED";
+                /** @enum {string} */
+                api: "MISSING";
+                cxn: string;
+            };
+            /** Format: date-time */
+            as_of: string;
+        };
+        ContractorExportDownload: {
+            /** Format: uuid */
+            export_id: string;
+            url: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** @enum {string} */
+            format: "CSV" | "JSON";
+            rows: number;
+            file_sha256: string;
         };
     };
     responses: never;
@@ -74216,6 +74282,83 @@ export interface operations {
             };
         };
     };
+    listContractorExports: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The batches, the newest first, with the state of the adapter to the national database */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractorExportPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     exportContractorRecords: {
         parameters: {
             query?: never;
@@ -115063,6 +115206,82 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ScorecardContractors"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getContractorExportDownload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A signed link to the file, valid for a few minutes; a new link is asked for each time */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractorExportDownload"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

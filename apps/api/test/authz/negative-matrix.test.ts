@@ -1299,6 +1299,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       planId: id(0x77, 37),
       evaluationId: id(0x77, 53),
       violationId: id(0x77, 54),
+      exportBatchId: id(0x77, 55),
       boqItemId: id(0x77, 17),
       periodId: id(0x77, 18),
       recipientMembershipId: memberId(RECIPIENT),

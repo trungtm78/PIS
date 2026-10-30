@@ -90,6 +90,8 @@ export interface MatrixTargets {
   /** An evaluation of a contractor and a violation of one: the command that names it in the path needs no row to be refused. */
   evaluationId: string;
   violationId: string;
+  /** A batch of the export of the records of the contractors: the command that names it in the path needs no row to be refused. */
+  exportBatchId: string;
   boqItemId: string;
   periodId: string;
   /** An UNVERIFIED contractor of tenant A made by someone other than the callers (version 1). */
@@ -2442,6 +2444,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   confirmContractorViolation: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/violations/${t.violationId}/confirm`, ifMatch: '"1"', body: { penalty_kind: 'NONE' } }),
+  },
+  // The export of the records of the contractors: a caller that is refused makes no file and writes down no receipt.
+  exportContractorRecords: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/contractor-exports', body: { scope: 'BOTH', period_from: '2026-07-01', period_to: '2026-09-30', format: 'CSV' } }),
+  },
+  markContractorExportSubmitted: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contractor-exports/${t.exportBatchId}/mark-submitted`, body: { submitted_ref: 'MATRIX-0001', submitted_on: '2026-10-01' } }),
   },
   // The warranty of a work: a caller that is refused creates no obligation and closes none.
   createWarrantyObligation: {

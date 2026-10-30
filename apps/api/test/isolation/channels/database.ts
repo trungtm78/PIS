@@ -580,6 +580,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordContractorViolation',
   'confirmContractorViolation',
   'getContractorScorecard',
+  'exportContractorRecords',
+  'markContractorExportSubmitted',
+  'listContractorExports',
+  'getContractorExportDownload',
   'listScorecardContractors',
   'listRetentionHolds',
   'createPaymentRequest',
@@ -1339,6 +1343,11 @@ const INSERT_VIOLATION = `insert into machvon.contractor_violation
   (tenant_id, id, contract_id, contractor_id, violation_kind, severity, occurred_on, description, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'DELAY', 'MAJOR', date '2026-09-01', $5, 'RECORDED', $6, $6) on conflict do nothing`;
 
+/** A batch of the export of the records of the contractors, generated, whose file is not stored (the isolation of the file is the one of the object store). */
+const INSERT_EXPORT_BATCH = `insert into machvon.contractor_export_batch
+  (tenant_id, id, scope, period_from, period_to, format, file_sha256, file_object_key, row_count, contract_ids, status, created_by)
+  values ($1, $2, 'BOTH', date '2026-07-01', date '2026-09-30', 'CSV', $3, $4, 2, $6::uuid[], 'GENERATED', $5) on conflict do nothing`;
+
 const INSERT_MEASUREMENT = `insert into machvon.measurement
   (tenant_id, id, contract_id, contract_revision_id, boq_line_id, boq_item_id, period_id, quantity_period, quantity_cumulative, revision, status, evidence_refs, reference_no, submitted_by, submitted_at, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, $6, $7, 1, 0, 1, 'SUBMITTED', jsonb_build_array(jsonb_build_object('document_version_id', $8::text)), $9, $10, now(), $10, $10, 1) on conflict do nothing`;
@@ -1960,6 +1969,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const scorecard = SCORECARD_FIXTURES[tenant];
     await client.query(INSERT_EVALUATION, [tenantId, scorecard.evaluationId, draft.id, contractor.id, scorecard.remarks, ACTOR_ID]);
     await client.query(INSERT_VIOLATION, [tenantId, scorecard.violationId, draft.id, contractor.id, scorecard.description, ACTOR_ID]);
+    await client.query(INSERT_EXPORT_BATCH, [tenantId, scorecard.exportId, scorecard.exportSha256, `tenants/${tenantId}/contractor_export/${scorecard.exportSha256}`, MEMBERSHIP_ID, [draft.id]]);
     const workAcceptance = WORK_ACCEPTANCE_FIXTURES[tenant];
     await client.query(INSERT_WORK_ACCEPTANCE, [tenantId, workAcceptance.id, draft.id, measurement.id, documents.versionId, workAcceptance.acceptanceNo, period.id, ACTOR_ID]);
     await client.query(INSERT_WORK_ACCEPTANCE_LINE, [tenantId, workAcceptance.id, measurement.id, boq.itemId, draft.revisionId, ACTOR_ID]);

@@ -300,6 +300,8 @@
     "approveContractorEvaluation",
     "recordContractorViolation",
     "confirmContractorViolation",
+    "exportContractorRecords",
+    "markContractorExportSubmitted",
     "renderDocumentPreview",
     "renewPermit",
     "reopenFiscalYear",

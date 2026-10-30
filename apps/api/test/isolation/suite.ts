@@ -367,9 +367,9 @@ export const MEASUREMENT_FIXTURES: Readonly<Record<TenantName, { id: string; ref
 };
 
 /** An evaluation of the contractor of each tenant that waits for approval, and a violation that waits for confirmation (the words are distinctive; tenant data about a contractor). */
-export const SCORECARD_FIXTURES: Readonly<Record<TenantName, { evaluationId: string; remarks: string; violationId: string; description: string }>> = {
-  'TNT-A': { evaluationId: '00000000-0000-4000-a0e4-000000000001', remarks: 'ALPHA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-a0e4-000000000002', description: 'ALPHA-VIOLATION-WORDS-0001' },
-  'TNT-B': { evaluationId: '00000000-0000-4000-b0e4-000000000001', remarks: 'BETA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-b0e4-000000000002', description: 'BETA-VIOLATION-WORDS-0001' },
+export const SCORECARD_FIXTURES: Readonly<Record<TenantName, { evaluationId: string; remarks: string; violationId: string; description: string; exportId: string; exportSha256: string }>> = {
+  'TNT-A': { evaluationId: '00000000-0000-4000-a0e4-000000000001', remarks: 'ALPHA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-a0e4-000000000002', description: 'ALPHA-VIOLATION-WORDS-0001', exportId: '00000000-0000-4000-a0e4-000000000003', exportSha256: 'a0e4'.repeat(16) },
+  'TNT-B': { evaluationId: '00000000-0000-4000-b0e4-000000000001', remarks: 'BETA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-b0e4-000000000002', description: 'BETA-VIOLATION-WORDS-0001', exportId: '00000000-0000-4000-b0e4-000000000003', exportSha256: 'b0e4'.repeat(16) },
 };
 
 /**
@@ -1185,6 +1185,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contractor evaluation remarks', value: SCORECARD_FIXTURES[tenant].remarks },
     { kind: 'contractor violation id', value: SCORECARD_FIXTURES[tenant].violationId },
     { kind: 'contractor violation description', value: SCORECARD_FIXTURES[tenant].description },
+    { kind: 'contractor export id', value: SCORECARD_FIXTURES[tenant].exportId },
+    { kind: 'contractor export hash', value: SCORECARD_FIXTURES[tenant].exportSha256 },
     { kind: 'work acceptance id', value: WORK_ACCEPTANCE_FIXTURES[tenant].id },
     { kind: 'work acceptance number', value: WORK_ACCEPTANCE_FIXTURES[tenant].acceptanceNo },
     { kind: 'payment request id', value: PAYMENT_FIXTURES[tenant].id },

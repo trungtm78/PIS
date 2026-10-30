@@ -757,6 +757,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getContractSummary({required String id, Map<String, Object?>? query}) =>
       execute('getContractSummary', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getContractorExportDownload({required String id, Map<String, Object?>? query}) =>
+      execute('getContractorExportDownload', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getContractorHistory({required String id, Map<String, Object?>? query}) =>
       execute('getContractorHistory', path: <String, Object?>{'id': id}, query: query);
 
@@ -1638,6 +1641,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listConflictDeclarations({required String id, Map<String, Object?>? query}) =>
       execute('listConflictDeclarations', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> listContractorExports({Map<String, Object?>? query}) =>
+      execute('listContractorExports', query: query);
 
   Future<Object?> listConversationAssignees({required String conversationId, Map<String, Object?>? query}) =>
       execute('listConversationAssignees', path: <String, Object?>{'conversationId': conversationId}, query: query);

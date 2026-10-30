@@ -177,7 +177,7 @@ export function buildExportDocument(input: ExportInput): ExportDocument {
 const FORMULA_START = /^[=+\-@\t\r]/;
 
 /** A text cell is never read as a formula by a spreadsheet: a quote goes in front of what begins like one. Money and rates are numbers and are written as they are. */
-function guarded(value: string, numeric: boolean): string {
+export function guarded(value: string, numeric: boolean): string {
   return !numeric && FORMULA_START.test(value) ? `'${value}` : value;
 }
 
@@ -185,7 +185,7 @@ function csvCell(value: string): string {
   return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
-const csvLine = (cells: readonly string[]): string => cells.map(csvCell).join(',');
+export const csvLine = (cells: readonly string[]): string => cells.map(csvCell).join(',');
 
 /** UTF-8 with a byte-order mark (so that a spreadsheet reads the Vietnamese), CRLF lines: the header block, a blank line, the table, and the notice last. */
 export function csvOf(document: ExportDocument): string {

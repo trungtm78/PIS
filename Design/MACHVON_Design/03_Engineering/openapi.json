@@ -74234,7 +74234,8 @@
         "x-error-codes": [
           "EXPORT_EMPTY",
           "VALIDATION_FAILED",
-          "SCOPE_DENIED"
+          "SCOPE_DENIED",
+          "EXPORT_ROW_CAP_EXCEEDED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -74333,6 +74334,107 @@
           }
         },
         "x-note": "Adapter hệ thống quốc gia: PROPOSED (tệp), API: MISSING [CXN-EXE-01]"
+      },
+      "get": {
+        "operationId": "listContractorExports",
+        "summary": "Các lần xuất hồ sơ nhà thầu: của người xuất, hoặc của cả tenant với người có quyền toàn tenant (CTR-24)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.export",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "The batches, the newest first, with the state of the adapter to the national database",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractorExportPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/contractor-exports/{id}/mark-submitted": {
@@ -132135,6 +132237,102 @@
           }
         }
       }
+    },
+    "/contractor-exports/{id}/download": {
+      "get": {
+        "operationId": "getContractorExportDownload",
+        "summary": "Liên kết ký ngắn hạn để tải tệp của một lần xuất (CTR-24)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.export",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "A signed link to the file, valid for a few minutes; a new link is asked for each time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractorExportDownload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -160184,6 +160382,177 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ContractorExportBatch": {
+        "type": "object",
+        "required": [
+          "id",
+          "scope",
+          "period_from",
+          "period_to",
+          "format",
+          "row_count",
+          "file_sha256",
+          "status",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "PERFORMANCE",
+              "VIOLATION",
+              "BOTH"
+            ]
+          },
+          "period_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "period_to": {
+            "type": "string",
+            "format": "date"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "CSV",
+              "JSON"
+            ]
+          },
+          "row_count": {
+            "type": "integer"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "GENERATED",
+              "SUBMITTED_EXTERNALLY",
+              "CONFIRMED",
+              "FAILED"
+            ]
+          },
+          "submitted_ref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The receipt number the national system gave, written down by hand"
+          },
+          "submitted_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "ContractorExportPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "adapter",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractorExportBatch"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "adapter": {
+            "type": "object",
+            "description": "The adapter to the national database today: a file is proposed and its API is missing (CXN-EXE-01)",
+            "required": [
+              "state",
+              "api",
+              "cxn"
+            ],
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": [
+                  "PROPOSED"
+                ]
+              },
+              "api": {
+                "type": "string",
+                "enum": [
+                  "MISSING"
+                ]
+              },
+              "cxn": {
+                "type": "string"
+              }
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContractorExportDownload": {
+        "type": "object",
+        "required": [
+          "export_id",
+          "url",
+          "expires_at",
+          "format",
+          "rows",
+          "file_sha256"
+        ],
+        "properties": {
+          "export_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "CSV",
+              "JSON"
+            ]
+          },
+          "rows": {
+            "type": "integer"
+          },
+          "file_sha256": {
+            "type": "string"
           }
         }
       }

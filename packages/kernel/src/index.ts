@@ -382,6 +382,8 @@ export {
   ratingOf,
 } from './ctr-scorecard.ts';
 export type { ConfirmationInput, Criterion, EvaluationInput, EvaluationKind, PenaltyKind, Rating, Scores, Severity, ViolationInput, ViolationKind, ViolationSource } from './ctr-scorecard.ts';
+export { CONTRACTOR_EXPORT_COLUMNS, CONTRACTOR_EXPORT_FORMATS, CONTRACTOR_EXPORT_SCOPES, EXPORT_ADAPTER, MAX_PERIOD_DAYS, assertExportRequest, assertSubmission, buildContractorExport } from './ctr-export.ts';
+export type { ContractorExportColumn, ContractorExportFormat, ContractorExportRecord, ContractorExportScope, ExportFile, ExportRequest, Submission } from './ctr-export.ts';
 export { RELEASE_BLOCKERS, RELEASE_CONDITIONS, RETENTION_STATUSES, assertNotTheMaker, assertReleasable, assertReleaseAmount, assertSomethingHeld, releaseBlocker, retentionLeft, statusAfterRelease } from './ctr-retention.ts';
 export type { ReleaseBlocker, ReleaseCondition, ReleaseFacts, RetentionStatus } from './ctr-retention.ts';
 export { CLOSURE_GUARDS, assertContractClosure, unmetClosureGuards } from './contract-closure.ts';

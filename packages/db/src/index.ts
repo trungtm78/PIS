@@ -500,6 +500,8 @@ export type { AlertThreshold, ExpiringRow, GuaranteeKind, GuaranteeMove, Guarant
 export { CtrGuaranteeExpiry } from './ctr-guarantee-expiry.ts';
 export { APPROVE_PERMISSION as SCORECARD_APPROVE_PERMISSION, CONFIRM_PERMISSION as VIOLATION_CONFIRM_PERMISSION, CtrScorecardStore, EVALUATE_PERMISSION as SCORECARD_EVALUATE_PERMISSION, READ_PERMISSION as SCORECARD_READ_PERMISSION, RECORD_PERMISSION as VIOLATION_RECORD_PERMISSION } from './ctr-scorecard-store.ts';
 export type { EvaluationLine as ScorecardEvaluationLine, EvaluationResult as ScorecardEvaluationResult, Scorecard as ContractorScorecard, ScorecardContract, ScorecardRange, ViolationLine as ScorecardViolationLine, ViolationResult as ScorecardViolationResult } from './ctr-scorecard-store.ts';
+export { CtrExportStore, EXPORT_PERMISSION as CONTRACTOR_EXPORT_PERMISSION } from './ctr-export-store.ts';
+export type { Batch as ContractorExportBatch } from './ctr-export-store.ts';
 export { CtrRetentionDue } from './ctr-retention-due.ts';
 export type { RetentionDueResult } from './ctr-retention-due.ts';
 export { CtrRetentionStore } from './ctr-retention-store.ts';

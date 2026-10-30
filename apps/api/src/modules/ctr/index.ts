@@ -6,6 +6,7 @@ import { ContractController, ContractReadsController, ContractRevisionReadsContr
 import { ContractLifecycleController } from './lifecycle.controller';
 import { MeasurementController, MeasurementReadsController } from './measurement.controller';
 import { RetentionController, RetentionReadsController } from './retention.controller';
+import { ContractorExportController, ContractorExportReadsController } from './export.controller';
 import { ScorecardController, ScorecardReadsController } from './scorecard.controller';
 import { ExpiringGuaranteesController, GuaranteeController, GuaranteeReadsController } from './guarantee.controller';
 
@@ -19,7 +20,8 @@ import { ExpiringGuaranteesController, GuaranteeController, GuaranteeReadsContro
  * recorded per BOQ item and period, sent, approved and corrected, within the quantity of the revision in force (ST-CTR-008); the acceptance of approved measurements, priced from the revision in force on the day,
  * sent, decided by another person and revoked while no payment request holds it (ST-CTR-009); the retention held back from the payments, released by the chief accountant when its condition is met and
  * never above what is held or by whoever put it on hold (ST-CTR-010); the scorecard of a contractor, whose evaluations are weighted by the rule CTR.SCORECARD and approved by another person, and the log of its violations,
- * confirmed by another person and, for a sanction, with the document that decides it (ST-CTR-014).
+ * confirmed by another person and, for a sanction, with the document that decides it (ST-CTR-014); the export of the approved evaluations and the confirmed violations of a period as a file named by its hash, with the receipt of its
+ * submission by hand written down (ST-CTR-015).
  */
 export const ctrModule = defineModule({
   code: 'CTR',
@@ -43,5 +45,7 @@ export const ctrModule = defineModule({
     RetentionReadsController,
     ScorecardController,
     ScorecardReadsController,
+    ContractorExportController,
+    ContractorExportReadsController,
   ],
 });

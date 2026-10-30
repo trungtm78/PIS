@@ -431,6 +431,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getChangeChain': CtrChangeChainViewResponse.fromJson,
   'getCommandCenter': HomeCommandCenterResponse.fromJson,
   'getCompensationPlanTimers': asObject,
+  'getContractorExportDownload': ContractorExportDownloadResponse.fromJson,
   'getContractorHistory': asObject,
   'getContractorScorecard': ContractorScorecardResponse.fromJson,
   'getContractSummary': asObject,
@@ -548,6 +549,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listCompensationPlanItems': asObject,
   'listCompensationPlans': asObject,
   'listConflictDeclarations': BidConflictDeclarationListResponse.fromJson,
+  'listContractorExports': ContractorExportPageResponse.fromJson,
   'listConversationAssignees': ConversationAssigneeListResponse.fromJson,
   'listDisbursementSchedules': asObject,
   'listDocumentNumberRegisters': asObject,
@@ -3589,6 +3591,194 @@ final class ContactViewResponseMergeCandidatesItem implements ResponseModel {
         'contact_id': contactId,
         'display_name': displayName,
         'identity_id': identityId,
+        ...extra,
+      };
+}
+
+final class ContractorExportBatchResponse implements ResponseModel {
+  const ContractorExportBatchResponse({
+    required this.id,
+    required this.scope,
+    required this.periodFrom,
+    required this.periodTo,
+    required this.format,
+    required this.rowCount,
+    required this.fileSha256,
+    required this.status,
+    required this.createdAt,
+    required this.version,
+    this.submittedRef,
+    this.submittedOn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContractorExportBatchResponse.fromJson(Object? json, [String path = 'ContractorExportBatchResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContractorExportBatchResponse(
+      id: requiredField(map, path, 'id', asString),
+      scope: requiredField(map, path, 'scope', asString),
+      periodFrom: requiredField(map, path, 'period_from', asString),
+      periodTo: requiredField(map, path, 'period_to', asString),
+      format: requiredField(map, path, 'format', asString),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      status: requiredField(map, path, 'status', asString),
+      submittedRef: optionalField(map, path, 'submitted_ref', nullable(asString)),
+      submittedOn: optionalField(map, path, 'submitted_on', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'scope', 'period_from', 'period_to', 'format', 'row_count', 'file_sha256', 'status', 'submitted_ref', 'submitted_on', 'created_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String scope;
+  final String periodFrom;
+  final String periodTo;
+  final String format;
+  final int rowCount;
+  final String fileSha256;
+  final String status;
+  final String? submittedRef;
+  final String? submittedOn;
+  final String createdAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'scope': scope,
+        'period_from': periodFrom,
+        'period_to': periodTo,
+        'format': format,
+        'row_count': rowCount,
+        'file_sha256': fileSha256,
+        'status': status,
+        if (submittedRef != null) 'submitted_ref': submittedRef,
+        if (submittedOn != null) 'submitted_on': submittedOn,
+        'created_at': createdAt,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class ContractorExportDownloadResponse implements ResponseModel {
+  const ContractorExportDownloadResponse({
+    required this.exportId,
+    required this.url,
+    required this.expiresAt,
+    required this.format,
+    required this.rows,
+    required this.fileSha256,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContractorExportDownloadResponse.fromJson(Object? json, [String path = 'ContractorExportDownloadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContractorExportDownloadResponse(
+      exportId: requiredField(map, path, 'export_id', asString),
+      url: requiredField(map, path, 'url', asString),
+      expiresAt: requiredField(map, path, 'expires_at', asString),
+      format: requiredField(map, path, 'format', asString),
+      rows: requiredField(map, path, 'rows', asInt),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      extra: unknownFields(map, path, const <String>{'export_id', 'url', 'expires_at', 'format', 'rows', 'file_sha256'}, strict: false),
+    );
+  }
+
+  final String exportId;
+  final String url;
+  final String expiresAt;
+  final String format;
+  final int rows;
+  final String fileSha256;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'export_id': exportId,
+        'url': url,
+        'expires_at': expiresAt,
+        'format': format,
+        'rows': rows,
+        'file_sha256': fileSha256,
+        ...extra,
+      };
+}
+
+final class ContractorExportPageResponse implements ResponseModel {
+  const ContractorExportPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.adapter,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContractorExportPageResponse.fromJson(Object? json, [String path = 'ContractorExportPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContractorExportPageResponse(
+      items: requiredField(map, path, 'items', asList(ContractorExportBatchResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      adapter: requiredField(map, path, 'adapter', ContractorExportPageResponseAdapter.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'adapter', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ContractorExportBatchResponse> items;
+  final String? nextCursor;
+  final ContractorExportPageResponseAdapter adapter;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'adapter': adapter.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ContractorExportPageResponseAdapter implements ResponseModel {
+  const ContractorExportPageResponseAdapter({
+    required this.state,
+    required this.api,
+    required this.cxn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContractorExportPageResponseAdapter.fromJson(Object? json, [String path = 'ContractorExportPageResponseAdapter']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContractorExportPageResponseAdapter(
+      state: requiredField(map, path, 'state', asString),
+      api: requiredField(map, path, 'api', asString),
+      cxn: requiredField(map, path, 'cxn', asString),
+      extra: unknownFields(map, path, const <String>{'state', 'api', 'cxn'}, strict: false),
+    );
+  }
+
+  final String state;
+  final String api;
+  final String cxn;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'state': state,
+        'api': api,
+        'cxn': cxn,
         ...extra,
       };
 }
