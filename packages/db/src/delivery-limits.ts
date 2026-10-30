@@ -4,7 +4,7 @@ import type { TenantTx } from './tenant-database.ts';
 
 /**
  * The cap and the budget of a channel account at the moment a send is taken up (ST-NOT-010, BR-NOT-13). It runs in the transaction that claims the attempt: the account's limits are locked for the rest of that transaction
- * (an advisory lock on the account, taken only for an account that has a limit), so two sends that are claimed at once cannot both slip under the same cap. What has been sent is counted from the attempts that were taken
+ * (an advisory lock on the account, taken only for an account that has a limit), so two sends that are claimed at once cannot both slip under the same cap. What has been sent is counted from the attempts, and from the sends of the messages that agents wrote in conversations (ST-OMNI-005), that were taken
  * up since the start of the day and of the month in Vietnam, and what was spent is the sum of the estimated prices written on them. A CRITICAL message is never held back by money.
  */
 export class DeliveryLimits {
@@ -15,7 +15,9 @@ export class DeliveryLimits {
     await tx.query("select pg_advisory_xact_lock(hashtext('channel-limit:' || current_setting('app.tenant_id', true) || ':' || $1))", [channelAccountId]);
     const [use] = await tx.query<{ today: string; spent: string }>(
       `select count(*) filter (where sending_at >= $2::timestamptz)::text as today, coalesce(sum(cost), 0)::bigint::text as spent
-         from machvon.delivery_attempt where channel_account_id = $1::uuid and sending_at >= $3::timestamptz`,
+         from (select sending_at, cost from machvon.delivery_attempt where channel_account_id = $1::uuid and sending_at >= $3::timestamptz
+               union all
+               select sending_at, cost from machvon.channel_message_send where channel_account_id = $1::uuid and sending_at >= $3::timestamptz) used`,
       [channelAccountId, dayStartVn(now).toISOString(), monthStartVn(now).toISOString()],
     );
     return judgeLimits({

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ConversationStore, WORKER_MEMBERSHIP_ID } from '@machvon/db';
+import { ConversationOutboundStore, ConversationStore, WORKER_MEMBERSHIP_ID } from '@machvon/db';
 import type { AuditWriter, DeliveryEngine, InboxHandler } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import type { ChannelAdapterRegistry } from './channel-adapters';
@@ -11,15 +11,17 @@ export interface CallbackHandlerDeps {
   engine: DeliveryEngine;
   audit: Pick<AuditWriter, 'recordInTx'>;
   conversations?: ConversationStore;
+  outbound?: Pick<ConversationOutboundStore, 'applyReceipt'>;
 }
 
 /**
- * The adapter of the integration inbox for the events of one provider: the delivery receipts (ST-NOT-002) and the messages that people write to the tenant (ST-OMNI-004). It reads the stored body of the event, and with the parser of the
+ * The adapter of the integration inbox for the events of one provider: the delivery receipts (of a notification, ST-NOT-002, or of a message an agent sent, ST-OMNI-005) and the messages that people write to the tenant (ST-OMNI-004). It reads the stored body of the event, and with the parser of the
  * provider's adapter either applies a receipt to the send through the monotonic reducer of KERNEL-1 or puts the message into its conversation. It runs in the transaction of the inbox processor, so what it wrote is undone when it fails, and a
  * failure costs the event an attempt (a receipt for a message id that is not known yet is tried again after 1, 5 and 30 minutes). The tenant is the one of the inbox row; the body is never trusted for it.
  */
 export function channelCallbackHandler(provider: string, deps: CallbackHandlerDeps): InboxHandler {
   const conversations = deps.conversations ?? new ConversationStore();
+  const outbound = deps.outbound ?? new ConversationOutboundStore();
   return async (delivery, tx) => {
     const adapter = deps.adapters.forProvider(provider);
     if (adapter === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -33,6 +35,8 @@ export function channelCallbackHandler(provider: string, deps: CallbackHandlerDe
     if (body === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const parsed = adapter.parseCallback(body);
     if (parsed !== undefined) {
+      // A receipt for a message an agent sent in a conversation moves that message; one for anything else is a notification's.
+      if ((await outbound.applyReceipt(tx, row.channel_account_id, parsed.providerMessageId, parsed.status)) !== 'UNKNOWN') return;
       await deps.engine.applyCallback(tx, {
         inboxId: delivery.id,
         channelAccountId: row.channel_account_id,

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -9,7 +10,7 @@ import { instantText } from '../adm/audit/SealBanner';
 import '../not/delivery/delivery.css';
 import { useAssignConversation, useAssignees, useConversations } from './conversation/hooks';
 import { channelLabel, problemMessage, statusLabel, statusPill } from './conversation/labels';
-import { ASSIGN_PERMISSION, NO_FILTER, READ_PERMISSION, REASON_MAX, STATUSES, describeProblem, mayAssign, reasonProblem, windowClosed } from './conversation/model';
+import { ASSIGN_PERMISSION, NO_FILTER, READ_PERMISSION, REASON_MAX, STATUSES, conversationLink, describeProblem, mayAssign, reasonProblem, windowClosed } from './conversation/model';
 import type { Conversation, ConversationStatus, Filters } from './conversation/model';
 
 /**
@@ -114,6 +115,9 @@ function InboxContent({ route }: ScreenProps) {
                   </td>
                   <td>{row.lastInboundAt === undefined ? '' : instantText(locale, row.lastInboundAt)}</td>
                   <td>
+                    <Link className="button" to={conversationLink(row.id)} data-open={row.id} aria-label={t('omni.inbox.open.aria', { name: row.contactName })}>
+                      {t('omni.inbox.open.action')}
+                    </Link>
                     {canAssign && mayAssign(row) ? (
                       <button type="button" onClick={() => (setAssigning(row.id), setNotice(undefined))} aria-label={t('omni.inbox.assign.aria', { name: row.contactName })}>
                         {t('omni.inbox.assign.action')}

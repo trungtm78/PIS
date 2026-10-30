@@ -36,6 +36,7 @@ import type { InvitationMailer } from './modules/adm/invitation-mailer';
 import { ADM_INBOX_HANDLERS } from './modules/adm/tokens';
 import { CHANNEL_ADAPTERS } from './notifications/delivery/channel-adapters';
 import type { ChannelAdapterRegistry } from './notifications/delivery/channel-adapters';
+import { ConversationSender } from './omni/conversations/conversation-sender';
 import { DeliveryDispatcher } from './notifications/delivery/dispatcher';
 import { DELIVERY_ENGINE } from './notifications/delivery/tokens';
 import { PermissionResourceAccess } from './notifications/resource-access-port';
@@ -248,6 +249,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           resourceAccess: new PermissionResourceAccess(),
           alerts,
           pushTokens: app.get<PushTokenVault>(PUSH_TOKEN_VAULT, { strict: false }),
+          // What agents say in conversations goes out in the same pass, through the same adapters (ST-OMNI-005).
+          conversations: new ConversationSender({ database: tenants, adapters: app.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }), webBaseUrl: config.webBaseUrl, alerts }),
         },
         process.env.MACHVON_ENVIRONMENT,
       );

@@ -13,8 +13,10 @@ import type { PushTarget } from './push-port.ts';
 export interface ChannelSendRequest {
   /** `{notification_id}:{channel}:{attempt_no}`: a provider that supports idempotency keys sends once however often it is asked. */
   idempotencyKey: string;
-  /** The e-mail address, telephone number or device reference the channel needs. */
+  /** The e-mail address, telephone number or device reference the channel needs. For an answer in a conversation (ST-OMNI-005) it is the handle of the thread at the provider, which is also given as `threadId`: the address of a person is never stored. */
   to: string;
+  /** The thread of the conversation at the provider, when the message is an answer in one: where the provider can answer without an address. */
+  threadId?: string;
   subject?: string;
   text: string;
   /** The external account id of the channel account (the sender identity at the provider). */

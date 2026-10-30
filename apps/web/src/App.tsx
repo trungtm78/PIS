@@ -7,6 +7,7 @@ import { useTranslation } from './i18n';
 import { ARCHITECTURE } from './navigation/architecture';
 import { resolveScreen, routeById } from './routes/registry';
 import { NotFound } from './routes/NotFound';
+import { DocumentLink } from './routes/DocumentLink';
 import { OpaqueLink } from './routes/OpaqueLink';
 import { WEB_ROUTES } from './routes/web-routes';
 import type { ScreenLoader, WebRoute } from './routes/types';
@@ -86,6 +87,8 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
           ))}
           {/* The link a push carries: it names the notification only (ST-NOT-007). */}
           <Route path="/r/:id" element={<OpaqueLink />} />
+          {/* The link a message to a person carries for a file or a record: it names the version of a document only (ST-OMNI-005). */}
+          <Route path="/d/:id" element={<DocumentLink />} />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path={CALLBACK_PATH} element={<OidcCallback />} />

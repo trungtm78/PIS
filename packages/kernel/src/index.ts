@@ -544,3 +544,25 @@ export { CHANNEL_UNIT_COST_VND, MAX_DAILY_CAP, VN_OFFSET_MS, assertLimits, daySt
 export type { ChannelLimits, DeliveryCounts, LimitUse, LimitVerdict } from './channel-limits.ts';
 export { CAMPAIGN_EVENT_TYPE, CAMPAIGN_PURPOSES, CAMPAIGN_VALIDITY_MS, EXCLUSION_REASONS, MAX_CAMPAIGN_EVIDENCE, MAX_CAMPAIGN_RECIPIENTS, assertCampaignDraft, assertCampaignReason, assertCampaignSubmission, assertCampaignVerdict, campaignAfter, emptyExclusions, exclusionOf, previewHashOf } from './campaign.ts';
 export type { CampaignAction, CampaignDraft, CampaignPurpose, CampaignSegment, CampaignStatus, CampaignSubmission, CampaignVerdict, CampaignVerdictInput, CandidateFacts, ExclusionReason, Exclusions } from './campaign.ts';
+export {
+  DELIVERY_RANK,
+  DELIVERY_STATUS_OF,
+  LINKABLE_TYPES,
+  MAX_ATTACHMENTS,
+  MAX_LINKS,
+  MESSAGE_KINDS,
+  MESSAGE_PURPOSES,
+  MESSAGE_TEXT_MAX,
+  SEND_ATTEMPTS_MAX,
+  SENDABLE_CLASSIFICATIONS,
+  assertConversationReason,
+  assertMessageSend,
+  attachable,
+  judgeSend,
+  mayMoveDelivery,
+  opaqueResourceLink,
+  retryDelayMs,
+  textWithLinks,
+  withAbsoluteLinks,
+} from './omni-message.ts';
+export type { ConsentWord, MessageDraft, MessageKind, MessagePurpose, SendFacts } from './omni-message.ts';

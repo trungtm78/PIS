@@ -14,13 +14,15 @@ import type { IdentityChannel } from './omni-contact.ts';
  */
 export const CONVERSATION_STATUSES = ['New', 'Assigned', 'InProgress', 'PendingCustomer', 'Resolved', 'Closed'] as const;
 export type ConversationStatus = (typeof CONVERSATION_STATUSES)[number];
-export type ConversationAction = 'assign' | 'open' | 'pend' | 'resolve' | 'reopen' | 'close' | 'inbound';
+export type ConversationAction = 'assign' | 'open' | 'pend' | 'reply' | 'resolve' | 'reopen' | 'close' | 'inbound';
 
 const TRANSITIONS: Readonly<Record<ConversationAction, Readonly<Partial<Record<ConversationStatus, ConversationStatus>>>>> = {
   // A reassignment keeps the state it is in; a new conversation becomes Assigned.
   assign: { New: 'Assigned', Assigned: 'Assigned', InProgress: 'InProgress', PendingCustomer: 'PendingCustomer' },
   open: { Assigned: 'InProgress', PendingCustomer: 'InProgress' },
   pend: { InProgress: 'PendingCustomer' },
+  // An answer to the person takes a conversation that was given to an agent, or waited for the customer, up; one that is under way stays so (OMNI.md 4).
+  reply: { Assigned: 'InProgress', InProgress: 'InProgress', PendingCustomer: 'InProgress' },
   // A conversation that nobody has taken up is not resolved (OMNI.md 4: resolve on New is 409).
   resolve: { InProgress: 'Resolved', PendingCustomer: 'Resolved' },
   reopen: { Resolved: 'InProgress' },

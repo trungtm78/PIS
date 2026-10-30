@@ -27,6 +27,8 @@ export interface Config {
   /** Signs the worker context of outbox deliveries; at least 32 bytes. */
   outboxSigningKey: Buffer;
   corsOrigins: readonly string[];
+  /** The public origin of the web application: what the links in the messages to people are made whole with (ST-OMNI-005); none means a message that carries a link is not sent. */
+  webBaseUrl: string | undefined;
   maxBodyBytes: number;
   shutdownTimeoutMs: number;
   /** Where the SQL migrations are read from to tell whether the schema is up to date. */
@@ -195,6 +197,8 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     const origins = value.split(',').map((entry) => entry.trim()).filter((entry) => entry !== '');
     return origins.every((origin) => urlWith(origin, ['https:', 'http:']) && new URL(origin).origin === origin) ? origins : undefined;
   });
+  const webBaseUrl = read('WEB_BASE_URL');
+  if (webBaseUrl !== undefined && !(urlWith(webBaseUrl, ['https:', 'http:']) && new URL(webBaseUrl).origin === webBaseUrl)) fail('WEB_BASE_URL', 'malformed', 'the origin of the web application such as https://app.example.test (no path)');
   const exporter = optional<TelemetryExporterKind>('TELEMETRY_EXPORTER', 'none', 'none, console or otlp', (value) => (value === 'none' || value === 'console' || value === 'otlp' ? value : undefined));
   const otlpEndpoint = read('OTLP_ENDPOINT');
   if (exporter === 'otlp' && otlpEndpoint === undefined) fail('OTLP_ENDPOINT', 'missing', 'an http(s) URL of the collector when TELEMETRY_EXPORTER is otlp');
@@ -217,6 +221,7 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     tenantToken: { issuer: tenantIssuer as string, signingKeyPem: signingKeyPem as string, keyId: keyId as string, retired },
     outboxSigningKey: Buffer.from(outboxSigningKey as string, 'base64'),
     corsOrigins,
+    webBaseUrl,
     maxBodyBytes,
     shutdownTimeoutMs,
     // A default is looked for from the working directory upwards; when it is nowhere, the relative name stays and the

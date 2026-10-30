@@ -283,6 +283,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'NOT-15': () => import('../../screens/not/ChannelLimitsScreen'),
   'NOT-17': () => import('../../screens/not/ConsentHistoryScreen'),
   'OMNI-01': () => import('../../screens/omni/ConversationInboxScreen'),
+  'OMNI-02': () => import('../../screens/omni/ConversationScreen'),
   'OMNI-03': () => import('../../screens/omni/ContactDirectoryScreen'),
   'OMNI-04': () => import('../../screens/omni/ContactConsentScreen'),
   'OMNI-05': () => import('../../screens/omni/ChannelConnectScreen'),

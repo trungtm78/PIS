@@ -19,6 +19,12 @@ describe('the conversations of the omnichannel center (ST-OMNI-004, OMNI.md 3.1,
     expect(conversationAfter('InProgress', 'assign')).toBe('InProgress');
     expect(conversationAfter('Assigned', 'open')).toBe('InProgress');
     expect(conversationAfter('InProgress', 'pend')).toBe('PendingCustomer');
+    expect(conversationAfter('Assigned', 'reply')).toBe('InProgress');
+    expect(conversationAfter('PendingCustomer', 'reply')).toBe('InProgress');
+    expect(conversationAfter('InProgress', 'reply')).toBe('InProgress');
+    expect(refusal(() => conversationAfter('New', 'reply')).code).toBe('CONVERSATION_STATE_INVALID');
+    expect(refusal(() => conversationAfter('Resolved', 'reply')).code).toBe('CONVERSATION_STATE_INVALID');
+    expect(refusal(() => conversationAfter('Closed', 'reply')).code).toBe('CONVERSATION_STATE_INVALID');
     expect(conversationAfter('InProgress', 'resolve')).toBe('Resolved');
     expect(conversationAfter('PendingCustomer', 'resolve')).toBe('Resolved');
     expect(conversationAfter('Resolved', 'reopen')).toBe('InProgress');

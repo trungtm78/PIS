@@ -81,6 +81,8 @@ describe('OMNI-01 the unified inbox (UI-OMNI-01)', () => {
     expect(first.querySelector('[data-assignee]')?.textContent).toBe(vi_['omni.inbox.assignee.none']);
     expect(first.querySelector('[data-sla]')?.textContent).toBe(vi_['omni.inbox.sla.none']);
     expect(first.textContent).toContain(vi_['omni.inbox.messages.count'].replace('{count}', '2'));
+    // The conversation opens on its own screen, named in the address.
+    expect((within(first).getByRole('link', { name: vi_['omni.inbox.open.aria'].replace('{name}', 'Trần Văn Nam') }) as HTMLAnchorElement).getAttribute('href')).toBe('/omni/omni-02?id=conversation-1');
     const second = await row('conversation-2');
     expect(second.querySelector('[data-assignee]')?.textContent).toContain('An');
     expect(second.querySelector('[data-assignee]')?.textContent).toContain('Phòng tiếp dân');
@@ -241,6 +243,7 @@ describe('OMNI-01 the unified inbox (UI-OMNI-01)', () => {
     it('reads a conversation, and nothing from a record that is not one', () => {
       expect(toConversation(conversation({ assignee_name: 'An', assignee_membership_id: 'member-1', queue_unit_name: 'Phòng A', sla_first_response_due_at: '2026-10-30T09:00:00Z' }))).toEqual({
         id: 'conversation-1',
+        channelAccountId: 'account-1',
         channel: 'WHATSAPP',
         accountName: 'WhatsApp hỗ trợ',
         contactName: 'Trần Văn Nam',
@@ -257,7 +260,7 @@ describe('OMNI-01 the unified inbox (UI-OMNI-01)', () => {
       expect(toConversation(null)).toBeUndefined();
       expect(toConversation({ id: 3 })).toBeUndefined();
       expect(toConversation({ id: 'x', status: 'Weird' })).toBeUndefined();
-      expect(toConversation({ id: 'x', status: 'New' })).toMatchObject({ channel: '', messageCount: 0, version: 0 });
+      expect(toConversation({ id: 'x', status: 'New' })).toMatchObject({ channel: '', channelAccountId: '', messageCount: 0, version: 0 });
       expect(toConversationPage(page([conversation(), { id: 'bad' }], 'n'))).toMatchObject({ items: [{ id: 'conversation-1' }], nextCursor: 'n' });
       expect(toConversationPage(undefined)).toEqual({ items: [], nextCursor: undefined });
       expect(toAssignees(assignees('An'))).toEqual([{ membershipId: 'member-1', displayName: 'An' }]);

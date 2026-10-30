@@ -251,11 +251,26 @@ describe('the inbox adapter of a provider (callback handler)', () => {
   const received: InboundInput[] = [];
   let outcome: InboundOutcome = { kind: 'BLOCKED' };
   const conversations = { receiveInbound: (_tx: unknown, input: InboundInput) => Promise.resolve((received.push(input), outcome)) } as unknown as ConversationStore;
-  const handler = (provider: string, stored: Buffer | undefined) => channelCallbackHandler(provider, { adapters, payloads: payloads(stored), engine, audit: audit as never, conversations });
+  const receipts: Array<[string, string, string]> = [];
+  let receiptOutcome: 'APPLIED' | 'IGNORED' | 'UNKNOWN' = 'UNKNOWN';
+  const outbound = { applyReceipt: (_tx: unknown, account: string, message: string, status: string) => Promise.resolve((receipts.push([account, message, status]), receiptOutcome)) };
+  const handler = (provider: string, stored: Buffer | undefined) => channelCallbackHandler(provider, { adapters, payloads: payloads(stored), engine, audit: audit as never, conversations, outbound: outbound as never });
 
   it('applies the status of the stored receipt to the send of the account named on the inbox row', async () => {
+    receiptOutcome = 'UNKNOWN';
+    receipts.length = 0;
+    applied.length = 0;
     await handler('smtp-relay', body)(delivery, tx({ tenant_id: TENANT.tenantId, channel_account_id: 'acct-1' }) as never);
     expect(applied).toEqual([{ inboxId: 'inbox-1', channelAccountId: 'acct-1', providerMessageId: 'm1', status: 'DELIVERED', occurredAt: new Date('2026-10-24T03:00:00.000Z') }]);
+  });
+
+  it.each([['APPLIED'], ['IGNORED']] as const)('leaves a receipt for a message that an agent sent in a conversation (%s) to that message, and applies it to no notification', async (outcome) => {
+    receiptOutcome = outcome;
+    receipts.length = 0;
+    applied.length = 0;
+    await handler('smtp-relay', body)(delivery, tx({ tenant_id: TENANT.tenantId, channel_account_id: 'acct-1' }) as never);
+    expect(receipts).toEqual([['acct-1', 'm1', 'DELIVERED']]);
+    expect(applied).toEqual([]);
   });
 
   it.each([

@@ -44,6 +44,7 @@ describe('loadConfig', () => {
       maxBodyBytes: 1_048_576,
       shutdownTimeoutMs: 15_000,
       corsOrigins: [],
+      webBaseUrl: undefined,
       migrationsDir: 'db/migrations',
       oidc: { issuer: GOOD.OIDC_ISSUER, jwksUri: undefined },
       tenantToken: { issuer: 'https://api.example.test', keyId: 'k1', retired: undefined },
@@ -154,6 +155,9 @@ describe('loadConfig', () => {
     ['CORS_ORIGINS', '*'],
     ['CORS_ORIGINS', 'https://a.example.test/path'],
     ['CORS_ORIGINS', 'https://a.example.test,not a url'],
+    ['WEB_BASE_URL', 'https://app.example.test/path'],
+    ['WEB_BASE_URL', 'app.example.test'],
+    ['WEB_BASE_URL', 'ftp://app.example.test'],
     ['TELEMETRY_EXPORTER', 'zipkin'],
     ['OIDC_JWKS_URI', 'ftp://x'],
   ])('refuses %s=%s', (name, value) => {
@@ -162,10 +166,10 @@ describe('loadConfig', () => {
 
   it('accepts the edges and the optional settings', () => {
     const config = loadConfig(
-      { ...GOOD, PORT: '65535', MAX_BODY_BYTES: '52428800', SHUTDOWN_TIMEOUT_MS: '100', CORS_ORIGINS: 'https://app.example.test, http://localhost:5173', TELEMETRY_EXPORTER: 'otlp', OTLP_ENDPOINT: 'http://collector:4318', OIDC_JWKS_URI: 'https://idp.example.test/jwks', OIDC_ISSUER: 'http://localhost:8080/realms/dev' },
+      { ...GOOD, PORT: '65535', MAX_BODY_BYTES: '52428800', SHUTDOWN_TIMEOUT_MS: '100', CORS_ORIGINS: 'https://app.example.test, http://localhost:5173', WEB_BASE_URL: 'https://app.example.test', TELEMETRY_EXPORTER: 'otlp', OTLP_ENDPOINT: 'http://collector:4318', OIDC_JWKS_URI: 'https://idp.example.test/jwks', OIDC_ISSUER: 'http://localhost:8080/realms/dev' },
       io,
     );
-    expect(config).toMatchObject({ port: 65_535, maxBodyBytes: 52_428_800, shutdownTimeoutMs: 100, corsOrigins: ['https://app.example.test', 'http://localhost:5173'], telemetry: { exporter: 'otlp', otlpEndpoint: 'http://collector:4318' } });
+    expect(config).toMatchObject({ port: 65_535, maxBodyBytes: 52_428_800, shutdownTimeoutMs: 100, corsOrigins: ['https://app.example.test', 'http://localhost:5173'], webBaseUrl: 'https://app.example.test', telemetry: { exporter: 'otlp', otlpEndpoint: 'http://collector:4318' } });
   });
 
   it('wants an endpoint when the OTLP exporter is chosen and a URL when one is given', () => {

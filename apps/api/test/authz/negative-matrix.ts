@@ -2681,6 +2681,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contact-consents/${t.contactConsentId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  sendConversationMessage: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/messages`, ifMatch: '"1"', body: { kind: 'INTERNAL_NOTE', channel_account_id: t.conversationId, text: 'Matrix note' } }),
+  },
+  resolveConversation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/resolve`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  reopenConversation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/reopen`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   assignConversation: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/assign`, ifMatch: '"1"', body: { assignee_membership_id: t.recipientMembershipId } }),

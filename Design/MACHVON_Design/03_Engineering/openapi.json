@@ -65983,7 +65983,9 @@
           "OPT_IN_REQUIRED",
           "CONTENT_CLASSIFICATION_BLOCKED",
           "CHANNEL_UNVERIFIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "CONVERSATION_STATE_INVALID",
+          "CONTACT_STATE_INVALID"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -66453,7 +66455,10 @@
             }
           }
         },
-        "x-audit-action": "conversation.reopened"
+        "x-audit-action": "conversation.reopened",
+        "x-events": [
+          "omni.conversation.reopened.v1"
+        ]
       }
     },
     "/conversations/{conversationId}/links": {

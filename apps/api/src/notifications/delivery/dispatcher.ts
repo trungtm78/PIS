@@ -40,6 +40,8 @@ export interface DispatcherDeps {
   adapterTimeoutMs?: number;
   /** Where the push tokens of the devices are (ST-NOT-007); without it a push cannot be addressed and its sends fail for good (VAULT_MISSING). */
   pushTokens?: PushTokenVault;
+  /** The messages that agents queued in conversations (ST-OMNI-005) go out in the same pass; a failure there does not hold back the notifications, and the other way round. */
+  conversations?: { run(ctx: TenantContext): Promise<number> };
 }
 
 export interface DispatchResult {
@@ -98,7 +100,10 @@ export class DeliveryDispatcher {
   async dispatchDue(ctx: TenantContext): Promise<DispatchResult> {
     const now = this.now();
     const channels = await this.deps.database.withTenant(ctx, (tx) => this.store.channelsWithWork(tx, now));
-    const settled = await Promise.allSettled(channels.map((channel) => this.dispatchChannel(ctx, channel, now)));
+    const settled = await Promise.allSettled([
+      ...channels.map((channel) => this.dispatchChannel(ctx, channel, now)),
+      ...(this.deps.conversations === undefined ? [] : [this.deps.conversations.run(ctx).then((): DispatchResult => ({ sent: 0, suppressed: 0, deferred: 0 }))]),
+    ]);
     const total: DispatchResult = { sent: 0, suppressed: 0, deferred: 0 };
     let failure: unknown;
     for (const outcome of settled) {

@@ -6,6 +6,9 @@ export const ASSIGN_PERMISSION = 'omni.conversation.assign';
 
 export const REASON_MAX = 500;
 
+/** Where the conversation of the inbox is opened (OMNI-02): the id is in the address, as the other detail screens do. */
+export const conversationLink = (id: string): string => `/omni/omni-02?id=${id}`;
+
 export const STATUSES = ['New', 'Assigned', 'InProgress', 'PendingCustomer', 'Resolved', 'Closed'] as const;
 export type ConversationStatus = (typeof STATUSES)[number];
 
@@ -16,6 +19,7 @@ const optional = (value: unknown): string | undefined => (typeof value === 'stri
 
 export interface Conversation {
   id: string;
+  channelAccountId: string;
   channel: string;
   accountName: string;
   contactName: string;
@@ -41,6 +45,7 @@ export function toConversation(raw: unknown): Conversation | undefined {
   if (status === undefined) return undefined;
   return {
     id: raw.id,
+    channelAccountId: text(raw.channel_account_id),
     channel: text(raw.channel),
     accountName: text(raw.account_name),
     contactName: text(raw.contact_name),

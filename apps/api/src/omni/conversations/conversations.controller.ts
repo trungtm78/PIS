@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { ASSIGN_CONVERSATION, ConversationStore, TenantDatabase } from '@machvon/db';
+import { ASSIGN_CONVERSATION, ConversationOutboundStore, ConversationStore, TenantDatabase } from '@machvon/db';
 import type { ConversationRecord, MessageRecord } from '@machvon/db';
-import { CONVERSATION_STATUSES, DomainError, assertAssignment, asUuid } from '@machvon/kernel';
+import { CONVERSATION_STATUSES, DomainError, assertAssignment, assertConversationReason, assertMessageSend, asUuid } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -9,12 +9,16 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
+import { renderTemplate } from '../../notifications/delivery/template-renderer';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 
 const CONVERSATION_RESOURCE = 'conversation';
 const ASSIGNED_EVENT = 'omni.conversation.assigned.v1';
+const QUEUED_EVENT = 'omni.message.queued.v1';
+const RESOLVED_EVENT = 'omni.conversation.resolved.v1';
+const REOPENED_EVENT = 'omni.conversation.reopened.v1';
 
 function conversationView(row: ConversationRecord): Schemas['ConversationView'] {
   return {
@@ -70,6 +74,7 @@ function uuidFilter(value: unknown, name: string): string | undefined {
 @Controller()
 export class ConversationsController {
   private readonly conversations = new ConversationStore();
+  private readonly outbound = new ConversationOutboundStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
 
@@ -180,6 +185,83 @@ export class ConversationsController {
       schemaVersion: 1,
       payload: { conversation_id: after.id, assignee_membership_id: after.assigneeId, previous_assignee_membership_id: before.assigneeId, queue_unit_id: after.queueUnitId },
       eventKey: `${ASSIGNED_EVENT}:${after.id}:${after.version}`,
+    });
+    return commandResult(scope, after.status.toUpperCase(), after.version, after.id);
+  }
+
+  @Post('conversations/:conversationId/messages')
+  @HttpCode(202)
+  @OperationId('sendConversationMessage')
+  @Command({ operation: 'sendConversationMessage', versioned: true })
+  async send(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('conversationId', ParseUUIDPipe) conversationId: string,
+    @Body() body: Schemas['ConversationMessageSend'],
+  ): Promise<CommandResult> {
+    const draft = assertMessageSend(body as Record<string, unknown>);
+    // The words of a message made from a template are written here, from the variables the agent gave; the checks that follow judge the template itself.
+    const template = draft.templateVersionId === undefined ? undefined : await this.outbound.template(scope.tx, draft.templateVersionId);
+    const written = template === undefined ? undefined : renderTemplate(template.contentAst, template.variableSchema, draft.templateVariables);
+    const text = written === undefined ? (draft.text ?? '') : written.text;
+    const done = await this.outbound.send(scope.tx, { access, membershipId: scope.tenant.membershipId, now: new Date() }, conversationId.toLowerCase(), scope.expectedVersion ?? undefined, draft, { text, subject: written?.subject, template });
+    await scope.audit({
+      action: done.queued ? 'conversation.message_sent' : 'conversation.note_added',
+      resourceType: CONVERSATION_RESOURCE,
+      resourceId: done.after.id,
+      classification: 'PERSONAL',
+      // What was said is in the conversation and not on the trail: the kind, the purpose, the account and what was attached.
+      diff: { message_id: done.messageId, kind: draft.kind, ...(done.queued ? { purpose: draft.purpose, channel_account_id: draft.channelAccountId, template_version_id: draft.templateVersionId ?? null, attachments: draft.attachmentIds.length, links: draft.links.length } : {}) },
+    });
+    if (done.queued) {
+      await scope.emit({
+        aggregateType: CONVERSATION_RESOURCE,
+        aggregateId: done.after.id,
+        aggregateVersion: done.after.version,
+        type: QUEUED_EVENT,
+        schemaVersion: 1,
+        payload: { conversation_id: done.after.id, message_id: done.messageId, channel_account_id: draft.channelAccountId, purpose: draft.purpose },
+        eventKey: `${QUEUED_EVENT}:${done.messageId}`,
+      });
+    }
+    return commandResult(scope, done.queued ? 'QUEUED' : 'RECORDED', done.after.version, done.messageId);
+  }
+
+  @Post('conversations/:conversationId/resolve')
+  @HttpCode(200)
+  @OperationId('resolveConversation')
+  @Command({ operation: 'resolveConversation', versioned: true })
+  async resolve(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('conversationId', ParseUUIDPipe) conversationId: string, @Body() body: Schemas['ReasonOnly']): Promise<CommandResult> {
+    return await this.move(scope, access, conversationId, body, 'resolve');
+  }
+
+  @Post('conversations/:conversationId/reopen')
+  @HttpCode(200)
+  @OperationId('reopenConversation')
+  @Command({ operation: 'reopenConversation', versioned: true })
+  async reopen(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('conversationId', ParseUUIDPipe) conversationId: string, @Body() body: Schemas['ReasonOnly']): Promise<CommandResult> {
+    return await this.move(scope, access, conversationId, body, 'reopen');
+  }
+
+  private async move(scope: CommandScope, access: EffectiveAccess, conversationId: string, body: { reason?: unknown }, action: 'resolve' | 'reopen'): Promise<CommandResult> {
+    const reason = assertConversationReason(body);
+    const { before, after } = await this.outbound.move(scope.tx, { access, membershipId: scope.tenant.membershipId, now: new Date() }, conversationId.toLowerCase(), scope.expectedVersion ?? 0, action);
+    await scope.audit({
+      action: action === 'resolve' ? 'conversation.resolved' : 'conversation.reopened',
+      resourceType: CONVERSATION_RESOURCE,
+      resourceId: after.id,
+      reason,
+      diff: { from_status: before.status, to_status: after.status },
+    });
+    const type = action === 'resolve' ? RESOLVED_EVENT : REOPENED_EVENT;
+    await scope.emit({
+      aggregateType: CONVERSATION_RESOURCE,
+      aggregateId: after.id,
+      aggregateVersion: after.version,
+      type,
+      schemaVersion: 1,
+      payload: { conversation_id: after.id, status: after.status },
+      eventKey: `${type}:${after.id}:${after.version}`,
     });
     return commandResult(scope, after.status.toUpperCase(), after.version, after.id);
   }
