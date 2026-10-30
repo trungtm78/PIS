@@ -123,6 +123,11 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   // An upload of another tenant is not there for this one, as one that never was: 404.
   { operation: 'get_sync_attachments_id', method: 'GET', id: SELF_FIXTURES['TNT-B'].attachmentId },
   { operation: 'post_sync_attachments_id_complete', method: 'POST', id: SELF_FIXTURES['TNT-B'].attachmentId, body: { sha256: 'a'.repeat(64) } },
+  { operation: 'previewCampaignRecipients', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].campaignId, versioned: true, body: { reason: 'Isolation foreign preview attempt' } },
+  { operation: 'submitCampaign', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].campaignId, versioned: true, body: { preview_hash: 'a'.repeat(64) } },
+  { operation: 'decideCampaign', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].campaignId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision attempt', evidence_ids: [] } },
+  { operation: 'cancelCampaign', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].campaignId, versioned: true, body: { reason: 'Isolation foreign cancel attempt' } },
+  { operation: 'getCampaign', method: 'GET', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].campaignId },
   { operation: 'setChannelLimits', method: 'PUT', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId, versioned: true, body: { daily_send_cap: 5, reason: 'Isolation foreign limits attempt' } },
   { operation: 'verifyChannelAccount', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId, versioned: true, body: { reason: 'Isolation foreign verification attempt' } },
   { operation: 'updateChannelAccount', method: 'PUT', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId, versioned: true, body: { display_name: 'Isolation foreign rename', reason: 'Isolation foreign update attempt' } },

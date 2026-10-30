@@ -7279,7 +7279,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Chiến dịch của tenant, mới nhất trước, lọc theo trạng thái (NOT-10, NOT-16) */
+        get: operations["listCampaigns"];
         put?: never;
         /** Tạo chiến dịch gửi diện rộng (NOT-09/10) */
         post: operations["createCampaign"];
@@ -15238,6 +15239,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notification-campaigns/{campaignId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một chiến dịch: nhóm người nhận, mẫu, kết quả xem trước (số người, loại trừ theo lý do, mã xem trước), người tạo và người duyệt (NOT-09, NOT-16) */
+        get: operations["getCampaign"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -16946,13 +16964,21 @@ export interface components {
         CampaignPreview: {
             recipient_count: number;
             excluded: {
-                opted_out?: number;
-                no_consent?: number;
-                inactive?: number;
-                duplicate?: number;
+                /** @description The person turned the channel off for campaigns (NOT-03) */
+                opted_out: number;
+                /** @description The consent the table of BR-NOT-07 asks for is missing, withdrawn or expired */
+                no_consent: number;
+                /** @description The membership is not Active now */
+                inactive: number;
+                /** @description The person is reached by more than one membership of the segment and is written to once */
+                duplicate: number;
             };
             preview_hash: string;
             sample_recipients_masked?: string[];
+            /** Format: date-time */
+            previewed_at?: string;
+            /** @description The version of the campaign after the preview: the If-Match of the submit */
+            version?: number;
         };
         CampaignSubmit: {
             preview_hash: string;
@@ -22422,6 +22448,79 @@ export interface components {
                 held_by_limit: number;
                 version?: number;
             }[];
+        };
+        CampaignView: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @enum {string} */
+            purpose: "ANNOUNCEMENT" | "REMINDER" | "OPERATIONAL";
+            /** Format: uuid */
+            template_version_id: string;
+            template_code?: string;
+            template_channel?: string;
+            segment: {
+                unit_ids: string[];
+                role_codes: string[];
+                include_guests: boolean;
+                /** @description The units named by the segment, so whoever approves sees which departments get the broadcast */
+                units?: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                    code: string;
+                }[];
+            };
+            /** Format: date-time */
+            scheduled_at?: string | null;
+            /** @enum {string} */
+            status: "Draft" | "Previewed" | "PendingApproval" | "Approved" | "Scheduled" | "Sending" | "Completed" | "Rejected" | "Cancelled";
+            /** @description From the last preview; null before one */
+            recipient_count?: number | null;
+            /** @description The people left out of the last preview, by reason; absent before a preview */
+            excluded?: {
+                /** @description The person turned the channel off for campaigns (NOT-03) */
+                opted_out: number;
+                /** @description The consent the table of BR-NOT-07 asks for is missing, withdrawn or expired */
+                no_consent: number;
+                /** @description The membership is not Active now */
+                inactive: number;
+                /** @description The person is reached by more than one membership of the segment and is written to once */
+                duplicate: number;
+            };
+            preview_hash?: string | null;
+            /** Format: date-time */
+            previewed_at?: string | null;
+            /** Format: uuid */
+            created_by: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            submitted_at?: string | null;
+            /** Format: uuid */
+            approved_by?: string | null;
+            /** Format: date-time */
+            approved_at?: string | null;
+            /** Format: uuid */
+            decided_by?: string | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            decision_reason?: string | null;
+            /** Format: date-time */
+            cancelled_at?: string | null;
+            /** Format: date-time */
+            completed_at?: string | null;
+            /** @description The notifications made when the campaign was approved */
+            notification_count?: number;
+            /** @description Of them, those not yet sent out */
+            waiting_count?: number;
+            version: number;
+        };
+        CampaignPage: {
+            items: components["schemas"]["CampaignView"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -66576,6 +66675,93 @@ export interface operations {
                 };
             };
             /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listCampaigns: {
+        parameters: {
+            query?: {
+                status?: "Draft" | "Previewed" | "PendingApproval" | "Approved" | "Scheduled" | "Sending" | "Completed" | "Rejected" | "Cancelled";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure (period locked, license expired) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limited */
             429: {
                 headers: {
                     [name: string]: unknown;
@@ -113946,6 +114132,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DeliveryOverview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure (period locked, license expired) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getCampaign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignView"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

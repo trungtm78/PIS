@@ -872,9 +872,9 @@ export const RETENTION_FIXTURES: Readonly<Record<TenantName, { id: string; revie
 };
 
 /** A failed delivery attempt of the notification fixture of each tenant, with the channel account and template it names (the provider message id is the provider's reference and must not reach another tenant). */
-export const DELIVERY_ATTEMPT_FIXTURES: Readonly<Record<TenantName, { id: string; accountId: string; templateId: string; providerMessageId: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0a4-000000000001', accountId: '00000000-0000-4000-a0a4-000000000002', templateId: '00000000-0000-4000-a0a4-000000000003', providerMessageId: 'alpha-provider-message-0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0a4-000000000001', accountId: '00000000-0000-4000-b0a4-000000000002', templateId: '00000000-0000-4000-b0a4-000000000003', providerMessageId: 'beta-provider-message-0001' },
+export const DELIVERY_ATTEMPT_FIXTURES: Readonly<Record<TenantName, { id: string; accountId: string; templateId: string; providerMessageId: string; campaignId: string; campaignName: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0a4-000000000001', accountId: '00000000-0000-4000-a0a4-000000000002', templateId: '00000000-0000-4000-a0a4-000000000003', providerMessageId: 'alpha-provider-message-0001', campaignId: '00000000-0000-4000-a0a4-000000000004', campaignName: 'alpha-campaign-name-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0a4-000000000001', accountId: '00000000-0000-4000-b0a4-000000000002', templateId: '00000000-0000-4000-b0a4-000000000003', providerMessageId: 'beta-provider-message-0001', campaignId: '00000000-0000-4000-b0a4-000000000004', campaignName: 'beta-campaign-name-0001' },
 };
 
 /** A draft integration connector and a failed inbox event of each tenant (the code, the endpoint and the event key are distinctive; the payload reference must never be shown). */
@@ -993,6 +993,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'consent id', value: CONSENT_FIXTURES[tenant].id },
     { kind: 'delivery attempt id', value: DELIVERY_ATTEMPT_FIXTURES[tenant].id },
     { kind: 'delivery provider message id', value: DELIVERY_ATTEMPT_FIXTURES[tenant].providerMessageId },
+    { kind: 'campaign id', value: DELIVERY_ATTEMPT_FIXTURES[tenant].campaignId },
+    { kind: 'campaign name', value: DELIVERY_ATTEMPT_FIXTURES[tenant].campaignName },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
     { kind: 'certificate id', value: CERTIFICATE_FIXTURES[tenant].id },
     { kind: 'certificate fingerprint', value: CERTIFICATE_FIXTURES[tenant].fingerprint },

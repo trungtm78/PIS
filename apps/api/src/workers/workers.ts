@@ -9,7 +9,7 @@ import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
-import { ApprovalSlaJob, sharedMockDomainPorts, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
+import { ApprovalSlaJob, sharedMockDomainPorts, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, NotificationCampaignStore, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
 import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, ReorganizationProjectPort, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
@@ -133,6 +133,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const inbox = deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const finops = new LlmFinopsStore();
   const keySweep = deps.llmKeys === undefined ? undefined : new LlmKeySweepJob(audit, deps.llmKeys.litellm, deps.llmKeys.vault, log);
+  const campaigns = new NotificationCampaignStore();
   const handlers = standardJobs({
     tenantIds: () => registeredTenantIds(deps.control),
     seal: new AuditSealJob(deps.tenants, { alerts }),
@@ -168,6 +169,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     approvalSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => approvalSla.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),
     ...(deps.notificationDelivery === undefined ? {} : { notificationDelivery: deps.notificationDelivery }),
+    campaignProgress: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => campaigns.progress(tx, now)) },
     ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }),
     dgvQuality: { run: (ctx) => dgvQuality.runPending(ctx) },
     // The plans are control-plane tables, so the pass of a tenant runs through the control role acting as that tenant.

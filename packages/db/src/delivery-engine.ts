@@ -378,9 +378,16 @@ export class DeliveryEngine {
    * notification instead (dedupe key of "replay:<id>:<n>"), so no channel is ever sent to more than five times per notification.
    */
   async replay(tx: TenantTx, input: ReplayInput): Promise<ReplayResult> {
+    // A notification of a campaign is replayed only while its campaign is not cancelled. The campaign row is held (shared) before the notification is locked, the order a cancel keeps (the campaign, then its notifications), so a cancel that is
+    // in the middle of its work is waited for, and its result is what the replay reads.
+    const [owner] = await tx.query<{ campaign_id: string | null }>('select campaign_id from machvon.notification_instance where id = $1::uuid', [input.notificationId]);
+    const [campaign] =
+      owner?.campaign_id === null || owner?.campaign_id === undefined ? [] : await tx.query<{ status: string }>('select status from machvon.notification_campaign where id = $1::uuid for share', [owner.campaign_id]);
     const notification = await this.store.requireNotification(tx, input.notificationId);
     if (notification.version !== input.expectedVersion) throw versionConflict(notification.version);
     if (notification.status !== 'Failed' && notification.status !== 'Unknown') throw new DomainError('NOTIFICATION_STATE_INVALID', 409);
+    // What a cancelled campaign stopped is not started again by a replay.
+    if (campaign?.status === 'Cancelled') throw new DomainError('NOTIFICATION_STATE_INVALID', 409, 'CAMPAIGN_CANCELLED');
     if (notification.expiresAt.getTime() <= input.now.getTime()) throw new DomainError('NOTIFICATION_EXPIRED', 409);
     const attempts = await this.store.attemptsOf(tx, notification.id);
     const waiting = attempts.some((attempt) => attempt.status === 'Unknown' && attempt.unknownAt !== null && attempt.unknownAt.getTime() + RECONCILE_WINDOW_SECONDS * 1000 > input.now.getTime());
@@ -418,9 +425,9 @@ export class DeliveryEngine {
     const [created] = await tx.query<{ id: string }>(
       `insert into machvon.notification_instance
          (tenant_id, id, event_id, workflow_version_id, recipient_id, purpose, dedupe_key, expires_at, status, source_event_type, event_version, priority, ack_required,
-          channel_plan, replay_of, replay_seq)
+          channel_plan, replay_of, replay_seq, campaign_id)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3::uuid, $4, $5, $6::timestamptz, 'Queued', $7, $8, $9, $10,
-          $11::text[], $12::uuid, $13)
+          $11::text[], $12::uuid, $13, (select n.campaign_id from machvon.notification_instance n where n.id = $14::uuid))
        returning id`,
       [
         original.eventId,
@@ -436,6 +443,7 @@ export class DeliveryEngine {
         [...channels],
         root,
         replaySeq,
+        original.id,
       ],
     );
     if (created === undefined) throw new Error('replay notification not inserted');

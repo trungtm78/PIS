@@ -16,6 +16,7 @@ import { MyPreferencesController } from '../../notifications/preferences/prefere
 import { MyPreferencesReadController } from '../../notifications/preferences/preferences-read.controller';
 import { DeviceRegistrationsController } from '../../notifications/devices/devices.controller';
 import { InMemoryPushTokenVault, PUSH_TOKEN_VAULT } from '../../notifications/devices/push-vault';
+import { CampaignsController } from '../../notifications/campaigns/campaigns.controller';
 import { ChannelLimitsController } from '../../notifications/limits/limits.controller';
 import { NotificationTemplatesController } from '../../notifications/templates/templates.controller';
 import { NotificationWorkflowsController } from '../../notifications/workflows/workflows.controller';
@@ -45,6 +46,7 @@ export const notificationsModule = defineModule({
     NotificationTemplatesController,
     DeviceRegistrationsController,
     ChannelLimitsController,
+    CampaignsController,
   ],
   // The provider webhook finds its tenant through the control plane (the channel account of the receipt), so it is active only where the application has one.
   controlPlane: { controllers: [ChannelWebhookController] },

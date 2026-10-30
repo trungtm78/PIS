@@ -148,6 +148,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_sync_commands_key',
   'setChannelLimits',
   'getDeliveryOverview',
+  'createCampaign',
+  'previewCampaignRecipients',
+  'submitCampaign',
+  'decideCampaign',
+  'cancelCampaign',
+  'listCampaigns',
+  'getCampaign',
   'post_sync_attachments',
   'post_sync_attachments_id_complete',
   'get_sync_attachments_id',
@@ -1082,6 +1089,10 @@ const INSERT_DELIVERY_ATTEMPT = `insert into machvon.delivery_attempt
   (tenant_id, id, notification_id, channel_account_id, provider_message_id, attempt_no, status, cost, channel, template_version_id, sending_at, failed_at, failure_class, error_code)
   values ($1, $2, $3, $4, $5, 1, 'Failed', 0, 'EMAIL', $6, now(), now(), 'PERMANENT', 'HTTP_550') on conflict do nothing`;
 
+const INSERT_CAMPAIGN = `insert into machvon.notification_campaign
+  (tenant_id, id, name, purpose, template_version_id, segment_json, status, created_by)
+  values ($1, $2, $3, 'ANNOUNCEMENT', $4, '{"unit_ids":[],"role_codes":["STAFF"],"include_guests":false}'::jsonb, 'Draft', $5) on conflict do nothing`;
+
 const INSERT_CONSENT = `insert into machvon.contact_consent
   (tenant_id, id, membership_id, channel, purpose, status, evidence_reference, effective_at, consent_text_version, capture_method)
   values ($1, $2, $3, 'SMS', 'OPERATIONAL', 'Granted', 'isolation-fixture', now(), 'isolation-1', 'IN_APP') on conflict do nothing`;
@@ -1655,6 +1666,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CHANNEL_ACCOUNT, [tenantId, attempt.accountId, `isolation-account-${tenant}`]);
     await client.query(INSERT_EMAIL_TEMPLATE, [tenantId, attempt.templateId, ACTOR_ID]);
     await client.query(INSERT_DELIVERY_ATTEMPT, [tenantId, attempt.id, notification.id, attempt.accountId, attempt.providerMessageId, attempt.templateId]);
+    await client.query(INSERT_CAMPAIGN, [tenantId, attempt.campaignId, attempt.campaignName, attempt.templateId, MEMBERSHIP_ID]);
     await client.query(INSERT_CONSENT, [tenantId, CONSENT_FIXTURES[tenant].id, MEMBERSHIP_ID]);
     await client.query(INSERT_AUDIT_EVENT, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id, MEMBERSHIP_ID, AUDIT_EVENT_FIXTURES[tenant].action]);
     await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);

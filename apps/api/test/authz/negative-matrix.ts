@@ -19,6 +19,7 @@ export interface MatrixTargets {
   notificationWorkflowId: string;
   /** A Draft template revision of tenant A: the review and the test send name it in the path. */
   notificationTemplateId: string;
+  campaignId: string;
   /** A channel account of tenant A (version 1): the verification, the change and the closing name it in the path. */
   channelAccountId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
@@ -2632,6 +2633,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   post_notification_workflows_id_publish: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/notification-workflows/${t.notificationWorkflowId}/publish`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
+  },
+  createCampaign: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/notification-campaigns', body: { name: 'Matrix campaign', purpose: 'ANNOUNCEMENT', template_version_id: t.notificationTemplateId, segment: { unit_ids: [t.unit2] } } }),
+  },
+  previewCampaignRecipients: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-campaigns/${t.campaignId}/preview`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  submitCampaign: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-campaigns/${t.campaignId}/submit`, ifMatch: '"1"', body: { preview_hash: 'a'.repeat(64) } }),
+  },
+  decideCampaign: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-campaigns/${t.campaignId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
+  },
+  cancelCampaign: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-campaigns/${t.campaignId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   setChannelLimits: {
     referencesTenantIds: true,

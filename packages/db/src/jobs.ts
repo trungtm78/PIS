@@ -74,6 +74,8 @@ export const JOB_INTERVAL_SECONDS = {
   'notification-dispatch': 5,
   // Every 5 minutes: a send whose result was lost is found, and an Unknown one is asked about at its provider for a day (BR-NOT-04).
   'notification-reconcile': 300,
+  // Every minute: a campaign that was approved for a time is Sending when its time comes, and a campaign whose notifications have all left the waiting states is Completed (ST-NOT-009, NOT 3.5); the pass is idempotent.
+  'notification-campaign-progress': 60,
   // Every 10 seconds: a requested quality run is executed within seconds of its request; a run is executed once, whoever asks and however often (ST-DGV-002).
   'dgv-quality-run': 10,
   // Hourly: a trial that has ended, a plan that waited for its day and a billing period that has passed are dealt with within the hour (ST-SAS-008); the pass is idempotent.
@@ -258,6 +260,8 @@ export interface StandardJobDeps {
     dispatchDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown>;
     reconcile(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown>;
   };
+  /** Moves the campaigns that are being sent on with the clock (ST-NOT-009): Scheduled to Sending at their time, Sending to Completed when nothing of theirs is waiting. */
+  campaignProgress?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Executes the quality runs that are waiting (ST-DGV-002); tells how many datasets of the tenant have no finished run, for the gauge. */
   dgvQuality?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<{ notAssessed: number }> };
   /**
@@ -683,6 +687,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
   if (delivery !== undefined) {
     handlers.push({ name: 'notification-dispatch', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await delivery.dispatchDue(workerContext(tenantId)))) });
     handlers.push({ name: 'notification-reconcile', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await delivery.reconcile(workerContext(tenantId)))) });
+  }
+  const campaignProgress = deps.campaignProgress;
+  if (campaignProgress !== undefined) {
+    handlers.push({
+      name: 'notification-campaign-progress',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await campaignProgress.run(workerContext(tenantId), now)));
+      },
+    });
   }
   const dgvQuality = deps.dgvQuality;
   if (dgvQuality !== undefined) {

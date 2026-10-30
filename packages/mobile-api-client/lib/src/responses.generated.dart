@@ -425,6 +425,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getAuditRecoverySummary': AudRecoverySummaryResponse.fromJson,
   'getBiExport': asObject,
   'getBiLineage': asObject,
+  'getCampaign': CampaignViewResponse.fromJson,
   'getCapitalAvailability': CapAvailabilityResponse.fromJson,
   'getCapitalPlanAsOf': CapPlanAsOfResponse.fromJson,
   'getChangeChain': CtrChangeChainViewResponse.fromJson,
@@ -538,6 +539,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listBiDatasetVersions': asObject,
   'listBillingPayments': BillingPaymentListResponse.fromJson,
   'listBiQueryRuns': asObject,
+  'listCampaigns': CampaignPageResponse.fromJson,
   'listCapitalLedger': asObject,
   'listCapitalPlanLines': asObject,
   'listCompensationPayments': asObject,
@@ -2452,12 +2454,48 @@ final class BillingPaymentResponseActions implements ResponseModel {
       };
 }
 
+final class CampaignPageResponse implements ResponseModel {
+  const CampaignPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CampaignPageResponse.fromJson(Object? json, [String path = 'CampaignPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CampaignPageResponse(
+      items: requiredField(map, path, 'items', asList(CampaignViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<CampaignViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
 final class CampaignPreviewResponse implements ResponseModel {
   const CampaignPreviewResponse({
     required this.recipientCount,
     required this.excluded,
     required this.previewHash,
     this.sampleRecipientsMasked,
+    this.previewedAt,
+    this.version,
     this.extra = const <String, Object?>{},
   });
 
@@ -2468,7 +2506,9 @@ final class CampaignPreviewResponse implements ResponseModel {
       excluded: requiredField(map, path, 'excluded', CampaignPreviewResponseExcluded.fromJson),
       previewHash: requiredField(map, path, 'preview_hash', asString),
       sampleRecipientsMasked: optionalField(map, path, 'sample_recipients_masked', asList(asString)),
-      extra: unknownFields(map, path, const <String>{'recipient_count', 'excluded', 'preview_hash', 'sample_recipients_masked'}, strict: true),
+      previewedAt: optionalField(map, path, 'previewed_at', asString),
+      version: optionalField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'recipient_count', 'excluded', 'preview_hash', 'sample_recipients_masked', 'previewed_at', 'version'}, strict: true),
     );
   }
 
@@ -2476,6 +2516,8 @@ final class CampaignPreviewResponse implements ResponseModel {
   final CampaignPreviewResponseExcluded excluded;
   final String previewHash;
   final List<String>? sampleRecipientsMasked;
+  final String? previewedAt;
+  final int? version;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -2486,44 +2528,282 @@ final class CampaignPreviewResponse implements ResponseModel {
         'excluded': excluded.toJson(),
         'preview_hash': previewHash,
         if (sampleRecipientsMasked != null) 'sample_recipients_masked': sampleRecipientsMasked,
+        if (previewedAt != null) 'previewed_at': previewedAt,
+        if (version != null) 'version': version,
         ...extra,
       };
 }
 
 final class CampaignPreviewResponseExcluded implements ResponseModel {
   const CampaignPreviewResponseExcluded({
-    this.optedOut,
-    this.noConsent,
-    this.inactive,
-    this.duplicate,
+    required this.optedOut,
+    required this.noConsent,
+    required this.inactive,
+    required this.duplicate,
     this.extra = const <String, Object?>{},
   });
 
   factory CampaignPreviewResponseExcluded.fromJson(Object? json, [String path = 'CampaignPreviewResponseExcluded']) {
     final Map<String, Object?> map = asObject(json, path);
     return CampaignPreviewResponseExcluded(
-      optedOut: optionalField(map, path, 'opted_out', asInt),
-      noConsent: optionalField(map, path, 'no_consent', asInt),
-      inactive: optionalField(map, path, 'inactive', asInt),
-      duplicate: optionalField(map, path, 'duplicate', asInt),
-      extra: unknownFields(map, path, const <String>{'opted_out', 'no_consent', 'inactive', 'duplicate'}, strict: true),
+      optedOut: requiredField(map, path, 'opted_out', asInt),
+      noConsent: requiredField(map, path, 'no_consent', asInt),
+      inactive: requiredField(map, path, 'inactive', asInt),
+      duplicate: requiredField(map, path, 'duplicate', asInt),
+      extra: unknownFields(map, path, const <String>{'opted_out', 'no_consent', 'inactive', 'duplicate'}, strict: false),
     );
   }
 
-  final int? optedOut;
-  final int? noConsent;
-  final int? inactive;
-  final int? duplicate;
+  final int optedOut;
+  final int noConsent;
+  final int inactive;
+  final int duplicate;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        if (optedOut != null) 'opted_out': optedOut,
-        if (noConsent != null) 'no_consent': noConsent,
-        if (inactive != null) 'inactive': inactive,
-        if (duplicate != null) 'duplicate': duplicate,
+        'opted_out': optedOut,
+        'no_consent': noConsent,
+        'inactive': inactive,
+        'duplicate': duplicate,
+        ...extra,
+      };
+}
+
+final class CampaignViewResponse implements ResponseModel {
+  const CampaignViewResponse({
+    required this.id,
+    required this.name,
+    required this.purpose,
+    required this.templateVersionId,
+    required this.segment,
+    required this.status,
+    required this.createdBy,
+    required this.createdAt,
+    required this.version,
+    this.templateCode,
+    this.templateChannel,
+    this.scheduledAt,
+    this.recipientCount,
+    this.excluded,
+    this.previewHash,
+    this.previewedAt,
+    this.submittedAt,
+    this.approvedBy,
+    this.approvedAt,
+    this.decidedBy,
+    this.decidedAt,
+    this.decisionReason,
+    this.cancelledAt,
+    this.completedAt,
+    this.notificationCount,
+    this.waitingCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CampaignViewResponse.fromJson(Object? json, [String path = 'CampaignViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CampaignViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      purpose: requiredField(map, path, 'purpose', asString),
+      templateVersionId: requiredField(map, path, 'template_version_id', asString),
+      templateCode: optionalField(map, path, 'template_code', asString),
+      templateChannel: optionalField(map, path, 'template_channel', asString),
+      segment: requiredField(map, path, 'segment', CampaignViewResponseSegment.fromJson),
+      scheduledAt: optionalField(map, path, 'scheduled_at', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      recipientCount: optionalField(map, path, 'recipient_count', nullable(asInt)),
+      excluded: optionalField(map, path, 'excluded', CampaignViewResponseExcluded.fromJson),
+      previewHash: optionalField(map, path, 'preview_hash', nullable(asString)),
+      previewedAt: optionalField(map, path, 'previewed_at', nullable(asString)),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      submittedAt: optionalField(map, path, 'submitted_at', nullable(asString)),
+      approvedBy: optionalField(map, path, 'approved_by', nullable(asString)),
+      approvedAt: optionalField(map, path, 'approved_at', nullable(asString)),
+      decidedBy: optionalField(map, path, 'decided_by', nullable(asString)),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: optionalField(map, path, 'decision_reason', nullable(asString)),
+      cancelledAt: optionalField(map, path, 'cancelled_at', nullable(asString)),
+      completedAt: optionalField(map, path, 'completed_at', nullable(asString)),
+      notificationCount: optionalField(map, path, 'notification_count', asInt),
+      waitingCount: optionalField(map, path, 'waiting_count', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'name', 'purpose', 'template_version_id', 'template_code', 'template_channel', 'segment', 'scheduled_at', 'status', 'recipient_count', 'excluded', 'preview_hash', 'previewed_at', 'created_by', 'created_at', 'submitted_at', 'approved_by', 'approved_at', 'decided_by', 'decided_at', 'decision_reason', 'cancelled_at', 'completed_at', 'notification_count', 'waiting_count', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String name;
+  final String purpose;
+  final String templateVersionId;
+  final String? templateCode;
+  final String? templateChannel;
+  final CampaignViewResponseSegment segment;
+  final String? scheduledAt;
+  final String status;
+  final int? recipientCount;
+  final CampaignViewResponseExcluded? excluded;
+  final String? previewHash;
+  final String? previewedAt;
+  final String createdBy;
+  final String createdAt;
+  final String? submittedAt;
+  final String? approvedBy;
+  final String? approvedAt;
+  final String? decidedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? cancelledAt;
+  final String? completedAt;
+  final int? notificationCount;
+  final int? waitingCount;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        'purpose': purpose,
+        'template_version_id': templateVersionId,
+        if (templateCode != null) 'template_code': templateCode,
+        if (templateChannel != null) 'template_channel': templateChannel,
+        'segment': segment.toJson(),
+        if (scheduledAt != null) 'scheduled_at': scheduledAt,
+        'status': status,
+        if (recipientCount != null) 'recipient_count': recipientCount,
+        if (excluded != null) 'excluded': excluded!.toJson(),
+        if (previewHash != null) 'preview_hash': previewHash,
+        if (previewedAt != null) 'previewed_at': previewedAt,
+        'created_by': createdBy,
+        'created_at': createdAt,
+        if (submittedAt != null) 'submitted_at': submittedAt,
+        if (approvedBy != null) 'approved_by': approvedBy,
+        if (approvedAt != null) 'approved_at': approvedAt,
+        if (decidedBy != null) 'decided_by': decidedBy,
+        if (decidedAt != null) 'decided_at': decidedAt,
+        if (decisionReason != null) 'decision_reason': decisionReason,
+        if (cancelledAt != null) 'cancelled_at': cancelledAt,
+        if (completedAt != null) 'completed_at': completedAt,
+        if (notificationCount != null) 'notification_count': notificationCount,
+        if (waitingCount != null) 'waiting_count': waitingCount,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CampaignViewResponseExcluded implements ResponseModel {
+  const CampaignViewResponseExcluded({
+    required this.optedOut,
+    required this.noConsent,
+    required this.inactive,
+    required this.duplicate,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CampaignViewResponseExcluded.fromJson(Object? json, [String path = 'CampaignViewResponseExcluded']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CampaignViewResponseExcluded(
+      optedOut: requiredField(map, path, 'opted_out', asInt),
+      noConsent: requiredField(map, path, 'no_consent', asInt),
+      inactive: requiredField(map, path, 'inactive', asInt),
+      duplicate: requiredField(map, path, 'duplicate', asInt),
+      extra: unknownFields(map, path, const <String>{'opted_out', 'no_consent', 'inactive', 'duplicate'}, strict: false),
+    );
+  }
+
+  final int optedOut;
+  final int noConsent;
+  final int inactive;
+  final int duplicate;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'opted_out': optedOut,
+        'no_consent': noConsent,
+        'inactive': inactive,
+        'duplicate': duplicate,
+        ...extra,
+      };
+}
+
+final class CampaignViewResponseSegment implements ResponseModel {
+  const CampaignViewResponseSegment({
+    required this.unitIds,
+    required this.roleCodes,
+    required this.includeGuests,
+    this.units,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CampaignViewResponseSegment.fromJson(Object? json, [String path = 'CampaignViewResponseSegment']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CampaignViewResponseSegment(
+      unitIds: requiredField(map, path, 'unit_ids', asList(asString)),
+      roleCodes: requiredField(map, path, 'role_codes', asList(asString)),
+      includeGuests: requiredField(map, path, 'include_guests', asBool),
+      units: optionalField(map, path, 'units', asList(CampaignViewResponseSegmentUnitsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'unit_ids', 'role_codes', 'include_guests', 'units'}, strict: false),
+    );
+  }
+
+  final List<String> unitIds;
+  final List<String> roleCodes;
+  final bool includeGuests;
+  final List<CampaignViewResponseSegmentUnitsItem>? units;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ids': unitIds,
+        'role_codes': roleCodes,
+        'include_guests': includeGuests,
+        if (units != null) 'units': units!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CampaignViewResponseSegmentUnitsItem implements ResponseModel {
+  const CampaignViewResponseSegmentUnitsItem({
+    required this.id,
+    required this.name,
+    required this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CampaignViewResponseSegmentUnitsItem.fromJson(Object? json, [String path = 'CampaignViewResponseSegmentUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CampaignViewResponseSegmentUnitsItem(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      code: requiredField(map, path, 'code', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'name', 'code'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String name;
+  final String code;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        'code': code,
         ...extra,
       };
 }

@@ -64102,6 +64102,136 @@
           }
         },
         "x-audit-action": "notification.campaign_created"
+      },
+      "get": {
+        "operationId": "listCampaigns",
+        "summary": "Chiến dịch của tenant, mới nhất trước, lọc theo trạng thái (NOT-10, NOT-16)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "notification.campaign.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Previewed",
+                "PendingApproval",
+                "Approved",
+                "Scheduled",
+                "Sending",
+                "Completed",
+                "Rejected",
+                "Cancelled"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/notification-campaigns/{campaignId}/preview": {
@@ -131453,6 +131583,109 @@
           }
         }
       }
+    },
+    "/notification-campaigns/{campaignId}": {
+      "get": {
+        "operationId": "getCampaign",
+        "summary": "Một chiến dịch: nhóm người nhận, mẫu, kết quả xem trước (số người, loại trừ theo lý do, mã xem trước), người tạo và người duyệt (NOT-09, NOT-16)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "notification.campaign.read",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -138022,20 +138255,28 @@
           },
           "excluded": {
             "type": "object",
-            "additionalProperties": false,
-            "required": [],
+            "required": [
+              "opted_out",
+              "no_consent",
+              "inactive",
+              "duplicate"
+            ],
             "properties": {
               "opted_out": {
-                "type": "integer"
+                "type": "integer",
+                "description": "The person turned the channel off for campaigns (NOT-03)"
               },
               "no_consent": {
-                "type": "integer"
+                "type": "integer",
+                "description": "The consent the table of BR-NOT-07 asks for is missing, withdrawn or expired"
               },
               "inactive": {
-                "type": "integer"
+                "type": "integer",
+                "description": "The membership is not Active now"
               },
               "duplicate": {
-                "type": "integer"
+                "type": "integer",
+                "description": "The person is reached by more than one membership of the segment and is written to once"
               }
             }
           },
@@ -138047,6 +138288,14 @@
             "items": {
               "type": "string"
             }
+          },
+          "previewed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "description": "The version of the campaign after the preview: the If-Match of the submit"
           }
         }
       },
@@ -157895,6 +158144,266 @@
                 }
               }
             }
+          }
+        }
+      },
+      "CampaignView": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "purpose",
+          "template_version_id",
+          "segment",
+          "status",
+          "created_by",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "ANNOUNCEMENT",
+              "REMINDER",
+              "OPERATIONAL"
+            ]
+          },
+          "template_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "template_code": {
+            "type": "string"
+          },
+          "template_channel": {
+            "type": "string"
+          },
+          "segment": {
+            "type": "object",
+            "required": [
+              "unit_ids",
+              "role_codes",
+              "include_guests"
+            ],
+            "properties": {
+              "unit_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "role_codes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "include_guests": {
+                "type": "boolean"
+              },
+              "units": {
+                "type": "array",
+                "description": "The units named by the segment, so whoever approves sees which departments get the broadcast",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "code"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "scheduled_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Previewed",
+              "PendingApproval",
+              "Approved",
+              "Scheduled",
+              "Sending",
+              "Completed",
+              "Rejected",
+              "Cancelled"
+            ]
+          },
+          "recipient_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "From the last preview; null before one"
+          },
+          "excluded": {
+            "type": "object",
+            "required": [
+              "opted_out",
+              "no_consent",
+              "inactive",
+              "duplicate"
+            ],
+            "properties": {
+              "opted_out": {
+                "type": "integer",
+                "description": "The person turned the channel off for campaigns (NOT-03)"
+              },
+              "no_consent": {
+                "type": "integer",
+                "description": "The consent the table of BR-NOT-07 asks for is missing, withdrawn or expired"
+              },
+              "inactive": {
+                "type": "integer",
+                "description": "The membership is not Active now"
+              },
+              "duplicate": {
+                "type": "integer",
+                "description": "The person is reached by more than one membership of the segment and is written to once"
+              }
+            },
+            "description": "The people left out of the last preview, by reason; absent before a preview"
+          },
+          "preview_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previewed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "submitted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "approved_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "approved_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decided_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decision_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cancelled_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "notification_count": {
+            "type": "integer",
+            "description": "The notifications made when the campaign was approved"
+          },
+          "waiting_count": {
+            "type": "integer",
+            "description": "Of them, those not yet sent out"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CampaignPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CampaignView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

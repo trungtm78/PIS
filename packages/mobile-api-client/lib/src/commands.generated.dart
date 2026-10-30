@@ -736,6 +736,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getBiLineage({required String id, Map<String, Object?>? query}) =>
       execute('getBiLineage', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getCampaign({required String campaignId, Map<String, Object?>? query}) =>
+      execute('getCampaign', path: <String, Object?>{'campaignId': campaignId}, query: query);
+
   Future<Object?> getCapitalAvailability({Map<String, Object?>? query}) =>
       execute('getCapitalAvailability', query: query);
 
@@ -1608,6 +1611,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listBillingPayments({Map<String, Object?>? query}) =>
       execute('listBillingPayments', query: query);
+
+  Future<Object?> listCampaigns({Map<String, Object?>? query}) =>
+      execute('listCampaigns', query: query);
 
   Future<Object?> listCapitalLedger({Map<String, Object?>? query}) =>
       execute('listCapitalLedger', query: query);

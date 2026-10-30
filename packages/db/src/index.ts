@@ -81,6 +81,8 @@ export type { DeviceRegistrationRecord, RegisterDevice } from './device-registra
 export { MAX_TEST_RECIPIENTS, NotificationTemplateStore } from './notification-template-store.ts';
 export type { NewNotificationTemplate, NotificationTemplateRecord, NotificationTemplateStatus } from './notification-template-store.ts';
 export { ChannelAccountStore } from './channel-account-store.ts';
+export { NotificationCampaignStore } from './notification-campaign-store.ts';
+export type { CampaignRecord, Resolution as CampaignResolution } from './notification-campaign-store.ts';
 export { DeliveryOverviewStore } from './delivery-overview-store.ts';
 export type { AccountUse, ChannelSummary } from './delivery-overview-store.ts';
 export type { ChannelAccountRecord, VerificationOutcome, VerificationTarget } from './channel-account-store.ts';

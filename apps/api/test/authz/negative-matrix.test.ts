@@ -560,6 +560,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0x7f, 1), ACTOR],
       ],
       [
+        `insert into machvon.notification_campaign (tenant_id, id, name, purpose, template_version_id, segment_json, status, created_by)
+         values ($1, $2, 'Matrix campaign fixture', 'ANNOUNCEMENT', $3, '{"unit_ids":[],"role_codes":["STAFF"],"include_guests":false}'::jsonb, 'Draft', $4)`,
+        [TENANT_A, id(0x7f, 2), id(0x7f, 1), ACTOR],
+      ],
+      [
         `insert into machvon.notification_instance (tenant_id, id, event_id, workflow_version_id, recipient_id, purpose, dedupe_key, expires_at, status, source_event_type, ack_required)
          values ($1, $2, $3, $4, $5, 'OPERATIONAL', $6, now() + interval '1 day', 'Delivered', 'matrix.notification', true)`,
         [TENANT_A, notificationId, id(0x72, 1), id(0x71, 1), memberId(RECIPIENT), `n1:${'a'.repeat(64)}`],
@@ -1208,6 +1213,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       notificationId,
       notificationWorkflowId: id(0x71, 1),
       notificationTemplateId: id(0x7f, 1),
+      campaignId: id(0x7f, 2),
       channelAccountId: id(0x7b, 1),
       consentId: id(0x7e, 1),
       legalHoldId,

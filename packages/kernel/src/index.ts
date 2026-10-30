@@ -536,3 +536,5 @@ export { ATTACHMENT_CHUNK_BYTES, ATTACHMENT_MAX_BYTES, ATTACHMENT_MIME_TYPES, as
 export type { AttachmentInit, AttachmentStatus } from './sync-attachment.ts';
 export { CHANNEL_UNIT_COST_VND, MAX_DAILY_CAP, VN_OFFSET_MS, assertLimits, dayStartVn, deliveredRate, isPaidChannel, judgeLimits, meterOfChannel, monthStartVn, nextDayStartVn, nextMonthStartVn } from './channel-limits.ts';
 export type { ChannelLimits, DeliveryCounts, LimitUse, LimitVerdict } from './channel-limits.ts';
+export { CAMPAIGN_EVENT_TYPE, CAMPAIGN_PURPOSES, CAMPAIGN_VALIDITY_MS, EXCLUSION_REASONS, MAX_CAMPAIGN_EVIDENCE, MAX_CAMPAIGN_RECIPIENTS, assertCampaignDraft, assertCampaignReason, assertCampaignSubmission, assertCampaignVerdict, campaignAfter, emptyExclusions, exclusionOf, previewHashOf } from './campaign.ts';
+export type { CampaignAction, CampaignDraft, CampaignPurpose, CampaignSegment, CampaignStatus, CampaignSubmission, CampaignVerdict, CampaignVerdictInput, CandidateFacts, ExclusionReason, Exclusions } from './campaign.ts';

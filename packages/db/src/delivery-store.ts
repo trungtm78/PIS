@@ -320,6 +320,16 @@ export class DeliveryStore {
   async queueFirstSend(tx: TenantTx, notification: Pick<LockedNotification, 'id' | 'workflowVersionId'>, channel: string, attemptNo: number, dueAt: Date | null): Promise<{ attemptId: string } | { refused: QueueRefusal }> {
     const [account] = await tx.query<{ id: string }>("select id from machvon.channel_account where channel = $1 and status = 'Active' order by id limit 1", [channel]);
     if (account === undefined) return { refused: 'NO_CHANNEL_ACCOUNT' };
+    // A notification of a campaign is sent on the template the campaign pinned (its workflow names none): the one that was previewed and approved, also when it was retired since.
+    const [pinned] = await tx.query<{ id: string }>(
+      `select c.template_version_id as id
+         from machvon.notification_instance n
+         join machvon.notification_campaign c on c.tenant_id = n.tenant_id and c.id = n.campaign_id
+         join machvon.notification_template_version t on t.tenant_id = c.tenant_id and t.id = c.template_version_id
+        where n.id = $1::uuid and t.channel = $2 and t.status in ('Active', 'Retired')`,
+      [notification.id, channel],
+    );
+    if (pinned !== undefined) return { attemptId: await this.insertAttempt(tx, notification.id, channel, account.id, pinned.id, attemptNo, dueAt) };
     const code = await this.templateCodeOf(tx, notification.workflowVersionId, channel);
     const [template] =
       code === undefined
