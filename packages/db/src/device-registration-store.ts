@@ -107,6 +107,37 @@ export class DeviceRegistrationStore {
     throw new DomainError('IDEMPOTENCY_IN_PROGRESS', 409);
   }
 
+  /**
+   * The devices a push may go to now: registered, with a token in the vault, and with the operating system's permission (granted or provisional) for the platforms the channel reaches. Of one member, of several, or
+   * of the whole tenant (`membershipIds` undefined) for a message that is for everyone.
+   */
+  async pushTargets(tx: TenantTx, membershipIds: readonly string[] | undefined, platforms: readonly string[]): Promise<Array<{ id: string; membershipId: string; platform: string; secretRef: string }>> {
+    const rows = await tx.query<{ id: string; membership_id: string; platform: string; push_secret_ref: string }>(
+      `select id, membership_id, platform, push_secret_ref from machvon.device_registration
+        where revoked_at is null and push_secret_ref is not null and permission_state in ('granted', 'provisional') and platform = any($1::text[]) and ($2::uuid[] is null or membership_id = any($2::uuid[]))
+        order by last_seen_at desc, id`,
+      [platforms, membershipIds === undefined ? null : [...membershipIds]],
+    );
+    return rows.map((row) => ({ id: row.id, membershipId: row.membership_id, platform: row.platform, secretRef: row.push_secret_ref }));
+  }
+
+  /**
+   * Revokes the devices whose token the provider no longer knows (UNREGISTERED, BadDeviceToken): the row is revoked with the reason and loses its reference, as IAM does for a device the member removes, and the
+   * references are given back so the tokens leave the vault. Each device comes with the reference of the token that was refused: a device that rotated its token while the push was in flight holds another reference now,
+   * and the refusal of the old token says nothing about the new one, so it is left alone. The sessions opened on the device are not touched: the app registers again at its next start. A device already revoked is left alone.
+   */
+  async revokeDead(tx: TenantTx, dead: ReadonlyArray<{ id: string; secretRef: string }>, reason: string): Promise<string[]> {
+    if (dead.length === 0) return [];
+    const held = await tx.query<{ id: string; push_secret_ref: string | null }>(
+      `select r.id, r.push_secret_ref from machvon.device_registration r join unnest($1::uuid[], $2::text[]) as d(id, ref) on d.id = r.id and d.ref = r.push_secret_ref
+        where r.revoked_at is null order by r.id for update of r`,
+      [dead.map((item) => item.id), dead.map((item) => item.secretRef)],
+    );
+    if (held.length === 0) return [];
+    await tx.query('update machvon.device_registration set revoked_at = now(), push_secret_ref = null, revoke_reason = $2 where id = any($1::uuid[]) and revoked_at is null', [held.map((row) => row.id), reason]);
+    return held.flatMap((row) => (row.push_secret_ref === null ? [] : [row.push_secret_ref]));
+  }
+
   async find(tx: TenantTx, id: string): Promise<DeviceRegistrationRecord | undefined> {
     const [row] = await tx.query<DeviceRow>(`select ${COLUMNS} from machvon.device_registration where id = $1::uuid`, [id]);
     return row === undefined ? undefined : toRecord(row);

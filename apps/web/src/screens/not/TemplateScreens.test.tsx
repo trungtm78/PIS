@@ -155,10 +155,20 @@ describe('NOT-07 the template editor (UI-NOT-07)', () => {
     fireEvent.change(await screen.findByLabelText(vi_['not.template.form.code.label']), { target: { value: 'dossier.alert' } });
     fireEvent.change(screen.getByLabelText(vi_['not.template.form.channel.label']), { target: { value: 'PUSH_FCM' } });
     expect(document.querySelector('[data-lockscreen]')).not.toBeNull();
+    // A push says a neutral sentence: with a variable the form refuses to send it.
     fireEvent.change(screen.getByLabelText(vi_['not.template.form.body.label']), { target: { value: 'A dossier of {{unit}} needs a look' } });
     fireEvent.click(screen.getByRole('button', { name: vi_['not.template.form.variable.add'] }));
     fireEvent.change(screen.getByLabelText(vi_['not.template.form.variable.name'].replace('{n}', '1')), { target: { value: 'unit' } });
-    fireEvent.change(screen.getByLabelText(vi_['not.template.form.variable.classification'].replace('{n}', '1')), { target: { value: 'INTERNAL' } });
+    fireEvent.click(screen.getByRole('button', { name: vi_['not.template.form.submit.action'] }));
+    expect((await screen.findByRole('alert')).textContent).toContain(vi_['not.template.form.pushVariable.invalid'].replace('{name}', 'unit'));
+    expect(h.command).not.toHaveBeenCalled();
+    // ... and a sentence longer than a lock screen takes is refused as well.
+    fireEvent.click(screen.getByRole('button', { name: vi_['not.template.form.variable.remove'].replace('{n}', '1') }));
+    fireEvent.change(screen.getByLabelText(vi_['not.template.form.body.label']), { target: { value: 'x'.repeat(121) } });
+    fireEvent.click(screen.getByRole('button', { name: vi_['not.template.form.submit.action'] }));
+    expect((await screen.findByRole('alert')).textContent).toContain(vi_['not.template.form.pushLength.invalid']);
+    expect(h.command).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText(vi_['not.template.form.body.label']), { target: { value: 'A dossier needs a look' } });
     fireEvent.click(screen.getByRole('button', { name: vi_['not.template.form.submit.action'] }));
     expect(await screen.findByText(vi_['not.template.done.saved'])).toBeTruthy();
     const [operation, input] = h.command.mock.calls[0] as [string, { body: Record<string, unknown> }];
@@ -168,8 +178,8 @@ describe('NOT-07 the template editor (UI-NOT-07)', () => {
       channel: 'PUSH_FCM',
       locale: 'vi-VN',
       purpose: 'OPERATIONAL',
-      content_ast: { body: 'A dossier of {{unit}} needs a look' },
-      variable_schema: { type: 'object', properties: { unit: { type: 'string', classification: 'INTERNAL' } } },
+      content_ast: { body: 'A dossier needs a look' },
+      variable_schema: { type: 'object', properties: {} },
       lockscreen_safe: true,
     });
   });

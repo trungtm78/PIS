@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { LOCK_SCREEN_MAX } from './push-port.ts';
 
 /**
  * The rules of a message template (ST-NOT-005, NOT 3.4, BR-NOT-10, BR-NOT-11), judged before anything is stored or sent:
@@ -6,7 +7,7 @@ import { DomainError } from './errors.ts';
  *  - `variable_schema` declares each variable with a `type` (string, number, integer, boolean or money) and a `classification` (PUBLIC, INTERNAL, CONFIDENTIAL, PERSONAL);
  *  - the channels that reach a phone or an outside provider (push, SMS, Zalo, WhatsApp) carry only PUBLIC or INTERNAL variables that are not money
  *    (422 TEMPLATE_VARIABLE_CLASSIFIED), so nothing classified shows on a lock screen or travels through a provider;
- *  - a push template is lock-screen safe, or it is refused (the database refuses it as well).
+ *  - a push template is lock-screen safe, or it is refused (the database refuses it as well), and it is a neutral sentence: it uses no variable at all and fits a lock screen (120 characters) (ST-NOT-007).
  * Pure, so the screen and the tests judge a template the way the server does.
  */
 export const TEMPLATE_CHANNELS = ['IN_APP', 'EMAIL', 'SMS', 'PUSH_FCM', 'PUSH_APNS', 'ZALO_ZNS', 'ZALO_OA', 'WHATSAPP'] as const;
@@ -99,6 +100,10 @@ export function assertTemplateAllowed(input: TemplateInput): void {
       }
     }
   }
+  // A push is a neutral sentence (ST-NOT-007): whatever its variables are, they are not shown on a lock screen, so it uses none. Judged after the classification, so a figure is still told as classified.
+  if (isPush(input.channel) && used.length > 0) throw invalid(`content_ast.${used[0]}`);
+  // The last look before the provider refuses a longer text for good (`LOCKSCREEN_UNSAFE`), so a template that could never be sent is refused here.
+  if (isPush(input.channel) && input.contentAst.body.length > LOCK_SCREEN_MAX) throw invalid('content_ast.body');
   if (isPush(input.channel) && !input.lockscreenSafe) throw invalid('lockscreen_safe');
   if (!isPush(input.channel) && input.lockscreenSafe) throw invalid('lockscreen_safe');
 }

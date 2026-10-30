@@ -4,6 +4,8 @@ import { isProductionEnvironment } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import { dedupeKeyOf } from '../dedupe';
 import { channelCallbackHandler } from './callback-handler';
+import { PushChannelAdapter } from '../push/push-adapter';
+import { MockPushProvider } from '../push/ports';
 import { ChannelAdapterRegistry, inMemoryEmailAdapter } from './channel-adapters';
 import type { WebhookPayloadStore } from './webhook-support';
 
@@ -13,7 +15,12 @@ import type { WebhookPayloadStore } from './webhook-support';
  * where `MACHVON_ENVIRONMENT` is production, dr or not named.
  */
 export function defaultChannelAdapters(environment: string | undefined): ChannelAdapterRegistry {
-  return new ChannelAdapterRegistry(isProductionEnvironment(environment) ? [] : [inMemoryEmailAdapter()], environment);
+  return new ChannelAdapterRegistry(
+    isProductionEnvironment(environment)
+      ? []
+      : [inMemoryEmailAdapter(), new PushChannelAdapter('mock-fcm', 'PUSH_FCM', new MockPushProvider()), new PushChannelAdapter('mock-apns', 'PUSH_APNS', new MockPushProvider())],
+    environment,
+  );
 }
 
 export function createDeliveryEngine(audit: Pick<AuditWriter, 'recordInTx'>, metrics?: MetricsSink): DeliveryEngine {

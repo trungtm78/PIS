@@ -14,10 +14,10 @@ export const pushSecretRefOf = (tenantId: string, deviceId: string): string => `
 /** The stand-in of the vault until the one of the platform is deployed (OpenBao): the tokens in memory, by reference (MOCK). */
 export class InMemoryPushTokenVault implements PushTokenVault {
   readonly tokens = new Map<string, string>();
-  private failure: 'put' | 'put-after-write' | 'remove' | undefined;
+  private failure: 'put' | 'put-after-write' | 'remove' | 'read' | undefined;
 
   /** Makes the next write or removal fail, to show that the command fails whole or that the cleanup is tried and noticed. */
-  failNext(operation: 'put' | 'put-after-write' | 'remove'): void {
+  failNext(operation: 'put' | 'put-after-write' | 'remove' | 'read'): void {
     this.failure = operation;
   }
 
@@ -43,6 +43,10 @@ export class InMemoryPushTokenVault implements PushTokenVault {
   }
 
   async read(ref: string): Promise<string | undefined> {
+    if (this.failure === 'read') {
+      this.failure = undefined;
+      throw new Error('vault unavailable');
+    }
     return this.tokens.get(ref);
   }
 }

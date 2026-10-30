@@ -15495,6 +15495,8 @@
   "not.template.form.variable.remove": "Xóa biến {n}",
   "not.template.form.undeclared.invalid": "Nội dung dùng biến {name} chưa khai báo.",
   "not.template.form.classified.invalid": "Biến {name} là tiền hoặc thuộc loại mật/cá nhân nên không được dùng ở kênh này.",
+  "not.template.form.pushVariable.invalid": "Mẫu push là một câu trung tính nên không dùng biến nào (đang dùng {name}).",
+  "not.template.form.pushLength.invalid": "Mẫu push phải đủ ngắn để hiện trên màn hình khóa (tối đa 120 ký tự).",
   "not.template.form.submit.action": "Lưu bản nháp",
   "not.template.done.saved": "Đã lưu bản nháp. Hãy gửi duyệt để người khác phê duyệt.",
   "not.template.done.submitted": "Đã gửi duyệt.",

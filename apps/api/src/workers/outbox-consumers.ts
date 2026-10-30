@@ -21,6 +21,8 @@ import { MNE_REPORT_CONSUMER, MneReportConsumer } from '../modules/mne/report.co
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
 import { ControlEventTypeCatalog, PayloadValidator } from '../notifications/payload-validator';
+import { SILENT_PUSH_CONSUMER, SilentPushConsumer } from '../notifications/push/silent-push';
+import type { SilentPushDeps } from '../notifications/push/silent-push';
 import { PermissionResourceAccess } from '../notifications/resource-access-port';
 import { PROVISIONING_CONSUMER } from '../provisioning/provisioning.consumer';
 import type { ProvisioningConsumer } from '../provisioning/provisioning.consumer';
@@ -46,6 +48,8 @@ export interface OutboxConsumersDeps {
   push?: EntitlementPushPort;
   /** The consumer of the issue-request events of the source modules (DOC, ST-DOC-008); without it those events are not served. */
   docIssue?: OutboxConsumer;
+  /** The silent push to the devices when entitlements or access change (ST-NOT-007); without it those events wake no device. */
+  silentPush?: Omit<SilentPushDeps, 'database' | 'security'>;
 }
 
 /**
@@ -111,6 +115,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: AUD_REPORT_CONSUMER, handle: (delivery) => auditReports.handle(delivery) },
     { name: MNE_REPORT_CONSUMER, handle: (delivery) => mneReports.handle(delivery) },
     ...(deps.docIssue === undefined ? [] : [deps.docIssue]),
+    ...(deps.silentPush === undefined ? [] : [{ name: SILENT_PUSH_CONSUMER, handle: (delivery: Parameters<SilentPushConsumer['handle']>[0]) => new SilentPushConsumer({ ...deps.silentPush, database: tenants, security } as SilentPushDeps).handle(delivery) }]),
     new RegisteredEventConsumer(NOTIFICATION_CONSUMER, catalog, { name: NOTIFICATION_CONSUMER, handle: (delivery) => notifications.handle(delivery) }),
   ];
 }

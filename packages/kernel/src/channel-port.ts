@@ -1,6 +1,7 @@
 import type { AdapterStatus } from './connector.ts';
 import type { ProviderSignatureScheme } from './provider-signature.ts';
 import type { DeliveryStatus } from './delivery.ts';
+import type { PushTarget } from './push-port.ts';
 
 /**
  * The port between the delivery engine and one provider of one channel (ST-NOT-002, NOT 9). The engine owns the schedule, the retries, the
@@ -18,13 +19,19 @@ export interface ChannelSendRequest {
   text: string;
   /** The external account id of the channel account (the sender identity at the provider). */
   accountId: string;
+  /** A push goes to the devices of the recipient, each with the token read from the vault for this call (ST-NOT-007); `to` is not used then. */
+  targets?: PushTarget[];
+  /** The only link a push carries: opaque, naming the notification and nothing of what it is about. */
+  deepLink?: string;
+  /** A data message with no text, to make the app read again what changed (entitlements, access); never shown. */
+  silent?: { what: string };
 }
 
 export type ChannelSendResult =
   /** The provider took the message; `providerMessageId` is what its callbacks will name. */
-  | { kind: 'ACCEPTED'; providerMessageId: string }
+  | { kind: 'ACCEPTED'; providerMessageId: string; deadTargets?: string[] }
   /** The request was refused or never left: nothing was sent. A RETRYABLE failure is tried again; a PERMANENT one is not. */
-  | { kind: 'FAILED'; failureClass: 'RETRYABLE' | 'PERMANENT'; errorCode: string; retryAfterSeconds?: number }
+  | { kind: 'FAILED'; failureClass: 'RETRYABLE' | 'PERMANENT'; errorCode: string; retryAfterSeconds?: number; deadTargets?: string[] }
   /** The request may have reached the provider but the answer was lost (a timeout after the request left): never sent again on its own. */
   | { kind: 'UNKNOWN'; errorCode: string };
 

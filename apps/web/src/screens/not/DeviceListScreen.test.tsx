@@ -49,7 +49,7 @@ describe('NOT-14 the push devices (UI-NOT-14)', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['not.device.page.title']);
   });
 
-  it('AC-ST-NOT-006-3 UI-NOT-14: shows a device that was removed as removed, with when and why, after a permanent failure of the provider too', async () => {
+  it('AC-ST-NOT-006-3 AC-ST-NOT-007-4 UI-NOT-14: shows a device that was removed as removed, with when and why, after a permanent failure of the provider too', async () => {
     open(READER, () => ({ items: [deviceRow(1, { status: 'Revoked', revoked_at: '2026-10-30T03:00:00Z', revoke_reason: 'PROVIDER_UNREGISTERED', permission_state: 'granted' })], next_cursor: null }));
     const row = (await screen.findByRole('table')).querySelector('[data-device-id="device-1"]') as HTMLElement;
     expect(row.getAttribute('data-status')).toBe('Revoked');

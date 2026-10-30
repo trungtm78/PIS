@@ -52,6 +52,8 @@ import { UserSessionDenyList } from './session/user-session-deny-list';
 import { requestTelemetry } from './telemetry/request-telemetry';
 import { DocumentIssueConsumer } from './modules/doc/issue-consumer';
 import { DocumentIssueService } from './modules/doc/issue-request.service';
+import { PUSH_TOKEN_VAULT } from './notifications/devices/push-vault';
+import type { PushTokenVault } from './notifications/devices/push-vault';
 import { createOutboxConsumers } from './workers/outbox-consumers';
 import { createOutboxPublisher } from './workers/outbox-publisher';
 import { startWorkers } from './workers/workers';
@@ -243,12 +245,25 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           loadAccess: (ctx) => access.load(ctx),
           resourceAccess: new PermissionResourceAccess(),
           alerts,
+          pushTokens: app.get<PushTokenVault>(PUSH_TOKEN_VAULT, { strict: false }),
         },
         process.env.MACHVON_ENVIRONMENT,
       );
       // The issue requests of the source modules (DOC): the same service that answers the REST port, with the same file store.
       const docIssue = new DocumentIssueConsumer({ database: tenants, service: app.get(DocumentIssueService, { strict: false }), security });
-      const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning, delivery, docIssue });
+      const consumers = createOutboxConsumers({
+        tenants,
+        control,
+        access,
+        entitlementCache,
+        authzCache,
+        tenantRuntime,
+        security,
+        provisioning,
+        delivery,
+        docIssue,
+        silentPush: { adapters: app.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }), vault: app.get<PushTokenVault>(PUSH_TOKEN_VAULT, { strict: false }) },
+      });
       workers = startWorkers(
         {
           tenants,

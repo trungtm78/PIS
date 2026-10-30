@@ -1,7 +1,8 @@
-import { DeliveryStore, NotificationStore } from '@machvon/db';
+import { DeliveryStore, DeviceRegistrationStore, NotificationStore } from '@machvon/db';
 import type { ClaimedSend, DeliveryEngine, TenantDatabase, TenantTx } from '@machvon/db';
-import { DomainError, NOOP_ALERTS, NOOP_METRICS, asUuid, activationBlock } from '@machvon/kernel';
-import type { AlertSink, ChannelAdapter, ChannelSendResult, EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
+import { DomainError, NOOP_ALERTS, NOOP_METRICS, PLATFORMS_OF_CHANNEL, asUuid, activationBlock, isPushDeliveryChannel, opaqueLinkOf } from '@machvon/kernel';
+import type { AlertSink, ChannelAdapter, ChannelSendResult, EffectiveAccess, MetricsSink, PushTarget, TenantContext } from '@machvon/kernel';
+import type { PushTokenVault } from '../devices/push-vault';
 import { withCurrentOwnerPath } from '../notifications.controller';
 import type { ResourceAccessPort } from '../resource-access-port';
 import type { ChannelAdapterRegistry } from './channel-adapters';
@@ -35,6 +36,8 @@ export interface DispatcherDeps {
   /** Sends of one channel in flight at the same time. */
   concurrency?: number;
   adapterTimeoutMs?: number;
+  /** Where the push tokens of the devices are (ST-NOT-007); without it a push cannot be addressed and its sends fail for good (VAULT_MISSING). */
+  pushTokens?: PushTokenVault;
 }
 
 export interface DispatchResult {
@@ -68,6 +71,7 @@ function blockedReason(adapter: ChannelAdapter | undefined, environment: string 
 export class DeliveryDispatcher {
   private readonly store = new DeliveryStore();
   private readonly notifications = new NotificationStore();
+  private readonly devices = new DeviceRegistrationStore();
   private readonly metrics: MetricsSink;
   private readonly alerts: AlertSink;
   private readonly now: () => Date;
@@ -158,6 +162,7 @@ export class DeliveryDispatcher {
 
   /** Makes the call. Anything that goes wrong after the request may have left is Unknown; anything before it is a failure of this send alone. */
   private async call(ctx: TenantContext, adapter: ChannelAdapter, send: ClaimedSend): Promise<ChannelSendResult> {
+    if (isPushDeliveryChannel(send.attempt.channel)) return this.callPush(ctx, adapter, send);
     let request: Parameters<ChannelAdapter['send']>[0];
     try {
       const to = await this.deps.database.withTenant(ctx, (tx) => this.addressOf(tx, send.notification.recipientId, send.attempt.channel));
@@ -167,6 +172,11 @@ export class DeliveryDispatcher {
     } catch (error) {
       return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: error instanceof DomainError && error.code === 'TEMPLATE_INVALID' ? 'TEMPLATE_RENDER_FAILED' : 'SEND_PREPARATION_FAILED' };
     }
+    return this.invoke(adapter, request);
+  }
+
+  /** Makes the call of the adapter within the time it is given. */
+  private async invoke(adapter: ChannelAdapter, request: Parameters<ChannelAdapter['send']>[0]): Promise<ChannelSendResult> {
     let timer: NodeJS.Timeout | undefined;
     try {
       const timeout = new Promise<ChannelSendResult>((resolve) => {
@@ -178,6 +188,57 @@ export class DeliveryDispatcher {
       return { kind: 'UNKNOWN', errorCode: 'ADAPTER_ERROR' };
     } finally {
       clearTimeout(timer);
+    }
+  }
+
+  /**
+   * A push (ST-NOT-007): the devices of the recipient that can be pushed to, with their tokens read from the vault for this call, a neutral sentence and an opaque link. The sentence is the literal text of the template:
+   * no variable of the event is filled in, so nothing about the record the notification is about reaches a lock screen, and the link names the notification only (opening it asks for the permission of the moment). The
+   * devices the provider no longer knows are revoked, with their tokens, once the answer is in.
+   */
+  private async callPush(ctx: TenantContext, adapter: ChannelAdapter, send: ClaimedSend): Promise<ChannelSendResult> {
+    const vault = this.deps.pushTokens;
+    if (vault === undefined) return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: 'VAULT_MISSING' };
+    let request: Parameters<ChannelAdapter['send']>[0];
+    // The reference each token was read under: a refusal revokes that token's registration only if it still holds it.
+    const tried = new Map<string, string>();
+    let vaultFailed = false;
+    try {
+      const devices = await this.deps.database.withTenant(ctx, (tx) => this.devices.pushTargets(tx, [send.notification.recipientId], PLATFORMS_OF_CHANNEL[send.attempt.channel] ?? []));
+      const targets: PushTarget[] = [];
+      for (const device of devices) {
+        try {
+          const token = await vault.read(device.secretRef);
+          if (token !== undefined) {
+            targets.push({ deviceId: device.id, token });
+            tried.set(device.id, device.secretRef);
+          }
+        } catch {
+          // The vault is not answering: this device is left for the retry, the others are still served.
+          vaultFailed = true;
+        }
+      }
+      // Nothing was sent, and the vault is the reason: a pause, not the end of the notification.
+      if (targets.length === 0 && vaultFailed) return { kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'VAULT_UNAVAILABLE' };
+      if (targets.length === 0) return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: 'NO_DEVICE' };
+      const message = renderTemplate(send.template.contentAst, send.template.variableSchema, {});
+      request = { idempotencyKey: send.idempotencyKey, accountId: send.accountId, to: 'devices', text: message.text, targets, deepLink: opaqueLinkOf(send.notification.id) };
+    } catch (error) {
+      return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: error instanceof DomainError && error.code === 'TEMPLATE_INVALID' ? 'TEMPLATE_RENDER_FAILED' : 'SEND_PREPARATION_FAILED' };
+    }
+    const result = await this.invoke(adapter, request);
+    if ((result.kind === 'ACCEPTED' || result.kind === 'FAILED') && result.deadTargets !== undefined && result.deadTargets.length > 0) await this.dropDeadDevices(ctx, vault, result.deadTargets.flatMap((id) => (tried.has(id) ? [{ id, secretRef: tried.get(id) as string }] : [])));
+    return result;
+  }
+
+  /** The devices whose token the provider refused for good are revoked and their tokens leave the vault. A failure here never undoes the answer of the send, which is already in. */
+  private async dropDeadDevices(ctx: TenantContext, vault: PushTokenVault, dead: ReadonlyArray<{ id: string; secretRef: string }>): Promise<void> {
+    try {
+      const refs = await this.deps.database.withTenant(ctx, (tx) => this.devices.revokeDead(tx, dead, 'PROVIDER_UNREGISTERED'));
+      this.metrics.increment('push_devices_revoked_total', { reason: 'PROVIDER_UNREGISTERED' });
+      await Promise.allSettled(refs.map((ref) => vault.remove(ref)));
+    } catch {
+      // The next permanent refusal revokes them again.
     }
   }
 

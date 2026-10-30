@@ -104,6 +104,10 @@ export function formProblemMessage(t: T, problem: FormProblem): string {
       return t('not.template.form.undeclared.invalid', { name: problem.name });
     case 'classified':
       return t('not.template.form.classified.invalid', { name: problem.name });
+    case 'pushVariable':
+      return t('not.template.form.pushVariable.invalid', { name: problem.name });
+    case 'pushLength':
+      return t('not.template.form.pushLength.invalid');
   }
 }
 

@@ -122,13 +122,17 @@ export const reviseForm = (template: TemplateView): TemplateForm => ({
 export const isPushChannel = (channel: string): boolean => channel === 'PUSH_FCM' || channel === 'PUSH_APNS';
 export const placeholdersOf = (value: string): string[] => [...new Set([...value.matchAll(PLACEHOLDER)].map((match) => match[1] as string))];
 
-export type FormProblem = { field: 'code' | 'body' | 'subject' | 'variables' } | { field: 'undeclared'; name: string } | { field: 'classified'; name: string };
+export const PUSH_BODY_MAX = 120;
+
+export type FormProblem = { field: 'code' | 'body' | 'subject' | 'variables' } | { field: 'undeclared'; name: string } | { field: 'classified'; name: string } | { field: 'pushVariable'; name: string } | { field: 'pushLength' };
 
 /** What the server would refuse, judged the way it does, so that the author is told before sending: the server stays the judge. */
 export function problemsOf(form: TemplateForm): FormProblem[] {
   const found: FormProblem[] = [];
   if (!CODE.test(form.code.trim())) found.push({ field: 'code' });
   if (form.body.trim() === '') found.push({ field: 'body' });
+  // A push is a sentence that fits a lock screen: the server refuses a longer one when it is written (LOCK_SCREEN_MAX of the kernel).
+  else if (isPushChannel(form.channel) && form.body.length > PUSH_BODY_MAX) found.push({ field: 'pushLength' });
   if (form.channel === 'EMAIL' && form.subject.trim() === '' ) found.push({ field: 'subject' });
   const names = form.variables.map((variable) => variable.name.trim());
   if (names.some((name) => !VARIABLE_NAME.test(name)) || new Set(names).size !== names.length) found.push({ field: 'variables' });
@@ -137,6 +141,8 @@ export function problemsOf(form: TemplateForm): FormProblem[] {
     const variable = declared.get(name);
     if (variable === undefined) found.push({ field: 'undeclared', name });
     else if (RESTRICTED.has(form.channel) && (variable.type === 'money' || variable.classification === 'CONFIDENTIAL' || variable.classification === 'PERSONAL')) found.push({ field: 'classified', name });
+    // A push is a neutral sentence: it uses no variable at all (ST-NOT-007).
+    else if (isPushChannel(form.channel)) found.push({ field: 'pushVariable', name });
   }
   return found;
 }

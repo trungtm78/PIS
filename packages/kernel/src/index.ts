@@ -526,3 +526,5 @@ export { CHALLENGE_TTL_DAYS, DOMAIN_RESERVATION_DAYS, RECHECK_EVERY_DAYS, TLS_LI
 export type { DomainKind } from './sas-domain.ts';
 export { PROVIDER_CHANNELS, RESTRICTED_CHANNELS, TEMPLATE_CHANNELS, TEMPLATE_LOCALES, TEMPLATE_PURPOSES, VARIABLE_CLASSIFICATIONS, VARIABLE_TYPES, assertTemplateAllowed, assertTemplateIdentity, declaredVariables, isPush, placeholdersOf, sampleVariablesOf } from './notification-template.ts';
 export type { TemplateChannel, TemplateInput, TemplateVariable, VariableClassification } from './notification-template.ts';
+export { LOCK_SCREEN_MAX, OPAQUE_LINK, PLATFORMS_OF_CHANNEL, PUSH_CHANNELS, assertLockScreenSafe, classifierOf, classifyApnsReason, classifyFcmError, isPushChannel as isPushDeliveryChannel, opaqueLinkOf } from './push-port.ts';
+export type { PushFailure, PushTarget } from './push-port.ts';

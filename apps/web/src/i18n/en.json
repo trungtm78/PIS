@@ -15495,6 +15495,8 @@
   "not.template.form.variable.remove": "Remove variable {n}",
   "not.template.form.undeclared.invalid": "The text uses the variable {name}, which is not declared.",
   "not.template.form.classified.invalid": "The variable {name} is money or confidential/personal and cannot be used on this channel.",
+  "not.template.form.pushVariable.invalid": "A push is a neutral sentence, so it uses no variable ({name} is used).",
+  "not.template.form.pushLength.invalid": "A push must be short enough for a lock screen (at most 120 characters).",
   "not.template.form.submit.action": "Save the draft",
   "not.template.done.saved": "The draft was saved. Send it to review so that another person can approve it.",
   "not.template.done.submitted": "Sent to review.",

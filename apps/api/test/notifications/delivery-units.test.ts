@@ -87,10 +87,10 @@ describe('the registry of channel adapters', () => {
     expect(() => new ChannelAdapterRegistry([a, b], 'test')).toThrow('provider p already has an adapter');
   });
 
-  it('registers the in-memory e-mail adapter outside production only: the honest default is no adapter', () => {
+  it('registers the in-memory e-mail adapter and the two push stand-ins outside production only: the honest default is no adapter', () => {
     expect(defaultChannelAdapters('production').providers()).toEqual([]);
     expect(defaultChannelAdapters(undefined).providers()).toEqual([]);
-    expect(defaultChannelAdapters('test').providers()).toEqual(['smtp-relay']);
+    expect(defaultChannelAdapters('test').providers()).toEqual(['mock-apns', 'mock-fcm', 'smtp-relay']);
   });
 });
 

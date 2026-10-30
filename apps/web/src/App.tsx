@@ -7,6 +7,7 @@ import { useTranslation } from './i18n';
 import { ARCHITECTURE } from './navigation/architecture';
 import { resolveScreen, routeById } from './routes/registry';
 import { NotFound } from './routes/NotFound';
+import { OpaqueLink } from './routes/OpaqueLink';
 import { WEB_ROUTES } from './routes/web-routes';
 import type { ScreenLoader, WebRoute } from './routes/types';
 import { Shell } from './shell/Shell';
@@ -83,6 +84,8 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
           {WEB_ROUTES.map((route) => (
             <Route key={route.id} path={route.path} element={<ScreenHost route={route} screenModules={screenModules} />} />
           ))}
+          {/* The link a push carries: it names the notification only (ST-NOT-007). */}
+          <Route path="/r/:id" element={<OpaqueLink />} />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path={CALLBACK_PATH} element={<OidcCallback />} />

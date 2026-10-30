@@ -46,6 +46,20 @@ describe('the rules of a message template (ST-NOT-005, BR-NOT-10, BR-NOT-11)', (
     }
   });
 
+  it('ST-NOT-007: a push is a neutral sentence: it uses no variable, even a public one, and a figure is still told as classified', () => {
+    expect(refusal(() => allowed('PUSH_FCM', 'Dossier {{code}} needs a look'))).toEqual({ code: 'TEMPLATE_INVALID', detail: 'content_ast.code' });
+    expect(refusal(() => allowed('PUSH_APNS', 'Dossier of {{unit}}')).code).toBe('TEMPLATE_INVALID');
+    expect(refusal(() => allowed('PUSH_FCM', 'You owe {{amount}}')).code).toBe('TEMPLATE_VARIABLE_CLASSIFIED');
+    // SMS keeps its public and internal variables.
+    expect(() => allowed('SMS', 'Dossier {{code}} of {{unit}}')).not.toThrow();
+  });
+
+  it('ST-NOT-007: a push longer than a lock screen takes is refused when it is written, because the adapter would refuse every send of it', () => {
+    expect(() => allowed('PUSH_FCM', 'x'.repeat(120))).not.toThrow();
+    expect(refusal(() => allowed('PUSH_APNS', 'x'.repeat(121)))).toEqual({ code: 'TEMPLATE_INVALID', detail: 'content_ast.body' });
+    expect(() => allowed('SMS', 'x'.repeat(121))).not.toThrow();
+  });
+
   it('judges the variables the text uses, not the ones it only declares', () => {
     expect(() => allowed('SMS', 'Dossier {{code}}')).not.toThrow();
   });
