@@ -33,6 +33,7 @@
     "createNotificationWorkflowDraft",
     "createTemplateRevision",
     "registerDevice",
+    "post_sync_batches",
     "connectChannelAccount",
     "verifyChannelAccount",
     "updateChannelAccount",

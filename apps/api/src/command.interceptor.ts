@@ -13,6 +13,7 @@ import type { CommandOptions } from './command.decorator';
 import type { CommandScope } from './command-scope';
 import { operationIdOf } from './operation-id.decorator';
 import { assertValidBody } from './request-validation';
+import { SYNC_FORWARD_HEADER, isSyncForward } from './sync/forward-mark';
 import { tenantContextOf } from './tenant-context.decorator';
 
 const HTTP_CODE_METADATA = '__httpCode__';
@@ -97,7 +98,8 @@ export class CommandInterceptor implements NestInterceptor {
       operation: options.operation,
       keyHash: keyHashOf(key),
       requestHash,
-      ttl: options.ttl ?? 'standard',
+      // A command that a batch of the phone forwards keeps its record for the 7 days of the offline queue (ST-MOB-005).
+      ttl: isSyncForward(request.headers[SYNC_FORWARD_HEADER]) ? 'extended' : (options.ttl ?? 'standard'),
     });
     switch (begin.kind) {
       case 'conflict':

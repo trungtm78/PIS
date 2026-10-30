@@ -144,6 +144,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'setNotificationTestRecipients',
   'createTemplateRevision',
   'registerDevice',
+  'post_sync_batches',
+  'get_sync_commands_key',
   'connectChannelAccount',
   'verifyChannelAccount',
   'updateChannelAccount',

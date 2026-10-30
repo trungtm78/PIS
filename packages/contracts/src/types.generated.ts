@@ -69531,8 +69531,6 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
-                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
-                "If-Match"?: string;
             };
             path?: never;
             cookie?: never;
@@ -69707,8 +69705,6 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
-                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
-                "If-Match"?: string;
             };
             path?: never;
             cookie?: never;

@@ -210,16 +210,23 @@ export class IdempotencyStore {
     });
   }
 
+  /** Removes the idempotency records that have expired, and the receipts of the commands that phones queued offline once they are older than their 7 days (ST-MOB-005, CR-04-37). Returns how many rows went. */
   async purgeExpired(ctx: TenantContext): Promise<number> {
-    const rows = await this.database.withTenant(ctx, (tx) =>
-      tx.query<{ n: number }>(
+    const rows = await this.database.withTenant(ctx, async (tx) => {
+      const records = await tx.query<{ n: number }>(
         `with removed as (
            delete from machvon.idempotency_record
             where expires_at <= now() and not machvon.legal_hold_blocks(resource_type, resource_id)
            returning 1)
          select count(*)::int as n from removed`,
-      ),
-    );
-    return rows[0]?.n ?? 0;
+      );
+      const receipts = await tx.query<{ n: number }>(
+        `with removed as (delete from machvon.sync_command_receipt where received_at <= now() - interval '7 days' returning 1) select count(*)::int as n from removed`,
+      );
+      // The claims of the command keys go with the receipts (the same 7 days).
+      await tx.query("delete from machvon.sync_command_claim where claimed_at <= now() - interval '7 days'");
+      return (records[0]?.n ?? 0) + (receipts[0]?.n ?? 0);
+    });
+    return rows;
   }
 }

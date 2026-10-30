@@ -68387,15 +68387,6 @@
               "type": "string",
               "minLength": 16
             }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Strong ETag of the current resource version; required for changes to versioned records."
           }
         ],
         "requestBody": {
@@ -68612,15 +68603,6 @@
               "type": "string",
               "minLength": 16
             }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Strong ETag of the current resource version; required for changes to versioned records."
           }
         ],
         "requestBody": {

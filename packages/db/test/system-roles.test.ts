@@ -137,7 +137,7 @@ describe('seedSystemRoles', () => {
       await admin.query(migration);
       const after = await admin.query("select tenant_id, permissions, version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
       expect(after.rows.length).toBeGreaterThanOrEqual(2);
-      for (const row of after.rows) expect([...row.permissions].sort()).toEqual(['notification.self', 'profile.self', 'session.self', 'support.ticket.create', 'support.ticket.read', 'tenant.theme.read']);
+      for (const row of after.rows) expect([...row.permissions].sort()).toEqual(['notification.self', 'profile.self', 'session.self', 'support.ticket.create', 'support.ticket.read', 'sync.submit', 'sync.upload', 'tenant.theme.read']);
       const versions = after.rows.map((row) => row.version);
       // Running it again changes nothing, version included.
       await admin.query(migration);

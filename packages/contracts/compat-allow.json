@@ -391,6 +391,20 @@
       "location": "snapshot_id",
       "reason": "the read of one channel account is the account itself, not a page",
       "change_request": "ST-OMNI-001"
+    },
+    {
+      "operation": "post_sync_batches",
+      "kind": "PARAMETER_REMOVED",
+      "location": "header:If-Match",
+      "reason": "the operation starts something new (a batch of queued commands, an upload) and changes no record that has a version; the idempotency key is what makes it safe to send again, and nothing sent If-Match to it",
+      "change_request": "ST-MOB-005"
+    },
+    {
+      "operation": "post_sync_attachments",
+      "kind": "PARAMETER_REMOVED",
+      "location": "header:If-Match",
+      "reason": "the operation starts something new (a batch of queued commands, an upload) and changes no record that has a version; the idempotency key is what makes it safe to send again, and nothing sent If-Match to it",
+      "change_request": "ST-MOB-009"
     }
   ]
 }

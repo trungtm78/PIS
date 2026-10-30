@@ -187,6 +187,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'setNotificationTestRecipients',
         'createTemplateRevision',
         'registerDevice',
+        'post_sync_batches',
+        'get_sync_commands_key',
         'connectChannelAccount',
         'verifyChannelAccount',
         'updateChannelAccount',

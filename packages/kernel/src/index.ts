@@ -530,3 +530,5 @@ export { LOCK_SCREEN_MAX, OPAQUE_LINK, PLATFORMS_OF_CHANNEL, PUSH_CHANNELS, asse
 export type { PushFailure, PushTarget } from './push-port.ts';
 export { ACCOUNT_CHANNELS, ACCOUNT_STATUSES, AUTO_REPLY_MAX, CREDENTIAL_EXPIRED_CODE, DISPLAY_NAME_MAX, WEBHOOK_CHANNELS, assertChanges, assertConnectable, canDisableAccount, canVerifyAccount, displayNameOf, isAccountChannel, isUsable, unusableCodeOf } from './omni-channel.ts';
 export type { AccountChanges, AccountChannel, AccountStatus, ConnectedAccount } from './omni-channel.ts';
+export { MAX_BATCH_ITEMS, MAX_KEY_LENGTH, MIN_KEY_LENGTH, SYNC_COMMAND_TYPES, outcomeOf, planOf, syncRequestHashOf } from './sync-command.ts';
+export type { InvocationPlan, ItemOutcome, QueuedCommand, SyncCommandType } from './sync-command.ts';
