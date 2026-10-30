@@ -878,9 +878,9 @@ export const DELIVERY_ATTEMPT_FIXTURES: Readonly<Record<TenantName, { id: string
 };
 
 /** A contact of each tenant with a pending identity (the name is distinctive; it must never be shown to the other tenant). The identity has the id of the contact, since a case names one id for every parameter of its path. */
-export const CONTACT_FIXTURES: Readonly<Record<TenantName, { id: string; identityId: string; name: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0a6-000000000001', identityId: '00000000-0000-4000-a0a6-000000000001', name: 'alpha-contact-name-0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0a6-000000000001', identityId: '00000000-0000-4000-b0a6-000000000001', name: 'beta-contact-name-0001' },
+export const CONTACT_FIXTURES: Readonly<Record<TenantName, { id: string; identityId: string; name: string; consentId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0a6-000000000001', identityId: '00000000-0000-4000-a0a6-000000000001', name: 'alpha-contact-name-0001', consentId: '00000000-0000-4000-a0a6-000000000003' },
+  'TNT-B': { id: '00000000-0000-4000-b0a6-000000000001', identityId: '00000000-0000-4000-b0a6-000000000001', name: 'beta-contact-name-0001', consentId: '00000000-0000-4000-b0a6-000000000003' },
 };
 
 /** A draft integration connector and a failed inbox event of each tenant (the code, the endpoint and the event key are distinctive; the payload reference must never be shown). */
@@ -1003,6 +1003,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contact id', value: CONTACT_FIXTURES[tenant].id },
     { kind: 'contact identity id', value: CONTACT_FIXTURES[tenant].identityId },
     { kind: 'contact name', value: CONTACT_FIXTURES[tenant].name },
+    { kind: 'contact consent id', value: CONTACT_FIXTURES[tenant].consentId },
     { kind: 'campaign name', value: DELIVERY_ATTEMPT_FIXTURES[tenant].campaignName },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
     { kind: 'certificate id', value: CERTIFICATE_FIXTURES[tenant].id },

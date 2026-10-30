@@ -162,6 +162,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'mergeContacts',
   'get_resources_contact',
   'get_resources_contact_id',
+  'recordContactConsent',
+  'withdrawContactConsent',
   'post_sync_attachments',
   'post_sync_attachments_id_complete',
   'get_sync_attachments_id',
@@ -1098,6 +1100,9 @@ const INSERT_DELIVERY_ATTEMPT = `insert into machvon.delivery_attempt
 
 const INSERT_CONTACT = `insert into machvon.contact (tenant_id, id, display_name, verified_identities, classification, status) values ($1, $2, $3, '[]'::jsonb, 'CITIZEN', 'Unverified') on conflict do nothing`;
 
+const INSERT_CONTACT_CONSENT = `insert into machvon.contact_consent (tenant_id, id, contact_id, membership_id, channel, purpose, status, evidence_reference, effective_at, legal_basis, consent_text_version, capture_method)
+  values ($1, $2, $3, null, 'EMAIL', 'REMINDER', 'Granted', 'isolation-contact-consent', now(), 'CONSENT', 'isolation-1', 'IN_APP') on conflict do nothing`;
+
 const INSERT_CONTACT_IDENTITY = `insert into machvon.contact_identity (tenant_id, id, contact_id, channel, external_id_hash, external_id_masked, status)
   values ($1, $2, $3, 'PHONE', repeat('a', 64), '+84*******99', 'Pending') on conflict do nothing`;
 
@@ -1681,6 +1686,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CAMPAIGN, [tenantId, attempt.campaignId, attempt.campaignName, attempt.templateId, MEMBERSHIP_ID]);
     await client.query(INSERT_CONTACT, [tenantId, CONTACT_FIXTURES[tenant].id, CONTACT_FIXTURES[tenant].name]);
     await client.query(INSERT_CONTACT_IDENTITY, [tenantId, CONTACT_FIXTURES[tenant].identityId, CONTACT_FIXTURES[tenant].id]);
+    await client.query(INSERT_CONTACT_CONSENT, [tenantId, CONTACT_FIXTURES[tenant].consentId, CONTACT_FIXTURES[tenant].id]);
     await client.query(INSERT_CONSENT, [tenantId, CONSENT_FIXTURES[tenant].id, MEMBERSHIP_ID]);
     await client.query(INSERT_AUDIT_EVENT, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id, MEMBERSHIP_ID, AUDIT_EVENT_FIXTURES[tenant].action]);
     await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);

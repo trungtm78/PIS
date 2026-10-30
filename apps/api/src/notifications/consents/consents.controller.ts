@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Qu
 import { PERMISSIONS } from '@machvon/contracts';
 import { ContactConsentStore, TenantDatabase } from '@machvon/db';
 import type { ConsentRow } from '@machvon/db';
-import { DomainError } from '@machvon/kernel';
+import { DomainError, asUuid } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -152,10 +152,14 @@ export class ContactConsentReadsController {
     @CurrentAccess() access: EffectiveAccess,
     @Query('limit') limit?: unknown,
     @Query('cursor') cursor?: unknown,
+    @Query('contact_id') contactId?: unknown,
   ): Promise<Page> {
     const request = parsePageRequest(limit, cursor);
+    // The consents of one contact (OMNI-04): its own and those of the contacts that were merged into it.
+    const contact = contactId === undefined ? undefined : asUuid(contactId);
+    if (contactId !== undefined && contact === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'contact_id');
     if (!holdsOnWholeTenant(access, READ_PERMISSION)) return { items: [], next_cursor: null };
-    const rows = await this.database.withTenant(tenant, (tx) => this.consents.list(tx, { limit: request.limit + 1, after: request.after }));
+    const rows = await this.database.withTenant(tenant, (tx) => this.consents.list(tx, { limit: request.limit + 1, after: request.after }, { contactId: contact }));
     const shown = rows.slice(0, request.limit);
     const last = shown[shown.length - 1];
     return { items: shown.map(operatorViewOf), next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.effectiveKey, id: last.id }) : null };

@@ -31249,6 +31249,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Only the consents of this contact: the ones it gave and those of the contacts that were merged into it (OMNI-04) */
+                contact_id?: string;
             };
             header?: never;
             path?: never;

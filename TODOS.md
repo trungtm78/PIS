@@ -1723,3 +1723,11 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-OMNI-002 (gap): no operation blocks or unblocks a contact, or revokes an identity (V002 ties Verified to its method and moment, so a Verified identity cannot be Revoked); unmerge is R3.
 - ST-OMNI-002 (observability): no metric or alert yet for the directory (the trail and the event `omni.contact.merged.v1` carry the merges); the lock of an identity after five wrong codes is the case to alert on.
 - ST-OMNI-002 (decision, scope): the directory is the tenant's (a contact has no unit), so reading and changing it takes the permission on the whole tenant, as for the channel accounts; an agent whose grant is on one unit does not reach it. Letting a unit-scoped agent see the contacts of the conversations of their unit needs a rule on the contacts of a conversation (ST-OMNI-004).
+
+### ST-OMNI-003 (consent of the contacts, slice OMNI-1)
+- ST-OMNI-003 (decision, proof): the reference of the proof is required for `CHANNEL_OPT_IN` and `PAPER_SCANNED` (they leave something to show) and optional for `IN_APP` and `WEB_FORM`, where the capture itself is the proof; it stays with the consent and is on neither the trail, the event nor any read.
+- ST-OMNI-003 (decision, merge): a consent keeps the contact that gave it; `latestForContact` takes the latest word among the contact and the contacts merged into it. The consents are not added up, and a contact merged away takes none; the survivor does.
+- ST-OMNI-003 (gap, sending): the message to a contact (ST-OMNI-005, `sendConversationMessage`) must ask `latestForContact` before it is taken up, and a withdrawal must Suppress the waiting sends; the engine does that for members only today. The STOP/HUY keyword rule waits for the inbound messages (ST-OMNI-004).
+- ST-OMNI-003 (gap, expiry): no job expires a consent that has a term (`Expired` exists in the table; nothing sets it for a contact).
+- ST-OMNI-003 (decision, scope): the consents, like the directory, are the tenant's: a grant on one unit alone neither takes, withdraws nor reads them (the list is empty for it, as for the consents of members).
+- ST-OMNI-003 (observability): no metric or alert yet; the trail and `not.consent.changed.v1` carry the changes.

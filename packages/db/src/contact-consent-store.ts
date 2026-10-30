@@ -1,5 +1,5 @@
-import { DomainError, versionConflict } from '@machvon/kernel';
-import type { ConsentChannel, ConsentPurpose, ConsentState } from '@machvon/kernel';
+import { DomainError, identityChannelOf, versionConflict } from '@machvon/kernel';
+import type { ConsentChannel, ConsentPurpose, ConsentState, ContactConsentDraft } from '@machvon/kernel';
 import { assertTimestampCursor, timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -140,6 +140,77 @@ export class ContactConsentStore {
     return toRow(row);
   }
 
+  /**
+   * A consent taken for a contact outside the tenant (ST-OMNI-003). The contact must be alive (Unverified or Verified), and must hold a Verified identity on the channel (its own, or one of a contact that was merged into it): no consent is taken at an
+   * address that is not the contact's (422 IDENTITY_UNVERIFIED). A contact has at most one live consent per channel and purpose (409 CONSENT_ALREADY_GRANTED, also when two requests race). The proof is the reference given, or, for the ways of capture that
+   * leave none, the capture itself.
+   */
+  async grantForContact(tx: TenantTx, contactId: string, input: ContactConsentDraft): Promise<ConsentRow> {
+    const [contact] = await tx.query<{ status: string }>('select status from machvon.contact where id = $1::uuid for update', [contactId]);
+    if (contact === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (contact.status !== 'Unverified' && contact.status !== 'Verified') throw new DomainError('CONTACT_STATE_INVALID', 409, 'status');
+    const identityChannel = identityChannelOf(input.channel);
+    const [held] = await tx.query<{ ok: boolean }>(
+      `select true as ok from machvon.contact_identity i join machvon.contact c on c.tenant_id = i.tenant_id and c.id = i.contact_id
+        where coalesce(c.merged_into_id, c.id) = $1::uuid and i.channel = $2 and i.status = 'Verified' limit 1`,
+      [contactId, identityChannel ?? null],
+    );
+    if (held === undefined) throw new DomainError('IDENTITY_UNVERIFIED', 422, 'channel');
+    await tx.query('savepoint contact_consent_grant');
+    try {
+      const [row] = await tx.query<Sql>(
+        `insert into machvon.contact_consent
+           (tenant_id, id, contact_id, membership_id, channel, purpose, status, evidence_reference, effective_at, legal_basis, consent_text_version, capture_method)
+         select nullif(current_setting('app.tenant_id', true), '')::uuid, c.id, $1::uuid, null, $2, $3, 'Granted', coalesce($4, lower($5) || ':' || c.id::text), clock_timestamp(), 'CONSENT', $6, $5
+           from (select gen_random_uuid() as id) c
+         returning ${COLUMNS}`,
+        [contactId, input.channel, input.purpose, input.evidenceReference ?? null, input.captureMethod, input.consentTextVersion],
+      );
+      await tx.query('release savepoint contact_consent_grant');
+      if (row === undefined) throw new Error('consent not inserted');
+      return toRow(row);
+    } catch (error) {
+      if ((error as { code?: string }).code === UNIQUE_VIOLATION) {
+        await tx.query('rollback to savepoint contact_consent_grant');
+        throw new DomainError('CONSENT_ALREADY_GRANTED', 409);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * A consent of a contact is withdrawn on the word of whoever manages the directory, with a reason; it takes effect at once. A consent of a person of the tenant is not found here (that person withdraws their own); one that already ended is 409
+   * CONSENT_STATE_INVALID; a stale version is 409 VERSION_CONFLICT. A consent keeps the contact it was given by, also when that contact was merged afterwards.
+   */
+  async withdrawOfContact(tx: TenantTx, consentId: string, expectedVersion: number, reason: string): Promise<ConsentRow> {
+    if (reason.length < MIN_REASON || reason.length > MAX_REASON) throw new DomainError('VALIDATION_FAILED', 422, 'reason');
+    const [current] = await tx.query<Sql>(`select ${COLUMNS} from machvon.contact_consent where id = $1::uuid and contact_id is not null and membership_id is null for update`, [consentId]);
+    if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (current.status !== 'Granted') throw new DomainError('CONSENT_STATE_INVALID', 409);
+    if (Number(current.version) !== expectedVersion) throw versionConflict(Number(current.version));
+    const [row] = await tx.query<Sql>(
+      `update machvon.contact_consent set status = 'Withdrawn', revoked_at = clock_timestamp(), withdrawn_reason = $2, version = version + 1
+        where id = $1::uuid returning ${COLUMNS}`,
+      [consentId, reason],
+    );
+    if (row === undefined) throw new Error('consent not withdrawn');
+    return toRow(row);
+  }
+
+  /**
+   * The consent that decides now for a contact, a channel and a purpose: the latest one given by the contact or by a contact that was merged into it, whatever became of it. The consents are not added up (BR-OMNI-05): each keeps the contact
+   * that gave it, and the latest word about the channel and the purpose is the one that counts. No consent at all is no consent.
+   */
+  async latestForContact(tx: TenantTx, contactId: string, channel: string, purpose: string): Promise<ConsentState | undefined> {
+    const [row] = await tx.query<{ status: ConsentStatus }>(
+      `select k.status from machvon.contact_consent k join machvon.contact c on c.tenant_id = k.tenant_id and c.id = k.contact_id
+        where coalesce(c.merged_into_id, c.id) = $1::uuid and k.channel = $2 and k.purpose = $3
+        order by greatest(k.effective_at, coalesce(k.revoked_at, k.effective_at)) desc, k.effective_at desc, k.id desc limit 1`,
+      [contactId, channel, purpose],
+    );
+    return row;
+  }
+
   /** The history of a person, newest first: every consent they gave and every one they withdrew (NOT-17). */
   async historyOf(tx: TenantTx, membershipId: string, page: ConsentPage): Promise<ConsentRow[]> {
     assertTimestampCursor(page.after?.code);
@@ -162,9 +233,15 @@ export class ContactConsentStore {
   }
 
   /** The consents of the tenant for the operator (the contact_consent reads), newest first. */
-  async list(tx: TenantTx, page: ConsentPage): Promise<ConsentRow[]> {
+  async list(tx: TenantTx, page: ConsentPage, filter: { contactId?: string | undefined } = {}): Promise<ConsentRow[]> {
     assertTimestampCursor(page.after?.code);
-    const rows = await tx.query<Sql>(`select ${COLUMNS} from machvon.contact_consent where ${AFTER} order by effective_at desc, id desc limit $3`, [page.after?.code ?? null, page.after?.id ?? null, page.limit]);
+    // The consents of one contact are those it gave and those of the contacts that were merged into it (a contact that was merged itself has its own, and none inherited).
+    const rows = await tx.query<Sql>(
+      `select ${COLUMNS} from machvon.contact_consent
+        where ${AFTER} and ($4::uuid is null or contact_id in (select c.id from machvon.contact c where c.id = $4::uuid or c.merged_into_id = $4::uuid))
+        order by effective_at desc, id desc limit $3`,
+      [page.after?.code ?? null, page.after?.id ?? null, page.limit, filter.contactId ?? null],
+    );
     return rows.map(toRow);
   }
 

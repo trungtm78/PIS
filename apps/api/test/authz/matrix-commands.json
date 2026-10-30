@@ -44,6 +44,8 @@
     "addContactIdentity",
     "verifyContactIdentity",
     "mergeContacts",
+    "recordContactConsent",
+    "withdrawContactConsent",
     "post_sync_attachments",
     "post_sync_attachments_id_complete",
     "connectChannelAccount",

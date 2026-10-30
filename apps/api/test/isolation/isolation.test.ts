@@ -204,6 +204,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'mergeContacts',
         'get_resources_contact',
         'get_resources_contact_id',
+        'recordContactConsent',
+        'withdrawContactConsent',
         'post_sync_attachments',
         'post_sync_attachments_id_complete',
         'get_sync_attachments_id',

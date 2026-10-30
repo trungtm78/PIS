@@ -12656,6 +12656,16 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Only the consents of this contact: the ones it gave and those of the contacts that were merged into it (OMNI-04)"
           }
         ],
         "responses": {
@@ -67470,7 +67480,8 @@
         },
         "x-error-codes": [
           "CONSENT_ALREADY_GRANTED",
-          "IDENTITY_UNVERIFIED"
+          "IDENTITY_UNVERIFIED",
+          "CONTACT_STATE_INVALID"
         ],
         "x-plane": "tenant",
         "requestBody": {

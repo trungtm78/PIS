@@ -1,0 +1,4 @@
+-- Authored by hand (not generated), ST-OMNI-003 (OMNI.md 3.6, BR-NOT-07): the consent of a contact outside the tenant. The table is the one the notification module keeps for its people (V1441); a contact's consent is a row with `contact_id`
+-- and no `membership_id`. The latest consent of a contact for a channel and a purpose is read at every message to it, and the consents of a contact are listed on its screen: one index lookup each (V1441 indexed the rows of the memberships only).
+CREATE INDEX contact_consent_contact_latest_idx ON machvon.contact_consent (tenant_id, contact_id, channel, purpose, effective_at DESC, id DESC) WHERE contact_id IS NOT NULL;
+CREATE INDEX contact_consent_contact_history_idx ON machvon.contact_consent (tenant_id, contact_id, effective_at DESC, id DESC) WHERE contact_id IS NOT NULL;

@@ -564,6 +564,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0x7f, 3)],
       ],
       [
+        `insert into machvon.contact_consent (tenant_id, id, contact_id, membership_id, channel, purpose, status, evidence_reference, effective_at, legal_basis, consent_text_version, capture_method)
+         values ($1, $2, $3, null, 'SMS', 'OPERATIONAL', 'Granted', 'matrix-contact-consent', now(), 'CONSENT', 'matrix-1', 'IN_APP')`,
+        [TENANT_A, id(0x7f, 5), id(0x7f, 3)],
+      ],
+      [
         `insert into machvon.contact_identity (tenant_id, id, contact_id, channel, external_id_hash, external_id_masked, status) values ($1, $2, $3, 'PHONE', repeat('b', 64), '+84*******98', 'Pending')`,
         [TENANT_A, id(0x7f, 4), id(0x7f, 3)],
       ],
@@ -1224,6 +1229,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       campaignId: id(0x7f, 2),
       contactId: id(0x7f, 3),
       contactIdentityId: id(0x7f, 4),
+      contactConsentId: id(0x7f, 5),
       channelAccountId: id(0x7b, 1),
       consentId: id(0x7e, 1),
       legalHoldId,

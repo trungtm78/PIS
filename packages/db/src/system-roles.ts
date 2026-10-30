@@ -45,10 +45,10 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   // PENDING SIGN-OFF: "read business records within scope" names no permission.
   { code: 'LEADER', name: key('LEADER'), rank: 60, permissions: ['approval.decide'], guestAllowed: false },
   { code: 'NOTIFICATION_ADMIN', name: key('NOTIFICATION_ADMIN'), rank: 50, permissions: ['notification.*', 'notification_template_version.read', 'delivery_attempt.read', 'channel_account.read'], guestAllowed: false },
-  { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*', 'channel_account.read', 'contact.read'], guestAllowed: false },
+  { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*', 'channel_account.read', 'contact.read', 'contact_consent.read'], guestAllowed: false },
   // PENDING SIGN-OFF: "appraise, return/accept" names no permission.
   { code: 'SPECIALIST', name: key('SPECIALIST'), rank: 40, permissions: [], guestAllowed: false },
-  { code: 'OMNI_AGENT', name: key('OMNI_AGENT'), rank: 35, permissions: ['omni.conversation.*', 'omni.contact.manage', 'contact.read'], guestAllowed: false },
+  { code: 'OMNI_AGENT', name: key('OMNI_AGENT'), rank: 35, permissions: ['omni.conversation.*', 'omni.contact.manage', 'omni.consent.manage', 'contact.read', 'contact_consent.read'], guestAllowed: false },
   // PENDING SIGN-OFF: "create/edit/submit records (maker)" names no permission.
   { code: 'INVESTOR_OFFICER', name: key('INVESTOR_OFFICER'), rank: 30, permissions: [], guestAllowed: false },
   // PENDING SIGN-OFF: "read/export" names no permission besides audit.read.

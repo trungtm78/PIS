@@ -23,6 +23,8 @@ export interface MatrixTargets {
   /** A contact of tenant A with a Pending identity: the identity and the verification name them in the path. */
   contactId: string;
   contactIdentityId: string;
+  /** A Granted consent of that contact (version 1): the withdrawal names it in the path. */
+  contactConsentId: string;
   /** A channel account of tenant A (version 1): the verification, the change and the closing name it in the path. */
   channelAccountId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
@@ -2668,6 +2670,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   verifyContactIdentity: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contacts/${t.contactId}/identities/${t.contactIdentityId}/verify`, ifMatch: '"1"', body: { method: 'ADMIN_DOCUMENT', document_ref: 'matrix-doc' } }),
+  },
+  recordContactConsent: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contacts/${t.contactId}/consents`, body: { channel: 'EMAIL', purpose: 'REMINDER', consent_text_version: 'matrix-1', capture_method: 'IN_APP' } }),
+  },
+  withdrawContactConsent: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contact-consents/${t.contactConsentId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   mergeContacts: {
     referencesTenantIds: true,

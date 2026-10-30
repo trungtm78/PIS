@@ -532,6 +532,8 @@ export { ACCOUNT_CHANNELS, ACCOUNT_STATUSES, AUTO_REPLY_MAX, CREDENTIAL_EXPIRED_
 export type { AccountChanges, AccountChannel, AccountStatus, ConnectedAccount } from './omni-channel.ts';
 export { CONTACT_CLASSIFICATIONS, DOCUMENT_REF_MAX, IDENTITY_CHANNELS, OTP_CHANNELS, OTP_DIGITS, OTP_LOCK_MS, OTP_MAX_FAILURES, OTP_TTL_MS, VERIFICATION_METHODS, assertContactDraft, assertMergeRequest, assertMergeable, assertVerification, generateOtp, identityHash, isIdentityChannel, judgeOtp, maskIdentity, normaliseIdentity, otpHashOf } from './omni-contact.ts';
 export type { ContactClassification, ContactDraft, IdentityChannel, MergeCase, MergeContact, MergeIdentity, MergeRequest, OtpState, OtpVerdict, Verification, VerificationMethod } from './omni-contact.ts';
+export { CONTACT_CAPTURE_METHODS, assertContactConsent, identityChannelOf } from './omni-consent.ts';
+export type { ContactCaptureMethod, ContactConsentDraft } from './omni-consent.ts';
 export { MAX_BATCH_ITEMS, MAX_KEY_LENGTH, MIN_KEY_LENGTH, SYNC_COMMAND_TYPES, outcomeOf, planOf, syncRequestHashOf } from './sync-command.ts';
 export type { InvocationPlan, ItemOutcome, QueuedCommand, SyncCommandType } from './sync-command.ts';
 export { ATTACHMENT_CHUNK_BYTES, ATTACHMENT_MAX_BYTES, ATTACHMENT_MIME_TYPES, assembledMatches, assertAttachmentLinkable, assertInit, assertLooksLike, chunkCountOf, chunkSizeAt, missingChunks, attachmentSha256Of } from './sync-attachment.ts';

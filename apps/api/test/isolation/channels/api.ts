@@ -130,6 +130,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'cancelCampaign', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].campaignId, versioned: true, body: { reason: 'Isolation foreign cancel attempt' } },
   { operation: 'getCampaign', method: 'GET', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].campaignId },
   { operation: 'get_resources_contact_id', method: 'GET', id: CONTACT_FIXTURES['TNT-B'].id },
+  { operation: 'recordContactConsent', method: 'POST', id: CONTACT_FIXTURES['TNT-B'].id, body: { channel: 'EMAIL', purpose: 'REMINDER', consent_text_version: 'isolation-1', capture_method: 'IN_APP' } },
+  { operation: 'withdrawContactConsent', method: 'POST', id: CONTACT_FIXTURES['TNT-B'].consentId, versioned: true, body: { reason: 'Isolation foreign withdrawal attempt' } },
   { operation: 'addContactIdentity', method: 'POST', id: CONTACT_FIXTURES['TNT-B'].id, body: { channel: 'EMAIL', external_id: 'isolation@example.com' } },
   { operation: 'verifyContactIdentity', method: 'POST', id: CONTACT_FIXTURES['TNT-B'].id, versioned: true, body: { method: 'ADMIN_DOCUMENT', document_ref: 'isolation-foreign' } },
   { operation: 'setChannelLimits', method: 'PUT', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].accountId, versioned: true, body: { daily_send_cap: 5, reason: 'Isolation foreign limits attempt' } },
