@@ -81,7 +81,7 @@ const COLUMNS = `c.id, c.name, c.purpose, c.template_version_id, t.code as templ
   c.approved_by, ${TIME('c.approved_at')} as approved_at, c.decided_by, ${TIME('c.decided_at')} as decided_at, c.decision_reason, ${TIME('c.cancelled_at')} as cancelled_at, ${TIME('c.completed_at')} as completed_at,
   c.notification_count,
   (select count(*) from machvon.notification_instance n where n.campaign_id = c.id and n.status in ('Created', 'Scheduled', 'Queued'))::text as waiting_count,
-  c.version::text as version, to_char(date_trunc('milliseconds', c.created_at) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"000Z"') as sort_key`;
+  c.version::text as version, ${TIME('c.created_at')} as sort_key`;
 const FROM = 'from machvon.notification_campaign c join machvon.notification_template_version t on t.tenant_id = c.tenant_id and t.id = c.template_version_id';
 
 const toRecord = (row: CampaignRow): CampaignRecord => ({
@@ -201,8 +201,8 @@ export class NotificationCampaignStore {
     const rows = await tx.query<CampaignRow>(
       `select ${COLUMNS} ${FROM}
         where ($1::text is null or c.status = $1) and ($5::uuid is null or c.created_by = $5::uuid)
-          and ($2::timestamptz is null or (date_trunc('milliseconds', c.created_at), c.id) < ($2::timestamptz, $3::uuid))
-        order by date_trunc('milliseconds', c.created_at) desc, c.id desc limit $4::int`,
+          and ($2::timestamptz is null or (c.created_at, c.id) < ($2::timestamptz, $3::uuid))
+        order by c.created_at desc, c.id desc limit $4::int`,
       [filters.status ?? null, page.after?.code ?? null, page.after?.id ?? null, page.limit, filters.createdBy ?? null],
     );
     return rows.map(toRecord);

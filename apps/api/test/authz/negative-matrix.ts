@@ -20,6 +20,9 @@ export interface MatrixTargets {
   /** A Draft template revision of tenant A: the review and the test send name it in the path. */
   notificationTemplateId: string;
   campaignId: string;
+  /** A contact of tenant A with a Pending identity: the identity and the verification name them in the path. */
+  contactId: string;
+  contactIdentityId: string;
   /** A channel account of tenant A (version 1): the verification, the change and the closing name it in the path. */
   channelAccountId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
@@ -2653,6 +2656,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   cancelCampaign: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/notification-campaigns/${t.campaignId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createContact: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/contacts', body: { display_name: 'Matrix contact', classification: 'CITIZEN' } }),
+  },
+  addContactIdentity: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contacts/${t.contactId}/identities`, body: { channel: 'EMAIL', external_id: 'matrix@example.com' } }),
+  },
+  verifyContactIdentity: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/contacts/${t.contactId}/identities/${t.contactIdentityId}/verify`, ifMatch: '"1"', body: { method: 'ADMIN_DOCUMENT', document_ref: 'matrix-doc' } }),
+  },
+  mergeContacts: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/contacts/merges', body: { survivor_contact_id: t.contactId, merged_contact_id: t.contactId, shared_verified_identity_id: t.contactIdentityId, reason: REASON } }),
   },
   setChannelLimits: {
     referencesTenantIds: true,

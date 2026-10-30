@@ -412,6 +412,55 @@
       "location": "header:If-Match",
       "reason": "an upload has no version: the file is put together once, from the chunks it holds, and completing it twice answers the same; nothing sent If-Match to it",
       "change_request": "ST-MOB-009"
+    },
+    {
+      "operation": "get_resources_contact",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of the contacts is paged by the creation time and the id, and answers the time it was made, as the other directory reads do; there is no snapshot to name",
+      "change_request": "ST-OMNI-002"
+    },
+    {
+      "operation": "get_resources_contact_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one contact is the contact itself, not a page",
+      "change_request": "ST-OMNI-002"
+    },
+    {
+      "operation": "get_resources_contact_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one contact is the contact itself, not a page",
+      "change_request": "ST-OMNI-002"
+    },
+    {
+      "operation": "get_resources_contact_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one contact is the contact itself, not a page",
+      "change_request": "ST-OMNI-002"
+    },
+    {
+      "operation": "get_resources_contact_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one contact is the contact itself, not a page",
+      "change_request": "ST-OMNI-002"
+    },
+    {
+      "operation": "get_resources_contact_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:cursor",
+      "reason": "the read of one contact is not paged",
+      "change_request": "ST-OMNI-002"
+    },
+    {
+      "operation": "get_resources_contact_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:limit",
+      "reason": "the read of one contact is not paged",
+      "change_request": "ST-OMNI-002"
     }
   ]
 }

@@ -2672,7 +2672,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Danh sách contact theo scope */
+        /** Danh bạ liên hệ ngoài, mới nhất trước, định danh đã che (OMNI-03) */
         get: operations["get_resources_contact"];
         put?: never;
         post?: never;
@@ -2689,7 +2689,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Chi tiết contact có version/source */
+        /** Một liên hệ với các định danh đã che, kể cả của các liên hệ đã gộp vào nó (OMNI-03) */
         get: operations["get_resources_contact_id"];
         put?: never;
         post?: never;
@@ -22522,6 +22522,61 @@ export interface components {
             /** Format: date-time */
             as_of: string;
         };
+        ContactView: {
+            /** Format: uuid */
+            id: string;
+            display_name: string;
+            /** @enum {string} */
+            classification: "CITIZEN" | "CONTRACTOR_STAFF" | "AGENCY_STAFF" | "OTHER";
+            /** @enum {string} */
+            status: "Unverified" | "Verified" | "Merged" | "Blocked";
+            preferred_channel?: string | null;
+            /** Format: uuid */
+            merged_into_id?: string | null;
+            identities: {
+                /** Format: uuid */
+                id: string;
+                /**
+                 * Format: uuid
+                 * @description The contact that holds the identity: a contact that was merged keeps its identities and the contact it was merged into shows them
+                 */
+                contact_id: string;
+                /** @enum {string} */
+                channel: "PHONE" | "EMAIL" | "ZALO" | "WHATSAPP";
+                /** @description The masked copy; the value and its hash are never returned */
+                masked: string;
+                /** @enum {string} */
+                status: "Pending" | "Verified" | "Revoked";
+                /** @enum {string|null} */
+                verification_method?: "OTP" | "PROVIDER_VERIFIED" | "ADMIN_DOCUMENT" | null;
+                /** Format: date-time */
+                verified_at?: string | null;
+                /** Format: date-time */
+                created_at: string;
+                /** @description The If-Match of the verification */
+                version: number;
+            }[];
+            /** Format: date-time */
+            created_at: string;
+            version: number;
+            /** @description The live contacts that share a Verified identity with this one (the same hash on both): the only ones it can be merged with; empty when there is none, which is when the merge is not offered (BR-OMNI-05) */
+            merge_candidates?: {
+                /** Format: uuid */
+                contact_id: string;
+                display_name: string;
+                /**
+                 * Format: uuid
+                 * @description The Verified identity of this contact that names the share: the one a merge sends
+                 */
+                identity_id: string;
+            }[];
+        };
+        ContactPage: {
+            items: components["schemas"]["ContactView"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -38297,13 +38352,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ContactPage"];
                 };
             };
             /** @description Invalid request */
@@ -38382,10 +38431,7 @@ export interface operations {
     };
     get_resources_contact_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -38400,13 +38446,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ContactView"];
                 };
             };
             /** @description Invalid request */

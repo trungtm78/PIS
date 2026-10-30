@@ -5281,6 +5281,14 @@
       "module": "ADM",
       "statusBasis": "convention",
       "source": "story:ST-ADM-012"
+    },
+    "CONTACT_STATE_INVALID": {
+      "status": 409,
+      "title": "Contact state invalid",
+      "meaning": "The contact is merged or blocked, so it takes no identity and is not merged again (OMNI.md 3.5).",
+      "module": "OMNI",
+      "statusBasis": "convention",
+      "source": "openapi"
     }
   }
 }

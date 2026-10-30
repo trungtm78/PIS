@@ -267,10 +267,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_channel_account_id': ChannelAccountResponse.fromJson,
   'get_resources_channel_message': GetResourcesChannelMessageResponse.fromJson,
   'get_resources_channel_message_id': GetResourcesChannelMessageIdResponse.fromJson,
-  'get_resources_contact': GetResourcesContactResponse.fromJson,
+  'get_resources_contact': ContactPageResponse.fromJson,
   'get_resources_contact_consent': GetResourcesContactConsentResponse.fromJson,
   'get_resources_contact_consent_id': GetResourcesContactConsentIdResponse.fromJson,
-  'get_resources_contact_id': GetResourcesContactIdResponse.fromJson,
+  'get_resources_contact_id': ContactViewResponse.fromJson,
   'get_resources_contract': GetResourcesContractResponse.fromJson,
   'get_resources_contract_id': GetResourcesContractIdResponse.fromJson,
   'get_resources_contract_revision': GetResourcesContractRevisionResponse.fromJson,
@@ -3216,6 +3216,194 @@ final class ConsentPageResponseItemsItem implements ResponseModel {
         if (revokedAt != null) 'revoked_at': revokedAt,
         if (consentTextVersion != null) 'consent_text_version': consentTextVersion,
         'version': version,
+        ...extra,
+      };
+}
+
+final class ContactPageResponse implements ResponseModel {
+  const ContactPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContactPageResponse.fromJson(Object? json, [String path = 'ContactPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContactPageResponse(
+      items: requiredField(map, path, 'items', asList(ContactViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ContactViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ContactViewResponse implements ResponseModel {
+  const ContactViewResponse({
+    required this.id,
+    required this.displayName,
+    required this.classification,
+    required this.status,
+    required this.identities,
+    required this.createdAt,
+    required this.version,
+    this.preferredChannel,
+    this.mergedIntoId,
+    this.mergeCandidates,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContactViewResponse.fromJson(Object? json, [String path = 'ContactViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContactViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      displayName: requiredField(map, path, 'display_name', asString),
+      classification: requiredField(map, path, 'classification', asString),
+      status: requiredField(map, path, 'status', asString),
+      preferredChannel: optionalField(map, path, 'preferred_channel', nullable(asString)),
+      mergedIntoId: optionalField(map, path, 'merged_into_id', nullable(asString)),
+      identities: requiredField(map, path, 'identities', asList(ContactViewResponseIdentitiesItem.fromJson)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      mergeCandidates: optionalField(map, path, 'merge_candidates', asList(ContactViewResponseMergeCandidatesItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'display_name', 'classification', 'status', 'preferred_channel', 'merged_into_id', 'identities', 'created_at', 'version', 'merge_candidates'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String displayName;
+  final String classification;
+  final String status;
+  final String? preferredChannel;
+  final String? mergedIntoId;
+  final List<ContactViewResponseIdentitiesItem> identities;
+  final String createdAt;
+  final int version;
+  final List<ContactViewResponseMergeCandidatesItem>? mergeCandidates;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'display_name': displayName,
+        'classification': classification,
+        'status': status,
+        if (preferredChannel != null) 'preferred_channel': preferredChannel,
+        if (mergedIntoId != null) 'merged_into_id': mergedIntoId,
+        'identities': identities.map((e0) => e0.toJson()).toList(),
+        'created_at': createdAt,
+        'version': version,
+        if (mergeCandidates != null) 'merge_candidates': mergeCandidates!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ContactViewResponseIdentitiesItem implements ResponseModel {
+  const ContactViewResponseIdentitiesItem({
+    required this.id,
+    required this.contactId,
+    required this.channel,
+    required this.masked,
+    required this.status,
+    required this.createdAt,
+    required this.version,
+    this.verificationMethod,
+    this.verifiedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContactViewResponseIdentitiesItem.fromJson(Object? json, [String path = 'ContactViewResponseIdentitiesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContactViewResponseIdentitiesItem(
+      id: requiredField(map, path, 'id', asString),
+      contactId: requiredField(map, path, 'contact_id', asString),
+      channel: requiredField(map, path, 'channel', asString),
+      masked: requiredField(map, path, 'masked', asString),
+      status: requiredField(map, path, 'status', asString),
+      verificationMethod: optionalField(map, path, 'verification_method', nullable(asString)),
+      verifiedAt: optionalField(map, path, 'verified_at', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'contact_id', 'channel', 'masked', 'status', 'verification_method', 'verified_at', 'created_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String contactId;
+  final String channel;
+  final String masked;
+  final String status;
+  final String? verificationMethod;
+  final String? verifiedAt;
+  final String createdAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'contact_id': contactId,
+        'channel': channel,
+        'masked': masked,
+        'status': status,
+        if (verificationMethod != null) 'verification_method': verificationMethod,
+        if (verifiedAt != null) 'verified_at': verifiedAt,
+        'created_at': createdAt,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class ContactViewResponseMergeCandidatesItem implements ResponseModel {
+  const ContactViewResponseMergeCandidatesItem({
+    required this.contactId,
+    required this.displayName,
+    required this.identityId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ContactViewResponseMergeCandidatesItem.fromJson(Object? json, [String path = 'ContactViewResponseMergeCandidatesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ContactViewResponseMergeCandidatesItem(
+      contactId: requiredField(map, path, 'contact_id', asString),
+      displayName: requiredField(map, path, 'display_name', asString),
+      identityId: requiredField(map, path, 'identity_id', asString),
+      extra: unknownFields(map, path, const <String>{'contact_id', 'display_name', 'identity_id'}, strict: false),
+    );
+  }
+
+  final String contactId;
+  final String displayName;
+  final String identityId;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'contact_id': contactId,
+        'display_name': displayName,
+        'identity_id': identityId,
         ...extra,
       };
 }
@@ -7384,82 +7572,6 @@ final class GetResourcesContactConsentResponse implements ResponseModel {
   factory GetResourcesContactConsentResponse.fromJson(Object? json, [String path = 'GetResourcesContactConsentResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesContactConsentResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesContactIdResponse implements ResponseModel {
-  const GetResourcesContactIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesContactIdResponse.fromJson(Object? json, [String path = 'GetResourcesContactIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesContactIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesContactResponse implements ResponseModel {
-  const GetResourcesContactResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesContactResponse.fromJson(Object? json, [String path = 'GetResourcesContactResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesContactResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),

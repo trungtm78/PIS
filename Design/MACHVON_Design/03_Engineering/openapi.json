@@ -22897,7 +22897,7 @@
     "/resources/contact": {
       "get": {
         "operationId": "get_resources_contact",
-        "summary": "Danh sách contact theo scope",
+        "summary": "Danh bạ liên hệ ngoài, mới nhất trước, định danh đã che (OMNI-03)",
         "x-permission": "contact.read",
         "parameters": [
           {
@@ -22924,28 +22924,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ContactPage"
                 }
               }
             }
@@ -23040,7 +23019,7 @@
     "/resources/contact/{id}": {
       "get": {
         "operationId": "get_resources_contact_id",
-        "summary": "Chi tiết contact có version/source",
+        "summary": "Một liên hệ với các định danh đã che, kể cả của các liên hệ đã gộp vào nó (OMNI-03)",
         "x-permission": "contact.read",
         "parameters": [
           {
@@ -23051,23 +23030,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
@@ -23076,28 +23038,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ContactView"
                 }
               }
             }
@@ -67112,7 +67053,8 @@
         },
         "x-error-codes": [
           "IDENTITY_TAKEN",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "CONTACT_STATE_INVALID"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -67271,7 +67213,8 @@
         "x-error-codes": [
           "IDENTITY_UNVERIFIED",
           "OTP_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "CONTACT_STATE_INVALID"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -67393,7 +67336,8 @@
         "x-error-codes": [
           "RECIPIENT_AMBIGUOUS",
           "IDENTITY_UNVERIFIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "CONTACT_STATE_INVALID"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -158393,6 +158337,191 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CampaignView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContactView": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name",
+          "classification",
+          "status",
+          "identities",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "CITIZEN",
+              "CONTRACTOR_STAFF",
+              "AGENCY_STAFF",
+              "OTHER"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Unverified",
+              "Verified",
+              "Merged",
+              "Blocked"
+            ]
+          },
+          "preferred_channel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "merged_into_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "identities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "contact_id",
+                "channel",
+                "masked",
+                "status",
+                "created_at",
+                "version"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contact_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "The contact that holds the identity: a contact that was merged keeps its identities and the contact it was merged into shows them"
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "PHONE",
+                    "EMAIL",
+                    "ZALO",
+                    "WHATSAPP"
+                  ]
+                },
+                "masked": {
+                  "type": "string",
+                  "description": "The masked copy; the value and its hash are never returned"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "Pending",
+                    "Verified",
+                    "Revoked"
+                  ]
+                },
+                "verification_method": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "OTP",
+                    "PROVIDER_VERIFIED",
+                    "ADMIN_DOCUMENT",
+                    null
+                  ]
+                },
+                "verified_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "version": {
+                  "type": "integer",
+                  "description": "The If-Match of the verification"
+                }
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "merge_candidates": {
+            "type": "array",
+            "description": "The live contacts that share a Verified identity with this one (the same hash on both): the only ones it can be merged with; empty when there is none, which is when the merge is not offered (BR-OMNI-05)",
+            "items": {
+              "type": "object",
+              "required": [
+                "contact_id",
+                "display_name",
+                "identity_id"
+              ],
+              "properties": {
+                "contact_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "identity_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "The Verified identity of this contact that names the share: the one a merge sends"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ContactPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactView"
             }
           },
           "next_cursor": {

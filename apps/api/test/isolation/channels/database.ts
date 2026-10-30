@@ -7,6 +7,7 @@ import {
   AUDIT_EVENT_FIXTURES,
   CERTIFICATE_FIXTURES,
   CONSENT_FIXTURES,
+  CONTACT_FIXTURES,
   DELIVERY_ATTEMPT_FIXTURES,
   DOCUMENT_FIXTURES,
   GRANT_FIXTURES,
@@ -155,6 +156,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'cancelCampaign',
   'listCampaigns',
   'getCampaign',
+  'createContact',
+  'addContactIdentity',
+  'verifyContactIdentity',
+  'mergeContacts',
+  'get_resources_contact',
+  'get_resources_contact_id',
   'post_sync_attachments',
   'post_sync_attachments_id_complete',
   'get_sync_attachments_id',
@@ -1089,6 +1096,11 @@ const INSERT_DELIVERY_ATTEMPT = `insert into machvon.delivery_attempt
   (tenant_id, id, notification_id, channel_account_id, provider_message_id, attempt_no, status, cost, channel, template_version_id, sending_at, failed_at, failure_class, error_code)
   values ($1, $2, $3, $4, $5, 1, 'Failed', 0, 'EMAIL', $6, now(), now(), 'PERMANENT', 'HTTP_550') on conflict do nothing`;
 
+const INSERT_CONTACT = `insert into machvon.contact (tenant_id, id, display_name, verified_identities, classification, status) values ($1, $2, $3, '[]'::jsonb, 'CITIZEN', 'Unverified') on conflict do nothing`;
+
+const INSERT_CONTACT_IDENTITY = `insert into machvon.contact_identity (tenant_id, id, contact_id, channel, external_id_hash, external_id_masked, status)
+  values ($1, $2, $3, 'PHONE', repeat('a', 64), '+84*******99', 'Pending') on conflict do nothing`;
+
 const INSERT_CAMPAIGN = `insert into machvon.notification_campaign
   (tenant_id, id, name, purpose, template_version_id, segment_json, status, created_by)
   values ($1, $2, $3, 'ANNOUNCEMENT', $4, '{"unit_ids":[],"role_codes":["STAFF"],"include_guests":false}'::jsonb, 'Draft', $5) on conflict do nothing`;
@@ -1667,6 +1679,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_EMAIL_TEMPLATE, [tenantId, attempt.templateId, ACTOR_ID]);
     await client.query(INSERT_DELIVERY_ATTEMPT, [tenantId, attempt.id, notification.id, attempt.accountId, attempt.providerMessageId, attempt.templateId]);
     await client.query(INSERT_CAMPAIGN, [tenantId, attempt.campaignId, attempt.campaignName, attempt.templateId, MEMBERSHIP_ID]);
+    await client.query(INSERT_CONTACT, [tenantId, CONTACT_FIXTURES[tenant].id, CONTACT_FIXTURES[tenant].name]);
+    await client.query(INSERT_CONTACT_IDENTITY, [tenantId, CONTACT_FIXTURES[tenant].identityId, CONTACT_FIXTURES[tenant].id]);
     await client.query(INSERT_CONSENT, [tenantId, CONSENT_FIXTURES[tenant].id, MEMBERSHIP_ID]);
     await client.query(INSERT_AUDIT_EVENT, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id, MEMBERSHIP_ID, AUDIT_EVENT_FIXTURES[tenant].action]);
     await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);

@@ -560,6 +560,14 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0x7f, 1), ACTOR],
       ],
       [
+        `insert into machvon.contact (tenant_id, id, display_name, verified_identities, classification, status) values ($1, $2, 'Matrix contact fixture', '[]'::jsonb, 'CITIZEN', 'Unverified')`,
+        [TENANT_A, id(0x7f, 3)],
+      ],
+      [
+        `insert into machvon.contact_identity (tenant_id, id, contact_id, channel, external_id_hash, external_id_masked, status) values ($1, $2, $3, 'PHONE', repeat('b', 64), '+84*******98', 'Pending')`,
+        [TENANT_A, id(0x7f, 4), id(0x7f, 3)],
+      ],
+      [
         `insert into machvon.notification_campaign (tenant_id, id, name, purpose, template_version_id, segment_json, status, created_by)
          values ($1, $2, 'Matrix campaign fixture', 'ANNOUNCEMENT', $3, '{"unit_ids":[],"role_codes":["STAFF"],"include_guests":false}'::jsonb, 'Draft', $4)`,
         [TENANT_A, id(0x7f, 2), id(0x7f, 1), ACTOR],
@@ -1214,6 +1222,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       notificationWorkflowId: id(0x71, 1),
       notificationTemplateId: id(0x7f, 1),
       campaignId: id(0x7f, 2),
+      contactId: id(0x7f, 3),
+      contactIdentityId: id(0x7f, 4),
       channelAccountId: id(0x7b, 1),
       consentId: id(0x7e, 1),
       legalHoldId,
