@@ -1,6 +1,7 @@
 import { DomainError, activeGrants, asUuid, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess, ResourceRef, Scope } from '@machvon/kernel';
 import { MyAccessStore } from './my-access-store.ts';
+import { SCOPE_FROM } from './prj-project-store.ts';
 import { invalid } from './prj-stage-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -66,6 +67,24 @@ export async function accessOf(tx: TenantTx, member: MemberStanding): Promise<Ef
 /** Whether a member holds the permission over the resource through a grant that is in force. */
 export function holdsOver(access: EffectiveAccess, permission: string, place: ResourceRef, now: Date): boolean {
   return holdsPermission(effectivePermissions(access, now, place), permission);
+}
+
+/**
+ * Whether a member can follow a project: they are in force, on the staff, and hold `project.read` over the unit that owns the project or the one that invests in it.
+ * A project that is not in the tenant is not found.
+ */
+export async function canFollowProject(tx: TenantTx, member: MemberStanding, projectId: string, now: Date): Promise<boolean> {
+  const places = await tx.query<{ owner_id: string; owner_path: string; investor_id: string | null; investor_path: string | null }>(
+    `select ou.id as owner_id, ou.path as owner_path, iu.id as investor_id, iu.path as investor_path from ${SCOPE_FROM} where p.id = $1::uuid`,
+    [projectId],
+  );
+  const place = places[0];
+  if (place === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+  if (!member.active || !member.staff) return false;
+  const access = await accessOf(tx, member);
+  const refs: ResourceRef[] = [{ ownerUnitId: place.owner_id, ownerUnitPath: place.owner_path, projectId }];
+  if (place.investor_id !== null && place.investor_path !== null) refs.push({ ownerUnitId: place.investor_id, ownerUnitPath: place.investor_path, projectId });
+  return refs.some((ref) => holdsOver(access, PROJECT_READ_PERMISSION, ref, now));
 }
 
 const closed = (path: string): string => (path.endsWith('/') ? path : `${path}/`);

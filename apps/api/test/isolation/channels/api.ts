@@ -81,7 +81,7 @@ import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, RISK_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { EXPORT_FIXTURES, INVOICE_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
@@ -323,6 +323,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'submitReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
   { operation: 'applyReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision_document_id: '00000000-0000-4000-b0fd-000000000009' } },
+  { operation: 'registerProjectRisk', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { code: 'ISO-RISK', category_master_version_id: MASTER_FIXTURES['TNT-B'].versionId, title: 'Isolation foreign risk', description: 'Isolation foreign registration attempt', likelihood: 3, impact: 3, owner_membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, mitigation: 'Isolation foreign mitigation', due_date: '2099-01-01' } },
+  { operation: 'updateProjectRisk', method: 'POST', id: RISK_FIXTURES['TNT-B'].id, versioned: true, body: { code: 'ISO-RISK', category_master_version_id: MASTER_FIXTURES['TNT-B'].versionId, title: 'Isolation foreign update', description: 'Isolation foreign update attempt', likelihood: 3, impact: 3, owner_membership_id: MEMBERSHIP_FIXTURES['TNT-B'].id, mitigation: 'Isolation foreign mitigation', due_date: '2099-01-01' } },
+  { operation: 'closeProjectRisk', method: 'POST', id: RISK_FIXTURES['TNT-B'].id, versioned: true, body: { status: 'CLOSED', closed_reason: 'Isolation foreign closure attempt' } },
+  { operation: 'listProjectRisks', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'decideProjectTransfer', method: 'POST', id: TRANSFER_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
   { operation: 'reviewExplanation', method: 'POST', id: EXPLANATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'ACCEPTED', review_note: 'Isolation foreign conclusion' } },
   { operation: 'get_resources_report_revision_id', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },

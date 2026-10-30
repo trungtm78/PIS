@@ -155,6 +155,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PRJ-13': () => import('../../screens/prj/monthly/MonthlyTrackerScreen'),
   'PRJ-14': () => import('../../screens/prj/PipelineBoardScreen'),
   'PRJ-15': () => import('../../screens/prj/AppraisalScoreScreen'),
+  'PRJ-16': () => import('../../screens/prj/risk/RiskScreen'),
   'PRJ-17': () => import('../../screens/prj/AccountabilityScreen'),
   'PRJ-18': () => import('../../screens/prj/TaskForceScreen'),
   'PRJ-19': () => import('../../screens/prj/explanation/ExplanationScreen'),

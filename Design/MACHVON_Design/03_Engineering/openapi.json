@@ -30513,7 +30513,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/PrjRiskRegister"
                 }
               }
             }
@@ -30881,7 +30881,9 @@
         },
         "x-error-codes": [
           "VERSION_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "RISK_STATE_INVALID",
+          "RISK_CODE_DUPLICATE"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -31030,7 +31032,8 @@
         },
         "x-error-codes": [
           "VERSION_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "RISK_STATE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -31042,7 +31045,10 @@
               }
             }
           }
-        }
+        },
+        "x-domain-events": [
+          "project.risk_updated.v1"
+        ]
       }
     },
     "/projects/{id}/accountability-assignments": {
@@ -160931,6 +160937,215 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "PrjRiskLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "title",
+          "likelihood",
+          "impact",
+          "score",
+          "level",
+          "owner",
+          "due_date",
+          "overdue",
+          "status",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "category_master_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "category_label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "likelihood": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "impact": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "CRITICAL"
+            ]
+          },
+          "owner": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "mitigation": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "linked_issue_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "MITIGATING",
+              "ESCALATED",
+              "ACCEPTED",
+              "CLOSED"
+            ]
+          },
+          "closed_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PrjRiskRegister": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "matrix",
+          "live_count",
+          "critical_count",
+          "overdue_count",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrjRiskLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "matrix": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "likelihood",
+                "impact",
+                "score",
+                "level",
+                "count"
+              ],
+              "properties": {
+                "likelihood": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                "impact": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "score": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 25
+                },
+                "level": {
+                  "type": "string",
+                  "enum": [
+                    "LOW",
+                    "MEDIUM",
+                    "CRITICAL"
+                  ]
+                }
+              }
+            }
+          },
+          "live_count": {
+            "type": "integer"
+          },
+          "critical_count": {
+            "type": "integer"
+          },
+          "overdue_count": {
+            "type": "integer"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
           }
         }
       }

@@ -602,7 +602,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProcurementPlans': asObject,
   'listProcurementResults': BidResultListResponse.fromJson,
   'listProjectPipeline': asObject,
-  'listProjectRisks': asObject,
+  'listProjectRisks': PrjRiskRegisterResponse.fromJson,
   'listProjectTransfers': PrjProjectTransferPageResponse.fromJson,
   'listQualityAcceptances': QmsAcceptanceListResponse.fromJson,
   'listReallocationProposals': asObject,
@@ -19081,6 +19081,226 @@ final class PrjProjectTransferResponseToUnit implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'id': id,
         'name': name,
+        ...extra,
+      };
+}
+
+final class PrjRiskLineResponse implements ResponseModel {
+  const PrjRiskLineResponse({
+    required this.id,
+    required this.code,
+    required this.title,
+    required this.likelihood,
+    required this.impact,
+    required this.score,
+    required this.level,
+    required this.owner,
+    required this.dueDate,
+    required this.overdue,
+    required this.status,
+    required this.version,
+    this.categoryMasterVersionId,
+    this.categoryLabel,
+    this.description,
+    this.mitigation,
+    this.linkedIssueId,
+    this.closedReason,
+    this.updatedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRiskLineResponse.fromJson(Object? json, [String path = 'PrjRiskLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRiskLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      categoryMasterVersionId: optionalField(map, path, 'category_master_version_id', asString),
+      categoryLabel: optionalField(map, path, 'category_label', nullable(asString)),
+      title: requiredField(map, path, 'title', asString),
+      description: optionalField(map, path, 'description', asString),
+      likelihood: requiredField(map, path, 'likelihood', asInt),
+      impact: requiredField(map, path, 'impact', asInt),
+      score: requiredField(map, path, 'score', asInt),
+      level: requiredField(map, path, 'level', asString),
+      owner: requiredField(map, path, 'owner', PrjRiskLineResponseOwner.fromJson),
+      mitigation: optionalField(map, path, 'mitigation', asString),
+      dueDate: requiredField(map, path, 'due_date', asString),
+      overdue: requiredField(map, path, 'overdue', asBool),
+      linkedIssueId: optionalField(map, path, 'linked_issue_id', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      closedReason: optionalField(map, path, 'closed_reason', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      updatedAt: optionalField(map, path, 'updated_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'category_master_version_id', 'category_label', 'title', 'description', 'likelihood', 'impact', 'score', 'level', 'owner', 'mitigation', 'due_date', 'overdue', 'linked_issue_id', 'status', 'closed_reason', 'version', 'updated_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String? categoryMasterVersionId;
+  final String? categoryLabel;
+  final String title;
+  final String? description;
+  final int likelihood;
+  final int impact;
+  final int score;
+  final String level;
+  final PrjRiskLineResponseOwner owner;
+  final String? mitigation;
+  final String dueDate;
+  final bool overdue;
+  final String? linkedIssueId;
+  final String status;
+  final String? closedReason;
+  final int version;
+  final String? updatedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        if (categoryMasterVersionId != null) 'category_master_version_id': categoryMasterVersionId,
+        if (categoryLabel != null) 'category_label': categoryLabel,
+        'title': title,
+        if (description != null) 'description': description,
+        'likelihood': likelihood,
+        'impact': impact,
+        'score': score,
+        'level': level,
+        'owner': owner.toJson(),
+        if (mitigation != null) 'mitigation': mitigation,
+        'due_date': dueDate,
+        'overdue': overdue,
+        if (linkedIssueId != null) 'linked_issue_id': linkedIssueId,
+        'status': status,
+        if (closedReason != null) 'closed_reason': closedReason,
+        'version': version,
+        if (updatedAt != null) 'updated_at': updatedAt,
+        ...extra,
+      };
+}
+
+final class PrjRiskLineResponseOwner implements ResponseModel {
+  const PrjRiskLineResponseOwner({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRiskLineResponseOwner.fromJson(Object? json, [String path = 'PrjRiskLineResponseOwner']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRiskLineResponseOwner(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String? displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class PrjRiskRegisterResponse implements ResponseModel {
+  const PrjRiskRegisterResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.matrix,
+    required this.liveCount,
+    required this.criticalCount,
+    required this.overdueCount,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRiskRegisterResponse.fromJson(Object? json, [String path = 'PrjRiskRegisterResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRiskRegisterResponse(
+      items: requiredField(map, path, 'items', asList(PrjRiskLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      matrix: requiredField(map, path, 'matrix', asList(PrjRiskRegisterResponseMatrixItem.fromJson)),
+      liveCount: requiredField(map, path, 'live_count', asInt),
+      criticalCount: requiredField(map, path, 'critical_count', asInt),
+      overdueCount: requiredField(map, path, 'overdue_count', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'matrix', 'live_count', 'critical_count', 'overdue_count', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<PrjRiskLineResponse> items;
+  final String? nextCursor;
+  final List<PrjRiskRegisterResponseMatrixItem> matrix;
+  final int liveCount;
+  final int criticalCount;
+  final int overdueCount;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'matrix': matrix.map((e0) => e0.toJson()).toList(),
+        'live_count': liveCount,
+        'critical_count': criticalCount,
+        'overdue_count': overdueCount,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PrjRiskRegisterResponseMatrixItem implements ResponseModel {
+  const PrjRiskRegisterResponseMatrixItem({
+    required this.likelihood,
+    required this.impact,
+    required this.count,
+    required this.score,
+    required this.level,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRiskRegisterResponseMatrixItem.fromJson(Object? json, [String path = 'PrjRiskRegisterResponseMatrixItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRiskRegisterResponseMatrixItem(
+      likelihood: requiredField(map, path, 'likelihood', asInt),
+      impact: requiredField(map, path, 'impact', asInt),
+      count: requiredField(map, path, 'count', asInt),
+      score: requiredField(map, path, 'score', asInt),
+      level: requiredField(map, path, 'level', asString),
+      extra: unknownFields(map, path, const <String>{'likelihood', 'impact', 'count', 'score', 'level'}, strict: true),
+    );
+  }
+
+  final int likelihood;
+  final int impact;
+  final int count;
+  final int score;
+  final String level;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'likelihood': likelihood,
+        'impact': impact,
+        'count': count,
+        'score': score,
+        'level': level,
         ...extra,
       };
 }

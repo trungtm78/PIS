@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, versionConflict } from '@machvon/kernel';
-import type { ResourceRef } from '@machvon/kernel';
-import { PROJECT_READ_PERMISSION, accessOf, holdsOver, idOf, memberStanding } from './prj-accountability-support.ts';
+import { canFollowProject, idOf, memberStanding } from './prj-accountability-support.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ProjectClassification } from './prj-project-store.ts';
 import { dateOf, invalid, lockProject, reasonOf, usableDocumentId } from './prj-stage-support.ts';
@@ -250,16 +249,7 @@ export class PrjAccountabilityStore {
   /** A person who answers for a project is on the staff, in force, and able to read the project: the unit that owns it or the unit that invests in it. */
   private async assertEligible(tx: TenantTx, leaderId: string, projectId: string, now: Date): Promise<void> {
     const member = await memberStanding(tx, leaderId);
-    const places = await tx.query<{ owner_id: string; owner_path: string; investor_id: string | null; investor_path: string | null }>(
-      `select ou.id as owner_id, ou.path as owner_path, iu.id as investor_id, iu.path as investor_path from ${SCOPE_FROM} where p.id = $1::uuid`,
-      [projectId],
-    );
-    const place = places[0];
-    if (place === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    const access = await accessOf(tx, member);
-    const refs: ResourceRef[] = [{ ownerUnitId: place.owner_id, ownerUnitPath: place.owner_path, projectId }];
-    if (place.investor_id !== null && place.investor_path !== null) refs.push({ ownerUnitId: place.investor_id, ownerUnitPath: place.investor_path, projectId });
-    if (!member.active || !member.staff || !refs.some((ref) => holdsOver(access, PROJECT_READ_PERMISSION, ref, now))) throw new DomainError('LEADER_NOT_ELIGIBLE', 422, 'leader_membership_id');
+    if (!(await canFollowProject(tx, member, projectId, now))) throw new DomainError('LEADER_NOT_ELIGIBLE', 422, 'leader_membership_id');
   }
 
   /** The role of the project is free from the day on: no period of the same role, ended or not, reaches that day or later. */

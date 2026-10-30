@@ -5313,6 +5313,14 @@
       "module": "AST",
       "statusBasis": "convention",
       "source": "openapi"
+    },
+    "RISK_STATE_INVALID": {
+      "status": 409,
+      "title": "Risk state invalid",
+      "meaning": "Raised by updateProjectRisk, closeProjectRisk (POST /project-risks/{id}/update, /closure): a risk goes on towards escalation and never back, and a risk that was closed or accepted is not changed",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "openapi"
     }
   }
 }

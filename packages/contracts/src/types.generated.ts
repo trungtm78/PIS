@@ -23118,6 +23118,55 @@ export interface components {
             /** Format: date-time */
             as_of: string;
         };
+        PrjRiskLine: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            /** Format: uuid */
+            category_master_version_id?: string;
+            category_label?: string | null;
+            title: string;
+            description?: string;
+            likelihood: number;
+            impact: number;
+            score: number;
+            /** @enum {string} */
+            level: "LOW" | "MEDIUM" | "CRITICAL";
+            owner: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string | null;
+            };
+            mitigation?: string;
+            /** Format: date */
+            due_date: string;
+            overdue: boolean;
+            /** Format: uuid */
+            linked_issue_id?: string | null;
+            /** @enum {string} */
+            status: "OPEN" | "MITIGATING" | "ESCALATED" | "ACCEPTED" | "CLOSED";
+            closed_reason?: string | null;
+            version: number;
+            /** Format: date-time */
+            updated_at?: string;
+        };
+        PrjRiskRegister: {
+            items: components["schemas"]["PrjRiskLine"][];
+            next_cursor: string | null;
+            matrix: {
+                likelihood: number;
+                impact: number;
+                count: number;
+                score: number;
+                /** @enum {string} */
+                level: "LOW" | "MEDIUM" | "CRITICAL";
+            }[];
+            live_count: number;
+            critical_count: number;
+            overdue_count: number;
+            /** Format: date */
+            as_of: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -44123,7 +44172,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["PrjRiskRegister"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

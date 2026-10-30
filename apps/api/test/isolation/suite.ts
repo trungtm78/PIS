@@ -615,6 +615,12 @@ export const TRANSFER_FIXTURES: Readonly<Record<TenantName, { id: string; reason
   'TNT-B': { id: '00000000-0000-4000-b0fc-000000000001', reason: 'Beta tenant reason to move the project to the other unit 0001' },
 };
 
+/** A risk in the register of the project of each tenant (the title is distinctive: what a tenant fears for its projects is internal to it). */
+export const RISK_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0ff-000000000001', code: 'ALPHA-RISK-0001', title: 'Alpha tenant risk of the delayed site handover 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0ff-000000000001', code: 'BETA-RISK-0001', title: 'Beta tenant risk of the delayed site handover 0001' },
+};
+
 /** A proposal of reallocation of capital of each tenant (the code is distinctive: what a tenant proposes to move is confidential to it). */
 export const REALLOCATION_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0fd-000000000001', code: 'ALPHA-REALLOCATION-0001' },
@@ -1317,6 +1323,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'reallocation proposal id', value: REALLOCATION_FIXTURES[tenant].id },
     { kind: 'reallocation proposal code', value: REALLOCATION_FIXTURES[tenant].code },
     { kind: 'transfer reason', value: TRANSFER_FIXTURES[tenant].reason },
+    { kind: 'project risk id', value: RISK_FIXTURES[tenant].id },
+    { kind: 'project risk code', value: RISK_FIXTURES[tenant].code },
+    { kind: 'project risk title', value: RISK_FIXTURES[tenant].title },
     { kind: 'period snapshot planned amount', value: PERIOD_SNAPSHOT_FIXTURES[tenant].planVnd },
     { kind: 'weekly report id', value: REPORT_FIXTURES[tenant].id },
     { kind: 'weekly report hash', value: REPORT_FIXTURES[tenant].payloadHash },

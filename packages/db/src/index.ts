@@ -720,3 +720,5 @@ export type { ExportJobRow, ExportJobStatus, ExportPassResult, ExportReady, Expo
 export { DOMAIN_FAILED_GAUGE, DOMAIN_REVOKED_EVENT, DOMAIN_VERIFIED_EVENT, TenantDomainStore, tenantOfDomain, tenantOfDomainId } from './tenant-domain-store.ts';
 export type { CertificatePort, DomainAdd, DomainPassResult, DomainPorts, DomainProofPort, DomainRow, DomainStatus, TlsStatus } from './tenant-domain-store.ts';
 export { MockCertificateAuthority, MockDomainProof, sharedMockDomainPorts } from './domain-ports.ts';
+export { PrjRiskStore, RISK_CATEGORY_TYPE, RISK_RESOURCE } from './prj-risk-store.ts';
+export type { CloseRisk, RegisterRisk, RiskCell, RiskChange, RiskLine, RiskRegister, UpdateRisk } from './prj-risk-store.ts';

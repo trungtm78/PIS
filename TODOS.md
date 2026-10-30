@@ -1797,3 +1797,11 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-OMNI-007 (decision, scope): a link needs the permission to read the record held at its place; a conversion needs `omni.conversation.convert` at the place of the project (OMNI-09 offers only those projects). An agent scoped to a project sees a conversation only while it is assigned to them (the visibility rule of ST-OMNI-004).
 - ST-OMNI-007 (gap, unlink): a link cannot be removed; nor can an issue be unlinked after a conversion. The list of the conversations of an issue is not offered (no index on `resource_links` yet).
 - ST-OMNI-007 (gap, close job): nothing moves a Resolved conversation to Closed after 7 days, and the statistics of OMNI-10 are not built.
+
+### ST-PRJ-010 (risks of a project, slice PRJ-1)
+- ST-PRJ-010 (gap, job): the daily job `prj.risk-due` (warnings for critical or overdue risks, BR-PRJ-07) is not built; HOME-03 gets the critical risks from `project.risk_registered.v1` (severity CRITICAL from 15) only, and a risk that becomes critical by an update is announced by `project.risk_updated.v1`.
+- ST-PRJ-010 (gap, MDM): the master type `RISK_CATEGORY` has no catalogue definition (fields, screen) yet; a risk names an `EFFECTIVE` entry of that type, so the entries have to be created by the master-data tools first (story MDM-010).
+- ST-PRJ-010 (decision, stage): a project takes risks in every stage; the module document does not say that a settled, rejected or cancelled project must refuse them.
+- ST-PRJ-010 (decision, code): the code of a risk may be renamed by an update to a free one (the contract lists `RISK_CODE_DUPLICATE` on the update); the code stays unique inside the project.
+- ST-PRJ-010 (gap, issue): the link to an issue is the identifier on the risk, checked to be an issue of the same project; the issue does not list its risks, and the caller needs no right on the issue to link it.
+- ST-PRJ-010 (gap, owner): PRJ-16 takes the owner and the linked issue as identifiers typed by hand (no directory of members is offered to the screen).

@@ -176,3 +176,12 @@
   font-size: 12px;
   color: var(--muted, #5b6770);
 }
+
+.prj-matrix th,
+.prj-matrix td {
+  text-align: center;
+  vertical-align: middle;
+}
+.prj-matrix td strong {
+  font-size: 18px;
+}

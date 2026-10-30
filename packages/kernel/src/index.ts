@@ -597,3 +597,5 @@ export { ISSUE_TYPE_MAX, LINK_TYPES, MAX_LINKS_PER_CONVERSATION, SUMMARY_MAX, as
 export type { Conversion, LinkType, ResourceLink, StoredLink } from './omni-link.ts';
 export { isoWeekOf, isoWeekRange, weeksInYear } from './iss-week.ts';
 export type { IsoWeek } from './iss-week.ts';
+export { CRITICAL_SCORE, SCALE_MAX, ENDING_STATUSES, LIVE_STATUSES, RISK_LEVELS, RISK_STATUSES, assertRiskClosure, assertRiskEntry, assertRiskLive, assertRiskMove, isCritical, riskLevelOf, riskScore } from './prj-risk.ts';
+export type { EndingStatus, LiveStatus, RiskClosure, RiskEntry, RiskLevel, RiskStatus } from './prj-risk.ts';

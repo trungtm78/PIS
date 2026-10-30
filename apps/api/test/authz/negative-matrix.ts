@@ -963,6 +963,27 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.legalHoldId}/transfers`, ifMatch: '"1"', body: { to_unit_id: t.unit2, transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Matrix attempt to transfer a project' } }),
   },
+  registerProjectRisk: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/projects/${t.projectId}/risks`,
+      body: { code: 'MX-RISK', category_master_version_id: t.legalHoldId, title: 'Matrix risk', description: 'Matrix attempt to register a risk', likelihood: 3, impact: 3, owner_membership_id: t.recipientMembershipId, mitigation: 'Matrix mitigation', due_date: '2099-01-01' },
+    }),
+  },
+  updateProjectRisk: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/project-risks/${t.legalHoldId}/update`,
+      ifMatch: '"1"',
+      body: { code: 'MX-RISK', category_master_version_id: t.legalHoldId, title: 'Matrix risk', description: 'Matrix attempt to update a risk', likelihood: 3, impact: 3, owner_membership_id: t.recipientMembershipId, mitigation: 'Matrix mitigation', due_date: '2099-01-01' },
+    }),
+  },
+  closeProjectRisk: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-risks/${t.legalHoldId}/closure`, ifMatch: '"1"', body: { status: 'CLOSED', closed_reason: REASON } }),
+  },
   decideProjectTransfer: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/project-transfers/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix attempt to decide a transfer' } }),
