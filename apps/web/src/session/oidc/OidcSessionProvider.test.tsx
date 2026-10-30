@@ -49,6 +49,7 @@ interface ApiCall {
   path: string;
   authorization: string | null;
   key: string | null;
+  host?: string | null;
   body: unknown;
 }
 
@@ -84,6 +85,7 @@ describe('OidcSessionProvider', () => {
         path: url.pathname,
         authorization: headers.get('authorization'),
         key: headers.get('idempotency-key'),
+        host: headers.get('x-tenant-host'),
         body: typeof init?.body === 'string' ? (JSON.parse(init.body) as unknown) : undefined,
       };
       calls.push(call);
@@ -200,6 +202,16 @@ describe('OidcSessionProvider', () => {
     expect(items).toHaveLength(3);
     expect(calls[0]).toMatchObject({ method: 'GET', path: '/me/session/tenant-selection/candidates' });
     expect(calls[0]?.authorization).toMatch(/^Bearer eyJ/);
+  });
+
+  it('states the host the page was opened on with the memberships and with the selection, so a verified domain can choose the tenant (ST-SAS-017)', async () => {
+    mount();
+    await signedIn();
+    await act(async () => session.loadCandidates?.());
+    await select(TENANT_A);
+    const sent = calls.filter((call) => call.path.startsWith('/me/session/tenant-selection'));
+    expect(sent.length).toBeGreaterThanOrEqual(2);
+    for (const call of sent) expect(call.host).toBe(window.location.hostname);
   });
 
   it('selects a tenant: the tenant token becomes the bearer of every later request, and the mode is kept', async () => {

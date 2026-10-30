@@ -271,7 +271,10 @@ describe('TenantRegistry on a migrated database', () => {
     expect(await count('select count(*) as n from machvon.tenant_domain where tenant_id = $1', [one.tenantId])).toBe(1);
     await expect(registry.ensureDomain(two.tenantId, hostname.toUpperCase())).rejects.toMatchObject({ code: 'DOMAIN_TAKEN', status: 409 });
     await registry.revokeDomain(one.tenantId, hostname);
-    await registry.ensureDomain(two.tenantId, hostname);
+    // A name released less than 90 days ago is held against the other tenants (ST-SAS-017); the tenant that released it, a provisioning run again, takes it back.
+    await expect(registry.ensureDomain(two.tenantId, hostname)).rejects.toMatchObject({ code: 'DOMAIN_TAKEN', status: 409, extensions: { reason: 'RESERVED' } });
+    await registry.ensureDomain(one.tenantId, hostname);
+    expect(await count("select count(*) as n from machvon.tenant_domain where tenant_id = $1 and status <> 'Revoked'", [one.tenantId])).toBe(1);
   });
 
   it('tells whether a revoked hostname belonged to the tenant, so a caller never removes DNS that another tenant owns', async () => {

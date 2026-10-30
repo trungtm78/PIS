@@ -17,6 +17,8 @@ export interface ApiClientOptions {
   session: () => Promise<{ token: string } | undefined>;
   fetch?: typeof fetch;
   locale?: () => string;
+  /** Headers every request carries besides its own (read again for each request); they never replace the ones the client sets itself. */
+  headers?: () => Record<string, string>;
   /** Source of idempotency keys; defaults to random UUIDs. */
   newKey?: () => string;
   /** Source of correlation ids, which the server only accepts as UUIDs; defaults to random UUIDs. */
@@ -67,7 +69,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
   const baseUrl = options.baseUrl.replace(/\/+$/, '');
 
   async function headersFor(parts: RequestParts, correlationId: string): Promise<Headers> {
-    const headers = new Headers({ accept: 'application/json, application/problem+json', 'x-correlation-id': correlationId });
+    const headers = new Headers(options.headers?.());
+    headers.set('accept', 'application/json, application/problem+json');
+    headers.set('x-correlation-id', correlationId);
     const session = await options.session();
     if (session !== undefined) headers.set('authorization', `Bearer ${session.token}`);
     const locale = options.locale?.();

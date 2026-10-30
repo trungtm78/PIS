@@ -6627,7 +6627,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các tên miền của tenant: loại, trạng thái, chứng chỉ, lần kiểm tra cuối, hạn của thử thách (SAS-05) */
+        get: operations["listTenantDomains"];
         put?: never;
         /** Thêm tên miền (SAS-05); trả TXT token một lần */
         post: operations["addTenantDomain"];
@@ -19792,6 +19793,8 @@ export interface components {
             valid_from: string;
             /** Format: date-time */
             valid_until?: string | null;
+            /** @description The tenant of the verified domain the sign-in was opened on; it gives no right, the membership does */
+            preselected?: boolean;
         };
         TenantSelectionCandidates: {
             items: components["schemas"]["TenantSelectionCandidate"][];
@@ -22080,6 +22083,42 @@ export interface components {
             bytes: number;
             /** @description The hash the bytes must have: the owner checks it after the download */
             sha256: string;
+        };
+        TenantDomain: {
+            /** Format: uuid */
+            id: string;
+            hostname: string;
+            /** @enum {string} */
+            kind: "PLATFORM_SUBDOMAIN" | "CUSTOM";
+            /** @enum {string} */
+            status: "PendingVerification" | "Verified" | "Active" | "Failed" | "Revoked";
+            /** @enum {string} */
+            tls_status: "Pending" | "Issued" | "Renewing" | "Failed";
+            /** Format: date-time */
+            tls_expires_at?: string | null;
+            /** Format: date-time */
+            verified_at?: string | null;
+            /** Format: date-time */
+            last_checked_at?: string | null;
+            /** Format: date-time */
+            challenge_expires_at?: string | null;
+            /** Format: date-time */
+            revoked_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Until when the hostname of a released domain is held (90 days after the release)
+             */
+            reserved_until?: string | null;
+            failure_code?: string | null;
+            /** @description Where the proof is published, for a custom domain that is not proved yet */
+            txt_record_name?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            version: number;
+        };
+        TenantDomainPage: {
+            items: components["schemas"]["TenantDomain"][];
+            next_cursor: string | null;
         };
     };
     responses: never;
@@ -55370,6 +55409,8 @@ export interface operations {
             header: {
                 /** @description Scope tenant+subject+operation+key; same key+same body replays the stored result; same key+different body -> 409 IDEMPOTENCY_CONFLICT; in-flight -> 409 IDEMPOTENCY_IN_PROGRESS. */
                 "Idempotency-Key": string;
+                /** @description The hostname the sign-in page was opened on: when a verified domain on it belongs to a tenant, only that tenant may be selected (403 TENANT_SELECTION_INVALID otherwise) */
+                "X-Tenant-Host"?: string;
             };
             path?: never;
             cookie?: never;
@@ -55456,7 +55497,10 @@ export interface operations {
     };
     listTenantSelectionCandidates: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The hostname the sign-in page was opened on; the membership of the tenant that has a verified domain on it is marked preselected */
+                host?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -62196,6 +62240,76 @@ export interface operations {
             };
             /** @description PRECONDITION_REQUIRED (If-Match missing) */
             428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTenantDomains: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantDomainPage"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

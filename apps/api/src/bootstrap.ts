@@ -206,7 +206,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
     app.enableCors({
       origin: config.corsOrigins.length === 0 ? false : [...config.corsOrigins],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['authorization', 'content-type', 'idempotency-key', 'if-match', 'x-correlation-id', 'traceparent'],
+      allowedHeaders: ['authorization', 'content-type', 'idempotency-key', 'if-match', 'x-correlation-id', 'x-tenant-host', 'traceparent'],
       exposedHeaders: ['x-correlation-id', 'x-request-id', 'etag', 'retry-after', 'idempotency-replayed'],
       maxAge: 600,
     });

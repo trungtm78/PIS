@@ -3,7 +3,7 @@ import type { Reflector } from '@nestjs/core';
 import type { AuditWriter, IdempotencyStore, TenantDatabase, TenantTx } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import { from, of } from 'rxjs';
-import { CommandInterceptor } from '../src/command.interceptor';
+import { CommandInterceptor, withheldFrom } from '../src/command.interceptor';
 import { OperationId } from '../src/operation-id.decorator';
 
 class Routes {
@@ -288,5 +288,17 @@ describe('CommandInterceptor after-rollback callbacks', () => {
     );
     expect(await settle(failing.interceptor, failing.context, failing.next)).toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
     expect(failing.calls).toEqual(['still ran']);
+  });
+});
+
+describe('the answer kept for a replay', () => {
+  it('empties the fields a command withholds, a string to \'\' and anything else to null, and leaves the rest and the original alone', () => {
+    const answer = { id: 'd1', secret: 'shown-once', count: 3, nested: { keep: true } };
+    expect(withheldFrom(answer, ['secret', 'count', 'absent'])).toEqual({ id: 'd1', secret: '', count: null, nested: { keep: true } });
+    expect(answer.secret).toBe('shown-once');
+    expect(withheldFrom(answer, undefined)).toBe(answer);
+    expect(withheldFrom(answer, [])).toBe(answer);
+    expect(withheldFrom('text', ['secret'])).toBe('text');
+    expect(withheldFrom([answer], ['secret'])).toEqual([answer]);
   });
 });

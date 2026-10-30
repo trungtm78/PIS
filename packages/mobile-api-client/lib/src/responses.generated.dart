@@ -602,6 +602,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listSystemTenantLicenses': SystemLicensePageResponse.fromJson,
   'listSystemTenants': TenantSummaryPageResponse.fromJson,
   'listSystemTenantThemeVersions': ListSystemTenantThemeVersionsResponse.fromJson,
+  'listTenantDomains': TenantDomainPageResponse.fromJson,
   'listTenantEntitlementOverrides': EntitlementOverridePageResponse.fromJson,
   'listTenantExports': TenantExportPageResponse.fromJson,
   'listTenantInvoices': TenantInvoicesResponse.fromJson,
@@ -18397,6 +18398,118 @@ final class TenantDetailResponseProvisioningStepsItem implements ResponseModel {
       };
 }
 
+final class TenantDomainPageResponse implements ResponseModel {
+  const TenantDomainPageResponse({
+    required this.items,
+    required this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantDomainPageResponse.fromJson(Object? json, [String path = 'TenantDomainPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantDomainPageResponse(
+      items: requiredField(map, path, 'items', asList(TenantDomainResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final List<TenantDomainResponse> items;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class TenantDomainResponse implements ResponseModel {
+  const TenantDomainResponse({
+    required this.id,
+    required this.hostname,
+    required this.kind,
+    required this.status,
+    required this.tlsStatus,
+    required this.createdAt,
+    required this.version,
+    this.tlsExpiresAt,
+    this.verifiedAt,
+    this.lastCheckedAt,
+    this.challengeExpiresAt,
+    this.revokedAt,
+    this.reservedUntil,
+    this.failureCode,
+    this.txtRecordName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantDomainResponse.fromJson(Object? json, [String path = 'TenantDomainResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantDomainResponse(
+      id: requiredField(map, path, 'id', asString),
+      hostname: requiredField(map, path, 'hostname', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      status: requiredField(map, path, 'status', asString),
+      tlsStatus: requiredField(map, path, 'tls_status', asString),
+      tlsExpiresAt: optionalField(map, path, 'tls_expires_at', nullable(asString)),
+      verifiedAt: optionalField(map, path, 'verified_at', nullable(asString)),
+      lastCheckedAt: optionalField(map, path, 'last_checked_at', nullable(asString)),
+      challengeExpiresAt: optionalField(map, path, 'challenge_expires_at', nullable(asString)),
+      revokedAt: optionalField(map, path, 'revoked_at', nullable(asString)),
+      reservedUntil: optionalField(map, path, 'reserved_until', nullable(asString)),
+      failureCode: optionalField(map, path, 'failure_code', nullable(asString)),
+      txtRecordName: optionalField(map, path, 'txt_record_name', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'hostname', 'kind', 'status', 'tls_status', 'tls_expires_at', 'verified_at', 'last_checked_at', 'challenge_expires_at', 'revoked_at', 'reserved_until', 'failure_code', 'txt_record_name', 'created_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String hostname;
+  final String kind;
+  final String status;
+  final String tlsStatus;
+  final String? tlsExpiresAt;
+  final String? verifiedAt;
+  final String? lastCheckedAt;
+  final String? challengeExpiresAt;
+  final String? revokedAt;
+  final String? reservedUntil;
+  final String? failureCode;
+  final String? txtRecordName;
+  final String createdAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'hostname': hostname,
+        'kind': kind,
+        'status': status,
+        'tls_status': tlsStatus,
+        if (tlsExpiresAt != null) 'tls_expires_at': tlsExpiresAt,
+        if (verifiedAt != null) 'verified_at': verifiedAt,
+        if (lastCheckedAt != null) 'last_checked_at': lastCheckedAt,
+        if (challengeExpiresAt != null) 'challenge_expires_at': challengeExpiresAt,
+        if (revokedAt != null) 'revoked_at': revokedAt,
+        if (reservedUntil != null) 'reserved_until': reservedUntil,
+        if (failureCode != null) 'failure_code': failureCode,
+        if (txtRecordName != null) 'txt_record_name': txtRecordName,
+        'created_at': createdAt,
+        'version': version,
+        ...extra,
+      };
+}
+
 final class TenantExportLinkResponse implements ResponseModel {
   const TenantExportLinkResponse({
     required this.exportId,
@@ -18815,6 +18928,7 @@ final class TenantSelectionCandidateResponse implements ResponseModel {
     required this.status,
     required this.validFrom,
     this.validUntil,
+    this.preselected,
     this.extra = const <String, Object?>{},
   });
 
@@ -18829,7 +18943,8 @@ final class TenantSelectionCandidateResponse implements ResponseModel {
       status: requiredField(map, path, 'status', asString),
       validFrom: requiredField(map, path, 'valid_from', asString),
       validUntil: optionalField(map, path, 'valid_until', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'tenant_id', 'tenant_name', 'tenant_status', 'membership_id', 'membership_type', 'status', 'valid_from', 'valid_until'}, strict: true),
+      preselected: optionalField(map, path, 'preselected', asBool),
+      extra: unknownFields(map, path, const <String>{'tenant_id', 'tenant_name', 'tenant_status', 'membership_id', 'membership_type', 'status', 'valid_from', 'valid_until', 'preselected'}, strict: true),
     );
   }
 
@@ -18841,6 +18956,7 @@ final class TenantSelectionCandidateResponse implements ResponseModel {
   final String status;
   final String validFrom;
   final String? validUntil;
+  final bool? preselected;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -18855,6 +18971,7 @@ final class TenantSelectionCandidateResponse implements ResponseModel {
         'status': status,
         'valid_from': validFrom,
         if (validUntil != null) 'valid_until': validUntil,
+        if (preselected != null) 'preselected': preselected,
         ...extra,
       };
 }

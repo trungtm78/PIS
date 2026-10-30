@@ -1,4 +1,4 @@
-import { DomainError } from '@machvon/kernel';
+import { DomainError, isReserved, reservedUntil } from '@machvon/kernel';
 import type { ControlDatabase } from './control-database.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -513,6 +513,11 @@ export class TenantRegistry {
   /** Registers the platform subdomain of the tenant; another tenant holding the hostname is 409 DOMAIN_TAKEN. */
   async ensureDomain(tenantId: string, hostname: string): Promise<void> {
     await this.control.withTenantOf(tenantId, async (tx) => {
+      // A name that another tenant released less than 90 days ago is held, here as everywhere; the tenant that released it (a provisioning that is run again) may take it back.
+      const [holder] = await tx.query<{ tenant_id: string; status: string; revoked_at: Date | null }>('select tenant_id, status, revoked_at from machvon.tenant_domain_holder($1)', [hostname.toLowerCase()]);
+      if (holder !== undefined && holder.status === 'Revoked' && holder.tenant_id !== tenantId && holder.revoked_at !== null && isReserved(holder.revoked_at, this.now())) {
+        throw new DomainError('DOMAIN_TAKEN', 409, undefined, { extensions: { reason: 'RESERVED', reserved_until: reservedUntil(holder.revoked_at).toISOString() } });
+      }
       await tx.query(
         `insert into machvon.tenant_domain (tenant_id, id, hostname, kind, status, tls_status, verified_at)
          values ($1::uuid, gen_random_uuid(), $2, 'PLATFORM_SUBDOMAIN', 'Active', 'Issued', $3::timestamptz)
@@ -533,7 +538,7 @@ export class TenantRegistry {
   async revokeDomain(tenantId: string, hostname: string): Promise<boolean> {
     return this.control.withTenantOf(tenantId, async (tx) => {
       const owned = await tx.query('select 1 from machvon.tenant_domain where lower(hostname) = lower($1)', [hostname]);
-      await tx.query("update machvon.tenant_domain set status = 'Revoked', version = version + 1 where lower(hostname) = lower($1) and status <> 'Revoked'", [hostname]);
+      await tx.query("update machvon.tenant_domain set status = 'Revoked', revoked_at = now(), version = version + 1 where lower(hostname) = lower($1) and status <> 'Revoked'", [hostname]);
       return owned.length > 0;
     });
   }

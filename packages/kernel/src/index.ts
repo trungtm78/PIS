@@ -522,3 +522,5 @@ export { OPEN_SUPPORT_STATUSES, SUPPORT_MAX_MINUTES, SUPPORT_MAX_REASON, SUPPORT
 export type { ApprovalPatch, SupportAccessMode, SupportGrantFacts, SupportGrantStatus, SupportOperation, SupportRequestInput } from './sas-support-access.ts';
 export { DEFAULT_EXPORT_WINDOW_DAYS, EXPORT_LINK_TTL_MS, MANIFEST_SCHEMA_VERSION, MAX_EXPORT_WINDOW_DAYS, MIN_EXPORT_WINDOW_DAYS, assertArchivable, attachmentKindInScope, buildManifest, encryptForCustomer, exportWindowEnd, fileMatchesManifest, isWithinExportWindow, manifestText, offboardingDefects, parseCustomerKey, bytesSha256, splitColumns, tablesToExport } from './sas-offboarding.ts';
 export type { ExportManifest, ExportScopeKind, ManifestFile, OffboardingInput } from './sas-offboarding.ts';
+export { CHALLENGE_TTL_DAYS, DOMAIN_RESERVATION_DAYS, RECHECK_EVERY_DAYS, TLS_LIFETIME_DAYS, TLS_RENEW_BEFORE_DAYS, assertHostnameAllowed, certificateEndsAt, challengeAnswered, challengeEndsAt, challengeRecordName, dueForRecheck, hashOf, isReserved, needsRenewal, newChallenge, normalizeHostname, reservedUntil } from './sas-domain.ts';
+export type { DomainKind } from './sas-domain.ts';

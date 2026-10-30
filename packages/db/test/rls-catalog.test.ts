@@ -13,7 +13,8 @@ const TENANT_A = '00000000-0000-4000-8000-00000000000a';
 const TENANT_B = '00000000-0000-4000-8000-00000000000b';
 // Tables whose design makes them append-only for the application role, and the table whose grants may never be deleted (V004).
 const EXPECTED: RlsExpectations = {
-  controlPlane: [...findNonTenantTables(schemaSql)],
+  // The directory of hostnames (V1491, ST-SAS-017) is not in the design: it has no row-level security on purpose, because the control plane reads who holds a hostname across tenants, so its column is not called tenant_id and the application role has no right on it.
+  controlPlane: [...findNonTenantTables(schemaSql), 'tenant_domain_directory'],
   appendOnly: findAppendOnlyTables(schemaSql),
   noDelete: ['role_grant'],
 };

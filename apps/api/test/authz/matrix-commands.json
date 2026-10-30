@@ -447,7 +447,10 @@
     "requestSupportAccess",
     "issueSupportAccessToken",
     "archiveTenant",
-    "startTenantOffboarding"
+    "startTenantOffboarding",
+    "addTenantDomain",
+    "verifyTenantDomain",
+    "removeTenantDomain"
   ],
   "identityCommands": [
     "acceptInvitation",

@@ -1,5 +1,6 @@
 import { DelegationLifecycleJob } from '../modules/adm/delegation-lifecycle';
 import { SupportAccessJob } from '../modules/sas/support-access.job';
+import { TenantDomainJob } from '../modules/sas/tenant-domain.job';
 import { TenantExportJob } from '../modules/sas/tenant-export.job';
 import type { FileService } from '../modules/files/file.service';
 import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.port';
@@ -8,8 +9,8 @@ import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
-import { ApprovalSlaJob, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
-import type { ControlDatabase, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, ReorganizationProjectPort, TenantDatabase } from '@machvon/db';
+import { ApprovalSlaJob, sharedMockDomainPorts, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
+import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, ReorganizationProjectPort, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
 import type { Pool } from 'pg';
@@ -44,6 +45,8 @@ export interface WorkersDeps {
   exportFiles?: Pick<FileService, 'storeGenerated' | 'readStored' | 'listKind'>;
   /** The store of the document module: the files that rows refer to and the file service does not hold are read from it for the export. */
   documentFiles?: { get(key: string): Promise<{ bytes: Uint8Array } | undefined> };
+  /** The DNS lookup and the certificate authority of the domains of the tenants (ST-SAS-017); the MOCK pair of the process when none is given. */
+  domainPorts?: DomainPorts;
   /** The provider of e-invoices (ST-SAS-011); the MOCK when none is given. */
   einvoiceProvider?: EInvoiceProviderPort;
   /** Sends the due notifications and reconciles the lost results (ST-NOT-002); without it the delivery jobs are not scheduled. */
@@ -104,6 +107,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const unitReorganization = new UnitReorganizationJob(deps.tenants, audit, deps.reorganizationProjects ?? new UnboundProjectTransferPort());
   const delegationLifecycle = new DelegationLifecycleJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const supportAccessLifecycle = new SupportAccessJob(audit);
+  const domains = new TenantDomainJob(audit, deps.domainPorts ?? sharedMockDomainPorts());
   const approvalSla = new ApprovalSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const issueSla = new IssSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const dgvQuality = new DgvQualityRunJob(deps.tenants, audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
@@ -170,6 +174,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     subscriptionCycle: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => subscriptions.runCycle(tx, now)) },
     // The invoices are tenant rows and the plans are control-plane rows: the pass of a tenant runs through the control role acting as that tenant.
     einvoiceBilling: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => billing.run(tx, ctx.membershipId, now)) },
+    tenantDomain: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => domains.run(tx, ctx.membershipId, now)) },
     // The payments that wait belong to the platform tenant and are matched with invoices of every tenant: one pass for the platform, through the control role.
     paymentReconciliation: {
       run: (now) => payments.pass((work) => deps.control.withTenantOf(PLATFORM_TENANT_ID, work), (tx) => effectsOf(audit, tx, WORKER_MEMBERSHIP_ID), { platformTenantId: PLATFORM_TENANT_ID, workerMembershipId: WORKER_MEMBERSHIP_ID, now }),

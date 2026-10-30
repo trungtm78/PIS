@@ -60,7 +60,8 @@ test.describe('SAS-22 provisioning progress', () => {
     await expect(page.getByRole('button', { name: vi['sas.tenants.retry.submit'] })).toHaveCount(0);
 
     // The hostname is free again: the retry starts attempt 2 at the failed step and the saga runs the rest.
-    await sql('delete from machvon.tenant_domain where hostname = $1', [hostname]);
+    // A domain is released, never deleted: the other tenant gives the name up long enough ago for its hold of 90 days to be over.
+    await sql("update machvon.tenant_domain set status = 'Revoked', revoked_at = now() - interval '91 days' where hostname = $1", [hostname]);
     await open(page, `/sas/sas-22?tenant=${id}`, 'sysAdmin');
     await page.getByLabel(vi['sas.tenants.retry.reason.label']).fill('too short');
     await page.getByRole('button', { name: vi['sas.tenants.retry.submit'] }).click();

@@ -49,6 +49,14 @@ function problemOf(error: DomainError): StoredResponse {
  * If-Match checks, one tenant transaction in which the handler's effects, its audit row, its outbox events
  * and the stored response commit together, and a settled idempotency record when the transaction rolls back.
  */
+/** The answer as it is kept for a replay: the fields the command withholds are emptied, so a secret shown once is never stored. */
+export function withheldFrom(result: unknown, fields: readonly string[] | undefined): unknown {
+  if (fields === undefined || fields.length === 0 || typeof result !== 'object' || result === null || Array.isArray(result)) return result;
+  const copy: Record<string, unknown> = { ...(result as Record<string, unknown>) };
+  for (const field of fields) if (field in copy) copy[field] = typeof copy[field] === 'string' ? '' : null;
+  return copy;
+}
+
 @Injectable()
 export class CommandInterceptor implements NestInterceptor {
   private readonly logger = new Logger(CommandInterceptor.name);
@@ -159,7 +167,7 @@ export class CommandInterceptor implements NestInterceptor {
         handlerReturned = true;
         if (audited === 0) throw new Error(`command ${options.operation} wrote no audit entry`);
         // A refusal that is itself a record: what the command wrote commits, and the stored answer is the refusal.
-        const answer: Pick<CompletedOutcome, 'httpStatus' | 'response'> = refusal === undefined ? { httpStatus, response: { kind: 'success', body: result } } : { httpStatus: refusal.status, response: problemOf(refusal) };
+        const answer: Pick<CompletedOutcome, 'httpStatus' | 'response'> = refusal === undefined ? { httpStatus, response: { kind: 'success', body: withheldFrom(result, options.withheld) } } : { httpStatus: refusal.status, response: problemOf(refusal) };
         await this.store.completeInTx(tx, begin.recordId, { ...answer, ...this.referenceOf(options, touched) });
         return result;
       });

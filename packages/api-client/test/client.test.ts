@@ -198,6 +198,14 @@ describe('command', () => {
     expect((await failureOf(broken.client.command('createOrganizationUnit', { body: CREATE_BODY }))).code).toBe('INTERNAL_ERROR');
   });
 
+  it('sends the headers the caller asks for on every request, and never lets them replace the ones the client sets', async () => {
+    const { client, calls } = setup([json(201, COMMAND_RESULT)], { headers: () => ({ 'x-tenant-host': 'b.machvon.vn', accept: 'text/plain', 'x-correlation-id': 'mine' }) });
+    await client.command('createOrganizationUnit', { body: CREATE_BODY });
+    expect(calls[0]?.headers.get('x-tenant-host')).toBe('b.machvon.vn');
+    expect(calls[0]?.headers.get('accept')).toBe('application/json, application/problem+json');
+    expect(calls[0]?.headers.get('x-correlation-id')).not.toBe('mine');
+  });
+
   it('sends a command without a language header when no locale is configured', async () => {
     const { client, calls } = setup([json(201, COMMAND_RESULT)], { locale: undefined });
     await client.command('createOrganizationUnit', { body: CREATE_BODY });

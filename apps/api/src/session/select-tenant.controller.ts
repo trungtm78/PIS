@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { Body, Controller, Get, Headers, HttpCode, Inject, Ip, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Ip, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { DomainError, asUuid, keyHashOf, parseIdempotencyKey, requestHashOf } from '@machvon/kernel';
 import { OperationId } from '../operation-id.decorator';
 import { Public } from '../public.decorator';
@@ -49,8 +49,10 @@ export class SelectTenantController {
   @Public()
   @UseGuards(IdentityGuard)
   @OperationId('listTenantSelectionCandidates')
-  async candidates(@CurrentIdentity() who: IdentityContext): Promise<{ items: TenantSelectionCandidateView[] }> {
-    return { items: await this.service.candidates(who.userAccountId) };
+  async candidates(@CurrentIdentity() who: IdentityContext, @Query('host') host?: unknown, @Headers('x-tenant-host') hostHeader?: string | string[]): Promise<{ items: TenantSelectionCandidateView[] }> {
+    // The page states the host it was opened on in the header on every request; the query is the same statement for a caller that cannot set one.
+    const stated = typeof host === 'string' ? host : typeof hostHeader === 'string' ? hostHeader : undefined;
+    return { items: await this.service.candidates(who.userAccountId, stated) };
   }
 
   @Post('tenant-selection')
@@ -65,6 +67,7 @@ export class SelectTenantController {
     @Headers('idempotency-key') key: string | string[] | undefined,
     @Headers('x-correlation-id') correlation: string | undefined,
     @Headers('user-agent') userAgent: string | undefined,
+    @Headers('x-tenant-host') host: string | string[] | undefined,
     @Ip() ip: string | undefined,
     @Res({ passthrough: true }) response: { setHeader(name: string, value: string): unknown },
   ): Promise<SessionContextView> {
@@ -77,10 +80,12 @@ export class SelectTenantController {
       tenantId: asUuidOrThrow(request.tenant_id),
       membershipId: asUuidOrThrow(request.membership_id),
       keyHash: keyHashOf(idempotencyKey),
-      requestHash: requestHashOf({ body, pathParams: {}, ifMatch: null }),
+      // The host is part of what was asked: the same key with another host is another request.
+      requestHash: requestHashOf({ body, pathParams: typeof host === 'string' ? { host: host.trim().toLowerCase() } : {}, ifMatch: null }),
       ipHash: hashIp(ip),
       userAgentSummary: summaryOf(userAgent),
       correlationId: asUuid(correlation) ?? randomUUID(),
+      ...(typeof host === 'string' && host.trim() !== '' ? { host } : {}),
     });
     if (outcome.replayed) response.setHeader('Idempotency-Replayed', 'true');
     return outcome.body;

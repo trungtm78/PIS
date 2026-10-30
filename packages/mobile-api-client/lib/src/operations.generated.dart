@@ -601,6 +601,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listSystemTenantLicenses': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/licenses', versioned: false, stepUp: null, permission: 'system.tenant.read'),
   'listSystemTenantThemeVersions': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/theme/versions', versioned: false, stepUp: null, permission: 'system.theme.manage'),
   'listSystemTenants': OperationDescriptor(method: 'GET', path: '/system/tenants', versioned: false, stepUp: null, permission: 'system.tenant.read'),
+  'listTenantDomains': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/domains', versioned: false, stepUp: null, permission: 'system.tenant.read'),
   'listTenantEntitlementOverrides': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/entitlement-overrides', versioned: false, stepUp: null, permission: 'system.tenant.read'),
   'listTenantExports': OperationDescriptor(method: 'GET', path: '/tenants/{id}/exports', versioned: false, stepUp: null, permission: 'tenant.export'),
   'listTenantInvoices': OperationDescriptor(method: 'GET', path: '/system/tenants/{tenantId}/invoices', versioned: false, stepUp: null, permission: 'system.tenant.read'),

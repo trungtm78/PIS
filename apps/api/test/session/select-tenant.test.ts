@@ -711,4 +711,85 @@ describe('selectTenantContext, session binding and revocation (ST-IAM-003)', () 
     });
   });
 
+  describe('the domain the sign-in is opened on chooses the tenant (ST-SAS-017)', () => {
+    const HOST_OTHER = 'portal.tinh-khac.example.vn';
+    const HOST_PENDING = 'cho.tinh-active.example.vn';
+    const HOST_PLATFORM = 'b.machvon.vn';
+
+    async function domain(tenantId: string, n: number, hostname: string, status: string, kind: 'CUSTOM' | 'PLATFORM_SUBDOMAIN' = 'CUSTOM'): Promise<void> {
+      await admin(
+        `insert into machvon.tenant_domain (tenant_id, id, hostname, kind, txt_token_hash, status, verified_at, tls_status)
+         values ($1, $2, $3, $5, case when $5 = 'CUSTOM' then repeat('a', 64) end, $4, case when $4 = 'PendingVerification' then null else now() end, 'Pending')`,
+        [tenantId, id(0x77, n), hostname, status, kind],
+      );
+    }
+
+    async function selectOn(token: string, host: string | undefined, body: unknown): Promise<{ status: number; json: Record<string, unknown> }> {
+      const headers: Record<string, string> = { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'idempotency-key': `key-${randomUUID()}` };
+      if (host !== undefined) headers['x-tenant-host'] = host;
+      const response = await fetch(`${baseUrl}/me/session/tenant-selection`, { method: 'POST', headers, body: JSON.stringify(body) });
+      return { status: response.status, json: (await response.json()) as Record<string, unknown> };
+    }
+
+    async function candidatesOn(token: string, host: string): Promise<Array<Record<string, unknown>>> {
+      const response = await fetch(`${baseUrl}/me/session/tenant-selection/candidates?host=${encodeURIComponent(host)}`, { headers: { authorization: `Bearer ${token}` } });
+      expect(response.status).toBe(200);
+      return ((await response.json()) as { items: Array<Record<string, unknown>> }).items;
+    }
+
+    beforeAll(async () => {
+      await domain(T_OTHER, 1, HOST_OTHER, 'Active');
+      await domain(T_ACTIVE, 2, HOST_PENDING, 'PendingVerification');
+      await domain(T_OTHER, 3, HOST_PLATFORM, 'Active', 'PLATFORM_SUBDOMAIN');
+    });
+
+    it('AC-ST-SAS-017-2 UAT-AC153: a person of tenant A who signs in on the verified domain of tenant B is refused tenant A with 403 TENANT_SELECTION_INVALID, and only tenant B can be chosen there', async () => {
+      const refused = await selectOn(identityToken(OUTSIDER), HOST_OTHER, pick(T_ACTIVE, M_OUTSIDER));
+      expect(refused.status).toBe(403);
+      expect(refused.json.code).toBe('TENANT_SELECTION_INVALID');
+      expect(JSON.stringify(refused.json)).not.toContain(T_OTHER);
+      // A person of both tenants: the domain decides which one the sign-in may start from.
+      const wrong = await selectOn(identityToken(MAIN), HOST_OTHER, pick(T_ACTIVE, M_ACTIVE));
+      expect(wrong.status).toBe(403);
+      expect(wrong.json.code).toBe('TENANT_SELECTION_INVALID');
+      const right = await selectOn(identityToken(MAIN), HOST_OTHER, pick(T_OTHER, M_OTHER_TENANT));
+      expect(right.status).toBe(200);
+      expect(decode(right.json.access_token as string).tid).toBe(T_OTHER);
+      // The subdomain of the platform chooses its tenant in the same way, and the chooser names no unit of the other tenant.
+      const onPlatform = await selectOn(identityToken(OUTSIDER), HOST_PLATFORM, pick(T_ACTIVE, M_OUTSIDER));
+      expect(onPlatform.status).toBe(403);
+      expect(onPlatform.json.code).toBe('TENANT_SELECTION_INVALID');
+      const listed = await candidatesOn(identityToken(OUTSIDER), HOST_PLATFORM);
+      expect(listed.map((item) => item.tenant_id)).toEqual([T_ACTIVE]);
+      expect(JSON.stringify(listed)).not.toContain('tenant-other');
+    });
+
+    it('marks the membership of the tenant of the domain as preselected, and the domain gives no membership to anybody', async () => {
+      const items = await candidatesOn(identityToken(MAIN), HOST_OTHER);
+      const byTenant = new Map(items.map((item) => [`${item.tenant_id as string}|${item.membership_id as string}`, item.preselected]));
+      expect(byTenant.get(`${T_OTHER}|${member(M_OTHER_TENANT)}`)).toBe(true);
+      expect(byTenant.get(`${T_ACTIVE}|${member(M_ACTIVE)}`)).toBe(false);
+      // A person with no membership in the tenant of the domain gets no entry for it.
+      const outsider = await candidatesOn(identityToken(OUTSIDER), HOST_OTHER);
+      expect(outsider.map((item) => item.tenant_id)).toEqual([T_ACTIVE]);
+      expect(outsider[0]?.preselected).toBe(false);
+    });
+
+    it('takes the host of the candidates from the header the page sends with every request, as it does from the query', async () => {
+      const response = await fetch(`${baseUrl}/me/session/tenant-selection/candidates`, { headers: { authorization: `Bearer ${identityToken(MAIN)}`, 'x-tenant-host': HOST_OTHER } });
+      const items = ((await response.json()) as { items: Array<Record<string, unknown>> }).items;
+      expect(items.find((item) => item.tenant_id === T_OTHER)?.preselected).toBe(true);
+      expect(items.find((item) => item.tenant_id === T_ACTIVE)?.preselected).toBe(false);
+    });
+
+    it('does not let a domain that is not verified, one nobody holds, or a platform host choose anything', async () => {
+      for (const host of [HOST_PENDING, 'nobody.example.vn', 'tinh-active.machvon.vn', 'not a host', '']) {
+        const reply = await selectOn(identityToken(OUTSIDER), host === '' ? undefined : host, pick(T_ACTIVE, M_OUTSIDER));
+        expect(reply.status).toBe(200);
+      }
+      const items = await candidatesOn(identityToken(OUTSIDER), HOST_PENDING);
+      expect(items.every((item) => item.preselected === undefined || item.preselected === false)).toBe(true);
+    });
+  });
+
 });

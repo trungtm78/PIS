@@ -83,6 +83,10 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'startTenantOffboarding', permission: PERMISSIONS.startTenantOffboarding, method: 'POST', path: '/system/tenants/{tenantId}/offboard' },
   { operationId: 'archiveTenant', permission: PERMISSIONS.archiveTenant, method: 'POST', path: '/system/tenants/{tenantId}/archive' },
   { operationId: 'listSystemTenantExports', permission: PERMISSIONS.listSystemTenantExports, method: 'GET', path: '/system/tenants/{tenantId}/exports' },
+  { operationId: 'listTenantDomains', permission: PERMISSIONS.listTenantDomains, method: 'GET', path: '/system/tenants/{tenantId}/domains' },
+  { operationId: 'addTenantDomain', permission: PERMISSIONS.addTenantDomain, method: 'POST', path: '/system/tenants/{tenantId}/domains' },
+  { operationId: 'verifyTenantDomain', permission: PERMISSIONS.verifyTenantDomain, method: 'POST', path: '/system/tenant-domains/{domainId}/verify' },
+  { operationId: 'removeTenantDomain', permission: PERMISSIONS.removeTenantDomain, method: 'POST', path: '/system/tenant-domains/{domainId}/remove' },
   { operationId: 'issueSupportAccessToken', permission: PERMISSIONS.issueSupportAccessToken, method: 'POST', path: '/support-access/{id}/token' },
 ];
 

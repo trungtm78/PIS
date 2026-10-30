@@ -684,3 +684,6 @@ export { SUPPORT_ACCESS_ACTIVE_GAUGE, SUPPORT_ACCESS_APPROVED_EVENT, SUPPORT_ACC
 export type { SupportApproval, SupportGrantRow, SupportPassResult, SupportRequest } from './support-access-store.ts';
 export { TENANT_EXPORT_DELIVERED_EVENT, TENANT_EXPORT_PENDING_GAUGE, TENANT_EXPORT_READY_EVENT, TenantExportStore } from './tenant-export-store.ts';
 export type { ExportJobRow, ExportJobStatus, ExportPassResult, ExportReady, ExportRequest } from './tenant-export-store.ts';
+export { DOMAIN_FAILED_GAUGE, DOMAIN_REVOKED_EVENT, DOMAIN_VERIFIED_EVENT, TenantDomainStore, tenantOfDomain, tenantOfDomainId } from './tenant-domain-store.ts';
+export type { CertificatePort, DomainAdd, DomainPassResult, DomainPorts, DomainProofPort, DomainRow, DomainStatus, TlsStatus } from './tenant-domain-store.ts';
+export { MockCertificateAuthority, MockDomainProof, sharedMockDomainPorts } from './domain-ports.ts';

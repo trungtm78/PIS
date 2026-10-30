@@ -25,6 +25,11 @@ export interface CommandOptions {
    * tenant instead of the tenant plane; the idempotency record and the audit rows still belong to the platform tenant.
    */
   plane?: 'control';
+  /**
+   * Fields of the answer that are a secret shown once (a token the platform keeps the hash of). The caller gets them in the answer of the request; the answer kept for the replay of the idempotency key has them
+   * emptied (a string becomes '', anything else null), so the secret is never stored and a replay tells the caller to start again.
+   */
+  withheld?: readonly string[];
 }
 
 /** Marks a write handler as a command: it then runs idempotently, audited, in one tenant transaction. */

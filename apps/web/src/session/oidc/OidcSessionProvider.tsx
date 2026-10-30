@@ -50,6 +50,12 @@ const TOO_MANY_REQUESTS = 429;
 const IDEMPOTENCY_IN_PROGRESS = 'IDEMPOTENCY_IN_PROGRESS';
 const RETRY_AFTER_FAILURE_MS = 30_000;
 
+/** The host the page was opened on, sent with every request of the identity: a verified domain of a tenant chooses the tenant the sign-in starts from (ST-SAS-017). A host that is not a name (localhost) chooses nothing on the server. */
+function hostHeader(): Record<string, string> {
+  const host = globalThis.location?.hostname;
+  return host === undefined || host === '' ? {} : { 'x-tenant-host': host };
+}
+
 /** The server answered the command for good: a refusal of the request itself (4xx) is final, a lost or unfinished answer is not. */
 function isDefinitive(failure: unknown): boolean {
   if (!(failure instanceof ApiError)) return false;
@@ -194,7 +200,7 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
 
   const apiClient = useCallback(
     (token: () => Promise<string | undefined>): ApiClient =>
-      createApiClient({ baseUrl: apiBaseUrl, session: async () => {
+      createApiClient({ baseUrl: apiBaseUrl, headers: hostHeader, session: async () => {
         const value = await token();
         return value === undefined ? undefined : { token: value };
       }, ...(apiFetch === undefined ? {} : { fetch: apiFetch }) }),

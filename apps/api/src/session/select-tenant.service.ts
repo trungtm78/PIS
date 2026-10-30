@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { loadSelectionFacts } from '@machvon/db';
+import { loadSelectionFacts, tenantOfDomain } from '@machvon/db';
 import type { AuditWriter, ControlDatabase, IdempotencyStore, SelectionFacts, StoredResponse, TenantDatabase, UserSessionStore } from '@machvon/db';
-import { DomainError } from '@machvon/kernel';
+import { DomainError, normalizeHostname } from '@machvon/kernel';
 import type { MetricsSink, TenantContext } from '@machvon/kernel';
 import type { TenantTokenIssuer } from '../auth/tenant-token-issuer';
 import type { VerifiedIdentity } from '../auth/token-verifier';
@@ -25,6 +25,8 @@ export interface SelectTenantRequest {
   ipHash: string;
   userAgentSummary: string;
   correlationId: string;
+  /** The hostname the sign-in page was opened on, if the caller says so (`X-Tenant-Host`). */
+  host?: string;
 }
 
 /** The answer to a tenant selection: the SessionContext of the contract plus the token the caller uses from now on. */
@@ -50,6 +52,8 @@ export interface TenantSelectionCandidateView {
   status: string;
   valid_from: string;
   valid_until: string | null;
+  /** The tenant of the verified domain the sign-in was opened on (it gives no right: the membership does). */
+  preselected?: boolean;
 }
 
 export interface SelectTenantOutcome {
@@ -114,7 +118,8 @@ export class SelectTenantService {
   }
 
   /** Every membership of the person, with the tenant's name and state; ordered by tenant name and membership id. */
-  async candidates(userAccountId: string): Promise<TenantSelectionCandidateView[]> {
+  async candidates(userAccountId: string, host?: string): Promise<TenantSelectionCandidateView[]> {
+    const preselected = await this.tenantOfHost(host);
     const rows = await this.options.control.withControl((tx) =>
       tx.query<{ tenant_id: string; tenant_name: string; tenant_status: string; membership_id: string; membership_type: string; status: string; valid_from: Date; valid_until: Date | null }>(
         `select tenant_id, tenant_name, tenant_status, membership_id, membership_type, status, valid_from, valid_until
@@ -132,7 +137,15 @@ export class SelectTenantService {
       status: row.status,
       valid_from: row.valid_from.toISOString(),
       valid_until: row.valid_until === null ? null : row.valid_until.toISOString(),
+      ...(preselected === undefined ? {} : { preselected: row.tenant_id === preselected }),
     }));
+  }
+
+  /** The tenant that a hostname chooses at sign-in, or undefined for a hostname nobody has proved (the platform's own, or one that is not a hostname at all). */
+  private async tenantOfHost(host: string | undefined): Promise<string | undefined> {
+    const name = host === undefined ? undefined : normalizeHostname(host);
+    if (name === undefined) return undefined;
+    return this.options.control.withControl((tx) => tenantOfDomain(tx, name));
   }
 
   async select(request: SelectTenantRequest): Promise<SelectTenantOutcome> {
@@ -151,6 +164,9 @@ export class SelectTenantService {
     const candidates = await control.withControl((tx) =>
       tx.query<MembershipOfUser>('select tenant_id, membership_id, status, valid_from, valid_until, tenant_status from machvon.memberships_of_user($1::uuid)', [request.userAccountId]),
     );
+    // A domain chooses the tenant the sign-in starts from: on the domain of one tenant, another is refused with the answer a membership that is not the caller's gets.
+    const hostTenant = await this.tenantOfHost(request.host);
+    if (hostTenant !== undefined && hostTenant !== request.tenantId) throw new DomainError('TENANT_SELECTION_INVALID', 403);
     // A membership of someone else and one that does not exist are the same answer, and the answer names no tenant.
     const chosen = candidates.find((candidate) => candidate.membership_id === request.membershipId && candidate.tenant_id === request.tenantId);
     if (chosen === undefined) throw new DomainError('TENANT_SELECTION_INVALID', 403);

@@ -599,6 +599,7 @@ export const OPERATIONS = {
   "listSystemTenantLicenses": { method: "get", path: "/system/tenants/{tenantId}/licenses", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "listSystemTenantThemeVersions": { method: "get", path: "/system/tenants/{tenantId}/theme/versions", versioned: false, stepUp: null, permission: "system.theme.manage" },
   "listSystemTenants": { method: "get", path: "/system/tenants", versioned: false, stepUp: null, permission: "system.tenant.read" },
+  "listTenantDomains": { method: "get", path: "/system/tenants/{tenantId}/domains", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "listTenantEntitlementOverrides": { method: "get", path: "/system/tenants/{tenantId}/entitlement-overrides", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "listTenantExports": { method: "get", path: "/tenants/{id}/exports", versioned: false, stepUp: null, permission: "tenant.export" },
   "listTenantInvoices": { method: "get", path: "/system/tenants/{tenantId}/invoices", versioned: false, stepUp: null, permission: "system.tenant.read" },

@@ -157,6 +157,15 @@ describe('the real API bootstrap (ST-KERNEL-050)', () => {
       expect((await get(api, '/health/live')).status).toBe(200);
     });
 
+    it('lets the page state the host it was opened on in the preflight, so a verified domain can choose the tenant (ST-SAS-017)', async () => {
+      const api = await start();
+      const preflight = await fetch(`http://127.0.0.1:${api.port}/me/session/tenant-selection`, {
+        method: 'OPTIONS',
+        headers: { origin: 'https://app.example.test', 'access-control-request-method': 'POST', 'access-control-request-headers': 'x-tenant-host,authorization' },
+      });
+      expect(preflight.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('x-tenant-host');
+    });
+
     it('allows the configured origin only', async () => {
       const api = await start();
       const allowed = await get(api, '/health/live', { origin: 'https://app.example.test' });

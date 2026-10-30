@@ -98,6 +98,12 @@ describe('IAM-04 tenant chooser', () => {
     expect(within(cardOf('Lào Cai')).getByText(new RegExp(text('iam.tenantChooser.type.guest.label')))).toBeTruthy();
   });
 
+  it('shows the membership of the tenant of the verified domain first, and keeps the order of the others (ST-SAS-017)', async () => {
+    mount({ candidates: [ACTIVE, { ...SUSPENDED, preselected: false }, { ...GUEST, preselected: true }] });
+    const cards = await screen.findAllByRole('article');
+    expect(cards.map((card) => within(card).getByRole('heading').textContent)).toEqual(['Lào Cai', 'Cao Bằng', 'Hà Giang']);
+  });
+
   it('gives every choose button its own accessible name', async () => {
     mount();
     await screen.findAllByRole('article');

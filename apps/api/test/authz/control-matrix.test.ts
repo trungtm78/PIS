@@ -47,11 +47,14 @@ describe('control-plane authorization matrix generator', () => {
     expect(verdict('startTenantOffboarding')).toEqual(verdict('suspendTenant'));
     expect(verdict('archiveTenant')).toEqual(verdict('suspendTenant'));
     expect(verdict('listSystemTenantExports')).toEqual(verdict('listSystemTenants'));
+    // The domains of a tenant: written like the tenant itself, read like the registry.
+    for (const operationId of ['addTenantDomain', 'verifyTenantDomain', 'removeTenantDomain']) expect(verdict(operationId)).toEqual(verdict('suspendTenant'));
+    expect(verdict('listTenantDomains')).toEqual(verdict('listSystemTenants'));
     expect(verdict('requestSupportAccess')).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'deny', SupportOperator: 'allow' });
     for (const operationId of ['listPlanVersions', 'createPlanVersion', 'publishPlanVersion']) expect(verdict(operationId)).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'allow', SupportOperator: 'deny' });
   });
 
   it('derives the permission from the generated table', () => {
-    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(5).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.support.request', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.read', 'system.support.request']);
+    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(5).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.support.request', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.read', 'system.tenant.read', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.support.request']);
   });
 });

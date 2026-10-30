@@ -48040,6 +48040,16 @@
               "maxLength": 128
             },
             "description": "Scope tenant+subject+operation+key; same key+same body replays the stored result; same key+different body -> 409 IDEMPOTENCY_CONFLICT; in-flight -> 409 IDEMPOTENCY_IN_PROGRESS."
+          },
+          {
+            "name": "X-Tenant-Host",
+            "in": "header",
+            "required": false,
+            "description": "The hostname the sign-in page was opened on: when a verified domain on it belongs to a tenant, only that tenant may be selected (403 TENANT_SELECTION_INVALID otherwise)",
+            "schema": {
+              "type": "string",
+              "maxLength": 253
+            }
           }
         ],
         "responses": {
@@ -48189,7 +48199,18 @@
           }
         },
         "x-plane": "tenant",
-        "description": "The chooser of IAM-04 lists these memberships and then calls selectTenantContext. Authenticated with the identity token of the tenant client (not a tenant token); shows only the caller's own memberships and never any personal data. Added by CR-IAM-14: the design had no read for the memberships a person may select."
+        "description": "The chooser of IAM-04 lists these memberships and then calls selectTenantContext. Authenticated with the identity token of the tenant client (not a tenant token); shows only the caller's own memberships and never any personal data. Added by CR-IAM-14: the design had no read for the memberships a person may select.",
+        "parameters": [
+          {
+            "name": "host",
+            "in": "query",
+            "description": "The hostname the sign-in page was opened on; the membership of the tenant that has a verified domain on it is marked preselected",
+            "schema": {
+              "type": "string",
+              "maxLength": 253
+            }
+          }
+        ]
       }
     },
     "/me/profile": {
@@ -58244,6 +58265,108 @@
           }
         },
         "x-audit-action": "tenant.domain_added"
+      },
+      "get": {
+        "operationId": "listTenantDomains",
+        "summary": "Các tên miền của tenant: loại, trạng thái, chứng chỉ, lần kiểm tra cuối, hạn của thử thách (SAS-05)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "x-plane": "control",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDomainPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/system/tenant-domains/{domainId}/verify": {
@@ -148069,6 +148192,10 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "preselected": {
+            "type": "boolean",
+            "description": "The tenant of the verified domain the sign-in was opened on; it gives no right, the membership does"
           }
         }
       },
@@ -156329,6 +156456,137 @@
           "sha256": {
             "type": "string",
             "description": "The hash the bytes must have: the owner checks it after the download"
+          }
+        }
+      },
+      "TenantDomain": {
+        "type": "object",
+        "required": [
+          "id",
+          "hostname",
+          "kind",
+          "status",
+          "tls_status",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PLATFORM_SUBDOMAIN",
+              "CUSTOM"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PendingVerification",
+              "Verified",
+              "Active",
+              "Failed",
+              "Revoked"
+            ]
+          },
+          "tls_status": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Issued",
+              "Renewing",
+              "Failed"
+            ]
+          },
+          "tls_expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "verified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "last_checked_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "challenge_expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "revoked_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "reserved_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Until when the hostname of a released domain is held (90 days after the release)"
+          },
+          "failure_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "txt_record_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where the proof is published, for a custom domain that is not proved yet"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "TenantDomainPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantDomain"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }
