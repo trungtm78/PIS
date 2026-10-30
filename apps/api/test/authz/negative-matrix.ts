@@ -2217,6 +2217,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/asset-records/${t.assetId}/transfer`, ifMatch: '"1"', body: { transferred_on: '2026-10-25', commissioning_document_version_id: t.documentVersionId } }),
   },
+  linkOmPlan: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/asset-records/${t.assetId}/om-link`, body: { operator_unit_id: t.recipientMembershipId } }),
+  },
   // The households of a land recovery: a caller that is refused registers none and links none to a parcel.
   registerAffectedHousehold: {
     referencesTenantIds: true,

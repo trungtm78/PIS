@@ -355,7 +355,7 @@ export {
   isOpenCritical,
 } from './ast-handover.ts';
 export type { HandoverDecision, HandoverKind, HandoverStatus, PunchSeverity, PunchStatus, PunchVerification } from './ast-handover.ts';
-export { ASSET_STATUSES, VALUE_BASES, assertAssetTransfer, assertValueWithinContract, countsTowardsContract } from './ast-asset.ts';
+export { ASSET_STATUSES, MAX_MAINTENANCE_CYCLE_MONTHS, OPERATED_STATUSES, assertAssetOperated, VALUE_BASES, assertAssetTransfer, assertValueWithinContract, countsTowardsContract } from './ast-asset.ts';
 export type { AssetStatus, ValueBasis } from './ast-asset.ts';
 export { CLAIM_STATUSES, CONSTRUCTION_GRADES, WARRANTY_STATUSES, assertWarrantyClosure, assertWarrantyPeriod, effectiveWarrantyStatus, hasRunOut, isOpenClaim, minimumMonths, warrantyEndsOn } from './ast-warranty.ts';
 export type { ClaimStatus, ConstructionGrade, WarrantyClosure, WarrantyMinimums, WarrantyStatus } from './ast-warranty.ts';

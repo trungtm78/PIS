@@ -416,6 +416,7 @@
     "syncMetricRegistry",
     "terminateContract",
     "transferAsset",
+    "linkOmPlan",
     "transferIssueUnit",
     "updateCustomRole",
     "updateDoaMatrixDraft",

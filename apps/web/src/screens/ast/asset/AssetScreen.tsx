@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -130,6 +130,11 @@ function AssetContent({ route }: ScreenProps) {
                         {line.transferredOn === null ? null : <small className="sub qms-regime">{t('ast.asset.transferred.on', { day: line.transferredOn })}</small>}
                       </td>
                       <td>
+                        {line.status === 'TRANSFERRED' || line.status === 'IN_OPERATION' ? (
+                          <Link to={`/ast/ast-06?id=${line.id}`} data-om-link={line.id}>
+                            {t('ast.asset.omlink.action')}
+                          </Link>
+                        ) : null}
                         {writable && line.canTransfer ? (
                           <button type="button" data-transfer={line.id} onClick={() => setDialog({ kind: 'transfer', asset: line })}>
                             {t('ast.asset.transfer.action')}

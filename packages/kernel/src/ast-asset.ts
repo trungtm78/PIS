@@ -17,6 +17,16 @@ export function assertAssetTransfer(status: AssetStatus): void {
   if (status !== 'REGISTERED') throw new DomainError('ASSET_STATE_INVALID', 409, 'id', { extensions: { status } });
 }
 
+/** The statuses of an asset that has been handed to the unit that operates it: only such an asset is linked to a plan of operation and maintenance (422 `ASSET_NOT_TRANSFERRED` otherwise). */
+export const OPERATED_STATUSES: readonly AssetStatus[] = ['TRANSFERRED', 'IN_OPERATION'];
+
+export function assertAssetOperated(status: AssetStatus): void {
+  if (!OPERATED_STATUSES.includes(status)) throw new DomainError('ASSET_NOT_TRANSFERRED', 422, 'id', { extensions: { status } });
+}
+
+/** The cycle of maintenance, in whole months, from one to ten years. */
+export const MAX_MAINTENANCE_CYCLE_MONTHS = 120;
+
 /** The assets that count towards the value of a contract: every asset that was not disposed of. */
 export const countsTowardsContract = (status: AssetStatus): boolean => status !== 'DISPOSED';
 

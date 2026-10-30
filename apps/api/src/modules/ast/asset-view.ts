@@ -6,6 +6,7 @@ import { handoverRefs } from './handover-view';
 export interface AssetPermissions {
   manage: string;
   transfer: string;
+  linkOm: string;
 }
 
 /** An asset is worth a figure only to the people who register and transfer assets: the value is the books' and not the work's. */
@@ -15,8 +16,13 @@ function holdsValue(line: AssetLine, access: EffectiveAccess, now: Date, permiss
 }
 
 /** What the caller may do with the asset as it stands: it is registered and its handover is accepted, and the caller holds the right to transfer it over the contract or the receiving unit. */
-export function assetAllowed(line: AssetLine, access: EffectiveAccess, now: Date, permissions: AssetPermissions): { transfer: boolean } {
-  return { transfer: line.status === 'REGISTERED' && line.handover.status === 'ACCEPTED' && reaches(access, permissions.transfer, handoverRefs(line.reach), now) };
+export function assetAllowed(line: AssetLine, access: EffectiveAccess, now: Date, permissions: AssetPermissions): { transfer: boolean; link_om: boolean } {
+  const refs = handoverRefs(line.reach);
+  return {
+    transfer: line.status === 'REGISTERED' && line.handover.status === 'ACCEPTED' && reaches(access, permissions.transfer, refs, now),
+    // An asset that was handed to the unit that operates it takes one link to a plan of operation and maintenance.
+    link_om: (line.status === 'TRANSFERRED' || line.status === 'IN_OPERATION') && line.omLink === null && reaches(access, permissions.linkOm, refs, now),
+  };
 }
 
 /**
@@ -44,6 +50,19 @@ export function assetView(line: AssetLine, access: EffectiveAccess, now: Date, p
     warranty_until: line.warrantyUntil,
     commissioning_document_version_id: line.commissioningDocumentVersionId,
     external_asset_id: line.status === 'TRANSFERRED' || line.status === 'IN_OPERATION' ? line.externalAssetId : null,
+    om_link:
+      line.omLink === null
+        ? null
+        : {
+            id: line.omLink.id,
+            status: line.omLink.status,
+            operator_unit: { id: line.omLink.operatorUnit.id, code: line.omLink.operatorUnit.code, name: line.omLink.operatorUnit.name },
+            om_plan_document_version_id: line.omLink.omPlanDocumentVersionId,
+            om_contract_id: line.omLink.omContractId,
+            maintenance_cycle_months: line.omLink.maintenanceCycleMonths,
+            next_maintenance_due: line.omLink.nextMaintenanceDue,
+            external_system_ref: line.omLink.externalSystemRef,
+          },
     created_at: line.createdAt,
     allowed: assetAllowed(line, access, now, permissions),
     version: line.version,

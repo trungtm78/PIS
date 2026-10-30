@@ -559,7 +559,7 @@ export type {
 export { QmsAcceptanceStore } from './qms-acceptance-store.ts';
 export type { CreateInput as QmsCreateAcceptanceInput, DecisionInput as QmsDecideAcceptanceInput, QmsAcceptanceLine, QmsAcceptanceResult, SignatureLine as QmsSignatureLine, SignInput as QmsSignAcceptanceInput } from './qms-acceptance-store.ts';
 export { AstAssetStore } from './ast-asset-store.ts';
-export type { AssetFilter as AstAssetFilter, AssetLine, AssetResult as AstAssetResult, RegisterInput as AstRegisterAssetInput, TransferInput as AstTransferAssetInput } from './ast-asset-store.ts';
+export type { AssetFilter as AstAssetFilter, AssetLine, AssetResult as AstAssetResult, OmLink as AstOmLink, OmLinkInput as AstOmLinkInput, OmLinkResult as AstOmLinkResult, RegisterInput as AstRegisterAssetInput, TransferInput as AstTransferAssetInput } from './ast-asset-store.ts';
 export { AstHandoverStore, handoverScope } from './ast-handover-store.ts';
 export type {
   AddItemInput as AstAddPunchItemInput,

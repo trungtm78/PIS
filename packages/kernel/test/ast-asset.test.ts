@@ -1,5 +1,5 @@
 import type { DomainError } from '../src/errors';
-import { ASSET_STATUSES, assertAssetTransfer, assertValueWithinContract, countsTowardsContract } from '../src/ast-asset';
+import { ASSET_STATUSES, MAX_MAINTENANCE_CYCLE_MONTHS, OPERATED_STATUSES, assertAssetOperated, assertAssetTransfer, assertValueWithinContract, countsTowardsContract } from '../src/ast-asset';
 
 const failure = (work: () => unknown): DomainError => {
   try {
@@ -16,6 +16,15 @@ describe('the assets of a work (ST-AST-002, BR-AST-02, UAT-AC389)', () => {
     for (const status of ASSET_STATUSES.filter((candidate) => candidate !== 'REGISTERED')) {
       expect(failure(() => assertAssetTransfer(status))).toMatchObject({ code: 'ASSET_STATE_INVALID', status: 409, extensions: { status } });
     }
+  });
+
+  it('UAT-AC393: links an asset to a plan of operation only once it is handed to the unit that operates it', () => {
+    expect(OPERATED_STATUSES).toEqual(['TRANSFERRED', 'IN_OPERATION']);
+    for (const status of OPERATED_STATUSES) expect(() => assertAssetOperated(status)).not.toThrow();
+    for (const status of ASSET_STATUSES.filter((candidate) => !OPERATED_STATUSES.includes(candidate))) {
+      expect(failure(() => assertAssetOperated(status))).toMatchObject({ code: 'ASSET_NOT_TRANSFERRED', status: 422, extensions: { status } });
+    }
+    expect(MAX_MAINTENANCE_CYCLE_MONTHS).toBe(120);
   });
 
   it('counts every asset that was not disposed of towards the value of the contract', () => {

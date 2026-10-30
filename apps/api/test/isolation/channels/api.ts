@@ -545,6 +545,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'recordInspectionResult', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, versioned: true, body: { result: 'PASS', result_note: 'Isolation foreign inspection result', checklist: [] } },
   { operation: 'cancelInspection', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },
   { operation: 'getInspection', method: 'GET', id: INSPECTION_FIXTURES['TNT-B'].id },
+  { operation: 'linkOmPlan', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].assetId, body: { operator_unit_id: UNIT_FIXTURES['TNT-B'][1]?.id ?? '', maintenance_cycle_months: 6 } },
   { operation: 'transferAsset', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].assetId, versioned: true, body: { transferred_on: '2026-10-25', commissioning_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
   { operation: 'get_resources_asset_record_id', method: 'GET', id: HANDOVER_FIXTURES['TNT-B'].assetId },
   { operation: 'closeWarrantyObligation', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].warrantyId, body: { note: 'Isolation foreign close attempt' } },

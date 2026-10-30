@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { AstAssetStore, TenantDatabase, contractScope, handoverScope } from '@machvon/db';
-import type { AstAssetResult, ContractScopes, HandoverScopes } from '@machvon/db';
+import type { AstAssetResult, AstOmLinkResult, ContractScopes, HandoverScopes } from '@machvon/db';
 import { DomainError, asUuid } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -18,11 +18,12 @@ import type { AssetPermissions } from './asset-view';
 
 const MANAGE_PERMISSION = PERMISSIONS.registerAsset;
 const TRANSFER_PERMISSION = PERMISSIONS.transferAsset;
+const LINK_OM_PERMISSION = PERMISSIONS.linkOmPlan;
 const READ_PERMISSION = PERMISSIONS.get_resources_asset_record;
 const RESOURCE_TYPE = 'asset_record';
 const CLASSIFICATION = 'INTERNAL';
 
-const ACTION_PERMISSIONS: AssetPermissions = { manage: MANAGE_PERMISSION, transfer: TRANSFER_PERMISSION };
+const ACTION_PERMISSIONS: AssetPermissions = { manage: MANAGE_PERMISSION, transfer: TRANSFER_PERMISSION, linkOm: LINK_OM_PERMISSION };
 
 const contractScopesFor = (access: EffectiveAccess, permission: string, now: Date): ContractScopes => ({ update: contractScope(access, permission, now), read: contractScope(access, READ_PERMISSION, now) });
 const scopesFor = (access: EffectiveAccess, permission: string, now: Date): HandoverScopes => ({ update: handoverScope(access, permission, now), read: handoverScope(access, READ_PERMISSION, now) });
@@ -82,6 +83,55 @@ export class AssetController {
     );
     await this.written(scope, done, 'asset.transferred', 'ast.asset.transferred.v1', now);
     return commandResult(scope, done.status, done.version, done.id);
+  }
+
+  @Post('asset-records/:id/om-link')
+  @HttpCode(200)
+  @OperationId('linkOmPlan')
+  @Command({ operation: 'linkOmPlan' })
+  async linkOm(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['AstLinkOmPlan']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.assets.linkOm(
+      scope.tx,
+      id.toLowerCase(),
+      {
+        operatorUnitId: body.operator_unit_id,
+        omPlanDocumentVersionId: body.om_plan_document_version_id,
+        omContractId: body.om_contract_id,
+        maintenanceCycleMonths: body.maintenance_cycle_months,
+        nextMaintenanceDue: body.next_maintenance_due,
+        externalSystemRef: body.external_system_ref,
+      },
+      scope.tenant.membershipId,
+      scopesFor(access, LINK_OM_PERMISSION, now),
+    );
+    await this.linked(scope, done, now);
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
+  /** The audit row and the event of a link: ids, the unit, the cycle and the day of the next maintenance; the reference to the other system is typed by hand and stays in the table. */
+  private async linked(scope: CommandScope, done: AstOmLinkResult, now: Date): Promise<void> {
+    const facts = {
+      asset_id: done.assetId,
+      asset_code: done.assetCode,
+      project_id: done.projectId,
+      contract_id: done.contractId,
+      operator_unit_id: done.operatorUnitId,
+      om_plan_document_version_id: done.omPlanDocumentVersionId,
+      om_contract_id: done.omContractId,
+      maintenance_cycle_months: done.maintenanceCycleMonths,
+      next_maintenance_due: done.nextMaintenanceDue,
+    };
+    await scope.audit({ action: 'asset.om_linked', resourceType: 'om_link', resourceId: done.id, classification: CLASSIFICATION, diff: { status: done.status, ...facts } });
+    await scope.emit({
+      aggregateType: 'om_link',
+      aggregateId: done.id,
+      aggregateVersion: done.version,
+      type: 'ast.om_link.linked.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, om_link_id: done.id, ...facts, status: done.status, version: done.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `om_link:${done.id}:${done.version}`,
+    });
   }
 
   /** The audit row and the event of a command: ids, codes, statuses and the figures of the asset and of the contract it is booked under; the code of the asset in another system is an identifier, not a word. */

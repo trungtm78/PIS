@@ -228,6 +228,132 @@ describe('the assets of a work over HTTP (ST-AST-002)', () => {
     });
   });
 
+  describe('linkOmPlan (AC-ST-AST-005-1, UAT-AC393)', () => {
+    const OPERATING_UNIT = 8;
+    const linkOm = (member: number, assetId: string, overrides: Record<string, unknown> = {}) =>
+      call('POST', `/asset-records/${assetId}/om-link`, { member, body: { operator_unit_id: unitId(OPERATING_UNIT), maintenance_cycle_months: 6, next_maintenance_due: '2027-03-01', ...overrides } });
+    const linksOf = (assetId: string) =>
+      rows<{ id: string; status: string; operator_unit_id: string; maintenance_cycle_months: number | null; next_maintenance_due: string | null; external_system_ref: string | null }>(
+        'select id, status, operator_unit_id, maintenance_cycle_months, next_maintenance_due::text as next_maintenance_due, external_system_ref from machvon.om_link where asset_id = $1::uuid',
+        [assetId],
+      );
+    /** A contract of a project, to be the O&M contract of an asset. */
+    async function omContract(projectId: string): Promise<string> {
+      const contractId = randomUUID();
+      counter += 1;
+      await seedAs(harness, [
+        [
+          `insert into machvon.contract
+             (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, title, advance_category, is_joint_venture, requires_quality_acceptance, contract_value_vnd, created_by, updated_by, signed_on, effective_from)
+           values ($1, $2, $3, $4, $5, $6, 'UNIT_PRICE', 'VND', 'ACTIVE', 1, 'O&M', 'OTHER', false, false, 1000000, $7, $7, date '2026-01-02', date '2026-01-03')`,
+          [TENANT_A, contractId, projectId, randomUUID(), contractor, `OM-${String(counter).padStart(4, '0')}`, memberId(ROOT)],
+        ],
+      ]);
+      return contractId;
+    }
+
+    beforeAll(async () => {
+      await harness.seedUnits(TENANT_A, [{ n: OPERATING_UNIT, path: `/${unitId(OPERATING_UNIT)}/` }]);
+    });
+
+    it('AC-ST-AST-005-1 UAT-AC393: an asset that was not transferred is 422 ASSET_NOT_TRANSFERRED, a transferred one is linked, and a second link is 409 OM_LINK_EXISTS', async () => {
+      const subject = await target();
+      const registered = (await register(ACCOUNTANT, subject)).json.resource_id as string;
+      const refused = await linkOm(ACCOUNTANT, registered);
+      expect([refused.status, refused.json.code]).toEqual([422, 'ASSET_NOT_TRANSFERRED']);
+      expect(await linksOf(registered)).toEqual([]);
+      const assetId = (await register(ACCOUNTANT, subject)).json.resource_id as string;
+      expect((await transfer(OPERATOR, assetId, 1, { external_asset_id: 'TS-2027-009' })).status).toBe(200);
+      const done = await linkOm(ACCOUNTANT, assetId, { external_system_ref: '  CMMS-77  ' });
+      expect(done).toMatchObject({ status: 200, json: { status: 'LINKED', resource_version: 1 } });
+      expect(await linksOf(assetId)).toEqual([expect.objectContaining({ status: 'LINKED', operator_unit_id: unitId(OPERATING_UNIT), maintenance_cycle_months: 6, next_maintenance_due: '2027-03-01', external_system_ref: 'CMMS-77' })]);
+      const second = await linkOm(ACCOUNTANT, assetId, { maintenance_cycle_months: 12 });
+      expect([second.status, second.json.code]).toEqual([409, 'OM_LINK_EXISTS']);
+      expect(await linksOf(assetId)).toHaveLength(1);
+      // The asset shows the link, and says it takes no other.
+      const shown = await read(ACCOUNTANT, assetId);
+      expect(shown).toMatchObject({ om_link: { status: 'LINKED', maintenance_cycle_months: 6, next_maintenance_due: '2027-03-01', external_system_ref: 'CMMS-77', operator_unit: { id: unitId(OPERATING_UNIT) } }, allowed: { link_om: false }, external_asset_id: 'TS-2027-009' });
+      expect((await read(ACCOUNTANT, registered)).om_link).toBeNull();
+      const trail = await audits(done.json.resource_id as string, 'asset.om_linked');
+      expect(trail).toHaveLength(1);
+      expect(trail[0]?.safe_diff).toMatchObject({ asset_id: assetId, operator_unit_id: unitId(OPERATING_UNIT), maintenance_cycle_months: 6, next_maintenance_due: '2027-03-01' });
+      expect(JSON.stringify(trail)).not.toContain('CMMS-77');
+      expect((await events(done.json.resource_id as string, 'ast.om_link.linked.v1')).length).toBe(1);
+    });
+
+    it('offers the link to whoever may make it while the asset has none, and answers the same key once', async () => {
+      const subject = await target();
+      const assetId = (await register(ACCOUNTANT, subject)).json.resource_id as string;
+      expect((await read(ACCOUNTANT, assetId)).allowed).toEqual({ transfer: false, link_om: false });
+      await transfer(OPERATOR, assetId, 1);
+      expect((await read(ACCOUNTANT, assetId)).allowed).toEqual({ transfer: false, link_om: true });
+      expect((await read(READER, assetId)).allowed).toEqual({ transfer: false, link_om: false });
+      const key = `key-${randomUUID()}`;
+      const body = { operator_unit_id: unitId(OPERATING_UNIT) };
+      const first = await call('POST', `/asset-records/${assetId}/om-link`, { member: ACCOUNTANT, key, body });
+      const replay = await call('POST', `/asset-records/${assetId}/om-link`, { member: ACCOUNTANT, key, body });
+      expect(replay).toEqual(first);
+      expect(await linksOf(assetId)).toHaveLength(1);
+    });
+
+    it('takes a plan that is a clean file and a contract of the same project, a cycle of 1 to 120 months and a real day, and a unit of the tenant', async () => {
+      const subject = await target();
+      const assetId = (await register(ACCOUNTANT, subject)).json.resource_id as string;
+      await transfer(OPERATOR, assetId, 1);
+      const other = await target();
+      const sameProject = await omContract(subject.projectId);
+      const elsewhere = await omContract(other.projectId);
+      for (const [overrides, code, detail] of [
+        [{ operator_unit_id: 'x' }, 'VALIDATION_FAILED', 'operator_unit_id'],
+        [{ operator_unit_id: randomUUID() }, 'VALIDATION_FAILED', 'operator_unit_id'],
+        [{ om_plan_document_version_id: randomUUID() }, 'VALIDATION_FAILED', 'om_plan_document_version_id'],
+        [{ om_plan_document_version_id: PENDING }, 'DOCUMENT_NOT_CLEAN', 'om_plan_document_version_id'],
+        [{ om_contract_id: randomUUID() }, 'VALIDATION_FAILED', 'om_contract_id'],
+        [{ om_contract_id: elsewhere }, 'VALIDATION_FAILED', 'om_contract_id'],
+        [{ maintenance_cycle_months: 0 }, 'VALIDATION_FAILED', 'maintenance_cycle_months'],
+        [{ maintenance_cycle_months: 121 }, 'VALIDATION_FAILED', 'maintenance_cycle_months'],
+        [{ next_maintenance_due: '2027-02-30' }, 'VALIDATION_FAILED', 'next_maintenance_due'],
+        [{ external_system_ref: '' }, 'VALIDATION_FAILED', 'external_system_ref'],
+      ] as const) {
+        const refused = await linkOm(ACCOUNTANT, assetId, overrides);
+        expect([refused.status, refused.json.code, refused.json.detail]).toEqual([422, code, detail]);
+      }
+      // A cycle that is not a whole number is turned back by the shape of the request.
+      expect((await linkOm(ACCOUNTANT, assetId, { maintenance_cycle_months: 6.5 })).status).toBe(400);
+      expect(await linksOf(assetId)).toEqual([]);
+      const done = await linkOm(ACCOUNTANT, assetId, { om_plan_document_version_id: CLEAN, om_contract_id: sameProject, maintenance_cycle_months: 120 });
+      expect(done.status).toBe(200);
+      expect((await read(ACCOUNTANT, assetId)).om_link).toMatchObject({ om_plan_document_version_id: CLEAN, om_contract_id: sameProject, maintenance_cycle_months: 120 });
+    });
+
+    it('is for whoever holds the right over the asset: a caller without it is 403, one outside its scope 404, and another tenant\'s caller 404', async () => {
+      const subject = await target();
+      const assetId = (await register(ACCOUNTANT, subject)).json.resource_id as string;
+      await transfer(OPERATOR, assetId, 1);
+      expect((await linkOm(NOBODY, assetId)).status).toBe(403);
+      expect((await linkOm(READER, assetId)).status).toBe(403);
+      expect((await linkOm(OPERATOR, assetId)).status).toBe(403);
+      expect((await linkOm(ELSEWHERE, assetId)).status).toBe(404);
+      expect((await linkOm(ACCOUNTANT, randomUUID())).status).toBe(404);
+      expect((await call('POST', `/asset-records/${assetId}/om-link`, { member: FOREIGN, tenant: TENANT_B, body: { operator_unit_id: unitId(OPERATING_UNIT) } })).status).toBe(404);
+      expect(await linksOf(assetId)).toEqual([]);
+    });
+
+    it('does not let a link change what it says, or be deleted: it is suspended, and then the asset takes another', async () => {
+      const subject = await target();
+      const assetId = (await register(ACCOUNTANT, subject)).json.resource_id as string;
+      await transfer(OPERATOR, assetId, 1);
+      await linkOm(ACCOUNTANT, assetId);
+      const [link] = await linksOf(assetId);
+      await expect(rows("update machvon.om_link set maintenance_cycle_months = 24 where id = $1::uuid", [link?.id])).rejects.toThrow('what an operation link says never changes');
+      await expect(rows("update machvon.om_link set status = 'DRAFT' where id = $1::uuid", [link?.id])).rejects.toThrow();
+      await rows("update machvon.om_link set status = 'SUSPENDED' where id = $1::uuid", [link?.id]);
+      expect((await linkOm(ACCOUNTANT, assetId, { maintenance_cycle_months: 12 })).status).toBe(200);
+      expect((await linksOf(assetId)).map((each) => each.status).sort()).toEqual(['LINKED', 'SUSPENDED']);
+      expect((await rows<{ privilege: string }>("select privilege_type as privilege from information_schema.role_table_grants where grantee = 'machvon_app' and table_name = 'om_link' and privilege_type in ('DELETE', 'TRUNCATE')")).length).toBe(0);
+    });
+  });
+
   describe('reading', () => {
     it('shows the value and the code in the other system only to whoever may see them, and what each person may do', async () => {
       const subject = await target();

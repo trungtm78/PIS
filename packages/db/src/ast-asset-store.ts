@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ASSET_STATUSES, DomainError, VALUE_BASES, assertAssetTransfer, assertDayBetween, assertValueWithinContract, versionConflict, vietnamDateOf } from '@machvon/kernel';
+import { ASSET_STATUSES, DomainError, MAX_MAINTENANCE_CYCLE_MONTHS, VALUE_BASES, assertAssetOperated, assertAssetTransfer, assertDayBetween, assertValueWithinContract, versionConflict, vietnamDateOf } from '@machvon/kernel';
 import type { AssetStatus, ValueBasis } from '@machvon/kernel';
 import { CtrContractStore, SCOPE_FROM as CONTRACT_SCOPE_FROM, calendarDate, textOf, wholeAmount } from './ctr-contract-store.ts';
 import type { ContractScopes } from './ctr-contract-store.ts';
@@ -39,6 +39,43 @@ export interface TransferInput {
   transferredOn: string;
   commissioningDocumentVersionId: string;
   externalAssetId?: string | undefined;
+}
+
+export interface OmLinkInput {
+  operatorUnitId: string;
+  omPlanDocumentVersionId?: string | undefined;
+  omContractId?: string | undefined;
+  maintenanceCycleMonths?: number | undefined;
+  nextMaintenanceDue?: string | undefined;
+  externalSystemRef?: string | undefined;
+}
+
+/** The link of an asset to the unit that operates and maintains it. */
+export interface OmLink {
+  id: string;
+  status: string;
+  operatorUnit: { id: string; code: string; name: string };
+  omPlanDocumentVersionId: string | null;
+  omContractId: string | null;
+  maintenanceCycleMonths: number | null;
+  nextMaintenanceDue: string | null;
+  externalSystemRef: string | null;
+}
+
+/** What linking an asset did: the facts the audit row and the event carry. */
+export interface OmLinkResult {
+  id: string;
+  assetId: string;
+  assetCode: string;
+  projectId: string;
+  contractId: string;
+  operatorUnitId: string;
+  omPlanDocumentVersionId: string | null;
+  omContractId: string | null;
+  maintenanceCycleMonths: number | null;
+  nextMaintenanceDue: string | null;
+  status: 'LINKED';
+  version: number;
 }
 
 export interface AssetFilter {
@@ -89,6 +126,8 @@ export interface AssetLine {
   warrantyUntil: string | null;
   commissioningDocumentVersionId: string | null;
   externalAssetId: string | null;
+  /** The link to the unit that operates the asset, when there is one that is not suspended. */
+  omLink: OmLink | null;
   /** What the assets of the contract come to: the value of the contract is the ceiling of it. */
   contractAssetsVnd: string;
   createdAt: string;
@@ -121,6 +160,16 @@ interface LineSql {
   warranty_until: string | null;
   commissioning_document_version_id: string | null;
   external_asset_id: string | null;
+  om_id: string | null;
+  om_status: string | null;
+  om_unit_id: string | null;
+  om_unit_code: string | null;
+  om_unit_name: string | null;
+  om_plan_document_version_id: string | null;
+  om_contract_id: string | null;
+  om_cycle: number | null;
+  om_due: string | null;
+  om_ref: string | null;
   contract_assets_vnd: string;
   created_at: string;
   version: string;
@@ -139,9 +188,13 @@ const SELECT = `select a.id, a.asset_code, a.name, h.id as handover_id, h.handov
        c.project_id, a.recipient_unit_id, ru.code as recipient_unit_code, ru.name as recipient_unit_name, ru.path as recipient_unit_path, a.asset_class_master_version_id, a.value_vnd::text as value_vnd,
        a.value_basis, a.funding_origin, a.status, a.registered_on::text as registered_on, a.transferred_on::text as transferred_on, a.warranty_until::text as warranty_until,
        a.commissioning_document_version_id, a.external_asset_id,
+       l.id as om_id, l.status as om_status, l.operator_unit_id as om_unit_id, lu.code as om_unit_code, lu.name as om_unit_name, l.om_plan_document_version_id, l.om_contract_id, l.maintenance_cycle_months as om_cycle,
+       l.next_maintenance_due::text as om_due, l.external_system_ref as om_ref,
        (select coalesce(sum(x.value_vnd), 0)::text from machvon.asset_record x where x.tenant_id = a.tenant_id and x.source_contract_id = c.id and x.status <> 'DISPOSED') as contract_assets_vnd,
        ${timestampKey('a.created_at')} as created_at, a.version::text as version, ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path
-  from ${FROM}`;
+  from ${FROM}
+  left join machvon.om_link l on l.tenant_id = a.tenant_id and l.asset_id = a.id and l.status <> 'SUSPENDED'
+  left join machvon.organization_unit lu on lu.tenant_id = l.tenant_id and lu.id = l.operator_unit_id`;
 
 const toLine = (row: LineSql): AssetLine => ({
   id: row.id,
@@ -161,6 +214,19 @@ const toLine = (row: LineSql): AssetLine => ({
   warrantyUntil: row.warranty_until,
   commissioningDocumentVersionId: row.commissioning_document_version_id,
   externalAssetId: row.external_asset_id,
+  omLink:
+    row.om_id === null || row.om_unit_id === null
+      ? null
+      : {
+          id: row.om_id,
+          status: row.om_status ?? 'LINKED',
+          operatorUnit: { id: row.om_unit_id, code: row.om_unit_code ?? '', name: row.om_unit_name ?? '' },
+          omPlanDocumentVersionId: row.om_plan_document_version_id,
+          omContractId: row.om_contract_id,
+          maintenanceCycleMonths: row.om_cycle,
+          nextMaintenanceDue: row.om_due,
+          externalSystemRef: row.om_ref,
+        },
   contractAssetsVnd: row.contract_assets_vnd,
   createdAt: row.created_at,
   version: Number(row.version),
@@ -313,6 +379,59 @@ export class AstAssetStore {
       contractValueVnd: held.contract_value_vnd,
       transferredOn,
       externalAssetId: external ?? held.external_asset_id,
+    };
+  }
+
+  /**
+   * Links an asset that was transferred to the unit that operates and maintains it (AST 3.2, UAT-AC393): a plan of operation (a clean document of the tenant), a contract of the same project, the cycle in months and the next
+   * maintenance. An asset that was not transferred is 422 `ASSET_NOT_TRANSFERRED`; an asset has one link that is not suspended (409 `OM_LINK_EXISTS`). The code the asset has in the system of the operator is typed by hand.
+   */
+  async linkOm(tx: TenantTx, id: string, input: OmLinkInput, actor: string, scopes: HandoverScopes): Promise<OmLinkResult> {
+    const operatorId = idOf(input.operatorUnitId, 'operator_unit_id');
+    const documentId = optionalId(input.omPlanDocumentVersionId, 'om_plan_document_version_id');
+    const contractId = optionalId(input.omContractId, 'om_contract_id');
+    const cycle = input.maintenanceCycleMonths ?? null;
+    if (cycle !== null && (!Number.isInteger(cycle) || cycle < 1 || cycle > MAX_MAINTENANCE_CYCLE_MONTHS)) throw invalid('maintenance_cycle_months');
+    const due = input.nextMaintenanceDue === undefined ? null : calendarDate(input.nextMaintenanceDue, 'next_maintenance_due');
+    const reference = optionalText(input.externalSystemRef, 'external_system_ref');
+    const held = await this.lock(tx, id, scopes);
+    assertAssetOperated(held.status);
+    if ((await tx.query('select 1 from machvon.organization_unit where id = $1::uuid', [operatorId])).length === 0) throw invalid('operator_unit_id', 'NOT_FOUND');
+    if (documentId !== null) {
+      const documents = await tx.query<{ scan_status: string }>('select scan_status from machvon.document_version where id = $1::uuid', [documentId]);
+      if (documents[0] === undefined) throw invalid('om_plan_document_version_id', 'NOT_FOUND');
+      if (documents[0].scan_status !== 'CLEAN') throw new DomainError('DOCUMENT_NOT_CLEAN', 422, 'om_plan_document_version_id');
+    }
+    if (contractId !== null) {
+      const contracts = await tx.query<{ project_id: string }>('select project_id from machvon.contract where id = $1::uuid', [contractId]);
+      if (contracts[0] === undefined) throw invalid('om_contract_id', 'NOT_FOUND');
+      if (contracts[0].project_id !== held.project_id) throw invalid('om_contract_id', 'NOT_A_CONTRACT_OF_THE_PROJECT');
+    }
+    const linkId = randomUUID();
+    try {
+      await tx.query(
+        `insert into machvon.om_link
+           (tenant_id, id, asset_id, operator_unit_id, om_plan_document_version_id, om_contract_id, maintenance_cycle_months, next_maintenance_due, external_system_ref, status, created_by, updated_by, version)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::uuid, $6, $7::date, $8, 'LINKED', $9::uuid, $9::uuid, 1)`,
+        [linkId, held.id, operatorId, documentId, contractId, cycle, due, reference, actor],
+      );
+    } catch (error) {
+      if ((error as { code?: string }).code === UNIQUE_VIOLATION) throw new DomainError('OM_LINK_EXISTS', 409, 'id');
+      throw error;
+    }
+    return {
+      id: linkId,
+      assetId: held.id,
+      assetCode: held.asset_code,
+      projectId: held.project_id,
+      contractId: held.contract_id,
+      operatorUnitId: operatorId,
+      omPlanDocumentVersionId: documentId,
+      omContractId: contractId,
+      maintenanceCycleMonths: cycle,
+      nextMaintenanceDue: due,
+      status: 'LINKED',
+      version: 1,
     };
   }
 

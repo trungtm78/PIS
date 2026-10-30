@@ -95104,7 +95104,10 @@
         },
         "x-error-codes": [
           "ASSET_NOT_TRANSFERRED",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "OM_LINK_EXISTS",
+          "DOCUMENT_NOT_CLEAN",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [

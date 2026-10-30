@@ -5305,6 +5305,14 @@
       "module": "OMNI",
       "statusBasis": "convention",
       "source": "openapi"
+    },
+    "OM_LINK_EXISTS": {
+      "status": 409,
+      "title": "Asset already linked",
+      "meaning": "An asset has one link to a plan of operation and maintenance that is not suspended (AST 3.2, UAT-AC393).",
+      "module": "AST",
+      "statusBasis": "convention",
+      "source": "openapi"
     }
   }
 }

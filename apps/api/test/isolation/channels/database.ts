@@ -659,6 +659,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'post_handovers_id_decision',
   'registerAsset',
   'transferAsset',
+  'linkOmPlan',
   'get_resources_asset_record',
   'get_resources_asset_record_id',
   'createWarrantyObligation',
