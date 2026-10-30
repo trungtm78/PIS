@@ -7261,7 +7261,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các luồng thông báo của tenant, mới nhất trước; lọc theo loại sự kiện và trạng thái (NOT-06) */
+        get: operations["listNotificationWorkflows"];
         put?: never;
         /** Tạo nháp luồng thông báo (NOT-06), workflow_version kind=NOTIFICATION */
         post: operations["createNotificationWorkflowDraft"];
@@ -15168,6 +15169,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notification-event-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh mục sự kiện có thể gửi thông báo: mục đích được phép, phân loại dữ liệu, trạng thái (NOT-05) */
+        get: operations["listNotificationEventTypes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -16852,9 +16870,11 @@ export interface components {
             sample_variables: Record<string, never>;
         };
         NotificationWorkflowDraft: {
+            /** @description A registered, Active event type of the catalogue (listNotificationEventTypes); else 422 EVENT_TYPE_UNKNOWN */
             event_type: string;
-            business_type: string;
-            /** @description recipient_resolver, conditions, channel_plan[], fallback, delay, digest_allowed, priority, quiet_hours_override, expires_after_minutes, ack_required, escalation */
+            /** @description Optional; when given it must be the event type (a notification workflow is kept per event type) */
+            business_type?: string;
+            /** @description channels[{channel, templateCode}] in the order they are tried (the fallback), resolver{kind: explicit | role-in-scope, roles[]}, priority CRITICAL|HIGH|NORMAL|LOW, ackRequired, expiresAfterMinutes, purpose (one the event type allows), quietHoursOverride (CRITICAL only) with quietHoursOverrideReason; other keys are refused (422 WORKFLOW_DEFINITION_INVALID) */
             definition: Record<string, never>;
         };
         CampaignCreate: {
@@ -22118,6 +22138,45 @@ export interface components {
         };
         TenantDomainPage: {
             items: components["schemas"]["TenantDomain"][];
+            next_cursor: string | null;
+        };
+        NotificationEventType: {
+            event_type: string;
+            owning_module: string;
+            schema_version: number;
+            allowed_purposes: string[];
+            /** @enum {string} */
+            data_classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL";
+            /** @enum {string} */
+            status: "Active" | "Deprecated";
+        };
+        NotificationEventTypePage: {
+            items: components["schemas"]["NotificationEventType"][];
+        };
+        NotificationWorkflow: {
+            /** Format: uuid */
+            id: string;
+            event_type: string;
+            revision: number;
+            /** @enum {string} */
+            status: "Draft" | "Published" | "Superseded" | "Retired";
+            definition: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            created_by: string;
+            /** Format: uuid */
+            published_by?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            published_at?: string | null;
+            /** Format: uuid */
+            supersedes_id?: string | null;
+            version: number;
+        };
+        NotificationWorkflowPage: {
+            items: components["schemas"]["NotificationWorkflow"][];
             next_cursor: string | null;
         };
     };
@@ -66132,6 +66191,67 @@ export interface operations {
             };
             /** @description VALIDATION_FAILED / domain invariant */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listNotificationWorkflows: {
+        parameters: {
+            query?: {
+                event_type?: string;
+                status?: "Draft" | "Published" | "Superseded" | "Retired";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationWorkflowPage"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -113309,6 +113429,53 @@ export interface operations {
             };
             /** @description EXPORT_EXPIRED */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listNotificationEventTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationEventTypePage"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

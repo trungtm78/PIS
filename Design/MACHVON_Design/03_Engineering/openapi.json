@@ -63898,6 +63898,107 @@
           }
         },
         "x-audit-action": "notification.workflow_created"
+      },
+      "get": {
+        "operationId": "listNotificationWorkflows",
+        "summary": "Các luồng thông báo của tenant, mới nhất trước; lọc theo loại sự kiện và trạng thái (NOT-06)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "notification.publish",
+        "x-plane": "tenant",
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "event_type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Published",
+                "Superseded",
+                "Retired"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationWorkflowPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/notification-campaigns": {
@@ -130966,6 +131067,60 @@
           }
         }
       }
+    },
+    "/notification-event-types": {
+      "get": {
+        "operationId": "listNotificationEventTypes",
+        "summary": "Danh mục sự kiện có thể gửi thông báo: mục đích được phép, phân loại dữ liệu, trạng thái (NOT-05)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "notification.publish",
+        "x-plane": "tenant",
+        "x-error-codes": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationEventTypePage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -137448,19 +137603,22 @@
         "additionalProperties": false,
         "required": [
           "event_type",
-          "business_type",
           "definition"
         ],
         "properties": {
           "event_type": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 120,
+            "description": "A registered, Active event type of the catalogue (listNotificationEventTypes); else 422 EVENT_TYPE_UNKNOWN"
           },
           "business_type": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 120,
+            "description": "Optional; when given it must be the event type (a notification workflow is kept per event type)"
           },
           "definition": {
             "type": "object",
-            "description": "recipient_resolver, conditions, channel_plan[], fallback, delay, digest_allowed, priority, quiet_hours_override, expires_after_minutes, ack_required, escalation"
+            "description": "channels[{channel, templateCode}] in the order they are tried (the fallback), resolver{kind: explicit | role-in-scope, roles[]}, priority CRITICAL|HIGH|NORMAL|LOW, ackRequired, expiresAfterMinutes, purpose (one the event type allows), quietHoursOverride (CRITICAL only) with quietHoursOverrideReason; other keys are refused (422 WORKFLOW_DEFINITION_INVALID)"
           }
         }
       },
@@ -156580,6 +156738,155 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TenantDomain"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "NotificationEventType": {
+        "type": "object",
+        "required": [
+          "event_type",
+          "owning_module",
+          "schema_version",
+          "allowed_purposes",
+          "data_classification",
+          "status"
+        ],
+        "properties": {
+          "event_type": {
+            "type": "string"
+          },
+          "owning_module": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "integer"
+          },
+          "allowed_purposes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "data_classification": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "INTERNAL",
+              "CONFIDENTIAL",
+              "PERSONAL"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Active",
+              "Deprecated"
+            ]
+          }
+        }
+      },
+      "NotificationEventTypePage": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationEventType"
+            }
+          }
+        }
+      },
+      "NotificationWorkflow": {
+        "type": "object",
+        "required": [
+          "id",
+          "event_type",
+          "revision",
+          "status",
+          "definition",
+          "created_by",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Published",
+              "Superseded",
+              "Retired"
+            ]
+          },
+          "definition": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "published_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "published_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "supersedes_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "NotificationWorkflowPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationWorkflow"
             }
           },
           "next_cursor": {

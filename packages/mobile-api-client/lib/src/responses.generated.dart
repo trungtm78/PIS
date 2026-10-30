@@ -577,6 +577,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMyDevices': ListMyDevicesResponse.fromJson,
   'listMyNotifications': NotificationPageResponse.fromJson,
   'listMySessions': ListMySessionsResponse.fromJson,
+  'listNotificationEventTypes': NotificationEventTypePageResponse.fromJson,
+  'listNotificationWorkflows': NotificationWorkflowPageResponse.fromJson,
   'listOutgoingDocuments': asObject,
   'listOverdueAdvances': asObject,
   'listPaymentForms': PayPaymentFormPageResponse.fromJson,
@@ -13666,6 +13668,78 @@ final class MneObligationStatusResponseItemsItem implements ResponseModel {
       };
 }
 
+final class NotificationEventTypePageResponse implements ResponseModel {
+  const NotificationEventTypePageResponse({
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory NotificationEventTypePageResponse.fromJson(Object? json, [String path = 'NotificationEventTypePageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return NotificationEventTypePageResponse(
+      items: requiredField(map, path, 'items', asList(NotificationEventTypeResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'items'}, strict: false),
+    );
+  }
+
+  final List<NotificationEventTypeResponse> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class NotificationEventTypeResponse implements ResponseModel {
+  const NotificationEventTypeResponse({
+    required this.eventType,
+    required this.owningModule,
+    required this.schemaVersion,
+    required this.allowedPurposes,
+    required this.dataClassification,
+    required this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory NotificationEventTypeResponse.fromJson(Object? json, [String path = 'NotificationEventTypeResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return NotificationEventTypeResponse(
+      eventType: requiredField(map, path, 'event_type', asString),
+      owningModule: requiredField(map, path, 'owning_module', asString),
+      schemaVersion: requiredField(map, path, 'schema_version', asInt),
+      allowedPurposes: requiredField(map, path, 'allowed_purposes', asList(asString)),
+      dataClassification: requiredField(map, path, 'data_classification', asString),
+      status: requiredField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'event_type', 'owning_module', 'schema_version', 'allowed_purposes', 'data_classification', 'status'}, strict: false),
+    );
+  }
+
+  final String eventType;
+  final String owningModule;
+  final int schemaVersion;
+  final List<String> allowedPurposes;
+  final String dataClassification;
+  final String status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'event_type': eventType,
+        'owning_module': owningModule,
+        'schema_version': schemaVersion,
+        'allowed_purposes': allowedPurposes,
+        'data_classification': dataClassification,
+        'status': status,
+        ...extra,
+      };
+}
+
 final class NotificationPageResponse implements ResponseModel {
   const NotificationPageResponse({
     required this.items,
@@ -13746,6 +13820,102 @@ final class NotificationPageResponseItemsItem implements ResponseModel {
         if (ackRequired != null) 'ack_required': ackRequired,
         if (acknowledgedAt != null) 'acknowledged_at': acknowledgedAt,
         if (resourceRef != null) 'resource_ref': resourceRef,
+        ...extra,
+      };
+}
+
+final class NotificationWorkflowPageResponse implements ResponseModel {
+  const NotificationWorkflowPageResponse({
+    required this.items,
+    required this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory NotificationWorkflowPageResponse.fromJson(Object? json, [String path = 'NotificationWorkflowPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return NotificationWorkflowPageResponse(
+      items: requiredField(map, path, 'items', asList(NotificationWorkflowResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final List<NotificationWorkflowResponse> items;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class NotificationWorkflowResponse implements ResponseModel {
+  const NotificationWorkflowResponse({
+    required this.id,
+    required this.eventType,
+    required this.revision,
+    required this.status,
+    required this.definition,
+    required this.createdBy,
+    required this.createdAt,
+    required this.version,
+    this.publishedBy,
+    this.publishedAt,
+    this.supersedesId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory NotificationWorkflowResponse.fromJson(Object? json, [String path = 'NotificationWorkflowResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return NotificationWorkflowResponse(
+      id: requiredField(map, path, 'id', asString),
+      eventType: requiredField(map, path, 'event_type', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      status: requiredField(map, path, 'status', asString),
+      definition: requiredField(map, path, 'definition', asObject),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      publishedBy: optionalField(map, path, 'published_by', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      publishedAt: optionalField(map, path, 'published_at', nullable(asString)),
+      supersedesId: optionalField(map, path, 'supersedes_id', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'event_type', 'revision', 'status', 'definition', 'created_by', 'published_by', 'created_at', 'published_at', 'supersedes_id', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String eventType;
+  final int revision;
+  final String status;
+  final Map<String, Object?> definition;
+  final String createdBy;
+  final String? publishedBy;
+  final String createdAt;
+  final String? publishedAt;
+  final String? supersedesId;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'event_type': eventType,
+        'revision': revision,
+        'status': status,
+        'definition': definition,
+        'created_by': createdBy,
+        if (publishedBy != null) 'published_by': publishedBy,
+        'created_at': createdAt,
+        if (publishedAt != null) 'published_at': publishedAt,
+        if (supersedesId != null) 'supersedes_id': supersedesId,
+        'version': version,
         ...extra,
       };
 }

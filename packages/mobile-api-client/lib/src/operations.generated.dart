@@ -576,6 +576,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listMyDevices': OperationDescriptor(method: 'GET', path: '/me/devices', versioned: false, stepUp: null, permission: 'session.self'),
   'listMyNotifications': OperationDescriptor(method: 'GET', path: '/me/notifications', versioned: false, stepUp: null, permission: 'notification.self'),
   'listMySessions': OperationDescriptor(method: 'GET', path: '/me/sessions', versioned: false, stepUp: null, permission: 'session.self'),
+  'listNotificationEventTypes': OperationDescriptor(method: 'GET', path: '/notification-event-types', versioned: false, stepUp: null, permission: 'notification.publish'),
+  'listNotificationWorkflows': OperationDescriptor(method: 'GET', path: '/notification-workflows', versioned: false, stepUp: null, permission: 'notification.publish'),
   'listOutgoingDocuments': OperationDescriptor(method: 'GET', path: '/outgoing-documents', versioned: false, stepUp: null, permission: 'doc.outgoing.read'),
   'listOverdueAdvances': OperationDescriptor(method: 'GET', path: '/advances/overdue', versioned: false, stepUp: null, permission: 'advance.read'),
   'listPaymentForms': OperationDescriptor(method: 'GET', path: '/payment-requests/{id}/forms', versioned: false, stepUp: null, permission: 'payment_request.read'),

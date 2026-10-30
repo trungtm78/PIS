@@ -1196,6 +1196,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       templateId,
       layoutProfileId,
       notificationId,
+      notificationWorkflowId: id(0x71, 1),
       consentId: id(0x7e, 1),
       legalHoldId,
       registerId,

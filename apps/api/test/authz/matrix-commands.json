@@ -30,6 +30,8 @@
     "cancelContractDraft",
     "cancelInspection",
     "cancelNotification",
+    "createNotificationWorkflowDraft",
+    "post_notification_workflows_id_publish",
     "cancelOutgoingDocument",
     "cancelPaymentRequest",
     "cancelProject",

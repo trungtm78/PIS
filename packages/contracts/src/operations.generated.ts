@@ -574,6 +574,8 @@ export const OPERATIONS = {
   "listMyDevices": { method: "get", path: "/me/devices", versioned: false, stepUp: null, permission: "session.self" },
   "listMyNotifications": { method: "get", path: "/me/notifications", versioned: false, stepUp: null, permission: "notification.self" },
   "listMySessions": { method: "get", path: "/me/sessions", versioned: false, stepUp: null, permission: "session.self" },
+  "listNotificationEventTypes": { method: "get", path: "/notification-event-types", versioned: false, stepUp: null, permission: "notification.publish" },
+  "listNotificationWorkflows": { method: "get", path: "/notification-workflows", versioned: false, stepUp: null, permission: "notification.publish" },
   "listOutgoingDocuments": { method: "get", path: "/outgoing-documents", versioned: false, stepUp: null, permission: "doc.outgoing.read" },
   "listOverdueAdvances": { method: "get", path: "/advances/overdue", versioned: false, stepUp: null, permission: "advance.read" },
   "listPaymentForms": { method: "get", path: "/payment-requests/{id}/forms", versioned: false, stepUp: null, permission: "payment_request.read" },

@@ -116,6 +116,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_delivery_attempt_id', method: 'GET', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].id },
   { operation: 'post_notifications_id_replay', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign replay attempt', evidence_ids: [] } },
   { operation: 'cancelNotification', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancel attempt' } },
+  { operation: 'post_notification_workflows_id_publish', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].workflowId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign publish attempt', evidence_ids: [] } },
   { operation: 'withdrawMyConsent', method: 'POST', id: CONSENT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign withdrawal attempt' } },
   { operation: 'get_resources_contact_consent_id', method: 'GET', id: CONSENT_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_audit_event_id', method: 'GET', id: AUDIT_EVENT_FIXTURES['TNT-B'].id },

@@ -15,6 +15,8 @@ export interface MatrixTargets {
   grantToRevoke: string;
   /** A notification of RECIPIENT: the notification commands name it in the path. */
   notificationId: string;
+  /** The notification workflow in force of tenant A (kind NOTIFICATION): the publication names it in the path. */
+  notificationWorkflowId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
   consentId: string;
   /** An Active tenant-wide legal hold of tenant A. */
@@ -2618,6 +2620,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   cancelNotification: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/notifications/${t.notificationId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createNotificationWorkflowDraft: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/notification-workflows', body: { event_type: 'matrix.notification', definition: {} } }),
+  },
+  post_notification_workflows_id_publish: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notification-workflows/${t.notificationWorkflowId}/publish`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
   },
   updateMyNotificationPreferences: {
     referencesTenantIds: false,

@@ -7561,18 +7561,18 @@ final class MneReportEdit implements RequestModel {
 final class NotificationWorkflowDraft implements RequestModel {
   const NotificationWorkflowDraft({
     required this.eventType,
-    required this.businessType,
     required this.definition,
+    this.businessType,
   });
 
   final String eventType;
-  final String businessType;
+  final String? businessType;
   final Map<String, Object?> definition;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'event_type': eventType,
-        'business_type': businessType,
+        if (businessType != null) 'business_type': businessType,
         'definition': definition,
       };
 }
