@@ -14,6 +14,8 @@ import { ContactConsentReadsController, MyConsentsController } from '../../notif
 import { NotificationInstancesController, NotificationsController } from '../../notifications/notifications.controller';
 import { MyPreferencesController } from '../../notifications/preferences/preferences.controller';
 import { MyPreferencesReadController } from '../../notifications/preferences/preferences-read.controller';
+import { DeviceRegistrationsController } from '../../notifications/devices/devices.controller';
+import { InMemoryPushTokenVault, PUSH_TOKEN_VAULT } from '../../notifications/devices/push-vault';
 import { NotificationTemplatesController } from '../../notifications/templates/templates.controller';
 import { NotificationWorkflowsController } from '../../notifications/workflows/workflows.controller';
 import { ADM_INBOX_HANDLERS } from '../adm/tokens';
@@ -40,6 +42,7 @@ export const notificationsModule = defineModule({
     ContactConsentReadsController,
     NotificationWorkflowsController,
     NotificationTemplatesController,
+    DeviceRegistrationsController,
   ],
   // The provider webhook finds its tenant through the control plane (the channel account of the receipt), so it is active only where the application has one.
   controlPlane: { controllers: [ChannelWebhookController] },
@@ -47,6 +50,8 @@ export const notificationsModule = defineModule({
     // MACHVON_ENVIRONMENT names the deployment; unset or unknown means production, where no MOCK adapter is registered and no channel can send.
     { provide: CHANNEL_ADAPTERS, useFactory: () => defaultChannelAdapters(process.env.MACHVON_ENVIRONMENT) },
     { provide: WEBHOOK_SECRETS, useFactory: () => new EnvironmentWebhookSecrets() },
+    // The push tokens wait in memory until the vault of the platform is deployed (MOCK): the same vault serves the registration and the revocation of a device.
+    { provide: PUSH_TOKEN_VAULT, useClass: InMemoryPushTokenVault },
     { provide: WEBHOOK_PAYLOADS, useFactory: () => defaultWebhookPayloads() },
     {
       provide: DELIVERY_ENGINE,

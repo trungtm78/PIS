@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Injectable, Param, ParseUUIDPipe, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Injectable, Optional, Param, ParseUUIDPipe, Post, Put, Req } from '@nestjs/common';
 import { IamSelfStore, TenantDatabase } from '@machvon/db';
 import type { ProfileRecord } from '@machvon/db';
 import { DomainError, parseProfilePatch } from '@machvon/kernel';
@@ -8,6 +8,8 @@ import { commandResult } from '../command-result';
 import type { CommandResult } from '../command-result';
 import type { CommandScope } from '../command-scope';
 import type { Schemas } from '../contract-types';
+import { PUSH_TOKEN_VAULT } from '../notifications/devices/push-vault';
+import type { PushTokenVault } from '../notifications/devices/push-vault';
 import { OperationId } from '../operation-id.decorator';
 import { principalOf } from '../principal';
 import { CurrentTenant } from '../tenant-context.decorator';
@@ -59,6 +61,7 @@ export class SelfServiceController {
     @Inject(TenantDatabase) private readonly database: TenantDatabase,
     @Inject(SESSION_REVOCATION) private readonly revocation: SessionRevocationSink,
     @Inject(IDENTITY_LOGOUT) private readonly identity: IdentityLogout,
+    @Optional() @Inject(PUSH_TOKEN_VAULT) private readonly pushTokens?: PushTokenVault,
   ) {}
 
   @Get('me/profile')
@@ -131,6 +134,7 @@ export class SelfServiceController {
       if (done.revokedDeviceId !== null) await this.deviceRevoked(scope, done.revokedDeviceId, done.revokedSessionIds);
       // After the commit: the deny-list refuses the session at once, and the identity provider ends its own.
       scope.afterCommit(() => this.cut(done.revokedSessionIds, done.idpSessionIds));
+      scope.afterCommit(() => this.dropTokens(done.removedSecretRefs));
     } else {
       // Asking again changes nothing, but the request is on the record all the same.
       await scope.audit({ action: 'session.revoke_repeated', resourceType: SESSION_RESOURCE, resourceId: id, reason, diff: {} });
@@ -150,6 +154,7 @@ export class SelfServiceController {
       await scope.audit({ action: 'device.revoked', resourceType: DEVICE_RESOURCE, resourceId: id, reason, diff: { sessions_revoked: done.revokedSessionIds.length } });
       await this.deviceRevoked(scope, id, done.revokedSessionIds);
       scope.afterCommit(() => this.cut(done.revokedSessionIds, done.idpSessionIds));
+      scope.afterCommit(() => this.dropTokens(done.removedSecretRefs));
     } else {
       await scope.audit({ action: 'device.revoke_repeated', resourceType: DEVICE_RESOURCE, resourceId: id, reason, diff: {} });
     }
@@ -166,6 +171,13 @@ export class SelfServiceController {
       payload: { tenant_id: scope.tenant.tenantId, device_id: deviceId, membership_id: scope.tenant.membershipId, session_ids: sessionIds, occurred_at: new Date().toISOString() },
       eventKey: `${DEVICE_RESOURCE}:${deviceId}:revoked`,
     });
+  }
+
+  /** The push tokens of the devices that went are taken out of the vault once the revocation is committed: a device that signed out is never written to again. A vault that cannot be reached leaves a token that no row refers to (the reference is already gone from the row). */
+  private async dropTokens(refs: readonly string[]): Promise<void> {
+    if (this.pushTokens === undefined) return;
+    const vault = this.pushTokens;
+    await Promise.allSettled(refs.map((ref) => vault.remove(ref)));
   }
 
   private async cut(sessionIds: readonly string[], idpSessionIds: readonly string[]): Promise<void> {

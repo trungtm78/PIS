@@ -321,6 +321,41 @@
       "location": "snapshot_id",
       "reason": "the read of one template revision is the revision itself, not a page",
       "change_request": "ST-NOT-005"
+    },
+    {
+      "operation": "get_resources_device_registration",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the device reads were scaffolds with a generic page and no client; they now return the typed devices, without token or whole public id",
+      "change_request": "ST-NOT-006"
+    },
+    {
+      "operation": "get_resources_device_registration_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one device is the device itself, not a page",
+      "change_request": "ST-NOT-006"
+    },
+    {
+      "operation": "get_resources_device_registration_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one device is the device itself, not a page",
+      "change_request": "ST-NOT-006"
+    },
+    {
+      "operation": "get_resources_device_registration_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one device is the device itself, not a page",
+      "change_request": "ST-NOT-006"
+    },
+    {
+      "operation": "get_resources_device_registration_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one device is the device itself, not a page",
+      "change_request": "ST-NOT-006"
     }
   ]
 }

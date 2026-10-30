@@ -293,8 +293,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_delegation_grant_id': GetResourcesDelegationGrantIdResponse.fromJson,
   'get_resources_delivery_attempt': GetResourcesDeliveryAttemptResponse.fromJson,
   'get_resources_delivery_attempt_id': GetResourcesDeliveryAttemptIdResponse.fromJson,
-  'get_resources_device_registration': GetResourcesDeviceRegistrationResponse.fromJson,
-  'get_resources_device_registration_id': GetResourcesDeviceRegistrationIdResponse.fromJson,
+  'get_resources_device_registration': DeviceRegistrationPageResponse.fromJson,
+  'get_resources_device_registration_id': DeviceRegistrationResponse.fromJson,
   'get_resources_doa_matrix_version': GetResourcesDoaMatrixVersionResponse.fromJson,
   'get_resources_doa_matrix_version_id': GetResourcesDoaMatrixVersionIdResponse.fromJson,
   'get_resources_document_version': GetResourcesDocumentVersionResponse.fromJson,
@@ -3906,6 +3906,106 @@ final class CtrMeasurementPageResponse implements ResponseModel {
         'items': items.map((e0) => e0.toJson()).toList(),
         'next_cursor': nextCursor,
         'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DeviceRegistrationPageResponse implements ResponseModel {
+  const DeviceRegistrationPageResponse({
+    required this.items,
+    required this.nextCursor,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DeviceRegistrationPageResponse.fromJson(Object? json, [String path = 'DeviceRegistrationPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DeviceRegistrationPageResponse(
+      items: requiredField(map, path, 'items', asList(DeviceRegistrationResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<DeviceRegistrationResponse> items;
+  final String? nextCursor;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DeviceRegistrationResponse implements ResponseModel {
+  const DeviceRegistrationResponse({
+    required this.id,
+    required this.membershipId,
+    required this.platform,
+    required this.deviceHint,
+    required this.permissionState,
+    required this.appVersion,
+    required this.locale,
+    required this.lastSeenAt,
+    required this.status,
+    this.revokedAt,
+    this.revokeReason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DeviceRegistrationResponse.fromJson(Object? json, [String path = 'DeviceRegistrationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DeviceRegistrationResponse(
+      id: requiredField(map, path, 'id', asString),
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      platform: requiredField(map, path, 'platform', asString),
+      deviceHint: requiredField(map, path, 'device_hint', asString),
+      permissionState: requiredField(map, path, 'permission_state', asString),
+      appVersion: requiredField(map, path, 'app_version', asString),
+      locale: requiredField(map, path, 'locale', asString),
+      lastSeenAt: requiredField(map, path, 'last_seen_at', asString),
+      status: requiredField(map, path, 'status', asString),
+      revokedAt: optionalField(map, path, 'revoked_at', nullable(asString)),
+      revokeReason: optionalField(map, path, 'revoke_reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'membership_id', 'platform', 'device_hint', 'permission_state', 'app_version', 'locale', 'last_seen_at', 'status', 'revoked_at', 'revoke_reason'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String membershipId;
+  final String platform;
+  final String deviceHint;
+  final String permissionState;
+  final String appVersion;
+  final String locale;
+  final String lastSeenAt;
+  final String status;
+  final String? revokedAt;
+  final String? revokeReason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'membership_id': membershipId,
+        'platform': platform,
+        'device_hint': deviceHint,
+        'permission_state': permissionState,
+        'app_version': appVersion,
+        'locale': locale,
+        'last_seen_at': lastSeenAt,
+        'status': status,
+        if (revokedAt != null) 'revoked_at': revokedAt,
+        if (revokeReason != null) 'revoke_reason': revokeReason,
         ...extra,
       };
 }
@@ -7854,82 +7954,6 @@ final class GetResourcesDeliveryAttemptResponse implements ResponseModel {
   factory GetResourcesDeliveryAttemptResponse.fromJson(Object? json, [String path = 'GetResourcesDeliveryAttemptResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesDeliveryAttemptResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesDeviceRegistrationIdResponse implements ResponseModel {
-  const GetResourcesDeviceRegistrationIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesDeviceRegistrationIdResponse.fromJson(Object? json, [String path = 'GetResourcesDeviceRegistrationIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesDeviceRegistrationIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesDeviceRegistrationResponse implements ResponseModel {
-  const GetResourcesDeviceRegistrationResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesDeviceRegistrationResponse.fromJson(Object? json, [String path = 'GetResourcesDeviceRegistrationResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesDeviceRegistrationResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),

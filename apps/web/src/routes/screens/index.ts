@@ -275,6 +275,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'NOT-12': () => import('../../screens/not/JourneyScreen'),
   'NOT-13': () => import('../../screens/not/FailedQueueScreen'),
   'NOT-03': () => import('../../screens/not/PreferencesScreen'),
+  'NOT-14': () => import('../../screens/not/DeviceListScreen'),
   'NOT-17': () => import('../../screens/not/ConsentHistoryScreen'),
   'SAS-01': () => import('../../screens/sas/TenantListScreen'),
   'SAS-02': () => import('../../screens/sas/TenantCreateScreen'),

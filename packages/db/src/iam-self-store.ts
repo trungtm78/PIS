@@ -38,12 +38,15 @@ export interface SessionRevocation {
   revokedDeviceId: string | null;
   alreadyRevoked: boolean;
   idpSessionIds: string[];
+  /** The references of the push tokens that went with the device: the caller removes the tokens from the vault once the revocation is committed. */
+  removedSecretRefs: string[];
 }
 
 export interface DeviceRevocation {
   revokedSessionIds: string[];
   alreadyRevoked: boolean;
   idpSessionIds: string[];
+  removedSecretRefs: string[];
 }
 
 interface ProfileRow {
@@ -133,27 +136,44 @@ export class IamSelfStore {
    * receives no push and keeps no session. The device is locked before the session, as in `revokeDevice`, so that the two never wait for each other.
    */
   async revokeSession(tx: TenantTx, membershipId: string, sessionId: string, currentSessionId: string, reason: string): Promise<SessionRevocation> {
-    const [peek] = await tx.query<{ id: string; device_registration_id: string | null }>('select id, device_registration_id from machvon.user_session where id = $1::uuid and membership_id = $2::uuid', [sessionId, membershipId]);
-    if (peek === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    if (peek.id === currentSessionId) throw new DomainError('SESSION_CURRENT', 422);
-    // Removing the device of a session would sign out every session opened on it: if the session of the request is one of them, it is the current session that would go.
-    if (peek.device_registration_id !== null) {
-      const [mine] = await tx.query<{ device_registration_id: string | null }>('select device_registration_id from machvon.user_session where id = $1::uuid and membership_id = $2::uuid', [currentSessionId, membershipId]);
-      if (mine?.device_registration_id === peek.device_registration_id) throw new DomainError('SESSION_CURRENT', 422);
+    // The device a session is opened on can be set while this runs (a device registers for the session of the request): the device is locked first, then the session, and when the session turns out to be on a
+    // device other than the one that was locked the lock on the session is let go (the savepoint) and the order is taken again from the start, so that two commands never wait for each other.
+    let row: { id: string; idp_session_id: string; revoked: boolean; device_registration_id: string | null } | undefined;
+    for (let attempt = 0; ; attempt += 1) {
+      await tx.query('savepoint revoke_session_lock');
+      const [peek] = await tx.query<{ id: string; device_registration_id: string | null }>('select id, device_registration_id from machvon.user_session where id = $1::uuid and membership_id = $2::uuid', [sessionId, membershipId]);
+      if (peek === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      if (peek.id === currentSessionId) throw new DomainError('SESSION_CURRENT', 422);
+      if (peek.device_registration_id !== null) await tx.query('select id from machvon.device_registration where id = $1::uuid and membership_id = $2::uuid for update', [peek.device_registration_id, membershipId]);
+      // Removing the device of a session would sign out every session opened on it: if the session of the request is one of them, it is the current session that would go. It is looked at once the device is locked, which
+      // serializes it with a registration that is tying the session of the request to that device.
+      if (peek.device_registration_id !== null) {
+        const [mine] = await tx.query<{ device_registration_id: string | null }>('select device_registration_id from machvon.user_session where id = $1::uuid and membership_id = $2::uuid', [currentSessionId, membershipId]);
+        if (mine?.device_registration_id === peek.device_registration_id) throw new DomainError('SESSION_CURRENT', 422);
+      }
+      const [locked] = await tx.query<{ id: string; idp_session_id: string; revoked: boolean; device_registration_id: string | null }>(
+        'select id, idp_session_id, revoked_at is not null as revoked, device_registration_id from machvon.user_session where id = $1::uuid and membership_id = $2::uuid for update',
+        [sessionId, membershipId],
+      );
+      if (locked === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      if (locked.device_registration_id !== peek.device_registration_id) {
+        await tx.query('rollback to savepoint revoke_session_lock');
+        // The session was moved to another device every time: nothing is revoked on a device that was not locked and checked, and the caller is told to ask again.
+        if (attempt >= 3) throw new DomainError('IDEMPOTENCY_IN_PROGRESS', 409, undefined, { headers: { 'Retry-After': '1' } });
+        continue;
+      }
+      await tx.query('release savepoint revoke_session_lock');
+      row = locked;
+      break;
     }
-    if (peek.device_registration_id !== null) await tx.query('select id from machvon.device_registration where id = $1::uuid and membership_id = $2::uuid for update', [peek.device_registration_id, membershipId]);
-    const [row] = await tx.query<{ id: string; idp_session_id: string; revoked: boolean; device_registration_id: string | null }>(
-      'select id, idp_session_id, revoked_at is not null as revoked, device_registration_id from machvon.user_session where id = $1::uuid and membership_id = $2::uuid for update',
-      [sessionId, membershipId],
-    );
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    if (row.revoked) return { revokedSessionIds: [], revokedDeviceId: null, alreadyRevoked: true, idpSessionIds: [] };
+    if (row.revoked) return { revokedSessionIds: [], revokedDeviceId: null, alreadyRevoked: true, idpSessionIds: [], removedSecretRefs: [] };
     if (row.device_registration_id !== null) {
       const closed = await this.closeDevice(tx, membershipId, row.device_registration_id, reason);
-      return { revokedSessionIds: closed.sessions.map((entry) => entry.id), revokedDeviceId: closed.deviceRevoked ? row.device_registration_id : null, alreadyRevoked: false, idpSessionIds: closed.sessions.map((entry) => entry.idp) };
+      return { revokedSessionIds: closed.sessions.map((entry) => entry.id), revokedDeviceId: closed.deviceRevoked ? row.device_registration_id : null, alreadyRevoked: false, idpSessionIds: closed.sessions.map((entry) => entry.idp), removedSecretRefs: closed.secretRefs };
     }
     await tx.query('update machvon.user_session set revoked_at = now(), revoke_reason = $2 where id = $1::uuid and revoked_at is null', [row.id, reason]);
-    return { revokedSessionIds: [row.id], revokedDeviceId: null, alreadyRevoked: false, idpSessionIds: [row.idp_session_id] };
+    return { revokedSessionIds: [row.id], revokedDeviceId: null, alreadyRevoked: false, idpSessionIds: [row.idp_session_id], removedSecretRefs: [] };
   }
 
   /** Removes a device of the caller: the row is revoked and the reference of its push token is taken away; every live session opened on it is signed out (the request's own, if it was opened on it). Asking again closes any that is still live. */
@@ -161,16 +181,18 @@ export class IamSelfStore {
     const [device] = await tx.query<{ id: string }>('select id from machvon.device_registration where id = $1::uuid and membership_id = $2::uuid for update', [deviceId, membershipId]);
     if (device === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const closed = await this.closeDevice(tx, membershipId, device.id, reason);
-    return { revokedSessionIds: closed.sessions.map((entry) => entry.id), alreadyRevoked: !closed.deviceRevoked && closed.sessions.length === 0, idpSessionIds: closed.sessions.map((entry) => entry.idp) };
+    return { revokedSessionIds: closed.sessions.map((entry) => entry.id), alreadyRevoked: !closed.deviceRevoked && closed.sessions.length === 0, idpSessionIds: closed.sessions.map((entry) => entry.idp), removedSecretRefs: closed.secretRefs };
   }
 
   /** The device (locked by the caller) is revoked if it is live, and every live session opened on it is signed out, whether or not the device was live. */
-  private async closeDevice(tx: TenantTx, membershipId: string, deviceId: string, reason: string): Promise<{ deviceRevoked: boolean; sessions: Array<{ id: string; idp: string }> }> {
+  private async closeDevice(tx: TenantTx, membershipId: string, deviceId: string, reason: string): Promise<{ deviceRevoked: boolean; sessions: Array<{ id: string; idp: string }>; secretRefs: string[] }> {
+    // The reference goes from the row with the revocation: it is read first (the row is locked by the caller) so that the token can be taken out of the vault.
+    const [held] = await tx.query<{ push_secret_ref: string | null }>('select push_secret_ref from machvon.device_registration where id = $1::uuid and revoked_at is null', [deviceId]);
     const removed = await tx.query<{ id: string }>('update machvon.device_registration set revoked_at = now(), push_secret_ref = null, revoke_reason = $2 where id = $1::uuid and revoked_at is null returning id', [deviceId, reason]);
     const closed = await tx.query<{ id: string; idp_session_id: string }>(
       'update machvon.user_session set revoked_at = now(), revoke_reason = $2 where device_registration_id = $1::uuid and membership_id = $3::uuid and revoked_at is null returning id, idp_session_id',
       [deviceId, reason, membershipId],
     );
-    return { deviceRevoked: removed.length > 0, sessions: closed.map((row) => ({ id: row.id, idp: row.idp_session_id })) };
+    return { deviceRevoked: removed.length > 0, sessions: closed.map((row) => ({ id: row.id, idp: row.idp_session_id })), secretRefs: removed.length > 0 && held?.push_secret_ref != null ? [held.push_secret_ref] : [] };
   }
 }

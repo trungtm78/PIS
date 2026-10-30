@@ -22237,6 +22237,33 @@ export interface components {
             /** @description The people a test message may be sent to (at most ten, Active members of the tenant) */
             membership_ids: string[];
         };
+        DeviceRegistration: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            membership_id: string;
+            /** @enum {string} */
+            platform: "ios" | "android" | "web";
+            /** @description The start and the end of the public id of the device, never the whole of it */
+            device_hint: string;
+            /** @enum {string} */
+            permission_state: "granted" | "denied" | "provisional" | "unknown";
+            app_version: string;
+            locale: string;
+            /** Format: date-time */
+            last_seen_at: string;
+            /** @enum {string} */
+            status: "Active" | "Revoked";
+            /** Format: date-time */
+            revoked_at?: string | null;
+            revoke_reason?: string | null;
+        };
+        DeviceRegistrationPage: {
+            items: components["schemas"]["DeviceRegistration"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of?: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -38211,6 +38238,9 @@ export interface operations {
     get_resources_device_registration: {
         parameters: {
             query?: {
+                status?: "Active" | "Revoked";
+                platform?: "ios" | "android" | "web";
+                membership_id?: string;
                 cursor?: string;
                 limit?: number;
             };
@@ -38226,13 +38256,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["DeviceRegistrationPage"];
                 };
             };
             /** @description Invalid request */
@@ -38329,13 +38353,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["DeviceRegistration"];
                 };
             };
             /** @description Invalid request */

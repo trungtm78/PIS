@@ -2631,6 +2631,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/notification-workflows/${t.notificationWorkflowId}/publish`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
   },
+  registerDevice: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/devices', body: { device_public_id: 'matrix-device-public-0001', platform: 'android', push_token: 'matrix-push-token', permission_state: 'granted', app_version: '1.0.0' } }),
+  },
   createTemplateRevision: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/notification-templates', body: { code: 'matrix.template', channel: 'EMAIL', locale: 'vi-VN', purpose: 'OPERATIONAL', content_ast: { body: 'Hello' }, variable_schema: {} } }),

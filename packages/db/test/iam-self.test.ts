@@ -105,6 +105,59 @@ describe('the profile, the sessions and the devices of a person (ST-IAM-006)', (
       expect(JSON.stringify(listed)).not.toContain('aaaaaaaaaaaaaaaa');
     });
 
+    it('takes the locks again, device first, when a device is tied to the session while the revocation is running: it then closes the device too, and the token reference goes with it', async () => {
+      const mine = await session(ME);
+      const current = await session(ME);
+      const bound = await device(ME);
+      let tied = false;
+      const result = await as((tx) => {
+        // Between the look at the session and the lock on it (the first lock on the session), the device registers for the session (another transaction, committed).
+        const interleaved: TenantTx = {
+          query: async <R,>(sql: string, params?: unknown[]): Promise<R[]> => {
+            if (!tied && sql.startsWith('select id, idp_session_id, revoked_at is not null')) {
+              tied = true;
+              await owner('update machvon.user_session set device_registration_id = $1::uuid where id = $2::uuid', [bound, mine]);
+            }
+            return tx.query<R>(sql, params);
+          },
+        };
+        return self.revokeSession(interleaved, memberId(ME), mine, current, 'USER_REVOKED');
+      });
+      expect(tied).toBe(true);
+      expect(result).toMatchObject({ alreadyRevoked: false, revokedDeviceId: bound, revokedSessionIds: [mine] });
+      expect(result.removedSecretRefs).toEqual([`secret://push/${bound}`]);
+      const [row] = await owner<{ revoked_at: Date | null; push_secret_ref: string | null }>('select revoked_at, push_secret_ref from machvon.device_registration where id = $1', [bound]);
+      expect(row?.revoked_at).not.toBeNull();
+      expect(row?.push_secret_ref).toBeNull();
+    });
+
+    it('asks the caller to try again, and revokes nothing, when the session is moved to another device every time it is looked at', async () => {
+      const mine = await session(ME);
+      const current = await session(ME);
+      const devices = [await device(ME), await device(ME), await device(ME), await device(ME), await device(ME)];
+      let moves = 0;
+      const failure = await refusal(
+        as((tx) => {
+          const interleaved: TenantTx = {
+            query: async <R,>(sql: string, params?: unknown[]): Promise<R[]> => {
+              if (sql.startsWith('select id, idp_session_id, revoked_at is not null') && moves < devices.length) {
+                await owner('update machvon.user_session set device_registration_id = $1::uuid where id = $2::uuid', [devices[moves], mine]);
+                moves += 1;
+              }
+              return tx.query<R>(sql, params);
+            },
+          };
+          return self.revokeSession(interleaved, memberId(ME), mine, current, 'USER_REVOKED');
+        }),
+      );
+      expect(failure).toMatchObject({ code: 'IDEMPOTENCY_IN_PROGRESS', status: 409 });
+      expect(moves).toBe(4);
+      const [row] = await owner<{ revoked_at: Date | null }>('select revoked_at from machvon.user_session where id = $1', [mine]);
+      expect(row?.revoked_at).toBeNull();
+      const open = await owner<{ n: string }>('select count(*)::text as n from machvon.device_registration where id = any($1::uuid[]) and revoked_at is null', [devices]);
+      expect(open[0]?.n).toBe('5');
+    });
+
     it('AC-ST-IAM-006-1: revokes another session of the member, never the one the request is made with, never another member\'s, and does the same twice', async () => {
       const mine = await session(ME);
       const current = await session(ME);

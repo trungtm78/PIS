@@ -116,6 +116,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_delivery_attempt_id', method: 'GET', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].id },
   { operation: 'post_notifications_id_replay', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign replay attempt', evidence_ids: [] } },
   { operation: 'cancelNotification', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancel attempt' } },
+  { operation: 'get_resources_device_registration_id', method: 'GET', id: SELF_FIXTURES['TNT-B'].deviceId },
   { operation: 'get_resources_notification_template_version_id', method: 'GET', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].templateId },
   { operation: 'submitTemplateRevision', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].templateId, versioned: true, body: { reason: 'Isolation foreign submit attempt' } },
   { operation: 'decideTemplateRevision', method: 'POST', id: DELIVERY_ATTEMPT_FIXTURES['TNT-B'].templateId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision attempt', evidence_ids: [] } },

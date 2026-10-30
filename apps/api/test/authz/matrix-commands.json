@@ -32,6 +32,7 @@
     "cancelNotification",
     "createNotificationWorkflowDraft",
     "createTemplateRevision",
+    "registerDevice",
     "submitTemplateRevision",
     "decideTemplateRevision",
     "sendTestNotification",
