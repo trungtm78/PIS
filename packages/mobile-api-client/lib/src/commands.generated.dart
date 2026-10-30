@@ -763,6 +763,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getCumulativeLedger({required String id, Map<String, Object?>? query}) =>
       execute('getCumulativeLedger', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getDeliveryOverview({Map<String, Object?>? query}) =>
+      execute('getDeliveryOverview', query: query);
+
   Future<Object?> getDiaryCoverage({required String id, Map<String, Object?>? query}) =>
       execute('getDiaryCoverage', path: <String, Object?>{'id': id}, query: query);
 

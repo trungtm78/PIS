@@ -189,6 +189,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'registerDevice',
         'post_sync_batches',
         'get_sync_commands_key',
+        'setChannelLimits',
+        'getDeliveryOverview',
         'post_sync_attachments',
         'post_sync_attachments_id_complete',
         'get_sync_attachments_id',

@@ -7,6 +7,7 @@ import { channelCallbackHandler } from './callback-handler';
 import { PushChannelAdapter } from '../push/push-adapter';
 import { MockPushProvider } from '../push/ports';
 import { ChannelAdapterRegistry, inMemoryEmailAdapter } from './channel-adapters';
+import { SmsHoursAdapter } from './sms-adapter';
 import type { WebhookPayloadStore } from './webhook-support';
 
 /**
@@ -18,7 +19,7 @@ export function defaultChannelAdapters(environment: string | undefined): Channel
   return new ChannelAdapterRegistry(
     isProductionEnvironment(environment)
       ? []
-      : [inMemoryEmailAdapter(), new PushChannelAdapter('mock-fcm', 'PUSH_FCM', new MockPushProvider()), new PushChannelAdapter('mock-apns', 'PUSH_APNS', new MockPushProvider())],
+      : [inMemoryEmailAdapter(), new PushChannelAdapter('mock-fcm', 'PUSH_FCM', new MockPushProvider()), new PushChannelAdapter('mock-apns', 'PUSH_APNS', new MockPushProvider()), new SmsHoursAdapter()],
     environment,
   );
 }

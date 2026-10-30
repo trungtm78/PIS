@@ -131341,6 +131341,118 @@
           }
         }
       }
+    },
+    "/delivery-overview": {
+      "get": {
+        "operationId": "getDeliveryOverview",
+        "summary": "Tổng quan vận hành giao tin của kỳ: tỷ lệ giao theo kênh (công thức BR-NOT-14), Unknown cần đối soát, hạn mức và chi phí của từng tài khoản kênh (NOT-04, NOT-15)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "delivery_attempt.read",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -138020,6 +138132,14 @@
             "type": "string",
             "minLength": 10,
             "maxLength": 2000
+          },
+          "clear_daily_send_cap": {
+            "type": "boolean",
+            "description": "Takes the daily cap off (a limit is not cleared with null, which a generated client cannot write)"
+          },
+          "clear_monthly_budget": {
+            "type": "boolean",
+            "description": "Takes the monthly budget off"
           }
         }
       },
@@ -157641,6 +157761,140 @@
               }
             },
             "description": "Fresh links for the chunks still to send; empty once the file is no longer being uploaded"
+          }
+        }
+      },
+      "DeliveryOverview": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "as_of",
+          "channels",
+          "accounts"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The cutoff of the period"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "channel",
+                "delivered",
+                "read",
+                "ended",
+                "suppressed",
+                "unknown",
+                "failed",
+                "denominator",
+                "delivered_rate"
+              ],
+              "properties": {
+                "channel": {
+                  "type": "string"
+                },
+                "delivered": {
+                  "type": "integer"
+                },
+                "read": {
+                  "type": "integer"
+                },
+                "ended": {
+                  "type": "integer",
+                  "description": "Attempts of the period that ended: delivered, read, failed, suppressed or unknown"
+                },
+                "suppressed": {
+                  "type": "integer"
+                },
+                "unknown": {
+                  "type": "integer",
+                  "description": "Shown apart, and counted in the denominator"
+                },
+                "failed": {
+                  "type": "integer"
+                },
+                "denominator": {
+                  "type": "integer",
+                  "description": "ended - suppressed (BR-NOT-14)"
+                },
+                "delivered_rate": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "(delivered + read) / denominator in percent, two decimals; null when nothing was sent"
+                }
+              }
+            }
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "channel_account_id",
+                "channel",
+                "display_name",
+                "status",
+                "sent_today",
+                "spent_month_vnd",
+                "held_by_limit"
+              ],
+              "properties": {
+                "channel_account_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "channel": {
+                  "type": "string"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "daily_send_cap": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "sent_today": {
+                  "type": "integer"
+                },
+                "monthly_budget_vnd": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "spent_month_vnd": {
+                  "type": "string",
+                  "description": "Estimated, as the prices written on the attempts added up"
+                },
+                "held_by_limit": {
+                  "type": "integer",
+                  "description": "Messages waiting because the cap or the budget was reached"
+                },
+                "version": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         }
       }

@@ -15221,6 +15221,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/delivery-overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tổng quan vận hành giao tin của kỳ: tỷ lệ giao theo kênh (công thức BR-NOT-14), Unknown cần đối soát, hạn mức và chi phí của từng tài khoản kênh (NOT-04, NOT-15) */
+        get: operations["getDeliveryOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -16956,6 +16973,10 @@ export interface components {
             /** @description Integer VND as decimal string */
             monthly_budget_vnd?: string;
             reason: string;
+            /** @description Takes the daily cap off (a limit is not cleared with null, which a generated client cannot write) */
+            clear_daily_send_cap?: boolean;
+            /** @description Takes the monthly budget off */
+            clear_monthly_budget?: boolean;
         };
         ChannelAccountConnect: {
             /** @enum {string} */
@@ -22359,6 +22380,47 @@ export interface components {
                 index: number;
                 /** @description Where to PUT the bytes of this chunk: signed for this chunk and the tenant, valid for a few minutes */
                 url: string;
+            }[];
+        };
+        DeliveryOverview: {
+            /** Format: date-time */
+            from: string;
+            /**
+             * Format: date-time
+             * @description The cutoff of the period
+             */
+            to: string;
+            /** Format: date-time */
+            as_of: string;
+            channels: {
+                channel: string;
+                delivered: number;
+                read: number;
+                /** @description Attempts of the period that ended: delivered, read, failed, suppressed or unknown */
+                ended: number;
+                suppressed: number;
+                /** @description Shown apart, and counted in the denominator */
+                unknown: number;
+                failed: number;
+                /** @description ended - suppressed (BR-NOT-14) */
+                denominator: number;
+                /** @description (delivered + read) / denominator in percent, two decimals; null when nothing was sent */
+                delivered_rate: number | null;
+            }[];
+            accounts: {
+                /** Format: uuid */
+                channel_account_id: string;
+                channel: string;
+                display_name: string;
+                status: string;
+                daily_send_cap?: number | null;
+                sent_today: number;
+                monthly_budget_vnd?: string | null;
+                /** @description Estimated, as the prices written on the attempts added up */
+                spent_month_vnd: string;
+                /** @description Messages waiting because the cap or the budget was reached */
+                held_by_limit: number;
+                version?: number;
             }[];
         };
     };
@@ -113798,6 +113860,92 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SyncAttachmentStatus"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure (period locked, license expired) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getDeliveryOverview: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Accepted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliveryOverview"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

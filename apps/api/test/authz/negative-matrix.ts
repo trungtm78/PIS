@@ -2633,6 +2633,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/notification-workflows/${t.notificationWorkflowId}/publish`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
   },
+  setChannelLimits: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'PUT', path: `/channel-accounts/${t.channelAccountId}/limits`, ifMatch: '"1"', body: { daily_send_cap: 100, reason: REASON } }),
+  },
   post_sync_batches: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/sync/batches', body: { device_id: '00000000-0000-4000-8000-0000000000a1', items: [{ idempotency_key: 'matrix-sync-key-000001', command_type: 'issue.create', base_server_version: 0, payload: {} }] } }),

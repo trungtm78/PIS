@@ -65,6 +65,8 @@ export interface ChannelAdapter {
   readonly paid: boolean;
   /** How this provider signs its callbacks. */
   readonly signature: ProviderSignatureScheme;
+  /** When the channel is closed for sending at the moment (the hours of a text message), the instant it opens again; undefined when it is open. The send is put back for then without being taken up. */
+  closedUntil?(now: Date): Date | undefined;
   send(request: ChannelSendRequest): Promise<ChannelSendResult>;
   lookup(idempotencyKey: string): Promise<ChannelLookupResult>;
   /** Reads a callback body; undefined when it is not one the adapter understands. */

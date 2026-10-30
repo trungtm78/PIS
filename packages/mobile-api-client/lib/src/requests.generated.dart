@@ -2159,17 +2159,23 @@ final class ChannelLimits implements RequestModel {
     required this.reason,
     this.dailySendCap,
     this.monthlyBudgetVnd,
+    this.clearDailySendCap,
+    this.clearMonthlyBudget,
   });
 
   final int? dailySendCap;
   final String? monthlyBudgetVnd;
   final String reason;
+  final bool? clearDailySendCap;
+  final bool? clearMonthlyBudget;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         if (dailySendCap != null) 'daily_send_cap': dailySendCap,
         if (monthlyBudgetVnd != null) 'monthly_budget_vnd': monthlyBudgetVnd,
         'reason': reason,
+        if (clearDailySendCap != null) 'clear_daily_send_cap': clearDailySendCap,
+        if (clearMonthlyBudget != null) 'clear_monthly_budget': clearMonthlyBudget,
       };
 }
 

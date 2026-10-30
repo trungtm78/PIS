@@ -5,7 +5,9 @@ import {
   MAX_ATTEMPTS_PER_CHANNEL,
   NOOP_METRICS,
   RECONCILE_WINDOW_SECONDS,
+  CHANNEL_UNIT_COST_VND,
   CREDENTIAL_EXPIRED_CODE,
+  meterOfChannel,
   attemptStatusOf,
   decideRetry,
   isUsable,
@@ -16,9 +18,11 @@ import type { ChannelLookupResult, ChannelSendResult, DeliveryStatus, MetricsSin
 import type { AuditWriter } from './audit-writer.ts';
 import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
 import { DeliveryGate, QUIET_HOURS_CODE } from './delivery-gate.ts';
+import { DeliveryLimits } from './delivery-limits.ts';
 import { DeliveryStore, externalChannelsOf } from './delivery-store.ts';
 import type { AttemptRecord, FailureClass, LockedNotification } from './delivery-store.ts';
 import { ProviderCallbackStore } from './provider-callback-store.ts';
+import { UsageMeterStore } from './usage-meter-store.ts';
 import type { ProviderItemRef } from './provider-callback-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -120,6 +124,7 @@ export class DeliveryEngine {
   private readonly dedupeKeyOf: DeliveryEngineOptions['dedupeKeyOf'];
   private readonly audit: DeliveryEngineOptions['audit'];
   private readonly gate: DeliveryGate;
+  private readonly limits = new DeliveryLimits();
 
   constructor(options: DeliveryEngineOptions) {
     this.metrics = options.metrics ?? NOOP_METRICS;
@@ -181,6 +186,15 @@ export class DeliveryEngine {
       await this.suppressAttempt(tx, notification, attempt, unusableCodeOf(holder.status), now);
       return { kind: 'SKIPPED', reason: 'SUPPRESSED' };
     }
+    // The cap and the budget of the account (BR-NOT-13): an ordinary message that would go over waits for the next day or month; CRITICAL never waits for money.
+    const limit = await this.limits.check(tx, attempt.channelAccountId, attempt.channel, notification.priority, now);
+    if (limit.kind === 'HOLD') {
+      // Woken no later than the notification expires, so its expiry is still processed at its deadline and not at the next reset.
+      const wake = new Date(Math.min(limit.until.getTime(), notification.expiresAt.getTime()));
+      await tx.query('update machvon.delivery_attempt set next_retry_at = $2::timestamptz, error_code = $3 where id = $1::uuid', [attempt.id, wake.toISOString(), limit.code]);
+      this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: 'held_by_limit' });
+      return { kind: 'SKIPPED', reason: 'DEFERRED' };
+    }
     // The person decides before the provider does: a preference, a consent or quiet hours are checked here, in the transaction that takes the send up.
     const decision = await this.gate.decide(tx, notification, attempt.channel, now);
     if (decision.kind === 'SUPPRESS') {
@@ -198,7 +212,8 @@ export class DeliveryEngine {
       await tx.query('update machvon.delivery_attempt set next_retry_at = $2::timestamptz where id = $1::uuid', [attempt.id, (circuit.retryAt ?? new Date(now.getTime() + 120_000)).toISOString()]);
       return { kind: 'SKIPPED', reason: 'CIRCUIT_OPEN' };
     }
-    await tx.query("update machvon.delivery_attempt set status = 'Sending', sending_at = $2::timestamptz, next_retry_at = null, error_code = null where id = $1::uuid", [attempt.id, now.toISOString()]);
+    // The estimated price of the message is written when it is taken up: the budget of the account is what was written, added up (BR-NOT-13).
+    await tx.query("update machvon.delivery_attempt set status = 'Sending', sending_at = $2::timestamptz, next_retry_at = null, error_code = null, cost = $3::numeric where id = $1::uuid", [attempt.id, now.toISOString(), CHANNEL_UNIT_COST_VND[attempt.channel] ?? 0]);
     if (decision.quietHoursOverride === true) await this.recordOverride(tx, notification, attempt, decision.quietEndsAt, now);
     await this.callbacks.track(tx, { provider, subjectType: ATTEMPT_SUBJECT_TYPE, subjectId: attempt.id }, itemTable, 'SENDING');
     await this.store.syncNotification(tx, notification);
@@ -267,6 +282,7 @@ export class DeliveryEngine {
       await this.callbacks.recordResponse(tx, { ref, table: itemTable, status: 'ACCEPTED', occurredAt: now, metrics: this.metrics });
       await this.store.circuitSuccess(tx, attempt.channelAccountId);
       await this.store.syncNotification(tx, notification);
+      await this.meterAccepted(tx, attempt, now);
       this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: 'accepted' });
       this.metrics.gauge(DELIVERY_LATENCY_METRIC, Math.max(0, (now.getTime() - attempt.createdAt.getTime()) / 1000), { channel: attempt.channel });
       return 'ACCEPTED';
@@ -291,6 +307,20 @@ export class DeliveryEngine {
     await this.failAttempt(tx, attempt, ref, result.failureClass, result.errorCode, now);
     this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: result.failureClass === 'RETRYABLE' ? 'failed_retryable' : 'failed_permanent' });
     return await this.afterFailure(tx, notification, attempt, result.failureClass, result.retryAfterSeconds, now);
+  }
+
+  /** A message the provider took is counted in SAS under the meter of its channel (BR-SAS-15); the attempt is the key, so however many ways lead here it is counted once. */
+  private async meterAccepted(tx: TenantTx, attempt: AttemptRecord, at: Date): Promise<void> {
+    const meter = meterOfChannel(attempt.channel);
+    if (meter !== undefined) await new UsageMeterStore().record(tx, { meter, externalEventKey: attempt.id, quantity: '1', occurredAt: at, sourceReference: `delivery_attempt:${attempt.id}`, now: at });
+  }
+
+  /**
+   * Puts a send back for later without taking it up: the channel is closed for now (the sending hours of a text), which is not a failure of the provider and costs nothing. Only a Queued attempt is put back.
+   */
+  async deferAttempt(tx: TenantTx, attemptId: string, until: Date, code: string, now: Date): Promise<boolean> {
+    const moved = await tx.query<{ id: string }>("update machvon.delivery_attempt a set next_retry_at = least($2::timestamptz, (select n.expires_at from machvon.notification_instance n where n.id = a.notification_id)), error_code = $3 where a.id = $1::uuid and a.status = 'Queued' and exists (select 1 from machvon.notification_instance n where n.id = a.notification_id and n.expires_at > $4::timestamptz and n.status not in ('Cancelled', 'Suppressed', 'Expired')) returning a.id", [attemptId, until.toISOString(), code, now.toISOString()]);
+    return moved.length > 0;
   }
 
   /** A send that was taken up and never reported back is a result that was lost: Unknown, never sent again on its own. */
@@ -579,6 +609,8 @@ export class DeliveryEngine {
       [attempt.id, target, providerMessageId ?? null, stamp],
     );
     await this.store.circuitSuccess(tx, attempt.channelAccountId);
+    // The provider took it after all (the answer was lost, or it came as a callback): it is counted, once.
+    await this.meterAccepted(tx, attempt, occurredAt);
     this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: target === 'ProviderAccepted' ? 'accepted' : target.toLowerCase() });
     if (target === 'Delivered' || target === 'Read') {
       // The message reached the person (it may have been reported failed first and delivered late): a retry or a next channel that the failure queued is no

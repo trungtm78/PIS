@@ -1693,3 +1693,11 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-MOB-009 (gap, memory): the file is put together in memory (at most 50 MiB) when it is completed; the storage port has no streaming read.
 - ST-MOB-009 (gap, linking): `SyncAttachmentStore.linkableKey` is the guard; no module takes a phone attachment yet (the report, issue and diary operations of the five command types take file versions of DOC), so nothing calls it outside the tests.
 - ST-MOB-009 (decision, no If-Match): `post_sync_attachments` and `post_sync_attachments_id_complete` take no `If-Match` (compat-allow ST-MOB-005/009).
+
+### ST-NOT-010 (channel limits, cost and overview, slice NOT-1)
+- ST-NOT-010 (assumption, prices): the price of a message is the constant `CHANNEL_UNIT_COST_VND` (SMS 800, ZNS 300, WhatsApp 1,000 VND) until the price lists of the providers are in the SAS plan; the budget is a budget of estimates. The meter events go to SAS already (`notification.email|sms|zns`), so the billing side sees the count.
+- ST-NOT-010 (gap, fallback): the spec lets a message over its limit fall back to a channel that costs nothing; here it waits for the next day or month. The fallback belongs with the channel chain of the workflow (NOT-06).
+- ST-NOT-010 (gap, no WhatsApp/Zalo meters): the meter catalogue has e-mail, SMS and ZNS only; WhatsApp is priced for the budget but not metered in SAS.
+- ST-NOT-010 (decision, the period of the overview): attempts are placed in the period by when they were made (`created_at`), not by when they ended; an attempt made at the end of the period and not ended yet is not in it, and appears in the next read.
+- ST-NOT-010 (observability): the attempts held by a limit are counted by `notification_delivery_attempts_total{outcome=held_by_limit}`; no alert is written for a budget that is used up or a queue that waits for it (the figures are on NOT-04/NOT-15).
+- ST-NOT-010 (mock, SMS): `SmsHoursAdapter` is the only SMS adapter; the sending hours are the working assumption of 07:00 to 21:00 (CXN-SPAM-01 pending), not configurable per tenant.

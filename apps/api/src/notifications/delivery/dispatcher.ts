@@ -155,6 +155,13 @@ export class DeliveryDispatcher {
   private async sendOne(ctx: TenantContext, adapter: ChannelAdapter, due: { id: string; notificationId: string }, now: Date): Promise<'sent' | 'suppressed' | 'deferred'> {
     const refusal = await this.preflight(ctx, due.notificationId);
     if (refusal !== undefined) return await this.suppress(ctx, due.id, refusal, now);
+    // A channel that is closed for the moment (the sending hours of a text) takes nothing: the message waits for the hours to open, with no attempt used and nothing charged.
+    const opens = adapter.closedUntil?.(now);
+    if (opens !== undefined) {
+      // A notification that is closed or past its expiry is not put back: it goes on to the claim, which closes it, instead of being due on every round until the morning.
+      const deferred = await this.deps.database.withTenant(ctx, (tx) => this.deps.engine.deferAttempt(tx, due.id, opens, 'OUTSIDE_SENDING_HOURS', now));
+      if (deferred) return 'deferred';
+    }
     const claimed = await this.deps.database.withTenant(ctx, (tx) => this.deps.engine.claim(tx, due.id, adapter.provider, now));
     if (claimed.kind === 'SKIPPED') return claimed.reason === 'DEFERRED' ? 'deferred' : 'suppressed';
     const result = await this.call(ctx, adapter, claimed.send);

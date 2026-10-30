@@ -253,6 +253,7 @@ export const OPERATIONS = {
   "getContractorHistory": { method: "get", path: "/contractors/{id}/history", versioned: false, stepUp: null, permission: "bid.contractor.read" },
   "getContractorScorecard": { method: "get", path: "/contractors/{id}/scorecard", versioned: false, stepUp: null, permission: "contractor.performance.read" },
   "getCumulativeLedger": { method: "get", path: "/contracts/{id}/cumulative-ledger", versioned: false, stepUp: null, permission: "ledger.read" },
+  "getDeliveryOverview": { method: "get", path: "/delivery-overview", versioned: false, stepUp: null, permission: "delivery_attempt.read" },
   "getDiaryCoverage": { method: "get", path: "/contracts/{id}/site-diaries/coverage", versioned: false, stepUp: null, permission: "diary.read" },
   "getDisbursementForecast": { method: "get", path: "/disbursement-forecasts", versioned: false, stepUp: null, permission: "disbursement.read" },
   "getDisbursementRankings": { method: "get", path: "/home/rankings", versioned: false, stepUp: null, permission: "home.read" },

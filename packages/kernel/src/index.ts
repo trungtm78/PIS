@@ -534,3 +534,5 @@ export { MAX_BATCH_ITEMS, MAX_KEY_LENGTH, MIN_KEY_LENGTH, SYNC_COMMAND_TYPES, ou
 export type { InvocationPlan, ItemOutcome, QueuedCommand, SyncCommandType } from './sync-command.ts';
 export { ATTACHMENT_CHUNK_BYTES, ATTACHMENT_MAX_BYTES, ATTACHMENT_MIME_TYPES, assembledMatches, assertAttachmentLinkable, assertInit, assertLooksLike, chunkCountOf, chunkSizeAt, missingChunks, attachmentSha256Of } from './sync-attachment.ts';
 export type { AttachmentInit, AttachmentStatus } from './sync-attachment.ts';
+export { CHANNEL_UNIT_COST_VND, MAX_DAILY_CAP, VN_OFFSET_MS, assertLimits, dayStartVn, deliveredRate, isPaidChannel, judgeLimits, meterOfChannel, monthStartVn, nextDayStartVn, nextMonthStartVn } from './channel-limits.ts';
+export type { ChannelLimits, DeliveryCounts, LimitUse, LimitVerdict } from './channel-limits.ts';

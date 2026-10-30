@@ -434,6 +434,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getContractorScorecard': asObject,
   'getContractSummary': asObject,
   'getCumulativeLedger': PayCumulativeLedgerResponse.fromJson,
+  'getDeliveryOverview': DeliveryOverviewResponse.fromJson,
   'getDiaryCoverage': asObject,
   'getDisbursementForecast': DisForecastResponse.fromJson,
   'getDisbursementRankings': asObject,
@@ -4027,6 +4028,168 @@ final class CtrMeasurementPageResponse implements ResponseModel {
         'items': items.map((e0) => e0.toJson()).toList(),
         'next_cursor': nextCursor,
         'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DeliveryOverviewResponse implements ResponseModel {
+  const DeliveryOverviewResponse({
+    required this.from,
+    required this.to,
+    required this.asOf,
+    required this.channels,
+    required this.accounts,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DeliveryOverviewResponse.fromJson(Object? json, [String path = 'DeliveryOverviewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DeliveryOverviewResponse(
+      from: requiredField(map, path, 'from', asString),
+      to: requiredField(map, path, 'to', asString),
+      asOf: requiredField(map, path, 'as_of', asString),
+      channels: requiredField(map, path, 'channels', asList(DeliveryOverviewResponseChannelsItem.fromJson)),
+      accounts: requiredField(map, path, 'accounts', asList(DeliveryOverviewResponseAccountsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'from', 'to', 'as_of', 'channels', 'accounts'}, strict: false),
+    );
+  }
+
+  final String from;
+  final String to;
+  final String asOf;
+  final List<DeliveryOverviewResponseChannelsItem> channels;
+  final List<DeliveryOverviewResponseAccountsItem> accounts;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'from': from,
+        'to': to,
+        'as_of': asOf,
+        'channels': channels.map((e0) => e0.toJson()).toList(),
+        'accounts': accounts.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class DeliveryOverviewResponseAccountsItem implements ResponseModel {
+  const DeliveryOverviewResponseAccountsItem({
+    required this.channelAccountId,
+    required this.channel,
+    required this.displayName,
+    required this.status,
+    required this.sentToday,
+    required this.spentMonthVnd,
+    required this.heldByLimit,
+    this.dailySendCap,
+    this.monthlyBudgetVnd,
+    this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DeliveryOverviewResponseAccountsItem.fromJson(Object? json, [String path = 'DeliveryOverviewResponseAccountsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DeliveryOverviewResponseAccountsItem(
+      channelAccountId: requiredField(map, path, 'channel_account_id', asString),
+      channel: requiredField(map, path, 'channel', asString),
+      displayName: requiredField(map, path, 'display_name', asString),
+      status: requiredField(map, path, 'status', asString),
+      dailySendCap: optionalField(map, path, 'daily_send_cap', nullable(asInt)),
+      sentToday: requiredField(map, path, 'sent_today', asInt),
+      monthlyBudgetVnd: optionalField(map, path, 'monthly_budget_vnd', nullable(asString)),
+      spentMonthVnd: requiredField(map, path, 'spent_month_vnd', asString),
+      heldByLimit: requiredField(map, path, 'held_by_limit', asInt),
+      version: optionalField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'channel_account_id', 'channel', 'display_name', 'status', 'daily_send_cap', 'sent_today', 'monthly_budget_vnd', 'spent_month_vnd', 'held_by_limit', 'version'}, strict: false),
+    );
+  }
+
+  final String channelAccountId;
+  final String channel;
+  final String displayName;
+  final String status;
+  final int? dailySendCap;
+  final int sentToday;
+  final String? monthlyBudgetVnd;
+  final String spentMonthVnd;
+  final int heldByLimit;
+  final int? version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'channel_account_id': channelAccountId,
+        'channel': channel,
+        'display_name': displayName,
+        'status': status,
+        if (dailySendCap != null) 'daily_send_cap': dailySendCap,
+        'sent_today': sentToday,
+        if (monthlyBudgetVnd != null) 'monthly_budget_vnd': monthlyBudgetVnd,
+        'spent_month_vnd': spentMonthVnd,
+        'held_by_limit': heldByLimit,
+        if (version != null) 'version': version,
+        ...extra,
+      };
+}
+
+final class DeliveryOverviewResponseChannelsItem implements ResponseModel {
+  const DeliveryOverviewResponseChannelsItem({
+    required this.channel,
+    required this.delivered,
+    required this.read,
+    required this.ended,
+    required this.suppressed,
+    required this.unknown,
+    required this.failed,
+    required this.denominator,
+    required this.deliveredRate,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DeliveryOverviewResponseChannelsItem.fromJson(Object? json, [String path = 'DeliveryOverviewResponseChannelsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DeliveryOverviewResponseChannelsItem(
+      channel: requiredField(map, path, 'channel', asString),
+      delivered: requiredField(map, path, 'delivered', asInt),
+      read: requiredField(map, path, 'read', asInt),
+      ended: requiredField(map, path, 'ended', asInt),
+      suppressed: requiredField(map, path, 'suppressed', asInt),
+      unknown: requiredField(map, path, 'unknown', asInt),
+      failed: requiredField(map, path, 'failed', asInt),
+      denominator: requiredField(map, path, 'denominator', asInt),
+      deliveredRate: requiredField(map, path, 'delivered_rate', nullable(asNum)),
+      extra: unknownFields(map, path, const <String>{'channel', 'delivered', 'read', 'ended', 'suppressed', 'unknown', 'failed', 'denominator', 'delivered_rate'}, strict: false),
+    );
+  }
+
+  final String channel;
+  final int delivered;
+  final int read;
+  final int ended;
+  final int suppressed;
+  final int unknown;
+  final int failed;
+  final int denominator;
+  final num? deliveredRate;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'channel': channel,
+        'delivered': delivered,
+        'read': read,
+        'ended': ended,
+        'suppressed': suppressed,
+        'unknown': unknown,
+        'failed': failed,
+        'denominator': denominator,
+        'delivered_rate': deliveredRate,
         ...extra,
       };
 }

@@ -1,5 +1,5 @@
 import { DomainError, canDisableAccount, canVerifyAccount } from '@machvon/kernel';
-import type { AccountChanges, AccountStatus, ConnectedAccount } from '@machvon/kernel';
+import type { AccountChanges, AccountStatus, ChannelLimits, ConnectedAccount } from '@machvon/kernel';
 import { assertTimestampCursor } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -157,6 +157,25 @@ export class ChannelAccountStore {
         changes.calendarCode ?? null,
       ],
     );
+    return toRecord(row as AccountRow);
+  }
+
+  /** The cap and the budget of the account (ST-NOT-010): the ones given are changed, `null` takes a limit off. A closed account has none to change. */
+  async setLimits(tx: TenantTx, id: string, expectedVersion: number, limits: ChannelLimits): Promise<ChannelAccountRecord> {
+    // The same order as a claim in the delivery engine, which holds its attempt before it takes the account: the held attempts first (by id), then the account, so the two cannot wait on each other.
+    await tx.query("select id from machvon.delivery_attempt where channel_account_id = $1::uuid and status = 'Queued' and error_code in ('CHANNEL_CAP', 'CHANNEL_BUDGET') order by id for update", [id]);
+    const current = await this.lock(tx, id, expectedVersion);
+    if (current.status === 'Disabled') throw new DomainError('CHANNEL_ACCOUNT_STATE_INVALID', 409, 'status');
+    const [row] = await tx.query<AccountRow>(
+      `update machvon.channel_account set
+          daily_send_cap = case when $2::boolean then $3::int else daily_send_cap end,
+          monthly_budget_vnd = case when $4::boolean then $5::numeric else monthly_budget_vnd end,
+          version = version + 1
+        where id = $1::uuid returning ${COLUMNS}`,
+      [id, limits.dailySendCap !== undefined, limits.dailySendCap ?? null, limits.monthlyBudgetVnd !== undefined, limits.monthlyBudgetVnd ?? null],
+    );
+    // What was held by the old limits is judged again under the new ones at once, not at the start of the next day or month (it could be past its expiry by then); one that is still over a limit is held again.
+    await tx.query("update machvon.delivery_attempt set next_retry_at = null, error_code = null where channel_account_id = $1::uuid and status = 'Queued' and error_code in ('CHANNEL_CAP', 'CHANNEL_BUDGET')", [id]);
     return toRecord(row as AccountRow);
   }
 

@@ -545,7 +545,10 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       expect((await attemptsOf(id))[0]).toMatchObject({ status: 'Delivered', provider_message_id: 'msg-found' });
       expect(await statusOf(id)).toMatchObject({ status: 'Delivered' });
       expect(await openTasksOf(attempt.id)).toBe(0);
+      // The provider took it after all: it is counted in SAS, once (ST-NOT-010).
+      expect(await owner<{ meter: string }>('select meter from machvon.usage_meter_event where external_event_key = $1', [attempt.id])).toEqual([{ meter: 'notification.email' }]);
       expect(await inTenant((tx) => engine.reconcile(tx, attempt.id, { kind: 'FOUND', status: 'DELIVERED', providerMessageId: 'msg-found' }, at(302)))).toBe('UNCHANGED');
+      expect(await owner('select 1 from machvon.usage_meter_event where external_event_key = $1', [attempt.id])).toHaveLength(1);
     });
 
     it('reconciles a message the provider has never seen as a failed send that the schedule repeats', async () => {
