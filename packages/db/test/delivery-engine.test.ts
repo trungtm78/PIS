@@ -720,7 +720,10 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       try {
         await expect(replay(id, (await statusOf(id)).version, at(10))).rejects.toMatchObject({ code: 'NOTIFICATION_STATE_INVALID', detail: 'NO_CHANNEL_AVAILABLE' });
       } finally {
+        // Set-up of the test, not a move the application can make: a closed account does not come back, so the guard is off for this one statement.
+        await owner('alter table machvon.channel_account disable trigger channel_account_guard');
         await owner("update machvon.channel_account set status = 'Active' where id = $1", [EMAIL_ACCOUNT]);
+        await owner('alter table machvon.channel_account enable trigger channel_account_guard');
       }
     });
 

@@ -1,6 +1,6 @@
 import { DeliveryStore, DeviceRegistrationStore, NotificationStore } from '@machvon/db';
 import type { ClaimedSend, DeliveryEngine, TenantDatabase, TenantTx } from '@machvon/db';
-import { DomainError, NOOP_ALERTS, NOOP_METRICS, PLATFORMS_OF_CHANNEL, asUuid, activationBlock, isPushDeliveryChannel, opaqueLinkOf } from '@machvon/kernel';
+import { CREDENTIAL_EXPIRED_CODE, DomainError, NOOP_ALERTS, NOOP_METRICS, PLATFORMS_OF_CHANNEL, asUuid, activationBlock, isPushDeliveryChannel, opaqueLinkOf } from '@machvon/kernel';
 import type { AlertSink, ChannelAdapter, ChannelSendResult, EffectiveAccess, MetricsSink, PushTarget, TenantContext } from '@machvon/kernel';
 import type { PushTokenVault } from '../devices/push-vault';
 import { withCurrentOwnerPath } from '../notifications.controller';
@@ -18,6 +18,8 @@ export const ADAPTER_TIMEOUT_MS = 30_000;
 const DEFAULT_BATCH = 50;
 const DEFAULT_CONCURRENCY = 5;
 const WORK_LIMIT = 100;
+export const OMNI_CHANNEL_CREDENTIAL_EXPIRED_ALERT = 'OMNI_CHANNEL_CREDENTIAL_EXPIRED';
+
 /** A tenant with nothing to send has its gauges and alerts refreshed this often. */
 const QUIET_REPORT_MS = 60_000;
 
@@ -157,6 +159,8 @@ export class DeliveryDispatcher {
     if (claimed.kind === 'SKIPPED') return claimed.reason === 'DEFERRED' ? 'deferred' : 'suppressed';
     const result = await this.call(ctx, adapter, claimed.send);
     await this.deps.database.withTenant(ctx, (tx) => this.deps.engine.recordSendResult(tx, due.id, result, this.now()));
+    // The provider gave up on the credential: the account stopped being used, and a supervisor has to put a new one in the vault and verify the account again.
+    if (result.kind === 'FAILED' && result.errorCode === CREDENTIAL_EXPIRED_CODE) this.alerts.raise(OMNI_CHANNEL_CREDENTIAL_EXPIRED_ALERT, { tenantId: ctx.tenantId, channelAccountId: claimed.send.attempt.channelAccountId, channel: claimed.send.attempt.channel });
     return 'sent';
   }
 

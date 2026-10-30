@@ -550,6 +550,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0x71, 1), ACTOR],
       ],
       [
+        `insert into machvon.channel_account (tenant_id, id, channel, external_account_id, credential_secret_ref, capability_version, status, display_name, webhook_secret_ref)
+         values ($1, $2, 'WHATSAPP', 'matrix-channel-account', 'secret://matrix/fixture-token', 'v1', 'PendingVerification', 'Matrix fixture', 'secret://matrix/fixture-webhook')`,
+        [TENANT_A, id(0x7b, 1)],
+      ],
+      [
         `insert into machvon.notification_template_version (tenant_id, id, code, channel, locale, revision, content_ast, variable_schema, status, purpose, lockscreen_safe, content_hash, created_by)
          values ($1, $2, 'matrix.template.fixture', 'EMAIL', 'vi-VN', 1, '{"body":"Hello"}'::jsonb, '{}'::jsonb, 'Draft', 'OPERATIONAL', false, repeat('a', 64), $3)`,
         [TENANT_A, id(0x7f, 1), ACTOR],
@@ -1203,6 +1208,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       notificationId,
       notificationWorkflowId: id(0x71, 1),
       notificationTemplateId: id(0x7f, 1),
+      channelAccountId: id(0x7b, 1),
       consentId: id(0x7e, 1),
       legalHoldId,
       registerId,

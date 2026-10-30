@@ -80,6 +80,8 @@ export { DeviceRegistrationStore } from './device-registration-store.ts';
 export type { DeviceRegistrationRecord, RegisterDevice } from './device-registration-store.ts';
 export { MAX_TEST_RECIPIENTS, NotificationTemplateStore } from './notification-template-store.ts';
 export type { NewNotificationTemplate, NotificationTemplateRecord, NotificationTemplateStatus } from './notification-template-store.ts';
+export { ChannelAccountStore } from './channel-account-store.ts';
+export type { ChannelAccountRecord, VerificationOutcome, VerificationTarget } from './channel-account-store.ts';
 export { NotificationWorkflowStore } from './notification-workflow-store.ts';
 export type { EventTypeEntry, NotificationWorkflowRecord } from './notification-workflow-store.ts';
 export { NotificationStore } from './notification-store.ts';

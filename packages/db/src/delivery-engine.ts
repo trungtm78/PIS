@@ -5,8 +5,11 @@ import {
   MAX_ATTEMPTS_PER_CHANNEL,
   NOOP_METRICS,
   RECONCILE_WINDOW_SECONDS,
+  CREDENTIAL_EXPIRED_CODE,
   attemptStatusOf,
   decideRetry,
+  isUsable,
+  unusableCodeOf,
   versionConflict,
 } from '@machvon/kernel';
 import type { ChannelLookupResult, ChannelSendResult, DeliveryStatus, MetricsSink } from '@machvon/kernel';
@@ -171,6 +174,13 @@ export class DeliveryEngine {
       await this.expire(tx, notification);
       return { kind: 'SKIPPED', reason: 'EXPIRED' };
     }
+    // Only a verified account sends (BR-OMNI-02): an account that was disabled, or not yet verified, or whose credential expired, since the attempt was planned stops it, with the reason.
+    // The row is held for the rest of the transaction (FOR SHARE): closing the account waits until this claim has committed, so an attempt taken up here was taken up before the account was closed, never after.
+    const [holder] = await tx.query<{ status: string }>('select status from machvon.channel_account where id = $1::uuid for share', [attempt.channelAccountId]);
+    if (holder !== undefined && !isUsable(holder.status)) {
+      await this.suppressAttempt(tx, notification, attempt, unusableCodeOf(holder.status), now);
+      return { kind: 'SKIPPED', reason: 'SUPPRESSED' };
+    }
     // The person decides before the provider does: a preference, a consent or quiet hours are checked here, in the transaction that takes the send up.
     const decision = await this.gate.decide(tx, notification, attempt.channel, now);
     if (decision.kind === 'SUPPRESS') {
@@ -271,6 +281,12 @@ export class DeliveryEngine {
       await this.store.syncNotification(tx, notification);
       this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: 'unknown' });
       return 'UNKNOWN';
+    }
+    // The provider says the credential is gone: the account stops being used until it is verified again (OMNI 3.7); what waits for it is stopped at its next turn. The account is locked before the circuit, as `claim` does
+    // (the account, then its circuit), so the two never wait for each other.
+    if (result.errorCode === CREDENTIAL_EXPIRED_CODE) {
+      const expired = await tx.query<{ id: string }>("update machvon.channel_account set status = 'CredentialExpired', version = version + 1 where id = $1::uuid and status = 'Active' returning id", [attempt.channelAccountId]);
+      if (expired.length > 0) this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: 'credential_expired' });
     }
     await this.failAttempt(tx, attempt, ref, result.failureClass, result.errorCode, now);
     this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: result.failureClass === 'RETRYABLE' ? 'failed_retryable' : 'failed_permanent' });

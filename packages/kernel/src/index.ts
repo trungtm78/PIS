@@ -528,3 +528,5 @@ export { PROVIDER_CHANNELS, RESTRICTED_CHANNELS, TEMPLATE_CHANNELS, TEMPLATE_LOC
 export type { TemplateChannel, TemplateInput, TemplateVariable, VariableClassification } from './notification-template.ts';
 export { LOCK_SCREEN_MAX, OPAQUE_LINK, PLATFORMS_OF_CHANNEL, PUSH_CHANNELS, assertLockScreenSafe, classifierOf, classifyApnsReason, classifyFcmError, isPushChannel as isPushDeliveryChannel, opaqueLinkOf } from './push-port.ts';
 export type { PushFailure, PushTarget } from './push-port.ts';
+export { ACCOUNT_CHANNELS, ACCOUNT_STATUSES, AUTO_REPLY_MAX, CREDENTIAL_EXPIRED_CODE, DISPLAY_NAME_MAX, WEBHOOK_CHANNELS, assertChanges, assertConnectable, canDisableAccount, canVerifyAccount, displayNameOf, isAccountChannel, isUsable, unusableCodeOf } from './omni-channel.ts';
+export type { AccountChanges, AccountChannel, AccountStatus, ConnectedAccount } from './omni-channel.ts';

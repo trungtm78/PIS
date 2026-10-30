@@ -653,6 +653,14 @@
       "statusBasis": "spec",
       "source": "spec:OMNI"
     },
+    "CHANNEL_ACCOUNT_STATE_INVALID": {
+      "status": 409,
+      "title": "Channel account state invalid",
+      "meaning": "Xác minh tài khoản không ở PendingVerification/CredentialExpired, tắt tài khoản đã Disabled, hoặc sửa tài khoản đã Disabled → 409 CHANNEL_ACCOUNT_STATE_INVALID.",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
     "CHANNEL_ACCOUNT_UNKNOWN": {
       "status": 404,
       "title": "Channel account unknown",

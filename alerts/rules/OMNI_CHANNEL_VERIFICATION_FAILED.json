@@ -1,0 +1,13 @@
+{
+  "id": "OMNI_CHANNEL_VERIFICATION_FAILED",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "omni-supervisor",
+  "runbook": "docs/runbooks/alerts/OMNI_CHANNEL_VERIFICATION_FAILED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "OMNI_CHANNEL_VERIFICATION_FAILED"
+  },
+  "summary": "The verification of a channel account failed: the provider refused it, could not be reached, or no provider is configured in this environment."
+}

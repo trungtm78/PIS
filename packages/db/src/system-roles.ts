@@ -45,7 +45,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   // PENDING SIGN-OFF: "read business records within scope" names no permission.
   { code: 'LEADER', name: key('LEADER'), rank: 60, permissions: ['approval.decide'], guestAllowed: false },
   { code: 'NOTIFICATION_ADMIN', name: key('NOTIFICATION_ADMIN'), rank: 50, permissions: ['notification.*', 'notification_template_version.read'], guestAllowed: false },
-  { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*'], guestAllowed: false },
+  { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*', 'channel_account.read'], guestAllowed: false },
   // PENDING SIGN-OFF: "appraise, return/accept" names no permission.
   { code: 'SPECIALIST', name: key('SPECIALIST'), rank: 40, permissions: [], guestAllowed: false },
   { code: 'OMNI_AGENT', name: key('OMNI_AGENT'), rank: 35, permissions: ['omni.conversation.*'], guestAllowed: false },

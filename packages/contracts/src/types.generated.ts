@@ -2604,7 +2604,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Danh sách channel_account theo scope */
+        /** Danh sách tài khoản kênh của tenant (OMNI-05); không có secret */
         get: operations["get_resources_channel_account"];
         put?: never;
         post?: never;
@@ -16950,7 +16950,9 @@ export interface components {
         };
         ChannelAccountUpdate: {
             display_name?: string;
+            /** @description An empty text clears the auto reply */
             auto_reply_text?: string;
+            /** @description An empty code clears the calendar; otherwise a calendar the tenant has published */
             calendar_code?: string;
             reason: string;
         };
@@ -22260,6 +22262,42 @@ export interface components {
         };
         DeviceRegistrationPage: {
             items: components["schemas"]["DeviceRegistration"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of?: string;
+        };
+        ChannelAccount: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            channel: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP";
+            external_account_id: string;
+            display_name: string;
+            /** @enum {string} */
+            status: "PendingVerification" | "Active" | "Disabled" | "CredentialExpired";
+            /** @description The credential is a reference into the vault; the screen says "configured" and never shows it */
+            credential_configured: boolean;
+            /** @description Whether the reference of a webhook secret is set; never the reference itself */
+            webhook_configured: boolean;
+            /** Format: date-time */
+            verified_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Set while a verification asked for is waiting for the provider
+             */
+            verify_requested_at?: string | null;
+            /** @description The reason the last verification failed (CREDENTIAL_INVALID, PROVIDER_UNREACHABLE...) */
+            verification_error?: string | null;
+            auto_reply_text?: string | null;
+            calendar_code?: string | null;
+            daily_send_cap?: number | null;
+            monthly_budget_vnd?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            version: number;
+        };
+        ChannelAccountPage: {
+            items: components["schemas"]["ChannelAccount"][];
             next_cursor: string | null;
             /** Format: date-time */
             as_of?: string;
@@ -37634,6 +37672,8 @@ export interface operations {
     get_resources_channel_account: {
         parameters: {
             query?: {
+                status?: "PendingVerification" | "Active" | "Disabled" | "CredentialExpired";
+                channel?: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP";
                 cursor?: string;
                 limit?: number;
             };
@@ -37649,13 +37689,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ChannelAccountPage"];
                 };
             };
             /** @description Invalid request */
@@ -37752,13 +37786,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ChannelAccount"];
                 };
             };
             /** @description Invalid request */

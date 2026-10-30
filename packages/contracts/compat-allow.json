@@ -356,6 +356,41 @@
       "location": "snapshot_id",
       "reason": "the read of one device is the device itself, not a page",
       "change_request": "ST-NOT-006"
+    },
+    {
+      "operation": "get_resources_channel_account",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of the channel accounts is paged by the creation time and the id, and answers the time it was read",
+      "change_request": "ST-OMNI-001"
+    },
+    {
+      "operation": "get_resources_channel_account_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one channel account is the account itself, not a page",
+      "change_request": "ST-OMNI-001"
+    },
+    {
+      "operation": "get_resources_channel_account_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one channel account is the account itself, not a page",
+      "change_request": "ST-OMNI-001"
+    },
+    {
+      "operation": "get_resources_channel_account_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one channel account is the account itself, not a page",
+      "change_request": "ST-OMNI-001"
+    },
+    {
+      "operation": "get_resources_channel_account_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one channel account is the account itself, not a page",
+      "change_request": "ST-OMNI-001"
     }
   ]
 }

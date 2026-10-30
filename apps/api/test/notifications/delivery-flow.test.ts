@@ -25,7 +25,7 @@ const PROVIDER = 'smtp-relay';
 const TICK = 5_000;
 const RECONCILE_TICK = 300_000;
 const TEST_TIMEOUT = 90_000;
-const PERMISSIONS = ['organization_unit.read', 'iam.unit.manage', 'delivery_attempt.read'];
+const PERMISSIONS = ['organization_unit.read', 'iam.unit.manage', 'delivery_attempt.read', 'omni.channel.manage', 'channel_account.read'];
 
 interface Reply {
   status: number;
@@ -106,13 +106,15 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     });
 
   /** A delivery receipt as the in-memory provider writes it, signed the way the registry says. */
-  async function receipt(api: RunningApi, body: Record<string, unknown>, options: { secret?: string; timestamp?: number; path?: string; signed?: boolean; idempotencyKey?: string } = {}): Promise<Reply> {
+  async function receipt(api: RunningApi, body: Record<string, unknown>, options: { secret?: string; timestamp?: number; path?: string; signed?: boolean; idempotencyKey?: string; tamper?: boolean } = {}): Promise<Reply> {
     const raw = JSON.stringify(body);
     const timestamp = options.timestamp ?? Math.floor(Date.now() / 1000);
     const headers: Record<string, string> = { 'content-type': 'application/json', 'x-timestamp': String(timestamp) };
     if (options.idempotencyKey !== undefined) headers['idempotency-key'] = options.idempotencyKey;
     if (options.signed !== false) headers['x-signature'] = createHmac('sha256', options.secret ?? WEBHOOK_SECRET).update(`${timestamp}.${raw}`).digest('hex');
-    const response = await fetch(`http://127.0.0.1:${api.port}/webhooks/channels/${options.path ?? PROVIDER}`, { method: 'POST', headers, body: raw });
+    // One byte of the body changes after it was signed.
+    const sent = options.tamper === true ? raw.replace('delivery.status', 'delivery.statuz') : raw;
+    const response = await fetch(`http://127.0.0.1:${api.port}/webhooks/channels/${options.path ?? PROVIDER}`, { method: 'POST', headers, body: sent });
     return { status: response.status, json: (await response.json()) as Record<string, unknown> };
   }
 
@@ -267,6 +269,22 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect(JSON.stringify(audits)).not.toContain(message);
   }, TEST_TIMEOUT);
 
+  it('AC-ST-OMNI-001-1 UAT-AC196: a webhook with one byte changed after it was signed is 401, one signed ten minutes ago is 401, and a valid one sent twice is 200 and 200 duplicate with one stored row', async () => {
+    const { api } = await start();
+    const count = async (key: string): Promise<number> => Number((await rows<{ n: string }>('select count(*)::text as n from machvon.integration_event_inbox where provider = $1 and event_key = $2', [PROVIDER, key]))[0]?.n);
+    const body = eventBody('e-omni-196', 'msg-omni-196', 'DELIVERED');
+    const tampered = await receipt(api, body, { tamper: true });
+    expect([tampered.status, tampered.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
+    const old = await receipt(api, body, { timestamp: Math.floor(Date.now() / 1000) - 600 });
+    expect([old.status, old.json.code]).toEqual([401, 'REPLAY_WINDOW_EXCEEDED']);
+    expect(await count('e-omni-196')).toBe(0);
+    const first = await receipt(api, body);
+    const second = await receipt(api, body);
+    expect([first.status, first.json]).toEqual([200, { received: true, duplicate: false }]);
+    expect([second.status, second.json]).toEqual([200, { received: true, duplicate: true }]);
+    expect(await count('e-omni-196')).toBe(1);
+  }, TEST_TIMEOUT);
+
   it('keeps a receipt whose message id is not known yet and applies it once the send is recorded', async () => {
     const { api } = await start();
     const unknown = await receipt(api, eventBody('e-early', 'msg-not-yet-known', 'DELIVERED'));
@@ -306,5 +324,19 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect((await attemptsOf(eventId)).map((attempt) => [attempt.attempt_no, attempt.status, attempt.error_code])).toEqual([[1, 'Suppressed', 'ADAPTER_MISSING']]);
     const [notification] = await rows<{ status: string }>('select status from machvon.notification_instance where event_id = $1', [eventId]);
     expect(notification?.status).toBe('Delivered');
+  }, TEST_TIMEOUT);
+
+  it('AC-ST-OMNI-001-3 UAT-PLAN-50: once the supervisor disables the account, a webhook for it is 404 CHANNEL_ACCOUNT_UNKNOWN', async () => {
+    const { api } = await start();
+    const closed = await fetch(`http://127.0.0.1:${api.port}/channel-accounts/${ACCOUNT}/disable`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${fixture.token}`, 'content-type': 'application/json', 'idempotency-key': randomUUID(), 'if-match': '"1"' },
+      body: JSON.stringify({ reason: 'The relay account is closed for good.' }),
+    });
+    expect(closed.status).toBe(200);
+    const before = Number((await rows<{ n: string }>('select count(*)::text as n from machvon.integration_event_inbox where provider = $1', [PROVIDER]))[0]?.n);
+    const refused = await receipt(api, eventBody('e-after-disable', 'msg-after-disable', 'DELIVERED'));
+    expect([refused.status, refused.json.code]).toEqual([404, 'CHANNEL_ACCOUNT_UNKNOWN']);
+    expect(Number((await rows<{ n: string }>('select count(*)::text as n from machvon.integration_event_inbox where provider = $1', [PROVIDER]))[0]?.n)).toBe(before);
   }, TEST_TIMEOUT);
 });

@@ -70,7 +70,10 @@ describe('the cross-tenant lookup of a channel account by its external id (recei
     try {
       expect((await control((client) => client.query('select 1 from machvon.channel_accounts_by_external_id($1)', ['shared-sender']))).rows).toEqual([]);
     } finally {
+      // Set-up of the test, not a move the application can make: a closed account does not come back, so the guard is off for this one statement.
+      await admin.query('alter table machvon.channel_account disable trigger channel_account_guard');
       await admin.query("update machvon.channel_account set status = 'Active' where id = $1", [ACCOUNT_ONE]);
+      await admin.query('alter table machvon.channel_account enable trigger channel_account_guard');
     }
   });
 

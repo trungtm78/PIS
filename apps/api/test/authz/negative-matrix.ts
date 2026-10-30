@@ -19,6 +19,8 @@ export interface MatrixTargets {
   notificationWorkflowId: string;
   /** A Draft template revision of tenant A: the review and the test send name it in the path. */
   notificationTemplateId: string;
+  /** A channel account of tenant A (version 1): the verification, the change and the closing name it in the path. */
+  channelAccountId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
   consentId: string;
   /** An Active tenant-wide legal hold of tenant A. */
@@ -2634,6 +2636,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   registerDevice: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/devices', body: { device_public_id: 'matrix-device-public-0001', platform: 'android', push_token: 'matrix-push-token', permission_state: 'granted', app_version: '1.0.0' } }),
+  },
+  connectChannelAccount: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/channel-accounts', body: { channel: 'WHATSAPP', external_account_id: 'matrix-account-0001', display_name: 'Matrix', credential_secret_ref: 'secret://matrix/token', webhook_secret_ref: 'secret://matrix/webhook' } }),
+  },
+  verifyChannelAccount: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/channel-accounts/${t.channelAccountId}/verify`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  updateChannelAccount: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'PUT', path: `/channel-accounts/${t.channelAccountId}`, ifMatch: '"1"', body: { display_name: 'Matrix renamed', reason: REASON } }),
+  },
+  disableChannelAccount: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/channel-accounts/${t.channelAccountId}/disable`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   createTemplateRevision: {
     referencesTenantIds: false,

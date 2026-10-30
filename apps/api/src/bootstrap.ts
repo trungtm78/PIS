@@ -52,6 +52,8 @@ import { UserSessionDenyList } from './session/user-session-deny-list';
 import { requestTelemetry } from './telemetry/request-telemetry';
 import { DocumentIssueConsumer } from './modules/doc/issue-consumer';
 import { DocumentIssueService } from './modules/doc/issue-request.service';
+import { CHANNEL_VERIFIER } from './omni/channel-verifier';
+import type { ChannelVerifierPort } from './omni/channel-verifier';
 import { PUSH_TOKEN_VAULT } from './notifications/devices/push-vault';
 import type { PushTokenVault } from './notifications/devices/push-vault';
 import { createOutboxConsumers } from './workers/outbox-consumers';
@@ -262,6 +264,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
         provisioning,
         delivery,
         docIssue,
+        channelVerification: { verifier: app.get<ChannelVerifierPort>(CHANNEL_VERIFIER, { strict: false }), alerts },
         silentPush: { adapters: app.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }), vault: app.get<PushTokenVault>(PUSH_TOKEN_VAULT, { strict: false }) },
       });
       workers = startWorkers(

@@ -21,6 +21,8 @@ import { MNE_REPORT_CONSUMER, MneReportConsumer } from '../modules/mne/report.co
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
 import { ControlEventTypeCatalog, PayloadValidator } from '../notifications/payload-validator';
+import { CHANNEL_VERIFICATION_CONSUMER, ChannelVerificationConsumer } from '../omni/channel-verification.consumer';
+import type { ChannelVerificationDeps } from '../omni/channel-verification.consumer';
 import { SILENT_PUSH_CONSUMER, SilentPushConsumer } from '../notifications/push/silent-push';
 import type { SilentPushDeps } from '../notifications/push/silent-push';
 import { PermissionResourceAccess } from '../notifications/resource-access-port';
@@ -50,6 +52,8 @@ export interface OutboxConsumersDeps {
   docIssue?: OutboxConsumer;
   /** The silent push to the devices when entitlements or access change (ST-NOT-007); without it those events wake no device. */
   silentPush?: Omit<SilentPushDeps, 'database' | 'security'>;
+  /** The verifier of the channel accounts (ST-OMNI-001); without it verification is asked for and never answered. */
+  channelVerification?: Omit<ChannelVerificationDeps, 'database' | 'security'>;
 }
 
 /**
@@ -116,6 +120,9 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: MNE_REPORT_CONSUMER, handle: (delivery) => mneReports.handle(delivery) },
     ...(deps.docIssue === undefined ? [] : [deps.docIssue]),
     ...(deps.silentPush === undefined ? [] : [{ name: SILENT_PUSH_CONSUMER, handle: (delivery: Parameters<SilentPushConsumer['handle']>[0]) => new SilentPushConsumer({ ...deps.silentPush, database: tenants, security } as SilentPushDeps).handle(delivery) }]),
+    ...(deps.channelVerification === undefined
+      ? []
+      : [{ name: CHANNEL_VERIFICATION_CONSUMER, handle: (delivery: Parameters<ChannelVerificationConsumer['handle']>[0]) => new ChannelVerificationConsumer({ ...deps.channelVerification, database: tenants, security } as ChannelVerificationDeps).handle(delivery) }]),
     new RegisteredEventConsumer(NOTIFICATION_CONSUMER, catalog, { name: NOTIFICATION_CONSUMER, handle: (delivery) => notifications.handle(delivery) }),
   ];
 }

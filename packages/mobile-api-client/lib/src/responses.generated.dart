@@ -263,8 +263,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_budget_reservation_id': GetResourcesBudgetReservationIdResponse.fromJson,
   'get_resources_change_request': GetResourcesChangeRequestResponse.fromJson,
   'get_resources_change_request_id': GetResourcesChangeRequestIdResponse.fromJson,
-  'get_resources_channel_account': GetResourcesChannelAccountResponse.fromJson,
-  'get_resources_channel_account_id': GetResourcesChannelAccountIdResponse.fromJson,
+  'get_resources_channel_account': ChannelAccountPageResponse.fromJson,
+  'get_resources_channel_account_id': ChannelAccountResponse.fromJson,
   'get_resources_channel_message': GetResourcesChannelMessageResponse.fromJson,
   'get_resources_channel_message_id': GetResourcesChannelMessageIdResponse.fromJson,
   'get_resources_contact': GetResourcesContactResponse.fromJson,
@@ -2692,6 +2692,126 @@ final class CapPlanAsOfResponse implements ResponseModel {
         if (effectiveAt != null) 'effective_at': effectiveAt,
         if (lines != null) 'lines': lines,
         if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ChannelAccountPageResponse implements ResponseModel {
+  const ChannelAccountPageResponse({
+    required this.items,
+    required this.nextCursor,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ChannelAccountPageResponse.fromJson(Object? json, [String path = 'ChannelAccountPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ChannelAccountPageResponse(
+      items: requiredField(map, path, 'items', asList(ChannelAccountResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ChannelAccountResponse> items;
+  final String? nextCursor;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ChannelAccountResponse implements ResponseModel {
+  const ChannelAccountResponse({
+    required this.id,
+    required this.channel,
+    required this.externalAccountId,
+    required this.displayName,
+    required this.status,
+    required this.credentialConfigured,
+    required this.webhookConfigured,
+    required this.createdAt,
+    required this.version,
+    this.verifiedAt,
+    this.verifyRequestedAt,
+    this.verificationError,
+    this.autoReplyText,
+    this.calendarCode,
+    this.dailySendCap,
+    this.monthlyBudgetVnd,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ChannelAccountResponse.fromJson(Object? json, [String path = 'ChannelAccountResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ChannelAccountResponse(
+      id: requiredField(map, path, 'id', asString),
+      channel: requiredField(map, path, 'channel', asString),
+      externalAccountId: requiredField(map, path, 'external_account_id', asString),
+      displayName: requiredField(map, path, 'display_name', asString),
+      status: requiredField(map, path, 'status', asString),
+      credentialConfigured: requiredField(map, path, 'credential_configured', asBool),
+      webhookConfigured: requiredField(map, path, 'webhook_configured', asBool),
+      verifiedAt: optionalField(map, path, 'verified_at', nullable(asString)),
+      verifyRequestedAt: optionalField(map, path, 'verify_requested_at', nullable(asString)),
+      verificationError: optionalField(map, path, 'verification_error', nullable(asString)),
+      autoReplyText: optionalField(map, path, 'auto_reply_text', nullable(asString)),
+      calendarCode: optionalField(map, path, 'calendar_code', nullable(asString)),
+      dailySendCap: optionalField(map, path, 'daily_send_cap', nullable(asInt)),
+      monthlyBudgetVnd: optionalField(map, path, 'monthly_budget_vnd', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'channel', 'external_account_id', 'display_name', 'status', 'credential_configured', 'webhook_configured', 'verified_at', 'verify_requested_at', 'verification_error', 'auto_reply_text', 'calendar_code', 'daily_send_cap', 'monthly_budget_vnd', 'created_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String channel;
+  final String externalAccountId;
+  final String displayName;
+  final String status;
+  final bool credentialConfigured;
+  final bool webhookConfigured;
+  final String? verifiedAt;
+  final String? verifyRequestedAt;
+  final String? verificationError;
+  final String? autoReplyText;
+  final String? calendarCode;
+  final int? dailySendCap;
+  final String? monthlyBudgetVnd;
+  final String createdAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'channel': channel,
+        'external_account_id': externalAccountId,
+        'display_name': displayName,
+        'status': status,
+        'credential_configured': credentialConfigured,
+        'webhook_configured': webhookConfigured,
+        if (verifiedAt != null) 'verified_at': verifiedAt,
+        if (verifyRequestedAt != null) 'verify_requested_at': verifyRequestedAt,
+        if (verificationError != null) 'verification_error': verificationError,
+        if (autoReplyText != null) 'auto_reply_text': autoReplyText,
+        if (calendarCode != null) 'calendar_code': calendarCode,
+        if (dailySendCap != null) 'daily_send_cap': dailySendCap,
+        if (monthlyBudgetVnd != null) 'monthly_budget_vnd': monthlyBudgetVnd,
+        'created_at': createdAt,
+        'version': version,
         ...extra,
       };
 }
@@ -6668,82 +6788,6 @@ final class GetResourcesChangeRequestResponse implements ResponseModel {
   factory GetResourcesChangeRequestResponse.fromJson(Object? json, [String path = 'GetResourcesChangeRequestResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesChangeRequestResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesChannelAccountIdResponse implements ResponseModel {
-  const GetResourcesChannelAccountIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesChannelAccountIdResponse.fromJson(Object? json, [String path = 'GetResourcesChannelAccountIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesChannelAccountIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesChannelAccountResponse implements ResponseModel {
-  const GetResourcesChannelAccountResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesChannelAccountResponse.fromJson(Object? json, [String path = 'GetResourcesChannelAccountResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesChannelAccountResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),
