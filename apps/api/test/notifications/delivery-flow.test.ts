@@ -326,6 +326,44 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect(notification?.status).toBe('Delivered');
   }, TEST_TIMEOUT);
 
+  it('AC-ST-OMNI-004-1 UAT-AC24: a signed message that a person wrote to the account opens a conversation with a contact, once however often the provider sends it, and a stop word ends the consents', async () => {
+    const { api } = await start();
+    const inbound = (id: string, message: string, text: string): Record<string, unknown> => ({
+      id,
+      account: 'relay-1',
+      type: 'message.inbound',
+      at: new Date().toISOString(),
+      inbound: { message, thread: 'thread-flow-1', from: 'Nguoi.Gui@Example.com', name: 'Người Gửi', text },
+    });
+    const conversations = (): Promise<Array<{ id: string; status: string; contact_id: string }>> => rows('select id, status, contact_id from machvon.conversation where external_thread_id = $1', ['thread-flow-1']);
+    const first = await receipt(api, inbound('e-in-1', 'in-1', 'Tôi cần hỏi về hồ sơ'));
+    expect([first.status, first.json]).toEqual([200, { received: true, duplicate: false }]);
+    // The event is applied right after it is stored: the inbox says so and the conversation is there.
+    expect((await rows<{ status: string }>('select status from machvon.integration_event_inbox where provider = $1 and event_key = $2', [PROVIDER, 'e-in-1']))[0]?.status).toBe('PROCESSED');
+    const [opened] = await conversations();
+    expect(opened?.status).toBe('New');
+    expect((await rows<{ body_text: string; direction: string }>('select body_text, direction from machvon.channel_message where conversation_id = $1', [opened?.id]))).toEqual([{ body_text: 'Tôi cần hỏi về hồ sơ', direction: 'INBOUND' }]);
+    // The provider sends the same event again, and the same message under another event: one message.
+    expect((await receipt(api, inbound('e-in-1', 'in-1', 'Tôi cần hỏi về hồ sơ'))).json).toEqual({ received: true, duplicate: true });
+    await receipt(api, inbound('e-in-1b', 'in-1', 'Tôi cần hỏi về hồ sơ'));
+    expect((await rows<{ n: string }>('select count(*)::text as n from machvon.channel_message where conversation_id = $1', [opened?.id]))[0]?.n).toBe('1');
+    expect((await rows<{ action: string }>("select action from machvon.audit_event where resource_id = $1 and action = 'conversation.opened'", [opened?.id])).length).toBe(1);
+    // A tampered body is refused before anything is read.
+    const forged = await receipt(api, inbound('e-in-2', 'in-2', 'x'), { secret: 'not-the-secret-of-this-account-0000' });
+    expect([forged.status, forged.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
+    // The person's address is verified by a document and a consent is taken; the word that withdraws it ends it.
+    await rows("update machvon.contact_identity set status = 'Verified', verification_method = 'ADMIN_DOCUMENT', verified_at = now(), verified_by = $2 where contact_id = $1", [opened?.contact_id, memberId(RECIPIENT)]);
+    await rows(
+      `insert into machvon.contact_consent (tenant_id, id, contact_id, membership_id, channel, purpose, status, evidence_reference, effective_at, legal_basis, consent_text_version, capture_method)
+       values ($1, gen_random_uuid(), $2, null, 'EMAIL', 'SUPPORT_CONVERSATION', 'Granted', 'proof', now(), 'CONSENT', 'v1', 'IN_APP')`,
+      [TENANT_A, opened?.contact_id],
+    );
+    await receipt(api, inbound('e-in-3', 'in-3', 'STOP'));
+    expect((await rows<{ status: string }>('select status from machvon.contact_consent where contact_id = $1', [opened?.contact_id]))[0]?.status).toBe('Withdrawn');
+    expect((await rows<{ n: string }>("select count(*)::text as n from machvon.audit_event where action = 'contact_consent.withdrawn' and safe_diff ->> 'by' = 'stop_keyword'"))[0]?.n).toBe('1');
+    expect((await conversations()).length).toBe(1);
+  }, TEST_TIMEOUT);
+
   it('AC-ST-OMNI-001-3 UAT-PLAN-50: once the supervisor disables the account, a webhook for it is 404 CHANNEL_ACCOUNT_UNKNOWN', async () => {
     const { api } = await start();
     const closed = await fetch(`http://127.0.0.1:${api.port}/channel-accounts/${ACCOUNT}/disable`, {

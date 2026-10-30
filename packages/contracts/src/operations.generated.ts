@@ -543,6 +543,7 @@ export const OPERATIONS = {
   "listCompensationPlanItems": { method: "get", path: "/compensation-plans/{id}/items", versioned: false, stepUp: null, permission: "land.read" },
   "listCompensationPlans": { method: "get", path: "/compensation-plans", versioned: false, stepUp: null, permission: "land.read" },
   "listConflictDeclarations": { method: "get", path: "/procurement-packages/{id}/conflict-declarations", versioned: false, stepUp: null, permission: "bid.read" },
+  "listConversationAssignees": { method: "get", path: "/conversations/{conversationId}/assignees", versioned: false, stepUp: null, permission: "omni.conversation.assign" },
   "listDisbursementSchedules": { method: "get", path: "/disbursement-schedules", versioned: false, stepUp: null, permission: "capital.read" },
   "listDocumentNumberRegisters": { method: "get", path: "/document-number-registers", versioned: false, stepUp: null, permission: "doc.register.read" },
   "listDocumentRegisterEntries": { method: "get", path: "/document-number-registers/{id}/entries", versioned: false, stepUp: null, permission: "doc.register.read" },

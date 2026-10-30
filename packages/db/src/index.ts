@@ -102,6 +102,8 @@ export { ATTEMPT_SUBJECT_TYPE, CHANNEL_SKIPPED_METRIC, DELIVERY_ATTEMPTS_METRIC,
 export type { CallbackInput, CancelInput, CancelResult, ClaimOutcome, ClaimedSend, DeliveryEngineOptions, ReplayInput, ReplayResult, ResultNext } from './delivery-engine.ts';
 export { DeliveryGate, QUIET_HOURS_CODE } from './delivery-gate.ts';
 export type { GateDecision, SuppressionReason } from './delivery-gate.ts';
+export { ASSIGN_CONVERSATION, ConversationStore } from './conversation-store.ts';
+export type { ConversationRecord, InboundInput, InboundOutcome, MessageRecord, ScopeOf } from './conversation-store.ts';
 export { ContactConsentStore } from './contact-consent-store.ts';
 export type { CaptureMethod, ConsentGrantInput, ConsentPage, ConsentRow, ConsentStatus } from './contact-consent-store.ts';
 export { NotificationPreferenceStore } from './notification-preference-store.ts';

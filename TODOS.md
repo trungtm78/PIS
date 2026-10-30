@@ -1731,3 +1731,16 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-OMNI-003 (gap, expiry): no job expires a consent that has a term (`Expired` exists in the table; nothing sets it for a contact).
 - ST-OMNI-003 (decision, scope): the consents, like the directory, are the tenant's: a grant on one unit alone neither takes, withdraws nor reads them (the list is empty for it, as for the consents of members).
 - ST-OMNI-003 (observability): no metric or alert yet; the trail and `not.consent.changed.v1` carry the changes.
+
+### ST-OMNI-004 (conversations and assignment, slice OMNI-1)
+- ST-OMNI-004 (decision, closed): a Closed conversation is final (OMNI.md 4); a message on its thread opens a new conversation that points to the last closed one (`previous_conversation_id`), and the thread is unique only among the conversations that are not Closed (V1287 replaced the unique index of V002).
+- ST-OMNI-004 (decision, resolve): resolving a New or an Assigned conversation is 409 (OMNI.md 4), so the guard allows `resolve` only from InProgress and PendingCustomer. The commands themselves (resolve, reopen, close, open by the agent) are ST-OMNI-005/007.
+- ST-OMNI-004 (decision, roles): the agent holds `omni.conversation.reply` and `omni.conversation.convert`, not `omni.conversation.*` (it carried the assignment). OMNI.md 4 says "SUPERVISOR/AGENT (tu nhan)" for the assignment and OMNI.md 2 says reassigning is the supervisor's; the self-claim by an agent is not built and waits for a decision (a permission to claim, or a rule on assigning to oneself).
+- ST-OMNI-004 (decision, sender): the identity of a sender is marked `PROVIDER_VERIFIED` on Zalo OA and WhatsApp only (the provider authenticates the sender); a mail and a text message leave it Pending.
+- ST-OMNI-004 (decision, name): a contact made by a message takes the name the provider gives, else the masked identity; class `OTHER`.
+- ST-OMNI-004 (decision, text): the text of a message is kept in `channel_message.body_text` (up to 20000, classification PERSONAL), read only through `get_resources_channel_message/{id}`; the list carries none. OMNI-01 does not show it: the thread is OMNI-02 (ST-OMNI-005).
+- ST-OMNI-004 (gap, queue): `queue_unit_id` is null (the queue of the whole tenant) until the routing policy (ST-OMNI-006) sets it; the SLA deadlines (`sla_first_response_due_at`, BR-OMNI-06) are not set for the same reason.
+- ST-OMNI-004 (gap, attachments): attachments of an inbound message (quarantine, virus scan) are not read; the port carries text only.
+- ST-OMNI-004 (gap, unmerge): a message of a contact merged away goes to the survivor; there is no unmerge (R2).
+- ST-OMNI-004 (gap, close job): nothing moves a Resolved conversation to Closed after 7 days (ST-OMNI-007).
+- ST-OMNI-004 (observability): no metric or alert yet; the trail (`conversation.opened`, `.reopened`, `.assigned`, `contact_consent.withdrawn`) and `omni.conversation.assigned.v1` carry the changes.

@@ -1414,7 +1414,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Danh sách conversation theo scope */
+        /** Hội thoại trong hàng đợi của đơn vị mình và hội thoại được giao cho mình, mới nhất trước (OMNI-01) */
         get: operations["get_resources_conversation"];
         put?: never;
         post?: never;
@@ -1431,7 +1431,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Chi tiết conversation có version/source */
+        /** Một hội thoại với hạn SLA, cửa sổ trả lời và người xử lý (OMNI-01) */
         get: operations["get_resources_conversation_id"];
         put?: never;
         post?: never;
@@ -1448,7 +1448,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Danh sách channel_message theo scope */
+        /** Tin nhắn của một hội thoại, cũ nhất trước, không kèm nội dung (OMNI-01) */
         get: operations["get_resources_channel_message"];
         put?: never;
         post?: never;
@@ -1465,7 +1465,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Chi tiết channel_message có version/source */
+        /** Một tin nhắn kèm nội dung (OMNI-01) */
         get: operations["get_resources_channel_message_id"];
         put?: never;
         post?: never;
@@ -15256,6 +15256,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/conversations/{conversationId}/assignees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Những người có thể được giao hội thoại: có quyền trả lời và phạm vi chứa hàng đợi của nó (OMNI-01) */
+        get: operations["listConversationAssignees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -22574,6 +22591,88 @@ export interface components {
         ContactPage: {
             items: components["schemas"]["ContactView"][];
             next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        ConversationView: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            channel_account_id: string;
+            channel: string;
+            account_name: string;
+            /** Format: uuid */
+            contact_id: string;
+            contact_name: string;
+            /** @enum {string} */
+            status: "New" | "Assigned" | "InProgress" | "PendingCustomer" | "Resolved" | "Closed";
+            /** @enum {string} */
+            priority: "HIGH" | "NORMAL" | "LOW";
+            /** Format: uuid */
+            assignee_membership_id?: string | null;
+            assignee_name?: string | null;
+            /**
+             * Format: uuid
+             * @description The unit whose queue the conversation is in; none is the queue of the whole tenant
+             */
+            queue_unit_id?: string | null;
+            queue_unit_name?: string | null;
+            /** Format: date-time */
+            last_inbound_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Until when the tenant may answer freely (WhatsApp, Zalo OA: 24 hours after the last message of the person); none for a channel without a window
+             */
+            window_expires_at?: string | null;
+            /** Format: date-time */
+            sla_first_response_due_at?: string | null;
+            /** Format: date-time */
+            sla_resolution_due_at?: string | null;
+            message_count: number;
+            /** Format: date-time */
+            assigned_at?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** @description The If-Match of the assignment */
+            version: number;
+        };
+        ConversationPage: {
+            items: components["schemas"]["ConversationView"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        ChannelMessageView: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            conversation_id: string;
+            /** @enum {string} */
+            direction: "INBOUND" | "OUTBOUND" | "INTERNAL_NOTE";
+            kind: string;
+            /** @enum {string|null} */
+            delivery_status?: "Queued" | "ProviderAccepted" | "Delivered" | "Read" | "Failed" | null;
+            /** Format: uuid */
+            author_membership_id?: string | null;
+            /** @enum {string} */
+            classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL";
+            /** @description The text of the message; only the read of one message carries it (the list is read for the order and the state, the text is personal data) */
+            text?: string | null;
+            /** Format: date-time */
+            created_at: string;
+        };
+        ChannelMessagePage: {
+            items: components["schemas"]["ChannelMessageView"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        ConversationAssigneeList: {
+            items: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+            }[];
             /** Format: date-time */
             as_of: string;
         };
@@ -30841,6 +30940,12 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Only the conversations in this state */
+                status?: "New" | "Assigned" | "InProgress" | "PendingCustomer" | "Resolved" | "Closed";
+                /** @description Only the conversations assigned to the caller */
+                mine?: boolean;
+                /** @description Only the conversations in the queue of this unit */
+                queue_unit_id?: string;
             };
             header?: never;
             path?: never;
@@ -30854,13 +30959,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ConversationPage"];
                 };
             };
             /** @description Invalid request */
@@ -30939,10 +31038,7 @@ export interface operations {
     };
     get_resources_conversation_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -30957,13 +31053,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ConversationView"];
                 };
             };
             /** @description Invalid request */
@@ -31045,6 +31135,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Only the messages of this conversation */
+                conversation_id?: string;
             };
             header?: never;
             path?: never;
@@ -31058,13 +31150,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ChannelMessagePage"];
                 };
             };
             /** @description Invalid request */
@@ -31143,10 +31229,7 @@ export interface operations {
     };
     get_resources_channel_message_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -31161,13 +31244,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["ChannelMessageView"];
                 };
             };
             /** @description Invalid request */
@@ -114317,6 +114394,100 @@ export interface operations {
             };
             /** @description Rate limited */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listConversationAssignees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The members who may be given the conversation, by name */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationAssigneeList"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / license / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Budget / rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Provider unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

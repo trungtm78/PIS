@@ -265,8 +265,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_change_request_id': GetResourcesChangeRequestIdResponse.fromJson,
   'get_resources_channel_account': ChannelAccountPageResponse.fromJson,
   'get_resources_channel_account_id': ChannelAccountResponse.fromJson,
-  'get_resources_channel_message': GetResourcesChannelMessageResponse.fromJson,
-  'get_resources_channel_message_id': GetResourcesChannelMessageIdResponse.fromJson,
+  'get_resources_channel_message': ChannelMessagePageResponse.fromJson,
+  'get_resources_channel_message_id': ChannelMessageViewResponse.fromJson,
   'get_resources_contact': ContactPageResponse.fromJson,
   'get_resources_contact_consent': GetResourcesContactConsentResponse.fromJson,
   'get_resources_contact_consent_id': GetResourcesContactConsentIdResponse.fromJson,
@@ -277,8 +277,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_contract_revision_id': GetResourcesContractRevisionIdResponse.fromJson,
   'get_resources_contractor': GetResourcesContractorResponse.fromJson,
   'get_resources_contractor_id': GetResourcesContractorIdResponse.fromJson,
-  'get_resources_conversation': GetResourcesConversationResponse.fromJson,
-  'get_resources_conversation_id': GetResourcesConversationIdResponse.fromJson,
+  'get_resources_conversation': ConversationPageResponse.fromJson,
+  'get_resources_conversation_id': ConversationViewResponse.fromJson,
   'get_resources_criteria_version': GetResourcesCriteriaVersionResponse.fromJson,
   'get_resources_criteria_version_id': GetResourcesCriteriaVersionIdResponse.fromJson,
   'get_resources_dashboard_version': GetResourcesDashboardVersionResponse.fromJson,
@@ -546,6 +546,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listCompensationPlanItems': asObject,
   'listCompensationPlans': asObject,
   'listConflictDeclarations': BidConflictDeclarationListResponse.fromJson,
+  'listConversationAssignees': ConversationAssigneeListResponse.fromJson,
   'listDisbursementSchedules': asObject,
   'listDocumentNumberRegisters': asObject,
   'listDocumentRegisterEntries': DocRegisterEntryResponse.fromJson,
@@ -3098,6 +3099,98 @@ final class ChannelAccountResponse implements ResponseModel {
       };
 }
 
+final class ChannelMessagePageResponse implements ResponseModel {
+  const ChannelMessagePageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ChannelMessagePageResponse.fromJson(Object? json, [String path = 'ChannelMessagePageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ChannelMessagePageResponse(
+      items: requiredField(map, path, 'items', asList(ChannelMessageViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ChannelMessageViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ChannelMessageViewResponse implements ResponseModel {
+  const ChannelMessageViewResponse({
+    required this.id,
+    required this.conversationId,
+    required this.direction,
+    required this.kind,
+    required this.classification,
+    required this.createdAt,
+    this.deliveryStatus,
+    this.authorMembershipId,
+    this.text,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ChannelMessageViewResponse.fromJson(Object? json, [String path = 'ChannelMessageViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ChannelMessageViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      conversationId: requiredField(map, path, 'conversation_id', asString),
+      direction: requiredField(map, path, 'direction', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      deliveryStatus: optionalField(map, path, 'delivery_status', nullable(asString)),
+      authorMembershipId: optionalField(map, path, 'author_membership_id', nullable(asString)),
+      classification: requiredField(map, path, 'classification', asString),
+      text: optionalField(map, path, 'text', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'conversation_id', 'direction', 'kind', 'delivery_status', 'author_membership_id', 'classification', 'text', 'created_at'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String conversationId;
+  final String direction;
+  final String kind;
+  final String? deliveryStatus;
+  final String? authorMembershipId;
+  final String classification;
+  final String? text;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'conversation_id': conversationId,
+        'direction': direction,
+        'kind': kind,
+        if (deliveryStatus != null) 'delivery_status': deliveryStatus,
+        if (authorMembershipId != null) 'author_membership_id': authorMembershipId,
+        'classification': classification,
+        if (text != null) 'text': text,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
 final class CommandResultResponse implements ResponseModel {
   const CommandResultResponse({
     required this.operationId,
@@ -3404,6 +3497,202 @@ final class ContactViewResponseMergeCandidatesItem implements ResponseModel {
         'contact_id': contactId,
         'display_name': displayName,
         'identity_id': identityId,
+        ...extra,
+      };
+}
+
+final class ConversationAssigneeListResponse implements ResponseModel {
+  const ConversationAssigneeListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversationAssigneeListResponse.fromJson(Object? json, [String path = 'ConversationAssigneeListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversationAssigneeListResponse(
+      items: requiredField(map, path, 'items', asList(ConversationAssigneeListResponseItemsItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ConversationAssigneeListResponseItemsItem> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ConversationAssigneeListResponseItemsItem implements ResponseModel {
+  const ConversationAssigneeListResponseItemsItem({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversationAssigneeListResponseItemsItem.fromJson(Object? json, [String path = 'ConversationAssigneeListResponseItemsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversationAssigneeListResponseItemsItem(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', asString),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: false),
+    );
+  }
+
+  final String membershipId;
+  final String displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class ConversationPageResponse implements ResponseModel {
+  const ConversationPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversationPageResponse.fromJson(Object? json, [String path = 'ConversationPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversationPageResponse(
+      items: requiredField(map, path, 'items', asList(ConversationViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ConversationViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ConversationViewResponse implements ResponseModel {
+  const ConversationViewResponse({
+    required this.id,
+    required this.channelAccountId,
+    required this.channel,
+    required this.accountName,
+    required this.contactId,
+    required this.contactName,
+    required this.status,
+    required this.priority,
+    required this.messageCount,
+    required this.createdAt,
+    required this.version,
+    this.assigneeMembershipId,
+    this.assigneeName,
+    this.queueUnitId,
+    this.queueUnitName,
+    this.lastInboundAt,
+    this.windowExpiresAt,
+    this.slaFirstResponseDueAt,
+    this.slaResolutionDueAt,
+    this.assignedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversationViewResponse.fromJson(Object? json, [String path = 'ConversationViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversationViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      channelAccountId: requiredField(map, path, 'channel_account_id', asString),
+      channel: requiredField(map, path, 'channel', asString),
+      accountName: requiredField(map, path, 'account_name', asString),
+      contactId: requiredField(map, path, 'contact_id', asString),
+      contactName: requiredField(map, path, 'contact_name', asString),
+      status: requiredField(map, path, 'status', asString),
+      priority: requiredField(map, path, 'priority', asString),
+      assigneeMembershipId: optionalField(map, path, 'assignee_membership_id', nullable(asString)),
+      assigneeName: optionalField(map, path, 'assignee_name', nullable(asString)),
+      queueUnitId: optionalField(map, path, 'queue_unit_id', nullable(asString)),
+      queueUnitName: optionalField(map, path, 'queue_unit_name', nullable(asString)),
+      lastInboundAt: optionalField(map, path, 'last_inbound_at', nullable(asString)),
+      windowExpiresAt: optionalField(map, path, 'window_expires_at', nullable(asString)),
+      slaFirstResponseDueAt: optionalField(map, path, 'sla_first_response_due_at', nullable(asString)),
+      slaResolutionDueAt: optionalField(map, path, 'sla_resolution_due_at', nullable(asString)),
+      messageCount: requiredField(map, path, 'message_count', asInt),
+      assignedAt: optionalField(map, path, 'assigned_at', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'channel_account_id', 'channel', 'account_name', 'contact_id', 'contact_name', 'status', 'priority', 'assignee_membership_id', 'assignee_name', 'queue_unit_id', 'queue_unit_name', 'last_inbound_at', 'window_expires_at', 'sla_first_response_due_at', 'sla_resolution_due_at', 'message_count', 'assigned_at', 'created_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String channelAccountId;
+  final String channel;
+  final String accountName;
+  final String contactId;
+  final String contactName;
+  final String status;
+  final String priority;
+  final String? assigneeMembershipId;
+  final String? assigneeName;
+  final String? queueUnitId;
+  final String? queueUnitName;
+  final String? lastInboundAt;
+  final String? windowExpiresAt;
+  final String? slaFirstResponseDueAt;
+  final String? slaResolutionDueAt;
+  final int messageCount;
+  final String? assignedAt;
+  final String createdAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'channel_account_id': channelAccountId,
+        'channel': channel,
+        'account_name': accountName,
+        'contact_id': contactId,
+        'contact_name': contactName,
+        'status': status,
+        'priority': priority,
+        if (assigneeMembershipId != null) 'assignee_membership_id': assigneeMembershipId,
+        if (assigneeName != null) 'assignee_name': assigneeName,
+        if (queueUnitId != null) 'queue_unit_id': queueUnitId,
+        if (queueUnitName != null) 'queue_unit_name': queueUnitName,
+        if (lastInboundAt != null) 'last_inbound_at': lastInboundAt,
+        if (windowExpiresAt != null) 'window_expires_at': windowExpiresAt,
+        if (slaFirstResponseDueAt != null) 'sla_first_response_due_at': slaFirstResponseDueAt,
+        if (slaResolutionDueAt != null) 'sla_resolution_due_at': slaResolutionDueAt,
+        'message_count': messageCount,
+        if (assignedAt != null) 'assigned_at': assignedAt,
+        'created_at': createdAt,
+        'version': version,
         ...extra,
       };
 }
@@ -7446,82 +7735,6 @@ final class GetResourcesChangeRequestResponse implements ResponseModel {
       };
 }
 
-final class GetResourcesChannelMessageIdResponse implements ResponseModel {
-  const GetResourcesChannelMessageIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesChannelMessageIdResponse.fromJson(Object? json, [String path = 'GetResourcesChannelMessageIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesChannelMessageIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesChannelMessageResponse implements ResponseModel {
-  const GetResourcesChannelMessageResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesChannelMessageResponse.fromJson(Object? json, [String path = 'GetResourcesChannelMessageResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesChannelMessageResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
 final class GetResourcesContactConsentIdResponse implements ResponseModel {
   const GetResourcesContactConsentIdResponse({
     this.items,
@@ -7800,82 +8013,6 @@ final class GetResourcesContractRevisionResponse implements ResponseModel {
   factory GetResourcesContractRevisionResponse.fromJson(Object? json, [String path = 'GetResourcesContractRevisionResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesContractRevisionResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesConversationIdResponse implements ResponseModel {
-  const GetResourcesConversationIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesConversationIdResponse.fromJson(Object? json, [String path = 'GetResourcesConversationIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesConversationIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesConversationResponse implements ResponseModel {
-  const GetResourcesConversationResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesConversationResponse.fromJson(Object? json, [String path = 'GetResourcesConversationResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesConversationResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),

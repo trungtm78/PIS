@@ -25,6 +25,8 @@ export interface MatrixTargets {
   contactIdentityId: string;
   /** A Granted consent of that contact (version 1): the withdrawal names it in the path. */
   contactConsentId: string;
+  /** A New conversation of tenant A (version 1): the assignment names it in the path. */
+  conversationId: string;
   /** A channel account of tenant A (version 1): the verification, the change and the closing name it in the path. */
   channelAccountId: string;
   /** A Granted SMS consent of RECIPIENT (version 1): the withdrawal names it in the path. */
@@ -2678,6 +2680,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   withdrawContactConsent: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contact-consents/${t.contactConsentId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  assignConversation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/assign`, ifMatch: '"1"', body: { assignee_membership_id: t.recipientMembershipId } }),
   },
   mergeContacts: {
     referencesTenantIds: true,

@@ -12,6 +12,7 @@ const ROW = {
   provider: 'TREASURY',
   event_key: 'evt-0001',
   provider_event_type: 'payment.confirmed',
+  channel_account_id: 'account-1',
   status: 'FAILED',
   attempts: 3,
   next_attempt_at: '2026-10-24T10:30:00.000Z',
@@ -30,6 +31,7 @@ describe('toInboxEvent', () => {
       provider: 'TREASURY',
       eventKey: 'evt-0001',
       eventType: 'payment.confirmed',
+      channelAccountId: 'account-1',
       status: 'FAILED',
       attempts: 3,
       nextAttemptAt: '2026-10-24T10:30:00.000Z',
@@ -41,12 +43,14 @@ describe('toInboxEvent', () => {
       version: 5,
     });
     expect(toInboxEvent({ ...ROW, provider_event_type: undefined, replay_count: undefined, payload_kept: false })).toMatchObject({ eventType: null, replayCount: 0, payloadKept: false });
+    // An event of a provider that is not a channel names no channel account.
+    expect(toInboxEvent({ ...ROW, channel_account_id: null })).toMatchObject({ channelAccountId: null });
   });
 
   it('never carries a payload or a reference to one, whatever the answer holds (AC-ST-ADM-018-4)', () => {
     const view = toInboxEvent({ ...ROW, payload: { iban: 'SECRET-PAYLOAD' }, payload_reference: 'tenants/x/webhook/SECRET-REFERENCE', raw_body: 'SECRET-BODY' }) as InboxEventView;
     expect(JSON.stringify(view)).not.toMatch(/SECRET/);
-    expect(Object.keys(view).sort()).toEqual(['attempts', 'errorCode', 'eventKey', 'eventType', 'id', 'nextAttemptAt', 'payloadKept', 'processedAt', 'provider', 'receivedAt', 'replayCount', 'status', 'version']);
+    expect(Object.keys(view).sort()).toEqual(['attempts', 'channelAccountId', 'errorCode', 'eventKey', 'eventType', 'id', 'nextAttemptAt', 'payloadKept', 'processedAt', 'provider', 'receivedAt', 'replayCount', 'status', 'version']);
   });
 
   it.each([

@@ -42,6 +42,8 @@ function inboxViewOf(row: InboxEventRow): Record<string, unknown> {
     provider: row.provider,
     event_key: row.eventKey,
     provider_event_type: row.eventType,
+    // The channel account a webhook event is for (OMNI-11 shows the events of the channels); none for the other providers.
+    channel_account_id: row.channelAccountId,
     status: row.status,
     attempts: row.attempts,
     next_attempt_at: row.nextAttemptAt,

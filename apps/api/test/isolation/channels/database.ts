@@ -8,6 +8,7 @@ import {
   CERTIFICATE_FIXTURES,
   CONSENT_FIXTURES,
   CONTACT_FIXTURES,
+  CONVERSATION_FIXTURES,
   DELIVERY_ATTEMPT_FIXTURES,
   DOCUMENT_FIXTURES,
   GRANT_FIXTURES,
@@ -162,6 +163,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'mergeContacts',
   'get_resources_contact',
   'get_resources_contact_id',
+  'assignConversation',
+  'listConversationAssignees',
+  'get_resources_conversation',
+  'get_resources_conversation_id',
+  'get_resources_channel_message',
+  'get_resources_channel_message_id',
   'recordContactConsent',
   'withdrawContactConsent',
   'post_sync_attachments',
@@ -1103,6 +1110,11 @@ const INSERT_CONTACT = `insert into machvon.contact (tenant_id, id, display_name
 const INSERT_CONTACT_CONSENT = `insert into machvon.contact_consent (tenant_id, id, contact_id, membership_id, channel, purpose, status, evidence_reference, effective_at, legal_basis, consent_text_version, capture_method)
   values ($1, $2, $3, null, 'EMAIL', 'REMINDER', 'Granted', 'isolation-contact-consent', now(), 'CONSENT', 'isolation-1', 'IN_APP') on conflict do nothing`;
 
+const INSERT_CONVERSATION = `insert into machvon.conversation (tenant_id, id, channel_account_id, external_thread_id, verified_contact_id, resource_links, status, contact_id)
+  values ($1, $2, $3, 'isolation-thread', null, '[]'::jsonb, 'New', $4) on conflict do nothing`;
+const INSERT_CONVERSATION_MESSAGE = `insert into machvon.channel_message (tenant_id, id, conversation_id, provider_message_id, kind, content_reference, sent_at, direction, classification, body_text)
+  values ($1, $2, $3, 'isolation-message', 'TEXT', 'inline', now(), 'INBOUND', 'PERSONAL', $4) on conflict do nothing`;
+
 const INSERT_CONTACT_IDENTITY = `insert into machvon.contact_identity (tenant_id, id, contact_id, channel, external_id_hash, external_id_masked, status)
   values ($1, $2, $3, 'PHONE', repeat('a', 64), '+84*******99', 'Pending') on conflict do nothing`;
 
@@ -1687,6 +1699,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CONTACT, [tenantId, CONTACT_FIXTURES[tenant].id, CONTACT_FIXTURES[tenant].name]);
     await client.query(INSERT_CONTACT_IDENTITY, [tenantId, CONTACT_FIXTURES[tenant].identityId, CONTACT_FIXTURES[tenant].id]);
     await client.query(INSERT_CONTACT_CONSENT, [tenantId, CONTACT_FIXTURES[tenant].consentId, CONTACT_FIXTURES[tenant].id]);
+    await client.query(INSERT_CONVERSATION, [tenantId, CONVERSATION_FIXTURES[tenant].id, attempt.accountId, CONTACT_FIXTURES[tenant].id]);
+    await client.query(INSERT_CONVERSATION_MESSAGE, [tenantId, CONVERSATION_FIXTURES[tenant].messageId, CONVERSATION_FIXTURES[tenant].id, CONVERSATION_FIXTURES[tenant].text]);
     await client.query(INSERT_CONSENT, [tenantId, CONSENT_FIXTURES[tenant].id, MEMBERSHIP_ID]);
     await client.query(INSERT_AUDIT_EVENT, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id, MEMBERSHIP_ID, AUDIT_EVENT_FIXTURES[tenant].action]);
     await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);

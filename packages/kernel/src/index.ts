@@ -138,7 +138,7 @@ export {
   rollupNotificationStatus,
 } from './delivery.ts';
 export type { CircuitState, CircuitVerdict, DeliveryStatus, RetryDecision, RetryInput, RollupInput } from './delivery.ts';
-export type { ChannelAdapter, ChannelLookupResult, ChannelSendRequest, ChannelSendResult, ParsedChannelCallback } from './channel-port.ts';
+export type { ChannelAdapter, ChannelLookupResult, ChannelSendRequest, ChannelSendResult, ParsedChannelCallback, ParsedInboundMessage } from './channel-port.ts';
 export {
   BUSINESS_KEY_INVALID_CODE,
   BUSINESS_KEY_MAX_LENGTH,
@@ -534,6 +534,8 @@ export { CONTACT_CLASSIFICATIONS, DOCUMENT_REF_MAX, IDENTITY_CHANNELS, OTP_CHANN
 export type { ContactClassification, ContactDraft, IdentityChannel, MergeCase, MergeContact, MergeIdentity, MergeRequest, OtpState, OtpVerdict, Verification, VerificationMethod } from './omni-contact.ts';
 export { CONTACT_CAPTURE_METHODS, assertContactConsent, identityChannelOf } from './omni-consent.ts';
 export type { ContactCaptureMethod, ContactConsentDraft } from './omni-consent.ts';
+export { ANSWER_PERMISSION, CONVERSATION_STATUSES, SENDER_AUTHENTICATED_CHANNELS, WINDOW_MS, assertAssignment, assigneeEligible, consentChannelOfAccount, conversationAfter, identityChannelOfAccount, isStopKeyword, windowExpiresAt } from './omni-conversation.ts';
+export type { Assignment, ConversationAction, ConversationStatus } from './omni-conversation.ts';
 export { MAX_BATCH_ITEMS, MAX_KEY_LENGTH, MIN_KEY_LENGTH, SYNC_COMMAND_TYPES, outcomeOf, planOf, syncRequestHashOf } from './sync-command.ts';
 export type { InvocationPlan, ItemOutcome, QueuedCommand, SyncCommandType } from './sync-command.ts';
 export { ATTACHMENT_CHUNK_BYTES, ATTACHMENT_MAX_BYTES, ATTACHMENT_MIME_TYPES, assembledMatches, assertAttachmentLinkable, assertInit, assertLooksLike, chunkCountOf, chunkSizeAt, missingChunks, attachmentSha256Of } from './sync-attachment.ts';

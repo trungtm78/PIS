@@ -282,9 +282,9 @@ describe('reads of retention policies, the review list, connectors and the inbox
       const one = await get(`/resources/integration_event_inbox/${ids[0]}`, READER);
       expect(one.text).not.toContain('RAW-PAYLOAD');
       expect(Object.keys(one.json).sort()).toEqual(
-        ['attempts', 'error_code', 'event_key', 'id', 'next_attempt_at', 'payload_kept', 'processed_at', 'provider', 'provider_event_type', 'received_at', 'replay_count', 'status', 'version'].sort(),
+        ['attempts', 'channel_account_id', 'error_code', 'event_key', 'id', 'next_attempt_at', 'payload_kept', 'processed_at', 'provider', 'provider_event_type', 'received_at', 'replay_count', 'status', 'version'].sort(),
       );
-      expect(one.json).toMatchObject({ id: ids[0], provider: 'READ_TEST', status: 'FAILED', attempts: 3, error_code: 'PROVIDER_DOWN', payload_kept: true, replay_count: 0 });
+      expect(one.json).toMatchObject({ id: ids[0], provider: 'READ_TEST', status: 'FAILED', attempts: 3, error_code: 'PROVIDER_DOWN', payload_kept: true, replay_count: 0, channel_account_id: null });
     });
 
     it('does not show an event of another tenant and gives a subtree-only grant nothing (404, empty list) and a caller with no grant 403', async () => {

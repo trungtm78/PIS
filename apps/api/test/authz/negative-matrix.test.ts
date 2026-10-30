@@ -569,6 +569,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, id(0x7f, 5), id(0x7f, 3)],
       ],
       [
+        `insert into machvon.conversation (tenant_id, id, channel_account_id, external_thread_id, verified_contact_id, resource_links, status, contact_id)
+         values ($1, $2, $3, 'matrix-thread', null, '[]'::jsonb, 'New', $4)`,
+        [TENANT_A, id(0x7f, 6), id(0x7b, 1), id(0x7f, 3)],
+      ],
+      [
         `insert into machvon.contact_identity (tenant_id, id, contact_id, channel, external_id_hash, external_id_masked, status) values ($1, $2, $3, 'PHONE', repeat('b', 64), '+84*******98', 'Pending')`,
         [TENANT_A, id(0x7f, 4), id(0x7f, 3)],
       ],
@@ -1230,6 +1235,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       contactId: id(0x7f, 3),
       contactIdentityId: id(0x7f, 4),
       contactConsentId: id(0x7f, 5),
+      conversationId: id(0x7f, 6),
       channelAccountId: id(0x7b, 1),
       consentId: id(0x7e, 1),
       legalHoldId,

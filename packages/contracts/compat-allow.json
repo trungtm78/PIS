@@ -461,6 +461,104 @@
       "location": "query:limit",
       "reason": "the read of one contact is not paged",
       "change_request": "ST-OMNI-002"
+    },
+    {
+      "operation": "get_resources_conversation",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read is paged by the creation time and the id, and answers the time it was made, as the other directory reads do; there is no snapshot to name",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_channel_message",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read is paged by the creation time and the id, and answers the time it was made, as the other directory reads do; there is no snapshot to name",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_conversation_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_conversation_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_conversation_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_conversation_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_conversation_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:cursor",
+      "reason": "the read of one record is not paged",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_conversation_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:limit",
+      "reason": "the read of one record is not paged",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_channel_message_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_channel_message_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_channel_message_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_channel_message_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one record is the record itself, not a page",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_channel_message_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:cursor",
+      "reason": "the read of one record is not paged",
+      "change_request": "ST-OMNI-004"
+    },
+    {
+      "operation": "get_resources_channel_message_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:limit",
+      "reason": "the read of one record is not paged",
+      "change_request": "ST-OMNI-004"
     }
   ]
 }

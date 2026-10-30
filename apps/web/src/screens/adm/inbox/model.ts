@@ -22,6 +22,8 @@ export interface InboxEventView {
   provider: string;
   eventKey: string;
   eventType: string | null;
+  /** The channel account a webhook event is for (OMNI-11 shows the events of the channels); none for the events of the other providers. */
+  channelAccountId: string | null;
   status: InboxStatus;
   attempts: number;
   nextAttemptAt: string | null;
@@ -49,6 +51,7 @@ export function toInboxEvent(raw: unknown): InboxEventView | undefined {
     provider,
     eventKey,
     eventType: nullableText(raw.provider_event_type),
+    channelAccountId: nullableText(raw.channel_account_id),
     status: status as InboxStatus,
     attempts,
     nextAttemptAt: nullableText(raw.next_attempt_at),

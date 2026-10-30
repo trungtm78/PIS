@@ -1,5 +1,6 @@
-import { WORKER_MEMBERSHIP_ID } from '@machvon/db';
-import type { DeliveryEngine, InboxHandler } from '@machvon/db';
+import { randomUUID } from 'node:crypto';
+import { ConversationStore, WORKER_MEMBERSHIP_ID } from '@machvon/db';
+import type { AuditWriter, DeliveryEngine, InboxHandler } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import type { ChannelAdapterRegistry } from './channel-adapters';
 import type { WebhookPayloadStore } from './webhook-support';
@@ -8,15 +9,17 @@ export interface CallbackHandlerDeps {
   adapters: ChannelAdapterRegistry;
   payloads: WebhookPayloadStore;
   engine: DeliveryEngine;
+  audit: Pick<AuditWriter, 'recordInTx'>;
+  conversations?: ConversationStore;
 }
 
 /**
- * The adapter of the integration inbox for the delivery receipts of one provider (ST-NOT-002): it reads the stored body of the receipt, takes the status
- * out of it with the parser of the provider's adapter and applies it to the send through the monotonic reducer of KERNEL-1. It runs in the transaction
- * of the inbox processor, so what it wrote is undone when it fails, and a failure costs the event an attempt (a receipt for a message id that is not
- * known yet is tried again after 1, 5 and 30 minutes). The tenant is the one of the inbox row; the body is never trusted for it.
+ * The adapter of the integration inbox for the events of one provider: the delivery receipts (ST-NOT-002) and the messages that people write to the tenant (ST-OMNI-004). It reads the stored body of the event, and with the parser of the
+ * provider's adapter either applies a receipt to the send through the monotonic reducer of KERNEL-1 or puts the message into its conversation. It runs in the transaction of the inbox processor, so what it wrote is undone when it fails, and a
+ * failure costs the event an attempt (a receipt for a message id that is not known yet is tried again after 1, 5 and 30 minutes). The tenant is the one of the inbox row; the body is never trusted for it.
  */
 export function channelCallbackHandler(provider: string, deps: CallbackHandlerDeps): InboxHandler {
+  const conversations = deps.conversations ?? new ConversationStore();
   return async (delivery, tx) => {
     const adapter = deps.adapters.forProvider(provider);
     if (adapter === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -29,13 +32,33 @@ export function channelCallbackHandler(provider: string, deps: CallbackHandlerDe
     // A body the retention job has already removed cannot be applied: the event stays failed for an operator to see.
     if (body === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const parsed = adapter.parseCallback(body);
-    if (parsed === undefined) throw new DomainError('VALIDATION_FAILED', 422);
-    await deps.engine.applyCallback(tx, {
+    if (parsed !== undefined) {
+      await deps.engine.applyCallback(tx, {
+        inboxId: delivery.id,
+        channelAccountId: row.channel_account_id,
+        providerMessageId: parsed.providerMessageId,
+        status: parsed.status,
+        occurredAt: parsed.occurredAt,
+      });
+      return;
+    }
+    const message = adapter.parseInbound?.(body);
+    if (message === undefined) throw new DomainError('VALIDATION_FAILED', 422);
+    const outcome = await conversations.receiveInbound(tx, {
       inboxId: delivery.id,
       channelAccountId: row.channel_account_id,
-      providerMessageId: parsed.providerMessageId,
-      status: parsed.status,
-      occurredAt: parsed.occurredAt,
+      providerMessageId: message.providerMessageId,
+      externalThreadId: message.externalThreadId,
+      sender: message.sender,
+      text: message.text,
+      occurredAt: message.occurredAt,
     });
+    if (outcome.kind !== 'RECEIVED') return;
+    const entry = (action: string, resourceType: string, resourceId: string, diff: Record<string, unknown>) =>
+      deps.audit.recordInTx(tx, WORKER_MEMBERSHIP_ID, { action, resourceType, resourceId, diff, correlationId: randomUUID(), requestId: randomUUID() });
+    if (outcome.created) await entry('conversation.opened', 'conversation', outcome.conversationId, { channel_account_id: row.channel_account_id, new_contact: outcome.newContact });
+    else if (outcome.reopened) await entry('conversation.reopened', 'conversation', outcome.conversationId, { by: 'inbound_message' });
+    // A consent a stop word ended is a decision of the person: it is told in the trail with the way it was taken.
+    for (const consent of outcome.withdrawn) await entry('contact_consent.withdrawn', 'contact_consent', consent.id, { channel: consent.channel, purpose: consent.purpose, by: 'stop_keyword' });
   };
 }

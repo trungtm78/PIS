@@ -13,6 +13,8 @@ export interface InboxEventRow {
   provider: string;
   eventKey: string;
   eventType: string | null;
+  /** The channel account a webhook event is for; none for the events of the other providers. */
+  channelAccountId: string | null;
   status: InboxStatus;
   attempts: number;
   nextAttemptAt: string | null;
@@ -30,6 +32,7 @@ interface Row {
   provider: string;
   event_key: string;
   provider_event_type: string | null;
+  channel_account_id: string | null;
   status: InboxStatus;
   attempts: number;
   next_attempt_at: string | null;
@@ -44,7 +47,7 @@ interface Row {
 }
 
 const TIME = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
-const COLUMNS = `id, provider, event_key, provider_event_type, status, attempts, ${TIME('next_attempt_at')} as next_attempt_at, error_code,
+const COLUMNS = `id, provider, event_key, provider_event_type, channel_account_id, status, attempts, ${TIME('next_attempt_at')} as next_attempt_at, error_code,
   ${TIME('received_at')} as received_at, ${TIME('processed_at')} as processed_at, (payload_reference is not null) as payload_kept, replay_count,
   ${TIME('last_replayed_at')} as last_replayed_at, version::text as version, to_char(received_at at time zone 'UTC', 'YYYYMMDDHH24MISSUS') as received_key`;
 
@@ -53,6 +56,7 @@ const toRow = (row: Row): InboxEventRow => ({
   provider: row.provider,
   eventKey: row.event_key,
   eventType: row.provider_event_type,
+  channelAccountId: row.channel_account_id,
   status: row.status,
   attempts: row.attempts,
   nextAttemptAt: row.next_attempt_at,

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DomainError, TIMESTAMPED_HMAC_SHA256 } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
-import type { DeliveryEngine } from '@machvon/db';
+import type { ConversationStore, DeliveryEngine, InboundInput, InboundOutcome } from '@machvon/db';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { channelCallbackHandler } from '../../src/notifications/delivery/callback-handler';
 import { definitionOf } from '../../src/notifications/definition';
@@ -246,7 +246,12 @@ describe('the inbox adapter of a provider (callback handler)', () => {
   const body = Buffer.from(JSON.stringify({ id: 'e1', account: 'relay-1', message: 'm1', status: 'DELIVERED', at: '2026-10-24T03:00:00.000Z' }));
   const tx = (row: unknown): { query: () => Promise<unknown[]> } => ({ query: () => Promise.resolve(row === undefined ? [] : [row]) });
   const payloads = (value: Buffer | undefined): WebhookPayloadStore => ({ put: () => Promise.resolve('ref'), read: () => Promise.resolve(value) });
-  const handler = (provider: string, stored: Buffer | undefined) => channelCallbackHandler(provider, { adapters, payloads: payloads(stored), engine });
+  const trail: Array<{ action: string; resourceId: string; diff: Record<string, unknown> }> = [];
+  const audit = { recordInTx: (_tx: unknown, _actor: string, entry: { action: string; resourceId: string; diff: Record<string, unknown> }) => Promise.resolve(String(trail.push(entry))) };
+  const received: InboundInput[] = [];
+  let outcome: InboundOutcome = { kind: 'BLOCKED' };
+  const conversations = { receiveInbound: (_tx: unknown, input: InboundInput) => Promise.resolve((received.push(input), outcome)) } as unknown as ConversationStore;
+  const handler = (provider: string, stored: Buffer | undefined) => channelCallbackHandler(provider, { adapters, payloads: payloads(stored), engine, audit: audit as never, conversations });
 
   it('applies the status of the stored receipt to the send of the account named on the inbox row', async () => {
     await handler('smtp-relay', body)(delivery, tx({ tenant_id: TENANT.tenantId, channel_account_id: 'acct-1' }) as never);
@@ -261,5 +266,45 @@ describe('the inbox adapter of a provider (callback handler)', () => {
     ['a body the adapter cannot read', 'smtp-relay', Buffer.from('nope'), { tenant_id: TENANT.tenantId, channel_account_id: 'a' }, 'VALIDATION_FAILED'],
   ])('fails, so the inbox keeps the event, for %s', async (_name, provider, stored, row, code) => {
     await expect(handler(provider, stored)(delivery, tx(row) as never)).rejects.toMatchObject({ code });
+  });
+
+  describe('a message that came in', () => {
+    const inbound = Buffer.from(JSON.stringify({ id: 'e2', account: 'relay-1', at: '2026-10-30T03:00:00.000Z', inbound: { message: 'm9', thread: 't1', from: 'a@b.vn', name: 'An', text: 'Xin chào' } }));
+    const row = { tenant_id: TENANT.tenantId, channel_account_id: 'acct-1' };
+    beforeEach(() => {
+      received.length = 0;
+      trail.length = 0;
+      applied.length = 0;
+    });
+
+    it('goes into its conversation with the account of the inbox row, and applies no receipt', async () => {
+      outcome = { kind: 'DUPLICATE', conversationId: 'c1' };
+      await handler('smtp-relay', inbound)(delivery, tx(row) as never);
+      expect(received).toEqual([
+        { inboxId: 'inbox-1', channelAccountId: 'acct-1', providerMessageId: 'm9', externalThreadId: 't1', sender: { externalId: 'a@b.vn', displayName: 'An' }, text: 'Xin chào', occurredAt: new Date('2026-10-30T03:00:00.000Z') },
+      ]);
+      expect(applied).toEqual([]);
+      expect(trail).toEqual([]);
+    });
+
+    it('is told in the trail when it opened a conversation, and when it brought a resolved one back', async () => {
+      outcome = { kind: 'RECEIVED', conversationId: 'c1', messageId: 'm', created: true, reopened: false, newContact: true, withdrawn: [] };
+      await handler('smtp-relay', inbound)(delivery, tx(row) as never);
+      outcome = { kind: 'RECEIVED', conversationId: 'c1', messageId: 'm', created: false, reopened: true, newContact: false, withdrawn: [] };
+      await handler('smtp-relay', inbound)(delivery, tx(row) as never);
+      outcome = { kind: 'RECEIVED', conversationId: 'c1', messageId: 'm', created: false, reopened: false, newContact: false, withdrawn: [] };
+      await handler('smtp-relay', inbound)(delivery, tx(row) as never);
+      expect(trail).toEqual([
+        { action: 'conversation.opened', resourceType: 'conversation', resourceId: 'c1', diff: { channel_account_id: 'acct-1', new_contact: true }, correlationId: expect.any(String), requestId: expect.any(String) },
+        { action: 'conversation.reopened', resourceType: 'conversation', resourceId: 'c1', diff: { by: 'inbound_message' }, correlationId: expect.any(String), requestId: expect.any(String) },
+      ]);
+    });
+
+    it('tells every consent that a stop word ended', async () => {
+      const consent = { id: 'k1', channel: 'SMS', purpose: 'MARKETING' };
+      outcome = { kind: 'RECEIVED', conversationId: 'c1', messageId: 'm', created: false, reopened: false, newContact: false, withdrawn: [consent as never] };
+      await handler('smtp-relay', inbound)(delivery, tx(row) as never);
+      expect(trail).toMatchObject([{ action: 'contact_consent.withdrawn', resourceId: 'k1', diff: { channel: 'SMS', purpose: 'MARKETING', by: 'stop_keyword' } }]);
+    });
   });
 });

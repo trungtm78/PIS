@@ -64,9 +64,9 @@ export const notificationsModule = defineModule({
     },
     {
       provide: NOT_INBOX_REGISTRATION,
-      useFactory: (registry: InboxHandlerRegistry, adapters: ChannelAdapterRegistry, payloads: WebhookPayloadStore, engine: DeliveryEngine) =>
-        registerChannelCallbacks(registry, adapters, payloads, engine),
-      inject: [ADM_INBOX_HANDLERS, CHANNEL_ADAPTERS, WEBHOOK_PAYLOADS, DELIVERY_ENGINE],
+      useFactory: (registry: InboxHandlerRegistry, adapters: ChannelAdapterRegistry, payloads: WebhookPayloadStore, engine: DeliveryEngine, database: TenantDatabase) =>
+        registerChannelCallbacks(registry, adapters, payloads, engine, new AuditWriter(database)),
+      inject: [ADM_INBOX_HANDLERS, CHANNEL_ADAPTERS, WEBHOOK_PAYLOADS, DELIVERY_ENGINE, TenantDatabase],
     },
   ],
 });

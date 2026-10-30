@@ -43,6 +43,23 @@ export type ChannelLookupResult =
   /** The provider cannot tell (it keeps no idempotency keys, or it is down): the send stays Unknown. */
   | { kind: 'UNDETERMINED' };
 
+/** A message that a person sent to the tenant, as the provider wrote it, reduced to what the omnichannel center reads (ST-OMNI-004). */
+export interface ParsedInboundMessage {
+  /** The provider's own id of the event: the dedupe key of the inbox. */
+  eventKey: string;
+  eventType: string;
+  /** The `external_account_id` of the channel account the message is for: the only way a tenant is found (the payload's own tenant is never trusted). */
+  externalAccountId: string;
+  /** The provider's id of the message: a message that comes twice is one. */
+  providerMessageId: string;
+  /** The thread the message belongs to at the provider: the conversation is found by it and the channel account. */
+  externalThreadId: string;
+  /** Who wrote it: the identity on the channel (a phone number, an address, a Zalo or WhatsApp id) and the name the provider gives, if it does. */
+  sender: { externalId: string; displayName: string | undefined };
+  text: string;
+  occurredAt: Date;
+}
+
 /** A delivery receipt as the provider wrote it, reduced to what the engine reads. */
 export interface ParsedChannelCallback {
   /** The provider's own id of the event: the dedupe key of the inbox. */
@@ -71,4 +88,6 @@ export interface ChannelAdapter {
   lookup(idempotencyKey: string): Promise<ChannelLookupResult>;
   /** Reads a callback body; undefined when it is not one the adapter understands. */
   parseCallback(rawBody: Buffer): ParsedChannelCallback | undefined;
+  /** Reads the body of a message that came in; undefined when it is not one. A body is a receipt or a message, never both. */
+  parseInbound?(rawBody: Buffer): ParsedInboundMessage | undefined;
 }

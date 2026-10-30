@@ -34,7 +34,7 @@ interface AccountRoute {
 const unknownAccount = (): DomainError => new DomainError('CHANNEL_ACCOUNT_UNKNOWN', 404);
 
 /**
- * receiveChannelWebhook (ST-NOT-002, NOT 9, BR-OMNI-04): the delivery receipts of the providers. There is no session here: the signature is the
+ * receiveChannelWebhook (ST-NOT-002, NOT 9, BR-OMNI-04): the delivery receipts of the providers, and the messages that people write to the tenant (ST-OMNI-004). There is no session here: the signature is the
  * authentication. The order matters. The signature is checked on the raw body, with the keys of the channel account that the receipt names, before anything
  * is stored; a receipt that does not verify leaves nothing but a counter. The tenant is the one of that channel account, never one the payload claims. The
  * receipt is written once to the inbox (unique per tenant, provider and event) and the answer is sent after it is persisted; applying it to the send is
@@ -79,7 +79,8 @@ export class ChannelWebhookController {
     const timestampSeconds = parseCallbackTimestamp(timestamp);
     // No signature, no work: a receipt that carries none is refused before its body is read.
     if (signature === undefined || signature === '') verifyProviderCallback({ provider, rawBody, signature, timestampSeconds, keys: [], metrics: this.metrics });
-    const parsed = adapter.parseCallback(rawBody);
+    // A body is a receipt or a message that came in; both name the event and the account, which is all this controller reads.
+    const parsed = adapter.parseCallback(rawBody) ?? adapter.parseInbound?.(rawBody);
     if (parsed === undefined) throw unknownAccount();
     // The event is the one the signed body names. The Idempotency-Key header is not under the signature (only the timestamp and the body are), so whoever
     // replays a signed receipt could write another key and make it a new event: it is checked for its size and never decides what a duplicate is.

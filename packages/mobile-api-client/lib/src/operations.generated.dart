@@ -545,6 +545,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listCompensationPlanItems': OperationDescriptor(method: 'GET', path: '/compensation-plans/{id}/items', versioned: false, stepUp: null, permission: 'land.read'),
   'listCompensationPlans': OperationDescriptor(method: 'GET', path: '/compensation-plans', versioned: false, stepUp: null, permission: 'land.read'),
   'listConflictDeclarations': OperationDescriptor(method: 'GET', path: '/procurement-packages/{id}/conflict-declarations', versioned: false, stepUp: null, permission: 'bid.read'),
+  'listConversationAssignees': OperationDescriptor(method: 'GET', path: '/conversations/{conversationId}/assignees', versioned: false, stepUp: null, permission: 'omni.conversation.assign'),
   'listDisbursementSchedules': OperationDescriptor(method: 'GET', path: '/disbursement-schedules', versioned: false, stepUp: null, permission: 'capital.read'),
   'listDocumentNumberRegisters': OperationDescriptor(method: 'GET', path: '/document-number-registers', versioned: false, stepUp: null, permission: 'doc.register.read'),
   'listDocumentRegisterEntries': OperationDescriptor(method: 'GET', path: '/document-number-registers/{id}/entries', versioned: false, stepUp: null, permission: 'doc.register.read'),

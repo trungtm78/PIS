@@ -251,6 +251,21 @@ export class ContactStore {
     return row === undefined ? undefined : { id: row.id, holderId: row.holder_id, mergedIntoId: row.merged_into_id };
   }
 
+  /**
+   * The contact that is alive and holds an identity (the one it was merged into when the holder was merged), or nothing when no contact has it. A message that comes in from an identity is the message of this contact.
+   */
+  async ownerOfIdentity(tx: TenantTx, channel: IdentityChannel, hash: string): Promise<{ contactId: string; status: ContactStatus; identityId: string; identityStatus: IdentityStatus } | undefined> {
+    const [row] = await tx.query<{ contact_id: string; status: ContactStatus; identity_id: string; identity_status: IdentityStatus }>(
+      `select o.id as contact_id, o.status, i.id as identity_id, i.status as identity_status
+         from machvon.contact_identity i
+         join machvon.contact h on h.tenant_id = i.tenant_id and h.id = i.contact_id
+         join machvon.contact o on o.tenant_id = h.tenant_id and o.id = coalesce(h.merged_into_id, h.id)
+        where i.channel = $1 and i.external_id_hash = $2`,
+      [channel, hash],
+    );
+    return row === undefined ? undefined : { contactId: row.contact_id, status: row.status, identityId: row.identity_id, identityStatus: row.identity_status };
+  }
+
   async requireIdentity(tx: TenantTx, id: string): Promise<IdentityRecord> {
     const [row] = await tx.query<IdentityRow>(`select ${IDENTITY_COLUMNS} from machvon.contact_identity i where i.id = $1::uuid`, [id]);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);

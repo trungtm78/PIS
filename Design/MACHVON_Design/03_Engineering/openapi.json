@@ -12047,7 +12047,7 @@
     "/resources/conversation": {
       "get": {
         "operationId": "get_resources_conversation",
-        "summary": "Danh sách conversation theo scope",
+        "summary": "Hội thoại trong hàng đợi của đơn vị mình và hội thoại được giao cho mình, mới nhất trước (OMNI-01)",
         "x-permission": "conversation.read",
         "parameters": [
           {
@@ -12066,6 +12066,42 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "New",
+                "Assigned",
+                "InProgress",
+                "PendingCustomer",
+                "Resolved",
+                "Closed"
+              ]
+            },
+            "description": "Only the conversations in this state"
+          },
+          {
+            "name": "mine",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Only the conversations assigned to the caller"
+          },
+          {
+            "name": "queue_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Only the conversations in the queue of this unit"
           }
         ],
         "responses": {
@@ -12074,28 +12110,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ConversationPage"
                 }
               }
             }
@@ -12190,7 +12205,7 @@
     "/resources/conversation/{id}": {
       "get": {
         "operationId": "get_resources_conversation_id",
-        "summary": "Chi tiết conversation có version/source",
+        "summary": "Một hội thoại với hạn SLA, cửa sổ trả lời và người xử lý (OMNI-01)",
         "x-permission": "conversation.read",
         "parameters": [
           {
@@ -12201,23 +12216,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
@@ -12226,28 +12224,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ConversationView"
                 }
               }
             }
@@ -12342,7 +12319,7 @@
     "/resources/channel_message": {
       "get": {
         "operationId": "get_resources_channel_message",
-        "summary": "Danh sách channel_message theo scope",
+        "summary": "Tin nhắn của một hội thoại, cũ nhất trước, không kèm nội dung (OMNI-01)",
         "x-permission": "channel_message.read",
         "parameters": [
           {
@@ -12361,6 +12338,16 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "conversation_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Only the messages of this conversation"
           }
         ],
         "responses": {
@@ -12369,28 +12356,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ChannelMessagePage"
                 }
               }
             }
@@ -12485,7 +12451,7 @@
     "/resources/channel_message/{id}": {
       "get": {
         "operationId": "get_resources_channel_message_id",
-        "summary": "Chi tiết channel_message có version/source",
+        "summary": "Một tin nhắn kèm nội dung (OMNI-01)",
         "x-permission": "channel_message.read",
         "parameters": [
           {
@@ -12496,23 +12462,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
@@ -12521,28 +12470,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ChannelMessageView"
                 }
               }
             }
@@ -66207,7 +66135,8 @@
         },
         "x-error-codes": [
           "ASSIGNEE_NOT_ELIGIBLE",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "CONVERSATION_STATE_INVALID"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -131641,6 +131570,121 @@
           }
         }
       }
+    },
+    "/conversations/{conversationId}/assignees": {
+      "get": {
+        "operationId": "listConversationAssignees",
+        "summary": "Những người có thể được giao hội thoại: có quyền trả lời và phạm vi chứa hàng đợi của nó (OMNI-01)",
+        "tags": [
+          "OMNI"
+        ],
+        "x-permission": "omni.conversation.assign",
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The members who may be given the conversation, by name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationAssigneeList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / license / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Budget / rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Provider unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant",
+        "x-error-codes": []
+      }
     }
   },
   "components": {
@@ -158540,6 +158584,295 @@
               "string",
               "null"
             ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConversationView": {
+        "type": "object",
+        "required": [
+          "id",
+          "channel_account_id",
+          "channel",
+          "account_name",
+          "contact_id",
+          "contact_name",
+          "status",
+          "priority",
+          "message_count",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channel_account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "account_name": {
+            "type": "string"
+          },
+          "contact_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contact_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "New",
+              "Assigned",
+              "InProgress",
+              "PendingCustomer",
+              "Resolved",
+              "Closed"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "NORMAL",
+              "LOW"
+            ]
+          },
+          "assignee_membership_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "assignee_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "queue_unit_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "The unit whose queue the conversation is in; none is the queue of the whole tenant"
+          },
+          "queue_unit_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_inbound_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "window_expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Until when the tenant may answer freely (WhatsApp, Zalo OA: 24 hours after the last message of the person); none for a channel without a window"
+          },
+          "sla_first_response_due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "sla_resolution_due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "message_count": {
+            "type": "integer"
+          },
+          "assigned_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "description": "The If-Match of the assignment"
+          }
+        }
+      },
+      "ConversationPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChannelMessageView": {
+        "type": "object",
+        "required": [
+          "id",
+          "conversation_id",
+          "direction",
+          "kind",
+          "classification",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "INBOUND",
+              "OUTBOUND",
+              "INTERNAL_NOTE"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "delivery_status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "Queued",
+              "ProviderAccepted",
+              "Delivered",
+              "Read",
+              "Failed",
+              null
+            ]
+          },
+          "author_membership_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "INTERNAL",
+              "CONFIDENTIAL",
+              "PERSONAL"
+            ]
+          },
+          "text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The text of the message; only the read of one message carries it (the list is read for the order and the state, the text is personal data)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChannelMessagePage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelMessageView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConversationAssigneeList": {
+        "type": "object",
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "membership_id",
+                "display_name"
+              ],
+              "properties": {
+                "membership_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "display_name": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "as_of": {
             "type": "string",

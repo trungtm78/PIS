@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { TIMESTAMPED_HMAC_SHA256, activationBlock } from '@machvon/kernel';
-import type { AdapterStatus, ChannelAdapter, ChannelLookupResult, ChannelSendRequest, ChannelSendResult, DeliveryStatus, ParsedChannelCallback, ProviderSignatureScheme } from '@machvon/kernel';
+import type { AdapterStatus, ChannelAdapter, ChannelLookupResult, ChannelSendRequest, ChannelSendResult, DeliveryStatus, ParsedChannelCallback, ParsedInboundMessage, ProviderSignatureScheme } from '@machvon/kernel';
 
 /** Injection token of the registry of the channel adapters of the process. */
 export const CHANNEL_ADAPTERS = Symbol('CHANNEL_ADAPTERS');
@@ -160,6 +160,31 @@ export class InMemoryChannelAdapter implements ChannelAdapter {
       providerMessageId: message,
       status: status as DeliveryStatus,
       occurredAt,
+    };
+  }
+
+  /** `{"id": event id, "account": external account id, "type": event type, "at": ISO time, "inbound": {"message": provider message id, "thread": thread id, "from": sender id, "name": sender name, "text": text}}`. */
+  parseInbound(rawBody: Buffer): ParsedInboundMessage | undefined {
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody.toString('utf8'));
+    } catch {
+      return undefined;
+    }
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) return undefined;
+    const { id, account, type, at, inbound } = body as Record<string, unknown>;
+    if (typeof id !== 'string' || typeof account !== 'string' || typeof inbound !== 'object' || inbound === null || Array.isArray(inbound)) return undefined;
+    const { message, thread, from, name, text } = inbound as Record<string, unknown>;
+    if (typeof message !== 'string' || message === '' || typeof thread !== 'string' || thread === '' || typeof from !== 'string' || from === '' || typeof text !== 'string') return undefined;
+    return {
+      eventKey: id,
+      eventType: typeof type === 'string' ? type : 'message.inbound',
+      externalAccountId: account,
+      providerMessageId: message,
+      externalThreadId: thread,
+      sender: { externalId: from, displayName: typeof name === 'string' ? name : undefined },
+      text,
+      occurredAt: typeof at === 'string' && !Number.isNaN(Date.parse(at)) ? new Date(at) : new Date(),
     };
   }
 }

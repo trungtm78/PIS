@@ -211,6 +211,19 @@ export class ContactConsentStore {
     return row;
   }
 
+  /** The consents of a contact (and of the contacts merged into it) on a channel that are in force, for any purpose: what a word that withdraws the consent ends. Locked for the withdrawal that follows. */
+  async liveOfContact(tx: TenantTx, contactId: string, channel: string): Promise<ConsentRow[]> {
+    const rows = await tx.query<Sql>(
+      `select k.id, k.membership_id, k.contact_id, k.channel, k.purpose, k.status, ${ISO('k.effective_at')} as effective_at, ${ISO('k.revoked_at')} as revoked_at, k.consent_text_version,
+          k.capture_method, k.legal_basis, k.version::text as version, ${timestampKey('k.effective_at')} as effective_key
+         from machvon.contact_consent k join machvon.contact c on c.tenant_id = k.tenant_id and c.id = k.contact_id
+        where coalesce(c.merged_into_id, c.id) = $1::uuid and k.channel = $2 and k.status = 'Granted' and k.membership_id is null
+        order by k.effective_at, k.id for update of k`,
+      [contactId, channel],
+    );
+    return rows.map(toRow);
+  }
+
   /** The history of a person, newest first: every consent they gave and every one they withdrew (NOT-17). */
   async historyOf(tx: TenantTx, membershipId: string, page: ConsentPage): Promise<ConsentRow[]> {
     assertTimestampCursor(page.after?.code);

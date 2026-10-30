@@ -28,9 +28,9 @@ export function createDeliveryEngine(audit: Pick<AuditWriter, 'recordInTx'>, met
   return new DeliveryEngine({ dedupeKeyOf, audit, ...(metrics === undefined ? {} : { metrics }) });
 }
 
-/** Registers the inbox adapter of every provider that has a channel adapter; a provider without one has its receipts wait as RECEIVED, never failed. */
-export function registerChannelCallbacks(registry: InboxHandlerRegistry, adapters: ChannelAdapterRegistry, payloads: WebhookPayloadStore, engine: DeliveryEngine): string[] {
+/** Registers the inbox adapter of every provider that has a channel adapter (receipts and messages that come in); a provider without one has its events wait as RECEIVED, never failed. */
+export function registerChannelCallbacks(registry: InboxHandlerRegistry, adapters: ChannelAdapterRegistry, payloads: WebhookPayloadStore, engine: DeliveryEngine, audit: Pick<AuditWriter, 'recordInTx'>): string[] {
   const providers = adapters.providers();
-  for (const provider of providers) registry.register(provider, channelCallbackHandler(provider, { adapters, payloads, engine }));
+  for (const provider of providers) registry.register(provider, channelCallbackHandler(provider, { adapters, payloads, engine, audit }));
   return providers;
 }
