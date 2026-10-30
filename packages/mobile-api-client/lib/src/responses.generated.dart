@@ -452,7 +452,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getHomeWarnings': asObject,
   'getIncomingDocument': asObject,
   'getInspection': QmsInspectionLineResponse.fromJson,
-  'getIssueWeeklyMatrix': asObject,
+  'getIssueWeeklyMatrix': IssueWeeklyMatrixResponse.fromJson,
   'getLandProgress': asObject,
   'getLineageGraph': asObject,
   'getMasterChangeRequest': asObject,
@@ -14777,6 +14777,462 @@ final class InvoiceResponseEinvoice implements ResponseModel {
         'number': number,
         if (taxAuthorityCode != null) 'tax_authority_code': taxAuthorityCode,
         if (lookupCode != null) 'lookup_code': lookupCode,
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponse implements ResponseModel {
+  const IssueWeeklyMatrixResponse({
+    required this.week,
+    required this.from,
+    required this.to,
+    required this.statuses,
+    required this.rows,
+    required this.units,
+    required this.totals,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponse.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponse(
+      week: requiredField(map, path, 'week', asString),
+      from: requiredField(map, path, 'from', asString),
+      to: requiredField(map, path, 'to', asString),
+      statuses: requiredField(map, path, 'statuses', asList(asString)),
+      rows: requiredField(map, path, 'rows', asList(IssueWeeklyMatrixResponseRowsItem.fromJson)),
+      units: requiredField(map, path, 'units', asList(IssueWeeklyMatrixResponseUnitsItem.fromJson)),
+      totals: requiredField(map, path, 'totals', IssueWeeklyMatrixResponseTotals.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'week', 'from', 'to', 'statuses', 'rows', 'units', 'totals', 'as_of'}, strict: false),
+    );
+  }
+
+  final String week;
+  final String from;
+  final String to;
+  final List<String> statuses;
+  final List<IssueWeeklyMatrixResponseRowsItem> rows;
+  final List<IssueWeeklyMatrixResponseUnitsItem> units;
+  final IssueWeeklyMatrixResponseTotals totals;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'week': week,
+        'from': from,
+        'to': to,
+        'statuses': statuses,
+        'rows': rows.map((e0) => e0.toJson()).toList(),
+        'units': units.map((e0) => e0.toJson()).toList(),
+        'totals': totals.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseRowsItem implements ResponseModel {
+  const IssueWeeklyMatrixResponseRowsItem({
+    required this.unit,
+    required this.category,
+    required this.opening,
+    required this.opened,
+    required this.resolved,
+    required this.closing,
+    required this.overdue,
+    required this.byStatus,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseRowsItem.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseRowsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseRowsItem(
+      unit: requiredField(map, path, 'unit', IssueWeeklyMatrixResponseRowsItemUnit.fromJson),
+      category: requiredField(map, path, 'category', IssueWeeklyMatrixResponseRowsItemCategory.fromJson),
+      opening: requiredField(map, path, 'opening', asInt),
+      opened: requiredField(map, path, 'opened', asInt),
+      resolved: requiredField(map, path, 'resolved', asInt),
+      closing: requiredField(map, path, 'closing', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      byStatus: requiredField(map, path, 'by_status', IssueWeeklyMatrixResponseRowsItemByStatus.fromJson),
+      extra: unknownFields(map, path, const <String>{'unit', 'category', 'opening', 'opened', 'resolved', 'closing', 'overdue', 'by_status'}, strict: false),
+    );
+  }
+
+  final IssueWeeklyMatrixResponseRowsItemUnit unit;
+  final IssueWeeklyMatrixResponseRowsItemCategory category;
+  final int opening;
+  final int opened;
+  final int resolved;
+  final int closing;
+  final int overdue;
+  final IssueWeeklyMatrixResponseRowsItemByStatus byStatus;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit': unit.toJson(),
+        'category': category.toJson(),
+        'opening': opening,
+        'opened': opened,
+        'resolved': resolved,
+        'closing': closing,
+        'overdue': overdue,
+        'by_status': byStatus.toJson(),
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseRowsItemByStatus implements ResponseModel {
+  const IssueWeeklyMatrixResponseRowsItemByStatus({
+    required this.oPEN,
+    required this.aSSIGNED,
+    required this.iNPROGRESS,
+    required this.eSCALATED,
+    required this.pENDINGVERIFICATION,
+    required this.cLOSED,
+    required this.rEOPENED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseRowsItemByStatus.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseRowsItemByStatus']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseRowsItemByStatus(
+      oPEN: requiredField(map, path, 'OPEN', asInt),
+      aSSIGNED: requiredField(map, path, 'ASSIGNED', asInt),
+      iNPROGRESS: requiredField(map, path, 'IN_PROGRESS', asInt),
+      eSCALATED: requiredField(map, path, 'ESCALATED', asInt),
+      pENDINGVERIFICATION: requiredField(map, path, 'PENDING_VERIFICATION', asInt),
+      cLOSED: requiredField(map, path, 'CLOSED', asInt),
+      rEOPENED: requiredField(map, path, 'REOPENED', asInt),
+      extra: unknownFields(map, path, const <String>{'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED', 'PENDING_VERIFICATION', 'CLOSED', 'REOPENED'}, strict: false),
+    );
+  }
+
+  final int oPEN;
+  final int aSSIGNED;
+  final int iNPROGRESS;
+  final int eSCALATED;
+  final int pENDINGVERIFICATION;
+  final int cLOSED;
+  final int rEOPENED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'OPEN': oPEN,
+        'ASSIGNED': aSSIGNED,
+        'IN_PROGRESS': iNPROGRESS,
+        'ESCALATED': eSCALATED,
+        'PENDING_VERIFICATION': pENDINGVERIFICATION,
+        'CLOSED': cLOSED,
+        'REOPENED': rEOPENED,
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseRowsItemCategory implements ResponseModel {
+  const IssueWeeklyMatrixResponseRowsItemCategory({
+    required this.versionId,
+    required this.code,
+    required this.label,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseRowsItemCategory.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseRowsItemCategory']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseRowsItemCategory(
+      versionId: requiredField(map, path, 'version_id', asString),
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      extra: unknownFields(map, path, const <String>{'version_id', 'code', 'label'}, strict: false),
+    );
+  }
+
+  final String versionId;
+  final String code;
+  final String label;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'version_id': versionId,
+        'code': code,
+        'label': label,
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseRowsItemUnit implements ResponseModel {
+  const IssueWeeklyMatrixResponseRowsItemUnit({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseRowsItemUnit.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseRowsItemUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseRowsItemUnit(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseTotals implements ResponseModel {
+  const IssueWeeklyMatrixResponseTotals({
+    required this.opening,
+    required this.opened,
+    required this.resolved,
+    required this.closing,
+    required this.overdue,
+    required this.byStatus,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseTotals.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseTotals']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseTotals(
+      opening: requiredField(map, path, 'opening', asInt),
+      opened: requiredField(map, path, 'opened', asInt),
+      resolved: requiredField(map, path, 'resolved', asInt),
+      closing: requiredField(map, path, 'closing', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      byStatus: requiredField(map, path, 'by_status', IssueWeeklyMatrixResponseTotalsByStatus.fromJson),
+      extra: unknownFields(map, path, const <String>{'opening', 'opened', 'resolved', 'closing', 'overdue', 'by_status'}, strict: false),
+    );
+  }
+
+  final int opening;
+  final int opened;
+  final int resolved;
+  final int closing;
+  final int overdue;
+  final IssueWeeklyMatrixResponseTotalsByStatus byStatus;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'opening': opening,
+        'opened': opened,
+        'resolved': resolved,
+        'closing': closing,
+        'overdue': overdue,
+        'by_status': byStatus.toJson(),
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseTotalsByStatus implements ResponseModel {
+  const IssueWeeklyMatrixResponseTotalsByStatus({
+    required this.oPEN,
+    required this.aSSIGNED,
+    required this.iNPROGRESS,
+    required this.eSCALATED,
+    required this.pENDINGVERIFICATION,
+    required this.cLOSED,
+    required this.rEOPENED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseTotalsByStatus.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseTotalsByStatus']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseTotalsByStatus(
+      oPEN: requiredField(map, path, 'OPEN', asInt),
+      aSSIGNED: requiredField(map, path, 'ASSIGNED', asInt),
+      iNPROGRESS: requiredField(map, path, 'IN_PROGRESS', asInt),
+      eSCALATED: requiredField(map, path, 'ESCALATED', asInt),
+      pENDINGVERIFICATION: requiredField(map, path, 'PENDING_VERIFICATION', asInt),
+      cLOSED: requiredField(map, path, 'CLOSED', asInt),
+      rEOPENED: requiredField(map, path, 'REOPENED', asInt),
+      extra: unknownFields(map, path, const <String>{'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED', 'PENDING_VERIFICATION', 'CLOSED', 'REOPENED'}, strict: false),
+    );
+  }
+
+  final int oPEN;
+  final int aSSIGNED;
+  final int iNPROGRESS;
+  final int eSCALATED;
+  final int pENDINGVERIFICATION;
+  final int cLOSED;
+  final int rEOPENED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'OPEN': oPEN,
+        'ASSIGNED': aSSIGNED,
+        'IN_PROGRESS': iNPROGRESS,
+        'ESCALATED': eSCALATED,
+        'PENDING_VERIFICATION': pENDINGVERIFICATION,
+        'CLOSED': cLOSED,
+        'REOPENED': rEOPENED,
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseUnitsItem implements ResponseModel {
+  const IssueWeeklyMatrixResponseUnitsItem({
+    required this.unit,
+    required this.opening,
+    required this.opened,
+    required this.resolved,
+    required this.closing,
+    required this.overdue,
+    required this.byStatus,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseUnitsItem.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseUnitsItem(
+      unit: requiredField(map, path, 'unit', IssueWeeklyMatrixResponseUnitsItemUnit.fromJson),
+      opening: requiredField(map, path, 'opening', asInt),
+      opened: requiredField(map, path, 'opened', asInt),
+      resolved: requiredField(map, path, 'resolved', asInt),
+      closing: requiredField(map, path, 'closing', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      byStatus: requiredField(map, path, 'by_status', IssueWeeklyMatrixResponseUnitsItemByStatus.fromJson),
+      extra: unknownFields(map, path, const <String>{'unit', 'opening', 'opened', 'resolved', 'closing', 'overdue', 'by_status'}, strict: false),
+    );
+  }
+
+  final IssueWeeklyMatrixResponseUnitsItemUnit unit;
+  final int opening;
+  final int opened;
+  final int resolved;
+  final int closing;
+  final int overdue;
+  final IssueWeeklyMatrixResponseUnitsItemByStatus byStatus;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit': unit.toJson(),
+        'opening': opening,
+        'opened': opened,
+        'resolved': resolved,
+        'closing': closing,
+        'overdue': overdue,
+        'by_status': byStatus.toJson(),
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseUnitsItemByStatus implements ResponseModel {
+  const IssueWeeklyMatrixResponseUnitsItemByStatus({
+    required this.oPEN,
+    required this.aSSIGNED,
+    required this.iNPROGRESS,
+    required this.eSCALATED,
+    required this.pENDINGVERIFICATION,
+    required this.cLOSED,
+    required this.rEOPENED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseUnitsItemByStatus.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseUnitsItemByStatus']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseUnitsItemByStatus(
+      oPEN: requiredField(map, path, 'OPEN', asInt),
+      aSSIGNED: requiredField(map, path, 'ASSIGNED', asInt),
+      iNPROGRESS: requiredField(map, path, 'IN_PROGRESS', asInt),
+      eSCALATED: requiredField(map, path, 'ESCALATED', asInt),
+      pENDINGVERIFICATION: requiredField(map, path, 'PENDING_VERIFICATION', asInt),
+      cLOSED: requiredField(map, path, 'CLOSED', asInt),
+      rEOPENED: requiredField(map, path, 'REOPENED', asInt),
+      extra: unknownFields(map, path, const <String>{'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED', 'PENDING_VERIFICATION', 'CLOSED', 'REOPENED'}, strict: false),
+    );
+  }
+
+  final int oPEN;
+  final int aSSIGNED;
+  final int iNPROGRESS;
+  final int eSCALATED;
+  final int pENDINGVERIFICATION;
+  final int cLOSED;
+  final int rEOPENED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'OPEN': oPEN,
+        'ASSIGNED': aSSIGNED,
+        'IN_PROGRESS': iNPROGRESS,
+        'ESCALATED': eSCALATED,
+        'PENDING_VERIFICATION': pENDINGVERIFICATION,
+        'CLOSED': cLOSED,
+        'REOPENED': rEOPENED,
+        ...extra,
+      };
+}
+
+final class IssueWeeklyMatrixResponseUnitsItemUnit implements ResponseModel {
+  const IssueWeeklyMatrixResponseUnitsItemUnit({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IssueWeeklyMatrixResponseUnitsItemUnit.fromJson(Object? json, [String path = 'IssueWeeklyMatrixResponseUnitsItemUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IssueWeeklyMatrixResponseUnitsItemUnit(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
         ...extra,
       };
 }

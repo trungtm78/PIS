@@ -357,8 +357,10 @@ export { ISSUE_CATEGORY_TYPE, IssSlaPolicyStore, MAX_ESCALATE_PCT, MAX_SLA_HOURS
 export type { SlaPolicyFilter, SlaPolicyInput, SlaPolicyLookup, SlaPolicyRow, SlaPolicyStatus, SlaPolicyStoreOptions, SlaSeverity } from './iss-sla-policy-store.ts';
 export { ISS_WORKING_INTERVALS, IssSlaDeadlines } from './iss-sla-deadline.ts';
 export type { SlaDeadline, SlaDeadlineRequest } from './iss-sla-deadline.ts';
+export { IssWeeklyStore, emptyCounts as emptyStatusCounts } from './iss-weekly-store.ts';
+export type { MatrixRow as IssueMatrixRow, StatusCounts as IssueStatusCounts } from './iss-weekly-store.ts';
 export { ISSUE_SOURCES, ISSUE_STATUSES, ISSUE_WORK_PERMISSION, IssIssueStore, LAND_HOUSEHOLD_PERMISSION, LOW_ACCURACY_METRES, MAX_ISSUE_TEXT, issueScope, issueText } from './iss-issue-store.ts';
-export type { AssignedIssue, AssigneeOption, CommentedIssue, CreatedIssue, IssueDetail, IssueEventKind, IssueEventRow, IssueHeader, IssueLine, IssuePlace, IssueScopes, IssueSource, IssueStatus, NewIssue, TransferredIssue } from './iss-issue-store.ts';
+export type { AssignedIssue, AssigneeOption, CommentedIssue, CreatedIssue, IssueDetail, IssueEventKind, IssueEventRow, IssueFilter, IssueHeader, IssueLine, IssuePlace, IssueScopes, IssueSource, IssueStatus, NewIssue, TransferredIssue } from './iss-issue-store.ts';
 export { ISSUE_MAX_EXTENSIONS, ISSUE_REOPEN_WINDOW_DAYS, IssIssueClosure, MAX_EVIDENCE_DOCUMENTS } from './iss-issue-closure.ts';
 export { AUTO_ESCALATION_REASONS, ESCALATION_ACCEPT_HOURS, ESCALATION_ACCEPT_PERMISSION, IssEscalationStore } from './iss-escalation-store.ts';
 export type { AcceptedEscalation, BreachLine, EscalationInput, EscalationLevel, EscalationRow, EscalationStatus, EscalationTrigger, RaisedEscalation } from './iss-escalation-store.ts';

@@ -92,12 +92,13 @@ function useIssueKey(): readonly [string, string | undefined, string | undefined
 const MAX_TIMELINE_PAGES = 20;
 
 /** The issues in the scope of the caller, newest first (ISS-01). */
-export function useIssues() {
+export function useIssues(narrow: Readonly<Record<string, string>> = {}) {
   const client = useApiClient();
   const key = useIssueKey();
+  const entries = Object.entries(narrow).sort(([a], [b]) => (a < b ? -1 : 1));
   return useQuery<IssueLine[]>({
-    queryKey: [...key, 'issues'],
-    queryFn: async () => (await client.readAll('get_resources_issue')).flatMap((raw) => toIssueLine(raw) ?? []),
+    queryKey: [...key, 'issues', ...entries.flat()],
+    queryFn: async () => (await (entries.length === 0 ? client.readAll('get_resources_issue') : client.readAll('get_resources_issue', { query: Object.fromEntries(entries) }))).flatMap((raw) => toIssueLine(raw) ?? []),
     enabled: key[1] !== undefined,
     retry: false,
   });

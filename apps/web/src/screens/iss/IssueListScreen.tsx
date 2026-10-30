@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -17,6 +17,9 @@ import './iss.css';
 
 const NEVER_EMPTY = (): boolean => false;
 
+/** The narrowing of the list that the server takes from the address: the unit, the group, the status and the week of a cell of the weekly matrix. */
+const MATRIX_PARAMS = ['owner_unit_id', 'category_version_id', 'status', 'week', 'open'] as const;
+
 /**
  * ISS-01: the issues in the scope of the signed-in member, by status, with the severity, the deadline, the person it is given to, the level
  * it has been escalated to and where it came from. The board only reads: every change of an issue is a command of its workspace.
@@ -31,7 +34,10 @@ function IssueListContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode, tenant } = useSession();
   const canCreate = hasPermission(permissions, ISSUE_CREATE_PERMISSION) && mode !== 'READ_ONLY';
-  const issues = useIssues();
+  // A cell of the weekly matrix opens this list with the unit, the group, the status and the week it counts; the status is then the one the issue had when the week ended.
+  const [search] = useSearchParams();
+  const narrow = useMemo(() => Object.fromEntries(MATRIX_PARAMS.flatMap((name) => (search.get(name) === null ? [] : [[name, search.get(name) as string]]))), [search]);
+  const issues = useIssues(narrow);
   const [filter, setFilter] = useState<IssueFilter>(EMPTY_FILTER);
   const state = useScreenState({ isLoading: issues.isLoading, error: issues.error, data: issues.data, isEmpty: NEVER_EMPTY });
   const shown = useMemo(() => filterIssues(issues.data ?? [], filter, tenant?.membershipId), [issues.data, filter, tenant?.membershipId]);
@@ -52,6 +58,11 @@ function IssueListContent({ route }: ScreenProps) {
         ) : null}
       </div>
       <StateBoundary state={state} onRetry={() => void issues.refetch()}>
+        {Object.keys(narrow).length === 0 ? null : (
+          <p className="callout" role="note" data-testid="narrowed">
+            {t('iss.list.narrowed.notice', { week: narrow.week ?? t('iss.list.narrowed.now') })} <Link to="/iss/iss-01">{t('iss.list.narrowed.clear')}</Link>
+          </p>
+        )}
         <div className="card">
           <form className="iss-filters" role="search" aria-label={t('iss.list.filters.title')} onSubmit={(event) => event.preventDefault()}>
             <div className="field">

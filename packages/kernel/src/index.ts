@@ -595,3 +595,5 @@ export { CANNED_BODY_MAX, CANNED_CHANNELS, CANNED_CLASSIFICATIONS, CANNED_TITLE_
 export type { CannedReplyDraft, PolicyDraft, PolicyPriority, Routed, RoutingRule } from './omni-policy.ts';
 export { ISSUE_TYPE_MAX, LINK_TYPES, MAX_LINKS_PER_CONVERSATION, SUMMARY_MAX, assertConversion, assertResourceLink, conversionOperationId, issueDescriptionOf } from './omni-link.ts';
 export type { Conversion, LinkType, ResourceLink, StoredLink } from './omni-link.ts';
+export { isoWeekOf, isoWeekRange, weeksInYear } from './iss-week.ts';
+export type { IsoWeek } from './iss-week.ts';

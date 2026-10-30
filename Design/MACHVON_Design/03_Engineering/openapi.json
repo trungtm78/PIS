@@ -8788,6 +8788,57 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "owner_unit_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "category_version_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "ASSIGNED",
+                "IN_PROGRESS",
+                "ESCALATED",
+                "PENDING_VERIFICATION",
+                "CLOSED",
+                "REOPENED"
+              ]
+            }
+          },
+          {
+            "name": "week",
+            "in": "query",
+            "description": "The ISO week at the end of which the status is read, 2026-W42; the issues that did not exist yet are left out",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "open",
+            "in": "query",
+            "description": "true keeps the issues that are not closed (at the end of the week when there is one): what the closing of a cell of the weekly matrix counts",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true"
+              ]
+            }
           }
         ],
         "responses": {
@@ -8906,7 +8957,10 @@
         "x-contract-maturity": "reference-scaffolding",
         "x-implementation-gate": "Review action DTO allowlist, object scope, state invariants and error contract before exposing. No arbitrary state/role/tenant updates.",
         "x-exposure": "dto",
-        "x-exposure-reason": "Ẩn ghi chú nội bộ và nội dung có dữ liệu cá nhân (nguồn LND); lọc theo đơn vị và phạm vi dự án."
+        "x-exposure-reason": "Ẩn ghi chú nội bộ và nội dung có dữ liệu cá nhân (nguồn LND); lọc theo đơn vị và phạm vi dự án.",
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/resources/issue/{id}": {
@@ -81716,8 +81770,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/IssueWeeklyMatrix"
                 }
               }
             }
@@ -81782,7 +81835,12 @@
               }
             }
           }
-        }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ],
+        "description": "The state of the issues is read from their history at the end of the ISO week (now while the week runs); a cell opens the list of issues with the same unit, group, status and week (get_resources_issue)."
       }
     },
     "/issues/sla-breaches": {
@@ -160556,6 +160614,323 @@
           },
           "file_sha256": {
             "type": "string"
+          }
+        }
+      },
+      "IssueWeeklyMatrix": {
+        "type": "object",
+        "required": [
+          "week",
+          "from",
+          "to",
+          "statuses",
+          "rows",
+          "units",
+          "totals",
+          "as_of"
+        ],
+        "properties": {
+          "week": {
+            "type": "string",
+            "description": "The ISO week, 2026-W42"
+          },
+          "from": {
+            "type": "string",
+            "format": "date",
+            "description": "The Monday"
+          },
+          "to": {
+            "type": "string",
+            "format": "date",
+            "description": "The Sunday"
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "description": "By unit and group of issues",
+            "items": {
+              "type": "object",
+              "required": [
+                "unit",
+                "category",
+                "opening",
+                "opened",
+                "resolved",
+                "closing",
+                "overdue",
+                "by_status"
+              ],
+              "properties": {
+                "unit": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "code",
+                    "name"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "category": {
+                  "type": "object",
+                  "required": [
+                    "version_id",
+                    "code",
+                    "label"
+                  ],
+                  "properties": {
+                    "version_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "opening": {
+                  "type": "integer",
+                  "description": "Open when the week began"
+                },
+                "opened": {
+                  "type": "integer",
+                  "description": "Became open in the week: raised or reopened"
+                },
+                "resolved": {
+                  "type": "integer",
+                  "description": "Closed in the week"
+                },
+                "closing": {
+                  "type": "integer",
+                  "description": "Open when the week ended: opening + opened - resolved"
+                },
+                "overdue": {
+                  "type": "integer",
+                  "description": "Of those open at the end, the ones past their deadline"
+                },
+                "by_status": {
+                  "type": "object",
+                  "description": "The issues by status",
+                  "required": [
+                    "OPEN",
+                    "ASSIGNED",
+                    "IN_PROGRESS",
+                    "ESCALATED",
+                    "PENDING_VERIFICATION",
+                    "CLOSED",
+                    "REOPENED"
+                  ],
+                  "properties": {
+                    "OPEN": {
+                      "type": "integer"
+                    },
+                    "ASSIGNED": {
+                      "type": "integer"
+                    },
+                    "IN_PROGRESS": {
+                      "type": "integer"
+                    },
+                    "ESCALATED": {
+                      "type": "integer"
+                    },
+                    "PENDING_VERIFICATION": {
+                      "type": "integer"
+                    },
+                    "CLOSED": {
+                      "type": "integer"
+                    },
+                    "REOPENED": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "units": {
+            "type": "array",
+            "description": "By unit, the groups added up",
+            "items": {
+              "type": "object",
+              "required": [
+                "unit",
+                "opening",
+                "opened",
+                "resolved",
+                "closing",
+                "overdue",
+                "by_status"
+              ],
+              "properties": {
+                "unit": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "code",
+                    "name"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "opening": {
+                  "type": "integer",
+                  "description": "Open when the week began"
+                },
+                "opened": {
+                  "type": "integer",
+                  "description": "Became open in the week: raised or reopened"
+                },
+                "resolved": {
+                  "type": "integer",
+                  "description": "Closed in the week"
+                },
+                "closing": {
+                  "type": "integer",
+                  "description": "Open when the week ended: opening + opened - resolved"
+                },
+                "overdue": {
+                  "type": "integer",
+                  "description": "Of those open at the end, the ones past their deadline"
+                },
+                "by_status": {
+                  "type": "object",
+                  "description": "The issues by status",
+                  "required": [
+                    "OPEN",
+                    "ASSIGNED",
+                    "IN_PROGRESS",
+                    "ESCALATED",
+                    "PENDING_VERIFICATION",
+                    "CLOSED",
+                    "REOPENED"
+                  ],
+                  "properties": {
+                    "OPEN": {
+                      "type": "integer"
+                    },
+                    "ASSIGNED": {
+                      "type": "integer"
+                    },
+                    "IN_PROGRESS": {
+                      "type": "integer"
+                    },
+                    "ESCALATED": {
+                      "type": "integer"
+                    },
+                    "PENDING_VERIFICATION": {
+                      "type": "integer"
+                    },
+                    "CLOSED": {
+                      "type": "integer"
+                    },
+                    "REOPENED": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "totals": {
+            "type": "object",
+            "required": [
+              "opening",
+              "opened",
+              "resolved",
+              "closing",
+              "overdue",
+              "by_status"
+            ],
+            "properties": {
+              "opening": {
+                "type": "integer",
+                "description": "Open when the week began"
+              },
+              "opened": {
+                "type": "integer",
+                "description": "Became open in the week: raised or reopened"
+              },
+              "resolved": {
+                "type": "integer",
+                "description": "Closed in the week"
+              },
+              "closing": {
+                "type": "integer",
+                "description": "Open when the week ended: opening + opened - resolved"
+              },
+              "overdue": {
+                "type": "integer",
+                "description": "Of those open at the end, the ones past their deadline"
+              },
+              "by_status": {
+                "type": "object",
+                "description": "The issues by status",
+                "required": [
+                  "OPEN",
+                  "ASSIGNED",
+                  "IN_PROGRESS",
+                  "ESCALATED",
+                  "PENDING_VERIFICATION",
+                  "CLOSED",
+                  "REOPENED"
+                ],
+                "properties": {
+                  "OPEN": {
+                    "type": "integer"
+                  },
+                  "ASSIGNED": {
+                    "type": "integer"
+                  },
+                  "IN_PROGRESS": {
+                    "type": "integer"
+                  },
+                  "ESCALATED": {
+                    "type": "integer"
+                  },
+                  "PENDING_VERIFICATION": {
+                    "type": "integer"
+                  },
+                  "CLOSED": {
+                    "type": "integer"
+                  },
+                  "REOPENED": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

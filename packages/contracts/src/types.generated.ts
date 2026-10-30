@@ -9343,7 +9343,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Ma trận vướng mắc theo tuần × đơn vị × nhóm: phát sinh, tồn đầu, đã xử lý, tồn cuối */
+        /**
+         * Ma trận vướng mắc theo tuần × đơn vị × nhóm: phát sinh, tồn đầu, đã xử lý, tồn cuối
+         * @description The state of the issues is read from their history at the end of the ISO week (now while the week runs); a cell opens the list of issues with the same unit, group, status and week (get_resources_issue).
+         */
         get: operations["getIssueWeeklyMatrix"];
         put?: never;
         post?: never;
@@ -23012,6 +23015,109 @@ export interface components {
             rows: number;
             file_sha256: string;
         };
+        IssueWeeklyMatrix: {
+            /** @description The ISO week, 2026-W42 */
+            week: string;
+            /**
+             * Format: date
+             * @description The Monday
+             */
+            from: string;
+            /**
+             * Format: date
+             * @description The Sunday
+             */
+            to: string;
+            statuses: string[];
+            /** @description By unit and group of issues */
+            rows: {
+                unit: {
+                    /** Format: uuid */
+                    id: string;
+                    code: string;
+                    name: string;
+                };
+                category: {
+                    /** Format: uuid */
+                    version_id: string;
+                    code: string;
+                    label: string;
+                };
+                /** @description Open when the week began */
+                opening: number;
+                /** @description Became open in the week: raised or reopened */
+                opened: number;
+                /** @description Closed in the week */
+                resolved: number;
+                /** @description Open when the week ended: opening + opened - resolved */
+                closing: number;
+                /** @description Of those open at the end, the ones past their deadline */
+                overdue: number;
+                /** @description The issues by status */
+                by_status: {
+                    OPEN: number;
+                    ASSIGNED: number;
+                    IN_PROGRESS: number;
+                    ESCALATED: number;
+                    PENDING_VERIFICATION: number;
+                    CLOSED: number;
+                    REOPENED: number;
+                };
+            }[];
+            /** @description By unit, the groups added up */
+            units: {
+                unit: {
+                    /** Format: uuid */
+                    id: string;
+                    code: string;
+                    name: string;
+                };
+                /** @description Open when the week began */
+                opening: number;
+                /** @description Became open in the week: raised or reopened */
+                opened: number;
+                /** @description Closed in the week */
+                resolved: number;
+                /** @description Open when the week ended: opening + opened - resolved */
+                closing: number;
+                /** @description Of those open at the end, the ones past their deadline */
+                overdue: number;
+                /** @description The issues by status */
+                by_status: {
+                    OPEN: number;
+                    ASSIGNED: number;
+                    IN_PROGRESS: number;
+                    ESCALATED: number;
+                    PENDING_VERIFICATION: number;
+                    CLOSED: number;
+                    REOPENED: number;
+                };
+            }[];
+            totals: {
+                /** @description Open when the week began */
+                opening: number;
+                /** @description Became open in the week: raised or reopened */
+                opened: number;
+                /** @description Closed in the week */
+                resolved: number;
+                /** @description Open when the week ended: opening + opened - resolved */
+                closing: number;
+                /** @description Of those open at the end, the ones past their deadline */
+                overdue: number;
+                /** @description The issues by status */
+                by_status: {
+                    OPEN: number;
+                    ASSIGNED: number;
+                    IN_PROGRESS: number;
+                    ESCALATED: number;
+                    PENDING_VERIFICATION: number;
+                    CLOSED: number;
+                    REOPENED: number;
+                };
+            };
+            /** Format: date-time */
+            as_of: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -29027,6 +29133,13 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                owner_unit_id?: string;
+                category_version_id?: string;
+                status?: "OPEN" | "ASSIGNED" | "IN_PROGRESS" | "ESCALATED" | "PENDING_VERIFICATION" | "CLOSED" | "REOPENED";
+                /** @description The ISO week at the end of which the status is read, 2026-W42; the issues that did not exist yet are left out */
+                week?: string;
+                /** @description true keeps the issues that are not closed (at the end of the week when there is one): what the closing of a cell of the weekly matrix counts */
+                open?: "true";
             };
             header?: never;
             path?: never;
@@ -79476,9 +79589,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["IssueWeeklyMatrix"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

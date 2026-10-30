@@ -101,6 +101,21 @@ export interface IssuePlace extends ResourceRef {
   contractId?: string;
 }
 
+/** What narrows the list of the issues: a unit, a group, a status; with `week`, the status each issue had at that moment (the end of a week) and only the issues that existed then. */
+export interface IssueFilter {
+  ownerUnitId?: string | undefined;
+  categoryVersionId?: string | undefined;
+  status?: IssueStatus | undefined;
+  /** Only the issues that are open (not closed), at the moment of the week when there is one: the ones the closing of a cell of the weekly matrix counts. */
+  open?: boolean | undefined;
+  /** The moment the week ended, or now while it runs: the status is read before it. */
+  week?: { at: string } | undefined;
+}
+
+/** The status an issue had at the moment `$6`, read from its history: the status the last event up to then moved it to; none for an issue that did not exist yet. */
+const STATUS_AT =
+  '(select e.to_status from machvon.issue_event e where e.tenant_id = i.tenant_id and e.issue_id = i.id and e.to_status is not null and e.created_at < $6::timestamptz order by e.created_at desc, e.id desc limit 1)';
+
 export interface IssueLine {
   id: string;
   code: string;
@@ -514,13 +529,19 @@ export class IssIssueStore {
   // ---- reads ---------------------------------------------------------------------------------------------------
 
   /** The issues in the scope of the caller, the newest code first; the cursor is the code and the id of the last line. */
-  async list(tx: TenantTx, scope: ScopeBuilder, request: { limit: number; after: { code: string; id: string } | undefined }): Promise<IssueLine[]> {
-    const predicate = scope(4);
+  async list(tx: TenantTx, scope: ScopeBuilder, request: { limit: number; after: { code: string; id: string } | undefined; filter?: IssueFilter }): Promise<IssueLine[]> {
+    const predicate = scope(9);
+    const filter = request.filter;
+    // With a week, the status is the one the issue had when the week ended (read from its history), as the cells of the weekly matrix count it; without one, the status it has now.
+    const status = filter?.week === undefined ? 'i.status' : STATUS_AT;
+    // The issue is shown with the status it is filtered by, so that a cell of the matrix opens issues that read as the cell says.
+    const columns = filter?.week === undefined ? LINE_COLUMNS : LINE_COLUMNS.replace('i.severity, i.status,', `i.severity, ${STATUS_AT} as status,`);
     const rows = await tx.query<LineSql>(
-      `select ${LINE_COLUMNS} from ${LINE_FROM}
-        where ($1::text is null or (i.code, i.id) < ($1::text, $2::uuid)) and ${predicate.sql}
+      `select ${columns} from ${LINE_FROM}
+        where ($1::text is null or (i.code, i.id) < ($1::text, $2::uuid)) and ($4::uuid is null or i.owner_unit_id = $4::uuid) and ($5::text is null or ${status} = $5::text)
+          and ($6::timestamptz is null or ${status} is not null) and ($7::uuid is null or i.category_version_id = $7::uuid) and ($8::boolean is not true or ${status} <> 'CLOSED') and ${predicate.sql}
         order by i.code desc, i.id desc limit $3`,
-      [request.after?.code ?? null, request.after?.id ?? null, request.limit, ...predicate.params],
+      [request.after?.code ?? null, request.after?.id ?? null, request.limit, filter?.ownerUnitId ?? null, filter?.status ?? null, filter?.week?.at ?? null, filter?.categoryVersionId ?? null, filter?.open ?? null, ...predicate.params],
     );
     return rows.map(toLine);
   }
