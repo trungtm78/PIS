@@ -1801,6 +1801,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listProjectPipeline({Map<String, Object?>? query}) =>
       execute('listProjectPipeline', query: query);
 
+  Future<Object?> listProjectRevisions({required String id, Map<String, Object?>? query}) =>
+      execute('listProjectRevisions', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> listProjectRisks({required String id, Map<String, Object?>? query}) =>
       execute('listProjectRisks', path: <String, Object?>{'id': id}, query: query);
 

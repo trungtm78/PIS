@@ -602,6 +602,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProcurementPlans': asObject,
   'listProcurementResults': BidResultListResponse.fromJson,
   'listProjectPipeline': asObject,
+  'listProjectRevisions': PrjRevisionListResponse.fromJson,
   'listProjectRisks': PrjRiskRegisterResponse.fromJson,
   'listProjectTransfers': PrjProjectTransferPageResponse.fromJson,
   'listQualityAcceptances': QmsAcceptanceListResponse.fromJson,
@@ -19081,6 +19082,240 @@ final class PrjProjectTransferResponseToUnit implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'id': id,
         'name': name,
+        ...extra,
+      };
+}
+
+final class PrjRevisionLineResponse implements ResponseModel {
+  const PrjRevisionLineResponse({
+    required this.id,
+    required this.revision,
+    required this.changeKind,
+    required this.status,
+    required this.before,
+    required this.after,
+    required this.reason,
+    required this.createdBy,
+    required this.createdAt,
+    required this.version,
+    this.totalInvestmentVnd,
+    this.decisionReason,
+    this.decisionDocument,
+    this.effectiveFrom,
+    this.supersedesId,
+    this.decidedBy,
+    this.decidedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRevisionLineResponse.fromJson(Object? json, [String path = 'PrjRevisionLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRevisionLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      changeKind: requiredField(map, path, 'change_kind', asString),
+      status: requiredField(map, path, 'status', asString),
+      before: requiredField(map, path, 'before', asObject),
+      after: requiredField(map, path, 'after', asObject),
+      totalInvestmentVnd: optionalField(map, path, 'total_investment_vnd', nullable(asString)),
+      reason: requiredField(map, path, 'reason', asString),
+      decisionReason: optionalField(map, path, 'decision_reason', nullable(asString)),
+      decisionDocument: optionalField(map, path, 'decision_document', nullable(PrjRevisionLineResponseDecisionDocument.fromJson)),
+      effectiveFrom: optionalField(map, path, 'effective_from', nullable(asString)),
+      supersedesId: optionalField(map, path, 'supersedes_id', nullable(asString)),
+      createdBy: requiredField(map, path, 'created_by', PrjRevisionLineResponseCreatedBy.fromJson),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      decidedBy: optionalField(map, path, 'decided_by', nullable(PrjRevisionLineResponseDecidedBy.fromJson)),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'revision', 'change_kind', 'status', 'before', 'after', 'total_investment_vnd', 'reason', 'decision_reason', 'decision_document', 'effective_from', 'supersedes_id', 'created_by', 'created_at', 'decided_by', 'decided_at', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int revision;
+  final String changeKind;
+  final String status;
+  final Map<String, Object?> before;
+  final Map<String, Object?> after;
+  final String? totalInvestmentVnd;
+  final String reason;
+  final String? decisionReason;
+  final PrjRevisionLineResponseDecisionDocument? decisionDocument;
+  final String? effectiveFrom;
+  final String? supersedesId;
+  final PrjRevisionLineResponseCreatedBy createdBy;
+  final String createdAt;
+  final PrjRevisionLineResponseDecidedBy? decidedBy;
+  final String? decidedAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'revision': revision,
+        'change_kind': changeKind,
+        'status': status,
+        'before': before,
+        'after': after,
+        if (totalInvestmentVnd != null) 'total_investment_vnd': totalInvestmentVnd,
+        'reason': reason,
+        if (decisionReason != null) 'decision_reason': decisionReason,
+        if (decisionDocument != null) 'decision_document': decisionDocument!.toJson(),
+        if (effectiveFrom != null) 'effective_from': effectiveFrom,
+        if (supersedesId != null) 'supersedes_id': supersedesId,
+        'created_by': createdBy.toJson(),
+        'created_at': createdAt,
+        if (decidedBy != null) 'decided_by': decidedBy!.toJson(),
+        if (decidedAt != null) 'decided_at': decidedAt,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class PrjRevisionLineResponseCreatedBy implements ResponseModel {
+  const PrjRevisionLineResponseCreatedBy({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRevisionLineResponseCreatedBy.fromJson(Object? json, [String path = 'PrjRevisionLineResponseCreatedBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRevisionLineResponseCreatedBy(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String? displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class PrjRevisionLineResponseDecidedBy implements ResponseModel {
+  const PrjRevisionLineResponseDecidedBy({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRevisionLineResponseDecidedBy.fromJson(Object? json, [String path = 'PrjRevisionLineResponseDecidedBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRevisionLineResponseDecidedBy(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String? displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class PrjRevisionLineResponseDecisionDocument implements ResponseModel {
+  const PrjRevisionLineResponseDecisionDocument({
+    required this.id,
+    required this.title,
+    this.number,
+    this.numberYear,
+    this.symbol,
+    this.issuedOn,
+    this.effectStatus,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRevisionLineResponseDecisionDocument.fromJson(Object? json, [String path = 'PrjRevisionLineResponseDecisionDocument']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRevisionLineResponseDecisionDocument(
+      id: requiredField(map, path, 'id', asString),
+      title: requiredField(map, path, 'title', asString),
+      number: optionalField(map, path, 'number', nullable(asInt)),
+      numberYear: optionalField(map, path, 'number_year', nullable(asInt)),
+      symbol: optionalField(map, path, 'symbol', nullable(asString)),
+      issuedOn: optionalField(map, path, 'issued_on', nullable(asString)),
+      effectStatus: optionalField(map, path, 'effect_status', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'title', 'number', 'number_year', 'symbol', 'issued_on', 'effect_status'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String title;
+  final int? number;
+  final int? numberYear;
+  final String? symbol;
+  final String? issuedOn;
+  final String? effectStatus;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'title': title,
+        if (number != null) 'number': number,
+        if (numberYear != null) 'number_year': numberYear,
+        if (symbol != null) 'symbol': symbol,
+        if (issuedOn != null) 'issued_on': issuedOn,
+        if (effectStatus != null) 'effect_status': effectStatus,
+        ...extra,
+      };
+}
+
+final class PrjRevisionListResponse implements ResponseModel {
+  const PrjRevisionListResponse({
+    required this.items,
+    required this.currentTotalInvestmentVnd,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRevisionListResponse.fromJson(Object? json, [String path = 'PrjRevisionListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRevisionListResponse(
+      items: requiredField(map, path, 'items', asList(PrjRevisionLineResponse.fromJson)),
+      currentTotalInvestmentVnd: requiredField(map, path, 'current_total_investment_vnd', asString),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'current_total_investment_vnd', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<PrjRevisionLineResponse> items;
+  final String currentTotalInvestmentVnd;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'current_total_investment_vnd': currentTotalInvestmentVnd,
+        'as_of': asOf,
         ...extra,
       };
 }

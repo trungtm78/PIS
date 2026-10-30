@@ -599,3 +599,5 @@ export { isoWeekOf, isoWeekRange, weeksInYear } from './iss-week.ts';
 export type { IsoWeek } from './iss-week.ts';
 export { CRITICAL_SCORE, SCALE_MAX, ENDING_STATUSES, LIVE_STATUSES, RISK_LEVELS, RISK_STATUSES, assertRiskClosure, assertRiskEntry, assertRiskLive, assertRiskMove, isCritical, riskLevelOf, riskScore } from './prj-risk.ts';
 export type { EndingStatus, LiveStatus, RiskClosure, RiskEntry, RiskLevel, RiskStatus } from './prj-risk.ts';
+export { REVISION_KINDS, PROJECT_REVISION_STATUSES, assertRevisionDecision, assertRevisionProposal } from './prj-revision.ts';
+export type { RevisionBase, RevisionDecision, RevisionKind, RevisionProposal, ProjectRevisionStatus } from './prj-revision.ts';

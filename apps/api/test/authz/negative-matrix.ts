@@ -963,6 +963,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.legalHoldId}/transfers`, ifMatch: '"1"', body: { to_unit_id: t.unit2, transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Matrix attempt to transfer a project' } }),
   },
+  proposeProjectRevision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/revisions`, ifMatch: '"1"', body: { change_kind: 'ADJUST_INVESTMENT', after: {}, total_investment_vnd: '999', reason: 'Matrix attempt to revise a project' } }),
+  },
+  decideProjectRevision: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-revisions/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'reject', reason: 'Matrix attempt to decide a revision' } }),
+  },
   registerProjectRisk: {
     referencesTenantIds: true,
     build: (t) => ({

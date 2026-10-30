@@ -599,6 +599,7 @@ export const OPERATIONS = {
   "listProcurementPlans": { method: "get", path: "/procurement-plans", versioned: false, stepUp: null, permission: "bid.read" },
   "listProcurementResults": { method: "get", path: "/procurement-results", versioned: false, stepUp: null, permission: "bid.read" },
   "listProjectPipeline": { method: "get", path: "/project-pipeline", versioned: false, stepUp: null, permission: "project.read" },
+  "listProjectRevisions": { method: "get", path: "/projects/{id}/revisions", versioned: false, stepUp: null, permission: "project.read" },
   "listProjectRisks": { method: "get", path: "/projects/{id}/risks", versioned: false, stepUp: null, permission: "project.read" },
   "listProjectTransfers": { method: "get", path: "/project-transfers", versioned: false, stepUp: null, permission: "project.read" },
   "listQualityAcceptances": { method: "get", path: "/quality-acceptances", versioned: false, stepUp: null, permission: "qacceptance.read" },

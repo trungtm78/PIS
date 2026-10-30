@@ -1805,3 +1805,11 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-PRJ-010 (decision, code): the code of a risk may be renamed by an update to a free one (the contract lists `RISK_CODE_DUPLICATE` on the update); the code stays unique inside the project.
 - ST-PRJ-010 (gap, issue): the link to an issue is the identifier on the risk, checked to be an issue of the same project; the issue does not list its risks, and the caller needs no right on the issue to link it.
 - ST-PRJ-010 (gap, owner): PRJ-16 takes the owner and the linked issue as identifiers typed by hand (no directory of members is offered to the screen).
+
+### ST-PRJ-008 (revisions of a project, slice PRJ-1)
+- ST-PRJ-008 (gap, initial revision): revision 1 (`INITIAL`) is written DRAFT with the project and nothing approves it when the project is admitted to the project bank; the first adjustment therefore supersedes nothing and the history shows r1 as a draft.
+- ST-PRJ-008 (decision, effective day): `effective_from` may not be after today, because an approval is applied to the project at once; a decision that takes effect later would need a job like `prj-transfer-apply`.
+- ST-PRJ-008 (gap, group): the project group (QTQG/A/B/C) suggested by the thresholds is not worked out again when the total changes.
+- ST-PRJ-008 (gap, consumers): nothing consumes `project.revised.v1` (MNE obligations); the legal dossier PRJ-04 lists the documents of the revisions only, not those of the stage changes, the appraisal or the transfers.
+- ST-PRJ-008 (decision, stages): a project takes revisions from PIPELINE to COMPLETED; before the project bank the dossier is edited directly, and from SETTLED on it no longer changes.
+- ST-PRJ-008 (decision, scope): a scope revision (`ADJUST_SCOPE`) is only recorded on the revision, the project having no scope column; the investor and decision-authority units are not checked against the permission of the proposer.

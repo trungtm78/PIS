@@ -6,6 +6,7 @@ import { ProjectAppraisalController } from './appraisal.controller';
 import { NationalCodeController } from './national-code.controller';
 import { NationalCodeFileController } from './national-code-file.controller';
 import { ProjectController, ProjectReadsController } from './project.controller';
+import { ProjectRevisionController, ProjectRevisionReadsController } from './revision.controller';
 import { ProjectRiskController, ProjectRiskReadsController } from './risk.controller';
 import { ProjectLifecycleReadsController, ProjectStageController } from './stage.controller';
 import { TaskForceController } from './task-force.controller';
@@ -17,9 +18,9 @@ import { TransferController } from './transfer.controller';
  * appraised by scored sheets and admitted to the project bank by a decision (ST-PRJ-003), and given its national code by hand or from the file of the
  * national system (ST-PRJ-004); who answers for a project and the task forces that press its disbursement are administered for the whole tenant (ST-PRJ-005); a leader asks the
  * person who answers for a project or a unit to explain, and someone else accepts the answer or returns it (ST-PRJ-006); a project passes from one unit to another by a request and a decision of someone else,
- * from a day, with the reports and snapshots before it kept under the old unit (ST-PRJ-007); the risks of a project are scored by the server and ended with a reason (ST-PRJ-010).
+ * from a day, with the reports and snapshots before it kept under the old unit (ST-PRJ-007); the risks of a project are scored by the server and ended with a reason (ST-PRJ-010); the figures of a project change only by a revision that another person approves with a decision document (ST-PRJ-008).
  */
 export const prjModule = defineModule({
   code: 'PRJ',
-  controllers: [ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectAppraisalController, NationalCodeController, NationalCodeFileController, ProjectAccountabilityController, AccountabilityReadsController, TaskForceController, ExplanationController, TransferController, ProjectRiskController, ProjectRiskReadsController],
+  controllers: [ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectAppraisalController, NationalCodeController, NationalCodeFileController, ProjectAccountabilityController, AccountabilityReadsController, TaskForceController, ExplanationController, TransferController, ProjectRiskController, ProjectRiskReadsController, ProjectRevisionController, ProjectRevisionReadsController],
 });

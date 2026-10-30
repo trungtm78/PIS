@@ -601,6 +601,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listProcurementPlans': OperationDescriptor(method: 'GET', path: '/procurement-plans', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProcurementResults': OperationDescriptor(method: 'GET', path: '/procurement-results', versioned: false, stepUp: null, permission: 'bid.read'),
   'listProjectPipeline': OperationDescriptor(method: 'GET', path: '/project-pipeline', versioned: false, stepUp: null, permission: 'project.read'),
+  'listProjectRevisions': OperationDescriptor(method: 'GET', path: '/projects/{id}/revisions', versioned: false, stepUp: null, permission: 'project.read'),
   'listProjectRisks': OperationDescriptor(method: 'GET', path: '/projects/{id}/risks', versioned: false, stepUp: null, permission: 'project.read'),
   'listProjectTransfers': OperationDescriptor(method: 'GET', path: '/project-transfers', versioned: false, stepUp: null, permission: 'project.read'),
   'listQualityAcceptances': OperationDescriptor(method: 'GET', path: '/quality-acceptances', versioned: false, stepUp: null, permission: 'qacceptance.read'),

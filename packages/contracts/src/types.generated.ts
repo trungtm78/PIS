@@ -3459,7 +3459,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Lịch sử điều chỉnh dự án */
+        get: operations["listProjectRevisions"];
         put?: never;
         /** Đề xuất điều chỉnh dự án (revision mới) */
         post: operations["proposeProjectRevision"];
@@ -23164,6 +23165,56 @@ export interface components {
             live_count: number;
             critical_count: number;
             overdue_count: number;
+            /** Format: date */
+            as_of: string;
+        };
+        PrjRevisionLine: {
+            /** Format: uuid */
+            id: string;
+            revision: number;
+            /** @enum {string} */
+            change_kind: "INITIAL" | "ADJUST_INVESTMENT" | "ADJUST_SCHEDULE" | "ADJUST_SCOPE" | "ADJUST_INVESTOR";
+            /** @enum {string} */
+            status: "DRAFT" | "IN_REVIEW" | "APPROVED" | "REJECTED" | "SUPERSEDED";
+            before: Record<string, never>;
+            after: Record<string, never>;
+            total_investment_vnd?: string | null;
+            reason: string;
+            decision_reason?: string | null;
+            decision_document?: {
+                /** Format: uuid */
+                id: string;
+                title: string;
+                number?: number | null;
+                number_year?: number | null;
+                symbol?: string | null;
+                /** Format: date */
+                issued_on?: string | null;
+                effect_status?: string;
+            } | null;
+            /** Format: date */
+            effective_from?: string | null;
+            /** Format: uuid */
+            supersedes_id?: string | null;
+            created_by: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string | null;
+            };
+            /** Format: date-time */
+            created_at: string;
+            decided_by?: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string | null;
+            } | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            version: number;
+        };
+        PrjRevisionList: {
+            items: components["schemas"]["PrjRevisionLine"][];
+            current_total_investment_vnd: string;
             /** Format: date */
             as_of: string;
         };
@@ -43361,6 +43412,100 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProjectRevisions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrjRevisionList"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

@@ -450,6 +450,8 @@
     "reviewExplanation",
     "submitExplanation",
     "requestProjectTransfer",
+    "proposeProjectRevision",
+    "decideProjectRevision",
     "registerProjectRisk",
     "updateProjectRisk",
     "closeProjectRisk",

@@ -722,3 +722,5 @@ export type { CertificatePort, DomainAdd, DomainPassResult, DomainPorts, DomainP
 export { MockCertificateAuthority, MockDomainProof, sharedMockDomainPorts } from './domain-ports.ts';
 export { PrjRiskStore, RISK_CATEGORY_TYPE, RISK_RESOURCE } from './prj-risk-store.ts';
 export type { CloseRisk, RegisterRisk, RiskCell, RiskChange, RiskLine, RiskRegister, UpdateRisk } from './prj-risk-store.ts';
+export { PrjRevisionStore, REVISABLE_STATUSES, REVISION_RESOURCE } from './prj-revision-store.ts';
+export type { DecideRevision, DocumentRef, PersonRef, ProposeRevision, RevisionChange, ProjectRevisionLine, ProjectRevisionRegister } from './prj-revision-store.ts';
