@@ -15275,6 +15275,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/conversation-conversion-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dự án trong phạm vi và loại việc để chuyển hội thoại thành việc (OMNI-09) */
+        get: operations["getConversionOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -22643,6 +22660,17 @@ export interface components {
             created_at: string;
             /** @description The If-Match of the assignment */
             version: number;
+            /** @description The records the conversation points to; the issue it was turned into is among them */
+            resource_links: {
+                /** @enum {string} */
+                resource_type: "project" | "issue" | "contract";
+                /** Format: uuid */
+                resource_id: string;
+                /** Format: date-time */
+                linked_at: string;
+                /** @description True for the issue a conversion made; an issue linked by hand is not the result of one */
+                converted: boolean;
+            }[];
         };
         ConversationPage: {
             items: components["schemas"]["ConversationView"][];
@@ -22741,6 +22769,21 @@ export interface components {
         CannedReplyList: {
             items: components["schemas"]["CannedReplyView"][];
             next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        ConversionOptions: {
+            /** @description Only the projects the agent is scoped to: the only ones a conversation can be turned into an issue of */
+            projects: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            }[];
+            issue_types: {
+                code: string;
+                label: string;
+            }[];
             /** Format: date-time */
             as_of: string;
         };
@@ -114679,6 +114722,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConversationAssigneeList"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / license / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Budget / rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Provider unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getConversionOptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The projects of the scope of the agent and the categories of issues */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversionOptions"];
                 };
             };
             /** @description Invalid request */

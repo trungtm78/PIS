@@ -6,6 +6,7 @@ import type { Conversation } from '../conversation/model';
 export const READ_PERMISSION = 'conversation.read';
 export const MESSAGE_READ_PERMISSION = 'channel_message.read';
 export const REPLY_PERMISSION = 'omni.conversation.reply';
+export const CONVERT_PERMISSION = 'omni.conversation.convert';
 
 export const TEXT_MAX = 4000;
 export const REASON_MIN = 10;

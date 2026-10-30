@@ -55,7 +55,7 @@ export function useMessageText(messageId: string, enabled: boolean) {
  * when an answer is lost after the command committed, the thread is read again and its version has moved, and the same retry must still be the same request (the server judges it by the key, the body and the version), or the message would
  * go twice. A final refusal, or a success, ends the intention.
  */
-function useThreadCommand<Input extends { version: number }>(
+export function useThreadCommand<Input extends { version: number }>(
   conversationId: string | undefined,
   run: (client: ReturnType<typeof useApiClient>, input: Input, attempt: { key: string }) => Promise<unknown>,
 ) {

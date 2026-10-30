@@ -66594,7 +66594,9 @@
         },
         "x-error-codes": [
           "SCOPE_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "CONVERSATION_STATE_INVALID",
+          "VALIDATION_FAILED"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -66744,7 +66746,10 @@
         "x-error-codes": [
           "SCOPE_DENIED",
           "ISSUE_COMMAND_REJECTED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "CONVERSATION_STATE_INVALID",
+          "CONVERSATION_ALREADY_CONVERTED",
+          "VALIDATION_FAILED"
         ],
         "x-plane": "tenant",
         "requestBody": {
@@ -131937,6 +131942,111 @@
         "x-plane": "tenant",
         "x-error-codes": []
       }
+    },
+    "/conversation-conversion-options": {
+      "get": {
+        "operationId": "getConversionOptions",
+        "summary": "Dự án trong phạm vi và loại việc để chuyển hội thoại thành việc (OMNI-09)",
+        "tags": [
+          "OMNI"
+        ],
+        "x-permission": "omni.conversation.convert",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The projects of the scope of the agent and the categories of issues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversionOptions"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / license / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Budget / rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Provider unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant",
+        "x-error-codes": []
+      }
     }
   },
   "components": {
@@ -158866,7 +158976,8 @@
           "priority",
           "message_count",
           "created_at",
-          "version"
+          "version",
+          "resource_links"
         ],
         "properties": {
           "id": {
@@ -158982,6 +159093,41 @@
           "version": {
             "type": "integer",
             "description": "The If-Match of the assignment"
+          },
+          "resource_links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "resource_type",
+                "resource_id",
+                "linked_at",
+                "converted"
+              ],
+              "properties": {
+                "resource_type": {
+                  "type": "string",
+                  "enum": [
+                    "project",
+                    "issue",
+                    "contract"
+                  ]
+                },
+                "resource_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "linked_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "converted": {
+                  "type": "boolean",
+                  "description": "True for the issue a conversion made; an issue linked by hand is not the result of one"
+                }
+              }
+            },
+            "description": "The records the conversation points to; the issue it was turned into is among them"
           }
         }
       },
@@ -159359,6 +159505,62 @@
               "string",
               "null"
             ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConversionOptions": {
+        "type": "object",
+        "required": [
+          "projects",
+          "issue_types",
+          "as_of"
+        ],
+        "properties": {
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "code",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Only the projects the agent is scoped to: the only ones a conversation can be turned into an issue of"
+          },
+          "issue_types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code",
+                "label"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "as_of": {
             "type": "string",

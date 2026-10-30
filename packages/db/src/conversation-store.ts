@@ -16,7 +16,7 @@ import {
   vietnamDateOf,
   windowExpiresAt,
 } from '@machvon/kernel';
-import type { Assignment, ConversationStatus, EffectiveAccess } from '@machvon/kernel';
+import type { Assignment, ConversationStatus, EffectiveAccess, StoredLink } from '@machvon/kernel';
 import { ContactConsentStore } from './contact-consent-store.ts';
 import type { ConsentRow } from './contact-consent-store.ts';
 import { ContactStore } from './contact-store.ts';
@@ -58,6 +58,8 @@ export interface ConversationRecord {
   slaFirstResponseDueAt: string | null;
   slaResolutionDueAt: string | null;
   messageCount: number;
+  /** The records the conversation points to: the projects, the issue it was turned into, the contracts. */
+  resourceLinks: StoredLink[];
   assignedAt: string | null;
   createdAt: string;
   version: number;
@@ -82,6 +84,7 @@ interface ConversationRow {
   sla_first_response_due_at: string | null;
   sla_resolution_due_at: string | null;
   message_count: string;
+  resource_links: StoredLink[] | null;
   assigned_at: string | null;
   created_at: string;
   version: string;
@@ -98,7 +101,7 @@ const CONVERSATION_COLUMNS = `c.id, c.channel_account_id, a.channel, a.display_n
   c.queue_unit_id, q.name as queue_unit_name, ${TIME('c.last_inbound_at')} as last_inbound_at, ${TIME('c.window_expires_at')} as window_expires_at,
   ${TIME('c.sla_first_response_due_at')} as sla_first_response_due_at, ${TIME('c.sla_resolution_due_at')} as sla_resolution_due_at,
   (select count(*) from machvon.channel_message m where m.tenant_id = c.tenant_id and m.conversation_id = c.id)::text as message_count,
-  ${TIME('c.assigned_at')} as assigned_at, ${TIME('c.created_at')} as created_at, c.version::text as version, ${TIME('c.created_at')} as sort_key`;
+  c.resource_links, ${TIME('c.assigned_at')} as assigned_at, ${TIME('c.created_at')} as created_at, c.version::text as version, ${TIME('c.created_at')} as sort_key`;
 
 const toConversation = (row: ConversationRow): ConversationRecord => ({
   id: row.id,
@@ -118,6 +121,7 @@ const toConversation = (row: ConversationRow): ConversationRecord => ({
   slaFirstResponseDueAt: row.sla_first_response_due_at,
   slaResolutionDueAt: row.sla_resolution_due_at,
   messageCount: Number(row.message_count),
+  resourceLinks: row.resource_links ?? [],
   assignedAt: row.assigned_at,
   createdAt: row.created_at,
   version: Number(row.version),

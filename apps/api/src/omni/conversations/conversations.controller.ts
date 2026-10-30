@@ -1,7 +1,10 @@
+import { PERMISSIONS } from '@machvon/contracts';
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { ASSIGN_CONVERSATION, ConversationOutboundStore, ConversationStore, TenantDatabase } from '@machvon/db';
+import { ASSIGN_CONVERSATION, ConversationLinkStore, ConversationOutboundStore, ConversationStore, TenantDatabase } from '@machvon/db';
+import type { IssuePlace } from '@machvon/db';
 import type { ConversationRecord, MessageRecord } from '@machvon/db';
-import { CONVERSATION_STATUSES, DomainError, assertAssignment, assertConversationReason, assertMessageSend, asUuid } from '@machvon/kernel';
+import { CONVERSATION_STATUSES, DomainError, assertAssignment, assertConversationReason, assertConversion, assertMessageSend, assertResourceLink, asUuid, effectivePermissions, holdsPermission } from '@machvon/kernel';
+import type { LinkType } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -9,6 +12,7 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
+import { issueEventPayload } from '../../modules/iss/issue-event';
 import { renderTemplate } from '../../notifications/delivery/template-renderer';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
@@ -19,6 +23,10 @@ const ASSIGNED_EVENT = 'omni.conversation.assigned.v1';
 const QUEUED_EVENT = 'omni.message.queued.v1';
 const RESOLVED_EVENT = 'omni.conversation.resolved.v1';
 const REOPENED_EVENT = 'omni.conversation.reopened.v1';
+const CONVERTED_EVENT = 'omni.conversation.converted.v1';
+const CONVERT = PERMISSIONS.convertConversationToIssue;
+/** What it takes to read a record a conversation is linked to: the permission to read it, held at its place. */
+const READ_OF: Readonly<Record<LinkType, string>> = { project: PERMISSIONS.get_resources_project_id, issue: PERMISSIONS.get_resources_issue_id, contract: PERMISSIONS.get_resources_contract_id };
 
 function conversationView(row: ConversationRecord): Schemas['ConversationView'] {
   return {
@@ -39,6 +47,7 @@ function conversationView(row: ConversationRecord): Schemas['ConversationView'] 
     sla_first_response_due_at: row.slaFirstResponseDueAt,
     sla_resolution_due_at: row.slaResolutionDueAt,
     message_count: row.messageCount,
+    resource_links: row.resourceLinks.map((link) => ({ resource_type: link.resource_type, resource_id: link.resource_id, linked_at: link.linked_at, converted: link.converted === true })),
     assigned_at: row.assignedAt,
     created_at: row.createdAt,
     version: row.version,
@@ -75,6 +84,7 @@ function uuidFilter(value: unknown, name: string): string | undefined {
 export class ConversationsController {
   private readonly conversations = new ConversationStore();
   private readonly outbound = new ConversationOutboundStore();
+  private readonly links = new ConversationLinkStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
 
@@ -264,5 +274,80 @@ export class ConversationsController {
       eventKey: `${type}:${after.id}:${after.version}`,
     });
     return commandResult(scope, after.status.toUpperCase(), after.version, after.id);
+  }
+
+  @Get('conversation-conversion-options')
+  @OperationId('getConversionOptions')
+  async conversionOptions(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess): Promise<Schemas['ConversionOptions']> {
+    const now = new Date();
+    const options = await this.database.withTenant(tenant, (tx) => this.links.options(tx, (place) => holdsPermission(effectivePermissions(access, now, place), CONVERT)));
+    return { projects: options.projects, issue_types: options.issueTypes, as_of: now.toISOString() };
+  }
+
+  @Post('conversations/:conversationId/links')
+  @HttpCode(200)
+  @OperationId('linkConversationResource')
+  @Command({ operation: 'linkConversationResource', versioned: true })
+  async link(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('conversationId', ParseUUIDPipe) conversationId: string,
+    @Body() body: Schemas['ResourceLink'],
+  ): Promise<CommandResult> {
+    const link = assertResourceLink(body);
+    const now = new Date();
+    // The agent links only what they may read themselves: the permission to read that record, held at its place (a project of another branch is not theirs to point to).
+    const authorize = (type: LinkType, place: IssuePlace): void => {
+      if (!holdsPermission(effectivePermissions(access, now, place), READ_OF[type])) throw new DomainError('SCOPE_DENIED', 403);
+    };
+    const { after } = await this.links.link(scope.tx, { access, membershipId: scope.tenant.membershipId, now }, conversationId.toLowerCase(), scope.expectedVersion ?? 0, link, authorize);
+    await scope.audit({ action: 'conversation.linked', resourceType: CONVERSATION_RESOURCE, resourceId: after.id, diff: { resource_type: link.resourceType, resource_id: link.resourceId } });
+    return commandResult(scope, 'LINKED', after.version, after.id);
+  }
+
+  @Post('conversations/:conversationId/issues')
+  @HttpCode(201)
+  @OperationId('convertConversationToIssue')
+  @Command({ operation: 'convertConversationToIssue', versioned: true })
+  async convert(
+    @Scope() scope: CommandScope,
+    @CurrentAccess() access: EffectiveAccess,
+    @Param('conversationId', ParseUUIDPipe) conversationId: string,
+    @Body() body: Schemas['ConversationToIssue'],
+  ): Promise<CommandResult> {
+    const conversion = assertConversion(body);
+    const now = new Date();
+    // The agent turns a conversation into an issue of a project they are scoped to for the permission to convert: the same rule names the projects OMNI-09 offers.
+    const authorize = (place: IssuePlace): void => {
+      if (!holdsPermission(effectivePermissions(access, now, place), CONVERT)) throw new DomainError('SCOPE_DENIED', 403);
+    };
+    const { after, issue } = await this.links.convert(scope.tx, { access, membershipId: scope.tenant.membershipId, now }, conversationId.toLowerCase(), scope.expectedVersion ?? 0, conversion, authorize);
+    // The issue is opened as the issue module opens one, with its own trail and its own event; the words of the person are in neither.
+    await scope.audit({
+      action: 'iss.issue_opened',
+      resourceType: 'issue',
+      resourceId: issue.id,
+      diff: { code: issue.code, project_id: issue.projectId, owner_unit_id: issue.ownerUnitId, severity: issue.severity, source_module: issue.sourceModule, sla_policy_id: issue.policyId, response_due_at: issue.responseDueAt, due_at: issue.dueAt, geo_recorded: issue.geoRecorded },
+    });
+    await scope.emit({
+      aggregateType: 'issue',
+      aggregateId: issue.id,
+      aggregateVersion: issue.version,
+      type: 'iss.issue.opened.v1',
+      schemaVersion: 1,
+      payload: issueEventPayload(scope, issue, now, { response_due_at: issue.responseDueAt, sla_policy_id: issue.policyId, source_module: issue.sourceModule }),
+      eventKey: `issue:${issue.id}:${issue.version}`,
+    });
+    await scope.audit({ action: 'conversation.converted_to_issue', resourceType: CONVERSATION_RESOURCE, resourceId: after.id, diff: { issue_id: issue.id, project_id: conversion.projectId, issue_type: conversion.issueType } });
+    await scope.emit({
+      aggregateType: CONVERSATION_RESOURCE,
+      aggregateId: after.id,
+      aggregateVersion: after.version,
+      type: CONVERTED_EVENT,
+      schemaVersion: 1,
+      payload: { conversation_id: after.id, issue_id: issue.id, project_id: conversion.projectId },
+      eventKey: `${CONVERTED_EVENT}:${after.id}:${after.version}`,
+    });
+    return commandResult(scope, 'CONVERTED', after.version, issue.id);
   }
 }

@@ -290,6 +290,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'OMNI-06': () => import('../../screens/omni/ChannelConfigScreen'),
   'OMNI-07': () => import('../../screens/omni/RoutingPolicyScreen'),
   'OMNI-08': () => import('../../screens/omni/CannedReplyScreen'),
+  'OMNI-09': () => import('../../screens/omni/ConversationConvertScreen'),
   'OMNI-11': () => import('../../screens/omni/WebhookEventsScreen'),
   'SAS-01': () => import('../../screens/sas/TenantListScreen'),
   'SAS-02': () => import('../../screens/sas/TenantCreateScreen'),

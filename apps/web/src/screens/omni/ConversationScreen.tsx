@@ -9,9 +9,11 @@ import { useScreenState } from '../../states/useScreenState';
 import { instantText } from '../adm/audit/SealBanner';
 import '../not/delivery/delivery.css';
 import { channelLabel, statusLabel, statusPill } from './conversation/labels';
+import { conversionLink } from './conversation/model';
 import { useConversation, useMessageText, useMessages, useMoveConversation, useSendMessage } from './thread/hooks';
 import { deliveryLabel, directionLabel, problemMessage, purposeLabel } from './thread/labels';
 import {
+  CONVERT_PERMISSION,
   MESSAGE_READ_PERMISSION,
   PURPOSES,
   READ_PERMISSION,
@@ -50,6 +52,7 @@ function ThreadContent({ route }: ScreenProps) {
   const id = search.get('id') ?? undefined;
   const canRead = permissions === undefined || (permissions.includes(READ_PERMISSION) && permissions.includes(MESSAGE_READ_PERMISSION));
   const canReply = (permissions === undefined || permissions.includes(REPLY_PERMISSION)) && mode !== 'READ_ONLY';
+  const canConvert = (permissions === undefined || permissions.includes(CONVERT_PERMISSION)) && mode !== 'READ_ONLY';
   const conversation = useConversation(id, canRead);
   const messages = useMessages(id, canRead);
   const [now, setNow] = useState(() => new Date());
@@ -94,6 +97,11 @@ function ThreadContent({ route }: ScreenProps) {
             <div className="card">
               <MessageList messages={messages.data ?? []} />
             </div>
+            {canConvert && mayNote(current) ? (
+              <p data-convert>
+                <Link to={conversionLink(current.id)}>{t('omni.thread.convert.action')}</Link>
+              </p>
+            ) : null}
             {canReply ? <Actions key={current.id} conversation={current} onDone={setNotice} /> : null}
             {canReply ? <Composer key={`${current.id}:composer`} conversation={current} onDone={setNotice} /> : null}
           </>

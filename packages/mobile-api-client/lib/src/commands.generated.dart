@@ -763,6 +763,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getContractorScorecard({required String id, Map<String, Object?>? query}) =>
       execute('getContractorScorecard', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getConversionOptions({Map<String, Object?>? query}) =>
+      execute('getConversionOptions', query: query);
+
   Future<Object?> getCumulativeLedger({required String id, Map<String, Object?>? query}) =>
       execute('getCumulativeLedger', path: <String, Object?>{'id': id}, query: query);
 

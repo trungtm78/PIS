@@ -8,6 +8,8 @@ export const REASON_MAX = 500;
 
 /** Where the conversation of the inbox is opened (OMNI-02): the id is in the address, as the other detail screens do. */
 export const conversationLink = (id: string): string => `/omni/omni-02?id=${id}`;
+/** Where a conversation is turned into an issue (OMNI-09). */
+export const conversionLink = (id: string): string => `/omni/omni-09?id=${id}`;
 
 export const STATUSES = ['New', 'Assigned', 'InProgress', 'PendingCustomer', 'Resolved', 'Closed'] as const;
 export type ConversationStatus = (typeof STATUSES)[number];

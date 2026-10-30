@@ -434,6 +434,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getContractorHistory': asObject,
   'getContractorScorecard': asObject,
   'getContractSummary': asObject,
+  'getConversionOptions': ConversionOptionsResponse.fromJson,
   'getCumulativeLedger': PayCumulativeLedgerResponse.fromJson,
   'getDeliveryOverview': DeliveryOverviewResponse.fromJson,
   'getDiaryCoverage': asObject,
@@ -3698,6 +3699,7 @@ final class ConversationViewResponse implements ResponseModel {
     required this.messageCount,
     required this.createdAt,
     required this.version,
+    required this.resourceLinks,
     this.assigneeMembershipId,
     this.assigneeName,
     this.queueUnitId,
@@ -3733,7 +3735,8 @@ final class ConversationViewResponse implements ResponseModel {
       assignedAt: optionalField(map, path, 'assigned_at', nullable(asString)),
       createdAt: requiredField(map, path, 'created_at', asString),
       version: requiredField(map, path, 'version', asInt),
-      extra: unknownFields(map, path, const <String>{'id', 'channel_account_id', 'channel', 'account_name', 'contact_id', 'contact_name', 'status', 'priority', 'assignee_membership_id', 'assignee_name', 'queue_unit_id', 'queue_unit_name', 'last_inbound_at', 'window_expires_at', 'sla_first_response_due_at', 'sla_resolution_due_at', 'message_count', 'assigned_at', 'created_at', 'version'}, strict: false),
+      resourceLinks: requiredField(map, path, 'resource_links', asList(ConversationViewResponseResourceLinksItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'channel_account_id', 'channel', 'account_name', 'contact_id', 'contact_name', 'status', 'priority', 'assignee_membership_id', 'assignee_name', 'queue_unit_id', 'queue_unit_name', 'last_inbound_at', 'window_expires_at', 'sla_first_response_due_at', 'sla_resolution_due_at', 'message_count', 'assigned_at', 'created_at', 'version', 'resource_links'}, strict: false),
     );
   }
 
@@ -3757,6 +3760,7 @@ final class ConversationViewResponse implements ResponseModel {
   final String? assignedAt;
   final String createdAt;
   final int version;
+  final List<ConversationViewResponseResourceLinksItem> resourceLinks;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -3783,6 +3787,143 @@ final class ConversationViewResponse implements ResponseModel {
         if (assignedAt != null) 'assigned_at': assignedAt,
         'created_at': createdAt,
         'version': version,
+        'resource_links': resourceLinks.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ConversationViewResponseResourceLinksItem implements ResponseModel {
+  const ConversationViewResponseResourceLinksItem({
+    required this.resourceType,
+    required this.resourceId,
+    required this.linkedAt,
+    required this.converted,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversationViewResponseResourceLinksItem.fromJson(Object? json, [String path = 'ConversationViewResponseResourceLinksItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversationViewResponseResourceLinksItem(
+      resourceType: requiredField(map, path, 'resource_type', asString),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      linkedAt: requiredField(map, path, 'linked_at', asString),
+      converted: requiredField(map, path, 'converted', asBool),
+      extra: unknownFields(map, path, const <String>{'resource_type', 'resource_id', 'linked_at', 'converted'}, strict: false),
+    );
+  }
+
+  final String resourceType;
+  final String resourceId;
+  final String linkedAt;
+  final bool converted;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'resource_type': resourceType,
+        'resource_id': resourceId,
+        'linked_at': linkedAt,
+        'converted': converted,
+        ...extra,
+      };
+}
+
+final class ConversionOptionsResponse implements ResponseModel {
+  const ConversionOptionsResponse({
+    required this.projects,
+    required this.issueTypes,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversionOptionsResponse.fromJson(Object? json, [String path = 'ConversionOptionsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversionOptionsResponse(
+      projects: requiredField(map, path, 'projects', asList(ConversionOptionsResponseProjectsItem.fromJson)),
+      issueTypes: requiredField(map, path, 'issue_types', asList(ConversionOptionsResponseIssueTypesItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'projects', 'issue_types', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ConversionOptionsResponseProjectsItem> projects;
+  final List<ConversionOptionsResponseIssueTypesItem> issueTypes;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'projects': projects.map((e0) => e0.toJson()).toList(),
+        'issue_types': issueTypes.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ConversionOptionsResponseIssueTypesItem implements ResponseModel {
+  const ConversionOptionsResponseIssueTypesItem({
+    required this.code,
+    required this.label,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversionOptionsResponseIssueTypesItem.fromJson(Object? json, [String path = 'ConversionOptionsResponseIssueTypesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversionOptionsResponseIssueTypesItem(
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'label'}, strict: false),
+    );
+  }
+
+  final String code;
+  final String label;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        ...extra,
+      };
+}
+
+final class ConversionOptionsResponseProjectsItem implements ResponseModel {
+  const ConversionOptionsResponseProjectsItem({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ConversionOptionsResponseProjectsItem.fromJson(Object? json, [String path = 'ConversionOptionsResponseProjectsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ConversionOptionsResponseProjectsItem(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
         ...extra,
       };
 }

@@ -52,6 +52,8 @@
     "sendConversationMessage",
     "resolveConversation",
     "reopenConversation",
+    "linkConversationResource",
+    "convertConversationToIssue",
     "recordContactConsent",
     "withdrawContactConsent",
     "post_sync_attachments",

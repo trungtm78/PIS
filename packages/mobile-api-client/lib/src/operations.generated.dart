@@ -255,6 +255,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getContractSummary': OperationDescriptor(method: 'GET', path: '/contracts/{id}/summary', versioned: false, stepUp: null, permission: 'contract.read'),
   'getContractorHistory': OperationDescriptor(method: 'GET', path: '/contractors/{id}/history', versioned: false, stepUp: null, permission: 'bid.contractor.read'),
   'getContractorScorecard': OperationDescriptor(method: 'GET', path: '/contractors/{id}/scorecard', versioned: false, stepUp: null, permission: 'contractor.performance.read'),
+  'getConversionOptions': OperationDescriptor(method: 'GET', path: '/conversation-conversion-options', versioned: false, stepUp: null, permission: 'omni.conversation.convert'),
   'getCumulativeLedger': OperationDescriptor(method: 'GET', path: '/contracts/{id}/cumulative-ledger', versioned: false, stepUp: null, permission: 'ledger.read'),
   'getDeliveryOverview': OperationDescriptor(method: 'GET', path: '/delivery-overview', versioned: false, stepUp: null, permission: 'delivery_attempt.read'),
   'getDiaryCoverage': OperationDescriptor(method: 'GET', path: '/contracts/{id}/site-diaries/coverage', versioned: false, stepUp: null, permission: 'diary.read'),

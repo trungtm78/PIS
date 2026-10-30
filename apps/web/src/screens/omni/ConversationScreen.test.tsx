@@ -397,6 +397,23 @@ describe('OMNI-02 the conversation (UI-OMNI-02)', () => {
     expect((h.client.readAll as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
+  it('AC-ST-OMNI-007-1 UI-OMNI-02: leads to OMNI-09 only the one who may convert, while the conversation is not closed and the tenant is not read-only', async () => {
+    open([...AGENT, 'omni.conversation.convert']);
+    expect((await screen.findByRole('link', { name: vi_['omni.thread.convert.action'] })).getAttribute('href')).toBe('/omni/omni-09?id=conversation-1');
+    cleanup();
+    open(AGENT);
+    await screen.findByRole('heading', { level: 2, name: 'Trần Văn Nam' });
+    expect(document.querySelector('[data-convert]')).toBeNull();
+    cleanup();
+    open([...AGENT, 'omni.conversation.convert'], { conversation: () => conversation({ status: 'Closed' }) });
+    await screen.findByRole('heading', { level: 2, name: 'Trần Văn Nam' });
+    expect(document.querySelector('[data-convert]')).toBeNull();
+    cleanup();
+    open([...AGENT, 'omni.conversation.convert'], { mode: 'READ_ONLY' });
+    await screen.findByRole('heading', { level: 2, name: 'Trần Văn Nam' });
+    expect(document.querySelector('[data-convert]')).toBeNull();
+  });
+
   it('shows the seven states: loading, denied, signed out, offline, error, empty (no conversation named) and not found', async () => {
     const loading = open(AGENT);
     expect(loading.container.querySelector('[role="status"]')).not.toBeNull();

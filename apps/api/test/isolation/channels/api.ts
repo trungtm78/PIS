@@ -138,6 +138,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'sendConversationMessage', method: 'POST', id: CONVERSATION_FIXTURES['TNT-B'].id, versioned: true, body: { kind: 'INTERNAL_NOTE', channel_account_id: CONVERSATION_FIXTURES['TNT-B'].id, text: 'Isolation foreign note' } },
   { operation: 'resolveConversation', method: 'POST', id: CONVERSATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign resolve attempt' } },
   { operation: 'reopenConversation', method: 'POST', id: CONVERSATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign reopen attempt' } },
+  { operation: 'linkConversationResource', method: 'POST', id: CONVERSATION_FIXTURES['TNT-B'].id, versioned: true, body: { resource_type: 'project', resource_id: PROJECT_FIXTURES['TNT-B'].id } },
+  { operation: 'convertConversationToIssue', method: 'POST', id: CONVERSATION_FIXTURES['TNT-B'].id, versioned: true, body: { project_id: PROJECT_FIXTURES['TNT-B'].id, issue_type: 'ISOLATION', summary: 'Isolation foreign conversion attempt' } },
   { operation: 'publishRoutingPolicy', method: 'POST', id: ROUTING_FIXTURES['TNT-B'].policyId, versioned: true, body: { reason: 'Isolation foreign publication attempt' } },
   { operation: 'updateCannedReply', method: 'PUT', id: ROUTING_FIXTURES['TNT-B'].replyId, versioned: true, body: { code: ROUTING_FIXTURES['TNT-B'].replyCode, title: 'Isolation', body_text: 'Isolation foreign change', channels: ['EMAIL'], classification: 'PUBLIC' } },
   { operation: 'assignConversation', method: 'POST', id: CONVERSATION_FIXTURES['TNT-B'].id, versioned: true, body: { assignee_membership_id: CONVERSATION_FIXTURES['TNT-B'].id } },

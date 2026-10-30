@@ -568,3 +568,5 @@ export {
 export type { ConsentWord, MessageDraft, MessageKind, MessagePurpose, SendFacts } from './omni-message.ts';
 export { CANNED_BODY_MAX, CANNED_CHANNELS, CANNED_CLASSIFICATIONS, CANNED_TITLE_MAX, FIRST_RESPONSE_MINUTES_MAX, MAX_RULES, POLICY_CHANNELS, POLICY_PRIORITIES, RESOLUTION_HOURS_MAX, assertCannedReply, assertPolicy, assertPublishReason, foldText, routeOf } from './omni-policy.ts';
 export type { CannedReplyDraft, PolicyDraft, PolicyPriority, Routed, RoutingRule } from './omni-policy.ts';
+export { ISSUE_TYPE_MAX, LINK_TYPES, MAX_LINKS_PER_CONVERSATION, SUMMARY_MAX, assertConversion, assertResourceLink, conversionOperationId, issueDescriptionOf } from './omni-link.ts';
+export type { Conversion, LinkType, ResourceLink, StoredLink } from './omni-link.ts';

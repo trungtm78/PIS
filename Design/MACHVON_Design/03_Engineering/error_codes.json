@@ -5297,6 +5297,14 @@
       "module": "OMNI",
       "statusBasis": "convention",
       "source": "openapi"
+    },
+    "CONVERSATION_ALREADY_CONVERTED": {
+      "status": 409,
+      "title": "Conversation already converted",
+      "meaning": "A conversation is turned into one issue; one that already points to an issue is not turned into another (OMNI.md 3.4).",
+      "module": "OMNI",
+      "statusBasis": "convention",
+      "source": "openapi"
     }
   }
 }

@@ -2696,6 +2696,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/reopen`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  linkConversationResource: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/links`, ifMatch: '"1"', body: { resource_type: 'project', resource_id: t.conversationId } }),
+  },
+  convertConversationToIssue: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/conversations/${t.conversationId}/issues`, ifMatch: '"1"', body: { project_id: t.conversationId, issue_type: 'MATRIX', summary: 'Matrix conversion' } }),
+  },
   createRoutingPolicyVersion: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/conversation-routing-policies', body: { rules: [], calendar_code: 'MATRIX-CALENDAR', first_response_minutes: 30, resolution_hours: 24 } }),
