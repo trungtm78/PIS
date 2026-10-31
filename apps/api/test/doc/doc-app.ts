@@ -15,6 +15,7 @@ import { DocumentVersionReadsController, DocumentsController } from '../../src/m
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { PdfLibRenderer, loadRendererResources } from '../../src/modules/doc/pdf-renderer';
 import { DossierReadsController, DossiersController } from '../../src/modules/doc/dossier.controller';
+import { RetentionRulesController } from '../../src/modules/doc/retention-rules.controller';
 import { IncomingController, IncomingReadsController } from '../../src/modules/doc/incoming.controller';
 import { DocumentOverviewController } from '../../src/modules/doc/overview.controller';
 import { OutgoingController } from '../../src/modules/doc/outgoing.controller';
@@ -81,6 +82,13 @@ export const OVERVIEW_INCOMING = 35; // the overview and the incoming letters of
 export const OVERVIEW_ONLY = 36; // the overview and no right to read any kind of document
 export const SUPERSEDER = 37; // replaces and corrects the issued documents of unit 2 (a leader)
 export const CORRECTOR = 38; // corrects the issued documents of unit 2 and cannot replace them
+export const COUNCIL = 40; // decides the disposal of the dossiers of unit 2 and reads them
+export const ARCHIVE_CHIEF = 41; // proposes and decides the disposal of the dossiers of unit 2 (the chief of the archive)
+export const RULE_DRAFTER = 42; // drafts the retention rules, over the whole tenant
+export const RULE_APPROVER = 43; // publishes the retention rules, over the whole tenant
+export const RULE_LEGAL = 44; // confirms the legal basis of the retention rules, over the whole tenant
+export const RULE_ALL = 45; // all three rights over the retention rules: the four-eyes tests
+export const RULE_UNIT = 46; // the right to draft, publish and confirm only over unit 2: not a tenant-wide authority
 export const INCOMING_OUTSIDE = 29; // the same rights as the clerk, but only on unit 1 itself // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
 
 export interface Reply {
@@ -169,6 +177,13 @@ export class DocApp {
       OVERVIEW_ONLY,
       SUPERSEDER,
       CORRECTOR,
+      COUNCIL,
+      ARCHIVE_CHIEF,
+      RULE_DRAFTER,
+      RULE_APPROVER,
+      RULE_LEGAL,
+      RULE_ALL,
+      RULE_UNIT,
     ])
       await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
@@ -196,14 +211,27 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 18, 'DOC_INCOMING_CLERK', ['doc.incoming.receive', 'doc.incoming.register', 'doc.incoming.read', 'doc.file.upload', 'document_version.read', 'doc.outgoing.read'], 30);
     await harness.seedRole(TENANT_A, 19, 'DOC_INCOMING_CHIEF', ['doc.incoming.assign', 'doc.incoming.read'], 40);
     await harness.seedRole(TENANT_A, 20, 'DOC_INCOMING_STAFF', ['doc.incoming.process', 'doc.incoming.read', 'document_version.read', 'doc.outgoing.read'], 20);
-    await harness.seedRole(TENANT_A, 21, 'DOC_ARCHIVIST', ['doc.dossier.manage', 'doc.dossier.read', 'doc.retention.read', 'doc.incoming.read'], 30);
+    await harness.seedRole(TENANT_A, 21, 'DOC_ARCHIVIST', ['doc.dossier.manage', 'doc.dossier.read', 'doc.dossier.archive', 'doc.retention.read', 'doc.incoming.read'], 30);
     await harness.seedRole(TENANT_A, 22, 'DOC_DOSSIER_READER', ['doc.dossier.read'], 20);
     await harness.seedRole(TENANT_A, 23, 'DOC_OVERVIEW_ALL', ['doc.overview.read', 'doc.outgoing.read', 'doc.incoming.read', 'doc.template.read'], 30);
     await harness.seedRole(TENANT_A, 24, 'DOC_OVERVIEW_INCOMING', ['doc.overview.read', 'doc.incoming.read'], 20);
     await harness.seedRole(TENANT_A, 25, 'DOC_OVERVIEW_ONLY', ['doc.overview.read'], 10);
     await harness.seedRole(TENANT_A, 26, 'DOC_SUPERSEDER', ['doc.outgoing.read', 'doc.outgoing.replace', 'doc.outgoing.correct'], 40);
     await harness.seedRole(TENANT_A, 27, 'DOC_CORRECTOR', ['doc.outgoing.read', 'doc.outgoing.correct'], 30);
+    await harness.seedRole(TENANT_A, 28, 'DOC_COUNCIL', ['doc.dossier.read', 'doc.dossier.dispose'], 40);
+    await harness.seedRole(TENANT_A, 29, 'DOC_ARCHIVE_CHIEF', ['doc.dossier.read', 'doc.dossier.archive', 'doc.dossier.dispose'], 40);
+    await harness.seedRole(TENANT_A, 30, 'DOC_RULE_DRAFTER', ['doc.retention.manage', 'doc.retention.read'], 40);
+    await harness.seedRole(TENANT_A, 31, 'DOC_RULE_APPROVER', ['doc.retention.approve', 'doc.retention.read'], 40);
+    await harness.seedRole(TENANT_A, 32, 'DOC_RULE_LEGAL', ['doc.template.confirm_legal', 'doc.retention.read'], 40);
+    await harness.seedRole(TENANT_A, 33, 'DOC_RULE_ALL', ['doc.retention.manage', 'doc.retention.approve', 'doc.template.confirm_legal', 'doc.retention.read'], 40);
     await harness.seedGrants(TENANT_A, [
+      { n: 45, member: COUNCIL, role: 28, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 46, member: ARCHIVE_CHIEF, role: 29, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 47, member: RULE_DRAFTER, role: 30, kind: 'TENANT' },
+      { n: 48, member: RULE_APPROVER, role: 31, kind: 'TENANT' },
+      { n: 49, member: RULE_LEGAL, role: 32, kind: 'TENANT' },
+      { n: 50, member: RULE_ALL, role: 33, kind: 'TENANT' },
+      { n: 51, member: RULE_UNIT, role: 33, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 39, member: OVERVIEW_UNIT_TWO, role: 23, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 40, member: OVERVIEW_UNIT_ONE, role: 23, kind: 'UNIT_ONLY', refs: [unitId(1)] },
       { n: 41, member: OVERVIEW_INCOMING, role: 24, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -275,6 +303,7 @@ export class DocApp {
         IncomingController,
         DossiersController,
         DossierReadsController,
+        RetentionRulesController,
         DocumentOverviewController,
         IncomingReadsController,
       ],

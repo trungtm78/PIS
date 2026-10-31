@@ -105,6 +105,8 @@ export const JOB_INTERVAL_SECONDS = {
   'prj-transfer-apply': 900,
   // Hourly: a letter that is assigned or being processed and whose deadline has passed on a working day is marked overdue, once, and the handler is told (ST-DOC-011, BR-DOC-18); the pass is idempotent.
   'incoming-overdue': 3600,
+  // Hourly: the archivists of a closed dossier whose handover falls due are reminded 30, 7 and 1 days ahead, once for each stage (ST-DOC-017, DOC.md F11); the pass is idempotent.
+  'doc-handover-due': 3600,
   // Every 15 minutes: an incident of data quality past its due time is marked and its owner told once, and a waiver that has ended is followed by an open exception within the quarter of an hour (ST-DGV-003); the pass is idempotent.
   'dgv-incident-sweep': 900,
   // Hourly: a data product whose certification has run out (its last day gone, in Vietnamese time) becomes PROVISIONAL, once, and its owner and BI are told (ST-DGV-009); the pass is idempotent.
@@ -305,6 +307,7 @@ export interface StandardJobDeps {
   packageExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   transferApply?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   incomingOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  handoverDue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   dgvIncidentSweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   dgvProductExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
@@ -878,6 +881,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await overdueLetters.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const handoverReminders = deps.handoverDue;
+  if (handoverReminders !== undefined) {
+    handlers.push({
+      name: 'doc-handover-due',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await handoverReminders.run(workerContext(tenantId), now)));
       },
     });
   }

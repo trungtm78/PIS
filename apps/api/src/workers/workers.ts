@@ -7,6 +7,7 @@ import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.p
 import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
+import { remindHandoverDue } from '../modules/doc/handover-jobs';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
 import { ApprovalSlaJob, AstClaimOverdueJob, AstEvaluationDueJob, sharedMockDomainPorts, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvProductExpiryJob, QmsDiaryCoverageJob, CapReservationExpiryJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, NotificationCampaignStore, PayReconciliationOverdueJob, PayAdvanceOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
@@ -198,6 +199,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     dgvIncidentSweep: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => dgvIncidents.run(tx, ctx.membershipId, now)) },
     dgvProductExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => dgvProducts.run(tx, ctx.membershipId, now)) },
     incomingOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => markOverdueIncoming(tx, ctx.tenantId, now, { audit, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) })) },
+    handoverDue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => remindHandoverDue(tx, ctx.tenantId, now, { audit, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) })) },
     reconciliationOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => reconciliationOverdue.run(tx, ctx.membershipId, now)) },
     settlementDeadline: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => settlementDeadlines.run(tx, ctx.membershipId, now)) },
     advanceOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => advanceOverdue.run(tx, ctx.membershipId, now)) },

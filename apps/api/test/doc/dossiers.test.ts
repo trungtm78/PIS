@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { DocDossierStore, DocumentStore, OutgoingDocumentStore } from '@machvon/db';
-import { ACTOR, ADMIN, ARCHIVIST, ARCHIVIST_OUTSIDE, DOSSIER_READER, DocApp, INCOMING_CLERK, NOBODY, TENANT_A, TENANT_B, memberId, unitId } from './doc-app';
+import { AuditWriter, DocDossierStore, DocumentStore, OutgoingDocumentStore } from '@machvon/db';
+import { ACTOR, ADMIN, ARCHIVE_CHIEF, ARCHIVIST, ARCHIVIST_OUTSIDE, COUNCIL, DOSSIER_READER, DocApp, INCOMING_CLERK, NOBODY, RULE_ALL, RULE_APPROVER, RULE_DRAFTER, RULE_LEGAL, RULE_UNIT, TENANT_A, TENANT_B, memberId, unitId } from './doc-app';
+import { remindHandoverDue } from '../../src/modules/doc/handover-jobs';
 import { contextFor } from '../../../../packages/db/test/support/authz-fixtures';
 
 jest.setTimeout(240_000);
@@ -37,8 +38,8 @@ async function rule(overrides: Record<string, string | number | null> = {}): Pro
   const id = randomUUID();
   const values = { rule_set: 'TT74_2025_BTC', category_code: 'PROJECT_INVESTMENT', class_code: 'Y70', retention_years: 70, start_basis: 'FROM_CLOSED', handover_months: 12, confirmation_status: 'CONFIRMED', precedence: 100, effective_from: '2025-01-01', effective_until: null, status: 'PUBLISHED', ...overrides };
   await owner(
-    `insert into machvon.doc_retention_rule (tenant_id, id, rule_set, category_code, class_code, retention_years, start_basis, handover_months, legal_basis, confirmation_status, precedence, effective_from, effective_until, status, created_by, updated_by)
-     values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, $4, $5::int, $6, $7::int, 'TT 74/2025/TT-BTC (test)', $8, $9::int, $10::date, $11::date, $12, $13::uuid, $13::uuid)`,
+    `insert into machvon.doc_retention_rule (tenant_id, id, rule_set, category_code, class_code, retention_years, start_basis, handover_months, legal_basis, confirmation_status, legal_confirmation_ref, precedence, effective_from, effective_until, status, created_by, updated_by)
+     values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, $4, $5::int, $6, $7::int, 'TT 74/2025/TT-BTC (test)', $8, case when $8 = 'CONFIRMED' then 'CXN-05' end, $9::int, $10::date, $11::date, $12, $13::uuid, $13::uuid)`,
     [id, values.rule_set, values.category_code, values.class_code, values.retention_years, values.start_basis, values.handover_months, values.confirmation_status, values.precedence, values.effective_from, values.effective_until, values.status, memberId(ADMIN)],
   );
   return id;
@@ -94,6 +95,54 @@ async function resolvedLetter(status = 'RESOLVED'): Promise<{ id: string; docume
   );
   return { id, documentId };
 }
+
+const HANDOVER = { archive_ref: 'KLT-2026/0001', handed_over_at: '2026-10-29T03:00:00Z' };
+const handover = (member: number, id: string, version: number, body: Record<string, unknown> = HANDOVER, tenantId?: string) =>
+  app.call('POST', `/dossiers/${id}/handover`, { member, ...(tenantId === undefined ? {} : { tenantId }), ifMatch: `"${version}"`, body });
+const propose = (member: number, id: string, version: number, reason = 'Hết thời hạn bảo quản, đề nghị xét hủy') => app.call('POST', `/dossiers/${id}/disposal-proposals`, { member, ifMatch: `"${version}"`, body: { reason } });
+const decide = (member: number, id: string, version: number, body: Record<string, unknown>) => app.call('POST', `/dossiers/${id}/disposal-decision`, { member, ifMatch: `"${version}"`, body });
+const draftRule = (member: number, body: Record<string, unknown> = {}, tenantId?: string) =>
+  app.call('POST', '/document-retention-rules', {
+    member,
+    ...(tenantId === undefined ? {} : { tenantId }),
+    body: { rule_set: 'TENANT_CUSTOM', category_code: 'RULE_CAT', class_code: 'Y10', retention_years: 10, start_basis: 'FROM_CLOSED', legal_basis: 'Điều 5 Thông tư 10/2022/TT-BNV', effective_from: '2040-01-01', ...body },
+  });
+const publishRule = (member: number, id: string, version: number) => app.call('POST', `/document-retention-rules/${id}/publish`, { member, ifMatch: `"${version}"`, body: {} });
+const confirmRule = (member: number, id: string, version: number, body: Record<string, unknown>) => app.call('POST', `/document-retention-rules/${id}/legal-confirmation`, { member, ifMatch: `"${version}"`, body });
+const storedRule = async (id: string) =>
+  (await owner<{ status: string; version: string; confirmation_status: string; approved_by: string | null; legal_confirmed_by: string | null; legal_confirmation_ref: string | null; legal_evidence_document_id: string | null }>(
+    'select status, version::text, confirmation_status, approved_by, legal_confirmed_by, legal_confirmation_ref, legal_evidence_document_id from machvon.doc_retention_rule where id = $1',
+    [id],
+  ))[0];
+const storedDossier = async (id: string) =>
+  (await owner<{ status: string; version: string; archive_ref: string | null; handed_over_by: string | null; disposal_proposed_by: string | null; disposal_reason: string | null; disposal_from_status: string | null; disposal_decided_by: string | null; disposal_decision_document_id: string | null; disposal_comment: string | null }>(
+    'select status, version::text, archive_ref, handed_over_by, disposal_proposed_by, disposal_reason, disposal_from_status, disposal_decided_by, disposal_decision_document_id, disposal_comment from machvon.dossier where id = $1',
+    [id],
+  ))[0];
+let holdId = '';
+const placeHold = (): Promise<unknown> => {
+  holdId = randomUUID();
+  return owner(
+    `insert into machvon.legal_hold (tenant_id, id, resource_scope, authority_reference, reason, effective_at, hold_kind, status, placed_by, version)
+     values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, '{"kind":"TENANT","ids":[]}'::jsonb, 'QĐ-417/TTCP', 'Thanh tra hồ sơ', now() - interval '1 day', 'INSPECTION', 'Active', $2::uuid, 1)`,
+    [holdId, memberId(ADMIN)],
+  );
+};
+const releaseHold = (): Promise<unknown> =>
+  owner("update machvon.legal_hold set status = 'Released', released_at = now(), released_by = $1::uuid, release_reason = 'released for the test' where id = $2::uuid", [memberId(INCOMING_CLERK), holdId]);
+
+/** A dossier of a category closed on `closedOn` under the rule of the category (a confirmed Y5 rule unless the category has none): the dossier, its documents and the version after closing. */
+async function closedDossier(category: string, options: { closedOn?: string; withRule?: boolean } = {}): Promise<{ id: string; version: number; documentId: string }> {
+  if (options.withRule !== false) await rule({ category_code: category, class_code: 'Y5', retention_years: 5, handover_months: 0 });
+  const id = (await create(ARCHIVIST, { category_code: category })).json.resource_id as string;
+  const documentId = await issued();
+  expect((await add(ARCHIVIST, id, 1, { document_id: documentId })).status).toBe(200);
+  app.now = new Date(`${options.closedOn ?? '2026-10-29'}T03:00:00Z`);
+  expect((await close(ARCHIVIST, id, 2)).status).toBe(200);
+  return { id, version: 3, documentId };
+}
+
+const AFTER_RETENTION = new Date('2031-10-30T03:00:00Z');
 
 describe('dossiers over HTTP (ST-DOC-013)', () => {
   beforeAll(async () => {
@@ -384,7 +433,7 @@ describe('dossiers over HTTP (ST-DOC-013)', () => {
     expect(seen.map((item) => item.id)).toContain(mine);
     expect(seen.map((item) => item.id)).not.toContain(outside);
     expect(seen.find((item) => item.id === mine)).toMatchObject({ actions: { addDocument: true, close: false }, organization_unit: { id: unitId(2) } });
-    expect(((await list(DOSSIER_READER, '?limit=200')).json.items as Array<{ id: string; actions: Record<string, boolean> }>).find((item) => item.id === mine)?.actions).toEqual({ addDocument: false, close: false });
+    expect(((await list(DOSSIER_READER, '?limit=200')).json.items as Array<{ id: string; actions: Record<string, boolean> }>).find((item) => item.id === mine)?.actions).toEqual({ addDocument: false, close: false, handover: false, proposeDisposal: false, decideDisposal: false });
     const outsideSees = ((await list(ARCHIVIST_OUTSIDE, '?limit=200')).json.items as Array<{ id: string }>).map((item) => item.id);
     expect(outsideSees).toContain(outside);
     expect(outsideSees).not.toContain(mine);
@@ -410,7 +459,7 @@ describe('dossiers over HTTP (ST-DOC-013)', () => {
     expect(reply.status).toBe(200);
     const items = reply.json.items as Array<Record<string, unknown>>;
     expect(items.length).toBeGreaterThan(2);
-    expect(Object.keys(items[0] as object).sort()).toEqual(['category_code', 'class_code', 'confirmation_status', 'effective_from', 'effective_until', 'end_action', 'handover_months', 'id', 'legal_basis', 'legal_confirmation_ref', 'precedence', 'retention_years', 'rule_set', 'start_basis', 'status', 'version']);
+    expect(Object.keys(items[0] as object).sort()).toEqual(['approved_by', 'category_code', 'class_code', 'confirmation_status', 'created_by', 'effective_from', 'effective_until', 'end_action', 'handover_months', 'id', 'legal_basis', 'legal_confirmation_ref', 'legal_confirmed_by', 'precedence', 'retention_years', 'rule_set', 'start_basis', 'status', 'version']);
     const only = (await app.call('GET', '/document-retention-rules?rule_set=TT74_2025_BTC&category_code=ACCOUNTING', { member: ARCHIVIST })).json.items as Array<{ rule_set: string; category_code: string }>;
     expect(only.length).toBeGreaterThan(0);
     expect(only.every((item) => item.rule_set === 'TT74_2025_BTC' && item.category_code === 'ACCOUNTING')).toBe(true);
@@ -451,5 +500,382 @@ describe('dossiers over HTTP (ST-DOC-013)', () => {
     const ruleId = await rule({ category_code: 'NEVER_USED', class_code: 'Y5', retention_years: 5 });
     await owner("update machvon.dossier set provisional_retention = false, retention_rule_id = $2, retention_class_code = 'Y5', retention_ends_on = date '2031-10-29', handover_due_on = date '2027-10-29' where id = $1", [bare, ruleId]);
     await expect(owner("update machvon.dossier set retention_class_code = 'PERMANENT' where id = $1", [bare])).rejects.toThrow(/not rewritten/);
+  });
+
+  it('AC-ST-DOC-017-2: UAT-AC421 refuses to propose a disposal of a provisional dossier, of one under a legal hold even when its retention is over, and of one not yet due; the proposer does not decide', async () => {
+    const provisional = await closedDossier('DISP_NO_RULE', { withRule: false });
+    const due = await closedDossier('DISP_DUE');
+    const open = (await create(ARCHIVIST, { category_code: 'DISP_OPEN' })).json.resource_id as string;
+    expect(await propose(ARCHIVIST, open, 1)).toMatchObject({ status: 422, json: { code: 'DOSSIER_NOT_CLOSED' } });
+    app.now = new Date('2026-12-01T03:00:00Z');
+    expect(await propose(ARCHIVIST, due.id, due.version)).toMatchObject({ status: 422, json: { code: 'RETENTION_NOT_EXPIRED' } });
+    app.now = AFTER_RETENTION;
+    // The retention is not provisional for ever: the dossier with no confirmed rule is kept (422 RETENTION_PROVISIONAL), whatever the days that went by.
+    expect(await propose(ARCHIVIST, provisional.id, provisional.version)).toMatchObject({ status: 422, json: { code: 'RETENTION_PROVISIONAL' } });
+    await placeHold();
+    try {
+      expect(await propose(ARCHIVIST, due.id, due.version)).toMatchObject({ status: 409, json: { code: 'LEGAL_HOLD_ACTIVE' } });
+      expect((await show(ARCHIVIST, due.id)).json).toMatchObject({ disposal_blocker: 'LEGAL_HOLD_ACTIVE', actions: { proposeDisposal: true, decideDisposal: false } });
+    } finally {
+      await releaseHold();
+    }
+    expect(await storedDossier(due.id)).toMatchObject({ status: 'CLOSED', disposal_proposed_by: null });
+    // Released and past the retention: proposed, with who, why and from which state kept; the version moves once.
+    const proposed = await propose(ARCHIVE_CHIEF, due.id, due.version, '  Hết thời hạn bảo quản 5 năm  ');
+    expect(proposed).toMatchObject({ status: 200, json: { status: 'DISPOSAL_PROPOSED', resource_version: due.version + 1, resource_id: due.id } });
+    expect(await storedDossier(due.id)).toMatchObject({ status: 'DISPOSAL_PROPOSED', disposal_proposed_by: memberId(ARCHIVE_CHIEF), disposal_reason: 'Hết thời hạn bảo quản 5 năm', disposal_from_status: 'CLOSED', disposal_decided_by: null });
+    expect((await events(due.id, 'doc.dossier_disposal_proposed.v1'))[0]?.payload).toMatchObject({ from_status: 'CLOSED', reason: 'Hết thời hạn bảo quản 5 năm', dossier_code: expect.any(String), actor_id: memberId(ARCHIVE_CHIEF) });
+    expect(await count("select count(*) as n from machvon.audit_event where resource_id = $1 and action = 'dossier.disposal_proposed'", [due.id])).toBe(1);
+    expect((await show(ARCHIVE_CHIEF, due.id)).json).toMatchObject({ status: 'DISPOSAL_PROPOSED', disposal: { proposed_by: memberId(ARCHIVE_CHIEF), reason: 'Hết thời hạn bảo quản 5 năm', from_status: 'CLOSED', decided_by: null }, actions: { proposeDisposal: false, decideDisposal: false, handover: false } });
+    // A second proposal is a transition that does not exist.
+    expect(await propose(ARCHIVIST, due.id, due.version + 1)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
+    // The proposer holds the right to decide as well, and is refused (403 SELF_APPROVAL_DENIED); someone else sees the action offered.
+    expect(await decide(ARCHIVE_CHIEF, due.id, due.version + 1, { decision: 'REJECT' })).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+    expect((await show(COUNCIL, due.id)).json).toMatchObject({ actions: { decideDisposal: true } });
+    expect(await storedDossier(due.id)).toMatchObject({ status: 'DISPOSAL_PROPOSED', disposal_decided_by: null });
+  });
+
+  it('decides the disposal: an approval needs the document of the council and no legal hold, marks the dossier DISPOSED for good and deletes nothing; a rejection sends it back to where it was', async () => {
+    const approved = await closedDossier('DECIDE_OK');
+    const rejected = await closedDossier('DECIDE_NO');
+    app.now = AFTER_RETENTION;
+    expect((await propose(ARCHIVIST, approved.id, approved.version)).status).toBe(200);
+    expect((await propose(ARCHIVIST, rejected.id, rejected.version)).status).toBe(200);
+    const version = approved.version + 1;
+    // Without the document of the decision, with one that does not exist or is a draft, or with a body that is no decision: nothing changes.
+    expect(await decide(COUNCIL, approved.id, version, { decision: 'APPROVE' })).toMatchObject({ status: 422, json: { code: 'DECISION_DOCUMENT_REQUIRED' } });
+    expect(await decide(COUNCIL, approved.id, version, { decision: 'APPROVE', council_decision_document_id: randomUUID() })).toMatchObject({ status: 422, json: { code: 'DECISION_DOCUMENT_REQUIRED' } });
+    expect(await decide(COUNCIL, approved.id, version, { decision: 'APPROVE', council_decision_document_id: await issued({ status: 'SUBMITTED' }) })).toMatchObject({ status: 422, json: { code: 'DECISION_DOCUMENT_REQUIRED' } });
+    expect((await decide(COUNCIL, approved.id, version, { decision: 'MAYBE' })).status).toBe(422);
+    expect(await decide(COUNCIL, approved.id, version, { decision: 'REJECT', comment: 'x'.repeat(1001) })).toMatchObject({ status: 422 });
+    expect(await decide(COUNCIL, approved.id, version + 3, { decision: 'REJECT' })).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+    expect((await decide(DOSSIER_READER, approved.id, version, { decision: 'REJECT' })).status).toBe(403);
+    expect(await decide(COUNCIL, randomUUID(), 1, { decision: 'REJECT' })).toMatchObject({ status: 404 });
+    expect(await storedDossier(approved.id)).toMatchObject({ status: 'DISPOSAL_PROPOSED' });
+    // A hold placed after the proposal stops the approval too.
+    const decision = await issued();
+    await placeHold();
+    try {
+      expect(await decide(COUNCIL, approved.id, version, { decision: 'APPROVE', council_decision_document_id: decision })).toMatchObject({ status: 409, json: { code: 'LEGAL_HOLD_ACTIVE' } });
+    } finally {
+      await releaseHold();
+    }
+    const items = await count('select count(*) as n from machvon.dossier_item where dossier_id = $1', [approved.id]);
+    const done = await decide(COUNCIL, approved.id, version, { decision: 'APPROVE', council_decision_document_id: decision, comment: '  Hội đồng đồng ý hủy theo biên bản số 12  ' });
+    expect(done).toMatchObject({ status: 200, json: { status: 'DISPOSED', resource_version: version + 1 } });
+    expect(await storedDossier(approved.id)).toMatchObject({
+      status: 'DISPOSED',
+      disposal_proposed_by: memberId(ARCHIVIST),
+      disposal_decided_by: memberId(COUNCIL),
+      disposal_decision_document_id: decision,
+      disposal_comment: 'Hội đồng đồng ý hủy theo biên bản số 12',
+    });
+    // Nothing is deleted: the items and the document are all still there; the event tells the archive process.
+    expect(await count('select count(*) as n from machvon.dossier_item where dossier_id = $1', [approved.id])).toBe(items);
+    expect(await count('select count(*) as n from machvon.document where id = $1', [approved.documentId])).toBe(1);
+    expect((await events(approved.id, 'doc.dossier_disposed.v1'))[0]?.payload).toMatchObject({ decision: 'APPROVE', council_decision_document_id: decision, proposed_by: memberId(ARCHIVIST), to_status: 'DISPOSED' });
+    expect((await show(COUNCIL, approved.id)).json).toMatchObject({ status: 'DISPOSED', disposal: { decided_by: memberId(COUNCIL), council_decision_document_id: decision }, actions: { proposeDisposal: false, decideDisposal: false } });
+    // Final: nothing more is proposed or decided.
+    expect(await propose(ARCHIVIST, approved.id, version + 1)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
+    expect(await decide(COUNCIL, approved.id, version + 1, { decision: 'REJECT' })).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
+    await expect(owner("update machvon.dossier set title = 'CHANGED' where id = $1", [approved.id])).rejects.toThrow(/final/);
+
+    // The other is rejected: the document of a decision does not go with a rejection, the dossier goes back to CLOSED with no proposal on it, and a new one may be made.
+    expect(await decide(COUNCIL, rejected.id, version, { decision: 'REJECT', council_decision_document_id: decision })).toMatchObject({ status: 422, json: { detail: 'council_decision_document_id' } });
+    const back = await decide(COUNCIL, rejected.id, version, { decision: 'REJECT', comment: 'Còn cần cho kiểm toán' });
+    expect(back).toMatchObject({ status: 200, json: { status: 'CLOSED', resource_version: version + 1 } });
+    expect(await storedDossier(rejected.id)).toMatchObject({ status: 'CLOSED', disposal_proposed_by: null, disposal_reason: null, disposal_from_status: null, disposal_decided_by: null });
+    expect((await events(rejected.id, 'doc.dossier_disposal_rejected.v1'))[0]?.payload).toMatchObject({ decision: 'REJECT', comment: 'Còn cần cho kiểm toán', to_status: 'CLOSED', proposed_by: memberId(ARCHIVIST), proposed_reason: 'Hết thời hạn bảo quản, đề nghị xét hủy', proposed_at: expect.any(String) });
+    expect(await owner<{ diff: Record<string, unknown> }>("select safe_diff as diff from machvon.audit_event where resource_id = $1 and action in ('dossier.disposal_proposed', 'dossier.disposal_rejected') order by occurred_at", [rejected.id])).toEqual([expect.objectContaining({ diff: expect.objectContaining({ reason: 'Hết thời hạn bảo quản, đề nghị xét hủy' }) }), expect.objectContaining({ diff: expect.objectContaining({ proposed_reason: 'Hết thời hạn bảo quản, đề nghị xét hủy' }) })]);
+    expect(await count("select count(*) as n from machvon.audit_event where resource_id = $1 and action = 'dossier.disposal_rejected'", [rejected.id])).toBe(1);
+    expect((await propose(ARCHIVIST, rejected.id, version + 1)).status).toBe(200);
+  });
+
+  it('hands a closed dossier over to the archive in one step, archives its filed outgoing documents with a line in their timeline, and then lets a disposal go back to ARCHIVED', async () => {
+    const closedOne = await closedDossier('HANDOVER_CAT');
+    const outgoingId = (await owner<{ id: string; version: string }>('select id, version::text from machvon.outgoing_document where document_id = $1', [closedOne.documentId]))[0];
+    expect(outgoingId).toBeDefined();
+    const before = await owner<{ status: string }>('select status from machvon.outgoing_document where document_id = $1', [closedOne.documentId]);
+    expect(before[0]?.status).toBe('FILED');
+    // What is wrong: an open dossier, a reference that is too short, a moment in the future or before the closing, a stale version, without the right or the reach, in another tenant.
+    const open = (await create(ARCHIVIST, { category_code: 'HANDOVER_OPEN' })).json.resource_id as string;
+    expect(await handover(ARCHIVIST, open, 1)).toMatchObject({ status: 422, json: { code: 'DOSSIER_NOT_CLOSED' } });
+    expect([400, 422]).toContain((await handover(ARCHIVIST, closedOne.id, closedOne.version, { archive_ref: 'ab', handed_over_at: HANDOVER.handed_over_at })).status);
+    expect(await handover(ARCHIVIST, closedOne.id, closedOne.version, { archive_ref: '   ', handed_over_at: HANDOVER.handed_over_at })).toMatchObject({ status: 422, json: { detail: 'archive_ref' } });
+    expect(await handover(ARCHIVIST, closedOne.id, closedOne.version, { archive_ref: 'KLT-2026/0002', handed_over_at: '2026-10-29T03:00:01Z' })).toMatchObject({ status: 422, json: { detail: 'handed_over_at' } });
+    expect(await handover(ARCHIVIST, closedOne.id, closedOne.version, { archive_ref: 'KLT-2026/0002', handed_over_at: '2026-10-28T03:00:00Z' })).toMatchObject({ status: 422, json: { detail: 'handed_over_at' } });
+    expect([400, 422]).toContain((await handover(ARCHIVIST, closedOne.id, closedOne.version, { archive_ref: 'KLT-2026/0002', handed_over_at: 'not a date' })).status);
+    expect(await handover(ARCHIVIST, closedOne.id, closedOne.version + 4)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+    expect((await handover(DOSSIER_READER, closedOne.id, closedOne.version)).status).toBe(403);
+    expect((await handover(ARCHIVIST_OUTSIDE, closedOne.id, closedOne.version)).status).toBe(404);
+    expect((await handover(ARCHIVIST, closedOne.id, closedOne.version, HANDOVER, TENANT_B)).status).toBe(403);
+    expect(await storedDossier(closedOne.id)).toMatchObject({ status: 'CLOSED', archive_ref: null });
+
+    const done = await handover(ARCHIVIST, closedOne.id, closedOne.version, { archive_ref: '  KLT-2026/0001  ', handed_over_at: '2026-10-29T03:00:00Z' });
+    // CLOSED to HANDED_OVER to ARCHIVED: two steps of the chain, so the version moves twice.
+    expect(done).toMatchObject({ status: 200, json: { status: 'ARCHIVED', resource_version: closedOne.version + 2, archive_ref: 'KLT-2026/0001', documents_archived: 1, handed_over_at: '2026-10-29T03:00:00.000Z' } });
+    expect(await storedDossier(closedOne.id)).toMatchObject({ status: 'ARCHIVED', version: String(closedOne.version + 2), archive_ref: 'KLT-2026/0001', handed_over_by: memberId(ARCHIVIST) });
+    expect((await owner<{ status: string; version: string }>('select status, version::text from machvon.outgoing_document where document_id = $1', [closedOne.documentId]))[0]).toEqual({ status: 'ARCHIVED', version: String(Number(outgoingId?.version) + 1) });
+    const timeline = await owner<{ kind: string; from_status: string; to_status: string; details: Record<string, unknown> }>("select kind, from_status, to_status, details from machvon.outgoing_document_event where outgoing_document_id = $1 and kind = 'ARCHIVED'", [outgoingId?.id]);
+    expect(timeline).toEqual([{ kind: 'ARCHIVED', from_status: 'FILED', to_status: 'ARCHIVED', details: { dossier_id: closedOne.id, archive_ref: 'KLT-2026/0001' } }]);
+    expect((await events(closedOne.id, 'doc.dossier_archived.v1'))[0]?.payload).toMatchObject({ archive_ref: 'KLT-2026/0001', documents_archived: 1 });
+    expect(await count("select count(*) as n from machvon.audit_event where resource_id = $1 and action = 'dossier.archived'", [closedOne.id])).toBe(1);
+    expect((await show(ARCHIVIST, closedOne.id)).json).toMatchObject({ status: 'ARCHIVED', archive_ref: 'KLT-2026/0001', handed_over_at: '2026-10-29T03:00:00.000Z', actions: { handover: false } });
+    // Once archived, a handover is no longer possible (the state is not CLOSED); the guard also keeps what the handover wrote.
+    expect(await handover(ARCHIVIST, closedOne.id, closedOne.version + 2)).toMatchObject({ status: 422, json: { code: 'DOSSIER_NOT_CLOSED' } });
+    await expect(owner("update machvon.dossier set archive_ref = 'OTHER-REF' where id = $1", [closedOne.id])).rejects.toThrow(/handover of a dossier is not rewritten/);
+
+    // An archived dossier is proposed for disposal like a closed one and, rejected, goes back to ARCHIVED.
+    app.now = AFTER_RETENTION;
+    const version = closedOne.version + 2;
+    expect((await propose(ARCHIVIST, closedOne.id, version)).status).toBe(200);
+    expect(await storedDossier(closedOne.id)).toMatchObject({ disposal_from_status: 'ARCHIVED' });
+    expect(await decide(COUNCIL, closedOne.id, version + 1, { decision: 'REJECT' })).toMatchObject({ status: 200, json: { status: 'ARCHIVED' } });
+    expect(await storedDossier(closedOne.id)).toMatchObject({ status: 'ARCHIVED', archive_ref: 'KLT-2026/0001', disposal_proposed_by: null });
+  });
+
+  it('hands over a dossier of incoming letters: the letters stay as they are (filed) and no outgoing document is archived', async () => {
+    await rule({ category_code: 'HANDOVER_LETTERS', class_code: 'Y5', retention_years: 5, handover_months: 0 });
+    const letter = await resolvedLetter();
+    const id = (await create(ARCHIVIST, { category_code: 'HANDOVER_LETTERS' })).json.resource_id as string;
+    expect((await file(ARCHIVIST, letter.id, 1, { dossier_id: id })).status).toBe(200);
+    expect((await close(ARCHIVIST, id, 2)).status).toBe(200);
+    const done = await handover(ARCHIVIST, id, 3, { archive_ref: 'KLT-2026/0009', handed_over_at: NOW.toISOString() });
+    expect(done).toMatchObject({ status: 200, json: { status: 'ARCHIVED', documents_archived: 0, resource_version: 5 } });
+    expect((await owner<{ status: string }>('select status from machvon.incoming_document where id = $1', [letter.id]))[0]?.status).toBe('FILED');
+    expect(await storedDossier(id)).toMatchObject({ status: 'ARCHIVED', archive_ref: 'KLT-2026/0009' });
+  });
+
+  it('AC-ST-DOC-017-1: UAT-AC422 drafts, publishes and confirms the retention rules with three people, refuses an overlap, and lets each dossier keep the rule of the day it was closed', async () => {
+    await clearRules().catch(() => undefined);
+    const evidence = await issued();
+    const oldRule = await draftRule(RULE_DRAFTER, { category_code: 'AC422_CAT', class_code: 'Y20', retention_years: 20, effective_from: '2025-01-01', effective_until: '2027-01-01', handover_months: 6, precedence: 50 });
+    expect(oldRule).toMatchObject({ status: 200, json: { status: 'DRAFT', resource_version: 1 } });
+    const oldId = oldRule.json.resource_id as string;
+    expect(await storedRule(oldId)).toMatchObject({ status: 'DRAFT', confirmation_status: 'PENDING_CONFIRMATION', approved_by: null });
+    // Before it is published it cannot be confirmed (409 RETENTION_STATE_INVALID); the drafter cannot publish it, with or without the right; someone with the right to publish does.
+    expect(await confirmRule(RULE_LEGAL, oldId, 1, { legal_confirmation_ref: 'CXN-05', evidence_document_id: evidence })).toMatchObject({ status: 409, json: { code: 'RETENTION_STATE_INVALID' } });
+    expect((await publishRule(RULE_DRAFTER, oldId, 1)).status).toBe(403);
+    expect(await publishRule(RULE_APPROVER, oldId, 5)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+    const publishedOld = await publishRule(RULE_APPROVER, oldId, 1);
+    expect(publishedOld).toMatchObject({ status: 200, json: { status: 'PUBLISHED', resource_version: 2 } });
+    expect(await publishRule(RULE_APPROVER, oldId, 2)).toMatchObject({ status: 409, json: { code: 'RETENTION_STATE_INVALID' } });
+    expect(await storedRule(oldId)).toMatchObject({ status: 'PUBLISHED', approved_by: memberId(RULE_APPROVER), confirmation_status: 'PENDING_CONFIRMATION' });
+    expect((await events(oldId, 'doc.retention_rule_published.v1'))[0]?.payload).toMatchObject({ category_code: 'AC422_CAT', class_code: 'Y20', effective_until: '2027-01-01' });
+    // Not yet confirmed: a dossier closed under it is provisional.
+    // The new rule that starts before the old one ends is an overlap (409 RETENTION_RANGE_OVERLAP); starting on the day the old one ends it is not.
+    expect(await draftRule(RULE_DRAFTER, { category_code: 'AC422_CAT', class_code: 'Y70', retention_years: 70, effective_from: '2026-06-01' })).toMatchObject({ status: 409, json: { code: 'RETENTION_RANGE_OVERLAP' } });
+    expect(await draftRule(RULE_DRAFTER, { category_code: 'AC422_CAT', class_code: 'Y70', retention_years: 70, effective_from: '2025-01-01' })).toMatchObject({ status: 409, json: { code: 'RETENTION_RANGE_OVERLAP' } });
+    const newRule = await draftRule(RULE_ALL, { category_code: 'AC422_CAT', class_code: 'Y70', retention_years: 70, effective_from: '2027-01-01' });
+    expect(newRule).toMatchObject({ status: 200, json: { status: 'DRAFT' } });
+    const newId = newRule.json.resource_id as string;
+    // Four eyes: the drafter holds the right to publish and is refused; to confirm, neither the drafter nor the publisher.
+    expect(await publishRule(RULE_ALL, newId, 1)).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+    expect((await publishRule(RULE_APPROVER, newId, 1)).status).toBe(200);
+    expect(await confirmRule(RULE_ALL, newId, 2, { legal_confirmation_ref: 'CXN-05', evidence_document_id: evidence })).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+    expect((await confirmRule(RULE_APPROVER, newId, 2, { legal_confirmation_ref: 'CXN-05', evidence_document_id: evidence })).status).toBe(403);
+    expect(await confirmRule(RULE_LEGAL, newId, 2, { legal_confirmation_ref: '   ', evidence_document_id: evidence })).toMatchObject({ status: 422, json: { code: 'CONFIRMATION_REF_REQUIRED' } });
+    expect(await confirmRule(RULE_LEGAL, newId, 2, { legal_confirmation_ref: 'CXN-05', evidence_document_id: randomUUID() })).toMatchObject({ status: 422, json: { detail: 'evidence_document_id' } });
+    expect(await confirmRule(RULE_LEGAL, newId, 2, { legal_confirmation_ref: 'CXN-05', evidence_document_id: evidence, note: 'n'.repeat(1001) })).toMatchObject({ status: 422 });
+    expect(await confirmRule(RULE_LEGAL, newId, 9, { legal_confirmation_ref: 'CXN-05', evidence_document_id: evidence })).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+    expect(await storedRule(newId)).toMatchObject({ confirmation_status: 'PENDING_CONFIRMATION', legal_confirmed_by: null });
+    for (const id of [oldId, newId]) {
+      const confirmed = await confirmRule(RULE_LEGAL, id, 2, { legal_confirmation_ref: '  CXN-05  ', evidence_document_id: evidence, note: 'Đã đối chiếu với Thông tư' });
+      expect(confirmed).toMatchObject({ status: 200, json: { status: 'CONFIRMED', resource_version: 3 } });
+      expect(await storedRule(id)).toMatchObject({ confirmation_status: 'CONFIRMED', legal_confirmation_ref: 'CXN-05', legal_confirmed_by: memberId(RULE_LEGAL), legal_evidence_document_id: evidence });
+      expect(await confirmRule(RULE_LEGAL, id, 3, { legal_confirmation_ref: 'CXN-05', evidence_document_id: evidence })).toMatchObject({ status: 409, json: { code: 'RETENTION_STATE_INVALID' } });
+    }
+    expect((await events(newId, 'doc.retention_rule_confirmed.v1'))[0]?.payload).toMatchObject({ legal_confirmation_ref: 'CXN-05', category_code: 'AC422_CAT' });
+    expect(await count("select count(*) as n from machvon.audit_event where resource_id = any($1::uuid[]) and action like 'document_retention_rule.%'", [[oldId, newId]])).toBe(6);
+    // DS-A is closed on the last day of the old rule, DS-B the day after: each takes the rule of its day, and DS-A keeps its rule when the new one is published.
+    const fill = async (code: string): Promise<{ id: string; version: number }> => {
+      const made = await create(ARCHIVIST, { dossier_code: code, category_code: 'AC422_CAT' });
+      const id = made.json.resource_id as string;
+      expect((await add(ARCHIVIST, id, 1, { document_id: await issued() })).status).toBe(200);
+      return { id, version: 2 };
+    };
+    const a = await fill('DS-A-017');
+    const b = await fill('DS-B-017');
+    app.now = new Date('2026-12-31T03:00:00Z');
+    expect(await close(ARCHIVIST, a.id, a.version)).toMatchObject({ status: 200, json: { retention_class_code: 'Y20', provisional_retention: false, retention_ends_on: '2046-12-31', retention_rule_id: oldId } });
+    app.now = new Date('2027-01-02T03:00:00Z');
+    expect(await close(ARCHIVIST, b.id, b.version)).toMatchObject({ status: 200, json: { retention_class_code: 'Y70', retention_rule_id: newId } });
+    expect((await stored(a.id))?.retention_rule_id).toBe(oldId);
+    // The list shows who drafted, published and confirmed each rule, with names.
+    const listed = ((await app.call('GET', '/document-retention-rules?category_code=AC422_CAT', { member: RULE_DRAFTER })).json.items as Array<Record<string, unknown>>).find((item) => item.id === newId);
+    expect(listed).toMatchObject({ status: 'PUBLISHED', confirmation_status: 'CONFIRMED', created_by: { id: memberId(RULE_ALL) }, approved_by: { id: memberId(RULE_APPROVER) }, legal_confirmed_by: { id: memberId(RULE_LEGAL) } });
+  });
+
+  it('refuses a rule that is not well made, a second one for the same day, and an overlap found at publication; keeps the authority over the rules to the whole tenant', async () => {
+    const bad: Array<[Record<string, unknown>, string]> = [
+      [{ class_code: 'PERMANENT', retention_years: 10 }, 'retention_years'],
+      [{ class_code: 'Y10', retention_years: 20 }, 'retention_years'],
+      [{ retention_years: 0 }, 'retention_years'],
+      [{ category_code: 'lower_case' }, 'category_code'],
+      [{ legal_basis: '    ' }, 'legal_basis'],
+      [{ effective_from: '2026-02-30' }, 'effective_from'],
+      [{ effective_from: '2040-01-01', effective_until: '2040-01-01' }, 'effective_until'],
+      [{ effective_from: '2040-01-01', effective_until: '2039-01-01' }, 'effective_until'],
+      [{ effective_until: '2041-13-01' }, 'effective_until'],
+      [{ handover_months: -1 }, 'handover_months'],
+      [{ handover_months: 241 }, 'handover_months'],
+      [{ precedence: 0 }, 'precedence'],
+    ];
+    for (const [body, field] of bad) {
+      const reply = await draftRule(RULE_DRAFTER, body);
+      expect([JSON.stringify(body), reply.status, reply.json.code === 'LEGAL_BASIS_REQUIRED' ? 'legal_basis' : reply.json.detail]).toEqual([JSON.stringify(body), 422, field]);
+    }
+    expect(await draftRule(RULE_DRAFTER, { legal_basis: '    ' })).toMatchObject({ json: { code: 'LEGAL_BASIS_REQUIRED' } });
+    expect((await draftRule(RULE_DRAFTER, { rule_set: 'OTHER' })).status).toBe(422);
+    // A permanent class takes no years; the years of a class may be left out.
+    const permanent = await draftRule(RULE_DRAFTER, { category_code: 'WELL_MADE', class_code: 'PERMANENT', retention_years: undefined, effective_from: '2041-01-01' });
+    expect(permanent.status).toBe(200);
+    const implied = await draftRule(RULE_DRAFTER, { category_code: 'WELL_MADE', class_code: 'Y5', retention_years: undefined, effective_from: '2042-01-01', handover_months: undefined, precedence: undefined });
+    expect(implied.status).toBe(200);
+    expect(await owner<{ retention_years: number | null; handover_months: number; precedence: number }>('select retention_years, handover_months, precedence from machvon.doc_retention_rule where id = $1', [implied.json.resource_id])).toEqual([{ retention_years: 5, handover_months: 12, precedence: 100 }]);
+    // The same start day for the same set and category is an overlap even between drafts.
+    expect(await draftRule(RULE_DRAFTER, { category_code: 'WELL_MADE', class_code: 'Y5', retention_years: undefined, effective_from: '2042-01-01' })).toMatchObject({ status: 409, json: { code: 'RETENTION_RANGE_OVERLAP' } });
+    // Two drafts of overlapping periods are both fine; the second cannot be published once the first is.
+    const first = (await draftRule(RULE_DRAFTER, { category_code: 'RACE_CAT', effective_from: '2045-01-01', effective_until: '2046-01-01' })).json.resource_id as string;
+    const second = (await draftRule(RULE_DRAFTER, { category_code: 'RACE_CAT', effective_from: '2045-06-01', effective_until: '2046-06-01' })).json.resource_id as string;
+    expect((await publishRule(RULE_APPROVER, first, 1)).status).toBe(200);
+    expect(await publishRule(RULE_APPROVER, second, 1)).toMatchObject({ status: 409, json: { code: 'RETENTION_RANGE_OVERLAP' } });
+    expect(await storedRule(second)).toMatchObject({ status: 'DRAFT' });
+    // A unit-level authority, no right, another tenant, an unknown rule: no draft, no publication, no confirmation.
+    expect(await draftRule(RULE_UNIT, { category_code: 'UNIT_CAT' })).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+    expect((await draftRule(NOBODY, { category_code: 'UNIT_CAT' })).status).toBe(403);
+    expect((await draftRule(RULE_DRAFTER, { category_code: 'UNIT_CAT' }, TENANT_B)).status).toBe(403);
+    expect(await publishRule(RULE_UNIT, second, 1)).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+    expect(await confirmRule(RULE_UNIT, first, 2, { legal_confirmation_ref: 'CXN-05', evidence_document_id: randomUUID() })).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+    expect(await publishRule(RULE_APPROVER, randomUUID(), 1)).toMatchObject({ status: 404 });
+    expect(await confirmRule(RULE_LEGAL, randomUUID(), 1, { legal_confirmation_ref: 'CXN-05', evidence_document_id: randomUUID() })).toMatchObject({ status: 404 });
+    expect(await count("select count(*) as n from machvon.doc_retention_rule where category_code = 'UNIT_CAT'")).toBe(0);
+  });
+
+  it('keeps the retention rules as they were written: the database refuses to rewrite a rule, to confirm it twice or by its drafter, to publish it without an approver, or to delete it; and keeps what a disposal wrote', async () => {
+    const evidence = await issued();
+    const drafted = (await draftRule(RULE_DRAFTER, { category_code: 'GUARD_RULE', effective_from: '2050-01-01' })).json.resource_id as string;
+    // The data owner bypasses the guards of the rules; the application role does not, so the statements run as it.
+    const sql = (statement: string, params: unknown[]): Promise<unknown> => app.harness.tenants.withTenant(contextFor(TENANT_A, memberId(ADMIN)), (tx) => tx.query(statement, params));
+    await expect(sql('update machvon.doc_retention_rule set class_code = $2 where id = $1', [drafted, 'Y70'])).rejects.toThrow(/content of a retention rule never changes/);
+    await expect(sql("update machvon.doc_retention_rule set status = 'PUBLISHED' where id = $1", [drafted])).rejects.toThrow(/names the approver/);
+    await expect(sql("update machvon.doc_retention_rule set status = 'SUPERSEDED' where id = $1", [drafted])).rejects.toThrow(/cannot move from DRAFT to SUPERSEDED/);
+    await expect(sql('delete from machvon.doc_retention_rule where id = $1', [drafted])).rejects.toThrow(/permission denied|never deleted/);
+    expect((await publishRule(RULE_APPROVER, drafted, 1)).status).toBe(200);
+    await expect(sql('update machvon.doc_retention_rule set approved_by = created_by where id = $1', [drafted])).rejects.toThrow(/approval of a retention rule is written once|doc_retention_rule_sod_chk/);
+    await expect(sql("update machvon.doc_retention_rule set confirmation_status = 'CONFIRMED', legal_confirmation_ref = 'X-1' where id = $1", [drafted])).rejects.toThrow(/needs its reference, its evidence/);
+    await expect(sql("update machvon.doc_retention_rule set confirmation_status = 'CONFIRMED', legal_confirmation_ref = 'X-1', legal_evidence_document_id = $2::uuid, legal_confirmed_by = created_by where id = $1", [drafted, evidence])).rejects.toThrow(/neither the drafter nor the publisher/);
+    await expect(sql("update machvon.doc_retention_rule set confirmation_status = 'CONFIRMED', legal_confirmation_ref = 'X-1', legal_evidence_document_id = $2::uuid, legal_confirmed_by = approved_by where id = $1", [drafted, evidence])).rejects.toThrow(/neither the drafter nor the publisher/);
+    await expect(sql("update machvon.doc_retention_rule set legal_confirmation_note = 'note' where id = $1", [drafted])).rejects.toThrow(/written once/);
+    expect((await confirmRule(RULE_LEGAL, drafted, 2, { legal_confirmation_ref: 'CXN-05', evidence_document_id: evidence })).status).toBe(200);
+    await expect(sql("update machvon.doc_retention_rule set confirmation_status = 'PENDING_CONFIRMATION' where id = $1", [drafted])).rejects.toThrow(/only be confirmed once|doc_retention_rule_confirmed_chk/);
+    await expect(sql("update machvon.doc_retention_rule set legal_confirmation_ref = 'OTHER' where id = $1", [drafted])).rejects.toThrow(/written once/);
+    const privileges = await owner<{ del: boolean; trunc: boolean }>("select has_table_privilege('machvon_app', 'machvon.doc_retention_rule', 'DELETE') as del, has_table_privilege('machvon_app', 'machvon.doc_retention_rule', 'TRUNCATE') as trunc");
+    expect(privileges[0]).toEqual({ del: false, trunc: false });
+    // The same for a dossier: it is not proposed while provisional, the decider is not the proposer, and an approval needs its time.
+    const provisional = await closedDossier('GUARD_PROV', { withRule: false });
+    await expect(owner("update machvon.dossier set status = 'DISPOSAL_PROPOSED', disposal_proposed_by = $2::uuid, disposal_proposed_at = now(), disposal_reason = 'Một lý do đủ dài', disposal_from_status = 'CLOSED' where id = $1", [provisional.id, memberId(ARCHIVIST)])).rejects.toThrow(/provisional dossier is not proposed/);
+    const ruled = await closedDossier('GUARD_DISP');
+    await owner("update machvon.dossier set status = 'DISPOSAL_PROPOSED', disposal_proposed_by = $2::uuid, disposal_proposed_at = now(), disposal_reason = 'Một lý do đủ dài', disposal_from_status = 'CLOSED' where id = $1", [ruled.id, memberId(ARCHIVIST)]);
+    await expect(owner("update machvon.dossier set status = 'DISPOSED', disposal_decided_by = disposal_proposed_by, disposal_decided_at = now() where id = $1", [ruled.id])).rejects.toThrow(/dossier_disposal_sod_chk/);
+    await expect(owner("update machvon.dossier set status = 'DISPOSED' where id = $1", [ruled.id])).rejects.toThrow(/dossier_disposal_decision_chk/);
+    await expect(owner("update machvon.dossier set status = 'ARCHIVED' where id = $1", [ruled.id])).rejects.toThrow(/does not go from DISPOSAL_PROPOSED to ARCHIVED|dossier_handover_chk/);
+    await expect(owner("update machvon.dossier set disposal_reason = 'short' where id = $1", [ruled.id])).rejects.toThrow(/dossier_disposal_reason_chk/);
+    await expect(owner("update machvon.dossier set status = 'HANDED_OVER' where id = $1", [provisional.id])).rejects.toThrow(/dossier_handover_chk/);
+  });
+
+  it('reminds the archivists of a handover that falls due 30, 7 and 1 days ahead, once for each stage, to the people who may hand the dossier over, and leaves a handed-over dossier alone (doc.handover-due)', async () => {
+    await rule({ category_code: 'REMIND_CAT', class_code: 'Y5', retention_years: 5, handover_months: 2 });
+    const reminded = await closedDossier('REMIND_CAT', { withRule: false });
+    const handed = await closedDossier('REMIND_HANDED', { withRule: true });
+    expect((await handover(ARCHIVIST, handed.id, handed.version, { archive_ref: 'KLT-2026/0010', handed_over_at: NOW.toISOString() })).status).toBe(200);
+    expect((await stored(reminded.id))?.handover_due_on).toBe('2026-12-29');
+    // The job looks at the whole tenant: the dossiers the other tests closed are reminded too, and are left out of what this one checks.
+    const audit = new AuditWriter(app.harness.tenants);
+    const mine = new Set([reminded.id, handed.id]);
+    const run = async (at: string) => (await app.harness.tenants.withTenant(contextFor(TENANT_A, memberId(ADMIN)), (tx) => remindHandoverDue(tx, TENANT_A, new Date(at), { audit }))).filter((sent) => mine.has(sent.dossierId));
+    const tell = async () => (await events(reminded.id, 'doc.handover_due.v1')).map((event) => event.payload.stage);
+    // 31 days ahead: nothing yet. 30 days ahead: the first stage, once, however often the job runs.
+    expect(await run('2026-11-28T01:00:00Z')).toEqual([]);
+    expect(await run('2026-11-29T01:00:00Z')).toEqual([{ dossierId: reminded.id, daysLeft: 30, stage: 30 }]);
+    expect(await run('2026-11-29T02:00:00Z')).toEqual([]);
+    expect(await run('2026-12-10T02:00:00Z')).toEqual([]);
+    expect(await tell()).toEqual([30]);
+    const first = (await events(reminded.id, 'doc.handover_due.v1'))[0]?.payload as { notification: { recipients: string[]; resource: { type: string; id: string }; deepLink: string }; days_left: number; handover_due_on: string };
+    expect(first).toMatchObject({ days_left: 30, handover_due_on: '2026-12-29', notification: { resource: { type: 'doc.dossier', id: reminded.id }, deepLink: `/doc/doc-17?id=${reminded.id}` } });
+    // Those who may hand over in the unit are told: not a reader, not a person whose reach is another unit.
+    expect(first.notification.recipients).toEqual(expect.arrayContaining([memberId(ARCHIVIST), memberId(ARCHIVE_CHIEF)]));
+    expect(first.notification.recipients).not.toEqual(expect.arrayContaining([memberId(DOSSIER_READER)]));
+    expect(first.notification.recipients).not.toEqual(expect.arrayContaining([memberId(ARCHIVIST_OUTSIDE)]));
+    expect(await run('2026-12-22T01:00:00Z')).toEqual([{ dossierId: reminded.id, daysLeft: 7, stage: 7 }]);
+    expect(await run('2026-12-28T01:00:00Z')).toEqual([{ dossierId: reminded.id, daysLeft: 1, stage: 1 }]);
+    expect(await run('2026-12-29T01:00:00Z')).toEqual([]);
+    expect(await run('2027-02-01T01:00:00Z')).toEqual([]);
+    expect(await tell()).toEqual([30, 7, 1]);
+    expect(await count("select count(*) as n from machvon.audit_event where resource_id = $1 and action = 'dossier.handover_due'", [reminded.id])).toBe(3);
+    // The reminders did not touch what a person reads or changes: the version stays, so the screen's command still goes through.
+    expect(await stored(reminded.id)).toMatchObject({ version: String(reminded.version), status: 'CLOSED' });
+    expect((await owner<{ handover_reminded_days: number }>('select handover_reminded_days from machvon.dossier where id = $1', [reminded.id]))[0]?.handover_reminded_days).toBe(1);
+    // The handed-over dossier is never reminded, and one first seen the day before the due day gets the last stage only.
+    expect(await events(handed.id, 'doc.handover_due.v1')).toHaveLength(0);
+    const late = await closedDossier('REMIND_LATE', { withRule: false });
+    mine.add(late.id);
+    await owner("update machvon.dossier set handover_due_on = date '2026-11-02' where id = $1", [late.id]);
+    expect(await run('2026-11-01T01:00:00Z')).toEqual([{ dossierId: late.id, daysLeft: 1, stage: 1 }]);
+    expect(await run('2026-11-02T01:00:00Z')).toEqual([]);
+    await expect(owner("update machvon.dossier set handover_reminded_days = 14 where id = $1", [late.id])).rejects.toThrow(/dossier_handover_reminder_chk/);
+  });
+
+  it('shows the hold indicator and what stops a disposal in the list as in the detail', async () => {
+    const closedOne = await closedDossier('LIST_HOLD');
+    app.now = AFTER_RETENTION;
+    await placeHold();
+    try {
+      const listed = ((await list(ARCHIVIST, '?limit=200')).json.items as Array<{ id: string; legal_hold_active: boolean; disposal_blocker: string | null }>).find((item) => item.id === closedOne.id);
+      expect(listed).toMatchObject({ legal_hold_active: true, disposal_blocker: 'LEGAL_HOLD_ACTIVE' });
+    } finally {
+      await releaseHold();
+    }
+    expect(((await list(ARCHIVIST, '?limit=200')).json.items as Array<{ id: string; legal_hold_active: boolean; disposal_blocker: string | null }>).find((item) => item.id === closedOne.id)).toMatchObject({ legal_hold_active: false, disposal_blocker: null });
+    expect((await show(ARCHIVIST, closedOne.id)).json).toMatchObject({ legal_hold_active: false, disposal_blocker: null });
+  });
+
+  it('does not dispose of a dossier while a legal hold names a document filed in it, at the proposal and at the approval, and shows the hold in the list', async () => {
+    const proposedFirst = await closedDossier('DOC_HOLD_A');
+    const proposedLater = await closedDossier('DOC_HOLD_B');
+    app.now = AFTER_RETENTION;
+    const holdOn = async (documentId: string): Promise<string> => {
+      const id = randomUUID();
+      await owner(
+        `insert into machvon.legal_hold (tenant_id, id, resource_scope, authority_reference, reason, effective_at, hold_kind, status, placed_by, version)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::jsonb, 'QĐ-417/TTCP', 'Tạm giữ một văn bản', now() - interval '1 day', 'INSPECTION', 'Active', $3::uuid, 1)`,
+        [id, JSON.stringify({ kind: 'RESOURCE', ids: [documentId] }), memberId(ADMIN)],
+      );
+      return id;
+    };
+    const release = (id: string): Promise<unknown> =>
+      owner("update machvon.legal_hold set status = 'Released', released_at = now(), released_by = $1::uuid, release_reason = 'released for the test' where id = $2::uuid", [memberId(INCOMING_CLERK), id]);
+    // A hold on a document of the first dossier stops the proposal, and the list and the detail say so.
+    const first = await holdOn(proposedFirst.documentId);
+    expect(await propose(ARCHIVIST, proposedFirst.id, proposedFirst.version)).toMatchObject({ status: 409, json: { code: 'LEGAL_HOLD_ACTIVE' } });
+    const listed = ((await list(ARCHIVIST, '?limit=200')).json.items as Array<{ id: string; legal_hold_active: boolean; disposal_blocker: string | null }>).filter((item) => [proposedFirst.id, proposedLater.id].includes(item.id));
+    expect(listed.find((item) => item.id === proposedFirst.id)).toMatchObject({ legal_hold_active: true, disposal_blocker: 'LEGAL_HOLD_ACTIVE' });
+    expect(listed.find((item) => item.id === proposedLater.id)).toMatchObject({ legal_hold_active: false, disposal_blocker: null });
+    expect((await show(ARCHIVIST, proposedFirst.id)).json).toMatchObject({ legal_hold_active: true, disposal_blocker: 'LEGAL_HOLD_ACTIVE' });
+    await release(first);
+    expect(await propose(ARCHIVIST, proposedFirst.id, proposedFirst.version)).toMatchObject({ status: 200 });
+    // A hold on a document of the second dossier, placed after the proposal, stops the approval; released, the approval goes through.
+    expect((await propose(ARCHIVIST, proposedLater.id, proposedLater.version)).status).toBe(200);
+    const later = await holdOn(proposedLater.documentId);
+    const decision = await issued();
+    expect(await decide(COUNCIL, proposedLater.id, proposedLater.version + 1, { decision: 'APPROVE', council_decision_document_id: decision })).toMatchObject({ status: 409, json: { code: 'LEGAL_HOLD_ACTIVE' } });
+    expect((await storedDossier(proposedLater.id))?.status).toBe('DISPOSAL_PROPOSED');
+    await release(later);
+    expect(await decide(COUNCIL, proposedLater.id, proposedLater.version + 1, { decision: 'APPROVE', council_decision_document_id: decision })).toMatchObject({ status: 200, json: { status: 'DISPOSED' } });
+  });
+
+  it('registers the reminder of a handover with the notification service', async () => {
+    const rows = await owner<{ status: string; owning_module: string; allowed_purposes: string[] }>("select status, owning_module, allowed_purposes from machvon.notification_event_type where event_type = 'doc.handover_due.v1'");
+    expect(rows).toEqual([{ status: 'Active', owning_module: 'DOC', allowed_purposes: ['REMINDER', 'OPERATIONAL'] }]);
   });
 });

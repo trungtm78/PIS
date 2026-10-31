@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe
 import { PERMISSIONS } from '@machvon/contracts';
 import { DOSSIER_SCOPE_COLUMNS, DocDossierStore, DocIncomingStore, NumberRegisterStore, TenantDatabase, scopePredicate } from '@machvon/db';
 import type { DossierRecord, IncomingRecord } from '@machvon/db';
-import { DomainError, assertIncomingTransition, disposalBlocker, planRetention, selectRetentionRule, versionConflict, vietnamDateOf } from '@machvon/kernel';
+import { DISPOSAL_FROM, DomainError, assertDisposable, assertFourEyes, assertIncomingTransition, disposalBlocker, planRetention, selectRetentionRule, versionConflict, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -23,6 +23,13 @@ const CLASSIFICATION = 'INTERNAL';
 
 const MANAGE = PERMISSIONS.createDossier;
 const READ = PERMISSIONS.getDossier;
+const ARCHIVE = PERMISSIONS.handoverDossierToArchive;
+const DISPOSE = PERMISSIONS.decideDossierDisposal;
+const MIN_ARCHIVE_REF = 3;
+const MAX_ARCHIVE_REF = 200;
+const MIN_REASON = 10;
+const MAX_REASON = 2000;
+const MAX_COMMENT = 1000;
 const CATEGORY = /^[A-Z][A-Z0-9_]{1,59}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -31,7 +38,7 @@ const SUBJECT_MODULES: ReadonlyArray<string> = ['PRJ', 'CTR', 'PROJECT', 'CONTRA
 /** The statuses of an outgoing document that can be filed (DOC.md state table: ISSUED to ACKNOWLEDGED; a corrected document is still in force and is filed too, staying CORRECTED). */
 const FILEABLE_OUTGOING: ReadonlyArray<string> = ['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'CORRECTED'];
 
-const manageScope = (access: EffectiveAccess, now: Date) => (first: number) => scopePredicate(access, MANAGE, now, DOSSIER_SCOPE_COLUMNS, first);
+const manageScope = (access: EffectiveAccess, now: Date, permission: string = MANAGE) => (first: number) => scopePredicate(access, permission, now, DOSSIER_SCOPE_COLUMNS, first);
 
 /**
  * Dossiers (ST-DOC-013, DOC.md F11): an archivist opens a dossier in a unit, files issued and resolved documents into it once each, and closes it; closing finds the retention rule of the category (BR-DOC-22) or keeps the
@@ -130,7 +137,101 @@ export class DossiersController {
     return { ...commandResult(scope, 'CLOSED', version, dossier.id), retention_rule_id: plan.ruleId, retention_class_code: plan.classCode, provisional_retention: plan.provisional, retention_ends_on: plan.endsOn, handover_due_on: plan.handoverDueOn };
   }
 
+  /**
+   * The dossier goes to the archive (F11): CLOSED to HANDED_OVER and, with the reference the archive gave and the moment of the handover (not in the future, not before the closing), to ARCHIVED. The outgoing documents filed
+   * in it are ARCHIVED with it. A dossier that is not closed is 422 `DOSSIER_NOT_CLOSED`.
+   */
+  @Post('dossiers/:id/handover')
+  @HttpCode(200)
+  @OperationId('handoverDossierToArchive')
+  @Command({ operation: 'handoverDossierToArchive', versioned: true })
+  async handover(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DocDossierHandover']): Promise<CommandResult & Record<string, unknown>> {
+    const now = this.clock();
+    const archiveRef = body.archive_ref.trim();
+    if (archiveRef.length < MIN_ARCHIVE_REF || archiveRef.length > MAX_ARCHIVE_REF) throw new DomainError('VALIDATION_FAILED', 422, 'archive_ref');
+    const handedOverAt = new Date(body.handed_over_at);
+    if (Number.isNaN(handedOverAt.getTime()) || handedOverAt.getTime() > now.getTime()) throw new DomainError('VALIDATION_FAILED', 422, 'handed_over_at');
+    const dossier = await this.held(scope, access, id, now, ARCHIVE);
+    if (dossier.status !== 'CLOSED') throw new DomainError('DOSSIER_NOT_CLOSED', 422, 'status', { extensions: { dossier_status: dossier.status } });
+    if (dossier.closedAt !== null && handedOverAt.getTime() < new Date(dossier.closedAt).getTime()) throw new DomainError('VALIDATION_FAILED', 422, 'handed_over_at');
+    const archived = await this.dossiers.handover(scope.tx, dossier, { archiveRef, handedOverAt, actor: scope.tenant.membershipId });
+    // Two steps of the chain are taken in one command (HANDED_OVER is the step the archive passes through): the version moves twice.
+    const version = dossier.version + 2;
+    await this.written(scope, dossier.id, version, 'doc.dossier_archived.v1', 'dossier.archived', now, { dossier_code: dossier.dossierCode, archive_ref: archiveRef, handed_over_at: handedOverAt.toISOString(), documents_archived: archived });
+    return { ...commandResult(scope, 'ARCHIVED', version, dossier.id), archive_ref: archiveRef, handed_over_at: handedOverAt.toISOString(), documents_archived: archived };
+  }
+
+  /**
+   * A disposal is proposed for a dossier that was closed (or handed over): the retention has ended, no legal hold is on the dossier or its documents and the retention is not provisional (BR-DOC-23). The refusals are
+   * 422 `DOSSIER_NOT_CLOSED`, 422 `RETENTION_PROVISIONAL`, 409 `LEGAL_HOLD_ACTIVE` (also when the retention is over) and 422 `RETENTION_NOT_EXPIRED`; a dossier whose disposal is proposed or decided is 409 `STAGE_TRANSITION_DENIED`.
+   */
+  @Post('dossiers/:id/disposal-proposals')
+  @HttpCode(200)
+  @OperationId('proposeDossierDisposal')
+  @Command({ operation: 'proposeDossierDisposal', versioned: true })
+  async proposeDisposal(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DocDisposalProposal']): Promise<CommandResult> {
+    const now = this.clock();
+    const reason = body.reason.trim().normalize('NFC');
+    if (reason.length < MIN_REASON || reason.length > MAX_REASON) throw new DomainError('VALIDATION_FAILED', 422, 'reason');
+    const dossier = await this.held(scope, access, id, now, ARCHIVE);
+    if (dossier.status === 'DISPOSAL_PROPOSED' || dossier.status === 'DISPOSED') throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status', { extensions: { dossier_status: dossier.status } });
+    assertDisposable({ status: dossier.status, provisional: dossier.provisional, retentionEndsOn: dossier.retentionEndsOn, holdActive: await this.dossiers.holdActive(scope.tx, dossier.id), today: vietnamDateOf(now) });
+    if (!DISPOSAL_FROM.includes(dossier.status)) throw new DomainError('DOSSIER_NOT_CLOSED', 422, 'status', { extensions: { dossier_status: dossier.status } });
+    await this.dossiers.proposeDisposal(scope.tx, dossier, { reason, at: now, actor: scope.tenant.membershipId });
+    const version = dossier.version + 1;
+    await this.written(scope, dossier.id, version, 'doc.dossier_disposal_proposed.v1', 'dossier.disposal_proposed', now, { dossier_code: dossier.dossierCode, from_status: dossier.status, retention_ends_on: dossier.retentionEndsOn, reason });
+    return commandResult(scope, 'DISPOSAL_PROPOSED', version, dossier.id);
+  }
+
+  /**
+   * The decision of the council on a proposal, by someone who did not propose it (403 `SELF_APPROVAL_DENIED`). Approving needs the document of the decision (422 `DECISION_DOCUMENT_REQUIRED`) and a dossier that is under no legal
+   * hold by now (409 `LEGAL_HOLD_ACTIVE`): it is marked DISPOSED, nothing is deleted here (the event tells the archive process of the tenant). Rejecting sends the dossier back to the state it was proposed from.
+   */
+  @Post('dossiers/:id/disposal-decision')
+  @HttpCode(200)
+  @OperationId('decideDossierDisposal')
+  @Command({ operation: 'decideDossierDisposal', versioned: true })
+  async decideDisposal(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['DocDisposalDecision']): Promise<CommandResult> {
+    const now = this.clock();
+    const approve = body.decision === 'APPROVE';
+    const comment = body.comment === undefined || body.comment.trim() === '' ? undefined : body.comment.trim().normalize('NFC');
+    if (comment !== undefined && comment.length > MAX_COMMENT) throw new DomainError('VALIDATION_FAILED', 422, 'comment');
+    const dossier = await this.held(scope, access, id, now, DISPOSE);
+    if (dossier.status !== 'DISPOSAL_PROPOSED' || dossier.disposal === null) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status', { extensions: { dossier_status: dossier.status } });
+    assertFourEyes(dossier.disposal.proposedBy, scope.tenant.membershipId);
+    const decisionDocumentId = body.council_decision_document_id?.toLowerCase();
+    if (approve) {
+      if (decisionDocumentId === undefined || !(await this.dossiers.decisionDocumentUsable(scope.tx, decisionDocumentId))) throw new DomainError('DECISION_DOCUMENT_REQUIRED', 422, 'council_decision_document_id');
+      // A hold put on the dossier (or on a document in it) after the proposal stops the disposal as well.
+      if (await this.dossiers.holdActive(scope.tx, dossier.id)) throw new DomainError('LEGAL_HOLD_ACTIVE', 409);
+    } else if (decisionDocumentId !== undefined) throw new DomainError('VALIDATION_FAILED', 422, 'council_decision_document_id');
+    await this.dossiers.decideDisposal(scope.tx, dossier, { approve, councilDecisionDocumentId: decisionDocumentId, comment, at: now, actor: scope.tenant.membershipId });
+    const version = dossier.version + 1;
+    const status = approve ? 'DISPOSED' : dossier.disposal.fromStatus;
+    await this.written(scope, dossier.id, version, approve ? 'doc.dossier_disposed.v1' : 'doc.dossier_disposal_rejected.v1', approve ? 'dossier.disposed' : 'dossier.disposal_rejected', now, {
+      dossier_code: dossier.dossierCode,
+      decision: body.decision,
+      proposed_by: dossier.disposal.proposedBy,
+      proposed_at: dossier.disposal.proposedAt,
+      // A rejection clears the proposal from the dossier: the reason stays in the trail.
+      proposed_reason: dossier.disposal.reason,
+      council_decision_document_id: decisionDocumentId ?? null,
+      comment: comment ?? null,
+      to_status: status,
+    });
+    return commandResult(scope, status, version, dossier.id);
+  }
+
+  /** The dossier locked in the scope of the caller for the permission of the step, at the version they read. */
+  private async held(scope: CommandScope, access: EffectiveAccess, id: string, now: Date, permission: string): Promise<DossierRecord> {
+    const dossier = await this.dossiers.lock(scope.tx, id, manageScope(access, now, permission));
+    if (dossier === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (dossier.version !== scope.expectedVersion) throw versionConflict(dossier.version);
+    return dossier;
+  }
+
   /** The dossier locked in the scope of the caller, at the version they read, and open (409 `DOSSIER_NOT_OPEN`). */
+
   private async heldOpen(scope: CommandScope, access: EffectiveAccess, id: string, now: Date, checkVersion = true): Promise<DossierRecord> {
     const dossier = await this.dossiers.lock(scope.tx, id, manageScope(access, now));
     if (dossier === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -230,15 +331,20 @@ export class DossierReadsController {
     if (year !== undefined && !(typeof year === 'string' && /^\d{4}$/.test(year))) throw new DomainError('VALIDATION_FAILED', 422, 'year');
     const page = parsePageRequest(limit, cursor);
     const now = this.clock();
-    const found = await this.database.withTenant(tenant, (tx) =>
-      this.dossiers.list(
+    const found = await this.database.withTenant(tenant, async (tx) => {
+      const listed = await this.dossiers.list(
         tx,
         { status: status as string | undefined, subjectModule: (subjectModule as string | undefined)?.toUpperCase(), subjectId: (subjectId as string | undefined)?.toLowerCase(), year: year === undefined ? undefined : Number(year) },
         { limit: page.limit, after: page.after },
         (first) => scopePredicate(access, READ, now, DOSSIER_SCOPE_COLUMNS, first),
-      ),
-    );
-    return { items: found.records.map((record) => view(record, access, now)), next_cursor: found.next === undefined ? null : encodeCursor(found.next), as_of: now.toISOString() };
+      );
+      return { ...listed, held: await this.dossiers.holdsActive(tx, listed.records.map((record) => record.id)) };
+    });
+    const today = vietnamDateOf(now);
+    return {
+      items: found.records.map((record) => ({ ...view(record, access, now, tenant.membershipId), ...holdFacts(record, found.held.has(record.id), today) })), next_cursor: found.next === undefined ? null : encodeCursor(found.next),
+      as_of: now.toISOString(),
+    };
   }
 
   @Get('dossiers/:id')
@@ -254,10 +360,9 @@ export class DossierReadsController {
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const { record } = found;
     return {
-      ...view(record, access, now),
+      ...view(record, access, now, tenant.membershipId),
       items: found.items.map((item) => ({ id: item.id, document_id: item.documentId, ordinal: item.ordinal, title: item.title, doc_kind: item.docKind, doc_type_code: item.docTypeCode, classification: item.classification, issued_on: item.issuedOn, added_at: item.addedAt })),
-      legal_hold_active: found.held,
-      disposal_blocker: disposalBlocker({ status: record.status, provisional: record.provisional, retentionEndsOn: record.retentionEndsOn, holdActive: found.held, today: vietnamDateOf(now) }) ?? null,
+      ...holdFacts(record, found.held, vietnamDateOf(now)),
     };
   }
 
@@ -291,6 +396,9 @@ export class DossierReadsController {
         effective_from: rule.effectiveFrom,
         effective_until: rule.effectiveUntil,
         status: rule.status,
+        created_by: { id: rule.createdBy, name: rule.createdByName },
+        approved_by: rule.approvedBy === null ? null : { id: rule.approvedBy, name: rule.approvedByName },
+        legal_confirmed_by: rule.legalConfirmedBy === null ? null : { id: rule.legalConfirmedBy, name: rule.legalConfirmedByName },
         version: rule.version,
       })),
       next_cursor: found.next === undefined ? null : encodeCursor(found.next),
@@ -298,9 +406,15 @@ export class DossierReadsController {
   }
 }
 
+/** Whether a legal hold is on the dossier and what stops its disposal now (BR-DOC-23), if anything: the hold indicator of the list and of the detail. */
+function holdFacts(record: DossierRecord, held: boolean, today: string): Record<string, unknown> {
+  return { legal_hold_active: held, disposal_blocker: disposalBlocker({ status: record.status, provisional: record.provisional, retentionEndsOn: record.retentionEndsOn, holdActive: held, today }) ?? null };
+}
+
 /** One dossier as the reads show it, with what the caller may do now. */
-function view(record: DossierRecord, access: EffectiveAccess, now: Date): Record<string, unknown> {
-  const mayManage = mayActOnUnit(access, MANAGE, { id: record.organizationUnitId, path: record.unitPath }, now);
+function view(record: DossierRecord, access: EffectiveAccess, now: Date, membershipId: string): Record<string, unknown> {
+  const mayAct = (permission: string): boolean => mayActOnUnit(access, permission, { id: record.organizationUnitId, path: record.unitPath }, now);
+  const mayManage = mayAct(MANAGE);
   return {
     id: record.id,
     dossier_code: record.dossierCode,
@@ -321,10 +435,32 @@ function view(record: DossierRecord, access: EffectiveAccess, now: Date): Record
     closed_at: record.closedAt,
     settlement_closed_on: record.settlementClosedOn,
     handover_due_on: record.handoverDueOn,
+    handed_over_at: record.handedOverAt,
+    archive_ref: record.archiveRef,
+    disposal:
+      record.disposal === null
+        ? null
+        : {
+            proposed_by: record.disposal.proposedBy,
+            proposed_at: record.disposal.proposedAt,
+            reason: record.disposal.reason,
+            from_status: record.disposal.fromStatus,
+            decided_by: record.disposal.decidedBy,
+            decided_at: record.disposal.decidedAt,
+            council_decision_document_id: record.disposal.councilDecisionDocumentId,
+            comment: record.disposal.comment,
+          },
     item_count: record.itemCount,
     version: record.version,
     created_at: record.createdAt,
     updated_at: record.updatedAt,
-    actions: { addDocument: record.status === 'OPEN' && mayManage, close: record.status === 'OPEN' && record.itemCount > 0 && mayManage },
+    actions: {
+      addDocument: record.status === 'OPEN' && mayManage,
+      close: record.status === 'OPEN' && record.itemCount > 0 && mayManage,
+      handover: record.status === 'CLOSED' && mayAct(ARCHIVE),
+      proposeDisposal: DISPOSAL_FROM.includes(record.status) && mayAct(ARCHIVE),
+      // The one who proposed the disposal is not the one who decides it: the action is not offered to them.
+      decideDisposal: record.status === 'DISPOSAL_PROPOSED' && record.disposal?.proposedBy !== membershipId && mayAct(DISPOSE),
+    },
   };
 }

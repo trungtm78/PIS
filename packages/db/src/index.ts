@@ -554,7 +554,7 @@ export { DgvProductExpiryJob, PRODUCT_CERT_EXPIRED_EVENT } from './dgv-product-j
 export type { DgvProductExpirySummary } from './dgv-product-job.ts';
 export type { ExceptionFilters, ExceptionRecord, IncidentEventRecord, IncidentFilters, IncidentRecord, SweepResult } from './dgv-incident-store.ts';
 export { DOSSIER_SCOPE_COLUMNS, DocDossierStore } from './doc-dossier-store.ts';
-export type { DossierFilters, DossierItemRecord, DossierPageAnchor, DossierRecord, FileableDocument, NewDossier as NewDocDossier, RetentionRuleRecord, RuleFilters } from './doc-dossier-store.ts';
+export type { DossierFilters, DossierItemRecord, DossierPageAnchor, DossierRecord, FileableDocument, HandoverReminderStage, NewDossier as NewDocDossier, RetentionRuleRecord, RuleFilters } from './doc-dossier-store.ts';
 export { DocIncomingStore } from './doc-incoming-store.ts';
 export type { IncomingAssignment, IncomingFilters, IncomingPage, IncomingPageAnchor, IncomingRecord, NewIncoming } from './doc-incoming-store.ts';
 export { QmsPhotoStore } from './qms-photo-store.ts';
@@ -770,3 +770,5 @@ export { ENFORCEMENT_ADVANCED_EVENT, ENFORCEMENT_RESOURCE, ENFORCEMENT_STARTED_E
 export type { AdvanceInput as LndAdvanceEnforcementInput, EnforcementLine, EnforcementResult, StartInput as LndStartEnforcementInput } from './lnd-enforcement-store.ts';
 export { ALLOCATION_STATUSES, LndResettlementStore, RESETTLEMENT_ALLOCATED_EVENT, RESETTLEMENT_RESOURCE, UNIT_KINDS } from './lnd-resettlement-store.ts';
 export type { Allocated, AllocationInput, AllocationLine, AllocationStatus, Candidate, UnitKind } from './lnd-resettlement-store.ts';
+export { DocRetentionRuleStore } from './doc-retention-rule-store.ts';
+export type { NewRetentionRule, RetentionRuleDetail, RuleConfirmation, RuleStatus } from './doc-retention-rule-store.ts';

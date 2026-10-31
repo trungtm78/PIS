@@ -5,6 +5,7 @@ import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from './file-port';
 import type { DocumentFilePort } from './file-port';
 import type { MetricsSink } from '@machvon/kernel';
 import { DossierReadsController, DossiersController } from './dossier.controller';
+import { RetentionRulesController } from './retention-rules.controller';
 import { DocumentOverviewController } from './overview.controller';
 import { IncomingController, IncomingReadsController } from './incoming.controller';
 import { OutgoingController } from './outgoing.controller';
@@ -43,6 +44,7 @@ export const docModule = defineModule({
     IncomingReadsController,
     DossiersController,
     DossierReadsController,
+    RetentionRulesController,
     DocumentOverviewController,
     DocumentsController,
     DocumentVersionReadsController,

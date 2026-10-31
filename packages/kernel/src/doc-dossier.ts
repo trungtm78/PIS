@@ -95,14 +95,14 @@ export function disposalBlocker(input: { status: DossierStatus; provisional: boo
   return undefined;
 }
 
-/** The refusal for a blocker: 409 for the state of the dossier and for a legal hold, 422 for the retention. */
+/** The refusal for a blocker, with the status of the registry: 409 for a legal hold, 422 for the others (an open dossier, a provisional or a running retention). */
 export function assertDisposable(input: Parameters<typeof disposalBlocker>[0]): void {
   const blocker = disposalBlocker(input);
   if (blocker === undefined) return;
-  throw new DomainError(blocker, blocker === 'DOSSIER_NOT_CLOSED' || blocker === 'LEGAL_HOLD_ACTIVE' ? 409 : 422);
+  throw new DomainError(blocker, blocker === 'LEGAL_HOLD_ACTIVE' ? 409 : 422);
 }
 
-/** Where a dossier goes next: the chain of F11. Closing is the only step of this story; the others are named so that the database guard and the later commands agree. */
+/** Where a dossier goes next: the chain of F11 (the database guard of V1229 says the same). A disposal that is rejected sends the dossier back to the state it was proposed from: see `canMoveDossier`. */
 const NEXT: Readonly<Record<DossierStatus, readonly DossierStatus[]>> = {
   OPEN: ['CLOSED'],
   CLOSED: ['HANDED_OVER', 'DISPOSAL_PROPOSED'],
@@ -111,4 +111,7 @@ const NEXT: Readonly<Record<DossierStatus, readonly DossierStatus[]>> = {
   DISPOSAL_PROPOSED: ['DISPOSED'],
   DISPOSED: [],
 };
-export const canMoveDossier = (from: DossierStatus, to: DossierStatus): boolean => NEXT[from].includes(to);
+export const canMoveDossier = (from: DossierStatus, to: DossierStatus, proposedFrom?: DossierStatus): boolean => NEXT[from].includes(to) || (from === 'DISPOSAL_PROPOSED' && proposedFrom !== undefined && to === proposedFrom);
+
+/** The states a disposal can be proposed from: a dossier that was closed, or handed over (HANDED_OVER is the step before ARCHIVED, which the handover command passes through). */
+export const DISPOSAL_FROM: readonly DossierStatus[] = ['CLOSED', 'HANDED_OVER', 'ARCHIVED'];

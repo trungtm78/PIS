@@ -1,5 +1,5 @@
 import { DomainError } from '../src/errors';
-import { addMonths, assertDisposable, canMoveDossier, disposalBlocker, planRetention, selectRetentionRule } from '../src/doc-dossier';
+import { DISPOSAL_FROM, addMonths, assertDisposable, canMoveDossier, disposalBlocker, planRetention, selectRetentionRule } from '../src/doc-dossier';
 import type { RetentionRuleView } from '../src/doc-dossier';
 
 const rule = (overrides: Partial<RetentionRuleView> = {}): RetentionRuleView => ({
@@ -112,7 +112,7 @@ describe('disposalBlocker (BR-DOC-23)', () => {
     expect(refusal({ ...base, provisional: true })).toEqual(['RETENTION_PROVISIONAL', 422]);
     expect(refusal({ ...base, holdActive: true })).toEqual(['LEGAL_HOLD_ACTIVE', 409]);
     expect(refusal({ ...base, retentionEndsOn: '2027-01-01' })).toEqual(['RETENTION_NOT_EXPIRED', 422]);
-    expect(refusal({ ...base, status: 'OPEN' })).toEqual(['DOSSIER_NOT_CLOSED', 409]);
+    expect(refusal({ ...base, status: 'OPEN' })).toEqual(['DOSSIER_NOT_CLOSED', 422]);
     expect(refusal(base)).toBeUndefined();
   });
 });
@@ -126,5 +126,14 @@ describe('canMoveDossier', () => {
     expect(canMoveDossier('CLOSED', 'OPEN')).toBe(false);
     expect(canMoveDossier('OPEN', 'HANDED_OVER')).toBe(false);
     expect(canMoveDossier('DISPOSED', 'CLOSED')).toBe(false);
+  });
+
+  it('sends a dossier whose disposal is rejected back to the state it was proposed from, and to no other', () => {
+    expect(canMoveDossier('DISPOSAL_PROPOSED', 'CLOSED', 'CLOSED')).toBe(true);
+    expect(canMoveDossier('DISPOSAL_PROPOSED', 'ARCHIVED', 'ARCHIVED')).toBe(true);
+    expect(canMoveDossier('DISPOSAL_PROPOSED', 'ARCHIVED', 'CLOSED')).toBe(false);
+    expect(canMoveDossier('DISPOSAL_PROPOSED', 'CLOSED')).toBe(false);
+    expect(canMoveDossier('CLOSED', 'CLOSED', 'CLOSED')).toBe(false);
+    expect(DISPOSAL_FROM).toEqual(['CLOSED', 'HANDED_OVER', 'ARCHIVED']);
   });
 });

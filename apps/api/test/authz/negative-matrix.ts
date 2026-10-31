@@ -1856,6 +1856,34 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dossiers/${t.dossierId}/closure`, ifMatch: '"1"', body: {} }),
   },
+  handoverDossierToArchive: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dossiers/${t.dossierId}/handover`, ifMatch: '"1"', body: { archive_ref: 'MATRIX-ARCHIVE-1', handed_over_at: '2026-01-01T00:00:00Z' } }),
+  },
+  proposeDossierDisposal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dossiers/${t.dossierId}/disposal-proposals`, ifMatch: '"1"', body: { reason: 'Matrix probe of a disposal proposal' } }),
+  },
+  decideDossierDisposal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dossiers/${t.dossierId}/disposal-decision`, ifMatch: '"1"', body: { decision: 'REJECT' } }),
+  },
+  createDocumentRetentionRule: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/document-retention-rules',
+      body: { rule_set: 'TENANT_CUSTOM', category_code: 'MATRIX_CATEGORY', class_code: 'Y10', retention_years: 10, start_basis: 'FROM_CLOSED', legal_basis: 'Matrix attempt to draft a retention rule', effective_from: '2099-01-01' },
+    }),
+  },
+  publishDocumentRetentionRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-retention-rules/${t.legalHoldId}/publish`, ifMatch: '"1"', body: {} }),
+  },
+  confirmDocumentRetentionRuleLegalBasis: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-retention-rules/${t.legalHoldId}/legal-confirmation`, ifMatch: '"1"', body: { legal_confirmation_ref: 'CXN-MATRIX', evidence_document_id: '00000000-0000-4000-8000-0000000000e8' } }),
+  },
   fileIncomingDocument: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/filing`, ifMatch: '"1"', body: { dossier_id: t.dossierId } }),
