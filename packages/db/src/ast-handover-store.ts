@@ -17,6 +17,7 @@ import {
   vietnamDateOf,
 } from '@machvon/kernel';
 import type { EffectiveAccess, HandoverDecision, HandoverKind, HandoverStatus, PunchSeverity, PunchStatus } from '@machvon/kernel';
+import { assertCleanDocument, assertCleanPhoto, assertContractParty, assertContractorOwn } from './ast-evidence.ts';
 import { CtrContractStore, SCOPE_FROM as CONTRACT_SCOPE_FROM, TIMESTAMP, calendarDate, contractScope } from './ctr-contract-store.ts';
 import type { ContractScopes } from './ctr-contract-store.ts';
 import { assertTimestampCursor, timestampKey } from './keyset.ts';
@@ -477,9 +478,7 @@ export class AstHandoverStore {
     this.assertOpen(held);
     assertPunchMove('fix', item.status);
     // A contractor answers for the items it is responsible for, and for no other.
-    const caller = (await tx.query<{ membership_type: string; contractor_id: string | null }>('select membership_type, contractor_id from machvon.membership where id = $1::uuid', [actor]))[0];
-    if (caller?.membership_type === 'GUEST_CONTRACTOR' && item.responsible_contractor_id !== null && caller.contractor_id !== item.responsible_contractor_id)
-      throw new DomainError('SCOPE_DENIED', 403);
+    await assertContractorOwn(tx, actor, item.responsible_contractor_id);
     if (photoId === null && documentId === null) throw new DomainError('EVIDENCE_REQUIRED', 422, 'evidence_photo_id');
     if (photoId !== null) await this.assertPhoto(tx, photoId, held.contract_id, 'evidence_photo_id');
     if (documentId !== null) await this.assertClean(tx, documentId, 'evidence_document_version_id');
@@ -738,26 +737,17 @@ export class AstHandoverStore {
   }
 
   /** A version of a file of the tenant that has passed the scan. */
-  private async assertClean(tx: TenantTx, versionId: string, field: string): Promise<void> {
-    const rows = await tx.query<{ scan_status: string }>('select scan_status from machvon.document_version where id = $1::uuid', [versionId]);
-    if (rows[0] === undefined) throw invalid(field, 'NOT_FOUND');
-    if (rows[0].scan_status !== 'CLEAN') throw new DomainError('DOCUMENT_NOT_CLEAN', 422, field);
+  private assertClean(tx: TenantTx, versionId: string, field: string): Promise<void> {
+    return assertCleanDocument(tx, versionId, field);
   }
 
   /** A photo of the contract that has passed the scan. */
-  private async assertPhoto(tx: TenantTx, photoId: string, contractId: string, field: string): Promise<void> {
-    const rows = await tx.query<{ scan_status: string }>('select scan_status from machvon.site_photo where id = $1::uuid and contract_id = $2::uuid', [photoId, contractId]);
-    if (rows[0] === undefined) throw invalid(field, 'NOT_IN_CONTRACT');
-    if (rows[0].scan_status !== 'CLEAN') throw new DomainError('FILE_NOT_CLEAN', 422, field);
+  private assertPhoto(tx: TenantTx, photoId: string, contractId: string, field: string): Promise<void> {
+    return assertCleanPhoto(tx, photoId, contractId, field);
   }
 
   /** The contractor answering for an item is the contractor of the contract or one of its parties. */
-  private async assertParty(tx: TenantTx, contractId: string, contractorId: string): Promise<void> {
-    const rows = await tx.query(
-      `select 1 from machvon.contract where id = $1::uuid and contractor_id = $2::uuid
-        union select 1 from machvon.contract_party where contract_id = $1::uuid and contractor_id = $2::uuid and status = 'ACTIVE'`,
-      [contractId, contractorId],
-    );
-    if (rows.length === 0) throw invalid('responsible_contractor_id', 'NOT_A_PARTY');
+  private assertParty(tx: TenantTx, contractId: string, contractorId: string): Promise<void> {
+    return assertContractParty(tx, contractId, contractorId, 'responsible_contractor_id');
   }
 }

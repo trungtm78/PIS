@@ -361,6 +361,8 @@ export { CLAIM_STATUSES, CONSTRUCTION_GRADES, WARRANTY_STATUSES, assertWarrantyC
 export type { ClaimStatus, ConstructionGrade, WarrantyClosure, WarrantyMinimums, WarrantyStatus } from './ast-warranty.ts';
 export { EVALUATION_TRIGGER_KINDS, EVALUATION_TRIGGER_STATUSES, assertTriggerStage, earliestDueOn, isPostHandoverKind, nextTriggerStatus } from './ast-evaluation.ts';
 export type { EvaluationTriggerKind, EvaluationTriggerStatus, TriggerMove } from './ast-evaluation.ts';
+export { CLAIM_RESPONSE_DAYS, CLAIM_SEVERITIES, CLAIM_VERIFICATIONS, COST_BEARERS, assertClaimVerifier, assertWithinWarranty, isResponseOverdue, nextClaimStatus, responseDueOn } from './ast-claim.ts';
+export type { ClaimMove, ClaimSeverity, ClaimVerification, CostBearer } from './ast-claim.ts';
 export {
   CRITERIA,
   EVALUATION_KINDS,

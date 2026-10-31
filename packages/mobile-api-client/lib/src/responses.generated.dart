@@ -634,6 +634,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listTenantSelectionCandidates': TenantSelectionCandidatesResponse.fromJson,
   'listTreasuryImports': asObject,
   'listUpcomingLandDeadlines': asObject,
+  'listWarrantyClaims': asObject,
   'listWarrantyObligations': asObject,
   'listWeeklyDisbursementPlans': DisWeeklyPlanPageResponse.fromJson,
   'lockReportingPeriod': CommandResultResponse.fromJson,

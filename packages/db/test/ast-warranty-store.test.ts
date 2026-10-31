@@ -153,6 +153,23 @@ const claim = (obligationId: string, claimNo: string, status = 'OPEN') =>
     [TENANT_A, obligationId, claimNo, memberId(MANAGER), status, memberId(VERIFIER)],
   );
 
+/** Takes the claims of an obligation (all, or the one numbered) through the answer to a verified repair, by the moves the lifecycle allows; MANAGER reported them and says they are put right. */
+const resolve = async (obligationId: string, claimNo: string | null = null): Promise<void> => {
+  const only = '($3::text is null or claim_no = $3)';
+  await stage(
+    `update machvon.warranty_claim set status = 'ACKNOWLEDGED', committed_fix_on = reported_on, acknowledged_by = $2::uuid, acknowledged_at = now() where obligation_id = $1::uuid and status = 'OPEN' and ${only}`,
+    [obligationId, memberId(MANAGER), claimNo],
+  );
+  await stage(
+    `update machvon.warranty_claim
+        set status = 'FIXED', fixed_on = reported_on + 1, fixed_by = $2::uuid, fix_note = 'Put right', fix_evidence_document_version_id = $4::uuid,
+            acknowledged_by = coalesce(acknowledged_by, $2::uuid), acknowledged_at = coalesce(acknowledged_at, now()), committed_fix_on = coalesce(committed_fix_on, reported_on)
+      where obligation_id = $1::uuid and status in ('ACKNOWLEDGED', 'DISPUTED') and ${only}`,
+    [obligationId, memberId(MANAGER), claimNo, CLEAN],
+  );
+  await stage(`update machvon.warranty_claim set status = 'VERIFIED', verified_by = $2::uuid, verified_at = now() where obligation_id = $1::uuid and status = 'FIXED' and ${only}`, [obligationId, memberId(VERIFIER), claimNo]);
+};
+
 const rowOf = async (obligationId: string) =>
   (
     await owner<{
@@ -323,10 +340,7 @@ describe('the warranty of a work (ST-AST-003)', () => {
       await claim(obligation.id, 'WC-002');
       expect(await refusal(close(obligation.id))).toMatchObject({ code: 'OPEN_WARRANTY_CLAIMS', status: 422, extensions: { open_claims: 1, claim_nos: ['WC-002'] } });
       expect((await rowOf(obligation.id))?.status).toBe('ACTIVE');
-      await stage("update machvon.warranty_claim set status = 'VERIFIED', fixed_on = date '2027-08-25', verified_by = $2::uuid, verified_at = now() where obligation_id = $1::uuid", [
-        obligation.id,
-        memberId(VERIFIER),
-      ]);
+      await resolve(obligation.id);
       const closed = await close(obligation.id, all, AFTER_END, 'All claims were answered.');
       expect(closed).toMatchObject({ status: 'CLOSED', fromStatus: 'ACTIVE', version: 2, openClaims: 0, handoverId: target.handoverId, contractId: target.contractId, endsOn: '2027-09-01' });
       expect(await rowOf(obligation.id)).toMatchObject({ status: 'CLOSED', version: '2', closed_by: memberId(MANAGER), close_note: 'All claims were answered.' });
@@ -339,10 +353,7 @@ describe('the warranty of a work (ST-AST-003)', () => {
       expect(await refusal(close(obligation.id, all, new Date('2027-08-31T10:00:00Z')))).toMatchObject({ code: 'WARRANTY_NOT_EXPIRED', status: 422, extensions: { ends_on: '2027-09-01' } });
       await claim(obligation.id, 'WC-001');
       expect(await refusal(close(obligation.id, all, new Date('2027-08-31T10:00:00Z')))).toMatchObject({ code: 'WARRANTY_NOT_EXPIRED' });
-      await stage("update machvon.warranty_claim set status = 'VERIFIED', fixed_on = date '2027-08-25', verified_by = $2::uuid, verified_at = now() where obligation_id = $1::uuid", [
-        obligation.id,
-        memberId(VERIFIER),
-      ]);
+      await resolve(obligation.id);
       expect((await close(obligation.id, all, new Date('2027-09-01T03:00:00Z'))).status).toBe('CLOSED');
     });
 
@@ -353,10 +364,7 @@ describe('the warranty of a work (ST-AST-003)', () => {
       await claim(obligation.id, 'WC-009', 'DISPUTED');
       await claim(obligation.id, 'WC-010', 'CLOSED');
       expect(await refusal(close(obligation.id))).toMatchObject({ code: 'OPEN_WARRANTY_CLAIMS', extensions: { open_claims: 1, claim_nos: ['WC-009'] } });
-      await stage(
-        "update machvon.warranty_claim set status = 'VERIFIED', fixed_on = date '2027-08-25', verified_by = $2::uuid, verified_at = now() where claim_no = 'WC-009' and obligation_id = $1::uuid",
-        [obligation.id, memberId(VERIFIER)],
-      );
+      await resolve(obligation.id, 'WC-009');
       expect(await close(obligation.id)).toMatchObject({ status: 'CLOSED', fromStatus: 'EXPIRED' });
     });
 

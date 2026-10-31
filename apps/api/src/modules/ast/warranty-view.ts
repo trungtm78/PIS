@@ -21,6 +21,7 @@ export function warrantyView(line: WarrantyLine, access: EffectiveAccess, now: D
   return {
     id: line.id,
     contract: { id: line.contract.id, code: line.contract.code },
+    contractor: line.contractor === null ? null : { id: line.contractor.id, name: line.contractor.name },
     handover: { id: line.handover.id, handover_no: line.handover.handoverNo, status: line.handover.status },
     project_id: line.projectId,
     asset: line.asset === null ? null : { id: line.asset.id, asset_code: line.asset.assetCode, name: line.asset.name },

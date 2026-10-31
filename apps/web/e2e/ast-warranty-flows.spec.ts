@@ -172,12 +172,12 @@ test.describe('the warranty and what is held back', () => {
     await expect(line.locator('[data-close]')).toHaveCount(0);
 
     // The claim is verified; the project office closes the warranty with a note.
-    await admin((client) =>
-      client.query("update machvon.warranty_claim set status = 'VERIFIED', fixed_on = date '2024-06-25', verified_by = $2, verified_at = now() where obligation_id = $1", [
-        id,
-        membershipOf('lifecycleActivator'),
-      ]),
-    );
+    // The claim is put straight into its end state: the moves of its lifecycle are the subject of the API tests, not of this flow.
+    await admin(async (client) => {
+      await client.query('alter table machvon.warranty_claim disable trigger warranty_claim_moves_guard');
+      await client.query("update machvon.warranty_claim set status = 'VERIFIED', fixed_on = date '2024-06-25', verified_by = $2, verified_at = now() where obligation_id = $1", [id, membershipOf('lifecycleActivator')]);
+      await client.query('alter table machvon.warranty_claim enable trigger warranty_claim_moves_guard');
+    });
     await open(page, list, 'warrantyManager');
     await line.locator('[data-close]').click();
     await page.locator('#warranty-note').fill('Đã xử lý hết yêu cầu.');

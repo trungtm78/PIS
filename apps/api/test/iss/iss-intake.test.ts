@@ -1,11 +1,12 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { WORKER_MEMBERSHIP_ID, INTAKE_CATEGORY_KEYS, overdueEvent, stageLateEvent } from '@machvon/db';
+import { AstClaimOverdueJob, AuditWriter, WORKER_MEMBERSHIP_ID, INTAKE_CATEGORY_KEYS, overdueEvent, stageLateEvent } from '@machvon/db';
 import type { OutboxDelivery } from '@machvon/db';
 import { signTenantContext } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import { INTAKE_IGNORED_METRIC, INTAKE_OPENED_METRIC, INTAKE_REFERENCE_REPLACED_METRIC, ISS_INTAKE_CONSUMER, IssIntakeConsumer, SOURCE_DEDUPE_METRIC } from '../../src/modules/iss/intake.consumer';
 import { issueDetailView } from '../../src/modules/iss/issue-view';
-import { IssWorld, PEOPLE, PROJECT, TENANT_A, UNIT_1, memberId } from '../../../../packages/db/test/support/iss-fixtures';
+import { CONTRACT, CONTRACTOR, DOCUMENT_CLEAN, IssWorld, PEOPLE, PROJECT, TENANT_A, UNIT_1, memberId } from '../../../../packages/db/test/support/iss-fixtures';
+import { asSuperuser } from '../../../../packages/db/test/support/ncr-fixtures';
 
 const SIGNING_KEY = randomBytes(32);
 const SYSTEM = memberId(PEOPLE.SYSTEM);
@@ -21,7 +22,7 @@ class Counters implements MetricsSink {
   }
 }
 
-describe('the intake of automatic issues from the events of PMT, PAY, LND and CTR (ST-ISS-005, ISS-11)', () => {
+describe('the intake of automatic issues from the events of PMT, PAY, LND, CTR and AST (ST-ISS-005, ISS-11)', () => {
   const world = new IssWorld();
   const metrics = new Counters();
   const consumer = (): IssIntakeConsumer => new IssIntakeConsumer({ database: world.harness.tenants, security: { signingKey: SIGNING_KEY }, metrics });
@@ -196,6 +197,56 @@ describe('the intake of automatic issues from the events of PMT, PAY, LND and CT
     );
     expect(await consumer().handle(retried)).toBe('processed');
     expect((await issuesOf(source))[0]).toMatchObject({ title: 'Advance guarantee expired: ADVANCE-2026-12-01', source_module: 'CTR' });
+  });
+
+  it('AC-ST-AST-004-1, UAT-AC391: a warranty claim nobody answered by its day opens one issue attributed to AST, the claim keeps it, and a second pass or a second event changes nothing', async () => {
+    const version = await world.seedCategory(TENANT_A, 'ISSUE_CATEGORY', INTAKE_CATEGORY_KEYS.AST);
+    await world.as((tx) =>
+      world.policies.publish(tx, { code: 'SLA-AST-HIGH', categoryVersionId: version, severity: 'HIGH', calendarCode: 'WORKDAY_VN', responseHours: 4, resolveHours: 16, validFrom: '2026-08-05' }, SYSTEM),
+    );
+    const handoverId = randomUUID();
+    const obligationId = randomUUID();
+    const claimId = randomUUID();
+    await asSuperuser(
+      world.harness.database.adminUrl,
+      `insert into machvon.handover
+         (tenant_id, id, project_id, contract_id, recipient_unit_id, document_version_id, punch_list, status, handover_no, handover_kind, created_by, updated_by, version, accepted_at, accepted_by, as_built_document_version_id)
+       values ($1, $2, $3, $4, $5, $6, '[]'::jsonb, 'ACCEPTED', 'BG-AST-1', 'COMPLETION', $7, $7, 1, timestamptz '2026-09-01T03:00:00Z', $7, $6)`,
+      [TENANT_A, handoverId, PROJECT, CONTRACT, UNIT_1, DOCUMENT_CLEAN, SYSTEM],
+    );
+    await world.owner(
+      `insert into machvon.warranty_obligation
+         (tenant_id, id, project_id, contract_id, handover_id, scope_description, starts_on, ends_on, period_months, retention_amount_vnd, status, created_by, updated_by, version)
+       values ($1, $2, $3, $4, $5, 'The whole pump house', date '2026-09-01', date '2027-09-01', 12, 1000, 'ACTIVE', $6, $6, 1)`,
+      [TENANT_A, obligationId, PROJECT, CONTRACT, handoverId, SYSTEM],
+    );
+    await world.owner(
+      `insert into machvon.warranty_claim
+         (tenant_id, id, obligation_id, claim_no, reported_on, reported_by, defect_description, severity, responder_contractor_id, response_due_on, status, created_by, updated_by, version)
+       values ($1, $2, $3, 'WC-001', date '2027-01-10', $4, 'Crack in the wall', 'MAJOR', $5, date '2027-01-17', 'OPEN', $4, $4, 1)`,
+      [TENANT_A, claimId, obligationId, SYSTEM, CONTRACTOR],
+    );
+    const sweep = (at: string) =>
+      world.harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, (tx) =>
+        new AstClaimOverdueJob(new AuditWriter(world.harness.tenants)).run(tx, WORKER_MEMBERSHIP_ID, new Date(at)),
+      );
+    expect((await sweep('2027-01-17T09:00:00+07:00')).flagged).toBe(0);
+    expect((await sweep('2027-01-18T09:00:00+07:00')).flagged).toBe(1);
+    const [event] = await world.owner<{ payload: Record<string, unknown> }>("select payload from machvon.outbox_event where aggregate_id = $1::uuid and type = 'ast.warranty_claim.overdue.v1'", [claimId]);
+    const first = delivery('ast.warranty_claim.overdue.v1', event?.payload ?? {}, { aggregateType: 'warranty_claim', aggregateId: claimId });
+    expect(await consumer().handle(first)).toBe('processed');
+    const issues = await issuesOf(claimId);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ title: 'Warranty claim unanswered: WC-001', status: 'OPEN', source_module: 'AST' });
+    const kept = () => world.owner<{ issue_id: string | null; version: string }>('select issue_id, version::text from machvon.warranty_claim where id = $1::uuid', [claimId]);
+    expect(await kept()).toEqual([{ issue_id: issues[0]?.id, version: '1' }]);
+    expect((await audits(issues[0]?.id as string))[0]?.safe_diff).toMatchObject({ source_module: 'AST', intake_event_type: 'ast.warranty_claim.overdue.v1' });
+    // The pass again flags nothing, the same delivery opens nothing more, and another event for the claim finds the issue that is open.
+    expect((await sweep('2027-01-19T09:00:00+07:00')).flagged).toBe(0);
+    expect(await consumer().handle(first)).toBe('duplicate');
+    expect(await consumer().handle(delivery('ast.warranty_claim.overdue.v1', event?.payload ?? {}, { aggregateType: 'warranty_claim', aggregateId: claimId }))).toBe('processed');
+    expect(await issuesOf(claimId)).toHaveLength(1);
+    expect(await kept()).toEqual([{ issue_id: issues[0]?.id, version: '1' }]);
   });
 
   it('leaves alone what is not its event, a version it does not know, a payload that is not a request and a project that is not the tenant\'s, and counts them', async () => {

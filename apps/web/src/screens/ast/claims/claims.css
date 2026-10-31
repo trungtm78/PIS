@@ -1,0 +1,24 @@
+.ast-board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: start;
+}
+.ast-lane {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 8px;
+}
+.ast-lane h2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  font-size: 14px;
+}
+.ast-claim h3 {
+  margin: 0;
+  font-size: 14px;
+}

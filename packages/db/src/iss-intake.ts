@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { DomainError } from '@machvon/kernel';
+import { linkWarrantyIssue } from './ast-claim-store.ts';
 import { IssIssueStore } from './iss-issue-store.ts';
 import type { CreatedIssue, IssueSource } from './iss-issue-store.ts';
 import { ISSUE_CATEGORY_TYPE, SLA_SEVERITIES } from './iss-sla-policy-store.ts';
@@ -17,7 +18,7 @@ import type { TenantTx } from './tenant-database.ts';
  */
 export interface IntakeSpec {
   eventType: string;
-  sourceModule: Extract<IssueSource, 'LND' | 'PMT' | 'PAY' | 'CTR'>;
+  sourceModule: Extract<IssueSource, 'LND' | 'PMT' | 'PAY' | 'CTR' | 'AST'>;
   /** The kind of problem, in the words of the title of the issue. */
   title: string;
   severity: SlaSeverity;
@@ -36,7 +37,7 @@ const commonRef = (payload: Record<string, unknown>): unknown => payload.source_
 const commonCode = (payload: Record<string, unknown>): unknown => payload.reference_code;
 
 /** The category business keys the intake files issues under; a tenant defines them in master data, and an event whose category is missing is retried, then dead-lettered. */
-export const INTAKE_CATEGORY_KEYS = { LND: 'LAND_CLEARANCE', PMT: 'PERMIT', PAY: 'PAYMENT', CTR: 'CONTRACT_GUARANTEE' } as const;
+export const INTAKE_CATEGORY_KEYS = { LND: 'LAND_CLEARANCE', PMT: 'PERMIT', PAY: 'PAYMENT', CTR: 'CONTRACT_GUARANTEE', AST: 'WARRANTY' } as const;
 
 export const INTAKE_SPECS: readonly IntakeSpec[] = [
   {
@@ -84,6 +85,17 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
     sourceRefId: commonRef,
     referenceCode: commonCode,
     link: linkStageIssue,
+  },
+  {
+    eventType: 'ast.warranty_claim.overdue.v1',
+    sourceModule: 'AST',
+    title: 'Warranty claim unanswered',
+    severity: 'HIGH',
+    categoryKey: INTAKE_CATEGORY_KEYS.AST,
+    wanted: alwaysWanted,
+    sourceRefId: commonRef,
+    referenceCode: commonCode,
+    link: linkWarrantyIssue,
   },
 ];
 

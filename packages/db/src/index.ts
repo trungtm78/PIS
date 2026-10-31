@@ -597,12 +597,17 @@ export type { InspectionLine as QmsInspectionLine, InspectionResultView as QmsIn
 export { QmsRegimeRules, REGIME_RULE_TYPE } from './qms-regime-rules.ts';
 export type { ResolvedRegime } from './qms-regime-rules.ts';
 export { assertGateOpen } from './permit-gate-guard.ts';
+export { AstClaimStore, WARRANTY_CLAIM_RESOURCE, linkWarrantyIssue } from './ast-claim-store.ts';
+export { guestContractorOf } from './ast-evidence.ts';
+export type { AcknowledgeInput as AstAcknowledgeClaimInput, ClaimFilter as AstClaimFilter, ClaimLine, ClaimResult as AstClaimResult, FileInput as AstFileClaimInput, FixInput as AstClaimFixInput, OverdueClaim, VerifyInput as AstVerifyClaimInput } from './ast-claim-store.ts';
+export { AstClaimOverdueJob, WARRANTY_CLAIM_OVERDUE_EVENT } from './ast-claim-job.ts';
+export type { AstClaimOverdueSummary } from './ast-claim-job.ts';
 export { AstEvaluationStore, EVALUATION_TRIGGER_ACKNOWLEDGED_EVENT, EVALUATION_TRIGGER_RESOURCE, EVALUATION_TRIGGER_SCHEDULED_EVENT } from './ast-evaluation-store.ts';
 export type { FiredTrigger, ScheduleInput as AstScheduleTriggerInput, TriggerFilter as AstTriggerFilter, TriggerLine, TriggerResult as AstTriggerResult, TriggerScopes } from './ast-evaluation-store.ts';
 export { AstEvaluationDueJob, EVALUATION_DUE_EVENT } from './ast-evaluation-job.ts';
 export type { AstEvaluationDueSummary } from './ast-evaluation-job.ts';
 export { AstWarrantyStore } from './ast-warranty-store.ts';
-export type { CloseInput as AstCloseWarrantyInput, CreateInput as AstCreateWarrantyInput, WarrantyFilter as AstWarrantyFilter, WarrantyLine, WarrantyResult as AstWarrantyResult } from './ast-warranty-store.ts';
+export type { CloseInput as AstCloseWarrantyInput, CreateInput as AstCreateWarrantyInput, ExpiringFilter as AstExpiringFilter, WarrantyFilter as AstWarrantyFilter, WarrantyLine, WarrantyResult as AstWarrantyResult } from './ast-warranty-store.ts';
 export { AstWarrantyRules, WARRANTY_RULE_TYPE } from './ast-warranty-rules.ts';
 export type { ResolvedWarrantyRule } from './ast-warranty-rules.ts';
 export { HOUSEHOLD_STATUSES, LEGAL_BASES, LndHouseholdStore, REQUEST_KINDS, REQUEST_OUTCOMES, RIGHT_KINDS, enterScope, householdScopeUnits, unitInScope } from './lnd-household-store.ts';

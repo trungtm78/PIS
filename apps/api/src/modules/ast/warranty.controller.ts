@@ -20,6 +20,7 @@ const MANAGE_PERMISSION = PERMISSIONS.createWarrantyObligation;
 const READ_PERMISSION = PERMISSIONS.listWarrantyObligations;
 const RESOURCE_TYPE = 'warranty_obligation';
 const CLASSIFICATION = 'INTERNAL';
+const DEFAULT_WITHIN_DAYS = 90;
 
 const ACTION_PERMISSIONS: WarrantyPermissions = { manage: MANAGE_PERMISSION };
 
@@ -130,6 +131,32 @@ export class WarrantyReadsController {
   private readonly warranties = new AstWarrantyStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
+
+  /** The active obligations whose warranty ends within the days asked (90 by default), the soonest first. */
+  @Get('expiring')
+  @OperationId('listExpiringWarranties')
+  async expiring(
+    @CurrentTenant() tenant: TenantContext,
+    @CurrentAccess() access: EffectiveAccess,
+    @Query('within_days') withinDays?: unknown,
+    @Query('limit') limit?: unknown,
+    @Query('cursor') cursor?: unknown,
+  ): Promise<{ items: Array<Record<string, unknown>>; next_cursor: string | null; as_of: string }> {
+    const request = parsePageRequest(limit, cursor);
+    const days = withinDays === undefined ? DEFAULT_WITHIN_DAYS : typeof withinDays === 'string' && /^[0-9]{1,5}$/.test(withinDays) ? Number(withinDays) : Number.NaN;
+    if (!Number.isInteger(days)) throw new DomainError('VALIDATION_FAILED', 422, 'within_days');
+    const now = new Date();
+    const rows = await this.database.withTenant(tenant, (tx) =>
+      this.warranties.expiring(tx, handoverScope(access, READ_PERMISSION, now), { withinDays: days, today: vietnamDateOf(now), limit: request.limit + 1, after: request.after }),
+    );
+    const shown = rows.slice(0, request.limit);
+    const last = shown[shown.length - 1];
+    return {
+      items: shown.map((line) => warrantyView(line, access, now, ACTION_PERMISSIONS)),
+      next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.endsOn, id: last.id }) : null,
+      as_of: now.toISOString(),
+    };
+  }
 
   @Get()
   @OperationId('listWarrantyObligations')

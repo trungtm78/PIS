@@ -12,6 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_TEXT = 2000;
 const MAX_PAGE = 200;
 const MAX_PERIOD_MONTHS = 600;
+const MAX_WITHIN_DAYS = 3650;
 const UNIQUE_VIOLATION = '23505';
 
 const invalid = (field: string, reason?: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field, reason === undefined ? undefined : { extensions: { reason } });
@@ -31,6 +32,15 @@ export interface CreateInput {
   warrantyGuaranteeId?: string | undefined;
   retentionAmountVnd?: string | undefined;
   constructionGrade?: string | undefined;
+}
+
+export interface ExpiringFilter {
+  /** The warranties whose last day falls within this many days after `today`. */
+  withinDays: number;
+  today: string;
+  limit: number;
+  /** The cursor is the last day and the id of the last line. */
+  after?: { code: string; id: string } | undefined;
 }
 
 export interface CloseInput {
@@ -73,6 +83,8 @@ export interface WarrantyResult {
 export interface WarrantyLine {
   id: string;
   contract: { id: string; code: string };
+  /** The contractor of the contract, the one a claim against the warranty is addressed to. */
+  contractor: { id: string; name: string } | null;
   handover: { id: string; handoverNo: string | null; status: string };
   projectId: string;
   asset: { id: string; assetCode: string; name: string | null } | null;
@@ -100,6 +112,8 @@ interface LineSql {
   id: string;
   contract_id: string;
   contract_code: string;
+  contractor_id: string | null;
+  contractor_name: string | null;
   handover_id: string;
   handover_no: string | null;
   handover_status: string;
@@ -137,7 +151,7 @@ interface LineSql {
   recipient_unit_path: string;
 }
 
-const HANDOVER_FROM = `${CONTRACT_SCOPE_FROM}
+export const HANDOVER_FROM = `${CONTRACT_SCOPE_FROM}
   join machvon.handover h on h.tenant_id = c.tenant_id and h.contract_id = c.id
   join machvon.organization_unit ru on ru.tenant_id = h.tenant_id and ru.id = h.recipient_unit_id`;
 
@@ -145,12 +159,13 @@ const FROM = `${HANDOVER_FROM}
   join machvon.warranty_obligation w on w.tenant_id = h.tenant_id and w.handover_id = h.id
   left join machvon.asset_record a on a.tenant_id = w.tenant_id and a.id = w.asset_id
   left join machvon.guarantee g on g.tenant_id = w.tenant_id and g.id = w.warranty_guarantee_id
+  left join machvon.contractor ct on ct.tenant_id = c.tenant_id and ct.id = c.contractor_id
   left join machvon.master_record_version rv on rv.id = w.rule_version_id`;
 
 /** The status as it stands on the day: an active obligation whose last day has come is expired, whether or not the job has marked it yet. */
 const STATUS_ON = (today: string) => `case when w.status = 'ACTIVE' and w.ends_on <= ${today} then 'EXPIRED' else w.status end`;
 
-const SELECT = `select w.id, c.id as contract_id, c.code as contract_code, h.id as handover_id, h.handover_no, h.status as handover_status, c.project_id, w.asset_id, a.asset_code, a.name as asset_name,
+const SELECT = `select w.id, c.id as contract_id, c.code as contract_code, ct.id as contractor_id, ct.legal_name as contractor_name, h.id as handover_id, h.handover_no, h.status as handover_status, c.project_id, w.asset_id, a.asset_code, a.name as asset_name,
        w.scope_description, w.starts_on::text as starts_on, w.ends_on::text as ends_on, w.period_months, w.construction_grade, w.minimum_months, w.rule_version_id,
        rv.attributes ->> 'awaiting_confirmation' as rule_awaiting, rv.attributes ->> 'cxn' as rule_cxn, g.id as guarantee_id, g.guarantee_no, g.issuer as guarantee_issuer,
        g.amount_vnd::text as guarantee_amount_vnd, (g.expires_at at time zone 'Asia/Ho_Chi_Minh')::date::text as guarantee_expires_on, w.retention_amount_vnd::text as retention_amount_vnd,
@@ -164,6 +179,7 @@ const SELECT = `select w.id, c.id as contract_id, c.code as contract_code, h.id 
 const toLine = (row: LineSql): WarrantyLine => ({
   id: row.id,
   contract: { id: row.contract_id, code: row.contract_code },
+  contractor: row.contractor_id === null ? null : { id: row.contractor_id, name: row.contractor_name ?? '' },
   handover: { id: row.handover_id, handoverNo: row.handover_no, status: row.handover_status },
   projectId: row.project_id,
   asset: row.asset_id === null ? null : { id: row.asset_id, assetCode: row.asset_code ?? '', name: row.asset_name },
@@ -350,6 +366,22 @@ export class AstWarrantyStore {
           and ($5::text is null or (${timestampKey('w.created_at')}, w.id) < ($5::text, $6::uuid))
         order by w.created_at desc, w.id desc limit ${filter.limit}`,
       [contract, handover, status, today, filter.after?.code ?? null, filter.after?.id ?? null, ...predicate.params],
+    );
+    return rows.map(toLine);
+  }
+
+  /** The active obligations whose warranty ends within the days given (and not yet today), the soonest first; the cursor is the last day and the id. */
+  async expiring(tx: TenantTx, scope: ScopeBuilder, filter: ExpiringFilter): Promise<WarrantyLine[]> {
+    if (!Number.isInteger(filter.withinDays) || filter.withinDays < 1 || filter.withinDays > MAX_WITHIN_DAYS) throw invalid('within_days');
+    if (!Number.isInteger(filter.limit) || filter.limit < 1 || filter.limit > MAX_PAGE + 1) throw invalid('limit');
+    const today = calendarDate(filter.today, 'today');
+    const after = filter.after === undefined ? null : { code: calendarDate(filter.after.code, 'cursor'), id: idOf(filter.after.id, 'cursor') };
+    const predicate = scope(6);
+    const rows = await tx.query<LineSql>(
+      `${SELECT} where ${predicate.sql} and w.status = 'ACTIVE' and w.ends_on > $1::date and w.ends_on <= $1::date + $2::integer
+          and ($3::date is null or (w.ends_on, w.id) > ($3::date, $4::uuid))
+        order by w.ends_on, w.id limit $5`,
+      [today, filter.withinDays, after?.code ?? null, after?.id ?? null, filter.limit, ...predicate.params],
     );
     return rows.map(toLine);
   }

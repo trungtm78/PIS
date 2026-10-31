@@ -633,6 +633,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listTenantSelectionCandidates': OperationDescriptor(method: 'GET', path: '/me/session/tenant-selection/candidates', versioned: false, stepUp: null, permission: 'session.self'),
   'listTreasuryImports': OperationDescriptor(method: 'GET', path: '/treasury-imports', versioned: false, stepUp: null, permission: 'treasury.import.read'),
   'listUpcomingLandDeadlines': OperationDescriptor(method: 'GET', path: '/land-deadlines/upcoming', versioned: false, stepUp: null, permission: 'land.read'),
+  'listWarrantyClaims': OperationDescriptor(method: 'GET', path: '/warranty-claims', versioned: false, stepUp: null, permission: 'warranty.read'),
   'listWarrantyObligations': OperationDescriptor(method: 'GET', path: '/warranty-obligations', versioned: false, stepUp: null, permission: 'warranty.read'),
   'listWeeklyDisbursementPlans': OperationDescriptor(method: 'GET', path: '/weekly-disbursement-plans', versioned: false, stepUp: null, permission: 'disbursement.read'),
   'lockReportingPeriod': OperationDescriptor(method: 'POST', path: '/reporting-periods/{id}/lock', versioned: true, stepUp: null, permission: 'period.lock'),

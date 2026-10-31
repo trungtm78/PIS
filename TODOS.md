@@ -1868,6 +1868,13 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-CAP-011 (decision, reconcile): the nightly balance check compares the reserved column too, since reservations now post entries.
 - ST-CAP-011 (gap): the consumption of a reservation by a payment request of PAY is the payment consumer (ST-PAY); no other module consumes the events yet.
 
+### ST-AST-004 (warranty claims, slice AST-1)
+- ST-AST-004 (decision, contract): the module document names no way to read the claims, yet AST-05 has to show the board, so the read `listWarrantyClaims` (`warranty.read`) was added; the obligation view now names the contractor of the contract (`contractor`) because a claim is addressed to it; the commands also state `RESOURCE_NOT_FOUND`, `SCOPE_DENIED` and the evidence errors.
+- ST-AST-004 (decision, term): the contractor has seven days to answer, counted from the day the defect was reported (R-AST-03 leaves the term to the rules of the tenant or the terms of the contract, neither stated); it is one constant of the kernel (`CLAIM_RESPONSE_DAYS`).
+- ST-AST-004 (decision, lifecycle): a disputed repair is put right again by the contractor (`recordWarrantyFix` from `DISPUTED`) and verified again, so a dispute is not a dead end; the verifier is neither the person who reported the defect nor the one who said it was put right; flagging a late answer does not change the version of the claim.
+- ST-AST-004 (decision, issue): the intake of ISS gains the event `ast.warranty_claim.overdue.v1` (source module AST, category key `WARRANTY` that the tenant keeps in master data, like the other categories) and the claim keeps the issue it opened.
+- ST-AST-004 (gap): the text says a late answer also suggests a violation to CTR; only the issue is opened. `REPAIRING` and `CLOSED` have no command. The evidence of a claim or a repair is typed as a code in the screen.
+
 ### ST-AST-006 (evaluation trigger, slice AST-1)
 - ST-AST-006 (decision, contract): the module document names no way to read the triggers, yet AST-07 has to show them, so the read `listEvaluationTriggers` (`evaluation.trigger.manage`) was added; the commands also state `RESOURCE_NOT_FOUND`, `SCOPE_DENIED` and, for the first, `HANDOVER_NOT_ACCEPTED`.
 - ST-AST-006 (decision, day): a trigger after a handover falls due no earlier than the day the handover was accepted (the day in Vietnam) plus 12 or 24 months, and a later day may be chosen; the other kinds are not set for a day that has gone. One trigger exists for a project, a kind and a handover (the unique index of V002), so a second manual trigger on a project needs a handover to be named.

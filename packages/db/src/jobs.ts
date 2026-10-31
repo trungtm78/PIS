@@ -120,6 +120,8 @@ export const JOB_INTERVAL_SECONDS = {
   'capital-reservation-expiry': 900,
   // Hourly: a trigger of evaluation after the investment whose day has come (the day in Vietnam) is fired, once, and MNE is told through `ast.evaluation.due.v1` (ST-AST-006, UAT-AC394); the pass is idempotent.
   'ast-evaluation-due': 3600,
+  // Hourly: a warranty claim nobody answered by its day (the day in Vietnam is after it) is flagged, once, and ISS is asked for an issue attributed to AST (ST-AST-004, UAT-AC391); the pass is idempotent.
+  'ast-claim-overdue': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the recovered amount of each recommendation of AUD is compared with its ledger once a night wherever the process started; nothing is changed by it (ST-AUD-004).
   'aud-recovery-reconcile': 3600,
   // Every 5 minutes: the old key of a rotation is revoked at the end of its last day and a key that reached its expiry is recorded as revoked, after LiteLLM has stopped it (ST-LLM-002); the pass is idempotent.
@@ -306,6 +308,7 @@ export interface StandardJobDeps {
   capitalBalanceReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   capitalReservationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   astEvaluationDue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  astClaimOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -951,6 +954,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await evaluationDue.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const claimOverdue = deps.astClaimOverdue;
+  if (claimOverdue !== undefined) {
+    handlers.push({
+      name: 'ast-claim-overdue',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await claimOverdue.run(workerContext(tenantId), now)));
       },
     });
   }

@@ -2532,6 +2532,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/warranty-obligations/${t.warrantyId}/close`, body: { note: REASON } }),
   },
+  // The claims against a warranty: a caller that is refused files none, acknowledges none, records no repair and verifies none.
+  fileWarrantyClaim: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/warranty-obligations/${t.warrantyId}/claims`, body: { claim_no: 'MATRIX-1', reported_on: '2026-10-25', defect_description: REASON, severity: 'MINOR', responder_contractor_id: t.contractorId } }),
+  },
+  acknowledgeWarrantyClaim: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/warranty-claims/${t.warrantyId}/acknowledge`, ifMatch: '"1"', body: { committed_fix_on: '2026-11-25' } }),
+  },
+  recordWarrantyFix: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/warranty-claims/${t.warrantyId}/fixed`, ifMatch: '"1"', body: { fixed_on: '2026-11-25', note: REASON, evidence_document_version_id: t.documentVersionId } }),
+  },
+  verifyWarrantyClaim: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/warranty-claims/${t.warrantyId}/verify`, ifMatch: '"1"', body: { outcome: 'VERIFIED', cost_borne_by: 'CONTRACTOR', note: REASON } }),
+  },
   // The trigger of the evaluation after the investment: a caller that is refused sets none and acknowledges none.
   scheduleEvaluationTrigger: {
     referencesTenantIds: true,

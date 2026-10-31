@@ -235,7 +235,7 @@ export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; titl
 };
 
 /** A handover of the draft contract of each tenant with one punch item (the number and the description are distinctive; tenant data). */
-export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; handoverNo: string; itemDescription: string; assetId: string; assetCode: string; warrantyId: string; warrantyScope: string; triggerId: string }>> = {
+export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; handoverNo: string; itemDescription: string; assetId: string; assetCode: string; warrantyId: string; warrantyScope: string; triggerId: string; claimId: string }>> = {
   'TNT-A': {
     id: '00000000-0000-4000-a0d3-000000000001',
     itemId: '00000000-0000-4000-a0d3-000000000002',
@@ -246,6 +246,7 @@ export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId
     warrantyId: '00000000-0000-4000-a0d3-000000000004',
     warrantyScope: 'ALPHA-WARRANTY-SCOPE-0001',
     triggerId: '00000000-0000-4000-a0d3-000000000005',
+    claimId: '00000000-0000-4000-a0d3-000000000006',
   },
   'TNT-B': {
     id: '00000000-0000-4000-b0d3-000000000001',
@@ -257,6 +258,7 @@ export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId
     warrantyId: '00000000-0000-4000-b0d3-000000000004',
     warrantyScope: 'BETA-WARRANTY-SCOPE-0001',
     triggerId: '00000000-0000-4000-b0d3-000000000005',
+    claimId: '00000000-0000-4000-b0d3-000000000006',
   },
 };
 

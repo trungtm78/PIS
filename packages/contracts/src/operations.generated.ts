@@ -631,6 +631,7 @@ export const OPERATIONS = {
   "listTenantSelectionCandidates": { method: "get", path: "/me/session/tenant-selection/candidates", versioned: false, stepUp: null, permission: "session.self" },
   "listTreasuryImports": { method: "get", path: "/treasury-imports", versioned: false, stepUp: null, permission: "treasury.import.read" },
   "listUpcomingLandDeadlines": { method: "get", path: "/land-deadlines/upcoming", versioned: false, stepUp: null, permission: "land.read" },
+  "listWarrantyClaims": { method: "get", path: "/warranty-claims", versioned: false, stepUp: null, permission: "warranty.read" },
   "listWarrantyObligations": { method: "get", path: "/warranty-obligations", versioned: false, stepUp: null, permission: "warranty.read" },
   "listWeeklyDisbursementPlans": { method: "get", path: "/weekly-disbursement-plans", versioned: false, stepUp: null, permission: "disbursement.read" },
   "lockReportingPeriod": { method: "post", path: "/reporting-periods/{id}/lock", versioned: true, stepUp: null, permission: "period.lock" },

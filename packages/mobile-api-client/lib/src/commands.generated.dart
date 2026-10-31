@@ -1897,6 +1897,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listUpcomingLandDeadlines({Map<String, Object?>? query}) =>
       execute('listUpcomingLandDeadlines', query: query);
 
+  Future<Object?> listWarrantyClaims({Map<String, Object?>? query}) =>
+      execute('listWarrantyClaims', query: query);
+
   Future<Object?> listWarrantyObligations({Map<String, Object?>? query}) =>
       execute('listWarrantyObligations', query: query);
 

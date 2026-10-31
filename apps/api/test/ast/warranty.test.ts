@@ -144,6 +144,16 @@ describe('the warranty of a work over HTTP (ST-AST-003)', () => {
       [TENANT_A, obligationId, claimNo, memberId(ROOT), status, memberId(MANAGER)],
     );
 
+  /** Takes the claims of an obligation through the answer to a verified repair, by the moves the lifecycle allows (the claim was reported by ROOT, who also says it is put right). */
+  const resolve = async (obligationId: string): Promise<void> => {
+    await rows("update machvon.warranty_claim set status = 'ACKNOWLEDGED', committed_fix_on = reported_on, acknowledged_by = $2::uuid, acknowledged_at = now() where obligation_id = $1::uuid and status = 'OPEN'", [obligationId, memberId(ROOT)]);
+    await rows(
+      "update machvon.warranty_claim set status = 'FIXED', fixed_on = reported_on + 1, fixed_by = $2::uuid, fix_note = 'Put right', fix_evidence_document_version_id = $3::uuid where obligation_id = $1::uuid and status = 'ACKNOWLEDGED'",
+      [obligationId, memberId(ROOT), CLEAN],
+    );
+    await rows("update machvon.warranty_claim set status = 'VERIFIED', verified_by = $2::uuid, verified_at = now() where obligation_id = $1::uuid and status = 'FIXED'", [obligationId, memberId(MANAGER)]);
+  };
+
   beforeAll(async () => {
     await world.start();
     await harness.seedUnits(TENANT_A, [
@@ -277,10 +287,7 @@ describe('the warranty of a work over HTTP (ST-AST-003)', () => {
       expect(await stored(obligationId)).toMatchObject({ status: 'ACTIVE', version: '1' });
       expect(await events(obligationId, 'ast.warranty.closed.v1')).toEqual([]);
 
-      await rows("update machvon.warranty_claim set status = 'VERIFIED', fixed_on = date '2024-06-25', verified_by = $2::uuid, verified_at = now() where obligation_id = $1::uuid", [
-        obligationId,
-        memberId(MANAGER),
-      ]);
+      await resolve(obligationId);
       const done = await close(MANAGER, obligationId, { note: 'No claim is open.' });
       expect(done).toMatchObject({ status: 200, json: { status: 'CLOSED', resource_version: 2, resource_id: obligationId } });
       expect(await stored(obligationId)).toMatchObject({ status: 'CLOSED', version: '2', closed_by: memberId(MANAGER) });
