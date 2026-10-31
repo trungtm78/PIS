@@ -2269,6 +2269,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/handovers/${t.handoverId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], as_built_document_version_id: t.documentVersionId } }),
   },
+  // The enforcement of a land recovery: a caller that is refused opens no case and advances none.
+  startEnforcement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/land-enforcement-cases', body: { project_id: t.projectId, parcel_id: t.legalHoldId, owner_unit_id: t.unit2, authority_unit_id: t.unit3, legal_basis: REASON, started_on: '2026-10-25' } }),
+  },
+  advanceEnforcement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/land-enforcement-cases/${t.legalHoldId}/advance`, ifMatch: '"1"', body: { to_step: 'NOTICE' } }),
+  },
   // The testing of materials: a caller that is refused registers no sample and records no result.
   registerMaterialTest: {
     referencesTenantIds: true,

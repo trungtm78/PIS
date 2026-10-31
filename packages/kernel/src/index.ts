@@ -334,6 +334,8 @@ export {
 export type { ActionStatus, ActionVerification, NcrSeverity, NcrSourceKind, NcrStatus } from './qms-nonconformance.ts';
 export { FAILED_TEST_ACTION_DAYS, FAILED_TEST_SEVERITY, MATERIAL_RESULTS, MATERIAL_TEST_STATUSES, assertCanRecordResult, failedTestDueAt, failedTestWords } from './qms-material.ts';
 export type { MaterialResult, MaterialTestStatus } from './qms-material.ts';
+export { ENFORCEMENT_STEPS, assertAdvancerIsNotDrafter, assertEnforcementMove, assertStepFacts, stepAfter } from './lnd-enforcement.ts';
+export type { EnforcementStep, StepFacts } from './lnd-enforcement.ts';
 export { allocateLargestRemainder, computeDraftMoney, groupForLedger, linesMatchHeader, partyRecovery, percentScaled, recoverFromTranches, retentionOf, roundedDivision, signedDong, targetRecovered, wholeVnd } from './pay-money.ts';
 export type { AdvanceTranche, ClaimGroup, DraftLine, DraftMoney, DraftMoneyInput, MoneyLine, PartyAdvance } from './pay-money.ts';
 export { DOCUMENT_KINDS, PAYMENT_KINDS, PAYMENT_STATUSES, assertContractAllows, assertPlanYear, contractRefusal, disbursementEnd, isEditable } from './pay-request.ts';

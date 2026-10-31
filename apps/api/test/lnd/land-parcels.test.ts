@@ -20,6 +20,7 @@ import { CompensationPlanController, CompensationPlanReadsController } from '../
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from '../../src/modules/lnd/plan-posting.controller';
 import { CompensationPaymentController, CompensationPaymentReadsController } from '../../src/modules/lnd/payment.controller';
 import { LandComplaintController, LandComplaintReadsController } from '../../src/modules/lnd/complaint.controller';
+import { EnforcementController, EnforcementReadsController } from '../../src/modules/lnd/enforcement.controller';
 import { ResettlementController, ResettlementReadsController } from '../../src/modules/lnd/resettlement.controller';
 import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.controller';
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
@@ -204,7 +205,7 @@ describe('land clearance: sections, parcels without owners, the parcel import an
 
   it('is registered in the module of LND', () => {
     expect(lndModule.code).toBe('LND');
-    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController, ResettlementController, ResettlementReadsController]);
+    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController, ResettlementController, ResettlementReadsController, EnforcementController, EnforcementReadsController]);
   });
 
   describe('createLandSection', () => {

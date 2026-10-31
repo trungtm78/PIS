@@ -181,6 +181,12 @@ export const ALLOCATION_FIXTURES: Readonly<Record<TenantName, { id: string; unit
   'TNT-B': { id: '00000000-0000-4000-b0d7-000000000001', unitCode: 'BETA-PLOT-0001', siteText: 'Beta resettlement site 0001' },
 };
 
+/** An enforcement case of the household of each tenant (its legal basis is distinctive; personal data of the household's unit). */
+export const ENFORCEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d8-000000000001', legalBasis: 'ALPHA-ENFORCEMENT-LEGAL-BASIS-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d8-000000000001', legalBasis: 'BETA-ENFORCEMENT-LEGAL-BASIS-0001' },
+};
+
 export const COMPLAINT_FIXTURES: Readonly<Record<TenantName, { id: string; number: string; words: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bc-000000000001', number: 'LC-000901', words: 'Alpha complainant says the price is far too low' },
   'TNT-B': { id: '00000000-0000-4000-b0bc-000000000001', number: 'LC-000902', words: 'Beta complainant says the area is wrong' },
@@ -1301,6 +1307,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },
+    { kind: 'enforcement case id', value: ENFORCEMENT_FIXTURES[tenant].id },
+    { kind: 'enforcement legal basis', value: ENFORCEMENT_FIXTURES[tenant].legalBasis },
     { kind: 'resettlement allocation id', value: ALLOCATION_FIXTURES[tenant].id },
     { kind: 'resettlement unit code', value: ALLOCATION_FIXTURES[tenant].unitCode },
     { kind: 'resettlement site', value: ALLOCATION_FIXTURES[tenant].siteText },

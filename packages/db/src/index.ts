@@ -754,5 +754,7 @@ export { CapReservationStore, MAX_RESERVATION_DAYS, RESERVATION_PURPOSES, RESERV
 export type { ReservationClosed, ReservationCreated, ReservationFilter, ReservationInput, ReservationPurpose, FundReservationRow, ReservationScopes, ReservationStatus } from './cap-reservation-store.ts';
 export { CapReservationExpiryJob, RESERVATION_EXPIRED_METRIC, RESERVATION_RELEASED_EVENT } from './cap-reservation-expiry-job.ts';
 export type { ReservationExpirySummary } from './cap-reservation-expiry-job.ts';
+export { ENFORCEMENT_ADVANCED_EVENT, ENFORCEMENT_RESOURCE, ENFORCEMENT_STARTED_EVENT, LndEnforcementStore } from './lnd-enforcement-store.ts';
+export type { AdvanceInput as LndAdvanceEnforcementInput, EnforcementLine, EnforcementResult, StartInput as LndStartEnforcementInput } from './lnd-enforcement-store.ts';
 export { ALLOCATION_STATUSES, LndResettlementStore, RESETTLEMENT_ALLOCATED_EVENT, RESETTLEMENT_RESOURCE, UNIT_KINDS } from './lnd-resettlement-store.ts';
 export type { Allocated, AllocationInput, AllocationLine, AllocationStatus, Candidate, UnitKind } from './lnd-resettlement-store.ts';

@@ -8,6 +8,7 @@ import { CompensationPaymentController, CompensationPaymentReadsController } fro
 import { CompensationPlanController, CompensationPlanReadsController } from './plan.controller';
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from './plan-posting.controller';
 import { LandParcelImportController } from './parcel-import.controller';
+import { EnforcementController, EnforcementReadsController } from './enforcement.controller';
 import { ResettlementController, ResettlementReadsController } from './resettlement.controller';
 import { LandReadsController } from './read.controller';
 import { LandSectionController } from './section.controller';
@@ -21,6 +22,6 @@ import { FIELD_CIPHER } from './tokens';
  */
 export const lndModule = defineModule({
   code: 'LND',
-  controllers: [LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController, ResettlementController, ResettlementReadsController],
+  controllers: [LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController, ResettlementController, ResettlementReadsController, EnforcementController, EnforcementReadsController],
   providers: [{ provide: FIELD_CIPHER, useFactory: () => createFieldCipher() }],
 });

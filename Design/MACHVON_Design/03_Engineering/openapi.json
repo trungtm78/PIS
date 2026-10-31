@@ -92964,7 +92964,10 @@
         "x-error-codes": [
           "PRECONDITION_NOT_MET",
           "PAYMENT_NOT_OFFERED",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED",
+          "ENFORCEMENT_CASE_EXISTS"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -93063,6 +93066,133 @@
           }
         },
         "x-note": "Điều kiện tiên quyết (đã vận động, đã có quyết định thu hồi, đã giao tiền hoặc gửi tiền) theo rule [CXN-12]."
+      },
+      "get": {
+        "operationId": "listEnforcementCases",
+        "summary": "Hồ sơ cưỡng chế của dự án, hộ chỉ hiện dạng che (LND-09)",
+        "tags": [
+          "LND"
+        ],
+        "x-permission": "land.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PERSUASION",
+                "NOTICE",
+                "ORGANIZATION_DECISION",
+                "ENFORCEMENT_DECISION",
+                "EXECUTING",
+                "COMPLETED",
+                "SUSPENDED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo đơn vị của hộ); màn LND-09, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/land-enforcement-cases/{id}/advance": {
@@ -93116,7 +93246,11 @@
           "DECISION_DOCUMENT_REQUIRED",
           "ENFORCEMENT_STEP_INVALID",
           "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED",
+          "VALIDATION_FAILED",
+          "DOCUMENT_NOT_CLEAN"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [

@@ -2,6 +2,7 @@
   "commands": [
     "acceptIssueEscalation",
     "acknowledgeEvaluationTrigger",
+    "advanceEnforcement",
     "acknowledgeNotification",
     "acknowledgeWarrantyClaim",
     "activateAiProvider",
@@ -357,6 +358,7 @@
     "runQualityChecks",
     "scheduleCompensationPayments",
     "scheduleEvaluationTrigger",
+    "startEnforcement",
     "scheduleInspection",
     "setChangeChainTiers",
     "signQualityAcceptance",

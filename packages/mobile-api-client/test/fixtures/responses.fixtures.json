@@ -558,6 +558,7 @@
   "listDossiers": {},
   "listEarlyWarningRules": {},
   "listEarlyWarnings": {},
+  "listEnforcementCases": {},
   "listEvaluationTriggers": {},
   "listExpiringGuarantees": {},
   "listExpiringPermits": {},

@@ -5337,6 +5337,14 @@
       "module": "DGV",
       "statusBasis": "convention",
       "source": "openapi"
+    },
+    "ENFORCEMENT_CASE_EXISTS": {
+      "status": 409,
+      "title": "Enforcement case exists",
+      "meaning": "Raised by startEnforcement (POST /land-enforcement-cases): a parcel has one enforcement case open at a time, a suspended one included, until it is completed",
+      "module": "LND",
+      "statusBasis": "convention",
+      "source": "openapi"
     }
   }
 }
