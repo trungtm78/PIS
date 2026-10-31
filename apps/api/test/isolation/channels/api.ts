@@ -243,6 +243,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'releaseFundReservation', method: 'POST', id: RESERVATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign release attempt' } },
   { operation: 'requestAllocationExtension', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].lineId, body: { amount_vnd: '100', extended_to: '2027-03-31', reason_code: 'GPMB_CHAM' } },
   { operation: 'decideAllocationExtension', method: 'POST', id: EXTENSION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign decision' } },
+  { operation: 'publishDocumentLayoutProfile', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].layoutProfileId, versioned: true, body: {} },
   { operation: 'createReplacementDocument', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: { reason: 'Isolation foreign replacement attempt' } },
   { operation: 'createCorrectionDocument', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: { correction_text: 'Isolation foreign correction', reason: 'Isolation foreign correction attempt' } },
   { operation: 'recallOutgoingDocument', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: { reason: 'Isolation foreign recall attempt' } },
@@ -281,6 +282,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'post_support_access_id_approve', method: 'POST', id: SUPPORT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign approval attempt' } },
   { operation: 'revokeSupportAccess', method: 'POST', id: SUPPORT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign revoke attempt' } },
   { operation: 'getDocumentTemplate', method: 'GET', id: TEMPLATE_FIXTURES['TNT-B'].id },
+  { operation: 'getDocumentLayoutProfile', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].layoutProfileId },
   { operation: 'publishDocumentTemplate', method: 'POST', id: TEMPLATE_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   {
     operation: 'confirmDocumentTemplateLegalBasis',

@@ -787,6 +787,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getDisbursementRates({Map<String, Object?>? query}) =>
       execute('getDisbursementRates', query: query);
 
+  Future<Object?> getDocumentLayoutProfile({required String id, Map<String, Object?>? query}) =>
+      execute('getDocumentLayoutProfile', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getDocumentOverview({Map<String, Object?>? query}) =>
       execute('getDocumentOverview', query: query);
 
@@ -1662,6 +1665,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listDisbursementSchedules({Map<String, Object?>? query}) =>
       execute('listDisbursementSchedules', query: query);
+
+  Future<Object?> listDocumentLayoutProfiles({Map<String, Object?>? query}) =>
+      execute('listDocumentLayoutProfiles', query: query);
 
   Future<Object?> listDocumentNumberRegisters({Map<String, Object?>? query}) =>
       execute('listDocumentNumberRegisters', query: query);

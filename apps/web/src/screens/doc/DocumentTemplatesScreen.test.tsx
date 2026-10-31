@@ -111,6 +111,14 @@ describe('DocumentTemplatesScreen (DOC-14)', () => {
     expect(screen.getByText(fill(vi_['doc.templates.count.text'], { count: 6 }))).toBeTruthy();
   });
 
+  it('links each revision to the comparison of revisions (DOC-15), for a reader too', async () => {
+    mount(<DocumentTemplatesScreen route={ROUTE} />, harness(answer), [READ]);
+    await screen.findByText('MNE-TT44-M02');
+    const link = within(rowOf('MNE-TT44-M02')).getByRole('link', { name: fill(vi_['doc.templates.compare.label'], { code: 'MNE-TT44-M02', revision: 1 }) });
+    expect(link.textContent).toBe(vi_['doc.templates.compare.action']);
+    expect(link.getAttribute('href')).toBe(`/doc/doc-15?id=${template(2).id}`);
+  });
+
   it('asks the server for the group, the status and the date, and narrows by text in the page', async () => {
     const h = harness(answer);
     mount(<DocumentTemplatesScreen route={ROUTE} />, h, [READ]);

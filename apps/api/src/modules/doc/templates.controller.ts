@@ -98,6 +98,9 @@ function detailView(row: TemplateDetail, revisions: readonly TemplateSummary[]):
     legal_confirmed_at: row.legalConfirmedAt === null ? null : row.legalConfirmedAt.toISOString(),
     legal_evidence_document_id: row.legalEvidenceDocumentId,
     legal_confirmation_note: row.legalConfirmationNote,
+    created_by_name: row.createdByName,
+    approved_by_name: row.approvedByName,
+    legal_confirmed_by_name: row.legalConfirmedByName,
     retired_at: row.retiredAt === null ? null : row.retiredAt.toISOString(),
     retirement_reason: row.retirementReason,
     revisions: revisions.map((revision) => ({

@@ -90,6 +90,25 @@ const SIZE_RANGES: Readonly<Record<ElementName, Range>> = {
 
 const ELEMENT_NAMES = Object.keys(SIZE_RANGES) as ElementName[];
 
+/** The seal of the organisation lies over a third of the signature of the leader, on its left (BR-DOC-13): the share of the width of the signature that the seal covers, and what it may differ by. */
+export const SEAL_OVERLAP_TARGET = 1 / 3;
+export const SEAL_OVERLAP_TOLERANCE = 0.03;
+
+/** The share of the width of the leader's signature box that the seal box covers, side to side; 0 when they do not meet. */
+export function sealOverlapRatio(layout: SignatureLayout): number {
+  const { leaderBox, sealBox } = layout;
+  const covered = Math.min(sealBox.xMm + sealBox.widthMm, leaderBox.xMm + leaderBox.widthMm) - Math.max(sealBox.xMm, leaderBox.xMm);
+  return leaderBox.widthMm > 0 ? Math.max(0, covered) / leaderBox.widthMm : 0;
+}
+
+/** Whether the two boxes meet up and down as well as side to side, and have a size: a seal that is beside the signature, not over it, is no seal over it. */
+export function sealMeetsSignature(layout: SignatureLayout): boolean {
+  const { leaderBox, sealBox } = layout;
+  const sized = [leaderBox.widthMm, leaderBox.heightMm, sealBox.widthMm, sealBox.heightMm].every((size) => size > 0);
+  const high = Math.min(sealBox.yMm + sealBox.heightMm, leaderBox.yMm + leaderBox.heightMm) - Math.max(sealBox.yMm, leaderBox.yMm);
+  return sized && high > 0;
+}
+
 const style = (sizePt: number, flags: Partial<Omit<ElementStyle, 'sizePt'>> = {}): ElementStyle => ({
   sizePt,
   bold: flags.bold ?? false,
@@ -148,6 +167,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const BOX_FIELDS = ['xMm', 'yMm', 'widthMm', 'heightMm'] as const;
 
+/** The page is A4, 210 x 297 mm: a box of the signature or of the number fields has a size and lies on it, or the widget it places is not on the page. */
+export const PAGE_WIDTH_MM = 210;
+export const PAGE_HEIGHT_MM = 297;
+
+export const boxOnPage = (box: Box): boolean => box.widthMm > 0 && box.heightMm > 0 && box.xMm >= 0 && box.yMm >= 0 && box.xMm + box.widthMm <= PAGE_WIDTH_MM && box.yMm + box.heightMm <= PAGE_HEIGHT_MM;
+
 /** A box of the signature or number layout must be an object of four finite numbers: the renderer and the form place it. */
 function assertBox(value: unknown, field: string): void {
   if (!isRecord(value) || BOX_FIELDS.some((key) => typeof value[key] !== 'number' || !Number.isFinite(value[key]))) throw stateInvalid(field);
@@ -176,8 +201,71 @@ export function assertLayoutWithinLegalRange(profile: LayoutProfile): void {
   }
   if (!isRecord(profile.signatureLayout)) throw stateInvalid('signatureLayout');
   for (const name of ['leaderBox', 'sealBox'] as const) assertBox(profile.signatureLayout[name], `signatureLayout.${name}`);
+  for (const name of ['leaderBox', 'sealBox'] as const) if (!boxOnPage(profile.signatureLayout[name])) throw outOfRange(`signatureLayout.${name}`);
+  // The seal is over the left third of the signature of the leader: it starts to the left of it and covers a third of its width, give or take 0.03.
+  const ratio = sealOverlapRatio(profile.signatureLayout);
+  if (profile.signatureLayout.sealBox.xMm >= profile.signatureLayout.leaderBox.xMm || Math.abs(ratio - SEAL_OVERLAP_TARGET) > SEAL_OVERLAP_TOLERANCE + 1e-9 || !sealMeetsSignature(profile.signatureLayout)) throw outOfRange('signatureLayout.sealBox');
   if (!isRecord(profile.numberFieldLayout)) throw stateInvalid('numberFieldLayout');
   for (const name of ['number', 'symbol', 'date'] as const) assertBox(profile.numberFieldLayout[name], `numberFieldLayout.${name}`);
+  for (const name of ['number', 'symbol', 'date'] as const) if (!boxOnPage(profile.numberFieldLayout[name])) throw outOfRange(`numberFieldLayout.${name}`);
+}
+
+/** The layout profile of a command as the contract carries it (`margins_mm`, `element_styles`..., the members of the boxes named as the renderer names them). */
+export interface LayoutProfileBody {
+  margins_mm: unknown;
+  font_family: string;
+  font_substitute?: string | undefined;
+  element_styles: unknown;
+  signature_layout: unknown;
+  number_field_layout: unknown;
+  watermark_policy: unknown;
+}
+
+const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
+const finite = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+
+function boxOf(value: unknown, field: string): Box {
+  if (!isRecord(value) || BOX_FIELDS.some((key) => !finite(value[key]))) throw invalid(field);
+  return { xMm: value.xMm as number, yMm: value.yMm as number, widthMm: value.widthMm as number, heightMm: value.heightMm as number };
+}
+
+/**
+ * The profile a command asks for. A member that is not the shape the renderer needs is 422 VALIDATION_FAILED naming it; a value outside the ranges of BR-DOC-13 (the margins, the sizes of the letters, the place of the
+ * seal over the signature) is 422 LAYOUT_OUT_OF_LEGAL_RANGE naming it, and nothing is written. The code and the revision are the store's.
+ */
+export function layoutFromBody(body: LayoutProfileBody, code: string, revision: number): LayoutProfile {
+  if (!isRecord(body.margins_mm) || !(['top', 'bottom', 'left', 'right'] as const).every((key) => finite((body.margins_mm as Record<string, unknown>)[key]))) throw invalid('margins_mm');
+  const margins = body.margins_mm as Record<string, number>;
+  if (!isRecord(body.element_styles)) throw invalid('element_styles');
+  const styles = {} as Record<ElementName, ElementStyle>;
+  for (const name of ELEMENT_NAMES) {
+    const entry = body.element_styles[name];
+    if (entry === undefined) throw outOfRange(`elementStyles.${name}`);
+    if (!isRecord(entry) || !finite(entry.sizePt) || [entry.bold, entry.italic, entry.uppercase].some((flag) => typeof flag !== 'boolean')) throw invalid(`element_styles.${name}`);
+    styles[name] = { sizePt: entry.sizePt, bold: entry.bold as boolean, italic: entry.italic as boolean, uppercase: entry.uppercase as boolean };
+  }
+  if (!isRecord(body.signature_layout)) throw invalid('signature_layout');
+  if (!isRecord(body.number_field_layout)) throw invalid('number_field_layout');
+  if (!isRecord(body.watermark_policy) || typeof body.watermark_policy.text !== 'string' || body.watermark_policy.text.trim().length < 3 || body.watermark_policy.text.length > 120) throw invalid('watermark_policy');
+  const profile: LayoutProfile = {
+    code,
+    revision,
+    pageSize: 'A4',
+    marginsMm: { top: margins.top as number, bottom: margins.bottom as number, left: margins.left as number, right: margins.right as number },
+    fontFamily: body.font_family,
+    ...(body.font_substitute === undefined || body.font_substitute === '' ? {} : { fontSubstitute: body.font_substitute }),
+    elementStyles: styles,
+    signatureLayout: { leaderBox: boxOf(body.signature_layout.leaderBox, 'signature_layout.leaderBox'), sealBox: boxOf(body.signature_layout.sealBox, 'signature_layout.sealBox') },
+    numberFieldLayout: {
+      number: boxOf(body.number_field_layout.number, 'number_field_layout.number'),
+      symbol: boxOf(body.number_field_layout.symbol, 'number_field_layout.symbol'),
+      date: boxOf(body.number_field_layout.date, 'number_field_layout.date'),
+    },
+    watermarkPolicy: { text: body.watermark_policy.text.trim() },
+    confirmationStatus: 'PENDING_CONFIRMATION',
+  };
+  assertLayoutWithinLegalRange(profile);
+  return profile;
 }
 
 function record(value: unknown, field: string): Record<string, unknown> {

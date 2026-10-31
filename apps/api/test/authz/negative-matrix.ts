@@ -588,6 +588,28 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/recall`, ifMatch: '"1"', body: { reason: 'negative authorization matrix recall' } }),
   },
+  createDocumentLayoutProfileRevision: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/document-layout-profiles',
+      body: {
+        profile_code: 'MX-LAYOUT',
+        margins_mm: { top: 20, bottom: 20, left: 30, right: 15 },
+        font_family: 'Times New Roman',
+        element_styles: {},
+        signature_layout: {},
+        number_field_layout: {},
+        watermark_policy: { text: 'MATRIX' },
+        legal_basis: 'Matrix attempt to draft a layout profile',
+        effective_from: '2099-01-01',
+      },
+    }),
+  },
+  publishDocumentLayoutProfile: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-layout-profiles/${t.legalHoldId}/publish`, ifMatch: '"1"', body: {} }),
+  },
   createReplacementDocument: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/replacements`, ifMatch: '"1"', body: { reason: 'negative authorization matrix replacement' } }),

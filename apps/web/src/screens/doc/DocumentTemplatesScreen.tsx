@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -230,6 +231,9 @@ function DocumentTemplatesContent({ route }: ScreenProps) {
                       </td>
                       <td>{template.sourceModule ?? '–'}</td>
                       <td className="row-actions">
+                        <Link to={`/doc/doc-15?id=${template.id}`} aria-label={t('doc.templates.compare.label', { code: template.templateCode, revision: template.revision })}>
+                          {t('doc.templates.compare.action')}
+                        </Link>
                         {actions.publish ? (
                           <button type="button" aria-label={t('doc.templates.publish.label', { code: template.templateCode, revision: template.revision })} onClick={() => open('publish', template)}>
                             {t('doc.templates.publish.action')}

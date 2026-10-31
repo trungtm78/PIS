@@ -8,6 +8,7 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { DocumentVersionReadsController, DocumentsController } from '../../src/modules/doc/documents.controller';
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { PdfLibRenderer, loadRendererResources } from '../../src/modules/doc/pdf-renderer';
+import { LayoutProfilesController } from '../../src/modules/doc/layout-profiles.controller';
 import { DocumentTemplatesController } from '../../src/modules/doc/templates.controller';
 import { loadPlatformTemplates } from '../../src/modules/doc/template-pack';
 import { DOC_STATE_TEXT, PDF_RENDERER } from '../../src/modules/doc/tokens';
@@ -55,13 +56,13 @@ export class TemplateApp {
     await harness.seedUnits(TENANT_B, [{ n: 1, path: `/${unitId(1)}/` }]);
     for (const n of [ADMIN, AUTHOR, LEGAL, READER, RENDERER, NOBODY, SECOND_LEGAL, BRANCH]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
-    await harness.seedRole(TENANT_A, 1, 'TEMPLATE_ADMIN', ['doc.template.manage', 'doc.template.approve', 'doc.template.read'], 60);
-    await harness.seedRole(TENANT_A, 2, 'TEMPLATE_PUBLISHER', ['doc.template.approve', 'doc.template.read'], 50);
+    await harness.seedRole(TENANT_A, 1, 'TEMPLATE_ADMIN', ['doc.template.manage', 'doc.template.approve', 'doc.template.read', 'doc.layout.manage'], 60);
+    await harness.seedRole(TENANT_A, 2, 'TEMPLATE_PUBLISHER', ['doc.template.approve', 'doc.template.read', 'doc.layout.approve'], 50);
     await harness.seedRole(TENANT_A, 3, 'LEGAL_OFFICER', ['doc.template.confirm_legal', 'doc.template.read'], 50);
     await harness.seedRole(TENANT_A, 4, 'TEMPLATE_READER', ['doc.template.read'], 20);
     await harness.seedRole(TENANT_A, 5, 'DOC_RENDERER', ['doc.render'], 20);
-    await harness.seedRole(TENANT_A, 6, 'TEMPLATE_ALL', ['doc.template.manage', 'doc.template.approve', 'doc.template.confirm_legal', 'doc.template.read'], 60);
-    await harness.seedRole(TENANT_B, 1, 'TEMPLATE_ALL', ['doc.template.manage', 'doc.template.approve', 'doc.template.confirm_legal', 'doc.template.read', 'doc.render'], 60);
+    await harness.seedRole(TENANT_A, 6, 'TEMPLATE_ALL', ['doc.template.manage', 'doc.template.approve', 'doc.template.confirm_legal', 'doc.template.read', 'doc.layout.manage', 'doc.layout.approve'], 60);
+    await harness.seedRole(TENANT_B, 1, 'TEMPLATE_ALL', ['doc.template.manage', 'doc.template.approve', 'doc.template.confirm_legal', 'doc.template.read', 'doc.render', 'doc.layout.manage', 'doc.layout.approve'], 60);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: ADMIN, role: 1, kind: 'TENANT' },
       { n: 2, member: AUTHOR, role: 2, kind: 'TENANT' },
@@ -90,7 +91,7 @@ export class TemplateApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [DocumentsController, DocumentVersionReadsController, DocumentTemplatesController],
+      controllers: [DocumentsController, DocumentVersionReadsController, DocumentTemplatesController, LayoutProfilesController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DOCUMENT_FILE_PORT, useValue: this.files },

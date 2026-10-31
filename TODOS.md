@@ -1888,6 +1888,13 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-AST-006 (decision, reminder): the one who set the trigger is told when it falls due, through the notification service.
 - ST-AST-006 (gap): the text says the system proposes a trigger when a handover is accepted or the settlement is closed; nothing sets one by itself (the screen proposes the day). `CANCELLED` has no command. MNE has no read of its evaluations, so the screen takes the code of the evaluation as typed.
 
+### ST-DOC-016 (layout profile governance and comparison of template revisions, slice DOC-1)
+- ST-DOC-016 (decision, contract): the module document names no way to read the layout profiles, yet DOC-16 lists them, so the reads `listDocumentLayoutProfiles` and `getDocumentLayoutProfile` (`doc.template.read`) were added; the comparison of DOC-15 reads two `getDocumentTemplate` answers, which now carry the names of the drafter, the publisher and the legal confirmer.
+- ST-DOC-016 (decision, seal): "the seal covers a third of the signature of the leader (±0.03), on its left" is judged on the boxes of the profile (`signatureLayout`), as the width of the seal box that lies over the box of the signature divided by the width of the signature box; the rendered PDF puts the signature widgets from the same boxes.
+- ST-DOC-016 (decision, appearance): the line under the signature (ISO 8601 +07:00) is drawn as the appearance of the signature field when the signature is prepared; the zone is the fixed offset of Vietnam, like the rest of DOC.
+- ST-DOC-016 (decision, scope): the library of layouts belongs to the whole tenant, like the template library (DOC 2).
+- ST-DOC-016 (gap, CXN-DOC-01): the PNG images of the signature and of the seal are not drawn (no image assets); the legal confirmation of a profile has no command and its original text is not confirmed.
+
 ### ST-DOC-015 (replacement and correction documents, slice DOC-1)
 - ST-DOC-015 (decision, draft): the module document says the command makes a draft with the relation REPLACES (or CORRECTS); the draft copies the type, template, layout, recipients, subject and content of the issued document, is signed in person (a delegation is not carried over) and the correction words are stored in the content under `correction`. How a template prints them is for the legal review of the templates.
 - ST-DOC-015 (decision, open): a replacement (or a correction) is open while its draft is neither issued nor cancelled; one of each kind can be open at a time, and a cancelled draft frees the next. The relation of a cancelled draft is kept (relations are kept for good).

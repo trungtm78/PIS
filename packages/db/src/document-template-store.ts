@@ -70,6 +70,10 @@ export interface TemplateDetail extends TemplateSummary {
   legalConfirmationNote: string | null;
   retiredAt: Date | null;
   retirementReason: string | null;
+  /** The names of the people behind the three steps (the comparison of revisions shows them); a name is null when the membership has no user behind it. */
+  createdByName: string | null;
+  approvedByName: string | null;
+  legalConfirmedByName: string | null;
 }
 
 export interface NewTemplateRevision {
@@ -180,14 +184,27 @@ interface DetailRow extends SummaryRow {
   legal_confirmation_note: string | null;
   retired_at: Date | null;
   retirement_reason: string | null;
+  created_by_name: string | null;
+  approved_by_name: string | null;
+  legal_confirmed_by_name: string | null;
 }
 
 const SUMMARY_COLUMNS = `t.id, t.template_code, t.revision, t.group_code, t.doc_type_code, t.form_code, t.title, t.source_module, t.legal_basis,
   t.legal_confirmation_ref, t.confirmation_status, t.watermark_text, t.origin, t.pack_version, t.layout_profile_id,
-  p.confirmation_status as layout_confirmation_status, t.effective_from::text as effective_from, t.effective_until::text as effective_until,
+  case when p.id is null then null
+       when not exists (select 1 from machvon.document_layout_profile q
+                         where q.tenant_id = p.tenant_id and q.profile_code = p.profile_code and q.status in ('PUBLISHED', 'SUPERSEDED') and q.effective_from >= p.effective_from
+                           and q.effective_from <= (now() at time zone 'Asia/Ho_Chi_Minh')::date and q.confirmation_status <> 'CONFIRMED')
+            and p.confirmation_status = 'CONFIRMED' then 'CONFIRMED' else 'PENDING_CONFIRMATION' end as layout_confirmation_status,
+  t.effective_from::text as effective_from, t.effective_until::text as effective_until,
   t.status, t.version::text as version, t.created_by, t.approved_by`;
 const DETAIL_COLUMNS = `${SUMMARY_COLUMNS}, t.body_blocks, t.placeholder_schema, t.content_sha256, t.published_at,
-  t.legal_confirmed_by, t.legal_confirmed_at, t.legal_evidence_document_id, t.legal_confirmation_note, t.retired_at, t.retirement_reason`;
+  t.legal_confirmed_by, t.legal_confirmed_at, t.legal_evidence_document_id, t.legal_confirmation_note, t.retired_at, t.retirement_reason,
+  (select d.display_name from machvon.tenant_user_directory d where d.tenant_id = t.tenant_id and d.membership_id = t.created_by) as created_by_name,
+  (select d.display_name from machvon.tenant_user_directory d where d.tenant_id = t.tenant_id and d.membership_id = t.approved_by) as approved_by_name,
+  (select d.display_name from machvon.tenant_user_directory d where d.tenant_id = t.tenant_id and d.membership_id = t.legal_confirmed_by) as legal_confirmed_by_name`;
+// A template stands on the revision of the layout it was drawn on, and a later revision of the profile takes over its renders from the day it starts. The layout counts as confirmed only when the revision the template
+// stands on and every revision that has taken over from it since are: a document is rendered on one of them and issued later, and the watermark of BR-DOC-10 may be on any (see `layout_confirmation_status`).
 const FROM = `from machvon.document_template t
   left join machvon.document_layout_profile p on p.tenant_id = t.tenant_id and p.id = t.layout_profile_id`;
 
@@ -231,6 +248,9 @@ function toDetail(row: DetailRow): TemplateDetail {
     legalConfirmationNote: row.legal_confirmation_note,
     retiredAt: row.retired_at,
     retirementReason: row.retirement_reason,
+    createdByName: row.created_by_name,
+    approvedByName: row.approved_by_name,
+    legalConfirmedByName: row.legal_confirmed_by_name,
   };
 }
 

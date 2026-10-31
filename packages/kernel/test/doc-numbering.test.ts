@@ -1,5 +1,5 @@
 import { DomainError } from '../src/errors.ts';
-import { buildSymbol, formatRegisterNumber, validateSymbolPattern, vietnamDateOf, vietnamYearOf } from '../src/doc-numbering.ts';
+import { buildSymbol, formatRegisterNumber, signingTimeText, validateSymbolPattern, vietnamDateOf, vietnamYearOf } from '../src/doc-numbering.ts';
 
 function codeOf(action: () => unknown): string | undefined {
   try {
@@ -92,6 +92,11 @@ describe('Vietnam calendar (BR-DOC-02: Asia/Ho_Chi_Minh, UTC+7 without daylight 
     expect(vietnamYearOf(new Date('2026-12-31T17:00:00.000Z'))).toBe(2027);
     expect(vietnamDateOf(new Date('2026-12-31T17:00:10.000Z'))).toBe('2027-01-01');
     expect(vietnamDateOf(new Date('2026-12-31T16:59:59.999Z'))).toBe('2026-12-31');
+  });
+
+  it('writes the moment of a signature as ISO 8601 in the zone of Vietnam (BR-DOC-13)', () => {
+    expect(signingTimeText(new Date('2026-10-22T02:15:30.900Z'))).toBe('2026-10-22T09:15:30+07:00');
+    expect(signingTimeText(new Date('2026-12-31T17:00:00Z'))).toBe('2027-01-01T00:00:00+07:00');
   });
 
   it('is independent of the process time zone', () => {

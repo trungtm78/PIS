@@ -416,8 +416,15 @@ export class DocumentStore {
           and ($2::date is null or (effective_from <= $2::date and (effective_until is null or $2::date < effective_until)))`,
       [id, asOfDate ?? null],
     );
-    if (row === undefined) throw new DomainError('PROFILE_NOT_PUBLISHED', 422, 'layout_profile_id');
-    return toProfile(row);
+    if (row !== undefined) return toProfile(row);
+    // A template points at the revision of the profile it was drawn on; when a later revision has taken over from it, the render of a date from then on is made on the revision in force that day.
+    // Only a successor takes over: a date before the revision the template stands on starts is not served by an earlier revision.
+    const [pinned] =
+      asOfDate === undefined
+        ? []
+        : await tx.query<{ profile_code: string }>("select profile_code from machvon.document_layout_profile where id = $1::uuid and status in ('PUBLISHED', 'SUPERSEDED') and effective_from <= $2::date", [id, asOfDate]);
+    if (pinned === undefined) throw new DomainError('PROFILE_NOT_PUBLISHED', 422, 'layout_profile_id');
+    return this.layoutProfileByCode(tx, pinned.profile_code, asOfDate as string);
   }
 
   /**

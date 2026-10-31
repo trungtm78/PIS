@@ -14,6 +14,7 @@ import { OutgoingIssuanceController } from './issuance.controller';
 import { IssueRequestsController } from './issue-requests.controller';
 import { DocumentIssueService } from './issue-request.service';
 import { OutgoingDraftsController } from './outgoing-drafts.controller';
+import { LayoutProfilesController } from './layout-profiles.controller';
 import { OutgoingRecallController } from './recall.controller';
 import { OutgoingSupersessionController } from './supersession.controller';
 import { SignedDocumentsController } from './signed-documents.controller';
@@ -53,6 +54,7 @@ export const docModule = defineModule({
     RegistersController,
     SignaturesController,
     DocumentTemplatesController,
+    LayoutProfilesController,
     OutgoingIssuanceController,
     DocumentDistributionsController,
     OutgoingRecallController,

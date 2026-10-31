@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { PERMISSIONS } from '@machvon/contracts';
-import { objectKey } from '@machvon/kernel';
+import { ND30_A4_STANDARD, objectKey } from '@machvon/kernel';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
 import {
@@ -263,6 +263,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordDistributionAcknowledgement',
   'retryDocumentDistribution',
   'recallOutgoingDocument',
+  'createDocumentLayoutProfileRevision',
+  'publishDocumentLayoutProfile',
+  'listDocumentLayoutProfiles',
+  'getDocumentLayoutProfile',
   'createReplacementDocument',
   'createCorrectionDocument',
   'createAvcPolicyVersion',
@@ -1738,7 +1742,7 @@ const INSERT_DOCUMENT_VERSION = `insert into machvon.document_version
 
 const INSERT_LAYOUT_PROFILE = `insert into machvon.document_layout_profile
   (tenant_id, id, profile_code, revision, page_size, margins_mm, font_family, element_styles, signature_layout, number_field_layout, watermark_policy, legal_basis, confirmation_status, effective_from, status, created_by, updated_by)
-  values ($1, $2, 'ISOLATION', 1, 'A4', '{}'::jsonb, 'Tinos', '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 'isolation fixture', 'PENDING_CONFIRMATION', date '2026-01-01', 'PUBLISHED', $3, $3) on conflict (tenant_id, id) do nothing`;
+  values ($1, $2, 'ISOLATION', 1, 'A4', $4::jsonb, 'Tinos', $5::jsonb, $6::jsonb, $7::jsonb, '{}'::jsonb, 'isolation fixture', 'PENDING_CONFIRMATION', date '2026-01-01', 'PUBLISHED', $3, $3) on conflict (tenant_id, id) do nothing`;
 const INSERT_TEMPLATE = `insert into machvon.document_template
   (tenant_id, id, template_code, revision, group_code, doc_type_code, title, layout_profile_id, body_blocks, placeholder_schema, legal_basis, watermark_text, origin, content_sha256, effective_from, status, created_by, updated_by)
   values ($1, $2, $3, 1, 'OTHER', 'QD', 'Isolation fixture template', $4, '[{"kind":"paragraph","text":"{{body}}"}]'::jsonb, '{"required":["body"]}'::jsonb, $5, 'Waiting for confirmation', 'PLATFORM_PACK', repeat('f', 64), date '2026-01-01', 'PUBLISHED', $6, $6) on conflict do nothing`;
@@ -2128,7 +2132,15 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const guarantee = GUARANTEE_FIXTURES[tenant];
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.id, draft.id, guarantee.issuer, guarantee.guaranteeNo, 'PENDING_VERIFICATION', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.activeId, draft.id, guarantee.issuer, guarantee.activeGuaranteeNo, 'ACTIVE', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
-    await client.query(INSERT_LAYOUT_PROFILE, [tenantId, documents.layoutProfileId, ACTOR_ID]);
+    await client.query(INSERT_LAYOUT_PROFILE, [
+      tenantId,
+      documents.layoutProfileId,
+      ACTOR_ID,
+      JSON.stringify(ND30_A4_STANDARD.marginsMm),
+      JSON.stringify(ND30_A4_STANDARD.elementStyles),
+      JSON.stringify(ND30_A4_STANDARD.signatureLayout),
+      JSON.stringify(ND30_A4_STANDARD.numberFieldLayout),
+    ]);
     const template = TEMPLATE_FIXTURES[tenant];
     await client.query(INSERT_TEMPLATE, [tenantId, template.id, template.templateCode, documents.layoutProfileId, template.legalBasis, ACTOR_ID]);
     const bi = BI_FIXTURES[tenant];

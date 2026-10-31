@@ -64,6 +64,19 @@ describe('document template library API (ST-DOC-006)', () => {
   beforeAll(() => app.start(), 240_000);
   afterAll(() => app.stop(), 60_000);
 
+  describe('the people behind a revision (AC-ST-DOC-016-3)', () => {
+    it('shows by name who drafted, who published and who confirmed a revision, for the comparison of two revisions', async () => {
+      const { id } = await liveTemplate();
+      const published = (await detail(id)).json;
+      expect(published).toMatchObject({ created_by: memberId(ADMIN), created_by_name: 'User 1', approved_by: memberId(AUTHOR), approved_by_name: 'User 2', legal_confirmed_by: null, legal_confirmed_by_name: null });
+      const confirmed = await confirm(id, Number(published.version));
+      expect(confirmed.status).toBe(200);
+      expect((await detail(id)).json).toMatchObject({ created_by_name: 'User 1', approved_by_name: 'User 2', legal_confirmed_by_name: 'User 3' });
+      const drafted = await draft();
+      expect((await detail(drafted.json.resource_id as string)).json).toMatchObject({ created_by_name: 'User 1', approved_by: null, approved_by_name: null });
+    });
+  });
+
   describe('the three separated steps (AC-ST-DOC-006-1)', () => {
     it('AC-ST-DOC-006-1: refuses self approval, publishes with the watermark, refuses a confirmer without the permission, needs a reference, then confirms: new renders have no watermark and older ones keep it', async () => {
       await app.setLayoutConfirmed(true);

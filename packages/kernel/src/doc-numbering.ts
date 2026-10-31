@@ -73,3 +73,8 @@ export function vietnamYearOf(instant: Date): number {
 export function vietnamDateOf(instant: Date): string {
   return vietnamDate(instant).toISOString().slice(0, 10);
 }
+
+/** The moment of a signature as the line under the signature shows it (BR-DOC-13): ISO 8601 in the zone of Vietnam, `2026-10-22T09:15:30+07:00`. */
+export function signingTimeText(instant: Date): string {
+  return `${vietnamDate(instant).toISOString().slice(0, 19)}+07:00`;
+}

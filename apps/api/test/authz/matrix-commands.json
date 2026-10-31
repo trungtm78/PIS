@@ -103,6 +103,8 @@
     "createAiPromptVersion",
     "createAiVirtualKey",
     "createAllocationScenario",
+    "createDocumentLayoutProfileRevision",
+    "publishDocumentLayoutProfile",
     "createAuditEngagement",
     "createAuditRecommendation",
     "createAvcPolicyVersion",

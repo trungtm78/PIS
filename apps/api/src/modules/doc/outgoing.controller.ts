@@ -18,7 +18,7 @@ import {
   scopePredicate,
 } from '@machvon/db';
 import type { CertificateRow, DistributionRecord, DocumentVersionRecord, OutgoingDocumentRecord, OutgoingStatus, SigningRole, SigningSessionRecord, TenantTx, VersionStage } from '@machvon/db';
-import { DomainError, NOOP_METRICS, formatRegisterNumber, objectKey, vietnamDateOf, versionConflict } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, formatRegisterNumber, objectKey, signingTimeText, vietnamDateOf, versionConflict } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -751,6 +751,7 @@ export class OutgoingController {
       prepared = prepareSignature(base.bytes, {
         fieldName: input.field,
         signingTime: input.now,
+        appearanceText: signingTimeText(input.now),
         ...(input.docMdpLevel === undefined ? {} : { docMdpLevel: input.docMdpLevel as 1 | 2 | 3 }),
       });
     } catch (error) {

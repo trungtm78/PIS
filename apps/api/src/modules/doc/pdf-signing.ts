@@ -15,6 +15,8 @@ export interface SignatureRequest {
   /** DocMDP permission level; when set the signature certifies the document (BR-DOC-14 b). */
   docMdpLevel?: 1 | 2 | 3;
   reservedBytes?: number;
+  /** The line the signature shows in its box (the moment of signing, BR-DOC-13); drawn into the appearance of the field, inside the signed bytes. */
+  appearanceText?: string;
 }
 
 export interface PreparedSignature {
@@ -30,6 +32,15 @@ const BYTE_RANGE_DIGITS = 10;
 
 function pdfDate(date: Date): string {
   return `D:${date.toISOString().slice(0, 19).replace(/[-:T]/g, '')}Z`;
+}
+
+const APPEARANCE_FONT_SIZE_PT = 7;
+const APPEARANCE_MARGIN_PT = 2;
+
+function boxOf(rect: PdfValue | undefined): { width: number; height: number } {
+  if (rect?.t !== 'array' || rect.v.length !== 4 || rect.v.some((item) => item.t !== 'num')) throw new PdfStructureError('signature field rectangle');
+  const [left, bottom, right, top] = rect.v.map((item) => (item.t === 'num' ? item.v : 0)) as [number, number, number, number];
+  return { width: Math.abs(right - left), height: Math.abs(top - bottom) };
 }
 
 function fieldNumberOf(objects: ReadonlyMap<number, PdfValue>, fieldName: string): number {
@@ -76,10 +87,22 @@ export function prepareSignature(pdf: Uint8Array, request: SignatureRequest): Pr
   const signature =
     `<< ${head} /ByteRange [0 ${zeros} ${zeros} ${zeros}] /Contents <${'0'.repeat(reserved * 2)}> ` +
     `/M (${pdfDate(request.signingTime)}) ${request.docMdpLevel === undefined ? '' : referenceDictionary(request.docMdpLevel)} >>`;
-  const updates: RevisionObject[] = [
-    { num: signatureNum, body: signature },
-    { num: fieldNum, body: withEntries(state.objects.get(fieldNum), { V: { t: 'ref', obj: signatureNum, gen: 0 } }) ?? '' },
-  ];
+  const entries: Record<string, PdfValue> = { V: { t: 'ref', obj: signatureNum, gen: 0 } };
+  const updates: RevisionObject[] = [{ num: signatureNum, body: signature }];
+  if (request.appearanceText !== undefined) {
+    // The line under the signature: a font and a form that draws the text in the box of the field, both inside the revision that the signature covers.
+    const fontNum = signatureNum + 1;
+    const appearanceNum = signatureNum + 2;
+    const { width, height } = boxOf(field.get('Rect'));
+    const content = `BT /F1 ${APPEARANCE_FONT_SIZE_PT} Tf ${APPEARANCE_MARGIN_PT} ${APPEARANCE_MARGIN_PT} Td (${request.appearanceText.replace(/[\\()]/g, (mark) => `\\${mark}`)}) Tj ET`;
+    updates.push({ num: fontNum, body: '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>' });
+    updates.push({
+      num: appearanceNum,
+      body: `<< /Type /XObject /Subtype /Form /BBox [0 0 ${width} ${height}] /Resources << /Font << /F1 ${fontNum} 0 R >> >> /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    });
+    entries.AP = { t: 'dict', v: new Map<string, PdfValue>([['N', { t: 'ref', obj: appearanceNum, gen: 0 }]]) };
+  }
+  updates.push({ num: fieldNum, body: withEntries(state.objects.get(fieldNum), entries) ?? '' });
   if (request.docMdpLevel !== undefined) {
     const rootRef = state.trailer.get('Root');
     const rootNum = rootRef?.t === 'ref' ? rootRef.obj : null;
