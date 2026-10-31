@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
+import { MyFeatureFlagsController } from './entitlements/my-feature-flags.controller';
 import { ADM_METRICS } from './modules/adm/tokens';
 import { BI_DRILL_SECRET } from './modules/bi/tokens';
 import { ORCHESTRATION_OPTIONS } from './modules/orchestration';
@@ -90,6 +91,8 @@ export class AppModule {
         RoleDefinitionsController,
         ...controllersOf(options),
         ...(options.entitlements === undefined ? [] : [EntitlementsController]),
+        // The flags live in the control plane: the read of the flags that are on for a tenant needs the control database, from either option.
+        ...(options.entitlements === undefined && options.control === undefined ? [] : [MyFeatureFlagsController]),
         ...(options.control === undefined ? [] : [SystemTenantsController]),
         ...(options.licenses === undefined ? [] : [LicenseController, LicenseReadsController]),
         // The control-plane license reads need the control database, which the tenant-plane reads alone do not.

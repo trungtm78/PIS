@@ -62363,7 +62363,8 @@
         },
         "x-error-codes": [
           "FLAG_RULE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "RESOURCE_NOT_FOUND"
         ],
         "x-plane": "control",
         "x-required-role": "SystemAdmin",
@@ -132909,6 +132910,117 @@
           }
         }
       }
+    },
+    "/system/feature-flags": {
+      "get": {
+        "operationId": "listFeatureFlags",
+        "summary": "Danh sách cờ phát hành và rollout hiện tại (SAS-20)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.release.manage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Plan versions by plan code, newest revision first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureFlagList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      }
+    },
+    "/me/feature-flags": {
+      "get": {
+        "operationId": "getMyFeatureFlags",
+        "summary": "Cờ phát hành đang bật cho tenant trong phiên (không cấp quyền thương mại)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "session.self",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; masked per classification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyFeatureFlags"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Chỉ khóa cờ và trạng thái bật/tắt của tenant gọi",
+        "x-plane": "tenant"
+      }
     }
   },
   "components": {
@@ -162293,6 +162405,125 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "FeatureFlag": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "flag_key",
+          "description",
+          "status",
+          "rollout",
+          "revision",
+          "version",
+          "updated_by",
+          "updated_at"
+        ],
+        "properties": {
+          "flag_key": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Off",
+              "Rollout",
+              "On",
+              "Retired"
+            ]
+          },
+          "rollout": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "tenant_cohorts",
+              "tenant_ids",
+              "percentage"
+            ],
+            "properties": {
+              "tenant_cohorts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tenant_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "percentage": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "updated_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FeatureFlagList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeatureFlag"
+            }
+          }
+        }
+      },
+      "MyFeatureFlags": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "flag_key",
+                "enabled"
+              ],
+              "properties": {
+                "flag_key": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              }
+            }
           }
         }
       }

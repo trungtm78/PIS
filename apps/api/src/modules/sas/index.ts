@@ -10,6 +10,7 @@ import { EntitlementOverrideController } from './entitlement-override.controller
 import { InvoiceLinesController } from './invoice-lines.controller';
 import { PaymentController } from './payment.controller';
 import { EInvoiceWebhookController, PaymentWebhookController, registerPaymentCallbacks } from './payment-webhook.controller';
+import { FeatureFlagController } from './feature-flag.controller';
 import { PlanController } from './plan.controller';
 import { SubscriptionController } from './subscription.controller';
 import { SubscriptionReadsController } from './subscription-reads.controller';
@@ -47,7 +48,7 @@ export const sasModule = defineModule({
     { provide: SupportAccessStore, useFactory: () => new SupportAccessStore() },
   ],
   controlPlane: {
-    controllers: [SupportAccessRequestController, SupportTokenController, SystemTenantExportsController, TenantDomainController, TenantStateController, TenantOwnerController, ThemeController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
+    controllers: [SupportAccessRequestController, SupportTokenController, SystemTenantExportsController, TenantDomainController, TenantStateController, TenantOwnerController, ThemeController, FeatureFlagController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
     providers: [
       // The exchange of a grant for a support token writes its audit rows outside a command.
       { provide: AuditWriter, useFactory: (database: TenantDatabase) => new AuditWriter(database), inject: [TenantDatabase] },

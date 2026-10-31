@@ -605,3 +605,5 @@ export { MAX_COMPONENT_DEPTH, MILESTONE_ENDED, MILESTONE_STATUSES, assertCompone
 export type { ComponentInput, MilestoneSchedule, MilestoneInput, MilestoneNow, MilestoneProgress, MilestoneStatus } from './prj-wbs.ts';
 export { LEDGER_COLUMNS, foldBalance, ledgerEffect } from './cap-ledger.ts';
 export type { LedgerColumn, LedgerEffect, LedgerTotal } from './cap-ledger.ts';
+export { DECLARED_FLAGS, FLAG_COHORT_PATTERN, FLAG_STATUSES, NO_ROLLOUT, assertFlagChangeable, assertFlagUpdate, flagEnabled, rolloutBucket, rolloutNamesAnyone } from './feature-flag.ts';
+export type { FlagRollout, FlagState, FlagStatus, FlagTenant, FlagUpdate } from './feature-flag.ts';

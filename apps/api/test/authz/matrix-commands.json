@@ -474,6 +474,7 @@
     "changeSubscriptionPlan",
     "createAdjustmentInvoice",
     "createPlanVersion",
+    "updateFeatureFlag",
     "createReplacementInvoice",
     "createSubscription",
     "decideEntitlementOverride",

@@ -853,6 +853,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getMyEntitlements({Map<String, Object?>? query}) =>
       execute('getMyEntitlements', query: query);
 
+  Future<Object?> getMyFeatureFlags({Map<String, Object?>? query}) =>
+      execute('getMyFeatureFlags', query: query);
+
   Future<Object?> getMyNotificationPreferences({Map<String, Object?>? query}) =>
       execute('getMyNotificationPreferences', query: query);
 
@@ -1683,6 +1686,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listExplanationRequests({Map<String, Object?>? query}) =>
       execute('listExplanationRequests', query: query);
+
+  Future<Object?> listFeatureFlags({Map<String, Object?>? query}) =>
+      execute('listFeatureFlags', query: query);
 
   Future<Object?> listFiscalYears({Map<String, Object?>? query}) =>
       execute('listFiscalYears', query: query);

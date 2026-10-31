@@ -88,5 +88,7 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'verifyTenantDomain', permission: PERMISSIONS.verifyTenantDomain, method: 'POST', path: '/system/tenant-domains/{domainId}/verify' },
   { operationId: 'removeTenantDomain', permission: PERMISSIONS.removeTenantDomain, method: 'POST', path: '/system/tenant-domains/{domainId}/remove' },
   { operationId: 'issueSupportAccessToken', permission: PERMISSIONS.issueSupportAccessToken, method: 'POST', path: '/support-access/{id}/token' },
+  { operationId: 'listFeatureFlags', permission: PERMISSIONS.listFeatureFlags, method: 'GET', path: '/system/feature-flags' },
+  { operationId: 'updateFeatureFlag', permission: PERMISSIONS.updateFeatureFlag, method: 'PUT', path: '/system/feature-flags/{flagKey}' },
 ];
 

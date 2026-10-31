@@ -464,6 +464,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getMneReport': asObject,
   'getMyEffectiveAccess': EffectiveAccessResponse.fromJson,
   'getMyEntitlements': EntitlementViewResponse.fromJson,
+  'getMyFeatureFlags': MyFeatureFlagsResponse.fromJson,
   'getMyNotificationPreferences': PreferenceViewResponse.fromJson,
   'getMyProfile': UserProfileResponse.fromJson,
   'getMyPublishedTheme': TenantThemeVersionResponse.fromJson,
@@ -563,6 +564,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listExpiringPermits': asObject,
   'listExpiringWarranties': asObject,
   'listExplanationRequests': asObject,
+  'listFeatureFlags': FeatureFlagListResponse.fromJson,
   'listFiscalYears': FiscalYearListResponse.fromJson,
   'listGlossaryTerms': asObject,
   'listIncomingDocuments': asObject,
@@ -8067,6 +8069,120 @@ final class EntitlementViewResponseFeaturesItem implements ResponseModel {
         if (used != null) 'used': used,
         if (source != null) 'source': source,
         if (mode != null) 'mode': mode,
+        ...extra,
+      };
+}
+
+final class FeatureFlagListResponse implements ResponseModel {
+  const FeatureFlagListResponse({
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FeatureFlagListResponse.fromJson(Object? json, [String path = 'FeatureFlagListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FeatureFlagListResponse(
+      items: requiredField(map, path, 'items', asList(FeatureFlagResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'items'}, strict: true),
+    );
+  }
+
+  final List<FeatureFlagResponse> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class FeatureFlagResponse implements ResponseModel {
+  const FeatureFlagResponse({
+    required this.flagKey,
+    required this.description,
+    required this.status,
+    required this.rollout,
+    required this.revision,
+    required this.version,
+    required this.updatedBy,
+    required this.updatedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FeatureFlagResponse.fromJson(Object? json, [String path = 'FeatureFlagResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FeatureFlagResponse(
+      flagKey: requiredField(map, path, 'flag_key', asString),
+      description: requiredField(map, path, 'description', asString),
+      status: requiredField(map, path, 'status', asString),
+      rollout: requiredField(map, path, 'rollout', FeatureFlagResponseRollout.fromJson),
+      revision: requiredField(map, path, 'revision', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      updatedBy: requiredField(map, path, 'updated_by', asString),
+      updatedAt: requiredField(map, path, 'updated_at', asString),
+      extra: unknownFields(map, path, const <String>{'flag_key', 'description', 'status', 'rollout', 'revision', 'version', 'updated_by', 'updated_at'}, strict: true),
+    );
+  }
+
+  final String flagKey;
+  final String description;
+  final String status;
+  final FeatureFlagResponseRollout rollout;
+  final int revision;
+  final int version;
+  final String updatedBy;
+  final String updatedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'flag_key': flagKey,
+        'description': description,
+        'status': status,
+        'rollout': rollout.toJson(),
+        'revision': revision,
+        'version': version,
+        'updated_by': updatedBy,
+        'updated_at': updatedAt,
+        ...extra,
+      };
+}
+
+final class FeatureFlagResponseRollout implements ResponseModel {
+  const FeatureFlagResponseRollout({
+    required this.tenantCohorts,
+    required this.tenantIds,
+    required this.percentage,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FeatureFlagResponseRollout.fromJson(Object? json, [String path = 'FeatureFlagResponseRollout']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FeatureFlagResponseRollout(
+      tenantCohorts: requiredField(map, path, 'tenant_cohorts', asList(asString)),
+      tenantIds: requiredField(map, path, 'tenant_ids', asList(asString)),
+      percentage: requiredField(map, path, 'percentage', asInt),
+      extra: unknownFields(map, path, const <String>{'tenant_cohorts', 'tenant_ids', 'percentage'}, strict: true),
+    );
+  }
+
+  final List<String> tenantCohorts;
+  final List<String> tenantIds;
+  final int percentage;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'tenant_cohorts': tenantCohorts,
+        'tenant_ids': tenantIds,
+        'percentage': percentage,
         ...extra,
       };
 }
@@ -16079,6 +16195,62 @@ final class MneObligationStatusResponseItemsItem implements ResponseModel {
         if (isLate != null) 'is_late': isLate,
         if (daysLate != null) 'days_late': daysLate,
         if (mneReportId != null) 'mne_report_id': mneReportId,
+        ...extra,
+      };
+}
+
+final class MyFeatureFlagsResponse implements ResponseModel {
+  const MyFeatureFlagsResponse({
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MyFeatureFlagsResponse.fromJson(Object? json, [String path = 'MyFeatureFlagsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MyFeatureFlagsResponse(
+      items: requiredField(map, path, 'items', asList(MyFeatureFlagsResponseItemsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'items'}, strict: true),
+    );
+  }
+
+  final List<MyFeatureFlagsResponseItemsItem> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class MyFeatureFlagsResponseItemsItem implements ResponseModel {
+  const MyFeatureFlagsResponseItemsItem({
+    required this.flagKey,
+    required this.enabled,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MyFeatureFlagsResponseItemsItem.fromJson(Object? json, [String path = 'MyFeatureFlagsResponseItemsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MyFeatureFlagsResponseItemsItem(
+      flagKey: requiredField(map, path, 'flag_key', asString),
+      enabled: requiredField(map, path, 'enabled', asBool),
+      extra: unknownFields(map, path, const <String>{'flag_key', 'enabled'}, strict: true),
+    );
+  }
+
+  final String flagKey;
+  final bool enabled;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'flag_key': flagKey,
+        'enabled': enabled,
         ...extra,
       };
 }

@@ -135,6 +135,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'get_resources_notification_instance_id',
         'getMyEffectiveAccess',
         'getMyEntitlements',
+        'getMyFeatureFlags',
         'getMyPublishedTheme',
         'getTenantEntitlements',
         'get_resources_audit_event',

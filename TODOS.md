@@ -1826,3 +1826,9 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-CAP-014 (decision, balance): the balance is the sum of the entries by the effect of each kind (the table of `cap-ledger.ts`: appropriated, allocated, reserved, committed, disbursed); `CapBalanceReconcileJob` keeps its own SQL copy of the allocated, committed and disbursed effects, to be replaced by this table.
 - ST-CAP-014 (gap, snapshot): the balance at a day is worked out from the entries on every read; no snapshot of a closed day is kept.
 - ST-CAP-014 (gap, reservations): the job that expires a reservation and releases it is ST-CAP-011; the screen shows whatever reserve and release entries exist.
+
+### ST-SAS-020 (release flags, slice SAS-1)
+- ST-SAS-020 (decision, cohort): a tenant is in the cohort named like its region, because the tenant has no cohort attribute and the module document gives no operation to assign one; a cohort of its own would need a column and a command.
+- ST-SAS-020 (decision, declaration): the flags are declared in the code (`DECLARED_FLAGS`) and written Off by the migration; the `PUT` changes a flag and never adds one, because the contract of the update carries no description and a flag key is part of the code that reads it. The two declared flags stand for the R2 features SAS-21 and SAS-23.
+- ST-SAS-020 (decision, retired): a retired flag is on for no tenant and is final; the module document does not say whether a retired flag reads as on or off, and the code path it decided is gone by then.
+- ST-SAS-020 (gap): no code reads a flag yet (`getMyFeatureFlags` is for the client); the metrics and alert thresholds the story's tasks mention (`tenant_id` telemetry on flag evaluation) are not built.

@@ -728,3 +728,5 @@ export { COMPONENT_RESOURCE, MILESTONE_RESOURCE, PrjWbsStore, WBS_EXCEEDS_TOTAL 
 export type { ComponentChange, ComponentLine, ComponentRegister, ComponentWrite, DependencyWrite, ProjectMilestoneChange, ProjectMilestoneLine, MilestoneProgressWrite, MilestoneWrite } from './prj-wbs-store.ts';
 export { CapLedgerReads } from './cap-ledger-reads.ts';
 export type { CapitalLedgerEntry, CapitalLedgerFilter, CapitalLedgerPage, CapitalLedgerScope } from './cap-ledger-reads.ts';
+export { FeatureFlagStore } from './feature-flag-store.ts';
+export type { FlagChange, FlagRow } from './feature-flag-store.ts';
