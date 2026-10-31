@@ -167,7 +167,7 @@ export interface ApplyResult extends ReallocationChange {
   transferred: Array<{ entryType: string; projectId: string; allocationLineId: string; amountVnd: string }>;
 }
 
-interface SourceLine {
+export interface SourceLine {
   id: string;
   project_id: string;
   appropriation_id: string;
@@ -179,7 +179,7 @@ interface SourceLine {
   ctmtqg_subset_vnd: string;
 }
 
-interface Resolved {
+export interface Resolved {
   fromLine: SourceLine;
   toLine: SourceLine;
   amountVnd: string;
@@ -429,7 +429,7 @@ export class CapReallocationStore {
    * The donor line and the recipient line of every line of the proposal, read in the plan the proposal starts from: the donor is a line of that plan; the recipient is the line of the receiving project in the same
    * appropriation, bucket, source year and budget level (the same origin when there are several). A project with no such line is a move to another appropriation: 422 TRANSFER_UNBALANCED.
    */
-  private async resolve(tx: TenantTx, planId: string, wanted: ReadonlyArray<{ fromId: string; toProjectId: string; amountVnd: string; note: string }>): Promise<Resolved[]> {
+  async resolve(tx: TenantTx, planId: string, wanted: ReadonlyArray<{ fromId: string; toProjectId: string; amountVnd: string; note: string }>): Promise<Resolved[]> {
     const lines = await tx.query<SourceLine>(
       `select al.id, al.project_id, al.appropriation_id, al.bucket, al.source_year, al.budget_level, al.origin, al.amount_vnd::text as amount_vnd, al.ctmtqg_subset_vnd::text as ctmtqg_subset_vnd
          from machvon.allocation_line al join machvon.plan_version pv on pv.tenant_id = al.tenant_id and pv.id = al.plan_version_id
@@ -456,18 +456,25 @@ export class CapReallocationStore {
     return done;
   }
 
+  /**
+   * What each of the lines holds: the amount allocated and what is reserved, committed and disbursed on it, from its balance row. A line with no balance row yet has nothing spoken for and holds what the plan gave it
+   * (the scenarios of ST-CAP-013 read the same figures as the floors of a proposal).
+   */
+  async holdsOf(tx: TenantTx, lines: readonly SourceLine[]): Promise<Map<string, LineHold>> {
+    const balances = await tx.query<{ allocation_line_id: string; allocated_vnd: string; reserved_vnd: string; committed_vnd: string; disbursed_vnd: string }>(
+      'select allocation_line_id, allocated_vnd::text as allocated_vnd, reserved_vnd::text as reserved_vnd, committed_vnd::text as committed_vnd, disbursed_vnd::text as disbursed_vnd from machvon.allocation_balance where allocation_line_id = any($1::uuid[])',
+      [lines.map((line) => line.id)],
+    );
+    const holds = new Map<string, LineHold>(balances.map((row) => [row.allocation_line_id, { allocatedVnd: row.allocated_vnd, reservedVnd: row.reserved_vnd, committedVnd: row.committed_vnd, disbursedVnd: row.disbursed_vnd }]));
+    for (const line of lines) if (!holds.has(line.id)) holds.set(line.id, { allocatedVnd: line.amount_vnd, reservedVnd: '0', committedVnd: '0', disbursedVnd: '0' });
+    return holds;
+  }
+
   /** A donor line keeps at least what is reserved, committed and disbursed on it (BR-CAP-05): the lines that would end below it are listed. */
   private async assertFloors(tx: TenantTx, resolved: readonly Resolved[]): Promise<void> {
     // A line that gives and receives in the same proposal ends with the difference, and is judged by it.
     const reductions = netReductions(resolved.map((line) => ({ fromLineId: line.fromLine.id, toLineId: line.toLine.id, amountVnd: line.amountVnd })));
-    const balances = await tx.query<{ allocation_line_id: string; allocated_vnd: string; reserved_vnd: string; committed_vnd: string; disbursed_vnd: string }>(
-      'select allocation_line_id, allocated_vnd::text as allocated_vnd, reserved_vnd::text as reserved_vnd, committed_vnd::text as committed_vnd, disbursed_vnd::text as disbursed_vnd from machvon.allocation_balance where allocation_line_id = any($1::uuid[])',
-      [[...reductions.keys()]],
-    );
-    const holds = new Map<string, LineHold>(balances.map((row) => [row.allocation_line_id, { allocatedVnd: row.allocated_vnd, reservedVnd: row.reserved_vnd, committedVnd: row.committed_vnd, disbursedVnd: row.disbursed_vnd }]));
-    for (const line of resolved) {
-      if (reductions.has(line.fromLine.id) && !holds.has(line.fromLine.id)) holds.set(line.fromLine.id, { allocatedVnd: line.fromLine.amount_vnd, reservedVnd: '0', committedVnd: '0', disbursedVnd: '0' });
-    }
+    const holds = await this.holdsOf(tx, resolved.map((line) => line.fromLine).filter((line) => reductions.has(line.id)));
     const below = belowFloor(reductions, holds);
     if (below.length === 0) return;
     throw new DomainError('REVISED_BELOW_COMMITTED', 422, 'lines', {

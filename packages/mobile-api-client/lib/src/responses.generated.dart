@@ -527,6 +527,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAiRequests': asObject,
   'listAiVirtualKeys': asObject,
   'listAllocationExtensions': AllocationExtensionPageResponse.fromJson,
+  'listAllocationScenarios': CapScenarioPageResponse.fromJson,
   'listAnalysisFindings': asObject,
   'listAppropriations': asObject,
   'listAuditConclusions': asObject,
@@ -3468,6 +3469,216 @@ final class CapReservationPageResponse implements ResponseModel {
         'items': items.map((e0) => e0.toJson()).toList(),
         'next_cursor': nextCursor,
         'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CapScenarioPageResponse implements ResponseModel {
+  const CapScenarioPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapScenarioPageResponse.fromJson(Object? json, [String path = 'CapScenarioPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapScenarioPageResponse(
+      items: requiredField(map, path, 'items', asList(CapScenarioViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<CapScenarioViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CapScenarioViewResponse implements ResponseModel {
+  const CapScenarioViewResponse({
+    required this.id,
+    required this.code,
+    required this.planYear,
+    required this.baseCapitalPlan,
+    required this.inputSnapshotId,
+    required this.constraints,
+    required this.assumptions,
+    required this.result,
+    required this.status,
+    required this.promotedProposalId,
+    required this.createdBy,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.actions,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapScenarioViewResponse.fromJson(Object? json, [String path = 'CapScenarioViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapScenarioViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      baseCapitalPlan: requiredField(map, path, 'base_capital_plan', CapScenarioViewResponseBaseCapitalPlan.fromJson),
+      inputSnapshotId: requiredField(map, path, 'input_snapshot_id', nullable(asString)),
+      constraints: requiredField(map, path, 'constraints', asObject),
+      assumptions: requiredField(map, path, 'assumptions', asObject),
+      result: requiredField(map, path, 'result', nullable(asObject)),
+      status: requiredField(map, path, 'status', asString),
+      promotedProposalId: requiredField(map, path, 'promoted_proposal_id', nullable(asString)),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      updatedAt: requiredField(map, path, 'updated_at', asString),
+      actions: requiredField(map, path, 'actions', CapScenarioViewResponseActions.fromJson),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'plan_year', 'base_capital_plan', 'input_snapshot_id', 'constraints', 'assumptions', 'result', 'status', 'promoted_proposal_id', 'created_by', 'created_at', 'updated_at', 'actions', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final int planYear;
+  final CapScenarioViewResponseBaseCapitalPlan baseCapitalPlan;
+  final String? inputSnapshotId;
+  final Map<String, Object?> constraints;
+  final Map<String, Object?> assumptions;
+  final Map<String, Object?>? result;
+  final String status;
+  final String? promotedProposalId;
+  final String createdBy;
+  final String createdAt;
+  final String updatedAt;
+  final CapScenarioViewResponseActions actions;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'plan_year': planYear,
+        'base_capital_plan': baseCapitalPlan.toJson(),
+        'input_snapshot_id': inputSnapshotId,
+        'constraints': constraints,
+        'assumptions': assumptions,
+        'result': result,
+        'status': status,
+        'promoted_proposal_id': promotedProposalId,
+        'created_by': createdBy,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'actions': actions.toJson(),
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CapScenarioViewResponseActions implements ResponseModel {
+  const CapScenarioViewResponseActions({
+    required this.run,
+    required this.promote,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapScenarioViewResponseActions.fromJson(Object? json, [String path = 'CapScenarioViewResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapScenarioViewResponseActions(
+      run: requiredField(map, path, 'run', asBool),
+      promote: requiredField(map, path, 'promote', asBool),
+      extra: unknownFields(map, path, const <String>{'run', 'promote'}, strict: true),
+    );
+  }
+
+  final bool run;
+  final bool promote;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'run': run,
+        'promote': promote,
+        ...extra,
+      };
+}
+
+final class CapScenarioViewResponseBaseCapitalPlan implements ResponseModel {
+  const CapScenarioViewResponseBaseCapitalPlan({
+    required this.id,
+    required this.planCode,
+    required this.scopeUnit,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapScenarioViewResponseBaseCapitalPlan.fromJson(Object? json, [String path = 'CapScenarioViewResponseBaseCapitalPlan']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapScenarioViewResponseBaseCapitalPlan(
+      id: requiredField(map, path, 'id', asString),
+      planCode: requiredField(map, path, 'plan_code', asString),
+      scopeUnit: requiredField(map, path, 'scope_unit', CapScenarioViewResponseBaseCapitalPlanScopeUnit.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'plan_code', 'scope_unit'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String planCode;
+  final CapScenarioViewResponseBaseCapitalPlanScopeUnit scopeUnit;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'plan_code': planCode,
+        'scope_unit': scopeUnit.toJson(),
+        ...extra,
+      };
+}
+
+final class CapScenarioViewResponseBaseCapitalPlanScopeUnit implements ResponseModel {
+  const CapScenarioViewResponseBaseCapitalPlanScopeUnit({
+    required this.id,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapScenarioViewResponseBaseCapitalPlanScopeUnit.fromJson(Object? json, [String path = 'CapScenarioViewResponseBaseCapitalPlanScopeUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapScenarioViewResponseBaseCapitalPlanScopeUnit(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
         ...extra,
       };
 }

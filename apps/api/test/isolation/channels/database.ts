@@ -90,7 +90,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, CAPITAL_LEDGER_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, SCENARIO_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, CAPITAL_LEDGER_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { EXPORT_FIXTURES, INVOICE_FIXTURES, exportManifestObjectId, exportManifestSha, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -387,6 +387,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listExplanationRequests',
   'listProjectTransfers',
   'listReallocationProposals',
+  'listAllocationScenarios',
+  'createAllocationScenario',
+  'runAllocationScenario',
+  'promoteAllocationScenario',
   'draftReallocationProposal',
   'submitReallocationProposal',
   'decideReallocationProposal',
@@ -1116,6 +1120,11 @@ const INSERT_REALLOCATION = `insert into machvon.reallocation_proposal
   (tenant_id, id, code, plan_year, scope_unit_id, basis_snapshot_id, source_capital_plan_id, reason, status, created_by, updated_by)
   select $1, $2, $3, 2026, $4, $5, $6, 'Isolation fixture: a proposal that moves capital of one tenant only', 'DRAFT', $7::uuid, $7::uuid
    where not exists (select 1 from machvon.reallocation_proposal where id = $2::uuid)`;
+
+const INSERT_SCENARIO = `insert into machvon.allocation_scenario
+  (tenant_id, id, code, plan_year, input_snapshot_id, base_capital_plan_id, constraints_json, assumptions_json, status, created_by, updated_by)
+  select $1, $2, $3, 2026, $4, $5, '{}'::jsonb, '{"moves": []}'::jsonb, 'DRAFT', $6::uuid, $6::uuid
+   where not exists (select 1 from machvon.allocation_scenario where id = $2::uuid)`;
 
 const INSERT_REPORT_LINE = `insert into machvon.funding_snapshot_line
   (tenant_id, id, report_revision_id, bucket, budget_level, disbursed_cumulative_vnd, next_month_registered_vnd, allocated_vnd)
@@ -2023,6 +2032,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_RISK, [tenantId, RISK_FIXTURES[tenant].id, project.id, RISK_FIXTURES[tenant].code, master.versionId, RISK_FIXTURES[tenant].title, MEMBERSHIP_ID]);
     await client.query(INSERT_ALLOCATION_LINE, [tenantId, plan.lineId, plan.versionId, master.versionId, appropriation.id, project.id, ACTOR_ID]);
     await client.query(INSERT_REALLOCATION, [tenantId, REALLOCATION_FIXTURES[tenant].id, REALLOCATION_FIXTURES[tenant].code, home, snapshot.id, plan.publishedId, MEMBERSHIP_ID]);
+    await client.query(INSERT_SCENARIO, [tenantId, SCENARIO_FIXTURES[tenant].id, SCENARIO_FIXTURES[tenant].code, snapshot.id, plan.publishedId, MEMBERSHIP_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);
     await client.query(INSERT_ALLOCATION_BALANCE, [tenantId, randomUUID(), plan.lineId]);

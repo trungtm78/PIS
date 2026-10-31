@@ -526,6 +526,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listAiRequests': OperationDescriptor(method: 'GET', path: '/ai/requests', versioned: false, stepUp: null, permission: 'llm.audit.read'),
   'listAiVirtualKeys': OperationDescriptor(method: 'GET', path: '/ai-virtual-keys', versioned: false, stepUp: null, permission: 'llm.key.read'),
   'listAllocationExtensions': OperationDescriptor(method: 'GET', path: '/allocation-extensions', versioned: false, stepUp: null, permission: 'capital.read'),
+  'listAllocationScenarios': OperationDescriptor(method: 'GET', path: '/allocation-scenarios', versioned: false, stepUp: null, permission: 'capital.read'),
   'listAnalysisFindings': OperationDescriptor(method: 'GET', path: '/analysis-runs/{id}/findings', versioned: false, stepUp: null, permission: 'bid.evaluate'),
   'listAppropriations': OperationDescriptor(method: 'GET', path: '/appropriations', versioned: false, stepUp: null, permission: 'capital.read'),
   'listAuditConclusions': OperationDescriptor(method: 'GET', path: '/audit-engagements/{id}/conclusions', versioned: false, stepUp: null, permission: 'aud.read'),

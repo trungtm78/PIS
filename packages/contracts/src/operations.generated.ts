@@ -524,6 +524,7 @@ export const OPERATIONS = {
   "listAiRequests": { method: "get", path: "/ai/requests", versioned: false, stepUp: null, permission: "llm.audit.read" },
   "listAiVirtualKeys": { method: "get", path: "/ai-virtual-keys", versioned: false, stepUp: null, permission: "llm.key.read" },
   "listAllocationExtensions": { method: "get", path: "/allocation-extensions", versioned: false, stepUp: null, permission: "capital.read" },
+  "listAllocationScenarios": { method: "get", path: "/allocation-scenarios", versioned: false, stepUp: null, permission: "capital.read" },
   "listAnalysisFindings": { method: "get", path: "/analysis-runs/{id}/findings", versioned: false, stepUp: null, permission: "bid.evaluate" },
   "listAppropriations": { method: "get", path: "/appropriations", versioned: false, stepUp: null, permission: "capital.read" },
   "listAuditConclusions": { method: "get", path: "/audit-engagements/{id}/conclusions", versioned: false, stepUp: null, permission: "aud.read" },

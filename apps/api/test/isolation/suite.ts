@@ -675,6 +675,12 @@ export const REALLOCATION_FIXTURES: Readonly<Record<TenantName, { id: string; co
   'TNT-B': { id: '00000000-0000-4000-b0fd-000000000001', code: 'BETA-REALLOCATION-0001' },
 };
 
+/** A scenario of allocation of each tenant (the code is distinctive: what a tenant simulates to move is confidential to it). */
+export const SCENARIO_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0fc-000000000001', code: 'ALPHA-SCENARIO-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0fc-000000000001', code: 'BETA-SCENARIO-0001' },
+};
+
 /** A DRAFT appropriation of each tenant (its issuing authority is distinctive; the amount of capital assigned to a tenant is confidential). */
 export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; issuingAuthority: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0f2-000000000001', issuingAuthority: 'Alpha tenant assigning authority 0001' },
@@ -1388,6 +1394,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'transfer request id', value: TRANSFER_FIXTURES[tenant].id },
     { kind: 'reallocation proposal id', value: REALLOCATION_FIXTURES[tenant].id },
     { kind: 'reallocation proposal code', value: REALLOCATION_FIXTURES[tenant].code },
+    { kind: 'allocation scenario id', value: SCENARIO_FIXTURES[tenant].id },
+    { kind: 'allocation scenario code', value: SCENARIO_FIXTURES[tenant].code },
     { kind: 'transfer reason', value: TRANSFER_FIXTURES[tenant].reason },
     { kind: 'capital ledger entry id', value: CAPITAL_LEDGER_FIXTURES[tenant].id },
     { kind: 'capital ledger entry reason', value: CAPITAL_LEDGER_FIXTURES[tenant].reason },

@@ -4149,7 +4149,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Kịch bản mô phỏng phân bổ */
+        get: operations["listAllocationScenarios"];
         put?: never;
         /** Tạo kịch bản mô phỏng (không ghi ledger) */
         post: operations["createAllocationScenario"];
@@ -23873,6 +23874,48 @@ export interface components {
         };
         MneEvaluationProjectPage: {
             items: components["schemas"]["MneEvaluationProject"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        CapScenarioView: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            plan_year: number;
+            base_capital_plan: {
+                /** Format: uuid */
+                id: string;
+                plan_code: string;
+                scope_unit: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+            };
+            /** Format: uuid */
+            input_snapshot_id: string | null;
+            constraints: Record<string, never>;
+            assumptions: Record<string, never>;
+            result: Record<string, never> | null;
+            /** @enum {string} */
+            status: "DRAFT" | "RUN" | "PROMOTED" | "ARCHIVED";
+            /** Format: uuid */
+            promoted_proposal_id: string | null;
+            /** Format: uuid */
+            created_by: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            actions: {
+                run: boolean;
+                promote: boolean;
+            };
+            version: number;
+        };
+        CapScenarioPage: {
+            items: components["schemas"]["CapScenarioView"][];
             next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
@@ -49079,6 +49122,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listAllocationScenarios: {
+        parameters: {
+            query?: {
+                status?: string;
+                plan_year?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapScenarioPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

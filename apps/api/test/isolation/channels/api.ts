@@ -83,7 +83,7 @@ import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, MNE_EVALUATION_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, ENFORCEMENT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, MNE_EVALUATION_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, SCENARIO_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, ENFORCEMENT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { EXPORT_FIXTURES, INVOICE_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
@@ -325,6 +325,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'getProjectTransferImpact', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id, query: `to_unit_id=${UNIT_FIXTURES['TNT-B'][1]?.id ?? ''}&transfer_scope=OWNER_UNIT` },
   { operation: 'submitReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
+  { operation: 'runAllocationScenario', method: 'POST', id: SCENARIO_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'promoteAllocationScenario', method: 'POST', id: SCENARIO_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'applyReallocationProposal', method: 'POST', id: REALLOCATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision_document_id: '00000000-0000-4000-b0fd-000000000009' } },
   { operation: 'addProjectComponent', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { code: 'ISO-C', name: 'Isolation foreign component', planned_value_vnd: '1', valid_from: '2026-01-01' } },
   { operation: 'addProjectMilestone', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { code: 'ISO-M', name: 'Isolation foreign milestone', baseline_date: '2026-02-01', planned_date: '2026-02-02' } },

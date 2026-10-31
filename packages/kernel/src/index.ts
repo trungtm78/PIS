@@ -485,6 +485,8 @@ export { OPEN_TRANSFER_STATUSES, TRANSFER_DECISIONS, TRANSFER_SCOPES, TRANSFER_S
 export type { TransferDecision, TransferScope, TransferStatus } from './prj-transfer.ts';
 export { REALLOCATION_DECISIONS, REALLOCATION_STATUSES, belowFloor, decidedReallocation, netReductions, positiveVnd, reductionsOf } from './cap-reallocation.ts';
 export type { BelowFloor, LineHold, ReallocationDecision, ReallocationStatus } from './cap-reallocation.ts';
+export { MAX_SCENARIO_MOVES, SCENARIO_STATUSES, assertPromotable, assertRunnable, assumptionsJson, constraintsJson, infeasible, parseAssumptions, parseConstraints, promotionReason, proposalCodeOf, resultJson, simulate } from './cap-scenario.ts';
+export type { LineBasis, ResolvedMove, ScenarioConstraints, ScenarioLine, ScenarioMove, ScenarioProject, ScenarioResult, ScenarioStatus, ScenarioViolation } from './cap-scenario.ts';
 export {
   MNE_CORRECTABLE_STATUSES,
   MNE_DECISIONS,

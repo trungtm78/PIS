@@ -1888,6 +1888,13 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-AST-006 (decision, reminder): the one who set the trigger is told when it falls due, through the notification service.
 - ST-AST-006 (gap): the text says the system proposes a trigger when a handover is accepted or the settlement is closed; nothing sets one by itself (the screen proposes the day). `CANCELLED` has no command. MNE has no read of its evaluations, so the screen takes the code of the evaluation as typed.
 
+### ST-CAP-013 (allocation scenarios that never touch the ledger, slice CAP-1)
+- ST-CAP-013 (decision, method): the module document names no method of simulation; a scenario is a set of assumed moves (`assumptions.moves`: a line of the plan, the receiving project, a whole amount) judged against constraints (`min_remaining_vnd`, `max_move_vnd`, `max_total_vnd`) and against the balance of each donor line (what is reserved, committed and disbursed), the way a reallocation proposal is. Other assumptions (a rate of disbursement, a new appropriation) are not modelled.
+- ST-CAP-013 (decision, contract): the module document names no way to read the scenarios, yet CAP-09 lists them, so the read `listAllocationScenarios` (`capital.read`, scoped by the unit of the base plan) was added; the answer carries `actions` (run, promote) for the caller.
+- ST-CAP-013 (decision, infeasible): a move to a project that holds no line on the same appropriation is `SCENARIO_CONSTRAINT_INFEASIBLE` (`NO_RECIPIENT_LINE`) in a scenario, where a proposal says `TRANSFER_UNBALANCED`; the run keeps nothing when it is infeasible.
+- ST-CAP-013 (decision, promotion): promotion judges the scenario again against the plan and the balances as they are then, needs a frozen input snapshot (optional at creation, required to promote) and draws the proposal as the one who promotes; its code is `SCN-` and the code of the scenario.
+- ST-CAP-013 (gap): `ARCHIVED` is in the table and no command enters it; the two-year retention after archiving ([GIẢ ĐỊNH] in CAP 5) is a job of retention, not done here.
+
 ### ST-MNE-009 (investment evaluation tied to the project stage, slice MNE-1)
 - ST-MNE-009 (decision, contract): the module document names no way to read the evaluations, yet MNE-08 lists them, so the read `listMneEvaluations` (`mne.read`) was added; the answer carries `actions` (submit, decide) for the caller.
 - ST-MNE-009 (decision, status): the document has PLANNED → IN_PROGRESS → SUBMITTED but the contract has no command to start an evaluation, so submit starts from PLANNED, IN_PROGRESS or RETURNED; IN_PROGRESS stays in the table and the guard.

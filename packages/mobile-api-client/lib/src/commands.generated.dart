@@ -1576,6 +1576,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAllocationExtensions({Map<String, Object?>? query}) =>
       execute('listAllocationExtensions', query: query);
 
+  Future<Object?> listAllocationScenarios({Map<String, Object?>? query}) =>
+      execute('listAllocationScenarios', query: query);
+
   Future<Object?> listAnalysisFindings({required String id, Map<String, Object?>? query}) =>
       execute('listAnalysisFindings', path: <String, Object?>{'id': id}, query: query);
 

@@ -1028,6 +1028,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  createAllocationScenario: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/allocation-scenarios',
+      body: { code: 'MX-SCENARIO', plan_year: 2027, base_capital_plan_id: t.legalHoldId, constraints: {}, assumptions: { moves: [{ from_allocation_line_id: t.legalHoldId, to_project_id: t.legalHoldId, amount_vnd: '1000' }] } },
+    }),
+  },
+  runAllocationScenario: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/allocation-scenarios/${t.legalHoldId}/run`, ifMatch: '"1"', body: {} }),
+  },
+  promoteAllocationScenario: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/allocation-scenarios/${t.legalHoldId}/promote`, ifMatch: '"1"', body: {} }),
+  },
   createFundReservation: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/fund-reservations', body: { allocation_line_id: t.legalHoldId, amount_vnd: '1000', purpose: 'OTHER', expires_at: new Date(Date.now() + 30 * 86_400_000).toISOString() } }),
