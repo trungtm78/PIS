@@ -622,6 +622,7 @@ export const OPERATIONS = {
   "listRetentionHolds": { method: "get", path: "/contracts/{id}/retention-holds", versioned: false, stepUp: null, permission: "ledger.read" },
   "listRoutingPolicies": { method: "get", path: "/conversation-routing-policies", versioned: false, stepUp: null, permission: "omni.policy.manage" },
   "listScorecardContractors": { method: "get", path: "/contractor-scorecards", versioned: false, stepUp: null, permission: "contractor.performance.read" },
+  "listSettlementForms": { method: "get", path: "/settlements/{id}/forms", versioned: false, stepUp: null, permission: "settlement_revision.read" },
   "listSourceMappings": { method: "get", path: "/dgv/source-mappings", versioned: false, stepUp: null, permission: "data.mapping.read" },
   "listSystemTenantExports": { method: "get", path: "/system/tenants/{tenantId}/exports", versioned: false, stepUp: null, permission: "system.tenant.read" },
   "listSystemTenantLicenses": { method: "get", path: "/system/tenants/{tenantId}/licenses", versioned: false, stepUp: null, permission: "system.tenant.read" },

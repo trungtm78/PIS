@@ -90,14 +90,36 @@ export const sent = (n: number, overrides: Record<string, unknown> = {}) =>
 
 export const answer = (overrides: Record<string, unknown> = {}) => ({ operation_id: uuid('0e50', 1), status: 'SUBMITTED', resource_version: 2, resource_id: settlementId(1), ...overrides });
 
+/** A form of a settlement as the read answers it. */
+export const formRecord = (n: number, code: string, overrides: Record<string, unknown> = {}) => ({
+  id: uuid('0e70', n),
+  settlement_id: settlementId(1),
+  form_code: code,
+  status: 'GENERATED',
+  template_code: `PAY-QT-${code.replace(/\W/g, '')}`,
+  template_revision: 1,
+  legal_basis: 'Thông tư 96/2021/TT-BTC',
+  document_id: uuid('0e80', n),
+  document_version_id: uuid('0e90', n),
+  file_sha256: 'a'.repeat(64),
+  payload_sha256: 'b'.repeat(64),
+  generated_at: '2026-10-26T05:00:00.000Z',
+  generated_by: uuid('0030', 1),
+  ...overrides,
+});
+
 export interface World {
   settlements: Array<Record<string, unknown>>;
+  /** What the list read answers when it is not all of the settlements (the pages it read do not reach the others). */
+  listed?: Array<Record<string, unknown>>;
+  /** The forms of the settlements, by settlement. */
+  forms: Map<string, Array<Record<string, unknown>>>;
   projects: Array<Record<string, unknown>>;
   failing: Set<string>;
 }
 
 export function world(overrides: Partial<World> = {}): World {
-  return { settlements: [settlement(1)], projects: [{ id: PROJECT, code: 'DA-001', name: 'Cầu qua sông' }], failing: new Set(), ...overrides };
+  return { settlements: [settlement(1)], forms: new Map(), projects: [{ id: PROJECT, code: 'DA-001', name: 'Cầu qua sông' }], failing: new Set(), ...overrides };
 }
 
 /** A client over `state`: the settlements are answered from it (filtered by the status asked for), and `command(operation, input)` answers the commands. */
@@ -112,10 +134,15 @@ export function client(state: World, command: (operation: string, input: unknown
     if (operation === 'get_resources_settlement_revision_id') {
       return state.settlements.find((item) => item.id === asked?.path?.id) ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c', extensions: {} });
     }
+    if (operation === 'listSettlementForms') {
+      const forms = state.forms.get(asked?.path?.id ?? '');
+      return forms === undefined ? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c', extensions: {} }) : { items: forms };
+    }
     return new Error(`unexpected read ${operation}`);
   }, command);
   (h.client as unknown as { readAll: (operation: string, input?: unknown) => Promise<unknown[]> }).readAll = vi.fn((operation: string) => {
     if (state.failing.has(operation)) return Promise.reject(new Error(`${operation} failed`));
+    if (operation === 'get_resources_settlement_revision') return Promise.resolve(state.listed ?? state.settlements);
     return operation === 'get_resources_project' ? Promise.resolve(state.projects) : Promise.reject(new Error(`unexpected readAll ${operation}`));
   });
   return h;

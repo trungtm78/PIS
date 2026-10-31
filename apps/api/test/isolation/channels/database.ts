@@ -643,6 +643,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'submitSettlement',
   'recordSettlementVerification',
   'approveSettlementException',
+  'generateSettlementForms',
+  'listSettlementForms',
   'post_settlements_id_close',
   'get_resources_settlement_revision',
   'get_resources_settlement_revision_id',

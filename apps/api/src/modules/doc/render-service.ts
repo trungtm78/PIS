@@ -14,6 +14,8 @@ export interface RenderParams {
   asOfDate: string;
   payload: unknown;
   payloadSha256?: string | undefined;
+  /** The unit the stored document belongs to (the scope of the downloads of its readers); none for a document of no unit. */
+  issuerUnitId?: string | undefined;
   output: 'PDF' | 'PREVIEW_PNG';
   actor: string;
 }
@@ -35,6 +37,8 @@ export interface Composed {
 }
 
 export interface RenderOutcome {
+  /** The template revision the file was drawn from: the one the render itself selected, so a proof built on it cannot name another. */
+  template: TemplateRecord;
   documentId: string;
   version: DocumentVersionRecord;
   inputSha256: string;
@@ -127,6 +131,7 @@ export class DocumentRenderService {
       docTypeCode: template.docTypeCode,
       title: template.title,
       classification: 'INTERNAL',
+      issuerUnitId: params.issuerUnitId,
       createdBy: params.actor,
     });
     // The key follows the layout of the object storage (tenants/{tenant}/{kind}/{id}); the digest of the bytes is part of
@@ -149,6 +154,6 @@ export class DocumentRenderService {
     // The bytes come from the platform renderer, not from an upload: there is nothing for the malware scan to find.
     const version = await this.documents.setScanResult(tx, stored.id, 'CLEAN');
     this.deps.metrics.increment('doc_render_total', { outcome: 'rendered', watermarked: String(unconfirmed) });
-    return { documentId: document.id, version, inputSha256: inputHash, watermarked: unconfirmed };
+    return { template, documentId: document.id, version, inputSha256: inputHash, watermarked: unconfirmed };
   }
 }

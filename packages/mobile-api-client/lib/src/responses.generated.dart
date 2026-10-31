@@ -238,7 +238,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'generateMneObligations': CommandResultResponse.fromJson,
   'generatePaymentForms': PayGeneratedPaymentFormsResponse.fromJson,
   'generateReportingPeriods': CommandResultResponse.fromJson,
-  'generateSettlementForms': CommandResultResponse.fromJson,
+  'generateSettlementForms': PayGeneratedSettlementFormsResponse.fromJson,
   'get_resources_acceptance': CtrAcceptancePageResponse.fromJson,
   'get_resources_acceptance_id': CtrAcceptanceLineResponse.fromJson,
   'get_resources_advance_ledger_entry': GetResourcesAdvanceLedgerEntryResponse.fromJson,
@@ -625,6 +625,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listRetentionHolds': PayCumulativeLedgerResponse.fromJson,
   'listRoutingPolicies': RoutingPolicyListResponse.fromJson,
   'listScorecardContractors': ScorecardContractorsResponse.fromJson,
+  'listSettlementForms': PaySettlementFormPageResponse.fromJson,
   'listSourceMappings': ListSourceMappingsResponse.fromJson,
   'listSystemTenantExports': SystemTenantExportsResponse.fromJson,
   'listSystemTenantLicenses': SystemLicensePageResponse.fromJson,
@@ -18501,6 +18502,52 @@ final class PayGeneratedPaymentFormsResponse implements ResponseModel {
       };
 }
 
+final class PayGeneratedSettlementFormsResponse implements ResponseModel {
+  const PayGeneratedSettlementFormsResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.forms,
+    this.decisionDraftId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PayGeneratedSettlementFormsResponse.fromJson(Object? json, [String path = 'PayGeneratedSettlementFormsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PayGeneratedSettlementFormsResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      forms: requiredField(map, path, 'forms', asList(PaySettlementFormResponse.fromJson)),
+      decisionDraftId: optionalField(map, path, 'decision_draft_id', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'forms', 'decision_draft_id'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final List<PaySettlementFormResponse> forms;
+  final String? decisionDraftId;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'forms': forms.map((e0) => e0.toJson()).toList(),
+        if (decisionDraftId != null) 'decision_draft_id': decisionDraftId,
+        ...extra,
+      };
+}
+
 final class PayLedgerContractResponse implements ResponseModel {
   const PayLedgerContractResponse({
     required this.id,
@@ -19825,6 +19872,106 @@ final class PayReversalResultResponse implements ResponseModel {
         'refund_transaction_id': refundTransactionId,
         'treasury_paid_on': treasuryPaidOn,
         'payment_entries': paymentEntries,
+        ...extra,
+      };
+}
+
+final class PaySettlementFormPageResponse implements ResponseModel {
+  const PaySettlementFormPageResponse({
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PaySettlementFormPageResponse.fromJson(Object? json, [String path = 'PaySettlementFormPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PaySettlementFormPageResponse(
+      items: requiredField(map, path, 'items', asList(PaySettlementFormResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'items'}, strict: true),
+    );
+  }
+
+  final List<PaySettlementFormResponse> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class PaySettlementFormResponse implements ResponseModel {
+  const PaySettlementFormResponse({
+    required this.id,
+    required this.settlementId,
+    required this.formCode,
+    required this.status,
+    required this.templateCode,
+    required this.templateRevision,
+    required this.legalBasis,
+    required this.documentId,
+    required this.documentVersionId,
+    required this.fileSha256,
+    required this.payloadSha256,
+    required this.generatedAt,
+    required this.generatedBy,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PaySettlementFormResponse.fromJson(Object? json, [String path = 'PaySettlementFormResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PaySettlementFormResponse(
+      id: requiredField(map, path, 'id', asString),
+      settlementId: requiredField(map, path, 'settlement_id', asString),
+      formCode: requiredField(map, path, 'form_code', asString),
+      status: requiredField(map, path, 'status', asString),
+      templateCode: requiredField(map, path, 'template_code', nullable(asString)),
+      templateRevision: requiredField(map, path, 'template_revision', nullable(asInt)),
+      legalBasis: requiredField(map, path, 'legal_basis', asString),
+      documentId: requiredField(map, path, 'document_id', nullable(asString)),
+      documentVersionId: requiredField(map, path, 'document_version_id', nullable(asString)),
+      fileSha256: requiredField(map, path, 'file_sha256', nullable(asString)),
+      payloadSha256: requiredField(map, path, 'payload_sha256', nullable(asString)),
+      generatedAt: requiredField(map, path, 'generated_at', nullable(asString)),
+      generatedBy: requiredField(map, path, 'generated_by', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'settlement_id', 'form_code', 'status', 'template_code', 'template_revision', 'legal_basis', 'document_id', 'document_version_id', 'file_sha256', 'payload_sha256', 'generated_at', 'generated_by'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String settlementId;
+  final String formCode;
+  final String status;
+  final String? templateCode;
+  final int? templateRevision;
+  final String legalBasis;
+  final String? documentId;
+  final String? documentVersionId;
+  final String? fileSha256;
+  final String? payloadSha256;
+  final String? generatedAt;
+  final String? generatedBy;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'settlement_id': settlementId,
+        'form_code': formCode,
+        'status': status,
+        'template_code': templateCode,
+        'template_revision': templateRevision,
+        'legal_basis': legalBasis,
+        'document_id': documentId,
+        'document_version_id': documentVersionId,
+        'file_sha256': fileSha256,
+        'payload_sha256': payloadSha256,
+        'generated_at': generatedAt,
+        'generated_by': generatedBy,
         ...extra,
       };
 }

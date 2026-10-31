@@ -566,6 +566,20 @@
       "location": "rules[].queue_unit_id",
       "reason": "the rules of a routing policy were free objects; each now names the unit whose queue it is, with the channels and words it is narrowed by (nothing called the operation before)",
       "change_request": "ST-OMNI-006"
+    },
+    {
+      "operation": "generateSettlementForms",
+      "kind": "ENUM_TIGHTENED",
+      "location": "form_codes[]",
+      "reason": "the request names the forms of the settlement of a year (01 to 05/QTNĐ) and of a completed project (01 to 12/QTDA) instead of any text; the operation had no client",
+      "change_request": "ST-PAY-012"
+    },
+    {
+      "operation": "generateSettlementForms",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "place",
+      "reason": "the forms carry the place-and-date line, as the Treasury forms of a payment request do; the operation had no client",
+      "change_request": "ST-PAY-012"
     }
   ]
 }

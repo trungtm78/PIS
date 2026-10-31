@@ -541,6 +541,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'refreshSettlementFigures', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign refresh attempt' } },
   { operation: 'submitSettlement', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { submitted_on: '2026-10-25' } },
   { operation: 'recordSettlementVerification', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { outcome: 'VERIFYING', findings: 'Isolation foreign verification attempt' } },
+  { operation: 'generateSettlementForms', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, body: { form_codes: ['01/QTDA'], place: 'Isolation' } },
+  { operation: 'listSettlementForms', method: 'GET', id: SETTLEMENT_FIXTURES['TNT-B'].id },
   { operation: 'approveSettlementException', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign exception attempt', approval_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
   { operation: 'post_settlements_id_close', method: 'POST', id: SETTLEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign close attempt', evidence_ids: [], decision_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
   { operation: 'get_resources_settlement_revision_id', method: 'GET', id: SETTLEMENT_FIXTURES['TNT-B'].id },

@@ -660,6 +660,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'submitSettlement',
         'recordSettlementVerification',
         'approveSettlementException',
+        'generateSettlementForms',
+        'listSettlementForms',
         'post_settlements_id_close',
         'get_resources_settlement_revision',
         'get_resources_settlement_revision_id',

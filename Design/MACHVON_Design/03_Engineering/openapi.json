@@ -79371,7 +79371,7 @@
     "/settlements/{id}/forms": {
       "post": {
         "operationId": "generateSettlementForms",
-        "summary": "Yêu cầu DOC sinh biểu mẫu quyết toán 01–05/QTNĐ, 01–12/QTDA [CXN-09]",
+        "summary": "Sinh biểu mẫu quyết toán 01–05/QTNĐ, 01–12/QTDA qua DOC từ mẫu có hiệu lực và đã xác nhận [CXN-09]",
         "tags": [
           "PAY"
         ],
@@ -79410,11 +79410,12 @@
           "TEMPLATE_NOT_EFFECTIVE",
           "TEMPLATE_UNCONFIRMED",
           "SETTLEMENT_STATE_INVALID",
-          "PROVIDER_UNAVAILABLE"
+          "PROVIDER_UNAVAILABLE",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "pay.payment_form.requested.v1"
+          "pay.settlement_form.generated.v1"
         ],
         "responses": {
           "200": {
@@ -79422,7 +79423,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/PayGeneratedSettlementForms"
                 }
               }
             }
@@ -79509,6 +79510,113 @@
           }
         },
         "x-note": "Cross-module: DOC.generateDocumentFromTemplate"
+      },
+      "get": {
+        "operationId": "listSettlementForms",
+        "summary": "Các biểu mẫu của một hồ sơ quyết toán (cả bản đã bị thay)",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "settlement_revision.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "x-error-codes": [
+          "SCOPE_DENIED"
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaySettlementFormPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/contracts/{id}/cumulative-ledger": {
@@ -143619,19 +143727,45 @@
       "PayGenerateSettlementForms": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "form_codes",
+          "place"
+        ],
         "properties": {
           "form_codes": {
             "type": "array",
+            "minItems": 1,
+            "maxItems": 17,
             "items": {
               "type": "string",
-              "minLength": 1,
-              "maxLength": 2000
+              "enum": [
+                "01/QTNĐ",
+                "02/QTNĐ",
+                "03/QTNĐ",
+                "04/QTNĐ",
+                "05/QTNĐ",
+                "01/QTDA",
+                "02/QTDA",
+                "03/QTDA",
+                "04/QTDA",
+                "05/QTDA",
+                "06/QTDA",
+                "07/QTDA",
+                "08/QTDA",
+                "09/QTDA",
+                "10/QTDA",
+                "11/QTDA",
+                "12/QTDA"
+              ]
             }
+          },
+          "place": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Nơi lập biểu mẫu (dòng địa danh và ngày tháng)"
           }
-        },
-        "required": [
-          "form_codes"
-        ]
+        }
       },
       "IssCreateIssue": {
         "type": "object",
@@ -164757,6 +164891,161 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "PaySettlementForm": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "settlement_id",
+          "form_code",
+          "status",
+          "template_code",
+          "template_revision",
+          "legal_basis",
+          "document_id",
+          "document_version_id",
+          "file_sha256",
+          "payload_sha256",
+          "generated_at",
+          "generated_by"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "settlement_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "form_code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "GENERATED",
+              "FAILED",
+              "SUPERSEDED"
+            ]
+          },
+          "template_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "template_revision": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "legal_basis": {
+            "type": "string"
+          },
+          "document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "file_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "payload_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "generated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "generated_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "PaySettlementFormPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaySettlementForm"
+            }
+          }
+        }
+      },
+      "PayGeneratedSettlementForms": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Kết quả sinh biểu mẫu quyết toán: kết quả lệnh của hồ sơ quyết toán kèm các biểu mẫu vừa sinh",
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "forms"
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "forms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaySettlementForm"
+            }
+          },
+          "decision_draft_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Bản dự thảo của quyết định 10/QTDA trong DOC, khi biểu mẫu này vừa được sinh"
           }
         }
       }

@@ -1870,6 +1870,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listScorecardContractors({Map<String, Object?>? query}) =>
       execute('listScorecardContractors', query: query);
 
+  Future<Object?> listSettlementForms({required String id, Map<String, Object?>? query}) =>
+      execute('listSettlementForms', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> listSourceMappings({Map<String, Object?>? query}) =>
       execute('listSourceMappings', query: query);
 

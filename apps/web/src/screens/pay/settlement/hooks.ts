@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useScopeKey } from '../hooks';
+import { toSettlementForm } from './forms-model';
+import type { SettlementForm } from './forms-model';
 import { toAnswer, toSettlement } from './model';
 import type { Answer, Outcome, Scope, Settlement } from './model';
 
@@ -22,6 +24,18 @@ export function useSettlements(status: string | null, enabled = true) {
     },
     // The table of the previous filter stays on screen while the next one loads, so the filter that was used is not replaced by a skeleton.
     placeholderData: keepPreviousData,
+    enabled: enabled && key[1] !== undefined,
+    retry: false,
+  });
+}
+
+/** Every settlement the caller may see, page after page: the calendar and the choice of PAY-16 must not stop at the first page. */
+export function useAllSettlements(enabled = true) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<Settlement[]>({
+    queryKey: [...key, 'settlements-all'],
+    queryFn: async () => (await client.readAll('get_resources_settlement_revision', { query: { limit: 200 } })).flatMap((raw) => toSettlement(raw) ?? []),
     enabled: enabled && key[1] !== undefined,
     retry: false,
   });
@@ -109,4 +123,36 @@ export function useCloseSettlement() {
   return useCommand<VersionedInput<{ decision: 'approve'; reason: string; evidence_ids: string[]; decision_document_version_id: string }>>((input, attempt) =>
     client.command('post_settlements_id_close', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }),
   );
+}
+
+/** The forms of one settlement, the ones that stand first and then the ones they replaced; null when the settlement is not there for the caller (a 404). */
+export function useSettlementForms(id: string | null | undefined, enabled = true) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<SettlementForm[] | null>({
+    queryKey: [...key, 'settlement-forms', id ?? ''],
+    queryFn: async () => {
+      try {
+        const page = await client.read('listSettlementForms', { path: { id: id ?? '' } });
+        const items = (page as { items?: unknown }).items;
+        return Array.isArray(items) ? items.flatMap((raw) => toSettlementForm(raw) ?? []) : [];
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return null;
+        throw error;
+      }
+    },
+    enabled: enabled && key[1] !== undefined && typeof id === 'string',
+    retry: false,
+  });
+}
+
+export interface GenerateInput {
+  id: string;
+  body: { form_codes: string[]; place: string };
+}
+
+/** Drawing the forms: one idempotency attempt per intention, every cached read of PAY read again on success. */
+export function useGenerateSettlementForms() {
+  const client = useApiClient();
+  return useCommand<GenerateInput>((input, attempt) => client.command('generateSettlementForms', { path: { id: input.id }, body: input.body as never, attempt }));
 }

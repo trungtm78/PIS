@@ -136,6 +136,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PAY-07': () => import('../../screens/pay/advance/AdvanceListScreen'),
   'PAY-11': () => import('../../screens/pay/advance/RequestAdvanceScreen'),
   'PAY-12': () => import('../../screens/pay/advance/AlertBoardScreen'),
+  'PAY-16': () => import('../../screens/pay/settlement/SettlementFormsScreen'),
   'PAY-04': () => import('../../screens/pay/forms/BoardScreen'),
   'PAY-14': () => import('../../screens/pay/forms/FormsScreen'),
   'PAY-05': () => import('../../screens/pay/recon/BoardScreen'),

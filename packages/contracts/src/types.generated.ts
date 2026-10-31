@@ -9006,9 +9006,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các biểu mẫu của một hồ sơ quyết toán (cả bản đã bị thay) */
+        get: operations["listSettlementForms"];
         put?: never;
-        /** Yêu cầu DOC sinh biểu mẫu quyết toán 01–05/QTNĐ, 01–12/QTDA [CXN-09] */
+        /** Sinh biểu mẫu quyết toán 01–05/QTNĐ, 01–12/QTDA qua DOC từ mẫu có hiệu lực và đã xác nhận [CXN-09] */
         post: operations["generateSettlementForms"];
         delete?: never;
         options?: never;
@@ -17991,7 +17992,9 @@ export interface components {
             decision_document_version_id: string;
         };
         PayGenerateSettlementForms: {
-            form_codes: string[];
+            form_codes: ("01/QTNĐ" | "02/QTNĐ" | "03/QTNĐ" | "04/QTNĐ" | "05/QTNĐ" | "01/QTDA" | "02/QTDA" | "03/QTDA" | "04/QTDA" | "05/QTDA" | "06/QTDA" | "07/QTDA" | "08/QTDA" | "09/QTDA" | "10/QTDA" | "11/QTDA" | "12/QTDA")[];
+            /** @description Nơi lập biểu mẫu (dòng địa danh và ngày tháng) */
+            place: string;
         };
         IssCreateIssue: {
             /** Format: uuid */
@@ -23750,6 +23753,46 @@ export interface components {
             next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
+        };
+        PaySettlementForm: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            settlement_id: string;
+            form_code: string;
+            /** @enum {string} */
+            status: "REQUESTED" | "GENERATED" | "FAILED" | "SUPERSEDED";
+            template_code: string | null;
+            template_revision: number | null;
+            legal_basis: string;
+            /** Format: uuid */
+            document_id: string | null;
+            /** Format: uuid */
+            document_version_id: string | null;
+            file_sha256: string | null;
+            payload_sha256: string | null;
+            /** Format: date-time */
+            generated_at: string | null;
+            /** Format: uuid */
+            generated_by: string | null;
+        };
+        PaySettlementFormPage: {
+            items: components["schemas"]["PaySettlementForm"][];
+        };
+        /** @description Kết quả sinh biểu mẫu quyết toán: kết quả lệnh của hồ sơ quyết toán kèm các biểu mẫu vừa sinh */
+        PayGeneratedSettlementForms: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            forms: components["schemas"]["PaySettlementForm"][];
+            /**
+             * Format: uuid
+             * @description Bản dự thảo của quyết định 10/QTDA trong DOC, khi biểu mẫu này vừa được sinh
+             */
+            decision_draft_id?: string | null;
         };
     };
     responses: never;
@@ -78601,6 +78644,91 @@ export interface operations {
             };
         };
     };
+    listSettlementForms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaySettlementFormPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     generateSettlementForms: {
         parameters: {
             query?: never;
@@ -78624,7 +78752,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["PayGeneratedSettlementForms"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

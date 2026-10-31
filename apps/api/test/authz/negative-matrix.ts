@@ -2626,6 +2626,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/exception-approval`, ifMatch: '"1"', body: { reason: REASON, approval_document_version_id: t.paymentDocumentVersionId } }),
   },
+  generateSettlementForms: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/forms`, body: { form_codes: ['01/QTDA'], place: REASON } }),
+  },
   post_settlements_id_close: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/close`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], decision_document_version_id: t.paymentDocumentVersionId } }),

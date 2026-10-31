@@ -1,6 +1,7 @@
 import { defineModule } from '../module-descriptor';
 import { AdvanceAlertController, AdvanceController, AdvanceReadsController } from './advance.controller';
 import { CumulativeLedgerController } from './cumulative-ledger.controller';
+import { SettlementFormController } from './settlement-form.controller';
 import { PaymentFormController } from './payment-form.controller';
 import { PaymentReversalController } from './payment-reversal.controller';
 import { PaymentClaimController } from './payment-claim.controller';
@@ -20,5 +21,5 @@ import { TreasuryTransactionController, TreasuryTransactionReadsController } fro
  */
 export const payModule = defineModule({
   code: 'PAY',
-  controllers: [TreasuryImportController, TreasuryImportReadsController, TreasuryTransactionController, TreasuryTransactionReadsController, CumulativeLedgerController, PaymentRequestController, PaymentClaimController, PaymentFormController, PaymentRequestReadsController, AdvanceController, AdvanceReadsController, TreasuryMatchController, ReconciliationController, ReconciliationReadsController, PaymentReversalController, ProjectSettlementController, ProjectSettlementReadsController, PaymentChainController, AdvanceAlertController],
+  controllers: [TreasuryImportController, TreasuryImportReadsController, TreasuryTransactionController, TreasuryTransactionReadsController, CumulativeLedgerController, PaymentRequestController, PaymentClaimController, PaymentFormController, PaymentRequestReadsController, AdvanceController, AdvanceReadsController, TreasuryMatchController, ReconciliationController, ReconciliationReadsController, PaymentReversalController, ProjectSettlementController, ProjectSettlementReadsController, PaymentChainController, AdvanceAlertController, SettlementFormController],
 });
