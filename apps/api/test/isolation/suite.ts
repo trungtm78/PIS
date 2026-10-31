@@ -428,6 +428,12 @@ export const DATASET_FIXTURES: Readonly<Record<TenantName, { id: string; dataset
   'TNT-B': { id: '00000000-0000-4000-b0d1-000000000001', datasetCode: 'BETA-DATASET-0001', title: 'Beta tenant isolation dataset' },
 };
 
+/** A dashboard of each tenant with its first version (its code and its title are distinctive; tenant data). */
+export const DASHBOARD_FIXTURES: Readonly<Record<TenantName, { id: string; versionId: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d2-000000000001', versionId: '00000000-0000-4000-a0d2-000000000002', code: 'ALPHA-DASHBOARD-0001', title: 'Alpha tenant isolation dashboard' },
+  'TNT-B': { id: '00000000-0000-4000-b0d2-000000000001', versionId: '00000000-0000-4000-b0d2-000000000002', code: 'BETA-DASHBOARD-0001', title: 'Beta tenant isolation dashboard' },
+};
+
 /** A data product of each tenant, made of the dataset above (its code and its title are distinctive; tenant data). */
 export const PRODUCT_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d4-000000000001', code: 'ALPHA-PRODUCT-0001', title: 'Alpha tenant isolation data product' },
@@ -1316,6 +1322,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'draft criteria version id', value: CRITERIA_FIXTURES[tenant].draftId },
     { kind: 'criterion name', value: CRITERIA_FIXTURES[tenant].criterionName },
     { kind: 'criteria legal basis', value: CRITERIA_FIXTURES[tenant].legalBasis },
+    { kind: 'dashboard id', value: DASHBOARD_FIXTURES[tenant].id },
+    { kind: 'dashboard version id', value: DASHBOARD_FIXTURES[tenant].versionId },
+    { kind: 'dashboard code', value: DASHBOARD_FIXTURES[tenant].code },
+    { kind: 'dashboard title', value: DASHBOARD_FIXTURES[tenant].title },
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },

@@ -17,6 +17,7 @@ import {
   MASTER_FIXTURES,
   MASTER_IMPORT_FIXTURES,
   CROSSWALK_FIXTURES,
+  DASHBOARD_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -848,6 +849,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_metric_definition_id',
   'buildBiDatasetVersion',
   'listBiDatasets',
+  'createDashboard',
+  'saveDashboardVersion',
+  'listDashboards',
+  'getDashboard',
+  'get_resources_dashboard_version',
+  'get_resources_dashboard_version_id',
   'listBiDatasetVersions',
   'createBiAccessPolicy',
   'listBiAccessPolicies',
@@ -1326,6 +1333,11 @@ const INSERT_USAGE_EVENT = `insert into machvon.usage_meter_event
 const INSERT_DATASET = `insert into machvon.dataset
   (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'ISOLATION', 'one row per isolation case', 'PAY', $5, $5, 'PUBLIC', false, 3600, 'DRAFT', $6, $6) on conflict do nothing`;
+
+const INSERT_DASHBOARD = `insert into machvon.dashboard (tenant_id, id, code, title, owner_user_id, audience, status, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, 'PRIVATE', 'DRAFT', $5, $5) on conflict do nothing`;
+const INSERT_DASHBOARD_VERSION = `insert into machvon.dashboard_version (tenant_id, id, dashboard_id, revision, layout_json, metric_versions, filter_mappings, breakpoints, dataset_version_policy, status, created_by)
+  values ($1, $2, $3, 1, '{"columns":12,"widgets":[]}'::jsonb, '[]'::jsonb, '{}'::jsonb, '{}'::jsonb, 'LATEST_FROZEN', 'DRAFT', $4) on conflict do nothing`;
 
 // The balance the reservation rests on: what the line was allocated and what the reservation holds of it, so that a release has capital to return.
 const INSERT_ALLOCATION_BALANCE = `insert into machvon.allocation_balance (tenant_id, id, allocation_line_id, allocated_vnd, reserved_vnd, committed_vnd, disbursed_vnd)
@@ -1977,6 +1989,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_USAGE_EVENT, [tenantId, usage.id, usage.externalKey, usage.sourceReference]);
     const dataset = DATASET_FIXTURES[tenant];
     await client.query(INSERT_DATASET, [tenantId, dataset.id, dataset.datasetCode, dataset.title, MEMBERSHIP_ID, ACTOR_ID]);
+    const dashboard = DASHBOARD_FIXTURES[tenant];
+    await client.query(INSERT_DASHBOARD, [tenantId, dashboard.id, dashboard.code, dashboard.title, MEMBERSHIP_ID]);
+    await client.query(INSERT_DASHBOARD_VERSION, [tenantId, dashboard.versionId, dashboard.id, MEMBERSHIP_ID]);
+    await client.query('update machvon.dashboard set current_version_id = $2 where id = $1', [dashboard.id, dashboard.versionId]);
     const product = PRODUCT_FIXTURES[tenant];
     await client.query(INSERT_DATA_PRODUCT, [tenantId, product.id, product.code, product.title, dataset.id, MEMBERSHIP_ID, ACTOR_ID]);
     const quality = QUALITY_FIXTURES[tenant];

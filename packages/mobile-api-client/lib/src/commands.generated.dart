@@ -772,6 +772,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getCumulativeLedger({required String id, Map<String, Object?>? query}) =>
       execute('getCumulativeLedger', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getDashboard({required String id, Map<String, Object?>? query}) =>
+      execute('getDashboard', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getDeliveryOverview({Map<String, Object?>? query}) =>
       execute('getDeliveryOverview', query: query);
 
@@ -1656,6 +1659,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listConversationAssignees({required String conversationId, Map<String, Object?>? query}) =>
       execute('listConversationAssignees', path: <String, Object?>{'conversationId': conversationId}, query: query);
+
+  Future<Object?> listDashboards({Map<String, Object?>? query}) =>
+      execute('listDashboards', query: query);
 
   Future<Object?> listDataProducts({Map<String, Object?>? query}) =>
       execute('listDataProducts', query: query);

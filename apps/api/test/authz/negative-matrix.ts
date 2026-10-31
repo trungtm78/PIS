@@ -1261,6 +1261,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { dataset_id: '00000000-0000-4000-8000-0000000000d1', grantee_kind: 'ROLE', grantee_ref_id: '00000000-0000-4000-8000-0000000000c3', row_predicate_ast: { op: 'unit_in_scope' }, column_masks: {} },
     }),
   },
+  createDashboard: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/bi/dashboards', body: { code: 'MATRIX-DASHBOARD', title: 'Matrix probe of a dashboard' } }),
+  },
+  saveDashboardVersion: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/bi/dashboards/${t.legalHoldId}/versions`,
+      ifMatch: '"1"',
+      body: { layout_json: { widgets: [] }, breakpoints: {}, metric_versions: [], filter_mappings: {}, dataset_version_policy: 'LATEST_FROZEN' },
+    }),
+  },
   // The registry of the AI gateway (ST-LLM-001) is the tenant's: a caller without the right is refused before the body is read.
   registerAiProvider: {
     referencesTenantIds: false,

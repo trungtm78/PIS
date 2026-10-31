@@ -772,3 +772,5 @@ export { ALLOCATION_STATUSES, LndResettlementStore, RESETTLEMENT_ALLOCATED_EVENT
 export type { Allocated, AllocationInput, AllocationLine, AllocationStatus, Candidate, UnitKind } from './lnd-resettlement-store.ts';
 export { DocRetentionRuleStore } from './doc-retention-rule-store.ts';
 export type { NewRetentionRule, RetentionRuleDetail, RuleConfirmation, RuleStatus } from './doc-retention-rule-store.ts';
+export { BiDashboardStore } from './bi-dashboard-store.ts';
+export type { DashboardAudience, DashboardFilter, DashboardPageAnchor, DashboardRecord, DashboardStatus, DashboardVersionRecord, MetricCheck, VersionStatus } from './bi-dashboard-store.ts';

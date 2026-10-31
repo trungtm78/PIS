@@ -1,0 +1,248 @@
+import { randomUUID } from 'node:crypto';
+import { DASHBOARD_CODE, DomainError } from '@machvon/kernel';
+import type { DashboardDraft } from '@machvon/kernel';
+import { assertTimestampCursor } from './keyset.ts';
+import type { TenantTx } from './tenant-database.ts';
+
+const UNIQUE_VIOLATION = '23505';
+const SAVEPOINT = 'bi_dashboard_write';
+const MIN_TITLE = 2;
+
+export type DashboardAudience = 'PRIVATE' | 'SHARED' | 'TENANT_LIBRARY';
+export type DashboardStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type VersionStatus = 'DRAFT' | 'PUBLISHED' | 'SUPERSEDED';
+
+export interface DashboardVersionRecord {
+  id: string;
+  dashboardId: string;
+  revision: number;
+  layout: { columns: number; widgets: unknown[] };
+  metricVersionIds: string[];
+  filterMappings: Record<string, string>;
+  breakpoints: Record<string, number>;
+  datasetVersionPolicy: 'LATEST_FROZEN' | 'PINNED';
+  pinnedDatasetVersionIds: string[];
+  status: VersionStatus;
+  createdBy: string;
+  createdAt: string;
+  publishedBy: string | null;
+  publishedAt: string | null;
+}
+
+export interface DashboardRecord {
+  id: string;
+  code: string;
+  title: string;
+  ownerUserId: string;
+  ownerName: string | null;
+  currentVersionId: string | null;
+  audience: DashboardAudience;
+  status: DashboardStatus;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+  /** The revision and the state of the version it points to, with whether every metric of it is certified now. */
+  current: { revision: number; status: VersionStatus; metricCount: number; allCertified: boolean } | null;
+}
+
+export interface DashboardFilter {
+  status?: string | undefined;
+}
+
+export interface DashboardPageAnchor {
+  code: string;
+  id: string;
+}
+
+export interface MetricCheck {
+  id: string;
+  status: string;
+}
+
+interface Sql {
+  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+const iso = (value: unknown): string => new Date(value as string).toISOString();
+
+const SELECT = `select d.id, d.code, d.title, d.owner_user_id, (select u.display_name from machvon.tenant_user_directory u where u.tenant_id = d.tenant_id and u.membership_id = d.owner_user_id) as owner_name,
+  d.current_version_id, d.audience, d.status, d.created_at, d.updated_at, d.version::text as version,
+  v.revision as current_revision, v.status as current_status, jsonb_array_length(v.metric_versions) as current_metrics,
+  not exists (select 1 from jsonb_array_elements_text(v.metric_versions) as ref(id) join machvon.metric_definition m on m.tenant_id = d.tenant_id and m.id = ref.id::uuid where m.status <> 'CERTIFIED') as current_certified
+  from machvon.dashboard d
+  left join machvon.dashboard_version v on v.tenant_id = d.tenant_id and v.id = d.current_version_id`;
+
+const toDashboard = (row: Sql): DashboardRecord => ({
+  id: row.id,
+  code: row.code,
+  title: row.title,
+  ownerUserId: row.owner_user_id,
+  ownerName: row.owner_name,
+  currentVersionId: row.current_version_id,
+  audience: row.audience,
+  status: row.status,
+  createdAt: iso(row.created_at),
+  updatedAt: iso(row.updated_at),
+  version: Number(row.version),
+  current: row.current_version_id === null ? null : { revision: row.current_revision, status: row.current_status, metricCount: row.current_metrics, allCertified: row.current_certified === true },
+});
+
+const VERSION_COLUMNS = 'id, dashboard_id, revision, layout_json, metric_versions, filter_mappings, breakpoints, dataset_version_policy, pinned_dataset_version_ids, status, created_by, created_at, published_by, published_at';
+
+const toVersion = (row: Sql): DashboardVersionRecord => ({
+  id: row.id,
+  dashboardId: row.dashboard_id,
+  revision: row.revision,
+  layout: row.layout_json,
+  metricVersionIds: row.metric_versions,
+  filterMappings: row.filter_mappings,
+  breakpoints: row.breakpoints,
+  datasetVersionPolicy: row.dataset_version_policy,
+  pinnedDatasetVersionIds: row.pinned_dataset_version_ids ?? [],
+  status: row.status,
+  createdBy: row.created_by,
+  createdAt: iso(row.created_at),
+  publishedBy: row.published_by,
+  publishedAt: row.published_at === null ? null : iso(row.published_at),
+});
+
+/** The dashboards the viewer may see: their own and those the tenant published to its library. */
+const VISIBLE = "(d.owner_user_id = $1::uuid or (d.audience = 'TENANT_LIBRARY' and d.status = 'PUBLISHED'))";
+
+/**
+ * The dashboards and their versions (ST-BI-005, BI 3 F5): a dashboard is an object with an owner; a version is saved whole and never changes (the database refuses it), and the dashboard points at the latest one. A version
+ * names metrics that are certified and, when it pins the versions of the datasets, versions that are frozen. Who sees what, and who may change it, is the business of the controller.
+ */
+export class BiDashboardStore {
+  /** A dashboard the viewer sees, or none (one that is not theirs and not in the library is as good as none). */
+  async find(tx: TenantTx, id: string, viewer: string): Promise<DashboardRecord | undefined> {
+    const rows = await tx.query<Sql>(`${SELECT} where d.id = $2::uuid and ${VISIBLE}`, [viewer, id]);
+    return rows[0] === undefined ? undefined : toDashboard(rows[0]);
+  }
+
+  /** The dashboard locked for a change, with no regard to who sees it (the caller judges). */
+  async lock(tx: TenantTx, id: string): Promise<DashboardRecord | undefined> {
+    const rows = await tx.query<Sql>(`${SELECT} where d.id = $1::uuid for update of d`, [id]);
+    return rows[0] === undefined ? undefined : toDashboard(rows[0]);
+  }
+
+  /** The dashboards of the viewer by code and id. */
+  async list(tx: TenantTx, viewer: string, filter: DashboardFilter, page: { limit: number; after: DashboardPageAnchor | undefined }): Promise<{ records: DashboardRecord[]; next: DashboardPageAnchor | undefined }> {
+    const rows = await tx.query<Sql>(
+      `${SELECT}
+        where ${VISIBLE} and ($2::text is null or d.status = $2) and ($3::text is null or (d.code, d.id) > ($3::text, $4::uuid))
+        order by d.code, d.id limit $5::int`,
+      [viewer, filter.status ?? null, page.after?.code ?? null, page.after?.id ?? null, page.limit + 1],
+    );
+    const shown = rows.slice(0, page.limit);
+    const last = shown.at(-1);
+    return { records: shown.map(toDashboard), next: rows.length > page.limit && last !== undefined ? { code: last.code, id: last.id } : undefined };
+  }
+
+  async versions(tx: TenantTx, dashboardId: string): Promise<DashboardVersionRecord[]> {
+    const rows = await tx.query<Sql>(`select ${VERSION_COLUMNS} from machvon.dashboard_version where dashboard_id = $1::uuid order by revision desc`, [dashboardId]);
+    return rows.map(toVersion);
+  }
+
+  /** One version, when the viewer sees its dashboard. */
+  async findVersion(tx: TenantTx, id: string, viewer: string): Promise<DashboardVersionRecord | undefined> {
+    const rows = await tx.query<Sql>(
+      `select ${VERSION_COLUMNS.split(', ').map((column) => `v.${column}`).join(', ')} from machvon.dashboard_version v join machvon.dashboard d on d.tenant_id = v.tenant_id and d.id = v.dashboard_id where v.id = $2::uuid and ${VISIBLE}`,
+      [viewer, id],
+    );
+    return rows[0] === undefined ? undefined : toVersion(rows[0]);
+  }
+
+  /** The versions the viewer sees, newest first (the scaffold read of the family). */
+  async listVersions(tx: TenantTx, viewer: string, page: { limit: number; after: { at: string; id: string } | undefined }): Promise<{ records: DashboardVersionRecord[]; next: { at: string; id: string } | undefined }> {
+    assertTimestampCursor(page.after?.at);
+    const rows = await tx.query<Sql>(
+      `select ${VERSION_COLUMNS.split(', ').map((column) => `v.${column}`).join(', ')}, to_char(v.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as sort_key from machvon.dashboard_version v join machvon.dashboard d on d.tenant_id = v.tenant_id and d.id = v.dashboard_id
+        where ${VISIBLE} and ($2::timestamptz is null or (v.created_at, v.id) < ($2::timestamptz, $3::uuid))
+        order by v.created_at desc, v.id desc limit $4::int`,
+      [viewer, page.after?.at ?? null, page.after?.id ?? null, page.limit + 1],
+    );
+    const shown = rows.slice(0, page.limit);
+    const last = shown.at(-1);
+    return { records: shown.map(toVersion), next: rows.length > page.limit && last !== undefined ? { at: last.sort_key, id: last.id } : undefined };
+  }
+
+  /** A dashboard is made: private to its owner, a draft, with no version yet. A code the tenant uses already is 409 `DASHBOARD_CODE_DUPLICATE`. */
+  async create(tx: TenantTx, input: { code: string; title: string; actor: string }): Promise<DashboardRecord> {
+    const code = input.code.trim();
+    const title = input.title.trim().normalize('NFC');
+    if (!DASHBOARD_CODE.test(code)) throw new DomainError('VALIDATION_FAILED', 422, 'code');
+    if (title.length < MIN_TITLE || title.length > 300) throw new DomainError('VALIDATION_FAILED', 422, 'title');
+    const id = randomUUID();
+    await tx.query(`savepoint ${SAVEPOINT}`);
+    try {
+      await tx.query(
+        `insert into machvon.dashboard (tenant_id, id, code, title, owner_user_id, audience, status, created_by, updated_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, $4::uuid, 'PRIVATE', 'DRAFT', $4::uuid, $4::uuid)`,
+        [id, code, title, input.actor],
+      );
+      await tx.query(`release savepoint ${SAVEPOINT}`);
+    } catch (error) {
+      if ((error as { code?: string }).code !== UNIQUE_VIOLATION) throw error;
+      await tx.query(`rollback to savepoint ${SAVEPOINT}`);
+      throw new DomainError('DASHBOARD_CODE_DUPLICATE', 409, 'code');
+    }
+    return this.reread(tx, id, input.actor);
+  }
+
+  /** The state of the metrics a draft names, by id: one that is not in the tenant is missing from the answer. */
+  async metricChecks(tx: TenantTx, ids: readonly string[]): Promise<MetricCheck[]> {
+    if (ids.length === 0) return [];
+    return tx.query<MetricCheck>('select id, status from machvon.metric_definition where id = any($1::uuid[])', [ids]);
+  }
+
+  /** The state of the dataset versions a draft pins, by id. */
+  async datasetVersionChecks(tx: TenantTx, ids: readonly string[]): Promise<MetricCheck[]> {
+    if (ids.length === 0) return [];
+    return tx.query<MetricCheck>('select id, status from machvon.bi_dataset_version where id = any($1::uuid[])', [ids]);
+  }
+
+  /** The next revision of a dashboard is saved whole, as a draft, and the dashboard points to it; the version of the dashboard moves. Returns the version. */
+  async saveVersion(tx: TenantTx, dashboard: DashboardRecord, draft: DashboardDraft, actor: string): Promise<DashboardVersionRecord> {
+    const [row] = await tx.query<{ next: number }>('select coalesce(max(revision), 0) + 1 as next from machvon.dashboard_version where dashboard_id = $1::uuid', [dashboard.id]);
+    const next = row?.next ?? 1;
+    const id = randomUUID();
+    await tx.query(
+      `insert into machvon.dashboard_version (tenant_id, id, dashboard_id, revision, layout_json, metric_versions, filter_mappings, breakpoints, dataset_version_policy, pinned_dataset_version_ids, status, created_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::int, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8, $9::jsonb, 'DRAFT', $10::uuid)`,
+      [
+        id,
+        dashboard.id,
+        next,
+        JSON.stringify({ columns: draft.layout.columns, widgets: draft.layout.widgets.map(widgetRow) }),
+        JSON.stringify(draft.metricVersionIds),
+        JSON.stringify(draft.filterMappings),
+        JSON.stringify(draft.breakpoints),
+        draft.policy,
+        draft.policy === 'PINNED' ? JSON.stringify(draft.pinnedDatasetVersionIds) : null,
+        actor,
+      ],
+    );
+    await tx.query('update machvon.dashboard set current_version_id = $2::uuid, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid', [dashboard.id, id, actor]);
+    const [saved] = await tx.query<Sql>(`select ${VERSION_COLUMNS} from machvon.dashboard_version where id = $1::uuid`, [id]);
+    return toVersion(saved as Sql);
+  }
+
+  private async reread(tx: TenantTx, id: string, viewer: string): Promise<DashboardRecord> {
+    const row = await this.find(tx, id, viewer);
+    if (row === undefined) throw new Error('the dashboard vanished after its write');
+    return row;
+  }
+}
+
+/** A tile as it is stored: the names of the contract, which is what the screens and the queries read. */
+function widgetRow(widget: DashboardDraft['layout']['widgets'][number]): Record<string, unknown> {
+  return {
+    id: widget.id,
+    kind: widget.kind,
+    ...(widget.title === null ? {} : { title: widget.title }),
+    metric_version_id: widget.metricVersionId,
+    ...(widget.dimensionCode === null ? {} : { dimension_code: widget.dimensionCode }),
+    grid: widget.grid,
+  };
+}

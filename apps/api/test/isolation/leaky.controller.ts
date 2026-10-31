@@ -29,10 +29,10 @@ export class LeakyOrganizationUnitsController {
 }
 
 /** Second negative control: an implemented id-bearing operation that no foreign-id case covers. */
-@Controller('resources/dashboard_version')
+@Controller('resources/outbox_event')
 export class UncoveredMembershipController {
   @Get(':id')
-  @OperationId('get_resources_dashboard_version_id')
+  @OperationId('get_resources_outbox_event_id')
   get(@Param('id') id: string): unknown {
     return { id };
   }

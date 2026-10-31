@@ -115,6 +115,8 @@
     "createAuditRecommendation",
     "createAvcPolicyVersion",
     "createBiAccessPolicy",
+    "createDashboard",
+    "saveDashboardVersion",
     "createCapitalPlan",
     "createCapitalPlanRevision",
     "createChangeRequest",

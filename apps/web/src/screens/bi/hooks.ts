@@ -5,6 +5,8 @@ import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
 import { metricBody, toMetric } from './bi-model';
 import type { Metric, MetricValues } from './bi-model';
+import { createBody, toDashboard } from './dashboard-model';
+import type { CreateForm, Dashboard } from './dashboard-model';
 import { toDataset, toVersion } from './dataset-model';
 import type { Dataset, DatasetVersion } from './dataset-model';
 import { policyBody, toPolicy } from './policy-model';
@@ -178,5 +180,75 @@ export function useTile(metricId: string, snapshotId: string | undefined) {
     enabled: tenant !== undefined && snapshotId !== undefined,
     retry: false,
     staleTime: 60_000,
+  });
+}
+
+/** The library of the dashboards of the caller, with the state of the version each points to. */
+export function useDashboards() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<Dashboard[]>({
+    queryKey: [...biRoot(tenant?.id), 'dashboards', tenant?.membershipId],
+    queryFn: async () => (await client.readAll('listDashboards')).flatMap((raw) => toDashboard(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** One dashboard with its versions, the newest first. */
+export function useDashboard(id: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<Dashboard>({
+    queryKey: [...biRoot(tenant?.id), 'dashboard', tenant?.membershipId, id],
+    queryFn: async () => {
+      const dashboard = toDashboard(await client.read('getDashboard', { path: { id: id as string } }));
+      if (dashboard === undefined) throw new Error('the dashboard could not be read');
+      return dashboard;
+    },
+    enabled: tenant !== undefined && id !== undefined,
+    retry: false,
+  });
+}
+
+/** Makes a dashboard: one idempotency attempt per intention, the cached reads refreshed on success and on a refusal (another may have taken the code). */
+export function useCreateDashboard() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (values: CreateForm) => client.command('createDashboard', { body: createBody(values), attempt: attempts.current.forPayload(values) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface SaveVersionInput {
+  dashboardId: string;
+  version: number;
+  body: Record<string, unknown>;
+}
+
+/** Saves the next version of a dashboard, under the version of the dashboard it was read at. */
+export function useSaveVersion() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: SaveVersionInput) => client.command('saveDashboardVersion', { path: { id: input.dashboardId }, body: input.body as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
+      // A refusal can follow a step taken by somebody else: what is shown is read again.
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
   });
 }
