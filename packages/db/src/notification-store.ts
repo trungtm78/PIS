@@ -26,7 +26,8 @@ export interface NewNotification {
 
 /** What an event says about the thing a notification is about (the `notification` member of its payload). */
 export interface NotificationRef {
-  resource?: { type: string; id: string; ownerUnitId?: string; ownerUnitPath?: string; projectId?: string; contractId?: string };
+  /** `investorUnitId` and `investorUnitPath` name the unit that invests in the project when it is not the owner: a grant on either unit reaches the resource. */
+  resource?: { type: string; id: string; ownerUnitId?: string; ownerUnitPath?: string; investorUnitId?: string; investorUnitPath?: string; projectId?: string; contractId?: string };
   deepLink?: string;
 }
 

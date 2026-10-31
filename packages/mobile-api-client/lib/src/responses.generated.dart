@@ -562,6 +562,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listDossiers': asObject,
   'listEarlyWarningRules': asObject,
   'listEarlyWarnings': asObject,
+  'listEvaluationTriggers': asObject,
   'listExpiringGuarantees': asObject,
   'listExpiringPermits': asObject,
   'listExpiringWarranties': asObject,

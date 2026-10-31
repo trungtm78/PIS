@@ -58,14 +58,18 @@ interface NotificationMetadata {
 export function withCurrentOwnerPath(resource: ResourceRef, unitPaths: ReadonlyMap<string, string>): ResourceRef {
   const rest: ResourceRef = { ...resource };
   delete rest.ownerUnitPath;
-  if (rest.ownerUnitId === undefined) return rest;
-  const unit = asUuid(rest.ownerUnitId);
-  const path = unit === undefined ? undefined : unitPaths.get(unit);
-  return path === undefined ? rest : { ...rest, ownerUnitPath: path };
+  delete rest.investorUnitPath;
+  const currentPath = (unitId: string | undefined): string | undefined => {
+    const unit = unitId === undefined ? undefined : asUuid(unitId);
+    return unit === undefined ? undefined : unitPaths.get(unit);
+  };
+  const owner = currentPath(rest.ownerUnitId);
+  const investor = currentPath(rest.investorUnitId);
+  return { ...rest, ...(owner === undefined ? {} : { ownerUnitPath: owner }), ...(investor === undefined ? {} : { investorUnitPath: investor }) };
 }
 
 function ownerUnitsOf(rows: readonly NotificationRow[]): string[] {
-  return rows.flatMap((row) => (row.ref?.resource?.ownerUnitId === undefined ? [] : [row.ref.resource.ownerUnitId]));
+  return rows.flatMap((row) => [row.ref?.resource?.ownerUnitId, row.ref?.resource?.investorUnitId].flatMap((unit) => (unit === undefined ? [] : [unit])));
 }
 
 function titleKeyOf(eventType: string): string {

@@ -38,13 +38,16 @@ function scopeReaches(scope: Scope, resource: ResourceRef): boolean {
     }
     case 'UNIT_SUBTREE':
     case 'UNIT_ONLY':
-      // A unit scope needs the owner unit and its path; an event that names no unit, or a unit that cannot be resolved, is not reached.
-      return resource.ownerUnitId !== undefined && resource.ownerUnitPath !== undefined && scopeContains(scope, { ownerUnitId: resource.ownerUnitId, ownerUnitPath: resource.ownerUnitPath });
+      // A unit scope needs the owner unit (or the investing unit, when the resource names one) and its path; an event that names no unit, or a unit that cannot be resolved, is not reached.
+      return (
+        (resource.ownerUnitId !== undefined && resource.ownerUnitPath !== undefined && scopeContains(scope, { ownerUnitId: resource.ownerUnitId, ownerUnitPath: resource.ownerUnitPath })) ||
+        (resource.investorUnitId !== undefined && resource.investorUnitPath !== undefined && scopeContains(scope, { ownerUnitId: resource.investorUnitId, ownerUnitPath: resource.investorUnitPath }))
+      );
   }
 }
 
-/** The resource types whose read permission is not `<type>.read`: a data product is read with the right to read the catalogue of data (ST-DGV-009). */
-const READ_PERMISSION_OF: Readonly<Record<string, string>> = { data_product: 'data.catalog.read' };
+/** The resource types whose read permission is not `<type>.read`: a data product is read with the right to read the catalogue of data (ST-DGV-009), a trigger of evaluation with the right to manage the triggers (ST-AST-006). */
+const READ_PERMISSION_OF: Readonly<Record<string, string>> = { data_product: 'data.catalog.read', evaluation_trigger: 'evaluation.trigger.manage' };
 
 /**
  * The default port: the member needs the `<resource type>.read` permission from a grant whose scope contains the

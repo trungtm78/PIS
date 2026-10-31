@@ -561,6 +561,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listDossiers': OperationDescriptor(method: 'GET', path: '/dossiers', versioned: false, stepUp: null, permission: 'doc.dossier.read'),
   'listEarlyWarningRules': OperationDescriptor(method: 'GET', path: '/early-warning-rules', versioned: false, stepUp: null, permission: 'warning.read'),
   'listEarlyWarnings': OperationDescriptor(method: 'GET', path: '/early-warnings', versioned: false, stepUp: null, permission: 'warning.read'),
+  'listEvaluationTriggers': OperationDescriptor(method: 'GET', path: '/evaluation-triggers', versioned: false, stepUp: null, permission: 'evaluation.trigger.manage'),
   'listExpiringGuarantees': OperationDescriptor(method: 'GET', path: '/guarantees/expiring', versioned: false, stepUp: null, permission: 'guarantee.read'),
   'listExpiringPermits': OperationDescriptor(method: 'GET', path: '/permits/expiring', versioned: false, stepUp: null, permission: 'permit.read'),
   'listExpiringWarranties': OperationDescriptor(method: 'GET', path: '/warranty-obligations/expiring', versioned: false, stepUp: null, permission: 'warranty.read'),

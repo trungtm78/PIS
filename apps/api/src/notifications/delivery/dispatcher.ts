@@ -153,7 +153,7 @@ export class DeliveryDispatcher {
     if (!access.membershipActive) return 'RECIPIENT_INACTIVE';
     const resource = row.ref?.resource;
     if (resource === undefined) return undefined;
-    const paths = await this.deps.database.withTenant(ctx, (tx) => this.notifications.currentUnitPaths(tx, resource.ownerUnitId === undefined ? [] : [resource.ownerUnitId]));
+    const paths = await this.deps.database.withTenant(ctx, (tx) => this.notifications.currentUnitPaths(tx, [resource.ownerUnitId, resource.investorUnitId].flatMap((unit) => (unit === undefined ? [] : [unit]))));
     return this.deps.resourceAccess.canRead(access, withCurrentOwnerPath(resource, paths), this.now()) ? undefined : 'NO_ACCESS';
   }
 

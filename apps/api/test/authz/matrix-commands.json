@@ -1,6 +1,7 @@
 {
   "commands": [
     "acceptIssueEscalation",
+    "acknowledgeEvaluationTrigger",
     "acknowledgeNotification",
     "activateAiProvider",
     "addCompensationPlanItems",
@@ -351,6 +352,7 @@
     "revokeSigningCertificate",
     "runQualityChecks",
     "scheduleCompensationPayments",
+    "scheduleEvaluationTrigger",
     "scheduleInspection",
     "setChangeChainTiers",
     "signQualityAcceptance",

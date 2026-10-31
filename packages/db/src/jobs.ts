@@ -118,6 +118,8 @@ export const JOB_INTERVAL_SECONDS = {
   'capital-balance-reconcile': 3600,
   // Every 15 minutes: a fund reservation still active past its last instant becomes EXPIRED and returns its capital to the line with one RELEASE entry, once (ST-CAP-011, UAT-AC227); the pass is idempotent.
   'capital-reservation-expiry': 900,
+  // Hourly: a trigger of evaluation after the investment whose day has come (the day in Vietnam) is fired, once, and MNE is told through `ast.evaluation.due.v1` (ST-AST-006, UAT-AC394); the pass is idempotent.
+  'ast-evaluation-due': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the recovered amount of each recommendation of AUD is compared with its ledger once a night wherever the process started; nothing is changed by it (ST-AUD-004).
   'aud-recovery-reconcile': 3600,
   // Every 5 minutes: the old key of a rotation is revoked at the end of its last day and a key that reached its expiry is recorded as revoked, after LiteLLM has stopped it (ST-LLM-002); the pass is idempotent.
@@ -303,6 +305,7 @@ export interface StandardJobDeps {
   /** Compares the balances of capital with their ledger, once a night, and reports a difference without correcting it (ST-CAP-006). */
   capitalBalanceReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   capitalReservationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  astEvaluationDue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -938,6 +941,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await fundReservationExpiry.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const evaluationDue = deps.astEvaluationDue;
+  if (evaluationDue !== undefined) {
+    handlers.push({
+      name: 'ast-evaluation-due',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await evaluationDue.run(workerContext(tenantId), now)));
       },
     });
   }

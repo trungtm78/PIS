@@ -1,3 +1,4 @@
+import { withCurrentOwnerPath } from '../../src/notifications/notifications.controller';
 import { PermissionResourceAccess } from '../../src/notifications/resource-access-port';
 import type { EffectiveAccess, GrantView, Scope } from '@machvon/kernel';
 
@@ -29,6 +30,14 @@ describe('PermissionResourceAccess', () => {
     expect(port.canRead(tenant, { type: 'project', id: PROJECT_A }, NOW)).toBe(true);
     expect(port.canRead(tenant, { type: 'project', id: PROJECT_A, projectId: PROJECT_B }, NOW)).toBe(true);
     expect(port.canRead(tenant, { type: 'report', id: PROJECT_A }, NOW)).toBe(false);
+  });
+
+  it('reads a trigger of evaluation with the right to manage the triggers, over the project it is about, and with no right named after the type', () => {
+    const manager = access({ kind: 'TENANT' }, ['evaluation.trigger.manage']);
+    expect(port.canRead(manager, { type: 'evaluation_trigger', id: PROJECT_A, projectId: PROJECT_B }, NOW)).toBe(true);
+    expect(port.canRead(access({ kind: 'TENANT' }, ['evaluation_trigger.read']), { type: 'evaluation_trigger', id: PROJECT_A }, NOW)).toBe(false);
+    expect(port.canRead(access({ kind: 'TENANT' }, ['project.read']), { type: 'evaluation_trigger', id: PROJECT_A }, NOW)).toBe(false);
+    expect(port.canRead(access({ kind: 'PROJECT', refIds: [PROJECT_B] }, ['evaluation.trigger.manage']), { type: 'evaluation_trigger', id: PROJECT_A, projectId: PROJECT_A }, NOW)).toBe(false);
   });
 
   it('reads a data product with the right to read the catalogue of data, and with no right named after the type', () => {
@@ -63,6 +72,26 @@ describe('PermissionResourceAccess', () => {
     expect(port.canRead(subtree, { type: 'project', id: PROJECT_A }, NOW)).toBe(false);
     expect(port.canRead(subtree, { type: 'project', id: PROJECT_A, projectId: PROJECT_A }, NOW)).toBe(false);
     expect(port.canRead(access({ kind: 'UNIT_ONLY', refIds: [UNIT_1], paths: ['/1/'] }), { type: 'project', id: PROJECT_A }, NOW)).toBe(false);
+  });
+
+  it('reaches a resource through the unit that invests in the project as well as through the unit that owns it, each by its own path', () => {
+    const resource = { type: 'evaluation_trigger', id: PROJECT_A, ownerUnitId: UNIT_2, ownerUnitPath: '/3/2/', investorUnitId: UNIT_1, investorUnitPath: '/1/' };
+    const manage = (scope: Scope) => access(scope, ['evaluation.trigger.manage']);
+    expect(port.canRead(manage({ kind: 'UNIT_SUBTREE', refIds: [UNIT_1], paths: ['/1/'] }), resource, NOW)).toBe(true);
+    expect(port.canRead(manage({ kind: 'UNIT_SUBTREE', refIds: [UNIT_2], paths: ['/3/2/'] }), resource, NOW)).toBe(true);
+    expect(port.canRead(manage({ kind: 'UNIT_SUBTREE', refIds: [UNIT_1], paths: ['/9/'] }), resource, NOW)).toBe(false);
+    // The investing unit alone is not enough without its path, nor does it reach through a path of another unit.
+    expect(port.canRead(manage({ kind: 'UNIT_SUBTREE', refIds: [UNIT_1], paths: ['/1/'] }), { ...resource, investorUnitPath: undefined }, NOW)).toBe(false);
+    expect(port.canRead(manage({ kind: 'UNIT_SUBTREE', refIds: [UNIT_1], paths: ['/1/'] }), { ...resource, investorUnitPath: '/12/' }, NOW)).toBe(false);
+  });
+
+  it('takes the paths of both units as they are now: a unit that moved or is gone is not reached by its old path', () => {
+    const resource = { type: 'evaluation_trigger', id: PROJECT_A, ownerUnitId: UNIT_2, ownerUnitPath: '/old/2/', investorUnitId: UNIT_1, investorUnitPath: '/old/1/' };
+    expect(withCurrentOwnerPath(resource, new Map([[UNIT_2, '/new/2/'], [UNIT_1, '/new/1/']]))).toEqual({ ...resource, ownerUnitPath: '/new/2/', investorUnitPath: '/new/1/' });
+    const gone = withCurrentOwnerPath(resource, new Map([[UNIT_2, '/new/2/']]));
+    expect(gone.investorUnitPath).toBeUndefined();
+    expect(gone.ownerUnitPath).toBe('/new/2/');
+    expect(withCurrentOwnerPath({ type: 'project', id: PROJECT_A, ownerUnitPath: '/old/' }, new Map())).toEqual({ type: 'project', id: PROJECT_A });
   });
 
   it('applies a unit-scoped grant by the owner unit path, on whole path segments', () => {

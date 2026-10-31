@@ -45,11 +45,13 @@ function refOf(payload: Record<string, unknown>): NotificationRef & { recipients
   if (typeof record.deepLink === 'string') ref.deepLink = record.deepLink;
   const resource = record.resource;
   if (typeof resource === 'object' && resource !== null && !Array.isArray(resource)) {
-    const { type, id, ownerUnitId, ownerUnitPath, projectId, contractId } = resource as Record<string, unknown>;
+    const { type, id, ownerUnitId, ownerUnitPath, investorUnitId, investorUnitPath, projectId, contractId } = resource as Record<string, unknown>;
     if (typeof type === 'string' && typeof id === 'string') {
       ref.resource = { type, id };
       if (typeof ownerUnitId === 'string') ref.resource.ownerUnitId = ownerUnitId;
       if (typeof ownerUnitPath === 'string') ref.resource.ownerUnitPath = ownerUnitPath;
+      if (typeof investorUnitId === 'string') ref.resource.investorUnitId = investorUnitId;
+      if (typeof investorUnitPath === 'string') ref.resource.investorUnitPath = investorUnitPath;
       if (typeof projectId === 'string') ref.resource.projectId = projectId;
       if (typeof contractId === 'string') ref.resource.contractId = contractId;
     }

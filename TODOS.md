@@ -1868,6 +1868,13 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-CAP-011 (decision, reconcile): the nightly balance check compares the reserved column too, since reservations now post entries.
 - ST-CAP-011 (gap): the consumption of a reservation by a payment request of PAY is the payment consumer (ST-PAY); no other module consumes the events yet.
 
+### ST-AST-006 (evaluation trigger, slice AST-1)
+- ST-AST-006 (decision, contract): the module document names no way to read the triggers, yet AST-07 has to show them, so the read `listEvaluationTriggers` (`evaluation.trigger.manage`) was added; the commands also state `RESOURCE_NOT_FOUND`, `SCOPE_DENIED` and, for the first, `HANDOVER_NOT_ACCEPTED`.
+- ST-AST-006 (decision, day): a trigger after a handover falls due no earlier than the day the handover was accepted (the day in Vietnam) plus 12 or 24 months, and a later day may be chosen; the other kinds are not set for a day that has gone. One trigger exists for a project, a kind and a handover (the unique index of V002), so a second manual trigger on a project needs a handover to be named.
+- ST-AST-006 (decision, stage): a trigger is set once the project is under way (`IMPLEMENTATION` to `CLOSED`); the trigger of the closed settlement needs `SETTLED` or `CLOSED`.
+- ST-AST-006 (decision, reminder): the one who set the trigger is told when it falls due, through the notification service.
+- ST-AST-006 (gap): the text says the system proposes a trigger when a handover is accepted or the settlement is closed; nothing sets one by itself (the screen proposes the day). `CANCELLED` has no command. MNE has no read of its evaluations, so the screen takes the code of the evaluation as typed.
+
 ### ST-LND-012 (resettlement allocation, slice LND-1)
 - ST-LND-012 (decision, contract): the module document names no way to read the allocations or the items waiting for a unit, yet LND-12 lists the first and the form needs the second, so the reads `listResettlementAllocations` and `listResettlementCandidates` (`land.read`, as the complaints) were added.
 - ST-LND-012 (decision, item): the document makes `plan_item_id` optional in the table; the acceptance criterion says an allocation requires an approved plan item, so the command refuses a request without it (422 HOUSEHOLD_NOT_ELIGIBLE, reason NO_PLAN_ITEM). A plan that is approved, being paid or paid stands; a land item gives a plot, a house item a house or a flat.

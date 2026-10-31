@@ -176,6 +176,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'AST-03': () => import('../../screens/ast/asset/AssetScreen'),
   'AST-04': () => import('../../screens/ast/warranty/WarrantyScreen'),
   'AST-06': () => import('../../screens/ast/omlink/OmLinkScreen'),
+  'AST-07': () => import('../../screens/ast/evaluation/EvaluationScreen'),
   'QMS-01': () => import('../../screens/qms/diary/DiaryCatalogueScreen'),
   'QMS-02': () => import('../../screens/qms/diary/DiaryComposeScreen'),
   'QMS-03': () => import('../../screens/qms/diary/DiaryReviewScreen'),

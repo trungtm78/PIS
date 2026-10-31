@@ -359,6 +359,8 @@ export { ASSET_STATUSES, MAX_MAINTENANCE_CYCLE_MONTHS, OPERATED_STATUSES, assert
 export type { AssetStatus, ValueBasis } from './ast-asset.ts';
 export { CLAIM_STATUSES, CONSTRUCTION_GRADES, WARRANTY_STATUSES, assertWarrantyClosure, assertWarrantyPeriod, effectiveWarrantyStatus, hasRunOut, isOpenClaim, minimumMonths, warrantyEndsOn } from './ast-warranty.ts';
 export type { ClaimStatus, ConstructionGrade, WarrantyClosure, WarrantyMinimums, WarrantyStatus } from './ast-warranty.ts';
+export { EVALUATION_TRIGGER_KINDS, EVALUATION_TRIGGER_STATUSES, assertTriggerStage, earliestDueOn, isPostHandoverKind, nextTriggerStatus } from './ast-evaluation.ts';
+export type { EvaluationTriggerKind, EvaluationTriggerStatus, TriggerMove } from './ast-evaluation.ts';
 export {
   CRITERIA,
   EVALUATION_KINDS,

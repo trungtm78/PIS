@@ -559,6 +559,7 @@ export const OPERATIONS = {
   "listDossiers": { method: "get", path: "/dossiers", versioned: false, stepUp: null, permission: "doc.dossier.read" },
   "listEarlyWarningRules": { method: "get", path: "/early-warning-rules", versioned: false, stepUp: null, permission: "warning.read" },
   "listEarlyWarnings": { method: "get", path: "/early-warnings", versioned: false, stepUp: null, permission: "warning.read" },
+  "listEvaluationTriggers": { method: "get", path: "/evaluation-triggers", versioned: false, stepUp: null, permission: "evaluation.trigger.manage" },
   "listExpiringGuarantees": { method: "get", path: "/guarantees/expiring", versioned: false, stepUp: null, permission: "guarantee.read" },
   "listExpiringPermits": { method: "get", path: "/permits/expiring", versioned: false, stepUp: null, permission: "permit.read" },
   "listExpiringWarranties": { method: "get", path: "/warranty-obligations/expiring", versioned: false, stepUp: null, permission: "warranty.read" },

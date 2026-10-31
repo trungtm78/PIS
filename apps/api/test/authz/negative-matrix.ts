@@ -2532,6 +2532,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/warranty-obligations/${t.warrantyId}/close`, body: { note: REASON } }),
   },
+  // The trigger of the evaluation after the investment: a caller that is refused sets none and acknowledges none.
+  scheduleEvaluationTrigger: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/evaluation-triggers`, body: { trigger_kind: 'MANUAL', due_on: '2999-01-01' } }),
+  },
+  acknowledgeEvaluationTrigger: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/evaluation-triggers/${t.legalHoldId}/acknowledge`, body: { mne_evaluation_id: t.legalHoldId } }),
+  },
   // The non-conformances of the work: a caller that is refused raises none, assigns no action, answers none, verifies none, closes none and reopens none.
   raiseNonconformance: {
     referencesTenantIds: true,

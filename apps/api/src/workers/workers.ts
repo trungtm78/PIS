@@ -9,7 +9,7 @@ import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
-import { ApprovalSlaJob, sharedMockDomainPorts, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvProductExpiryJob, QmsDiaryCoverageJob, CapReservationExpiryJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, NotificationCampaignStore, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
+import { ApprovalSlaJob, AstEvaluationDueJob, sharedMockDomainPorts, BillingPaymentStore, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID, AudRecoveryReconcileJob, AuditSealJob, AuditWriter, BASELINE_PACK, BidPetitionDue, CapAllocationExtensionStore, CapBalanceReconcileJob, CapFiscalYearStore, CertificateStore, CtrGuaranteeExpiry, CtrRetentionDue, CtrRevisionEffective, DgvIncidentSweepJob, DgvProductExpiryJob, QmsDiaryCoverageJob, CapReservationExpiryJob, DgvQualityRunJob, DisPeriodAutoclose, DisReopenExpiry, EntitlementOverrideStore, IdempotencyStore, IntegrationInboxProcessor, LlmFinopsStore, LlmKeySweepJob, InvitationExpiryJob, IssSlaJob, JOB_FAILED_ALERT, JOB_INTERVAL_SECONDS, JobRunner, LicenseStatusJob, LndStageLateJob, MasterStore, OutboxRelay, MneExportExpiryJob, NotificationCampaignStore, PayReconciliationOverdueJob, PaySettlementDeadlineJob, PmtPermitExpiry, PmtPermitTypeStore, PmtWaiverExpiry, PrjExplanationOverdueJob, PrjTransferApplyJob, RetentionJob, SubscriptionStore, applyBaseline, registeredTenantIds, sharedMockEInvoiceProvider, standardJobs } from '@machvon/db';
 import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, ReorganizationProjectPort, TenantDatabase } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
@@ -129,6 +129,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const reconciliationOverdue = new PayReconciliationOverdueJob(audit, deps.metrics);
   const capitalBalances = new CapBalanceReconcileJob(audit, deps.metrics);
   const fundReservationExpiry = new CapReservationExpiryJob(audit, deps.metrics);
+  const evaluationDue = new AstEvaluationDueJob(audit, deps.metrics);
   const audRecoveries = new AudRecoveryReconcileJob(audit, deps.metrics);
   const settlementDeadlines = new PaySettlementDeadlineJob(audit, deps.metrics);
   const diaryCoverage = new QmsDiaryCoverageJob(deps.metrics);
@@ -200,6 +201,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     diaryCoverage: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => diaryCoverage.run(tx, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },
     capitalReservationExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => fundReservationExpiry.run(tx, ctx.membershipId, now)) },
+    astEvaluationDue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => evaluationDue.run(tx, ctx.membershipId, now)) },
     audRecoveryReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => audRecoveries.run(tx, ctx.membershipId, now)) },
     // Licenses are control-plane rows too: the pass of a tenant runs through the control role acting as that tenant.
     licenseStatus: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => licenseStatus.run(tx, ctx.membershipId, now)) },

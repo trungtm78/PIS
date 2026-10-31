@@ -95956,7 +95956,10 @@
         "x-error-codes": [
           "TRIGGER_DUPLICATE",
           "PROJECT_STAGE_INVALID",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED",
+          "HANDOVER_NOT_ACCEPTED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -96095,7 +96098,10 @@
           }
         },
         "x-error-codes": [
-          "TRIGGER_STATE_INVALID"
+          "TRIGGER_STATE_INVALID",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -133489,6 +133495,132 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LndResettlementCandidates"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/evaluation-triggers": {
+      "get": {
+        "operationId": "listEvaluationTriggers",
+        "summary": "Các mốc kích hoạt đánh giá sau đầu tư trong phạm vi, mới nhất trước (AST-07)",
+        "tags": [
+          "AST"
+        ],
+        "x-permission": "evaluation.trigger.manage",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SCHEDULED",
+                "FIRED",
+                "ACKNOWLEDGED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo đơn vị của dự án); danh sách của màn AST-07, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
                 }
               }
             }
