@@ -23533,6 +23533,54 @@ export interface components {
             days: components["schemas"]["DiaryCoverageDay"][];
             missing_dates: string[];
         };
+        ContractorHistory: {
+            contractor: {
+                /** Format: uuid */
+                id: string;
+                legal_name: string;
+            };
+            scorecards: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                contract_id: string;
+                contract_code: string;
+                kind: string;
+                period_label: string;
+                revision: number;
+                scores: {
+                    [key: string]: number;
+                };
+                overall_score: string;
+                rating: string;
+                /** Format: date-time */
+                approved_at: string | null;
+            }[];
+            approved_count: number;
+            average_overall_score: string | null;
+            contracts: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+            }[];
+            restrictions: {
+                /** Format: uuid */
+                id: string;
+                /** @enum {string} */
+                kind: "DEBARMENT" | "SUSPENSION" | "WARNING";
+                /** @enum {string} */
+                source: "NATIONAL_E_PROCUREMENT_IMPORT" | "DECISION";
+                /** Format: date */
+                effective_from: string;
+                /** Format: date */
+                effective_until: string | null;
+                in_force: boolean;
+            }[];
+            restriction_in_force: boolean;
+            /** Format: date-time */
+            as_of: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -101081,7 +101129,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ContractorHistory"];
                 };
             };
             /** @description Unauthenticated */

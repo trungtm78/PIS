@@ -111903,7 +111903,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ContractorHistory"
                 }
               }
             }
@@ -163128,6 +163128,189 @@
               "type": "string",
               "format": "date"
             }
+          }
+        }
+      },
+      "ContractorHistory": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contractor",
+          "scorecards",
+          "approved_count",
+          "average_overall_score",
+          "contracts",
+          "restrictions",
+          "restriction_in_force",
+          "as_of"
+        ],
+        "properties": {
+          "contractor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "legal_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "legal_name": {
+                "type": "string"
+              }
+            }
+          },
+          "scorecards": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "contract_id",
+                "contract_code",
+                "kind",
+                "period_label",
+                "revision",
+                "scores",
+                "overall_score",
+                "rating",
+                "approved_at"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contract_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contract_code": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "period_label": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "integer"
+                },
+                "scores": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer"
+                  }
+                },
+                "overall_score": {
+                  "type": "string"
+                },
+                "rating": {
+                  "type": "string"
+                },
+                "approved_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "approved_count": {
+            "type": "integer"
+          },
+          "average_overall_score": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "contracts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "code",
+                "status"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "restrictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "kind",
+                "source",
+                "effective_from",
+                "effective_until",
+                "in_force"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "DEBARMENT",
+                    "SUSPENSION",
+                    "WARNING"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "NATIONAL_E_PROCUREMENT_IMPORT",
+                    "DECISION"
+                  ]
+                },
+                "effective_from": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "effective_until": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "in_force": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "restriction_in_force": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

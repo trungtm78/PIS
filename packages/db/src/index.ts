@@ -737,3 +737,5 @@ export type { BindRequest, BoundTerm, GlossaryBindingLine, GlossaryCoverage } fr
 export { DATA_PRODUCT_RESOURCE, DgvProductStore } from './dgv-product-store.ts';
 export type { CertifiedProduct, LapsedProduct, ProductDataset, ProductLine } from './dgv-product-store.ts';
 export { DIARY_MISSING_METRIC, QmsDiaryCoverageJob, QmsDiaryCoverageReads } from './qms-diary-coverage.ts';
+export { BidContractorHistoryReads } from './bid-contractor-history.ts';
+export type { ContractorHistory, HistoryRestriction } from './bid-contractor-history.ts';

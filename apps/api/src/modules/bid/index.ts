@@ -1,6 +1,7 @@
 import { defineModule } from '../module-descriptor';
 import { ConflictController } from './conflict.controller';
 import { ContractorController, ContractorReadsController } from './contractor.controller';
+import { ContractorHistoryController } from './contractor-history.controller';
 import { CriteriaVersionController, CriteriaVersionReadsController } from './criteria.controller';
 import { UnboundIdentityPort } from './identity-port';
 import { MilestoneController, MilestoneReadsController } from './milestone.controller';
@@ -22,6 +23,6 @@ import { CONTRACTOR_IDENTITY_PORT } from './tokens';
  */
 export const bidModule = defineModule({
   code: 'BID',
-  controllers: [ContractorController, ContractorReadsController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, ResultController, PetitionController],
+  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, ResultController, PetitionController],
   providers: [{ provide: CONTRACTOR_IDENTITY_PORT, useValue: new UnboundIdentityPort() }],
 });

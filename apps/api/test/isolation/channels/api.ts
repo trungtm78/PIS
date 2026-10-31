@@ -514,6 +514,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'recordContractorViolation', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { violation_kind: 'DELAY', severity: 'MINOR', occurred_on: '2026-09-01', description: 'Isolation foreign violation attempt' } },
   { operation: 'confirmContractorViolation', method: 'POST', id: SCORECARD_FIXTURES['TNT-B'].violationId, versioned: true, body: { penalty_kind: 'NONE' } },
   { operation: 'getContractorScorecard', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },
+  { operation: 'getContractorHistory', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },
   { operation: 'markContractorExportSubmitted', method: 'POST', id: SCORECARD_FIXTURES['TNT-B'].exportId, body: { submitted_ref: 'ISOLATION-FOREIGN', submitted_on: '2026-10-01' } },
   { operation: 'getContractorExportDownload', method: 'GET', id: SCORECARD_FIXTURES['TNT-B'].exportId },
   { operation: 'revisePaymentDraft', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { request_no: 'Isolation foreign revision attempt' } },

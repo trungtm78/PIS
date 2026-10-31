@@ -599,6 +599,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordContractorViolation',
   'confirmContractorViolation',
   'getContractorScorecard',
+  'getContractorHistory',
   'getIssueWeeklyMatrix',
   'exportContractorRecords',
   'markContractorExportSubmitted',

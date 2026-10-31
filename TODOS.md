@@ -1853,3 +1853,9 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-QMS-008 (decision, calendar): a year of the range without a published WORKDAY_VN calendar is refused (422 CALENDAR_NOT_EFFECTIVE) rather than counted by the weekdays, since the coverage is "by the work calendar"; the lateness of a signature in a year with no calendar falls back to the weekdays like the deadline of a letter.
 - ST-QMS-008 (decision, job): the job `diary-coverage` counts the month up to yesterday and sets the gauge `qms_diary_missing_days{tenant_id}`; the document says only "cảnh báo thiếu nhật ký" and names no recipient, so it tells no one.
 - ST-QMS-008 (gap): no notification of a missing diary and no alert rule over the gauge.
+
+### ST-BID-013 (contractor history, slice BID-1)
+- ST-BID-013 (decision, scope): the scorecards and contracts shown are those of the contracts the caller reads (`contractor.performance.read`, as on CTR-23), not all of the tenant's: the document says BID calls the interface of CTR, so CTR's scope applies. An evaluator with only `bid.contractor.read` sees the restrictions and no scorecard.
+- ST-BID-013 (decision, restrictions): the restrictions are listed whole, in force or not, with an `in_force` flag by the Vietnamese date; the decision document and the note are left to BID-02, which already hides them from those without the full right.
+- ST-BID-013 (decision, cache): the read goes to CTR every time, so the consumer of `ctr.contractor_evaluation.approved.v1` that "refreshes the cache" has nothing to refresh and is not written.
+- ST-BID-013 (gap): the evidence SCORECARD of an analysis finding waits for ST-BID-009.

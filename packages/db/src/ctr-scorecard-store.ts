@@ -195,6 +195,30 @@ const DAY_VN = (column: string): string => `(${column} at time zone 'Asia/Ho_Chi
 
 const scoresOf = (row: EvaluationSql): Scores => ({ quality: row.score_quality, schedule: row.score_schedule, safetyEnv: row.score_safety_env, cooperation: row.score_cooperation, financial: row.score_financial });
 
+function evaluationLine(row: EvaluationSql): EvaluationLine {
+  return {
+    id: row.id,
+    contractId: row.contract_id,
+    contractCode: row.contract_code,
+    kind: row.evaluation_kind,
+    periodLabel: row.period_label,
+    revision: row.revision,
+    scores: scoresOf(row),
+    overallScore: row.overall_score,
+    rating: row.rating,
+    status: row.status,
+    evaluatedBy: row.evaluated_by,
+    approvedBy: row.approved_by,
+    approvedAt: row.approved_at,
+    supersedesId: row.supersedes_id,
+    remarks: row.remarks,
+    approvalNote: row.approval_note,
+    createdAt: row.created_at,
+    version: Number(row.version),
+    place: placeOf(row),
+  };
+}
+
 /**
  * The scorecard of a contractor and the log of its violations (ST-CTR-014, CTR 3.6, BR-CTR-11). An evaluation is made on a contract the caller holds `contractor.performance.evaluate` over, with five scores that the rule `CTR.SCORECARD` weights into
  * an overall score and a rating; it is approved by another person (403 `SELF_APPROVAL_DENIED`), and approving a new one for a period that was approved before supersedes the old one. A violation is recorded on a contract that has
@@ -448,29 +472,7 @@ export class CtrScorecardStore {
     // A contractor is there for the caller only through a contract they read: one with none in the scope is not there (404), and its name is not told.
     const [contractor] = contracts.length === 0 ? [] : await tx.query<{ id: string; legal_name: string }>('select id, legal_name from machvon.contractor where id = $1::uuid', [contractorId]);
     if (contractor === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    const lines = evaluations.map(
-      (row): EvaluationLine => ({
-        id: row.id,
-        contractId: row.contract_id,
-        contractCode: row.contract_code,
-        kind: row.evaluation_kind,
-        periodLabel: row.period_label,
-        revision: row.revision,
-        scores: scoresOf(row),
-        overallScore: row.overall_score,
-        rating: row.rating,
-        status: row.status,
-        evaluatedBy: row.evaluated_by,
-        approvedBy: row.approved_by,
-        approvedAt: row.approved_at,
-        supersedesId: row.supersedes_id,
-        remarks: row.remarks,
-        approvalNote: row.approval_note,
-        createdAt: row.created_at,
-        version: Number(row.version),
-        place: placeOf(row),
-      }),
-    );
+    const lines = evaluations.map(evaluationLine);
     const log = violations.map(
       (row): ViolationLine => ({
         id: row.id,
@@ -506,6 +508,38 @@ export class CtrScorecardStore {
         evaluationCount: Number(evaluationTotals?.total ?? 0),
         violationCount: Number(violationTotals?.total ?? 0),
       },
+    };
+  }
+
+  /**
+   * The evaluations of a contractor that are approved and stand, over the contracts the caller reads, the latest approval first, and how many there are and their average: what the evaluators of a bid rely on (ST-BID-013).
+   * The list is bounded; the count and the average are over all of them, and a contractor with none in the scope has an empty answer.
+   */
+  async approvedHistory(tx: TenantTx, contractorId: string, scope: ScopeBuilder): Promise<{ evaluations: EvaluationLine[]; approvedCount: number; averageOverallScore: string | null; contracts: ScorecardContract[] }> {
+    const predicate = scope(2);
+    const params = [contractorId, ...predicate.params];
+    const rows = await tx.query<EvaluationSql>(
+      `select ${PLACE_COLUMNS}, ${EVALUATION_COLUMNS}
+         from machvon.contractor_performance e join ${SCOPE_FROM} on c.tenant_id = e.tenant_id and c.id = e.contract_id
+        where e.contractor_id = $1::uuid and e.status = 'APPROVED' and ${predicate.sql}
+        order by e.approved_at desc, e.id limit ${LIST_MAX}`,
+      params,
+    );
+    const [totals] = await tx.query<{ approved: string; average: string | null }>(
+      `select count(*)::text as approved, round(avg(e.overall_score), 2)::text as average
+         from machvon.contractor_performance e join ${SCOPE_FROM} on c.tenant_id = e.tenant_id and c.id = e.contract_id
+        where e.contractor_id = $1::uuid and e.status = 'APPROVED' and ${predicate.sql}`,
+      params,
+    );
+    const contracts = await tx.query<PlaceSql & { contract_status: string }>(
+      `select ${PLACE_COLUMNS}, c.status as contract_status from ${SCOPE_FROM} where c.contractor_id = $1::uuid and ${predicate.sql} order by c.code, c.id limit ${LIST_MAX}`,
+      params,
+    );
+    return {
+      evaluations: rows.map(evaluationLine),
+      approvedCount: Number(totals?.approved ?? 0),
+      averageOverallScore: totals?.average ?? null,
+      contracts: contracts.map((row) => ({ id: row.contract_id, code: row.contract_code, status: row.contract_status, place: placeOf(row) })),
     };
   }
 }
