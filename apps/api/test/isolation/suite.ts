@@ -404,6 +404,12 @@ export const DATASET_FIXTURES: Readonly<Record<TenantName, { id: string; dataset
   'TNT-B': { id: '00000000-0000-4000-b0d1-000000000001', datasetCode: 'BETA-DATASET-0001', title: 'Beta tenant isolation dataset' },
 };
 
+/** A data product of each tenant, made of the dataset above (its code and its title are distinctive; tenant data). */
+export const PRODUCT_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d4-000000000001', code: 'ALPHA-PRODUCT-0001', title: 'Alpha tenant isolation data product' },
+  'TNT-B': { id: '00000000-0000-4000-b0d4-000000000001', code: 'BETA-PRODUCT-0001', title: 'Beta tenant isolation data product' },
+};
+
 /** A working contract of the dataset above, a DRAFT quality rule of it and a finished quality run (their codes are distinctive; tenant configuration and results). */
 export const QUALITY_FIXTURES: Readonly<Record<TenantName, { contractId: string; ruleId: string; ruleCode: string; runId: string }>> = {
   'TNT-A': { contractId: '00000000-0000-4000-a0d2-000000000001', ruleId: '00000000-0000-4000-a0d2-000000000002', ruleCode: 'ALPHA-QUALITY-RULE-0001', runId: '00000000-0000-4000-a0d2-000000000003' },
@@ -1277,6 +1283,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },
+    { kind: 'data product id', value: PRODUCT_FIXTURES[tenant].id },
+    { kind: 'data product code', value: PRODUCT_FIXTURES[tenant].code },
+    { kind: 'data product title', value: PRODUCT_FIXTURES[tenant].title },
     { kind: 'quality contract id', value: QUALITY_FIXTURES[tenant].contractId },
     { kind: 'quality rule id', value: QUALITY_FIXTURES[tenant].ruleId },
     { kind: 'quality rule code', value: QUALITY_FIXTURES[tenant].ruleCode },

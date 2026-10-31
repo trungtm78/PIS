@@ -1838,3 +1838,11 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-DGV-007 (decision, deprecation): no consumer is written for the deprecation: the revision bound is read through the term at every read, so the warning is always current and there is nothing to keep in step.
 - ST-DGV-007 (decision, index): the unique index of V002 on (dataset, column, term) allowed a dataset to be bound to the same term twice (a NULL column differs from every other NULL); V1024 replaces it with one that treats the whole dataset as a column of its own.
 - ST-DGV-007 (gap): no unbind; coverage is not set against the columns of the dataset (they are in the data contract of ST-DGV-005, not built); nobody is notified when a bound revision is deprecated.
+
+### ST-DGV-009 (certification of data products, slice DGV-1)
+- ST-DGV-009 (decision, contract): the module document names no way to read the products, yet DGV-18 shows them with their conditions, so the read `listDataProducts` was added to the contract, and the error `PRODUCT_STATE_INVALID` (409).
+- ST-DGV-009 (decision, who): the owner of the product may not certify it nor mark it provisional (the document says only "≠ owner" for the certification); the owner may revoke their own product, which is the safe direction.
+- ST-DGV-009 (decision, lines): NOT_ASSESSED to CERTIFIED is allowed directly (the UAT does it); PROVISIONAL cannot be marked again, a certified product is revoked or renewed, and a revoked one is final. The expiry is a transition of the job, not a decision.
+- ST-DGV-009 (decision, run): "the latest run PASSED" is the badge of BR-DGV-04, so a run older than the freshness SLO of the dataset (STALE), a WARNING and a hard fail all refuse with QUALITY_NOT_PASSED.
+- ST-DGV-009 (decision, event): the expiry announces `dgv.product.expired.v1`, an event the document does not list, because BI has to learn that the badge changed and `dgv.product.certified.v1` is the event of a decision.
+- ST-DGV-009 (gap): no command creates or edits a data product; no consumer of the two events; the contract is read as the status of `dataset_contract` (ST-DGV-005 is not built).

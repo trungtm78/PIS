@@ -31,6 +31,13 @@ describe('PermissionResourceAccess', () => {
     expect(port.canRead(tenant, { type: 'report', id: PROJECT_A }, NOW)).toBe(false);
   });
 
+  it('reads a data product with the right to read the catalogue of data, and with no right named after the type', () => {
+    const catalog = access({ kind: 'TENANT' }, ['data.catalog.read']);
+    expect(port.canRead(catalog, { type: 'data_product', id: PROJECT_A }, NOW)).toBe(true);
+    expect(port.canRead(access({ kind: 'TENANT' }, ['data_product.read']), { type: 'data_product', id: PROJECT_A }, NOW)).toBe(false);
+    expect(port.canRead(access({ kind: 'TENANT' }, ['project.read']), { type: 'data_product', id: PROJECT_A }, NOW)).toBe(false);
+  });
+
   it('keeps a project-scoped grant to its own project and never pools it for another project', () => {
     const forA = access({ kind: 'PROJECT', refIds: [PROJECT_A] });
     expect(port.canRead(forA, { type: 'project', id: PROJECT_A, projectId: PROJECT_A }, NOW)).toBe(true);

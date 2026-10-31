@@ -43,6 +43,9 @@ function scopeReaches(scope: Scope, resource: ResourceRef): boolean {
   }
 }
 
+/** The resource types whose read permission is not `<type>.read`: a data product is read with the right to read the catalogue of data (ST-DGV-009). */
+const READ_PERMISSION_OF: Readonly<Record<string, string>> = { data_product: 'data.catalog.read' };
+
 /**
  * The default port: the member needs the `<resource type>.read` permission from a grant whose scope contains the
  * resource. A tenant-wide grant reaches every resource; a project or contract grant only its own project or contract;
@@ -53,7 +56,7 @@ function scopeReaches(scope: Scope, resource: ResourceRef): boolean {
 export class PermissionResourceAccess implements ResourceAccessPort {
   canRead(access: EffectiveAccess, resource: ResourceRef, now: Date): boolean {
     if (!access.membershipActive) return false;
-    const permission = `${resource.type}.read`;
+    const permission = READ_PERMISSION_OF[resource.type] ?? `${resource.type}.read`;
     return activeGrants(access, now).some((grant) => holdsPermission(new Set(grant.permissions), permission) && scopeReaches(grant.scope, resource));
   }
 }

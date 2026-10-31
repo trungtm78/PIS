@@ -529,6 +529,8 @@ export { EXCEPTION_DECISIONS, INCIDENT_DECISIONS, INCIDENT_STATUSES, INCIDENT_WO
 export type { ExceptionDecision, IncidentDecision, IncidentStatus, IncidentWorkStatus, RerunEvidence } from './dgv-incident.ts';
 export { DIFFERENCE_KINDS, RECON_BASIS, RECON_SOURCE_A, RECON_SOURCE_B, assertComparable, assertPeriod, convertAmount, countByKind, gateBatch, reconcileSources, unitFactor } from './dgv-recon.ts';
 export type { ConfirmedMapping, ReconDifference, DifferenceKind, GateOutcome, ReconOutcome, ReconResult, ReportedLine, TreasuryLine } from './dgv-recon.ts';
+export { MAX_EVIDENCE, MAX_EVIDENCE_BYTES, PRODUCT_DECISIONS, PRODUCT_STATUSES, assertProductDecision, nextProductStatus } from './dgv-product.ts';
+export type { ProductDecision, ProductDecisionInput, ProductStatus } from './dgv-product.ts';
 export { PROFILE_LOCALES, isTimeZone, maskEmail, parseProfilePatch } from './iam-profile.ts';
 export type { ProfileLocale, ProfilePatch } from './iam-profile.ts';
 export { REORGANIZATION_KINDS, assertValidReorganization, successorOf as reorganizationSuccessorOf, unmapped as unmappedByReorganization, validateReorganization } from './adm-reorganization.ts';

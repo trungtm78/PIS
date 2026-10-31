@@ -86,6 +86,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'DGV-08': () => import('../../screens/dgv/incident/IncidentWorkspaceScreen'),
   'DGV-09': () => import('../../screens/dgv/source/ReconciliationScreen'),
   'DGV-14': () => import('../../screens/dgv/source/PipelineScreen'),
+  'DGV-18': () => import('../../screens/dgv/product/ProductsScreen'),
   'DGV-20': () => import('../../screens/dgv/source/MappingScreen'),
   'DIS-01': () => import('../../screens/dis/report/ReportListScreen'),
   'DIS-02': () => import('../../screens/dis/report/ReportCreateScreen'),

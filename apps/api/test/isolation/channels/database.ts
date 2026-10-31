@@ -18,6 +18,7 @@ import {
   MASTER_IMPORT_FIXTURES,
   CROSSWALK_FIXTURES,
   DATASET_FIXTURES,
+  PRODUCT_FIXTURES,
   GLOSSARY_FIXTURES,
   MEMBERSHIP_FIXTURES,
   NOTIFICATION_FIXTURES,
@@ -439,6 +440,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'assignDatasetOwnership',
   'bindGlossaryTermToDataset',
   'listDatasetGlossaryBindings',
+  'certifyDataProduct',
+  'listDataProducts',
   'searchCatalog',
   'createQualityRuleVersion',
   'approveQualityRuleVersion',
@@ -1266,6 +1269,10 @@ const INSERT_DATASET = `insert into machvon.dataset
   (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'ISOLATION', 'one row per isolation case', 'PAY', $5, $5, 'PUBLIC', false, 3600, 'DRAFT', $6, $6) on conflict do nothing`;
 
+const INSERT_DATA_PRODUCT = `insert into machvon.data_product
+  (tenant_id, id, code, title, dataset_ids, owner_user_id, created_by, updated_by)
+  values ($1, $2, $3, $4, jsonb_build_array($5::text), $6, $7, $7) on conflict do nothing`;
+
 const INSERT_QUALITY_CONTRACT = `insert into machvon.dataset_contract
   (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id)
   values ($1, $2, $3, 1, $4, '{}'::jsonb, '{}'::jsonb, 3600, 'PUBLIC', 'DRAFT', $5) on conflict do nothing`;
@@ -1875,6 +1882,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_USAGE_EVENT, [tenantId, usage.id, usage.externalKey, usage.sourceReference]);
     const dataset = DATASET_FIXTURES[tenant];
     await client.query(INSERT_DATASET, [tenantId, dataset.id, dataset.datasetCode, dataset.title, MEMBERSHIP_ID, ACTOR_ID]);
+    const product = PRODUCT_FIXTURES[tenant];
+    await client.query(INSERT_DATA_PRODUCT, [tenantId, product.id, product.code, product.title, dataset.id, MEMBERSHIP_ID, ACTOR_ID]);
     const quality = QUALITY_FIXTURES[tenant];
     await client.query(INSERT_QUALITY_CONTRACT, [tenantId, quality.contractId, dataset.datasetCode, MEMBERSHIP_ID, dataset.id]);
     await client.query(INSERT_QUALITY_RULE, [tenantId, quality.ruleId, quality.contractId, dataset.id, quality.ruleCode, ACTOR_ID]);

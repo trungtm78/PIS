@@ -552,6 +552,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listConflictDeclarations': BidConflictDeclarationListResponse.fromJson,
   'listContractorExports': ContractorExportPageResponse.fromJson,
   'listConversationAssignees': ConversationAssigneeListResponse.fromJson,
+  'listDataProducts': DgvDataProductsResponse.fromJson,
   'listDatasetGlossaryBindings': DgvGlossaryBindingsResponse.fromJson,
   'listDisbursementSchedules': asObject,
   'listDocumentNumberRegisters': asObject,
@@ -6322,6 +6323,178 @@ final class DeviceRegistrationResponse implements ResponseModel {
         'status': status,
         if (revokedAt != null) 'revoked_at': revokedAt,
         if (revokeReason != null) 'revoke_reason': revokeReason,
+        ...extra,
+      };
+}
+
+final class DgvDataProductResponse implements ResponseModel {
+  const DgvDataProductResponse({
+    required this.id,
+    required this.code,
+    required this.title,
+    required this.owner,
+    required this.datasets,
+    required this.datasetsHidden,
+    required this.certificationStatus,
+    required this.certifiedBy,
+    required this.certifiedAt,
+    required this.certificationExpiresOn,
+    required this.evidenceCount,
+    required this.revokeReason,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvDataProductResponse.fromJson(Object? json, [String path = 'DgvDataProductResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvDataProductResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      title: requiredField(map, path, 'title', asString),
+      owner: requiredField(map, path, 'owner', DgvDataProductResponseOwner.fromJson),
+      datasets: requiredField(map, path, 'datasets', asList(DgvDataProductResponseDatasetsItem.fromJson)),
+      datasetsHidden: requiredField(map, path, 'datasets_hidden', asInt),
+      certificationStatus: requiredField(map, path, 'certification_status', asString),
+      certifiedBy: requiredField(map, path, 'certified_by', asAny),
+      certifiedAt: requiredField(map, path, 'certified_at', nullable(asString)),
+      certificationExpiresOn: requiredField(map, path, 'certification_expires_on', nullable(asString)),
+      evidenceCount: requiredField(map, path, 'evidence_count', asInt),
+      revokeReason: requiredField(map, path, 'revoke_reason', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'title', 'owner', 'datasets', 'datasets_hidden', 'certification_status', 'certified_by', 'certified_at', 'certification_expires_on', 'evidence_count', 'revoke_reason', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String title;
+  final DgvDataProductResponseOwner owner;
+  final List<DgvDataProductResponseDatasetsItem> datasets;
+  final int datasetsHidden;
+  final String certificationStatus;
+  final Object? certifiedBy;
+  final String? certifiedAt;
+  final String? certificationExpiresOn;
+  final int evidenceCount;
+  final String? revokeReason;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'title': title,
+        'owner': owner.toJson(),
+        'datasets': datasets.map((e0) => e0.toJson()).toList(),
+        'datasets_hidden': datasetsHidden,
+        'certification_status': certificationStatus,
+        'certified_by': certifiedBy,
+        'certified_at': certifiedAt,
+        'certification_expires_on': certificationExpiresOn,
+        'evidence_count': evidenceCount,
+        'revoke_reason': revokeReason,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class DgvDataProductResponseDatasetsItem implements ResponseModel {
+  const DgvDataProductResponseDatasetsItem({
+    required this.id,
+    required this.datasetCode,
+    required this.title,
+    required this.contractPublished,
+    required this.qualityBadge,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvDataProductResponseDatasetsItem.fromJson(Object? json, [String path = 'DgvDataProductResponseDatasetsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvDataProductResponseDatasetsItem(
+      id: requiredField(map, path, 'id', asString),
+      datasetCode: requiredField(map, path, 'dataset_code', asString),
+      title: requiredField(map, path, 'title', asString),
+      contractPublished: requiredField(map, path, 'contract_published', asBool),
+      qualityBadge: requiredField(map, path, 'quality_badge', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'dataset_code', 'title', 'contract_published', 'quality_badge'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String datasetCode;
+  final String title;
+  final bool contractPublished;
+  final String qualityBadge;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'dataset_code': datasetCode,
+        'title': title,
+        'contract_published': contractPublished,
+        'quality_badge': qualityBadge,
+        ...extra,
+      };
+}
+
+final class DgvDataProductResponseOwner implements ResponseModel {
+  const DgvDataProductResponseOwner({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvDataProductResponseOwner.fromJson(Object? json, [String path = 'DgvDataProductResponseOwner']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvDataProductResponseOwner(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String? displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class DgvDataProductsResponse implements ResponseModel {
+  const DgvDataProductsResponse({
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvDataProductsResponse.fromJson(Object? json, [String path = 'DgvDataProductsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvDataProductsResponse(
+      items: requiredField(map, path, 'items', asList(DgvDataProductResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'items'}, strict: true),
+    );
+  }
+
+  final List<DgvDataProductResponse> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }

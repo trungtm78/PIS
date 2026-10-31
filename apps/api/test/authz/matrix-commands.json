@@ -18,6 +18,7 @@
     "assignCorrectiveAction",
     "assignDatasetOwnership",
     "bindGlossaryTermToDataset",
+    "certifyDataProduct",
     "assignIssue",
     "assignNationalProjectCode",
     "assignOutgoingDocumentNumber",

@@ -5329,6 +5329,14 @@
       "module": "PRJ",
       "statusBasis": "convention",
       "source": "openapi"
+    },
+    "PRODUCT_STATE_INVALID": {
+      "status": 409,
+      "title": "Product state invalid",
+      "meaning": "Raised by certifyDataProduct (POST /dgv/data-products/{id}/certification): a product goes from not assessed to provisional or certified, from certified to certified again, provisional (by expiry) or revoked, and a product that was revoked is not certified again",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "openapi"
     }
   }
 }

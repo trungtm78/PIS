@@ -1574,6 +1574,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dgv/datasets/${t.datasetId}/glossary-bindings`, body: { glossary_term_id: t.legalHoldId, column_name: 'amount' } }),
   },
+  certifyDataProduct: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/data-products/${t.datasetId}/certification`, ifMatch: '"1"', body: { decision: 'PROVISIONAL', reason: REASON, evidence_refs: [] } }),
+  },
   assignDatasetOwnership: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dgv/datasets/${t.datasetId}/ownership`, ifMatch: '"1"', body: { owner_user_id: t.recipientMembershipId, steward_user_id: t.recipientMembershipId, reason: REASON } }),

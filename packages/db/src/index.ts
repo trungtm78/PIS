@@ -540,6 +540,8 @@ export { DgvMappingStore, DgvReconciliationStore, MAX_DIFFERENCES } from './dgv-
 export type { BatchGateRecord, MappingFilters, MappingRecord, MappingStatus, ReconDifferenceRecord, ReconciliationRecord } from './dgv-source-store.ts';
 export { DgvIncidentSweepJob, EXCEPTION_REOPENED_EVENT, INCIDENT_SLA_BREACHED_EVENT } from './dgv-incident-job.ts';
 export type { DgvSweepSummary } from './dgv-incident-job.ts';
+export { DgvProductExpiryJob, PRODUCT_CERT_EXPIRED_EVENT } from './dgv-product-job.ts';
+export type { DgvProductExpirySummary } from './dgv-product-job.ts';
 export type { ExceptionFilters, ExceptionRecord, IncidentEventRecord, IncidentFilters, IncidentRecord, SweepResult } from './dgv-incident-store.ts';
 export { DOSSIER_SCOPE_COLUMNS, DocDossierStore } from './doc-dossier-store.ts';
 export type { DossierFilters, DossierItemRecord, DossierPageAnchor, DossierRecord, FileableDocument, NewDossier as NewDocDossier, RetentionRuleRecord, RuleFilters } from './doc-dossier-store.ts';
@@ -732,3 +734,5 @@ export { FeatureFlagStore } from './feature-flag-store.ts';
 export type { FlagChange, FlagRow } from './feature-flag-store.ts';
 export { DgvGlossaryStore, GLOSSARY_BINDING_RESOURCE } from './dgv-glossary-store.ts';
 export type { BindRequest, BoundTerm, GlossaryBindingLine, GlossaryCoverage } from './dgv-glossary-store.ts';
+export { DATA_PRODUCT_RESOURCE, DgvProductStore } from './dgv-product-store.ts';
+export type { CertifiedProduct, LapsedProduct, ProductDataset, ProductLine } from './dgv-product-store.ts';

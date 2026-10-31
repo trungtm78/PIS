@@ -549,6 +549,7 @@ export const OPERATIONS = {
   "listConflictDeclarations": { method: "get", path: "/procurement-packages/{id}/conflict-declarations", versioned: false, stepUp: null, permission: "bid.read" },
   "listContractorExports": { method: "get", path: "/contractor-exports", versioned: false, stepUp: null, permission: "contractor.export" },
   "listConversationAssignees": { method: "get", path: "/conversations/{conversationId}/assignees", versioned: false, stepUp: null, permission: "omni.conversation.assign" },
+  "listDataProducts": { method: "get", path: "/dgv/data-products", versioned: false, stepUp: null, permission: "data.catalog.read" },
   "listDatasetGlossaryBindings": { method: "get", path: "/dgv/datasets/{id}/glossary-bindings", versioned: false, stepUp: null, permission: "data.catalog.read" },
   "listDisbursementSchedules": { method: "get", path: "/disbursement-schedules", versioned: false, stepUp: null, permission: "capital.read" },
   "listDocumentNumberRegisters": { method: "get", path: "/document-number-registers", versioned: false, stepUp: null, permission: "doc.register.read" },

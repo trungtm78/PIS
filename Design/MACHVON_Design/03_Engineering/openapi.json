@@ -122771,7 +122771,9 @@
           "SELF_APPROVAL_DENIED",
           "QUALITY_NOT_PASSED",
           "CONTRACT_NOT_PUBLISHED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "PRODUCT_STATE_INVALID",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -133092,6 +133094,69 @@
         "x-exposure": "dto",
         "x-exposure-reason": "Chỉ khóa cờ và trạng thái bật/tắt của tenant gọi",
         "x-plane": "tenant"
+      }
+    },
+    "/dgv/data-products": {
+      "get": {
+        "operationId": "listDataProducts",
+        "summary": "Data product với trạng thái chứng nhận, hạn và điều kiện chứng nhận của từng dataset (DGV-18)",
+        "tags": [
+          "DGV"
+        ],
+        "x-permission": "data.catalog.read",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DgvDataProducts"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -162740,6 +162805,169 @@
               "terms": {
                 "type": "integer"
               }
+            }
+          }
+        }
+      },
+      "DgvDataProduct": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "title",
+          "owner",
+          "datasets",
+          "datasets_hidden",
+          "certification_status",
+          "certified_by",
+          "certified_at",
+          "certification_expires_on",
+          "evidence_count",
+          "revoke_reason",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "dataset_code",
+                "title",
+                "contract_published",
+                "quality_badge"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "dataset_code": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "contract_published": {
+                  "type": "boolean"
+                },
+                "quality_badge": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "datasets_hidden": {
+            "type": "integer"
+          },
+          "certification_status": {
+            "type": "string",
+            "enum": [
+              "NOT_ASSESSED",
+              "PROVISIONAL",
+              "CERTIFIED",
+              "REVOKED"
+            ]
+          },
+          "certified_by": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "membership_id",
+                  "display_name"
+                ],
+                "properties": {
+                  "membership_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "display_name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "certified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "certification_expires_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "evidence_count": {
+            "type": "integer"
+          },
+          "revoke_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "DgvDataProducts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DgvDataProduct"
             }
           }
         }
