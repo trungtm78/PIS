@@ -584,6 +584,8 @@
   "listMasterTypePolicies": {},
   "listMaterialContracts": {},
   "listMaterialTests": {},
+  "listMneEvaluationProjects": {"items":[{"id":"00000000-0000-4000-8000-000000000001","code":"sample","name":"sample","status":"sample"}],"next_cursor":"sample","as_of":"2026-01-01T00:00:00Z"},
+  "listMneEvaluations": {"items":[{"id":"00000000-0000-4000-8000-000000000001","project":{"id":"00000000-0000-4000-8000-000000000001","code":"sample","name":"sample"},"evaluation_kind":"INITIAL","evaluator_kind":"INTERNAL","evaluator_name":"sample","scope_text":"sample","planned_date":"2026-01-01","status":"PLANNED","findings":[{}],"conclusion":"SATISFACTORY","recommendations_text":"sample","completed_date":"2026-01-01","report_document_id":"00000000-0000-4000-8000-000000000001","mne_report_id":"00000000-0000-4000-8000-000000000001","submitted_by":"00000000-0000-4000-8000-000000000001","submitted_at":"2026-01-01T00:00:00Z","decided_by":"00000000-0000-4000-8000-000000000001","decided_at":"2026-01-01T00:00:00Z","decision_reason":"sample","created_at":"2026-01-01T00:00:00Z","actions":{"submit":true,"decide":true},"version":1}],"next_cursor":"sample","as_of":"2026-01-01T00:00:00Z"},
   "listMneForms": {},
   "listMneObligationRules": {},
   "listMneObligations": {"items":[{"obligation_rule_id":"00000000-0000-4000-8000-000000000001","rule_revision":1,"scope_unit_id":"00000000-0000-4000-8000-000000000001","form_code":"sample","due_date":"2026-01-01","status":"sample","is_late":true,"days_late":1,"mne_report_id":"00000000-0000-4000-8000-000000000001"}],"next_cursor":"sample"},

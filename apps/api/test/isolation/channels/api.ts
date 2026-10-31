@@ -83,7 +83,7 @@ import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, ENFORCEMENT_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, MNE_EVALUATION_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, ENFORCEMENT_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { EXPORT_FIXTURES, INVOICE_FIXTURES, RECONCILIATION_FIXTURES, SETTLEMENT_FIXTURES, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
@@ -579,6 +579,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_asset_record_id', method: 'GET', id: HANDOVER_FIXTURES['TNT-B'].assetId },
   { operation: 'closeWarrantyObligation', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].warrantyId, body: { note: 'Isolation foreign close attempt' } },
   { operation: 'recordMaterialTestResult', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].materialId, versioned: true, body: { result: 'PASS', tested_on: '2026-12-21', result_values: {}, report_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
+  { operation: 'submitMneEvaluation', method: 'POST', id: MNE_EVALUATION_FIXTURES['TNT-B'].id, versioned: true, body: { findings: [], conclusion: 'SATISFACTORY', completed_date: '2026-10-30' } },
+  { operation: 'decideMneEvaluation', method: 'POST', id: MNE_EVALUATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision attempt' } },
   { operation: 'advanceEnforcement', method: 'POST', id: ENFORCEMENT_FIXTURES['TNT-B'].id, versioned: true, body: { to_step: 'NOTICE' } },
   { operation: 'fileWarrantyClaim', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].warrantyId, body: { claim_no: 'ISOLATION-1', reported_on: '2026-12-21', defect_description: 'Isolation foreign claim attempt', severity: 'MINOR', responder_contractor_id: CONTRACTOR_FIXTURES['TNT-B'].id } },
   { operation: 'acknowledgeWarrantyClaim', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].claimId, versioned: true, body: { committed_fix_on: '2026-12-30' } },

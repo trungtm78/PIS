@@ -187,6 +187,12 @@ export const ENFORCEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; leg
   'TNT-B': { id: '00000000-0000-4000-b0d8-000000000001', legalBasis: 'BETA-ENFORCEMENT-LEGAL-BASIS-0001' },
 };
 
+/** An investment evaluation of the project of each tenant (its scope text is distinctive). */
+export const MNE_EVALUATION_FIXTURES: Readonly<Record<TenantName, { id: string; scopeText: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d9-000000000001', scopeText: 'ALPHA-EVALUATION-SCOPE-TEXT-0001 of the midterm evaluation' },
+  'TNT-B': { id: '00000000-0000-4000-b0d9-000000000001', scopeText: 'BETA-EVALUATION-SCOPE-TEXT-0001 of the midterm evaluation' },
+};
+
 export const COMPLAINT_FIXTURES: Readonly<Record<TenantName, { id: string; number: string; words: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bc-000000000001', number: 'LC-000901', words: 'Alpha complainant says the price is far too low' },
   'TNT-B': { id: '00000000-0000-4000-b0bc-000000000001', number: 'LC-000902', words: 'Beta complainant says the area is wrong' },
@@ -1307,6 +1313,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },
+    { kind: 'mne evaluation id', value: MNE_EVALUATION_FIXTURES[tenant].id },
+    { kind: 'mne evaluation scope', value: MNE_EVALUATION_FIXTURES[tenant].scopeText },
     { kind: 'enforcement case id', value: ENFORCEMENT_FIXTURES[tenant].id },
     { kind: 'enforcement legal basis', value: ENFORCEMENT_FIXTURES[tenant].legalBasis },
     { kind: 'resettlement allocation id', value: ALLOCATION_FIXTURES[tenant].id },

@@ -2282,6 +2282,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/land-enforcement-cases/${t.legalHoldId}/advance`, ifMatch: '"1"', body: { to_step: 'NOTICE' } }),
   },
+  // The investment evaluation of a project: a caller that is refused plans, submits and decides nothing.
+  planMneEvaluation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/mne-evaluations', body: { project_id: t.projectId, evaluation_kind: 'AD_HOC', evaluator_kind: 'INTERNAL', evaluator_name: 'MNE office', scope_text: 'The evaluation asked for by the test', planned_date: '2026-12-01' } }),
+  },
+  submitMneEvaluation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-evaluations/${t.legalHoldId}/submit`, ifMatch: '"1"', body: { findings: [], conclusion: 'SATISFACTORY', completed_date: '2026-10-30' } }),
+  },
+  decideMneEvaluation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/mne-evaluations/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
   // The testing of materials: a caller that is refused registers no sample and records no result.
   registerMaterialTest: {
     referencesTenantIds: true,

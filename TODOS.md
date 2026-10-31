@@ -1888,6 +1888,14 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-AST-006 (decision, reminder): the one who set the trigger is told when it falls due, through the notification service.
 - ST-AST-006 (gap): the text says the system proposes a trigger when a handover is accepted or the settlement is closed; nothing sets one by itself (the screen proposes the day). `CANCELLED` has no command. MNE has no read of its evaluations, so the screen takes the code of the evaluation as typed.
 
+### ST-MNE-009 (investment evaluation tied to the project stage, slice MNE-1)
+- ST-MNE-009 (decision, contract): the module document names no way to read the evaluations, yet MNE-08 lists them, so the read `listMneEvaluations` (`mne.read`) was added; the answer carries `actions` (submit, decide) for the caller.
+- ST-MNE-009 (decision, status): the document has PLANNED → IN_PROGRESS → SUBMITTED but the contract has no command to start an evaluation, so submit starts from PLANNED, IN_PROGRESS or RETURNED; IN_PROGRESS stays in the table and the guard.
+- ST-MNE-009 (decision, stages, CXN-13): INITIAL in IMPLEMENTATION within 12 months of the day the project entered it (status_changed_at, Vietnam time), MIDTERM in IMPLEMENTATION, FINAL in COMPLETED or SETTLED, IMPACT in CLOSED, AD_HOC anywhere, as the document lists; a refusal names the kind and the stage.
+- ST-MNE-009 (decision, SoD): the decider is neither the planner nor the submitter (the table only forbade the planner); returning records the decision and submitting again clears it, so the one who returned may resubmit and a third person decides.
+- ST-MNE-009 (decision, link): an approved evaluation is linked to the overall report (no project) due soonest that is still DRAFT, IN_REVIEW or RETURNED in the unit that owns the project or above it; with none, the link stays empty and is not made later.
+- ST-MNE-009 (gap): the report that reads its linked evaluations is ST-MNE-002 territory and was not changed here.
+
 ### ST-PAY-012 (settlement forms and calendar, slice PAY-1)
 - ST-PAY-012 (decision, contract): the module document names no way to read the forms of a settlement, yet PAY-16 lists them, so the read `listSettlementForms` (`settlement_revision.read`) was added; `generateSettlementForms` takes the `place` of the place-and-date line as the Treasury forms do and the 17 codes as an enum, and answers with the forms drawn (two changes against the contract allowed in `compat-allow.json`: the operation had no client).
 - ST-PAY-012 (decision, scope): the forms are drawn for a settlement that is VERIFIED (UAT-AC340 starts there) and of a year or a project; a settlement of one contract has none. The forms live in `payment_form_instance` (the table already carries the settlement as a subject) and not in a table of their own.

@@ -5348,7 +5348,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các đánh giá đầu tư của dự án trong phạm vi người đọc (mới nhất trước) */
+        get: operations["listMneEvaluations"];
         put?: never;
         /** Lập kế hoạch đánh giá đầu tư */
         post: operations["planMneEvaluation"];
@@ -15475,6 +15476,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mne-evaluations/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các dự án người đọc đánh giá đầu tư được (theo mã dự án) */
+        get: operations["listMneEvaluationProjects"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -23793,6 +23811,71 @@ export interface components {
              * @description Bản dự thảo của quyết định 10/QTDA trong DOC, khi biểu mẫu này vừa được sinh
              */
             decision_draft_id?: string | null;
+        };
+        MneEvaluation: {
+            /** Format: uuid */
+            id: string;
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            };
+            /** @enum {string} */
+            evaluation_kind: "INITIAL" | "MIDTERM" | "FINAL" | "IMPACT" | "AD_HOC";
+            /** @enum {string} */
+            evaluator_kind: "INTERNAL" | "INDEPENDENT_CONSULTANT";
+            evaluator_name: string;
+            scope_text: string;
+            /** Format: date */
+            planned_date: string;
+            /** @enum {string} */
+            status: "PLANNED" | "IN_PROGRESS" | "SUBMITTED" | "APPROVED" | "RETURNED";
+            findings: Record<string, never>[];
+            /** @enum {string|null} */
+            conclusion?: "SATISFACTORY" | "PARTIALLY_SATISFACTORY" | "UNSATISFACTORY" | null;
+            recommendations_text?: string | null;
+            /** Format: date */
+            completed_date?: string | null;
+            /** Format: uuid */
+            report_document_id?: string | null;
+            /** Format: uuid */
+            mne_report_id?: string | null;
+            /** Format: uuid */
+            submitted_by?: string | null;
+            /** Format: date-time */
+            submitted_at?: string | null;
+            /** Format: uuid */
+            decided_by?: string | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            decision_reason?: string | null;
+            /** Format: date-time */
+            created_at?: string;
+            actions: {
+                submit: boolean;
+                decide: boolean;
+            };
+            version: number;
+        };
+        MneEvaluationPage: {
+            items: components["schemas"]["MneEvaluation"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        MneEvaluationProject: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            status: string;
+        };
+        MneEvaluationProjectPage: {
+            items: components["schemas"]["MneEvaluationProject"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -56881,6 +56964,85 @@ export interface operations {
             };
             /** @description Domain invariant failure */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listMneEvaluations: {
+        parameters: {
+            query?: {
+                project_id?: string;
+                status?: "PLANNED" | "IN_PROGRESS" | "SUBMITTED" | "APPROVED" | "RETURNED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MneEvaluationPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -117405,6 +117567,83 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listMneEvaluationProjects: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MneEvaluationProjectPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

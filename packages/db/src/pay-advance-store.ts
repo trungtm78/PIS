@@ -424,7 +424,7 @@ export class PayAdvanceStore {
       `${SELECT}
         where ${predicate.sql} and a.last_alert_level > 0 and a.paid_vnd > a.recovered_vnd and ($1::int is null or a.last_alert_level = $1::int)
           and ($2::text is null or (${TIMESTAMP('a.created_at')}, a.id) < ($2::text, $3::uuid))
-        order by a.created_at desc, a.id desc limit ${Math.min(Math.max(filter.limit ?? 50, 1), MAX_PAGE + 1)}`,
+        order by ${TIMESTAMP('a.created_at')} desc, a.id desc limit ${Math.min(Math.max(filter.limit ?? 50, 1), MAX_PAGE + 1)}`,
       [filter.level ?? null, filter.after?.createdAt ?? null, filter.after?.id ?? null, ...predicate.params],
     );
     return rows.map(toView);
@@ -452,7 +452,7 @@ export class PayAdvanceStore {
       `${SELECT}
         where ${predicate.sql} and ($1::uuid is null or a.contract_id = $1::uuid) and ($2::text is null or a.status = $2)
           and ($3::text is null or (${TIMESTAMP('a.created_at')}, a.id) < ($3::text, $4::uuid))
-        order by a.created_at desc, a.id desc limit ${Math.min(Math.max(filter.limit ?? 50, 1), MAX_PAGE + 1)}`,
+        order by ${TIMESTAMP('a.created_at')} desc, a.id desc limit ${Math.min(Math.max(filter.limit ?? 50, 1), MAX_PAGE + 1)}`,
       [contractId, status, filter.after?.createdAt ?? null, filter.after?.id ?? null, ...predicate.params],
     );
     return rows.map(toView);

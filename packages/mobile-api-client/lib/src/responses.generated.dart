@@ -588,6 +588,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMasterTypePolicies': asObject,
   'listMaterialContracts': asObject,
   'listMaterialTests': asObject,
+  'listMneEvaluationProjects': MneEvaluationProjectPageResponse.fromJson,
+  'listMneEvaluations': MneEvaluationPageResponse.fromJson,
   'listMneForms': asObject,
   'listMneObligationRules': asObject,
   'listMneObligations': MneObligationStatusResponse.fromJson,
@@ -17324,6 +17326,286 @@ final class MdmUsageResponse implements ResponseModel {
         if (asOf != null) 'as_of': asOf,
         if (counts != null) 'counts': counts,
         if (samples != null) 'samples': samples,
+        ...extra,
+      };
+}
+
+final class MneEvaluationPageResponse implements ResponseModel {
+  const MneEvaluationPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MneEvaluationPageResponse.fromJson(Object? json, [String path = 'MneEvaluationPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MneEvaluationPageResponse(
+      items: requiredField(map, path, 'items', asList(MneEvaluationResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<MneEvaluationResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class MneEvaluationProjectPageResponse implements ResponseModel {
+  const MneEvaluationProjectPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MneEvaluationProjectPageResponse.fromJson(Object? json, [String path = 'MneEvaluationProjectPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MneEvaluationProjectPageResponse(
+      items: requiredField(map, path, 'items', asList(MneEvaluationProjectResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<MneEvaluationProjectResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class MneEvaluationProjectResponse implements ResponseModel {
+  const MneEvaluationProjectResponse({
+    required this.id,
+    required this.code,
+    required this.name,
+    required this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MneEvaluationProjectResponse.fromJson(Object? json, [String path = 'MneEvaluationProjectResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MneEvaluationProjectResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      status: requiredField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'status'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+  final String status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        'status': status,
+        ...extra,
+      };
+}
+
+final class MneEvaluationResponse implements ResponseModel {
+  const MneEvaluationResponse({
+    required this.id,
+    required this.project,
+    required this.evaluationKind,
+    required this.evaluatorKind,
+    required this.evaluatorName,
+    required this.scopeText,
+    required this.plannedDate,
+    required this.status,
+    required this.findings,
+    required this.actions,
+    required this.version,
+    this.conclusion,
+    this.recommendationsText,
+    this.completedDate,
+    this.reportDocumentId,
+    this.mneReportId,
+    this.submittedBy,
+    this.submittedAt,
+    this.decidedBy,
+    this.decidedAt,
+    this.decisionReason,
+    this.createdAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MneEvaluationResponse.fromJson(Object? json, [String path = 'MneEvaluationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MneEvaluationResponse(
+      id: requiredField(map, path, 'id', asString),
+      project: requiredField(map, path, 'project', MneEvaluationResponseProject.fromJson),
+      evaluationKind: requiredField(map, path, 'evaluation_kind', asString),
+      evaluatorKind: requiredField(map, path, 'evaluator_kind', asString),
+      evaluatorName: requiredField(map, path, 'evaluator_name', asString),
+      scopeText: requiredField(map, path, 'scope_text', asString),
+      plannedDate: requiredField(map, path, 'planned_date', asString),
+      status: requiredField(map, path, 'status', asString),
+      findings: requiredField(map, path, 'findings', asList(asObject)),
+      conclusion: optionalField(map, path, 'conclusion', nullable(asString)),
+      recommendationsText: optionalField(map, path, 'recommendations_text', nullable(asString)),
+      completedDate: optionalField(map, path, 'completed_date', nullable(asString)),
+      reportDocumentId: optionalField(map, path, 'report_document_id', nullable(asString)),
+      mneReportId: optionalField(map, path, 'mne_report_id', nullable(asString)),
+      submittedBy: optionalField(map, path, 'submitted_by', nullable(asString)),
+      submittedAt: optionalField(map, path, 'submitted_at', nullable(asString)),
+      decidedBy: optionalField(map, path, 'decided_by', nullable(asString)),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: optionalField(map, path, 'decision_reason', nullable(asString)),
+      createdAt: optionalField(map, path, 'created_at', asString),
+      actions: requiredField(map, path, 'actions', MneEvaluationResponseActions.fromJson),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'project', 'evaluation_kind', 'evaluator_kind', 'evaluator_name', 'scope_text', 'planned_date', 'status', 'findings', 'conclusion', 'recommendations_text', 'completed_date', 'report_document_id', 'mne_report_id', 'submitted_by', 'submitted_at', 'decided_by', 'decided_at', 'decision_reason', 'created_at', 'actions', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final MneEvaluationResponseProject project;
+  final String evaluationKind;
+  final String evaluatorKind;
+  final String evaluatorName;
+  final String scopeText;
+  final String plannedDate;
+  final String status;
+  final List<Map<String, Object?>> findings;
+  final String? conclusion;
+  final String? recommendationsText;
+  final String? completedDate;
+  final String? reportDocumentId;
+  final String? mneReportId;
+  final String? submittedBy;
+  final String? submittedAt;
+  final String? decidedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? createdAt;
+  final MneEvaluationResponseActions actions;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project': project.toJson(),
+        'evaluation_kind': evaluationKind,
+        'evaluator_kind': evaluatorKind,
+        'evaluator_name': evaluatorName,
+        'scope_text': scopeText,
+        'planned_date': plannedDate,
+        'status': status,
+        'findings': findings,
+        if (conclusion != null) 'conclusion': conclusion,
+        if (recommendationsText != null) 'recommendations_text': recommendationsText,
+        if (completedDate != null) 'completed_date': completedDate,
+        if (reportDocumentId != null) 'report_document_id': reportDocumentId,
+        if (mneReportId != null) 'mne_report_id': mneReportId,
+        if (submittedBy != null) 'submitted_by': submittedBy,
+        if (submittedAt != null) 'submitted_at': submittedAt,
+        if (decidedBy != null) 'decided_by': decidedBy,
+        if (decidedAt != null) 'decided_at': decidedAt,
+        if (decisionReason != null) 'decision_reason': decisionReason,
+        if (createdAt != null) 'created_at': createdAt,
+        'actions': actions.toJson(),
+        'version': version,
+        ...extra,
+      };
+}
+
+final class MneEvaluationResponseActions implements ResponseModel {
+  const MneEvaluationResponseActions({
+    required this.submit,
+    required this.decide,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MneEvaluationResponseActions.fromJson(Object? json, [String path = 'MneEvaluationResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MneEvaluationResponseActions(
+      submit: requiredField(map, path, 'submit', asBool),
+      decide: requiredField(map, path, 'decide', asBool),
+      extra: unknownFields(map, path, const <String>{'submit', 'decide'}, strict: true),
+    );
+  }
+
+  final bool submit;
+  final bool decide;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'submit': submit,
+        'decide': decide,
+        ...extra,
+      };
+}
+
+final class MneEvaluationResponseProject implements ResponseModel {
+  const MneEvaluationResponseProject({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MneEvaluationResponseProject.fromJson(Object? json, [String path = 'MneEvaluationResponseProject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MneEvaluationResponseProject(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
         ...extra,
       };
 }

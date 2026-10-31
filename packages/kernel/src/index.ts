@@ -336,6 +336,8 @@ export { FAILED_TEST_ACTION_DAYS, FAILED_TEST_SEVERITY, MATERIAL_RESULTS, MATERI
 export type { MaterialResult, MaterialTestStatus } from './qms-material.ts';
 export { ENFORCEMENT_STEPS, assertAdvancerIsNotDrafter, assertEnforcementMove, assertStepFacts, stepAfter } from './lnd-enforcement.ts';
 export type { EnforcementStep, StepFacts } from './lnd-enforcement.ts';
+export { INITIAL_EVALUATION_MONTHS, EVALUATION_SUBMITTABLE, MNE_EVALUATION_CONCLUSIONS, MNE_EVALUATION_KINDS, MNE_EVALUATION_STATUSES, assertEvaluationDecider, assertEvaluationSubmission, assertKindAtStage } from './mne-evaluation.ts';
+export type { MneEvaluationConclusion, MneEvaluationKind, MneEvaluationStatus } from './mne-evaluation.ts';
 export { ANNUAL_SETTLEMENT_FORM_CODES, PROJECT_SETTLEMENT_FORM_CODES, SETTLEMENT_DECISION_FORM, SETTLEMENT_FORM_CODES, settlementFormPayload, settlementFormsAskedFor, settlementFormsOf } from './pay-settlement-forms.ts';
 export type { SettlementFormCode, SettlementFormFacts } from './pay-settlement-forms.ts';
 export { ADVANCE_ALERT_LEVELS, ADVANCE_ESCALATION_DAYS, ADVANCE_WARNING_DAYS, advanceAlert, assertAcknowledgeable, assertPlanDue } from './pay-advance-alert.ts';

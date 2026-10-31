@@ -585,6 +585,8 @@ export const OPERATIONS = {
   "listMasterTypePolicies": { method: "get", path: "/master-type-policies", versioned: false, stepUp: null, permission: "master.read" },
   "listMaterialContracts": { method: "get", path: "/material-tests/contracts", versioned: false, stepUp: null, permission: "material.manage" },
   "listMaterialTests": { method: "get", path: "/material-tests", versioned: false, stepUp: null, permission: "material.manage" },
+  "listMneEvaluationProjects": { method: "get", path: "/mne-evaluations/projects", versioned: false, stepUp: null, permission: "mne.read" },
+  "listMneEvaluations": { method: "get", path: "/mne-evaluations", versioned: false, stepUp: null, permission: "mne.read" },
   "listMneForms": { method: "get", path: "/mne-forms", versioned: false, stepUp: null, permission: "mne.read" },
   "listMneObligationRules": { method: "get", path: "/mne-obligation-rules", versioned: false, stepUp: null, permission: "mne.read" },
   "listMneObligations": { method: "get", path: "/mne-obligations", versioned: false, stepUp: null, permission: "mne.read" },

@@ -481,8 +481,11 @@
     "submitReallocationProposal",
     "decideReallocationProposal",
     "applyReallocationProposal",
+    "decideMneEvaluation",
+    "planMneEvaluation",
     "post_support_access_id_approve",
     "revokeSupportAccess",
+    "submitMneEvaluation",
     "post_tenants_id_export"
   ],
   "controlCommands": [
