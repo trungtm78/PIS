@@ -13705,7 +13705,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Thuật ngữ đã gắn với dataset và cột, cảnh báo bản đã ngưng hiệu lực (DGV-02) */
+        get: operations["listDatasetGlossaryBindings"];
         put?: never;
         /** Gắn thuật ngữ PUBLISHED của MDM (glossary_term) với dataset/cột */
         post: operations["bindGlossaryTermToDataset"];
@@ -23402,6 +23403,42 @@ export interface components {
                 flag_key: string;
                 enabled: boolean;
             }[];
+        };
+        DgvGlossaryBinding: {
+            /** Format: uuid */
+            id: string;
+            column_name: string | null;
+            term: {
+                /** Format: uuid */
+                id: string;
+                term_code: string;
+                term_vi: string;
+                definition: string;
+                revision: number;
+                status: string;
+            };
+            bound_by: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string | null;
+            };
+            /** Format: date-time */
+            bound_at: string;
+            deprecated: boolean;
+            successor: {
+                /** Format: uuid */
+                id: string;
+                revision: number;
+            } | null;
+            replaced: boolean;
+        };
+        DgvGlossaryBindings: {
+            items: components["schemas"]["DgvGlossaryBinding"][];
+            coverage: {
+                bound: number;
+                deprecated: number;
+                terms: number;
+            };
         };
     };
     responses: never;
@@ -107440,6 +107477,64 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listDatasetGlossaryBindings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DgvGlossaryBindings"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

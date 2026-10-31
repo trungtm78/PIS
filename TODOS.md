@@ -1832,3 +1832,9 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-SAS-020 (decision, declaration): the flags are declared in the code (`DECLARED_FLAGS`) and written Off by the migration; the `PUT` changes a flag and never adds one, because the contract of the update carries no description and a flag key is part of the code that reads it. The two declared flags stand for the R2 features SAS-21 and SAS-23.
 - ST-SAS-020 (decision, retired): a retired flag is on for no tenant and is final; the module document does not say whether a retired flag reads as on or off, and the code path it decided is gone by then.
 - ST-SAS-020 (gap): no code reads a flag yet (`getMyFeatureFlags` is for the client); the metrics and alert thresholds the story's tasks mention (`tenant_id` telemetry on flag evaluation) are not built.
+
+### ST-DGV-007 (glossary bound to datasets, slice DGV-1)
+- ST-DGV-007 (decision, contract): the module document names no way to read the bindings back, yet DGV-02 must warn of a deprecated binding and offer the revision in force, so the read `listDatasetGlossaryBindings` was added to the contract.
+- ST-DGV-007 (decision, deprecation): no consumer is written for the deprecation: the revision bound is read through the term at every read, so the warning is always current and there is nothing to keep in step.
+- ST-DGV-007 (decision, index): the unique index of V002 on (dataset, column, term) allowed a dataset to be bound to the same term twice (a NULL column differs from every other NULL); V1024 replaces it with one that treats the whole dataset as a column of its own.
+- ST-DGV-007 (gap): no unbind; coverage is not set against the columns of the dataset (they are in the data contract of ST-DGV-005, not built); nobody is notified when a bound revision is deprecated.

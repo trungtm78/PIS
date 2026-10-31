@@ -1570,6 +1570,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  bindGlossaryTermToDataset: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/datasets/${t.datasetId}/glossary-bindings`, body: { glossary_term_id: t.legalHoldId, column_name: 'amount' } }),
+  },
   assignDatasetOwnership: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dgv/datasets/${t.datasetId}/ownership`, ifMatch: '"1"', body: { owner_user_id: t.recipientMembershipId, steward_user_id: t.recipientMembershipId, reason: REASON } }),

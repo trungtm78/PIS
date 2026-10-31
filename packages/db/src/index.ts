@@ -730,3 +730,5 @@ export { CapLedgerReads } from './cap-ledger-reads.ts';
 export type { CapitalLedgerEntry, CapitalLedgerFilter, CapitalLedgerPage, CapitalLedgerScope } from './cap-ledger-reads.ts';
 export { FeatureFlagStore } from './feature-flag-store.ts';
 export type { FlagChange, FlagRow } from './feature-flag-store.ts';
+export { DgvGlossaryStore, GLOSSARY_BINDING_RESOURCE } from './dgv-glossary-store.ts';
+export type { BindRequest, BoundTerm, GlossaryBindingLine, GlossaryCoverage } from './dgv-glossary-store.ts';

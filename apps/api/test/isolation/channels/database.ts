@@ -437,6 +437,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'retireDocumentTemplate',
   'registerDataset',
   'assignDatasetOwnership',
+  'bindGlossaryTermToDataset',
+  'listDatasetGlossaryBindings',
   'searchCatalog',
   'createQualityRuleVersion',
   'approveQualityRuleVersion',

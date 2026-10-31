@@ -552,6 +552,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listConflictDeclarations': BidConflictDeclarationListResponse.fromJson,
   'listContractorExports': ContractorExportPageResponse.fromJson,
   'listConversationAssignees': ConversationAssigneeListResponse.fromJson,
+  'listDatasetGlossaryBindings': DgvGlossaryBindingsResponse.fromJson,
   'listDisbursementSchedules': asObject,
   'listDocumentNumberRegisters': asObject,
   'listDocumentRegisterEntries': DocRegisterEntryResponse.fromJson,
@@ -6321,6 +6322,230 @@ final class DeviceRegistrationResponse implements ResponseModel {
         'status': status,
         if (revokedAt != null) 'revoked_at': revokedAt,
         if (revokeReason != null) 'revoke_reason': revokeReason,
+        ...extra,
+      };
+}
+
+final class DgvGlossaryBindingResponse implements ResponseModel {
+  const DgvGlossaryBindingResponse({
+    required this.id,
+    required this.columnName,
+    required this.term,
+    required this.boundBy,
+    required this.boundAt,
+    required this.deprecated,
+    required this.successor,
+    required this.replaced,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvGlossaryBindingResponse.fromJson(Object? json, [String path = 'DgvGlossaryBindingResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvGlossaryBindingResponse(
+      id: requiredField(map, path, 'id', asString),
+      columnName: requiredField(map, path, 'column_name', nullable(asString)),
+      term: requiredField(map, path, 'term', DgvGlossaryBindingResponseTerm.fromJson),
+      boundBy: requiredField(map, path, 'bound_by', DgvGlossaryBindingResponseBoundBy.fromJson),
+      boundAt: requiredField(map, path, 'bound_at', asString),
+      deprecated: requiredField(map, path, 'deprecated', asBool),
+      successor: requiredField(map, path, 'successor', nullable(DgvGlossaryBindingResponseSuccessor.fromJson)),
+      replaced: requiredField(map, path, 'replaced', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'column_name', 'term', 'bound_by', 'bound_at', 'deprecated', 'successor', 'replaced'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String? columnName;
+  final DgvGlossaryBindingResponseTerm term;
+  final DgvGlossaryBindingResponseBoundBy boundBy;
+  final String boundAt;
+  final bool deprecated;
+  final DgvGlossaryBindingResponseSuccessor? successor;
+  final bool replaced;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'column_name': columnName,
+        'term': term.toJson(),
+        'bound_by': boundBy.toJson(),
+        'bound_at': boundAt,
+        'deprecated': deprecated,
+        'successor': (successor == null ? null : successor!.toJson()),
+        'replaced': replaced,
+        ...extra,
+      };
+}
+
+final class DgvGlossaryBindingResponseBoundBy implements ResponseModel {
+  const DgvGlossaryBindingResponseBoundBy({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvGlossaryBindingResponseBoundBy.fromJson(Object? json, [String path = 'DgvGlossaryBindingResponseBoundBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvGlossaryBindingResponseBoundBy(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String? displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class DgvGlossaryBindingResponseSuccessor implements ResponseModel {
+  const DgvGlossaryBindingResponseSuccessor({
+    required this.id,
+    required this.revision,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvGlossaryBindingResponseSuccessor.fromJson(Object? json, [String path = 'DgvGlossaryBindingResponseSuccessor']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvGlossaryBindingResponseSuccessor(
+      id: requiredField(map, path, 'id', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'revision'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int revision;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'revision': revision,
+        ...extra,
+      };
+}
+
+final class DgvGlossaryBindingResponseTerm implements ResponseModel {
+  const DgvGlossaryBindingResponseTerm({
+    required this.id,
+    required this.termCode,
+    required this.termVi,
+    required this.definition,
+    required this.revision,
+    required this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvGlossaryBindingResponseTerm.fromJson(Object? json, [String path = 'DgvGlossaryBindingResponseTerm']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvGlossaryBindingResponseTerm(
+      id: requiredField(map, path, 'id', asString),
+      termCode: requiredField(map, path, 'term_code', asString),
+      termVi: requiredField(map, path, 'term_vi', asString),
+      definition: requiredField(map, path, 'definition', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      status: requiredField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'term_code', 'term_vi', 'definition', 'revision', 'status'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String termCode;
+  final String termVi;
+  final String definition;
+  final int revision;
+  final String status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'term_code': termCode,
+        'term_vi': termVi,
+        'definition': definition,
+        'revision': revision,
+        'status': status,
+        ...extra,
+      };
+}
+
+final class DgvGlossaryBindingsResponse implements ResponseModel {
+  const DgvGlossaryBindingsResponse({
+    required this.items,
+    required this.coverage,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvGlossaryBindingsResponse.fromJson(Object? json, [String path = 'DgvGlossaryBindingsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvGlossaryBindingsResponse(
+      items: requiredField(map, path, 'items', asList(DgvGlossaryBindingResponse.fromJson)),
+      coverage: requiredField(map, path, 'coverage', DgvGlossaryBindingsResponseCoverage.fromJson),
+      extra: unknownFields(map, path, const <String>{'items', 'coverage'}, strict: true),
+    );
+  }
+
+  final List<DgvGlossaryBindingResponse> items;
+  final DgvGlossaryBindingsResponseCoverage coverage;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'coverage': coverage.toJson(),
+        ...extra,
+      };
+}
+
+final class DgvGlossaryBindingsResponseCoverage implements ResponseModel {
+  const DgvGlossaryBindingsResponseCoverage({
+    required this.bound,
+    required this.deprecated,
+    required this.terms,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DgvGlossaryBindingsResponseCoverage.fromJson(Object? json, [String path = 'DgvGlossaryBindingsResponseCoverage']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DgvGlossaryBindingsResponseCoverage(
+      bound: requiredField(map, path, 'bound', asInt),
+      deprecated: requiredField(map, path, 'deprecated', asInt),
+      terms: requiredField(map, path, 'terms', asInt),
+      extra: unknownFields(map, path, const <String>{'bound', 'deprecated', 'terms'}, strict: true),
+    );
+  }
+
+  final int bound;
+  final int deprecated;
+  final int terms;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'bound': bound,
+        'deprecated': deprecated,
+        'terms': terms,
         ...extra,
       };
 }

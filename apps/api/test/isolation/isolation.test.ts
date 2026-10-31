@@ -463,6 +463,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'retireDocumentTemplate',
         'registerDataset',
         'assignDatasetOwnership',
+        'bindGlossaryTermToDataset',
+        'listDatasetGlossaryBindings',
         'searchCatalog',
         'createQualityRuleVersion',
         'approveQualityRuleVersion',

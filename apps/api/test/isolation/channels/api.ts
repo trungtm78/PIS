@@ -419,6 +419,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     versioned: true,
     body: { owner_user_id: '00000000-0000-4000-8000-0000000000f1', steward_user_id: '00000000-0000-4000-8000-0000000000f1', reason: 'Isolation foreign ownership change' },
   },
+  { operation: 'bindGlossaryTermToDataset', method: 'POST', id: DATASET_FIXTURES['TNT-B'].id, body: { glossary_term_id: GLOSSARY_FIXTURES['TNT-B'].termId, column_name: 'amount' } },
+  { operation: 'listDatasetGlossaryBindings', method: 'GET', id: DATASET_FIXTURES['TNT-B'].id },
   { operation: 'submitGlossaryTerm', method: 'POST', id: GLOSSARY_FIXTURES['TNT-B'].termId, versioned: true, body: {} },
   { operation: 'decideGlossaryTerm', method: 'POST', id: GLOSSARY_FIXTURES['TNT-B'].termId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign decision' } },
   { operation: 'publishGlossaryTerm', method: 'POST', id: GLOSSARY_FIXTURES['TNT-B'].termId, versioned: true, body: {} },

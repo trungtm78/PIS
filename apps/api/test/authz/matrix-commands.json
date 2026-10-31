@@ -17,6 +17,7 @@
     "assignAuditRecommendation",
     "assignCorrectiveAction",
     "assignDatasetOwnership",
+    "bindGlossaryTermToDataset",
     "assignIssue",
     "assignNationalProjectCode",
     "assignOutgoingDocumentNumber",

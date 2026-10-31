@@ -120838,12 +120838,84 @@
           }
         },
         "x-error-codes": [
-          "GLOSSARY_TERM_NOT_PUBLISHED"
+          "GLOSSARY_TERM_NOT_PUBLISHED",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "dgv.glossary.bound.v1"
         ]
+      },
+      "get": {
+        "operationId": "listDatasetGlossaryBindings",
+        "summary": "Thuật ngữ đã gắn với dataset và cột, cảnh báo bản đã ngưng hiệu lực (DGV-02)",
+        "tags": [
+          "DGV"
+        ],
+        "x-permission": "data.catalog.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DgvGlossaryBindings"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/dgv/source-mappings": {
@@ -162522,6 +162594,151 @@
                 "enabled": {
                   "type": "boolean"
                 }
+              }
+            }
+          }
+        }
+      },
+      "DgvGlossaryBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "column_name",
+          "term",
+          "bound_by",
+          "bound_at",
+          "deprecated",
+          "successor",
+          "replaced"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "column_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "term": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "term_code",
+              "term_vi",
+              "definition",
+              "revision",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "term_code": {
+                "type": "string"
+              },
+              "term_vi": {
+                "type": "string"
+              },
+              "definition": {
+                "type": "string"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "bound_by": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "bound_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "successor": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "revision"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "revision": {
+                "type": "integer"
+              }
+            }
+          },
+          "replaced": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DgvGlossaryBindings": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "coverage"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DgvGlossaryBinding"
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bound",
+              "deprecated",
+              "terms"
+            ],
+            "properties": {
+              "bound": {
+                "type": "integer"
+              },
+              "deprecated": {
+                "type": "integer"
+              },
+              "terms": {
+                "type": "integer"
               }
             }
           }
