@@ -263,6 +263,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordDistributionAcknowledgement',
   'retryDocumentDistribution',
   'recallOutgoingDocument',
+  'createReplacementDocument',
+  'createCorrectionDocument',
   'createAvcPolicyVersion',
   'publishAvcPolicy',
   'listAvcPolicies',

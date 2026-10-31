@@ -1,4 +1,4 @@
-import { DomainError } from '@machvon/kernel';
+import { DomainError, isInForce } from '@machvon/kernel';
 import type { TenantTx } from '@machvon/db';
 
 export interface DocumentRelationLink {
@@ -19,9 +19,6 @@ export interface DocumentFacts {
   /** The documents that replace, correct or recall this one, so the module can show where the effect went. */
   relations: DocumentRelationLink[];
 }
-
-/** An effect that still lets a module rely on the document: a corrected document is in force with its correction (BR-DOC-21). */
-const USABLE: readonly string[] = ['EFFECTIVE', 'CORRECTED'];
 
 interface FactsRow {
   id: string;
@@ -48,7 +45,12 @@ export class DocumentReferencePort {
     );
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const relations = await tx.query<{ relation_kind: string; related: string }>(
-      `select relation_kind, from_document_id as related from machvon.document_relation where to_document_id = $1::uuid and relation_kind in ('REPLACES', 'CORRECTS', 'RECALLS') order by created_at, id`,
+      // Only what took effect: a replacement or a correction that is still being drawn up (or was cancelled) has not taken the place of anything.
+      `select r.relation_kind, r.from_document_id as related
+         from machvon.document_relation r left join machvon.outgoing_document o on o.tenant_id = r.tenant_id and o.document_id = r.from_document_id
+        where r.to_document_id = $1::uuid and r.relation_kind in ('REPLACES', 'CORRECTS', 'RECALLS')
+          and (o.id is null or o.status not in ('DRAFT', 'IN_REVIEW', 'SUBMITTED', 'SIGNED', 'NUMBERED', 'SEALED', 'CANCELLED'))
+        order by r.created_at, r.id`,
       [documentId],
     );
     const facts: DocumentFacts = {
@@ -62,7 +64,7 @@ export class DocumentReferencePort {
       issuedOn: row.issued_on,
       relations: relations.map((relation) => ({ kind: relation.relation_kind, documentId: relation.related })),
     };
-    if (!USABLE.includes(row.effect_status)) {
+    if (!isInForce(row.effect_status)) {
       throw new DomainError('DOCUMENT_NOT_EFFECTIVE', 422, 'document_id', {
         extensions: { reason: 'NOT_EFFECTIVE', effect_status: row.effect_status, relations: facts.relations.map((link) => ({ kind: link.kind, document_id: link.documentId })) },
       });

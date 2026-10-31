@@ -588,6 +588,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/recall`, ifMatch: '"1"', body: { reason: 'negative authorization matrix recall' } }),
   },
+  createReplacementDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/replacements`, ifMatch: '"1"', body: { reason: 'negative authorization matrix replacement' } }),
+  },
+  createCorrectionDocument: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/corrections`, ifMatch: '"1"', body: { correction_text: 'matrix correction text', reason: 'negative authorization matrix correction' } }),
+  },
   voidOutgoingDocumentNumber: {
     referencesTenantIds: true,
     build: (t) => ({

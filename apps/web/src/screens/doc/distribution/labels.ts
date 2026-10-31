@@ -16,6 +16,8 @@ export function statusLabel(t: T, status: DocumentStatus): string {
       return t('doc.distribution.status.delivered');
     case 'ACKNOWLEDGED':
       return t('doc.distribution.status.acknowledged');
+    case 'CORRECTED':
+      return t('doc.distribution.status.corrected');
     case 'OTHER':
       return t('doc.distribution.status.other');
   }

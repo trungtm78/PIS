@@ -90,6 +90,64 @@ export function useRecall() {
   });
 }
 
+export interface ReplaceInput {
+  documentId: string;
+  version: number;
+  reason: string;
+  title: string | undefined;
+}
+
+/** Draws the draft that will replace an issued document: the old one stays as it is until the new one is issued. */
+export function useReplace() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: ReplaceInput) =>
+      client.command('createReplacementDocument', {
+        path: { id: input.documentId },
+        body: { reason: input.reason, ...(input.title === undefined ? {} : { title: input.title }) },
+        ifMatchVersion: input.version,
+        attempt: attempts.current.forPayload(input),
+      }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await refresh(queryClient, tenant?.id);
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface CorrectInput {
+  documentId: string;
+  version: number;
+  reason: string;
+  correctionText: string;
+}
+
+/** Draws the draft that will correct an issued document: it stays in force, with the correction, once the draft is issued. */
+export function useCorrect() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: CorrectInput) =>
+      client.command('createCorrectionDocument', {
+        path: { id: input.documentId },
+        body: { reason: input.reason, correction_text: input.correctionText },
+        ifMatchVersion: input.version,
+        attempt: attempts.current.forPayload(input),
+      }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await refresh(queryClient, tenant?.id);
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
 export interface VoidInput {
   documentId: string;
   version: number;

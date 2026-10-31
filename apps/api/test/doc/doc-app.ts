@@ -25,6 +25,7 @@ import { SignedDocumentsController } from '../../src/modules/doc/signed-document
 import { DocumentDistributionsController } from '../../src/modules/doc/distributions.controller';
 import { OutgoingIssuanceController } from '../../src/modules/doc/issuance.controller';
 import { OutgoingRecallController } from '../../src/modules/doc/recall.controller';
+import { OutgoingSupersessionController } from '../../src/modules/doc/supersession.controller';
 import type { EmailChannelPort, EmailDelivery, EmailReceipt } from '../../src/modules/doc/distribution-channel';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
@@ -78,6 +79,8 @@ export const OVERVIEW_UNIT_TWO = 33; // reads the overview over unit 2: outgoing
 export const OVERVIEW_UNIT_ONE = 34; // the same rights, but only on unit 1 itself
 export const OVERVIEW_INCOMING = 35; // the overview and the incoming letters of unit 2, nothing else
 export const OVERVIEW_ONLY = 36; // the overview and no right to read any kind of document
+export const SUPERSEDER = 37; // replaces and corrects the issued documents of unit 2 (a leader)
+export const CORRECTOR = 38; // corrects the issued documents of unit 2 and cannot replace them
 export const INCOMING_OUTSIDE = 29; // the same rights as the clerk, but only on unit 1 itself // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
 
 export interface Reply {
@@ -164,6 +167,8 @@ export class DocApp {
       OVERVIEW_UNIT_ONE,
       OVERVIEW_INCOMING,
       OVERVIEW_ONLY,
+      SUPERSEDER,
+      CORRECTOR,
     ])
       await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
@@ -196,11 +201,15 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 23, 'DOC_OVERVIEW_ALL', ['doc.overview.read', 'doc.outgoing.read', 'doc.incoming.read', 'doc.template.read'], 30);
     await harness.seedRole(TENANT_A, 24, 'DOC_OVERVIEW_INCOMING', ['doc.overview.read', 'doc.incoming.read'], 20);
     await harness.seedRole(TENANT_A, 25, 'DOC_OVERVIEW_ONLY', ['doc.overview.read'], 10);
+    await harness.seedRole(TENANT_A, 26, 'DOC_SUPERSEDER', ['doc.outgoing.read', 'doc.outgoing.replace', 'doc.outgoing.correct'], 40);
+    await harness.seedRole(TENANT_A, 27, 'DOC_CORRECTOR', ['doc.outgoing.read', 'doc.outgoing.correct'], 30);
     await harness.seedGrants(TENANT_A, [
       { n: 39, member: OVERVIEW_UNIT_TWO, role: 23, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 40, member: OVERVIEW_UNIT_ONE, role: 23, kind: 'UNIT_ONLY', refs: [unitId(1)] },
       { n: 41, member: OVERVIEW_INCOMING, role: 24, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 42, member: OVERVIEW_ONLY, role: 25, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 43, member: SUPERSEDER, role: 26, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 44, member: CORRECTOR, role: 27, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 36, member: ARCHIVIST, role: 21, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 37, member: ARCHIVIST_OUTSIDE, role: 21, kind: 'UNIT_ONLY', refs: [unitId(1)] },
       { n: 38, member: DOSSIER_READER, role: 22, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -262,6 +271,7 @@ export class DocApp {
         OutgoingIssuanceController,
         DocumentDistributionsController,
         OutgoingRecallController,
+        OutgoingSupersessionController,
         IncomingController,
         DossiersController,
         DossierReadsController,

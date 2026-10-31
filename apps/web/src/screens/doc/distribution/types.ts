@@ -5,8 +5,8 @@ export const DISTRIBUTE_PERMISSION = 'doc.distribution.manage';
 export const CONFIRM_LEGAL_PERMISSION = 'doc.template.confirm_legal';
 
 /** The states of a document this screen works with: sealed (waiting to be issued) and issued (being distributed). */
-export const QUEUE_STATUSES = ['SEALED', 'ISSUED', 'DELIVERED'] as const;
-export const DOCUMENT_STATUSES = ['SEALED', 'ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'OTHER'] as const;
+export const QUEUE_STATUSES = ['SEALED', 'ISSUED', 'DELIVERED', 'CORRECTED'] as const;
+export const DOCUMENT_STATUSES = ['SEALED', 'ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'CORRECTED', 'OTHER'] as const;
 export type DocumentStatus = (typeof DOCUMENT_STATUSES)[number];
 
 export const CHANNELS = ['INTERNAL', 'EMAIL', 'PAPER_HANDOVER', 'LGSP'] as const;

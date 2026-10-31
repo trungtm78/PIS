@@ -327,8 +327,8 @@ export class DocDossierStore {
    */
   async markOutgoingFiled(tx: TenantTx, documentId: string, input: { actor: string; dossierId: string; ordinal: number; at: Date }): Promise<boolean> {
     const moved = await tx.query<{ id: string; from_status: string; version: string }>(
-      `with held as (select id, status from machvon.outgoing_document where document_id = $1::uuid and status in ('ISSUED', 'DELIVERED', 'ACKNOWLEDGED') for update)
-       update machvon.outgoing_document o set status = 'FILED', updated_at = now(), updated_by = $2::uuid, version = o.version + 1
+      `with held as (select id, status from machvon.outgoing_document where document_id = $1::uuid and status in ('ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'CORRECTED') for update)
+       update machvon.outgoing_document o set status = case when held.status = 'CORRECTED' then 'CORRECTED' else 'FILED' end, updated_at = now(), updated_by = $2::uuid, version = o.version + 1
          from held where o.id = held.id
        returning o.id, held.status as from_status, o.version::text as version`,
       [documentId, input.actor],
@@ -337,8 +337,8 @@ export class DocDossierStore {
     if (row === undefined) return false;
     await tx.query(
       `insert into machvon.outgoing_document_event (tenant_id, id, outgoing_document_id, kind, from_status, to_status, actor_id, details, document_version, occurred_at)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, 'FILED', $2, 'FILED', $3::uuid, $4::jsonb, $5::bigint, $6::timestamptz)`,
-      [row.id, row.from_status, input.actor, JSON.stringify({ dossier_id: input.dossierId, ordinal: input.ordinal }), row.version, input.at.toISOString()],
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, 'FILED', $2, $7, $3::uuid, $4::jsonb, $5::bigint, $6::timestamptz)`,
+      [row.id, row.from_status, input.actor, JSON.stringify({ dossier_id: input.dossierId, ordinal: input.ordinal }), row.version, input.at.toISOString(), row.from_status === 'CORRECTED' ? 'CORRECTED' : 'FILED'],
     );
     return true;
   }

@@ -50,7 +50,7 @@ function DistributionContent({ route }: ScreenProps) {
   const [context, setContext] = useState<ProblemContext>('issue');
   const [notice, setNotice] = useState<'issued' | 'sent' | undefined>(undefined);
 
-  const queues = [useDistributionQueue(QUEUE_STATUSES[0]), useDistributionQueue(QUEUE_STATUSES[1]), useDistributionQueue(QUEUE_STATUSES[2])];
+  const queues = [useDistributionQueue(QUEUE_STATUSES[0]), useDistributionQueue(QUEUE_STATUSES[1]), useDistributionQueue(QUEUE_STATUSES[2]), useDistributionQueue(QUEUE_STATUSES[3])];
   const queued = queues.flatMap((queue) => queueRows(queue.data)).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const moreQueued = queues.some((queue) => queue.hasNextPage);
   const loadingQueued = queues.some((queue) => queue.isFetchingNextPage);
@@ -160,7 +160,7 @@ function DistributionContent({ route }: ScreenProps) {
   };
 
   const sealed = doc?.status === 'SEALED';
-  const issuedOut = doc !== undefined && (doc.status === 'ISSUED' || doc.status === 'DELIVERED');
+  const issuedOut = doc !== undefined && (doc.status === 'ISSUED' || doc.status === 'DELIVERED' || doc.status === 'CORRECTED');
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">

@@ -28,8 +28,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 /** What a document in a dossier says about the module a dossier is about: the subject of a hold on a project or a contract. */
 const SUBJECT_MODULES: ReadonlyArray<string> = ['PRJ', 'CTR', 'PROJECT', 'CONTRACT', 'PMT', 'LND', 'ISS', 'BID', 'CAP', 'PAY', 'AST', 'QMS', 'DIS', 'MNE'];
-/** The statuses of an outgoing document that can be filed (DOC.md state table: ISSUED to ACKNOWLEDGED). */
-const FILEABLE_OUTGOING: ReadonlyArray<string> = ['ISSUED', 'DELIVERED', 'ACKNOWLEDGED'];
+/** The statuses of an outgoing document that can be filed (DOC.md state table: ISSUED to ACKNOWLEDGED; a corrected document is still in force and is filed too, staying CORRECTED). */
+const FILEABLE_OUTGOING: ReadonlyArray<string> = ['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'CORRECTED'];
 
 const manageScope = (access: EffectiveAccess, now: Date) => (first: number) => scopePredicate(access, MANAGE, now, DOSSIER_SCOPE_COLUMNS, first);
 

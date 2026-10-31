@@ -10,6 +10,7 @@ import {
   assertResultShape,
   versionConflict,
   vietnamDateOf,
+  isInForce,
 } from '@machvon/kernel';
 import type { ResultDecision, ResultOutcome, ResultStatus } from '@machvon/kernel';
 import { assertDecisionDocument } from './bid-decision-document.ts';
@@ -311,7 +312,7 @@ export class BidResultStore {
   private async assertEvaluationIssued(tx: TenantTx, documentId: string): Promise<void> {
     const rows = await tx.query<{ effect_status: string }>('select effect_status from machvon.document where id = $1::uuid', [documentId]);
     if (rows[0] === undefined) throw invalid('evaluation_report_id');
-    if (rows[0].effect_status !== 'EFFECTIVE') throw new DomainError('REPORT_NOT_ISSUED', 409, 'evaluation_report_id', { extensions: { effect_status: rows[0].effect_status } });
+    if (!isInForce(rows[0].effect_status)) throw new DomainError('REPORT_NOT_ISSUED', 409, 'evaluation_report_id', { extensions: { effect_status: rows[0].effect_status } });
   }
 
   /** What was true when the award was submitted is judged again when it is approved: the plan, the price and the winner may have moved since. */

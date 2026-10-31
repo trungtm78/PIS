@@ -197,6 +197,15 @@ describe('DistributionScreen (DOC-08)', () => {
   });
 
   describe('distributing', () => {
+    it('sends a corrected document to new recipients too: it is in the queue and has the dispatch form (ST-DOC-015)', async () => {
+      const corrected = detail({ status: 'CORRECTED', issued_at: '2026-10-23T03:00:00Z', distributions: [] });
+      const h = harness(answer(() => corrected), () => ({ status: 'CORRECTED', resource_id: DOC, resource_version: 5 }));
+      mount(<DistributionScreen route={ROUTE} />, h, CLERK);
+      expect(await screen.findByRole('form', { name: vi_['doc.distribution.dispatch.form'] })).toBeTruthy();
+      expect(screen.getByText(vi_['doc.distribution.queue.option.text'].replace('{title}', 'Decision to assign capital').replace('{status}', vi_['doc.distribution.status.corrected']))).toBeTruthy();
+      expect(h.read.mock.calls.some(([operation, input]) => operation === 'listOutgoingDocuments' && (input as { query: { status: string } }).query.status === 'CORRECTED')).toBe(true);
+    });
+
     const issued = (distributions: unknown[] = [], overrides: Record<string, unknown> = {}) => detail({ status: 'ISSUED', issued_at: '2026-10-23T03:00:00Z', distributions, ...overrides });
 
     it('sends to the chosen recipients, on the chosen channel, with the duty to acknowledge as set (AC-ST-DOC-010-2, UAT-AC410)', async () => {

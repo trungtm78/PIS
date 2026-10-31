@@ -1,4 +1,4 @@
-import { DomainError } from '@machvon/kernel';
+import { DomainError, isInForce } from '@machvon/kernel';
 import { DocIssueRequestStore } from './doc-issue-request-store.ts';
 import { DocumentDistributionStore } from './document-distribution-store.ts';
 import type { DistributionRecord } from './document-distribution-store.ts';
@@ -11,7 +11,7 @@ import type { CancelledSession } from './outgoing-draft-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /** The states of a document in force: only these can be recalled (DOC.md F9). */
-export const RECALLABLE_STATUSES: readonly OutgoingStatus[] = ['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED'];
+export const RECALLABLE_STATUSES: readonly OutgoingStatus[] = ['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED', 'CORRECTED'];
 /** The states in which a document has its number and cannot be sealed any more: the number is voided and the document ends (DOC.md F6). */
 export const VOIDABLE_STATUSES: readonly OutgoingStatus[] = ['NUMBERED', 'SEALED'];
 
@@ -80,7 +80,7 @@ export class OutgoingRecallStore {
       [document.id, input.actor, input.reason, input.now.toISOString()],
     );
     const effect = await tx.query(
-      "update machvon.document set effect_status = 'RECALLED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid and effect_status = 'EFFECTIVE' returning id",
+      "update machvon.document set effect_status = 'RECALLED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid and effect_status in ('EFFECTIVE', 'CORRECTED') returning id",
       [document.documentId, input.actor],
     );
     if (effect.length === 0) throw new DomainError('DOCUMENT_STATE_INVALID', 409, 'effect_status');
@@ -126,11 +126,12 @@ export class OutgoingRecallStore {
   /** A basis is a document of the tenant that is in force and is not the document recalled; a document that was archived must have one. */
   private async assertBasis(tx: TenantTx, document: OutgoingDocumentRecord, basisDocumentId: string | null): Promise<void> {
     if (basisDocumentId === null) {
-      if (document.status === 'ARCHIVED') throw new DomainError('RECALL_BASIS_REQUIRED', 422, 'recall_basis_document_id', { extensions: { basis: 'REQUIRED_FOR_ARCHIVED' } });
+      // A document that was archived or corrected is recalled on a new basis only (DOC.md 4).
+      if (document.status === 'ARCHIVED' || document.status === 'CORRECTED') throw new DomainError('RECALL_BASIS_REQUIRED', 422, 'recall_basis_document_id', { extensions: { basis: document.status === 'ARCHIVED' ? 'REQUIRED_FOR_ARCHIVED' : 'REQUIRED_FOR_CORRECTED' } });
       return;
     }
     if (basisDocumentId === document.documentId) throw new DomainError('RECALL_BASIS_REQUIRED', 422, 'recall_basis_document_id', { extensions: { basis: 'SELF' } });
     const [basis] = await tx.query<{ effect_status: string }>('select effect_status from machvon.document where id = $1::uuid', [basisDocumentId]);
-    if (basis === undefined || basis.effect_status !== 'EFFECTIVE') throw new DomainError('RECALL_BASIS_REQUIRED', 422, 'recall_basis_document_id', { extensions: { basis: 'NOT_IN_FORCE' } });
+    if (basis === undefined || !isInForce(basis.effect_status)) throw new DomainError('RECALL_BASIS_REQUIRED', 422, 'recall_basis_document_id', { extensions: { basis: 'NOT_IN_FORCE' } });
   }
 }

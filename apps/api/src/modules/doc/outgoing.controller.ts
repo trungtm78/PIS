@@ -10,6 +10,7 @@ import {
   OUTGOING_SCOPE_COLUMNS,
   OutgoingDocumentStore,
   OutgoingDraftStore,
+  OutgoingSupersessionStore,
   REGISTER_SCOPE_COLUMNS,
   SignatureStore,
   TenantDatabase,
@@ -216,6 +217,7 @@ export class OutgoingController {
   private readonly signatures = new SignatureStore();
   private readonly drafts = new OutgoingDraftStore();
   private readonly distributions = new DocumentDistributionStore();
+  private readonly supersessions = new OutgoingSupersessionStore();
   private readonly templates = new DocumentTemplateStore();
   private readonly authority = new SignerAuthority();
   private readonly metrics: MetricsSink;
@@ -290,7 +292,8 @@ export class OutgoingController {
       const review = await this.drafts.latestEvent(tx, row.id, ['REVIEW_APPROVED', 'RETURNED']);
       const distributed = await this.distributions.listFor(tx, row.id);
       const template = row.templateId === null ? undefined : await this.templates.find(tx, row.templateId);
-      return { row, sessions, versions, certificates, signatures, content, review, distributed, template };
+      const relations = await this.supersessions.relationsOf(tx, row.documentId, (first) => scopePredicate(access, PERMISSIONS.getOutgoingDocument, now, OUTGOING_SCOPE_COLUMNS, first));
+      return { row, sessions, versions, certificates, signatures, content, review, distributed, template, relations };
     });
     // A document the caller cannot see is indistinguishable from one that does not exist.
     if (loaded === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -304,6 +307,19 @@ export class OutgoingController {
       renders_watermarked: loaded.template === undefined ? false : rendersWatermarked(loaded.template),
       unconfirmed_override_reason: loaded.row.unconfirmedOverrideReason,
       distributions: loaded.distributed.map(distributionView),
+      // The documents that replace, correct or recall this one and those it does so to (BR-DOC-21): the timeline of DOC-19.
+      relations: loaded.relations.map((relation) => ({
+        id: relation.id,
+        kind: relation.kind,
+        direction: relation.direction,
+        document_id: relation.documentId,
+        outgoing_document_id: relation.outgoingDocumentId,
+        title: relation.title,
+        symbol: relation.symbol,
+        status: relation.status,
+        note: relation.note,
+        created_at: relation.createdAt,
+      })),
       latest_review:
         loaded.review === undefined
           ? null

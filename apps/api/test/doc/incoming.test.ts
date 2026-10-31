@@ -354,6 +354,11 @@ describe('incoming documents over HTTP (ST-DOC-011)', () => {
     const second = await assigned('2026-12-31');
     expect((await start(INCOMING_STAFF, second.id, 3)).status).toBe(200);
     expect(await resolve(INCOMING_STAFF, second.id, 4, { resolution_summary: 'Đã trả lời.', response_outgoing_id: filedAnswer })).toMatchObject({ status: 200, json: { status: 'RESOLVED' } });
+    // So is an answer that was corrected afterwards (ST-DOC-015): it is still in force.
+    const correctedAnswer = await seed(2, 'CORRECTED');
+    const third = await assigned('2026-12-31');
+    expect((await start(INCOMING_STAFF, third.id, 3)).status).toBe(200);
+    expect(await resolve(INCOMING_STAFF, third.id, 4, { resolution_summary: 'Đã trả lời.', response_outgoing_id: correctedAnswer })).toMatchObject({ status: 200, json: { status: 'RESOLVED' } });
   });
 
   it('advertises the work on a letter only to a handler whose membership may work it, and sends the reminder to the memberships of the handler', async () => {

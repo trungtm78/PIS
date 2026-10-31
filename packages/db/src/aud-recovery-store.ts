@@ -7,6 +7,7 @@ import {
   remainingToRecover,
   reopensOnReversal,
   wholeDong,
+  isInForce,
 } from '@machvon/kernel';
 import type { PayRecoveryFacts, Rate, RecoverySourceKind } from '@machvon/kernel';
 import { AudRecommendationStore } from './aud-recommendation-store.ts';
@@ -208,7 +209,7 @@ export class AudRecoveryStore {
     if (input.recordedOn > input.today) throw new DomainError('VALIDATION_FAILED', 422, 'recorded_on');
     if (input.evidenceDocumentId === undefined) throw new DomainError('EVIDENCE_REQUIRED', 422, 'evidence_document_id');
     const [document] = await tx.query<{ effect_status: string }>('select effect_status from machvon.document where id = $1::uuid', [input.evidenceDocumentId]);
-    if (document?.effect_status !== 'EFFECTIVE') throw new DomainError('EVIDENCE_REQUIRED', 422, 'evidence_document_id');
+    if (document === undefined || !isInForce(document.effect_status)) throw new DomainError('EVIDENCE_REQUIRED', 422, 'evidence_document_id');
     assertWithinRecommendation({ amountVnd: row.amountVnd, recoveredVnd: row.recoveredVnd }, amount);
     const created = await withUniqueClaim(tx, { constraint: 'audit_recovery_link_source_uq', code: 'RECOVERY_SOURCE_ALREADY_LINKED', status: 409 }, async () => {
       const [line] = await tx.query<{ id: string }>(

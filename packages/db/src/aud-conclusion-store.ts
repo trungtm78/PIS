@@ -1,4 +1,4 @@
-import { DomainError, FINANCIAL_RECOMMENDATION_TYPES, assertWithinConclusionTotal, financialShortfall, nextEngagementStatus, recommendationAmount, wholeDong } from '@machvon/kernel';
+import { assertWithinConclusionTotal, DomainError, FINANCIAL_RECOMMENDATION_TYPES, financialShortfall, isInForce, nextEngagementStatus, recommendationAmount, wholeDong } from '@machvon/kernel';
 import type { ConclusionKind, EngagementStatus, FindingCategory, FindingSeverity, RecommendationType } from '@machvon/kernel';
 import { AudEngagementStore } from './aud-engagement-store.ts';
 import type { EngagementRow, ResolvedTarget, ScopeTarget } from './aud-engagement-store.ts';
@@ -211,7 +211,7 @@ export class AudConclusionStore {
   async record(tx: TenantTx, engagement: EngagementRow, input: NewConclusion, today: string, actor: string): Promise<{ id: string; engagementVersion: number }> {
     const status = nextEngagementStatus(engagement.status, 'recordConclusion');
     const [document] = await tx.query<{ doc_kind: string; effect_status: string }>('select doc_kind, effect_status from machvon.document where id = $1::uuid', [input.conclusionDocumentId]);
-    if (document === undefined || !['INCOMING', 'REFERENCE'].includes(document.doc_kind) || document.effect_status !== 'EFFECTIVE') {
+    if (document === undefined || !['INCOMING', 'REFERENCE'].includes(document.doc_kind) || !isInForce(document.effect_status)) {
       throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422);
     }
     const summary = input.summary.trim();

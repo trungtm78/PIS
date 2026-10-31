@@ -173,6 +173,8 @@ export type { CancelledSession, Circulation, DocumentClassification, DraftConten
 export { SignerAuthorityStore } from './signer-authority-store.ts';
 export { OutgoingRecallStore, RECALLABLE_STATUSES, VOIDABLE_STATUSES } from './outgoing-recall-store.ts';
 export type { RecallInput, RecallResult, VoidNumberInput, VoidNumberResult } from './outgoing-recall-store.ts';
+export { OutgoingSupersessionStore, SUPERSEDABLE_STATUSES } from './outgoing-supersession-store.ts';
+export type { CorrectionInput, DocumentRelationView, ReplacementInput, SupersessionDraft, SupersessionKind, TakenEffect } from './outgoing-supersession-store.ts';
 export { DocIssueRequestStore, REJECT_CODES } from './doc-issue-request-store.ts';
 export type { IssueRequestInsertion, IssueRequestRecord, IssueRequestStatus, NewIssueRequest, RejectCode } from './doc-issue-request-store.ts';
 export type { DelegationRecord, DoaBand } from './signer-authority-store.ts';

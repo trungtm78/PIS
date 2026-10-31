@@ -7,20 +7,22 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useTimeline } from './drafts/hooks';
-import { eventLabel } from './drafts/labels';
+import { eventLabel, statusLabel as draftStatusLabel } from './drafts/labels';
 import { channelLabel, distributionStatusLabel } from './distribution/labels';
-import { queueRows, useRecall, useRecallDocument, useRecallQueue, useVoidNumber } from './recall/hooks';
-import { effectLabel, problemMessage, reasonMessage, statusLabel, statusPill } from './recall/labels';
+import { queueRows, useCorrect, useRecall, useRecallDocument, useRecallQueue, useReplace, useVoidNumber } from './recall/hooks';
+import { effectLabel, problemMessage, reasonMessage, relationLabel, statusLabel, statusPill, textMessage } from './recall/labels';
 import { describeProblem } from './recall/problems';
-import { MAX_RECALL_REASON_CHARS, MAX_VOID_REASON_CHARS, basisOptions, canRecall, canVoid, isUuid, noticeProgress, reasonProblem } from './recall/rules';
-import { QUEUE_STATUSES, RECALL_PERMISSION, VOID_PERMISSION } from './recall/types';
+import { MAX_CORRECTION_CHARS, MAX_RECALL_REASON_CHARS, MAX_TITLE_CHARS, MAX_VOID_REASON_CHARS, MIN_CORRECTION_CHARS, MIN_TITLE_CHARS, basisOptions, canRecall, canSupersede, canVoid, isUuid, noticeProgress, reasonProblem, textProblem } from './recall/rules';
+import { CORRECT_PERMISSION, QUEUE_STATUSES, RECALL_PERMISSION, REPLACE_PERMISSION, VOID_PERMISSION } from './recall/types';
 import './recall/recall.css';
 
 const BACK_PATH = '/doc/doc-10';
+const EDITOR_PATH = '/doc/doc-02';
+const RECALL_PATH = '/doc/doc-19';
 const SHORT_ID = 8;
 const shortId = (id: string | null): string => (id === null || id === '' ? '' : id.slice(-SHORT_ID));
 
-type Context = 'recall' | 'void';
+type Context = 'recall' | 'void' | 'replace' | 'correct';
 
 /** DOC-19: the leader recalls an issued document and the records manager voids the number of one that cannot be sealed; the timeline says what happened. */
 export default function RecallScreen({ route }: ScreenProps) {
@@ -38,6 +40,8 @@ function RecallContent({ route }: ScreenProps) {
   const holds = (permission: string): boolean => permissions === undefined || permissions.includes(permission);
   const mayRecall = holds(RECALL_PERMISSION) && !frozen;
   const mayVoid = holds(VOID_PERMISSION) && !frozen;
+  const mayReplace = holds(REPLACE_PERMISSION) && !frozen;
+  const mayCorrect = holds(CORRECT_PERMISSION) && !frozen;
   const [recallReason, setRecallReason] = useState('');
   const [basis, setBasis] = useState('');
   const [notify, setNotify] = useState(true);
@@ -48,8 +52,14 @@ function RecallContent({ route }: ScreenProps) {
   const [notice, setNotice] = useState<Context | undefined>(undefined);
   // A voided number is taken off the document, so the number the notice names is the one the screen showed when the void was sent.
   const [voidedNumber, setVoidedNumber] = useState<number | null>(null);
+  const [replaceReason, setReplaceReason] = useState('');
+  const [replaceTitle, setReplaceTitle] = useState('');
+  const [correctionText, setCorrectionText] = useState('');
+  const [correctionReason, setCorrectionReason] = useState('');
+  // The draft that the last replacement or correction made: the person is sent on to finish it.
+  const [drawn, setDrawn] = useState<string | undefined>(undefined);
 
-  const queues = [useRecallQueue(QUEUE_STATUSES[0]), useRecallQueue(QUEUE_STATUSES[1]), useRecallQueue(QUEUE_STATUSES[2]), useRecallQueue(QUEUE_STATUSES[3]), useRecallQueue(QUEUE_STATUSES[4]), useRecallQueue(QUEUE_STATUSES[5])];
+  const queues = [useRecallQueue(QUEUE_STATUSES[0]), useRecallQueue(QUEUE_STATUSES[1]), useRecallQueue(QUEUE_STATUSES[2]), useRecallQueue(QUEUE_STATUSES[3]), useRecallQueue(QUEUE_STATUSES[4]), useRecallQueue(QUEUE_STATUSES[5]), useRecallQueue(QUEUE_STATUSES[6]), useRecallQueue(QUEUE_STATUSES[7])];
   const queued = queues.flatMap((queue) => queueRows(queue.data)).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const moreQueued = queues.some((queue) => queue.hasNextPage);
   const loadingQueued = queues.some((queue) => queue.isFetchingNextPage);
@@ -62,17 +72,23 @@ function RecallContent({ route }: ScreenProps) {
   const timeline = useTimeline(doc?.documentId);
   const recall = useRecall();
   const voidNumber = useVoidNumber();
+  const replace = useReplace();
+  const correct = useCorrect();
 
   const timeOf = (value: string | null): string => (value === null ? t('doc.recall.notice.none') : new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Bangkok' }).format(new Date(value)));
   const queueState = useScreenState({ isLoading: queues.some((queue) => queue.isLoading), error: queues.find((queue) => queue.error)?.error ?? null, data: queues.some((queue) => queue.data === undefined) ? undefined : queued });
   const detailState = useScreenState({ isLoading: detail.isLoading, error: detail.error, data: doc });
   const state = selectedId === undefined ? queueState : detailState;
 
-  const failure = context === 'recall' ? recall : voidNumber;
+  const failure = context === 'recall' ? recall : context === 'void' ? voidNumber : context === 'replace' ? replace : correct;
   const problem = failure.isError ? describeProblem(failure.error) : undefined;
   const recallProblem = reasonProblem(recallReason, MAX_RECALL_REASON_CHARS);
   const voidProblem = reasonProblem(voidReason, MAX_VOID_REASON_CHARS);
   const approverInvalid = !isUuid(approver);
+  const replaceReasonProblem = reasonProblem(replaceReason, MAX_RECALL_REASON_CHARS);
+  const replaceTitleProblem = replaceTitle.trim() === '' ? undefined : textProblem(replaceTitle, MIN_TITLE_CHARS, MAX_TITLE_CHARS);
+  const correctionTextProblem = textProblem(correctionText, MIN_CORRECTION_CHARS, MAX_CORRECTION_CHARS);
+  const correctionReasonProblem = reasonProblem(correctionReason, MAX_RECALL_REASON_CHARS);
 
   const choose = (id: string): void => {
     setParams({ doc: id });
@@ -83,8 +99,15 @@ function RecallContent({ route }: ScreenProps) {
     setApprover('');
     setAttempted(undefined);
     setNotice(undefined);
+    setReplaceReason('');
+    setReplaceTitle('');
+    setCorrectionText('');
+    setCorrectionReason('');
+    setDrawn(undefined);
     recall.reset();
     voidNumber.reset();
+    replace.reset();
+    correct.reset();
   };
 
   const submitRecall = (event: FormEvent): void => {
@@ -127,6 +150,52 @@ function RecallContent({ route }: ScreenProps) {
           setNotice('void');
           setVoidReason('');
           setApprover('');
+          setAttempted(undefined);
+        },
+      },
+    );
+  };
+
+  const submitReplace = (event: FormEvent): void => {
+    event.preventDefault();
+    if (doc === undefined || replace.isPending || !mayReplace) return;
+    if (replaceReasonProblem !== undefined || replaceTitleProblem !== undefined) {
+      setAttempted('replace');
+      return;
+    }
+    setContext('replace');
+    setParams({ doc: doc.id });
+    replace.mutate(
+      { documentId: doc.id, version: doc.version, reason: replaceReason.trim(), title: replaceTitle.trim() === '' ? undefined : replaceTitle.trim() },
+      {
+        onSuccess: (answer) => {
+          setDrawn(answer.resource_id);
+          setNotice('replace');
+          setReplaceReason('');
+          setReplaceTitle('');
+          setAttempted(undefined);
+        },
+      },
+    );
+  };
+
+  const submitCorrect = (event: FormEvent): void => {
+    event.preventDefault();
+    if (doc === undefined || correct.isPending || !mayCorrect) return;
+    if (correctionTextProblem !== undefined || correctionReasonProblem !== undefined) {
+      setAttempted('correct');
+      return;
+    }
+    setContext('correct');
+    setParams({ doc: doc.id });
+    correct.mutate(
+      { documentId: doc.id, version: doc.version, reason: correctionReason.trim(), correctionText: correctionText.trim() },
+      {
+        onSuccess: (answer) => {
+          setDrawn(answer.resource_id);
+          setNotice('correct');
+          setCorrectionText('');
+          setCorrectionReason('');
           setAttempted(undefined);
         },
       },
@@ -292,9 +361,87 @@ function RecallContent({ route }: ScreenProps) {
                 )
               ) : null}
 
+              {canSupersede(doc.status) && (mayReplace || mayCorrect) ? (
+                <div className="supersede" data-testid="supersede">
+                  <h3>{t('doc.recall.supersede.title')}</h3>
+                  <p className="callout">{t('doc.recall.supersede.hint')}</p>
+                  {mayReplace ? (
+                    <form onSubmit={submitReplace} noValidate aria-label={t('doc.recall.replace.form')} className="replace-form">
+                      <h4>{t('doc.recall.replace.title')}</h4>
+                      <div className="field">
+                        <label htmlFor="replace-title">{t('doc.recall.replace.title.label')}</label>
+                        <input id="replace-title" value={replaceTitle} aria-invalid={attempted === 'replace' && replaceTitleProblem !== undefined} onChange={(event) => setReplaceTitle(event.target.value)} />
+                        {attempted === 'replace' && replaceTitleProblem !== undefined ? (
+                          <small role="alert" className="field-error">
+                            {textMessage(t, replaceTitleProblem)}
+                          </small>
+                        ) : (
+                          <small>{t('doc.recall.replace.title.hint')}</small>
+                        )}
+                      </div>
+                      <div className="field">
+                        <label htmlFor="replace-reason">{t('doc.recall.replace.reason.label')}</label>
+                        <textarea id="replace-reason" rows={3} value={replaceReason} aria-invalid={attempted === 'replace' && replaceReasonProblem !== undefined} onChange={(event) => setReplaceReason(event.target.value)} />
+                        {attempted === 'replace' && replaceReasonProblem !== undefined ? (
+                          <small role="alert" className="field-error">
+                            {reasonMessage(t, replaceReasonProblem)}
+                          </small>
+                        ) : (
+                          <small>{t('doc.recall.replace.reason.hint')}</small>
+                        )}
+                      </div>
+                      <div className="row gap">
+                        <button type="submit" className="primary" disabled={replace.isPending}>
+                          {t('doc.recall.replace.submit.action')}
+                        </button>
+                      </div>
+                    </form>
+                  ) : null}
+                  {mayCorrect ? (
+                    <form onSubmit={submitCorrect} noValidate aria-label={t('doc.recall.correct.form')} className="correct-form">
+                      <h4>{t('doc.recall.correct.title')}</h4>
+                      <div className="field">
+                        <label htmlFor="correct-text">{t('doc.recall.correct.text.label')}</label>
+                        <textarea id="correct-text" rows={3} value={correctionText} aria-invalid={attempted === 'correct' && correctionTextProblem !== undefined} onChange={(event) => setCorrectionText(event.target.value)} />
+                        {attempted === 'correct' && correctionTextProblem !== undefined ? (
+                          <small role="alert" className="field-error">
+                            {textMessage(t, correctionTextProblem)}
+                          </small>
+                        ) : (
+                          <small>{t('doc.recall.correct.text.hint')}</small>
+                        )}
+                      </div>
+                      <div className="field">
+                        <label htmlFor="correct-reason">{t('doc.recall.correct.reason.label')}</label>
+                        <textarea id="correct-reason" rows={2} value={correctionReason} aria-invalid={attempted === 'correct' && correctionReasonProblem !== undefined} onChange={(event) => setCorrectionReason(event.target.value)} />
+                        {attempted === 'correct' && correctionReasonProblem !== undefined ? (
+                          <small role="alert" className="field-error">
+                            {reasonMessage(t, correctionReasonProblem)}
+                          </small>
+                        ) : (
+                          <small>{t('doc.recall.correct.reason.hint')}</small>
+                        )}
+                      </div>
+                      <div className="row gap">
+                        <button type="submit" className="primary" disabled={correct.isPending}>
+                          {t('doc.recall.correct.submit.action')}
+                        </button>
+                      </div>
+                    </form>
+                  ) : null}
+                </div>
+              ) : null}
+
               {notice === undefined ? null : (
-                <p className="callout" role="status">
-                  {notice === 'recall' ? t('doc.recall.done.recalled', { symbol }) : t('doc.recall.done.voided', { number: voidedNumber ?? '' })}
+                <p className="callout" role="status" data-testid="done-notice">
+                  {notice === 'recall'
+                    ? t('doc.recall.done.recalled', { symbol })
+                    : notice === 'void'
+                      ? t('doc.recall.done.voided', { number: voidedNumber ?? '' })
+                      : notice === 'replace'
+                        ? t('doc.recall.done.replaced')
+                        : t('doc.recall.done.corrected')}{' '}
+                  {drawn === undefined ? null : <Link to={`${EDITOR_PATH}?doc=${drawn}`}>{t('doc.recall.done.draft.link')}</Link>}
                 </p>
               )}
               {problem === undefined ? null : (
@@ -339,6 +486,24 @@ function RecallContent({ route }: ScreenProps) {
                   )}
                 </>
               ) : null}
+
+              <h3>{t('doc.recall.relations.title')}</h3>
+              {doc.relations.length === 0 ? (
+                <p className="muted" data-testid="relations-empty">
+                  {t('doc.recall.relations.empty')}
+                </p>
+              ) : (
+                <ol className="history" aria-label={t('doc.recall.relations.title')} data-testid="relations">
+                  {doc.relations.map((relation) => (
+                    <li key={relation.id} data-kind={relation.kind} data-direction={relation.direction}>
+                      <strong>{relationLabel(t, relation.kind, relation.direction)}</strong> · {relation.outgoingDocumentId === null ? relation.title : <Link to={relation.status === 'DRAFT' ? `${EDITOR_PATH}?doc=${relation.outgoingDocumentId}` : `${RECALL_PATH}?doc=${relation.outgoingDocumentId}`}>{relation.title}</Link>}
+                      {relation.symbol === null ? null : ` · ${relation.symbol}`}
+                      {relation.status === null ? null : <span className="pill"> {draftStatusLabel(t, relation.status)}</span>}
+                      {relation.note === null ? null : <div className="sub">{relation.note}</div>}
+                    </li>
+                  ))}
+                </ol>
+              )}
 
               <h3>{t('doc.recall.history.title')}</h3>
               {timeline.data === undefined || timeline.data.events.length === 0 ? (

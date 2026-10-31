@@ -282,6 +282,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'recordDistributionAcknowledgement',
         'retryDocumentDistribution',
         'recallOutgoingDocument',
+        'createReplacementDocument',
+        'createCorrectionDocument',
         'createAvcPolicyVersion',
         'publishAvcPolicy',
         'listAvcPolicies',

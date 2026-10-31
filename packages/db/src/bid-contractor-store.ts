@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, vietnamDateOf, versionConflict } from '@machvon/kernel';
+import { DomainError, isInForce, versionConflict, vietnamDateOf } from '@machvon/kernel';
 import { normaliseTaxIdentifier } from './bid-tax-identifier.ts';
 import { timestampKey } from './keyset.ts';
 import type { AdapterStatus } from './outgoing-document-store.ts';
@@ -350,7 +350,7 @@ export class BidContractorStore {
     if ((await this.find(tx, contractorId)) === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const documents = await tx.query<{ effect_status: string }>('select effect_status from machvon.document where id = $1::uuid', [input.decisionDocumentId]);
     if (documents[0] === undefined) throw invalid('decision_document_id');
-    if (documents[0].effect_status !== 'EFFECTIVE') throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422, 'decision_document_id');
+    if (!isInForce(documents[0].effect_status)) throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422, 'decision_document_id');
     const id = randomUUID();
     await tx.query(
       `insert into machvon.contractor_restriction

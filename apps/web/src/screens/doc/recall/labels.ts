@@ -1,7 +1,7 @@
 import type { Translator } from '../../../i18n';
 import type { ProblemReason } from './problems';
-import type { ReasonProblem } from './rules';
-import type { DocumentStatus, Effect } from './types';
+import type { ReasonProblem, TextProblem } from './rules';
+import type { DocumentStatus, Effect, RelationKind } from './types';
 
 type T = Translator['t'];
 
@@ -20,6 +20,10 @@ export function statusLabel(t: T, status: DocumentStatus): string {
       return t('doc.recall.status.archived');
     case 'RECALLED':
       return t('doc.recall.status.recalled');
+    case 'REPLACED':
+      return t('doc.recall.status.replaced');
+    case 'CORRECTED':
+      return t('doc.recall.status.corrected');
     case 'NUMBERED':
       return t('doc.recall.status.numbered');
     case 'SEALED':
@@ -37,6 +41,10 @@ export function effectLabel(t: T, effect: Effect): string {
       return t('doc.recall.effect.effective');
     case 'RECALLED':
       return t('doc.recall.effect.recalled');
+    case 'REPLACED':
+      return t('doc.recall.effect.replaced');
+    case 'CORRECTED':
+      return t('doc.recall.effect.corrected');
     case 'OTHER':
       return t('doc.recall.effect.other');
   }
@@ -46,6 +54,7 @@ export function effectLabel(t: T, effect: Effect): string {
 export function statusPill(status: DocumentStatus): string {
   switch (status) {
     case 'RECALLED':
+    case 'REPLACED':
       return 'pill red';
     case 'NUMBERED':
     case 'SEALED':
@@ -66,12 +75,38 @@ export function reasonMessage(t: T, problem: ReasonProblem): string {
   }
 }
 
+export function relationLabel(t: T, kind: RelationKind, direction: 'IN' | 'OUT'): string {
+  switch (kind) {
+    case 'REPLACES':
+      return direction === 'IN' ? t('doc.recall.relation.replacedBy') : t('doc.recall.relation.replaces');
+    case 'CORRECTS':
+      return direction === 'IN' ? t('doc.recall.relation.correctedBy') : t('doc.recall.relation.corrects');
+    case 'RECALLS':
+      return direction === 'IN' ? t('doc.recall.relation.recalledBy') : t('doc.recall.relation.recalls');
+    case 'OTHER':
+      return t('doc.recall.relation.other');
+  }
+}
+
+export function textMessage(t: T, problem: TextProblem): string {
+  switch (problem) {
+    case 'required':
+      return t('doc.recall.text.problem.required');
+    case 'tooShort':
+      return t('doc.recall.text.problem.tooShort');
+    case 'tooLong':
+      return t('doc.recall.text.problem.tooLong');
+  }
+}
+
 export function problemMessage(t: T, reason: ProblemReason): string {
   switch (reason) {
     case 'conflict':
       return t('doc.recall.problem.conflict');
     case 'state':
       return t('doc.recall.problem.state');
+    case 'open':
+      return t('doc.recall.problem.open');
     case 'basis':
       return t('doc.recall.problem.basis');
     case 'selfApproval':

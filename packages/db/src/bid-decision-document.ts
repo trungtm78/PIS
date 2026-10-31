@@ -1,4 +1,4 @@
-import { DomainError } from '@machvon/kernel';
+import { DomainError, isInForce } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
 /** The document type of a decision of the authority (`QD`): the approval of a plan and of a result rests on one. */
@@ -13,6 +13,6 @@ export async function assertDecisionDocument(tx: TenantTx, documentId: string | 
   const rows = await tx.query<{ effect_status: string; doc_type_code: string }>('select effect_status, doc_type_code from machvon.document where id = $1::uuid', [documentId]);
   const document = rows[0];
   if (document === undefined || document.doc_type_code !== DECISION_DOCUMENT_TYPE) throw new DomainError('VALIDATION_FAILED', 422, 'decision_document_id');
-  if (document.effect_status !== 'EFFECTIVE') throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422, 'decision_document_id');
+  if (!isInForce(document.effect_status)) throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422, 'decision_document_id');
   return documentId;
 }

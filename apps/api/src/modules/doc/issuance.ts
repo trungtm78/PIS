@@ -1,4 +1,4 @@
-import { DocIssueRequestStore, OutgoingDocumentStore, OutgoingDraftStore } from '@machvon/db';
+import { DocIssueRequestStore, OutgoingDocumentStore, OutgoingDraftStore, OutgoingSupersessionStore } from '@machvon/db';
 import type { OutgoingDocumentRecord } from '@machvon/db';
 import type { CommandScope } from '../../command-scope';
 
@@ -27,6 +27,7 @@ export class OutgoingIssuance {
   private readonly outgoing = new OutgoingDocumentStore();
   private readonly drafts = new OutgoingDraftStore();
   private readonly requests = new DocIssueRequestStore();
+  private readonly supersessions = new OutgoingSupersessionStore();
 
   /** SEALED to ISSUED in the transaction of the command; `override` is kept with the document when its template is not yet confirmed. */
   async issue(scope: CommandScope, document: OutgoingDocumentRecord, file: IssuedFile, now: Date, override?: TemplateOverride): Promise<OutgoingDocumentRecord> {
@@ -94,5 +95,49 @@ export class OutgoingIssuance {
       // One issue, one event: a retry that reaches this point again emits nothing new.
       eventKey: `${OUTGOING_TYPE}:${issued.id}:issued`,
     });
+    await this.supersede(scope, issued, now);
+  }
+
+  /**
+   * A document that replaces or corrects another one takes effect when it is issued (DOC.md F9, BR-DOC-21): the system, in the same transaction, makes the old document REPLACED (no longer in force) or CORRECTED (in
+   * force, with its correction), keeps the history row, and tells the modules through `doc.replaced.v1` and `doc.corrected.v1`, each once.
+   */
+  private async supersede(scope: CommandScope, issued: OutgoingDocumentRecord, now: Date): Promise<void> {
+    const actor = scope.tenant.membershipId;
+    for (const taken of await this.supersessions.takeEffect(scope.tx, issued, actor)) {
+      const replaced = taken.kind === 'REPLACES';
+      await scope.audit({
+        action: replaced ? 'outgoing_document.replaced' : 'outgoing_document.corrected',
+        resourceType: OUTGOING_TYPE,
+        resourceId: taken.target.id,
+        diff: { from_status: taken.from, by_document_id: issued.documentId, by_outgoing_document_id: issued.id, by_symbol: issued.symbol, number: taken.target.documentNumber, symbol: taken.target.symbol },
+      });
+      await scope.emit({
+        aggregateType: OUTGOING_TYPE,
+        aggregateId: taken.target.id,
+        aggregateVersion: taken.target.version,
+        type: replaced ? 'doc.replaced.v1' : 'doc.corrected.v1',
+        schemaVersion: 1,
+        payload: {
+          tenant_id: scope.tenant.tenantId,
+          document_id: taken.target.documentId,
+          outgoing_document_id: taken.target.id,
+          version: taken.target.version,
+          actor_id: actor,
+          occurred_at: now.toISOString(),
+          source_module: taken.target.sourceModule,
+          source_ref: taken.target.sourceRef,
+          payload_sha256: taken.target.payloadSha256,
+          document_number: taken.target.documentNumber,
+          symbol: taken.target.symbol,
+          effect_status: replaced ? 'REPLACED' : 'CORRECTED',
+          by_document_id: issued.documentId,
+          by_outgoing_document_id: issued.id,
+          by_symbol: issued.symbol,
+        },
+        // A document is replaced once, and corrected once by each correction.
+        eventKey: `${OUTGOING_TYPE}:${taken.target.id}:${replaced ? 'replaced' : 'corrected'}:${issued.id}`,
+      });
+    }
   }
 }

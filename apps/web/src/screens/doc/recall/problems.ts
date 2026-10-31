@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 
 /** Why a command of DOC-19 failed, in the words of the screen. */
-export type ProblemReason = 'conflict' | 'state' | 'basis' | 'selfApproval' | 'approver' | 'invalid' | 'notFound' | 'denied' | 'session' | 'general';
+export type ProblemReason = 'conflict' | 'state' | 'open' | 'basis' | 'selfApproval' | 'approver' | 'invalid' | 'notFound' | 'denied' | 'session' | 'general';
 
 export interface ProblemView {
   reason: ProblemReason;
@@ -12,6 +12,8 @@ export interface ProblemView {
 const REASON_BY_CODE: Readonly<Record<string, ProblemReason>> = {
   VERSION_CONFLICT: 'conflict',
   DOCUMENT_STATE_INVALID: 'state',
+  REPLACEMENT_ALREADY_OPEN: 'open',
+  CORRECTION_ALREADY_OPEN: 'open',
   RECALL_BASIS_REQUIRED: 'basis',
   SELF_APPROVAL_DENIED: 'selfApproval',
   VALIDATION_FAILED: 'invalid',

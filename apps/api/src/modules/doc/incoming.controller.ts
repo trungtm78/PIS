@@ -308,7 +308,7 @@ export class IncomingController {
       // The answer is a letter of ours that was issued (status ISSUED or later), not a draft, and one that the caller may read: another unit's letter is as good as none.
       const issued = await this.outgoing.find(scope.tx, response, (first) => scopePredicate(access, PERMISSIONS.getOutgoingDocument, now, OUTGOING_SCOPE_COLUMNS, first));
       if (issued === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'response_outgoing_id');
-      if (!['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED'].includes(issued.status)) throw new DomainError('RESPONSE_DOCUMENT_NOT_ISSUED', 422, 'response_outgoing_id');
+      if (!['ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED', 'CORRECTED'].includes(issued.status)) throw new DomainError('RESPONSE_DOCUMENT_NOT_ISSUED', 422, 'response_outgoing_id');
     }
     // Resolving late is allowed, and is recorded: how many working days after the deadline.
     const lateDays = letter.dueOn === null ? 0 : workingDaysLate(letter.dueOn, vietnamDateOf(now), await this.calendar(scope.tx, now, [letter.dueOn]));

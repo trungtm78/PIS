@@ -14,6 +14,9 @@ const OTHER_ANCHOR = '00000000-0000-4000-8000-0000000000a8';
 const APPROVER = '00000000-0000-4000-8000-0000000000b1';
 const LEADER = ['doc.outgoing.read', 'doc.outgoing.recall'];
 const MANAGER = ['doc.outgoing.read', 'doc.outgoing.void_number'];
+const SUPERSEDER = ['doc.outgoing.read', 'doc.outgoing.replace', 'doc.outgoing.correct'];
+const NEW_DRAFT = '00000000-0000-4000-8000-0000000000e1';
+const CORRECTION = 'Replace “Article 3” with “Article 4” in the second paragraph';
 const REASON = 'Wrong figures in table 2, issued for the wrong period';
 
 const row = (overrides: Record<string, unknown> = {}) => ({
@@ -313,6 +316,159 @@ describe('RecallScreen (DOC-19)', () => {
       expect(await screen.findByText(vi_['doc.recall.frozen.notice'])).toBeTruthy();
       expect(screen.queryByRole('button', { name: vi_['doc.recall.void.submit.action'] })).toBeNull();
       view.unmount();
+    });
+  });
+
+  describe('replacing and correcting (AC-ST-DOC-015-1, UAT-AC412)', () => {
+    it('draws a replacement with the reason and the title (trimmed) under the version it saw, and points to the draft that was made', async () => {
+      const h = harness(answer({ docs: [row()] }), () => ({ status: 'DRAFT', resource_id: NEW_DRAFT, resource_version: 1 }));
+      mount(<RecallScreen route={ROUTE} />, h, SUPERSEDER);
+      const user = userEvent.setup();
+      const form = await screen.findByRole('form', { name: vi_['doc.recall.replace.form'] });
+      const button = within(form).getByRole('button', { name: vi_['doc.recall.replace.submit.action'] });
+      await user.click(button);
+      expect((await within(form).findByRole('alert')).textContent).toBe(vi_['doc.recall.reason.problem.required']);
+      await user.type(within(form).getByLabelText(vi_['doc.recall.replace.title.label']), 'ab');
+      await user.type(within(form).getByLabelText(vi_['doc.recall.replace.reason.label']), REASON);
+      await user.click(button);
+      expect((await within(form).findAllByRole('alert')).map((alert) => alert.textContent)).toEqual([vi_['doc.recall.text.problem.tooShort']]);
+      expect(h.command).not.toHaveBeenCalled();
+      await user.clear(within(form).getByLabelText(vi_['doc.recall.replace.title.label']));
+      await user.type(within(form).getByLabelText(vi_['doc.recall.replace.title.label']), '  Decision adjusting the total  ');
+      await user.click(button);
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+      expect(h.command.mock.calls[0]?.[0]).toBe('createReplacementDocument');
+      expect(h.command.mock.calls[0]?.[1]).toMatchObject({ path: { id: DOC }, ifMatchVersion: 6, body: { reason: REASON, title: 'Decision adjusting the total' } });
+      const done = await screen.findByTestId('done-notice');
+      expect(done.textContent).toContain(vi_['doc.recall.done.replaced']);
+      expect(within(done).getByRole('link', { name: vi_['doc.recall.done.draft.link'] }).getAttribute('href')).toBe(`/doc/doc-02?doc=${NEW_DRAFT}`);
+    });
+
+    it('sends no title when none is given, and draws a correction with its words and its reason', async () => {
+      const h = harness(answer({ docs: [row()] }), () => ({ status: 'DRAFT', resource_id: NEW_DRAFT, resource_version: 1 }));
+      mount(<RecallScreen route={ROUTE} />, h, SUPERSEDER);
+      const user = userEvent.setup();
+      const replaceForm = await screen.findByRole('form', { name: vi_['doc.recall.replace.form'] });
+      await user.type(within(replaceForm).getByLabelText(vi_['doc.recall.replace.reason.label']), REASON);
+      await user.click(within(replaceForm).getByRole('button', { name: vi_['doc.recall.replace.submit.action'] }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+      expect((h.command.mock.calls[0]?.[1] as { body: Record<string, unknown> }).body).toEqual({ reason: REASON });
+      const form = screen.getByRole('form', { name: vi_['doc.recall.correct.form'] });
+      const button = within(form).getByRole('button', { name: vi_['doc.recall.correct.submit.action'] });
+      await user.click(button);
+      expect((await within(form).findAllByRole('alert')).map((alert) => alert.textContent)).toEqual([vi_['doc.recall.text.problem.required'], vi_['doc.recall.reason.problem.required']]);
+      await user.type(within(form).getByLabelText(vi_['doc.recall.correct.text.label']), `  ${CORRECTION}  `);
+      await user.type(within(form).getByLabelText(vi_['doc.recall.correct.reason.label']), REASON);
+      await user.click(button);
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
+      expect(h.command.mock.calls[1]?.[0]).toBe('createCorrectionDocument');
+      expect(h.command.mock.calls[1]?.[1]).toMatchObject({ path: { id: DOC }, ifMatchVersion: 6, body: { reason: REASON, correction_text: CORRECTION } });
+      expect((await screen.findByTestId('done-notice')).textContent).toContain(vi_['doc.recall.done.corrected']);
+    });
+
+    it.each([
+      ['REPLACEMENT_ALREADY_OPEN', 409, 'doc.recall.problem.open'],
+      ['CORRECTION_ALREADY_OPEN', 409, 'doc.recall.problem.open'],
+      ['DOCUMENT_STATE_INVALID', 409, 'doc.recall.problem.state'],
+      ['VERSION_CONFLICT', 409, 'doc.recall.problem.conflict'],
+    ] as const)('says in words why a replacement or a correction was refused: %s', async (code, status, key) => {
+      const h = harness(answer({ docs: [row()] }), () => problem(status, code));
+      mount(<RecallScreen route={ROUTE} />, h, SUPERSEDER);
+      const user = userEvent.setup();
+      const form = await screen.findByRole('form', { name: vi_['doc.recall.correct.form'] });
+      await user.type(within(form).getByLabelText(vi_['doc.recall.correct.text.label']), CORRECTION);
+      await user.type(within(form).getByLabelText(vi_['doc.recall.correct.reason.label']), REASON);
+      await user.click(within(form).getByRole('button', { name: vi_['doc.recall.correct.submit.action'] }));
+      expect((await screen.findByRole('alert')).textContent).toContain(vi_[key]);
+      const replaceForm = screen.getByRole('form', { name: vi_['doc.recall.replace.form'] });
+      await user.type(within(replaceForm).getByLabelText(vi_['doc.recall.replace.reason.label']), REASON);
+      await user.click(within(replaceForm).getByRole('button', { name: vi_['doc.recall.replace.submit.action'] }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
+      expect((await screen.findByRole('alert')).textContent).toContain(vi_[key]);
+    });
+
+    it('offers each form only to the person who holds its permission, and neither for a document that is not in force or in a suspended tenant', async () => {
+      mount(<RecallScreen route={ROUTE} />, harness(answer({ docs: [row()] })), ['doc.outgoing.read', 'doc.outgoing.correct']);
+      expect(await screen.findByRole('form', { name: vi_['doc.recall.correct.form'] })).toBeTruthy();
+      expect(screen.queryByRole('form', { name: vi_['doc.recall.replace.form'] })).toBeNull();
+      cleanup();
+      mount(<RecallScreen route={ROUTE} />, harness(answer({ docs: [row()] })), LEADER);
+      await screen.findByRole('form', { name: vi_['doc.recall.recall.form'] });
+      expect(screen.queryByTestId('supersede')).toBeNull();
+      cleanup();
+      mount(<RecallScreen route={ROUTE} />, harness(answer({ docs: [row({ status: 'RECALLED', effect_status: 'RECALLED' })] })), SUPERSEDER, `/doc/doc-19?doc=${DOC}`);
+      await screen.findByTestId('recall-banner');
+      expect(screen.queryByTestId('supersede')).toBeNull();
+      cleanup();
+      const view = mountInSession(<RecallScreen route={ROUTE} />, harness(answer({ docs: [row()] })), { permissions: SUPERSEDER, mode: 'READ_ONLY' });
+      await screen.findByTestId('document-status');
+      expect(screen.queryByTestId('supersede')).toBeNull();
+      view.unmount();
+    });
+
+    it('shows a corrected document as in force with its correction, and a replaced one as no longer a legal basis', async () => {
+      const world: World = {
+        docs: [row({ status: 'CORRECTED', effect_status: 'CORRECTED' }), row({ id: OTHER, document_id: OTHER_ANCHOR, title: 'Replaced decision', status: 'REPLACED', effect_status: 'REPLACED', created_at: '2026-10-22T00:00:00Z' })],
+      };
+      mount(<RecallScreen route={ROUTE} />, harness(answer(world)), SUPERSEDER);
+      expect((await screen.findByTestId('document-status')).textContent).toBe(vi_['doc.recall.status.corrected']);
+      expect(screen.getByTestId('document-effect').textContent).toBe(vi_['doc.recall.effect.text'].replace('{effect}', vi_['doc.recall.effect.corrected']));
+      expect(screen.getByRole('form', { name: vi_['doc.recall.replace.form'] })).toBeTruthy();
+      const user = userEvent.setup();
+      await user.selectOptions(screen.getByLabelText(vi_['doc.recall.queue.label']), OTHER);
+      await waitFor(() => expect(screen.getByTestId('document-status').textContent).toBe(vi_['doc.recall.status.replaced']));
+      expect(screen.getByTestId('document-effect').textContent).toBe(vi_['doc.recall.effect.text'].replace('{effect}', vi_['doc.recall.effect.replaced']));
+      expect(screen.queryByTestId('supersede')).toBeNull();
+    });
+  });
+
+  describe('the relations of a document', () => {
+    const relation = (overrides: Record<string, unknown> = {}) => ({
+      id: 'r1',
+      kind: 'REPLACES',
+      direction: 'IN',
+      document_id: OTHER_ANCHOR,
+      outgoing_document_id: OTHER,
+      title: 'Decision adjusting the total',
+      symbol: null,
+      status: 'DRAFT',
+      note: REASON,
+      created_at: '2026-10-24T01:00:00.000Z',
+      ...overrides,
+    });
+
+    it('lists the documents that replace, correct or recall it and those it does so to, with the state of each, the note and a link to the draft or to the document', async () => {
+      const relations = [
+        relation(),
+        relation({ id: 'r2', kind: 'CORRECTS', title: 'Correction of the decision', status: 'ISSUED', symbol: '43/QD-UBND', note: null }),
+        relation({ id: 'r3', kind: 'RECALLS', direction: 'OUT', title: 'An older decision', status: 'RECALLED', outgoing_document_id: null }),
+        relation({ id: 'r4', kind: 'BASED_ON', direction: 'OUT', title: 'A basis', status: null, outgoing_document_id: OTHER }),
+        relation({ id: 'r5', kind: 'RECALLS', title: 'Recalling decision', status: 'ISSUED' }),
+        relation({ id: 'r6', kind: 'REPLACES', direction: 'OUT', title: 'Replaced earlier', status: 'REPLACED' }),
+        relation({ id: 'r7', kind: 'CORRECTS', direction: 'OUT', title: 'Corrected earlier', status: 'CORRECTED' }),
+      ];
+      mount(<RecallScreen route={ROUTE} />, harness(answer({ docs: [row({ relations })] })), LEADER);
+      const list = await screen.findByTestId('relations');
+      const items = within(list).getAllByRole('listitem');
+      expect(items.map((item) => item.getAttribute('data-kind'))).toEqual(['REPLACES', 'CORRECTS', 'RECALLS', 'OTHER', 'RECALLS', 'REPLACES', 'CORRECTS']);
+      expect(items[0]?.textContent).toContain(vi_['doc.recall.relation.replacedBy']);
+      expect(items[0]?.textContent).toContain(vi_['doc.draft.status.draft']);
+      expect(items[0]?.textContent).toContain(REASON);
+      expect(within(items[0] as HTMLElement).getByRole('link', { name: 'Decision adjusting the total' }).getAttribute('href')).toBe(`/doc/doc-02?doc=${OTHER}`);
+      expect(items[1]?.textContent).toContain(vi_['doc.recall.relation.correctedBy']);
+      expect(items[1]?.textContent).toContain('43/QD-UBND');
+      expect(within(items[1] as HTMLElement).getByRole('link', { name: 'Correction of the decision' }).getAttribute('href')).toBe(`/doc/doc-19?doc=${OTHER}`);
+      expect(items[2]?.textContent).toContain(vi_['doc.recall.relation.recalls']);
+      expect(within(items[2] as HTMLElement).queryByRole('link')).toBeNull();
+      expect(items[3]?.textContent).toContain(vi_['doc.recall.relation.other']);
+      expect(items[4]?.textContent).toContain(vi_['doc.recall.relation.recalledBy']);
+      expect(items[5]?.textContent).toContain(vi_['doc.recall.relation.replaces']);
+      expect(items[6]?.textContent).toContain(vi_['doc.recall.relation.corrects']);
+    });
+
+    it('says there is none when the document has no relation', async () => {
+      mount(<RecallScreen route={ROUTE} />, harness(answer({ docs: [row()] })), LEADER);
+      expect((await screen.findByTestId('relations-empty')).textContent).toBe(vi_['doc.recall.relations.empty']);
     });
   });
 

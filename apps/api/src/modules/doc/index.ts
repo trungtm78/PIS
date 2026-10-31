@@ -15,6 +15,7 @@ import { IssueRequestsController } from './issue-requests.controller';
 import { DocumentIssueService } from './issue-request.service';
 import { OutgoingDraftsController } from './outgoing-drafts.controller';
 import { OutgoingRecallController } from './recall.controller';
+import { OutgoingSupersessionController } from './supersession.controller';
 import { SignedDocumentsController } from './signed-documents.controller';
 import { PdfLibRenderer, loadRendererResources } from './pdf-renderer';
 import type { RendererResources } from './pdf-renderer';
@@ -55,6 +56,7 @@ export const docModule = defineModule({
     OutgoingIssuanceController,
     DocumentDistributionsController,
     OutgoingRecallController,
+    OutgoingSupersessionController,
   ],
   providers: [
     // The object storage of the platform replaces the in-memory adapter when it is bound (KERNEL-024).

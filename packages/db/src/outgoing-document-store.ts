@@ -645,7 +645,7 @@ export class OutgoingDocumentStore {
       `select o.id as outgoing_document_id, o.document_id, v.id as version_id, v.object_key, v.checksum
          from machvon.outgoing_document o
          join machvon.document_version v on v.tenant_id = o.tenant_id and v.document_id = o.document_id and v.stage = 'ORG_SEALED' and v.scan_status = 'CLEAN'
-        where o.status in ('ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED') and ($2::uuid is null or v.id > $2::uuid)
+        where o.status in ('ISSUED', 'DELIVERED', 'ACKNOWLEDGED', 'FILED', 'ARCHIVED', 'CORRECTED') and ($2::uuid is null or v.id > $2::uuid)
           and (not exists (select 1 from machvon.document_signature s where s.document_version_id = v.id)
                or exists (select 1 from machvon.document_signature s
                            where s.document_version_id = v.id

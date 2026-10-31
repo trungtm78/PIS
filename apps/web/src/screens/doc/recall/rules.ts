@@ -20,6 +20,24 @@ export function reasonProblem(reason: string, limit: number): ReasonProblem | un
 
 export const isUuid = (value: string): boolean => UUID.test(value.trim());
 
+/** The documents in force that can be replaced or corrected: the states of a recall, a corrected one included. */
+export const canSupersede = (status: DocumentStatus): boolean => RECALLABLE_STATUSES.some((candidate) => candidate === status);
+
+export const MIN_TITLE_CHARS = 3;
+export const MAX_TITLE_CHARS = 500;
+export const MIN_CORRECTION_CHARS = 5;
+export const MAX_CORRECTION_CHARS = 4000;
+
+export type TextProblem = 'required' | 'tooShort' | 'tooLong';
+
+/** What is wrong with a text as typed, judged on its trimmed length the way the server does. */
+export function textProblem(value: string, min: number, max: number): TextProblem | undefined {
+  const length = value.trim().length;
+  if (length === 0) return 'required';
+  if (length < min) return 'tooShort';
+  return length > max ? 'tooLong' : undefined;
+}
+
 export const canRecall = (status: DocumentStatus): boolean => RECALLABLE_STATUSES.some((candidate) => candidate === status);
 export const canVoid = (status: DocumentStatus): boolean => VOIDABLE_STATUSES.some((candidate) => candidate === status);
 

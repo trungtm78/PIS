@@ -279,6 +279,17 @@ describe('dossiers over HTTP (ST-DOC-013)', () => {
     expect((await show(ARCHIVIST, dossier)).json.items).toHaveLength(3);
   });
 
+  it('files a corrected document too, which is still in force: it stays CORRECTED, with its effect, and the step is in its timeline (ST-DOC-015)', async () => {
+    const dossier = (await create(ARCHIVIST)).json.resource_id as string;
+    const documentId = await issued({ status: 'CORRECTED' });
+    await owner("update machvon.document set effect_status = 'CORRECTED', symbol = 'KQ-C/QD-UBND', document_number = 5999, number_year = 2026 where id = $1", [documentId]);
+    expect(await add(ARCHIVIST, dossier, 1, { document_id: documentId })).toMatchObject({ status: 200, json: { ordinal: 1, document_id: documentId } });
+    const [kept] = await owner<{ status: string; effect_status: string }>('select o.status, d.effect_status from machvon.outgoing_document o join machvon.document d on d.id = o.document_id where o.document_id = $1', [documentId]);
+    expect(kept).toEqual({ status: 'CORRECTED', effect_status: 'CORRECTED' });
+    const [step] = await owner<{ from_status: string; to_status: string }>("select e.from_status, e.to_status from machvon.outgoing_document_event e join machvon.outgoing_document o on o.id = e.outgoing_document_id where o.document_id = $1 and e.kind = 'FILED'", [documentId]);
+    expect(step).toEqual({ from_status: 'CORRECTED', to_status: 'CORRECTED' });
+  });
+
   it('keeps a filed document in the sweep of the revocation of its certificates', async () => {
     const documentId = await issued();
     await app.harness.tenants.withTenant(contextFor(TENANT_A, memberId(ADMIN)), async (tx) => {

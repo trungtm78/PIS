@@ -269,6 +269,8 @@
     "raiseNonconformance",
     "reactivateMembership",
     "recallOutgoingDocument",
+    "createReplacementDocument",
+    "createCorrectionDocument",
     "receiveProcurementPetition",
     "receiveProposal",
     "receiveTreasuryCallback",

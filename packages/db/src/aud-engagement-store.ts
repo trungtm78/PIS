@@ -1,4 +1,4 @@
-import { DomainError, activeGrants, assertEngagementClosable, holdKindOf, nextEngagementStatus, permissionMatches, versionConflict } from '@machvon/kernel';
+import { activeGrants, assertEngagementClosable, DomainError, holdKindOf, isInForce, nextEngagementStatus, permissionMatches, versionConflict } from '@machvon/kernel';
 import type { EffectiveAccess, EngagementStatus, EngagementType, ResourceRef } from '@machvon/kernel';
 import { LegalHoldStore } from './legal-hold-store.ts';
 import type { HoldScope } from './legal-hold-store.ts';
@@ -257,7 +257,7 @@ export class AudEngagementStore {
    */
   async create(tx: TenantTx, input: NewEngagement, targets: readonly ResolvedTarget[], actor: string): Promise<{ id: string; version: number }> {
     const [document] = await tx.query<{ doc_kind: string; effect_status: string }>('select doc_kind, effect_status from machvon.document where id = $1::uuid', [input.decisionDocumentId]);
-    if (document === undefined || !['INCOMING', 'REFERENCE'].includes(document.doc_kind) || document.effect_status !== 'EFFECTIVE') {
+    if (document === undefined || !['INCOMING', 'REFERENCE'].includes(document.doc_kind) || !isInForce(document.effect_status)) {
       throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422);
     }
     const [coordinator] = await tx.query<{ id: string }>("select id from machvon.membership where id = $1::uuid and status = 'Active'", [input.coordinatorId]);
@@ -383,7 +383,7 @@ export class AudEngagementStore {
     const status = nextEngagementStatus(row.status, 'start');
     if (input.startedOn > input.today) throw new DomainError('VALIDATION_FAILED', 422, 'started_on');
     const [document] = await tx.query<{ effect_status: string }>('select effect_status from machvon.document where id = $1::uuid', [row.decisionDocumentId]);
-    if (document?.effect_status !== 'EFFECTIVE') throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422);
+    if (document === undefined || !isInForce(document.effect_status)) throw new DomainError('DECISION_DOCUMENT_NOT_EFFECTIVE', 422);
     let holdId: string | null = null;
     if (input.placeLegalHold) {
       const scope = await this.holdScope(tx, row.id);

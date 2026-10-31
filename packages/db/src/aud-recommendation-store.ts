@@ -7,6 +7,7 @@ import {
   effectivePermissions,
   holdsPermission,
   nextRecommendationStatus,
+  isInForce,
 } from '@machvon/kernel';
 import type { EffectiveAccess, EngagementStatus, RecommendationStatus, RecommendationType } from '@machvon/kernel';
 import { engagementScope } from './aud-engagement-store.ts';
@@ -357,7 +358,7 @@ export class AudRecommendationStore {
   /** The document must be in force: the evidence of work, an explanation, a basis of closure (BR-AUD-09); one that is not is the refusal the caller names. */
   private async assertEffective(tx: TenantTx, documentId: string, refusal: DomainError, kinds?: readonly string[]): Promise<void> {
     const [document] = await tx.query<{ doc_kind: string; effect_status: string }>('select doc_kind, effect_status from machvon.document where id = $1::uuid', [documentId]);
-    if (document === undefined || document.effect_status !== 'EFFECTIVE' || (kinds !== undefined && !kinds.includes(document.doc_kind))) throw refusal;
+    if (document === undefined || !isInForce(document.effect_status) || (kinds !== undefined && !kinds.includes(document.doc_kind))) throw refusal;
   }
 
   /**
