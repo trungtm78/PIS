@@ -37352,6 +37352,15 @@
             }
           },
           {
+            "name": "at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "A day (YYYY-MM-DD, up to the end of it in Vietnam) or an instant with its zone: only the entries posted up to it, and the balance they add up to."
+          },
+          {
             "name": "cursor",
             "in": "query",
             "required": false,
@@ -37377,7 +37386,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/CapLedgerPage"
                 }
               }
             }
@@ -37464,7 +37473,10 @@
           }
         },
         "x-exposure": "dto",
-        "x-exposure-reason": "Read model with DTO allowlist and object scope"
+        "x-exposure-reason": "Read model with DTO allowlist and object scope",
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/reports/{id}/withdrawal": {
@@ -162091,6 +162103,196 @@
           "as_of": {
             "type": "string",
             "format": "date"
+          }
+        }
+      },
+      "CapLedgerEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "entry_type",
+          "amount_vnd",
+          "plan_year",
+          "appropriation_id",
+          "allocation_line_id",
+          "project",
+          "source_ref_kind",
+          "source_ref_id",
+          "reversal_of_id",
+          "reason",
+          "posted_at",
+          "posted_by"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entry_type": {
+            "type": "string",
+            "enum": [
+              "APPROPRIATE",
+              "ALLOCATE",
+              "REDUCE",
+              "TRANSFER_OUT",
+              "TRANSFER_IN",
+              "RESERVE",
+              "RELEASE",
+              "COMMIT",
+              "UNCOMMIT",
+              "DISBURSE",
+              "EXTEND_OUT",
+              "EXTEND_IN",
+              "LAPSE",
+              "REVERSAL"
+            ]
+          },
+          "amount_vnd": {
+            "type": "string"
+          },
+          "plan_year": {
+            "type": "integer"
+          },
+          "appropriation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "allocation_line_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "project": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "source_ref_kind": {
+            "type": "string"
+          },
+          "source_ref_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reversal_of_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "posted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "posted_by": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "CapLedgerPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "balance",
+          "entry_count",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CapLedgerEntry"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "balance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "appropriated_vnd",
+              "allocated_vnd",
+              "reserved_vnd",
+              "committed_vnd",
+              "disbursed_vnd"
+            ],
+            "properties": {
+              "appropriated_vnd": {
+                "type": "string"
+              },
+              "allocated_vnd": {
+                "type": "string"
+              },
+              "reserved_vnd": {
+                "type": "string"
+              },
+              "committed_vnd": {
+                "type": "string"
+              },
+              "disbursed_vnd": {
+                "type": "string"
+              }
+            }
+          },
+          "entry_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

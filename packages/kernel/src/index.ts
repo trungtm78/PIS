@@ -603,3 +603,5 @@ export { REVISION_KINDS, PROJECT_REVISION_STATUSES, assertRevisionDecision, asse
 export type { RevisionBase, RevisionDecision, RevisionKind, RevisionProposal, ProjectRevisionStatus } from './prj-revision.ts';
 export { MAX_COMPONENT_DEPTH, MILESTONE_ENDED, MILESTONE_STATUSES, assertComponentInput, assertMilestoneInput, assertMilestoneProgress, calendarDaysBetween, delayDays, formsCycle, wbsExceedsTotal } from './prj-wbs.ts';
 export type { ComponentInput, MilestoneSchedule, MilestoneInput, MilestoneNow, MilestoneProgress, MilestoneStatus } from './prj-wbs.ts';
+export { LEDGER_COLUMNS, foldBalance, ledgerEffect } from './cap-ledger.ts';
+export type { LedgerColumn, LedgerEffect, LedgerTotal } from './cap-ledger.ts';

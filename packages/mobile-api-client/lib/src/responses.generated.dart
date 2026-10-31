@@ -543,7 +543,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listBiQueryRuns': asObject,
   'listCampaigns': CampaignPageResponse.fromJson,
   'listCannedReplies': CannedReplyListResponse.fromJson,
-  'listCapitalLedger': asObject,
+  'listCapitalLedger': CapLedgerPageResponse.fromJson,
   'listCapitalPlanLines': asObject,
   'listCompensationPayments': asObject,
   'listCompensationPlanItems': asObject,
@@ -3023,6 +3023,228 @@ final class CapAvcPreviewResponse implements ResponseModel {
         if (warn != null) 'warn': warn,
         if (block != null) 'block': block,
         if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CapLedgerEntryResponse implements ResponseModel {
+  const CapLedgerEntryResponse({
+    required this.id,
+    required this.entryType,
+    required this.amountVnd,
+    required this.planYear,
+    required this.appropriationId,
+    required this.allocationLineId,
+    required this.project,
+    required this.sourceRefKind,
+    required this.sourceRefId,
+    required this.reversalOfId,
+    required this.reason,
+    required this.postedAt,
+    required this.postedBy,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapLedgerEntryResponse.fromJson(Object? json, [String path = 'CapLedgerEntryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapLedgerEntryResponse(
+      id: requiredField(map, path, 'id', asString),
+      entryType: requiredField(map, path, 'entry_type', asString),
+      amountVnd: requiredField(map, path, 'amount_vnd', asString),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      appropriationId: requiredField(map, path, 'appropriation_id', asString),
+      allocationLineId: requiredField(map, path, 'allocation_line_id', nullable(asString)),
+      project: requiredField(map, path, 'project', nullable(CapLedgerEntryResponseProject.fromJson)),
+      sourceRefKind: requiredField(map, path, 'source_ref_kind', asString),
+      sourceRefId: requiredField(map, path, 'source_ref_id', asString),
+      reversalOfId: requiredField(map, path, 'reversal_of_id', nullable(asString)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      postedAt: requiredField(map, path, 'posted_at', asString),
+      postedBy: requiredField(map, path, 'posted_by', CapLedgerEntryResponsePostedBy.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'entry_type', 'amount_vnd', 'plan_year', 'appropriation_id', 'allocation_line_id', 'project', 'source_ref_kind', 'source_ref_id', 'reversal_of_id', 'reason', 'posted_at', 'posted_by'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String entryType;
+  final String amountVnd;
+  final int planYear;
+  final String appropriationId;
+  final String? allocationLineId;
+  final CapLedgerEntryResponseProject? project;
+  final String sourceRefKind;
+  final String sourceRefId;
+  final String? reversalOfId;
+  final String? reason;
+  final String postedAt;
+  final CapLedgerEntryResponsePostedBy postedBy;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'entry_type': entryType,
+        'amount_vnd': amountVnd,
+        'plan_year': planYear,
+        'appropriation_id': appropriationId,
+        'allocation_line_id': allocationLineId,
+        'project': (project == null ? null : project!.toJson()),
+        'source_ref_kind': sourceRefKind,
+        'source_ref_id': sourceRefId,
+        'reversal_of_id': reversalOfId,
+        'reason': reason,
+        'posted_at': postedAt,
+        'posted_by': postedBy.toJson(),
+        ...extra,
+      };
+}
+
+final class CapLedgerEntryResponsePostedBy implements ResponseModel {
+  const CapLedgerEntryResponsePostedBy({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapLedgerEntryResponsePostedBy.fromJson(Object? json, [String path = 'CapLedgerEntryResponsePostedBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapLedgerEntryResponsePostedBy(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String? displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class CapLedgerEntryResponseProject implements ResponseModel {
+  const CapLedgerEntryResponseProject({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapLedgerEntryResponseProject.fromJson(Object? json, [String path = 'CapLedgerEntryResponseProject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapLedgerEntryResponseProject(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class CapLedgerPageResponse implements ResponseModel {
+  const CapLedgerPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.balance,
+    required this.entryCount,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapLedgerPageResponse.fromJson(Object? json, [String path = 'CapLedgerPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapLedgerPageResponse(
+      items: requiredField(map, path, 'items', asList(CapLedgerEntryResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      balance: requiredField(map, path, 'balance', CapLedgerPageResponseBalance.fromJson),
+      entryCount: requiredField(map, path, 'entry_count', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'balance', 'entry_count', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<CapLedgerEntryResponse> items;
+  final String? nextCursor;
+  final CapLedgerPageResponseBalance balance;
+  final int entryCount;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'balance': balance.toJson(),
+        'entry_count': entryCount,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CapLedgerPageResponseBalance implements ResponseModel {
+  const CapLedgerPageResponseBalance({
+    required this.appropriatedVnd,
+    required this.allocatedVnd,
+    required this.reservedVnd,
+    required this.committedVnd,
+    required this.disbursedVnd,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapLedgerPageResponseBalance.fromJson(Object? json, [String path = 'CapLedgerPageResponseBalance']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapLedgerPageResponseBalance(
+      appropriatedVnd: requiredField(map, path, 'appropriated_vnd', asString),
+      allocatedVnd: requiredField(map, path, 'allocated_vnd', asString),
+      reservedVnd: requiredField(map, path, 'reserved_vnd', asString),
+      committedVnd: requiredField(map, path, 'committed_vnd', asString),
+      disbursedVnd: requiredField(map, path, 'disbursed_vnd', asString),
+      extra: unknownFields(map, path, const <String>{'appropriated_vnd', 'allocated_vnd', 'reserved_vnd', 'committed_vnd', 'disbursed_vnd'}, strict: true),
+    );
+  }
+
+  final String appropriatedVnd;
+  final String allocatedVnd;
+  final String reservedVnd;
+  final String committedVnd;
+  final String disbursedVnd;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'appropriated_vnd': appropriatedVnd,
+        'allocated_vnd': allocatedVnd,
+        'reserved_vnd': reservedVnd,
+        'committed_vnd': committedVnd,
+        'disbursed_vnd': disbursedVnd,
         ...extra,
       };
 }

@@ -439,6 +439,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'registerAppropriation',
         'decideAppropriation',
         'listAppropriations',
+        'listCapitalLedger',
         'createCapitalPlan',
         'draftCapitalAllocation',
         'submitCapitalPlan',

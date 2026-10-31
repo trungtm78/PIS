@@ -1820,3 +1820,9 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-PRJ-009 (gap, components): a component cannot be edited or retired after it is written, and the sum of the children is not set against the value of their parent.
 - ST-PRJ-009 (gap, dependencies): a milestone may be done before the milestone it waits for; the module document does not forbid it.
 - ST-PRJ-009 (gap, consumers): nothing consumes `project.milestone_updated.v1`; the milestones are not offered to the dashboards.
+
+### ST-CAP-014 (capital ledger explorer, slice CAP-1)
+- ST-CAP-014 (decision, scope): an entry of a project is read in the scope of the caller over the project; an entry of no project (the appropriation of a source) only by a holder of `capital.ledger.read` on the whole tenant, because the module document gives the ledger a tenant data scope but the story asks for scoped entries only.
+- ST-CAP-014 (decision, balance): the balance is the sum of the entries by the effect of each kind (the table of `cap-ledger.ts`: appropriated, allocated, reserved, committed, disbursed); `CapBalanceReconcileJob` keeps its own SQL copy of the allocated, committed and disbursed effects, to be replaced by this table.
+- ST-CAP-014 (gap, snapshot): the balance at a day is worked out from the entries on every read; no snapshot of a closed day is kept.
+- ST-CAP-014 (gap, reservations): the job that expires a reservation and releases it is ST-CAP-011; the screen shows whatever reserve and release entries exist.

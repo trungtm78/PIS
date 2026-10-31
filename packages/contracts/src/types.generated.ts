@@ -23298,6 +23298,51 @@ export interface components {
             /** Format: date */
             as_of: string;
         };
+        CapLedgerEntry: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            entry_type: "APPROPRIATE" | "ALLOCATE" | "REDUCE" | "TRANSFER_OUT" | "TRANSFER_IN" | "RESERVE" | "RELEASE" | "COMMIT" | "UNCOMMIT" | "DISBURSE" | "EXTEND_OUT" | "EXTEND_IN" | "LAPSE" | "REVERSAL";
+            amount_vnd: string;
+            plan_year: number;
+            /** Format: uuid */
+            appropriation_id: string;
+            /** Format: uuid */
+            allocation_line_id: string | null;
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            } | null;
+            source_ref_kind: string;
+            /** Format: uuid */
+            source_ref_id: string;
+            /** Format: uuid */
+            reversal_of_id: string | null;
+            reason: string | null;
+            /** Format: date-time */
+            posted_at: string;
+            posted_by: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string | null;
+            };
+        };
+        CapLedgerPage: {
+            items: components["schemas"]["CapLedgerEntry"][];
+            next_cursor: string | null;
+            balance: {
+                appropriated_vnd: string;
+                allocated_vnd: string;
+                reserved_vnd: string;
+                committed_vnd: string;
+                disbursed_vnd: string;
+            };
+            entry_count: number;
+            /** Format: date-time */
+            as_of: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -49071,6 +49116,8 @@ export interface operations {
                 appropriation_id?: string;
                 allocation_line_id?: string;
                 project_id?: string;
+                /** @description A day (YYYY-MM-DD, up to the end of it in Vietnam) or an instant with its zone: only the entries posted up to it, and the balance they add up to. */
+                at?: string;
                 cursor?: string;
                 limit?: number;
             };
@@ -49086,7 +49133,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["CapLedgerPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

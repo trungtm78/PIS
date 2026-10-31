@@ -85,7 +85,7 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES } from '../suite';
+import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, CAPITAL_LEDGER_FIXTURES } from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { EXPORT_FIXTURES, INVOICE_FIXTURES, exportManifestObjectId, exportManifestSha, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -414,6 +414,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'registerAppropriation',
   'decideAppropriation',
   'listAppropriations',
+  'listCapitalLedger',
   'createCapitalPlan',
   'draftCapitalAllocation',
   'submitCapitalPlan',
@@ -1048,6 +1049,11 @@ const INSERT_TRANSFER = `insert into machvon.project_transfer
   (tenant_id, id, project_id, from_unit_id, to_unit_id, transfer_scope, effective_date, reason, status, created_by, updated_by)
   select $1, $2, $3, $4, $5, 'OWNER_UNIT', current_date + 30, $6, 'REQUESTED', $7::uuid, $7::uuid
    where not exists (select 1 from machvon.project_transfer where id = $2::uuid)`;
+
+const INSERT_CAPITAL_LEDGER_ENTRY = `insert into machvon.capital_ledger_entry
+  (tenant_id, id, appropriation_id, entry_type, amount_vnd, plan_year, source_ref_kind, source_ref_id, reason, posted_by)
+  select $1, $2, $3, 'APPROPRIATE', 1000, 2026, 'APPROPRIATION', $3, $4, $5::uuid
+   where not exists (select 1 from machvon.capital_ledger_entry where id = $2::uuid)`;
 
 const INSERT_PROJECT_MILESTONE = `insert into machvon.project_milestone
   (tenant_id, id, project_id, code, name, baseline_date, planned_date, status, created_by, updated_by)
@@ -1926,6 +1932,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_WARNING, [tenantId, warning.warningId, warning.ruleId, project.id, home, period.id, snapshot.id, warning.dedupeKey, MEMBERSHIP_ID]);
     await client.query(INSERT_EXPLANATION, [tenantId, EXPLANATION_FIXTURES[tenant].id, project.id, period.id, null, EXPLANATION_FIXTURES[tenant].question, MEMBERSHIP_ID]);
     await client.query(INSERT_TRANSFER, [tenantId, TRANSFER_FIXTURES[tenant].id, project.id, home, UNIT_FIXTURES[tenant][1]?.id ?? home, TRANSFER_FIXTURES[tenant].reason, MEMBERSHIP_ID]);
+    await client.query(INSERT_CAPITAL_LEDGER_ENTRY, [tenantId, CAPITAL_LEDGER_FIXTURES[tenant].id, appropriation.id, CAPITAL_LEDGER_FIXTURES[tenant].reason, MEMBERSHIP_ID]);
     await client.query(INSERT_PROJECT_MILESTONE, [tenantId, MILESTONE_FIXTURES[tenant].id, project.id, MILESTONE_FIXTURES[tenant].code, MILESTONE_FIXTURES[tenant].name, MEMBERSHIP_ID]);
     await client.query(INSERT_REVISION, [tenantId, REVISION_FIXTURES[tenant].id, project.id, REVISION_FIXTURES[tenant].reason, MEMBERSHIP_ID]);
     await client.query(INSERT_RISK, [tenantId, RISK_FIXTURES[tenant].id, project.id, RISK_FIXTURES[tenant].code, master.versionId, RISK_FIXTURES[tenant].title, MEMBERSHIP_ID]);

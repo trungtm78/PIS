@@ -726,3 +726,5 @@ export { PrjRevisionStore, REVISABLE_STATUSES, REVISION_RESOURCE } from './prj-r
 export type { DecideRevision, DocumentRef, PersonRef, ProposeRevision, RevisionChange, ProjectRevisionLine, ProjectRevisionRegister } from './prj-revision-store.ts';
 export { COMPONENT_RESOURCE, MILESTONE_RESOURCE, PrjWbsStore, WBS_EXCEEDS_TOTAL } from './prj-wbs-store.ts';
 export type { ComponentChange, ComponentLine, ComponentRegister, ComponentWrite, DependencyWrite, ProjectMilestoneChange, ProjectMilestoneLine, MilestoneProgressWrite, MilestoneWrite } from './prj-wbs-store.ts';
+export { CapLedgerReads } from './cap-ledger-reads.ts';
+export type { CapitalLedgerEntry, CapitalLedgerFilter, CapitalLedgerPage, CapitalLedgerScope } from './cap-ledger-reads.ts';
