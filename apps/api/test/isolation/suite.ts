@@ -621,6 +621,12 @@ export const RISK_FIXTURES: Readonly<Record<TenantName, { id: string; code: stri
   'TNT-B': { id: '00000000-0000-4000-b0ff-000000000001', code: 'BETA-RISK-0001', title: 'Beta tenant risk of the delayed site handover 0001' },
 };
 
+/** A milestone of the schedule of a project of each tenant (the name is distinctive: what a tenant promises for its projects is internal to it). */
+export const MILESTONE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; name: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0f9-000000000001', code: 'ALPHA-MS-0001', name: 'Alpha tenant milestone of the groundbreaking 0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0f9-000000000001', code: 'BETA-MS-0001', name: 'Beta tenant milestone of the groundbreaking 0001' },
+};
+
 /** A revision of a project waiting for its decision, of each tenant (the reason is distinctive: what a tenant says it changes in a project is internal to it). */
 export const REVISION_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0fe-000000000001', reason: 'Alpha tenant reason to revise the investment total of the project 0001' },
@@ -1329,6 +1335,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'reallocation proposal id', value: REALLOCATION_FIXTURES[tenant].id },
     { kind: 'reallocation proposal code', value: REALLOCATION_FIXTURES[tenant].code },
     { kind: 'transfer reason', value: TRANSFER_FIXTURES[tenant].reason },
+    { kind: 'project milestone id', value: MILESTONE_FIXTURES[tenant].id },
+    { kind: 'project milestone code', value: MILESTONE_FIXTURES[tenant].code },
+    { kind: 'project milestone name', value: MILESTONE_FIXTURES[tenant].name },
     { kind: 'project revision id', value: REVISION_FIXTURES[tenant].id },
     { kind: 'project revision reason', value: REVISION_FIXTURES[tenant].reason },
     { kind: 'project risk id', value: RISK_FIXTURES[tenant].id },

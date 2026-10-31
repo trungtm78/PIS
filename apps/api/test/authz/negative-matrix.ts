@@ -963,6 +963,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.legalHoldId}/transfers`, ifMatch: '"1"', body: { to_unit_id: t.unit2, transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Matrix attempt to transfer a project' } }),
   },
+  addProjectComponent: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/components`, body: { code: 'MX-C', name: 'Matrix component', planned_value_vnd: '1', valid_from: '2026-01-01' } }),
+  },
+  addProjectMilestone: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/milestones`, body: { code: 'MX-M', name: 'Matrix milestone', baseline_date: '2026-02-01', planned_date: '2026-02-02' } }),
+  },
+  recordMilestoneProgress: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-milestones/${t.legalHoldId}/progress`, ifMatch: '"1"', body: { status: 'CANCELLED', reason: REASON } }),
+  },
+  setMilestoneDependency: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-milestones/${t.legalHoldId}/dependency`, ifMatch: '"1"', body: { depends_on_milestone_id: null } }),
+  },
   proposeProjectRevision: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/revisions`, ifMatch: '"1"', body: { change_kind: 'ADJUST_INVESTMENT', after: {}, total_investment_vnd: '999', reason: 'Matrix attempt to revise a project' } }),

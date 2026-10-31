@@ -8942,6 +8942,19 @@ final class PrjMilestoneActual implements RequestModel {
       };
 }
 
+final class PrjMilestoneDependency implements RequestModel {
+  const PrjMilestoneDependency({
+    required this.dependsOnMilestoneId,
+  });
+
+  final Object? dependsOnMilestoneId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'depends_on_milestone_id': dependsOnMilestoneId,
+      };
+}
+
 final class PrjMilestoneInput implements RequestModel {
   const PrjMilestoneInput({
     required this.code,

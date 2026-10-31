@@ -147,7 +147,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MONEY = /^(0|[1-9][0-9]*)$/;
 const YEAR = /^\d{4}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-const isDay = (date: string): boolean => DATE.test(date) && new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) === date;
+function isDay(date: string): boolean {
+  const parsed = new Date(`${date}T00:00:00Z`);
+  return DATE.test(date) && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date;
+}
 
 /** The day of the form in Vietnam (UTC+7), as `YYYY-MM-DD`. */
 export const vietnamToday = (now: Date = new Date()): string => new Date(now.getTime() + 7 * 3_600_000).toISOString().slice(0, 10);

@@ -3528,7 +3528,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Cấu phần và WBS của dự án */
+        get: operations["listProjectComponents"];
         put?: never;
         /** Thêm cấu phần WBS */
         post: operations["addProjectComponent"];
@@ -3545,7 +3546,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Tiến độ và mốc của dự án */
+        get: operations["listProjectMilestones"];
         put?: never;
         /** Thêm mốc tiến độ */
         post: operations["addProjectMilestone"];
@@ -15331,6 +15333,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/project-milestones/{id}/dependency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đặt mốc mà một mốc phải chờ (không tạo vòng) */
+        post: operations["setMilestoneDependency"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -23215,6 +23234,67 @@ export interface components {
         PrjRevisionList: {
             items: components["schemas"]["PrjRevisionLine"][];
             current_total_investment_vnd: string;
+            /** Format: date */
+            as_of: string;
+        };
+        PrjMilestoneDependency: {
+            /** Format: uuid */
+            depends_on_milestone_id: string | null;
+        };
+        PrjComponentLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            parent_component_id: string | null;
+            code: string;
+            name: string;
+            planned_value_vnd: string;
+            sort_order: number;
+            /** Format: date */
+            valid_from: string;
+            /** Format: date */
+            valid_until: string | null;
+            depth: number;
+        };
+        PrjComponentList: {
+            items: components["schemas"]["PrjComponentLine"][];
+            wbs_total_vnd: string;
+            project_total_vnd: string;
+            exceeds_total: boolean;
+            /** Format: date */
+            as_of: string;
+        };
+        PrjMilestoneLine: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            component: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            } | null;
+            /** Format: date */
+            baseline_date: string;
+            /** Format: date */
+            planned_date: string;
+            /** Format: date */
+            actual_date: string | null;
+            depends_on: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            } | null;
+            /** @enum {string} */
+            status: "PLANNED" | "DONE" | "DELAYED" | "CANCELLED";
+            reason: string | null;
+            delay_days: number;
+            delayed: boolean;
+            version: number;
+        };
+        PrjMilestoneList: {
+            items: components["schemas"]["PrjMilestoneLine"][];
             /** Format: date */
             as_of: string;
         };
@@ -43990,6 +44070,100 @@ export interface operations {
             };
         };
     };
+    listProjectComponents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrjComponentList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     addProjectComponent: {
         parameters: {
             query?: never;
@@ -44016,6 +44190,100 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProjectMilestones: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrjMilestoneList"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -115618,6 +115886,108 @@ export interface operations {
             };
             /** @description Not found within scope (never discloses other tenants) */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    setMilestoneDependency: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrjMilestoneDependency"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

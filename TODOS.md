@@ -1813,3 +1813,10 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-PRJ-008 (gap, consumers): nothing consumes `project.revised.v1` (MNE obligations); the legal dossier PRJ-04 lists the documents of the revisions only, not those of the stage changes, the appraisal or the transfers.
 - ST-PRJ-008 (decision, stages): a project takes revisions from PIPELINE to COMPLETED; before the project bank the dossier is edited directly, and from SETTLED on it no longer changes.
 - ST-PRJ-008 (decision, scope): a scope revision (`ADJUST_SCOPE`) is only recorded on the revision, the project having no scope column; the investor and decision-authority units are not checked against the permission of the proposer.
+
+### ST-PRJ-009 (work breakdown and milestones, slice PRJ-1)
+- ST-PRJ-009 (decision, contract): the module document lists no way to change what a milestone waits for after it is written, yet UAT-PLAN-58 saves a dependency between existing milestones, so the command `setMilestoneDependency` and the two reads `listProjectComponents` and `listProjectMilestones` were added to the contract.
+- ST-PRJ-009 (decision, delay): a delay is counted from the baseline day in calendar days (done: the day it was done; open: the planned day or today once it has passed), as the story says; the status `DELAYED` is the one a person sets when moving the planned day, and `delayed` on a line is the computed flag.
+- ST-PRJ-009 (gap, components): a component cannot be edited or retired after it is written, and the sum of the children is not set against the value of their parent.
+- ST-PRJ-009 (gap, dependencies): a milestone may be done before the milestone it waits for; the module document does not forbid it.
+- ST-PRJ-009 (gap, consumers): nothing consumes `project.milestone_updated.v1`; the milestones are not offered to the dashboards.

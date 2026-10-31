@@ -601,3 +601,5 @@ export { CRITICAL_SCORE, SCALE_MAX, ENDING_STATUSES, LIVE_STATUSES, RISK_LEVELS,
 export type { EndingStatus, LiveStatus, RiskClosure, RiskEntry, RiskLevel, RiskStatus } from './prj-risk.ts';
 export { REVISION_KINDS, PROJECT_REVISION_STATUSES, assertRevisionDecision, assertRevisionProposal } from './prj-revision.ts';
 export type { RevisionBase, RevisionDecision, RevisionKind, RevisionProposal, ProjectRevisionStatus } from './prj-revision.ts';
+export { MAX_COMPONENT_DEPTH, MILESTONE_ENDED, MILESTONE_STATUSES, assertComponentInput, assertMilestoneInput, assertMilestoneProgress, calendarDaysBetween, delayDays, formsCycle, wbsExceedsTotal } from './prj-wbs.ts';
+export type { ComponentInput, MilestoneSchedule, MilestoneInput, MilestoneNow, MilestoneProgress, MilestoneStatus } from './prj-wbs.ts';

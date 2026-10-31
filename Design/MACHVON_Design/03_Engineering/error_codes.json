@@ -5321,6 +5321,14 @@
       "module": "PRJ",
       "statusBasis": "spec",
       "source": "openapi"
+    },
+    "MILESTONE_STATE_INVALID": {
+      "status": 409,
+      "title": "Milestone state invalid",
+      "meaning": "Raised by recordMilestoneProgress, setMilestoneDependency (POST /project-milestones/{id}/progress, /dependency): a milestone that is done or cancelled is not changed again",
+      "module": "PRJ",
+      "statusBasis": "convention",
+      "source": "openapi"
     }
   }
 }

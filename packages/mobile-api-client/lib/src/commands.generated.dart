@@ -1798,6 +1798,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listProcurementResults({Map<String, Object?>? query}) =>
       execute('listProcurementResults', query: query);
 
+  Future<Object?> listProjectComponents({required String id, Map<String, Object?>? query}) =>
+      execute('listProjectComponents', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> listProjectMilestones({required String id, Map<String, Object?>? query}) =>
+      execute('listProjectMilestones', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> listProjectPipeline({Map<String, Object?>? query}) =>
       execute('listProjectPipeline', query: query);
 
@@ -2625,6 +2631,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> setChannelLimits(ChannelLimits body, {required String channelAccountId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('setChannelLimits', path: <String, Object?>{'channelAccountId': channelAccountId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> setMilestoneDependency(PrjMilestoneDependency body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('setMilestoneDependency', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> setNotificationTestRecipients(NotificationTestRecipients body, {CommandAttempt? attempt}) =>
       execute('setNotificationTestRecipients', body: body, attempt: attempt);

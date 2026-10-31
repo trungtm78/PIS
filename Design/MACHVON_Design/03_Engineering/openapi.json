@@ -30268,7 +30268,8 @@
         },
         "x-error-codes": [
           "COMPONENT_CODE_DUPLICATE",
-          "WBS_EXCEEDS_TOTAL"
+          "VALIDATION_FAILED",
+          "PROJECT_STAGE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -30281,6 +30282,119 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listProjectComponents",
+        "summary": "Cấu phần và WBS của dự án",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "project.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrjComponentList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope"
       }
     },
     "/projects/{id}/milestones": {
@@ -30414,7 +30528,8 @@
         },
         "x-error-codes": [
           "MILESTONE_CODE_DUPLICATE",
-          "DEPENDENCY_CYCLE"
+          "VALIDATION_FAILED",
+          "PROJECT_STAGE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -30427,6 +30542,119 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listProjectMilestones",
+        "summary": "Tiến độ và mốc của dự án",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "project.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrjMilestoneList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope"
       }
     },
     "/project-milestones/{id}/progress": {
@@ -30560,7 +30788,8 @@
         },
         "x-error-codes": [
           "VALIDATION_FAILED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "MILESTONE_STATE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -132517,6 +132746,157 @@
           }
         }
       }
+    },
+    "/project-milestones/{id}/dependency": {
+      "post": {
+        "operationId": "setMilestoneDependency",
+        "summary": "Đặt mốc mà một mốc phải chờ (không tạo vòng)",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "project.update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "DEPENDENCY_CYCLE",
+          "VERSION_CONFLICT",
+          "MILESTONE_STATE_INVALID",
+          "VALIDATION_FAILED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.milestone_updated.v1"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjMilestoneDependency"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -161469,6 +161849,244 @@
           },
           "current_total_investment_vnd": {
             "type": "string"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PrjMilestoneDependency": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "depends_on_milestone_id"
+        ],
+        "properties": {
+          "depends_on_milestone_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "PrjComponentLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "parent_component_id",
+          "code",
+          "name",
+          "planned_value_vnd",
+          "sort_order",
+          "valid_from",
+          "valid_until",
+          "depth"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parent_component_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "planned_value_vnd": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "valid_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "PrjComponentList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "wbs_total_vnd",
+          "project_total_vnd",
+          "exceeds_total",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrjComponentLine"
+            }
+          },
+          "wbs_total_vnd": {
+            "type": "string"
+          },
+          "project_total_vnd": {
+            "type": "string"
+          },
+          "exceeds_total": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PrjMilestoneLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "name",
+          "component",
+          "baseline_date",
+          "planned_date",
+          "actual_date",
+          "depends_on",
+          "status",
+          "reason",
+          "delay_days",
+          "delayed",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "component": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "baseline_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "planned_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "actual_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "depends_on": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PLANNED",
+              "DONE",
+              "DELAYED",
+              "CANCELLED"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "delay_days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "delayed": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "PrjMilestoneList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrjMilestoneLine"
+            }
           },
           "as_of": {
             "type": "string",

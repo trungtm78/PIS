@@ -375,7 +375,7 @@ describe('the model of the revisions', () => {
     const today = '2026-10-31';
     expect(validateDecision(DECISION, today)).toEqual({});
     expect(validateDecision(EMPTY_DECISION, today)).toEqual({ reason: 'required', documentId: 'required', effectiveFrom: 'required' });
-    expect(validateDecision({ ...DECISION, reason: 'No', documentId: 'x', effectiveFrom: '2026-02-30' }, today)).toEqual({ reason: 'invalid', documentId: 'invalid', effectiveFrom: 'invalid' });
+    expect(validateDecision({ ...DECISION, reason: 'No', documentId: 'x', effectiveFrom: '2026-13-01' }, today)).toEqual({ reason: 'invalid', documentId: 'invalid', effectiveFrom: 'invalid' });
     expect(validateDecision({ ...DECISION, effectiveFrom: '2026-11-01' }, today)).toEqual({ effectiveFrom: 'past' });
     expect(validateDecision({ decision: 'reject', reason: 'Not justified', documentId: '', effectiveFrom: '' }, today)).toEqual({});
     expect(validateDecision({ decision: 'reject', reason: 'Not justified', documentId: 'x', effectiveFrom: '' }, today)).toEqual({ documentId: 'invalid' });

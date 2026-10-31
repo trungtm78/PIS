@@ -601,6 +601,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProcurementPetitions': BidPetitionListResponse.fromJson,
   'listProcurementPlans': asObject,
   'listProcurementResults': BidResultListResponse.fromJson,
+  'listProjectComponents': PrjComponentListResponse.fromJson,
+  'listProjectMilestones': PrjMilestoneListResponse.fromJson,
   'listProjectPipeline': asObject,
   'listProjectRevisions': PrjRevisionListResponse.fromJson,
   'listProjectRisks': PrjRiskRegisterResponse.fromJson,
@@ -877,6 +879,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'sendTestNotification': CommandResultResponse.fromJson,
   'setChangeChainTiers': CommandResultResponse.fromJson,
   'setChannelLimits': CommandResultResponse.fromJson,
+  'setMilestoneDependency': CommandResultResponse.fromJson,
   'setNotificationTestRecipients': CommandResultResponse.fromJson,
   'shareDashboard': CommandResultResponse.fromJson,
   'signAiEvalRun': CommandResultResponse.fromJson,
@@ -18822,6 +18825,274 @@ final class PreferenceViewResponseLockedItem implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'event_category': eventCategory,
         'channel': channel,
+        ...extra,
+      };
+}
+
+final class PrjComponentLineResponse implements ResponseModel {
+  const PrjComponentLineResponse({
+    required this.id,
+    required this.parentComponentId,
+    required this.code,
+    required this.name,
+    required this.plannedValueVnd,
+    required this.sortOrder,
+    required this.validFrom,
+    required this.validUntil,
+    required this.depth,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjComponentLineResponse.fromJson(Object? json, [String path = 'PrjComponentLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjComponentLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      parentComponentId: requiredField(map, path, 'parent_component_id', nullable(asString)),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      plannedValueVnd: requiredField(map, path, 'planned_value_vnd', asString),
+      sortOrder: requiredField(map, path, 'sort_order', asInt),
+      validFrom: requiredField(map, path, 'valid_from', asString),
+      validUntil: requiredField(map, path, 'valid_until', nullable(asString)),
+      depth: requiredField(map, path, 'depth', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'parent_component_id', 'code', 'name', 'planned_value_vnd', 'sort_order', 'valid_from', 'valid_until', 'depth'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String? parentComponentId;
+  final String code;
+  final String name;
+  final String plannedValueVnd;
+  final int sortOrder;
+  final String validFrom;
+  final String? validUntil;
+  final int depth;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'parent_component_id': parentComponentId,
+        'code': code,
+        'name': name,
+        'planned_value_vnd': plannedValueVnd,
+        'sort_order': sortOrder,
+        'valid_from': validFrom,
+        'valid_until': validUntil,
+        'depth': depth,
+        ...extra,
+      };
+}
+
+final class PrjComponentListResponse implements ResponseModel {
+  const PrjComponentListResponse({
+    required this.items,
+    required this.wbsTotalVnd,
+    required this.projectTotalVnd,
+    required this.exceedsTotal,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjComponentListResponse.fromJson(Object? json, [String path = 'PrjComponentListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjComponentListResponse(
+      items: requiredField(map, path, 'items', asList(PrjComponentLineResponse.fromJson)),
+      wbsTotalVnd: requiredField(map, path, 'wbs_total_vnd', asString),
+      projectTotalVnd: requiredField(map, path, 'project_total_vnd', asString),
+      exceedsTotal: requiredField(map, path, 'exceeds_total', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'wbs_total_vnd', 'project_total_vnd', 'exceeds_total', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<PrjComponentLineResponse> items;
+  final String wbsTotalVnd;
+  final String projectTotalVnd;
+  final bool exceedsTotal;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'wbs_total_vnd': wbsTotalVnd,
+        'project_total_vnd': projectTotalVnd,
+        'exceeds_total': exceedsTotal,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PrjMilestoneLineResponse implements ResponseModel {
+  const PrjMilestoneLineResponse({
+    required this.id,
+    required this.code,
+    required this.name,
+    required this.component,
+    required this.baselineDate,
+    required this.plannedDate,
+    required this.actualDate,
+    required this.dependsOn,
+    required this.status,
+    required this.reason,
+    required this.delayDays,
+    required this.delayed,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjMilestoneLineResponse.fromJson(Object? json, [String path = 'PrjMilestoneLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjMilestoneLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      component: requiredField(map, path, 'component', nullable(PrjMilestoneLineResponseComponent.fromJson)),
+      baselineDate: requiredField(map, path, 'baseline_date', asString),
+      plannedDate: requiredField(map, path, 'planned_date', asString),
+      actualDate: requiredField(map, path, 'actual_date', nullable(asString)),
+      dependsOn: requiredField(map, path, 'depends_on', nullable(PrjMilestoneLineResponseDependsOn.fromJson)),
+      status: requiredField(map, path, 'status', asString),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      delayDays: requiredField(map, path, 'delay_days', asInt),
+      delayed: requiredField(map, path, 'delayed', asBool),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'component', 'baseline_date', 'planned_date', 'actual_date', 'depends_on', 'status', 'reason', 'delay_days', 'delayed', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+  final PrjMilestoneLineResponseComponent? component;
+  final String baselineDate;
+  final String plannedDate;
+  final String? actualDate;
+  final PrjMilestoneLineResponseDependsOn? dependsOn;
+  final String status;
+  final String? reason;
+  final int delayDays;
+  final bool delayed;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        'component': (component == null ? null : component!.toJson()),
+        'baseline_date': baselineDate,
+        'planned_date': plannedDate,
+        'actual_date': actualDate,
+        'depends_on': (dependsOn == null ? null : dependsOn!.toJson()),
+        'status': status,
+        'reason': reason,
+        'delay_days': delayDays,
+        'delayed': delayed,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class PrjMilestoneLineResponseComponent implements ResponseModel {
+  const PrjMilestoneLineResponseComponent({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjMilestoneLineResponseComponent.fromJson(Object? json, [String path = 'PrjMilestoneLineResponseComponent']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjMilestoneLineResponseComponent(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class PrjMilestoneLineResponseDependsOn implements ResponseModel {
+  const PrjMilestoneLineResponseDependsOn({
+    required this.id,
+    required this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjMilestoneLineResponseDependsOn.fromJson(Object? json, [String path = 'PrjMilestoneLineResponseDependsOn']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjMilestoneLineResponseDependsOn(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        ...extra,
+      };
+}
+
+final class PrjMilestoneListResponse implements ResponseModel {
+  const PrjMilestoneListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjMilestoneListResponse.fromJson(Object? json, [String path = 'PrjMilestoneListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjMilestoneListResponse(
+      items: requiredField(map, path, 'items', asList(PrjMilestoneLineResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<PrjMilestoneLineResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
         ...extra,
       };
 }

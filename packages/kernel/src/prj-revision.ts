@@ -29,7 +29,7 @@ function text(raw: unknown, field: string, min: number, max: number): string {
   return value;
 }
 
-function money(raw: unknown, field: string): string {
+export function wholeMoney(raw: unknown, field: string): string {
   const matched = typeof raw === 'string' ? MONEY.exec(raw.trim()) : null;
   const whole = matched?.[1];
   if (whole === undefined || whole.length > MAX_MONEY_DIGITS) throw invalid(field);
@@ -80,8 +80,8 @@ export function assertRevisionProposal(raw: { change_kind?: unknown; after?: unk
   switch (kind) {
     case 'ADJUST_INVESTMENT': {
       onlyKeys(after, ['total_investment_vnd']);
-      const total = money(raw.total_investment_vnd, 'total_investment_vnd');
-      if (after.total_investment_vnd !== undefined && money(after.total_investment_vnd, 'after.total_investment_vnd') !== total) throw invalid('after.total_investment_vnd');
+      const total = wholeMoney(raw.total_investment_vnd, 'total_investment_vnd');
+      if (after.total_investment_vnd !== undefined && wholeMoney(after.total_investment_vnd, 'after.total_investment_vnd') !== total) throw invalid('after.total_investment_vnd');
       if (total === base.totalInvestmentVnd) throw invalid('total_investment_vnd');
       return { kind, reason, before: { total_investment_vnd: base.totalInvestmentVnd }, after: { total_investment_vnd: total }, totalInvestmentVnd: total };
     }
