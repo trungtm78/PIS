@@ -615,6 +615,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listReallocationProposals': OperationDescriptor(method: 'GET', path: '/reallocation-proposals', versioned: false, stepUp: null, permission: 'capital.read'),
   'listReconciliationItems': OperationDescriptor(method: 'GET', path: '/reconciliation-items', versioned: false, stepUp: null, permission: 'reconciliation.read'),
   'listReconciliations': OperationDescriptor(method: 'GET', path: '/dgv/reconciliations', versioned: false, stepUp: null, permission: 'data.quality.read'),
+  'listResettlementAllocations': OperationDescriptor(method: 'GET', path: '/resettlement-allocations', versioned: false, stepUp: null, permission: 'land.read'),
+  'listResettlementCandidates': OperationDescriptor(method: 'GET', path: '/resettlement-allocations/candidates', versioned: false, stepUp: null, permission: 'land.read'),
   'listRetentionHolds': OperationDescriptor(method: 'GET', path: '/contracts/{id}/retention-holds', versioned: false, stepUp: null, permission: 'ledger.read'),
   'listRoutingPolicies': OperationDescriptor(method: 'GET', path: '/conversation-routing-policies', versioned: false, stepUp: null, permission: 'omni.policy.manage'),
   'listScorecardContractors': OperationDescriptor(method: 'GET', path: '/contractor-scorecards', versioned: false, stepUp: null, permission: 'contractor.performance.read'),

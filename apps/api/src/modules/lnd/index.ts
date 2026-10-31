@@ -8,6 +8,7 @@ import { CompensationPaymentController, CompensationPaymentReadsController } fro
 import { CompensationPlanController, CompensationPlanReadsController } from './plan.controller';
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from './plan-posting.controller';
 import { LandParcelImportController } from './parcel-import.controller';
+import { ResettlementController, ResettlementReadsController } from './resettlement.controller';
 import { LandReadsController } from './read.controller';
 import { LandSectionController } from './section.controller';
 import { LandStageProgressController } from './stage-progress.controller';
@@ -20,6 +21,6 @@ import { FIELD_CIPHER } from './tokens';
  */
 export const lndModule = defineModule({
   code: 'LND',
-  controllers: [LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController],
+  controllers: [LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController, ResettlementController, ResettlementReadsController],
   providers: [{ provide: FIELD_CIPHER, useFactory: () => createFieldCipher() }],
 });

@@ -287,6 +287,8 @@ export interface World {
   feedback: Array<Record<string, unknown>>;
   payments: Array<Record<string, unknown>>;
   complaints: Array<Record<string, unknown>>;
+  allocations: Array<Record<string, unknown>>;
+  candidates: Array<Record<string, unknown>>;
   timers: Record<string, Record<string, unknown>>;
   sections: Array<Record<string, unknown>>;
   units: Array<Record<string, unknown>>;
@@ -309,6 +311,8 @@ export function world(overrides: Partial<World> = {}): World {
     feedback: [],
     payments: [],
     complaints: [],
+    allocations: [],
+    candidates: [],
     timers: {},
     sections: [{ id: SECTION, code: 'KM-0-3', name: 'Km 0 đến km 3' }],
     units: [
@@ -348,6 +352,10 @@ export function client(state: World, command: (operation: string, input: unknown
           return Promise.resolve(state.payments.filter((item) => item.plan_id === input?.path?.id));
         case 'listLandComplaints':
           return Promise.resolve(state.complaints.filter((item) => item.project_id === input?.query?.project_id));
+        case 'listResettlementAllocations':
+          return Promise.resolve(state.allocations.filter((item) => item.project_id === input?.query?.project_id));
+        case 'listResettlementCandidates':
+          return Promise.resolve(state.candidates);
         case 'listPlanFeedback':
           return Promise.resolve(state.feedback.filter((item) => item.plan_id === input?.path?.id));
         case 'listLandSections':

@@ -13,6 +13,7 @@ import { CompensationPlanController, CompensationPlanReadsController } from '../
 import { CompensationPlanPostingController, CompensationPlanPostingReadsController } from '../../src/modules/lnd/plan-posting.controller';
 import { CompensationPaymentController, CompensationPaymentReadsController } from '../../src/modules/lnd/payment.controller';
 import { LandComplaintController, LandComplaintReadsController } from '../../src/modules/lnd/complaint.controller';
+import { ResettlementController, ResettlementReadsController } from '../../src/modules/lnd/resettlement.controller';
 import { LandParcelImportController } from '../../src/modules/lnd/parcel-import.controller';
 import { LandReadsController } from '../../src/modules/lnd/read.controller';
 import { LandSectionController } from '../../src/modules/lnd/section.controller';
@@ -156,7 +157,7 @@ describe('the progress of land clearance by stage, tracked from outside (ST-LND-
   }, 60_000);
 
   it('is registered in the module of LND', () => {
-    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController]);
+    expect(lndModule.controllers).toEqual([LandSectionController, LandParcelController, LandParcelImportController, LandReadsController, LandStageProgressController, AffectedHouseholdController, AffectedHouseholdReadsController, LandInventoryController, LandInventoryReadsController, CompensationPlanController, CompensationPlanReadsController, CompensationPlanPostingController, CompensationPlanPostingReadsController, CompensationPaymentController, CompensationPaymentReadsController, LandComplaintController, LandComplaintReadsController, ResettlementController, ResettlementReadsController]);
   });
 
   describe('reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387)', () => {

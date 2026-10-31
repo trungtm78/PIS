@@ -10516,7 +10516,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Danh sách phân bổ tái định cư của dự án, hộ chỉ hiện dạng che (LND-12) */
+        get: operations["listResettlementAllocations"];
         put?: never;
         /** Phân bổ lô/căn tái định cư cho hộ đủ điều kiện */
         post: operations["allocateResettlement"];
@@ -15395,6 +15396,23 @@ export interface paths {
         };
         /** Data product với trạng thái chứng nhận, hạn và điều kiện chứng nhận của từng dataset (DGV-18) */
         get: operations["listDataProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resettlement-allocations/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hạng mục tái định cư của phương án đã duyệt chưa có lô/căn (LND-12) */
+        get: operations["listResettlementCandidates"];
         put?: never;
         post?: never;
         delete?: never;
@@ -23618,6 +23636,64 @@ export interface components {
         };
         CapReservationPage: {
             items: components["schemas"]["CapReservationLine"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        LndResettlementLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            project_id: string;
+            household: {
+                /** Format: uuid */
+                id: string;
+                household_code: string;
+                head_name: string;
+            };
+            /** Format: uuid */
+            plan_item_id: string | null;
+            /** Format: uuid */
+            owner_unit_id: string;
+            /** @enum {string} */
+            unit_kind: "PLOT" | "APARTMENT" | "HOUSE";
+            unit_code: string;
+            site_text: string;
+            area_m2: string | null;
+            priority_rank: number | null;
+            /** Format: date */
+            allocated_on: string | null;
+            /** Format: date */
+            handed_on: string | null;
+            /** @enum {string} */
+            status: "ELIGIBLE" | "ALLOCATED" | "HANDED_OVER" | "DECLINED";
+            version: number;
+        };
+        LndResettlementPage: {
+            items: components["schemas"]["LndResettlementLine"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        LndResettlementCandidate: {
+            /** Format: uuid */
+            plan_item_id: string;
+            /** Format: uuid */
+            plan_id: string;
+            household: {
+                /** Format: uuid */
+                id: string;
+                household_code: string;
+                head_name: string;
+            };
+            /** Format: uuid */
+            owner_unit_id: string;
+            /** @enum {string} */
+            item_kind: "RESETTLEMENT_LAND" | "RESETTLEMENT_HOUSE";
+            unit_kinds: ("PLOT" | "APARTMENT" | "HOUSE")[];
+        };
+        LndResettlementCandidates: {
+            items: components["schemas"]["LndResettlementCandidate"][];
             next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
@@ -87983,6 +88059,85 @@ export interface operations {
             };
         };
     };
+    listResettlementAllocations: {
+        parameters: {
+            query: {
+                project_id: string;
+                status?: "ELIGIBLE" | "ALLOCATED" | "HANDED_OVER" | "DECLINED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LndResettlementPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     allocateResettlement: {
         parameters: {
             query?: never;
@@ -116636,6 +116791,84 @@ export interface operations {
             };
             /** @description Rate limit */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listResettlementCandidates: {
+        parameters: {
+            query: {
+                project_id: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LndResettlementCandidates"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

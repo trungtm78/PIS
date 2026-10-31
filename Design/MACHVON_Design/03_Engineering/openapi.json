@@ -93104,7 +93104,9 @@
         "x-error-codes": [
           "UNIT_ALREADY_ALLOCATED",
           "HOUSEHOLD_NOT_ELIGIBLE",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -93173,6 +93175,129 @@
           },
           "422": {
             "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listResettlementAllocations",
+        "summary": "Danh sách phân bổ tái định cư của dự án, hộ chỉ hiện dạng che (LND-12)",
+        "tags": [
+          "LND"
+        ],
+        "x-permission": "land.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ELIGIBLE",
+                "ALLOCATED",
+                "HANDED_OVER",
+                "DECLINED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo đơn vị của hộ); màn LND-08, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LndResettlementPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -133318,6 +133443,118 @@
           }
         }
       }
+    },
+    "/resettlement-allocations/candidates": {
+      "get": {
+        "operationId": "listResettlementCandidates",
+        "summary": "Hạng mục tái định cư của phương án đã duyệt chưa có lô/căn (LND-12)",
+        "tags": [
+          "LND"
+        ],
+        "x-permission": "land.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo đơn vị của hộ); màn LND-08, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LndResettlementCandidates"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -163613,6 +163850,239 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CapReservationLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LndResettlementLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "household",
+          "plan_item_id",
+          "owner_unit_id",
+          "unit_kind",
+          "unit_code",
+          "site_text",
+          "area_m2",
+          "priority_rank",
+          "allocated_on",
+          "handed_on",
+          "status",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "household": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "household_code",
+              "head_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "household_code": {
+                "type": "string"
+              },
+              "head_name": {
+                "type": "string"
+              }
+            }
+          },
+          "plan_item_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "owner_unit_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unit_kind": {
+            "type": "string",
+            "enum": [
+              "PLOT",
+              "APARTMENT",
+              "HOUSE"
+            ]
+          },
+          "unit_code": {
+            "type": "string"
+          },
+          "site_text": {
+            "type": "string"
+          },
+          "area_m2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "priority_rank": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "allocated_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "handed_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ELIGIBLE",
+              "ALLOCATED",
+              "HANDED_OVER",
+              "DECLINED"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "LndResettlementPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LndResettlementLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LndResettlementCandidate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "plan_item_id",
+          "plan_id",
+          "household",
+          "owner_unit_id",
+          "item_kind",
+          "unit_kinds"
+        ],
+        "properties": {
+          "plan_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "household": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "household_code",
+              "head_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "household_code": {
+                "type": "string"
+              },
+              "head_name": {
+                "type": "string"
+              }
+            }
+          },
+          "owner_unit_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item_kind": {
+            "type": "string",
+            "enum": [
+              "RESETTLEMENT_LAND",
+              "RESETTLEMENT_HOUSE"
+            ]
+          },
+          "unit_kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PLOT",
+                "APARTMENT",
+                "HOUSE"
+              ]
+            }
+          }
+        }
+      },
+      "LndResettlementCandidates": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LndResettlementCandidate"
             }
           },
           "next_cursor": {

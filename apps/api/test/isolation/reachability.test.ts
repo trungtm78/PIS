@@ -99,7 +99,8 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   // Reads that are not a list of rows of the tenant: the published theme answers 403 to a tenant that has none, and the global search needs a text (its own channel
   // of the isolation suite reads it).
   // The reads of the caller's own access, entitlements and notification preferences answer one object, not a page of rows: they are read for leaks like the others. The preferences hold an `items` list that is empty for a person who never saved. The two rates answer one aggregate over a snapshot (its groups are asked for), not a page of rows.
-  const LISTS_WITHOUT_ROWS: string[] = ['getAuditOverview', 'getCommandCenter', 'getConversionOptions', 'getDisbursementForecast', 'getDisbursementRates', 'getDocumentOverview', 'getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyProfile', 'getMyUsage'];
+  // listResettlementCandidates reads the items of approved plans that give resettlement and have no unit yet: the fixtures hold no such plan (its isolation is tested with the rows of the allocations, and by the test of the command).
+  const LISTS_WITHOUT_ROWS: string[] = ['getAuditOverview', 'getCommandCenter', 'getConversionOptions', 'getDisbursementForecast', 'getDisbursementRates', 'getDocumentOverview', 'getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyProfile', 'getMyUsage', 'listResettlementCandidates'];
   // The capital available on a line or an appropriation names what it reads in its query (the line or the appropriation): it is not a list.
   // The drill of a figure names what it reads in a signed token of the member (another member's or another tenant's token is a 400 of its own, tested with the drill): it is not a list either.
   const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getDeliveryOverview', 'getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability', 'getPaymentChain', 'explainHomeMetric', 'getDisbursementRankings', 'explainBiMetric', 'listNotificationTestRecipients', 'getIssueWeeklyMatrix']);
@@ -112,7 +113,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   };
   const pathOf = (operationId: string): string => listOperations(doc).find((entry) => entry.id === operationId)?.path ?? '';
   // The lists of a project name the project they read: both tenants read the project of TNT-B, so TNT-A must meet none of its rows and TNT-B all of them.
-  const PROJECT_LISTS: ReadonlySet<string> = new Set(['listLandParcels', 'listLandSections', 'listAffectedHouseholds', 'listCompensationPlans', 'listUpcomingLandDeadlines', 'listLandComplaints']);
+  const PROJECT_LISTS: ReadonlySet<string> = new Set(['listLandParcels', 'listLandSections', 'listAffectedHouseholds', 'listCompensationPlans', 'listUpcomingLandDeadlines', 'listLandComplaints', 'listResettlementAllocations', 'listResettlementCandidates']);
   // The list of the records of a household names the household it reads.
   const HOUSEHOLD_LISTS: ReadonlySet<string> = new Set(['listInventoryRecords']);
   const readAs = async (tenant: 'TNT-A' | 'TNT-B', operationId: string): Promise<{ status: number; body: string }> => {

@@ -1867,3 +1867,9 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-CAP-011 (decision, expiry): the job marks the status EXPIRED and posts a RELEASE entry with the reason `EXPIRED`, and announces `capital.reservation_released.v1` with status EXPIRED (the document lists only created and released).
 - ST-CAP-011 (decision, reconcile): the nightly balance check compares the reserved column too, since reservations now post entries.
 - ST-CAP-011 (gap): the consumption of a reservation by a payment request of PAY is the payment consumer (ST-PAY); no other module consumes the events yet.
+
+### ST-LND-012 (resettlement allocation, slice LND-1)
+- ST-LND-012 (decision, contract): the module document names no way to read the allocations or the items waiting for a unit, yet LND-12 lists the first and the form needs the second, so the reads `listResettlementAllocations` and `listResettlementCandidates` (`land.read`, as the complaints) were added.
+- ST-LND-012 (decision, item): the document makes `plan_item_id` optional in the table; the acceptance criterion says an allocation requires an approved plan item, so the command refuses a request without it (422 HOUSEHOLD_NOT_ELIGIBLE, reason NO_PLAN_ITEM). A plan that is approved, being paid or paid stands; a land item gives a plot, a house item a house or a flat.
+- ST-LND-012 (decision, unit): the unit that answers is the unit of the household (as for a complaint); one item gives one unit (a second unique index); a declined allocation gives the unit code back.
+- ST-LND-012 (gap): handing a unit over (`HANDED_OVER`, `handed_on`) and the household declining it have no command in the contract; the states exist in the table and are guarded, nothing moves them.

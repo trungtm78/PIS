@@ -20,6 +20,7 @@ import {
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
+  ALLOCATION_FIXTURES,
   GLOSSARY_FIXTURES,
   MEMBERSHIP_FIXTURES,
   NOTIFICATION_FIXTURES,
@@ -513,6 +514,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'fileLandComplaint',
   'resolveLandComplaint',
   'listLandComplaints',
+  'allocateResettlement',
+  'listResettlementAllocations',
+  'listResettlementCandidates',
   'createAuditEngagement',
   'startAuditEngagement',
   'endAuditFieldwork',
@@ -1565,6 +1569,10 @@ const INSERT_PARCEL = `insert into machvon.land_parcel
   values ($1, $2, $3, $4, $5, 'AGRICULTURAL', 100, 50, 'SURVEYED', 1, $6, $6) on conflict do nothing`;
 
 /** A household of the unit that owns the parcel above; the scope of its unit is put first because the policy of the table applies to the owner too. The sealed name is a stand-in the application cannot open. */
+const INSERT_RESETTLEMENT = `insert into machvon.resettlement_allocation
+  (tenant_id, id, household_id, owner_unit_id, unit_kind, unit_code, site_text, allocated_on, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 'PLOT', $5, $6, date '2026-10-20', 'ALLOCATED', $7, $7) on conflict do nothing`;
+
 const INSERT_HOUSEHOLD = `insert into machvon.affected_household
   (tenant_id, id, project_id, owner_unit_id, household_code, head_name, head_name_enc, legal_basis, legal_basis_ref, retention_until, status, version, created_by, updated_by)
   values ($1, $2, $3, $4, $5, 'I*********', decode('00', 'hex'), 'PUBLIC_TASK_LAND_LAW', 'Isolation fixture legal basis', date '2036-12-31', 'REGISTERED', 1, $6, $6) on conflict do nothing`;
@@ -1853,6 +1861,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query("select set_config('app.scope_units', '*', false)");
     await client.query(INSERT_HOUSEHOLD, [tenantId, HOUSEHOLD_FIXTURES[tenant].id, project.id, home, HOUSEHOLD_FIXTURES[tenant].code, ACTOR_ID]);
+    await client.query(INSERT_RESETTLEMENT, [tenantId, ALLOCATION_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, ALLOCATION_FIXTURES[tenant].unitCode, ALLOCATION_FIXTURES[tenant].siteText, ACTOR_ID]);
     await client.query(INSERT_HOUSEHOLD_PARCEL, [tenantId, INVENTORY_FIXTURES[tenant].linkId, HOUSEHOLD_FIXTURES[tenant].id, PARCEL_FIXTURES[tenant].id, home, ACTOR_ID]);
     await client.query(INSERT_COMPLAINT, [tenantId, COMPLAINT_FIXTURES[tenant].id, project.id, HOUSEHOLD_FIXTURES[tenant].id, home, COMPLAINT_FIXTURES[tenant].number, COMPLAINT_FIXTURES[tenant].words, MEMBERSHIP_ID]);
     await client.query(INSERT_COMP_PLAN, [tenantId, PLAN_COMP_FIXTURES[tenant].id, project.id, home, PLAN_COMP_FIXTURES[tenant].code, MEMBERSHIP_ID]);

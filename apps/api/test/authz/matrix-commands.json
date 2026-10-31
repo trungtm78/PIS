@@ -169,6 +169,7 @@
     "extendGuarantee",
     "extendIssueDeadline",
     "fileLandComplaint",
+    "allocateResettlement",
     "editMneReport",
     "generateMneExportPackage",
     "generateMneObligations",

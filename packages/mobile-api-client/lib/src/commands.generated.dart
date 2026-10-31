@@ -1843,6 +1843,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listReconciliations({Map<String, Object?>? query}) =>
       execute('listReconciliations', query: query);
 
+  Future<Object?> listResettlementAllocations({Map<String, Object?>? query}) =>
+      execute('listResettlementAllocations', query: query);
+
+  Future<Object?> listResettlementCandidates({Map<String, Object?>? query}) =>
+      execute('listResettlementCandidates', query: query);
+
   Future<Object?> listRetentionHolds({required String id, Map<String, Object?>? query}) =>
       execute('listRetentionHolds', path: <String, Object?>{'id': id}, query: query);
 

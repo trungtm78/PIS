@@ -2456,6 +2456,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/audit-engagements/${t.legalHoldId}/follow-up-reports`, ifMatch: '"1"', body: { conclusion_id: t.planId, as_of_date: '2026-10-20' } }),
   },
+  allocateResettlement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/resettlement-allocations', body: { household_id: t.householdId, plan_item_id: t.legalHoldId, owner_unit_id: t.unit2, unit_kind: 'PLOT', unit_code: 'PLOT-1', site_text: 'Resettlement site' } }),
+  },
   fileLandComplaint: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/land-complaints', body: { project_id: t.projectId, household_id: t.householdId, owner_unit_id: t.unit2, channel: 'LETTER', subject: 'PRICE', description: REASON, filed_on: '2026-10-20' } }),

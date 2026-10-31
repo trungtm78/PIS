@@ -616,6 +616,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listReallocationProposals': asObject,
   'listReconciliationItems': PayReconciliationItemPageResponse.fromJson,
   'listReconciliations': ListReconciliationsResponse.fromJson,
+  'listResettlementAllocations': LndResettlementPageResponse.fromJson,
+  'listResettlementCandidates': LndResettlementCandidatesResponse.fromJson,
   'listRetentionHolds': PayCumulativeLedgerResponse.fromJson,
   'listRoutingPolicies': RoutingPolicyListResponse.fromJson,
   'listScorecardContractors': ScorecardContractorsResponse.fromJson,
@@ -16972,6 +16974,266 @@ final class LndParcelFileResponse implements ResponseModel {
         'format': format,
         'columns': columns,
         'row_count': rowCount,
+        ...extra,
+      };
+}
+
+final class LndResettlementCandidateResponse implements ResponseModel {
+  const LndResettlementCandidateResponse({
+    required this.planItemId,
+    required this.planId,
+    required this.household,
+    required this.ownerUnitId,
+    required this.itemKind,
+    required this.unitKinds,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LndResettlementCandidateResponse.fromJson(Object? json, [String path = 'LndResettlementCandidateResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LndResettlementCandidateResponse(
+      planItemId: requiredField(map, path, 'plan_item_id', asString),
+      planId: requiredField(map, path, 'plan_id', asString),
+      household: requiredField(map, path, 'household', LndResettlementCandidateResponseHousehold.fromJson),
+      ownerUnitId: requiredField(map, path, 'owner_unit_id', asString),
+      itemKind: requiredField(map, path, 'item_kind', asString),
+      unitKinds: requiredField(map, path, 'unit_kinds', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'plan_item_id', 'plan_id', 'household', 'owner_unit_id', 'item_kind', 'unit_kinds'}, strict: true),
+    );
+  }
+
+  final String planItemId;
+  final String planId;
+  final LndResettlementCandidateResponseHousehold household;
+  final String ownerUnitId;
+  final String itemKind;
+  final List<String> unitKinds;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'plan_item_id': planItemId,
+        'plan_id': planId,
+        'household': household.toJson(),
+        'owner_unit_id': ownerUnitId,
+        'item_kind': itemKind,
+        'unit_kinds': unitKinds,
+        ...extra,
+      };
+}
+
+final class LndResettlementCandidateResponseHousehold implements ResponseModel {
+  const LndResettlementCandidateResponseHousehold({
+    required this.id,
+    required this.householdCode,
+    required this.headName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LndResettlementCandidateResponseHousehold.fromJson(Object? json, [String path = 'LndResettlementCandidateResponseHousehold']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LndResettlementCandidateResponseHousehold(
+      id: requiredField(map, path, 'id', asString),
+      householdCode: requiredField(map, path, 'household_code', asString),
+      headName: requiredField(map, path, 'head_name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'household_code', 'head_name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String householdCode;
+  final String headName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'household_code': householdCode,
+        'head_name': headName,
+        ...extra,
+      };
+}
+
+final class LndResettlementCandidatesResponse implements ResponseModel {
+  const LndResettlementCandidatesResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LndResettlementCandidatesResponse.fromJson(Object? json, [String path = 'LndResettlementCandidatesResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LndResettlementCandidatesResponse(
+      items: requiredField(map, path, 'items', asList(LndResettlementCandidateResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<LndResettlementCandidateResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class LndResettlementLineResponse implements ResponseModel {
+  const LndResettlementLineResponse({
+    required this.id,
+    required this.projectId,
+    required this.household,
+    required this.planItemId,
+    required this.ownerUnitId,
+    required this.unitKind,
+    required this.unitCode,
+    required this.siteText,
+    required this.areaM2,
+    required this.priorityRank,
+    required this.allocatedOn,
+    required this.handedOn,
+    required this.status,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LndResettlementLineResponse.fromJson(Object? json, [String path = 'LndResettlementLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LndResettlementLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      projectId: requiredField(map, path, 'project_id', asString),
+      household: requiredField(map, path, 'household', LndResettlementLineResponseHousehold.fromJson),
+      planItemId: requiredField(map, path, 'plan_item_id', nullable(asString)),
+      ownerUnitId: requiredField(map, path, 'owner_unit_id', asString),
+      unitKind: requiredField(map, path, 'unit_kind', asString),
+      unitCode: requiredField(map, path, 'unit_code', asString),
+      siteText: requiredField(map, path, 'site_text', asString),
+      areaM2: requiredField(map, path, 'area_m2', nullable(asString)),
+      priorityRank: requiredField(map, path, 'priority_rank', nullable(asInt)),
+      allocatedOn: requiredField(map, path, 'allocated_on', nullable(asString)),
+      handedOn: requiredField(map, path, 'handed_on', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'household', 'plan_item_id', 'owner_unit_id', 'unit_kind', 'unit_code', 'site_text', 'area_m2', 'priority_rank', 'allocated_on', 'handed_on', 'status', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String projectId;
+  final LndResettlementLineResponseHousehold household;
+  final String? planItemId;
+  final String ownerUnitId;
+  final String unitKind;
+  final String unitCode;
+  final String siteText;
+  final String? areaM2;
+  final int? priorityRank;
+  final String? allocatedOn;
+  final String? handedOn;
+  final String status;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project_id': projectId,
+        'household': household.toJson(),
+        'plan_item_id': planItemId,
+        'owner_unit_id': ownerUnitId,
+        'unit_kind': unitKind,
+        'unit_code': unitCode,
+        'site_text': siteText,
+        'area_m2': areaM2,
+        'priority_rank': priorityRank,
+        'allocated_on': allocatedOn,
+        'handed_on': handedOn,
+        'status': status,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class LndResettlementLineResponseHousehold implements ResponseModel {
+  const LndResettlementLineResponseHousehold({
+    required this.id,
+    required this.householdCode,
+    required this.headName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LndResettlementLineResponseHousehold.fromJson(Object? json, [String path = 'LndResettlementLineResponseHousehold']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LndResettlementLineResponseHousehold(
+      id: requiredField(map, path, 'id', asString),
+      householdCode: requiredField(map, path, 'household_code', asString),
+      headName: requiredField(map, path, 'head_name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'household_code', 'head_name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String householdCode;
+  final String headName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'household_code': householdCode,
+        'head_name': headName,
+        ...extra,
+      };
+}
+
+final class LndResettlementPageResponse implements ResponseModel {
+  const LndResettlementPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LndResettlementPageResponse.fromJson(Object? json, [String path = 'LndResettlementPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LndResettlementPageResponse(
+      items: requiredField(map, path, 'items', asList(LndResettlementLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<LndResettlementLineResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
         ...extra,
       };
 }

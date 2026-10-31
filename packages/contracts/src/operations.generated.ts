@@ -613,6 +613,8 @@ export const OPERATIONS = {
   "listReallocationProposals": { method: "get", path: "/reallocation-proposals", versioned: false, stepUp: null, permission: "capital.read" },
   "listReconciliationItems": { method: "get", path: "/reconciliation-items", versioned: false, stepUp: null, permission: "reconciliation.read" },
   "listReconciliations": { method: "get", path: "/dgv/reconciliations", versioned: false, stepUp: null, permission: "data.quality.read" },
+  "listResettlementAllocations": { method: "get", path: "/resettlement-allocations", versioned: false, stepUp: null, permission: "land.read" },
+  "listResettlementCandidates": { method: "get", path: "/resettlement-allocations/candidates", versioned: false, stepUp: null, permission: "land.read" },
   "listRetentionHolds": { method: "get", path: "/contracts/{id}/retention-holds", versioned: false, stepUp: null, permission: "ledger.read" },
   "listRoutingPolicies": { method: "get", path: "/conversation-routing-policies", versioned: false, stepUp: null, permission: "omni.policy.manage" },
   "listScorecardContractors": { method: "get", path: "/contractor-scorecards", versioned: false, stepUp: null, permission: "contractor.performance.read" },
