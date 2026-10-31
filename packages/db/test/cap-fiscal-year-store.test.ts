@@ -204,7 +204,7 @@ describe('CapFiscalYearStore (ST-CAP-008)', () => {
       );
       expect((await close(line.year, 'SOFT_CLOSED')).row.status).toBe('SOFT_CLOSED');
       expect(await refusal(close(line.year, 'LOCKED'))).toMatchObject({ code: 'YEAR_STATE_INVALID', extensions: { reason: 'RESERVATIONS_ACTIVE', reservation_ids: [reservation] } });
-      await world.owner("update machvon.fund_reservation set status = 'RELEASED', release_reason = 'done' where id = $1::uuid", [reservation]);
+      await world.owner("update machvon.fund_reservation set status = 'RELEASED', release_reason = 'done and settled' where id = $1::uuid", [reservation]);
       expect((await close(line.year, 'LOCKED')).row.status).toBe('LOCKED');
     });
 

@@ -568,6 +568,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listExplanationRequests': asObject,
   'listFeatureFlags': FeatureFlagListResponse.fromJson,
   'listFiscalYears': FiscalYearListResponse.fromJson,
+  'listFundReservations': CapReservationPageResponse.fromJson,
   'listGlossaryTerms': asObject,
   'listIncomingDocuments': asObject,
   'listInspections': QmsInspectionListResponse.fromJson,
@@ -3299,6 +3300,164 @@ final class CapPlanAsOfResponse implements ResponseModel {
         if (effectiveAt != null) 'effective_at': effectiveAt,
         if (lines != null) 'lines': lines,
         if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CapReservationLineResponse implements ResponseModel {
+  const CapReservationLineResponse({
+    required this.id,
+    required this.allocationLineId,
+    required this.project,
+    required this.planYear,
+    required this.purpose,
+    required this.referenceKind,
+    required this.referenceId,
+    required this.amountVnd,
+    required this.expiresAt,
+    required this.status,
+    required this.releaseReason,
+    required this.avcWarningAcknowledged,
+    required this.createdAt,
+    required this.createdBy,
+    required this.closedAt,
+    required this.closedBy,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapReservationLineResponse.fromJson(Object? json, [String path = 'CapReservationLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapReservationLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      allocationLineId: requiredField(map, path, 'allocation_line_id', asString),
+      project: requiredField(map, path, 'project', CapReservationLineResponseProject.fromJson),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      purpose: requiredField(map, path, 'purpose', asString),
+      referenceKind: requiredField(map, path, 'reference_kind', nullable(asString)),
+      referenceId: requiredField(map, path, 'reference_id', nullable(asString)),
+      amountVnd: requiredField(map, path, 'amount_vnd', asString),
+      expiresAt: requiredField(map, path, 'expires_at', asString),
+      status: requiredField(map, path, 'status', asString),
+      releaseReason: requiredField(map, path, 'release_reason', nullable(asString)),
+      avcWarningAcknowledged: requiredField(map, path, 'avc_warning_acknowledged', asBool),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      closedAt: requiredField(map, path, 'closed_at', nullable(asString)),
+      closedBy: requiredField(map, path, 'closed_by', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'allocation_line_id', 'project', 'plan_year', 'purpose', 'reference_kind', 'reference_id', 'amount_vnd', 'expires_at', 'status', 'release_reason', 'avc_warning_acknowledged', 'created_at', 'created_by', 'closed_at', 'closed_by', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String allocationLineId;
+  final CapReservationLineResponseProject project;
+  final int planYear;
+  final String purpose;
+  final String? referenceKind;
+  final String? referenceId;
+  final String amountVnd;
+  final String expiresAt;
+  final String status;
+  final String? releaseReason;
+  final bool avcWarningAcknowledged;
+  final String createdAt;
+  final String createdBy;
+  final String? closedAt;
+  final String? closedBy;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'allocation_line_id': allocationLineId,
+        'project': project.toJson(),
+        'plan_year': planYear,
+        'purpose': purpose,
+        'reference_kind': referenceKind,
+        'reference_id': referenceId,
+        'amount_vnd': amountVnd,
+        'expires_at': expiresAt,
+        'status': status,
+        'release_reason': releaseReason,
+        'avc_warning_acknowledged': avcWarningAcknowledged,
+        'created_at': createdAt,
+        'created_by': createdBy,
+        'closed_at': closedAt,
+        'closed_by': closedBy,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CapReservationLineResponseProject implements ResponseModel {
+  const CapReservationLineResponseProject({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapReservationLineResponseProject.fromJson(Object? json, [String path = 'CapReservationLineResponseProject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapReservationLineResponseProject(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class CapReservationPageResponse implements ResponseModel {
+  const CapReservationPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CapReservationPageResponse.fromJson(Object? json, [String path = 'CapReservationPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CapReservationPageResponse(
+      items: requiredField(map, path, 'items', asList(CapReservationLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<CapReservationLineResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
         ...extra,
       };
 }

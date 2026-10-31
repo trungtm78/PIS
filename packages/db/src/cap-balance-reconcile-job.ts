@@ -17,6 +17,7 @@ const CLASSIFICATION = 'CONFIDENTIAL';
 const EFFECTS_SQL = `(values
   ('ALLOCATE', 'allocated_vnd', 1), ('REDUCE', 'allocated_vnd', -1), ('TRANSFER_IN', 'allocated_vnd', 1), ('TRANSFER_OUT', 'allocated_vnd', -1),
   ('EXTEND_IN', 'allocated_vnd', 1), ('EXTEND_OUT', 'allocated_vnd', -1), ('LAPSE', 'allocated_vnd', -1),
+  ('RESERVE', 'reserved_vnd', 1), ('RELEASE', 'reserved_vnd', -1),
   ('COMMIT', 'committed_vnd', 1), ('UNCOMMIT', 'committed_vnd', -1),
   ('DISBURSE', 'disbursed_vnd', 1)) as effect(entry_type, balance_column, sign)`;
 
@@ -39,10 +40,9 @@ export interface BalanceReconcileResult {
 }
 
 /**
- * The nightly job `capital.balance-reconcile` (ST-CAP-006, UAT-PLAN-02): for every appropriation of a project, the allocated, committed and disbursed amounts its ledger entries net to are compared with the sum of the balances of
+ * The nightly job `capital.balance-reconcile` (ST-CAP-006, UAT-PLAN-02): for every appropriation of a project, the allocated, reserved, committed and disbursed amounts its ledger entries net to are compared with the sum of the balances of
  * its lines. A difference never changes a balance or an entry (the ledger is the record and a person finds out which of the two is wrong): the gauge `cap_balance_drift_vnd` takes the figure the alert reads, an
- * audit row and the event `cap.balance.drift_detected.v1` say where, once a day for each appropriation, and the same run with no difference sets the gauge back to nothing. The reserved amount is not checked yet:
- * reservations post no entries until the reservation of funds is built.
+ * audit row and the event `cap.balance.drift_detected.v1` say where, once a day for each appropriation, and the same run with no difference sets the gauge back to nothing. The reserved amount is checked since the earmark of funds posts RESERVE and RELEASE entries (ST-CAP-011).
  */
 export class CapBalanceReconcileJob {
   private readonly audit: Pick<AuditWriter, 'recordInTx'>;
@@ -67,7 +67,7 @@ export class CapBalanceReconcileJob {
          select l.project_id, l.appropriation_id, column_totals.balance_column, sum(column_totals.total) as total
            from machvon.allocation_balance b
            join machvon.allocation_line l on l.tenant_id = b.tenant_id and l.id = b.allocation_line_id
-           cross join lateral (values ('allocated_vnd', b.allocated_vnd), ('committed_vnd', b.committed_vnd), ('disbursed_vnd', b.disbursed_vnd)) as column_totals(balance_column, total)
+           cross join lateral (values ('allocated_vnd', b.allocated_vnd), ('reserved_vnd', b.reserved_vnd), ('committed_vnd', b.committed_vnd), ('disbursed_vnd', b.disbursed_vnd)) as column_totals(balance_column, total)
           group by l.project_id, l.appropriation_id, column_totals.balance_column
        )
        select coalesce(ledger.project_id, held.project_id) as project_id, coalesce(ledger.appropriation_id, held.appropriation_id) as appropriation_id,

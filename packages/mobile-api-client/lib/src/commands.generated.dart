@@ -1699,6 +1699,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listFiscalYears({Map<String, Object?>? query}) =>
       execute('listFiscalYears', query: query);
 
+  Future<Object?> listFundReservations({Map<String, Object?>? query}) =>
+      execute('listFundReservations', query: query);
+
   Future<Object?> listGlossaryTerms({Map<String, Object?>? query}) =>
       execute('listGlossaryTerms', query: query);
 

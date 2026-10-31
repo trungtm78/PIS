@@ -743,7 +743,7 @@ describe('CapPlanPublicationStore.publish: the revision of a published plan', ()
       const id = randomUUID();
       await owner(
         `insert into machvon.fund_reservation (tenant_id, id, allocation_line_id, project_id, purpose, amount_vnd, expires_at, status, release_reason, created_by, updated_by)
-         values ($1, $2, $3, $4, 'OTHER', 1000, now() + interval '1 day', $5, case when $5 = 'RELEASED' then 'test' end, $6, $6)`,
+         values ($1, $2, $3, $4, 'OTHER', 1000, now() + interval '1 day', $5, case when $5 = 'RELEASED' then 'test release' end, $6, $6)`,
         [TENANT_A, id, baseLine, base.projects[0], status, memberId(MAKER)],
       );
       return id;

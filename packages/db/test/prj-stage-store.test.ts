@@ -395,7 +395,7 @@ describe('PrjStageStore (guarded PIMA lifecycle transitions, ST-PRJ-002)', () =>
       await reserve('RELEASED', 'Not needed any more');
       expect(await as((tx) => port.openObligations(tx, reserved.id))).toEqual({ committedVnd: '0', disbursedVnd: '0', activeReservations: 1 });
       expect(await refusal(move('closeProject', reserved, {}, { store: real }))).toEqual({ code: 'OPEN_OBLIGATIONS_EXIST', status: 409 });
-      await owner(`update machvon.fund_reservation set status = 'CONSUMED' where project_id = $1::uuid`, [reserved.id]);
+      await owner(`update machvon.fund_reservation set status = 'CONSUMED' where project_id = $1::uuid and status = 'ACTIVE'`, [reserved.id]);
       expect((await move('closeProject', reserved, {}, { store: real })).to).toBe('CLOSED');
     });
   });

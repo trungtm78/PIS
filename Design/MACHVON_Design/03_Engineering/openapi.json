@@ -34258,7 +34258,9 @@
           "AVC_WARNING_ACK_REQUIRED",
           "AVC_BLOCKED",
           "RESOURCE_NOT_FOUND",
-          "FISCAL_YEAR_LOCKED"
+          "FISCAL_YEAR_LOCKED",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -34274,6 +34276,158 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listFundReservations",
+        "summary": "Danh sách giữ vốn (CAP-18)",
+        "tags": [
+          "CAP"
+        ],
+        "x-permission": "capital.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "CONSUMED",
+                "RELEASED",
+                "EXPIRED"
+              ]
+            }
+          },
+          {
+            "name": "allocation_line_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapReservationPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ],
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist and object scope: the registrations of the projects in the scope of the caller; the achievement is the paid over the registered of a month"
       }
     },
     "/fund-reservations/{id}/release": {
@@ -34407,7 +34561,10 @@
         },
         "x-error-codes": [
           "RESERVATION_NOT_ACTIVE",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -163307,6 +163464,162 @@
           },
           "restriction_in_force": {
             "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CapReservationLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "allocation_line_id",
+          "project",
+          "plan_year",
+          "purpose",
+          "reference_kind",
+          "reference_id",
+          "amount_vnd",
+          "expires_at",
+          "status",
+          "release_reason",
+          "avc_warning_acknowledged",
+          "created_at",
+          "created_by",
+          "closed_at",
+          "closed_by",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "allocation_line_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "plan_year": {
+            "type": "integer"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "CONTRACT_PENDING",
+              "ADVANCE_PENDING",
+              "LAND_CLEARANCE",
+              "OTHER"
+            ]
+          },
+          "reference_kind": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reference_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "amount_vnd": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "CONSUMED",
+              "RELEASED",
+              "EXPIRED"
+            ]
+          },
+          "release_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "avc_warning_acknowledged": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "closed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "closed_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CapReservationPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CapReservationLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "as_of": {
             "type": "string",

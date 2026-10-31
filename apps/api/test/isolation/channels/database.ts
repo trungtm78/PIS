@@ -19,6 +19,7 @@ import {
   CROSSWALK_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
+  RESERVATION_FIXTURES,
   GLOSSARY_FIXTURES,
   MEMBERSHIP_FIXTURES,
   NOTIFICATION_FIXTURES,
@@ -423,6 +424,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getCapitalPlanAsOf',
   'registerDisbursementSchedule',
   'listDisbursementSchedules',
+  'createFundReservation',
+  'releaseFundReservation',
+  'listFundReservations',
   'decideCapitalPlan',
   'post_plans_id_publish',
   'listCapitalPlanLines',
@@ -1271,6 +1275,14 @@ const INSERT_DATASET = `insert into machvon.dataset
   (tenant_id, id, dataset_code, title, domain, grain, producer_module, owner_user_id, steward_user_id, classification, is_critical, freshness_slo_seconds, status, created_by, updated_by)
   values ($1, $2, $3, $4, 'ISOLATION', 'one row per isolation case', 'PAY', $5, $5, 'PUBLIC', false, 3600, 'DRAFT', $6, $6) on conflict do nothing`;
 
+// The balance the reservation rests on: what the line was allocated and what the reservation holds of it, so that a release has capital to return.
+const INSERT_ALLOCATION_BALANCE = `insert into machvon.allocation_balance (tenant_id, id, allocation_line_id, allocated_vnd, reserved_vnd, committed_vnd, disbursed_vnd)
+  values ($1, $2, $3, 1000000, 1000, 0, 0) on conflict do nothing`;
+
+const INSERT_FUND_RESERVATION = `insert into machvon.fund_reservation
+  (tenant_id, id, allocation_line_id, project_id, plan_year, purpose, reference_kind, reference_id, amount_vnd, expires_at, status, created_by, updated_by)
+  values ($1, $2, $3, $4, 2026, 'OTHER', $5, $6, 1000, now() + interval '30 days', 'ACTIVE', $7, $7) on conflict do nothing`;
+
 const INSERT_DATA_PRODUCT = `insert into machvon.data_product
   (tenant_id, id, code, title, dataset_ids, owner_user_id, created_by, updated_by)
   values ($1, $2, $3, $4, jsonb_build_array($5::text), $6, $7, $7) on conflict do nothing`;
@@ -1953,6 +1965,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_REALLOCATION, [tenantId, REALLOCATION_FIXTURES[tenant].id, REALLOCATION_FIXTURES[tenant].code, home, snapshot.id, plan.publishedId, MEMBERSHIP_ID]);
     await client.query(INSERT_FISCAL_YEAR, [tenantId, randomUUID(), FISCAL_YEAR_FIXTURES[tenant].year, FISCAL_YEAR_FIXTURES[tenant].reason, ACTOR_ID]);
     await client.query(INSERT_EXTENSION, [tenantId, EXTENSION_FIXTURES[tenant].id, plan.lineId, project.id, EXTENSION_FIXTURES[tenant].justification, ACTOR_ID]);
+    await client.query(INSERT_ALLOCATION_BALANCE, [tenantId, randomUUID(), plan.lineId]);
+    await client.query(INSERT_FUND_RESERVATION, [tenantId, RESERVATION_FIXTURES[tenant].id, plan.lineId, project.id, RESERVATION_FIXTURES[tenant].referenceKind, randomUUID(), ACTOR_ID]);
     const schedule = SCHEDULE_FIXTURES[tenant];
     await client.query(INSERT_SCHEDULE_LINE, [tenantId, schedule.id, project.id, schedule.assumption, ACTOR_ID]);
     await client.query(INSERT_WEEKLY_COMMITMENT, [tenantId, project.id, period.id, ACTOR_ID]);

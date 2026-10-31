@@ -11,6 +11,25 @@ import type { TenantTx } from './tenant-database.ts';
 export const COMMITMENT_SOURCE_KINDS = ['CONTRACT'] as const;
 export type CommitmentSourceKind = (typeof COMMITMENT_SOURCE_KINDS)[number];
 
+/** What is posted against the availability policy: a commitment (the activation of a contract) or an earmark (a fund reservation, ST-CAP-011). Each moves one column of the balance with its own ledger entry. */
+interface Posting {
+  entryType: 'COMMIT' | 'RESERVE';
+  column: 'committed_vnd' | 'reserved_vnd';
+  /** The figure of the appropriation that the posting adds to, as the verdict after it sees it. */
+  figure: 'committedVnd' | 'reservedVnd';
+  sourceKind: string;
+  sourceId: string;
+}
+
+export interface ReserveInput {
+  allocationLineId: string;
+  /** Whole VND, above zero. */
+  amountVnd: string;
+  /** The id of the reservation the earmark is for: the ledger entry rests on it, so the same reservation is posted once. */
+  reservationId: string;
+  acknowledgeWarning: boolean;
+}
+
 export interface Availability {
   /** The line or the appropriation the figures belong to. */
   allocationLineId: string | null;
@@ -149,6 +168,18 @@ export class CapAvailabilityStore {
    * warning. The same fact posts once: asking again with the same amount answers what was done (`replayed`), asking with another amount is 409 IDEMPOTENCY_CONFLICT.
    */
   async checkAndCommit(tx: TenantTx, input: CommitInput, actor: string, today: string = vietnamDateOf(new Date())): Promise<CommitResult> {
+    return this.post(tx, { allocationLineId: input.allocationLineId, amountVnd: input.amountVnd, acknowledgeWarning: input.acknowledgeWarning }, { entryType: 'COMMIT', column: 'committed_vnd', figure: 'committedVnd', sourceKind: input.sourceKind, sourceId: input.sourceId }, actor, today);
+  }
+
+  /**
+   * Earmarks `amountVnd` of a line for a reservation (ST-CAP-011, CAP 3.1 F4) after the same control as a commitment: the share is (reserved, when the policy counts reservations, + committed + disbursed + the amount) / allocated, a
+   * warning needs the caller to have accepted it and a share above the block threshold is refused. `reserved_vnd` moves with a RESERVE entry in the same transaction and under the same locks.
+   */
+  async checkAndReserve(tx: TenantTx, input: ReserveInput, actor: string, today: string = vietnamDateOf(new Date())): Promise<CommitResult> {
+    return this.post(tx, input, { entryType: 'RESERVE', column: 'reserved_vnd', figure: 'reservedVnd', sourceKind: 'RESERVATION', sourceId: input.reservationId }, actor, today);
+  }
+
+  private async post(tx: TenantTx, input: { allocationLineId: string; amountVnd: string; acknowledgeWarning: boolean }, posting: Posting, actor: string, today: string): Promise<CommitResult> {
     requirePositiveAmount(input.amountVnd, 0);
     const [peek] = await tx.query<LineRow>(`${LINE_SELECT} where al.id = $1::uuid`, [input.allocationLineId]);
     if (peek === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -168,8 +199,8 @@ export class CapAvailabilityStore {
     const [row] = await tx.query<LineRow>(`${LINE_SELECT} where al.id = $1::uuid`, [input.allocationLineId]);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const earlier = await tx.query<{ id: string; amount_vnd: string }>(
-      "select id, amount_vnd::text as amount_vnd from machvon.capital_ledger_entry where source_ref_kind = $1 and source_ref_id = $2::uuid and entry_type = 'COMMIT' and allocation_line_id = $3::uuid",
-      [input.sourceKind, input.sourceId, input.allocationLineId],
+      'select id, amount_vnd::text as amount_vnd from machvon.capital_ledger_entry where source_ref_kind = $1 and source_ref_id = $2::uuid and entry_type = $4 and allocation_line_id = $3::uuid',
+      [posting.sourceKind, posting.sourceId, input.allocationLineId, posting.entryType],
     );
     const figures = figuresOfLine(row);
     if (earlier[0] !== undefined) {
@@ -193,14 +224,14 @@ export class CapAvailabilityStore {
       if (appropriationVerdict !== undefined && appropriationThresholds !== undefined) throw ackRequired(appropriationVerdict, appropriationThresholds, 'APPROPRIATION');
     }
 
-    const moved = await creditBalance(tx, { table: 'allocation_balance', id: row.balance_id, column: 'committed_vnd' }, input.amountVnd);
+    const moved = await creditBalance(tx, { table: 'allocation_balance', id: row.balance_id, column: posting.column }, input.amountVnd);
     const entryId = randomUUID();
     const note = warned ? `AVC warning acknowledged at ${(lineVerdict.state === 'WARN' ? lineVerdict : (appropriationVerdict ?? lineVerdict)).consumptionPct}%` : null;
     await tx.query(
       `insert into machvon.capital_ledger_entry
          (tenant_id, id, appropriation_id, allocation_line_id, project_id, entry_type, amount_vnd, plan_year, source_ref_kind, source_ref_id, reason, posted_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, 'COMMIT', $5::numeric, $6::integer, $7, $8::uuid, $9, $10::uuid)`,
-      [entryId, appropriationId, row.line_id, row.project_id, input.amountVnd, row.plan_year, input.sourceKind, input.sourceId, note, actor],
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $11, $5::numeric, $6::integer, $7, $8::uuid, $9, $10::uuid)`,
+      [entryId, appropriationId, row.line_id, row.project_id, input.amountVnd, row.plan_year, posting.sourceKind, posting.sourceId, note, actor, posting.entryType],
     );
     const after = await tx.query<LineRow>(`${LINE_SELECT} where al.id = $1::uuid`, [input.allocationLineId]);
     const afterFigures = after[0] === undefined ? figures : figuresOfLine(after[0]);
@@ -210,7 +241,7 @@ export class CapAvailabilityStore {
       entryId,
       input.amountVnd,
       evaluateAvc(afterFigures, lineThresholds),
-      appropriationFigures === undefined || appropriationThresholds === undefined ? undefined : evaluateAvc({ ...appropriationFigures, committedVnd: (BigInt(appropriationFigures.committedVnd) + BigInt(input.amountVnd)).toString() }, appropriationThresholds),
+      appropriationFigures === undefined || appropriationThresholds === undefined ? undefined : evaluateAvc({ ...appropriationFigures, [posting.figure]: (BigInt(appropriationFigures[posting.figure]) + BigInt(input.amountVnd)).toString() }, appropriationThresholds),
       lineThresholds,
       false,
       warned,

@@ -565,6 +565,7 @@ export const OPERATIONS = {
   "listExplanationRequests": { method: "get", path: "/explanation-requests", versioned: false, stepUp: null, permission: "explanation.read" },
   "listFeatureFlags": { method: "get", path: "/system/feature-flags", versioned: false, stepUp: null, permission: "system.release.manage" },
   "listFiscalYears": { method: "get", path: "/fiscal-years", versioned: false, stepUp: null, permission: "capital.read" },
+  "listFundReservations": { method: "get", path: "/fund-reservations", versioned: false, stepUp: null, permission: "capital.read" },
   "listGlossaryTerms": { method: "get", path: "/glossary-terms", versioned: false, stepUp: null, permission: "glossary.read" },
   "listIncomingDocuments": { method: "get", path: "/incoming-documents", versioned: false, stepUp: null, permission: "doc.incoming.read" },
   "listInspections": { method: "get", path: "/inspections", versioned: false, stepUp: null, permission: "inspection.read" },

@@ -292,6 +292,8 @@
     "registerContractor",
     "registerDataset",
     "registerDisbursementSchedule",
+    "createFundReservation",
+    "releaseFundReservation",
     "registerExternallySignedDocument",
     "registerGuarantee",
     "registerSigningCertificate",

@@ -1859,3 +1859,11 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-BID-013 (decision, restrictions): the restrictions are listed whole, in force or not, with an `in_force` flag by the Vietnamese date; the decision document and the note are left to BID-02, which already hides them from those without the full right.
 - ST-BID-013 (decision, cache): the read goes to CTR every time, so the consumer of `ctr.contractor_evaluation.approved.v1` that "refreshes the cache" has nothing to refresh and is not written.
 - ST-BID-013 (gap): the evidence SCORECARD of an analysis finding waits for ST-BID-009.
+
+### ST-CAP-011 (fund reservation, slice CAP-1)
+- ST-CAP-011 (decision, contract): the module document names no way to list the reservations, yet CAP-18 is a table with a countdown, so the read `listFundReservations` (`capital.read`, as the availability read) was added to the contract.
+- ST-CAP-011 (decision, term): an earmark runs at most 366 days and its last instant must lie ahead; the document sets neither. A change of a reservation is a release and a new one.
+- ST-CAP-011 (decision, year): a reservation is refused in a soft-closed or locked plan year (as a commitment), while a release or an expiry is not: capital returns to the line whatever the state of the year.
+- ST-CAP-011 (decision, expiry): the job marks the status EXPIRED and posts a RELEASE entry with the reason `EXPIRED`, and announces `capital.reservation_released.v1` with status EXPIRED (the document lists only created and released).
+- ST-CAP-011 (decision, reconcile): the nightly balance check compares the reserved column too, since reservations now post entries.
+- ST-CAP-011 (gap): the consumption of a reservation by a payment request of PAY is the payment consumer (ST-PAY); no other module consumes the events yet.

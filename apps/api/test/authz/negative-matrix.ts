@@ -1028,6 +1028,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  createFundReservation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/fund-reservations', body: { allocation_line_id: t.legalHoldId, amount_vnd: '1000', purpose: 'OTHER', expires_at: new Date(Date.now() + 30 * 86_400_000).toISOString() } }),
+  },
+  releaseFundReservation: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/fund-reservations/${t.legalHoldId}/release`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   submitReallocationProposal: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reallocation-proposals/${t.legalHoldId}/submit`, ifMatch: '"1"', body: {} }),

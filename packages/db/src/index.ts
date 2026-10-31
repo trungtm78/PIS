@@ -739,3 +739,7 @@ export type { CertifiedProduct, LapsedProduct, ProductDataset, ProductLine } fro
 export { DIARY_MISSING_METRIC, QmsDiaryCoverageJob, QmsDiaryCoverageReads } from './qms-diary-coverage.ts';
 export { BidContractorHistoryReads } from './bid-contractor-history.ts';
 export type { ContractorHistory, HistoryRestriction } from './bid-contractor-history.ts';
+export { CapReservationStore, MAX_RESERVATION_DAYS, RESERVATION_PURPOSES, RESERVATION_RESOURCE, RESERVATION_STATUSES } from './cap-reservation-store.ts';
+export type { ReservationClosed, ReservationCreated, ReservationFilter, ReservationInput, ReservationPurpose, FundReservationRow, ReservationScopes, ReservationStatus } from './cap-reservation-store.ts';
+export { CapReservationExpiryJob, RESERVATION_EXPIRED_METRIC, RESERVATION_RELEASED_EVENT } from './cap-reservation-expiry-job.ts';
+export type { ReservationExpirySummary } from './cap-reservation-expiry-job.ts';

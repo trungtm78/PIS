@@ -661,6 +661,12 @@ export const APPROPRIATION_FIXTURES: Readonly<Record<TenantName, { id: string; i
  * A DRAFT capital plan of each tenant with one line of its project on its appropriation (the code is distinctive: the plan of a tenant is internal
  * to it), and a plan of another code that is PUBLISHED, which is the one that can be read as of a date and revised.
  */
+/** A fund reservation of each tenant (the kind of its reference is distinctive; tenant data). */
+export const RESERVATION_FIXTURES: Readonly<Record<TenantName, { id: string; referenceKind: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d6-000000000001', referenceKind: 'ALPHA-RESERVATION-REFERENCE' },
+  'TNT-B': { id: '00000000-0000-4000-b0d6-000000000001', referenceKind: 'BETA-RESERVATION-REFERENCE' },
+};
+
 export const CAPITAL_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string; planCode: string; versionId: string; lineId: string; publishedId: string; publishedCode: string }>> = {
   'TNT-A': {
     id: '00000000-0000-4000-a0f8-000000000001',
@@ -1283,6 +1289,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'dataset id', value: DATASET_FIXTURES[tenant].id },
     { kind: 'dataset code', value: DATASET_FIXTURES[tenant].datasetCode },
     { kind: 'dataset title', value: DATASET_FIXTURES[tenant].title },
+    { kind: 'fund reservation id', value: RESERVATION_FIXTURES[tenant].id },
+    { kind: 'fund reservation reference kind', value: RESERVATION_FIXTURES[tenant].referenceKind },
     { kind: 'data product id', value: PRODUCT_FIXTURES[tenant].id },
     { kind: 'data product code', value: PRODUCT_FIXTURES[tenant].code },
     { kind: 'data product title', value: PRODUCT_FIXTURES[tenant].title },

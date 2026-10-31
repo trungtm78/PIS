@@ -3924,7 +3924,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Danh sách giữ vốn (CAP-18) */
+        get: operations["listFundReservations"];
         put?: never;
         /** Giữ vốn (earmark) có hạn */
         post: operations["createFundReservation"];
@@ -23578,6 +23579,46 @@ export interface components {
                 in_force: boolean;
             }[];
             restriction_in_force: boolean;
+            /** Format: date-time */
+            as_of: string;
+        };
+        CapReservationLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            allocation_line_id: string;
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            };
+            plan_year: number;
+            /** @enum {string} */
+            purpose: "CONTRACT_PENDING" | "ADVANCE_PENDING" | "LAND_CLEARANCE" | "OTHER";
+            reference_kind: string | null;
+            /** Format: uuid */
+            reference_id: string | null;
+            amount_vnd: components["schemas"]["Money"];
+            /** Format: date-time */
+            expires_at: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "CONSUMED" | "RELEASED" | "EXPIRED";
+            release_reason: string | null;
+            avc_warning_acknowledged: boolean;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            created_by: string;
+            /** Format: date-time */
+            closed_at: string | null;
+            /** Format: uuid */
+            closed_by: string | null;
+            version: number;
+        };
+        CapReservationPage: {
+            items: components["schemas"]["CapReservationLine"][];
+            next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
         };
@@ -47080,6 +47121,104 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listFundReservations: {
+        parameters: {
+            query?: {
+                status?: "ACTIVE" | "CONSUMED" | "RELEASED" | "EXPIRED";
+                allocation_line_id?: string;
+                project_id?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapReservationPage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
