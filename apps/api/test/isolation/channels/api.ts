@@ -587,6 +587,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_quality_nonconformance_id', method: 'GET', id: NONCONFORMANCE_FIXTURES['TNT-B'].id },
   { operation: 'createQualityAcceptance', method: 'POST', id: INSPECTION_FIXTURES['TNT-B'].id, body: { acceptance_scope: 'WORK_ITEM', record_no: 'Isolation foreign draft', document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
   { operation: 'get_resources_site_diary_id', method: 'GET', id: DIARY_FIXTURES['TNT-B'].id },
+  { operation: 'getDiaryCoverage', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_site_photo_id', method: 'GET', id: PHOTO_FIXTURES['TNT-B'].id },
   { operation: 'getIncomingDocument', method: 'GET', id: INCOMING_FIXTURES['TNT-B'].id },
   { operation: 'getDossier', method: 'GET', id: DOSSIER_FIXTURES['TNT-B'].id },

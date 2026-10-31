@@ -86107,8 +86107,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/DiaryCoverage"
                 }
               }
             }
@@ -86173,7 +86172,11 @@
               }
             }
           }
-        }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CALENDAR_NOT_EFFECTIVE"
+        ]
       }
     },
     "/site-photos/{id}/checks": {
@@ -162968,6 +162971,162 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DgvDataProduct"
+            }
+          }
+        }
+      },
+      "DiaryCoverageDay": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "date",
+          "state",
+          "diary_id",
+          "status",
+          "conflict",
+          "signed_on",
+          "working_days_to_sign",
+          "late_days"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "SIGNED",
+              "DRAFT",
+              "MISSING"
+            ]
+          },
+          "diary_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "conflict": {
+            "type": "boolean"
+          },
+          "signed_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "working_days_to_sign": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "late_days": {
+            "type": "integer"
+          }
+        }
+      },
+      "DiaryCoverage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_id",
+          "contract_code",
+          "calendar_code",
+          "from",
+          "to",
+          "through",
+          "as_of",
+          "totals",
+          "days",
+          "missing_dates"
+        ],
+        "properties": {
+          "contract_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract_code": {
+            "type": "string"
+          },
+          "calendar_code": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "through": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totals": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "working_days",
+              "with_diary",
+              "signed",
+              "draft",
+              "missing",
+              "late",
+              "conflict"
+            ],
+            "properties": {
+              "working_days": {
+                "type": "integer"
+              },
+              "with_diary": {
+                "type": "integer"
+              },
+              "signed": {
+                "type": "integer"
+              },
+              "draft": {
+                "type": "integer"
+              },
+              "missing": {
+                "type": "integer"
+              },
+              "late": {
+                "type": "integer"
+              },
+              "conflict": {
+                "type": "integer"
+              }
+            }
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiaryCoverageDay"
+            }
+          },
+          "missing_dates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
             }
           }
         }

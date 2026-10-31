@@ -1846,3 +1846,10 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-DGV-009 (decision, run): "the latest run PASSED" is the badge of BR-DGV-04, so a run older than the freshness SLO of the dataset (STALE), a WARNING and a hard fail all refuse with QUALITY_NOT_PASSED.
 - ST-DGV-009 (decision, event): the expiry announces `dgv.product.expired.v1`, an event the document does not list, because BI has to learn that the badge changed and `dgv.product.certified.v1` is the event of a decision.
 - ST-DGV-009 (gap): no command creates or edits a data product; no consumer of the two events; the contract is read as the status of `dataset_contract` (ST-DGV-005 is not built).
+
+### ST-QMS-008 (diary coverage, slice QMS-1)
+- ST-QMS-008 (decision, late): "ký muộn = số ngày làm việc từ record_date đến chữ ký nhà thầu > 1" (BR-QMS-08) is read as: the working days after the day of the diary, up to and including the day of the first signature of the contractor; one is allowed; the days beyond are `late_days`. The first signature counts, so a correction signed weeks later does not make the diary late.
+- ST-QMS-008 (decision, today): working days after today are not counted (they are not missing yet), so a range that reaches past today is counted through today (`through`).
+- ST-QMS-008 (decision, calendar): a year of the range without a published WORKDAY_VN calendar is refused (422 CALENDAR_NOT_EFFECTIVE) rather than counted by the weekdays, since the coverage is "by the work calendar"; the lateness of a signature in a year with no calendar falls back to the weekdays like the deadline of a letter.
+- ST-QMS-008 (decision, job): the job `diary-coverage` counts the month up to yesterday and sets the gauge `qms_diary_missing_days{tenant_id}`; the document says only "cảnh báo thiếu nhật ký" and names no recipient, so it tells no one.
+- ST-QMS-008 (gap): no notification of a missing diary and no alert rule over the gauge.

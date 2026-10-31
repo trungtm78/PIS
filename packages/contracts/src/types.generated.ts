@@ -23494,6 +23494,45 @@ export interface components {
         DgvDataProducts: {
             items: components["schemas"]["DgvDataProduct"][];
         };
+        DiaryCoverageDay: {
+            /** Format: date */
+            date: string;
+            /** @enum {string} */
+            state: "SIGNED" | "DRAFT" | "MISSING";
+            /** Format: uuid */
+            diary_id: string | null;
+            status: string | null;
+            conflict: boolean;
+            /** Format: date */
+            signed_on: string | null;
+            working_days_to_sign: number | null;
+            late_days: number;
+        };
+        DiaryCoverage: {
+            /** Format: uuid */
+            contract_id: string;
+            contract_code: string;
+            calendar_code: string;
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: date */
+            through: string | null;
+            /** Format: date-time */
+            as_of: string;
+            totals: {
+                working_days: number;
+                with_diary: number;
+                signed: number;
+                draft: number;
+                missing: number;
+                late: number;
+                conflict: number;
+            };
+            days: components["schemas"]["DiaryCoverageDay"][];
+            missing_dates: string[];
+        };
     };
     responses: never;
     parameters: never;
@@ -82989,9 +83028,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["DiaryCoverage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

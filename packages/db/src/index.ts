@@ -736,3 +736,4 @@ export { DgvGlossaryStore, GLOSSARY_BINDING_RESOURCE } from './dgv-glossary-stor
 export type { BindRequest, BoundTerm, GlossaryBindingLine, GlossaryCoverage } from './dgv-glossary-store.ts';
 export { DATA_PRODUCT_RESOURCE, DgvProductStore } from './dgv-product-store.ts';
 export type { CertifiedProduct, LapsedProduct, ProductDataset, ProductLine } from './dgv-product-store.ts';
+export { DIARY_MISSING_METRIC, QmsDiaryCoverageJob, QmsDiaryCoverageReads } from './qms-diary-coverage.ts';

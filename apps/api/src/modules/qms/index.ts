@@ -1,6 +1,7 @@
 import { defineModule } from '../module-descriptor';
 import { AcceptanceController, AcceptanceReadsController } from './acceptance.controller';
 import { NonconformanceController, NonconformanceReadsController } from './nonconformance.controller';
+import { DiaryCoverageController } from './coverage.controller';
 import { DiaryController, DiaryReadsController } from './diary.controller';
 import { InspectionController, InspectionReadsController } from './inspection.controller';
 import { PhotoController, PhotoReadsController } from './photo.controller';
@@ -12,5 +13,5 @@ import { PhotoController, PhotoReadsController } from './photo.controller';
  */
 export const qmsModule = defineModule({
   code: 'QMS',
-  controllers: [DiaryController, DiaryReadsController, PhotoController, PhotoReadsController, InspectionController, InspectionReadsController, AcceptanceController, AcceptanceReadsController, NonconformanceController, NonconformanceReadsController],
+  controllers: [DiaryController, DiaryReadsController, DiaryCoverageController, PhotoController, PhotoReadsController, InspectionController, InspectionReadsController, AcceptanceController, AcceptanceReadsController, NonconformanceController, NonconformanceReadsController],
 });

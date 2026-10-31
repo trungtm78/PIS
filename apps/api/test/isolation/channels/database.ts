@@ -769,6 +769,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_site_photo_id',
   'get_resources_site_diary',
   'get_resources_site_diary_id',
+  'getDiaryCoverage',
   'decideQualityAcceptance',
   'revokeQualityAcceptance',
   'listQualityAcceptances',

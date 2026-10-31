@@ -112,6 +112,8 @@ export const JOB_INTERVAL_SECONDS = {
   'reconciliation-overdue': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the reminders of the verification deadline of a settlement go once a morning wherever the process started; the pass is idempotent (ST-PAY-009).
   'settlement-deadline': 3600,
+  // Hourly tick that works only in the 06:00 hour of Vietnam time, so the working days of the month without a main diary are counted for each contract in execution once a morning wherever the process started; nothing is changed by it (ST-QMS-008).
+  'diary-coverage': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the balances of capital are compared with their ledger once a night wherever the process started; nothing is changed by it (ST-CAP-006).
   'capital-balance-reconcile': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the recovered amount of each recommendation of AUD is compared with its ledger once a night wherever the process started; nothing is changed by it (ST-AUD-004).
@@ -136,6 +138,8 @@ export const CAPITAL_RECONCILE_HOUR = 2;
 export const AUD_RECONCILE_HOUR = 2;
 /** The hour of the morning, in Vietnam time, in which the reminders of the verification deadline of a settlement go (PAY 3.5: 06:00). */
 export const SETTLEMENT_DEADLINE_HOUR = 6;
+/** The hour, in Vietnam time, at which the diaries that are missing are counted (QMS 3.1: `diary-coverage` at 06:00). */
+export const DIARY_COVERAGE_HOUR = 6;
 /** The gauge of the revision job: the pending revisions more than a day past their first day, which the alert `CTR_REVISION_OVERDUE` watches. */
 export const REVISION_OVERDUE_GAUGE = 'ctr_revision_overdue';
 /** The gauge of the petition job: the petitions that wait for an answer past the last day of their deadline, which the alert `BID_PETITION_OVERDUE` watches. */
@@ -299,6 +303,7 @@ export interface StandardJobDeps {
   audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  diaryCoverage?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the virtual keys of a tenant (ST-LLM-002): a rotating key whose last day is over, and a key past its expiry, are stopped at LiteLLM and recorded as revoked. */
   llmKeySweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the budget reservations of a tenant (ST-LLM-003): an open reservation past its end becomes PENDING_RECONCILE and keeps its hold. */
@@ -898,6 +903,17 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         const now = (deps.clock ?? (() => new Date()))();
         if (vietnamHourOf(now) !== SETTLEMENT_DEADLINE_HOUR) return;
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await settlementDeadlines.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const diaryCoverage = deps.diaryCoverage;
+  if (diaryCoverage !== undefined) {
+    handlers.push({
+      name: 'diary-coverage',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== DIARY_COVERAGE_HOUR) return;
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await diaryCoverage.run(workerContext(tenantId), now)));
       },
     });
   }

@@ -609,3 +609,5 @@ export { LEDGER_COLUMNS, foldBalance, ledgerEffect } from './cap-ledger.ts';
 export type { LedgerColumn, LedgerEffect, LedgerTotal } from './cap-ledger.ts';
 export { DECLARED_FLAGS, FLAG_COHORT_PATTERN, FLAG_STATUSES, NO_ROLLOUT, assertFlagChangeable, assertFlagUpdate, flagEnabled, rolloutBucket, rolloutNamesAnyone } from './feature-flag.ts';
 export type { FlagRollout, FlagState, FlagStatus, FlagTenant, FlagUpdate } from './feature-flag.ts';
+export { COVERAGE_CALENDAR, MAX_COVERAGE_DAYS, SIGN_ALLOWED_WORKING_DAYS, coverageRange, diaryCoverage, isCalendarDay } from './qms-coverage.ts';
+export type { Coverage, CoverageDay, CoverageDiary, CoverageRange, CoverageState, CoverageTotals } from './qms-coverage.ts';

@@ -438,7 +438,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getConversionOptions': ConversionOptionsResponse.fromJson,
   'getCumulativeLedger': PayCumulativeLedgerResponse.fromJson,
   'getDeliveryOverview': DeliveryOverviewResponse.fromJson,
-  'getDiaryCoverage': asObject,
+  'getDiaryCoverage': DiaryCoverageResponse.fromJson,
   'getDisbursementForecast': DisForecastResponse.fromJson,
   'getDisbursementRankings': asObject,
   'getDisbursementRates': DisRatesResponse.fromJson,
@@ -6765,6 +6765,172 @@ final class DgvMaturityScoreResponse implements ResponseModel {
         if (overallLevel != null) 'overall_level': overallLevel,
         'pillars': pillars,
         'not_assessed_count': notAssessedCount,
+        ...extra,
+      };
+}
+
+final class DiaryCoverageDayResponse implements ResponseModel {
+  const DiaryCoverageDayResponse({
+    required this.date,
+    required this.state,
+    required this.diaryId,
+    required this.status,
+    required this.conflict,
+    required this.signedOn,
+    required this.workingDaysToSign,
+    required this.lateDays,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DiaryCoverageDayResponse.fromJson(Object? json, [String path = 'DiaryCoverageDayResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DiaryCoverageDayResponse(
+      date: requiredField(map, path, 'date', asString),
+      state: requiredField(map, path, 'state', asString),
+      diaryId: requiredField(map, path, 'diary_id', nullable(asString)),
+      status: requiredField(map, path, 'status', nullable(asString)),
+      conflict: requiredField(map, path, 'conflict', asBool),
+      signedOn: requiredField(map, path, 'signed_on', nullable(asString)),
+      workingDaysToSign: requiredField(map, path, 'working_days_to_sign', nullable(asInt)),
+      lateDays: requiredField(map, path, 'late_days', asInt),
+      extra: unknownFields(map, path, const <String>{'date', 'state', 'diary_id', 'status', 'conflict', 'signed_on', 'working_days_to_sign', 'late_days'}, strict: true),
+    );
+  }
+
+  final String date;
+  final String state;
+  final String? diaryId;
+  final String? status;
+  final bool conflict;
+  final String? signedOn;
+  final int? workingDaysToSign;
+  final int lateDays;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'date': date,
+        'state': state,
+        'diary_id': diaryId,
+        'status': status,
+        'conflict': conflict,
+        'signed_on': signedOn,
+        'working_days_to_sign': workingDaysToSign,
+        'late_days': lateDays,
+        ...extra,
+      };
+}
+
+final class DiaryCoverageResponse implements ResponseModel {
+  const DiaryCoverageResponse({
+    required this.contractId,
+    required this.contractCode,
+    required this.calendarCode,
+    required this.from,
+    required this.to,
+    required this.through,
+    required this.asOf,
+    required this.totals,
+    required this.days,
+    required this.missingDates,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DiaryCoverageResponse.fromJson(Object? json, [String path = 'DiaryCoverageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DiaryCoverageResponse(
+      contractId: requiredField(map, path, 'contract_id', asString),
+      contractCode: requiredField(map, path, 'contract_code', asString),
+      calendarCode: requiredField(map, path, 'calendar_code', asString),
+      from: requiredField(map, path, 'from', asString),
+      to: requiredField(map, path, 'to', asString),
+      through: requiredField(map, path, 'through', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      totals: requiredField(map, path, 'totals', DiaryCoverageResponseTotals.fromJson),
+      days: requiredField(map, path, 'days', asList(DiaryCoverageDayResponse.fromJson)),
+      missingDates: requiredField(map, path, 'missing_dates', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'contract_id', 'contract_code', 'calendar_code', 'from', 'to', 'through', 'as_of', 'totals', 'days', 'missing_dates'}, strict: true),
+    );
+  }
+
+  final String contractId;
+  final String contractCode;
+  final String calendarCode;
+  final String from;
+  final String to;
+  final String? through;
+  final String asOf;
+  final DiaryCoverageResponseTotals totals;
+  final List<DiaryCoverageDayResponse> days;
+  final List<String> missingDates;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'contract_id': contractId,
+        'contract_code': contractCode,
+        'calendar_code': calendarCode,
+        'from': from,
+        'to': to,
+        'through': through,
+        'as_of': asOf,
+        'totals': totals.toJson(),
+        'days': days.map((e0) => e0.toJson()).toList(),
+        'missing_dates': missingDates,
+        ...extra,
+      };
+}
+
+final class DiaryCoverageResponseTotals implements ResponseModel {
+  const DiaryCoverageResponseTotals({
+    required this.workingDays,
+    required this.withDiary,
+    required this.signed,
+    required this.draft,
+    required this.missing,
+    required this.late_,
+    required this.conflict,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DiaryCoverageResponseTotals.fromJson(Object? json, [String path = 'DiaryCoverageResponseTotals']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DiaryCoverageResponseTotals(
+      workingDays: requiredField(map, path, 'working_days', asInt),
+      withDiary: requiredField(map, path, 'with_diary', asInt),
+      signed: requiredField(map, path, 'signed', asInt),
+      draft: requiredField(map, path, 'draft', asInt),
+      missing: requiredField(map, path, 'missing', asInt),
+      late_: requiredField(map, path, 'late', asInt),
+      conflict: requiredField(map, path, 'conflict', asInt),
+      extra: unknownFields(map, path, const <String>{'working_days', 'with_diary', 'signed', 'draft', 'missing', 'late', 'conflict'}, strict: true),
+    );
+  }
+
+  final int workingDays;
+  final int withDiary;
+  final int signed;
+  final int draft;
+  final int missing;
+  final int late_;
+  final int conflict;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'working_days': workingDays,
+        'with_diary': withDiary,
+        'signed': signed,
+        'draft': draft,
+        'missing': missing,
+        'late': late_,
+        'conflict': conflict,
         ...extra,
       };
 }
