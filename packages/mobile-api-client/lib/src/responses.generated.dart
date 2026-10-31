@@ -585,6 +585,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMasterCrosswalks': asObject,
   'listMasterImports': asObject,
   'listMasterTypePolicies': asObject,
+  'listMaterialContracts': asObject,
+  'listMaterialTests': asObject,
   'listMneForms': asObject,
   'listMneObligationRules': asObject,
   'listMneObligations': MneObligationStatusResponse.fromJson,

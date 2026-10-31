@@ -581,6 +581,8 @@
   "listMasterCrosswalks": {},
   "listMasterImports": {},
   "listMasterTypePolicies": {},
+  "listMaterialContracts": {},
+  "listMaterialTests": {},
   "listMneForms": {},
   "listMneObligationRules": {},
   "listMneObligations": {"items":[{"obligation_rule_id":"00000000-0000-4000-8000-000000000001","rule_revision":1,"scope_unit_id":"00000000-0000-4000-8000-000000000001","form_code":"sample","due_date":"2026-01-01","status":"sample","is_late":true,"days_late":1,"mne_report_id":"00000000-0000-4000-8000-000000000001"}],"next_cursor":"sample"},

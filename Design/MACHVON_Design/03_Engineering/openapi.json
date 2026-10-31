@@ -85100,7 +85100,10 @@
         },
         "x-error-codes": [
           "SAMPLE_CODE_DUPLICATE",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "CONTRACT_STATE_INVALID",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -85198,6 +85201,142 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listMaterialTests",
+        "summary": "Mẫu thí nghiệm vật liệu trong phạm vi, mới nhất trước (QMS-06)",
+        "tags": [
+          "QMS"
+        ],
+        "x-permission": "material.manage",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "REGISTERED",
+                "RESULT_RECORDED",
+                "ACCEPTED",
+                "REJECTED"
+              ]
+            }
+          },
+          {
+            "name": "result",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PASS",
+                "FAIL"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo hợp đồng); danh sách của màn QMS-06, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/material-tests/{id}/result": {
@@ -85250,11 +85389,16 @@
         "x-error-codes": [
           "MATERIAL_TEST_STATE_INVALID",
           "DOCUMENT_NOT_CLEAN",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "CONTRACT_STATE_INVALID",
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "qms.material_test.result_recorded.v1"
+          "qms.material_test.result_recorded.v1",
+          "qms.ncr.raised.v1"
         ],
         "x-state-guard": "REGISTERED → RESULT_RECORDED",
         "responses": {
@@ -133761,6 +133905,111 @@
         "x-read-model": true,
         "x-exposure": "dto",
         "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo hợp đồng hoặc đơn vị tiếp nhận); danh sách của màn AST-05, không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/material-tests/contracts": {
+      "get": {
+        "operationId": "listMaterialContracts",
+        "summary": "Hợp đồng đang thi công có thể đăng ký mẫu thí nghiệm, theo mã (QMS-06)",
+        "tags": [
+          "QMS"
+        ],
+        "x-permission": "material.manage",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, theo hợp đồng); lựa chọn của biểu mẫu QMS-06, không phải GET scaffold.",
         "responses": {
           "200": {
             "description": "Scoped DTO; sensitive fields masked",

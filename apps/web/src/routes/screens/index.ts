@@ -183,6 +183,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'QMS-03': () => import('../../screens/qms/diary/DiaryReviewScreen'),
   'QMS-04': () => import('../../screens/qms/inspection/InspectionScreen'),
   'QMS-05': () => import('../../screens/qms/acceptance/AcceptanceScreen'),
+  'QMS-06': () => import('../../screens/qms/material/MaterialScreen'),
   'QMS-07': () => import('../../screens/qms/nonconformance/NonconformanceScreen'),
   'QMS-08': () => import('../../screens/qms/photo/PhotoGalleryScreen'),
   'QMS-11': () => import('../../screens/qms/diary-cover/CoverageScreen'),

@@ -9674,7 +9674,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Mẫu thí nghiệm vật liệu trong phạm vi, mới nhất trước (QMS-06) */
+        get: operations["listMaterialTests"];
         put?: never;
         /** Đăng ký mẫu thí nghiệm vật liệu */
         post: operations["registerMaterialTest"];
@@ -15447,6 +15448,23 @@ export interface paths {
         };
         /** Yêu cầu bảo hành trong phạm vi, mới nhất trước (AST-05) */
         get: operations["listWarrantyClaims"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/material-tests/contracts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hợp đồng đang thi công có thể đăng ký mẫu thí nghiệm, theo mã (QMS-06) */
+        get: operations["listMaterialContracts"];
         put?: never;
         post?: never;
         delete?: never;
@@ -82501,6 +82519,88 @@ export interface operations {
             };
         };
     };
+    listMaterialTests: {
+        parameters: {
+            query?: {
+                contract_id?: string;
+                status?: "REGISTERED" | "RESULT_RECORDED" | "ACCEPTED" | "REJECTED";
+                result?: "PENDING" | "PASS" | "FAIL";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     registerMaterialTest: {
         parameters: {
             query?: never;
@@ -116998,6 +117098,85 @@ export interface operations {
             query?: {
                 obligation_id?: string;
                 status?: "OPEN" | "ACKNOWLEDGED" | "REPAIRING" | "FIXED" | "VERIFIED" | "CLOSED" | "DISPUTED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listMaterialContracts: {
+        parameters: {
+            query?: {
                 cursor?: string;
                 limit?: number;
             };

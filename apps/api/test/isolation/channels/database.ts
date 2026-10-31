@@ -700,6 +700,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'verifyWarrantyClaim',
   'listWarrantyClaims',
   'listExpiringWarranties',
+  'registerMaterialTest',
+  'recordMaterialTestResult',
+  'listMaterialTests',
+  'listMaterialContracts',
   'scheduleEvaluationTrigger',
   'acknowledgeEvaluationTrigger',
   'listEvaluationTriggers',
@@ -1488,6 +1492,10 @@ const INSERT_WARRANTY_CLAIM = `insert into machvon.warranty_claim
   (tenant_id, id, obligation_id, claim_no, reported_on, reported_by, defect_description, severity, response_due_on, status, created_by, updated_by, version)
   values ($1, $2, $3, 'ISOLATION-CLAIM-1', date '2026-12-21', $4, 'Isolation defect', 'MINOR', date '2026-12-28', 'OPEN', $4, $4, 1) on conflict do nothing`;
 
+const INSERT_MATERIAL_TEST = `insert into machvon.material_test
+  (tenant_id, id, project_id, contract_id, sample_code, material_kind, lab_name, standard_ref, sampled_on, sampled_by, status, created_by, updated_by, version)
+  values ($1, $2, $3, $4, 'ISOLATION-SAMPLE-1', 'Concrete', 'Isolation laboratory', 'STD-ISOLATION', date '2026-12-20', $5, 'REGISTERED', $5, $5, 1) on conflict do nothing`;
+
 const INSERT_EVALUATION_TRIGGER = `insert into machvon.evaluation_trigger
   (tenant_id, id, project_id, trigger_kind, due_on, status, created_by, updated_by, version)
   values ($1, $2, $3, 'MANUAL', date '2999-01-01', 'SCHEDULED', $4, $4, 1) on conflict do nothing`;
@@ -2041,6 +2049,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PUNCH_ITEM, [tenantId, handover.itemId, handover.id, handover.itemDescription, MEMBERSHIP_ID]);
     await client.query(INSERT_ASSET, [tenantId, handover.assetId, project.id, handover.id, handover.assetCode, home, draft.id, MEMBERSHIP_ID]);
     await client.query(INSERT_WARRANTY, [tenantId, handover.warrantyId, project.id, draft.id, handover.id, handover.warrantyScope, MEMBERSHIP_ID]);
+    await client.query(INSERT_MATERIAL_TEST, [tenantId, handover.materialId, project.id, draft.id, MEMBERSHIP_ID]);
     await client.query(INSERT_WARRANTY_CLAIM, [tenantId, handover.claimId, handover.warrantyId, MEMBERSHIP_ID]);
     await client.query(INSERT_EVALUATION_TRIGGER, [tenantId, handover.triggerId, project.id, MEMBERSHIP_ID]);
     const ncr = NONCONFORMANCE_FIXTURES[tenant];
@@ -2188,6 +2197,7 @@ const SNAPSHOT_TABLES = [
   'asset_record',
   'warranty_obligation',
   'warranty_claim',
+  'material_test',
   'evaluation_trigger',
   'retention_hold',
   'quality_nonconformance',

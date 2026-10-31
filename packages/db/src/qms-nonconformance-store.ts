@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   ACTION_VERIFICATIONS,
   DomainError,
+  FAILED_TEST_SEVERITY,
   NCR_SEVERITIES,
   NCR_SOURCE_KINDS,
   NCR_STATUSES,
@@ -13,6 +14,8 @@ import {
   canAssignAction,
   canSubmitEvidence,
   canVerify,
+  failedTestDueAt,
+  failedTestWords,
   statusFromActions,
   versionConflict,
   vietnamDateOf,
@@ -331,10 +334,71 @@ export class QmsNonconformanceStore {
     await this.assertBelongs(tx, 'site_diary', diaryId, contractId, 'site_diary_id');
     await this.assertActiveMember(tx, owner, 'action_owner_id');
 
+    return this.insert(
+      tx,
+      { contractId, projectId: contract.projectId, measurementId, severity, owner, dueAt, title, description, sourceKind, inspectionId, materialTestId, diaryId },
+      actor,
+      now,
+    );
+  }
+
+  /**
+   * Raises the non-conformance of a material test that failed, in the transaction that records the result: the test was found inside the scope of the command and its contract is locked and being performed, so
+   * the non-conformance is raised for the system and not judged again by the scope of raising one. The person who took the sample answers for it.
+   */
+  async raiseFromMaterialTest(
+    tx: TenantTx,
+    test: { id: string; contractId: string; projectId: string; sampleCode: string; materialKind: string; standardRef: string },
+    owner: string,
+    actor: string,
+    now: Date,
+  ): Promise<NcrResult> {
+    const words = failedTestWords(test);
+    return this.insert(
+      tx,
+      {
+        contractId: test.contractId,
+        projectId: test.projectId,
+        measurementId: null,
+        severity: FAILED_TEST_SEVERITY,
+        owner,
+        dueAt: failedTestDueAt(now),
+        title: words.title,
+        description: words.description,
+        sourceKind: 'MATERIAL_TEST',
+        inspectionId: null,
+        materialTestId: test.id,
+        diaryId: null,
+      },
+      actor,
+      now,
+    );
+  }
+
+  /** Writes the non-conformance, numbered after the ones of its contract, open and with no action yet. */
+  private async insert(
+    tx: TenantTx,
+    a: {
+      contractId: string;
+      projectId: string;
+      measurementId: string | null;
+      severity: NcrSeverity;
+      owner: string;
+      dueAt: string;
+      title: string;
+      description: string;
+      sourceKind: NcrSourceKind;
+      inspectionId: string | null;
+      materialTestId: string | null;
+      diaryId: string | null;
+    },
+    actor: string,
+    now: Date,
+  ): Promise<NcrResult> {
     const facts = (
       await tx.query<{ code: string; n: string }>(
         'select c.code, (select count(*) + 1 from machvon.quality_nonconformance where contract_id = c.id)::text as n from machvon.contract c where c.id = $1::uuid',
-        [contractId],
+        [a.contractId],
       )
     )[0];
     const ncrNo = `NCR-${String(Number(facts?.n ?? '1')).padStart(3, '0')}`;
@@ -347,33 +411,33 @@ export class QmsNonconformanceStore {
                $15::date, $16, $17::uuid, $17::uuid, 1)`,
       [
         id,
-        contract.projectId,
-        contractId,
-        measurementId,
-        severity,
-        owner,
-        dueAt,
+        a.projectId,
+        a.contractId,
+        a.measurementId,
+        a.severity,
+        a.owner,
+        a.dueAt,
         ncrNo,
-        title,
-        description,
-        sourceKind,
-        inspectionId,
-        materialTestId,
-        diaryId,
+        a.title,
+        a.description,
+        a.sourceKind,
+        a.inspectionId,
+        a.materialTestId,
+        a.diaryId,
         vietnamDateOf(now),
-        blocksAcceptance(severity),
+        blocksAcceptance(a.severity),
         actor,
       ],
     );
     return {
       id,
       ncrNo,
-      contractId,
+      contractId: a.contractId,
       contractCode: facts?.code ?? '',
-      projectId: contract.projectId,
-      severity,
-      sourceKind,
-      blocksAcceptance: blocksAcceptance(severity),
+      projectId: a.projectId,
+      severity: a.severity,
+      sourceKind: a.sourceKind,
+      blocksAcceptance: blocksAcceptance(a.severity),
       fromStatus: null,
       status: 'OPEN',
       version: 1,

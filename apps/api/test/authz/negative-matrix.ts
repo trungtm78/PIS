@@ -2269,6 +2269,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/handovers/${t.handoverId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], as_built_document_version_id: t.documentVersionId } }),
   },
+  // The testing of materials: a caller that is refused registers no sample and records no result.
+  registerMaterialTest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/material-tests', body: { contract_id: t.contractId, sample_code: 'MATRIX-1', material_kind: REASON, lab_name: REASON, standard_ref: REASON, sampled_on: '2026-10-25' } }),
+  },
+  recordMaterialTestResult: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/material-tests/${t.warrantyId}/result`, ifMatch: '"1"', body: { result: 'PASS', tested_on: '2026-10-25', result_values: {}, report_document_version_id: t.documentVersionId } }),
+  },
   // The assets a work produces: a caller that is refused registers none and transfers none.
   registerAsset: {
     referencesTenantIds: true,

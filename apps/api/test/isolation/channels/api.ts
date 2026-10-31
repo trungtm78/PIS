@@ -575,6 +575,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'transferAsset', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].assetId, versioned: true, body: { transferred_on: '2026-10-25', commissioning_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
   { operation: 'get_resources_asset_record_id', method: 'GET', id: HANDOVER_FIXTURES['TNT-B'].assetId },
   { operation: 'closeWarrantyObligation', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].warrantyId, body: { note: 'Isolation foreign close attempt' } },
+  { operation: 'recordMaterialTestResult', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].materialId, versioned: true, body: { result: 'PASS', tested_on: '2026-12-21', result_values: {}, report_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },
   { operation: 'fileWarrantyClaim', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].warrantyId, body: { claim_no: 'ISOLATION-1', reported_on: '2026-12-21', defect_description: 'Isolation foreign claim attempt', severity: 'MINOR', responder_contractor_id: CONTRACTOR_FIXTURES['TNT-B'].id } },
   { operation: 'acknowledgeWarrantyClaim', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].claimId, versioned: true, body: { committed_fix_on: '2026-12-30' } },
   { operation: 'recordWarrantyFix', method: 'POST', id: HANDOVER_FIXTURES['TNT-B'].claimId, versioned: true, body: { fixed_on: '2026-12-30', note: 'Isolation foreign fix attempt', evidence_document_version_id: DOCUMENT_FIXTURES['TNT-B'].versionId } },

@@ -581,6 +581,8 @@ export type {
   WaiveInput as AstWaivePunchItemInput,
 } from './ast-handover-store.ts';
 export { QmsNonconformanceStore } from './qms-nonconformance-store.ts';
+export { MATERIAL_TEST_RESOURCE, QmsMaterialStore } from './qms-material-store.ts';
+export type { ContractOption as QmsMaterialContract, MaterialFilter as QmsMaterialFilter, MaterialTestLine, MaterialTestResult as QmsMaterialTestResult, RegisterInput as QmsRegisterMaterialInput, ResultInput as QmsMaterialResultInput } from './qms-material-store.ts';
 export type {
   ActionLine as QmsCorrectiveActionLine,
   ActionResult as QmsActionResult,

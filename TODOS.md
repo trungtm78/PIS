@@ -1868,6 +1868,12 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-CAP-011 (decision, reconcile): the nightly balance check compares the reserved column too, since reservations now post entries.
 - ST-CAP-011 (gap): the consumption of a reservation by a payment request of PAY is the payment consumer (ST-PAY); no other module consumes the events yet.
 
+### ST-QMS-007 (material testing, slice QMS-1)
+- ST-QMS-007 (decision, contract): the module document names no way to read the tests, yet QMS-06 has to show them, so the reads `listMaterialTests` and `listMaterialContracts` (`material.manage`, the right of the supervisor who registers the samples; the second lists the contracts being performed so that the form does not need the right to read contracts) were added; the commands also state `CONTRACT_STATE_INVALID`, `RESOURCE_NOT_FOUND` and `SCOPE_DENIED`.
+- ST-QMS-007 (decision, non-conformance): the specification says the non-conformance of a failed test takes a seriousness "by rule" and states no rule, and gives no person and no term; it is major (so it does not hold back the quality acceptance), answered for by the person who took the sample and due fourteen days after it is raised; two constants of the kernel (`FAILED_TEST_SEVERITY`, `FAILED_TEST_ACTION_DAYS`).
+- ST-QMS-007 (decision, report): a result with no report is refused by the shape of the request (`report_document_version_id` is required), so the answer is `INVALID_REQUEST` rather than the `VALIDATION_FAILED` of the scenario; the database constraint `material_test_result_chk` stands behind it.
+- ST-QMS-007 (gap): `ACCEPTED` and `REJECTED` have no command; the screen takes the report and the bill item as typed codes.
+
 ### ST-AST-004 (warranty claims, slice AST-1)
 - ST-AST-004 (decision, contract): the module document names no way to read the claims, yet AST-05 has to show the board, so the read `listWarrantyClaims` (`warranty.read`) was added; the obligation view now names the contractor of the contract (`contractor`) because a claim is addressed to it; the commands also state `RESOURCE_NOT_FOUND`, `SCOPE_DENIED` and the evidence errors.
 - ST-AST-004 (decision, term): the contractor has seven days to answer, counted from the day the defect was reported (R-AST-03 leaves the term to the rules of the tenant or the terms of the contract, neither stated); it is one constant of the kernel (`CLAIM_RESPONSE_DAYS`).
