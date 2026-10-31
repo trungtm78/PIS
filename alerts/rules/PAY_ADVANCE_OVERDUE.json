@@ -1,0 +1,14 @@
+{
+  "id": "PAY_ADVANCE_OVERDUE",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "treasury-office",
+  "runbook": "docs/runbooks/alerts/PAY_ADVANCE_OVERDUE.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "pay_advance_overdue",
+    "above": 0
+  },
+  "summary": "An advance is owed past the day it had to be recovered by."
+}

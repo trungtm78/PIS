@@ -1,12 +1,13 @@
 import { vi } from 'vitest';
 import { harness as baseHarness } from '../../sas/test-support';
 import type { Harness } from '../../sas/test-support';
-import { contractId, line as contractLine, mount } from '../../ctr/test-support';
+import { LEAD, PROJECT, contractId, detail as contractDetail, line as contractLine, mount, party as contractParty } from '../../ctr/test-support';
+import { line as capitalLine, project as planProject } from '../../bid/plan-test-support';
 
 export { contractId, mount };
 export type { Harness };
 
-export const ACCOUNTANT = ['advance.read', 'advance.recover', 'advance.cancel', 'contract.read'];
+export const ACCOUNTANT = ['advance.read', 'advance.recover', 'advance.cancel', 'advance.alert.ack', 'advance.request', 'contract.read'];
 export const READER = ['advance.read'];
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
@@ -55,7 +56,8 @@ export const advance = (n: number, overrides: Record<string, unknown> = {}) => (
   last_alert_level: 0,
   created_at: '2026-10-25T01:00:00.000Z',
   updated_at: '2026-10-25T01:00:00.000Z',
-  actions: { cancel: false, record_recovery: true },
+  acknowledgement: null,
+  actions: { cancel: false, record_recovery: true, acknowledge_alert: false },
   version: 4,
   ...overrides,
 });
@@ -100,6 +102,8 @@ export const answer = (n: number, overrides: Record<string, unknown> = {}) => ({
 export interface World {
   advances: Array<Record<string, unknown>>;
   contracts: Array<Record<string, unknown>>;
+  /** The lines of capital the form of the request offers. */
+  lines: Array<Record<string, unknown>>;
   /** The plans the read of a plan answers, by advance. */
   plans: Map<string, unknown>;
   /** Reads that fail, by operation. */
@@ -109,7 +113,8 @@ export interface World {
 export function world(overrides: Partial<World> = {}): World {
   return {
     advances: [advance(1), advance(2, { status: 'PLANNED', kind: 'CONTRACT', paid_vnd: '0', recovered_vnd: '0', outstanding_vnd: '0', paid_on: null, recovery_deadline: null, overdue_days: null, actions: { cancel: true, record_recovery: false } })],
-    contracts: [contractLine(1, { status: 'ACTIVE' })],
+    contracts: [contractLine(1, { status: 'ACTIVE' }), contractLine(2, { status: 'DRAFT' })],
+    lines: [capitalLine({ project: planProject({ id: PROJECT }) })],
     plans: new Map([[advanceId(1), plan(1)]]),
     failing: new Set(),
     ...overrides,
@@ -124,6 +129,7 @@ export function client(state: World, command: (operation: string, input: unknown
       const id = (input as { path?: { id?: string } } | undefined)?.path?.id ?? '';
       return state.plans.get(id) ?? new Error('not found');
     }
+    if (operation === 'get_resources_contract_id') return contractDetail(1, { status: 'ACTIVE', parties: [contractParty(1, LEAD, 'Nhà thầu A', 'SOLE', '100', '6000000000')] });
     return new Error(`unexpected read ${operation}`);
   }, command);
   (h.client as unknown as { readAll: (operation: string, input?: unknown) => Promise<unknown[]> }).readAll = vi.fn((operation: string, input?: unknown) => {
@@ -132,6 +138,10 @@ export function client(state: World, command: (operation: string, input: unknown
     switch (operation) {
       case 'listAdvances':
         return Promise.resolve(state.advances.filter((item) => (query.contract_id === undefined || (item.contract as { id: string }).id === query.contract_id) && (query.status === undefined || item.status === query.status)));
+      case 'listOverdueAdvances':
+        return Promise.resolve(state.advances.filter((item) => Number(item.last_alert_level) > 0 && (query.level === undefined || String(item.last_alert_level) === String(query.level))));
+      case 'get_resources_allocation_line':
+        return Promise.resolve(state.lines);
       case 'get_resources_contract':
         return Promise.resolve(state.contracts);
       default:

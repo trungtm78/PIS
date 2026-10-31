@@ -332,8 +332,13 @@ describe('reversing a payment that was settled (ST-PAY-008)', () => {
       const target = await paidAdvance();
       const refund = await transaction('1000000000', { direction: 'REFUND', reversalOf: target.transactionId });
       const paper = (await fixtures.documentVersion()).id;
+      // The advance had been alerted and a plan given: a payment made again starts with no alert and no plan of its own.
+      await owner("update machvon.contract_advance set last_alert_level = 3, overdue_since = date '2026-08-01', alert_note = 'Plan', alert_plan_due_on = date '2999-01-01', alert_acknowledged_by = $2::uuid, alert_acknowledged_at = now() where id = $1::uuid", [target.advanceId, memberId(MAKER)]);
       const done = await reverse(target, { refundTransactionId: refund, approvalDocumentVersionId: paper });
       expect(done).toMatchObject({ advanceId: target.advanceId, paymentEntries: 0, result: { status: 'REVERSED', requestKind: 'ADVANCE' } });
+      expect(await owner('select last_alert_level, overdue_since, alert_note, alert_plan_due_on, alert_acknowledged_by, alert_acknowledged_at from machvon.contract_advance where id = $1::uuid', [target.advanceId])).toEqual([
+        { last_alert_level: 0, overdue_since: null, alert_note: null, alert_plan_due_on: null, alert_acknowledged_by: null, alert_acknowledged_at: null },
+      ]);
       expect(await owner('select status, paid_vnd::text as paid, paid_on::text, recovery_deadline::text as deadline from machvon.contract_advance where id = $1::uuid', [target.advanceId])).toEqual([{ status: 'PLANNED', paid: '0', paid_on: null, deadline: null }]);
       expect(await contractRow(target.contractId)).toMatchObject({ advance_paid: '0' });
       expect(await owner('select entry_kind, amount_vnd::text as amount, reversal_of_id is not null as undoes from machvon.advance_ledger_entry where payment_request_id = $1::uuid order by posted_at, entry_kind', [target.id])).toEqual([

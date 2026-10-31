@@ -262,7 +262,9 @@ export { PAY_LEDGER_LOCK_WAIT_METRIC, PAY_VALUE_EXCEEDED_METRIC, PayLedgerStore,
 export { PayFormStore } from './pay-form-store.ts';
 export type { FormRequest, FormView, RecordFormInput, SendToTreasuryInput } from './pay-form-store.ts';
 export { ADVANCE_CAP_RULE, ADVANCE_GPMB_RULE, PayAdvanceStore } from './pay-advance-store.ts';
-export type { AdvanceFilter, AdvancePlan, AdvanceResult, AdvanceView, RecordRecoveryInput, RequestAdvanceInput } from './pay-advance-store.ts';
+export type { AcknowledgeInput, AdvanceFilter, AdvancePlan, AdvanceResult, AdvanceView, OverdueFilter, RecordRecoveryInput, RequestAdvanceInput } from './pay-advance-store.ts';
+export { ADVANCE_ALERT_EVENT, ADVANCE_ESCALATION_REASON, ADVANCE_OVERDUE_EVENT, PAY_ADVANCE_OVERDUE_METRIC, PayAdvanceOverdueJob } from './pay-advance-overdue-job.ts';
+export type { AdvanceOverdueResult } from './pay-advance-overdue-job.ts';
 export { PAY_CLAIM_CONFLICT_METRIC, PAY_SUBMIT_METRIC, PayClaimStore } from './pay-claim-store.ts';
 export type { ReversePaymentInput, Reversed, SubmitPaymentInput } from './pay-claim-store.ts';
 export { CHAIN_CONTRACT_LIMIT, CHAIN_NODE_LIMIT, CHAIN_NODE_TYPES, PayChainStore } from './pay-chain-store.ts';

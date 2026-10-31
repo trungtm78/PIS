@@ -6,7 +6,7 @@ import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { payModule } from '../../src/modules/pay';
-import { AdvanceController, AdvanceReadsController } from '../../src/modules/pay/advance.controller';
+import { AdvanceAlertController, AdvanceController, AdvanceReadsController } from '../../src/modules/pay/advance.controller';
 import { TENANT_A, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { AcceptanceWorld } from '../../../../packages/db/test/support/acceptance-fixtures';
 import type { SeededContract } from '../../../../packages/db/test/support/acceptance-fixtures';
@@ -89,7 +89,7 @@ describe('the advance of a contract over HTTP (ST-PAY-004)', () => {
     await harness.seedUnits(TENANT_A, [{ n: OTHER_BRANCH, path: `/${unitId(OTHER_BRANCH)}/` }]);
     for (const n of MEMBERS) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedRole(TENANT_A, 101, 'ADV_MAKER', ['advance.request', 'advance.cancel', 'advance.read'], 30);
-    await harness.seedRole(TENANT_A, 102, 'ADV_RECOVERER', ['advance.recover', 'advance.read'], 40);
+    await harness.seedRole(TENANT_A, 102, 'ADV_RECOVERER', ['advance.recover', 'advance.alert.ack', 'advance.read'], 40);
     await harness.seedRole(TENANT_A, 103, 'ADV_READER', ['advance.read'], 10);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MAKER, role: 101, kind: 'TENANT' },
@@ -104,7 +104,7 @@ describe('the advance of a contract over HTTP (ST-PAY-004)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [AdvanceController, AdvanceReadsController],
+      controllers: [AdvanceController, AdvanceReadsController, AdvanceAlertController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
@@ -118,7 +118,7 @@ describe('the advance of a contract over HTTP (ST-PAY-004)', () => {
   }, 60_000);
 
   it('is registered in the module of PAY', () => {
-    expect(payModule.controllers).toEqual(expect.arrayContaining([AdvanceController, AdvanceReadsController]));
+    expect(payModule.controllers).toEqual(expect.arrayContaining([AdvanceController, AdvanceReadsController, AdvanceAlertController]));
   });
 
   it('AC-ST-PAY-004-1, UAT-AC325: plans the advance of a contract in force under a guarantee; the same key answers the same, audited and told once', async () => {
@@ -252,5 +252,74 @@ describe('the advance of a contract over HTTP (ST-PAY-004)', () => {
     expect(replies.map((reply) => reply.status).sort()).toEqual([200, 422]);
     expect(replies.find((reply) => reply.status === 422)?.json).toMatchObject({ code: 'ADVANCE_CAP_EXCEEDED', cap_vnd: '500000000' });
     expect(await advancesOf(contract.contractId)).toHaveLength(1);
+  });
+
+  describe('the alert of an advance that is overdue (ST-PAY-011, UAT-AC329)', () => {
+    const acknowledge = (member: number, id: string, version: number | string, body: Record<string, unknown> = { note: 'The contractor will pay back from the next certificate.', action_plan_due_on: '2999-01-31' }) =>
+      call('POST', `/advances/${id}/acknowledge-alert`, { member, ifMatch: `"${version}"`, body });
+    const versionOf = async (id: string): Promise<number> => Number((await rows<{ version: string }>('select version::text from machvon.contract_advance where id = $1::uuid', [id]))[0]?.version);
+    /** The state the job leaves an advance in on the day after its deadline. */
+    const overdue = (id: string): Promise<unknown> => rows("update machvon.contract_advance set overdue_since = date '2026-08-01', last_alert_level = 3 where id = $1::uuid", [id]);
+
+    it('AC-ST-PAY-011-2: stores a plan and its day for an advance that is overdue and nothing else, audited and told without the words of the person', async () => {
+      const contract = await contractOf();
+      const id = await paidAdvance(contract);
+      // The job has not alerted it yet: there is nothing to acknowledge.
+      expect(await acknowledge(RECOVERER, id, await versionOf(id))).toMatchObject({ status: 422, json: { code: 'ADVANCE_NOT_OVERDUE' } });
+      await overdue(id);
+      const before = await versionOf(id);
+      const done = await acknowledge(RECOVERER, id, before);
+      expect(done).toMatchObject({ status: 200, json: { resource_version: before + 1, paid_vnd: '2000000000', recovered_vnd: '750000000', outstanding_vnd: '1250000000' } });
+      // The advance is not recovered by it: the status and the amounts are as they were.
+      expect(await rows('select 1 from machvon.contract_advance where id = $1::uuid and status = $2 and recovered_vnd = 750000000 and alert_plan_due_on = $3::date', [id, 'RECOVERING', '2999-01-31'])).toHaveLength(1);
+      const [audit] = await audits(id, 'advance.alert_acknowledged');
+      expect(audit).toMatchObject({ actor_id: memberId(RECOVERER), reason: 'The contractor will pay back from the next certificate.', safe_diff: { action_plan_due_on: '2999-01-31', overdue_since: '2026-08-01', last_alert_level: 3, outstanding_vnd: '1250000000' } });
+      const [told] = await events(id, 'pay.advance.alert_acknowledged.v1');
+      expect(JSON.stringify(told?.payload)).not.toContain('contractor will pay back');
+      // The plan can be given again with a stale version refused.
+      expect(await acknowledge(RECOVERER, id, before)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+      expect(await acknowledge(RECOVERER, id, before + 1, { note: 'Second plan', action_plan_due_on: '2999-02-28' })).toMatchObject({ status: 200 });
+    });
+
+    it('refuses a plan with no note, a day that is not one or that has passed, a caller without the right, and an advance nothing is owed on', async () => {
+      const contract = await contractOf();
+      const id = await paidAdvance(contract);
+      await overdue(id);
+      const version = await versionOf(id);
+      expect(await acknowledge(RECOVERER, id, version, { note: '   ', action_plan_due_on: '2999-01-31' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await acknowledge(RECOVERER, id, version, { note: 'Plan', action_plan_due_on: '2999-02-30' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await acknowledge(RECOVERER, id, version, { note: 'Plan', action_plan_due_on: '2020-01-01' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(await acknowledge(READER, id, version)).toMatchObject({ status: 403 });
+      expect(await acknowledge(ELSEWHERE, id, version)).toMatchObject({ status: 403 });
+      expect(await acknowledge(RECOVERER, randomUUID(), 1)).toMatchObject({ status: 404 });
+      await rows("update machvon.contract_advance set status = 'FULLY_RECOVERED', recovered_vnd = paid_vnd where id = $1::uuid", [id]);
+      expect(await acknowledge(RECOVERER, id, version)).toMatchObject({ status: 422, json: { code: 'ADVANCE_NOT_OVERDUE' } });
+    });
+
+    it('UAT-AC329: lists the advances that were alerted and are still owed, by level, with the plan and the buttons of the caller', async () => {
+      const contract = await contractOf();
+      const id = await paidAdvance(contract);
+      const quiet = await paidAdvance(contract);
+      await overdue(id);
+      const listed = await call('GET', '/advances/overdue', { member: MAKER });
+      expect(listed.status).toBe(200);
+      const items = listed.json.items as Array<Record<string, unknown>>;
+      expect(items.map((item) => item.id)).toContain(id);
+      expect(items.map((item) => item.id)).not.toContain(quiet);
+      expect(items.find((item) => item.id === id)).toMatchObject({ last_alert_level: 3, overdue_since: '2026-08-01', acknowledgement: null, actions: { acknowledge_alert: false } });
+      expect(await acknowledge(RECOVERER, id, await versionOf(id))).toMatchObject({ status: 200 });
+      const asRecoverer = (await call('GET', '/advances/overdue?level=3', { member: RECOVERER })).json.items as Array<Record<string, unknown>>;
+      expect(asRecoverer.find((item) => item.id === id)).toMatchObject({
+        acknowledgement: { action_plan_due_on: '2999-01-31', acknowledged_by: memberId(RECOVERER) },
+        actions: { acknowledge_alert: true },
+      });
+      expect(((await call('GET', '/advances/overdue?level=4', { member: RECOVERER })).json.items as Array<{ id: string }>).map((item) => item.id)).not.toContain(id);
+      const paged = await call('GET', '/advances/overdue?limit=1', { member: RECOVERER });
+      expect(paged.json.next_cursor).toEqual(expect.any(String));
+      expect(await call('GET', `/advances/overdue?limit=1&cursor=${encodeURIComponent(paged.json.next_cursor as string)}`, { member: RECOVERER })).toMatchObject({ status: 200 });
+      expect(await call('GET', '/advances/overdue?level=5', { member: MAKER })).toMatchObject({ status: 422 });
+      expect(await call('GET', '/advances/overdue?level=x', { member: MAKER })).toMatchObject({ status: 422 });
+      expect(await call('GET', '/advances/overdue', { member: NOBODY })).toMatchObject({ status: 403 });
+    });
   });
 });

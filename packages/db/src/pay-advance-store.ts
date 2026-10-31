@@ -5,6 +5,8 @@ import {
   DomainError,
   RECOVERY_BASES,
   advanceCap,
+  assertAcknowledgeable,
+  assertPlanDue,
   assertRecoverable,
   capPercentFor,
   recoveryPlan,
@@ -39,6 +41,10 @@ const idOf = (value: string, field: string): string => {
   if (!UUID.test(value)) throw invalid(field);
   return value.toLowerCase();
 };
+const dayOf = (value: string, field: string): string => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`)) || !new Date(`${value}T00:00:00Z`).toISOString().startsWith(value)) throw invalid(field);
+  return value;
+};
 const textOf = (value: string, field: string): string => {
   const trimmed = value.trim();
   if (trimmed === '' || trimmed.length > MAX_TEXT) throw invalid(field);
@@ -61,6 +67,18 @@ export interface RecordRecoveryInput {
   evidenceDocumentVersionId: string;
   /** The identifier of the command, kept on the entry it posts. */
   requestId: string;
+}
+
+export interface AcknowledgeInput {
+  note: string;
+  planDueOn: string;
+}
+
+export interface OverdueFilter {
+  /** Only the advances at exactly this alert level. */
+  level?: number | undefined;
+  limit?: number | undefined;
+  after?: { createdAt: string; id: string } | undefined;
 }
 
 export interface AdvanceFilter {
@@ -97,6 +115,8 @@ export interface AdvanceView {
   recoveryDeadline: string | null;
   overdueSince: string | null;
   lastAlertLevel: number;
+  /** The plan the person who answers for the advance gave once it was overdue: a note and the day it is due, nothing that moves the amounts. */
+  acknowledgement: { note: string; planDueOn: string; by: string; at: string } | null;
   createdAt: string;
   updatedAt: string;
   reach: ContractPlace;
@@ -144,6 +164,10 @@ interface AdvanceSql {
   recovery_deadline: string | null;
   overdue_since: string | null;
   last_alert_level: number;
+  alert_note: string | null;
+  alert_plan_due_on: string | null;
+  alert_acknowledged_by: string | null;
+  alert_acknowledged_at: string | null;
   created_at: string;
   updated_at: string;
   owner_unit_id: string;
@@ -156,7 +180,8 @@ const SELECT = `select a.id, a.version::text as version, a.status, c.id as contr
        c.advance_category, c.project_id, a.party_id, cp.role as party_role, k.legal_name as party_name, cp.work_value_vnd::text as work_value_vnd, a.tranche_no, a.kind,
        a.amount_vnd::text as amount_vnd, a.cap_vnd::text as cap_vnd, a.cap_rule_version_id, rv.attributes as rule_attributes, a.guarantee_id, a.allocation_line_id, a.paid_vnd::text as paid_vnd,
        a.recovered_vnd::text as recovered_vnd, a.outstanding_vnd::text as outstanding_vnd, a.paid_on::text as paid_on, a.recovery_threshold_pct::text as recovery_threshold_pct,
-       a.recovery_deadline::text as recovery_deadline, a.overdue_since::text as overdue_since, a.last_alert_level, ${TIMESTAMP('a.created_at')} as created_at, ${TIMESTAMP('a.updated_at')} as updated_at,
+       a.recovery_deadline::text as recovery_deadline, a.overdue_since::text as overdue_since, a.last_alert_level, a.alert_note, a.alert_plan_due_on::text as alert_plan_due_on, a.alert_acknowledged_by, ${TIMESTAMP('a.alert_acknowledged_at')} as alert_acknowledged_at,
+       ${TIMESTAMP('a.created_at')} as created_at, ${TIMESTAMP('a.updated_at')} as updated_at,
        ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path
   from ${CONTRACT_SCOPE_FROM}
   join machvon.contract_advance a on a.tenant_id = c.tenant_id and a.contract_id = c.id
@@ -207,6 +232,10 @@ function toView(row: AdvanceSql): AdvanceView {
     recoveryDeadline: row.recovery_deadline,
     overdueSince: row.overdue_since,
     lastAlertLevel: row.last_alert_level,
+    acknowledgement:
+      row.alert_note === null || row.alert_plan_due_on === null || row.alert_acknowledged_by === null || row.alert_acknowledged_at === null
+        ? null
+        : { note: row.alert_note, planDueOn: row.alert_plan_due_on, by: row.alert_acknowledged_by, at: row.alert_acknowledged_at },
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     reach: {
@@ -366,6 +395,41 @@ export class PayAdvanceStore {
     return { view: await this.view(tx, held.id), fromStatus: held.status };
   }
 
+  /**
+   * The person who answers for an advance that is overdue gives the plan to recover it and the day it is due (PAY 3.2 step 5, UAT-AC329). Only that is stored: the amounts and the status do not move, and the advance stays
+   * overdue and owed until it is recovered. A stale version is 409 `VERSION_CONFLICT`, an advance that is not overdue or not owed 422 `ADVANCE_NOT_OVERDUE`, a plan due before today 422 `VALIDATION_FAILED`.
+   */
+  async acknowledge(tx: TenantTx, advanceId: string, expectedVersion: number, input: AcknowledgeInput, actor: string, scopes: ContractScopes, today: string): Promise<AdvanceResult> {
+    const note = textOf(input.note, 'note');
+    const planDueOn = dayOf(input.planDueOn, 'action_plan_due_on');
+    const held = await this.lock(tx, advanceId, expectedVersion, scopes);
+    assertAcknowledgeable({ outstandingVnd: held.outstanding_vnd, overdueSince: held.overdue_since });
+    assertPlanDue(planDueOn, today);
+    try {
+      await tx.query(
+        'update machvon.contract_advance set alert_note = $2, alert_plan_due_on = $3::date, alert_acknowledged_by = $4::uuid, alert_acknowledged_at = now(), updated_at = now(), updated_by = $4::uuid, version = version + 1 where id = $1::uuid',
+        [held.id, note, planDueOn, actor],
+      );
+    } catch (error) {
+      throw this.mapRefusal(error);
+    }
+    return { view: await this.view(tx, held.id), fromStatus: held.status };
+  }
+
+  /** The advances in the scope of the caller that were alerted and are still owed, the newest first; narrowed to one alert level (PAY-12). */
+  async overdue(tx: TenantTx, scope: ScopeBuilder, filter: OverdueFilter): Promise<AdvanceView[]> {
+    if (filter.level !== undefined && (!Number.isInteger(filter.level) || filter.level < 1 || filter.level > 4)) throw invalid('level');
+    const predicate = scope(4);
+    const rows = await tx.query<AdvanceSql>(
+      `${SELECT}
+        where ${predicate.sql} and a.last_alert_level > 0 and a.paid_vnd > a.recovered_vnd and ($1::int is null or a.last_alert_level = $1::int)
+          and ($2::text is null or (${TIMESTAMP('a.created_at')}, a.id) < ($2::text, $3::uuid))
+        order by a.created_at desc, a.id desc limit ${Math.min(Math.max(filter.limit ?? 50, 1), MAX_PAGE + 1)}`,
+      [filter.level ?? null, filter.after?.createdAt ?? null, filter.after?.id ?? null, ...predicate.params],
+    );
+    return rows.map(toView);
+  }
+
   /** The advance with where its recovery stands and where it goes (CTR-06, PAY-07): what the member asked to be paid before decides, whatever the other members did. */
   async plan(tx: TenantTx, advanceId: string, scope: ScopeBuilder): Promise<AdvancePlan | undefined> {
     const view = await this.find(tx, advanceId, scope);
@@ -388,7 +452,7 @@ export class PayAdvanceStore {
       `${SELECT}
         where ${predicate.sql} and ($1::uuid is null or a.contract_id = $1::uuid) and ($2::text is null or a.status = $2)
           and ($3::text is null or (${TIMESTAMP('a.created_at')}, a.id) < ($3::text, $4::uuid))
-        order by a.created_at desc, a.id desc limit ${Math.min(Math.max(filter.limit ?? 50, 1), MAX_PAGE)}`,
+        order by a.created_at desc, a.id desc limit ${Math.min(Math.max(filter.limit ?? 50, 1), MAX_PAGE + 1)}`,
       [contractId, status, filter.after?.createdAt ?? null, filter.after?.id ?? null, ...predicate.params],
     );
     return rows.map(toView);
@@ -428,13 +492,18 @@ export class PayAdvanceStore {
   }
 
   /** The advance locked for update inside the scope of the command, its contract locked first; one the caller cannot see does not exist, and a stale version is 409 `VERSION_CONFLICT`. */
-  private async lock(tx: TenantTx, advanceId: string, expectedVersion: number, scopes: ContractScopes): Promise<{ id: string; contract_id: string; party_id: string; status: AdvanceStatus; paid_vnd: string; recovered_vnd: string }> {
+  private async lock(
+    tx: TenantTx,
+    advanceId: string,
+    expectedVersion: number,
+    scopes: ContractScopes,
+  ): Promise<{ id: string; contract_id: string; party_id: string; status: AdvanceStatus; paid_vnd: string; recovered_vnd: string; outstanding_vnd: string; overdue_since: string | null }> {
     const id = idOf(advanceId, 'id');
     const peek = await tx.query<{ contract_id: string }>('select contract_id from machvon.contract_advance where id = $1::uuid', [id]);
     if (peek[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     await this.contracts.lock(tx, peek[0].contract_id, scopes);
-    const [row] = await tx.query<{ id: string; version: string; contract_id: string; party_id: string; status: AdvanceStatus; paid_vnd: string; recovered_vnd: string }>(
-      'select id, version::text as version, contract_id, party_id, status, paid_vnd::text as paid_vnd, recovered_vnd::text as recovered_vnd from machvon.contract_advance where id = $1::uuid for update',
+    const [row] = await tx.query<{ id: string; version: string; contract_id: string; party_id: string; status: AdvanceStatus; paid_vnd: string; recovered_vnd: string; outstanding_vnd: string; overdue_since: string | null }>(
+      'select id, version::text as version, contract_id, party_id, status, paid_vnd::text as paid_vnd, recovered_vnd::text as recovered_vnd, outstanding_vnd::text as outstanding_vnd, overdue_since::text as overdue_since from machvon.contract_advance where id = $1::uuid for update',
       [id],
     );
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -515,6 +584,7 @@ export class PayAdvanceStore {
       if (message.startsWith('ADVANCE_GUARANTEE_REQUIRED')) return new DomainError('ADVANCE_GUARANTEE_REQUIRED', 422, 'guarantee_id');
       if (message.startsWith('ADVANCE_STATE_INVALID')) return new DomainError('ADVANCE_STATE_INVALID', 409, 'id');
       if (failure.constraint === 'contract_advance_amounts_chk' || failure.constraint === 'contract_advance_order_chk') return new DomainError('ADVANCE_RECOVERY_EXCEEDED', 422, 'amount_vnd');
+      if (failure.constraint === 'contract_advance_alert_ack_chk') return invalid('note');
       if (failure.constraint === 'contract_cash_out_chk') return new DomainError('VALUE_EXCEEDED', 409, 'amount_vnd', { extensions: { rule: 'contract_cash_out_chk' } });
     }
     return error;

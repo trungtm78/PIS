@@ -5,7 +5,8 @@ import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useScopeKey } from '../hooks';
 import { toAdvance, toAnswer, toPlan } from './model';
-import type { Advance, AdvanceAnswer, AdvancePlan, RecoveryBody } from './model';
+import type { Advance, AdvanceAnswer, AdvancePlan, AlertLevel, RecoveryBody } from './model';
+import type { RequestBody } from './request-model';
 
 export interface AdvanceFilter {
   contractId?: string | null;
@@ -22,6 +23,18 @@ export function useAdvances(filter: AdvanceFilter = {}) {
   return useQuery<Advance[]>({
     queryKey: [...key, 'advances', filter.contractId ?? '', filter.status ?? ''],
     queryFn: async () => (await client.readAll('listAdvances', { query })).flatMap((raw) => toAdvance(raw) ?? []),
+    enabled: key[1] !== undefined,
+    retry: false,
+  });
+}
+
+/** The advances that were alerted and are still owed (PAY-12), narrowed to one level of the alert. */
+export function useOverdueAdvances(level: AlertLevel | null) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<Advance[]>({
+    queryKey: [...key, 'advances-overdue', level ?? ''],
+    queryFn: async () => (await client.readAll('listOverdueAdvances', { query: level === null ? {} : { level } })).flatMap((raw) => toAdvance(raw) ?? []),
     enabled: key[1] !== undefined,
     retry: false,
   });
@@ -70,6 +83,38 @@ export interface RecoveryInput {
 export function useRecordRecovery() {
   const client = useApiClient();
   return useCommand<RecoveryInput>((input, attempt) => client.command('recordAdvanceRecovery', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+}
+
+export interface AcknowledgeInput {
+  id: string;
+  version: number;
+  body: { note: string; action_plan_due_on: string };
+}
+
+export function useAcknowledgeAlert() {
+  const client = useApiClient();
+  return useCommand<AcknowledgeInput>((input, attempt) => client.command('acknowledgeAdvanceAlert', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+}
+
+export interface RequestInput {
+  contractId: string;
+  body: RequestBody;
+}
+
+/** Asking for an advance: one idempotency attempt per intention, the answer of the server given back whole (it carries the cap the rule gave), every cached read refreshed on success. */
+export function useRequestAdvance() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const key = useScopeKey();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation<unknown, Error, RequestInput>({
+    mutationFn: (input) => client.command('requestAdvance', { path: { id: input.contractId }, body: input.body, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: key });
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
 }
 
 export interface CancelInput {

@@ -18,11 +18,12 @@ import type { AdvancePermissions } from './advance-view';
 const REQUEST_PERMISSION = PERMISSIONS.requestAdvance;
 const CANCEL_PERMISSION = PERMISSIONS.cancelAdvance;
 const RECOVER_PERMISSION = PERMISSIONS.recordAdvanceRecovery;
+const ACKNOWLEDGE_PERMISSION = PERMISSIONS.acknowledgeAdvanceAlert;
 const READ_PERMISSION = PERMISSIONS.listAdvances;
 const RESOURCE_TYPE = 'contract_advance';
 const CLASSIFICATION = 'CONFIDENTIAL';
 
-const PERMISSIONS_OF_ACTIONS: AdvancePermissions = { cancel: CANCEL_PERMISSION, recover: RECOVER_PERMISSION };
+const PERMISSIONS_OF_ACTIONS: AdvancePermissions = { cancel: CANCEL_PERMISSION, recover: RECOVER_PERMISSION, acknowledge: ACKNOWLEDGE_PERMISSION };
 
 type AdvanceCommandResult = Schemas['PayAdvanceCommandResult'];
 
@@ -138,6 +139,32 @@ export class AdvanceController {
   }
 }
 
+/** The plan to recover an advance that is overdue (ST-PAY-011, PAY 3.2 step 5): a note and the day it is due, and nothing that moves the amounts. */
+@Controller()
+export class AdvanceAlertController {
+  private readonly advances = new PayAdvanceStore();
+
+  @Post('advances/:id/acknowledge-alert')
+  @HttpCode(200)
+  @OperationId('acknowledgeAdvanceAlert')
+  @Command({ operation: 'acknowledgeAdvanceAlert', versioned: true })
+  async acknowledge(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['PayAcknowledgeAdvanceAlert']): Promise<AdvanceCommandResult> {
+    const now = new Date();
+    const done = await this.advances.acknowledge(
+      scope.tx,
+      id.toLowerCase(),
+      scope.expectedVersion ?? 0,
+      { note: body.note, planDueOn: body.action_plan_due_on },
+      scope.tenant.membershipId,
+      scopesFor(access, ACKNOWLEDGE_PERMISSION, now),
+      vietnamDateOf(now),
+    );
+    // The note is the words of the person: it is named in the audit row as the reason and never repeated in the event.
+    await recordAdvanceTrail(scope, done, 'advance.alert_acknowledged', 'pay.advance.alert_acknowledged.v1', now, { reason: body.note.trim(), recovery: { action_plan_due_on: body.action_plan_due_on, last_alert_level: done.view.lastAlertLevel, overdue_since: done.view.overdueSince } });
+    return answer(scope, done.view);
+  }
+}
+
 /** The advances in the scope of the caller and the plan of the recovery of one (the right to read them is `advance.read`). */
 @Controller()
 export class AdvanceReadsController {
@@ -165,6 +192,37 @@ export class AdvanceReadsController {
       this.advances.list(tx, contractScope(access, READ_PERMISSION, now), {
         contractId: filter?.toLowerCase(),
         status: status as string | undefined,
+        limit: request.limit + 1,
+        after: request.after === undefined ? undefined : { createdAt: request.after.code, id: request.after.id },
+      }),
+    );
+    const shown = rows.slice(0, request.limit);
+    const last = shown[shown.length - 1];
+    return {
+      items: shown.map((row) => advanceView(row, access, now, PERMISSIONS_OF_ACTIONS, today)),
+      next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAt, id: last.id }) : null,
+      as_of: now.toISOString(),
+    };
+  }
+
+  /** The advances that were alerted and are still owed (PAY-12), narrowed to one level. */
+  @Get('advances/overdue')
+  @OperationId('listOverdueAdvances')
+  async overdue(
+    @CurrentTenant() tenant: TenantContext,
+    @CurrentAccess() access: EffectiveAccess,
+    @Query('level') level?: unknown,
+    @Query('limit') limit?: unknown,
+    @Query('cursor') cursor?: unknown,
+  ): Promise<{ items: Array<Record<string, unknown>>; next_cursor: string | null; as_of: string }> {
+    const wanted = level === undefined ? undefined : typeof level === 'string' && /^[1-4]$/.test(level) ? Number(level) : undefined;
+    if (level !== undefined && wanted === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'level');
+    const request = parsePageRequest(limit, cursor);
+    const now = new Date();
+    const today = vietnamDateOf(now);
+    const rows = await this.database.withTenant(tenant, (tx) =>
+      this.advances.overdue(tx, contractScope(access, READ_PERMISSION, now), {
+        level: wanted,
         limit: request.limit + 1,
         after: request.after === undefined ? undefined : { createdAt: request.after.code, id: request.after.id },
       }),

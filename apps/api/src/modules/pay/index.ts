@@ -1,5 +1,5 @@
 import { defineModule } from '../module-descriptor';
-import { AdvanceController, AdvanceReadsController } from './advance.controller';
+import { AdvanceAlertController, AdvanceController, AdvanceReadsController } from './advance.controller';
 import { CumulativeLedgerController } from './cumulative-ledger.controller';
 import { PaymentFormController } from './payment-form.controller';
 import { PaymentReversalController } from './payment-reversal.controller';
@@ -20,5 +20,5 @@ import { TreasuryTransactionController, TreasuryTransactionReadsController } fro
  */
 export const payModule = defineModule({
   code: 'PAY',
-  controllers: [TreasuryImportController, TreasuryImportReadsController, TreasuryTransactionController, TreasuryTransactionReadsController, CumulativeLedgerController, PaymentRequestController, PaymentClaimController, PaymentFormController, PaymentRequestReadsController, AdvanceController, AdvanceReadsController, TreasuryMatchController, ReconciliationController, ReconciliationReadsController, PaymentReversalController, ProjectSettlementController, ProjectSettlementReadsController, PaymentChainController],
+  controllers: [TreasuryImportController, TreasuryImportReadsController, TreasuryTransactionController, TreasuryTransactionReadsController, CumulativeLedgerController, PaymentRequestController, PaymentClaimController, PaymentFormController, PaymentRequestReadsController, AdvanceController, AdvanceReadsController, TreasuryMatchController, ReconciliationController, ReconciliationReadsController, PaymentReversalController, ProjectSettlementController, ProjectSettlementReadsController, PaymentChainController, AdvanceAlertController],
 });

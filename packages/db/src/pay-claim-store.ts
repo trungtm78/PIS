@@ -272,7 +272,7 @@ export class PayClaimStore {
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, 'REVERSE_DISBURSE', $4::numeric, $5::uuid, now(), $6::uuid, $7::uuid, 0, $8, $9::uuid, $10::uuid)`,
       [randomUUID(), held.contract_id, held.id, advance.paid_vnd, disbursed.id, advance.id, advance.party_id, REVERSAL_ENTRY_REASON, actor, requestId],
     );
-    await tx.query("update machvon.contract_advance set status = 'PLANNED', paid_vnd = 0, paid_on = null, recovery_deadline = null, updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [advance.id, actor]);
+    await tx.query("update machvon.contract_advance set status = 'PLANNED', paid_vnd = 0, paid_on = null, recovery_deadline = null, last_alert_level = 0, overdue_since = null, alert_note = null, alert_plan_due_on = null, alert_acknowledged_by = null, alert_acknowledged_at = null, updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [advance.id, actor]);
     await tx.query('update machvon.contract set advance_paid_vnd = advance_paid_vnd - $2::numeric, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid', [held.contract_id, advance.paid_vnd, actor]);
     return advance.id;
   }

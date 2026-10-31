@@ -1,6 +1,7 @@
 {
   "commands": [
     "acceptIssueEscalation",
+    "acknowledgeAdvanceAlert",
     "acknowledgeEvaluationTrigger",
     "advanceEnforcement",
     "acknowledgeNotification",

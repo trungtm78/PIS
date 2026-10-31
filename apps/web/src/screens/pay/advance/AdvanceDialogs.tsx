@@ -4,10 +4,10 @@ import { useTranslation } from '../../../i18n';
 import { Field } from '../../ctr/components';
 import { CommandFrame } from '../../qms/CommandFrame';
 import { formProblemMessage } from '../payment/labels';
-import { useCancelAdvance, useRecordRecovery } from './hooks';
+import { useAcknowledgeAlert, useCancelAdvance, useRecordRecovery } from './hooks';
 import { basisLabel, problemMessage } from './labels';
-import { BASES, EMPTY_CANCEL, EMPTY_RECOVERY, cancelBody, describeProblem, recoveryBody, signedAmountText, validateCancel, validateRecovery } from './model';
-import type { Advance, AdvanceAnswer, CancelForm, RecoveryForm } from './model';
+import { BASES, EMPTY_ACKNOWLEDGE, EMPTY_CANCEL, EMPTY_RECOVERY, acknowledgeBody, cancelBody, describeProblem, recoveryBody, signedAmountText, validateAcknowledge, validateCancel, validateRecovery, vietnamToday } from './model';
+import type { AcknowledgeForm, Advance, AdvanceAnswer, CancelForm, RecoveryForm } from './model';
 
 export interface AdvanceDialogProps {
   advance: Advance;
@@ -71,6 +71,49 @@ export function RecoveryDialog({ advance, onDone, onClose }: AdvanceDialogProps)
       </Field>
       <Field id="recovery-evidence" label={t('pay.advance.field.evidence')} error={shown('evidenceId')} hint={t('pay.advance.field.evidence.hint')}>
         <input id="recovery-evidence" autoComplete="off" value={form.evidenceId} onChange={(event) => setForm({ ...form, evidenceId: event.target.value })} />
+      </Field>
+    </CommandFrame>
+  );
+}
+
+/**
+ * The plan to recover an advance that is overdue (PAY 3.2 step 5, UAT-AC329): a note and the day it is due. Only that is stored; the advance stays overdue and owed until it is recovered, and nothing here marks it as
+ * recovered.
+ */
+export function AcknowledgeDialog({ advance, onDone, onClose }: AdvanceDialogProps) {
+  const { t, locale } = useTranslation();
+  const words = useFrameWords();
+  const acknowledge = useAcknowledgeAlert();
+  const today = vietnamToday();
+  const [form, setForm] = useState<AcknowledgeForm>(advance.acknowledgement === null ? EMPTY_ACKNOWLEDGE : { note: advance.acknowledgement.note, planDueOn: advance.acknowledgement.planDueOn });
+  const [sent, setSent] = useState(false);
+  const problems = validateAcknowledge(form, today);
+  const shown = (field: keyof AcknowledgeForm): string | undefined => {
+    const problem = problems[field];
+    return sent && problem !== undefined ? formProblemMessage(t, problem) : undefined;
+  };
+  const send = (event: FormEvent): void => {
+    event.preventDefault();
+    setSent(true);
+    if (acknowledge.isPending || Object.keys(problems).length > 0) return;
+    acknowledge.mutate({ id: advance.id, version: advance.version, body: acknowledgeBody(form) }, { onSuccess: onDone });
+  };
+  return (
+    <CommandFrame
+      title={t('pay.alert.ack.title', { contract: advance.contract.code, tranche: advance.trancheNo })}
+      refusal={acknowledge.isError ? problemMessage(t, describeProblem(acknowledge.error)) : undefined}
+      pending={acknowledge.isPending}
+      submitLabel={t('pay.alert.ack.submit')}
+      words={words}
+      onSubmit={send}
+      onClose={onClose}
+    >
+      <p data-testid="owed">{t('pay.advance.recovery.owed', { amount: signedAmountText(advance.outstandingVnd, locale) ?? advance.outstandingVnd })}</p>
+      <Field id="ack-note" label={t('pay.alert.field.note')} error={shown('note')} hint={t('pay.alert.field.note.hint')}>
+        <textarea id="ack-note" rows={3} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
+      </Field>
+      <Field id="ack-due" label={t('pay.alert.field.due')} error={shown('planDueOn')} hint={t('pay.alert.field.due.hint')}>
+        <input id="ack-due" type="date" min={today} value={form.planDueOn} onChange={(event) => setForm({ ...form, planDueOn: event.target.value })} />
       </Field>
     </CommandFrame>
   );

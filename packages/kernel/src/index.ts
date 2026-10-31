@@ -336,6 +336,8 @@ export { FAILED_TEST_ACTION_DAYS, FAILED_TEST_SEVERITY, MATERIAL_RESULTS, MATERI
 export type { MaterialResult, MaterialTestStatus } from './qms-material.ts';
 export { ENFORCEMENT_STEPS, assertAdvancerIsNotDrafter, assertEnforcementMove, assertStepFacts, stepAfter } from './lnd-enforcement.ts';
 export type { EnforcementStep, StepFacts } from './lnd-enforcement.ts';
+export { ADVANCE_ALERT_LEVELS, ADVANCE_ESCALATION_DAYS, ADVANCE_WARNING_DAYS, advanceAlert, assertAcknowledgeable, assertPlanDue } from './pay-advance-alert.ts';
+export type { AdvanceAlert, AdvanceAlertFacts, AdvanceAlertLevel, AdvanceAlertState } from './pay-advance-alert.ts';
 export { allocateLargestRemainder, computeDraftMoney, groupForLedger, linesMatchHeader, partyRecovery, percentScaled, recoverFromTranches, retentionOf, roundedDivision, signedDong, targetRecovered, wholeVnd } from './pay-money.ts';
 export type { AdvanceTranche, ClaimGroup, DraftLine, DraftMoney, DraftMoneyInput, MoneyLine, PartyAdvance } from './pay-money.ts';
 export { DOCUMENT_KINDS, PAYMENT_KINDS, PAYMENT_STATUSES, assertContractAllows, assertPlanYear, contractRefusal, disbursementEnd, isEditable } from './pay-request.ts';

@@ -5,6 +5,7 @@ import { placeRefs, reaches } from '../ctr/contract.controller';
 export interface AdvancePermissions {
   cancel: string;
   recover: string;
+  acknowledge: string;
 }
 
 export interface AdvanceWarning {
@@ -29,6 +30,7 @@ export function advanceWarnings(view: AdvanceView): AdvanceWarning[] {
 export function advanceView(view: AdvanceView, access: EffectiveAccess, now: Date, permissions: AdvancePermissions, today: string): Record<string, unknown> {
   const refs = placeRefs(view.reach);
   const late = view.recoveryDeadline !== null && view.outstandingVnd !== '0' && today > view.recoveryDeadline;
+  const owed = view.outstandingVnd !== '0';
   return {
     id: view.id,
     status: view.status,
@@ -52,13 +54,16 @@ export function advanceView(view: AdvanceView, access: EffectiveAccess, now: Dat
     recovery_threshold_pct: view.thresholdPct,
     recovery_deadline: view.recoveryDeadline,
     overdue_since: view.overdueSince,
-    overdue_days: late && view.recoveryDeadline !== null ? daysBetween(view.recoveryDeadline, today) : null,
+    // A land clearance advance is late from the day after its deadline; an advance of a contract from the day it was found overdue.
+    overdue_days: late && view.recoveryDeadline !== null ? daysBetween(view.recoveryDeadline, today) : view.kind === 'CONTRACT' && owed && view.overdueSince !== null ? daysBetween(view.overdueSince, today) : null,
     last_alert_level: view.lastAlertLevel,
+    acknowledgement: view.acknowledgement === null ? null : { note: view.acknowledgement.note, action_plan_due_on: view.acknowledgement.planDueOn, acknowledged_by: view.acknowledgement.by, acknowledged_at: view.acknowledgement.at },
     created_at: view.createdAt,
     updated_at: view.updatedAt,
     actions: {
       cancel: (view.status === 'PLANNED' || view.status === 'REQUESTED') && reaches(access, permissions.cancel, refs, now),
       record_recovery: (view.status === 'PAID' || view.status === 'RECOVERING') && reaches(access, permissions.recover, refs, now),
+      acknowledge_alert: owed && view.overdueSince !== null && reaches(access, permissions.acknowledge, refs, now),
     },
     version: view.version,
   };

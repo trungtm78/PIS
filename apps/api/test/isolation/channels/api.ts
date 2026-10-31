@@ -529,6 +529,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'markPaymentSentToTreasury', method: 'POST', id: PAYMENT_FIXTURES['TNT-B'].id, versioned: true, body: { treasury_submitted_on: '2026-10-25', form_instance_ids: [PAYMENT_FIXTURES['TNT-B'].id] } },
   { operation: 'listPaymentForms', method: 'GET', id: PAYMENT_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_payment_request_id', method: 'GET', id: PAYMENT_FIXTURES['TNT-B'].id },
+  { operation: 'acknowledgeAdvanceAlert', method: 'POST', id: ADVANCE_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign acknowledgement', action_plan_due_on: '2999-01-01' } },
   { operation: 'cancelAdvance', method: 'POST', id: ADVANCE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign cancellation attempt' } },
   { operation: 'recordAdvanceRecovery', method: 'POST', id: ADVANCE_FIXTURES['TNT-B'].id, versioned: true, body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: CONTRACT_FIXTURES['TNT-B'].revisionId } },
   { operation: 'getAdvanceRecoveryPlan', method: 'GET', id: ADVANCE_FIXTURES['TNT-B'].id },

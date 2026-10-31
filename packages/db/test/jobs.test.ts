@@ -425,6 +425,43 @@ describe('standard jobs', () => {
     expect(JOB_INTERVAL_SECONDS['settlement-deadline']).toBe(3600);
   });
 
+  it('looks at the advances that are owed in every tenant in the 06:00 hour of Vietnam time only, and keeps going when one tenant fails (advance-overdue, ST-PAY-011)', async () => {
+    const visited: Array<[string, string]> = [];
+    const gauges: Array<[string, number]> = [];
+    let now = new Date('2026-07-10T22:59:00Z');
+    let failing = true;
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      clock: () => now,
+      metrics: { increment: () => undefined, gauge: (name, value) => void gauges.push([name, value]) },
+      advanceOverdue: {
+        run: async (ctx, at) => {
+          visited.push([ctx.tenantId, at.toISOString()]);
+          if (failing && ctx.tenantId === TENANT_A) throw new Error('boom');
+          return { overdue: ctx.tenantId === TENANT_A ? 2 : 3 };
+        },
+      },
+    });
+    const job = handlers.find((handler) => handler.name === 'advance-overdue');
+    // 05:59 in Vietnam: not the hour of the morning.
+    await job?.run();
+    expect(visited).toEqual([]);
+    now = new Date('2026-07-10T23:00:00Z');
+    await expect(job?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(visited).toEqual([
+      [TENANT_A, '2026-07-10T23:00:00.000Z'],
+      [TENANT_B, '2026-07-10T23:00:00.000Z'],
+    ]);
+    // The tenant that could be read still counts, and the gauge is one figure for all of them.
+    expect(gauges).toEqual([['pay_advance_overdue', 3]]);
+    failing = false;
+    await job?.run();
+    expect(gauges.at(-1)).toEqual(['pay_advance_overdue', 5]);
+    expect(JOB_INTERVAL_SECONDS['advance-overdue']).toBe(3600);
+  });
+
   it('compares the balances of capital with their ledger in every tenant in the 02:00 hour of Vietnam time only, and keeps going when one tenant fails (capital-balance-reconcile, ST-CAP-006)', async () => {
     const visited: Array<[string, string]> = [];
     let now = new Date('2026-07-11T18:59:00Z');
@@ -739,13 +776,14 @@ describe('standard jobs', () => {
       astEvaluationDue: { run: async () => ({ fired: 0 }) },
       astClaimOverdue: { run: async () => ({ flagged: 0 }) },
       settlementDeadline: { run: async () => ({ overdue: 0 }) },
+      advanceOverdue: { run: async () => ({ overdue: 0 }) },
       diaryCoverage: { run: async () => ({ contracts: 0, missing: 0 }) },
       audRecoveryReconcile: { run: async () => ({ mismatches: [] }) },
       llmKeySweep: { run: async () => ({ revoked: 0, failed: 0 }) },
       llmReservationExpiry: { run: async () => ({ expired: 0, oldestAgeSeconds: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'unit-reorganization', 'delegation-lifecycle', 'support-access-lifecycle', 'tenant-domain', 'tenant-export', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'notification-campaign-progress', 'dgv-quality-run', 'subscription-cycle', 'einvoice-billing', 'payment-reconciliation', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'dgv-incident-sweep', 'dgv-product-cert-expiry', 'reconciliation-overdue', 'settlement-deadline', 'diary-coverage', 'capital-balance-reconcile', 'capital-reservation-expiry', 'ast-evaluation-due', 'ast-claim-overdue', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'unit-reorganization', 'delegation-lifecycle', 'support-access-lifecycle', 'tenant-domain', 'tenant-export', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'notification-campaign-progress', 'dgv-quality-run', 'subscription-cycle', 'einvoice-billing', 'payment-reconciliation', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'dgv-incident-sweep', 'dgv-product-cert-expiry', 'reconciliation-overdue', 'settlement-deadline', 'advance-overdue', 'diary-coverage', 'capital-balance-reconcile', 'capital-reservation-expiry', 'ast-evaluation-due', 'ast-claim-overdue', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

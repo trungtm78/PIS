@@ -1,5 +1,5 @@
 import type { useTranslation } from '../../../i18n';
-import type { AdvanceKind, AdvanceStatus, Problem, RecoveryBasis } from './model';
+import type { AdvanceKind, AdvanceStatus, AlertLevel, Problem, RecoveryBasis } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -17,6 +17,19 @@ export function statusLabel(t: Translate, status: AdvanceStatus): string {
       return t('pay.advance.status.fullyRecovered');
     case 'CANCELLED':
       return t('pay.advance.status.cancelled');
+  }
+}
+
+export function levelLabel(t: Translate, level: AlertLevel): string {
+  switch (level) {
+    case 1:
+      return t('pay.alert.level.warning');
+    case 2:
+      return t('pay.alert.level.due');
+    case 3:
+      return t('pay.alert.level.overdue');
+    case 4:
+      return t('pay.alert.level.escalated');
   }
 }
 
@@ -38,6 +51,8 @@ export function basisLabel(t: Translate, basis: RecoveryBasis): string {
 /** What a refusal of a command says. */
 export function problemMessage(t: Translate, problem: Problem): string {
   switch (problem) {
+    case 'notOverdue':
+      return t('pay.advance.error.notOverdue');
     case 'recoveryExceeded':
       return t('pay.advance.error.recoveryExceeded');
     case 'stateInvalid':

@@ -627,6 +627,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'cancelAdvance',
   'recordAdvanceRecovery',
   'listAdvances',
+  'acknowledgeAdvanceAlert',
+  'listOverdueAdvances',
   'getAdvanceRecoveryPlan',
   'matchTreasuryTransaction',
   'assignReconciliationItem',

@@ -2223,6 +2223,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/advances/${t.advanceId}/cancel`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  acknowledgeAdvanceAlert: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/advances/${t.advanceId}/acknowledge-alert`, ifMatch: '"1"', body: { note: REASON, action_plan_due_on: '2999-01-01' } }),
+  },
   recordAdvanceRecovery: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/advances/${t.advanceId}/recoveries`, ifMatch: '"1"', body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: t.paymentDocumentVersionId } }),

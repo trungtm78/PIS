@@ -18,6 +18,7 @@ import type { JobHandler } from './job-runner.ts';
 import { OPEN_ISSUES_GAUGE, PENDING_ESCALATIONS_GAUGE } from './iss-sla-job.ts';
 import type { SlaPassResult } from './iss-sla-job.ts';
 import { SLA_SEVERITIES } from './iss-sla-policy-store.ts';
+import { PAY_ADVANCE_OVERDUE_METRIC } from './pay-advance-overdue-job.ts';
 import { RETENTION_PENDING_GAUGE } from './retention-job.ts';
 import { PAYMENT_UNMATCHED_GAUGE } from './billing-payment-store.ts';
 import { EINVOICE_FAILED_GAUGE } from './billing-store.ts';
@@ -112,6 +113,8 @@ export const JOB_INTERVAL_SECONDS = {
   'reconciliation-overdue': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the reminders of the verification deadline of a settlement go once a morning wherever the process started; the pass is idempotent (ST-PAY-009).
   'settlement-deadline': 3600,
+  // Hourly tick that works only in the 06:00 hour of Vietnam time, so the advances that are owed are looked at once a morning wherever the process started: the warnings before and on the deadline, the day it became overdue with one issue, the escalation a week later (ST-PAY-011); the pass is idempotent.
+  'advance-overdue': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the working days of the month without a main diary are counted for each contract in execution once a morning wherever the process started; nothing is changed by it (ST-QMS-008).
   'diary-coverage': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the balances of capital are compared with their ledger once a night wherever the process started; nothing is changed by it (ST-CAP-006).
@@ -144,6 +147,8 @@ export const CAPITAL_RECONCILE_HOUR = 2;
 export const AUD_RECONCILE_HOUR = 2;
 /** The hour of the morning, in Vietnam time, in which the reminders of the verification deadline of a settlement go (PAY 3.5: 06:00). */
 export const SETTLEMENT_DEADLINE_HOUR = 6;
+/** The hour of the morning, in Vietnam time, in which the advances that are owed are looked at for their alerts (PAY 3.2: 06:00). */
+export const ADVANCE_OVERDUE_HOUR = 6;
 /** The hour, in Vietnam time, at which the diaries that are missing are counted (QMS 3.1: `diary-coverage` at 06:00). */
 export const DIARY_COVERAGE_HOUR = 6;
 /** The gauge of the revision job: the pending revisions more than a day past their first day, which the alert `CTR_REVISION_OVERDUE` watches. */
@@ -312,6 +317,8 @@ export interface StandardJobDeps {
   audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** Alerts the advances that are owed and not recovered in time, each level once, asks ISS for one issue and escalates it a week later (ST-PAY-011); sets the gauge of the overdue ones. */
+  advanceOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
   diaryCoverage?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the virtual keys of a tenant (ST-LLM-002): a rotating key whose last day is over, and a key past its expiry, are stopped at LiteLLM and recorded as revoked. */
   llmKeySweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -912,6 +919,26 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         const now = (deps.clock ?? (() => new Date()))();
         if (vietnamHourOf(now) !== SETTLEMENT_DEADLINE_HOUR) return;
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await settlementDeadlines.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const advanceOverdue = deps.advanceOverdue;
+  if (advanceOverdue !== undefined) {
+    handlers.push({
+      name: 'advance-overdue',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        if (vietnamHourOf(now) !== ADVANCE_OVERDUE_HOUR) return;
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let overdue = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            overdue += (await advanceOverdue.run(workerContext(tenantId), now)).overdue;
+          });
+        } finally {
+          // One gauge for all the tenants: the tenants that could be read still count, and one tenant does not blank the others.
+          metrics.gauge(PAY_ADVANCE_OVERDUE_METRIC, overdue);
+        }
       },
     });
   }

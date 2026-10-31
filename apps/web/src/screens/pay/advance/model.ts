@@ -8,8 +8,11 @@ export { signedAmountText };
 export const CANCEL_PERMISSION = 'advance.cancel';
 export const RECOVER_PERMISSION = 'advance.recover';
 export const READ_PERMISSION = 'advance.read';
+export const REQUEST_PERMISSION = 'advance.request';
+export const ACKNOWLEDGE_PERMISSION = 'advance.alert.ack';
 
 export const LIST_PATH = '/pay/pay-07';
+export const BOARD_PATH = '/pay/pay-12';
 export const SCHEDULE_PATH = '/ctr/ctr-06';
 
 /** The advances of a contract, or all of them (PAY-07). */
@@ -58,7 +61,12 @@ export interface Advance {
   thresholdPct: string;
   recoveryDeadline: string | null;
   overdueDays: number | null;
-  actions: { cancel: boolean; recordRecovery: boolean };
+  overdueSince: string | null;
+  /** The highest level of the alert that went: 0 for none, 1 to 4 (PAY 3.2 step 4). */
+  lastAlertLevel: number;
+  /** The plan the person who answers gave for an advance that is overdue: a note and the day it is due. */
+  acknowledgement: { note: string; planDueOn: string; by: string; at: string } | null;
+  actions: { cancel: boolean; recordRecovery: boolean; acknowledgeAlert: boolean };
   version: number;
 }
 
@@ -81,6 +89,7 @@ export function toAdvance(raw: unknown): Advance | undefined {
   const workValueVnd = amount(party?.work_value_vnd);
   const trancheNo = whole(row?.tranche_no);
   const version = whole(row?.version);
+  const acknowledged = asRecord(row?.acknowledgement);
   if (
     row === undefined || id === undefined || status === undefined || kind === undefined || contractId === undefined || partyId === undefined || amountVnd === undefined || capVnd === undefined ||
     paidVnd === undefined || recoveredVnd === undefined || outstandingVnd === undefined || valueVnd === undefined || workValueVnd === undefined || trancheNo === undefined || version === undefined
@@ -107,7 +116,13 @@ export function toAdvance(raw: unknown): Advance | undefined {
     thresholdPct: text(row.recovery_threshold_pct) ?? '',
     recoveryDeadline: nullableText(row.recovery_deadline),
     overdueDays: whole(row.overdue_days) ?? null,
-    actions: { cancel: actions?.cancel === true, recordRecovery: actions?.record_recovery === true },
+    overdueSince: nullableText(row.overdue_since),
+    lastAlertLevel: whole(row.last_alert_level) ?? 0,
+    acknowledgement:
+      text(acknowledged?.note) === undefined || text(acknowledged?.action_plan_due_on) === undefined
+        ? null
+        : { note: text(acknowledged?.note) ?? '', planDueOn: text(acknowledged?.action_plan_due_on) ?? '', by: text(acknowledged?.acknowledged_by) ?? '', at: text(acknowledged?.acknowledged_at) ?? '' },
+    actions: { cancel: actions?.cancel === true, recordRecovery: actions?.record_recovery === true, acknowledgeAlert: actions?.acknowledge_alert === true },
     version,
   };
 }
@@ -179,6 +194,10 @@ export function toAnswer(value: unknown): AdvanceAnswer | undefined {
 /** Whether the day an advance had to be back by has gone by with something still owed (PAY-07). */
 export const isOverdue = (advance: Advance): boolean => advance.overdueDays !== null && advance.overdueDays > 0;
 
+/** The levels of the alert of PAY-12, from the warning before the deadline to the escalation to the leader. */
+export const ALERT_LEVELS = [1, 2, 3, 4] as const;
+export type AlertLevel = (typeof ALERT_LEVELS)[number];
+
 /** The share of the advance that has come back, as a whole percentage for the bar of the schedule (nothing paid is nothing recovered). */
 export function recoveredShare(advance: Pick<Advance, 'paidVnd' | 'recoveredVnd'>): number {
   const paid = BigInt(advance.paidVnd);
@@ -230,6 +249,30 @@ export function recoveryBody(form: RecoveryForm): RecoveryBody {
   };
 }
 
+export interface AcknowledgeForm {
+  note: string;
+  planDueOn: string;
+}
+
+export const EMPTY_ACKNOWLEDGE: AcknowledgeForm = { note: '', planDueOn: '' };
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const isDay = (value: string): boolean => DAY.test(value) && new Date(`${value}T00:00:00Z`).toISOString().startsWith(value);
+
+/** The day in Vietnam (UTC+7), the day a plan is judged by. */
+export const vietnamToday = (now: Date = new Date()): string => new Date(now.getTime() + 7 * 3_600_000).toISOString().slice(0, 10);
+
+/** The plan of recovery of an advance that is overdue: a note, and a day that is not before today. */
+export function validateAcknowledge(form: AcknowledgeForm, today: string): FormProblems<AcknowledgeForm> {
+  const problems: FormProblems<AcknowledgeForm> = {};
+  const note = requiredText(form.note, MAX_TEXT);
+  if (note !== undefined) problems.note = note;
+  if (form.planDueOn === '') problems.planDueOn = 'required';
+  else if (!isDay(form.planDueOn) || form.planDueOn < today) problems.planDueOn = 'date';
+  return problems;
+}
+
+export const acknowledgeBody = (form: AcknowledgeForm): { note: string; action_plan_due_on: string } => ({ note: form.note.trim(), action_plan_due_on: form.planDueOn });
+
 export interface CancelForm {
   reason: string;
 }
@@ -246,6 +289,7 @@ export const cancelBody = (form: CancelForm): { reason: string } => ({ reason: f
 // ---- refusals ----------------------------------------------------------------------------------------------------------------
 
 export type Problem =
+  | 'notOverdue'
   | 'recoveryExceeded'
   | 'stateInvalid'
   | 'documentNotClean'
@@ -260,6 +304,8 @@ export type Problem =
 export function describeProblem(error: unknown): Problem {
   if (!(error instanceof ApiError)) return 'general';
   switch (error.code) {
+    case 'ADVANCE_NOT_OVERDUE':
+      return 'notOverdue';
     case 'ADVANCE_RECOVERY_EXCEEDED':
       return 'recoveryExceeded';
     case 'ADVANCE_STATE_INVALID':

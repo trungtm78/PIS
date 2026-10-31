@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
+import { ALERT_LEVELS, EMPTY_ACKNOWLEDGE, acknowledgeBody, validateAcknowledge, vietnamToday } from './model';
 import {
   BASES,
   EMPTY_CANCEL,
@@ -146,5 +147,32 @@ describe('the advance on the screens', () => {
     ];
     for (const [code, problem] of cases) expect(describeProblem(refusal(code))).toBe(problem);
     expect(describeProblem(new Error('x'))).toBe('general');
+  });
+
+  it('reads the alert of an advance: the level, the day it became overdue and the plan, and tolerates their absence', () => {
+    expect(toAdvance(advance(1))).toMatchObject({ lastAlertLevel: 0, overdueSince: null, acknowledgement: null, actions: { acknowledgeAlert: false } });
+    const plan = { note: 'Hoàn trả', action_plan_due_on: '2999-01-31', acknowledged_by: 'm', acknowledged_at: 't' };
+    expect(toAdvance(advance(1, { last_alert_level: 3, overdue_since: '2026-08-01', acknowledgement: plan, actions: { acknowledge_alert: true } }))).toMatchObject({
+      lastAlertLevel: 3,
+      overdueSince: '2026-08-01',
+      acknowledgement: { note: 'Hoàn trả', planDueOn: '2999-01-31', by: 'm', at: 't' },
+      actions: { acknowledgeAlert: true },
+    });
+    expect(toAdvance(advance(1, { last_alert_level: 'x', acknowledgement: { note: 'only' } }))).toMatchObject({ lastAlertLevel: 0, acknowledgement: null });
+    expect(toAdvance(advance(1, { acknowledgement: { note: 'n', action_plan_due_on: 'd' } }))?.acknowledgement).toEqual({ note: 'n', planDueOn: 'd', by: '', at: '' });
+    expect(ALERT_LEVELS).toEqual([1, 2, 3, 4]);
+  });
+
+  it('validates the plan of recovery: a note and a day that is not before today', () => {
+    const today = '2026-10-31';
+    expect(validateAcknowledge({ note: ' Hoàn trả ', planDueOn: today }, today)).toEqual({});
+    expect(validateAcknowledge(EMPTY_ACKNOWLEDGE, today)).toEqual({ note: 'required', planDueOn: 'required' });
+    expect(validateAcknowledge({ note: 'x'.repeat(2001), planDueOn: '2026-10-30' }, today)).toEqual({ note: 'tooLong', planDueOn: 'date' });
+    expect(validateAcknowledge({ note: 'n', planDueOn: '2026-02-30' }, today)).toEqual({ planDueOn: 'date' });
+    expect(validateAcknowledge({ note: 'n', planDueOn: 'soon' }, today)).toEqual({ planDueOn: 'date' });
+    expect(acknowledgeBody({ note: ' Hoàn trả ', planDueOn: '2999-01-31' })).toEqual({ note: 'Hoàn trả', action_plan_due_on: '2999-01-31' });
+    expect(describeProblem(refusal('ADVANCE_NOT_OVERDUE'))).toBe('notOverdue');
+    expect(vietnamToday(new Date('2026-10-31T16:59:59Z'))).toBe('2026-10-31');
+    expect(vietnamToday(new Date('2026-10-31T17:00:00Z'))).toBe('2026-11-01');
   });
 });
