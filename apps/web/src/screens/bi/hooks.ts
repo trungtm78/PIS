@@ -7,6 +7,8 @@ import { metricBody, toMetric } from './bi-model';
 import type { Metric, MetricValues } from './bi-model';
 import { createBody, toDashboard } from './dashboard-model';
 import type { CreateForm, Dashboard } from './dashboard-model';
+import { exportBody, scheduleBody, toDownload, toExportJob, toSchedule } from './export-model';
+import type { ExportForm, ExportJob, ExportSchedule, ScheduleForm } from './export-model';
 import { toDataset, toVersion } from './dataset-model';
 import type { Dataset, DatasetVersion } from './dataset-model';
 import { policyBody, toPolicy } from './policy-model';
@@ -352,6 +354,80 @@ export function useRevokeShare() {
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
     mutationFn: (input: RevokeInput) => client.command('revokeDashboardShare', { path: { id: input.shareId }, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+  });
+}
+
+/** The files of the exports made for the caller, the newest first. */
+export function useExports() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ExportJob[]>({
+    queryKey: [...biRoot(tenant?.id), 'exports', tenant?.membershipId],
+    queryFn: async () => (await client.readAll('listBiExports')).flatMap((raw) => toExportJob(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** Asks for an export: one idempotency attempt per intention, every read refreshed on success and on a refusal (a refusal is kept as a job). */
+export function useRequestExport() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (form: ExportForm) => client.command('requestBiExport', { body: exportBody(form) as never, attempt: attempts.current.forPayload(form) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+  });
+}
+
+/** The link to the file of one job: the server judges the person again when it gives it, so it is asked for at the moment of the download. */
+export function useExportLink() {
+  const client = useApiClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const download = toDownload(await client.read('getBiExport', { path: { id } }));
+      if (download === undefined) throw new Error('the export has no file to download');
+      return download;
+    },
+  });
+}
+
+/** The schedules of the exports of the caller, the newest first. */
+export function useSchedules() {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ExportSchedule[]>({
+    queryKey: [...biRoot(tenant?.id), 'export-schedules', tenant?.membershipId],
+    queryFn: async () => (await client.readAll('listBiExportSchedules')).flatMap((raw) => toSchedule(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** Makes a schedule: one idempotency attempt per intention, every read refreshed on success and on a refusal. */
+export function useCreateSchedule() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (form: ScheduleForm) => client.command('createBiExportSchedule', { body: scheduleBody(form) as never, attempt: attempts.current.forPayload(form) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });

@@ -217,7 +217,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
 
         const api = await start();
         for (const delay of ALL_DELAYS) timers.fire(delay);
-        await until(() => (api.workers?.history().length ?? 0) >= 55, 'every job to have run once');
+        await until(() => (api.workers?.history().length ?? 0) >= 57, 'every job to have run once');
         const outcomes = Object.fromEntries((api.workers?.history() ?? []).map((run) => [run.name, run.outcome]));
         expect(outcomes).toEqual({
           'outbox-relay': 'SUCCESS',
@@ -262,6 +262,8 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
           'prj-transfer-apply': 'SUCCESS',
           'incoming-overdue': 'SUCCESS',
           'doc-handover-due': 'SUCCESS',
+          'bi-export-schedule-runner': 'SUCCESS',
+          'bi-export-expiry': 'SUCCESS',
           'dgv-incident-sweep': 'SUCCESS',
           'dgv-product-cert-expiry': 'SUCCESS',
           'reconciliation-overdue': 'SUCCESS',
@@ -294,7 +296,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
   describe('shutdown and the switch', () => {
     it('stops every timer on stop() and a second stop is safe', async () => {
       const api = await start();
-      expect(timers.delays()).toHaveLength(56);
+      expect(timers.delays()).toHaveLength(58);
       await api.stop();
       expect(timers.delays()).toEqual([]);
       await expect(api.stop()).resolves.toBeUndefined();
@@ -376,7 +378,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
     it('starts the workers by default: an environment that does not mention the switch runs them', async () => {
       expect(fixture.configWith().workersEnabled).toBe(true);
       const api = await start();
-      expect(api.workers?.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'unit-reorganization', 'delegation-lifecycle', 'support-access-lifecycle', 'tenant-domain', 'tenant-export', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'notification-campaign-progress', 'dgv-quality-run', 'subscription-cycle', 'einvoice-billing', 'payment-reconciliation', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'doc-handover-due', 'dgv-incident-sweep', 'dgv-product-cert-expiry', 'reconciliation-overdue', 'settlement-deadline', 'advance-overdue', 'diary-coverage', 'capital-balance-reconcile', 'capital-reservation-expiry', 'ast-evaluation-due', 'ast-claim-overdue', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
+      expect(api.workers?.jobs).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'unit-reorganization', 'delegation-lifecycle', 'support-access-lifecycle', 'tenant-domain', 'tenant-export', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'notification-campaign-progress', 'dgv-quality-run', 'subscription-cycle', 'einvoice-billing', 'payment-reconciliation', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'doc-handover-due', 'bi-export-schedule-runner', 'bi-export-expiry', 'dgv-incident-sweep', 'dgv-product-cert-expiry', 'reconciliation-overdue', 'settlement-deadline', 'advance-overdue', 'diary-coverage', 'capital-balance-reconcile', 'capital-reservation-expiry', 'ast-evaluation-due', 'ast-claim-overdue', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
     }, TEST_TIMEOUT);
   });
 });

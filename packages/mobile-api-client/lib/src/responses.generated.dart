@@ -543,6 +543,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listBiAccessPolicies': asObject,
   'listBiDatasets': asObject,
   'listBiDatasetVersions': asObject,
+  'listBiExports': asObject,
+  'listBiExportSchedules': asObject,
   'listBillingPayments': BillingPaymentListResponse.fromJson,
   'listBiPublicationRequests': asObject,
   'listBiQueryRuns': asObject,

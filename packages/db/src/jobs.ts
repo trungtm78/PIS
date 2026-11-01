@@ -107,6 +107,10 @@ export const JOB_INTERVAL_SECONDS = {
   'incoming-overdue': 3600,
   // Hourly: the archivists of a closed dossier whose handover falls due are reminded 30, 7 and 1 days ahead, once for each stage (ST-DOC-017, DOC.md F11); the pass is idempotent.
   'doc-handover-due': 3600,
+  // Every minute: a schedule of exports whose time has come makes one job for each recipient under that recipient's scope as it is then (ST-BI-008, BI.md F7); a schedule runs once for each of its times (its last run is kept).
+  'bi-export-schedule-runner': 60,
+  // Hourly: a file of an export whose seven days are over is removed and its job is EXPIRED, once (ST-BI-008, BI.md F7); the pass is idempotent.
+  'bi-export-expiry': 3600,
   // Every 15 minutes: an incident of data quality past its due time is marked and its owner told once, and a waiver that has ended is followed by an open exception within the quarter of an hour (ST-DGV-003); the pass is idempotent.
   'dgv-incident-sweep': 900,
   // Hourly: a data product whose certification has run out (its last day gone, in Vietnamese time) becomes PROVISIONAL, once, and its owner and BI are told (ST-DGV-009); the pass is idempotent.
@@ -308,6 +312,9 @@ export interface StandardJobDeps {
   transferApply?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   incomingOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   handoverDue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The runner of the schedules of exports and the expiry of their files (ST-BI-008). */
+  biExportRunner?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  biExportExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   dgvIncidentSweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   dgvProductExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
@@ -891,6 +898,26 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await handoverReminders.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const exportRunner = deps.biExportRunner;
+  if (exportRunner !== undefined) {
+    handlers.push({
+      name: 'bi-export-schedule-runner',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await exportRunner.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const exportExpiry = deps.biExportExpiry;
+  if (exportExpiry !== undefined) {
+    handlers.push({
+      name: 'bi-export-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await exportExpiry.run(workerContext(tenantId), now)));
       },
     });
   }

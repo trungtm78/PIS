@@ -7,6 +7,7 @@ import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.p
 import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
+import { expireExports, runExportSchedulesIn } from '../modules/bi/export-jobs';
 import { remindHandoverDue } from '../modules/doc/handover-jobs';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
@@ -43,7 +44,7 @@ export interface WorkersDeps {
   /** The port through which the reorganisation saga moves a project to the successor unit (XM-ADM-02); until the module that owns projects binds one, the saga stops at the first project. */
   reorganizationProjects?: ReorganizationProjectPort;
   /** The object store the exports of the data of a tenant are written to and the attachments are read from (ST-SAS-016); without it the export job is not scheduled. */
-  exportFiles?: Pick<FileService, 'storeGenerated' | 'readStored' | 'listKind'>;
+  exportFiles?: Pick<FileService, 'storeGenerated' | 'readStored' | 'listKind' | 'remove'>;
   /** The store of the document module: the files that rows refer to and the file service does not hold are read from it for the export. */
   documentFiles?: { get(key: string): Promise<{ bytes: Uint8Array } | undefined> };
   /** The DNS lookup and the certificate authority of the domains of the tenants (ST-SAS-017); the MOCK pair of the process when none is given. */
@@ -173,6 +174,13 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
     supportAccessLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => supportAccessLifecycle.run(tx, ctx.membershipId, now)) },
     ...(deps.exportFiles === undefined ? {} : { tenantExport: new TenantExportJob(deps.tenants, deps.exportFiles, audit, deps.documentFiles) }),
+    // The exports of BI are files too: the schedules are run, and the files are taken away after their days, with the same object store.
+    ...(deps.exportFiles === undefined
+      ? {}
+      : {
+          biExportRunner: { run: (ctx, now) => runExportSchedulesIn(deps.tenants, ctx, now, { audit, files: deps.exportFiles as NonNullable<typeof deps.exportFiles>, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) }) },
+          biExportExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => expireExports(tx, ctx, now, { audit, files: deps.exportFiles as NonNullable<typeof deps.exportFiles>, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) })) },
+        }),
     approvalSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => approvalSla.run(tx, ctx.membershipId, now)) },
     ...(inbox === undefined ? {} : { inbox }),
     ...(deps.notificationDelivery === undefined ? {} : { notificationDelivery: deps.notificationDelivery }),

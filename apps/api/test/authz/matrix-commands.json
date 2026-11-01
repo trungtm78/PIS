@@ -121,6 +121,8 @@
     "decideBiPublication",
     "shareDashboard",
     "revokeDashboardShare",
+    "requestBiExport",
+    "createBiExportSchedule",
     "post_dashboards_id_publish",
     "createCapitalPlan",
     "createCapitalPlanRevision",

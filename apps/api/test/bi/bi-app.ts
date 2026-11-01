@@ -16,6 +16,7 @@ import { DatasetBuildController, DatasetReadsController } from '../../src/module
 import { DashboardController, DashboardReadsController, DashboardVersionReadsController } from '../../src/modules/bi/dashboard.controller';
 import { PolicyController } from '../../src/modules/bi/policy.controller';
 import { DashboardPublishController, PublicationController } from '../../src/modules/bi/publication.controller';
+import { BiExportController, BiExportScheduleController } from '../../src/modules/bi/export.controller';
 import { DashboardShareController } from '../../src/modules/bi/share.controller';
 import { BiQueryController } from '../../src/modules/bi/query.controller';
 import { BI_CLOCK, BI_DRILL_KEY } from '../../src/modules/bi/tokens';
@@ -92,15 +93,15 @@ export class BiApp {
     await harness.seedRole(TENANT_A, 6, 'BI_QUERIER', ['bi.query'], 20);
     await harness.seedRole(TENANT_A, 7, 'BI_POLICY_ADMIN', ['bi.policy.manage', 'bi.query'], 50);
     await harness.seedRole(TENANT_A, 8, 'BI_POLICY_SCOPED', ['bi.policy.manage', 'bi.query'], 40);
-    await harness.seedRole(TENANT_A, 9, 'BI_ANALYST_QUERY', ['bi.query', 'drill_context.read'], 30);
-    await harness.seedRole(TENANT_A, 10, 'BI_ANALYST_NONE', ['bi.query'], 30);
+    await harness.seedRole(TENANT_A, 9, 'BI_ANALYST_QUERY', ['bi.query', 'drill_context.read', 'bi.export', 'bi.export.schedule'], 30);
+    await harness.seedRole(TENANT_A, 10, 'BI_ANALYST_NONE', ['bi.query', 'bi.export', 'bi.export.schedule'], 30);
     await harness.seedRole(TENANT_A, 11, 'BI_DASH_MAKER', ['bi.dashboard.manage', 'bi.dashboard.share', 'bi.query', 'dashboard_version.read'], 40);
     await harness.seedRole(TENANT_A, 12, 'BI_DASH_VIEWER', ['bi.query', 'dashboard_version.read'], 20);
     await harness.seedRole(TENANT_A, 13, 'BI_REQUESTER', ['bi.publish.request', 'bi.publish', 'bi.dashboard.manage', 'bi.dashboard.share', 'bi.metric.manage', 'bi.policy.manage', 'bi.query', 'dashboard_version.read'], 40);
     await harness.seedRole(TENANT_A, 14, 'BI_APPROVER', ['bi.publish', 'bi.query', 'dashboard_version.read'], 50);
     await harness.seedRole(TENANT_A, 15, 'BI_APPROVER_SCOPED', ['bi.publish'], 40);
     await harness.seedRole(TENANT_B, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
-    await harness.seedRole(TENANT_B, 2, 'BI_BUILDER', ['bi.dataset.build', 'bi.query'], 50);
+    await harness.seedRole(TENANT_B, 2, 'BI_BUILDER', ['bi.dataset.build', 'bi.query', 'bi.export'], 50);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: PIPELINE, role: 1, kind: 'TENANT' },
       { n: 2, member: ANALYST, role: 2, kind: 'TENANT' },
@@ -135,7 +136,7 @@ export class BiApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController, BiQueryController, DashboardController, DashboardReadsController, DashboardVersionReadsController, PublicationController, DashboardPublishController, DashboardShareController],
+      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController, BiQueryController, DashboardController, DashboardReadsController, DashboardVersionReadsController, PublicationController, DashboardPublishController, DashboardShareController, BiExportController, BiExportScheduleController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: BI_DRILL_KEY, useValue: DRILL_KEY },

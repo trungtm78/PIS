@@ -20,6 +20,7 @@ import {
   DASHBOARD_FIXTURES,
   PUBLICATION_FIXTURES,
   SHARE_FIXTURES,
+  EXPORT_JOB_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -857,6 +858,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getDashboard',
   'get_resources_dashboard_version',
   'get_resources_dashboard_version_id',
+  'requestBiExport',
+  'createBiExportSchedule',
+  'getBiExport',
+  'listBiExports',
+  'listBiExportSchedules',
   'shareDashboard',
   'revokeDashboardShare',
   'submitBiPublication',
@@ -1346,6 +1352,12 @@ const INSERT_DASHBOARD = `insert into machvon.dashboard (tenant_id, id, code, ti
   values ($1, $2, $3, $4, $5, 'PRIVATE', 'DRAFT', $5, $5) on conflict do nothing`;
 const INSERT_DASHBOARD_VERSION = `insert into machvon.dashboard_version (tenant_id, id, dashboard_id, revision, layout_json, metric_versions, filter_mappings, breakpoints, dataset_version_policy, status, created_by)
   values ($1, $2, $3, 1, '{"columns":12,"widgets":[]}'::jsonb, '[]'::jsonb, '{}'::jsonb, '{}'::jsonb, 'LATEST_FROZEN', 'DRAFT', $4) on conflict do nothing`;
+
+const INSERT_EXPORT_JOB = `insert into machvon.bi_export_job (tenant_id, id, requested_by, subject_user_id, query_spec, as_of_period, dataset_version_id, scope_hash, scope_description, format, status, created_by, updated_by)
+  values ($1, $2, $3, $3, '{}'::jsonb, '2026-10', $4, repeat('a', 64), 'Toàn tỉnh', 'CSV', 'QUEUED', $3, $3) on conflict do nothing`;
+
+const INSERT_EXPORT_SCHEDULE = `insert into machvon.bi_export_schedule (tenant_id, id, query_spec, cron, format, recipients, status, owner_user_id, created_by, updated_by)
+  values ($1, $2, '{}'::jsonb, '0 8 * * 1', 'CSV', jsonb_build_array($3::uuid::text), 'ACTIVE', $3::uuid, $3::uuid, $3::uuid) on conflict do nothing`;
 
 const INSERT_DASHBOARD_SHARE = `insert into machvon.dashboard_share (tenant_id, id, dashboard_id, grantee_kind, grantee_ref_id, permission, status, created_by, updated_by)
   values ($1, $2, $3, 'USER', $4, 'VIEW', 'ACTIVE', $4, $4) on conflict do nothing`;
@@ -2186,6 +2198,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_METRIC, [tenantId, bi.metricId, bi.metricCode, bi.sourceCommit, ACTOR_ID]);
     await client.query(INSERT_BI_DATASET, [tenantId, bi.datasetId, bi.datasetCode, bi.datasetTitle, ACTOR_ID]);
     await client.query(INSERT_BI_VERSION, [tenantId, bi.versionId, bi.datasetId, bi.versionChecksum, ACTOR_ID]);
+    await client.query(INSERT_EXPORT_JOB, [tenantId, EXPORT_JOB_FIXTURES[tenant].id, MEMBERSHIP_ID, bi.versionId]);
+    await client.query(INSERT_EXPORT_SCHEDULE, [tenantId, EXPORT_JOB_FIXTURES[tenant].scheduleId, MEMBERSHIP_ID]);
     await client.query(INSERT_BI_POLICY, [tenantId, bi.policyId, bi.datasetId, bi.policyColumn, ACTOR_ID]);
     await client.query(INSERT_BI_CONTEXT, [tenantId, bi.contextId, bi.metricId, bi.versionId, bi.contextPeriod, MEMBERSHIP_ID]);
     const llm = LLM_FIXTURES[tenant];

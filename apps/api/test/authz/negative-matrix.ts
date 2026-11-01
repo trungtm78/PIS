@@ -1280,7 +1280,16 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   revokeDashboardShare: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/bi/dashboard-shares/${t.legalHoldId}/revocation`, ifMatch: '"1"' }),
+    build: (t) => ({ method: 'POST', path: `/bi/dashboard-shares/${t.legalHoldId}/revocation`, ifMatch: '"1"', body: {} }),
+  },
+  // The metric, the snapshot and the recipients are named in the body, and an id the tenant does not hold is a 422 of the body (as for the query): the answer does not tell a foreign id from one that does not exist.
+  requestBiExport: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/bi/exports', body: { query_spec: { metric_version_id: '00000000-0000-4000-8000-0000000000a1' }, as_of_period: '2026-10', format: 'CSV' } }),
+  },
+  createBiExportSchedule: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/bi/export-schedules', body: { query_spec: { metric_version_id: '00000000-0000-4000-8000-0000000000a1' }, cron: '0 8 * * 1', format: 'CSV', recipients: ['00000000-0000-4000-8000-0000000000a2'] } }),
   },
   submitBiPublication: {
     referencesTenantIds: true,

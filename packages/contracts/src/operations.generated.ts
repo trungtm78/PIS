@@ -540,6 +540,8 @@ export const OPERATIONS = {
   "listBiAccessPolicies": { method: "get", path: "/bi/access-policies", versioned: false, stepUp: null, permission: "bi.policy.manage" },
   "listBiDatasetVersions": { method: "get", path: "/bi/datasets/{id}/versions", versioned: false, stepUp: null, permission: "bi.query" },
   "listBiDatasets": { method: "get", path: "/bi/datasets", versioned: false, stepUp: null, permission: "bi.query" },
+  "listBiExportSchedules": { method: "get", path: "/bi/export-schedules", versioned: false, stepUp: null, permission: "bi.export.schedule" },
+  "listBiExports": { method: "get", path: "/bi/exports", versioned: false, stepUp: null, permission: "bi.export" },
   "listBiPublicationRequests": { method: "get", path: "/bi/publication-requests", versioned: false, stepUp: null, permission: "bi.publish" },
   "listBiQueryRuns": { method: "get", path: "/bi/query-runs", versioned: false, stepUp: null, permission: "bi.admin.read" },
   "listBillingPayments": { method: "get", path: "/system/payments", versioned: false, stepUp: null, permission: "system.tenant.read" },

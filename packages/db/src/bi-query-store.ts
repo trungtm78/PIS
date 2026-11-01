@@ -30,6 +30,8 @@ export interface AggregateInput {
   projects: ScopeBuilder;
   /** The row predicates of the applicable policies: a line is counted when any of them allows it (within the scope of the reader). */
   policies: readonly PolicyNode[];
+  /** How many groups at most; one more is read to tell that there are more. A screen reads the page (500), an export reads up to its cap. */
+  limit?: number | undefined;
 }
 
 export interface AggregateRow extends GroupSums {
@@ -95,17 +97,30 @@ function valueFor(kind: 'uuid' | 'text', value: unknown, field: string): string 
   return kind === 'uuid' ? value.toLowerCase() : value;
 }
 
-function filterSql(filter: QueryFilter, params: Params): string {
+/** A filter as the query takes it, or the refusal: the column of its dimension, the type its values have, the operator and the values cleaned (an id in lower case, a list that is not empty). */
+function normalized(filter: QueryFilter): { column: string; cast: 'uuid' | 'text'; operator: QueryFilter['operator']; value: string | string[] } {
   const { column, kind } = dimensionOf(filter.field);
   const cast = kind === 'uuid' ? 'uuid' : 'text';
-  if (filter.operator === 'eq') return `l.${column} = $${params.add(valueFor(kind, filter.value, filter.field))}::${cast}`;
+  if (filter.operator === 'eq') return { column, cast, operator: 'eq', value: valueFor(kind, filter.value, filter.field) };
   if (filter.operator === 'in') {
     if (!Array.isArray(filter.value) || filter.value.length === 0 || filter.value.length > 100) throw invalid(`filters.${filter.field}`);
-    return `l.${column} = any($${params.add(filter.value.map((item) => valueFor(kind, item, filter.field)))}::${cast}[])`;
+    return { column, cast, operator: 'in', value: filter.value.map((item) => valueFor(kind, item, filter.field)) };
   }
   // An order only means something for text (a bucket, a level); ids are not ordered.
   if (kind !== 'text') throw invalid(`filters.${filter.field}`);
-  return `l.${column} ${filter.operator === 'gte' ? '>=' : '<='} $${params.add(valueFor(kind, filter.value, filter.field))}::text`;
+  return { column, cast: 'text', operator: filter.operator, value: valueFor(kind, filter.value, filter.field) };
+}
+
+/** Whether a filter can be run at all, before anything is kept that names it (a schedule of exports is kept and run later, so a filter it cannot run must be refused when it is made). */
+export function assertFilter(filter: QueryFilter): void {
+  normalized(filter);
+}
+
+function filterSql(filter: QueryFilter, params: Params): string {
+  const found = normalized(filter);
+  if (found.operator === 'eq') return `l.${found.column} = $${params.add(found.value)}::${found.cast}`;
+  if (found.operator === 'in') return `l.${found.column} = any($${params.add(found.value)}::${found.cast}[])`;
+  return `l.${found.column} ${found.operator === 'gte' ? '>=' : '<='} $${params.add(found.value)}::text`;
 }
 
 /** A predicate of a policy as a condition on the lines. `unit_in_scope` is true: the scope of the reader is applied to every line anyway. */
@@ -176,9 +191,21 @@ export class BiQueryStore {
     return rows[0]?.id;
   }
 
+  /** The frozen version of a dataset (by its code) that was built last, with its period. */
+  async latestFrozenVersion(tx: TenantTx, datasetCode: string): Promise<{ versionId: string; periodCode: string } | undefined> {
+    const rows = await tx.query<{ id: string; as_of_period: string }>(
+      "select v.id, v.as_of_period from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id where d.dataset_code = $1 and v.status = 'FROZEN' order by v.built_at desc, v.id desc limit 1",
+      [datasetCode],
+    );
+    return rows[0] === undefined ? undefined : { versionId: rows[0].id, periodCode: rows[0].as_of_period };
+  }
+
   /** The frozen version of a dataset that was built last, and the snapshot it was built from. */
   async latestFrozenOfDataset(tx: TenantTx, datasetId: string): Promise<{ versionId: string; snapshotId: string | null } | undefined> {
-    const rows = await tx.query<{ id: string; source_snapshot_id: string | null }>("select id, source_snapshot_id from machvon.bi_dataset_version where dataset_id = $1::uuid and status = 'FROZEN' order by built_at desc, id desc limit 1", [datasetId]);
+    const rows = await tx.query<{ id: string; source_snapshot_id: string | null }>(
+      "select id, source_snapshot_id from machvon.bi_dataset_version where dataset_id = $1::uuid and status = 'FROZEN' order by built_at desc, id desc limit 1",
+      [datasetId],
+    );
     return rows[0] === undefined ? undefined : { versionId: rows[0].id, snapshotId: rows[0].source_snapshot_id };
   }
 
@@ -232,7 +259,7 @@ export class BiQueryStore {
       `select ${keyed}, ${measures}
          from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
          left join machvon.organization_unit lu on lu.tenant_id = l.tenant_id and lu.id = l.unit_id
-        where ${conditions.join(' and ')} ${grouping} limit ${MAX_ROWS + 1}`,
+        where ${conditions.join(' and ')} ${grouping} limit ${(input.limit ?? MAX_ROWS) + 1}`,
       params.values,
     );
     return rows.map((row) => ({ key: row.key, label: row.label, numerator: row.numerator, denominator: row.denominator, distinct: row.distinct_count, lines: row.line_count }));
@@ -241,15 +268,21 @@ export class BiQueryStore {
   /** Whether the reader may still read a unit the context names: it is in a unit they hold, or lines of projects they read are of it. */
   async unitStillReadable(tx: TenantTx, snapshotId: string, unitId: string, projects: ScopeBuilder, units: ScopeBuilder): Promise<boolean> {
     const own = units(2);
-    const byUnit = await tx.query("select 1 from machvon.organization_unit u where u.id = $1::uuid and " + own.sql, [unitId, ...own.params]);
+    const byUnit = await tx.query('select 1 from machvon.organization_unit u where u.id = $1::uuid and ' + own.sql, [unitId, ...own.params]);
     if (byUnit.length > 0) return true;
     const scope = projects(3);
-    const byProject = await tx.query(`select 1 from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id where l.snapshot_id = $1::uuid and l.unit_id = $2::uuid and ${scope.sql} limit 1`, [snapshotId, unitId, ...scope.params]);
+    const byProject = await tx.query(
+      `select 1 from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id where l.snapshot_id = $1::uuid and l.unit_id = $2::uuid and ${scope.sql} limit 1`,
+      [snapshotId, unitId, ...scope.params],
+    );
     return byProject.length > 0;
   }
 
   async requesterOf(tx: TenantTx, membershipId: string): Promise<{ roleIds: string[]; unitIds: string[] }> {
-    const roles = await tx.query<{ role_id: string }>("select distinct role_id from machvon.role_grant where membership_id = $1::uuid and status = 'Active' and effective_from <= now() and (effective_until is null or now() < effective_until)", [membershipId]);
+    const roles = await tx.query<{ role_id: string }>(
+      "select distinct role_id from machvon.role_grant where membership_id = $1::uuid and status = 'Active' and effective_from <= now() and (effective_until is null or now() < effective_until)",
+      [membershipId],
+    );
     const units = await tx.query<{ id: string }>(
       `select a.id from machvon.membership m join machvon.organization_unit u on u.tenant_id = m.tenant_id and u.id = m.organization_id
          join machvon.organization_unit a on a.tenant_id = u.tenant_id and u.path like a.path || '%' where m.id = $1::uuid`,
@@ -262,13 +295,37 @@ export class BiQueryStore {
 
   async insertContext(
     tx: TenantTx,
-    input: { metricVersionId: string; snapshotId: string; asOfPeriod: string; scopeHash: string; filters: readonly QueryFilter[]; dimensionPath: readonly string[]; unit: string; parentContextId: string | null; createdBy: string; ttlSeconds: number },
+    input: {
+      metricVersionId: string;
+      snapshotId: string;
+      asOfPeriod: string;
+      scopeHash: string;
+      filters: readonly QueryFilter[];
+      dimensionPath: readonly string[];
+      unit: string;
+      parentContextId: string | null;
+      createdBy: string;
+      ttlSeconds: number;
+    },
   ): Promise<string> {
     const id = randomUUID();
     await tx.query(
       `insert into machvon.drill_context (tenant_id, id, subject_scope_hash, metric_version_id, snapshot_id, filters_ast, path, as_of, expires_at, as_of_period, dimension_path, unit, currency, parent_context_id, created_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3::uuid, $4::uuid, $5::jsonb, $6::jsonb, now(), now() + make_interval(secs => $7::int), $8, $6::jsonb, $9, $10, $11::uuid, $12::uuid)`,
-      [id, input.scopeHash, input.metricVersionId, input.snapshotId, JSON.stringify(input.filters), JSON.stringify(input.dimensionPath), input.ttlSeconds, input.asOfPeriod, input.unit, input.unit === 'VND' ? 'VND' : null, input.parentContextId, input.createdBy],
+      [
+        id,
+        input.scopeHash,
+        input.metricVersionId,
+        input.snapshotId,
+        JSON.stringify(input.filters),
+        JSON.stringify(input.dimensionPath),
+        input.ttlSeconds,
+        input.asOfPeriod,
+        input.unit,
+        input.unit === 'VND' ? 'VND' : null,
+        input.parentContextId,
+        input.createdBy,
+      ],
     );
     return id;
   }
@@ -307,12 +364,38 @@ export class BiQueryStore {
 
   async recordRun(
     tx: TenantTx,
-    run: { requestedBy: string; metricVersionIds: readonly string[]; asOfPeriod: string; datasetVersionId: string; scopeHash: string; drillContextId: string | null; status: 'COMPLETED' | 'DENIED' | 'FAILED'; servedFromCache: boolean; durationMs: number; rowCount: number | null; errorCode: string | null },
+    run: {
+      requestedBy: string;
+      metricVersionIds: readonly string[];
+      asOfPeriod: string;
+      datasetVersionId: string;
+      scopeHash: string;
+      drillContextId: string | null;
+      status: 'COMPLETED' | 'DENIED' | 'FAILED';
+      servedFromCache: boolean;
+      durationMs: number;
+      rowCount: number | null;
+      errorCode: string | null;
+    },
   ): Promise<void> {
     await tx.query(
       `insert into machvon.bi_query_run (tenant_id, id, requested_by, metric_version_ids, as_of_period, dataset_version_id, scope_hash, drill_context_id, mode, status, served_from_cache, duration_ms, row_count, cost_units, error_code)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::jsonb, $4, $5::uuid, $6, $7::uuid, 'SYNC', $8, $9, $10::int, $11::int, $12::numeric, $13)`,
-      [randomUUID(), run.requestedBy, JSON.stringify(run.metricVersionIds), run.asOfPeriod, run.datasetVersionId, run.scopeHash, run.drillContextId, run.status, run.servedFromCache, run.durationMs, run.rowCount, run.rowCount ?? 0, run.errorCode],
+      [
+        randomUUID(),
+        run.requestedBy,
+        JSON.stringify(run.metricVersionIds),
+        run.asOfPeriod,
+        run.datasetVersionId,
+        run.scopeHash,
+        run.drillContextId,
+        run.status,
+        run.servedFromCache,
+        run.durationMs,
+        run.rowCount,
+        run.rowCount ?? 0,
+        run.errorCode,
+      ],
     );
   }
 

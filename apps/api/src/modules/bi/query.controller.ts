@@ -1,28 +1,19 @@
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { PERMISSIONS } from '@machvon/contracts';
-import { AuditWriter, BiMetricStore, BiPolicyStore, BiQueryStore, TenantDatabase, projectScope, scopePredicate } from '@machvon/db';
-import type { AggregateRow, QueryFilter, SnapshotVersion } from '@machvon/db';
+import { AuditWriter, BiMetricStore, BiQueryStore, TenantDatabase, projectScope, scopePredicate } from '@machvon/db';
+import type { QueryFilter } from '@machvon/db';
 import {
   BI_DRILL_TTL_SECONDS,
-  DISBURSEMENT_DIMENSIONS,
-  DISBURSEMENT_FIELDS,
   DomainError,
   asUuid,
-  biScopeHash,
-  canonicalJson,
   expiredBiDrill,
   feedsCertified,
   figureOf,
-  hiddenColumns,
-  homeScopeFingerprint,
-  measurePlanOf,
   parseBiDrill,
-  queryCacheKey,
   reconcile,
   signBiDrill,
 } from '@machvon/kernel';
-import type { BiDrillClaims, EffectiveAccess, MeasurePlan, TenantContext } from '@machvon/kernel';
+import type { BiDrillClaims, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
@@ -31,40 +22,15 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { BiQueryCache } from './query-cache';
+import { BiQueryEngine, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
+import type { Answer, Reading } from './query-engine';
 import { BI_CLOCK, BI_DRILL_KEY } from './tokens';
 
-const QUERY_PERMISSION = PERMISSIONS.post_dashboard_queries;
-const DATASET_CODE = 'DS-DISB';
 const KEY_ID = '1';
 const RESOURCE_TYPE = 'bi_query';
 /** How many rows of an answer carry a token to go on from: the page the screen draws. */
 const TOKEN_ROWS = 100;
-const FILTER_FIELDS = new Set(Object.keys(DISBURSEMENT_DIMENSIONS));
-
 type Row = Record<string, unknown>;
-
-interface Answer {
-  rows: AggregateRow[];
-  total: AggregateRow;
-  truncated: boolean;
-  builtAt: string;
-}
-
-const emptySums = (): AggregateRow => ({ key: null, label: null, numerator: null, denominator: null, distinct: null });
-
-/** The reading of a snapshot under one metric, one dimension and a scope: the same code for the first query and for the drill that follows it. */
-interface Reading {
-  plan: MeasurePlan;
-  metricId: string;
-  metricCode: string;
-  unit: string;
-  aggregationType: string;
-  version: SnapshotVersion;
-  scopeHash: string;
-  fullTenant: boolean;
-  policies: Row[];
-  allowedDimensions: string[];
-}
 
 /**
  * The queries of BI and the drill under them (ST-BI-004, BI F3, F4): a metric over a frozen snapshot of a period, cut by one dimension of its dataset, the figures from sums (a ratio from the sums of its numerator and
@@ -76,9 +42,8 @@ interface Reading {
 export class BiQueryController {
   private readonly metrics = new BiMetricStore();
   private readonly queries = new BiQueryStore();
-  private readonly policies = new BiPolicyStore();
+  private readonly engine: BiQueryEngine;
   private readonly audit: AuditWriter;
-  private readonly cache = new BiQueryCache();
   private readonly clock: () => Date;
   private readonly key: Buffer;
 
@@ -88,6 +53,7 @@ export class BiQueryController {
     @Optional() @Inject(BI_DRILL_KEY) key?: Buffer,
   ) {
     this.audit = new AuditWriter(database);
+    this.engine = new BiQueryEngine(new BiQueryCache());
     this.clock = clock ?? ((): Date => new Date());
     this.key = key ?? randomBytes(32);
   }
@@ -129,13 +95,13 @@ export class BiQueryController {
     }
     const filters = [...base, ...body.filters.map((filter): QueryFilter => ({ field: filter.field, operator: filter.operator, value: filter.value }))];
     for (const filter of filters) if (!FILTER_FIELDS.has(filter.field)) throw new DomainError('DIMENSION_NOT_IN_DATASET', 422, filter.field);
-    const reading = await this.reading(tx, tenant, access, metricId, snapshotId, now, body.context_token !== undefined);
+    const reading = await this.engine.read(tx, tenant.membershipId, access, metricId, snapshotId, now, body.context_token !== undefined);
     if (reading.denied !== undefined) return this.refused(scope, reading.denied, started);
     const { value: read } = reading;
     // A context that is continued is judged as the drill judges it: a unit the path names that the reader no longer reads is a refusal, not an empty figure.
     if (base.length > 0 && (await this.pathRevoked(tx, access, read, base, now))) return this.refused(scope, 'SCOPE_DENIED', started);
-    this.assertDimensions(read, [...(dimension === undefined ? [] : [dimension]), ...filters.map((filter) => filter.field)]);
-    const answer = await this.answer(tx, read, dimension, filters, access, now, tenant.tenantId);
+    this.engine.assertDimensions(read, [...(dimension === undefined ? [] : [dimension]), ...filters.map((filter) => filter.field)]);
+    const answer = await this.engine.answer(tx, read, dimension, filters, access, now, tenant.tenantId);
     const nextPath = dimension === undefined || path.includes(dimension) ? path : [...path, dimension];
     const contextId = await this.queries.insertContext(tx, { metricVersionId: metricId, snapshotId, asOfPeriod: read.version.periodCode, scopeHash: read.scopeHash, filters, dimensionPath: nextPath, unit: read.unit, parentContextId: parent, createdBy: tenant.membershipId, ttlSeconds: BI_DRILL_TTL_SECONDS });
     const rows = await this.shape(tx, read, answer, dimension, filters, nextPath, contextId, tenant);
@@ -174,15 +140,15 @@ export class BiQueryController {
       );
       if ('rejected' in opened) return { rejected: opened.rejected };
       const context = opened.value;
-      const reading = await this.reading(tx, tenant, access, context.row.metricVersionId, context.row.snapshotId, now, true);
+      const reading = await this.engine.read(tx, tenant.membershipId, access, context.row.metricVersionId, context.row.snapshotId, now, true);
       if (reading.denied !== undefined) return { denied: reading.denied, context };
       const { value: read } = reading;
       // The snapshot of the path is kept, and the right to read is judged again at every unit the path names, as it is now.
       if (await this.pathRevoked(tx, access, read, context.row.filters, now)) return { denied: 'SCOPE_DENIED' as const, context };
       // The dimensions the path was cut by are judged again as well: a policy that hides one since the token was made closes the way on through it.
-      this.assertDimensions(read, [childDimension, ...context.row.filters.map((filter) => filter.field)]);
+      this.engine.assertDimensions(read, [childDimension, ...context.row.filters.map((filter) => filter.field)]);
       if (context.row.dimensionPath.includes(childDimension)) throw new DomainError('VALIDATION_FAILED', 422, 'child_dimension');
-      const answer = await this.answer(tx, read, childDimension, context.row.filters, access, now, tenant.tenantId);
+      const answer = await this.engine.answer(tx, read, childDimension, context.row.filters, access, now, tenant.tenantId);
       const path = [...context.row.dimensionPath, childDimension];
       const contextId = await this.queries.insertContext(tx, { metricVersionId: context.row.metricVersionId, snapshotId: context.row.snapshotId, asOfPeriod: context.row.asOfPeriod, scopeHash: read.scopeHash, filters: context.row.filters, dimensionPath: path, unit: read.unit, parentContextId: context.row.id, createdBy: tenant.membershipId, ttlSeconds: BI_DRILL_TTL_SECONDS });
       const rows = await this.shape(tx, read, answer, childDimension, context.row.filters, path, contextId, tenant, shown, shown);
@@ -227,7 +193,7 @@ export class BiQueryController {
     if (old === undefined || old.createdBy !== tenant.membershipId) return this.refusedToken(scope, 'bi.drill_refresh_denied', 'context');
     const latest = await this.queries.latestSnapshotOfPeriod(tx, old.asOfPeriod);
     if (latest === undefined) throw new DomainError('SNAPSHOT_NOT_FOUND', 422);
-    const reading = await this.reading(tx, tenant, access, old.metricVersionId, latest, now, true);
+    const reading = await this.engine.read(tx, tenant.membershipId, access, old.metricVersionId, latest, now, true);
     if (reading.denied !== undefined) throw new DomainError(reading.denied, 403);
     const { value: read } = reading;
     const id = await this.queries.insertContext(tx, { metricVersionId: old.metricVersionId, snapshotId: latest, asOfPeriod: old.asOfPeriod, scopeHash: read.scopeHash, filters: old.filters, dimensionPath: old.dimensionPath, unit: read.unit, parentContextId: old.id, createdBy: tenant.membershipId, ttlSeconds: BI_DRILL_TTL_SECONDS });
@@ -283,89 +249,6 @@ export class BiQueryController {
   private async deniedToken(tenant: TenantContext, claims: BiDrillClaims | undefined, reason: string): Promise<never> {
     await this.audit.recordDenied(tenant, { action: 'bi.drill_denied', resourceType: RESOURCE_TYPE, resourceId: tenant.tenantId, diff: { code: 'DRILL_TOKEN_INVALID', reason, ...(claims === undefined ? {} : { metric_version_id: claims.metric_version_id }) }, correlationId: randomUUID(), requestId: randomUUID() });
     throw new DomainError('DRILL_TOKEN_INVALID', 400);
-  }
-
-  /** The metric, the snapshot, the quality of its version, the scope of the reader and the policies that apply to them; or the refusal. */
-  private async reading(
-    tx: Parameters<BiQueryStore['findContext']>[0],
-    tenant: TenantContext,
-    access: EffectiveAccess,
-    metricId: string,
-    snapshotId: string,
-    now: Date,
-    pinned = false,
-  ): Promise<{ value: Reading; denied?: undefined } | { denied: 'ACCESS_POLICY_MISSING'; value?: undefined }> {
-    const metric = await this.metrics.find(tx, metricId);
-    if (metric === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'metric_version_id');
-    // A path that is open keeps the revision of the metric it was begun with: a newer revision that replaced it (a sync) does not close the drill; a draft, one in review or one retired is not queried.
-    if (metric.status !== 'CERTIFIED' && !(pinned && metric.status === 'SUPERSEDED')) throw new DomainError('METRIC_NOT_CERTIFIED', 422, 'metric_version_id');
-    const plan = measurePlanOf({ aggregationType: metric.aggregationType as never, expressionAst: metric.expressionAst, numeratorAst: metric.numeratorAst, denominatorAst: metric.denominatorAst, nullPolicy: metric.nullPolicy as never });
-    const version = await this.queries.versionOfSnapshot(tx, DATASET_CODE, snapshotId);
-    if (version === undefined) throw new DomainError('SNAPSHOT_NOT_FOUND', 422, 'snapshot_id');
-    const requester = await this.queries.requesterOf(tx, tenant.membershipId);
-    let applicable;
-    try {
-      applicable = await this.policies.applicable(tx, version.datasetId, { membershipId: tenant.membershipId, ...requester });
-    } catch (error) {
-      if (error instanceof DomainError && error.code === 'ACCESS_POLICY_MISSING') return { denied: 'ACCESS_POLICY_MISSING' };
-      throw error;
-    }
-    const hidden = hiddenColumns(applicable);
-    const closed = new Set([...hidden.hidden, ...hidden.masked]);
-    // A column is known by the name of its dimension, by its name in the table and by the names of the fields that read it.
-    const aliasesOf = (column: string): string[] => [
-      column,
-      ...Object.entries(DISBURSEMENT_FIELDS).filter(([, mapped]) => mapped === column).map(([field]) => field),
-      ...Object.entries(DISBURSEMENT_DIMENSIONS).filter(([, dimension]) => dimension.column === column).map(([name]) => name),
-    ];
-    // A column a policy hides or masks is not summed either: the figure of a metric over it would give the column away to a filter that narrows to one row.
-    for (const column of [plan.numeratorColumn, plan.denominatorColumn]) {
-      if (column === null) continue;
-      const restricted = aliasesOf(column).find((alias) => closed.has(alias));
-      if (restricted !== undefined) throw new DomainError('DIMENSION_NOT_IN_DATASET', 422, restricted);
-    }
-    const scopeHash = biScopeHash({ membershipId: tenant.membershipId, scopeVersion: access.scopeVersion, grants: homeScopeFingerprint(access, QUERY_PERMISSION, now) });
-    return {
-      value: {
-        plan,
-        metricId: metric.id,
-        metricCode: metric.code,
-        unit: metric.unit,
-        aggregationType: metric.aggregationType,
-        version,
-        scopeHash,
-        fullTenant: projectScope(access, QUERY_PERMISSION, now)(1).sql === 'true',
-        policies: applicable.map((policy) => policy.rowPredicate),
-        allowedDimensions: Object.entries(DISBURSEMENT_DIMENSIONS)
-          .filter(([name, dimension]) => !closed.has(name) && !aliasesOf(dimension.column).some((alias) => closed.has(alias)))
-          .map(([name]) => name),
-      },
-    };
-  }
-
-  private assertDimensions(read: Reading, fields: readonly string[]): void {
-    for (const field of fields) if (!read.allowedDimensions.includes(field)) throw new DomainError('DIMENSION_NOT_IN_DATASET', 422, field);
-  }
-
-  /** The groups and the total, from the cache when the same reader asked the same thing of the same snapshot a moment ago. */
-  private async answer(tx: Parameters<BiQueryStore['findContext']>[0], read: Reading, dimension: string | undefined, filters: readonly QueryFilter[], access: EffectiveAccess, now: Date, tenantId: string): Promise<Answer & { fromCache: boolean }> {
-    const key = queryCacheKey({
-      tenantId,
-      metricVersionIds: [read.metricId],
-      filtersHash: createHash('sha256').update(canonicalJson({ dimension: dimension ?? null, filters, policies: read.policies })).digest('hex'),
-      snapshotId: read.version.datasetVersionId,
-      scopeHash: read.scopeHash,
-    });
-    const cached = this.cache.get<Answer>(key, now);
-    if (cached !== undefined) return { ...(cached as Answer), fromCache: true };
-    const projects = projectScope(access, QUERY_PERMISSION, now);
-    const common = { snapshotId: read.version.sourceSnapshotId, plan: read.plan, filters, projects, policies: read.policies };
-    const grouped = dimension === undefined ? [] : await this.queries.aggregate(tx, { ...common, dimension });
-    const total = (await this.queries.aggregate(tx, common))[0] ?? emptySums();
-    const truncated = grouped.length > this.queries.maxRows;
-    const fresh: Answer = { rows: grouped.slice(0, this.queries.maxRows), total, truncated, builtAt: now.toISOString() };
-    this.cache.set(key, fresh, now);
-    return { ...fresh, fromCache: false };
   }
 
   private mint(tenant: TenantContext, contextId: string, read: Reading, asOfPeriod: string, snapshotId: string): string {

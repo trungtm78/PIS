@@ -539,6 +539,8 @@
   "listBiAccessPolicies": {},
   "listBiDatasets": {},
   "listBiDatasetVersions": {},
+  "listBiExports": {},
+  "listBiExportSchedules": {},
   "listBillingPayments": {"items":[{"id":"00000000-0000-4000-8000-000000000001","provider":"sample","txn_ref":"sample","amount_vnd":"sample","method":"BANK_TRANSFER","received_at":"2026-01-01T00:00:00Z","match_status":"Unmatched","memo":"sample","invoice_id":"00000000-0000-4000-8000-000000000001","matched_at":"2026-01-01T00:00:00Z","version":1,"actions":{"match":true}}],"next_cursor":"sample"},
   "listBiPublicationRequests": {},
   "listBiQueryRuns": {},
