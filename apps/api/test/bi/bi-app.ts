@@ -15,6 +15,7 @@ import { MockScanPort } from '../../src/modules/files/mock-scan';
 import { DatasetBuildController, DatasetReadsController } from '../../src/modules/bi/dataset.controller';
 import { DashboardController, DashboardReadsController, DashboardVersionReadsController } from '../../src/modules/bi/dashboard.controller';
 import { PolicyController } from '../../src/modules/bi/policy.controller';
+import { DashboardPublishController, PublicationController } from '../../src/modules/bi/publication.controller';
 import { BiQueryController } from '../../src/modules/bi/query.controller';
 import { BI_CLOCK, BI_DRILL_KEY } from '../../src/modules/bi/tokens';
 import { MetricReadsController, MetricRegistryController, TenantMetricController } from '../../src/modules/bi/metric.controller';
@@ -41,6 +42,9 @@ export const ANALYST_NONE = 12; // may query, but no policy opens the dataset fo
 export const DASH_MAKER = 13; // makes and saves dashboards
 export const DASH_OTHER = 14; // makes dashboards too: what the first makes is not theirs
 export const DASH_VIEWER = 15; // reads dashboards and queries, and makes none
+export const REQUESTER = 16; // makes dashboards, drafts metrics and policies, asks to publish them, and holds the right to decide (never on what they asked)
+export const APPROVER = 17; // decides on the requests to publish, over the whole tenant
+export const APPROVER_SCOPED = 18; // holds the right to decide over one unit only: the requests are the tenant's, so it is refused
 export const UNIT_A = 3; // under the branch
 export const UNIT_B = 4; // under the branch
 export const UNIT_OUT = 5; // outside the branch
@@ -76,7 +80,7 @@ export class BiApp {
       { n: UNIT_OUT, path: `/${unitId(UNIT_OUT)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [PIPELINE, ANALYST, READER, NOBODY, SCOPED, BUILDER, QUERIER, POLICY_ADMIN, POLICY_SCOPED, ANALYST_ALL, ANALYST_NONE, DASH_MAKER, DASH_OTHER, DASH_VIEWER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [PIPELINE, ANALYST, READER, NOBODY, SCOPED, BUILDER, QUERIER, POLICY_ADMIN, POLICY_SCOPED, ANALYST_ALL, ANALYST_NONE, DASH_MAKER, DASH_OTHER, DASH_VIEWER, REQUESTER, APPROVER, APPROVER_SCOPED]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_A, ANALYST_BRANCH, BRANCH);
     await harness.seedMembership(TENANT_B, PIPELINE, ROOT);
     await harness.seedRole(TENANT_A, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
@@ -91,6 +95,9 @@ export class BiApp {
     await harness.seedRole(TENANT_A, 10, 'BI_ANALYST_NONE', ['bi.query'], 30);
     await harness.seedRole(TENANT_A, 11, 'BI_DASH_MAKER', ['bi.dashboard.manage', 'bi.query', 'dashboard_version.read'], 40);
     await harness.seedRole(TENANT_A, 12, 'BI_DASH_VIEWER', ['bi.query', 'dashboard_version.read'], 20);
+    await harness.seedRole(TENANT_A, 13, 'BI_REQUESTER', ['bi.publish.request', 'bi.publish', 'bi.dashboard.manage', 'bi.metric.manage', 'bi.policy.manage', 'bi.query', 'dashboard_version.read'], 40);
+    await harness.seedRole(TENANT_A, 14, 'BI_APPROVER', ['bi.publish', 'bi.query', 'dashboard_version.read'], 50);
+    await harness.seedRole(TENANT_A, 15, 'BI_APPROVER_SCOPED', ['bi.publish'], 40);
     await harness.seedRole(TENANT_B, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
     await harness.seedRole(TENANT_B, 2, 'BI_BUILDER', ['bi.dataset.build', 'bi.query'], 50);
     await harness.seedGrants(TENANT_A, [
@@ -107,6 +114,9 @@ export class BiApp {
       { n: 41, member: DASH_MAKER, role: 11, kind: 'TENANT' },
       { n: 42, member: DASH_OTHER, role: 11, kind: 'TENANT' },
       { n: 43, member: DASH_VIEWER, role: 12, kind: 'TENANT' },
+      { n: 44, member: REQUESTER, role: 13, kind: 'TENANT' },
+      { n: 45, member: APPROVER, role: 14, kind: 'TENANT' },
+      { n: 46, member: APPROVER_SCOPED, role: 15, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] },
       { n: 12, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_A)] },
       { n: 13, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_B)] },
       { n: 14, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_C)] },
@@ -124,7 +134,7 @@ export class BiApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController, BiQueryController, DashboardController, DashboardReadsController, DashboardVersionReadsController],
+      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController, BiQueryController, DashboardController, DashboardReadsController, DashboardVersionReadsController, PublicationController, DashboardPublishController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: BI_DRILL_KEY, useValue: DRILL_KEY },
@@ -157,6 +167,11 @@ export class BiApp {
     const stored = await this.objects.upload(contextFor(tenantId, memberId(PIPELINE)), { purpose: 'document', declaredType: 'text/plain', bytes });
     const object = await this.objects.open(contextFor(tenantId, memberId(PIPELINE)), stored.key);
     return { key: stored.key, sha256: object.sha256 };
+  }
+
+  /** The context of a member of a tenant, for what a test asks of the database as the application does. */
+  contextOf(member: number, tenantId: string = TENANT_A) {
+    return contextFor(tenantId, memberId(member));
   }
 
   /** The version of the scope of a member the requests are made with: a revocation moves it, as the next request of the member would carry it. */

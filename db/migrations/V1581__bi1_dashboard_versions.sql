@@ -1,15 +1,10 @@
 -- Authored by hand (not generated): dashboards and their immutable versions (ST-BI-005, BI.md F5 and the forbidden list of section 4).
 -- V002 gave the tables; what a published layout stands on is put into the database here, whatever the application checked first:
---   * a version of a dashboard (V002 ties it to a dashboard of the tenant) has a revision (1, 2, 3 ... one after the other, once each), and names the policy for the versions of the datasets it reads: the latest frozen one, or a list of pinned
+--   * a version of a dashboard (V002 ties it to a dashboard of the tenant; V1583 makes its breakpoints, its dataset policy and its author required) has a revision (1, 2, 3 ... one after the other, once each), and names the policy for the versions of the datasets it reads: the latest frozen one, or a list of pinned
 --     ones (a pinned policy names at least one, the latest-frozen policy names none);
 --   * a saved version never changes: its layout, metrics, filter mappings, breakpoints and dataset policy are fixed when it is written (409 VERSION_IMMUTABLE at the application, 42501 here); only its state moves, DRAFT to
 --     PUBLISHED (with who and when) to SUPERSEDED, and nothing is deleted;
 --   * the code and the owner of a dashboard are fixed when it is made, and the version it points to is one of its own.
-
-ALTER TABLE machvon.dashboard_version
-  ALTER COLUMN breakpoints SET NOT NULL,
-  ALTER COLUMN dataset_version_policy SET NOT NULL,
-  ALTER COLUMN created_by SET NOT NULL;
 
 ALTER TABLE machvon.dashboard_version
   ADD CONSTRAINT dashboard_version_status_chk CHECK (status IN ('DRAFT', 'PUBLISHED', 'SUPERSEDED')),

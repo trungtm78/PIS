@@ -526,6 +526,8 @@ export { METRIC_AGGREGATIONS, METRIC_MAX_BUNDLE, NULL_POLICIES, TENANT_METRIC_PR
 export type { MetricAggregation, MetricDefinition, MetricFields, MetricNode, MetricProblem, MetricProblemCode, MetricSyncPlan, NullPolicy, NullReason, PeriodPoint, RatioFigure, RegisteredMetric } from './bi-metric.ts';
 export { BREAKPOINT_KEYS, DASHBOARD_CODE, DEFAULT_COLUMNS, MAX_GRID_ROWS, MAX_WIDGETS, WIDGET_KINDS, parseDashboardDraft } from './bi-dashboard.ts';
 export type { DashboardDraft, DashboardWidget, DatasetVersionPolicy, DraftInput, WidgetGrid, WidgetKind } from './bi-dashboard.ts';
+export { CHECK_FORMULA, CHECK_FROZEN_VERSION, CHECK_GROUPS, CHECK_ROWS, PUBLICATION_DECISIONS, PUBLICATION_KINDS, assertDecisionReason, failedCheck, reproductionChecks } from './bi-publication.ts';
+export type { PublicationCheck, PublicationDecision, PublicationKind, Reproduction } from './bi-publication.ts';
 export { DATASET_VERSION_STATUSES, QUALITY_BADGES, certifiedRows, feedsCertified, isSameBuild, qualityOfVersion, versionChecksum } from './bi-dataset.ts';
 export type { DatasetVersionStatus, QualityBadge, QualityOfVersion, QualityRunFacts, VersionContent } from './bi-dataset.ts';
 export { COLUMN_MASKS, POLICY_GRANTEE_KINDS, columnMasksProblem, hiddenColumns, predicateProblem, requireApplicablePolicies } from './bi-policy.ts';

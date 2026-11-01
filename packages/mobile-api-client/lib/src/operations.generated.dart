@@ -542,6 +542,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listBiAccessPolicies': OperationDescriptor(method: 'GET', path: '/bi/access-policies', versioned: false, stepUp: null, permission: 'bi.policy.manage'),
   'listBiDatasetVersions': OperationDescriptor(method: 'GET', path: '/bi/datasets/{id}/versions', versioned: false, stepUp: null, permission: 'bi.query'),
   'listBiDatasets': OperationDescriptor(method: 'GET', path: '/bi/datasets', versioned: false, stepUp: null, permission: 'bi.query'),
+  'listBiPublicationRequests': OperationDescriptor(method: 'GET', path: '/bi/publication-requests', versioned: false, stepUp: null, permission: 'bi.publish'),
   'listBiQueryRuns': OperationDescriptor(method: 'GET', path: '/bi/query-runs', versioned: false, stepUp: null, permission: 'bi.admin.read'),
   'listBillingPayments': OperationDescriptor(method: 'GET', path: '/system/payments', versioned: false, stepUp: null, permission: 'system.tenant.read'),
   'listCampaigns': OperationDescriptor(method: 'GET', path: '/notification-campaigns', versioned: false, stepUp: null, permission: 'notification.campaign.read'),

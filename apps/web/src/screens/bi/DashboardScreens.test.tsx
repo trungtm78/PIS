@@ -434,6 +434,15 @@ describe('BI-03 builder of a dashboard (ST-BI-005)', () => {
     cleanup();
   });
 
+  it('leads to the comparison of the versions only when there are two to compare', async () => {
+    open();
+    expect((await screen.findByRole('link', { name: vi_['bi.dash.builder.compare'] })).getAttribute('href')).toBe(`/bi/bi-10?dashboard=${D1}`);
+    cleanup();
+    open({ one: { ...dashboard(D1, 'D-ONE'), versions: [version(V1, 1)] } });
+    await screen.findByTestId('versions');
+    expect(screen.queryByRole('link', { name: vi_['bi.dash.builder.compare'] })).toBeNull();
+  });
+
   it('gives the owner who no longer holds the right to make dashboards the view, not the form', async () => {
     open({}, undefined, VIEW);
     expect(await screen.findByTestId('versions')).toBeTruthy();

@@ -165,6 +165,33 @@ export class BiMetricStore {
     return rows[0] === undefined ? undefined : toRow(rows[0]);
   }
 
+  /**
+   * Certifies a metric a tenant drafted, by someone other than its author (SELF_APPROVAL_DENIED): it is CERTIFIED for good, with who certified it and when, and the revision of the same code that was certified is
+   * superseded, closed on the day the new one takes effect. The way to it is the decision on a publication request (ST-BI-006); a metric of the platform is certified by the review of the repository, never here.
+   */
+  async certify(tx: TenantTx, id: string, approver: string): Promise<MetricRow> {
+    const named = await tx.query<{ code: string }>('select code from machvon.metric_definition where id = $1::uuid', [id]);
+    if (named[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    // Two revisions of one code approved at once are taken one after the other (the lock of drafting too): each reads the revision that is certified after the other is done, so a code never has two.
+    await tx.query("select pg_advisory_xact_lock(hashtextextended('bi_metric:' || current_setting('app.tenant_id', true) || ':' || $1, 0))", [named[0].code]);
+    const rows = await tx.query<{ code: string; status: MetricStatus; origin: MetricOrigin; created_by: string | null; effective_from: string | null }>(
+      'select code, status, origin, created_by, effective_from::text as effective_from from machvon.metric_definition where id = $1::uuid for update',
+      [id],
+    );
+    const held = rows[0];
+    if (held === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (held.created_by === approver) throw new DomainError('SELF_APPROVAL_DENIED', 403);
+    if (held.origin !== 'TENANT_UI' || (held.status !== 'DRAFT' && held.status !== 'IN_REVIEW')) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
+    await tx.query(
+      `update machvon.metric_definition
+          set status = 'SUPERSEDED', effective_until = case when $2::date > effective_from then $2::date else effective_until end, version = version + 1
+        where code = $1 and status = 'CERTIFIED' and id <> $3::uuid`,
+      [held.code, held.effective_from, id],
+    );
+    await tx.query("update machvon.metric_definition set status = 'CERTIFIED', certified_by = $2::uuid, certified_at = now(), version = version + 1 where id = $1::uuid", [id, approver]);
+    return (await this.find(tx, id)) as MetricRow;
+  }
+
   /** The revisions of the tenant by code and revision, narrowed by where they come from, their status and their code. */
   async list(tx: TenantTx, filter: MetricFilter, page: MetricPage): Promise<MetricRow[]> {
     const rows = await tx.query<Sql>(

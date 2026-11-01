@@ -774,3 +774,5 @@ export { DocRetentionRuleStore } from './doc-retention-rule-store.ts';
 export type { NewRetentionRule, RetentionRuleDetail, RuleConfirmation, RuleStatus } from './doc-retention-rule-store.ts';
 export { BiDashboardStore } from './bi-dashboard-store.ts';
 export type { DashboardAudience, DashboardFilter, DashboardPageAnchor, DashboardRecord, DashboardStatus, DashboardVersionRecord, MetricCheck, VersionStatus } from './bi-dashboard-store.ts';
+export { BiPublicationStore } from './bi-publication-store.ts';
+export type { PublicationFilter, PublicationRow, PublicationStatus } from './bi-publication-store.ts';

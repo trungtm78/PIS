@@ -1274,6 +1274,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { layout_json: { widgets: [] }, breakpoints: {}, metric_versions: [], filter_mappings: {}, dataset_version_policy: 'LATEST_FROZEN' },
     }),
   },
+  submitBiPublication: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/bi/publication-requests', body: { object_kind: 'METRIC', object_id: t.legalHoldId } }),
+  },
+  decideBiPublication: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/bi/publication-requests/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'APPROVED' } }),
+  },
+  post_dashboards_id_publish: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dashboards/${t.legalHoldId}/publish`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix probe', evidence_ids: [] } }),
+  },
   // The registry of the AI gateway (ST-LLM-001) is the tenant's: a caller without the right is refused before the body is read.
   registerAiProvider: {
     referencesTenantIds: false,

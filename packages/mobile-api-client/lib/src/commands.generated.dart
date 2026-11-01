@@ -1624,6 +1624,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listBiDatasets({Map<String, Object?>? query}) =>
       execute('listBiDatasets', query: query);
 
+  Future<Object?> listBiPublicationRequests({Map<String, Object?>? query}) =>
+      execute('listBiPublicationRequests', query: query);
+
   Future<Object?> listBiQueryRuns({Map<String, Object?>? query}) =>
       execute('listBiQueryRuns', query: query);
 

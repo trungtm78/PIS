@@ -13,6 +13,8 @@ import { policyBody, toPolicy } from './policy-model';
 import { toQueryResult } from './query-model';
 import type { QueryResult } from './query-model';
 import type { Policy, PolicyValues } from './policy-model';
+import { decisionBody, requestBody, toRequest } from './publication-model';
+import type { Decision, PublicationRequest, RequestForm } from './publication-model';
 
 /** Every read and every mutation of the BI screens lives under this key of the tenant, so one command refreshes them all. */
 export const biRoot = (tenantId: string | undefined) => ['bi', tenantId] as const;
@@ -248,6 +250,63 @@ export function useSaveVersion() {
     onError: async (error) => {
       attempts.current.ended(error);
       // A refusal can follow a step taken by somebody else: what is shown is read again.
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+  });
+}
+
+/** The requests to publish, the newest first, narrowed by their state when one is given. */
+export function usePublications(status: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<PublicationRequest[]>({
+    queryKey: [...biRoot(tenant?.id), 'publications', tenant?.membershipId, status ?? 'all'],
+    queryFn: async () => (await client.readAll('listBiPublicationRequests', status === undefined ? {} : { query: { status } as never })).flatMap((raw) => toRequest(raw) ?? []),
+    enabled: tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** Asks to publish an object: one idempotency attempt per intention, every read of the screens refreshed on success and on a refusal. */
+export function useSubmitPublication() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (form: RequestForm) => client.command('submitBiPublication', { body: requestBody(form) as never, attempt: attempts.current.forPayload(form) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+  });
+}
+
+export interface DecideInput {
+  requestId: string;
+  version: number;
+  decision: Decision;
+  comment: string;
+}
+
+/** Decides a request under the version it was read at: another's decision in the meantime is a conflict, and what is shown is read again. */
+export function useDecidePublication() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: DecideInput) => client.command('decideBiPublication', { path: { id: input.requestId }, body: decisionBody(input.decision, input.comment) as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
     },
   });

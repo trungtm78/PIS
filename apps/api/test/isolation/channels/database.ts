@@ -18,6 +18,7 @@ import {
   MASTER_IMPORT_FIXTURES,
   CROSSWALK_FIXTURES,
   DASHBOARD_FIXTURES,
+  PUBLICATION_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -855,6 +856,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getDashboard',
   'get_resources_dashboard_version',
   'get_resources_dashboard_version_id',
+  'submitBiPublication',
+  'decideBiPublication',
+  'post_dashboards_id_publish',
+  'listBiPublicationRequests',
   'listBiDatasetVersions',
   'createBiAccessPolicy',
   'listBiAccessPolicies',
@@ -1338,6 +1343,9 @@ const INSERT_DASHBOARD = `insert into machvon.dashboard (tenant_id, id, code, ti
   values ($1, $2, $3, $4, $5, 'PRIVATE', 'DRAFT', $5, $5) on conflict do nothing`;
 const INSERT_DASHBOARD_VERSION = `insert into machvon.dashboard_version (tenant_id, id, dashboard_id, revision, layout_json, metric_versions, filter_mappings, breakpoints, dataset_version_policy, status, created_by)
   values ($1, $2, $3, 1, '{"columns":12,"widgets":[]}'::jsonb, '[]'::jsonb, '{}'::jsonb, '{}'::jsonb, 'LATEST_FROZEN', 'DRAFT', $4) on conflict do nothing`;
+
+const INSERT_PUBLICATION = `insert into machvon.bi_publication_request (tenant_id, id, object_kind, object_id, requested_by, checks_json, status, created_by, updated_by)
+  values ($1, $2, 'METRIC', $3, $4, '{"checks":[]}'::jsonb, 'PENDING', $4, $4) on conflict do nothing`;
 
 // The balance the reservation rests on: what the line was allocated and what the reservation holds of it, so that a release has capital to return.
 const INSERT_ALLOCATION_BALANCE = `insert into machvon.allocation_balance (tenant_id, id, allocation_line_id, allocated_vnd, reserved_vnd, committed_vnd, disbursed_vnd)
@@ -1993,6 +2001,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_DASHBOARD, [tenantId, dashboard.id, dashboard.code, dashboard.title, MEMBERSHIP_ID]);
     await client.query(INSERT_DASHBOARD_VERSION, [tenantId, dashboard.versionId, dashboard.id, MEMBERSHIP_ID]);
     await client.query('update machvon.dashboard set current_version_id = $2 where id = $1', [dashboard.id, dashboard.versionId]);
+    const publication = PUBLICATION_FIXTURES[tenant];
+    await client.query(INSERT_PUBLICATION, [tenantId, publication.id, publication.objectId, MEMBERSHIP_ID]);
     const product = PRODUCT_FIXTURES[tenant];
     await client.query(INSERT_DATA_PRODUCT, [tenantId, product.id, product.code, product.title, dataset.id, MEMBERSHIP_ID, ACTOR_ID]);
     const quality = QUALITY_FIXTURES[tenant];

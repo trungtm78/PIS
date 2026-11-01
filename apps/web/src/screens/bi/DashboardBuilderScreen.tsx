@@ -12,6 +12,7 @@ import { kindLabel, policyLabel, refusalMessage, sideLabel, versionProblemMessag
 import { BREAKPOINTS, BREAKPOINT_RANGE, CHART_PATH, LIBRARY_PATH, MANAGE_DASHBOARD_PERMISSION, POLICIES, WIDGET_KINDS, describeDashboardProblem, formFrom, hasVersionProblems, nextKey, validateVersion, versionBody, widgetOfChart } from './dashboard-model';
 import type { Dashboard, DashboardVersion, DatasetPolicy, VersionForm, WidgetForm, WidgetKind } from './dashboard-model';
 import { useDashboard, useDashboards, useDatasetVersions, useDatasets, useMetrics, useSaveVersion } from './hooks';
+import { COMPARE_PATH } from './publication-model';
 
 const NONE = '—';
 
@@ -212,6 +213,7 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
             </tbody>
           </table>
         )}
+        {dashboard.versions.length > 1 ? <Link to={`${COMPARE_PATH}?dashboard=${dashboard.id}`}>{t('bi.dash.builder.compare')}</Link> : null}
       </section>
 
       <section className="card" aria-labelledby="preview-title">

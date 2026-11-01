@@ -176,6 +176,37 @@ export class BiQueryStore {
     return rows[0]?.id;
   }
 
+  /** The frozen version of a dataset that was built last, and the snapshot it was built from. */
+  async latestFrozenOfDataset(tx: TenantTx, datasetId: string): Promise<{ versionId: string; snapshotId: string | null } | undefined> {
+    const rows = await tx.query<{ id: string; source_snapshot_id: string | null }>("select id, source_snapshot_id from machvon.bi_dataset_version where dataset_id = $1::uuid and status = 'FROZEN' order by built_at desc, id desc limit 1", [datasetId]);
+    return rows[0] === undefined ? undefined : { versionId: rows[0].id, snapshotId: rows[0].source_snapshot_id };
+  }
+
+  /**
+   * The rerun of a metric over a snapshot, over the whole tenant: the lines it finds against the rows the snapshot says it has, and whether the groups of each dimension add up to the whole (the sums the metric is made of,
+   * grouped and not). A distinct count is not added, so only its rows are compared. The columns and dimensions come from the allowlists of the dataset (kernel), never from the request.
+   */
+  async reproduce(tx: TenantTx, snapshotId: string, plan: MeasurePlan, dimensions: readonly string[]): Promise<{ storedRows: number; countedRows: number; reconciles: boolean } | undefined> {
+    const stored = await tx.query<{ row_count: number }>('select row_count from machvon.period_snapshot where id = $1::uuid', [snapshotId]);
+    if (stored[0] === undefined) return undefined;
+    const counted = await tx.query<{ n: string }>('select count(*)::text as n from machvon.period_snapshot_line where snapshot_id = $1::uuid', [snapshotId]);
+    let reconciles = true;
+    if (plan.kind !== 'DISTINCT') {
+      const second = plan.denominatorColumn === null ? 'null::numeric' : `l.${plan.denominatorColumn}`;
+      for (const dimension of dimensions) {
+        const { column } = dimensionOf(dimension);
+        const [row] = await tx.query<{ ok: boolean }>(
+          `with line as (select l.${plan.numeratorColumn} as n, ${second} as d, l.${column} as k from machvon.period_snapshot_line l where l.snapshot_id = $1::uuid),
+                grouped as (select sum(n) as n, sum(d) as d from line group by k)
+           select (select sum(n) from line) is not distinct from (select sum(n) from grouped) and (select sum(d) from line) is not distinct from (select sum(d) from grouped) as ok`,
+          [snapshotId],
+        );
+        reconciles = reconciles && row?.ok === true;
+      }
+    }
+    return { storedRows: stored[0].row_count, countedRows: Number(counted[0]?.n ?? 0), reconciles };
+  }
+
   /** The sums of the groups of the snapshot, one dimension at a time, in the scope of the reader. */
   async aggregate(tx: TenantTx, input: AggregateInput): Promise<AggregateRow[]> {
     const params = new Params([input.snapshotId]);

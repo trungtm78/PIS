@@ -228,6 +228,31 @@ export class BiDashboardStore {
     return toVersion(saved as Sql);
   }
 
+  /** A version locked for a change with its dashboard, whoever sees them (the caller judges); the dashboard is locked first, as a save of a version locks it. */
+  async lockVersion(tx: TenantTx, versionId: string): Promise<{ dashboard: DashboardRecord; version: DashboardVersionRecord } | undefined> {
+    const owner = await tx.query<{ dashboard_id: string }>('select dashboard_id from machvon.dashboard_version where id = $1::uuid', [versionId]);
+    if (owner[0] === undefined) return undefined;
+    const dashboard = await this.lock(tx, owner[0].dashboard_id);
+    const rows = await tx.query<Sql>(`select ${VERSION_COLUMNS} from machvon.dashboard_version where id = $1::uuid for update`, [versionId]);
+    return dashboard === undefined || rows[0] === undefined ? undefined : { dashboard, version: toVersion(rows[0]) };
+  }
+
+  /**
+   * Publishes a draft version, by someone other than who saved it (SELF_APPROVAL_DENIED): the version that was published is superseded, the new one says who published it and when, and the dashboard is PUBLISHED
+   * and points to it. The way to it is the decision on a publication request, or the approval of the layout (ST-BI-006); a version that was published never changes again.
+   */
+  async publishVersion(tx: TenantTx, versionId: string, approver: string): Promise<{ dashboard: DashboardRecord; version: DashboardVersionRecord }> {
+    const held = await this.lockVersion(tx, versionId);
+    if (held === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (held.version.createdBy === approver) throw new DomainError('SELF_APPROVAL_DENIED', 403);
+    if (held.version.status !== 'DRAFT' || held.dashboard.status === 'ARCHIVED') throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
+    await tx.query("update machvon.dashboard_version set status = 'SUPERSEDED' where dashboard_id = $1::uuid and status = 'PUBLISHED'", [held.dashboard.id]);
+    await tx.query("update machvon.dashboard_version set status = 'PUBLISHED', published_by = $2::uuid, published_at = now() where id = $1::uuid", [versionId, approver]);
+    await tx.query("update machvon.dashboard set status = 'PUBLISHED', current_version_id = $2::uuid, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid", [held.dashboard.id, versionId, approver]);
+    const published = await this.lockVersion(tx, versionId);
+    return published as { dashboard: DashboardRecord; version: DashboardVersionRecord };
+  }
+
   private async reread(tx: TenantTx, id: string, viewer: string): Promise<DashboardRecord> {
     const row = await this.find(tx, id, viewer);
     if (row === undefined) throw new Error('the dashboard vanished after its write');
