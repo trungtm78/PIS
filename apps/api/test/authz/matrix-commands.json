@@ -338,6 +338,8 @@
     "createSurvivorshipRuleVersion",
     "publishSurvivorshipRule",
     "uploadMigrationFile",
+    "createAiKnowledgeCollection",
+    "indexAiKnowledgeItem",
     "registerMigrationBatch",
     "dryRunMigrationBatch",
     "applyMigrationBatch",

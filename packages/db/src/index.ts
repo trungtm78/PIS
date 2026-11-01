@@ -1509,3 +1509,5 @@ export type {
   DgvPublishInput,
   DgvRevisionInput,
 } from './dgv-contract-store.ts';
+export { KNOWLEDGE_COLLECTION_RESOURCE, KNOWLEDGE_ITEM_RESOURCE, LlmKnowledgeStore } from './llm-knowledge-store.ts';
+export type { ChunkToStore, EmbeddingModel, IndexTarget, KnowledgeCollection, KnowledgeItem, KnowledgePage, RetrievedChunk } from './llm-knowledge-store.ts';

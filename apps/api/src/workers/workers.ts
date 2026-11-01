@@ -8,6 +8,9 @@ import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
 import { AdmMigrationJob } from '../modules/adm/migration.job';
+import { MockEmbeddingPort, OcrDocumentTextPort } from '../modules/llm/knowledge-ports';
+import type { AiEmbeddingPort } from '../modules/llm/knowledge-ports';
+import { AiKnowledgeService } from '../modules/llm/knowledge.service';
 import { expireExports, runExportSchedulesIn } from '../modules/bi/export-jobs';
 import { expireQueryAnswers, runQueryJobsIn } from '../modules/bi/query-jobs';
 import { remindHandoverDue } from '../modules/doc/handover-jobs';
@@ -103,6 +106,8 @@ export interface WorkersDeps {
   llmKeys?: { litellm: LiteLlmAdminPort; vault: SecretVaultPort };
   /** The port through which the reorganisation saga moves a project to the successor unit (XM-ADM-02); until the module that owns projects binds one, the saga stops at the first project. */
   reorganizationProjects?: ReorganizationProjectPort;
+  /** The embedding model of the knowledge collections (ST-LLM-007); the stand-in of the process when none is given. */
+  embeddings?: AiEmbeddingPort;
   /** The object store the exports of the data of a tenant are written to and the attachments are read from (ST-SAS-016); without it the export job is not scheduled. */
   exportFiles?: Pick<FileService, 'storeGenerated' | 'readStored' | 'listKind' | 'remove'>;
   /** The store of the document module: the files that rows refer to and the file service does not hold are read from it for the export. */
@@ -234,6 +239,13 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     unitReorganization: { run: (ctx, now) => unitReorganization.run(ctx, now) },
     // The conversion files are read from the same object store as the exports (ST-ADM-020).
     ...(deps.exportFiles === undefined ? {} : { admMigration: new AdmMigrationJob(deps.tenants, audit, deps.exportFiles, deps.metrics) }),
+    // The knowledge of the AI gateway is indexed from the text the OCR recorded, stored in the same object store (ST-LLM-007).
+    ...(deps.exportFiles === undefined
+      ? {}
+      : (() => {
+          const knowledge = new AiKnowledgeService(deps.embeddings ?? new MockEmbeddingPort(), new OcrDocumentTextPort(deps.exportFiles), deps.exportFiles, audit);
+          return { llmKnowledgeReindex: { run: (ctx: { tenantId: string; membershipId: string; scopeVersion: number }) => knowledge.reindexStale(deps.tenants, ctx, 20) } };
+        })()),
     delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
     supportAccessLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => supportAccessLifecycle.run(tx, ctx.membershipId, now)) },
     ...(deps.exportFiles === undefined ? {} : { tenantExport: new TenantExportJob(deps.tenants, deps.exportFiles, audit, deps.documentFiles) }),

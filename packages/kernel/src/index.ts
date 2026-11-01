@@ -1620,3 +1620,5 @@ export { LABEL_ATTRIBUTE, attributeKey, SURVIVORSHIP_STRATEGIES, checkSurvivorsh
 export type { AttributeDecision, DecisionBy, MergeRecord, MergeResult, MergeSide, SurvivorshipRuleInput, SurvivorshipStrategy, UnmergeInput, UnmergeResult } from './master-merge.ts';
 export { MAX_MIGRATION_ROWS, MIGRATION_ENTITY_PATTERN, MIGRATION_LOT_SIZE, MIGRATION_MAPPINGS, MIGRATION_TABULAR_LIMITS, checkReferences, checkRegistration, judgeMigrationFile, migrationMappingOf, totalsMatch } from './migration-batch.ts';
 export type { ControlTotals, JudgedRow, MigrationJudgement, MigrationMapping, MigrationReference, RowError } from './migration-batch.ts';
+export { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, MAX_RETRIEVED, assertEmbedding, assertWithin, checkCollection, chunkPages, retrievalLimit } from './ai-knowledge.ts';
+export type { Chunk as KnowledgeChunk, CollectionInput as KnowledgeCollectionInput } from './ai-knowledge.ts';

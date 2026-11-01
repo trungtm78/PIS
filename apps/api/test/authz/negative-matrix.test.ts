@@ -737,6 +737,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const masterMergeId = id(0x79, 40);
     const survivorshipRuleId = id(0x79, 41);
     const migrationBatchId = id(0x79, 42);
+    const knowledgeCollectionId = id(0x79, 43);
     const integrationCursorId = id(0x79, 12);
     const datasetId = id(0x79, 16);
     const glossaryDraftTermId = id(0x79, 13);
@@ -792,6 +793,21 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         `insert into machvon.master_merge (tenant_id, id, survivor_record_id, merged_record_id, survivorship_json, alias_json, repointed_refs_json, reason, change_request_id, status, applied_at, created_by, updated_by)
          values ($1, $2, $3, $4, '{"decisions":[],"overrides":{}}'::jsonb, '{}'::jsonb, '[]'::jsonb, 'negative matrix fixture merge', $5, 'APPLIED', now(), $6, $6)`,
         [TENANT_A, masterMergeId, masterRecordId, masterMergedRecordId, masterDraftChangeId, ACTOR],
+      ],
+      [
+        `insert into machvon.ai_provider (tenant_id, id, provider_code, name, region_country, route_class, max_classification, status, created_by, updated_by)
+         values ($1, $2, 'MATRIX-EMB', 'Matrix embedding host', 'VN', 'SELF_HOSTED', 'INTERNAL', 'ACTIVE', $3, $3)`,
+        [TENANT_A, id(0x79, 44), ACTOR],
+      ],
+      [
+        `insert into machvon.ai_model (tenant_id, id, provider_id, model_id, capabilities, context_window, max_output, max_classification, status, created_by, updated_by)
+         values ($1, $2, $3, 'matrix-embedding', '{"embedding": true}'::jsonb, 8000, 1000, 'INTERNAL', 'APPROVED', $4, $4)`,
+        [TENANT_A, id(0x79, 45), id(0x79, 44), ACTOR],
+      ],
+      [
+        `insert into machvon.ai_knowledge_collection (tenant_id, id, code, title, subject_module, embedding_model_id, max_classification, created_by, updated_by)
+         values ($1, $2, 'MATRIX-KB-FIXTURE', 'Matrix fixture', 'PRJ', $3, 'INTERNAL', $4, $4)`,
+        [TENANT_A, knowledgeCollectionId, id(0x79, 45), ACTOR],
       ],
       [
         `insert into machvon.migration_batch (tenant_id, id, source_system, target_entity, file_sha256, file_storage_key, mapping_version, status, created_by)
@@ -1345,6 +1361,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       masterMergeId,
       survivorshipRuleId,
       migrationBatchId,
+      knowledgeCollectionId,
       masterDraftChangeId,
       masterReviewChangeId,
       masterImportId,

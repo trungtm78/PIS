@@ -62,6 +62,8 @@ export const JOB_INTERVAL_SECONDS = {
   'unit-reorganization': 60,
   // Every minute: a dry run of a conversion batch that was asked for, and an apply that was approved, are carried out, the apply lot by lot (ST-ADM-020); the pass is idempotent.
   'adm-migration': 60,
+  // Every five minutes: a knowledge item whose document carries another access list than the one it was indexed with is indexed again, so that a widened list takes effect within minutes (ST-LLM-007); the pass is idempotent.
+  'llm-knowledge-reindex': 300,
   // Every minute: a delegation whose first instant has come is put in force, one whose window ended or whose delegator lost the authority it passed on is Ended (ST-ADM-014); the pass is idempotent.
   'delegation-lifecycle': 60,
   // Every minute: an approved support access grant whose first instant has come is put in force, one whose window ended is Expired and a request nobody decided on within a week lapses (ST-SAS-015); the pass is idempotent.
@@ -276,6 +278,8 @@ export interface StandardJobDeps {
   unitReorganization?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ stopped: number }> };
   /** The pass over the conversion batches of a tenant (ST-ADM-020): the dry runs and the applies that were asked for; without the object store the files are read from, it is not scheduled. */
   admMigration?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
+  /** The pass over the knowledge items of a tenant (ST-LLM-007): indexes again the ones whose access list changed; without the object store and the models it needs, it is not scheduled. */
+  llmKnowledgeReindex?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
   /** The pass over the delegations of a tenant that are not over (ST-ADM-014): puts the waiting ones in force and ends the ones whose window or source is over; tells how many are in force, for the gauge. */
   delegationLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DelegationPassResult> };
   /** The pass over the support access grants of a tenant (ST-SAS-015): puts the approved ones in force, ends the ones whose window is over, lapses the requests nobody decided on; tells how many are in force, for the gauge. */
@@ -625,6 +629,17 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         await eachTenant(await deps.tenantIds(), async (tenantId) => {
           await migrations.run(workerContext(tenantId));
+        });
+      },
+    });
+  }
+  const knowledge = deps.llmKnowledgeReindex;
+  if (knowledge !== undefined) {
+    handlers.push({
+      name: 'llm-knowledge-reindex',
+      run: async () => {
+        await eachTenant(await deps.tenantIds(), async (tenantId) => {
+          await knowledge.run(workerContext(tenantId));
         });
       },
     });

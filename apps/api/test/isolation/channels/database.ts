@@ -26,6 +26,7 @@ import {
   MATURITY_FIXTURES,
   MERGE_FIXTURES,
   MIGRATION_FIXTURES,
+  KNOWLEDGE_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -317,6 +318,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listSurvivorshipRules',
   'listMasterMerges',
   'uploadMigrationFile',
+  'createAiKnowledgeCollection',
+  'indexAiKnowledgeItem',
+  'listAiKnowledgeCollections',
+  'getAiKnowledgeCollection',
   'registerMigrationBatch',
   'dryRunMigrationBatch',
   'applyMigrationBatch',
@@ -1362,6 +1367,9 @@ const MERGE_INSERT_MERGE = `insert into machvon.master_merge
 const MIGRATION_INSERT_BATCH = `insert into machvon.migration_batch
   (tenant_id, id, source_system, target_entity, file_sha256, file_storage_key, mapping_version, row_count, status, created_by)
   values ($1, $2, $3, $4, $5, $6, 'GENERIC-1', 0, 'DryRunPassed', $7) on conflict do nothing`;
+const KNOWLEDGE_INSERT_COLLECTION = `insert into machvon.ai_knowledge_collection
+  (tenant_id, id, code, title, subject_module, embedding_model_id, max_classification, created_by, updated_by)
+  values ($1, $2, $3, $4, 'PRJ', $5, 'INTERNAL', $6, $6) on conflict do nothing`;
 const MERGE_INSERT_RULE = `insert into machvon.survivorship_rule
   (tenant_id, id, master_type, attribute_name, strategy, source_priority, revision, status, effective_from, created_by, updated_by)
   values ($1, $2, 'ISOLATION', $3, 'SOURCE_PRIORITY', ARRAY['NATIONAL', 'TENANT'], 1, 'DRAFT', '2026-01-01', $4, $4) on conflict do nothing`;
@@ -2370,6 +2378,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const llm = LLM_FIXTURES[tenant];
     await client.query(INSERT_LLM_PROVIDER, [tenantId, llm.providerId, llm.providerCode, llm.providerName, ACTOR_ID]);
     await client.query(INSERT_LLM_MODEL, [tenantId, llm.modelRefId, llm.providerId, llm.modelCode, ACTOR_ID]);
+    const knowledge = KNOWLEDGE_FIXTURES[tenant];
+    await client.query(KNOWLEDGE_INSERT_COLLECTION, [tenantId, knowledge.id, knowledge.code, knowledge.title, llm.modelRefId, ACTOR_ID]);
     await client.query(INSERT_LLM_KEY, [tenantId, llm.keyId, llm.keyAlias, llm.keyLiteLlmRef, llm.keyFingerprint, llm.keySecretRef, ACTOR_ID]);
     await client.query(INSERT_LLM_POLICY, [tenantId, llm.policyId, llm.policyBasis, ACTOR_ID]);
     await client.query(INSERT_LLM_PROFILE, [tenantId, llm.profileId]);

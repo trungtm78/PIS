@@ -715,6 +715,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getAdvanceRecoveryPlan({required String id, Map<String, Object?>? query}) =>
       execute('getAdvanceRecoveryPlan', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getAiKnowledgeCollection({required String id, Map<String, Object?>? query}) =>
+      execute('getAiKnowledgeCollection', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getAiRequestRoute({required String id, Map<String, Object?>? query}) =>
       execute('getAiRequestRoute', path: <String, Object?>{'id': id}, query: query);
 
@@ -1566,6 +1569,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listAiKillSwitches({Map<String, Object?>? query}) =>
       execute('listAiKillSwitches', query: query);
+
+  Future<Object?> listAiKnowledgeCollections({Map<String, Object?>? query}) =>
+      execute('listAiKnowledgeCollections', query: query);
 
   Future<Object?> listAiModels({Map<String, Object?>? query}) =>
       execute('listAiModels', query: query);

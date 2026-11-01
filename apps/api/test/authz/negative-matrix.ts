@@ -122,6 +122,8 @@ export interface MatrixTargets {
   survivorshipRuleId: string;
   /** A conversion batch of tenant A that passed its dry run (version 1): the commands over a batch act on it. */
   migrationBatchId: string;
+  /** A knowledge collection of tenant A: the command that indexes into it acts on it. */
+  knowledgeCollectionId: string;
   masterDraftChangeId: string;
   masterReviewChangeId: string;
   /** An IN_REVIEW import batch of tenant A. */
@@ -754,6 +756,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   createSurvivorshipRuleVersion: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/survivorship-rules', body: { master_type: 'MATRIX', attribute_name: 'phone', strategy: 'SOURCE_PRIORITY', source_priority: ['NATIONAL', 'TENANT'], effective_from: '2026-01-01' } }),
+  },
+  createAiKnowledgeCollection: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/ai-knowledge-collections', body: { code: 'MATRIX-KB', title: 'Matrix collection', subject_module: 'PRJ', embedding_model_id: t.knowledgeCollectionId, max_classification: 'INTERNAL' } }),
+  },
+  indexAiKnowledgeItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/ai-knowledge-collections/${t.knowledgeCollectionId}/items`, body: { document_version_id: t.knowledgeCollectionId } }),
   },
   uploadMigrationFile: {
     referencesTenantIds: false,

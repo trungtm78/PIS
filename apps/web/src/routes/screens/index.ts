@@ -285,6 +285,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'LLM-09': () => import('../../screens/llm/UsageScreen'),
   'LLM-10': () => import('../../screens/llm/PromptsScreen'),
   'LLM-12': () => import('../../screens/llm/DatasetsScreen'),
+  'LLM-16': () => import('../../screens/llm/knowledge/KnowledgeScreen'),
   'LLM-17': () => import('../../screens/llm/ReleaseScreen'),
   'LLM-18': () => import('../../screens/llm/KillSwitchScreen'),
   'LLM-19': () => import('../../screens/llm/PolicyMatrixScreen'),

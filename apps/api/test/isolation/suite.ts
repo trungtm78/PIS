@@ -125,6 +125,12 @@ export const MIGRATION_FIXTURES: Readonly<Record<TenantName, { id: string; entit
   },
 };
 
+/** A knowledge collection of each tenant (distinctive ids, code and title; tenant data). */
+export const KNOWLEDGE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a013-000000000001', code: 'ALPHA-KNOWLEDGE-0001', title: 'Alpha knowledge collection of appraisal files' },
+  'TNT-B': { id: '00000000-0000-4000-b013-000000000001', code: 'BETA-KNOWLEDGE-0001', title: 'Beta knowledge collection of appraisal files' },
+};
+
 /** A bulk import batch of each tenant, waiting for its review (the file hash and the object key are distinctive). */
 export const MASTER_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; fileSha256: string; fileObjectKey: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a011-000000000001', fileSha256: 'a3'.repeat(32), fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000a/import/alpha-catalogue-0001' },
@@ -1481,6 +1487,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'merged master business key', value: MERGE_FIXTURES[tenant].mergedBusinessKey },
     { kind: 'master merge id', value: MERGE_FIXTURES[tenant].mergeId },
     { kind: 'migration batch id', value: MIGRATION_FIXTURES[tenant].id },
+    { kind: 'knowledge collection id', value: KNOWLEDGE_FIXTURES[tenant].id },
+    { kind: 'knowledge collection code', value: KNOWLEDGE_FIXTURES[tenant].code },
+    { kind: 'knowledge collection title', value: KNOWLEDGE_FIXTURES[tenant].title },
     { kind: 'migration batch entity', value: MIGRATION_FIXTURES[tenant].entity },
     { kind: 'migration batch file hash', value: MIGRATION_FIXTURES[tenant].fileSha256 },
     { kind: 'migration batch object key', value: MIGRATION_FIXTURES[tenant].storageKey },

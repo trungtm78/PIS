@@ -238,13 +238,14 @@ const TEMPLATE_COLUMNS = `id, template_code, revision, group_code, doc_type_code
 const VERSION_COLUMNS = `v.id, v.document_id, v.version, v.object_key, v.checksum, v.mime, v.page_count, v.classification, v.scan_status, v.stage,
   v.byte_length::text as byte_length, v.renderer_version, v.template_id, v.created_at, ${timestampKey('v.created_at')} as sort_key`;
 // The owner unit of a version is the issuer unit of its document: scope predicates read `ou.path` and `ou.id`.
-const VERSION_FROM = `from machvon.document_version v
-  join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id
+export const VERSION_JOINS = `join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id
   left join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.issuer_unit_id
   left join machvon.incoming_document inc on inc.tenant_id = d.tenant_id and inc.document_id = d.id
   left join machvon.document_number_register ir on ir.tenant_id = inc.tenant_id and ir.id = inc.register_id
   left join machvon.organization_unit hu on hu.tenant_id = ir.tenant_id and hu.id = ir.organization_unit_id
   left join machvon.organization_unit iu on iu.tenant_id = inc.tenant_id and iu.id = inc.assigned_unit_id`;
+const VERSION_FROM = `from machvon.document_version v
+  ${VERSION_JOINS}`;
 
 /**
  * The subject of the files of a sealed proposal (ST-BID-004): they are confidential until the bids are opened and then for the evaluators who declared, so the reads of this module,
@@ -252,7 +253,7 @@ const VERSION_FROM = `from machvon.document_version v
  */
 export const SEALED_SUBJECT_MODULE = 'BID_PROPOSAL';
 
-const NOT_SEALED = `d.subject_module is distinct from '${SEALED_SUBJECT_MODULE}'`;
+export const NOT_SEALED = `d.subject_module is distinct from '${SEALED_SUBJECT_MODULE}'`;
 
 /** The columns of the owner unit a scope predicate for versions is compiled against. */
 export const VERSION_SCOPE_COLUMNS = { unitPath: 'ou.path', unitId: 'ou.id' } as const;
