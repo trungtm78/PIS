@@ -305,6 +305,8 @@ export interface ReportView {
   watermarkText: string | null;
   periodLabel: string;
   reportYear: number;
+  /** The project a project report is about; null for a report of a unit. */
+  projectId: string | null;
   unitCode: string;
   unitName: string;
   dueDate: string;
@@ -405,6 +407,7 @@ export function toReport(raw: unknown): ReportView | undefined {
     watermarkText: nullableText(raw.form.watermark_text),
     periodLabel: text(raw.period_label),
     reportYear: count(raw.report_year),
+    projectId: nullableText(raw.project_id),
     unitCode: text(raw.scope_unit.code),
     unitName: text(raw.scope_unit.name),
     dueDate: text(raw.due_date),

@@ -521,6 +521,7 @@ export const OPERATIONS = {
   "listAiClassificationPolicies": { method: "get", path: "/ai-classification-policies", versioned: false, stepUp: null, permission: "llm.policy.read" },
   "listAiDecisionRecords": { method: "get", path: "/ai-decisions", versioned: false, stepUp: null, permission: "llm.audit.read" },
   "listAiEvalDatasets": { method: "get", path: "/ai-eval-datasets", versioned: false, stepUp: null, permission: "llm.eval.read" },
+  "listAiInvoiceReconciliations": { method: "get", path: "/ai-invoices/reconciliations", versioned: false, stepUp: null, permission: "llm.finops" },
   "listAiKillSwitches": { method: "get", path: "/ai-kill-switches", versioned: false, stepUp: null, permission: "llm.audit.read" },
   "listAiKnowledgeCollections": { method: "get", path: "/ai-knowledge-collections", versioned: false, stepUp: null, permission: "llm.knowledge.read" },
   "listAiModels": { method: "get", path: "/ai-models", versioned: false, stepUp: null, permission: "llm.provider.read" },

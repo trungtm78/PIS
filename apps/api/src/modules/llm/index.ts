@@ -14,6 +14,7 @@ import { AiKnowledgeService } from './knowledge.service';
 import { MockEvalRunner } from './mock-eval-runner';
 import { MockAiGateway } from './mock-gateway';
 import { InMemoryVault, MockLiteLlm } from './mock-key-ports';
+import { LlmReconcileController } from './reconcile.controller';
 import { LlmRegistryController } from './registry.controller';
 import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_GATEWAY, LLM_VAULT } from './tokens';
 
@@ -23,7 +24,17 @@ import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_GATEWAY, LLM_VAULT } from './tokens';
  */
 export const llmModule = defineModule({
   code: 'LLM',
-  controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController, LlmEmergencyController, LlmKnowledgeController, LlmKnowledgeReadsController],
+  controllers: [
+    LlmRegistryController,
+    LlmKeyController,
+    LlmFinopsController,
+    LlmEvalController,
+    LlmGatewayController,
+    LlmEmergencyController,
+    LlmKnowledgeController,
+    LlmKnowledgeReadsController,
+    LlmReconcileController,
+  ],
   providers: [
     { provide: LLM_ADMIN, useClass: MockLiteLlm },
     { provide: LLM_VAULT, useClass: InMemoryVault },

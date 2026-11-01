@@ -738,6 +738,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'signAiEvalRun', method: 'POST', id: LLM_FIXTURES['TNT-B'].runId, versioned: true, body: { decision: 'PASS', comment: 'Isolation probe of the signature' } },
   { operation: 'post_model_profiles_id_publish', method: 'POST', id: LLM_FIXTURES['TNT-B'].profileId, versioned: true, body: { decision: 'approve', reason: 'Isolation probe', evidence_ids: [] } },
   { operation: 'getAiSpendSummary', method: 'GET', id: LLM_FIXTURES['TNT-B'].budgetId },
+  { operation: 'post_budgets_id_reconcile', method: 'POST', id: LLM_FIXTURES['TNT-B'].budgetId, versioned: true, body: { decision: 'approve', reason: 'Isolation probe of the reconciliation', evidence_ids: [] } },
   { operation: 'get_resources_budget_reservation_id', method: 'GET', id: LLM_FIXTURES['TNT-B'].reservationId },
   { operation: 'rotateAiVirtualKey', method: 'POST', id: LLM_FIXTURES['TNT-B'].keyId, versioned: true, body: {} },
   { operation: 'revokeAiVirtualKey', method: 'POST', id: LLM_FIXTURES['TNT-B'].keyId, versioned: true, body: { reason: 'Isolation probe of the key revocation' } },

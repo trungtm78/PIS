@@ -1567,6 +1567,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAiEvalDatasets({Map<String, Object?>? query}) =>
       execute('listAiEvalDatasets', query: query);
 
+  Future<Object?> listAiInvoiceReconciliations({Map<String, Object?>? query}) =>
+      execute('listAiInvoiceReconciliations', query: query);
+
   Future<Object?> listAiKillSwitches({Map<String, Object?>? query}) =>
       execute('listAiKillSwitches', query: query);
 

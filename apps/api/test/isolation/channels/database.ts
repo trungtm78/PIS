@@ -27,6 +27,7 @@ import {
   MERGE_FIXTURES,
   MIGRATION_FIXTURES,
   KNOWLEDGE_FIXTURES,
+  AI_INVOICE_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -952,6 +953,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'revokeAiVirtualKey',
   'listAiVirtualKeys',
   'createAiBudget',
+  'reconcileAiInvoice',
+  'listAiInvoiceReconciliations',
+  'post_budgets_id_reconcile',
   'registerPricingVersion',
   'listAiBudgets',
   'listAiPricingVersions',
@@ -1934,6 +1938,9 @@ const INSERT_LLM_KILL = `insert into machvon.ai_kill_switch
 const INSERT_LLM_DECISION = `insert into machvon.ai_decision_record
   (tenant_id, id, ai_request_id, subject_module, subject_kind, subject_id, ai_output_sha256, action_kind, decision, rationale, decided_by)
   values ($1, $2, $3, 'PAY', 'alert', $2, $4, 'MONEY', 'ACCEPTED', $5, $6) on conflict do nothing`;
+const INSERT_LLM_RECONCILIATION = `insert into machvon.ai_invoice_reconciliation
+  (tenant_id, id, provider_id, invoice_ref, invoice_amount, currency, period_from, period_to, attempts_total, variance, tolerance_pct, attempt_count, status, owner_id, created_by, updated_by)
+  values ($1, $2, $3, $4, 1000, 'VND', '2026-01-01', '2026-01-31', 900, 100, 0.5, 1, 'VARIANCE', $5, $5, $5) on conflict do nothing`;
 const INSERT_LLM_BUDGET = `insert into machvon.ai_budget
   (tenant_id, id, scope_kind, period, limit_vnd, hard_stop, effective_from, created_by, updated_by)
   values ($1, $2, 'TENANT', 'MONTH', 1000000, true, '2026-01-01', $3, $3) on conflict do nothing`;
@@ -2388,6 +2395,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_RUN, [tenantId, llm.runId, llm.profileId, llm.datasetId, ACTOR_ID]);
     await client.query(INSERT_LLM_REQUEST, [tenantId, llm.requestId, llm.profileId, llm.policyId, ACTOR_ID, 'c'.repeat(64)]);
     await client.query(INSERT_LLM_BUDGET, [tenantId, llm.budgetId, ACTOR_ID]);
+    const reconciliation = AI_INVOICE_FIXTURES[tenant];
+    await client.query(INSERT_LLM_RECONCILIATION, [tenantId, reconciliation.id, llm.providerId, reconciliation.invoiceRef, ACTOR_ID]);
     await client.query(INSERT_LLM_RESERVATION, [tenantId, llm.reservationId, llm.requestId, llm.reservationNote]);
     await client.query(INSERT_LLM_PRICE, [tenantId, llm.priceId, llm.modelRefId, llm.modelCode, llm.priceSource]);
     await client.query(INSERT_LLM_ATTEMPT, [tenantId, llm.attemptId, llm.modelCode, llm.priceId, llm.requestId, `iso-${llm.attemptId}`]);

@@ -41,7 +41,7 @@ export type BodylessVersionedCommandsStillRequireTheVersion = Expect<
   Equal<'ifMatchVersion' extends RequiredKeys<CommandInput<'runAllocationScenario'>> ? true : false, true>
 >;
 export type OnlyTheMultipartUploadsAreOutsideTheCommandSurface = Expect<
-  Equal<Exclude<OperationName, ReadOperation | CommandOperation>, 'uploadDocumentFile' | 'uploadLandParcelFile' | 'uploadMasterImportFile' | 'uploadNationalCodeFile' | 'uploadProcurementFile' | 'uploadProposalFile' | 'uploadReportFile' | 'uploadReportImportFile' | 'uploadSystemTenantThemeAsset' | 'uploadTreasuryStatementFile'>
+  Equal<Exclude<OperationName, ReadOperation | CommandOperation>, 'uploadDocumentFile' | 'uploadLandParcelFile' | 'uploadMasterImportFile' | 'uploadMigrationFile' | 'uploadNationalCodeFile' | 'uploadProcurementFile' | 'uploadProposalFile' | 'uploadReportFile' | 'uploadReportImportFile' | 'uploadSystemTenantThemeAsset' | 'uploadTreasuryStatementFile'>
 >;
 
 describe('operation types', () => {

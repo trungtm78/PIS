@@ -1622,3 +1622,5 @@ export { MAX_MIGRATION_ROWS, MIGRATION_ENTITY_PATTERN, MIGRATION_LOT_SIZE, MIGRA
 export type { ControlTotals, JudgedRow, MigrationJudgement, MigrationMapping, MigrationReference, RowError } from './migration-batch.ts';
 export { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, MAX_RETRIEVED, assertEmbedding, assertWithin, checkCollection, chunkPages, retrievalLimit } from './ai-knowledge.ts';
 export type { Chunk as KnowledgeChunk, CollectionInput as KnowledgeCollectionInput } from './ai-knowledge.ts';
+export { RECONCILE_TOLERANCE_PERCENT, checkReconcile, compare as compareInvoice, fromUnits, providerOfInvoice, toUnits } from './llm-reconcile.ts';
+export type { CheckedReconcile, ReconcileRequest } from './llm-reconcile.ts';

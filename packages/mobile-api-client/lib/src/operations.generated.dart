@@ -523,6 +523,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listAiClassificationPolicies': OperationDescriptor(method: 'GET', path: '/ai-classification-policies', versioned: false, stepUp: null, permission: 'llm.policy.read'),
   'listAiDecisionRecords': OperationDescriptor(method: 'GET', path: '/ai-decisions', versioned: false, stepUp: null, permission: 'llm.audit.read'),
   'listAiEvalDatasets': OperationDescriptor(method: 'GET', path: '/ai-eval-datasets', versioned: false, stepUp: null, permission: 'llm.eval.read'),
+  'listAiInvoiceReconciliations': OperationDescriptor(method: 'GET', path: '/ai-invoices/reconciliations', versioned: false, stepUp: null, permission: 'llm.finops'),
   'listAiKillSwitches': OperationDescriptor(method: 'GET', path: '/ai-kill-switches', versioned: false, stepUp: null, permission: 'llm.audit.read'),
   'listAiKnowledgeCollections': OperationDescriptor(method: 'GET', path: '/ai-knowledge-collections', versioned: false, stepUp: null, permission: 'llm.knowledge.read'),
   'listAiModels': OperationDescriptor(method: 'GET', path: '/ai-models', versioned: false, stepUp: null, permission: 'llm.provider.read'),

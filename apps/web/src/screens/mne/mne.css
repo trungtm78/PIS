@@ -63,3 +63,15 @@ tr.mne-late td:first-child {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* MNE-04: the facts of the project a report is about. */
+.mne-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.mne-facts dd {
+  margin: 0;
+}

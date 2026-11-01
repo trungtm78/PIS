@@ -5,25 +5,25 @@ import type { AssignmentLine, Option, TaskForceLine } from './accountability-mod
 import { useScopeKey } from './hooks';
 
 /** The assignments of the projects the caller may read (PRJ-17), the latest period of a project first. */
-export function useAssignments() {
+export function useAssignments(enabled = true) {
   const client = useApiClient();
   const key = useScopeKey();
   return useQuery<AssignmentLine[]>({
     queryKey: [...key, 'assignments'],
     queryFn: async () => (await client.readAll('get_resources_project_accountability')).flatMap((raw) => toAssignmentLine(raw) ?? []),
-    enabled: key[1] !== undefined,
+    enabled: enabled && key[1] !== undefined,
     retry: false,
   });
 }
 
 /** The task forces whose scope unit lies in a subtree the caller may read, each with its terms (PRJ-18). */
-export function useTaskForces() {
+export function useTaskForces(enabled = true) {
   const client = useApiClient();
   const key = useScopeKey();
   return useQuery<TaskForceLine[]>({
     queryKey: [...key, 'task-forces'],
     queryFn: async () => (await client.readAll('get_resources_task_force')).flatMap((raw) => toTaskForceLine(raw) ?? []),
-    enabled: key[1] !== undefined,
+    enabled: enabled && key[1] !== undefined,
     retry: false,
   });
 }

@@ -1557,6 +1557,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/ai-budgets', body: { scope_kind: 'TENANT', period: 'MONTH', limit_vnd: '1000', hard_stop: true, effective_from: '2026-01-01' } }),
   },
+  reconcileAiInvoice: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/ai-invoices/reconciliations', body: { invoice_ref: 'MATRIX-2026-01', invoice_amount: '1000', currency: 'VND', period_from: '2026-01-01', period_to: '2026-01-31' } }),
+  },
+  post_budgets_id_reconcile: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/budgets/00000000-0000-4000-8000-0000000000e6/reconcile',
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: 'Matrix probe of the budget reconciliation', evidence_ids: [] },
+    }),
+  },
   registerPricingVersion: {
     referencesTenantIds: false,
     build: () => ({

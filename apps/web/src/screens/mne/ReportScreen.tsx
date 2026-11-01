@@ -122,7 +122,8 @@ interface Draft {
   snapshotId: string;
 }
 
-function ReportEditor({ id }: { id: string }) {
+/** The report of an id with its cells, the snapshot and the hand-in; MNE-04 opens the same body for a report of a project. */
+export function ReportEditor({ id }: { id: string }) {
   const query = useReport(id);
   const edit = useEditReport();
   const submit = useSubmitReport();

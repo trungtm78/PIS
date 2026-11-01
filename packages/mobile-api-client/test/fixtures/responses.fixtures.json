@@ -520,6 +520,7 @@
   "listAiClassificationPolicies": {},
   "listAiDecisionRecords": {},
   "listAiEvalDatasets": {},
+  "listAiInvoiceReconciliations": {},
   "listAiKillSwitches": {},
   "listAiKnowledgeCollections": {},
   "listAiModels": {},

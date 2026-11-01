@@ -524,6 +524,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAiClassificationPolicies': asObject,
   'listAiDecisionRecords': asObject,
   'listAiEvalDatasets': asObject,
+  'listAiInvoiceReconciliations': asObject,
   'listAiKillSwitches': asObject,
   'listAiKnowledgeCollections': asObject,
   'listAiModels': asObject,

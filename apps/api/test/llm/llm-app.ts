@@ -15,6 +15,7 @@ import { MockAiGateway } from '../../src/modules/llm/mock-gateway';
 import { LlmKeyController } from '../../src/modules/llm/key.controller';
 import { MockEvalRunner } from '../../src/modules/llm/mock-eval-runner';
 import { InMemoryVault, MockLiteLlm } from '../../src/modules/llm/mock-key-ports';
+import { LlmReconcileController } from '../../src/modules/llm/reconcile.controller';
 import { LlmRegistryController } from '../../src/modules/llm/registry.controller';
 import { LLM_ADMIN, LLM_EVAL_RUNNER, LLM_GATEWAY, LLM_METRICS, LLM_VAULT } from '../../src/modules/llm/tokens';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
@@ -71,7 +72,29 @@ export class LlmApp {
       { n: BRANCH, path: `/${unitId(BRANCH)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [AI_ADMIN, SECURITY, SECURITY_TWO, READER, NOBODY, SCOPED, DUAL, KEY_ADMIN, KEY_READER, FINOPS, PROMPT_AUTHOR, PROMPT_APPROVER, EXPERT, PUBLISHER, EVAL_BOTH, INVOKER, AUDITOR, EMERGENCY, EMERGENCY_TWO, DECIDER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [
+      AI_ADMIN,
+      SECURITY,
+      SECURITY_TWO,
+      READER,
+      NOBODY,
+      SCOPED,
+      DUAL,
+      KEY_ADMIN,
+      KEY_READER,
+      FINOPS,
+      PROMPT_AUTHOR,
+      PROMPT_APPROVER,
+      EXPERT,
+      PUBLISHER,
+      EVAL_BOTH,
+      INVOKER,
+      AUDITOR,
+      EMERGENCY,
+      EMERGENCY_TWO,
+      DECIDER,
+    ])
+      await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, AI_ADMIN, ROOT);
     const MANAGE = ['llm.provider.manage', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
     const APPROVE = ['llm.provider.approve', 'llm.policy.approve', 'llm.policy.manage', 'llm.provider.read', 'llm.policy.read'];
@@ -119,18 +142,21 @@ export class LlmApp {
     const tenants = harness.tenants as TenantDatabase;
     this.app = await startTestApp({
       signingKey: SIGNING_KEY,
-      imports: [
-        CommandModule.register({ database: tenants }),
-        PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
-      ],
-      controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController, LlmEmergencyController],
+      imports: [CommandModule.register({ database: tenants }), PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) })],
+      controllers: [LlmRegistryController, LlmKeyController, LlmFinopsController, LlmEvalController, LlmGatewayController, LlmEmergencyController, LlmReconcileController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: LLM_ADMIN, useValue: this.litellm },
         { provide: LLM_VAULT, useValue: this.vault },
         { provide: LLM_EVAL_RUNNER, useValue: this.runner },
         { provide: LLM_GATEWAY, useValue: this.gateway },
-        { provide: LLM_METRICS, useValue: { gauge: (name: string, value: number, labels: Record<string, string> = {}) => this.metrics.push({ name, labels: { ...labels, value: String(value) } }), increment: (name: string, labels: Record<string, string> = {}) => this.metrics.push({ name, labels }) } },
+        {
+          provide: LLM_METRICS,
+          useValue: {
+            gauge: (name: string, value: number, labels: Record<string, string> = {}) => this.metrics.push({ name, labels: { ...labels, value: String(value) } }),
+            increment: (name: string, labels: Record<string, string> = {}) => this.metrics.push({ name, labels }),
+          },
+        },
         LlmGatewayService,
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
@@ -169,7 +195,29 @@ export class LlmApp {
 
   /** Removes the registry of a tenant so that a test starts from nothing. */
   reset(tenantId: string = TENANT_A): Promise<unknown[]> {
-    return this.harness.owner(tenantId, [['alter table machvon.ai_decision_record disable trigger ai_decision_record_guard'], ['delete from machvon.ai_decision_record'], ['alter table machvon.ai_decision_record enable trigger ai_decision_record_guard'], ['delete from machvon.llm_attempt'], ['update machvon.ai_request set budget_reservation_id = null'], ['delete from machvon.budget_reservation'], ['delete from machvon.ai_request'], ['delete from machvon.ai_kill_switch'], ['delete from machvon.ai_eval_run'], ['delete from machvon.model_profile_version'], ['delete from machvon.ai_eval_case'], ['delete from machvon.ai_eval_dataset_version'], ['delete from machvon.ai_prompt_version'], ['delete from machvon.ai_virtual_key'], ['delete from machvon.ai_budget_counter'], ['delete from machvon.ai_budget'], ['delete from machvon.pricing_version'], ['delete from machvon.ai_model'], ['delete from machvon.ai_provider'], ['delete from machvon.ai_classification_policy_version']]);
+    return this.harness.owner(tenantId, [
+      ['alter table machvon.ai_decision_record disable trigger ai_decision_record_guard'],
+      ['delete from machvon.ai_decision_record'],
+      ['alter table machvon.ai_decision_record enable trigger ai_decision_record_guard'],
+      ['delete from machvon.ai_invoice_reconciliation'],
+      ['delete from machvon.llm_attempt'],
+      ['update machvon.ai_request set budget_reservation_id = null'],
+      ['delete from machvon.budget_reservation'],
+      ['delete from machvon.ai_request'],
+      ['delete from machvon.ai_kill_switch'],
+      ['delete from machvon.ai_eval_run'],
+      ['delete from machvon.model_profile_version'],
+      ['delete from machvon.ai_eval_case'],
+      ['delete from machvon.ai_eval_dataset_version'],
+      ['delete from machvon.ai_prompt_version'],
+      ['delete from machvon.ai_virtual_key'],
+      ['delete from machvon.ai_budget_counter'],
+      ['delete from machvon.ai_budget'],
+      ['delete from machvon.pricing_version'],
+      ['delete from machvon.ai_model'],
+      ['delete from machvon.ai_provider'],
+      ['delete from machvon.ai_classification_policy_version'],
+    ]);
   }
 }
 

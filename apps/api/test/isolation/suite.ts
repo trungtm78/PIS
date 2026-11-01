@@ -125,6 +125,12 @@ export const MIGRATION_FIXTURES: Readonly<Record<TenantName, { id: string; entit
   },
 };
 
+/** The reconciliation of an invoice of the provider of each tenant (distinctive id and invoice reference; tenant data). */
+export const AI_INVOICE_FIXTURES: Readonly<Record<TenantName, { id: string; invoiceRef: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a014-000000000001', invoiceRef: 'ALPHA-INVOICE-2026-01' },
+  'TNT-B': { id: '00000000-0000-4000-b014-000000000001', invoiceRef: 'BETA-INVOICE-2026-01' },
+};
+
 /** A knowledge collection of each tenant (distinctive ids, code and title; tenant data). */
 export const KNOWLEDGE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; title: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a013-000000000001', code: 'ALPHA-KNOWLEDGE-0001', title: 'Alpha knowledge collection of appraisal files' },
@@ -1488,6 +1494,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'master merge id', value: MERGE_FIXTURES[tenant].mergeId },
     { kind: 'migration batch id', value: MIGRATION_FIXTURES[tenant].id },
     { kind: 'knowledge collection id', value: KNOWLEDGE_FIXTURES[tenant].id },
+    { kind: 'invoice reconciliation id', value: AI_INVOICE_FIXTURES[tenant].id },
+    { kind: 'invoice reference', value: AI_INVOICE_FIXTURES[tenant].invoiceRef },
     { kind: 'knowledge collection code', value: KNOWLEDGE_FIXTURES[tenant].code },
     { kind: 'knowledge collection title', value: KNOWLEDGE_FIXTURES[tenant].title },
     { kind: 'migration batch entity', value: MIGRATION_FIXTURES[tenant].entity },

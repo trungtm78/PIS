@@ -339,6 +339,8 @@
     "publishSurvivorshipRule",
     "uploadMigrationFile",
     "createAiKnowledgeCollection",
+    "reconcileAiInvoice",
+    "post_budgets_id_reconcile",
     "indexAiKnowledgeItem",
     "registerMigrationBatch",
     "dryRunMigrationBatch",
