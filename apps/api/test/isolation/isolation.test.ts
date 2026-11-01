@@ -869,6 +869,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'getDashboard',
         'get_resources_dashboard_version',
         'get_resources_dashboard_version_id',
+        'recordLineageBatch',
+        'getLineageGraph',
         'requestBiExport',
         'createBiExportSchedule',
         'getBiExport',

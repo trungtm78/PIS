@@ -122,6 +122,7 @@
     "shareDashboard",
     "revokeDashboardShare",
     "requestBiExport",
+    "recordLineageBatch",
     "createBiExportSchedule",
     "post_dashboards_id_publish",
     "createCapitalPlan",

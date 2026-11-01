@@ -1283,6 +1283,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({ method: 'POST', path: `/bi/dashboard-shares/${t.legalHoldId}/revocation`, ifMatch: '"1"', body: {} }),
   },
   // The metric, the snapshot and the recipients are named in the body, and an id the tenant does not hold is a 422 of the body (as for the query): the answer does not tell a foreign id from one that does not exist.
+  // A node that is named by its id and is not one of the tenant is 422 LINEAGE_NODE_INVALID (the answer does not tell another tenant's node from one that does not exist).
+  recordLineageBatch: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/dgv/lineage-batches',
+      body: { run_id: '00000000-0000-4000-8000-0000000000a1', transform_version: 'matrix-v1', edges: [{ from: { node_id: '00000000-0000-4000-8000-0000000000a2' }, to: { node_id: '00000000-0000-4000-8000-0000000000a3' } }] },
+    }),
+  },
   requestBiExport: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/bi/exports', body: { query_spec: { metric_version_id: '00000000-0000-4000-8000-0000000000a1' }, as_of_period: '2026-10', format: 'CSV' } }),

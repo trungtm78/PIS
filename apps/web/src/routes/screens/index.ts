@@ -85,6 +85,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'DGV-02': () => import('../../screens/dgv/glossary/GlossaryScreen'),
   'DGV-03': () => import('../../screens/dgv/OwnershipScreen'),
   'DGV-04': () => import('../../screens/dgv/CatalogScreen'),
+  'DGV-05': () => import('../../screens/dgv/lineage/LineageScreen'),
   'DGV-06': () => import('../../screens/dgv/QualityRulesScreen'),
   'DGV-07': () => import('../../screens/dgv/QualityScoreScreen'),
   'DGV-08': () => import('../../screens/dgv/incident/IncidentWorkspaceScreen'),

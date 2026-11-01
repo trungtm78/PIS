@@ -858,6 +858,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getDashboard',
   'get_resources_dashboard_version',
   'get_resources_dashboard_version_id',
+  'recordLineageBatch',
+  'getLineageGraph',
   'requestBiExport',
   'createBiExportSchedule',
   'getBiExport',
