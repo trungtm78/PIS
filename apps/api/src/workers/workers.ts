@@ -7,6 +7,7 @@ import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.p
 import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
+import { AdmMigrationJob } from '../modules/adm/migration.job';
 import { expireExports, runExportSchedulesIn } from '../modules/bi/export-jobs';
 import { expireQueryAnswers, runQueryJobsIn } from '../modules/bi/query-jobs';
 import { remindHandoverDue } from '../modules/doc/handover-jobs';
@@ -231,6 +232,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     gateWaiverExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => waiverExpiry.run(tx, ctx.membershipId, now)) },
     issueSla: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => issueSla.run(tx, ctx.membershipId, now)) },
     unitReorganization: { run: (ctx, now) => unitReorganization.run(ctx, now) },
+    // The conversion files are read from the same object store as the exports (ST-ADM-020).
+    ...(deps.exportFiles === undefined ? {} : { admMigration: new AdmMigrationJob(deps.tenants, audit, deps.exportFiles, deps.metrics) }),
     delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
     supportAccessLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => supportAccessLifecycle.run(tx, ctx.membershipId, now)) },
     ...(deps.exportFiles === undefined ? {} : { tenantExport: new TenantExportJob(deps.tenants, deps.exportFiles, audit, deps.documentFiles) }),

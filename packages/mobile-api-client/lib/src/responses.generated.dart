@@ -464,6 +464,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getMasterRecordSuccessors': asObject,
   'getMasterRecordUsages': MdmUsageResponse.fromJson,
   'getMaturityScore': DgvMaturityScoreResponse.fromJson,
+  'getMigrationBatch': asObject,
   'getMneReport': asObject,
   'getMyEffectiveAccess': EffectiveAccessResponse.fromJson,
   'getMyEntitlements': EntitlementViewResponse.fromJson,
@@ -601,6 +602,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMaterialTests': asObject,
   'listMaturityMilestones': asObject,
   'listMaturityRubrics': asObject,
+  'listMigrationBatches': asObject,
   'listMneEvaluationProjects': MneEvaluationProjectPageResponse.fromJson,
   'listMneEvaluations': MneEvaluationPageResponse.fromJson,
   'listMneForms': asObject,
@@ -976,6 +978,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'uploadLandParcelFile': LndParcelFileResponse.fromJson,
   'uploadLeaderSignedDocument': CommandResultResponse.fromJson,
   'uploadMasterImportFile': MdmImportFileResponse.fromJson,
+  'uploadMigrationFile': MigrationFileUploadResponse.fromJson,
   'uploadNationalCodeFile': PrjNationalCodeFileUploadResponse.fromJson,
   'uploadProcurementFile': BidProcurementFileUploadResponse.fromJson,
   'uploadProposalFile': BidProposalFileUploadResponse.fromJson,
@@ -17578,6 +17581,52 @@ final class MdmUsageResponse implements ResponseModel {
         if (asOf != null) 'as_of': asOf,
         if (counts != null) 'counts': counts,
         if (samples != null) 'samples': samples,
+        ...extra,
+      };
+}
+
+final class MigrationFileUploadResponse implements ResponseModel {
+  const MigrationFileUploadResponse({
+    required this.fileId,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.format,
+    required this.columns,
+    required this.rowCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MigrationFileUploadResponse.fromJson(Object? json, [String path = 'MigrationFileUploadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MigrationFileUploadResponse(
+      fileId: requiredField(map, path, 'file_id', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      format: requiredField(map, path, 'format', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      extra: unknownFields(map, path, const <String>{'file_id', 'file_sha256', 'size_bytes', 'format', 'columns', 'row_count'}, strict: true),
+    );
+  }
+
+  final String fileId;
+  final String fileSha256;
+  final int sizeBytes;
+  final String format;
+  final List<String> columns;
+  final int rowCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_id': fileId,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'format': format,
+        'columns': columns,
+        'row_count': rowCount,
         ...extra,
       };
 }

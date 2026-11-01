@@ -853,6 +853,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getMaturityScore({required String id, Map<String, Object?>? query}) =>
       execute('getMaturityScore', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getMigrationBatch({required String batchId, Map<String, Object?>? query}) =>
+      execute('getMigrationBatch', path: <String, Object?>{'batchId': batchId}, query: query);
+
   Future<Object?> getMneReport({required String id, Map<String, Object?>? query}) =>
       execute('getMneReport', path: <String, Object?>{'id': id}, query: query);
 
@@ -1797,6 +1800,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listMaturityRubrics({Map<String, Object?>? query}) =>
       execute('listMaturityRubrics', query: query);
+
+  Future<Object?> listMigrationBatches({Map<String, Object?>? query}) =>
+      execute('listMigrationBatches', query: query);
 
   Future<Object?> listMneEvaluationProjects({Map<String, Object?>? query}) =>
       execute('listMneEvaluationProjects', query: query);

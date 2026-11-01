@@ -60,6 +60,8 @@ export const JOB_INTERVAL_SECONDS = {
   'issue-sla': 900,
   // Every minute: a reorganisation of organisation units that is being applied and whose day has come is carried out, a step at a time (ST-ADM-015); the pass is idempotent.
   'unit-reorganization': 60,
+  // Every minute: a dry run of a conversion batch that was asked for, and an apply that was approved, are carried out, the apply lot by lot (ST-ADM-020); the pass is idempotent.
+  'adm-migration': 60,
   // Every minute: a delegation whose first instant has come is put in force, one whose window ended or whose delegator lost the authority it passed on is Ended (ST-ADM-014); the pass is idempotent.
   'delegation-lifecycle': 60,
   // Every minute: an approved support access grant whose first instant has come is put in force, one whose window ended is Expired and a request nobody decided on within a week lapses (ST-SAS-015); the pass is idempotent.
@@ -272,6 +274,8 @@ export interface StandardJobDeps {
   issueSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaPassResult> };
   /** The pass over the reorganisations of organisation units of a tenant (ST-ADM-015): carries out the ones whose day has come; tells how many have stopped on a step, for the gauge. */
   unitReorganization?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ stopped: number }> };
+  /** The pass over the conversion batches of a tenant (ST-ADM-020): the dry runs and the applies that were asked for; without the object store the files are read from, it is not scheduled. */
+  admMigration?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<unknown> };
   /** The pass over the delegations of a tenant that are not over (ST-ADM-014): puts the waiting ones in force and ends the ones whose window or source is over; tells how many are in force, for the gauge. */
   delegationLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DelegationPassResult> };
   /** The pass over the support access grants of a tenant (ST-SAS-015): puts the approved ones in force, ends the ones whose window is over, lapses the requests nobody decided on; tells how many are in force, for the gauge. */
@@ -611,6 +615,17 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
           metrics.gauge(REORGANIZATION_FAILED_GAUGE, stopped);
         }
+      },
+    });
+  }
+  const migrations = deps.admMigration;
+  if (migrations !== undefined) {
+    handlers.push({
+      name: 'adm-migration',
+      run: async () => {
+        await eachTenant(await deps.tenantIds(), async (tenantId) => {
+          await migrations.run(workerContext(tenantId));
+        });
       },
     });
   }

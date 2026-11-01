@@ -14,6 +14,7 @@ import { IntegrationInboxController } from './integration-inbox.controller';
 import { IntegrationConnectorReadsController, IntegrationInboxReadsController } from './integration-reads.controller';
 import { LegalHoldReadsController, LegalHoldsController } from './legal-holds.controller';
 import { MembersController } from './members.controller';
+import { MigrationBatchReadsController, MigrationBatchesController } from './migration-batch.controller';
 import { RetentionPoliciesController } from './retention-policy.controller';
 import { RetentionPolicyReadsController, RetentionReviewReadsController } from './retention-reads.controller';
 import { SecurityPoliciesController, SecurityPolicyReadsController } from './security-policy.controller';
@@ -41,6 +42,8 @@ export const admModule = defineModule({
     IntegrationInboxController,
     IntegrationInboxReadsController,
     MembersController,
+    MigrationBatchesController,
+    MigrationBatchReadsController,
     GuestContractorController,
     SigningCertificatesController,
     SigningCertificateReadsController,

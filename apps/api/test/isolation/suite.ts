@@ -107,6 +107,24 @@ export const MERGE_FIXTURES: Readonly<Record<TenantName, { mergedRecordId: strin
   },
 };
 
+/** A conversion batch of each tenant that passed its dry run (distinctive ids, hash, entity and object key; tenant data). */
+export const MIGRATION_FIXTURES: Readonly<Record<TenantName, { id: string; entity: string; fileSha256: string; storageKey: string; sourceSystem: string }>> = {
+  'TNT-A': {
+    id: '00000000-0000-4000-a012-000000000001',
+    entity: 'ALPHA_LEGACY_LEDGER',
+    fileSha256: 'a4'.repeat(32),
+    storageKey: 'tenants/00000000-0000-4000-8000-00000000000a/import/alpha-conversion-0001',
+    sourceSystem: 'ALPHA-LEGACY-ERP',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b012-000000000001',
+    entity: 'BETA_LEGACY_LEDGER',
+    fileSha256: 'b4'.repeat(32),
+    storageKey: 'tenants/00000000-0000-4000-8000-00000000000b/import/beta-conversion-0001',
+    sourceSystem: 'BETA-LEGACY-ERP',
+  },
+};
+
 /** A bulk import batch of each tenant, waiting for its review (the file hash and the object key are distinctive). */
 export const MASTER_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; fileSha256: string; fileObjectKey: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a011-000000000001', fileSha256: 'a3'.repeat(32), fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000a/import/alpha-catalogue-0001' },
@@ -1462,6 +1480,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'merged master record id', value: MERGE_FIXTURES[tenant].mergedRecordId },
     { kind: 'merged master business key', value: MERGE_FIXTURES[tenant].mergedBusinessKey },
     { kind: 'master merge id', value: MERGE_FIXTURES[tenant].mergeId },
+    { kind: 'migration batch id', value: MIGRATION_FIXTURES[tenant].id },
+    { kind: 'migration batch entity', value: MIGRATION_FIXTURES[tenant].entity },
+    { kind: 'migration batch file hash', value: MIGRATION_FIXTURES[tenant].fileSha256 },
+    { kind: 'migration batch object key', value: MIGRATION_FIXTURES[tenant].storageKey },
+    { kind: 'migration batch source system', value: MIGRATION_FIXTURES[tenant].sourceSystem },
     { kind: 'survivorship rule id', value: MERGE_FIXTURES[tenant].ruleId },
     { kind: 'survivorship attribute', value: MERGE_FIXTURES[tenant].attribute },
     { kind: 'master import file hash', value: MASTER_IMPORT_FIXTURES[tenant].fileSha256 },

@@ -120,6 +120,8 @@ export interface MatrixTargets {
   masterMergedRecordId: string;
   masterMergeId: string;
   survivorshipRuleId: string;
+  /** A conversion batch of tenant A that passed its dry run (version 1): the commands over a batch act on it. */
+  migrationBatchId: string;
   masterDraftChangeId: string;
   masterReviewChangeId: string;
   /** An IN_REVIEW import batch of tenant A. */
@@ -752,6 +754,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   createSurvivorshipRuleVersion: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/survivorship-rules', body: { master_type: 'MATRIX', attribute_name: 'phone', strategy: 'SOURCE_PRIORITY', source_priority: ['NATIONAL', 'TENANT'], effective_from: '2026-01-01' } }),
+  },
+  uploadMigrationFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/migration-batches/files', body: {} }),
+  },
+  registerMigrationBatch: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/migration-batches', body: { source_system: 'LEGACY-ERP', target_entity: 'MATRIX', file_id: t.migrationBatchId, mapping_version: 'GENERIC-1' } }),
+  },
+  dryRunMigrationBatch: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/migration-batches/${t.migrationBatchId}/dry-run`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  applyMigrationBatch: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/migration-batches/${t.migrationBatchId}/apply`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  rollbackMigrationBatch: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/migration-batches/${t.migrationBatchId}/rollback`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   publishSurvivorshipRule: {
     referencesTenantIds: true,

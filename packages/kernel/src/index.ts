@@ -1618,3 +1618,5 @@ export { COVERAGE_CALENDAR, MAX_COVERAGE_DAYS, SIGN_ALLOWED_WORKING_DAYS, covera
 export type { Coverage, CoverageDay, CoverageDiary, CoverageRange, CoverageState, CoverageTotals } from './qms-coverage.ts';
 export { LABEL_ATTRIBUTE, attributeKey, SURVIVORSHIP_STRATEGIES, checkSurvivorshipRule, mergeRecords, unmergeSurvivor } from './master-merge.ts';
 export type { AttributeDecision, DecisionBy, MergeRecord, MergeResult, MergeSide, SurvivorshipRuleInput, SurvivorshipStrategy, UnmergeInput, UnmergeResult } from './master-merge.ts';
+export { MAX_MIGRATION_ROWS, MIGRATION_ENTITY_PATTERN, MIGRATION_LOT_SIZE, MIGRATION_MAPPINGS, MIGRATION_TABULAR_LIMITS, checkReferences, checkRegistration, judgeMigrationFile, migrationMappingOf, totalsMatch } from './migration-batch.ts';
+export type { ControlTotals, JudgedRow, MigrationJudgement, MigrationMapping, MigrationReference, RowError } from './migration-batch.ts';

@@ -25,6 +25,7 @@ import {
   DATA_CONTRACT_FIXTURES,
   MATURITY_FIXTURES,
   MERGE_FIXTURES,
+  MIGRATION_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -315,6 +316,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'unmergeMasterRecords',
   'listSurvivorshipRules',
   'listMasterMerges',
+  'uploadMigrationFile',
+  'registerMigrationBatch',
+  'dryRunMigrationBatch',
+  'applyMigrationBatch',
+  'rollbackMigrationBatch',
+  'listMigrationBatches',
+  'getMigrationBatch',
   'searchMasterRecords',
   'getMasterRecordUsages',
   'recordMasterSuccession',
@@ -1351,6 +1359,9 @@ const INSERT_MASTER_CHANGE = `insert into machvon.master_change_request
 const MERGE_INSERT_MERGE = `insert into machvon.master_merge
   (tenant_id, id, survivor_record_id, merged_record_id, survivorship_json, alias_json, repointed_refs_json, reason, change_request_id, status, applied_at, created_by, updated_by)
   values ($1, $2, $3, $4, '{"decisions":[],"overrides":{}}'::jsonb, '{}'::jsonb, '[]'::jsonb, 'isolation fixture merge', $5, 'APPLIED', now(), $6, $6) on conflict do nothing`;
+const MIGRATION_INSERT_BATCH = `insert into machvon.migration_batch
+  (tenant_id, id, source_system, target_entity, file_sha256, file_storage_key, mapping_version, row_count, status, created_by)
+  values ($1, $2, $3, $4, $5, $6, 'GENERIC-1', 0, 'DryRunPassed', $7) on conflict do nothing`;
 const MERGE_INSERT_RULE = `insert into machvon.survivorship_rule
   (tenant_id, id, master_type, attribute_name, strategy, source_priority, revision, status, effective_from, created_by, updated_by)
   values ($1, $2, 'ISOLATION', $3, 'SOURCE_PRIORITY', ARRAY['NATIONAL', 'TENANT'], 1, 'DRAFT', '2026-01-01', $4, $4) on conflict do nothing`;
@@ -2053,6 +2064,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_MASTER_RECORD, [tenantId, merge.mergedRecordId, merge.mergedBusinessKey, ACTOR_ID]);
     await client.query(MERGE_INSERT_MERGE, [tenantId, merge.mergeId, master.recordId, merge.mergedRecordId, master.changeId, ACTOR_ID]);
     await client.query(MERGE_INSERT_RULE, [tenantId, merge.ruleId, merge.attribute, ACTOR_ID]);
+    const migration = MIGRATION_FIXTURES[tenant];
+    await client.query(MIGRATION_INSERT_BATCH, [tenantId, migration.id, migration.sourceSystem, migration.entity, migration.fileSha256, migration.storageKey, ACTOR_ID]);
     const batch = MASTER_IMPORT_FIXTURES[tenant];
     await client.query(INSERT_MASTER_IMPORT, [tenantId, batch.id, batch.fileObjectKey, batch.fileSha256, ACTOR_ID]);
     const crosswalk = CROSSWALK_FIXTURES[tenant];

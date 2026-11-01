@@ -349,6 +349,8 @@ export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChan
 export { BASELINE_POLICIES, MASTER_REFERENCES, MasterStore, contentHashOf } from './master-store.ts';
 export { MASTER_MERGE_RESOURCE, MasterMergeStore, SURVIVORSHIP_RULE_RESOURCE } from './master-merge-store.ts';
 export type { MasterMerge, MasterMergeOutcome, Page as MasterPage, RepointedReference, SurvivorshipRule, MasterUnmergeOutcome } from './master-merge-store.ts';
+export { AdmMigrationStore, MIGRATION_BATCH_RESOURCE, MIGRATION_STATUSES } from './adm-migration-store.ts';
+export type { DryRunOutcome, MigrationBatch, MigrationErrorRow, MigrationPage, MigrationStatus } from './adm-migration-store.ts';
 export type {
   ChangeKind,
   ChangeRequestDetail,
