@@ -9,6 +9,11 @@ const IDEMPOTENCY_IN_PROGRESS = 'IDEMPOTENCY_IN_PROGRESS';
  * The server refused the request itself (a 4xx other than a timeout, a rate limit or a command still running): that answer is
  * final and the server replays it for the same idempotency key. A lost answer, a 5xx or a timeout is not final.
  */
+/** The server does not know who is asking (401): the request was not refused for what it says, and it can be sent again once the person has signed in again. */
+export function isSessionExpired(failure: unknown): boolean {
+  return failure instanceof ApiError && (failure.status === 401 || failure.code === 'SESSION_EXPIRED');
+}
+
 export function isDefinitiveRefusal(failure: unknown): boolean {
   if (!(failure instanceof ApiError)) return false;
   return failure.status >= 400 && failure.status < 500 && failure.status !== REQUEST_TIMEOUT && failure.status !== TOO_MANY_REQUESTS && failure.code !== IDEMPOTENCY_IN_PROGRESS;

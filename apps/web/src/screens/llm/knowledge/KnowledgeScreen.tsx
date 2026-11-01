@@ -9,6 +9,7 @@ import { useCollection, useCollections, useCreateCollection, useIndexItem } from
 import { classificationLabel, collectionStatusLabel, itemStatusLabel, problemMessage } from './labels';
 import { CLASSIFICATIONS, EMPTY_COLLECTION, MANAGE_PERMISSION, describeProblem, validateCollection, versionProblem } from './model';
 import type { Classification, Collection, CollectionField, CollectionForm, FormProblem } from './model';
+import { unchanged } from '../../unsent';
 
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
   mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(permission));
@@ -128,7 +129,7 @@ function CreatePanel() {
     send.mutate(form, {
       onSuccess: () => {
         setSaved(true);
-        setForm(EMPTY_COLLECTION);
+        setForm((current) => (unchanged(current, form) ? EMPTY_COLLECTION : current));
       },
     });
   };
@@ -212,7 +213,7 @@ function CollectionDetail({ collection, mayManage }: { collection: Collection; m
     const found = versionProblem(documentVersionId);
     setProblem(found);
     if (found !== undefined || index.isPending) return;
-    index.mutate({ collectionId: collection.id, documentVersionId }, { onSuccess: () => setVersion('') });
+    index.mutate({ collectionId: collection.id, documentVersionId }, { onSuccess: () => setVersion((current) => (current === documentVersionId ? '' : current)) });
   };
 
   return (

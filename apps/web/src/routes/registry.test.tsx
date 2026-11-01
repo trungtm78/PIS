@@ -5,13 +5,14 @@ import en from '../i18n/en.json';
 import vi from '../i18n/vi.json';
 import { NotFound } from './NotFound';
 import { resolveScreen, routeById, routeByPath } from './registry';
+import { screenModules } from './screens/index';
 import { WEB_ROUTES } from './web-routes.ts';
 import type { ScreenLoader, ScreenProps } from './types.ts';
 
-// A screen that stays unimplemented (the map of the projects is of the second release), so that the fallback is what is tested.
+// A screen that is not implemented yet and names its requirement, so that the fallback is what is tested: whichever one the table still holds, since every landed story takes one away.
 function home() {
-  const route = routeById('HOME-05');
-  if (route === undefined) throw new Error('HOME-05 missing from the route table');
+  const route = WEB_ROUTES.find((candidate) => screenModules[candidate.id] === undefined && candidate.req !== null);
+  if (route === undefined) throw new Error('every screen of the route table is implemented');
   return route;
 }
 
@@ -35,20 +36,20 @@ describe('route lookup', () => {
 
 describe('resolveScreen', () => {
   it('renders the not-implemented screen with title, id and requirement for a screen without an implementation', () => {
-    const Screen = resolveScreen('HOME-05');
+    const Screen = resolveScreen(home().id);
     render(<Screen route={home()} />);
     expect(screen.getByRole('heading', { level: 1, name: home().title })).toBeInTheDocument();
     expect(screen.getByText(vi['shell.screen.notImplemented.title'])).toBeInTheDocument();
     expect(screen.getByText(vi['shell.screen.notImplemented.body'])).toBeInTheDocument();
-    expect(screen.getByText('HOME-05')).toBeInTheDocument();
-    expect(screen.getByText(/FR-HOME-05/)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveAttribute('data-screen-id', 'HOME-05');
+    expect(screen.getByText(home().id)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(home().req ?? ''))).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('data-screen-id', home().id);
     // The browser harness tells a fallback from a real screen by this marker.
     expect(screen.getByRole('status')).toHaveAttribute('data-not-implemented');
   });
 
   it('omits the requirement when the route has none', () => {
-    const Screen = resolveScreen('HOME-05');
+    const Screen = resolveScreen(home().id);
     render(<Screen route={{ ...home(), req: null }} />);
     expect(screen.queryByText(/FR-/)).not.toBeInTheDocument();
   });
@@ -56,20 +57,20 @@ describe('resolveScreen', () => {
   it('loads a registered implementation lazily and gives the same component for the same loader', async () => {
     const Implemented = ({ route }: ScreenProps) => <h1>{`Implemented ${route.id}`}</h1>;
     const loader: ScreenLoader = () => Promise.resolve({ default: Implemented });
-    const modules = { 'HOME-05': loader };
-    const Screen = resolveScreen('HOME-05', modules);
-    expect(resolveScreen('HOME-05', modules)).toBe(Screen);
+    const modules = { [home().id]: loader };
+    const Screen = resolveScreen(home().id, modules);
+    expect(resolveScreen(home().id, modules)).toBe(Screen);
     render(
       <Suspense fallback={<p>waiting</p>}>
         <Screen route={home()} />
       </Suspense>,
     );
-    expect(await screen.findByRole('heading', { name: 'Implemented HOME-05' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: `Implemented ${home().id}` })).toBeInTheDocument();
   });
 
   it('keeps the fallback for ids the registry does not hold', () => {
     const modules = { 'ADM-01': (() => Promise.resolve({ default: () => null })) as ScreenLoader };
-    expect(resolveScreen('HOME-05', modules)).not.toBe(resolveScreen('ADM-01', modules));
+    expect(resolveScreen(home().id, modules)).not.toBe(resolveScreen('ADM-01', modules));
   });
 });
 

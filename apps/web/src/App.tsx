@@ -23,6 +23,7 @@ import { PublishedThemeProvider } from './theme/PublishedThemeProvider';
 
 const HOME = 'HOME-01';
 const CHOOSER = 'IAM-04';
+const SIGN_IN_SCREENS: ReadonlySet<string> = new Set(['IAM-01', 'IAM-02', 'IAM-03']);
 
 export interface AppRoutesProps {
   /** Screen implementations by id; defaults to the registry. Tests pass their own. */
@@ -61,11 +62,13 @@ function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: 
       </section>
     );
   }
-  // A real sign-in: nobody is signed in yet (offer the way in), or the person is known but has not chosen a tenant yet.
-  if (session.status === 'signedOut' && session.signIn !== undefined) return <SignInGate />;
-  if (session.tenant === undefined && route.id !== CHOOSER) {
-    if (session.status === 'identified') return <Navigate to={`${routeById(CHOOSER)?.path ?? '/'}?next=${encodeURIComponent(`${location.pathname}${location.search}`)}`} replace />;
-    return <StateBoundary state="signedOut" />;
+  // A real sign-in: nobody is signed in yet (offer the way in), or the person is known but has not chosen a tenant yet. The sign-in screens (IAM-01 to IAM-03) are where such a person goes, so neither stands in front of them.
+  if (!SIGN_IN_SCREENS.has(route.id)) {
+    if (session.status === 'signedOut' && session.signIn !== undefined) return <SignInGate />;
+    if (session.tenant === undefined && route.id !== CHOOSER) {
+      if (session.status === 'identified') return <Navigate to={`${routeById(CHOOSER)?.path ?? '/'}?next=${encodeURIComponent(`${location.pathname}${location.search}`)}`} replace />;
+      return <StateBoundary state="signedOut" />;
+    }
   }
   const Screen = resolveScreen(route.id, screenModules);
   return (

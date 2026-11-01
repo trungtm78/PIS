@@ -6,6 +6,7 @@ import { useCreateTicket } from './hooks';
 import { categoryLabel, fieldMessage, problemMessage } from './labels';
 import { CATEGORIES, DESCRIPTION_MAX, EMPTY_FORM, SUBJECT_MAX, describeProblem, hasErrors, ticketBody, validateTicket } from './model';
 import type { Category, TicketErrors, TicketField, TicketForm as TicketFormValue } from './model';
+import { unchanged } from '../../unsent';
 
 export interface TicketFormProps {
   /** Told with the id of the ticket once it is raised, so the list can say its code. */
@@ -46,7 +47,7 @@ export function TicketForm({ onRaised }: TicketFormProps) {
     if (hasErrors(found)) return;
     create.mutate(ticketBody(form), {
       onSuccess: (result) => {
-        setForm({ ...EMPTY_FORM, category: form.category });
+        setForm((current) => (unchanged(current, form) ? { ...EMPTY_FORM, category: form.category } : current));
         onRaised(result.resource_id);
       },
     });

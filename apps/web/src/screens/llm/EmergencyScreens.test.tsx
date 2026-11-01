@@ -1,5 +1,5 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
-import { cleanup, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
@@ -55,7 +55,9 @@ function client(answer: (operation: string, input: unknown) => unknown, command:
 }
 function withSwitches(switches: unknown[] | Error, command: (operation: string, input: unknown) => unknown = () => ({})) {
   const h = client(() => new Error('unexpected read'), command);
-  const readAll = vi.fn((operation: string) => (operation === 'listAiKillSwitches' ? (switches instanceof Error ? Promise.reject(switches) : Promise.resolve(switches)) : Promise.reject(new Error(`unexpected readAll ${operation}`))));
+  const readAll = vi.fn((operation: string) =>
+    operation === 'listAiKillSwitches' ? (switches instanceof Error ? Promise.reject(switches) : Promise.resolve(switches)) : Promise.reject(new Error(`unexpected readAll ${operation}`)),
+  );
   (h.client as unknown as { readAll: typeof readAll }).readAll = readAll;
   return Object.assign(h, { readAll });
 }
@@ -82,7 +84,11 @@ describe('the pure rules of the emergency screens (ST-LLM-006)', () => {
     expect(validateEngage({ ...ok, scope: 'TASK_TYPE', scopeRef: 'SUMMARY' })).toEqual({});
     expect(validateEngage({ ...ok, reason: 'short' })).toEqual({ reason: 'shortReason' });
     expect(engageBody({ ...ok, scopeRef: 'ignored' })).toEqual({ scope_kind: 'TENANT', reason: 'Suspected leak of data' });
-    expect(engageBody({ scope: 'PROFILE', scopeRef: ' BID_ANALYSIS ', reason: ' Suspected leak of data ' })).toEqual({ scope_kind: 'PROFILE', scope_ref: 'BID_ANALYSIS', reason: 'Suspected leak of data' });
+    expect(engageBody({ scope: 'PROFILE', scopeRef: ' BID_ANALYSIS ', reason: ' Suspected leak of data ' })).toEqual({
+      scope_kind: 'PROFILE',
+      scope_ref: 'BID_ANALYSIS',
+      reason: 'Suspected leak of data',
+    });
   });
 
   it('reads a decision and a page of decisions, and asks the server only for the filter that was chosen', () => {
@@ -97,7 +103,14 @@ describe('the pure rules of the emergency screens (ST-LLM-006)', () => {
 
 describe('LLM-18 emergency stop (ST-LLM-006, LLM F7, BR-LLM-12)', () => {
   it('AC-ST-LLM-006-1: UAT-AC21 shows each switch with its scope, reason, who engaged it, how many requests it stopped, and whether it is released and by whom', async () => {
-    const released = rawSwitch(2, { scope_kind: 'TENANT', scope_ref: null, state: 'RELEASED', release_approved_by: id(902), released_at: '2026-10-28T11:00:00.000Z', release_reason: 'The cause was found and fixed' });
+    const released = rawSwitch(2, {
+      scope_kind: 'TENANT',
+      scope_ref: null,
+      state: 'RELEASED',
+      release_approved_by: id(902),
+      released_at: '2026-10-28T11:00:00.000Z',
+      release_reason: 'The cause was found and fixed',
+    });
     mount(<KillSwitchScreen route={CONSOLE} />, withSwitches([rawSwitch(1), released]), { permissions: SECURITY });
     const table = await screen.findByTestId('switch-table');
     const rows = within(table).getAllByRole('row').slice(1);
@@ -147,9 +160,33 @@ describe('LLM-18 emergency stop (ST-LLM-006, LLM F7, BR-LLM-12)', () => {
     await waitFor(() => expect(h.readAll.mock.calls.filter((call) => call[0] === 'listAiKillSwitches').length).toBeGreaterThan(1));
   });
 
+  it('keeps what was typed for the next stop while one is being engaged, and asks for the confirmation again', async () => {
+    const user = userEvent.setup();
+    let settle: () => void = () => undefined;
+    const h = withSwitches([], () => new Promise((resolve) => (settle = () => resolve({ status: 'ENGAGED', affected_requests: 1, cancelled: 1, killed_pending: 0 }))));
+    mount(<KillSwitchScreen route={CONSOLE} />, h, { permissions: SECURITY });
+    const form = await screen.findByRole('form', { name: vi_['llm.emergency.form.title'] });
+    const reason = within(form).getByLabelText(vi_['llm.emergency.form.reason']) as HTMLTextAreaElement;
+    await user.type(reason, 'Suspected leak of data through the output');
+    await user.click(within(form).getByLabelText(vi_['llm.emergency.form.confirm']));
+    await user.click(within(form).getByRole('button', { name: vi_['llm.emergency.form.submit'] }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    fireEvent.submit(form);
+    await user.type(reason, ' and a second one');
+    await act(async () => settle());
+    await screen.findByTestId('engage-done');
+    expect(reason.value).toBe('Suspected leak of data through the output and a second one');
+    expect((within(form).getByLabelText(vi_['llm.emergency.form.confirm']) as HTMLInputElement).checked).toBe(false);
+    expect(h.command).toHaveBeenCalledTimes(1);
+  });
+
   it('puts the refusal of a second stop of the same scope in words', async () => {
     const user = userEvent.setup();
-    mount(<KillSwitchScreen route={CONSOLE} />, withSwitches([], () => failure(409, 'KILL_SWITCH_ALREADY_ENGAGED')), { permissions: SECURITY });
+    mount(
+      <KillSwitchScreen route={CONSOLE} />,
+      withSwitches([], () => failure(409, 'KILL_SWITCH_ALREADY_ENGAGED')),
+      { permissions: SECURITY },
+    );
     const form = await screen.findByRole('form', { name: vi_['llm.emergency.form.title'] });
     await user.type(within(form).getByLabelText(vi_['llm.emergency.form.reason']), 'Suspected leak of data through the output');
     await user.click(within(form).getByLabelText(vi_['llm.emergency.form.confirm']));
@@ -212,7 +249,11 @@ describe('LLM-18 emergency stop (ST-LLM-006, LLM F7, BR-LLM-12)', () => {
 describe('LLM-20 human decision records (ST-LLM-006, LLM F8)', () => {
   it('AC-ST-LLM-006-2: UAT-AC468 shows each decision with who decided, about what, the action, the decision, the rationale, a link to the answer and where it was applied', async () => {
     const world = page([rawDecision(1), rawDecision(2, { decision: 'REJECTED', action_kind: 'DECISION', subject_module: 'BID', applied_operation_id: null, applied_resource_version: null })]);
-    mount(<DecisionLogScreen route={LOG} />, client(() => world), { permissions: AUDITOR });
+    mount(
+      <DecisionLogScreen route={LOG} />,
+      client(() => world),
+      { permissions: AUDITOR },
+    );
     const table = await screen.findByTestId('decision-table');
     const rows = within(table).getAllByRole('row').slice(1);
     expect(rows[0]?.textContent).toContain('2026-10-28');
@@ -221,7 +262,11 @@ describe('LLM-20 human decision records (ST-LLM-006, LLM F8)', () => {
     expect(rows[0]?.textContent).toContain(vi_['llm.decision.acceptedWithChange']);
     expect(rows[0]?.textContent).toContain('The amount was checked against the ledger and corrected');
     expect(rows[0]?.textContent).toContain(fill(vi_['llm.decisions.applied'], { operation: 'approvePaymentAlert', version: '7' }));
-    expect(within(rows[0] as HTMLElement).getByRole('link').getAttribute('href')).toBe(`/llm/llm-05?request=${id(50)}`);
+    expect(
+      within(rows[0] as HTMLElement)
+        .getByRole('link')
+        .getAttribute('href'),
+    ).toBe(`/llm/llm-05?request=${id(50)}`);
     expect(within(rows[0] as HTMLElement).getByRole('link').textContent).toBe('a'.repeat(12));
     expect(rows[1]?.textContent).toContain(vi_['llm.decision.rejected']);
     expect(rows[1]?.textContent).toContain(vi_['llm.decisions.notApplied']);
@@ -255,15 +300,27 @@ describe('LLM-20 human decision records (ST-LLM-006, LLM F8)', () => {
     ['error', failure(500, 'INTERNAL_ERROR'), vi_['states.error.title']],
     ['offline', new ApiError({ status: 0, code: NETWORK_ERROR_CODE, correlationId: 'c' }), vi_['states.offline.title']],
   ] as const)('UI-LLM-20 shows the %s state', async (_name, error, text) => {
-    mount(<DecisionLogScreen route={LOG} />, client(() => error), { permissions: AUDITOR });
+    mount(
+      <DecisionLogScreen route={LOG} />,
+      client(() => error),
+      { permissions: AUDITOR },
+    );
     expect((await screen.findAllByText(text)).length).toBeGreaterThan(0);
   });
 
   it('UI-LLM-20 says that no record matches, and shows the loading state first', async () => {
-    mount(<DecisionLogScreen route={LOG} />, client(() => page([])), { permissions: AUDITOR });
+    mount(
+      <DecisionLogScreen route={LOG} />,
+      client(() => page([])),
+      { permissions: AUDITOR },
+    );
     expect((await screen.findByTestId('decisions-none')).textContent).toBe(vi_['llm.decisions.none']);
     cleanup();
-    mount(<DecisionLogScreen route={LOG} />, harness(() => new Promise(() => undefined)), { permissions: AUDITOR });
+    mount(
+      <DecisionLogScreen route={LOG} />,
+      harness(() => new Promise(() => undefined)),
+      { permissions: AUDITOR },
+    );
     expect(screen.getByRole('status', { name: vi_['states.loading.label'] })).toBeTruthy();
     expect(screen.getByRole('region', { name: vi_['llm.decisions.page.title'] })).toBeTruthy();
   });

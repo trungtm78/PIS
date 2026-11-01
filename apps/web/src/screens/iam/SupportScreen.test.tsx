@@ -1,5 +1,5 @@
 import { ApiError } from '@machvon/api-client';
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
@@ -118,6 +118,22 @@ describe('SupportScreen (IAM-08): help and support requests', () => {
       expect(within(rowOf(9)).getByText(vi_['iam.support.priority.p1.label'])).toBeTruthy();
       expect((screen.getByLabelText(vi_['iam.support.form.subject.label']) as HTMLInputElement).value).toBe('');
       expect((screen.getByLabelText(vi_['iam.support.form.category.label']) as HTMLSelectElement).value).toBe('INCIDENT');
+    });
+
+    it('keeps what the person went on typing while the request is being sent', async () => {
+      let settle: () => void = () => undefined;
+      const h = client(world(), () => new Promise((resolve) => (settle = () => resolve(answer))));
+      mount(<SupportScreen route={ROUTE} />, h, { permissions: MEMBER });
+      await screen.findByRole('form', { name: vi_['iam.support.form.aria'] });
+      fill();
+      await send();
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+      set(vi_['iam.support.form.subject.label'], 'Một yêu cầu khác');
+      await act(async () => settle());
+      await screen.findByTestId('raised');
+      expect((screen.getByLabelText(vi_['iam.support.form.subject.label']) as HTMLInputElement).value).toBe('Một yêu cầu khác');
+      expect((screen.getByLabelText(vi_['iam.support.form.description.label']) as HTMLTextAreaElement).value).toContain('Từ sáng nay');
+      expect(h.command).toHaveBeenCalledTimes(1);
     });
 
     it('tells the request is sent even when the list does not show it yet', async () => {

@@ -22,6 +22,7 @@ import { useRegisterForecast, useScheduleLines } from './hooks';
 import { assumptionMessage } from './labels';
 import { ASSUMPTION_MAX, EAC_READ_PERMISSION, EMPTY_FORECAST, PLAN_PATH, READ_PERMISSION, estimatesOf, forecastBody, formOf, linkTo, mayRead, validateForecast } from './model';
 import type { ForecastErrors, ForecastField, ForecastForm, ScheduleLine } from './model';
+import { unchanged } from '../../unsent';
 
 /**
  * CAP-13: the entry of the estimated disbursement of a month (ST-CAP-012, CAP 3.1 F7): the investor picks a project and a year, and for a month and a source group types what is expected to be paid at the end of the period
@@ -197,7 +198,7 @@ function EntryForm({ projectId, year, estimates, form, setForm, locale }: FormPr
     register.mutate(forecastBody(form, projectId, year, locale), {
       onSuccess: () => {
         setSaved((before?.revision ?? 0) + 1);
-        setForm(() => EMPTY_FORECAST);
+        setForm((current) => (unchanged(current, form) ? EMPTY_FORECAST : current));
       },
     });
   };

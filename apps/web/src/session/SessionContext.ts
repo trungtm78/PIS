@@ -73,7 +73,7 @@ export interface SessionSignIn {
   /** READ_ONLY makes every screen drop its controls that change data. */
   mode?: SessionMode;
   /** Sends the browser to the identity provider; resolves only if it could not leave. */
-  signIn?(options?: { returnTo?: string; acrValues?: string }): Promise<void>;
+  signIn?(options?: { returnTo?: string; acrValues?: string; loginHint?: string }): Promise<void>;
   /** Forgets the identity and the tenant token. */
   signOut?(): void;
   /** Finishes the sign-in after the provider redirected back; resolves with the address to continue at. */

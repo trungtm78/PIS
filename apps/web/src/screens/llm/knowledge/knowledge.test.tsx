@@ -1,5 +1,5 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import { mountInSession } from '../../doc/test-support';
@@ -242,6 +242,45 @@ describe('KnowledgeScreen (LLM-16): the knowledge collections and what is indexe
     expect((await screen.findByTestId('create-saved')).textContent).toBe(word('llm.knowledge.create.saved'));
     expect(commandsCalled(h, 'createAiKnowledgeCollection')).toHaveLength(1);
     expect((document.getElementById('knowledge-code') as HTMLInputElement).value).toBe('');
+  });
+
+  it('keeps what was typed for the next collection while one is being created, and clears the form when nothing was changed', async () => {
+    let settle: () => void = () => undefined;
+    const h = open({ rows: [] }, { command: () => new Promise((resolve) => (settle = () => resolve({ operation_id: 'o', status: 'ACTIVE', resource_version: 1, resource_id: uuid(7) }))) });
+    await screen.findByTestId('no-collections');
+    type('knowledge-code', 'KB-PRJ');
+    type('knowledge-title', 'Hồ sơ thẩm định');
+    type('knowledge-module', 'PRJ');
+    type('knowledge-model', uuid(900));
+    fireEvent.click(screen.getByRole('button', { name: word('llm.knowledge.create.submit') }));
+    await waitFor(() => expect(commandsCalled(h, 'createAiKnowledgeCollection')).toHaveLength(1));
+    type('knowledge-code', 'KB-NEXT');
+    await act(async () => settle());
+    await screen.findByTestId('create-saved');
+    expect((document.getElementById('knowledge-code') as HTMLInputElement).value).toBe('KB-NEXT');
+    expect((document.getElementById('knowledge-title') as HTMLInputElement).value).toBe('Hồ sơ thẩm định');
+    expect(commandsCalled(h, 'createAiKnowledgeCollection')).toHaveLength(1);
+  });
+
+  it('keeps the version typed for the next document while one is being indexed, and clears the one that was indexed', async () => {
+    let settle: () => void = () => undefined;
+    const h = open(
+      { rows: [collection(1, { items: [] })] },
+      { command: () => new Promise((resolve) => (settle = () => resolve({ operation_id: 'o', status: 'INDEXED', resource_version: 1, resource_id: uuid(8) }))) },
+    );
+    await openCollection(1);
+    const form = within(detail()).getByRole('form', { name: word('llm.knowledge.index.title') });
+    type(`knowledge-version-${uuid(1)}`, uuid(555));
+    fireEvent.click(within(form).getByRole('button', { name: word('llm.knowledge.index.submit') }));
+    await waitFor(() => expect(commandsCalled(h, 'indexAiKnowledgeItem')).toHaveLength(1));
+    type(`knowledge-version-${uuid(1)}`, uuid(556));
+    await act(async () => settle());
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect((document.getElementById(`knowledge-version-${uuid(1)}`) as HTMLInputElement).value).toBe(uuid(556));
+    fireEvent.click(within(form).getByRole('button', { name: word('llm.knowledge.index.submit') }));
+    await waitFor(() => expect(commandsCalled(h, 'indexAiKnowledgeItem')).toHaveLength(2));
+    await act(async () => settle());
+    await waitFor(() => expect((document.getElementById(`knowledge-version-${uuid(1)}`) as HTMLInputElement).value).toBe(''));
   });
 
   it('indexes a document version: checked first, then sent, and a refusal (above the classification) is shown; an item is indexed again from its row', async () => {

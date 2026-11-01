@@ -73,44 +73,44 @@ function RoutingLog() {
     <section aria-labelledby="log-title" data-testid="log-section">
       <h2 id="log-title">{t('llm.routelog.log.title')}</h2>
       <p className="sub">{t('llm.routelog.log.subtitle')}</p>
-      <StateBoundary state={state} onRetry={() => void requests.refetch()}>
-        <div className="card">
-          <div className="mne-filters">
-            <Field id="log-status" label={t('llm.requests.filter.status')} error={undefined}>
-              <select id="log-status" value={filter.status} onChange={(event) => set('status', event.target.value)}>
-                <option value="">{t('llm.requests.filter.all')}</option>
-                {REQUEST_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {requestStatusLabel(t, status)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field id="log-route" label={t('llm.requests.filter.route')} error={undefined}>
-              <select id="log-route" value={filter.route} onChange={(event) => set('route', event.target.value)}>
-                <option value="">{t('llm.requests.filter.all')}</option>
-                {ROUTES.map((entry) => (
-                  <option key={entry} value={entry}>
-                    {routeLabel(t, entry)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field id="log-class" label={t('llm.requests.filter.classification')} error={undefined}>
-              <select id="log-class" value={filter.classification} onChange={(event) => set('classification', event.target.value)}>
-                <option value="">{t('llm.requests.filter.all')}</option>
-                {CLASSIFICATIONS.map((level) => (
-                  <option key={level} value={level}>
-                    {classificationLabel(t, level)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field id="log-task" label={t('llm.requests.filter.task')} error={undefined}>
-              <input id="log-task" value={filter.task} maxLength={60} onChange={(event) => set('task', event.target.value)} />
-            </Field>
-          </div>
+      <div className="card">
+        <div className="mne-filters">
+          <Field id="log-status" label={t('llm.requests.filter.status')} error={undefined}>
+            <select id="log-status" value={filter.status} onChange={(event) => set('status', event.target.value)}>
+              <option value="">{t('llm.requests.filter.all')}</option>
+              {REQUEST_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {requestStatusLabel(t, status)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field id="log-route" label={t('llm.requests.filter.route')} error={undefined}>
+            <select id="log-route" value={filter.route} onChange={(event) => set('route', event.target.value)}>
+              <option value="">{t('llm.requests.filter.all')}</option>
+              {ROUTES.map((entry) => (
+                <option key={entry} value={entry}>
+                  {routeLabel(t, entry)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field id="log-class" label={t('llm.requests.filter.classification')} error={undefined}>
+            <select id="log-class" value={filter.classification} onChange={(event) => set('classification', event.target.value)}>
+              <option value="">{t('llm.requests.filter.all')}</option>
+              {CLASSIFICATIONS.map((level) => (
+                <option key={level} value={level}>
+                  {classificationLabel(t, level)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field id="log-task" label={t('llm.requests.filter.task')} error={undefined}>
+            <input id="log-task" value={filter.task} maxLength={60} onChange={(event) => set('task', event.target.value)} />
+          </Field>
         </div>
+      </div>
+      <StateBoundary state={state} onRetry={() => void requests.refetch()}>
         <div className="tablewrap">
           <table className="table" data-testid="log-table" aria-label={t('llm.requests.table.aria')}>
             <thead>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -13,6 +13,7 @@ import { engageProblemMessage, killScopeLabel, killStateLabel } from './eval-lab
 import { useEngageKillSwitch, useKillSwitches, useReleaseKillSwitch } from './hooks';
 import { refusalMessage } from './labels';
 import { describeLlmProblem, vietnamDay } from './llm-model';
+import { unchanged } from '../unsent';
 
 /**
  * LLM-18: the emergency stop of the AI gateway (ST-LLM-006, LLM F7, BR-LLM-12): the switches there are, by scope (the whole tenant, a provider, a model, a profile or a task), why each was engaged and by whom, how many requests it
@@ -160,6 +161,10 @@ function EngageForm() {
   const [errors, setErrors] = useState<EngageErrors>({});
   const [confirmed, setConfirmed] = useState(false);
   const [unconfirmed, setUnconfirmed] = useState(false);
+  const latest = useRef(values);
+  useEffect(() => {
+    latest.current = values;
+  });
   const refused = engage.isError ? describeLlmProblem(engage.error) : undefined;
   const set = <K extends keyof EngageValues>(field: K, value: EngageValues[K]): void => {
     setValues((previous) => ({ ...previous, [field]: value }));
@@ -179,7 +184,8 @@ function EngageForm() {
     }
     engage.mutate(values, {
       onSuccess: () => {
-        setValues(EMPTY_ENGAGE);
+        // What was typed for the next stop while this one was being engaged was never sent, and stays; the confirmation was for the stop that was sent, so the next one is confirmed again.
+        if (unchanged(latest.current, values)) setValues(EMPTY_ENGAGE);
         setConfirmed(false);
       },
     });
@@ -216,7 +222,12 @@ function EngageForm() {
           </select>
         </Field>
         {values.scope === 'TENANT' ? null : (
-          <Field id="kill-ref" label={t('llm.emergency.form.ref')} error={message('scopeRef')} hint={values.scope === 'PROVIDER' || values.scope === 'MODEL' ? t('llm.emergency.form.refId') : t('llm.emergency.form.refName')}>
+          <Field
+            id="kill-ref"
+            label={t('llm.emergency.form.ref')}
+            error={message('scopeRef')}
+            hint={values.scope === 'PROVIDER' || values.scope === 'MODEL' ? t('llm.emergency.form.refId') : t('llm.emergency.form.refName')}
+          >
             <input id="kill-ref" value={values.scopeRef} maxLength={120} onChange={(event) => set('scopeRef', event.target.value)} />
           </Field>
         )}

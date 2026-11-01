@@ -46,25 +46,25 @@ export function useRetirePolicy() {
 }
 
 /** The issue categories that are in force, for the choice of the category a policy is written for (MDM-17). */
-export function useCategories() {
+export function useCategories(enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<CategoryOption[]>({
     queryKey: [...issRoot(tenant?.id), 'categories'],
     queryFn: async () => (await client.readAll('searchMasterRecords', { query: { master_type: ISSUE_CATEGORY_TYPE } })).flatMap((raw) => toCategory(raw) ?? []),
-    enabled: tenant !== undefined,
+    enabled: enabled && tenant !== undefined,
     retry: false,
   });
 }
 
 /** The units of the tenant that the caller may read, for the choice of the unit a policy is written for. */
-export function useUnits() {
+export function useUnits(enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<UnitOption[]>({
     queryKey: [...issRoot(tenant?.id), 'units'],
     queryFn: async () => (await client.readAll('get_resources_organization_unit')).flatMap((raw) => toUnit(raw) ?? []),
-    enabled: tenant !== undefined,
+    enabled: enabled && tenant !== undefined,
     retry: false,
   });
 }

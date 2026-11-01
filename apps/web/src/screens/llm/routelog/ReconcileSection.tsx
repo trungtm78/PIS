@@ -32,21 +32,21 @@ export function ReconcileSection() {
       <h2 id="reconcile-title">{t('llm.routelog.rec.title')}</h2>
       <p className="sub">{t('llm.routelog.rec.subtitle')}</p>
       <RunPanel />
-      <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="card">
-          <div className="mne-filters">
-            <Field id="reconcile-status" label={t('llm.routelog.rec.filter')} error={undefined}>
-              <select id="reconcile-status" value={status} onChange={(event) => setStatus(event.target.value)}>
-                <option value="">{t('llm.requests.filter.all')}</option>
-                {RECONCILIATION_STATUSES.map((entry) => (
-                  <option key={entry} value={entry}>
-                    {statusLabel(t, entry)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
+      <div className="card">
+        <div className="mne-filters">
+          <Field id="reconcile-status" label={t('llm.routelog.rec.filter')} error={undefined}>
+            <select id="reconcile-status" value={status} onChange={(event) => setStatus(event.target.value)}>
+              <option value="">{t('llm.requests.filter.all')}</option>
+              {RECONCILIATION_STATUSES.map((entry) => (
+                <option key={entry} value={entry}>
+                  {statusLabel(t, entry)}
+                </option>
+              ))}
+            </select>
+          </Field>
         </div>
+      </div>
+      <StateBoundary state={state} onRetry={() => void list.refetch()}>
         {rows.length === 0 ? (
           <p data-testid="reconcile-none">{t('llm.routelog.rec.none')}</p>
         ) : (

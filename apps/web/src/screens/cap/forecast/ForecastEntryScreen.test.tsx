@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import ForecastEntryScreen from './ForecastEntryScreen';
 import { FAILURES, PROJECT_A, PROJECT_B, YEAR, allReadsOf, estimateAnswer, lineRow, millions, mount, open, problem, readsOf, routeOf, word } from './test-support';
@@ -93,6 +93,23 @@ describe('ForecastEntryScreen (CAP-13): the entry of the estimated disbursement'
     // The form starts over for the next estimate.
     expect((screen.getByLabelText(word('cap.estimate.amount.label')) as HTMLInputElement).value).toBe('');
     expect(readsOf(h, 'getDisbursementForecast').length).toBeGreaterThan(1);
+  });
+
+  it('keeps what the person went on typing while the estimate is being registered, and clears the form when nothing was changed', async () => {
+    let settle: () => void = () => undefined;
+    const h = show({ lines: [] }, REGISTRAR, { command: () => new Promise((resolve) => (settle = () => resolve(answer))) });
+    await screen.findByTestId('no-estimate');
+    type(word('cap.estimate.month.label'), '13');
+    type(word('cap.estimate.amount.label'), '0,5');
+    type(word('cap.estimate.assumption.label'), 'Vốn kéo dài');
+    save();
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    type(word('cap.estimate.amount.label'), '0,7');
+    await act(async () => settle());
+    await screen.findByTestId('saved');
+    expect((screen.getByLabelText(word('cap.estimate.amount.label')) as HTMLInputElement).value).toBe('0,7');
+    expect((screen.getByLabelText(word('cap.estimate.assumption.label')) as HTMLTextAreaElement).value).toBe('Vốn kéo dài');
+    expect(h.command).toHaveBeenCalledTimes(1);
   });
 
   it('enters a first estimate for another source group and budget level, as exact VND, and says it is the first revision', async () => {

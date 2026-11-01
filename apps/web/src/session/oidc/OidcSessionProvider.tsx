@@ -5,8 +5,9 @@ import type { ReactNode } from 'react';
 import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import { BASE_THEME } from '../../theme/ThemeProvider';
 import { SessionContext } from '../SessionContext';
-import type { SessionIdentity, SessionMode, SessionStatus, SessionTenant, SessionTenantToken, SessionUser, SessionValue, TenantCandidate } from '../SessionContext';
+import type { SessionAssurance, SessionIdentity, SessionMode, SessionStatus, SessionTenant, SessionTenantToken, SessionUser, SessionValue, TenantCandidate } from '../SessionContext';
 import { expiresAtMs, payloadOf, renewalDelayMs } from '../tenant-token';
+import { assuranceOfClaims } from './assurance';
 import { OidcError, buildAuthorizationRequest, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
 import type { IdentityTokens, LoginStore, OidcConfig, OidcEndpoints } from './client';
 import type { RandomOctets } from './pkce';
@@ -63,9 +64,17 @@ function isDefinitive(failure: unknown): boolean {
 }
 
 function initialsOf(name: string): string {
-  const words = name.trim().split(/\s+/).filter((word) => word !== '');
+  const words = name
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word !== '');
   const letters = words.length > 1 ? [words[0], words[words.length - 1]] : [words[0]];
-  return letters.map((word) => word?.[0] ?? '').join('').toUpperCase() || '?';
+  return (
+    letters
+      .map((word) => word?.[0] ?? '')
+      .join('')
+      .toUpperCase() || '?'
+  );
 }
 
 function monogramOf(name: string): string {
@@ -85,7 +94,18 @@ function userOf(claims: Record<string, unknown> | undefined): { identity: Sessio
  * `selectTenantContext`. Both tokens live in memory only: a reload signs in again (the provider's own session makes
  * that a redirect and back). The tenant access token is renewed one minute before it expires without touching the tree.
  */
-export default function OidcSessionProvider({ config, children, apiBaseUrl = '', endpoints: knownEndpoints, loginStore, redirect, apiFetch, tokenFetch, now = Date.now, random }: OidcSessionProviderProps) {
+export default function OidcSessionProvider({
+  config,
+  children,
+  apiBaseUrl = '',
+  endpoints: knownEndpoints,
+  loginStore,
+  redirect,
+  apiFetch,
+  tokenFetch,
+  now = Date.now,
+  random,
+}: OidcSessionProviderProps) {
   const store = useMemo(() => loginStore ?? createLoginStore(), [loginStore]);
   const identityRef = useRef<HeldIdentity | undefined>(undefined);
   const tenantTokenRef = useRef<HeldTenantToken | undefined>(undefined);
@@ -105,6 +125,7 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
   const [tenants, setTenants] = useState<readonly SessionTenant[]>([]);
   const [mode, setMode] = useState<SessionMode | undefined>(undefined);
   const [tenantToken, setTenantToken] = useState<SessionTenantToken | undefined>(undefined);
+  const [assurance, setAssurance] = useState<SessionAssurance | undefined>(undefined);
 
   const clearRenewal = useCallback(() => {
     if (renewal.current !== undefined) clearTimeout(renewal.current);
@@ -140,12 +161,21 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
     setTenants([]);
     setMode(undefined);
     setTenantToken(undefined);
+    setAssurance(undefined);
   }, [clearRenewal]);
 
   const signIn = useCallback(
-    async (options?: { returnTo?: string; acrValues?: string }) => {
+    async (options?: { returnTo?: string; acrValues?: string; loginHint?: string }) => {
       const endpoints = await endpointsOf();
-      const request = await buildAuthorizationRequest({ ...config, ...(options?.acrValues === undefined ? {} : { acrValues: options.acrValues }) }, endpoints, random);
+      const request = await buildAuthorizationRequest(
+        {
+          ...config,
+          ...(options?.acrValues === undefined ? {} : { acrValues: options.acrValues }),
+          ...(options?.loginHint === undefined || options.loginHint === '' ? {} : { loginHint: options.loginHint }),
+        },
+        endpoints,
+        random,
+      );
       store.save({ state: request.state, nonce: request.nonce, verifier: request.verifier, returnTo: options?.returnTo ?? `${window.location.pathname}${window.location.search}` });
       (redirect ?? ((url: string) => window.location.assign(url)))(request.url);
     },
@@ -159,6 +189,7 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
       const person = userOf(payloadOf(tokens.idToken));
       setIdentity(person.identity);
       setUser(person.user);
+      setAssurance(assuranceOfClaims(payloadOf(tokens.idToken)));
     },
     [now],
   );
@@ -200,10 +231,15 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
 
   const apiClient = useCallback(
     (token: () => Promise<string | undefined>): ApiClient =>
-      createApiClient({ baseUrl: apiBaseUrl, headers: hostHeader, session: async () => {
-        const value = await token();
-        return value === undefined ? undefined : { token: value };
-      }, ...(apiFetch === undefined ? {} : { fetch: apiFetch }) }),
+      createApiClient({
+        baseUrl: apiBaseUrl,
+        headers: hostHeader,
+        session: async () => {
+          const value = await token();
+          return value === undefined ? undefined : { token: value };
+        },
+        ...(apiFetch === undefined ? {} : { fetch: apiFetch }),
+      }),
     [apiBaseUrl, apiFetch],
   );
 
@@ -315,6 +351,7 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
       requestStepUp,
       status,
       identity,
+      assurance,
       tenantToken,
       mode,
       signIn,
@@ -323,7 +360,7 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
       loadCandidates,
       selectTenant,
     }),
-    [tenant, tenants, user, switchTenant, getSession, requestStepUp, status, identity, tenantToken, mode, signIn, forgetEverything, completeSignIn, loadCandidates, selectTenant],
+    [tenant, tenants, user, switchTenant, getSession, requestStepUp, status, identity, assurance, tenantToken, mode, signIn, forgetEverything, completeSignIn, loadCandidates, selectTenant],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

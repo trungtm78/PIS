@@ -459,6 +459,19 @@ describe('RoutingLogScreen (LLM-21): the routing log (ST-LLM-008, UI-LLM-21)', (
     expect(screen.queryByTestId('log-none')).toBeNull();
   });
 
+  it('keeps the filters of the log when reading for them fails, so that they can be changed back', async () => {
+    const h = open({ requests: [request(1)] });
+    await screen.findByTestId('log-table');
+    h.world.failing.requests = new Error('down');
+    fireEvent.change(document.getElementById('log-status') as HTMLElement, { target: { value: 'FAILED' } });
+    const section = screen.getByTestId('log-section');
+    expect(await within(section).findByText(word('states.error.title'))).toBeTruthy();
+    expect((document.getElementById('log-status') as HTMLSelectElement).value).toBe('FAILED');
+    h.world.failing.requests = undefined;
+    fireEvent.change(document.getElementById('log-status') as HTMLElement, { target: { value: '' } });
+    expect(await within(section).findByTestId('log-table')).toBeTruthy();
+  });
+
   it('narrows the log by what the read supports: state, route, class and task', async () => {
     const h = open({ requests: [request(1)] });
     await screen.findByTestId('log-table');
@@ -618,6 +631,19 @@ describe('RoutingLogScreen (LLM-21): the invoice reconciliation (ST-LLM-008, UAT
     expect(within(row(2)).getByTestId('variance').textContent).toBe('-8,000 VND');
     expect(within(row(2)).getByTestId('status').textContent).toBe(word('llm.routelog.rec.status.reconciled'));
     expect(row(2).getAttribute('data-status')).toBe('RECONCILED');
+  });
+
+  it('keeps the state filter of the reconciliations when reading for it fails, so that it can be changed back', async () => {
+    const h = open({ recs: [reconciliation(1)] });
+    await screen.findByTestId('reconcile-table');
+    h.world.failing.recs = new Error('down');
+    fireEvent.change(document.getElementById('reconcile-status') as HTMLElement, { target: { value: 'RECONCILED' } });
+    const section = screen.getByTestId('reconcile-section');
+    expect(await within(section).findByText(word('states.error.title'))).toBeTruthy();
+    expect((document.getElementById('reconcile-status') as HTMLSelectElement).value).toBe('RECONCILED');
+    h.world.failing.recs = undefined;
+    fireEvent.change(document.getElementById('reconcile-status') as HTMLElement, { target: { value: '' } });
+    expect(await within(section).findByTestId('reconcile-table')).toBeTruthy();
   });
 
   it('narrows the list by state', async () => {
