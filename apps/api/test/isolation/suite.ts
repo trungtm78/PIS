@@ -89,6 +89,24 @@ export const MASTER_FIXTURES: Readonly<Record<TenantName, { recordId: string; ve
   },
 };
 
+/** A second master record merged into the first one of each tenant, the merge, and a draft rule of survivorship (distinctive ids and names; tenant data). */
+export const MERGE_FIXTURES: Readonly<Record<TenantName, { mergedRecordId: string; mergedBusinessKey: string; mergeId: string; ruleId: string; attribute: string }>> = {
+  'TNT-A': {
+    mergedRecordId: '00000000-0000-4000-a010-000000000011',
+    mergedBusinessKey: 'ALPHA-MERGED-0001',
+    mergeId: '00000000-0000-4000-a010-000000000012',
+    ruleId: '00000000-0000-4000-a010-000000000013',
+    attribute: 'alpha_survivorship_attribute',
+  },
+  'TNT-B': {
+    mergedRecordId: '00000000-0000-4000-b010-000000000011',
+    mergedBusinessKey: 'BETA-MERGED-0001',
+    mergeId: '00000000-0000-4000-b010-000000000012',
+    ruleId: '00000000-0000-4000-b010-000000000013',
+    attribute: 'beta_survivorship_attribute',
+  },
+};
+
 /** A bulk import batch of each tenant, waiting for its review (the file hash and the object key are distinctive). */
 export const MASTER_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; fileSha256: string; fileObjectKey: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a011-000000000001', fileSha256: 'a3'.repeat(32), fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000a/import/alpha-catalogue-0001' },
@@ -1441,6 +1459,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'master business key', value: MASTER_FIXTURES[tenant].businessKey },
     { kind: 'master label', value: MASTER_FIXTURES[tenant].label },
     { kind: 'master import id', value: MASTER_IMPORT_FIXTURES[tenant].id },
+    { kind: 'merged master record id', value: MERGE_FIXTURES[tenant].mergedRecordId },
+    { kind: 'merged master business key', value: MERGE_FIXTURES[tenant].mergedBusinessKey },
+    { kind: 'master merge id', value: MERGE_FIXTURES[tenant].mergeId },
+    { kind: 'survivorship rule id', value: MERGE_FIXTURES[tenant].ruleId },
+    { kind: 'survivorship attribute', value: MERGE_FIXTURES[tenant].attribute },
     { kind: 'master import file hash', value: MASTER_IMPORT_FIXTURES[tenant].fileSha256 },
     { kind: 'master import object key', value: MASTER_IMPORT_FIXTURES[tenant].fileObjectKey },
     { kind: 'crosswalk id', value: CROSSWALK_FIXTURES[tenant].crosswalkId },

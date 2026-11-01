@@ -116,6 +116,10 @@ export interface MatrixTargets {
   distributionId: string;
   /** An EFFECTIVE master record of tenant A (version 1), a DRAFT change request of another record and an IN_REVIEW one of a third. */
   masterRecordId: string;
+  /** A second EFFECTIVE entry of the same type that is merged into the first one (an APPLIED merge, version 1), and a DRAFT rule of survivorship: the merge commands act on them. */
+  masterMergedRecordId: string;
+  masterMergeId: string;
+  survivorshipRuleId: string;
   masterDraftChangeId: string;
   masterReviewChangeId: string;
   /** An IN_REVIEW import batch of tenant A. */
@@ -736,6 +740,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideMasterChangeRequest: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/master-change-requests/${t.masterReviewChangeId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  post_master_records_id_merge: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-records/${t.masterRecordId}/merge`, ifMatch: '"1"', body: { merged_record_id: t.masterMergedRecordId, reason: REASON } }),
+  },
+  unmergeMasterRecords: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/master-merges/${t.masterMergeId}/unmerge`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createSurvivorshipRuleVersion: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/survivorship-rules', body: { master_type: 'MATRIX', attribute_name: 'phone', strategy: 'SOURCE_PRIORITY', source_priority: ['NATIONAL', 'TENANT'], effective_from: '2026-01-01' } }),
+  },
+  publishSurvivorshipRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/survivorship-rules/${t.survivorshipRuleId}/publish`, ifMatch: '"1"', body: {} }),
   },
   post_master_records_id_publish: {
     referencesTenantIds: true,

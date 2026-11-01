@@ -1,4 +1,24 @@
-import { ADVANCE_CATEGORIES, CALENDAR_TIMEZONES, CONSTRUCTION_GRADES, DomainError, INSPECTION_TYPES, LAND_DAY_COUNTS, LAND_TIMER_CODES, MAX_PETITION_DAYS, MAX_TIMER_DAYS, NOTICE_DAYS, PETITION_KINDS, ROUNDING_MODES, SETTLEMENT_DEADLINE_KEY, SETTLEMENT_PROJECT_GROUPS, SIGNER_ROLES, WEEKDAYS, assertCalendar, capPercentFor, percentScaled } from '@machvon/kernel';
+import {
+  ADVANCE_CATEGORIES,
+  CALENDAR_TIMEZONES,
+  CONSTRUCTION_GRADES,
+  DomainError,
+  INSPECTION_TYPES,
+  LAND_DAY_COUNTS,
+  LAND_TIMER_CODES,
+  MAX_PETITION_DAYS,
+  MAX_TIMER_DAYS,
+  NOTICE_DAYS,
+  PETITION_KINDS,
+  ROUNDING_MODES,
+  SETTLEMENT_DEADLINE_KEY,
+  SETTLEMENT_PROJECT_GROUPS,
+  SIGNER_ROLES,
+  WEEKDAYS,
+  assertCalendar,
+  capPercentFor,
+  percentScaled,
+} from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
 import type { MasterContent } from './master-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -221,7 +241,8 @@ function checkChecklists(value: unknown): void {
     if (!Array.isArray(items) || items.length === 0 || items.length > MAX_CHECKLIST_ITEMS) return fail('attributes.checklists');
     const codes = new Set<string>();
     for (const item of items) {
-      if (!isObject(item) || typeof item.code !== 'string' || !KEY.test(item.code) || codes.has(item.code) || typeof item.label !== 'string' || item.label.trim() === '' || item.label.length > 300) return fail('attributes.checklists');
+      if (!isObject(item) || typeof item.code !== 'string' || !KEY.test(item.code) || codes.has(item.code) || typeof item.label !== 'string' || item.label.trim() === '' || item.label.length > 300)
+        return fail('attributes.checklists');
       codes.add(item.code);
     }
   }
@@ -229,7 +250,8 @@ function checkChecklists(value: unknown): void {
 
 /** The roles that sign the minutes under a regime: each one of the four roles, once, and at least the first list is not empty. */
 function checkSignerRoles(attributes: Record<string, unknown>): void {
-  const valid = (roles: unknown): boolean => Array.isArray(roles) && roles.length > 0 && new Set(roles).size === roles.length && roles.every((role) => (SIGNER_ROLES as readonly string[]).includes(role as string));
+  const valid = (roles: unknown): boolean =>
+    Array.isArray(roles) && roles.length > 0 && new Set(roles).size === roles.length && roles.every((role) => (SIGNER_ROLES as readonly string[]).includes(role as string));
   if (!valid(attributes.required_roles)) fail('attributes.required_roles');
   if (attributes.completion_required_roles !== undefined && !valid(attributes.completion_required_roles)) fail('attributes.completion_required_roles');
 }
@@ -270,11 +292,15 @@ function checkAdvanceCap(businessKey: string, attributes: Record<string, unknown
   if (!Array.isArray(tiers) || tiers.length === 0 || tiers.length > MAX_CAP_TIERS) return fail('attributes.tiers');
   const minimums = new Set<string>();
   for (const tier of tiers) {
-    if (!isObject(tier) || typeof tier.min_value_vnd !== 'string' || !/^(0|[1-9][0-9]{0,23})$/.test(tier.min_value_vnd) || minimums.has(tier.min_value_vnd) || !isShare(tier.cap_pct)) return fail('attributes.tiers');
+    if (!isObject(tier) || typeof tier.min_value_vnd !== 'string' || !/^(0|[1-9][0-9]{0,23})$/.test(tier.min_value_vnd) || minimums.has(tier.min_value_vnd) || !isShare(tier.cap_pct))
+      return fail('attributes.tiers');
     minimums.add(tier.min_value_vnd);
   }
   // Every tier reads as the kernel reads it: a table the cap cannot be taken from is not published.
-  capPercentFor(tiers.map((tier) => ({ minValueVnd: String(tier.min_value_vnd), capPct: String(tier.cap_pct) })), '0');
+  capPercentFor(
+    tiers.map((tier) => ({ minValueVnd: String(tier.min_value_vnd), capPct: String(tier.cap_pct) })),
+    '0',
+  );
 }
 
 /** The days a land clearance advance may stay unrecovered (BR-PAY-11): the key is GPMB and the owner is PAY. */
@@ -291,7 +317,8 @@ function checkSettlementDeadline(businessKey: string, attributes: Record<string,
   if (!Array.isArray(rows) || rows.length !== SETTLEMENT_PROJECT_GROUPS.length) return fail('attributes.days_by_group');
   const seen = new Set<string>();
   for (const row of rows) {
-    if (!isObject(row) || typeof row.project_group !== 'string' || !(SETTLEMENT_PROJECT_GROUPS as readonly string[]).includes(row.project_group) || seen.has(row.project_group)) return fail('attributes.days_by_group');
+    if (!isObject(row) || typeof row.project_group !== 'string' || !(SETTLEMENT_PROJECT_GROUPS as readonly string[]).includes(row.project_group) || seen.has(row.project_group))
+      return fail('attributes.days_by_group');
     if (typeof row.days !== 'number' || !Number.isInteger(row.days) || row.days < 1 || row.days > MAX_TIMER_DAYS) return fail('attributes.days_by_group');
     seen.add(row.project_group);
   }
@@ -619,11 +646,7 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     masterType: 'PAY_ADVANCE_CAP',
     rule: true,
     strict: true,
-    fields: [
-      ...RULE_FIELDS,
-      { name: 'tiers', kind: 'list', required: true, maxItems: MAX_CAP_TIERS },
-      { name: 'recovery_threshold_pct', kind: 'text', required: true, maxLength: 8 },
-    ],
+    fields: [...RULE_FIELDS, { name: 'tiers', kind: 'list', required: true, maxItems: MAX_CAP_TIERS }, { name: 'recovery_threshold_pct', kind: 'text', required: true, maxLength: 8 }],
     check: ({ businessKey, content }) => checkAdvanceCap(businessKey, content.attributes),
   },
   {
@@ -655,9 +678,40 @@ export function tenantLookup(tx: TenantTx): TypeLookup {
           order by case r.namespace when 'PLATFORM' then 0 else 1 end limit 1`,
         [masterType, businessKey],
       );
-      return rows[0] === undefined ? undefined : { masterType, businessKey, attributes: rows[0].attributes };
+      if (rows[0] !== undefined) return { masterType, businessKey, attributes: rows[0].attributes };
+      // The key of an entry that was merged away stands for the entry it was merged into (the last one, when that was merged away in its turn).
+      const merged = await tx.query<{ attributes: Record<string, unknown> }>(
+        `with recursive hop(target, depth) as (
+            select m.survivor_record_id, 1 from machvon.master_merge m join machvon.master_record o on o.id = m.merged_record_id
+             where o.master_type = $1 and o.business_key = $2 and m.status = 'APPLIED'
+            union all
+            select m.survivor_record_id, h.depth + 1 from hop h join machvon.master_merge m on m.merged_record_id = h.target and m.status = 'APPLIED' where h.depth < 20
+          )
+          select v.attributes from hop h join machvon.master_record r on r.id = h.target and r.status not in ('RETIRED', 'MERGED')
+            join lateral (select x.attributes from machvon.master_record_version x where x.master_record_id = r.id order by x.revision desc limit 1) v on true
+           order by h.depth desc limit 1`,
+        [masterType, businessKey],
+      );
+      return merged[0] === undefined ? undefined : { masterType, businessKey, attributes: merged[0].attributes };
     },
   };
+}
+
+/**
+ * The record in force under a key, and its version in force: the record of that key, or, when it was merged away, the one it was merged into (the last one, if that was merged away in its turn). For the consumers
+ * that name a catalogue entry by its key and need the entry that stands for it now.
+ */
+export async function liveRecordOfKey(tx: TenantTx, masterType: string, businessKey: string): Promise<{ recordId: string; currentVersionId: string } | undefined> {
+  const rows = await tx.query<{ id: string; current_version_id: string }>(
+    `with recursive hop(id, depth) as (
+        select r.id, 0 from machvon.master_record r where r.master_type = $1 and r.business_key = $2
+        union all
+        select m.survivor_record_id, h.depth + 1 from hop h join machvon.master_merge m on m.merged_record_id = h.id and m.status = 'APPLIED' where h.depth < 20
+      )
+      select r.id, r.current_version_id from hop h join machvon.master_record r on r.id = h.id where r.status = 'EFFECTIVE' and r.current_version_id is not null order by h.depth desc limit 1`,
+    [masterType, businessKey],
+  );
+  return rows[0] === undefined ? undefined : { recordId: rows[0].id, currentVersionId: rows[0].current_version_id };
 }
 
 /** The entry that a record id names, with the attributes of its latest version. */
@@ -723,7 +777,14 @@ async function checkField(field: Field, value: unknown, input: TypeInput): Promi
       if (!Array.isArray(value) || value.length > field.maxItems || new Set(value).size !== value.length || !value.every((item) => typeof item === 'string' && IDENTIFIER.test(item))) fail(name);
       return;
     case 'mimes':
-      if (!Array.isArray(value) || value.length === 0 || value.length > field.maxItems || new Set(value).size !== value.length || !value.every((item) => typeof item === 'string' && MIME_TYPE.test(item))) fail(name);
+      if (
+        !Array.isArray(value) ||
+        value.length === 0 ||
+        value.length > field.maxItems ||
+        new Set(value).size !== value.length ||
+        !value.every((item) => typeof item === 'string' && MIME_TYPE.test(item))
+      )
+        fail(name);
       return;
     case 'texts': {
       if (!isObject(value)) return fail(name);
@@ -796,7 +857,13 @@ export function coerceCell(masterType: string, name: string, raw: string): { ok:
     case 'identifiers':
     case 'mimes':
     case 'keys':
-      return { ok: true, value: cell.split(SPLIT).map((word) => word.trim()).filter((word) => word !== '') };
+      return {
+        ok: true,
+        value: cell
+          .split(SPLIT)
+          .map((word) => word.trim())
+          .filter((word) => word !== ''),
+      };
     case 'list':
     case 'texts':
       try {

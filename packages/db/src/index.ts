@@ -347,6 +347,8 @@ export type { DoaDecision, DoaDecisionResult, DoaMatrixInput, DoaMatrixRow, DoaM
 export { REVIEW_LIFETIME_MS, ThemeStore, themeChanges, themeHash } from './theme-store.ts';
 export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChange, ThemeConfig, ThemeDraftRow, ThemeReviewResult, ThemeVersionAnchor, ThemeVersionRow } from './theme-store.ts';
 export { BASELINE_POLICIES, MASTER_REFERENCES, MasterStore, contentHashOf } from './master-store.ts';
+export { MASTER_MERGE_RESOURCE, MasterMergeStore, SURVIVORSHIP_RULE_RESOURCE } from './master-merge-store.ts';
+export type { MasterMerge, MasterMergeOutcome, Page as MasterPage, RepointedReference, SurvivorshipRule, MasterUnmergeOutcome } from './master-merge-store.ts';
 export type {
   ChangeKind,
   ChangeRequestDetail,
@@ -1474,13 +1476,7 @@ export { BiPublicationStore } from './bi-publication-store.ts';
 export type { PublicationFilter, PublicationRow, PublicationStatus } from './bi-publication-store.ts';
 export { BiLineageStore } from './bi-lineage-store.ts';
 export { CONSUMER_APPROVAL_RESOURCE, CONTRACT_RESOURCE, CONTRACT_VERSION_RESOURCE, DgvContractStore } from './dgv-contract-store.ts';
-export {
-  DgvMaturityStore,
-  MATURITY_ASSESSMENT_RESOURCE,
-  MATURITY_EVIDENCE_RESOURCE,
-  MATURITY_MILESTONE_RESOURCE,
-  MATURITY_RUBRIC_RESOURCE,
-} from './dgv-maturity-store.ts';
+export { DgvMaturityStore, MATURITY_ASSESSMENT_RESOURCE, MATURITY_EVIDENCE_RESOURCE, MATURITY_MILESTONE_RESOURCE, MATURITY_RUBRIC_RESOURCE } from './dgv-maturity-store.ts';
 export type {
   AssessmentDecision,
   AssessmentScore,
@@ -1498,13 +1494,7 @@ export type {
   RubricStatus,
   ScoredCriterion,
 } from './dgv-maturity-store.ts';
-export {
-  DgvMaturityJob,
-  MATURITY_EVIDENCE_EXPIRED_EVENT,
-  MATURITY_EVIDENCE_EXPIRED_METRIC,
-  MATURITY_MILESTONE_MISSED_EVENT,
-  MATURITY_MILESTONE_MISSED_METRIC,
-} from './dgv-maturity-job.ts';
+export { DgvMaturityJob, MATURITY_EVIDENCE_EXPIRED_EVENT, MATURITY_EVIDENCE_EXPIRED_METRIC, MATURITY_MILESTONE_MISSED_EVENT, MATURITY_MILESTONE_MISSED_METRIC } from './dgv-maturity-job.ts';
 export type { DgvMaturitySummary } from './dgv-maturity-job.ts';
 export type {
   DgvApprovalDecision,

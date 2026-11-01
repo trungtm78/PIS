@@ -733,6 +733,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const masterReviewChangeId = id(0x79, 5);
     const masterImportId = id(0x79, 10);
     const masterCrosswalkId = id(0x79, 11);
+    const masterMergedRecordId = id(0x79, 6);
+    const masterMergeId = id(0x79, 40);
+    const survivorshipRuleId = id(0x79, 41);
     const integrationCursorId = id(0x79, 12);
     const datasetId = id(0x79, 16);
     const glossaryDraftTermId = id(0x79, 13);
@@ -784,6 +787,16 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       masterVersion(9, 8, 'EFFECTIVE'),
       masterCurrent(8, 9),
       masterChange(5, 8, 'IN_REVIEW'),
+      [
+        `insert into machvon.master_merge (tenant_id, id, survivor_record_id, merged_record_id, survivorship_json, alias_json, repointed_refs_json, reason, change_request_id, status, applied_at, created_by, updated_by)
+         values ($1, $2, $3, $4, '{"decisions":[],"overrides":{}}'::jsonb, '{}'::jsonb, '[]'::jsonb, 'negative matrix fixture merge', $5, 'APPLIED', now(), $6, $6)`,
+        [TENANT_A, masterMergeId, masterRecordId, masterMergedRecordId, masterDraftChangeId, ACTOR],
+      ],
+      [
+        `insert into machvon.survivorship_rule (tenant_id, id, master_type, attribute_name, strategy, source_priority, revision, status, effective_from, created_by, updated_by)
+         values ($1, $2, 'MATRIX', 'phone', 'SOURCE_PRIORITY', ARRAY['NATIONAL', 'TENANT'], 1, 'DRAFT', '2026-01-01', $3, $3)`,
+        [TENANT_A, survivorshipRuleId, ACTOR],
+      ],
       [
         `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'AREA', 'MX-AREA', 'EFFECTIVE', $3, $3)`,
         [TENANT_A, id(0x8a, 2), ACTOR],
@@ -1322,6 +1335,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       issueId,
       issueEscalationId,
       masterRecordId,
+      masterMergedRecordId,
+      masterMergeId,
+      survivorshipRuleId,
       masterDraftChangeId,
       masterReviewChangeId,
       masterImportId,

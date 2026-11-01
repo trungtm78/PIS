@@ -4,6 +4,7 @@ import { linkWarrantyIssue } from './ast-claim-store.ts';
 import { IssIssueStore } from './iss-issue-store.ts';
 import type { CreatedIssue, IssueSource } from './iss-issue-store.ts';
 import { ISSUE_CATEGORY_TYPE, SLA_SEVERITIES } from './iss-sla-policy-store.ts';
+import { liveRecordOfKey } from './master-types.ts';
 import { linkComplaintIssue } from './lnd-complaint-store.ts';
 import { linkStageIssue } from './lnd-stage-progress-store.ts';
 import { linkReconciliationIssue } from './pay-reconciliation-store.ts';
@@ -50,8 +51,26 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
     sourceRefId: (payload) => payload.source_reference,
     referenceCode: (payload) => (typeof payload.kind === 'string' && typeof payload.expires_on === 'string' ? `${payload.kind}-${payload.expires_on}` : undefined),
   },
-  { eventType: 'pmt.permit.expired.v1', sourceModule: 'PMT', title: 'Permit expired', severity: 'HIGH', categoryKey: INTAKE_CATEGORY_KEYS.PMT, wanted: alwaysWanted, sourceRefId: commonRef, referenceCode: commonCode },
-  { eventType: 'pay.advance.overdue.v1', sourceModule: 'PAY', title: 'Advance overdue', severity: 'HIGH', categoryKey: INTAKE_CATEGORY_KEYS.PAY, wanted: alwaysWanted, sourceRefId: commonRef, referenceCode: commonCode },
+  {
+    eventType: 'pmt.permit.expired.v1',
+    sourceModule: 'PMT',
+    title: 'Permit expired',
+    severity: 'HIGH',
+    categoryKey: INTAKE_CATEGORY_KEYS.PMT,
+    wanted: alwaysWanted,
+    sourceRefId: commonRef,
+    referenceCode: commonCode,
+  },
+  {
+    eventType: 'pay.advance.overdue.v1',
+    sourceModule: 'PAY',
+    title: 'Advance overdue',
+    severity: 'HIGH',
+    categoryKey: INTAKE_CATEGORY_KEYS.PAY,
+    wanted: alwaysWanted,
+    sourceRefId: commonRef,
+    referenceCode: commonCode,
+  },
   {
     eventType: 'pay.reconciliation.overdue.v1',
     sourceModule: 'PAY',
@@ -63,8 +82,27 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
     referenceCode: commonCode,
     link: linkReconciliationIssue,
   },
-  { eventType: 'pay.settlement.overdue.v1', sourceModule: 'PAY', title: 'Settlement verification overdue', severity: 'HIGH', categoryKey: INTAKE_CATEGORY_KEYS.PAY, wanted: alwaysWanted, sourceRefId: commonRef, referenceCode: commonCode },
-  { eventType: 'lnd.complaint.filed.v1', sourceModule: 'LND', title: 'Land complaint filed', severity: 'MEDIUM', categoryKey: INTAKE_CATEGORY_KEYS.LND, wanted: alwaysWanted, sourceRefId: commonRef, referenceCode: commonCode, link: linkComplaintIssue },
+  {
+    eventType: 'pay.settlement.overdue.v1',
+    sourceModule: 'PAY',
+    title: 'Settlement verification overdue',
+    severity: 'HIGH',
+    categoryKey: INTAKE_CATEGORY_KEYS.PAY,
+    wanted: alwaysWanted,
+    sourceRefId: commonRef,
+    referenceCode: commonCode,
+  },
+  {
+    eventType: 'lnd.complaint.filed.v1',
+    sourceModule: 'LND',
+    title: 'Land complaint filed',
+    severity: 'MEDIUM',
+    categoryKey: INTAKE_CATEGORY_KEYS.LND,
+    wanted: alwaysWanted,
+    sourceRefId: commonRef,
+    referenceCode: commonCode,
+    link: linkComplaintIssue,
+  },
   {
     eventType: 'lnd.deadline.breached.v1',
     sourceModule: 'LND',
@@ -102,7 +140,22 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
 export const INTAKE_EVENT_TYPES: readonly string[] = INTAKE_SPECS.map((spec) => spec.eventType);
 
 /** The members of a payload that name a person, a household or a place: a producer must not send them, and the intake never reads them. */
-export const PERSONAL_MEMBERS: readonly string[] = ['name', 'full_name', 'household_name', 'owner_name', 'complainant', 'citizen_id', 'national_id', 'cccd', 'id_number', 'address', 'phone', 'email', 'content', 'description'];
+export const PERSONAL_MEMBERS: readonly string[] = [
+  'name',
+  'full_name',
+  'household_name',
+  'owner_name',
+  'complainant',
+  'citizen_id',
+  'national_id',
+  'cccd',
+  'id_number',
+  'address',
+  'phone',
+  'email',
+  'content',
+  'description',
+];
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** A code of the source module: letters, digits and the separators of a code, at the start a letter or a digit, no spaces. */
@@ -138,7 +191,10 @@ export function readIntake(eventType: string, payload: Record<string, unknown>):
   if (sourceRefId === undefined || projectId === undefined) return { kind: 'INVALID' };
   const contractId = payload.contract_id === undefined || payload.contract_id === null ? undefined : uuidOf(payload.contract_id);
   const ownerUnitId = payload.owner_unit_id === undefined || payload.owner_unit_id === null ? undefined : uuidOf(payload.owner_unit_id);
-  if ((payload.contract_id !== undefined && payload.contract_id !== null && contractId === undefined) || (payload.owner_unit_id !== undefined && payload.owner_unit_id !== null && ownerUnitId === undefined)) {
+  if (
+    (payload.contract_id !== undefined && payload.contract_id !== null && contractId === undefined) ||
+    (payload.owner_unit_id !== undefined && payload.owner_unit_id !== null && ownerUnitId === undefined)
+  ) {
     return { kind: 'INVALID' };
   }
   const severity = SLA_SEVERITIES.find((candidate) => candidate === payload.severity) ?? spec.severity;
@@ -183,11 +239,7 @@ export class IssIntake {
     const projects = await tx.query<{ owner_unit_id: string }>('select owner_unit_id from machvon.project where id = $1::uuid', [request.projectId]);
     const project = projects[0];
     if (project === undefined) return { kind: 'PROJECT_UNKNOWN' };
-    const categories = await tx.query<{ current_version_id: string }>(
-      `select r.current_version_id from machvon.master_record r where r.master_type = $1 and r.business_key = $2 and r.status = 'EFFECTIVE' and r.current_version_id is not null`,
-      [ISSUE_CATEGORY_TYPE, request.spec.categoryKey],
-    );
-    const category = categories[0];
+    const category = await liveRecordOfKey(tx, ISSUE_CATEGORY_TYPE, request.spec.categoryKey);
     // The tenant has not defined the category of this source yet: the delivery fails and is retried, then dead-lettered where the owner of the module sees it.
     if (category === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'category_key');
     const title = `${request.spec.title}: ${request.referenceCode}`;
@@ -196,7 +248,7 @@ export class IssIntake {
         tx,
         {
           projectId: request.projectId,
-          categoryVersionId: category.current_version_id,
+          categoryVersionId: category.currentVersionId,
           severity: request.severity,
           title,
           description: `${title} (${request.spec.sourceModule}, ${request.spec.categoryKey})`,
@@ -219,4 +271,3 @@ export class IssIntake {
     }
   }
 }
-

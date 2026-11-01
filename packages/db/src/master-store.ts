@@ -545,7 +545,14 @@ export class MasterStore {
 
   async search(
     tx: TenantTx,
-    request: { masterType?: string | undefined; businessKey?: string | undefined; namespace?: MasterNamespace | undefined; asOf: string; limit: number; after: { code: string; id: string } | undefined },
+    request: {
+      masterType?: string | undefined;
+      businessKey?: string | undefined;
+      namespace?: MasterNamespace | undefined;
+      asOf: string;
+      limit: number;
+      after: { code: string; id: string } | undefined;
+    },
   ): Promise<MasterSearchRow[]> {
     const rows = await tx.query<{
       id: string;
@@ -567,7 +574,19 @@ export class MasterStore {
       alias_order: string | null;
       sort_key: string;
     }>(
-      `select r.id, r.namespace, r.master_type, r.business_key, r.status, r.version::text as version,
+      `with recursive merged_on(merged_record_id, survivor_record_id) as (
+          -- the merges that stood on the day: from the day of the merge, until the day it was undone
+          select m.merged_record_id, m.survivor_record_id from machvon.master_merge m
+           where (m.alias_json ->> 'day')::date <= $4::date and (m.status = 'APPLIED' or $4::date < (m.reverted_at at time zone 'Asia/Ho_Chi_Minh')::date)
+        ), alias(target, depth) as (
+          select m.survivor_record_id, 1 from merged_on m join machvon.master_record o on o.id = m.merged_record_id
+           where $2::text is not null and o.business_key = $2 and ($1::text is null or o.master_type = $1)
+             and not exists (select 1 from machvon.master_record_version x where x.master_record_id = o.id and x.status in ('APPROVED', 'EFFECTIVE', 'RETIRED') and x.published_at is not null
+                and x.valid_from <= $4::date and (x.valid_until is null or x.valid_until > $4::date))
+          union all
+          select m.survivor_record_id, a.depth + 1 from alias a join merged_on m on m.merged_record_id = a.target where a.depth < 20
+        )
+        select r.id, r.namespace, r.master_type, r.business_key, r.status, r.version::text as version,
               v.label, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.id as version_id,
               v.revision, v.parent_id, v.legal_basis, v.attributes,
               c.id as open_change_request_id, r.master_type || ':' || r.business_key as sort_key,
@@ -589,7 +608,10 @@ export class MasterStore {
             where y.master_record_id = r.id and y.status in ('DRAFT', 'IN_REVIEW', 'APPROVED')
             order by y.created_at desc limit 1
          ) c on true
-        where ($1::text is null or r.master_type = $1) and ($2::text is null or r.business_key = $2) and ($3::text is null or r.namespace = $3)
+        where ($1::text is null or r.master_type = $1)
+          and ($2::text is null or (r.business_key = $2 and (v.id is not null or not exists (select 1 from merged_on m where m.merged_record_id = r.id)))
+               or r.id in (select a.target from alias a where not exists (select 1 from merged_on m where m.merged_record_id = a.target)))
+          and ($3::text is null or r.namespace = $3)
           and ($5::text is null or (r.master_type || ':' || r.business_key, r.id) > ($5::text, $6::uuid))
         order by r.master_type || ':' || r.business_key, r.id
         limit $7`,
@@ -683,7 +705,9 @@ export class MasterStore {
 
   /** The policy of one type: the row of the tenant, else the baseline of the platform, else the type is the tenant's own. */
   async policyOf(tx: TenantTx, masterType: string): Promise<TypePolicy> {
-    const rows = await tx.query<{ scope: TypeScope; retire_requires_successor: boolean }>('select scope, retire_requires_successor from machvon.master_type_policy where master_type = $1', [masterType]);
+    const rows = await tx.query<{ scope: TypeScope; retire_requires_successor: boolean }>('select scope, retire_requires_successor from machvon.master_type_policy where master_type = $1', [
+      masterType,
+    ]);
     const row = rows[0];
     if (row !== undefined) return { masterType, scope: row.scope, retireRequiresSuccessor: row.retire_requires_successor, source: 'TENANT' };
     const baseline = BASELINE_POLICIES[masterType] ?? OWN_BY_DEFAULT;
@@ -757,7 +781,19 @@ export class MasterStore {
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2, $3, 1, $4, $5::uuid, $6::jsonb, $7::date, $8::date,
           'DRAFT', 'TENANT', $9, $10, $11::uuid, $11::uuid)
        returning id`,
-      [recordId, input.masterType, input.businessKey, content.label, content.parentRecordId, JSON.stringify(content.attributes), content.validFrom, content.validUntil, content.legalBasis, hash, actor],
+      [
+        recordId,
+        input.masterType,
+        input.businessKey,
+        content.label,
+        content.parentRecordId,
+        JSON.stringify(content.attributes),
+        content.validFrom,
+        content.validUntil,
+        content.legalBasis,
+        hash,
+        actor,
+      ],
     );
     const versionId = (versionRows[0] as { id: string }).id;
     const impact = await this.impactOf(tx, null);

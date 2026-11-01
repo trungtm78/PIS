@@ -24,6 +24,7 @@ import {
   QUERY_RUN_FIXTURES,
   DATA_CONTRACT_FIXTURES,
   MATURITY_FIXTURES,
+  MERGE_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -308,6 +309,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'submitMasterChangeRequest',
   'decideMasterChangeRequest',
   'post_master_records_id_publish',
+  'createSurvivorshipRuleVersion',
+  'publishSurvivorshipRule',
+  'post_master_records_id_merge',
+  'unmergeMasterRecords',
+  'listSurvivorshipRules',
+  'listMasterMerges',
   'searchMasterRecords',
   'getMasterRecordUsages',
   'recordMasterSuccession',
@@ -1341,6 +1348,13 @@ const INSERT_MASTER_CHANGE = `insert into machvon.master_change_request
   values ($1, $2, 'UPDATE', 'ISOLATION', $3, jsonb_build_object('label', $4::text), 'isolation fixture change', '{"counts":{},"total":0,"computed_at":"2026-01-01T00:00:00.000Z"}'::jsonb,
           '2026-06-01', 'DRAFT', $5, $5) on conflict do nothing`;
 
+const MERGE_INSERT_MERGE = `insert into machvon.master_merge
+  (tenant_id, id, survivor_record_id, merged_record_id, survivorship_json, alias_json, repointed_refs_json, reason, change_request_id, status, applied_at, created_by, updated_by)
+  values ($1, $2, $3, $4, '{"decisions":[],"overrides":{}}'::jsonb, '{}'::jsonb, '[]'::jsonb, 'isolation fixture merge', $5, 'APPLIED', now(), $6, $6) on conflict do nothing`;
+const MERGE_INSERT_RULE = `insert into machvon.survivorship_rule
+  (tenant_id, id, master_type, attribute_name, strategy, source_priority, revision, status, effective_from, created_by, updated_by)
+  values ($1, $2, 'ISOLATION', $3, 'SOURCE_PRIORITY', ARRAY['NATIONAL', 'TENANT'], 1, 'DRAFT', '2026-01-01', $4, $4) on conflict do nothing`;
+
 const INSERT_MASTER_IMPORT = `insert into machvon.master_import_batch
   (tenant_id, id, master_type, file_object_key, file_sha256, mapping_json, mode, status, total_rows, error_rows, errors_json, created_by, updated_by)
   values ($1, $2, 'ISOLATION', $3, $4, '{}'::jsonb, 'ATOMIC', 'IN_REVIEW', 0, 0, '[]'::jsonb, $5, $5) on conflict do nothing`;
@@ -2035,6 +2049,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const slaPolicy = SLA_POLICY_FIXTURES[tenant];
     await client.query(INSERT_SLA_POLICY, [tenantId, slaPolicy.id, slaPolicy.code, master.versionId, master.recordId, ACTOR_ID]);
     await client.query(INSERT_MASTER_CHANGE, [tenantId, master.changeId, master.recordId, `${master.label} renamed`, ACTOR_ID]);
+    const merge = MERGE_FIXTURES[tenant];
+    await client.query(INSERT_MASTER_RECORD, [tenantId, merge.mergedRecordId, merge.mergedBusinessKey, ACTOR_ID]);
+    await client.query(MERGE_INSERT_MERGE, [tenantId, merge.mergeId, master.recordId, merge.mergedRecordId, master.changeId, ACTOR_ID]);
+    await client.query(MERGE_INSERT_RULE, [tenantId, merge.ruleId, merge.attribute, ACTOR_ID]);
     const batch = MASTER_IMPORT_FIXTURES[tenant];
     await client.query(INSERT_MASTER_IMPORT, [tenantId, batch.id, batch.fileObjectKey, batch.fileSha256, ACTOR_ID]);
     const crosswalk = CROSSWALK_FIXTURES[tenant];

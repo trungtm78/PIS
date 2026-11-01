@@ -1780,6 +1780,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listMasterImports({Map<String, Object?>? query}) =>
       execute('listMasterImports', query: query);
 
+  Future<Object?> listMasterMerges({Map<String, Object?>? query}) =>
+      execute('listMasterMerges', query: query);
+
   Future<Object?> listMasterTypePolicies({Map<String, Object?>? query}) =>
       execute('listMasterTypePolicies', query: query);
 
@@ -1917,6 +1920,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listSourceMappings({Map<String, Object?>? query}) =>
       execute('listSourceMappings', query: query);
+
+  Future<Object?> listSurvivorshipRules({Map<String, Object?>? query}) =>
+      execute('listSurvivorshipRules', query: query);
 
   Future<Object?> listSystemTenantExports({required String tenantId, Map<String, Object?>? query}) =>
       execute('listSystemTenantExports', path: <String, Object?>{'tenantId': tenantId}, query: query);

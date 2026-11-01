@@ -1616,3 +1616,5 @@ export { DECLARED_FLAGS, FLAG_COHORT_PATTERN, FLAG_STATUSES, NO_ROLLOUT, assertF
 export type { FlagRollout, FlagState, FlagStatus, FlagTenant, FlagUpdate } from './feature-flag.ts';
 export { COVERAGE_CALENDAR, MAX_COVERAGE_DAYS, SIGN_ALLOWED_WORKING_DAYS, coverageRange, diaryCoverage, isCalendarDay } from './qms-coverage.ts';
 export type { Coverage, CoverageDay, CoverageDiary, CoverageRange, CoverageState, CoverageTotals } from './qms-coverage.ts';
+export { LABEL_ATTRIBUTE, attributeKey, SURVIVORSHIP_STRATEGIES, checkSurvivorshipRule, mergeRecords, unmergeSurvivor } from './master-merge.ts';
+export type { AttributeDecision, DecisionBy, MergeRecord, MergeResult, MergeSide, SurvivorshipRuleInput, SurvivorshipStrategy, UnmergeInput, UnmergeResult } from './master-merge.ts';

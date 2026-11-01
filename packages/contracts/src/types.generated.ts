@@ -4886,7 +4886,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các phiên bản quy tắc survivorship của dữ liệu chủ (MDM-36) */
+        get: operations["listSurvivorshipRules"];
         put?: never;
         /** Tạo phiên bản quy tắc survivorship */
         post: operations["createSurvivorshipRuleVersion"];
@@ -15561,6 +15562,23 @@ export interface paths {
         };
         /** Các chấp thuận thay đổi hợp đồng đang chờ chủ của bên tiêu thụ (DGV-19): chỉ của chính người gọi */
         get: operations["listConsumerApprovals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/master-merges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các lần hợp nhất bản ghi chủ và việc tách lại (MDM-30, MDM-35) */
+        get: operations["listMasterMerges"];
         put?: never;
         post?: never;
         delete?: never;
@@ -54158,6 +54176,67 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listSurvivorshipRules: {
+        parameters: {
+            query?: {
+                master_type?: string;
+                status?: "DRAFT" | "PUBLISHED" | "RETIRED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -118689,6 +118768,67 @@ export interface operations {
         parameters: {
             query?: {
                 decision?: "PENDING" | "APPROVED" | "REJECTED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listMasterMerges: {
+        parameters: {
+            query?: {
+                record_id?: string;
+                status?: "APPLIED" | "REVERTED";
                 cursor?: string;
                 limit?: number;
             };
