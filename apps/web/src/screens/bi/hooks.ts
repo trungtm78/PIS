@@ -15,6 +15,8 @@ import type { QueryResult } from './query-model';
 import type { Policy, PolicyValues } from './policy-model';
 import { decisionBody, requestBody, toRequest } from './publication-model';
 import type { Decision, PublicationRequest, RequestForm } from './publication-model';
+import { shareBody } from './share-model';
+import type { ShareForm } from './share-model';
 
 /** Every read and every mutation of the BI screens lives under this key of the tenant, so one command refreshes them all. */
 export const biRoot = (tenantId: string | undefined) => ['bi', tenantId] as const;
@@ -301,6 +303,55 @@ export function useDecidePublication() {
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
     mutationFn: (input: DecideInput) => client.command('decideBiPublication', { path: { id: input.requestId }, body: decisionBody(input.decision, input.comment) as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+  });
+}
+
+export interface ShareInput {
+  dashboardId: string;
+  version: number;
+  form: ShareForm;
+}
+
+/** Shares a dashboard under the version of the dashboard it was read at: one idempotency attempt per intention, every read refreshed on success and on a refusal. */
+export function useShareDashboard() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: ShareInput) => client.command('shareDashboard', { path: { id: input.dashboardId }, body: shareBody(input.form) as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
+      await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
+    },
+  });
+}
+
+export interface RevokeInput {
+  shareId: string;
+  version: number;
+}
+
+/** Takes a share back, under the version of the share it was read at. */
+export function useRevokeShare() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: RevokeInput) => client.command('revokeDashboardShare', { path: { id: input.shareId }, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });

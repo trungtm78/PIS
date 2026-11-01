@@ -11,6 +11,7 @@ import { audienceLabel, createProblemMessage, dashboardStatusLabel, refusalMessa
 import { BUILDER_PATH, CHART_PATH, EMPTY_CREATE, MANAGE_DASHBOARD_PERMISSION, describeDashboardProblem, validateCreate } from './dashboard-model';
 import type { CreateForm } from './dashboard-model';
 import { useCreateDashboard, useDashboards } from './hooks';
+import { SHARE_PATH } from './share-model';
 
 /**
  * BI-01: the library of dashboards (ST-BI-005, BI F5): the dashboards of the caller and those the tenant published to its library, each with its owner, its state and the version it points to, and whether
@@ -92,6 +93,12 @@ function LibraryContent({ route }: ScreenProps) {
                 </p>
               )}
               <Link to={`${BUILDER_PATH}?dashboard=${dashboard.id}`}>{dashboard.mayEdit && mayManage ? t('bi.dash.library.edit') : t('bi.dash.library.view')}</Link>
+              {dashboard.mine ? (
+                <>
+                  {' '}
+                  <Link to={`${SHARE_PATH}?dashboard=${dashboard.id}`}>{t('bi.dash.library.share')}</Link>
+                </>
+              ) : null}
             </li>
           ))}
         </ul>

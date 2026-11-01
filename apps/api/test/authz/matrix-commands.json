@@ -119,6 +119,8 @@
     "saveDashboardVersion",
     "submitBiPublication",
     "decideBiPublication",
+    "shareDashboard",
+    "revokeDashboardShare",
     "post_dashboards_id_publish",
     "createCapitalPlan",
     "createCapitalPlanRevision",

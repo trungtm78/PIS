@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { BiDashboardStore, TenantDatabase } from '@machvon/db';
+import { BiDashboardShareStore, BiDashboardStore, TenantDatabase } from '@machvon/db';
+import type { ShareRow } from '@machvon/db';
 import type { DashboardRecord, DashboardVersionRecord } from '@machvon/db';
 import { DomainError, parseDashboardDraft, versionConflict } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
@@ -27,11 +28,26 @@ export const dashboardView = (record: DashboardRecord, viewer: string): Record<s
       ? null
       : { id: record.currentVersionId, revision: record.current.revision, status: record.current.status, metric_count: record.current.metricCount, metrics_certified: record.current.allCertified },
   mine: record.ownerUserId === viewer,
-  // Only the owner changes a dashboard here; the right of a person it is shared with to edit it comes with the shares.
-  may_edit: record.ownerUserId === viewer,
+  // The owner, and a person the dashboard is shared with to change, change it; one it is shared with to see, or that is in the library, reads it.
+  permission: record.permission,
+  may_edit: record.permission === 'OWNER' || record.permission === 'EDIT',
   created_at: record.createdAt,
   updated_at: record.updatedAt,
   version: record.version,
+});
+
+export const shareView = (row: ShareRow): Record<string, unknown> => ({
+  id: row.id,
+  dashboard_id: row.dashboardId,
+  grantee_kind: row.granteeKind,
+  grantee_ref_id: row.granteeRefId,
+  grantee_name: row.granteeName,
+  permission: row.permission,
+  status: row.status,
+  revoked_at: row.revokedAt,
+  created_at: row.createdAt,
+  created_by: row.createdBy,
+  version: row.version,
 });
 
 export const versionView = (record: DashboardVersionRecord): Record<string, unknown> => ({
@@ -89,7 +105,7 @@ export class DashboardController {
     const seen = dashboard === undefined ? undefined : await this.dashboards.find(scope.tx, dashboard.id, viewer);
     if (dashboard === undefined || seen === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (dashboard.version !== scope.expectedVersion) throw versionConflict(dashboard.version);
-    if (dashboard.ownerUserId !== viewer) throw new DomainError('SCOPE_DENIED', 403);
+    if (seen.permission !== 'OWNER' && seen.permission !== 'EDIT') throw new DomainError('SCOPE_DENIED', 403);
     if (dashboard.status === 'ARCHIVED') throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
     const draft = parseDashboardDraft(body);
     // Every metric exists in the tenant and is certified: a dashboard is never built over a number nobody vouches for (BR-BI).
@@ -129,6 +145,7 @@ export class DashboardController {
 @Controller('bi/dashboards')
 export class DashboardReadsController {
   private readonly dashboards = new BiDashboardStore();
+  private readonly shares = new BiDashboardShareStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
 
@@ -153,10 +170,13 @@ export class DashboardReadsController {
   async get(@CurrentTenant() tenant: TenantContext, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
     const found = await this.database.withTenant(tenant, async (tx) => {
       const record = await this.dashboards.find(tx, id.toLowerCase(), tenant.membershipId);
-      return record === undefined ? undefined : { record, versions: await this.dashboards.versions(tx, record.id) };
+      if (record === undefined) return undefined;
+      // The shares are the owner's to see: who a dashboard is shared with is not told to a person it is shared with.
+      const shares = record.permission === 'OWNER' ? await this.shares.forDashboard(tx, record.id) : [];
+      return { record, versions: await this.dashboards.versions(tx, record.id), shares };
     });
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return { ...dashboardView(found.record, tenant.membershipId), versions: found.versions.map(versionView) };
+    return { ...dashboardView(found.record, tenant.membershipId), versions: found.versions.map(versionView), shares: found.shares.map(shareView) };
   }
 }
 

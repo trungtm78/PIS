@@ -24,6 +24,6 @@ A dashboard is an object with an owner; a **version** is saved whole, never edit
 
 ## What is not done
 
-- Publication of a version (DRAFT to PUBLISHED) and the comparison of two versions (BI-10) are ST-BI-006, see `docs/bi-publications.md`; sharing is ST-BI-007.
+- Publication of a version (DRAFT to PUBLISHED) and the comparison of two versions (BI-10) are ST-BI-006, see `docs/bi-publications.md`; sharing is ST-BI-007, see `docs/bi-shares.md`.
 - The tiles of the saved layout are not drawn with live data in the builder (the preview is the structure); the figures are drawn in BI-04 and on the board BI-02.
-- The edit right of a person the dashboard is shared with is part of ST-BI-007; until then only the owner changes a dashboard.
+- The edit right of a person the dashboard is shared with is ST-BI-007 (`docs/bi-shares.md`): the owner and a person shared with `EDIT` change a dashboard.

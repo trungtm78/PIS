@@ -1,4 +1,6 @@
 import { ApiError } from '@machvon/api-client';
+import { toShare } from './share-model';
+import type { Share } from './share-model';
 
 export const MANAGE_DASHBOARD_PERMISSION = 'bi.dashboard.manage';
 export const LIBRARY_PATH = '/bi/bi-01';
@@ -72,8 +74,12 @@ export interface Dashboard {
   current: { id: string | null; revision: number; status: VersionState; metricCount: number; metricsCertified: boolean } | null;
   mine: boolean;
   mayEdit: boolean;
+  /** What the person may do with it: the owner, shared with them to change, or to see; none when it is in the library only. */
+  permission: 'OWNER' | 'EDIT' | 'VIEW' | null;
   version: number;
   versions: DashboardVersion[];
+  /** Who it is shared with: told to the owner only. */
+  shares: Share[];
 }
 
 function widgetOf(raw: unknown): Widget[] {
@@ -133,8 +139,10 @@ export function toDashboard(raw: unknown): Dashboard | undefined {
         : { id: nullableText(current.id), revision: count(current.revision), status: oneOf(current.status, VERSION_STATES, 'DRAFT'), metricCount: count(current.metric_count), metricsCertified: current.metrics_certified !== false },
     mine: raw.mine === true,
     mayEdit: raw.may_edit === true,
+    permission: raw.permission === 'OWNER' || raw.permission === 'EDIT' || raw.permission === 'VIEW' ? raw.permission : null,
     version: count(raw.version),
     versions: Array.isArray(raw.versions) ? raw.versions.flatMap((version) => toVersion(version) ?? []) : [],
+    shares: Array.isArray(raw.shares) ? raw.shares.flatMap((share) => toShare(share) ?? []) : [],
   };
 }
 

@@ -41,6 +41,8 @@ export interface DashboardRecord {
   createdAt: string;
   updatedAt: string;
   version: number;
+  /** What the viewer may do with it: the owner, a person it was shared with to change it or only to see it; none when it is in the library only (or when it was read for a change, whoever asks). */
+  permission: 'OWNER' | 'EDIT' | 'VIEW' | null;
   /** The revision and the state of the version it points to, with whether every metric of it is certified now. */
   current: { revision: number; status: VersionStatus; metricCount: number; allCertified: boolean } | null;
 }
@@ -84,6 +86,7 @@ const toDashboard = (row: Sql): DashboardRecord => ({
   createdAt: iso(row.created_at),
   updatedAt: iso(row.updated_at),
   version: Number(row.version),
+  permission: null,
   current: row.current_version_id === null ? null : { revision: row.current_revision, status: row.current_status, metricCount: row.current_metrics, allCertified: row.current_certified === true },
 });
 
@@ -106,8 +109,17 @@ const toVersion = (row: Sql): DashboardVersionRecord => ({
   publishedAt: row.published_at === null ? null : iso(row.published_at),
 });
 
-/** The dashboards the viewer may see: their own and those the tenant published to its library. */
-const VISIBLE = "(d.owner_user_id = $1::uuid or (d.audience = 'TENANT_LIBRARY' and d.status = 'PUBLISHED'))";
+/**
+ * The shares of a dashboard that reach the viewer ($1, a membership): one to the person, one to a role they hold now, one to a unit they belong to or to a unit above it. A share that was revoked reaches nobody at the
+ * next read: the right is judged when a dashboard is asked for, never kept.
+ */
+const SHARE_REACHES = `s.tenant_id = d.tenant_id and s.dashboard_id = d.id and s.status = 'ACTIVE' and (
+    (s.grantee_kind = 'USER' and s.grantee_ref_id = $1::uuid)
+    or (s.grantee_kind = 'ROLE' and s.grantee_ref_id in (select rg.role_id from machvon.role_grant rg where rg.membership_id = $1::uuid and rg.status = 'Active' and rg.effective_from <= now() and (rg.effective_until is null or now() < rg.effective_until)))
+    or (s.grantee_kind = 'UNIT' and s.grantee_ref_id in (select a.id from machvon.membership m join machvon.organization_unit u on u.tenant_id = m.tenant_id and u.id = m.organization_id join machvon.organization_unit a on a.tenant_id = u.tenant_id and u.path like a.path || '%' where m.id = $1::uuid)))`;
+
+/** The dashboards the viewer may see: their own, those shared with them and those the tenant published to its library. */
+const VISIBLE = `(d.owner_user_id = $1::uuid or (d.audience = 'TENANT_LIBRARY' and d.status = 'PUBLISHED') or exists (select 1 from machvon.dashboard_share s where ${SHARE_REACHES}))`;
 
 /**
  * The dashboards and their versions (ST-BI-005, BI 3 F5): a dashboard is an object with an owner; a version is saved whole and never changes (the database refuses it), and the dashboard points at the latest one. A version
@@ -117,7 +129,21 @@ export class BiDashboardStore {
   /** A dashboard the viewer sees, or none (one that is not theirs and not in the library is as good as none). */
   async find(tx: TenantTx, id: string, viewer: string): Promise<DashboardRecord | undefined> {
     const rows = await tx.query<Sql>(`${SELECT} where d.id = $2::uuid and ${VISIBLE}`, [viewer, id]);
-    return rows[0] === undefined ? undefined : toDashboard(rows[0]);
+    return (await this.withPermissions(tx, rows.map(toDashboard), viewer))[0];
+  }
+
+  /** What the viewer may do with each dashboard: the owner, a share to change it, a share to see it (the best of the shares that reach them). */
+  private async withPermissions(tx: TenantTx, records: DashboardRecord[], viewer: string): Promise<DashboardRecord[]> {
+    if (records.length === 0) return records;
+    const rows = await tx.query<{ id: string; permission: DashboardRecord['permission'] }>(
+      `select d.id, case when d.owner_user_id = $1::uuid then 'OWNER'
+                         when exists (select 1 from machvon.dashboard_share s where ${SHARE_REACHES} and s.permission = 'EDIT') then 'EDIT'
+                         when exists (select 1 from machvon.dashboard_share s where ${SHARE_REACHES}) then 'VIEW' end as permission
+         from machvon.dashboard d where d.id = any($2::uuid[])`,
+      [viewer, records.map((record) => record.id)],
+    );
+    const by = new Map(rows.map((row) => [row.id, row.permission]));
+    return records.map((record) => ({ ...record, permission: by.get(record.id) ?? null }));
   }
 
   /** The dashboard locked for a change, with no regard to who sees it (the caller judges). */
@@ -136,7 +162,7 @@ export class BiDashboardStore {
     );
     const shown = rows.slice(0, page.limit);
     const last = shown.at(-1);
-    return { records: shown.map(toDashboard), next: rows.length > page.limit && last !== undefined ? { code: last.code, id: last.id } : undefined };
+    return { records: await this.withPermissions(tx, shown.map(toDashboard), viewer), next: rows.length > page.limit && last !== undefined ? { code: last.code, id: last.id } : undefined };
   }
 
   async versions(tx: TenantTx, dashboardId: string): Promise<DashboardVersionRecord[]> {
@@ -226,6 +252,15 @@ export class BiDashboardStore {
     await tx.query('update machvon.dashboard set current_version_id = $2::uuid, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid', [dashboard.id, id, actor]);
     const [saved] = await tx.query<Sql>(`select ${VERSION_COLUMNS} from machvon.dashboard_version where id = $1::uuid`, [id]);
     return toVersion(saved as Sql);
+  }
+
+  /** The dashboard is SHARED while it has an active share and PRIVATE when it has none (a dashboard in the library stays as it is); its version moves with it. */
+  async markShared(tx: TenantTx, dashboardId: string, shared: boolean, actor: string): Promise<void> {
+    await tx.query(
+      `update machvon.dashboard set audience = case when audience = 'PRIVATE' and $2::boolean then 'SHARED' when audience = 'SHARED' and not $2::boolean then 'PRIVATE' else audience end,
+              updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,
+      [dashboardId, shared, actor],
+    );
   }
 
   /** A version locked for a change with its dashboard, whoever sees them (the caller judges); the dashboard is locked first, as a save of a version locks it. */

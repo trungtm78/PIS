@@ -1904,6 +1904,14 @@ Built (screen LND-02, `lnd-flows.spec.ts` and the visual region included): `docs
 - ST-BI-006 (decision, migration): V1581 held a `SET NOT NULL` next to expand steps, which the expand-then-contract check refuses, so it moved to V1583 with its marker (nothing was applied yet).
 - ST-BI-006 (gap): a request cannot be withdrawn (`WITHDRAWN` exists in the table and the guard, the plan has no command for it); publishing does not set the audience (sharing is ST-BI-007).
 
+### ST-BI-007 (dashboard sharing without data access, slice BI-1)
+- ST-BI-007 (decision, contract): the shares are read through `getDashboard` (a `shares` list the owner alone gets, with the names of the grantees) and not through a read of their own, because the module document has none and BI-17 only needs them next to the dashboard.
+- ST-BI-007 (decision, reach): a `UNIT` share reaches the members of the unit and of the units under it (the same ancestor rule the queries use for the units of a requester); a `ROLE` share reaches the members who hold the role now; the right is judged on every read, so a revocation, a change of unit or a role that ended takes effect at once.
+- ST-BI-007 (decision, edit): a share with `EDIT` lets the person save versions of the dashboard (the version stays theirs, and the owner or another asks to publish and a third approves); sharing, revoking and asking to publish stay the owner's.
+- ST-BI-007 (decision, duplicate): a second active share for one grantee is 409 `STAGE_TRANSITION_DENIED` (the unique index of V002), because no error code of the contract names it; a change of permission is a revocation and a new share.
+- ST-BI-007 (decision, audience): the dashboard is `SHARED` while it has an active share and `PRIVATE` when it has none; a dashboard in the library keeps its audience.
+- ST-BI-007 (gap): the grantee is given by id; the contract has no directory of people, roles or units to pick from, so BI-17 does not look the name up before the share.
+
 ### ST-DOC-017 (archive handover, disposal proposals and retention rules, slice DOC-1)
 - ST-DOC-017 (decision, handover): CLOSED goes to HANDED_OVER and, in the same command, to ARCHIVED (HANDED_OVER is the step the archive passes through, so the version moves twice); the outgoing documents FILED in the dossier become ARCHIVED with a line in their timeline, incoming letters stay FILED.
 - ST-DOC-017 (decision, rejection): the module text sends a rejected disposal back to ARCHIVED; a dossier proposed from CLOSED never was archived, so the proposal records the state it came from (`disposal_from_status`) and a rejection returns the dossier there. The proposal can be made from CLOSED, HANDED_OVER or ARCHIVED.

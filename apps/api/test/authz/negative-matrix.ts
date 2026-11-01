@@ -1274,6 +1274,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { layout_json: { widgets: [] }, breakpoints: {}, metric_versions: [], filter_mappings: {}, dataset_version_policy: 'LATEST_FROZEN' },
     }),
   },
+  shareDashboard: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/bi/dashboards/${t.legalHoldId}/shares`, ifMatch: '"1"', body: { grantee_kind: 'USER', grantee_ref_id: t.legalHoldId, permission: 'VIEW' } }),
+  },
+  revokeDashboardShare: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/bi/dashboard-shares/${t.legalHoldId}/revocation`, ifMatch: '"1"' }),
+  },
   submitBiPublication: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: '/bi/publication-requests', body: { object_kind: 'METRIC', object_id: t.legalHoldId } }),

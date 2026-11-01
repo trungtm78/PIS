@@ -434,6 +434,12 @@ export const DASHBOARD_FIXTURES: Readonly<Record<TenantName, { id: string; versi
   'TNT-B': { id: '00000000-0000-4000-b0d2-000000000001', versionId: '00000000-0000-4000-b0d2-000000000002', code: 'BETA-DASHBOARD-0001', title: 'Beta tenant isolation dashboard' },
 };
 
+/** A share of the dashboard above of each tenant, with a person of that tenant (its id is distinctive; tenant data). */
+export const SHARE_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d2-000000000003' },
+  'TNT-B': { id: '00000000-0000-4000-b0d2-000000000003' },
+};
+
 /** A request to publish of each tenant (about a metric nobody drafted: the request is what the isolation cases read and decide; tenant data). */
 export const PUBLICATION_FIXTURES: Readonly<Record<TenantName, { id: string; objectId: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d3-000000000001', objectId: '00000000-0000-4000-a0d3-000000000002' },
@@ -1329,6 +1335,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'criterion name', value: CRITERIA_FIXTURES[tenant].criterionName },
     { kind: 'criteria legal basis', value: CRITERIA_FIXTURES[tenant].legalBasis },
     { kind: 'publication request id', value: PUBLICATION_FIXTURES[tenant].id },
+    { kind: 'dashboard share id', value: SHARE_FIXTURES[tenant].id },
     { kind: 'dashboard id', value: DASHBOARD_FIXTURES[tenant].id },
     { kind: 'dashboard version id', value: DASHBOARD_FIXTURES[tenant].versionId },
     { kind: 'dashboard code', value: DASHBOARD_FIXTURES[tenant].code },
