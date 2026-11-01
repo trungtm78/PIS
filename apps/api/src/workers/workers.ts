@@ -33,6 +33,7 @@ import {
   CtrRetentionDue,
   CtrRevisionEffective,
   DgvIncidentSweepJob,
+  DgvMaturityJob,
   DgvProductExpiryJob,
   QmsDiaryCoverageJob,
   CapReservationExpiryJob,
@@ -186,6 +187,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const transferApply = new PrjTransferApplyJob(audit, deps.metrics);
   const dgvIncidents = new DgvIncidentSweepJob(audit, deps.metrics);
   const dgvProducts = new DgvProductExpiryJob(audit, deps.metrics);
+  const dgvMaturity = new DgvMaturityJob(audit, deps.metrics);
   const reconciliationOverdue = new PayReconciliationOverdueJob(audit, deps.metrics);
   const capitalBalances = new CapBalanceReconcileJob(audit, deps.metrics);
   const fundReservationExpiry = new CapReservationExpiryJob(audit, deps.metrics);
@@ -284,6 +286,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     transferApply: { run: (ctx, now) => applyDueTransfers(deps.tenants, transferApply, ctx, now) },
     dgvIncidentSweep: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => dgvIncidents.run(tx, ctx.membershipId, now)) },
     dgvProductExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => dgvProducts.run(tx, ctx.membershipId, now)) },
+    dgvMaturitySweep: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => dgvMaturity.run(tx, ctx.membershipId, now)) },
     incomingOverdue: {
       run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => markOverdueIncoming(tx, ctx.tenantId, now, { audit, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) })),
     },

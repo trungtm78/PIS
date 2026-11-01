@@ -47,6 +47,12 @@ describe('PermissionResourceAccess', () => {
     expect(port.canRead(access({ kind: 'TENANT' }, ['project.read']), { type: 'data_product', id: PROJECT_A }, NOW)).toBe(false);
   });
 
+  it('reads a milestone of the roadmap of maturity with the right to read the maturity, and with no right named after the type', () => {
+    expect(port.canRead(access({ kind: 'TENANT' }, ['data.maturity.read']), { type: 'maturity_milestone', id: PROJECT_A }, NOW)).toBe(true);
+    expect(port.canRead(access({ kind: 'TENANT' }, ['maturity_milestone.read']), { type: 'maturity_milestone', id: PROJECT_A }, NOW)).toBe(false);
+    expect(port.canRead(access({ kind: 'TENANT' }, ['data.catalog.read']), { type: 'maturity_milestone', id: PROJECT_A }, NOW)).toBe(false);
+  });
+
   it('keeps a project-scoped grant to its own project and never pools it for another project', () => {
     const forA = access({ kind: 'PROJECT', refIds: [PROJECT_A] });
     expect(port.canRead(forA, { type: 'project', id: PROJECT_A, projectId: PROJECT_A }, NOW)).toBe(true);

@@ -14,15 +14,13 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { FileService } from '../files';
-import { assertTenantAuthority, textOf, uuidOf, viewerOf } from './inputs';
+import { assertTenantAuthority, pageSize, textOf, uuidOf, viewerOf } from './inputs';
 
 /** The kind of the object key the documents of the published contracts are stored under. */
 export const CONTRACT_DOCUMENT_KIND = 'dgv_contract';
 const DRAFTED_EVENT = 'dgv.contract.drafted.v1';
 const DECIDED_EVENT = 'dgv.contract.consumer_decided.v1';
 const PUBLISHED_EVENT = 'dgv.contract.published.v1';
-const DEFAULT_PAGE = 50;
-const MAX_PAGE = 200;
 
 export function approvalView(approval: DgvConsumerApproval): Record<string, unknown> {
   return {
@@ -86,12 +84,6 @@ export function versionView(version: DgvContractVersion): Record<string, unknown
 }
 
 /** The page size of a read: 50 when it is not given, 1 to 200, anything else is 422 naming the parameter. */
-function pageSize(limit: unknown): number {
-  if (limit === undefined) return DEFAULT_PAGE;
-  if (typeof limit !== 'string' || !/^[0-9]{1,4}$/.test(limit) || Number(limit) < 1 || Number(limit) > MAX_PAGE) throw new DomainError('VALIDATION_FAILED', 422, 'limit');
-  return Number(limit);
-}
-
 /**
  * The data contracts (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50). A steward drafts the next revision of the contract of a dataset from an ODCS document of the pinned version; the platform works out its compatibility
  * with the published version; a breaking revision is approved, consumer by consumer, by the owner of each; somebody other than the person who drafted it publishes it, with a window in which the version before it still

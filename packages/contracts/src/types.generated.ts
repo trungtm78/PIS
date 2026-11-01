@@ -13822,7 +13822,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các phiên bản rubric trưởng thành dữ liệu (DGV-21) */
+        get: operations["listMaturityRubrics"];
         put?: never;
         /** Soạn rubric (trụ cột, tiêu chí, mức, trọng số, coverage tối thiểu) */
         post: operations["createMaturityRubricVersion"];
@@ -13907,7 +13908,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Lộ trình trưởng thành dữ liệu: các mốc theo trụ cột (DGV-17) */
+        get: operations["listMaturityMilestones"];
         put?: never;
         /** Lập mốc lộ trình trưởng thành */
         post: operations["createMaturityMilestone"];
@@ -20187,6 +20189,15 @@ export interface components {
             overall_level?: string;
             pillars: Record<string, never>[];
             not_assessed_count: number;
+            assessed_count?: number;
+            not_applicable_count?: number;
+            min_coverage_pct?: string;
+            /** Format: date */
+            as_of?: string;
+            /** @enum {string} */
+            status?: "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "REJECTED";
+            rubric?: Record<string, never>;
+            criteria?: Record<string, never>[];
         };
         RoleDefinitionView: {
             /** Format: uuid */
@@ -34900,6 +34911,8 @@ export interface operations {
     get_resources_maturity_assessment: {
         parameters: {
             query?: {
+                rubric_version_id?: string;
+                status?: "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "REJECTED";
                 cursor?: string;
                 limit?: number;
             };
@@ -41157,6 +41170,7 @@ export interface operations {
     get_resources_maturity_evidence: {
         parameters: {
             query?: {
+                assessment_id?: string;
                 cursor?: string;
                 limit?: number;
             };
@@ -109838,6 +109852,67 @@ export interface operations {
             };
         };
     };
+    listMaturityRubrics: {
+        parameters: {
+            query?: {
+                rubric_code?: string;
+                status?: "DRAFT" | "PUBLISHED" | "SUPERSEDED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     createMaturityRubricVersion: {
         parameters: {
             query?: never;
@@ -110327,6 +110402,68 @@ export interface operations {
             };
             /** @description Dependency unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listMaturityMilestones: {
+        parameters: {
+            query?: {
+                status?: "PLANNED" | "IN_PROGRESS" | "ACHIEVED" | "MISSED";
+                rubric_version_id?: string;
+                pillar_code?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

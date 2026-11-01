@@ -1789,6 +1789,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listMaterialTests({Map<String, Object?>? query}) =>
       execute('listMaterialTests', query: query);
 
+  Future<Object?> listMaturityMilestones({Map<String, Object?>? query}) =>
+      execute('listMaturityMilestones', query: query);
+
+  Future<Object?> listMaturityRubrics({Map<String, Object?>? query}) =>
+      execute('listMaturityRubrics', query: query);
+
   Future<Object?> listMneEvaluationProjects({Map<String, Object?>? query}) =>
       execute('listMneEvaluationProjects', query: query);
 

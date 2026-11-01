@@ -608,6 +608,26 @@ export const QUERY_RUN_FIXTURES: Readonly<Record<TenantName, { id: string }>> = 
   'TNT-B': { id: '00000000-0000-4000-b0d2-000000000006' },
 };
 
+/** A published rubric of maturity of each tenant, an assessment of it in review with a criterion that waits for a reviewer, and a milestone of its roadmap (distinctive ids and codes; tenant data). */
+export const MATURITY_FIXTURES: Readonly<Record<TenantName, { rubricId: string; assessmentId: string; evidenceId: string; milestoneId: string; rubricCode: string; periodCode: string }>> = {
+  'TNT-A': {
+    rubricId: '00000000-0000-4000-a0d2-00000000000a',
+    assessmentId: '00000000-0000-4000-a0d2-00000000000b',
+    evidenceId: '00000000-0000-4000-a0d2-00000000000c',
+    milestoneId: '00000000-0000-4000-a0d2-00000000000d',
+    rubricCode: 'ALPHA-RUBRIC',
+    periodCode: 'ALPHA-2026H2',
+  },
+  'TNT-B': {
+    rubricId: '00000000-0000-4000-b0d2-00000000000a',
+    assessmentId: '00000000-0000-4000-b0d2-00000000000b',
+    evidenceId: '00000000-0000-4000-b0d2-00000000000c',
+    milestoneId: '00000000-0000-4000-b0d2-00000000000d',
+    rubricCode: 'BETA-RUBRIC',
+    periodCode: 'BETA-2026H2',
+  },
+};
+
 /** A revision of the contract of the dataset of each tenant in review (with a consumer that waits for its owner) and a version published (distinctive ids and consumer references; tenant data). */
 export const DATA_CONTRACT_FIXTURES: Readonly<Record<TenantName, { revisionId: string; approvalId: string; versionId: string; consumerRef: string }>> = {
   'TNT-A': {
@@ -1642,6 +1662,12 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contract consumer approval id', value: DATA_CONTRACT_FIXTURES[tenant].approvalId },
     { kind: 'contract version id', value: DATA_CONTRACT_FIXTURES[tenant].versionId },
     { kind: 'contract consumer reference', value: DATA_CONTRACT_FIXTURES[tenant].consumerRef },
+    { kind: 'maturity rubric id', value: MATURITY_FIXTURES[tenant].rubricId },
+    { kind: 'maturity assessment id', value: MATURITY_FIXTURES[tenant].assessmentId },
+    { kind: 'maturity evidence id', value: MATURITY_FIXTURES[tenant].evidenceId },
+    { kind: 'maturity milestone id', value: MATURITY_FIXTURES[tenant].milestoneId },
+    { kind: 'maturity rubric code', value: MATURITY_FIXTURES[tenant].rubricCode },
+    { kind: 'maturity period code', value: MATURITY_FIXTURES[tenant].periodCode },
     { kind: 'dashboard id', value: DASHBOARD_FIXTURES[tenant].id },
     { kind: 'dashboard version id', value: DASHBOARD_FIXTURES[tenant].versionId },
     { kind: 'dashboard code', value: DASHBOARD_FIXTURES[tenant].code },

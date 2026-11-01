@@ -23,6 +23,7 @@ import {
   EXPORT_JOB_FIXTURES,
   QUERY_RUN_FIXTURES,
   DATA_CONTRACT_FIXTURES,
+  MATURITY_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -893,6 +894,20 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_data_contract_version',
   'get_resources_data_contract_version_id',
   'listConsumerApprovals',
+  'createMaturityRubricVersion',
+  'publishMaturityRubric',
+  'createMaturityAssessment',
+  'recordMaturityEvidence',
+  'reviewMaturityEvidence',
+  'createMaturityMilestone',
+  'post_maturity_assessments_id_publish',
+  'getMaturityScore',
+  'listMaturityRubrics',
+  'listMaturityMilestones',
+  'get_resources_maturity_assessment',
+  'get_resources_maturity_assessment_id',
+  'get_resources_maturity_evidence',
+  'get_resources_maturity_evidence_id',
   'listBiQueryRuns',
   'listBiExportSchedules',
   'shareDashboard',
@@ -1427,6 +1442,22 @@ const DATA_INSERT_CONTRACT_APPROVAL = `insert into machvon.contract_consumer_app
 const DATA_INSERT_CONTRACT_VERSION = `insert into machvon.data_contract_version
   (tenant_id, id, dataset_id, revision, grain, schema_json, owner_id, quality_rules, retention_policy_id, status, contract_id, odcs_sha256, compatibility, published_by, published_at)
   values ($1, $2, $3, 1, 'one row per isolation case', '{"columns":[]}'::jsonb, $4, '{}'::jsonb, $5, 'PUBLISHED', $6, repeat('a', 64), 'INITIAL', $4, now()) on conflict do nothing`;
+
+const MATURITY_INSERT_RUBRIC = `insert into machvon.maturity_rubric_version
+  (tenant_id, id, rubric_code, revision, framework_refs, pillars_json, min_coverage_pct, evidence_ttl_days, status, approved_by, created_by, updated_by)
+  values ($1, $2, $3, 1, '{"DCAM":["1.1"]}'::jsonb, '{"pillars":[]}'::jsonb, 70, 365, 'PUBLISHED', $4, $5, $5) on conflict do nothing`;
+
+const MATURITY_INSERT_ASSESSMENT = `insert into machvon.maturity_assessment
+  (tenant_id, id, period_code, rubric_version, coverage_percent, status, reviewer_id, rubric_version_id, scope_kind, assessor_user_id)
+  values ($1, $2, $3, 'RUBRIC@r1', 0, 'IN_REVIEW', $4, $5, 'TENANT', $6) on conflict do nothing`;
+
+const MATURITY_INSERT_EVIDENCE = `insert into machvon.maturity_evidence
+  (tenant_id, id, assessment_id, pillar_code, criterion_code, level, evidence_refs, review_status, assessment_state)
+  values ($1, $2, $3, 'QUALITY', 'ISOLATION-1', null, '[]'::jsonb, 'PENDING', 'NOT_ASSESSED') on conflict do nothing`;
+
+const MATURITY_INSERT_MILESTONE = `insert into machvon.maturity_milestone
+  (tenant_id, id, rubric_version_id, pillar_code, target_level, due_on, owner_user_id, exit_criteria, evidence_required, status, created_by, updated_by)
+  values ($1, $2, $3, 'QUALITY', 3, date '2030-12-31', $4, 'The quality score is published', '[]'::jsonb, 'PLANNED', $5, $5) on conflict do nothing`;
 
 const INSERT_QUALITY_RULE = `insert into machvon.quality_rule_version
   (tenant_id, id, contract_id, dataset_id, code, revision, expression_ast, severity, threshold_json, status, dimension, field_path, action_on_fail, criticality_weight, created_by)
@@ -2112,6 +2143,11 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(DATA_INSERT_CONTRACT_REVISION, [tenantId, contract.revisionId, dataset.datasetCode, MEMBERSHIP_ID, dataset.id, ACTOR_ID]);
     await client.query(DATA_INSERT_CONTRACT_APPROVAL, [tenantId, contract.approvalId, contract.revisionId, contract.consumerRef, MEMBERSHIP_ID, ACTOR_ID]);
     await client.query(DATA_INSERT_CONTRACT_VERSION, [tenantId, contract.versionId, dataset.id, MEMBERSHIP_ID, RETENTION_FIXTURES[tenant].id, quality.contractId]);
+    const maturity = MATURITY_FIXTURES[tenant];
+    await client.query(MATURITY_INSERT_RUBRIC, [tenantId, maturity.rubricId, maturity.rubricCode, ACTOR_ID, MEMBERSHIP_ID]);
+    await client.query(MATURITY_INSERT_ASSESSMENT, [tenantId, maturity.assessmentId, maturity.periodCode, ACTOR_ID, maturity.rubricId, MEMBERSHIP_ID]);
+    await client.query(MATURITY_INSERT_EVIDENCE, [tenantId, maturity.evidenceId, maturity.assessmentId]);
+    await client.query(MATURITY_INSERT_MILESTONE, [tenantId, maturity.milestoneId, maturity.rubricId, MEMBERSHIP_ID, ACTOR_ID]);
     await client.query(INSERT_QUALITY_RULE, [tenantId, quality.ruleId, quality.contractId, dataset.id, quality.ruleCode, ACTOR_ID]);
     await client.query(INSERT_QUALITY_RUN, [tenantId, quality.runId, quality.contractId, quality.ruleId, dataset.id]);
     const qualityIncident = QUALITY_INCIDENT_FIXTURES[tenant];

@@ -597,6 +597,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listMasterTypePolicies': OperationDescriptor(method: 'GET', path: '/master-type-policies', versioned: false, stepUp: null, permission: 'master.read'),
   'listMaterialContracts': OperationDescriptor(method: 'GET', path: '/material-tests/contracts', versioned: false, stepUp: null, permission: 'material.manage'),
   'listMaterialTests': OperationDescriptor(method: 'GET', path: '/material-tests', versioned: false, stepUp: null, permission: 'material.manage'),
+  'listMaturityMilestones': OperationDescriptor(method: 'GET', path: '/dgv/maturity-milestones', versioned: false, stepUp: null, permission: 'data.maturity.read'),
+  'listMaturityRubrics': OperationDescriptor(method: 'GET', path: '/dgv/maturity-rubrics', versioned: false, stepUp: null, permission: 'data.maturity.read'),
   'listMneEvaluationProjects': OperationDescriptor(method: 'GET', path: '/mne-evaluations/projects', versioned: false, stepUp: null, permission: 'mne.read'),
   'listMneEvaluations': OperationDescriptor(method: 'GET', path: '/mne-evaluations', versioned: false, stepUp: null, permission: 'mne.read'),
   'listMneForms': OperationDescriptor(method: 'GET', path: '/mne-forms', versioned: false, stepUp: null, permission: 'mne.read'),

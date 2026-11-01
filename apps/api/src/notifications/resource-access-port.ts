@@ -46,8 +46,8 @@ function scopeReaches(scope: Scope, resource: ResourceRef): boolean {
   }
 }
 
-/** The resource types whose read permission is not `<type>.read`: a data product is read with the right to read the catalogue of data (ST-DGV-009), a trigger of evaluation with the right to manage the triggers (ST-AST-006). */
-const READ_PERMISSION_OF: Readonly<Record<string, string>> = { data_product: 'data.catalog.read', evaluation_trigger: 'evaluation.trigger.manage' };
+/** The resource types whose read permission is not `<type>.read`: a data product is read with the right to read the catalogue of data (ST-DGV-009), a trigger of evaluation with the right to manage the triggers (ST-AST-006), a milestone of the roadmap of maturity with the right to read the maturity (ST-DGV-008). */
+const READ_PERMISSION_OF: Readonly<Record<string, string>> = { data_product: 'data.catalog.read', evaluation_trigger: 'evaluation.trigger.manage', maturity_milestone: 'data.maturity.read' };
 
 /**
  * The default port: the member needs the `<resource type>.read` permission from a grant whose scope contains the

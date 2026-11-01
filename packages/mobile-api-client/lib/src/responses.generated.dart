@@ -598,6 +598,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMasterTypePolicies': asObject,
   'listMaterialContracts': asObject,
   'listMaterialTests': asObject,
+  'listMaturityMilestones': asObject,
+  'listMaturityRubrics': asObject,
   'listMneEvaluationProjects': MneEvaluationProjectPageResponse.fromJson,
   'listMneEvaluations': MneEvaluationPageResponse.fromJson,
   'listMneForms': asObject,
@@ -7346,6 +7348,13 @@ final class DgvMaturityScoreResponse implements ResponseModel {
     required this.pillars,
     required this.notAssessedCount,
     this.overallLevel,
+    this.assessedCount,
+    this.notApplicableCount,
+    this.minCoveragePct,
+    this.asOf,
+    this.status,
+    this.rubric,
+    this.criteria,
     this.extra = const <String, Object?>{},
   });
 
@@ -7358,7 +7367,14 @@ final class DgvMaturityScoreResponse implements ResponseModel {
       overallLevel: optionalField(map, path, 'overall_level', asString),
       pillars: requiredField(map, path, 'pillars', asList(asObject)),
       notAssessedCount: requiredField(map, path, 'not_assessed_count', asInt),
-      extra: unknownFields(map, path, const <String>{'assessment_id', 'coverage_percent', 'overall_state', 'overall_level', 'pillars', 'not_assessed_count'}, strict: true),
+      assessedCount: optionalField(map, path, 'assessed_count', asInt),
+      notApplicableCount: optionalField(map, path, 'not_applicable_count', asInt),
+      minCoveragePct: optionalField(map, path, 'min_coverage_pct', asString),
+      asOf: optionalField(map, path, 'as_of', asString),
+      status: optionalField(map, path, 'status', asString),
+      rubric: optionalField(map, path, 'rubric', asObject),
+      criteria: optionalField(map, path, 'criteria', asList(asObject)),
+      extra: unknownFields(map, path, const <String>{'assessment_id', 'coverage_percent', 'overall_state', 'overall_level', 'pillars', 'not_assessed_count', 'assessed_count', 'not_applicable_count', 'min_coverage_pct', 'as_of', 'status', 'rubric', 'criteria'}, strict: true),
     );
   }
 
@@ -7368,6 +7384,13 @@ final class DgvMaturityScoreResponse implements ResponseModel {
   final String? overallLevel;
   final List<Map<String, Object?>> pillars;
   final int notAssessedCount;
+  final int? assessedCount;
+  final int? notApplicableCount;
+  final String? minCoveragePct;
+  final String? asOf;
+  final String? status;
+  final Map<String, Object?>? rubric;
+  final List<Map<String, Object?>>? criteria;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -7380,6 +7403,13 @@ final class DgvMaturityScoreResponse implements ResponseModel {
         if (overallLevel != null) 'overall_level': overallLevel,
         'pillars': pillars,
         'not_assessed_count': notAssessedCount,
+        if (assessedCount != null) 'assessed_count': assessedCount,
+        if (notApplicableCount != null) 'not_applicable_count': notApplicableCount,
+        if (minCoveragePct != null) 'min_coverage_pct': minCoveragePct,
+        if (asOf != null) 'as_of': asOf,
+        if (status != null) 'status': status,
+        if (rubric != null) 'rubric': rubric,
+        if (criteria != null) 'criteria': criteria,
         ...extra,
       };
 }

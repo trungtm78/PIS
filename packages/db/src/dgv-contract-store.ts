@@ -3,6 +3,7 @@ import { DomainError, classifyChange, migrationWindowEnough, odcsSha256, parseOd
 import type { Compatibility, ContractChange, ContractColumn, ContractConsumer } from '@machvon/kernel';
 import { DATASET_VISIBLE } from './dgv-dataset-store.ts';
 import type { DatasetViewer } from './dgv-dataset-store.ts';
+import { cursorFor, cursorOf } from './dgv-keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 export const CONTRACT_RESOURCE = 'dataset_contract';
@@ -164,16 +165,6 @@ function versionOf(row: Sql): DgvContractVersion {
     columns: toColumns(row.schema_json),
   };
 }
-
-/** A page of a keyset: the time as the database wrote it (microseconds, never through a date of the language that keeps milliseconds) and the id. */
-function cursorOf(raw: string | undefined): { at: string; id: string } | undefined {
-  if (raw === undefined) return undefined;
-  const [at, id] = Buffer.from(raw, 'base64url').toString('utf8').split('|');
-  if (at === undefined || id === undefined || Number.isNaN(Date.parse(at)) || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
-    throw new DomainError('VALIDATION_FAILED', 422, 'cursor');
-  return { at, id };
-}
-const cursorFor = (at: string, id: string): string => Buffer.from(`${at}|${id}`, 'utf8').toString('base64url');
 
 /**
  * The data contracts (ST-DGV-005, DGV 3.1 F2, BR-DGV-07): an ODCS document of the pinned version is drafted as a revision for a dataset and reviewed; its compatibility with the published version is worked out; a breaking

@@ -15895,6 +15895,27 @@
         "x-permission": "maturity_assessment.read",
         "parameters": [
           {
+            "name": "rubric_version_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "IN_REVIEW",
+                "PUBLISHED",
+                "REJECTED"
+              ]
+            }
+          },
+          {
             "name": "cursor",
             "in": "query",
             "schema": {
@@ -24947,6 +24968,14 @@
         "summary": "Danh sách maturity_evidence theo scope",
         "x-permission": "maturity_evidence.read",
         "parameters": [
+          {
+            "name": "assessment_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
           {
             "name": "cursor",
             "in": "query",
@@ -123594,6 +123623,104 @@
         "x-domain-events": [
           "dgv.rubric.drafted.v1"
         ]
+      },
+      "get": {
+        "operationId": "listMaturityRubrics",
+        "summary": "Các phiên bản rubric trưởng thành dữ liệu (DGV-21)",
+        "tags": [
+          "DGV"
+        ],
+        "x-permission": "data.maturity.read",
+        "parameters": [
+          {
+            "name": "rubric_code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "PUBLISHED",
+                "SUPERSEDED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/dgv/maturity-rubrics/{id}/publish": {
@@ -124294,6 +124421,113 @@
         "x-domain-events": [
           "dgv.milestone.created.v1"
         ]
+      },
+      "get": {
+        "operationId": "listMaturityMilestones",
+        "summary": "Lộ trình trưởng thành dữ liệu: các mốc theo trụ cột (DGV-17)",
+        "tags": [
+          "DGV"
+        ],
+        "x-permission": "data.maturity.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PLANNED",
+                "IN_PROGRESS",
+                "ACHIEVED",
+                "MISSED"
+              ]
+            }
+          },
+          {
+            "name": "rubric_version_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pillar_code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/dgv/data-products/{id}/certification": {
@@ -152899,6 +153133,39 @@
           },
           "not_assessed_count": {
             "type": "integer"
+          },
+          "assessed_count": {
+            "type": "integer"
+          },
+          "not_applicable_count": {
+            "type": "integer"
+          },
+          "min_coverage_pct": {
+            "type": "string",
+            "pattern": "^-?[0-9]{1,18}(\\.[0-9]{1,8})?$"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "IN_REVIEW",
+              "PUBLISHED",
+              "REJECTED"
+            ]
+          },
+          "rubric": {
+            "type": "object"
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "maxItems": 500
           }
         }
       },

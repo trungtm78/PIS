@@ -1224,6 +1224,44 @@ export { DIFFERENCE_KINDS, RECON_BASIS, RECON_SOURCE_A, RECON_SOURCE_B, assertCo
 export type { ConfirmedMapping, ReconDifference, DifferenceKind, GateOutcome, ReconOutcome, ReconResult, ReportedLine, TreasuryLine } from './dgv-recon.ts';
 export { MAX_EVIDENCE, MAX_EVIDENCE_BYTES, PRODUCT_DECISIONS, PRODUCT_STATUSES, assertProductDecision, nextProductStatus } from './dgv-product.ts';
 export type { ProductDecision, ProductDecisionInput, ProductStatus } from './dgv-product.ts';
+export {
+  CONFIDENCES,
+  CRITERION_STATES,
+  EVIDENCE_KINDS,
+  MATURITY_LEVELS,
+  MATURITY_PILLARS,
+  MAX_CRITERIA,
+  MAX_EVIDENCE_REFS,
+  MIN_CRITERIA,
+  REVIEW_STATUSES,
+  assertRubricCode,
+  assertTargetAbove,
+  checkEvidenceRecord,
+  checkMilestone,
+  computeScore,
+  criterionOf,
+  dayAfter,
+  effectiveCriterion,
+  isDay,
+  parseRubricDraft,
+  pillarReaches,
+  rubricOf,
+} from './dgv-maturity.ts';
+export type {
+  CriterionRow,
+  CriterionState,
+  EvidenceRecord,
+  EvidenceRecordInput,
+  MaturityMilestoneInput,
+  MaturityPillar,
+  MaturityScore,
+  PillarScore,
+  ReviewStatus,
+  Rubric,
+  RubricCriterion,
+  RubricDraft,
+  RubricPillar,
+} from './dgv-maturity.ts';
 export { PROFILE_LOCALES, isTimeZone, maskEmail, parseProfilePatch } from './iam-profile.ts';
 export type { ProfileLocale, ProfilePatch } from './iam-profile.ts';
 export { REORGANIZATION_KINDS, assertValidReorganization, successorOf as reorganizationSuccessorOf, unmapped as unmappedByReorganization, validateReorganization } from './adm-reorganization.ts';

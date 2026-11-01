@@ -1474,6 +1474,38 @@ export { BiPublicationStore } from './bi-publication-store.ts';
 export type { PublicationFilter, PublicationRow, PublicationStatus } from './bi-publication-store.ts';
 export { BiLineageStore } from './bi-lineage-store.ts';
 export { CONSUMER_APPROVAL_RESOURCE, CONTRACT_RESOURCE, CONTRACT_VERSION_RESOURCE, DgvContractStore } from './dgv-contract-store.ts';
+export {
+  DgvMaturityStore,
+  MATURITY_ASSESSMENT_RESOURCE,
+  MATURITY_EVIDENCE_RESOURCE,
+  MATURITY_MILESTONE_RESOURCE,
+  MATURITY_RUBRIC_RESOURCE,
+} from './dgv-maturity-store.ts';
+export type {
+  AssessmentDecision,
+  AssessmentScore,
+  AssessmentStatus,
+  ExpiredEvidence,
+  MaturityAssessment,
+  MaturityEvidence,
+  MaturityMilestone,
+  MaturityRubric,
+  MaturityScope,
+  MilestoneStatus,
+  MissedMilestone,
+  Page as MaturityPage,
+  Person as MaturityPerson,
+  RubricStatus,
+  ScoredCriterion,
+} from './dgv-maturity-store.ts';
+export {
+  DgvMaturityJob,
+  MATURITY_EVIDENCE_EXPIRED_EVENT,
+  MATURITY_EVIDENCE_EXPIRED_METRIC,
+  MATURITY_MILESTONE_MISSED_EVENT,
+  MATURITY_MILESTONE_MISSED_METRIC,
+} from './dgv-maturity-job.ts';
+export type { DgvMaturitySummary } from './dgv-maturity-job.ts';
 export type {
   DgvApprovalDecision,
   DgvConsumerApproval,

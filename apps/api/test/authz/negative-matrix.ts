@@ -232,6 +232,11 @@ export interface MatrixTargets {
   /** A revision of the contract of that dataset in review (version 1) with a breaking change, drafted by someone other than the callers, and a consumer approval of it that waits (version 1): the contract commands act on them. */
   contractRevisionId: string;
   consumerApprovalId: string;
+  /** A DRAFT rubric of maturity and a PUBLISHED one, an assessment of the published one in review with a criterion that waits for a reviewer (all version 1), made by someone other than the callers: the maturity commands act on them. */
+  rubricDraftId: string;
+  rubricPublishedId: string;
+  maturityAssessmentId: string;
+  maturityEvidenceId: string;
   qualityRuleId: string;
   qualitySnapshotId: string;
   /** A DRAFT availability control policy of tenant A made by someone other than the callers (version 1). */
@@ -1885,6 +1890,61 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   post_data_contracts_id_publish: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/data-contracts/${t.contractRevisionId}/publish`, ifMatch: '"1"', body: { decision: 'reject', reason: REASON, evidence_ids: [] } }),
+  },
+  createMaturityRubricVersion: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/dgv/maturity-rubrics',
+      body: { rubric_code: 'MX-RUBRIC', framework_refs: { DCAM: ['1.1'] }, pillars_json: { pillars: [] }, min_coverage_pct: '70', evidence_ttl_days: 365 },
+    }),
+  },
+  publishMaturityRubric: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/maturity-rubrics/${t.rubricDraftId}/publish`, ifMatch: '"1"', body: {} }),
+  },
+  // The rubric and the people named in the body are read as those of the caller's own tenant: another tenant's are as unknown as ones that do not exist (422).
+  createMaturityAssessment: {
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/dgv/maturity-assessments',
+      body: { period_code: 'MX-2026', rubric_version_id: t.rubricPublishedId, scope_kind: 'TENANT', assessor_user_id: t.rubricPublishedId, reviewer_id: t.rubricDraftId },
+    }),
+  },
+  recordMaturityEvidence: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/dgv/maturity-assessments/${t.maturityAssessmentId}/evidence`,
+      ifMatch: '"1"',
+      body: { pillar_code: 'QUALITY', criterion_code: 'MX-QUALITY-1', assessment_state: 'NOT_ASSESSED', evidence_refs: [] },
+    }),
+  },
+  reviewMaturityEvidence: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/maturity-evidence/${t.maturityEvidenceId}/review`, ifMatch: '"1"', body: { decision: 'ACCEPTED', note: 'Matrix review of the evidence' } }),
+  },
+  // The rubric and the people named in the body are read as those of the caller's own tenant: another tenant's are as unknown as ones that do not exist (422).
+  createMaturityMilestone: {
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/dgv/maturity-milestones',
+      body: {
+        rubric_version_id: t.rubricPublishedId,
+        pillar_code: 'QUALITY',
+        target_level: 3,
+        due_on: '2030-12-31',
+        owner_user_id: t.rubricDraftId,
+        exit_criteria: 'The quality score is published',
+        evidence_required: [],
+      },
+    }),
+  },
+  post_maturity_assessments_id_publish: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/maturity-assessments/${t.maturityAssessmentId}/publish`, ifMatch: '"1"', body: { decision: 'reject', reason: REASON, evidence_ids: [] } }),
   },
   assignDatasetOwnership: {
     referencesTenantIds: true,

@@ -595,6 +595,8 @@ export const OPERATIONS = {
   "listMasterTypePolicies": { method: "get", path: "/master-type-policies", versioned: false, stepUp: null, permission: "master.read" },
   "listMaterialContracts": { method: "get", path: "/material-tests/contracts", versioned: false, stepUp: null, permission: "material.manage" },
   "listMaterialTests": { method: "get", path: "/material-tests", versioned: false, stepUp: null, permission: "material.manage" },
+  "listMaturityMilestones": { method: "get", path: "/dgv/maturity-milestones", versioned: false, stepUp: null, permission: "data.maturity.read" },
+  "listMaturityRubrics": { method: "get", path: "/dgv/maturity-rubrics", versioned: false, stepUp: null, permission: "data.maturity.read" },
   "listMneEvaluationProjects": { method: "get", path: "/mne-evaluations/projects", versioned: false, stepUp: null, permission: "mne.read" },
   "listMneEvaluations": { method: "get", path: "/mne-evaluations", versioned: false, stepUp: null, permission: "mne.read" },
   "listMneForms": { method: "get", path: "/mne-forms", versioned: false, stepUp: null, permission: "mne.read" },

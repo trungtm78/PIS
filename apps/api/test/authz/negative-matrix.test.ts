@@ -1150,6 +1150,30 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, consumerApprovalId, contractRevisionId, glossaryOwnerId, ACTOR],
       ],
     ]);
+    // A DRAFT rubric of maturity and a PUBLISHED one, and an assessment of the published one in review with a criterion that waits for a reviewer, made by someone other than the callers: the maturity commands act on them.
+    const rubricDraftId = id(0xe1, 1);
+    const rubricPublishedId = id(0xe1, 2);
+    const maturityAssessmentId = id(0xe1, 3);
+    const maturityEvidenceId = id(0xe1, 4);
+    const maturityRubric = (rubricId: string, code: string, status: string, approvedBy: string | null): [string, unknown[]] => [
+      `insert into machvon.maturity_rubric_version (tenant_id, id, rubric_code, revision, framework_refs, pillars_json, min_coverage_pct, evidence_ttl_days, status, approved_by, created_by, updated_by)
+         values ($1, $2, $3, 1, '{}'::jsonb, '{"pillars":[]}'::jsonb, 70, 365, $4, $5, $6, $6)`,
+      [TENANT_A, rubricId, code, status, approvedBy, ACTOR],
+    ];
+    await harness.owner(TENANT_A, [
+      maturityRubric(rubricDraftId, 'MX-DRAFT', 'DRAFT', null),
+      maturityRubric(rubricPublishedId, 'MX-PUBLISHED', 'PUBLISHED', glossaryOwnerId),
+      [
+        `insert into machvon.maturity_assessment (tenant_id, id, period_code, rubric_version, coverage_percent, status, reviewer_id, rubric_version_id, scope_kind, assessor_user_id)
+         values ($1, $2, 'MX-2026H2', 'MX-PUBLISHED@r1', 0, 'IN_REVIEW', $3, $4, 'TENANT', $5)`,
+        [TENANT_A, maturityAssessmentId, glossaryOwnerId, rubricPublishedId, ACTOR],
+      ],
+      [
+        `insert into machvon.maturity_evidence (tenant_id, id, assessment_id, pillar_code, criterion_code, level, evidence_refs, review_status, assessment_state)
+         values ($1, $2, $3, 'QUALITY', 'MX-QUALITY-1', null, '[]'::jsonb, 'PENDING', 'NOT_ASSESSED')`,
+        [TENANT_A, maturityEvidenceId, maturityAssessmentId],
+      ],
+    ]);
     // An OPEN quality incident and an OPEN quality exception, of a finished run of the quality dataset, made by someone other than the callers.
     const qualityRunId = id(0xde, 5);
     await harness.owner(TENANT_A, [
@@ -1262,6 +1286,10 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       qualityContractId,
       contractRevisionId,
       consumerApprovalId,
+      rubricDraftId,
+      rubricPublishedId,
+      maturityAssessmentId,
+      maturityEvidenceId,
       qualityRuleId,
       qualitySnapshotId,
       accountabilityId,
