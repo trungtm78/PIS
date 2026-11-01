@@ -73,8 +73,20 @@ export const LEGAL_HOLD_FIXTURES: Readonly<Record<TenantName, { id: string; auth
 
 /** A master record in force, its version and an open (draft) change request of each tenant; the business key and the label are distinctive. */
 export const MASTER_FIXTURES: Readonly<Record<TenantName, { recordId: string; versionId: string; changeId: string; businessKey: string; label: string }>> = {
-  'TNT-A': { recordId: '00000000-0000-4000-a010-000000000001', versionId: '00000000-0000-4000-a010-000000000002', changeId: '00000000-0000-4000-a010-000000000003', businessKey: 'ALPHA-SECTOR-0001', label: 'Alpha sector label' },
-  'TNT-B': { recordId: '00000000-0000-4000-b010-000000000001', versionId: '00000000-0000-4000-b010-000000000002', changeId: '00000000-0000-4000-b010-000000000003', businessKey: 'BETA-SECTOR-0001', label: 'Beta sector label' },
+  'TNT-A': {
+    recordId: '00000000-0000-4000-a010-000000000001',
+    versionId: '00000000-0000-4000-a010-000000000002',
+    changeId: '00000000-0000-4000-a010-000000000003',
+    businessKey: 'ALPHA-SECTOR-0001',
+    label: 'Alpha sector label',
+  },
+  'TNT-B': {
+    recordId: '00000000-0000-4000-b010-000000000001',
+    versionId: '00000000-0000-4000-b010-000000000002',
+    changeId: '00000000-0000-4000-b010-000000000003',
+    businessKey: 'BETA-SECTOR-0001',
+    label: 'Beta sector label',
+  },
 };
 
 /** A bulk import batch of each tenant, waiting for its review (the file hash and the object key are distinctive). */
@@ -85,8 +97,20 @@ export const MASTER_IMPORT_FIXTURES: Readonly<Record<TenantName, { id: string; f
 
 /** An ACTIVE crosswalk and an integration cursor of each tenant (the external code, the connector scope and the last file hash are distinctive). */
 export const CROSSWALK_FIXTURES: Readonly<Record<TenantName, { crosswalkId: string; externalCode: string; cursorId: string; sourceScope: string; fileSha256: string }>> = {
-  'TNT-A': { crosswalkId: '00000000-0000-4000-a012-000000000001', externalCode: 'ALPHA-TREASURY-CODE-0001', cursorId: '00000000-0000-4000-a012-000000000002', sourceScope: 'ALPHA-SCOPE-0001', fileSha256: 'a5'.repeat(32) },
-  'TNT-B': { crosswalkId: '00000000-0000-4000-b012-000000000001', externalCode: 'BETA-TREASURY-CODE-0001', cursorId: '00000000-0000-4000-b012-000000000002', sourceScope: 'BETA-SCOPE-0001', fileSha256: 'b6'.repeat(32) },
+  'TNT-A': {
+    crosswalkId: '00000000-0000-4000-a012-000000000001',
+    externalCode: 'ALPHA-TREASURY-CODE-0001',
+    cursorId: '00000000-0000-4000-a012-000000000002',
+    sourceScope: 'ALPHA-SCOPE-0001',
+    fileSha256: 'a5'.repeat(32),
+  },
+  'TNT-B': {
+    crosswalkId: '00000000-0000-4000-b012-000000000001',
+    externalCode: 'BETA-TREASURY-CODE-0001',
+    cursorId: '00000000-0000-4000-b012-000000000002',
+    sourceScope: 'BETA-SCOPE-0001',
+    fileSha256: 'b6'.repeat(32),
+  },
 };
 
 /** A glossary term in review of each tenant (its code and its wording are distinctive; tenant data). */
@@ -135,7 +159,23 @@ export const ENGAGEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; scop
 export const CONCLUSION_FIXTURES: Readonly<
   Record<
     TenantName,
-    { id: string; findingId: string; recommendationId: string; actionId: string; linkId: string; linkSourceId: string; reportId: string; reportSha256: string; summary: string; findingCode: string; findingWords: string; recCode: string; recWords: string; actionCode: string; actionWords: string }
+    {
+      id: string;
+      findingId: string;
+      recommendationId: string;
+      actionId: string;
+      linkId: string;
+      linkSourceId: string;
+      reportId: string;
+      reportSha256: string;
+      summary: string;
+      findingCode: string;
+      findingWords: string;
+      recCode: string;
+      recWords: string;
+      actionCode: string;
+      actionWords: string;
+    }
   >
 > = {
   'TNT-A': {
@@ -212,8 +252,18 @@ export const PLAN_COMP_FIXTURES: Readonly<Record<TenantName, { id: string; itemI
 
 /** The ACTIVE deputy-leader assignment of the isolation project of each tenant and an ACTIVE task force (the code and the name are distinctive; who answers for a project is tenant data). */
 export const ACCOUNTABILITY_FIXTURES: Readonly<Record<TenantName, { assignmentId: string; taskForceId: string; taskForceCode: string; taskForceName: string }>> = {
-  'TNT-A': { assignmentId: '00000000-0000-4000-a0b3-000000000001', taskForceId: '00000000-0000-4000-a0b3-000000000002', taskForceCode: 'ALPHA-TF-0001', taskForceName: 'Alpha tenant disbursement task force 0001' },
-  'TNT-B': { assignmentId: '00000000-0000-4000-b0b3-000000000001', taskForceId: '00000000-0000-4000-b0b3-000000000002', taskForceCode: 'BETA-TF-0001', taskForceName: 'Beta tenant disbursement task force 0001' },
+  'TNT-A': {
+    assignmentId: '00000000-0000-4000-a0b3-000000000001',
+    taskForceId: '00000000-0000-4000-a0b3-000000000002',
+    taskForceCode: 'ALPHA-TF-0001',
+    taskForceName: 'Alpha tenant disbursement task force 0001',
+  },
+  'TNT-B': {
+    assignmentId: '00000000-0000-4000-b0b3-000000000001',
+    taskForceId: '00000000-0000-4000-b0b3-000000000002',
+    taskForceCode: 'BETA-TF-0001',
+    taskForceName: 'Beta tenant disbursement task force 0001',
+  },
 };
 
 /** A handover section of the project of each tenant (its code is distinctive; tenant data). */
@@ -224,8 +274,20 @@ export const SECTION_FIXTURES: Readonly<Record<TenantName, { id: string; code: s
 
 /** A package of the isolation project of each tenant, with a milestone and the link to its code on the national bidding network (the code is distinctive; tenant data). */
 export const PACKAGE_FIXTURES: Readonly<Record<TenantName, { id: string; code: string; milestoneId: string; linkId: string; externalCode: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0b9-000000000001', code: 'ALPHA-PACKAGE-0001', milestoneId: '00000000-0000-4000-a0b9-000000000002', linkId: '00000000-0000-4000-a0b9-000000000003', externalCode: 'ALPHA-TBMT-0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0b9-000000000001', code: 'BETA-PACKAGE-0001', milestoneId: '00000000-0000-4000-b0b9-000000000002', linkId: '00000000-0000-4000-b0b9-000000000003', externalCode: 'BETA-TBMT-0001' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0b9-000000000001',
+    code: 'ALPHA-PACKAGE-0001',
+    milestoneId: '00000000-0000-4000-a0b9-000000000002',
+    linkId: '00000000-0000-4000-a0b9-000000000003',
+    externalCode: 'ALPHA-TBMT-0001',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0b9-000000000001',
+    code: 'BETA-PACKAGE-0001',
+    milestoneId: '00000000-0000-4000-b0b9-000000000002',
+    linkId: '00000000-0000-4000-b0b9-000000000003',
+    externalCode: 'BETA-TBMT-0001',
+  },
 };
 
 /** A sealed proposal of the contractor of each tenant on its package, and a declaration of conflict of interest about it (the price and the words of the relation are distinctive; tenant confidential data). */
@@ -247,7 +309,24 @@ export const INSPECTION_FIXTURES: Readonly<Record<TenantName, { id: string; titl
 };
 
 /** A handover of the draft contract of each tenant with one punch item (the number and the description are distinctive; tenant data). */
-export const HANDOVER_FIXTURES: Readonly<Record<TenantName, { id: string; itemId: string; handoverNo: string; itemDescription: string; assetId: string; assetCode: string; warrantyId: string; warrantyScope: string; triggerId: string; claimId: string; materialId: string }>> = {
+export const HANDOVER_FIXTURES: Readonly<
+  Record<
+    TenantName,
+    {
+      id: string;
+      itemId: string;
+      handoverNo: string;
+      itemDescription: string;
+      assetId: string;
+      assetCode: string;
+      warrantyId: string;
+      warrantyScope: string;
+      triggerId: string;
+      claimId: string;
+      materialId: string;
+    }
+  >
+> = {
   'TNT-A': {
     id: '00000000-0000-4000-a0d3-000000000001',
     itemId: '00000000-0000-4000-a0d3-000000000002',
@@ -290,7 +369,12 @@ export const WORK_ACCEPTANCE_FIXTURES: Readonly<Record<TenantName, { id: string;
 
 /** A payment request of the draft contract of each tenant, for an approved acceptance (the number is distinctive; tenant financial data). */
 export const PAYMENT_FIXTURES: Readonly<Record<TenantName, { id: string; acceptanceId: string; requestNo: string; holdId: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0ce-000000000001', acceptanceId: '00000000-0000-4000-a0ce-000000000002', requestNo: 'ALPHA-PAYMENT-REQUEST-0001', holdId: '00000000-0000-4000-a0ce-000000000003' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0ce-000000000001',
+    acceptanceId: '00000000-0000-4000-a0ce-000000000002',
+    requestNo: 'ALPHA-PAYMENT-REQUEST-0001',
+    holdId: '00000000-0000-4000-a0ce-000000000003',
+  },
   'TNT-B': { id: '00000000-0000-4000-b0ce-000000000001', acceptanceId: '00000000-0000-4000-b0ce-000000000002', requestNo: 'BETA-PAYMENT-REQUEST-0001', holdId: '00000000-0000-4000-b0ce-000000000003' },
 };
 
@@ -344,8 +428,20 @@ export const DOSSIER_FIXTURES: Readonly<Record<TenantName, { id: string; code: s
 
 /** The incoming letter of each tenant, only received (its sender and symbol are distinctive; tenant data). */
 export const INCOMING_FIXTURES: Readonly<Record<TenantName, { id: string; documentId: string; title: string; sender: string; symbol: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0d0-000000000001', documentId: '00000000-0000-4000-a0d0-000000000002', title: 'Alpha incoming letter title 0001', sender: 'Alpha Ministry Sender 0001', symbol: 'ALPHA-IN-0001/SYM' },
-  'TNT-B': { id: '00000000-0000-4000-b0d0-000000000001', documentId: '00000000-0000-4000-b0d0-000000000002', title: 'Beta incoming letter title 0001', sender: 'Beta Ministry Sender 0001', symbol: 'BETA-IN-0001/SYM' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0d0-000000000001',
+    documentId: '00000000-0000-4000-a0d0-000000000002',
+    title: 'Alpha incoming letter title 0001',
+    sender: 'Alpha Ministry Sender 0001',
+    symbol: 'ALPHA-IN-0001/SYM',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0d0-000000000001',
+    documentId: '00000000-0000-4000-b0d0-000000000002',
+    title: 'Beta incoming letter title 0001',
+    sender: 'Beta Ministry Sender 0001',
+    symbol: 'BETA-IN-0001/SYM',
+  },
 };
 
 /** The registered photo of the contract of each tenant (its caption and its hash are distinctive; tenant data). */
@@ -374,8 +470,20 @@ export const CONTRACTOR_FIXTURES: Readonly<Record<TenantName, { id: string; taxI
 
 /** A DRAFT contract of each tenant under an awarded package, with its first revision (the code and the title are distinctive; tenant financial data). */
 export const CONTRACT_FIXTURES: Readonly<Record<TenantName, { id: string; revisionId: string; packageId: string; code: string; title: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0c3-000000000001', revisionId: '00000000-0000-4000-a0c3-000000000002', packageId: '00000000-0000-4000-a0c3-000000000003', code: 'ALPHA-CONTRACT-0001', title: 'Alpha tenant isolation contract' },
-  'TNT-B': { id: '00000000-0000-4000-b0c3-000000000001', revisionId: '00000000-0000-4000-b0c3-000000000002', packageId: '00000000-0000-4000-b0c3-000000000003', code: 'BETA-CONTRACT-0001', title: 'Beta tenant isolation contract' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0c3-000000000001',
+    revisionId: '00000000-0000-4000-a0c3-000000000002',
+    packageId: '00000000-0000-4000-a0c3-000000000003',
+    code: 'ALPHA-CONTRACT-0001',
+    title: 'Alpha tenant isolation contract',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0c3-000000000001',
+    revisionId: '00000000-0000-4000-b0c3-000000000002',
+    packageId: '00000000-0000-4000-b0c3-000000000003',
+    code: 'BETA-CONTRACT-0001',
+    title: 'Beta tenant isolation contract',
+  },
 };
 
 /** The tiers of the chain of changes of the project of each tenant and a change event of its draft contract (the reason is distinctive; tenant financial data). */
@@ -392,8 +500,22 @@ export const MEASUREMENT_FIXTURES: Readonly<Record<TenantName, { id: string; ref
 
 /** An evaluation of the contractor of each tenant that waits for approval, and a violation that waits for confirmation (the words are distinctive; tenant data about a contractor). */
 export const SCORECARD_FIXTURES: Readonly<Record<TenantName, { evaluationId: string; remarks: string; violationId: string; description: string; exportId: string; exportSha256: string }>> = {
-  'TNT-A': { evaluationId: '00000000-0000-4000-a0e4-000000000001', remarks: 'ALPHA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-a0e4-000000000002', description: 'ALPHA-VIOLATION-WORDS-0001', exportId: '00000000-0000-4000-a0e4-000000000003', exportSha256: 'a0e4'.repeat(16) },
-  'TNT-B': { evaluationId: '00000000-0000-4000-b0e4-000000000001', remarks: 'BETA-EVALUATION-REMARKS-0001', violationId: '00000000-0000-4000-b0e4-000000000002', description: 'BETA-VIOLATION-WORDS-0001', exportId: '00000000-0000-4000-b0e4-000000000003', exportSha256: 'b0e4'.repeat(16) },
+  'TNT-A': {
+    evaluationId: '00000000-0000-4000-a0e4-000000000001',
+    remarks: 'ALPHA-EVALUATION-REMARKS-0001',
+    violationId: '00000000-0000-4000-a0e4-000000000002',
+    description: 'ALPHA-VIOLATION-WORDS-0001',
+    exportId: '00000000-0000-4000-a0e4-000000000003',
+    exportSha256: 'a0e4'.repeat(16),
+  },
+  'TNT-B': {
+    evaluationId: '00000000-0000-4000-b0e4-000000000001',
+    remarks: 'BETA-EVALUATION-REMARKS-0001',
+    violationId: '00000000-0000-4000-b0e4-000000000002',
+    description: 'BETA-VIOLATION-WORDS-0001',
+    exportId: '00000000-0000-4000-b0e4-000000000003',
+    exportSha256: 'b0e4'.repeat(16),
+  },
 };
 
 /**
@@ -406,20 +528,54 @@ export const BOQ_FIXTURES: Readonly<Record<TenantName, { itemId: string; lineId:
 };
 
 export const GUARANTEE_FIXTURES: Readonly<Record<TenantName, { id: string; activeId: string; guaranteeNo: string; activeGuaranteeNo: string; issuer: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0c5-000000000001', activeId: '00000000-0000-4000-a0c5-000000000002', guaranteeNo: 'ALPHA-GUARANTEE-0001', activeGuaranteeNo: 'ALPHA-GUARANTEE-0002', issuer: 'Alpha isolation issuer bank' },
-  'TNT-B': { id: '00000000-0000-4000-b0c5-000000000001', activeId: '00000000-0000-4000-b0c5-000000000002', guaranteeNo: 'BETA-GUARANTEE-0001', activeGuaranteeNo: 'BETA-GUARANTEE-0002', issuer: 'Beta isolation issuer bank' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0c5-000000000001',
+    activeId: '00000000-0000-4000-a0c5-000000000002',
+    guaranteeNo: 'ALPHA-GUARANTEE-0001',
+    activeGuaranteeNo: 'ALPHA-GUARANTEE-0002',
+    issuer: 'Alpha isolation issuer bank',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0c5-000000000001',
+    activeId: '00000000-0000-4000-b0c5-000000000002',
+    guaranteeNo: 'BETA-GUARANTEE-0001',
+    activeGuaranteeNo: 'BETA-GUARANTEE-0002',
+    issuer: 'Beta isolation issuer bank',
+  },
 };
 
 /** A DRAFT procurement plan of the project of each tenant with one package on the line of capital (the title and the package code are distinctive; tenant financial data). */
 export const PROCUREMENT_PLAN_FIXTURES: Readonly<Record<TenantName, { id: string; packageId: string; title: string; packageCode: string; packageTitle: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0c6-000000000001', packageId: '00000000-0000-4000-a0c6-000000000002', title: 'Alpha tenant isolation procurement plan', packageCode: 'ALPHA-PKG-0001', packageTitle: 'Alpha tenant isolation package' },
-  'TNT-B': { id: '00000000-0000-4000-b0c6-000000000001', packageId: '00000000-0000-4000-b0c6-000000000002', title: 'Beta tenant isolation procurement plan', packageCode: 'BETA-PKG-0001', packageTitle: 'Beta tenant isolation package' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0c6-000000000001',
+    packageId: '00000000-0000-4000-a0c6-000000000002',
+    title: 'Alpha tenant isolation procurement plan',
+    packageCode: 'ALPHA-PKG-0001',
+    packageTitle: 'Alpha tenant isolation package',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0c6-000000000001',
+    packageId: '00000000-0000-4000-b0c6-000000000002',
+    title: 'Beta tenant isolation procurement plan',
+    packageCode: 'BETA-PKG-0001',
+    packageTitle: 'Beta tenant isolation package',
+  },
 };
 
 /** The criteria of the package of that plan: a version in force (revision 1) and a draft after it (revision 2); the name of the criterion and the legal basis are distinctive (tenant procurement rules). */
 export const CRITERIA_FIXTURES: Readonly<Record<TenantName, { approvedId: string; draftId: string; criterionName: string; legalBasis: string }>> = {
-  'TNT-A': { approvedId: '00000000-0000-4000-a0c7-000000000001', draftId: '00000000-0000-4000-a0c7-000000000002', criterionName: 'Alpha tenant isolation criterion', legalBasis: 'Alpha tenant isolation criteria basis' },
-  'TNT-B': { approvedId: '00000000-0000-4000-b0c7-000000000001', draftId: '00000000-0000-4000-b0c7-000000000002', criterionName: 'Beta tenant isolation criterion', legalBasis: 'Beta tenant isolation criteria basis' },
+  'TNT-A': {
+    approvedId: '00000000-0000-4000-a0c7-000000000001',
+    draftId: '00000000-0000-4000-a0c7-000000000002',
+    criterionName: 'Alpha tenant isolation criterion',
+    legalBasis: 'Alpha tenant isolation criteria basis',
+  },
+  'TNT-B': {
+    approvedId: '00000000-0000-4000-b0c7-000000000001',
+    draftId: '00000000-0000-4000-b0c7-000000000002',
+    criterionName: 'Beta tenant isolation criterion',
+    legalBasis: 'Beta tenant isolation criteria basis',
+  },
 };
 
 /** A dataset of the catalogue of each tenant (its code and its title are distinctive; tenant data). */
@@ -452,6 +608,22 @@ export const QUERY_RUN_FIXTURES: Readonly<Record<TenantName, { id: string }>> = 
   'TNT-B': { id: '00000000-0000-4000-b0d2-000000000006' },
 };
 
+/** A revision of the contract of the dataset of each tenant in review (with a consumer that waits for its owner) and a version published (distinctive ids and consumer references; tenant data). */
+export const DATA_CONTRACT_FIXTURES: Readonly<Record<TenantName, { revisionId: string; approvalId: string; versionId: string; consumerRef: string }>> = {
+  'TNT-A': {
+    revisionId: '00000000-0000-4000-a0d2-000000000007',
+    approvalId: '00000000-0000-4000-a0d2-000000000008',
+    versionId: '00000000-0000-4000-a0d2-000000000009',
+    consumerRef: 'ALPHA-CONSUMER-0001',
+  },
+  'TNT-B': {
+    revisionId: '00000000-0000-4000-b0d2-000000000007',
+    approvalId: '00000000-0000-4000-b0d2-000000000008',
+    versionId: '00000000-0000-4000-b0d2-000000000009',
+    consumerRef: 'BETA-CONSUMER-0001',
+  },
+};
+
 /** A request to publish of each tenant (about a metric nobody drafted: the request is what the isolation cases read and decide; tenant data). */
 export const PUBLICATION_FIXTURES: Readonly<Record<TenantName, { id: string; objectId: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d3-000000000001', objectId: '00000000-0000-4000-a0d3-000000000002' },
@@ -472,26 +644,70 @@ export const QUALITY_FIXTURES: Readonly<Record<TenantName, { contractId: string;
 
 /** An OPEN quality incident of the quality rule above and an OPEN exception of its run (their title and reason are distinctive; tenant data). */
 export const QUALITY_INCIDENT_FIXTURES: Readonly<Record<TenantName, { incidentId: string; exceptionId: string; title: string; reason: string }>> = {
-  'TNT-A': { incidentId: '00000000-0000-4000-a0d3-000000000001', exceptionId: '00000000-0000-4000-a0d3-000000000002', title: 'Alpha quality incident title 0001', reason: 'Alpha quality exception reason 0001' },
-  'TNT-B': { incidentId: '00000000-0000-4000-b0d3-000000000001', exceptionId: '00000000-0000-4000-b0d3-000000000002', title: 'Beta quality incident title 0001', reason: 'Beta quality exception reason 0001' },
+  'TNT-A': {
+    incidentId: '00000000-0000-4000-a0d3-000000000001',
+    exceptionId: '00000000-0000-4000-a0d3-000000000002',
+    title: 'Alpha quality incident title 0001',
+    reason: 'Alpha quality exception reason 0001',
+  },
+  'TNT-B': {
+    incidentId: '00000000-0000-4000-b0d3-000000000001',
+    exceptionId: '00000000-0000-4000-b0d3-000000000002',
+    title: 'Beta quality incident title 0001',
+    reason: 'Beta quality exception reason 0001',
+  },
 };
 
 /** A PROPOSED mapping of a field of a source into the dataset above, a reconciliation of two sources and a batch kept out by the gate (their field, code and reference are distinctive; tenant data). */
 export const SOURCE_FIXTURES: Readonly<Record<TenantName, { mappingId: string; sourceField: string; reconId: string; reconCode: string; gateId: string; batchRef: string }>> = {
-  'TNT-A': { mappingId: '00000000-0000-4000-a0d4-000000000001', sourceField: 'alpha_source_field_0001', reconId: '00000000-0000-4000-a0d4-000000000002', reconCode: 'ALPHA-RECON-0001', gateId: '00000000-0000-4000-a0d4-000000000003', batchRef: 'ALPHA-BATCH-0001' },
-  'TNT-B': { mappingId: '00000000-0000-4000-b0d4-000000000001', sourceField: 'beta_source_field_0001', reconId: '00000000-0000-4000-b0d4-000000000002', reconCode: 'BETA-RECON-0001', gateId: '00000000-0000-4000-b0d4-000000000003', batchRef: 'BETA-BATCH-0001' },
+  'TNT-A': {
+    mappingId: '00000000-0000-4000-a0d4-000000000001',
+    sourceField: 'alpha_source_field_0001',
+    reconId: '00000000-0000-4000-a0d4-000000000002',
+    reconCode: 'ALPHA-RECON-0001',
+    gateId: '00000000-0000-4000-a0d4-000000000003',
+    batchRef: 'ALPHA-BATCH-0001',
+  },
+  'TNT-B': {
+    mappingId: '00000000-0000-4000-b0d4-000000000001',
+    sourceField: 'beta_source_field_0001',
+    reconId: '00000000-0000-4000-b0d4-000000000002',
+    reconCode: 'BETA-RECON-0001',
+    gateId: '00000000-0000-4000-b0d4-000000000003',
+    batchRef: 'BETA-BATCH-0001',
+  },
 };
 
 /** A live session and a live device of the member of each tenant (their ids are distinctive; tenant data). */
 export const SELF_FIXTURES: Readonly<Record<TenantName, { sessionId: string; deviceId: string; devicePublicId: string; attachmentId: string }>> = {
-  'TNT-A': { sessionId: '00000000-0000-4000-a0d5-000000000001', deviceId: '00000000-0000-4000-a0d5-000000000002', devicePublicId: 'alpha-device-public-0001', attachmentId: '00000000-0000-4000-a0d5-000000000003' },
-  'TNT-B': { sessionId: '00000000-0000-4000-b0d5-000000000001', deviceId: '00000000-0000-4000-b0d5-000000000002', devicePublicId: 'beta-device-public-0001', attachmentId: '00000000-0000-4000-b0d5-000000000003' },
+  'TNT-A': {
+    sessionId: '00000000-0000-4000-a0d5-000000000001',
+    deviceId: '00000000-0000-4000-a0d5-000000000002',
+    devicePublicId: 'alpha-device-public-0001',
+    attachmentId: '00000000-0000-4000-a0d5-000000000003',
+  },
+  'TNT-B': {
+    sessionId: '00000000-0000-4000-b0d5-000000000001',
+    deviceId: '00000000-0000-4000-b0d5-000000000002',
+    devicePublicId: 'beta-device-public-0001',
+    attachmentId: '00000000-0000-4000-b0d5-000000000003',
+  },
 };
 
 /** A published workflow definition, a running instance of it and a pending task of the instance (their ids and business type are distinctive; tenant data). */
 export const WORKFLOW_FIXTURES: Readonly<Record<TenantName, { versionId: string; instanceId: string; taskId: string; resourceId: string }>> = {
-  'TNT-A': { versionId: '00000000-0000-4000-a0d6-000000000001', instanceId: '00000000-0000-4000-a0d6-000000000002', taskId: '00000000-0000-4000-a0d6-000000000003', resourceId: '00000000-0000-4000-a0d6-000000000004' },
-  'TNT-B': { versionId: '00000000-0000-4000-b0d6-000000000001', instanceId: '00000000-0000-4000-b0d6-000000000002', taskId: '00000000-0000-4000-b0d6-000000000003', resourceId: '00000000-0000-4000-b0d6-000000000004' },
+  'TNT-A': {
+    versionId: '00000000-0000-4000-a0d6-000000000001',
+    instanceId: '00000000-0000-4000-a0d6-000000000002',
+    taskId: '00000000-0000-4000-a0d6-000000000003',
+    resourceId: '00000000-0000-4000-a0d6-000000000004',
+  },
+  'TNT-B': {
+    versionId: '00000000-0000-4000-b0d6-000000000001',
+    instanceId: '00000000-0000-4000-b0d6-000000000002',
+    taskId: '00000000-0000-4000-b0d6-000000000003',
+    resourceId: '00000000-0000-4000-b0d6-000000000004',
+  },
 };
 
 /** An ACTIVE delegation of each tenant from the fixture membership to the second one (its reason is distinctive; tenant data). */
@@ -526,8 +742,20 @@ export const ESCALATION_FIXTURES: Readonly<Record<TenantName, { id: string }>> =
 
 /** A Treasury statement import of each tenant with the transaction it created (the file hash and the voucher number are distinctive; tenant financial data). */
 export const TREASURY_FIXTURES: Readonly<Record<TenantName, { importId: string; fileSha256: string; transactionId: string; documentNo: string; externalId: string }>> = {
-  'TNT-A': { importId: '00000000-0000-4000-a0aa-000000000001', fileSha256: 'a7'.repeat(32), transactionId: '00000000-0000-4000-a0aa-000000000002', documentNo: 'ALPHA-VOUCHER-0001', externalId: 'KBNN_FILE|ALPHA-VOUCHER-0001|2026-10-15|ALPHA-PROJECT' },
-  'TNT-B': { importId: '00000000-0000-4000-b0aa-000000000001', fileSha256: 'b8'.repeat(32), transactionId: '00000000-0000-4000-b0aa-000000000002', documentNo: 'BETA-VOUCHER-0001', externalId: 'KBNN_FILE|BETA-VOUCHER-0001|2026-10-15|BETA-PROJECT' },
+  'TNT-A': {
+    importId: '00000000-0000-4000-a0aa-000000000001',
+    fileSha256: 'a7'.repeat(32),
+    transactionId: '00000000-0000-4000-a0aa-000000000002',
+    documentNo: 'ALPHA-VOUCHER-0001',
+    externalId: 'KBNN_FILE|ALPHA-VOUCHER-0001|2026-10-15|ALPHA-PROJECT',
+  },
+  'TNT-B': {
+    importId: '00000000-0000-4000-b0aa-000000000001',
+    fileSha256: 'b8'.repeat(32),
+    transactionId: '00000000-0000-4000-b0aa-000000000002',
+    documentNo: 'BETA-VOUCHER-0001',
+    externalId: 'KBNN_FILE|BETA-VOUCHER-0001|2026-10-15|BETA-PROJECT',
+  },
 };
 
 /** A live subscription of each tenant (the contract reference is distinctive; tenant commercial data). */
@@ -629,8 +857,18 @@ export const PERIOD_CALENDAR_FIXTURES: Readonly<Record<TenantName, { recordId: s
 
 /** A LOCKED reporting period of each tenant and a request to reopen it that waits for a decision (the reason of the request is distinctive: it is internal to the tenant). */
 export const REOPEN_FIXTURES: Readonly<Record<TenantName, { periodId: string; periodCode: string; id: string; reason: string }>> = {
-  'TNT-A': { periodId: '00000000-0000-4000-a0b6-000000000001', periodCode: 'ALPHA-PERIOD-0002', id: '00000000-0000-4000-a0b7-000000000001', reason: 'Alpha tenant request to reopen the locked period 0001' },
-  'TNT-B': { periodId: '00000000-0000-4000-b0b6-000000000001', periodCode: 'BETA-PERIOD-0002', id: '00000000-0000-4000-b0b7-000000000001', reason: 'Beta tenant request to reopen the locked period 0001' },
+  'TNT-A': {
+    periodId: '00000000-0000-4000-a0b6-000000000001',
+    periodCode: 'ALPHA-PERIOD-0002',
+    id: '00000000-0000-4000-a0b7-000000000001',
+    reason: 'Alpha tenant request to reopen the locked period 0001',
+  },
+  'TNT-B': {
+    periodId: '00000000-0000-4000-b0b6-000000000001',
+    periodCode: 'BETA-PERIOD-0002',
+    id: '00000000-0000-4000-b0b7-000000000001',
+    reason: 'Beta tenant request to reopen the locked period 0001',
+  },
 };
 
 /** A DRAFT weekly report of the project of each tenant in its open period (the hash of the content is distinctive: the figures of a report are internal to the tenant). */
@@ -659,8 +897,20 @@ export const REPORT_EXPORT_FIXTURES: Readonly<Record<TenantName, { id: string }>
 
 /** A draft early-warning rule and a warning of each tenant that is open (the name, the legal basis and the dedupe key are distinctive: the rules and the warnings of a tenant are internal to it). */
 export const EARLY_WARNING_FIXTURES: Readonly<Record<TenantName, { ruleId: string; ruleName: string; legalBasis: string; warningId: string; dedupeKey: string }>> = {
-  'TNT-A': { ruleId: '00000000-0000-4000-a0f8-000000000001', ruleName: 'Alpha tenant slow disbursement rule 0001', legalBasis: 'Alpha tenant legal basis of the warning rule 0001', warningId: '00000000-0000-4000-a0f8-000000000002', dedupeKey: 'EW-ISO|alpha-0001|2026' },
-  'TNT-B': { ruleId: '00000000-0000-4000-b0f8-000000000001', ruleName: 'Beta tenant slow disbursement rule 0001', legalBasis: 'Beta tenant legal basis of the warning rule 0001', warningId: '00000000-0000-4000-b0f8-000000000002', dedupeKey: 'EW-ISO|beta-0001|2026' },
+  'TNT-A': {
+    ruleId: '00000000-0000-4000-a0f8-000000000001',
+    ruleName: 'Alpha tenant slow disbursement rule 0001',
+    legalBasis: 'Alpha tenant legal basis of the warning rule 0001',
+    warningId: '00000000-0000-4000-a0f8-000000000002',
+    dedupeKey: 'EW-ISO|alpha-0001|2026',
+  },
+  'TNT-B': {
+    ruleId: '00000000-0000-4000-b0f8-000000000001',
+    ruleName: 'Beta tenant slow disbursement rule 0001',
+    legalBasis: 'Beta tenant legal basis of the warning rule 0001',
+    warningId: '00000000-0000-4000-b0f8-000000000002',
+    dedupeKey: 'EW-ISO|beta-0001|2026',
+  },
 };
 
 /** A request for an explanation of each tenant (the question is distinctive: the questions and answers of a tenant are internal to it). */
@@ -759,7 +1009,9 @@ export const TEMPLATE_FIXTURES: Readonly<Record<TenantName, { id: string; templa
 };
 
 /** A published report form, an obligation rule of it and the obligation (report shell) generated from them, per tenant (the codes and the legal text are distinctive). */
-export const MNE_FIXTURES: Readonly<Record<TenantName, { formId: string; formCode: string; formLegalBasis: string; ruleId: string; ruleCode: string; ruleRecipient: string; reportId: string; packageId: string; packageSha256: string }>> = {
+export const MNE_FIXTURES: Readonly<
+  Record<TenantName, { formId: string; formCode: string; formLegalBasis: string; ruleId: string; ruleCode: string; ruleRecipient: string; reportId: string; packageId: string; packageSha256: string }>
+> = {
   'TNT-A': {
     formId: '00000000-0000-4000-a0d6-000000000001',
     formCode: 'ALPHA-FORM-0001',
@@ -893,7 +1145,23 @@ export const LLM_FIXTURES: Readonly<
 
 /** A metric of each tenant's registry (the code and the commit it came from are distinctive). */
 export const BI_FIXTURES: Readonly<
-  Record<TenantName, { metricId: string; metricCode: string; sourceCommit: string; datasetId: string; datasetCode: string; datasetTitle: string; versionId: string; versionChecksum: string; policyId: string; policyColumn: string; contextId: string; contextPeriod: string }>
+  Record<
+    TenantName,
+    {
+      metricId: string;
+      metricCode: string;
+      sourceCommit: string;
+      datasetId: string;
+      datasetCode: string;
+      datasetTitle: string;
+      versionId: string;
+      versionChecksum: string;
+      policyId: string;
+      policyColumn: string;
+      contextId: string;
+      contextPeriod: string;
+    }
+  >
 > = {
   'TNT-A': {
     metricId: '00000000-0000-4000-a0b1-000000000001',
@@ -975,8 +1243,22 @@ export const RETENTION_FIXTURES: Readonly<Record<TenantName, { id: string; revie
 
 /** A failed delivery attempt of the notification fixture of each tenant, with the channel account and template it names (the provider message id is the provider's reference and must not reach another tenant). */
 export const DELIVERY_ATTEMPT_FIXTURES: Readonly<Record<TenantName, { id: string; accountId: string; templateId: string; providerMessageId: string; campaignId: string; campaignName: string }>> = {
-  'TNT-A': { id: '00000000-0000-4000-a0a4-000000000001', accountId: '00000000-0000-4000-a0a4-000000000002', templateId: '00000000-0000-4000-a0a4-000000000003', providerMessageId: 'alpha-provider-message-0001', campaignId: '00000000-0000-4000-a0a4-000000000004', campaignName: 'alpha-campaign-name-0001' },
-  'TNT-B': { id: '00000000-0000-4000-b0a4-000000000001', accountId: '00000000-0000-4000-b0a4-000000000002', templateId: '00000000-0000-4000-b0a4-000000000003', providerMessageId: 'beta-provider-message-0001', campaignId: '00000000-0000-4000-b0a4-000000000004', campaignName: 'beta-campaign-name-0001' },
+  'TNT-A': {
+    id: '00000000-0000-4000-a0a4-000000000001',
+    accountId: '00000000-0000-4000-a0a4-000000000002',
+    templateId: '00000000-0000-4000-a0a4-000000000003',
+    providerMessageId: 'alpha-provider-message-0001',
+    campaignId: '00000000-0000-4000-a0a4-000000000004',
+    campaignName: 'alpha-campaign-name-0001',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0a4-000000000001',
+    accountId: '00000000-0000-4000-b0a4-000000000002',
+    templateId: '00000000-0000-4000-b0a4-000000000003',
+    providerMessageId: 'beta-provider-message-0001',
+    campaignId: '00000000-0000-4000-b0a4-000000000004',
+    campaignName: 'beta-campaign-name-0001',
+  },
 };
 
 /** A contact of each tenant with a pending identity (the name is distinctive; it must never be shown to the other tenant). The identity has the id of the contact, since a case names one id for every parameter of its path. */
@@ -1018,7 +1300,12 @@ export const INTEGRATION_FIXTURES: Readonly<Record<TenantName, { connectorId: st
 };
 
 /** A number register and a stored document version of each tenant (the register code and the object key are distinctive). */
-export const DOCUMENT_FIXTURES: Readonly<Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string; distributionId: string }>> = {
+export const DOCUMENT_FIXTURES: Readonly<
+  Record<
+    TenantName,
+    { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string; distributionId: string }
+  >
+> = {
   'TNT-A': {
     registerId: '00000000-0000-4000-a00b-000000000001',
     registerCode: 'ALPHA-REGISTER-0001',
@@ -1351,6 +1638,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'export job id', value: EXPORT_JOB_FIXTURES[tenant].id },
     { kind: 'export schedule id', value: EXPORT_JOB_FIXTURES[tenant].scheduleId },
     { kind: 'query run id', value: QUERY_RUN_FIXTURES[tenant].id },
+    { kind: 'data contract revision id', value: DATA_CONTRACT_FIXTURES[tenant].revisionId },
+    { kind: 'contract consumer approval id', value: DATA_CONTRACT_FIXTURES[tenant].approvalId },
+    { kind: 'contract version id', value: DATA_CONTRACT_FIXTURES[tenant].versionId },
+    { kind: 'contract consumer reference', value: DATA_CONTRACT_FIXTURES[tenant].consumerRef },
     { kind: 'dashboard id', value: DASHBOARD_FIXTURES[tenant].id },
     { kind: 'dashboard version id', value: DASHBOARD_FIXTURES[tenant].versionId },
     { kind: 'dashboard code', value: DASHBOARD_FIXTURES[tenant].code },

@@ -22,6 +22,7 @@ import {
   SHARE_FIXTURES,
   EXPORT_JOB_FIXTURES,
   QUERY_RUN_FIXTURES,
+  DATA_CONTRACT_FIXTURES,
   DATASET_FIXTURES,
   PRODUCT_FIXTURES,
   RESERVATION_FIXTURES,
@@ -95,7 +96,23 @@ import { INTEGRATION_FIXTURES } from '../suite';
 import { APPROPRIATION_FIXTURES } from '../suite';
 import { CAPITAL_PLAN_FIXTURES } from '../suite';
 import { SCHEDULE_FIXTURES } from '../suite';
-import { EARLY_WARNING_FIXTURES, EXPLANATION_FIXTURES, REALLOCATION_FIXTURES, SCENARIO_FIXTURES, TRANSFER_FIXTURES, PERIOD_CALENDAR_FIXTURES, PERIOD_FIXTURES, PERIOD_SNAPSHOT_FIXTURES, REPORT_EXPORT_FIXTURES, REPORT_FIXTURES, REPORT_IMPORT_FIXTURES, REVISION_FIXTURES, RISK_FIXTURES, MILESTONE_FIXTURES, CAPITAL_LEDGER_FIXTURES } from '../suite';
+import {
+  EARLY_WARNING_FIXTURES,
+  EXPLANATION_FIXTURES,
+  REALLOCATION_FIXTURES,
+  SCENARIO_FIXTURES,
+  TRANSFER_FIXTURES,
+  PERIOD_CALENDAR_FIXTURES,
+  PERIOD_FIXTURES,
+  PERIOD_SNAPSHOT_FIXTURES,
+  REPORT_EXPORT_FIXTURES,
+  REPORT_FIXTURES,
+  REPORT_IMPORT_FIXTURES,
+  REVISION_FIXTURES,
+  RISK_FIXTURES,
+  MILESTONE_FIXTURES,
+  CAPITAL_LEDGER_FIXTURES,
+} from '../suite';
 import { REOPEN_FIXTURES } from '../suite';
 import { EXPORT_FIXTURES, INVOICE_FIXTURES, exportManifestObjectId, exportManifestSha, SUBSCRIPTION_FIXTURES, SUPPORT_FIXTURES, TREASURY_FIXTURES, USAGE_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
@@ -867,6 +884,15 @@ export const FULL_RIGHTS_OPERATIONS = [
   'listBiExports',
   'getBiLineage',
   'getBiQueryRun',
+  'createDatasetContractRevision',
+  'recordConsumerApproval',
+  'publishDatasetContract',
+  'post_data_contracts_id_publish',
+  'get_resources_dataset_contract',
+  'get_resources_dataset_contract_id',
+  'get_resources_data_contract_version',
+  'get_resources_data_contract_version_id',
+  'listConsumerApprovals',
   'listBiQueryRuns',
   'listBiExportSchedules',
   'shareDashboard',
@@ -1389,6 +1415,18 @@ const INSERT_DATA_PRODUCT = `insert into machvon.data_product
 const INSERT_QUALITY_CONTRACT = `insert into machvon.dataset_contract
   (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id)
   values ($1, $2, $3, 1, $4, '{}'::jsonb, '{}'::jsonb, 3600, 'PUBLIC', 'DRAFT', $5) on conflict do nothing`;
+
+const DATA_INSERT_CONTRACT_REVISION = `insert into machvon.dataset_contract
+  (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id, odcs_version, odcs_json, producer_module, compatibility, effective_from, created_by)
+  values ($1, $2, $3, 2, $4, '{"columns":[]}'::jsonb, '{"rules":[]}'::jsonb, 3600, 'PUBLIC', 'IN_REVIEW', $5, 'v3.0.2', '{"apiVersion":"v3.0.2"}'::jsonb, 'PAY', 'BREAKING', date '2030-01-01', $6) on conflict do nothing`;
+
+const DATA_INSERT_CONTRACT_APPROVAL = `insert into machvon.contract_consumer_approval
+  (tenant_id, id, contract_id, consumer_kind, consumer_ref, consumer_owner_user_id, decision, created_by, updated_by)
+  values ($1, $2, $3, 'MODULE', $4, $5, 'PENDING', $6, $6) on conflict do nothing`;
+
+const DATA_INSERT_CONTRACT_VERSION = `insert into machvon.data_contract_version
+  (tenant_id, id, dataset_id, revision, grain, schema_json, owner_id, quality_rules, retention_policy_id, status, contract_id, odcs_sha256, compatibility, published_by, published_at)
+  values ($1, $2, $3, 1, 'one row per isolation case', '{"columns":[]}'::jsonb, $4, '{}'::jsonb, $5, 'PUBLISHED', $6, repeat('a', 64), 'INITIAL', $4, now()) on conflict do nothing`;
 
 const INSERT_QUALITY_RULE = `insert into machvon.quality_rule_version
   (tenant_id, id, contract_id, dataset_id, code, revision, expression_ast, severity, threshold_json, status, dimension, field_path, action_on_fail, criticality_weight, created_by)
@@ -1978,17 +2016,52 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query("select set_config('app.scope_units', '*', false)");
     await client.query(INSERT_HOUSEHOLD, [tenantId, HOUSEHOLD_FIXTURES[tenant].id, project.id, home, HOUSEHOLD_FIXTURES[tenant].code, ACTOR_ID]);
-    await client.query(INSERT_RESETTLEMENT, [tenantId, ALLOCATION_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, ALLOCATION_FIXTURES[tenant].unitCode, ALLOCATION_FIXTURES[tenant].siteText, ACTOR_ID]);
+    await client.query(INSERT_RESETTLEMENT, [
+      tenantId,
+      ALLOCATION_FIXTURES[tenant].id,
+      HOUSEHOLD_FIXTURES[tenant].id,
+      home,
+      ALLOCATION_FIXTURES[tenant].unitCode,
+      ALLOCATION_FIXTURES[tenant].siteText,
+      ACTOR_ID,
+    ]);
     await client.query(INSERT_HOUSEHOLD_PARCEL, [tenantId, INVENTORY_FIXTURES[tenant].linkId, HOUSEHOLD_FIXTURES[tenant].id, PARCEL_FIXTURES[tenant].id, home, ACTOR_ID]);
     await client.query(INSERT_MNE_EVALUATION, [tenantId, MNE_EVALUATION_FIXTURES[tenant].id, project.id, MNE_EVALUATION_FIXTURES[tenant].scopeText, MEMBERSHIP_ID]);
-    await client.query(INSERT_ENFORCEMENT, [tenantId, ENFORCEMENT_FIXTURES[tenant].id, project.id, PARCEL_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, ENFORCEMENT_FIXTURES[tenant].legalBasis, MEMBERSHIP_ID]);
-    await client.query(INSERT_COMPLAINT, [tenantId, COMPLAINT_FIXTURES[tenant].id, project.id, HOUSEHOLD_FIXTURES[tenant].id, home, COMPLAINT_FIXTURES[tenant].number, COMPLAINT_FIXTURES[tenant].words, MEMBERSHIP_ID]);
+    await client.query(INSERT_ENFORCEMENT, [
+      tenantId,
+      ENFORCEMENT_FIXTURES[tenant].id,
+      project.id,
+      PARCEL_FIXTURES[tenant].id,
+      HOUSEHOLD_FIXTURES[tenant].id,
+      home,
+      ENFORCEMENT_FIXTURES[tenant].legalBasis,
+      MEMBERSHIP_ID,
+    ]);
+    await client.query(INSERT_COMPLAINT, [
+      tenantId,
+      COMPLAINT_FIXTURES[tenant].id,
+      project.id,
+      HOUSEHOLD_FIXTURES[tenant].id,
+      home,
+      COMPLAINT_FIXTURES[tenant].number,
+      COMPLAINT_FIXTURES[tenant].words,
+      MEMBERSHIP_ID,
+    ]);
     await client.query(INSERT_COMP_PLAN, [tenantId, PLAN_COMP_FIXTURES[tenant].id, project.id, home, PLAN_COMP_FIXTURES[tenant].code, MEMBERSHIP_ID]);
     await client.query(INSERT_COMP_ITEM, [tenantId, PLAN_COMP_FIXTURES[tenant].itemId, PLAN_COMP_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, MEMBERSHIP_ID]);
     await client.query('update machvon.compensation_plan set total_support_vnd = 1000 where id = $1', [PLAN_COMP_FIXTURES[tenant].id]);
     await client.query(POST_COMP_PLAN, [PLAN_COMP_FIXTURES[tenant].id]);
     await client.query(INSERT_COMP_FEEDBACK, [tenantId, PLAN_COMP_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, home, MEMBERSHIP_ID]);
-    await client.query(INSERT_INVENTORY, [tenantId, INVENTORY_FIXTURES[tenant].id, HOUSEHOLD_FIXTURES[tenant].id, PARCEL_FIXTURES[tenant].id, home, INVENTORY_FIXTURES[tenant].priceDecision, ACTOR_ID, MEMBERSHIP_ID]);
+    await client.query(INSERT_INVENTORY, [
+      tenantId,
+      INVENTORY_FIXTURES[tenant].id,
+      HOUSEHOLD_FIXTURES[tenant].id,
+      PARCEL_FIXTURES[tenant].id,
+      home,
+      INVENTORY_FIXTURES[tenant].priceDecision,
+      ACTOR_ID,
+      MEMBERSHIP_ID,
+    ]);
     const pack = PACKAGE_FIXTURES[tenant];
     await client.query(INSERT_PLANNED_PACKAGE, [tenantId, pack.id, project.id, pack.code, ACTOR_ID]);
     await client.query(INSERT_MILESTONE, [tenantId, pack.milestoneId, pack.id, ACTOR_ID]);
@@ -2035,6 +2108,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_DATA_PRODUCT, [tenantId, product.id, product.code, product.title, dataset.id, MEMBERSHIP_ID, ACTOR_ID]);
     const quality = QUALITY_FIXTURES[tenant];
     await client.query(INSERT_QUALITY_CONTRACT, [tenantId, quality.contractId, dataset.datasetCode, MEMBERSHIP_ID, dataset.id]);
+    const contract = DATA_CONTRACT_FIXTURES[tenant];
+    await client.query(DATA_INSERT_CONTRACT_REVISION, [tenantId, contract.revisionId, dataset.datasetCode, MEMBERSHIP_ID, dataset.id, ACTOR_ID]);
+    await client.query(DATA_INSERT_CONTRACT_APPROVAL, [tenantId, contract.approvalId, contract.revisionId, contract.consumerRef, MEMBERSHIP_ID, ACTOR_ID]);
+    await client.query(DATA_INSERT_CONTRACT_VERSION, [tenantId, contract.versionId, dataset.id, MEMBERSHIP_ID, RETENTION_FIXTURES[tenant].id, quality.contractId]);
     await client.query(INSERT_QUALITY_RULE, [tenantId, quality.ruleId, quality.contractId, dataset.id, quality.ruleCode, ACTOR_ID]);
     await client.query(INSERT_QUALITY_RUN, [tenantId, quality.runId, quality.contractId, quality.ruleId, dataset.id]);
     const qualityIncident = QUALITY_INCIDENT_FIXTURES[tenant];
@@ -2171,7 +2248,18 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const photo = PHOTO_FIXTURES[tenant];
     await client.query(INSERT_PHOTO, [tenantId, photo.id, project.id, draft.id, photo.operationId, `tenants/${tenantId}/site_photo/${photo.id}`, photo.sha256, photo.caption, MEMBERSHIP_ID]);
     const measurement = MEASUREMENT_FIXTURES[tenant];
-    await client.query(INSERT_MEASUREMENT, [tenantId, measurement.id, draft.id, draft.revisionId, boq.lineId, boq.itemId, PERIOD_FIXTURES[tenant].id, documents.versionId, measurement.referenceNo, ACTOR_ID]);
+    await client.query(INSERT_MEASUREMENT, [
+      tenantId,
+      measurement.id,
+      draft.id,
+      draft.revisionId,
+      boq.lineId,
+      boq.itemId,
+      PERIOD_FIXTURES[tenant].id,
+      documents.versionId,
+      measurement.referenceNo,
+      ACTOR_ID,
+    ]);
     const scorecard = SCORECARD_FIXTURES[tenant];
     await client.query(INSERT_EVALUATION, [tenantId, scorecard.evaluationId, draft.id, contractor.id, scorecard.remarks, ACTOR_ID]);
     await client.query(INSERT_VIOLATION, [tenantId, scorecard.violationId, draft.id, contractor.id, scorecard.description, ACTOR_ID]);

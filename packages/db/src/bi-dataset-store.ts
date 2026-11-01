@@ -157,6 +157,7 @@ export class BiDatasetStore {
     const found = await tx.query<{ id: string }>('select id from machvon.bi_dataset where dataset_code = $1', [DISBURSEMENT_DATASET_CODE]);
     if (found[0] !== undefined) return found[0].id;
     const id = randomUUID();
+    await this.lockCatalogueDataset(tx);
     await tx.query(
       `insert into machvon.bi_dataset (tenant_id, id, dataset_code, title, source_kind, grain, join_paths, dgv_dataset_id, owner_user_id, created_by, updated_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, 'PERIOD_SNAPSHOT', 'project', $4::jsonb,
@@ -248,8 +249,17 @@ export class BiDatasetStore {
     return { version: toVersion(made[0] as Sql), outcome: 'BUILT', supersededId: current?.id ?? null };
   }
 
+  /**
+   * The dataset DGV keeps for the producer DIS is held in share mode until this transaction ends: a breaking revision of its contract locks it for update before it reads its consumers, so a link made here either
+   * waits for that publication or is committed in time to be seen by it.
+   */
+  private async lockCatalogueDataset(tx: TenantTx): Promise<void> {
+    await tx.query("select d.id from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED' order by d.created_at limit 1 for share");
+  }
+
   /** Links a dataset of BI to the dataset DGV keeps for the producer DIS, if DGV has one now; the link made earlier is never changed. */
   private async linkCatalogue(tx: TenantTx, datasetId: string): Promise<string | null> {
+    await this.lockCatalogueDataset(tx);
     const rows = await tx.query<{ dgv_dataset_id: string | null }>(
       `update machvon.bi_dataset b set dgv_dataset_id = (select d.id from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED' order by d.created_at limit 1), updated_at = now(), version = version + 1
         where b.id = $1::uuid and b.dgv_dataset_id is null and exists (select 1 from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED')

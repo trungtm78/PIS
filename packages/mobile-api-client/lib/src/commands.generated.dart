@@ -1666,6 +1666,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listConflictDeclarations({required String id, Map<String, Object?>? query}) =>
       execute('listConflictDeclarations', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> listConsumerApprovals({Map<String, Object?>? query}) =>
+      execute('listConsumerApprovals', query: query);
+
   Future<Object?> listContractorExports({Map<String, Object?>? query}) =>
       execute('listContractorExports', query: query);
 

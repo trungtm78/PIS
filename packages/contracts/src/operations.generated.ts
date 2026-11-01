@@ -554,6 +554,7 @@ export const OPERATIONS = {
   "listCompensationPlanItems": { method: "get", path: "/compensation-plans/{id}/items", versioned: false, stepUp: null, permission: "land.read" },
   "listCompensationPlans": { method: "get", path: "/compensation-plans", versioned: false, stepUp: null, permission: "land.read" },
   "listConflictDeclarations": { method: "get", path: "/procurement-packages/{id}/conflict-declarations", versioned: false, stepUp: null, permission: "bid.read" },
+  "listConsumerApprovals": { method: "get", path: "/dgv/contract-consumer-approvals", versioned: false, stepUp: null, permission: "data.contract.consume" },
   "listContractorExports": { method: "get", path: "/contractor-exports", versioned: false, stepUp: null, permission: "contractor.export" },
   "listConversationAssignees": { method: "get", path: "/conversations/{conversationId}/assignees", versioned: false, stepUp: null, permission: "omni.conversation.assign" },
   "listDashboards": { method: "get", path: "/bi/dashboards", versioned: false, stepUp: null, permission: "bi.query" },

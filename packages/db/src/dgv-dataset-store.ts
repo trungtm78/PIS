@@ -184,7 +184,8 @@ const SELECT = `select d.id, d.dataset_code, d.title, d.domain, d.grain, d.produ
   cv.revision as contract_revision, d.status,
   ${QUALITY_BADGE_SQL} as quality_badge, run.score::text as quality_score, run.hard_fail as quality_hard_fail,
   to_char(run.finished_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as quality_run_at,
-  (select c.id from machvon.dataset_contract c where c.tenant_id = d.tenant_id and c.dataset_id = d.id order by c.revision desc limit 1) as working_contract_id,
+  (select c.id from machvon.dataset_contract c where c.tenant_id = d.tenant_id and c.dataset_id = d.id and not (c.odcs_json is not null and c.status in ('IN_REVIEW', 'REJECTED', 'RETURNED'))
+    order by exists (select 1 from machvon.quality_rule_version q where q.tenant_id = c.tenant_id and q.contract_id = c.id and q.status = 'APPROVED') desc, c.revision desc limit 1) as working_contract_id,
   ${INCIDENT_COUNTS_SQL},
   d.version::text as version
   from machvon.dataset d

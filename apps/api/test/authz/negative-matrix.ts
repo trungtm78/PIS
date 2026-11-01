@@ -229,6 +229,9 @@ export interface MatrixTargets {
   dossierId: string;
   /** A DIS dataset of tenant A with its working contract, a DRAFT quality rule of it made by someone other than the callers (version 1), and a frozen snapshot of the open period. */
   qualityContractId: string;
+  /** A revision of the contract of that dataset in review (version 1) with a breaking change, drafted by someone other than the callers, and a consumer approval of it that waits (version 1): the contract commands act on them. */
+  contractRevisionId: string;
+  consumerApprovalId: string;
   qualityRuleId: string;
   qualitySnapshotId: string;
   /** A DRAFT availability control policy of tenant A made by someone other than the callers (version 1). */
@@ -386,7 +389,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/retention-policies',
-      body: { record_class: 'project_dossier', retention_years: 10, retention_basis: 'FROM_CLOSED', legal_basis_ref: 'Matrix fixture basis', end_action: 'REVIEW_FOR_DESTRUCTION', effective_from: '2026-01-01' },
+      body: {
+        record_class: 'project_dossier',
+        retention_years: 10,
+        retention_basis: 'FROM_CLOSED',
+        legal_basis_ref: 'Matrix fixture basis',
+        end_action: 'REVIEW_FOR_DESTRUCTION',
+        effective_from: '2026-01-01',
+      },
     }),
   },
   publishRetentionPolicy: {
@@ -573,7 +583,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/outgoing-documents',
-      body: { doc_type_code: 'QD', template_code: 'QD-DEFAULT', title: 'Matrix draft', drafting_unit_id: t.unit2, payload: { agency: 'Matrix agency', place: 'Cao Bang', title: 'Matrix', body: 'Matrix' } },
+      body: {
+        doc_type_code: 'QD',
+        template_code: 'QD-DEFAULT',
+        title: 'Matrix draft',
+        drafting_unit_id: t.unit2,
+        payload: { agency: 'Matrix agency', place: 'Cao Bang', title: 'Matrix', body: 'Matrix' },
+      },
     }),
   },
   updateOutgoingDocumentDraft: {
@@ -616,7 +632,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createCorrectionDocument: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/corrections`, ifMatch: '"1"', body: { correction_text: 'matrix correction text', reason: 'negative authorization matrix correction' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/outgoing-documents/${t.outgoingDocumentId}/corrections`,
+      ifMatch: '"1"',
+      body: { correction_text: 'matrix correction text', reason: 'negative authorization matrix correction' },
+    }),
   },
   voidOutgoingDocumentNumber: {
     referencesTenantIds: true,
@@ -637,7 +658,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   cancelOutgoingDocument: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/cancellation`, ifMatch: '"1"', body: { reason: 'negative authorization matrix', reject_code: 'CANCELLED_BY_DRAFTER' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/outgoing-documents/${t.outgoingDocumentId}/cancellation`,
+      ifMatch: '"1"',
+      body: { reason: 'negative authorization matrix', reject_code: 'CANCELLED_BY_DRAFTER' },
+    }),
   },
   startLeaderSigning: {
     referencesTenantIds: true,
@@ -688,7 +714,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/master-successions',
-      body: { predecessor_record_id: t.masterRecordId, successor_record_id: t.masterCrosswalkId, succession_kind: 'MERGE', effective_date: '2025-07-01', legal_basis: 'Matrix legal basis', reason: REASON },
+      body: {
+        predecessor_record_id: t.masterRecordId,
+        successor_record_id: t.masterCrosswalkId,
+        succession_kind: 'MERGE',
+        effective_date: '2025-07-01',
+        legal_basis: 'Matrix legal basis',
+        reason: REASON,
+      },
     }),
   },
   submitMasterChangeRequest: {
@@ -854,7 +887,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   createCapitalPlan: {
     // The unit of tenant A does not exist for a caller of tenant B (404).
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/capital-plans', body: { plan_code: 'MX-PLAN', plan_kind: 'ANNUAL', plan_year: 2027, period_from_year: 2027, period_to_year: 2027, scope_unit_id: t.unit2 } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/capital-plans',
+      body: { plan_code: 'MX-PLAN', plan_kind: 'ANNUAL', plan_year: 2027, period_from_year: 2027, period_to_year: 2027, scope_unit_id: t.unit2 },
+    }),
   },
   submitCapitalPlan: {
     referencesTenantIds: true,
@@ -909,7 +946,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/reports',
-      body: { project_id: t.projectId, period_id: t.periodOpenId, plan_version_id: t.legalHoldId, measurement_basis: 'YTD', funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '1000' }] },
+      body: {
+        project_id: t.projectId,
+        period_id: t.periodOpenId,
+        plan_version_id: t.legalHoldId,
+        measurement_basis: 'YTD',
+        funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '1000' }],
+      },
     }),
   },
   post_reports_id_revisions: {
@@ -918,7 +961,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       method: 'POST',
       path: `/reports/${t.legalHoldId}/revisions`,
       ifMatch: '"1"',
-      body: { project_id: t.projectId, period_id: t.periodOpenId, plan_version_id: t.legalHoldId, measurement_basis: 'YTD', funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '1000' }] },
+      body: {
+        project_id: t.projectId,
+        period_id: t.periodOpenId,
+        plan_version_id: t.legalHoldId,
+        measurement_basis: 'YTD',
+        funding_lines: [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '1000' }],
+      },
     }),
   },
   post_reports_id_submit: {
@@ -947,7 +996,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createReportImport: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/report-imports', body: { period_id: t.legalHoldId, file_object_key: 'tenants/matrix/import/none', file_sha256: 'a'.repeat(64), mapping_version: 'DIS-WEEKLY-1' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/report-imports',
+      body: { period_id: t.legalHoldId, file_object_key: 'tenants/matrix/import/none', file_sha256: 'a'.repeat(64), mapping_version: 'DIS-WEEKLY-1' },
+    }),
   },
   applyReportImport: {
     referencesTenantIds: true,
@@ -958,7 +1011,17 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/early-warning-rules',
-      body: { rule_code: 'EW-MATRIX', name: 'Matrix rule of the negative matrix', metric_code: 'YTD_RATE_GAP', comparator: 'GTE', threshold_json: { points: 10 }, severity: 'WARNING', scope_kind: 'PROJECT', legal_basis: 'Matrix legal basis', effective_from: '2027-01-01' },
+      body: {
+        rule_code: 'EW-MATRIX',
+        name: 'Matrix rule of the negative matrix',
+        metric_code: 'YTD_RATE_GAP',
+        comparator: 'GTE',
+        threshold_json: { points: 10 },
+        severity: 'WARNING',
+        scope_kind: 'PROJECT',
+        legal_basis: 'Matrix legal basis',
+        effective_from: '2027-01-01',
+      },
     }),
   },
   publishEarlyWarningRule: {
@@ -978,7 +1041,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/explanation-requests',
-      body: { subject_kind: 'PROJECT', project_id: t.legalHoldId, trigger_code: 'MATRIX', question: 'Matrix attempt to ask for an explanation', requested_from_membership_id: t.recipientMembershipId, due_at: '2099-01-01T00:00:00Z' },
+      body: {
+        subject_kind: 'PROJECT',
+        project_id: t.legalHoldId,
+        trigger_code: 'MATRIX',
+        question: 'Matrix attempt to ask for an explanation',
+        requested_from_membership_id: t.recipientMembershipId,
+        due_at: '2099-01-01T00:00:00Z',
+      },
     }),
   },
   submitExplanation: {
@@ -991,7 +1061,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   requestProjectTransfer: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/projects/${t.legalHoldId}/transfers`, ifMatch: '"1"', body: { to_unit_id: t.unit2, transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Matrix attempt to transfer a project' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/projects/${t.legalHoldId}/transfers`,
+      ifMatch: '"1"',
+      body: { to_unit_id: t.unit2, transfer_scope: 'OWNER_UNIT', effective_date: '2099-01-01', reason: 'Matrix attempt to transfer a project' },
+    }),
   },
   addProjectComponent: {
     referencesTenantIds: true,
@@ -1011,7 +1086,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   proposeProjectRevision: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/revisions`, ifMatch: '"1"', body: { change_kind: 'ADJUST_INVESTMENT', after: {}, total_investment_vnd: '999', reason: 'Matrix attempt to revise a project' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/projects/${t.projectId}/revisions`,
+      ifMatch: '"1"',
+      body: { change_kind: 'ADJUST_INVESTMENT', after: {}, total_investment_vnd: '999', reason: 'Matrix attempt to revise a project' },
+    }),
   },
   decideProjectRevision: {
     referencesTenantIds: true,
@@ -1022,7 +1102,17 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: `/projects/${t.projectId}/risks`,
-      body: { code: 'MX-RISK', category_master_version_id: t.legalHoldId, title: 'Matrix risk', description: 'Matrix attempt to register a risk', likelihood: 3, impact: 3, owner_membership_id: t.recipientMembershipId, mitigation: 'Matrix mitigation', due_date: '2099-01-01' },
+      body: {
+        code: 'MX-RISK',
+        category_master_version_id: t.legalHoldId,
+        title: 'Matrix risk',
+        description: 'Matrix attempt to register a risk',
+        likelihood: 3,
+        impact: 3,
+        owner_membership_id: t.recipientMembershipId,
+        mitigation: 'Matrix mitigation',
+        due_date: '2099-01-01',
+      },
     }),
   },
   updateProjectRisk: {
@@ -1031,7 +1121,17 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       method: 'POST',
       path: `/project-risks/${t.legalHoldId}/update`,
       ifMatch: '"1"',
-      body: { code: 'MX-RISK', category_master_version_id: t.legalHoldId, title: 'Matrix risk', description: 'Matrix attempt to update a risk', likelihood: 3, impact: 3, owner_membership_id: t.recipientMembershipId, mitigation: 'Matrix mitigation', due_date: '2099-01-01' },
+      body: {
+        code: 'MX-RISK',
+        category_master_version_id: t.legalHoldId,
+        title: 'Matrix risk',
+        description: 'Matrix attempt to update a risk',
+        likelihood: 3,
+        impact: 3,
+        owner_membership_id: t.recipientMembershipId,
+        mitigation: 'Matrix mitigation',
+        due_date: '2099-01-01',
+      },
     }),
   },
   closeProjectRisk: {
@@ -1063,7 +1163,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/allocation-scenarios',
-      body: { code: 'MX-SCENARIO', plan_year: 2027, base_capital_plan_id: t.legalHoldId, constraints: {}, assumptions: { moves: [{ from_allocation_line_id: t.legalHoldId, to_project_id: t.legalHoldId, amount_vnd: '1000' }] } },
+      body: {
+        code: 'MX-SCENARIO',
+        plan_year: 2027,
+        base_capital_plan_id: t.legalHoldId,
+        constraints: {},
+        assumptions: { moves: [{ from_allocation_line_id: t.legalHoldId, to_project_id: t.legalHoldId, amount_vnd: '1000' }] },
+      },
     }),
   },
   runAllocationScenario: {
@@ -1076,7 +1182,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createFundReservation: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/fund-reservations', body: { allocation_line_id: t.legalHoldId, amount_vnd: '1000', purpose: 'OTHER', expires_at: new Date(Date.now() + 30 * 86_400_000).toISOString() } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/fund-reservations',
+      body: { allocation_line_id: t.legalHoldId, amount_vnd: '1000', purpose: 'OTHER', expires_at: new Date(Date.now() + 30 * 86_400_000).toISOString() },
+    }),
   },
   releaseFundReservation: {
     referencesTenantIds: true,
@@ -1112,7 +1222,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   requestPeriodReopen: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/reporting-periods/${t.periodLockedId}/reopen-requests`, body: { scope_kind: 'PERIOD', reason: 'Matrix request to reopen the locked period', window_hours: 24 } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/reporting-periods/${t.periodLockedId}/reopen-requests`,
+      body: { scope_kind: 'PERIOD', reason: 'Matrix request to reopen the locked period', window_hours: 24 },
+    }),
   },
   decidePeriodReopen: {
     referencesTenantIds: true,
@@ -1258,7 +1372,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/bi/access-policies',
-      body: { dataset_id: '00000000-0000-4000-8000-0000000000d1', grantee_kind: 'ROLE', grantee_ref_id: '00000000-0000-4000-8000-0000000000c3', row_predicate_ast: { op: 'unit_in_scope' }, column_masks: {} },
+      body: {
+        dataset_id: '00000000-0000-4000-8000-0000000000d1',
+        grantee_kind: 'ROLE',
+        grantee_ref_id: '00000000-0000-4000-8000-0000000000c3',
+        row_predicate_ast: { op: 'unit_in_scope' },
+        column_masks: {},
+      },
     }),
   },
   createDashboard: {
@@ -1289,7 +1409,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/dgv/lineage-batches',
-      body: { run_id: '00000000-0000-4000-8000-0000000000a1', transform_version: 'matrix-v1', edges: [{ from: { node_id: '00000000-0000-4000-8000-0000000000a2' }, to: { node_id: '00000000-0000-4000-8000-0000000000a3' } }] },
+      body: {
+        run_id: '00000000-0000-4000-8000-0000000000a1',
+        transform_version: 'matrix-v1',
+        edges: [{ from: { node_id: '00000000-0000-4000-8000-0000000000a2' }, to: { node_id: '00000000-0000-4000-8000-0000000000a3' } }],
+      },
     }),
   },
   requestBiExport: {
@@ -1298,7 +1422,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createBiExportSchedule: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/bi/export-schedules', body: { query_spec: { metric_version_id: '00000000-0000-4000-8000-0000000000a1' }, cron: '0 8 * * 1', format: 'CSV', recipients: ['00000000-0000-4000-8000-0000000000a2'] } }),
+    build: () => ({
+      method: 'POST',
+      path: '/bi/export-schedules',
+      body: { query_spec: { metric_version_id: '00000000-0000-4000-8000-0000000000a1' }, cron: '0 8 * * 1', format: 'CSV', recipients: ['00000000-0000-4000-8000-0000000000a2'] },
+    }),
   },
   submitBiPublication: {
     referencesTenantIds: true,
@@ -1315,7 +1443,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The registry of the AI gateway (ST-LLM-001) is the tenant's: a caller without the right is refused before the body is read.
   registerAiProvider: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/ai-providers', body: { provider_code: 'MATRIX-1', name: 'Matrix provider', region_country: 'VN', route_class: 'DOMESTIC_HOSTED', max_classification: 'PUBLIC' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/ai-providers',
+      body: { provider_code: 'MATRIX-1', name: 'Matrix provider', region_country: 'VN', route_class: 'DOMESTIC_HOSTED', max_classification: 'PUBLIC' },
+    }),
   },
   activateAiProvider: {
     referencesTenantIds: false,
@@ -1400,7 +1532,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/ai-prompts',
-      body: { task_type: 'SUMMARY', name: 'matrix', template_object_key: 'tenants/matrix/prompts/a.txt', template_sha256: 'a'.repeat(64), input_schema: { type: 'object', properties: { text: { type: 'string' } } }, output_schema: { type: 'object', properties: { text: { type: 'string' } } } },
+      body: {
+        task_type: 'SUMMARY',
+        name: 'matrix',
+        template_object_key: 'tenants/matrix/prompts/a.txt',
+        template_sha256: 'a'.repeat(64),
+        input_schema: { type: 'object', properties: { text: { type: 'string' } } },
+        output_schema: { type: 'object', properties: { text: { type: 'string' } } },
+      },
     }),
   },
   reviseAiPromptVersion: {
@@ -1409,7 +1548,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       method: 'PUT',
       path: '/ai-prompts/00000000-0000-4000-8000-0000000000e7',
       ifMatch: '"1"',
-      body: { task_type: 'SUMMARY', name: 'matrix', template_object_key: 'tenants/matrix/prompts/a.txt', template_sha256: 'a'.repeat(64), input_schema: { type: 'object', properties: { text: { type: 'string' } } }, output_schema: { type: 'object', properties: { text: { type: 'string' } } } },
+      body: {
+        task_type: 'SUMMARY',
+        name: 'matrix',
+        template_object_key: 'tenants/matrix/prompts/a.txt',
+        template_sha256: 'a'.repeat(64),
+        input_schema: { type: 'object', properties: { text: { type: 'string' } } },
+        output_schema: { type: 'object', properties: { text: { type: 'string' } } },
+      },
     }),
   },
   approveAiPromptVersion: {
@@ -1418,7 +1564,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createAiEvalDataset: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/ai-eval-datasets', body: { dataset_code: 'EV-MATRIX', task_type: 'SUMMARY', source: 'SYNTHETIC', cases: [{ case_code: 'c1', input_ref: 'inputs/c1.txt', expected: {} }] } }),
+    build: () => ({
+      method: 'POST',
+      path: '/ai-eval-datasets',
+      body: { dataset_code: 'EV-MATRIX', task_type: 'SUMMARY', source: 'SYNTHETIC', cases: [{ case_code: 'c1', input_ref: 'inputs/c1.txt', expected: {} }] },
+    }),
   },
   createModelProfileVersion: {
     referencesTenantIds: false,
@@ -1444,7 +1594,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   startAiEvalRun: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/ai-eval-runs', body: { profile_version_id: '00000000-0000-4000-8000-0000000000e8', dataset_version_id: '00000000-0000-4000-8000-0000000000e9', route_class: 'SELF_HOSTED' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/ai-eval-runs',
+      body: { profile_version_id: '00000000-0000-4000-8000-0000000000e8', dataset_version_id: '00000000-0000-4000-8000-0000000000e9', route_class: 'SELF_HOSTED' },
+    }),
   },
   engageAiKillSwitch: {
     referencesTenantIds: false,
@@ -1476,7 +1630,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/ai/requests',
-      body: { task_type: 'SUMMARY', subject_module: 'BID', source_refs: [{ document_version_id: '00000000-0000-4000-8000-0000000000f0' }], input_ref: 'tenants/x/inputs/matrix-probe', input_sha256: 'a'.repeat(64) },
+      body: {
+        task_type: 'SUMMARY',
+        subject_module: 'BID',
+        source_refs: [{ document_version_id: '00000000-0000-4000-8000-0000000000f0' }],
+        input_ref: 'tenants/x/inputs/matrix-probe',
+        input_sha256: 'a'.repeat(64),
+      },
     }),
   },
   signAiEvalRun: {
@@ -1485,7 +1645,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   post_model_profiles_id_publish: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/model-profiles/00000000-0000-4000-8000-0000000000e8/publish', ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix probe of the release', evidence_ids: [] } }),
+    build: () => ({
+      method: 'POST',
+      path: '/model-profiles/00000000-0000-4000-8000-0000000000e8/publish',
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: 'Matrix probe of the release', evidence_ids: [] },
+    }),
   },
   post_dashboard_queries: {
     referencesTenantIds: false,
@@ -1570,7 +1735,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   recordMneSubmissionReceipt: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/mne-export-packages/${t.mnePackageId}/submission-receipt`, ifMatch: '"1"', body: { receipt_reference: 'MATRIX-RECEIPT', submitted_at: '2026-10-20T08:00:00Z' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/mne-export-packages/${t.mnePackageId}/submission-receipt`,
+      ifMatch: '"1"',
+      body: { receipt_reference: 'MATRIX-RECEIPT', submitted_at: '2026-10-20T08:00:00Z' },
+    }),
   },
   requestMneReportIssue: {
     referencesTenantIds: true,
@@ -1683,9 +1853,47 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dgv/data-products/${t.datasetId}/certification`, ifMatch: '"1"', body: { decision: 'PROVISIONAL', reason: REASON, evidence_refs: [] } }),
   },
+  // The dataset named in the body is read as a dataset of the caller's own tenant: another tenant's dataset is as unknown as one that does not exist.
+  createDatasetContractRevision: {
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/dgv/dataset-contracts',
+      body: {
+        dataset_id: t.datasetId,
+        odcs_version: 'v3.0.2',
+        odcs_json: {
+          apiVersion: 'v3.0.2',
+          kind: 'DataContract',
+          id: 'matrix',
+          version: '1.0.0',
+          status: 'active',
+          schema: [{ name: 'matrix', properties: [{ name: 'amount', logicalType: 'number' }] }],
+        },
+        effective_from: '2030-01-01',
+      },
+    }),
+  },
+  recordConsumerApproval: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/contract-consumer-approvals/${t.consumerApprovalId}/decision`, ifMatch: '"1"', body: { decision: 'APPROVED' } }),
+  },
+  publishDatasetContract: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/dgv/dataset-contracts/${t.contractRevisionId}/publish`, ifMatch: '"1"', body: { migration_window_until: '2030-12-31' } }),
+  },
+  post_data_contracts_id_publish: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/data-contracts/${t.contractRevisionId}/publish`, ifMatch: '"1"', body: { decision: 'reject', reason: REASON, evidence_ids: [] } }),
+  },
   assignDatasetOwnership: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/dgv/datasets/${t.datasetId}/ownership`, ifMatch: '"1"', body: { owner_user_id: t.recipientMembershipId, steward_user_id: t.recipientMembershipId, reason: REASON } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/dgv/datasets/${t.datasetId}/ownership`,
+      ifMatch: '"1"',
+      body: { owner_user_id: t.recipientMembershipId, steward_user_id: t.recipientMembershipId, reason: REASON },
+    }),
   },
   // The contract named in the body is checked as a contract of the caller's own tenant: another tenant's contract is refused as 422 naming the field, like one that does not exist.
   createQualityRuleVersion: {
@@ -1723,7 +1931,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/avc-policies',
-      body: { policy_code: 'MX-NEGATIVE', scope_kind: 'TENANT', control_object: 'ALLOCATION_LINE', warn_pct: '90', block_pct: '100', legal_basis: 'negative authorization matrix', effective_from: '2026-01-01' },
+      body: {
+        policy_code: 'MX-NEGATIVE',
+        scope_kind: 'TENANT',
+        control_object: 'ALLOCATION_LINE',
+        warn_pct: '90',
+        block_pct: '100',
+        legal_basis: 'negative authorization matrix',
+        effective_from: '2026-01-01',
+      },
     }),
   },
   publishAvcPolicy: {
@@ -1804,7 +2020,9 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
         package_id: t.criteriaPackageId,
         contractor_id: t.contractorId,
         submitted_at: '2026-09-01T03:00:00Z',
-        documents: [{ part: 'TECHNICAL', title: 'Matrix volume', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/document/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) }],
+        documents: [
+          { part: 'TECHNICAL', title: 'Matrix volume', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/document/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) },
+        ],
       },
     }),
   },
@@ -1828,7 +2046,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   scheduleInspection: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/schedule`, ifMatch: '"1"', body: { scheduled_at: '2999-01-01T00:00:00Z', participant_membership_ids: [t.recipientMembershipId] } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/inspections/${t.inspectionId}/schedule`,
+      ifMatch: '"1"',
+      body: { scheduled_at: '2999-01-01T00:00:00Z', participant_membership_ids: [t.recipientMembershipId] },
+    }),
   },
   recordInspectionResult: {
     referencesTenantIds: true,
@@ -1841,27 +2064,55 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The quality acceptance minutes: a caller that is refused drafts none, signs none, decides none and revokes none.
   createQualityAcceptance: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/inspections/${t.inspectionId}/quality-acceptances`, body: { acceptance_scope: 'WORK_ITEM', record_no: 'QA-MX-NEW', document_version_id: t.draftContractId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/inspections/${t.inspectionId}/quality-acceptances`,
+      body: { acceptance_scope: 'WORK_ITEM', record_no: 'QA-MX-NEW', document_version_id: t.draftContractId },
+    }),
   },
   saveSiteDiaryDraft: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/site-diaries', body: { contract_id: t.draftContractId, record_date: '2026-10-20', client_operation_id: '00000000-0000-4000-8000-0000000000e6', content: { summary: 'Matrix probe of the diary' } } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/site-diaries',
+      body: { contract_id: t.draftContractId, record_date: '2026-10-20', client_operation_id: '00000000-0000-4000-8000-0000000000e6', content: { summary: 'Matrix probe of the diary' } },
+    }),
   },
   reviseSiteDiaryDraft: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/draft`, ifMatch: '"1"', body: { content: { summary: 'Matrix probe of the diary' }, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/site-diaries/${t.diaryId}/draft`,
+      ifMatch: '"1"',
+      body: { content: { summary: 'Matrix probe of the diary' }, client_operation_id: '00000000-0000-4000-8000-0000000000e6' },
+    }),
   },
   signSiteDiaryByContractor: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/contractor-sign`, ifMatch: '"1"', body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/site-diaries/${t.diaryId}/contractor-sign`,
+      ifMatch: '"1"',
+      body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' },
+    }),
   },
   addSupervisorRemark: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/supervisor-remark`, ifMatch: '"1"', body: { remark: 'Matrix probe of the remark', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/site-diaries/${t.diaryId}/supervisor-remark`,
+      ifMatch: '"1"',
+      body: { remark: 'Matrix probe of the remark', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' },
+    }),
   },
   confirmSiteDiaryByOwner: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/owner-confirm`, ifMatch: '"1"', body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/site-diaries/${t.diaryId}/owner-confirm`,
+      ifMatch: '"1"',
+      body: { signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e6' },
+    }),
   },
   lockSiteDiary: {
     referencesTenantIds: true,
@@ -1869,11 +2120,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   correctSiteDiary: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/corrections`, body: { content: { summary: 'Matrix probe of the correction' }, correction_reason: REASON, client_operation_id: '00000000-0000-4000-8000-0000000000e6' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/site-diaries/${t.diaryId}/corrections`,
+      body: { content: { summary: 'Matrix probe of the correction' }, correction_reason: REASON, client_operation_id: '00000000-0000-4000-8000-0000000000e6' },
+    }),
   },
   receiveIncomingDocument: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/incoming-documents', body: { title: 'Matrix probe of an incoming letter', doc_type_code: 'CV', channel: 'UPLOAD', file_object_key: 'tenants/00000000-0000-4000-8000-000000000001/document/00000000-0000-4000-8000-000000000002', file_sha256: 'a'.repeat(64), sender_name: 'Matrix sender' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/incoming-documents',
+      body: {
+        title: 'Matrix probe of an incoming letter',
+        doc_type_code: 'CV',
+        channel: 'UPLOAD',
+        file_object_key: 'tenants/00000000-0000-4000-8000-000000000001/document/00000000-0000-4000-8000-000000000002',
+        file_sha256: 'a'.repeat(64),
+        sender_name: 'Matrix sender',
+      },
+    }),
   },
   registerIncomingDocument: {
     referencesTenantIds: true,
@@ -1897,7 +2163,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createDossier: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/dossiers', body: { dossier_code: 'DS-MATRIX', year: 2026, title: 'Matrix probe of a dossier', organization_unit_id: '00000000-0000-4000-8000-0000000000e7', category_code: 'PROJECT_INVESTMENT' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/dossiers',
+      body: { dossier_code: 'DS-MATRIX', year: 2026, title: 'Matrix probe of a dossier', organization_unit_id: '00000000-0000-4000-8000-0000000000e7', category_code: 'PROJECT_INVESTMENT' },
+    }),
   },
   addDocumentToDossier: {
     referencesTenantIds: true,
@@ -1924,7 +2194,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: () => ({
       method: 'POST',
       path: '/document-retention-rules',
-      body: { rule_set: 'TENANT_CUSTOM', category_code: 'MATRIX_CATEGORY', class_code: 'Y10', retention_years: 10, start_basis: 'FROM_CLOSED', legal_basis: 'Matrix attempt to draft a retention rule', effective_from: '2099-01-01' },
+      body: {
+        rule_set: 'TENANT_CUSTOM',
+        category_code: 'MATRIX_CATEGORY',
+        class_code: 'Y10',
+        retention_years: 10,
+        start_basis: 'FROM_CLOSED',
+        legal_basis: 'Matrix attempt to draft a retention rule',
+        effective_from: '2099-01-01',
+      },
     }),
   },
   publishDocumentRetentionRule: {
@@ -1933,7 +2211,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   confirmDocumentRetentionRuleLegalBasis: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/document-retention-rules/${t.legalHoldId}/legal-confirmation`, ifMatch: '"1"', body: { legal_confirmation_ref: 'CXN-MATRIX', evidence_document_id: '00000000-0000-4000-8000-0000000000e8' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/document-retention-rules/${t.legalHoldId}/legal-confirmation`,
+      ifMatch: '"1"',
+      body: { legal_confirmation_ref: 'CXN-MATRIX', evidence_document_id: '00000000-0000-4000-8000-0000000000e8' },
+    }),
   },
   fileIncomingDocument: {
     referencesTenantIds: true,
@@ -1941,7 +2224,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   assignQualityIncident: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/dgv/quality-incidents/${t.qualityIncidentId}/assignment`, ifMatch: '"1"', body: { assignee_user_id: '00000000-0000-4000-8000-0000000000e7', due_at: '2999-01-01T00:00:00.000Z' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/dgv/quality-incidents/${t.qualityIncidentId}/assignment`,
+      ifMatch: '"1"',
+      body: { assignee_user_id: '00000000-0000-4000-8000-0000000000e7', due_at: '2999-01-01T00:00:00.000Z' },
+    }),
   },
   transitionQualityIncident: {
     referencesTenantIds: true,
@@ -1965,7 +2253,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   runReconciliation: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/dgv/reconciliations', body: { recon_code: 'MATRIX-RECON', source_a: 'PAY.treasury_transaction', source_b: 'DIS.report_accepted', as_of_period: '2026-10', basis: 'VND, ngày Kho bạc thanh toán', tolerance_vnd: '0' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/dgv/reconciliations',
+      body: { recon_code: 'MATRIX-RECON', source_a: 'PAY.treasury_transaction', source_b: 'DIS.report_accepted', as_of_period: '2026-10', basis: 'VND, ngày Kho bạc thanh toán', tolerance_vnd: '0' },
+    }),
   },
   updateMyProfile: {
     referencesTenantIds: false,
@@ -1981,11 +2273,32 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createWorkflowDraft: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/workflow-definitions', body: { business_type: 'report.accept', definition: { steps: [{ id: 'review', name: 'Rà soát', assignee_rule: { type: 'DOA' }, min_approvals: 1, sla_working_hours: 16, on_timeout: 'REMIND' }], terminal: { approved: 'acceptReport', returned: 'returnReport', rejected: 'rejectReport' } } } }),
+    build: () => ({
+      method: 'POST',
+      path: '/workflow-definitions',
+      body: {
+        business_type: 'report.accept',
+        definition: {
+          steps: [{ id: 'review', name: 'Rà soát', assignee_rule: { type: 'DOA' }, min_approvals: 1, sla_working_hours: 16, on_timeout: 'REMIND' }],
+          terminal: { approved: 'acceptReport', returned: 'returnReport', rejected: 'rejectReport' },
+        },
+      },
+    }),
   },
   updateWorkflowDraft: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'PUT', path: `/workflow-definitions/${t.workflowDraftId}`, ifMatch: '"1"', body: { business_type: 'report.accept', definition: { steps: [{ id: 'review', name: 'Rà soát', assignee_rule: { type: 'DOA' }, min_approvals: 1, sla_working_hours: 16, on_timeout: 'REMIND' }], terminal: { approved: 'acceptReport', returned: 'returnReport', rejected: 'rejectReport' } } } }),
+    build: (t) => ({
+      method: 'PUT',
+      path: `/workflow-definitions/${t.workflowDraftId}`,
+      ifMatch: '"1"',
+      body: {
+        business_type: 'report.accept',
+        definition: {
+          steps: [{ id: 'review', name: 'Rà soát', assignee_rule: { type: 'DOA' }, min_approvals: 1, sla_working_hours: 16, on_timeout: 'REMIND' }],
+          terminal: { approved: 'acceptReport', returned: 'returnReport', rejected: 'rejectReport' },
+        },
+      },
+    }),
   },
   publishWorkflowVersion: {
     referencesTenantIds: true,
@@ -2000,7 +2313,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/unit-reorganizations',
-      body: { kind: 'DISSOLVE', effective_from: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10), legal_basis_ref: 'Matrix legal basis 1', predecessor_unit_ids: [t.recipientMembershipId], successors: [{ existing_unit_id: t.memberRoleId }], mapping: {} },
+      body: {
+        kind: 'DISSOLVE',
+        effective_from: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10),
+        legal_basis_ref: 'Matrix legal basis 1',
+        predecessor_unit_ids: [t.recipientMembershipId],
+        successors: [{ existing_unit_id: t.memberRoleId }],
+        mapping: {},
+      },
     }),
   },
   decideUnitReorganization: {
@@ -2012,7 +2332,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/delegations',
-      body: { delegate_membership_id: t.recipientMembershipId, permissions: ['approval.decide'], scope_kind: 'UNIT_SUBTREE', scope_ref_ids: ['00000000-0000-4000-8000-0000000000d1'], valid_from: '2099-01-01T00:00:00Z', valid_until: '2099-01-08T00:00:00Z', reason: REASON },
+      body: {
+        delegate_membership_id: t.recipientMembershipId,
+        permissions: ['approval.decide'],
+        scope_kind: 'UNIT_SUBTREE',
+        scope_ref_ids: ['00000000-0000-4000-8000-0000000000d1'],
+        valid_from: '2099-01-01T00:00:00Z',
+        valid_until: '2099-01-08T00:00:00Z',
+        reason: REASON,
+      },
     }),
   },
   revokeDelegation: {
@@ -2021,7 +2349,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   reassignApprovalTask: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/approval-tasks/${t.approvalTaskId}/reassign`, ifMatch: '"1"', body: { new_assignee_membership_id: '00000000-0000-4000-8000-0000000000f1', reason: REASON } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/approval-tasks/${t.approvalTaskId}/reassign`,
+      ifMatch: '"1"',
+      body: { new_assignee_membership_id: '00000000-0000-4000-8000-0000000000f1', reason: REASON },
+    }),
   },
   cancelWorkflowInstance: {
     referencesTenantIds: true,
@@ -2029,15 +2362,34 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   registerSitePhoto: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/site-photos', body: { client_operation_id: '00000000-0000-4000-8000-0000000000e8', project_id: t.projectId, object_key: 'tenants/00000000-0000-4000-8000-000000000001/site_photo/00000000-0000-4000-8000-000000000002', file_sha256: 'a'.repeat(64) } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/site-photos',
+      body: {
+        client_operation_id: '00000000-0000-4000-8000-0000000000e8',
+        project_id: t.projectId,
+        object_key: 'tenants/00000000-0000-4000-8000-000000000001/site_photo/00000000-0000-4000-8000-000000000002',
+        file_sha256: 'a'.repeat(64),
+      },
+    }),
   },
   resolveDiaryConflict: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/site-diaries/${t.diaryId}/resolve-conflict`, ifMatch: '"1"', body: { conflict_diary_id: '00000000-0000-4000-8000-0000000000e7', resolution: 'KEEP_PRIMARY', note: REASON } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/site-diaries/${t.diaryId}/resolve-conflict`,
+      ifMatch: '"1"',
+      body: { conflict_diary_id: '00000000-0000-4000-8000-0000000000e7', resolution: 'KEEP_PRIMARY', note: REASON },
+    }),
   },
   signQualityAcceptance: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/quality-acceptances/${t.acceptanceId}/sign`, ifMatch: '"1"', body: { signer_role: 'OWNER', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e5' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/quality-acceptances/${t.acceptanceId}/sign`,
+      ifMatch: '"1"',
+      body: { signer_role: 'OWNER', signature_method: 'IN_APP_OTP', client_operation_id: '00000000-0000-4000-8000-0000000000e5' },
+    }),
   },
   decideQualityAcceptance: {
     referencesTenantIds: true,
@@ -2065,7 +2417,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   decideConflictOfInterest: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/bid-conflict-declarations/${t.conflictDeclarationId}/decision`, ifMatch: '"1"', body: { decision: 'ALLOWED', decision_reason: 'Matrix decision of a refused caller.' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/bid-conflict-declarations/${t.conflictDeclarationId}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'ALLOWED', decision_reason: 'Matrix decision of a refused caller.' },
+    }),
   },
   importNationalProjectCodes: {
     referencesTenantIds: true,
@@ -2125,7 +2482,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   createSupportTicket: {
     // The ticket names nothing of tenant A: a caller of tenant B who holds the right raises a ticket of their own.
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/support-tickets', body: { category: 'OTHER', subject: 'Negative authorization matrix', description: 'A ticket raised by the negative authorization matrix.' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/support-tickets',
+      body: { category: 'OTHER', subject: 'Negative authorization matrix', description: 'A ticket raised by the negative authorization matrix.' },
+    }),
   },
   createCriteriaVersion: {
     referencesTenantIds: true,
@@ -2169,7 +2530,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/task-forces',
-      body: { code: 'MX-TF-NEW', name: 'Matrix task force', purpose: 'Created by the authorization matrix', lead_membership_id: t.recipientMembershipId, scope_unit_id: t.unit2, valid_from: '2026-01-05' },
+      body: {
+        code: 'MX-TF-NEW',
+        name: 'Matrix task force',
+        purpose: 'Created by the authorization matrix',
+        lead_membership_id: t.recipientMembershipId,
+        scope_unit_id: t.unit2,
+        valid_from: '2026-01-05',
+      },
     }),
   },
   addTaskForceMember: {
@@ -2236,15 +2604,30 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The suspension, the resumption and the termination of a contract rest on a decision document; a caller that is refused changes no status and calls no guarantee.
   suspendContract: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/suspend`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, suspended_from: '2026-10-25' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.draftContractId}/suspend`,
+      ifMatch: '"1"',
+      body: { reason: REASON, decision_document_version_id: t.documentVersionId, suspended_from: '2026-10-25' },
+    }),
   },
   resumeContract: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/resume`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, resumed_on: '2026-10-25' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.draftContractId}/resume`,
+      ifMatch: '"1"',
+      body: { reason: REASON, decision_document_version_id: t.documentVersionId, resumed_on: '2026-10-25' },
+    }),
   },
   terminateContract: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/terminate`, ifMatch: '"1"', body: { reason: REASON, decision_document_version_id: t.documentVersionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.draftContractId}/terminate`,
+      ifMatch: '"1"',
+      body: { reason: REASON, decision_document_version_id: t.documentVersionId, terminated_on: '2026-10-25', guarantee_action: 'HOLD' },
+    }),
   },
   completeContract: {
     referencesTenantIds: true,
@@ -2269,7 +2652,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   evaluateChangeRequest: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/evaluate`, ifMatch: '"1"', body: { evaluated_delta_vnd: '0', schedule_impact_days: 0, funding_impact_note: REASON } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/change-requests/${t.changeRequestId}/evaluate`,
+      ifMatch: '"1"',
+      body: { evaluated_delta_vnd: '0', schedule_impact_days: 0, funding_impact_note: REASON },
+    }),
   },
   post_contract_changes_id_decision: {
     referencesTenantIds: true,
@@ -2299,7 +2687,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The acceptance of work: a caller that is refused drafts none, sends none, decides none and revokes none.
   createAcceptance: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/contracts/${t.draftContractId}/acceptances`, body: { measurement_ids: [t.measurementId], period_id: t.periodId, document_version_id: t.draftContractId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.draftContractId}/acceptances`,
+      body: { measurement_ids: [t.measurementId], period_id: t.periodId, document_version_id: t.draftContractId },
+    }),
   },
   submitAcceptance: {
     referencesTenantIds: true,
@@ -2316,7 +2708,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The draft of a payment request: a caller that is refused draws none up, revises none, attaches no document and cancels none.
   createPaymentRequest: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/payment-requests', body: { contract_id: t.draftContractId, request_kind: 'INTERIM', acceptance_id: t.paymentAcceptanceId, allocation_line_id: t.draftContractId, request_no: 'DNTT-MX-NEW' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/payment-requests',
+      body: { contract_id: t.draftContractId, request_kind: 'INTERIM', acceptance_id: t.paymentAcceptanceId, allocation_line_id: t.draftContractId, request_no: 'DNTT-MX-NEW' },
+    }),
   },
   revisePaymentDraft: {
     referencesTenantIds: true,
@@ -2337,7 +2733,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   markPaymentSentToTreasury: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/send-treasury`, ifMatch: '"1"', body: { treasury_submitted_on: '2026-10-25', form_instance_ids: [t.paymentRequestId] } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/payment-requests/${t.paymentRequestId}/send-treasury`,
+      ifMatch: '"1"',
+      body: { treasury_submitted_on: '2026-10-25', form_instance_ids: [t.paymentRequestId] },
+    }),
   },
   // The advance of a contract: asked for, cancelled and recovered outside the payments.
   requestAdvance: {
@@ -2354,7 +2755,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   recordAdvanceRecovery: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/advances/${t.advanceId}/recoveries`, ifMatch: '"1"', body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: t.paymentDocumentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/advances/${t.advanceId}/recoveries`,
+      ifMatch: '"1"',
+      body: { amount_vnd: '1', basis: 'REFUND', evidence_document_version_id: t.paymentDocumentVersionId },
+    }),
   },
   // Matching a Treasury transaction to a payment, and the work on a difference.
   matchTreasuryTransaction: {
@@ -2363,7 +2769,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   assignReconciliationItem: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/assign`, ifMatch: '"1"', body: { owner_membership_id: t.paymentRequestId, due_at: '2030-01-01T00:00:00Z' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/reconciliation-items/${t.reconciliationItemId}/assign`,
+      ifMatch: '"1"',
+      body: { owner_membership_id: t.paymentRequestId, due_at: '2030-01-01T00:00:00Z' },
+    }),
   },
   resolveReconciliationItem: {
     referencesTenantIds: true,
@@ -2375,7 +2786,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/handovers',
-      body: { project_id: t.contractProjectId, contract_id: t.draftContractId, recipient_unit_id: t.recipientMembershipId, handover_kind: 'COMPLETION', handover_no: REASON, quality_acceptance_id: t.draftContractId, document_version_id: t.documentVersionId },
+      body: {
+        project_id: t.contractProjectId,
+        contract_id: t.draftContractId,
+        recipient_unit_id: t.recipientMembershipId,
+        handover_kind: 'COMPLETION',
+        handover_no: REASON,
+        quality_acceptance_id: t.draftContractId,
+        document_version_id: t.documentVersionId,
+      },
     }),
   },
   addPunchItem: {
@@ -2396,12 +2815,21 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   post_handovers_id_decision: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/handovers/${t.handoverId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], as_built_document_version_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/handovers/${t.handoverId}/decision`,
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: REASON, evidence_ids: [], as_built_document_version_id: t.documentVersionId },
+    }),
   },
   // The enforcement of a land recovery: a caller that is refused opens no case and advances none.
   startEnforcement: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/land-enforcement-cases', body: { project_id: t.projectId, parcel_id: t.legalHoldId, owner_unit_id: t.unit2, authority_unit_id: t.unit3, legal_basis: REASON, started_on: '2026-10-25' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/land-enforcement-cases',
+      body: { project_id: t.projectId, parcel_id: t.legalHoldId, owner_unit_id: t.unit2, authority_unit_id: t.unit3, legal_basis: REASON, started_on: '2026-10-25' },
+    }),
   },
   advanceEnforcement: {
     referencesTenantIds: true,
@@ -2410,7 +2838,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The investment evaluation of a project: a caller that is refused plans, submits and decides nothing.
   planMneEvaluation: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/mne-evaluations', body: { project_id: t.projectId, evaluation_kind: 'AD_HOC', evaluator_kind: 'INTERNAL', evaluator_name: 'MNE office', scope_text: 'The evaluation asked for by the test', planned_date: '2026-12-01' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/mne-evaluations',
+      body: {
+        project_id: t.projectId,
+        evaluation_kind: 'AD_HOC',
+        evaluator_kind: 'INTERNAL',
+        evaluator_name: 'MNE office',
+        scope_text: 'The evaluation asked for by the test',
+        planned_date: '2026-12-01',
+      },
+    }),
   },
   submitMneEvaluation: {
     referencesTenantIds: true,
@@ -2423,16 +2862,29 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The testing of materials: a caller that is refused registers no sample and records no result.
   registerMaterialTest: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/material-tests', body: { contract_id: t.contractId, sample_code: 'MATRIX-1', material_kind: REASON, lab_name: REASON, standard_ref: REASON, sampled_on: '2026-10-25' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/material-tests',
+      body: { contract_id: t.contractId, sample_code: 'MATRIX-1', material_kind: REASON, lab_name: REASON, standard_ref: REASON, sampled_on: '2026-10-25' },
+    }),
   },
   recordMaterialTestResult: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/material-tests/${t.warrantyId}/result`, ifMatch: '"1"', body: { result: 'PASS', tested_on: '2026-10-25', result_values: {}, report_document_version_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/material-tests/${t.warrantyId}/result`,
+      ifMatch: '"1"',
+      body: { result: 'PASS', tested_on: '2026-10-25', result_values: {}, report_document_version_id: t.documentVersionId },
+    }),
   },
   // The assets a work produces: a caller that is refused registers none and transfers none.
   registerAsset: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/asset-records', body: { project_id: t.contractProjectId, handover_id: t.handoverId, asset_code: REASON, name: REASON, recipient_unit_id: t.recipientMembershipId, value_vnd: '1', value_basis: 'CONTRACT_VALUE' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/asset-records',
+      body: { project_id: t.contractProjectId, handover_id: t.handoverId, asset_code: REASON, name: REASON, recipient_unit_id: t.recipientMembershipId, value_vnd: '1', value_basis: 'CONTRACT_VALUE' },
+    }),
   },
   transferAsset: {
     referencesTenantIds: true,
@@ -2494,11 +2946,21 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   confirmCompensationPayment: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/compensation-payments/${t.planId}/confirm`, ifMatch: '"1"', body: { paid_on: '2026-10-20', method: 'BANK_TRANSFER', voucher_document_version_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/compensation-payments/${t.planId}/confirm`,
+      ifMatch: '"1"',
+      body: { paid_on: '2026-10-20', method: 'BANK_TRANSFER', voucher_document_version_id: t.documentVersionId },
+    }),
   },
   depositCompensationPayment: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/compensation-payments/${t.planId}/deposit`, ifMatch: '"1"', body: { deposit_reason: REASON, voucher_document_version_id: t.documentVersionId, paid_on: '2026-10-20' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/compensation-payments/${t.planId}/deposit`,
+      ifMatch: '"1"',
+      body: { deposit_reason: REASON, voucher_document_version_id: t.documentVersionId, paid_on: '2026-10-20' },
+    }),
   },
   createAuditEngagement: {
     referencesTenantIds: true,
@@ -2557,7 +3019,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   planRemediationAction: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/actions`, ifMatch: '"1"', body: { action_code: 'A-MATRIX-1', description: 'Negative matrix action', planned_on: '2026-12-01' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/audit-recommendations/${t.legalHoldId}/actions`,
+      ifMatch: '"1"',
+      body: { action_code: 'A-MATRIX-1', description: 'Negative matrix action', planned_on: '2026-12-01' },
+    }),
   },
   completeRemediationAction: {
     referencesTenantIds: true,
@@ -2573,11 +3040,21 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   disputeAuditRecommendation: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/dispute`, ifMatch: '"1"', body: { dispute_reason: 'Negative matrix dispute explanation of the owner', dispute_document_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/audit-recommendations/${t.legalHoldId}/dispute`,
+      ifMatch: '"1"',
+      body: { dispute_reason: 'Negative matrix dispute explanation of the owner', dispute_document_id: t.documentVersionId },
+    }),
   },
   recordAuditDisputeDecision: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/audit-recommendations/${t.legalHoldId}/dispute-decision`, ifMatch: '"1"', body: { outcome: 'REJECTED_BY_AUTHORITY', authority_document_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/audit-recommendations/${t.legalHoldId}/dispute-decision`,
+      ifMatch: '"1"',
+      body: { outcome: 'REJECTED_BY_AUTHORITY', authority_document_id: t.documentVersionId },
+    }),
   },
   attachAuditEvidence: {
     referencesTenantIds: true,
@@ -2618,11 +3095,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   allocateResettlement: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/resettlement-allocations', body: { household_id: t.householdId, plan_item_id: t.legalHoldId, owner_unit_id: t.unit2, unit_kind: 'PLOT', unit_code: 'PLOT-1', site_text: 'Resettlement site' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/resettlement-allocations',
+      body: { household_id: t.householdId, plan_item_id: t.legalHoldId, owner_unit_id: t.unit2, unit_kind: 'PLOT', unit_code: 'PLOT-1', site_text: 'Resettlement site' },
+    }),
   },
   fileLandComplaint: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/land-complaints', body: { project_id: t.projectId, household_id: t.householdId, owner_unit_id: t.unit2, channel: 'LETTER', subject: 'PRICE', description: REASON, filed_on: '2026-10-20' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/land-complaints',
+      body: { project_id: t.projectId, household_id: t.householdId, owner_unit_id: t.unit2, channel: 'LETTER', subject: 'PRICE', description: REASON, filed_on: '2026-10-20' },
+    }),
   },
   resolveLandComplaint: {
     referencesTenantIds: true,
@@ -2633,7 +3118,17 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: '/land-inventory-records',
-      body: { household_id: t.householdId, parcel_id: t.parcelId, item_kind: 'HOUSE', description: 'Matrix house', quantity: '1', unit_code: 'M2', unit_price_vnd: '1', price_decision_ref: 'QD-MATRIX', surveyed_on: '2026-06-20' },
+      body: {
+        household_id: t.householdId,
+        parcel_id: t.parcelId,
+        item_kind: 'HOUSE',
+        description: 'Matrix house',
+        quantity: '1',
+        unit_code: 'M2',
+        unit_price_vnd: '1',
+        price_decision_ref: 'QD-MATRIX',
+        surveyed_on: '2026-06-20',
+      },
     }),
   },
   confirmInventory: {
@@ -2660,7 +3155,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The scorecard of a contractor: a caller that is refused evaluates, approves, records and confirms nothing.
   evaluateContractor: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/contracts/${t.contractId}/performance-evaluations`, body: { evaluation_kind: 'PERIODIC', period_label: '2026-Q3', score_quality: 80, score_schedule: 70, score_safety_env: 90, score_cooperation: 60, score_financial: 100 } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/contracts/${t.contractId}/performance-evaluations`,
+      body: { evaluation_kind: 'PERIODIC', period_label: '2026-Q3', score_quality: 80, score_schedule: 70, score_safety_env: 90, score_cooperation: 60, score_financial: 100 },
+    }),
   },
   approveContractorEvaluation: {
     referencesTenantIds: true,
@@ -2686,7 +3185,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The warranty of a work: a caller that is refused creates no obligation and closes none.
   createWarrantyObligation: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/warranty-obligations', body: { contract_id: t.contractId, handover_id: t.handoverId, scope_description: REASON, starts_on: '2026-10-25', period_months: 12, construction_grade: 'II', retention_amount_vnd: '1' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/warranty-obligations',
+      body: { contract_id: t.contractId, handover_id: t.handoverId, scope_description: REASON, starts_on: '2026-10-25', period_months: 12, construction_grade: 'II', retention_amount_vnd: '1' },
+    }),
   },
   closeWarrantyObligation: {
     referencesTenantIds: true,
@@ -2695,7 +3198,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The claims against a warranty: a caller that is refused files none, acknowledges none, records no repair and verifies none.
   fileWarrantyClaim: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/warranty-obligations/${t.warrantyId}/claims`, body: { claim_no: 'MATRIX-1', reported_on: '2026-10-25', defect_description: REASON, severity: 'MINOR', responder_contractor_id: t.contractorId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/warranty-obligations/${t.warrantyId}/claims`,
+      body: { claim_no: 'MATRIX-1', reported_on: '2026-10-25', defect_description: REASON, severity: 'MINOR', responder_contractor_id: t.contractorId },
+    }),
   },
   acknowledgeWarrantyClaim: {
     referencesTenantIds: true,
@@ -2703,7 +3210,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   recordWarrantyFix: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/warranty-claims/${t.warrantyId}/fixed`, ifMatch: '"1"', body: { fixed_on: '2026-11-25', note: REASON, evidence_document_version_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/warranty-claims/${t.warrantyId}/fixed`,
+      ifMatch: '"1"',
+      body: { fixed_on: '2026-11-25', note: REASON, evidence_document_version_id: t.documentVersionId },
+    }),
   },
   verifyWarrantyClaim: {
     referencesTenantIds: true,
@@ -2721,11 +3233,28 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   // The non-conformances of the work: a caller that is refused raises none, assigns no action, answers none, verifies none, closes none and reopens none.
   raiseNonconformance: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/nonconformances', body: { contract_id: t.draftContractId, severity: 'MINOR', title: REASON, description: REASON, source_kind: 'SELF_REPORT', action_owner_id: t.recipientMembershipId, due_at: '2999-01-01T00:00:00Z' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/nonconformances',
+      body: {
+        contract_id: t.draftContractId,
+        severity: 'MINOR',
+        title: REASON,
+        description: REASON,
+        source_kind: 'SELF_REPORT',
+        action_owner_id: t.recipientMembershipId,
+        due_at: '2999-01-01T00:00:00Z',
+      },
+    }),
   },
   assignCorrectiveAction: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/nonconformances/${t.nonconformanceId}/corrective-actions`, ifMatch: '"1"', body: { description: REASON, owner_membership_id: t.recipientMembershipId, due_at: '2999-01-01T00:00:00Z' } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/nonconformances/${t.nonconformanceId}/corrective-actions`,
+      ifMatch: '"1"',
+      body: { description: REASON, owner_membership_id: t.recipientMembershipId, due_at: '2999-01-01T00:00:00Z' },
+    }),
   },
   submitCorrectiveEvidence: {
     referencesTenantIds: true,
@@ -2770,12 +3299,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   post_settlements_id_close: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/settlements/${t.settlementId}/close`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [], decision_document_version_id: t.paymentDocumentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/settlements/${t.settlementId}/close`,
+      ifMatch: '"1"',
+      body: { decision: 'approve', reason: REASON, evidence_ids: [], decision_document_version_id: t.paymentDocumentVersionId },
+    }),
   },
   // Reversing a payment that was settled, against the refund the Treasury confirmed.
   reversePayment: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/reverse`, ifMatch: '"1"', body: { reason: REASON, approval_document_version_id: t.paymentDocumentVersionId, refund_treasury_transaction_id: t.treasuryTransactionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/payment-requests/${t.paymentRequestId}/reverse`,
+      ifMatch: '"1"',
+      body: { reason: REASON, approval_document_version_id: t.paymentDocumentVersionId, refund_treasury_transaction_id: t.treasuryTransactionId },
+    }),
   },
   // Sending a payment request, checking it and giving it back.
   post_payment_requests_id_submit: {
@@ -2859,12 +3398,25 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     build: (t) => ({
       method: 'POST',
       path: `/contracts/${t.draftContractId}/guarantees`,
-      body: { kind: 'PERFORMANCE', issuer: 'Matrix bank', guarantee_no: 'MX-NEW-GUARANTEE', amount_vnd: '1000', valid_from: '2026-01-01', expires_at: '2099-01-01T00:00:00Z', document_version_id: t.documentVersionId },
+      body: {
+        kind: 'PERFORMANCE',
+        issuer: 'Matrix bank',
+        guarantee_no: 'MX-NEW-GUARANTEE',
+        amount_vnd: '1000',
+        valid_from: '2026-01-01',
+        expires_at: '2099-01-01T00:00:00Z',
+        document_version_id: t.documentVersionId,
+      },
     }),
   },
   verifyGuarantee: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: `/guarantees/${t.guaranteeId}/verify`, ifMatch: '"1"', body: { outcome: 'VERIFIED', method: 'Matrix check', evidence_document_version_id: t.documentVersionId } }),
+    build: (t) => ({
+      method: 'POST',
+      path: `/guarantees/${t.guaranteeId}/verify`,
+      ifMatch: '"1"',
+      body: { outcome: 'VERIFIED', method: 'Matrix check', evidence_document_version_id: t.documentVersionId },
+    }),
   },
   extendGuarantee: {
     referencesTenantIds: true,
@@ -2936,7 +3488,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createCampaign: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/notification-campaigns', body: { name: 'Matrix campaign', purpose: 'ANNOUNCEMENT', template_version_id: t.notificationTemplateId, segment: { unit_ids: [t.unit2] } } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/notification-campaigns',
+      body: { name: 'Matrix campaign', purpose: 'ANNOUNCEMENT', template_version_id: t.notificationTemplateId, segment: { unit_ids: [t.unit2] } },
+    }),
   },
   previewCampaignRecipients: {
     referencesTenantIds: true,
@@ -3008,7 +3564,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   updateCannedReply: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'PUT', path: `/canned-replies/${t.cannedReplyId}`, ifMatch: '"1"', body: { code: 'matrix.reply.fixture', title: 'Matrix', body_text: 'Matrix reply changed', channels: ['EMAIL'], classification: 'PUBLIC' } }),
+    build: (t) => ({
+      method: 'PUT',
+      path: `/canned-replies/${t.cannedReplyId}`,
+      ifMatch: '"1"',
+      body: { code: 'matrix.reply.fixture', title: 'Matrix', body_text: 'Matrix reply changed', channels: ['EMAIL'], classification: 'PUBLIC' },
+    }),
   },
   assignConversation: {
     referencesTenantIds: true,
@@ -3016,7 +3577,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   mergeContacts: {
     referencesTenantIds: true,
-    build: (t) => ({ method: 'POST', path: '/contacts/merges', body: { survivor_contact_id: t.contactId, merged_contact_id: t.contactId, shared_verified_identity_id: t.contactIdentityId, reason: REASON } }),
+    build: (t) => ({
+      method: 'POST',
+      path: '/contacts/merges',
+      body: { survivor_contact_id: t.contactId, merged_contact_id: t.contactId, shared_verified_identity_id: t.contactIdentityId, reason: REASON },
+    }),
   },
   setChannelLimits: {
     referencesTenantIds: true,
@@ -3024,7 +3589,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   post_sync_batches: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/sync/batches', body: { device_id: '00000000-0000-4000-8000-0000000000a1', items: [{ idempotency_key: 'matrix-sync-key-000001', command_type: 'issue.create', base_server_version: 0, payload: {} }] } }),
+    build: () => ({
+      method: 'POST',
+      path: '/sync/batches',
+      body: { device_id: '00000000-0000-4000-8000-0000000000a1', items: [{ idempotency_key: 'matrix-sync-key-000001', command_type: 'issue.create', base_server_version: 0, payload: {} }] },
+    }),
   },
   post_sync_attachments: {
     referencesTenantIds: false,
@@ -3036,11 +3605,19 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   registerDevice: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/devices', body: { device_public_id: 'matrix-device-public-0001', platform: 'android', push_token: 'matrix-push-token', permission_state: 'granted', app_version: '1.0.0' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/devices',
+      body: { device_public_id: 'matrix-device-public-0001', platform: 'android', push_token: 'matrix-push-token', permission_state: 'granted', app_version: '1.0.0' },
+    }),
   },
   connectChannelAccount: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/channel-accounts', body: { channel: 'WHATSAPP', external_account_id: 'matrix-account-0001', display_name: 'Matrix', credential_secret_ref: 'secret://matrix/token', webhook_secret_ref: 'secret://matrix/webhook' } }),
+    build: () => ({
+      method: 'POST',
+      path: '/channel-accounts',
+      body: { channel: 'WHATSAPP', external_account_id: 'matrix-account-0001', display_name: 'Matrix', credential_secret_ref: 'secret://matrix/token', webhook_secret_ref: 'secret://matrix/webhook' },
+    }),
   },
   verifyChannelAccount: {
     referencesTenantIds: true,
@@ -3056,7 +3633,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   createTemplateRevision: {
     referencesTenantIds: false,
-    build: () => ({ method: 'POST', path: '/notification-templates', body: { code: 'matrix.template', channel: 'EMAIL', locale: 'vi-VN', purpose: 'OPERATIONAL', content_ast: { body: 'Hello' }, variable_schema: {} } }),
+    build: () => ({
+      method: 'POST',
+      path: '/notification-templates',
+      body: { code: 'matrix.template', channel: 'EMAIL', locale: 'vi-VN', purpose: 'OPERATIONAL', content_ast: { body: 'Hello' }, variable_schema: {} },
+    }),
   },
   submitTemplateRevision: {
     referencesTenantIds: true,
@@ -3076,7 +3657,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   updateMyNotificationPreferences: {
     referencesTenantIds: false,
-    build: () => ({ method: 'PUT', path: '/me/notification-preferences', ifMatch: '"0"', body: { items: [{ event_category: 'report', channel: 'SMS', enabled: false }], quiet_start: '22:00', quiet_end: '06:00' } }),
+    build: () => ({
+      method: 'PUT',
+      path: '/me/notification-preferences',
+      ifMatch: '"0"',
+      body: { items: [{ event_category: 'report', channel: 'SMS', enabled: false }], quiet_start: '22:00', quiet_end: '06:00' },
+    }),
   },
   grantMyConsent: {
     referencesTenantIds: false,

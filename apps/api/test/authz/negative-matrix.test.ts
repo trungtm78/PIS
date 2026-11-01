@@ -99,7 +99,12 @@ describe('negative authorization matrix generator', () => {
     });
 
     it('reports a request that the guard let through, with its changed state', () => {
-      expect(evaluateGuardDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual(['answered 201 instead of 403', 'code undefined instead of SCOPE_DENIED', '0 DENIED audit rows instead of 1', 'tenant state changed']);
+      expect(evaluateGuardDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
+        'answered 201 instead of 403',
+        'code undefined instead of SCOPE_DENIED',
+        '0 DENIED audit rows instead of 1',
+        'tenant state changed',
+      ]);
     });
 
     it('reports a refusal with another code, a missing audit row or a changed state each on its own', () => {
@@ -113,7 +118,11 @@ describe('negative authorization matrix generator', () => {
       expect(evaluateWrongTenant({ ...refused, status: 201, deniedRows: 0 }, ['abc'], false)).toEqual([]);
       expect(evaluateWrongTenant({ ...refused, status: 201, text: 'ABC', deniedRows: 0, stateChanged: true }, ['abc'], false)).toEqual(['body exposes data of another tenant', 'tenant state changed']);
       expect(evaluateWrongTenant({ ...refused, status: 404, deniedRows: 0 }, ['abc'])).toEqual([]);
-      expect(evaluateWrongTenant({ status: 200, code: undefined, text: 'Contains ABC', deniedRows: 0, stateChanged: true }, ['abc'])).toEqual(['answered 200 instead of 403 or 404', 'body exposes data of another tenant', 'tenant state changed']);
+      expect(evaluateWrongTenant({ status: 200, code: undefined, text: 'Contains ABC', deniedRows: 0, stateChanged: true }, ['abc'])).toEqual([
+        'answered 200 instead of 403 or 404',
+        'body exposes data of another tenant',
+        'tenant state changed',
+      ]);
     });
   });
 });
@@ -236,14 +245,23 @@ describe('maker-checker and MFA replay cases', () => {
 
     it('accepts a step-up refusal and reports a command that went through, a wrong code, no audit row and a changed state', () => {
       expect(evaluateStepUpDenial(refused)).toEqual([]);
-      expect(evaluateStepUpDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual(['answered 201 instead of 403', 'code undefined instead of MFA_REQUIRED', '0 DENIED audit rows instead of 1', 'tenant state changed']);
+      expect(evaluateStepUpDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
+        'answered 201 instead of 403',
+        'code undefined instead of MFA_REQUIRED',
+        '0 DENIED audit rows instead of 1',
+        'tenant state changed',
+      ]);
       expect(evaluateStepUpDenial({ ...refused, code: 'SCOPE_DENIED' })).toHaveLength(1);
     });
 
     it('accepts a self-approval refusal that changed nothing and reports an approval that went through', () => {
       const selfApproval: Observation = { status: 403, code: 'SELF_APPROVAL_DENIED', text: '{}', deniedRows: 0, stateChanged: false };
       expect(evaluateSelfApproval(selfApproval)).toEqual([]);
-      expect(evaluateSelfApproval({ status: 200, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual(['answered 200 instead of 403', 'code undefined instead of SELF_APPROVAL_DENIED', 'tenant state changed']);
+      expect(evaluateSelfApproval({ status: 200, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
+        'answered 200 instead of 403',
+        'code undefined instead of SELF_APPROVAL_DENIED',
+        'tenant state changed',
+      ]);
       expect(evaluateSelfApproval({ ...selfApproval, code: 'SCOPE_DENIED' })).toHaveLength(1);
     });
   });
@@ -326,7 +344,11 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
   const fingerprint = async (): Promise<string> => (await admin.query<{ fingerprint: string }>(FINGERPRINT, [TENANT_A])).rows[0]?.fingerprint ?? '';
-  const deniedRows = async (operationId: string, member: string): Promise<number> => Number((await admin.query<{ n: string }>("select count(*) as n from machvon.audit_event where action = $1 and outcome = 'DENIED' and actor_id = $2", [`authz.denied:${operationId}`, member])).rows[0]?.n);
+  const deniedRows = async (operationId: string, member: string): Promise<number> =>
+    Number(
+      (await admin.query<{ n: string }>("select count(*) as n from machvon.audit_event where action = $1 and outcome = 'DENIED' and actor_id = $2", [`authz.denied:${operationId}`, member])).rows[0]
+        ?.n,
+    );
 
   async function send(request: MatrixRequest, caller: { tenantId: string; member: number; claims: Record<string, unknown> }): Promise<Reply> {
     const token = signTenantContext(contextFor(caller.tenantId, memberId(caller.member)), SIGNING_KEY);
@@ -367,7 +389,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     };
   }
 
-  const roleId = async (tenant: string, code: string): Promise<string> => (await admin.query<{ id: string }>('select id from machvon.role_definition where tenant_id = $1 and code = $2', [tenant, code])).rows[0]?.id ?? '';
+  const roleId = async (tenant: string, code: string): Promise<string> =>
+    (await admin.query<{ id: string }>('select id from machvon.role_definition where tenant_id = $1 and code = $2', [tenant, code])).rows[0]?.id ?? '';
 
   const giveSystemRole = (tenant: string, member: number, grantN: number, roleUuid: string): Promise<unknown> =>
     harness.owner(tenant, [
@@ -422,13 +445,19 @@ describe('negative authorization matrix against the real application (ST-IAM-004
           [TENANT_A, memberId_, id(0x77, 3)],
         ],
         [`update machvon.project set status = 'IMPLEMENTATION', project_group = 'B' where id = $1`, [project]],
-        [`insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status) values ($1, $2, $3, 'MX-PKG', 1000, 'OPEN', 1, 'AWARDED')`, [TENANT_A, pkg, project]],
+        [
+          `insert into machvon.procurement_package (tenant_id, id, project_id, code, budget_vnd, method, revision, status) values ($1, $2, $3, 'MX-PKG', 1000, 'OPEN', 1, 'AWARDED')`,
+          [TENANT_A, pkg, project],
+        ],
         [
           `insert into machvon.procurement_result (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, outcome, status, decision_document_id, submitted_by, approved_by, approved_at, created_by, updated_by)
            values ($1, $2, $3, $4, 1000, 'AWARDED', 'APPROVED', $5, $6, $7, now(), $6, $6)`,
           [TENANT_A, id(0x77, 11), pkg, contractorId, id(0x78, 1), memberId(RECIPIENT), memberId(SECOND_OWNER)],
         ],
-        [`insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2026, 1, $4, 'APPROVED', now())`, [TENANT_A, id(0x77, 12), project, id(0x78, 1)]],
+        [
+          `insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2026, 1, $4, 'APPROVED', now())`,
+          [TENANT_A, id(0x77, 12), project, id(0x78, 1)],
+        ],
         [
           `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, title, is_joint_venture, contract_value_vnd, estimate_ceiling_vnd, created_by)
            values ($1, $2, $3, $4, $5, 'MX-DRAFT', 'LUMP_SUM', 'VND', 'DRAFT', 1, 'Matrix draft', true, 1000, 1000, $6)`,
@@ -729,7 +758,10 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       [TENANT_A, id(0x79, n), `MX-FIXTURE-${n}`, status, ACTOR],
     ];
     // The record and its version point at each other: the version is inserted first, then the record names it.
-    const masterCurrent = (recordN: number, versionN: number): [string, unknown[]] => ['update machvon.master_record set current_version_id = $2 where id = $1', [id(0x79, recordN), id(0x79, versionN)]];
+    const masterCurrent = (recordN: number, versionN: number): [string, unknown[]] => [
+      'update machvon.master_record set current_version_id = $2 where id = $1',
+      [id(0x79, recordN), id(0x79, versionN)],
+    ];
     const masterVersion = (n: number, recordN: number, status: string): [string, unknown[]] => [
       `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, created_by, updated_by)
        values ($1, $2, $3, 'MATRIX', $4, 1, 'Matrix fixture', '{}', '2026-01-01', $5, 'TENANT', $6, $6)`,
@@ -752,7 +784,10 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       masterVersion(9, 8, 'EFFECTIVE'),
       masterCurrent(8, 9),
       masterChange(5, 8, 'IN_REVIEW'),
-      [`insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'AREA', 'MX-AREA', 'EFFECTIVE', $3, $3)`, [TENANT_A, id(0x8a, 2), ACTOR]],
+      [
+        `insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, created_by, updated_by) values ($1, $2, 'TENANT', 'AREA', 'MX-AREA', 'EFFECTIVE', $3, $3)`,
+        [TENANT_A, id(0x8a, 2), ACTOR],
+      ],
       [
         `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
          values ($1, $2, $3, 'AREA', 'MX-AREA', 1, 'Matrix area', '{}', '2020-01-01', 'EFFECTIVE', 'TENANT', now(), $4, $4)`,
@@ -859,8 +894,14 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const permitDossierId = id(0x7d, 1);
     const permitId = id(0x7d, 2);
     await harness.owner(TENANT_A, [
-      ['insert into machvon.permit_dossier (tenant_id, id, project_id, owner_unit_id, created_by, updated_by) values ($1, $2, $3, $4, $5, $5)', [TENANT_A, permitDossierId, projectId, unitId(2), ACTOR]],
-      ["insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, status, created_by, updated_by) values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $5)", [TENANT_A, permitId, permitDossierId, permitTypeId, ACTOR]],
+      [
+        'insert into machvon.permit_dossier (tenant_id, id, project_id, owner_unit_id, created_by, updated_by) values ($1, $2, $3, $4, $5, $5)',
+        [TENANT_A, permitDossierId, projectId, unitId(2), ACTOR],
+      ],
+      [
+        "insert into machvon.permit (tenant_id, id, dossier_id, permit_type_id, status, created_by, updated_by) values ($1, $2, $3, $4, 'IN_APPRAISAL', $5, $5)",
+        [TENANT_A, permitId, permitDossierId, permitTypeId, ACTOR],
+      ],
     ]);
     // A land parcel of that project, answered for by unit 2: the notice command acts on it.
     const parcelId = id(0xb2, 1);
@@ -873,7 +914,12 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     ]);
     // A section of that project: the handover command acts on it.
     const sectionId = id(0xb2, 2);
-    await harness.owner(TENANT_A, [[`insert into machvon.land_handover_section (tenant_id, id, project_id, code, name, required_area_m2, status, created_by, updated_by) values ($1, $2, $3, 'MX-SEC', 'Matrix section', 100, 'NOT_READY', $4, $4)`, [TENANT_A, sectionId, projectId, ACTOR]]]);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.land_handover_section (tenant_id, id, project_id, code, name, required_area_m2, status, created_by, updated_by) values ($1, $2, $3, 'MX-SEC', 'Matrix section', 100, 'NOT_READY', $4, $4)`,
+        [TENANT_A, sectionId, projectId, ACTOR],
+      ],
+    ]);
     // Who answers for that project and a task force of its unit: the assignment commands act on them.
     const accountabilityId = id(0xb3, 1);
     const taskForceId = id(0xb3, 2);
@@ -927,7 +973,10 @@ describe('negative authorization matrix against the real application (ST-IAM-004
                case $6::text when 'OPEN' then null else $5::date + interval '4 hours' end, $7, $8, $8)`,
       [TENANT_A, periodId, code, start, end, status, id(0x79, 2), ACTOR],
     ];
-    await harness.owner(TENANT_A, [matrixPeriod(periodOpenId, 'MX-W2026-01', '2026-01-03', '2026-01-09', 'OPEN'), matrixPeriod(periodSoftClosedId, 'MX-W2026-02', '2026-01-10', '2026-01-16', 'SOFT_CLOSED')]);
+    await harness.owner(TENANT_A, [
+      matrixPeriod(periodOpenId, 'MX-W2026-01', '2026-01-03', '2026-01-09', 'OPEN'),
+      matrixPeriod(periodSoftClosedId, 'MX-W2026-02', '2026-01-10', '2026-01-16', 'SOFT_CLOSED'),
+    ]);
     // A locked period, and a request to reopen it made by someone other than the callers: the reopening commands act on them.
     const periodLockedId = id(0xd5, 3);
     const reopenRequestId = id(0xd5, 4);
@@ -1023,7 +1072,13 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       [
         `insert into machvon.criteria_version (tenant_id, id, package_id, revision, criteria_json, legal_basis, weights_sum, status, created_by, version)
          values ($1, $2, $3, 1, $4::jsonb, 'Matrix legal basis', 100, 'DRAFT', $5, 1)`,
-        [TENANT_A, criteriaDraftId, criteriaPackageId, JSON.stringify({ criteria: [{ code: 'MX1', name: 'Matrix criterion', kind: 'SCORED', weight: 100, max_score: 10, threshold: 5, mandatory: false, required_evidence: [] }] }), ACTOR],
+        [
+          TENANT_A,
+          criteriaDraftId,
+          criteriaPackageId,
+          JSON.stringify({ criteria: [{ code: 'MX1', name: 'Matrix criterion', kind: 'SCORED', weight: 100, max_score: 10, threshold: 5, mandatory: false, required_evidence: [] }] }),
+          ACTOR,
+        ],
       ],
     ]);
     // A declaration of conflict of interest of that package, made by the actor of the seed and waiting for a decision.
@@ -1078,6 +1133,21 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         `insert into machvon.period_snapshot (tenant_id, id, period_id, snapshot_kind, as_of_at, as_of_date, treasury_cutoff_date, status, metric_set_version, definition_status, row_count, payload_sha256, frozen_by, frozen_at, created_by, updated_by)
          values ($1, $2, $3, 'PERIOD_CLOSE', now(), current_date, current_date, 'FROZEN', 'v1', 'PROPOSED_PENDING_SIGNOFF', 0, repeat('c', 64), $4, now(), $4, $4)`,
         [TENANT_A, qualitySnapshotId, periodOpenId, ACTOR],
+      ],
+    ]);
+    // A revision of the contract of the quality dataset in review, with a breaking change drafted by someone other than the callers, and the approval of a consumer of it that waits: the contract commands act on them.
+    const contractRevisionId = id(0xe0, 1);
+    const consumerApprovalId = id(0xe0, 2);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.dataset_contract (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id, odcs_version, odcs_json, producer_module, compatibility, effective_from, created_by)
+         values ($1, $2, 'DS-MATRIX-QUALITY', 2, $3, '{"columns":[]}'::jsonb, '{"rules":[]}'::jsonb, 3600, 'INTERNAL', 'IN_REVIEW', $4, 'v3.0.2', '{"apiVersion":"v3.0.2"}'::jsonb, 'DIS', 'BREAKING', date '2030-01-01', $5)`,
+        [TENANT_A, contractRevisionId, glossaryOwnerId, qualityDatasetId, ACTOR],
+      ],
+      [
+        `insert into machvon.contract_consumer_approval (tenant_id, id, contract_id, consumer_kind, consumer_ref, consumer_owner_user_id, decision, created_by, updated_by)
+         values ($1, $2, $3, 'MODULE', 'HOME', $4, 'PENDING', $5, $5)`,
+        [TENANT_A, consumerApprovalId, contractRevisionId, glossaryOwnerId, ACTOR],
       ],
     ]);
     // An OPEN quality incident and an OPEN quality exception, of a finished run of the quality dataset, made by someone other than the callers.
@@ -1190,6 +1260,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       qualityDatasetId,
       dossierId: id(0x77, 52),
       qualityContractId,
+      contractRevisionId,
+      consumerApprovalId,
       qualityRuleId,
       qualitySnapshotId,
       accountabilityId,
@@ -1334,7 +1406,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       const failures: string[] = [];
       for (const matrixCase of mine) {
         const observation = await observe(matrixCase);
-        const problems = matrixCase.kind === 'wrong-tenant' ? evaluateWrongTenant(observation, TENANT_A_MARKERS, COMMAND_FIXTURES[operationId]?.referencesTenantIds ?? true) : evaluateGuardDenial(observation);
+        const problems =
+          matrixCase.kind === 'wrong-tenant' ? evaluateWrongTenant(observation, TENANT_A_MARKERS, COMMAND_FIXTURES[operationId]?.referencesTenantIds ?? true) : evaluateGuardDenial(observation);
         for (const problem of problems) failures.push(`${matrixCase.id}: ${problem}`);
       }
       expect(failures).toEqual([]);

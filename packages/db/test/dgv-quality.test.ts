@@ -757,6 +757,28 @@ describe('quality rules, runs on frozen snapshots and scorecards (ST-DGV-002)', 
       expect(card?.pendingAttempt).toMatchObject({ id: running.id, status: 'RUNNING' });
     });
 
+    it('does not offer a revision of a data contract that is in review, or closed without being published, as the working contract: the rules and the runs lean on the contract that has approved rules', async () => {
+      const world = await newWorld();
+      await approvedRule(world, { code: 'R-WORKING' });
+      const revision = async (n: number, status: string): Promise<string> => {
+        const id = randomUUID();
+        await owner(
+          `insert into machvon.dataset_contract (tenant_id, id, dataset_code, revision, owner_id, schema_json, quality_json, freshness_seconds, classification, status, dataset_id, odcs_version, odcs_json, producer_module, compatibility, effective_from, created_by)
+           values ($1, $2, $3, $4, $5, '{"columns":[]}'::jsonb, '{}'::jsonb, 3600, 'INTERNAL', $6, $7, 'v3.0.2', '{"apiVersion":"v3.0.2"}'::jsonb, 'DIS', 'INITIAL', date '2030-01-01', $5)`,
+          [TENANT_A, id, world.code, n, memberId(OWNER), status, world.datasetId],
+        );
+        return id;
+      };
+      await revision(5, 'IN_REVIEW');
+      expect((await as((tx) => datasets.find(tx, world.datasetId, viewer(STEWARD))))?.workingContractId).toBe(world.contractId);
+      await revision(6, 'REJECTED');
+      await revision(7, 'RETURNED');
+      expect((await as((tx) => datasets.find(tx, world.datasetId, viewer(STEWARD))))?.workingContractId).toBe(world.contractId);
+      // The same contract is the one a run can be asked against.
+      const snapshot = await newSnapshot();
+      expect((await request(world, snapshot.id)).id).toMatch(/^[0-9a-f-]{36}$/);
+    });
+
     it('offers the working contract of the dataset in the catalogue: its highest revision', async () => {
       const world = await newWorld();
       const second = randomUUID();
