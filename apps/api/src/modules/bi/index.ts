@@ -9,13 +9,33 @@ import { BiExportController, BiExportScheduleController } from './export.control
 import { DashboardShareController } from './share.controller';
 import { DashboardPublishController, PublicationController } from './publication.controller';
 import { BiQueryController } from './query.controller';
+import { BiLineageController, BiQueryLogController, BiQueryRunController } from './lineage.controller';
 import { BI_DRILL_KEY, BI_DRILL_SECRET } from './tokens';
 import { MetricReadsController, MetricRegistryController, TenantMetricController } from './metric.controller';
 
 /** BI, business intelligence: the metrics as data, a registry the platform fills from files of the repository and a tenant fills with its own drafts (ST-BI-001), the versions of its datasets by period (ST-BI-002) and the row and column policies that open them (ST-BI-003). */
 export const biModule = defineModule({
   code: 'BI',
-  controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController, BiQueryController, DashboardController, DashboardReadsController, DashboardVersionReadsController, PublicationController, DashboardPublishController, DashboardShareController, BiExportController, BiExportScheduleController],
+  controllers: [
+    MetricRegistryController,
+    TenantMetricController,
+    MetricReadsController,
+    DatasetBuildController,
+    DatasetReadsController,
+    PolicyController,
+    BiQueryController,
+    DashboardController,
+    DashboardReadsController,
+    DashboardVersionReadsController,
+    PublicationController,
+    DashboardPublishController,
+    DashboardShareController,
+    BiExportController,
+    BiExportScheduleController,
+    BiQueryLogController,
+    BiQueryRunController,
+    BiLineageController,
+  ],
   providers: [
     {
       provide: BI_DRILL_KEY,
@@ -24,7 +44,10 @@ export const biModule = defineModule({
         const source = secret ?? options?.contextKey;
         return source === undefined ? randomBytes(32) : createHmac('sha256', source).update('machvon:bi:drill-key').digest();
       },
-      inject: [{ token: BI_DRILL_SECRET, optional: true }, { token: ORCHESTRATION_OPTIONS, optional: true }],
+      inject: [
+        { token: BI_DRILL_SECRET, optional: true },
+        { token: ORCHESTRATION_OPTIONS, optional: true },
+      ],
     },
   ],
 });

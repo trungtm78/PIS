@@ -11,7 +11,7 @@ const CATALOGUE_READ = PERMISSIONS.searchCatalog;
 const BI_DATASET_READ = PERMISSIONS.listBiDatasets;
 
 /** Whether the person holds the permission through any grant in force now. */
-const holds = (access: EffectiveAccess, permission: string, now: Date): boolean =>
+export const holds = (access: EffectiveAccess, permission: string, now: Date): boolean =>
   access.membershipActive && activeGrants(access, now).some((grant) => holdsPermission(new Set(grant.permissions), permission));
 
 /** Whether the person holds the permission over the whole tenant. */
@@ -32,7 +32,8 @@ export class LineageVisibility {
 
   constructor(
     private readonly tx: TenantTx,
-    private readonly viewer: { membershipId: string; access: EffectiveAccess; now: Date },
+    /** The person, and the right to read the lineage they come through (the one of the graph of DGV, or the one of the lineage of a metric of BI). */
+    private readonly viewer: { membershipId: string; access: EffectiveAccess; now: Date; permission?: string },
   ) {}
 
   /** The ids of the nodes the person may see. Sequential: the queries of a transaction share a connection. */
@@ -54,7 +55,8 @@ export class LineageVisibility {
 
   private async sees(node: GraphNode, requester: { roleIds: string[]; unitIds: string[] }): Promise<boolean> {
     const { access, now, membershipId } = this.viewer;
-    const whole = holdsOnWholeTenant(access, PERMISSIONS.getLineageGraph, now);
+    const reads = this.viewer.permission ?? PERMISSIONS.getLineageGraph;
+    const whole = holdsOnWholeTenant(access, reads, now);
     if ((node.classification === 'PERSONAL' || node.classification === 'IMPORTANT_CORE') && !whole) return false;
     switch (node.nodeKind) {
       case 'METRIC_VERSION':
@@ -84,7 +86,7 @@ export class LineageVisibility {
       }
       case 'RECORD': {
         // A record is told only to whoever may read the project it is of (the right of the project, over the projects they read), as well as the lineage: the lineage never tells what the source would refuse.
-        if (node.refId === null || !holds(access, PERMISSIONS.getLineageGraph, now)) return false;
+        if (node.refId === null || !holds(access, reads, now)) return false;
         const scope = projectScope(access, PROJECT_READ, now)(2);
         // A record of the disbursement dataset is a line of a snapshot: it is of the project of the line; any other record is named by the project itself.
         const project = node.refModule === 'DIS' ? '(select project_id from machvon.period_snapshot_line where id = $1::uuid)' : '$1::uuid';
@@ -92,7 +94,7 @@ export class LineageVisibility {
         return rows.length > 0;
       }
       default:
-        return holds(access, PERMISSIONS.getLineageGraph, now) && (node.classification === 'PUBLIC' || node.classification === 'INTERNAL');
+        return holds(access, reads, now) && (node.classification === 'PUBLIC' || node.classification === 'INTERNAL');
     }
   }
 }

@@ -4,3 +4,5 @@ export const BI_CLOCK = Symbol('BI_CLOCK');
 export const BI_DRILL_SECRET = Symbol('BI_DRILL_SECRET');
 /** Injection token of the key the drill tokens are signed from (at least 32 bytes); the key of each tenant is made from it. */
 export const BI_DRILL_KEY = Symbol('BI_DRILL_KEY');
+/** Injection token of the cost a query of BI may have and still be answered in the request (units of the kernel: the lines it reads times the groups it makes); a heavier one becomes a job. The limit of the kernel is used when none is bound. */
+export const BI_QUERY_COST_LIMIT = Symbol('BI_QUERY_COST_LIMIT');

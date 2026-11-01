@@ -530,6 +530,7 @@ export { CHECK_FORMULA, CHECK_FROZEN_VERSION, CHECK_GROUPS, CHECK_ROWS, PUBLICAT
 export type { PublicationCheck, PublicationDecision, PublicationKind, Reproduction } from './bi-publication.ts';
 export { BI_DIMENSION_LABELS, BI_EXPORT_FORMATS, BI_EXPORT_LINK_SECONDS, BI_EXPORT_ROW_CAP, BI_EXPORT_TTL_DAYS, BI_SCHEDULE_FORMATS, BI_SCHEDULE_MAX_RECIPIENTS, BI_SCHEDULE_TIMEZONE, buildBiExportDocument, knownTimeZone, nextFire, parseCron, scheduleDue } from './bi-export.ts';
 export type { BiExportFormat, BiExportInput, BiScheduleFormat, Cron } from './bi-export.ts';
+export { BI_DIMENSION_WEIGHTS, BI_JOB_BATCH, BI_RESULT_TTL_SECONDS, BI_SYNC_COST_LIMIT, BI_TOTAL_WEIGHT, estimateQueryCost, isHeavyQuery } from './bi-query-cost.ts';
 export { LINEAGE_CLASSIFICATIONS, LINEAGE_DEFAULT_DEPTH, LINEAGE_DIRECTIONS, LINEAGE_MAX_DEPTH, LINEAGE_MAX_EDGES, LINEAGE_MAX_EDGES_READ, LINEAGE_MAX_NODES, LINEAGE_NODE_KINDS, nodeIdentity, parseLineageBatch, shapeGraph } from './dgv-lineage.ts';
 export type { GraphEdge, GraphNode, LineageBatchInput, LineageClassification, LineageDirection, LineageEdgeInput, LineageNodeKind, NodeRef, ShownEdge, ShownNode } from './dgv-lineage.ts';
 export { DATASET_VERSION_STATUSES, QUALITY_BADGES, certifiedRows, feedsCertified, isSameBuild, qualityOfVersion, versionChecksum } from './bi-dataset.ts';

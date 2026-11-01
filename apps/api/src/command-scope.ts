@@ -29,4 +29,9 @@ export interface CommandScope {
    * amount that does not agree and opens a difference. The refusal is stored as the answer of the idempotency key, so the same key gets it again; the first call wins when it is called twice.
    */
   refuseAfterCommit(error: DomainError): void;
+  /**
+   * Answers with this status in place of the one the route declares: for a command whose answer is one of two (a query that is answered, or becomes a job that is answered 202). The status is stored with the answer of
+   * the idempotency key, so the same key gets it again; a refusal keeps its own.
+   */
+  respondWith(status: number): void;
 }

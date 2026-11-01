@@ -224,6 +224,12 @@ export function dimensionLabel(t: T, dimension: string): string {
 
 export function queryProblemMessage(t: T, reason: QueryReason, field: string): string {
   switch (reason) {
+    case 'running':
+      return t('bi.query.refused.running');
+    case 'changed':
+      return t('bi.query.refused.changed');
+    case 'timeout':
+      return t('bi.query.refused.timeout');
     case 'policy':
       return t('bi.query.refused.policy');
     case 'dimension':

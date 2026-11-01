@@ -3,7 +3,20 @@ import { PERMISSIONS } from '@machvon/contracts';
 import { BiMetricStore, BiPolicyStore, BiQueryStore, projectScope } from '@machvon/db';
 import type { ScopeBuilder } from '@machvon/db';
 import type { AggregateRow, QueryFilter, SnapshotVersion } from '@machvon/db';
-import { DISBURSEMENT_DIMENSIONS, DISBURSEMENT_FIELDS, DomainError, biScopeHash, canonicalJson, hiddenColumns, homeScopeFingerprint, measurePlanOf, queryCacheKey } from '@machvon/kernel';
+import {
+  BI_SYNC_COST_LIMIT,
+  DISBURSEMENT_DIMENSIONS,
+  DISBURSEMENT_FIELDS,
+  DomainError,
+  biScopeHash,
+  canonicalJson,
+  estimateQueryCost,
+  hiddenColumns,
+  homeScopeFingerprint,
+  isHeavyQuery,
+  measurePlanOf,
+  queryCacheKey,
+} from '@machvon/kernel';
 import type { EffectiveAccess, MeasurePlan } from '@machvon/kernel';
 import { BiQueryCache } from './query-cache';
 
@@ -47,7 +60,11 @@ export class BiQueryEngine {
   private readonly queries = new BiQueryStore();
   private readonly policies = new BiPolicyStore();
 
-  constructor(private readonly cache: BiQueryCache = new BiQueryCache()) {}
+  constructor(
+    private readonly cache: BiQueryCache = new BiQueryCache(),
+    /** The cost a query may have and still be answered in the request. */
+    private readonly syncCostLimit: number = BI_SYNC_COST_LIMIT,
+  ) {}
 
   get maxRows(): number {
     return this.queries.maxRows;
@@ -145,8 +162,8 @@ export class BiQueryEngine {
     for (const field of fields) if (!read.allowedDimensions.includes(field)) throw new DomainError('DIMENSION_NOT_IN_DATASET', 422, field);
   }
 
-  /** The groups and the total, from the cache when the same reader asked the same thing of the same snapshot a moment ago. */
-  async answer(tx: Tx, read: Reading, dimension: string | undefined, filters: readonly QueryFilter[], access: EffectiveAccess, now: Date, tenantId: string): Promise<Answer & { fromCache: boolean }> {
+  /** What a question is kept under: the tenant, the metric, the snapshot, the query and the scope of the reader (the key of the cache), and its digest, which is how the log and the jobs name it. */
+  keyOf(read: Reading, dimension: string | undefined, filters: readonly QueryFilter[], tenantId: string): { key: string; digest: string } {
     const key = queryCacheKey({
       tenantId,
       metricVersionIds: [read.metricId],
@@ -156,16 +173,38 @@ export class BiQueryEngine {
       snapshotId: read.version.datasetVersionId,
       scopeHash: read.scopeHash,
     });
+    return { key, digest: createHash('sha256').update(key).digest('hex') };
+  }
+
+  /** What the query costs (the lines it reads times the groups it makes) and whether that is more than a request may wait for. */
+  costOf(read: Reading, dimension: string | undefined): { cost: number; heavy: boolean } {
+    const cost = estimateQueryCost({ snapshotRows: read.version.sourceRows, dimension });
+    return { cost, heavy: isHeavyQuery(cost, this.syncCostLimit) };
+  }
+
+  /** Whether the same reader asked the same thing a moment ago and the answer is still at hand. */
+  isCached(key: string, now: Date): boolean {
+    return this.cache.get<Answer>(key, now) !== undefined;
+  }
+
+  /** The groups and the total, from the cache when the same reader asked the same thing of the same snapshot a moment ago. */
+  async answer(tx: Tx, read: Reading, dimension: string | undefined, filters: readonly QueryFilter[], access: EffectiveAccess, now: Date, tenantId: string): Promise<Answer & { fromCache: boolean }> {
+    const { key } = this.keyOf(read, dimension, filters, tenantId);
     const cached = this.cache.get<Answer>(key, now);
     if (cached !== undefined) return { ...(cached as Answer), fromCache: true };
+    const fresh = await this.compute(tx, read, dimension, filters, access, now);
+    this.cache.set(key, fresh, now);
+    return { ...fresh, fromCache: false };
+  }
+
+  /** The groups and the total, read from the snapshot now (never from the cache): what a job of a heavy query makes. */
+  async compute(tx: Tx, read: Reading, dimension: string | undefined, filters: readonly QueryFilter[], access: EffectiveAccess, now: Date): Promise<Answer> {
     const projects = projectScope(access, QUERY_PERMISSION, now);
     const common = { snapshotId: read.version.sourceSnapshotId, plan: read.plan, filters, projects, policies: read.policies };
     const grouped = dimension === undefined ? [] : await this.queries.aggregate(tx, { ...common, dimension });
     const total = (await this.queries.aggregate(tx, common))[0] ?? emptySums();
     const truncated = grouped.length > this.queries.maxRows;
-    const fresh: Answer = { rows: grouped.slice(0, this.queries.maxRows), total, truncated, builtAt: now.toISOString() };
-    this.cache.set(key, fresh, now);
-    return { ...fresh, fromCache: false };
+    return { rows: grouped.slice(0, this.queries.maxRows), total, truncated, builtAt: now.toISOString() };
   }
 
   /** The projects a person may export: those they may query and those they may export, both (a right to export over one unit does not export what the right to query reaches elsewhere). */

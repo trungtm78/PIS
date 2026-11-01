@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, isSameBuild, qualityOfVersion, versionChecksum } from '@machvon/kernel';
 import type { DatasetVersionStatus, QualityBadge, QualityRunFacts, VersionContent } from '@machvon/kernel';
+import { BiLineageStore } from './bi-lineage-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /** The dataset of the disbursement figures, built from the frozen close snapshots of DIS (BI 3 F2). */
@@ -181,7 +182,10 @@ export class BiDatasetStore {
     if (dataset === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (dataset.status !== 'ACTIVE' || dataset.sourceKind !== 'PERIOD_SNAPSHOT') throw new DomainError('VALIDATION_FAILED', 422, 'dataset');
     const snapshot = await this.snapshotOf(tx, input);
-    const locked = await tx.query<{ locked: boolean }>("select pg_try_advisory_xact_lock(hashtextextended('bi_dataset:' || current_setting('app.tenant_id', true) || ':' || $1 || ':' || $2, 0)) as locked", [dataset.id, snapshot.periodCode]);
+    const locked = await tx.query<{ locked: boolean }>(
+      "select pg_try_advisory_xact_lock(hashtextextended('bi_dataset:' || current_setting('app.tenant_id', true) || ':' || $1 || ':' || $2, 0)) as locked",
+      [dataset.id, snapshot.periodCode],
+    );
     if (locked[0]?.locked !== true) throw new DomainError('BUILD_ALREADY_RUNNING', 409);
     // The snapshot was read before the lock: a replacement may have been frozen since, and its own build may already have made its version. It is read again and held (a freezing of its replacement waits for this
     // transaction), so a version of a snapshot that has been replaced never takes the place of the version of the one that replaced it.
@@ -191,7 +195,10 @@ export class BiDatasetStore {
         where dataset_id = $1::uuid and as_of_period = $2 and status = 'BUILDING' and created_at < now() - make_interval(mins => $3::int)`,
       [dataset.id, snapshot.periodCode, STALE_BUILD_MINUTES],
     );
-    const running = await tx.query<{ id: string }>("select id from machvon.bi_dataset_version where dataset_id = $1::uuid and as_of_period = $2 and status = 'BUILDING'", [dataset.id, snapshot.periodCode]);
+    const running = await tx.query<{ id: string }>("select id from machvon.bi_dataset_version where dataset_id = $1::uuid and as_of_period = $2 and status = 'BUILDING'", [
+      dataset.id,
+      snapshot.periodCode,
+    ]);
     if (running[0] !== undefined) throw new DomainError('BUILD_ALREADY_RUNNING', 409);
     // The dataset may have been made before DIS had a dataset in the catalogue of DGV: the link is made as soon as there is one.
     const linked = dataset.dgvDatasetId ?? (await this.linkCatalogue(tx, dataset.id));
@@ -207,7 +214,11 @@ export class BiDatasetStore {
     };
     const standing = await tx.query<Sql>(`${VERSION_SELECT} where v.dataset_id = $1::uuid and v.as_of_period = $2 and v.status = 'FROZEN'`, [dataset.id, snapshot.periodCode]);
     const current = standing[0] === undefined ? undefined : toVersion(standing[0]);
-    if (current !== undefined && isSameBuild(current, content)) return { version: current, outcome: 'UNCHANGED', supersededId: null };
+    if (current !== undefined && isSameBuild(current, content)) {
+      // A version built before the lineage of data was kept has no source in it: asking for the same build again tells it (what is there already is not written again).
+      await new BiLineageStore().datasetBuilt(tx, { versionId: current.id, datasetCode: dataset.datasetCode, asOfPeriod: snapshot.periodCode, sourceSnapshotId: snapshot.id, observedAt: new Date() });
+      return { version: current, outcome: 'UNCHANGED', supersededId: null };
+    }
     if (current !== undefined) {
       await tx.query("update machvon.bi_dataset_version set status = 'SUPERSEDED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [current.id, input.actor]);
     }
@@ -216,9 +227,24 @@ export class BiDatasetStore {
       `insert into machvon.bi_dataset_version
          (tenant_id, id, dataset_id, as_of_period, reporting_period_id, source_snapshot_id, built_at, row_count, checksum_sha256, quality_run_id, quality_badge, excluded_quarantine_rows, status, supersedes_id, created_by, updated_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4::uuid, $5::uuid, now(), $6::bigint, $7, $8::uuid, $9, $10::bigint, 'FROZEN', $11::uuid, $12::uuid, $12::uuid)`,
-      [id, dataset.id, snapshot.periodCode, snapshot.periodId, snapshot.id, snapshot.rowCount, versionChecksum(content), quality.runId, quality.badge, quality.excludedQuarantineRows, current?.id ?? null, input.actor],
+      [
+        id,
+        dataset.id,
+        snapshot.periodCode,
+        snapshot.periodId,
+        snapshot.id,
+        snapshot.rowCount,
+        versionChecksum(content),
+        quality.runId,
+        quality.badge,
+        quality.excludedQuarantineRows,
+        current?.id ?? null,
+        input.actor,
+      ],
     );
     const made = await tx.query<Sql>(`${VERSION_SELECT} where v.id = $1::uuid`, [id]);
+    // The lineage of data is told what the version was made from: the snapshot of DIS and the projects it holds.
+    await new BiLineageStore().datasetBuilt(tx, { versionId: id, datasetCode: dataset.datasetCode, asOfPeriod: snapshot.periodCode, sourceSnapshotId: snapshot.id, observedAt: new Date() });
     return { version: toVersion(made[0] as Sql), outcome: 'BUILT', supersededId: current?.id ?? null };
   }
 
@@ -270,6 +296,13 @@ export class BiDatasetStore {
     const run = rows[0];
     return run === undefined
       ? undefined
-      : { id: run.id, status: run.status, overallResult: run.overall_result, certifiedBlocked: run.certified_blocked, quarantinedCount: Number(run.quarantined_count), snapshotSha256: run.snapshot_sha256 === null ? null : run.snapshot_sha256.trim() };
+      : {
+          id: run.id,
+          status: run.status,
+          overallResult: run.overall_result,
+          certifiedBlocked: run.certified_blocked,
+          quarantinedCount: Number(run.quarantined_count),
+          snapshotSha256: run.snapshot_sha256 === null ? null : run.snapshot_sha256.trim(),
+        };
   }
 }

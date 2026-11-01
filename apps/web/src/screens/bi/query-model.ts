@@ -124,7 +124,7 @@ export interface Step {
   from: string | null;
 }
 
-export type QueryReason = 'policy' | 'dimension' | 'metric' | 'snapshot' | 'scope' | 'token' | 'expired' | 'invalid' | 'session' | 'general';
+export type QueryReason = 'running' | 'changed' | 'timeout' | 'policy' | 'dimension' | 'metric' | 'snapshot' | 'scope' | 'token' | 'expired' | 'invalid' | 'session' | 'general';
 const REASON_BY_CODE: Readonly<Record<string, QueryReason>> = {
   ACCESS_POLICY_MISSING: 'policy',
   DIMENSION_NOT_IN_DATASET: 'dimension',
@@ -139,7 +139,98 @@ const REASON_BY_CODE: Readonly<Record<string, QueryReason>> = {
   SESSION_EXPIRED: 'session',
 };
 
+/** The question was too heavy for the request and became a job (202); this is the run that answers it. */
+export interface QueuedQuery {
+  runId: string;
+}
+
+/** The answer of a query that became a job: 202 ASYNC_JOB with the run of the log, and nothing of the figures. */
+export function toQueuedQuery(raw: unknown): QueuedQuery | undefined {
+  const row = asRecord(raw);
+  return row !== undefined && row.status === 'ASYNC_JOB' && typeof row.run_id === 'string' ? { runId: row.run_id } : undefined;
+}
+
+/** How often the run of a job is looked at, and how many times (five minutes in all). */
+export const JOB_WAIT = { intervalMs: 5000, attempts: 60 } as const;
+
+/** How a run of the log stands, as the server tells the person who asked it: waiting, running or how it ended (and the code of what went wrong). Nothing of the figures. */
+export interface RunState {
+  status: string;
+  errorCode: string | null;
+}
+
+export function toRunState(raw: unknown): RunState | undefined {
+  const row = asRecord(raw);
+  return row !== undefined && typeof row.status === 'string' ? { status: row.status, errorCode: typeof row.error_code === 'string' ? row.error_code : null } : undefined;
+}
+
+/** The job did not end in the time the screen waits: it goes on in the background and the same question gets its answer when it has. */
+export class QueryStillRunning extends Error {
+  constructor(readonly runId: string) {
+    super('the query is still running as a job');
+  }
+}
+
+/** The job ended without an answer (it was refused, it failed, the database stopped it): the question is not asked again for it. */
+export class QueryJobEnded extends Error {
+  constructor(
+    readonly status: string,
+    readonly code: string | null,
+  ) {
+    super(`the query job ended ${status}`);
+  }
+}
+
+/** The screen or the session the question was asked for is gone: nothing more is asked in its name. */
+export class QueryCancelled extends Error {
+  constructor() {
+    super('the query was cancelled');
+  }
+}
+
+/** What waits for a job: how to look at its run, whether the question is still wanted, and how often to look. */
+export interface JobWatch {
+  poll(runId: string): Promise<unknown>;
+  /** The screen is gone, or the member or tenant is another: checked before each request. */
+  cancelled(): boolean;
+  intervalMs: number;
+  attempts: number;
+  sleep?: (ms: number) => Promise<void>;
+}
+
+const pause = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const OPEN_RUN: readonly string[] = ['QUEUED', 'RUNNING'];
+
+/**
+ * Asks a question and, when the server makes a job of it (it is too heavy to wait for), looks at the run of the job until it has ended: while it waits or runs the screen waits; when it completed the same question is asked
+ * again and is answered from what the job kept; when it ended any other way the reason is given (QueryJobEnded) and no other job is made for it. A job that has not ended in the time given is QueryStillRunning. Nothing is asked
+ * once the question is not wanted any more (QueryCancelled): the screen was left, or the member or the tenant changed.
+ */
+export async function resolveQuery(ask: () => Promise<unknown>, watch: JobWatch): Promise<QueryResult | undefined> {
+  const sleep = watch.sleep ?? pause;
+  let raw = await ask();
+  let queued = toQueuedQuery(raw);
+  if (queued === undefined) return toQueryResult(raw);
+  for (let attempt = 0; attempt < watch.attempts; attempt += 1) {
+    await sleep(watch.intervalMs);
+    if (watch.cancelled()) throw new QueryCancelled();
+    const state = toRunState(await watch.poll(queued.runId));
+    if (state === undefined) throw new Error('the run could not be read');
+    if (OPEN_RUN.includes(state.status)) continue;
+    if (state.status !== 'COMPLETED') throw new QueryJobEnded(state.status, state.errorCode);
+    if (watch.cancelled()) throw new QueryCancelled();
+    raw = await ask();
+    queued = toQueuedQuery(raw);
+    // The answer a job kept may be gone again by the time it is asked for (its hour, a scope that moved): the question is then a job of its own and is waited for in its turn.
+    if (queued === undefined) return toQueryResult(raw);
+  }
+  throw new QueryStillRunning(queued.runId);
+}
+
 export function describeQueryProblem(error: unknown): { reason: QueryReason; field: string } {
+  if (error instanceof QueryStillRunning) return { reason: 'running', field: '' };
+  if (error instanceof QueryJobEnded)
+    return { reason: error.status === 'TIMEOUT' ? 'timeout' : error.code === 'SCOPE_CHANGED' ? 'changed' : (REASON_BY_CODE[error.code ?? ''] ?? 'general'), field: '' };
   if (!(error instanceof ApiError)) return { reason: 'general', field: '' };
   return { reason: REASON_BY_CODE[error.code] ?? 'general', field: error.detail ?? '' };
 }

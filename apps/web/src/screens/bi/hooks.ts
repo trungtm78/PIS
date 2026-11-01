@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
@@ -12,11 +12,16 @@ import type { ExportForm, ExportJob, ExportSchedule, ScheduleForm } from './expo
 import { toDataset, toVersion } from './dataset-model';
 import type { Dataset, DatasetVersion } from './dataset-model';
 import { policyBody, toPolicy } from './policy-model';
-import { toQueryResult } from './query-model';
+import { JOB_WAIT, resolveQuery, toQueryResult } from './query-model';
+import type { JobWatch } from './query-model';
 import type { QueryResult } from './query-model';
 import type { Policy, PolicyValues } from './policy-model';
 import { decisionBody, requestBody, toRequest } from './publication-model';
 import type { Decision, PublicationRequest, RequestForm } from './publication-model';
+import { lineageParams, toMetricLineage } from './metric-lineage-model';
+import type { MetricLineage, MetricLineageQuery } from './metric-lineage-model';
+import { LOG_PAGE_SIZE, filterQuery, toRunPage } from './query-log-model';
+import type { RunFilter, RunPage } from './query-log-model';
 import { shareBody } from './share-model';
 import type { ShareForm } from './share-model';
 
@@ -103,7 +108,8 @@ export function useBuildVersion() {
   const { tenant } = useSession();
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
-    mutationFn: (values: BuildValues) => client.command('buildBiDatasetVersion', { path: { id: values.datasetId }, body: { as_of_period: values.asOfPeriod.trim() }, attempt: attempts.current.forPayload(values) }),
+    mutationFn: (values: BuildValues) =>
+      client.command('buildBiDatasetVersion', { path: { id: values.datasetId }, body: { as_of_period: values.asOfPeriod.trim() }, attempt: attempts.current.forPayload(values) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
@@ -141,14 +147,50 @@ export function useCreatePolicy() {
 }
 
 /** One query of a metric over a snapshot, cut by a dimension: a fresh idempotency key each time (the same question asked later gets a new answer, from the cache or not). */
+/**
+ * What a question that became a job waits with: the run of the job is looked at through the client of the session, and the question is dropped when the screen is left, when its query is cancelled or when the member or the tenant is
+ * another than the one that asked (a request of the old tenant is never sent with the credentials of the new one).
+ */
+function useJobWatch(): (signal?: AbortSignal) => JobWatch {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  const identity = `${tenant?.id ?? ''}:${tenant?.membershipId ?? ''}`;
+  const current = useRef(identity);
+  current.current = identity;
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  return (signal) => {
+    const asked = current.current;
+    return {
+      poll: (id) => client.read('getBiQueryRun', { path: { id } }),
+      cancelled: () => !mounted.current || current.current !== asked || signal?.aborted === true,
+      ...JOB_WAIT,
+    };
+  };
+}
+
 export function useRunQuery() {
   const client = useApiClient();
+  const watch = useJobWatch();
   return useMutation({
     mutationFn: async (input: { metricId: string; snapshotId: string; dimension?: string | undefined; contextToken?: string | undefined }) =>
-      toQueryResult(
-        await client.command('post_dashboard_queries', {
-          body: { metric_version_id: input.metricId, snapshot_id: input.snapshotId, dimensions: input.dimension === undefined ? [] : [input.dimension], filters: [], ...(input.contextToken === undefined ? {} : { context_token: input.contextToken }) },
-        }),
+      resolveQuery(
+        () =>
+          client.command('post_dashboard_queries', {
+            body: {
+              metric_version_id: input.metricId,
+              snapshot_id: input.snapshotId,
+              dimensions: input.dimension === undefined ? [] : [input.dimension],
+              filters: [],
+              ...(input.contextToken === undefined ? {} : { context_token: input.contextToken }),
+            },
+          }),
+        watch(),
       ),
   });
 }
@@ -176,10 +218,14 @@ export function useRefreshContext() {
 export function useTile(metricId: string, snapshotId: string | undefined) {
   const client = useApiClient();
   const { tenant } = useSession();
+  const watch = useJobWatch();
   return useQuery<QueryResult>({
     queryKey: [...biRoot(tenant?.id), 'tile', tenant?.membershipId, metricId, snapshotId],
-    queryFn: async () => {
-      const result = toQueryResult(await client.command('post_dashboard_queries', { body: { metric_version_id: metricId, snapshot_id: snapshotId as string, dimensions: [], filters: [] } }));
+    queryFn: async ({ signal }) => {
+      const result = await resolveQuery(
+        () => client.command('post_dashboard_queries', { body: { metric_version_id: metricId, snapshot_id: snapshotId as string, dimensions: [], filters: [] } }),
+        watch(signal),
+      );
       if (result === undefined) throw new Error('the answer could not be read');
       return result;
     },
@@ -246,7 +292,8 @@ export function useSaveVersion() {
   const { tenant } = useSession();
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
-    mutationFn: (input: SaveVersionInput) => client.command('saveDashboardVersion', { path: { id: input.dashboardId }, body: input.body as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    mutationFn: (input: SaveVersionInput) =>
+      client.command('saveDashboardVersion', { path: { id: input.dashboardId }, body: input.body as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
@@ -304,7 +351,13 @@ export function useDecidePublication() {
   const { tenant } = useSession();
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
-    mutationFn: (input: DecideInput) => client.command('decideBiPublication', { path: { id: input.requestId }, body: decisionBody(input.decision, input.comment) as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    mutationFn: (input: DecideInput) =>
+      client.command('decideBiPublication', {
+        path: { id: input.requestId },
+        body: decisionBody(input.decision, input.comment) as never,
+        ifMatchVersion: input.version,
+        attempt: attempts.current.forPayload(input),
+      }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
@@ -329,7 +382,8 @@ export function useShareDashboard() {
   const { tenant } = useSession();
   const attempts = useRef(new AttemptRegistry());
   return useMutation({
-    mutationFn: (input: ShareInput) => client.command('shareDashboard', { path: { id: input.dashboardId }, body: shareBody(input.form) as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    mutationFn: (input: ShareInput) =>
+      client.command('shareDashboard', { path: { id: input.dashboardId }, body: shareBody(input.form) as never, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
     onSuccess: async () => {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
@@ -436,5 +490,36 @@ export function useCreateSchedule() {
       attempts.current.ended(error);
       await queryClient.invalidateQueries({ queryKey: biRoot(tenant?.id) });
     },
+  });
+}
+
+/** The log of the queries, newest first, a page at a time, narrowed by the filter applied (the server validates each of them). It is read over the whole tenant: a person with less is refused. */
+export function useQueryRuns(filter: RunFilter, enabled: boolean) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useInfiniteQuery<RunPage, Error, { pages: RunPage[] }, readonly unknown[], string | undefined>({
+    queryKey: [...biRoot(tenant?.id), 'query-runs', tenant?.membershipId, filter.status, filter.period.trim()],
+    initialPageParam: undefined,
+    queryFn: async ({ pageParam }) =>
+      toRunPage(await client.read('listBiQueryRuns', { query: { limit: LOG_PAGE_SIZE, ...filterQuery(filter), ...(pageParam === undefined ? {} : { cursor: pageParam }) } as never })),
+    getNextPageParam: (last) => last.nextCursor,
+    enabled: enabled && tenant !== undefined,
+    retry: false,
+  });
+}
+
+/** The lineage of a metric, up or down: the server decides which nodes the person sees and shows the others as restricted; nothing is asked until a metric is chosen. */
+export function useMetricLineage(query: MetricLineageQuery | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<MetricLineage>({
+    queryKey: [...biRoot(tenant?.id), 'lineage', tenant?.membershipId, query?.metricId, query?.direction, query?.depth],
+    queryFn: async () => {
+      const lineage = toMetricLineage(await client.read('getBiLineage', { path: { id: (query as MetricLineageQuery).metricId }, query: lineageParams(query as MetricLineageQuery) as never }));
+      if (lineage === undefined) throw new Error('the lineage could not be read');
+      return lineage;
+    },
+    enabled: tenant !== undefined && query !== undefined,
+    retry: false,
   });
 }

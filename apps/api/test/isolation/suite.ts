@@ -446,6 +446,12 @@ export const EXPORT_JOB_FIXTURES: Readonly<Record<TenantName, { id: string; sche
   'TNT-B': { id: '00000000-0000-4000-b0d2-000000000004', scheduleId: '00000000-0000-4000-b0d2-000000000005' },
 };
 
+/** A line of the log of the queries of each tenant (a query a person of that tenant ran; its id is distinctive; tenant data). */
+export const QUERY_RUN_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d2-000000000006' },
+  'TNT-B': { id: '00000000-0000-4000-b0d2-000000000006' },
+};
+
 /** A request to publish of each tenant (about a metric nobody drafted: the request is what the isolation cases read and decide; tenant data). */
 export const PUBLICATION_FIXTURES: Readonly<Record<TenantName, { id: string; objectId: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d3-000000000001', objectId: '00000000-0000-4000-a0d3-000000000002' },
@@ -1344,6 +1350,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'dashboard share id', value: SHARE_FIXTURES[tenant].id },
     { kind: 'export job id', value: EXPORT_JOB_FIXTURES[tenant].id },
     { kind: 'export schedule id', value: EXPORT_JOB_FIXTURES[tenant].scheduleId },
+    { kind: 'query run id', value: QUERY_RUN_FIXTURES[tenant].id },
     { kind: 'dashboard id', value: DASHBOARD_FIXTURES[tenant].id },
     { kind: 'dashboard version id', value: DASHBOARD_FIXTURES[tenant].versionId },
     { kind: 'dashboard code', value: DASHBOARD_FIXTURES[tenant].code },

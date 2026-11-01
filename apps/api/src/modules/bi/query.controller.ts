@@ -1,18 +1,8 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { AuditWriter, BiMetricStore, BiQueryStore, TenantDatabase, projectScope, scopePredicate } from '@machvon/db';
+import { AuditWriter, BiLineageStore, BiMetricStore, BiQueryJobStore, BiQueryStore, TenantDatabase, projectScope, scopePredicate } from '@machvon/db';
 import type { QueryFilter } from '@machvon/db';
-import {
-  BI_DRILL_TTL_SECONDS,
-  DomainError,
-  asUuid,
-  expiredBiDrill,
-  feedsCertified,
-  figureOf,
-  parseBiDrill,
-  reconcile,
-  signBiDrill,
-} from '@machvon/kernel';
+import { BI_DRILL_TTL_SECONDS, DomainError, asUuid, expiredBiDrill, feedsCertified, figureOf, parseBiDrill, reconcile, signBiDrill } from '@machvon/kernel';
 import type { BiDrillClaims, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -22,9 +12,10 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { BiQueryCache } from './query-cache';
-import { BiQueryEngine, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
+import { BiQueryEngine, DATASET_CODE, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
 import type { Answer, Reading } from './query-engine';
-import { BI_CLOCK, BI_DRILL_KEY } from './tokens';
+import { specOf } from './query-jobs';
+import { BI_CLOCK, BI_DRILL_KEY, BI_QUERY_COST_LIMIT } from './tokens';
 
 const KEY_ID = '1';
 const RESOURCE_TYPE = 'bi_query';
@@ -42,6 +33,8 @@ type Row = Record<string, unknown>;
 export class BiQueryController {
   private readonly metrics = new BiMetricStore();
   private readonly queries = new BiQueryStore();
+  private readonly jobs = new BiQueryJobStore();
+  private readonly lineage = new BiLineageStore();
   private readonly engine: BiQueryEngine;
   private readonly audit: AuditWriter;
   private readonly clock: () => Date;
@@ -51,9 +44,10 @@ export class BiQueryController {
     @Inject(TenantDatabase) private readonly database: TenantDatabase,
     @Optional() @Inject(BI_CLOCK) clock?: () => Date,
     @Optional() @Inject(BI_DRILL_KEY) key?: Buffer,
+    @Optional() @Inject(BI_QUERY_COST_LIMIT) costLimit?: number,
   ) {
     this.audit = new AuditWriter(database);
-    this.engine = new BiQueryEngine(new BiQueryCache());
+    this.engine = new BiQueryEngine(new BiQueryCache(), costLimit);
     this.clock = clock ?? ((): Date => new Date());
     this.key = key ?? randomBytes(32);
   }
@@ -101,13 +95,91 @@ export class BiQueryController {
     // A context that is continued is judged as the drill judges it: a unit the path names that the reader no longer reads is a refusal, not an empty figure.
     if (base.length > 0 && (await this.pathRevoked(tx, access, read, base, now))) return this.refused(scope, 'SCOPE_DENIED', started);
     this.engine.assertDimensions(read, [...(dimension === undefined ? [] : [dimension]), ...filters.map((filter) => filter.field)]);
-    const answer = await this.engine.answer(tx, read, dimension, filters, access, now, tenant.tenantId);
+    // A question a job answered a moment ago is answered from it; one too heavy to wait for becomes a job (one at a time for the same question of the same reader) and the answer is 202.
+    const keyed = this.engine.keyOf(read, dimension, filters, tenant.tenantId);
+    let kept = await this.jobs.answerOf(tx, keyed.digest, now);
+    if (kept === undefined && !this.engine.isCached(keyed.key, now)) {
+      const { cost, heavy } = this.engine.costOf(read, dimension);
+      if (heavy) {
+        const reply = await this.queued(scope, read, keyed.digest, specOf({ metricId, snapshotId, dimension, filters, pinned: body.context_token !== undefined }), cost, metricId, snapshotId, now);
+        if (reply !== undefined) return reply;
+        // A job that ended while this request was on its way has its answer kept: it is read now, and the question is answered.
+        kept = await this.jobs.answerOf(tx, keyed.digest, now);
+      }
+    }
+    const answer = kept === undefined ? await this.engine.answer(tx, read, dimension, filters, access, now, tenant.tenantId) : { ...(kept as Answer), fromCache: true };
     const nextPath = dimension === undefined || path.includes(dimension) ? path : [...path, dimension];
-    const contextId = await this.queries.insertContext(tx, { metricVersionId: metricId, snapshotId, asOfPeriod: read.version.periodCode, scopeHash: read.scopeHash, filters, dimensionPath: nextPath, unit: read.unit, parentContextId: parent, createdBy: tenant.membershipId, ttlSeconds: BI_DRILL_TTL_SECONDS });
+    const contextId = await this.queries.insertContext(tx, {
+      metricVersionId: metricId,
+      snapshotId,
+      asOfPeriod: read.version.periodCode,
+      scopeHash: read.scopeHash,
+      filters,
+      dimensionPath: nextPath,
+      unit: read.unit,
+      parentContextId: parent,
+      createdBy: tenant.membershipId,
+      ttlSeconds: BI_DRILL_TTL_SECONDS,
+    });
     const rows = await this.shape(tx, read, answer, dimension, filters, nextPath, contextId, tenant);
-    await this.queries.recordRun(tx, { requestedBy: tenant.membershipId, metricVersionIds: [metricId], asOfPeriod: read.version.periodCode, datasetVersionId: read.version.datasetVersionId, scopeHash: read.scopeHash, drillContextId: contextId, status: 'COMPLETED', servedFromCache: answer.fromCache, durationMs: Date.now() - started, rowCount: rows.length, errorCode: null });
-    await scope.audit({ action: 'bi.query_run', resourceType: RESOURCE_TYPE, resourceId: contextId, diff: { metric_version_id: metricId, snapshot_id: snapshotId, as_of_period: read.version.periodCode, dimension: dimension ?? null, rows: rows.length, served_from_cache: answer.fromCache } });
+    await this.queries.recordRun(tx, {
+      requestedBy: tenant.membershipId,
+      metricVersionIds: [metricId],
+      asOfPeriod: read.version.periodCode,
+      datasetVersionId: read.version.datasetVersionId,
+      scopeHash: read.scopeHash,
+      drillContextId: contextId,
+      status: 'COMPLETED',
+      servedFromCache: answer.fromCache,
+      durationMs: Date.now() - started,
+      rowCount: rows.length,
+      errorCode: null,
+    });
+    await this.lineage.metricRead(tx, {
+      metricId,
+      metricCode: read.metricCode,
+      metricRevision: read.metricRevision,
+      versionId: read.version.datasetVersionId,
+      datasetCode: DATASET_CODE,
+      asOfPeriod: read.version.periodCode,
+      runId: contextId,
+      observedAt: now,
+    });
+    await scope.audit({
+      action: 'bi.query_run',
+      resourceType: RESOURCE_TYPE,
+      resourceId: contextId,
+      diff: { metric_version_id: metricId, snapshot_id: snapshotId, as_of_period: read.version.periodCode, dimension: dimension ?? null, rows: rows.length, served_from_cache: answer.fromCache },
+    });
     return { ...commandResult(scope, 'COMPLETED', 1, contextId), ...this.envelope(read, answer, dimension, rows, contextId, tenant) };
+  }
+
+  /** The 202 of a query that is a job: its run is in the log as QUEUED, and the same question asked again (by the same reader, under the same scope) is the same job; none when a job of the question ended a moment ago and its answer is kept. */
+  private async queued(scope: CommandScope, read: Reading, digest: string, spec: ReturnType<typeof specOf>, cost: number, metricId: string, snapshotId: string, now: Date): Promise<Row | undefined> {
+    const job = await this.jobs.enqueue(
+      scope.tx,
+      {
+        requestedBy: scope.tenant.membershipId,
+        metricVersionIds: [metricId],
+        asOfPeriod: read.version.periodCode,
+        datasetVersionId: read.version.datasetVersionId,
+        scopeHash: read.scopeHash,
+        cacheKey: digest,
+        spec,
+        estimatedCost: cost,
+      },
+      now,
+    );
+    // The job that was there ended before this request could join it: there is nothing to queue, the answer is its own.
+    if (job === undefined) return undefined;
+    await scope.audit({
+      action: 'bi.query_queued',
+      resourceType: RESOURCE_TYPE,
+      resourceId: job.id,
+      diff: { metric_version_id: metricId, snapshot_id: snapshotId, as_of_period: read.version.periodCode, estimated_cost: cost, new_job: job.created },
+    });
+    scope.respondWith(202);
+    return { ...commandResult(scope, 'ASYNC_JOB', 1, job.id), mode: 'ASYNC_JOB', run_id: job.id, estimated_cost: cost, as_of_period: read.version.periodCode, snapshot_id: snapshotId };
   }
 
   // ---- the drill ---------------------------------------------------------------------------------------------------------------------------
@@ -150,15 +222,45 @@ export class BiQueryController {
       if (context.row.dimensionPath.includes(childDimension)) throw new DomainError('VALIDATION_FAILED', 422, 'child_dimension');
       const answer = await this.engine.answer(tx, read, childDimension, context.row.filters, access, now, tenant.tenantId);
       const path = [...context.row.dimensionPath, childDimension];
-      const contextId = await this.queries.insertContext(tx, { metricVersionId: context.row.metricVersionId, snapshotId: context.row.snapshotId, asOfPeriod: context.row.asOfPeriod, scopeHash: read.scopeHash, filters: context.row.filters, dimensionPath: path, unit: read.unit, parentContextId: context.row.id, createdBy: tenant.membershipId, ttlSeconds: BI_DRILL_TTL_SECONDS });
+      const contextId = await this.queries.insertContext(tx, {
+        metricVersionId: context.row.metricVersionId,
+        snapshotId: context.row.snapshotId,
+        asOfPeriod: context.row.asOfPeriod,
+        scopeHash: read.scopeHash,
+        filters: context.row.filters,
+        dimensionPath: path,
+        unit: read.unit,
+        parentContextId: context.row.id,
+        createdBy: tenant.membershipId,
+        ttlSeconds: BI_DRILL_TTL_SECONDS,
+      });
       const rows = await this.shape(tx, read, answer, childDimension, context.row.filters, path, contextId, tenant, shown, shown);
-      await this.queries.recordRun(tx, { requestedBy: tenant.membershipId, metricVersionIds: [context.row.metricVersionId], asOfPeriod: read.version.periodCode, datasetVersionId: read.version.datasetVersionId, scopeHash: read.scopeHash, drillContextId: contextId, status: 'COMPLETED', servedFromCache: answer.fromCache, durationMs: Date.now() - started, rowCount: rows.length, errorCode: null });
+      await this.queries.recordRun(tx, {
+        requestedBy: tenant.membershipId,
+        metricVersionIds: [context.row.metricVersionId],
+        asOfPeriod: read.version.periodCode,
+        datasetVersionId: read.version.datasetVersionId,
+        scopeHash: read.scopeHash,
+        drillContextId: contextId,
+        status: 'COMPLETED',
+        servedFromCache: answer.fromCache,
+        durationMs: Date.now() - started,
+        rowCount: rows.length,
+        errorCode: null,
+      });
       return { denied: undefined, read, answer, rows, contextId, context };
     });
     if ('rejected' in done) return this.deniedToken(tenant, claims, 'context');
     if (done.denied !== undefined) {
       // Nothing of the place is told: the refusal is recorded without a name.
-      await this.audit.recordDenied(tenant, { action: 'bi.drill_denied', resourceType: RESOURCE_TYPE, resourceId: done.context.row.id, diff: { code: done.denied, snapshot_id: done.context.row.snapshotId }, correlationId: randomUUID(), requestId: randomUUID() });
+      await this.audit.recordDenied(tenant, {
+        action: 'bi.drill_denied',
+        resourceType: RESOURCE_TYPE,
+        resourceId: done.context.row.id,
+        diff: { code: done.denied, snapshot_id: done.context.row.snapshotId },
+        correlationId: randomUUID(),
+        requestId: randomUUID(),
+      });
       throw new DomainError(done.denied, 403);
     }
     return {
@@ -196,9 +298,31 @@ export class BiQueryController {
     const reading = await this.engine.read(tx, tenant.membershipId, access, old.metricVersionId, latest, now, true);
     if (reading.denied !== undefined) throw new DomainError(reading.denied, 403);
     const { value: read } = reading;
-    const id = await this.queries.insertContext(tx, { metricVersionId: old.metricVersionId, snapshotId: latest, asOfPeriod: old.asOfPeriod, scopeHash: read.scopeHash, filters: old.filters, dimensionPath: old.dimensionPath, unit: read.unit, parentContextId: old.id, createdBy: tenant.membershipId, ttlSeconds: BI_DRILL_TTL_SECONDS });
-    await scope.audit({ action: 'bi.query_context_refreshed', resourceType: RESOURCE_TYPE, resourceId: id, diff: { parent_context_id: old.id, from_snapshot_id: old.snapshotId, to_snapshot_id: latest, as_of_period: old.asOfPeriod } });
-    return { ...commandResult(scope, 'CREATED', 1, id), drill_token: this.mint(tenant, id, read, old.asOfPeriod, latest), snapshot_id: latest, as_of_period: old.asOfPeriod, parent_context_id: old.id };
+    const id = await this.queries.insertContext(tx, {
+      metricVersionId: old.metricVersionId,
+      snapshotId: latest,
+      asOfPeriod: old.asOfPeriod,
+      scopeHash: read.scopeHash,
+      filters: old.filters,
+      dimensionPath: old.dimensionPath,
+      unit: read.unit,
+      parentContextId: old.id,
+      createdBy: tenant.membershipId,
+      ttlSeconds: BI_DRILL_TTL_SECONDS,
+    });
+    await scope.audit({
+      action: 'bi.query_context_refreshed',
+      resourceType: RESOURCE_TYPE,
+      resourceId: id,
+      diff: { parent_context_id: old.id, from_snapshot_id: old.snapshotId, to_snapshot_id: latest, as_of_period: old.asOfPeriod },
+    });
+    return {
+      ...commandResult(scope, 'CREATED', 1, id),
+      drill_token: this.mint(tenant, id, read, old.asOfPeriod, latest),
+      snapshot_id: latest,
+      as_of_period: old.asOfPeriod,
+      parent_context_id: old.id,
+    };
   }
 
   // ---- the contexts of the reader ----------------------------------------------------------------------------------------------------------
@@ -236,23 +360,42 @@ export class BiQueryController {
   }
 
   /** The context a token names, if the token is the reader's own and still good; otherwise the refusal (and the record of it). */
-  private async contextOf(tenant: TenantContext, tx: Parameters<BiQueryStore['findContext']>[0], token: string, now: Date, parsed?: BiDrillClaims): Promise<{ claims: BiDrillClaims; row: NonNullable<Awaited<ReturnType<BiQueryStore['findContext']>>> }> {
+  private async contextOf(
+    tenant: TenantContext,
+    tx: Parameters<BiQueryStore['findContext']>[0],
+    token: string,
+    now: Date,
+    parsed?: BiDrillClaims,
+  ): Promise<{ claims: BiDrillClaims; row: NonNullable<Awaited<ReturnType<BiQueryStore['findContext']>>> }> {
     const claims = parsed ?? this.claimsOf(token);
     if (claims.tid !== tenant.tenantId) throw new DomainError('DRILL_TOKEN_INVALID', 400);
     const row = await this.queries.findContext(tx, claims.ctx_id);
-    if (row === undefined || row.createdBy !== tenant.membershipId || row.snapshotId !== claims.snapshot_id || row.metricVersionId !== claims.metric_version_id) throw new DomainError('DRILL_TOKEN_INVALID', 400);
+    if (row === undefined || row.createdBy !== tenant.membershipId || row.snapshotId !== claims.snapshot_id || row.metricVersionId !== claims.metric_version_id)
+      throw new DomainError('DRILL_TOKEN_INVALID', 400);
     if (claims.exp <= Math.floor(now.getTime() / 1000)) throw expiredBiDrill(claims);
     return { claims, row };
   }
 
   /** A token of another tenant: refused as any bad token, and recorded in the tenant of the session (the token's tenant is not told anything). */
   private async deniedToken(tenant: TenantContext, claims: BiDrillClaims | undefined, reason: string): Promise<never> {
-    await this.audit.recordDenied(tenant, { action: 'bi.drill_denied', resourceType: RESOURCE_TYPE, resourceId: tenant.tenantId, diff: { code: 'DRILL_TOKEN_INVALID', reason, ...(claims === undefined ? {} : { metric_version_id: claims.metric_version_id }) }, correlationId: randomUUID(), requestId: randomUUID() });
+    await this.audit.recordDenied(tenant, {
+      action: 'bi.drill_denied',
+      resourceType: RESOURCE_TYPE,
+      resourceId: tenant.tenantId,
+      diff: { code: 'DRILL_TOKEN_INVALID', reason, ...(claims === undefined ? {} : { metric_version_id: claims.metric_version_id }) },
+      correlationId: randomUUID(),
+      requestId: randomUUID(),
+    });
     throw new DomainError('DRILL_TOKEN_INVALID', 400);
   }
 
   private mint(tenant: TenantContext, contextId: string, read: Reading, asOfPeriod: string, snapshotId: string): string {
-    return signBiDrill({ tid: tenant.tenantId, ctx_id: contextId, scope_hash: read.scopeHash, metric_version_id: read.metricId, snapshot_id: snapshotId, as_of_period: asOfPeriod }, this.key, KEY_ID, () => Math.floor(this.clock().getTime() / 1000));
+    return signBiDrill(
+      { tid: tenant.tenantId, ctx_id: contextId, scope_hash: read.scopeHash, metric_version_id: read.metricId, snapshot_id: snapshotId, as_of_period: asOfPeriod },
+      this.key,
+      KEY_ID,
+      () => Math.floor(this.clock().getTime() / 1000),
+    );
   }
 
   /** The rows of an answer, each with its figure and, for the first page, a token for the way down: the group as one more filter of the path. */
@@ -274,10 +417,30 @@ export class BiQueryController {
       const figure = figureOf(read.plan, group);
       let token: string | null = null;
       if (dimension !== undefined && group.key !== null && index < tokens) {
-        const child = await this.queries.insertContext(tx, { metricVersionId: read.metricId, snapshotId: read.version.datasetVersionId, asOfPeriod: read.version.periodCode, scopeHash: read.scopeHash, filters: [...filters, { field: dimension, operator: 'eq', value: group.key }], dimensionPath: path, unit: read.unit, parentContextId: contextId, createdBy: tenant.membershipId, ttlSeconds: BI_DRILL_TTL_SECONDS });
+        const child = await this.queries.insertContext(tx, {
+          metricVersionId: read.metricId,
+          snapshotId: read.version.datasetVersionId,
+          asOfPeriod: read.version.periodCode,
+          scopeHash: read.scopeHash,
+          filters: [...filters, { field: dimension, operator: 'eq', value: group.key }],
+          dimensionPath: path,
+          unit: read.unit,
+          parentContextId: contextId,
+          createdBy: tenant.membershipId,
+          ttlSeconds: BI_DRILL_TTL_SECONDS,
+        });
         token = this.mint(tenant, child, read, read.version.periodCode, read.version.datasetVersionId);
       }
-      rows.push({ key: group.key, label: group.label ?? group.key, unclassified: group.key === null, value: figure.value, numerator: figure.numerator, denominator: figure.denominator, null_reason: figure.nullReason, drill_token: token });
+      rows.push({
+        key: group.key,
+        label: group.label ?? group.key,
+        unclassified: group.key === null,
+        value: figure.value,
+        numerator: figure.numerator,
+        denominator: figure.denominator,
+        null_reason: figure.nullReason,
+        drill_token: token,
+      });
     }
     return rows;
   }
@@ -341,5 +504,13 @@ export class BiQueryController {
 }
 
 function contextView(row: NonNullable<Awaited<ReturnType<BiQueryStore['findContext']>>>): Row {
-  return { id: row.id, metric_version_id: row.metricVersionId, snapshot_id: row.snapshotId, as_of_period: row.asOfPeriod, dimension_path: row.dimensionPath, expires_at: row.expiresAt, parent_context_id: row.parentContextId };
+  return {
+    id: row.id,
+    metric_version_id: row.metricVersionId,
+    snapshot_id: row.snapshotId,
+    as_of_period: row.asOfPeriod,
+    dimension_path: row.dimensionPath,
+    expires_at: row.expiresAt,
+    parent_context_id: row.parentContextId,
+  };
 }

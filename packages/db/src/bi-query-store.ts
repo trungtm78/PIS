@@ -45,6 +45,8 @@ export interface SnapshotVersion {
   datasetId: string;
   /** The frozen close snapshot of DIS the version was made from: its lines are what the query reads. */
   sourceSnapshotId: string;
+  /** How many lines the frozen snapshot of DIS has: what a query over it costs is judged from it. */
+  sourceRows: number;
   periodCode: string;
   periodId: string;
   qualityBadge: string;
@@ -161,6 +163,7 @@ export class BiQueryStore {
   async versionOfSnapshot(tx: TenantTx, datasetCode: string, snapshotId: string): Promise<SnapshotVersion | undefined> {
     const rows = await tx.query<Sql>(
       `select v.id as version_id, v.dataset_id, v.source_snapshot_id, v.as_of_period, v.reporting_period_id, v.quality_badge, v.excluded_quarantine_rows::text as excluded, v.status, v.built_at,
+              coalesce((select ps.row_count from machvon.period_snapshot ps where ps.tenant_id = v.tenant_id and ps.id = v.source_snapshot_id), 0) as source_rows,
               (select nv.id from machvon.bi_dataset_version nv where nv.tenant_id = v.tenant_id and nv.dataset_id = v.dataset_id and nv.as_of_period = v.as_of_period and nv.status = 'FROZEN' and nv.id <> v.id limit 1) as newer
          from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id
         where d.dataset_code = $1 and v.id = $2::uuid and v.status in ('FROZEN', 'SUPERSEDED') limit 1`,
@@ -172,6 +175,7 @@ export class BiQueryStore {
       datasetVersionId: row.version_id,
       datasetId: row.dataset_id,
       sourceSnapshotId: row.source_snapshot_id,
+      sourceRows: Number(row.source_rows),
       periodCode: row.as_of_period,
       periodId: row.reporting_period_id,
       qualityBadge: row.quality_badge,

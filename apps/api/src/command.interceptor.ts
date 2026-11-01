@@ -32,6 +32,17 @@ interface CommandRequest {
 
 interface CommandResponse {
   setHeader(name: string, value: string): unknown;
+  status(code: number): unknown;
+}
+
+/**
+ * Puts the status of the answer of a command in place: the platform applies the status the route declares after the handler and the interceptors have run, so what a command answers with instead (see `respondWith`) is
+ * kept by taking the place of the setter for this response alone.
+ */
+function answerWith(response: CommandResponse, status: number): void {
+  const set = response.status.bind(response);
+  set(status);
+  response.status = (): unknown => set(status);
 }
 
 function versionOf(body: unknown, field?: string): number | undefined {
@@ -112,6 +123,7 @@ export class CommandInterceptor implements NestInterceptor {
           throw new DomainError(code, status, detail, { extensions, headers: { [REPLAYED_HEADER]: 'true' } });
         }
         response.setHeader(REPLAYED_HEADER, 'true');
+        if (begin.httpStatus !== (this.reflector.get<number | undefined>(HTTP_CODE_METADATA, context.getHandler()) ?? (request.method === 'POST' ? 201 : 200))) answerWith(response, begin.httpStatus);
         this.setEtag(response, begin.response.body, options.versionField);
         return begin.response.body;
       case 'started':
@@ -122,8 +134,7 @@ export class CommandInterceptor implements NestInterceptor {
     const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
     // The Problem filter reads the same header, so the id in the answer finds the audit row of a denied command.
     request.headers['x-correlation-id'] = correlationId;
-    const httpStatus =
-      this.reflector.get<number | undefined>(HTTP_CODE_METADATA, context.getHandler()) ?? (request.method === 'POST' ? 201 : 200);
+    const httpStatus = this.reflector.get<number | undefined>(HTTP_CODE_METADATA, context.getHandler()) ?? (request.method === 'POST' ? 201 : 200);
     // An attempt that lost its claim must not settle: the record belongs to the attempt that took it over.
     let ownsRecord = true;
     const afterCommit: Array<() => void | Promise<void>> = [];
@@ -132,6 +143,7 @@ export class CommandInterceptor implements NestInterceptor {
     // The handler returned and the transaction was asked to commit: if it then fails, the outcome is not known until the record of the command is read.
     let handlerReturned = false;
     let refusal: DomainError | undefined;
+    let answered: number | undefined;
     try {
       const body = await this.runnerFor(options).withTenant(tenant, async (tx) => {
         let audited = 0;
@@ -158,6 +170,9 @@ export class CommandInterceptor implements NestInterceptor {
           refuseAfterCommit: (error) => {
             refusal ??= error;
           },
+          respondWith: (status) => {
+            answered = status;
+          },
         };
         // Fence against a takeover: hold the record's row lock for the whole transaction and stop when it is no longer ours.
         if (!(await this.store.claimInTx(tx, begin.recordId))) {
@@ -169,7 +184,10 @@ export class CommandInterceptor implements NestInterceptor {
         handlerReturned = true;
         if (audited === 0) throw new Error(`command ${options.operation} wrote no audit entry`);
         // A refusal that is itself a record: what the command wrote commits, and the stored answer is the refusal.
-        const answer: Pick<CompletedOutcome, 'httpStatus' | 'response'> = refusal === undefined ? { httpStatus, response: { kind: 'success', body: withheldFrom(result, options.withheld) } } : { httpStatus: refusal.status, response: problemOf(refusal) };
+        const answer: Pick<CompletedOutcome, 'httpStatus' | 'response'> =
+          refusal === undefined
+            ? { httpStatus: answered ?? httpStatus, response: { kind: 'success', body: withheldFrom(result, options.withheld) } }
+            : { httpStatus: refusal.status, response: problemOf(refusal) };
         await this.store.completeInTx(tx, begin.recordId, { ...answer, ...this.referenceOf(options, touched) });
         return result;
       });
@@ -180,6 +198,7 @@ export class CommandInterceptor implements NestInterceptor {
         ownsRecord = false;
         throw refusal;
       }
+      if (answered !== undefined) answerWith(response, answered);
       this.setEtag(response, body, options.versionField);
       return body;
     } catch (error) {
@@ -249,13 +268,7 @@ export class CommandInterceptor implements NestInterceptor {
   }
 
   // The business transaction rolled back: a 4xx answer is final and replays; anything else may be retried.
-  private async settle(
-    tenant: TenantContext,
-    recordId: string,
-    operation: string,
-    ids: { requestId: string; correlationId: string },
-    error: unknown,
-  ): Promise<void> {
+  private async settle(tenant: TenantContext, recordId: string, operation: string, ids: { requestId: string; correlationId: string }, error: unknown): Promise<void> {
     try {
       if (error instanceof DomainError && error.status >= 400 && error.status < 500) {
         if (error.status === 403) {

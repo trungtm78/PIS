@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { DASHBOARD_CODE, DomainError } from '@machvon/kernel';
 import type { DashboardDraft } from '@machvon/kernel';
+import { BiLineageStore } from './bi-lineage-store.ts';
 import { assertTimestampCursor } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -250,6 +251,8 @@ export class BiDashboardStore {
       ],
     );
     await tx.query('update machvon.dashboard set current_version_id = $2::uuid, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid', [dashboard.id, id, actor]);
+    // The lineage of data is told which metrics the version shows.
+    await new BiLineageStore().dashboardVersionSaved(tx, { versionId: id, dashboardCode: dashboard.code, revision: next, metricVersionIds: draft.metricVersionIds, observedAt: new Date() });
     const [saved] = await tx.query<Sql>(`select ${VERSION_COLUMNS} from machvon.dashboard_version where id = $1::uuid`, [id]);
     return toVersion(saved as Sql);
   }

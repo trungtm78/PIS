@@ -19,7 +19,8 @@ import { DashboardPublishController, PublicationController } from '../../src/mod
 import { BiExportController, BiExportScheduleController } from '../../src/modules/bi/export.controller';
 import { DashboardShareController } from '../../src/modules/bi/share.controller';
 import { BiQueryController } from '../../src/modules/bi/query.controller';
-import { BI_CLOCK, BI_DRILL_KEY } from '../../src/modules/bi/tokens';
+import { BI_CLOCK, BI_DRILL_KEY, BI_QUERY_COST_LIMIT } from '../../src/modules/bi/tokens';
+import { BiLineageController, BiQueryLogController, BiQueryRunController } from '../../src/modules/bi/lineage.controller';
 import { MetricReadsController, MetricRegistryController, TenantMetricController } from '../../src/modules/bi/metric.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -47,6 +48,12 @@ export const DASH_VIEWER = 15; // reads dashboards and queries, and makes none
 export const REQUESTER = 16; // makes dashboards, drafts metrics and policies, asks to publish them, and holds the right to decide (never on what they asked)
 export const APPROVER = 17; // decides on the requests to publish, over the whole tenant
 export const APPROVER_SCOPED = 18; // holds the right to decide over one unit only: the requests are the tenant's, so it is refused
+export const LINEAGE_ALL = 19; // reads the lineage of the metrics over the whole tenant, and the projects
+export const LINEAGE_UNIT = 20; // the same over one unit only
+export const LOG_ADMIN = 21; // reads the log of the queries over the whole tenant
+export const LOG_SCOPED = 22; // holds the right to read the log over one unit only
+export const LINEAGE_NO_PROJECTS = 23; // reads the lineage and the metrics over the whole tenant, and no project
+export const LINEAGE_NO_METRICS = 24; // reads the lineage over the whole tenant and may not read the metrics
 export const UNIT_A = 3; // under the branch
 export const UNIT_B = 4; // under the branch
 export const UNIT_OUT = 5; // outside the branch
@@ -72,7 +79,8 @@ export class BiApp {
   objects!: FileService;
   private root = '';
 
-  async start(): Promise<void> {
+  /** `costLimit`: the cost a query may have and still be answered in the request (the limit of the kernel when not given). */
+  async start(options: { costLimit?: number } = {}): Promise<void> {
     const { harness } = this;
     await harness.start();
     const units = [
@@ -82,7 +90,32 @@ export class BiApp {
       { n: UNIT_OUT, path: `/${unitId(UNIT_OUT)}/`, parent: ROOT },
     ];
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, units);
-    for (const n of [PIPELINE, ANALYST, READER, NOBODY, SCOPED, BUILDER, QUERIER, POLICY_ADMIN, POLICY_SCOPED, ANALYST_ALL, ANALYST_NONE, DASH_MAKER, DASH_OTHER, DASH_VIEWER, REQUESTER, APPROVER, APPROVER_SCOPED]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [
+      PIPELINE,
+      ANALYST,
+      READER,
+      NOBODY,
+      SCOPED,
+      BUILDER,
+      QUERIER,
+      POLICY_ADMIN,
+      POLICY_SCOPED,
+      ANALYST_ALL,
+      ANALYST_NONE,
+      DASH_MAKER,
+      DASH_OTHER,
+      DASH_VIEWER,
+      REQUESTER,
+      APPROVER,
+      APPROVER_SCOPED,
+      LINEAGE_ALL,
+      LINEAGE_UNIT,
+      LOG_ADMIN,
+      LOG_SCOPED,
+      LINEAGE_NO_PROJECTS,
+      LINEAGE_NO_METRICS,
+    ])
+      await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_A, ANALYST_BRANCH, BRANCH);
     await harness.seedMembership(TENANT_B, PIPELINE, ROOT);
     await harness.seedRole(TENANT_A, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
@@ -97,9 +130,19 @@ export class BiApp {
     await harness.seedRole(TENANT_A, 10, 'BI_ANALYST_NONE', ['bi.query', 'bi.export', 'bi.export.schedule'], 30);
     await harness.seedRole(TENANT_A, 11, 'BI_DASH_MAKER', ['bi.dashboard.manage', 'bi.dashboard.share', 'bi.query', 'dashboard_version.read'], 40);
     await harness.seedRole(TENANT_A, 12, 'BI_DASH_VIEWER', ['bi.query', 'dashboard_version.read'], 20);
-    await harness.seedRole(TENANT_A, 13, 'BI_REQUESTER', ['bi.publish.request', 'bi.publish', 'bi.dashboard.manage', 'bi.dashboard.share', 'bi.metric.manage', 'bi.policy.manage', 'bi.query', 'dashboard_version.read'], 40);
+    await harness.seedRole(
+      TENANT_A,
+      13,
+      'BI_REQUESTER',
+      ['bi.publish.request', 'bi.publish', 'bi.dashboard.manage', 'bi.dashboard.share', 'bi.metric.manage', 'bi.policy.manage', 'bi.query', 'dashboard_version.read'],
+      40,
+    );
     await harness.seedRole(TENANT_A, 14, 'BI_APPROVER', ['bi.publish', 'bi.query', 'dashboard_version.read'], 50);
     await harness.seedRole(TENANT_A, 15, 'BI_APPROVER_SCOPED', ['bi.publish'], 40);
+    await harness.seedRole(TENANT_A, 40, 'BI_LINEAGE', ['bi.lineage.read', 'metric_definition.read', 'project.read', 'bi.query'], 30);
+    await harness.seedRole(TENANT_A, 41, 'BI_LOG_ADMIN', ['bi.admin.read'], 30);
+    await harness.seedRole(TENANT_A, 43, 'BI_LINEAGE_NO_METRICS', ['bi.lineage.read', 'bi.query'], 30);
+    await harness.seedRole(TENANT_A, 42, 'BI_LINEAGE_NO_PROJECTS', ['bi.lineage.read', 'metric_definition.read', 'bi.query'], 30);
     await harness.seedRole(TENANT_B, 1, 'BI_PIPELINE', ['bi.metric.sync', 'metric_definition.read'], 60);
     await harness.seedRole(TENANT_B, 2, 'BI_BUILDER', ['bi.dataset.build', 'bi.query', 'bi.export'], 50);
     await harness.seedGrants(TENANT_A, [
@@ -119,6 +162,12 @@ export class BiApp {
       { n: 44, member: REQUESTER, role: 13, kind: 'TENANT' },
       { n: 45, member: APPROVER, role: 14, kind: 'TENANT' },
       { n: 46, member: APPROVER_SCOPED, role: 15, kind: 'UNIT_SUBTREE', refs: [unitId(BRANCH)] },
+      { n: 60, member: LINEAGE_ALL, role: 40, kind: 'TENANT' },
+      { n: 61, member: LINEAGE_UNIT, role: 40, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_A)] },
+      { n: 62, member: LOG_ADMIN, role: 41, kind: 'TENANT' },
+      { n: 64, member: LINEAGE_NO_PROJECTS, role: 42, kind: 'TENANT' },
+      { n: 65, member: LINEAGE_NO_METRICS, role: 43, kind: 'TENANT' },
+      { n: 63, member: LOG_SCOPED, role: 41, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_A)] },
       { n: 12, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_A)] },
       { n: 13, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_B)] },
       { n: 14, member: ANALYST_BRANCH, role: 9, kind: 'UNIT_SUBTREE', refs: [unitId(UNIT_C)] },
@@ -132,12 +181,29 @@ export class BiApp {
     this.objects = new FileService({ storage: new FsObjectStorage(this.root), scanner: new MockScanPort(), urlSecret: randomBytes(32), now: () => new Date() });
     this.app = await startTestApp({
       signingKey: SIGNING_KEY,
-      imports: [
-        CommandModule.register({ database: tenants }),
-        PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
+      imports: [CommandModule.register({ database: tenants }), PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) })],
+      controllers: [
+        MetricRegistryController,
+        TenantMetricController,
+        MetricReadsController,
+        DatasetBuildController,
+        DatasetReadsController,
+        PolicyController,
+        BiQueryController,
+        DashboardController,
+        DashboardReadsController,
+        DashboardVersionReadsController,
+        PublicationController,
+        DashboardPublishController,
+        DashboardShareController,
+        BiExportController,
+        BiExportScheduleController,
+        BiQueryLogController,
+        BiQueryRunController,
+        BiLineageController,
       ],
-      controllers: [MetricRegistryController, TenantMetricController, MetricReadsController, DatasetBuildController, DatasetReadsController, PolicyController, BiQueryController, DashboardController, DashboardReadsController, DashboardVersionReadsController, PublicationController, DashboardPublishController, DashboardShareController, BiExportController, BiExportScheduleController],
       providers: [
+        ...(options.costLimit === undefined ? [] : [{ provide: BI_QUERY_COST_LIMIT, useValue: options.costLimit }]),
         { provide: TenantDatabase, useValue: tenants },
         { provide: BI_DRILL_KEY, useValue: DRILL_KEY },
         { provide: BI_CLOCK, useValue: () => new Date(CLOCK.now) },

@@ -1927,6 +1927,16 @@
               }
             }
           },
+          "202": {
+            "description": "ASYNC_JOB: the query was too heavy to answer in the request; its run is in the log (BI-13) and the answer is read by asking the same question again once the job ended",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Invalid request",
             "content": {
@@ -2017,7 +2027,11 @@
               }
             }
           }
-        }
+        },
+        "x-domain-events": [
+          "bi.query.completed.v1",
+          "bi.query.refused.v1"
+        ]
       }
     },
     "/dashboards/{id}/publish": {
@@ -120381,6 +120395,28 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "upstream",
+                "downstream"
+              ],
+              "default": "upstream"
+            }
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6,
+              "default": 3
+            }
           }
         ],
         "responses": {
@@ -135484,6 +135520,79 @@
           "SCOPE_DENIED",
           "EXPORT_EXPIRED"
         ]
+      }
+    },
+    "/bi/query-runs/{id}": {
+      "get": {
+        "operationId": "getBiQueryRun",
+        "summary": "Trạng thái một lần chạy truy vấn của chính người hỏi (công việc nền của truy vấn nặng: QUEUED, RUNNING, rồi kết cục); không có giá trị dữ liệu",
+        "tags": [
+          "BI"
+        ],
+        "x-permission": "bi.query",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result; sensitive fields masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },

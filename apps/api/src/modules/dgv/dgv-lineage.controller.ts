@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { DgvLineageStore, TenantDatabase } from '@machvon/db';
-import { DomainError, LINEAGE_DEFAULT_DEPTH, LINEAGE_DIRECTIONS, LINEAGE_MAX_DEPTH, LINEAGE_NODE_KINDS, asUuid, parseLineageBatch, shapeGraph } from '@machvon/kernel';
-import type { EffectiveAccess, LineageDirection, LineageNodeKind, TenantContext } from '@machvon/kernel';
+import { DomainError, parseLineageBatch } from '@machvon/kernel';
+import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
@@ -12,7 +12,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
-import { LineageVisibility } from './lineage-visibility';
+import { edgeView, nodeView, parseGraphQuery, readGraph } from './lineage-graph';
 
 const RESOURCE_TYPE = 'lineage_batch';
 
@@ -80,50 +80,11 @@ export class DgvLineageController {
     @Query('direction') direction?: unknown,
     @Query('depth') depth?: unknown,
   ): Promise<Record<string, unknown>> {
-    const kind = LINEAGE_NODE_KINDS.find((candidate) => candidate === nodeKind) as LineageNodeKind | undefined;
-    if (kind === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'node_kind');
-    const id = typeof refId === 'string' ? asUuid(refId) : undefined;
-    if (id === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'ref_id');
-    const way = direction === undefined ? 'upstream' : (LINEAGE_DIRECTIONS.find((candidate) => candidate === direction) as LineageDirection | undefined);
-    if (way === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'direction');
-    const steps = depth === undefined ? LINEAGE_DEFAULT_DEPTH : typeof depth === 'string' && /^[1-9]$/.test(depth) ? Number(depth) : 0;
-    if (steps < 1 || steps > LINEAGE_MAX_DEPTH) throw new DomainError('VALIDATION_FAILED', 422, 'depth');
-    const now = new Date();
-    const shown = await this.database.withTenant(tenant, async (tx) => {
-      const start = await this.lineage.findByRef(tx, kind, id);
-      if (start === undefined) return undefined;
-      const visibility = new LineageVisibility(tx, { membershipId: tenant.membershipId, access, now });
-      // A node the person may not see is not one they can ask the graph of: it is as good as none.
-      if (!(await visibility.visible([start])).has(start.id)) return undefined;
-      const walked = await this.lineage.traverse(tx, start, way, steps);
-      const visible = await visibility.visible(walked.nodes);
-      return { start, walked, ...shapeGraph(walked.nodes, walked.edges, walked.levels, visible) };
-    });
-    if (shown === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return { start: shown.start.id, direction: way, depth: steps, truncated: shown.walked.truncated, nodes: shown.nodes.map(nodeView), edges: shown.edges.map(edgeView) };
+    const query = parseGraphQuery({ nodeKind, refId, direction, depth });
+    const read = await this.database.withTenant(tenant, (tx) => readGraph(tx, { membershipId: tenant.membershipId, access, now: new Date() }, query));
+    // A node the person may not see is not one they can ask the graph of, and one that is not there is not either: both are as good as none.
+    if (!read.found) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return { start: read.start.id, direction: query.direction, depth: query.depth, truncated: read.truncated, nodes: read.shown.nodes.map(nodeView), edges: read.shown.edges.map(edgeView) };
   }
 }
 
-function nodeView(node: ReturnType<typeof shapeGraph>['nodes'][number]): Record<string, unknown> {
-  return node.restricted
-    ? { key: node.key, restricted: true, level: node.level }
-    : {
-        key: node.key,
-        restricted: false,
-        node_kind: node.nodeKind,
-        ref_module: node.refModule,
-        ref_id: node.refId,
-        ref_key: node.refKey,
-        display_name: node.displayName,
-        classification: node.classification,
-        level: node.level,
-      };
-}
-
-const edgeView = (edge: ReturnType<typeof shapeGraph>['edges'][number]): Record<string, unknown> => ({
-  from: edge.from,
-  to: edge.to,
-  run_id: edge.runId,
-  transform_version: edge.transformVersion,
-  observed_at: edge.observedAt,
-});

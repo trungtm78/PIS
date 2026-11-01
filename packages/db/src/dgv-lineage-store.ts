@@ -57,13 +57,19 @@ export class DgvLineageStore {
     await tx.query("select pg_advisory_xact_lock(hashtextextended('lineage:' || current_setting('app.tenant_id', true), 0))");
   }
 
-  /** The node a batch describes: the one that is there, or a new one (the caller holds the lock of the writes). */
-  async upsertNode(tx: TenantTx, node: Described): Promise<{ id: string; created: boolean }> {
+  /** The id of the node a description names, when it is there. */
+  async idOf(tx: TenantTx, node: Described): Promise<string | undefined> {
     const found = await tx.query<{ id: string }>(
       "select id from machvon.lineage_node where node_kind = $1 and ref_module = $2 and coalesce(ref_id, $3::uuid) = coalesce($4::uuid, $3::uuid) and coalesce(ref_key, '') = coalesce($5, '')",
       [node.nodeKind, node.module, NIL, node.refId, node.refKey],
     );
-    if (found[0] !== undefined) return { id: found[0].id, created: false };
+    return found[0]?.id;
+  }
+
+  /** The node a batch describes: the one that is there, or a new one (the caller holds the lock of the writes). */
+  async upsertNode(tx: TenantTx, node: Described): Promise<{ id: string; created: boolean }> {
+    const existing = await this.idOf(tx, node);
+    if (existing !== undefined) return { id: existing, created: false };
     const id = randomUUID();
     await tx.query(
       `insert into machvon.lineage_node (tenant_id, id, node_kind, ref_module, ref_id, ref_key, display_name, classification)
@@ -82,6 +88,26 @@ export class DgvLineageStore {
       [randomUUID(), edge.fromId, edge.toId, edge.runId, edge.transformVersion, edge.observedAt.toISOString()],
     );
     return rows.length > 0;
+  }
+
+  /**
+   * Joins two nodes that are described, for a module that knows what it made (BI: a dataset version built, a metric read over it, a dashboard that saves a version): the nodes are made when they are not there and the edge is
+   * recorded once for the pair and the version of the transform. What is already there is found without the lock of the writes, so a query that was seen before writes nothing and waits for nobody; false when nothing was written.
+   */
+  async link(tx: TenantTx, from: Described, to: Described, edge: { runId: string; transformVersion: string; observedAt: Date }): Promise<boolean> {
+    const known = [await this.idOf(tx, from), await this.idOf(tx, to)];
+    if (known[0] !== undefined && known[1] !== undefined) {
+      const there = await tx.query('select 1 from machvon.lineage_edge where from_node_id = $1::uuid and to_node_id = $2::uuid and transform_version = $3', [
+        known[0],
+        known[1],
+        edge.transformVersion,
+      ]);
+      if (there.length > 0) return false;
+    }
+    await this.lockWrites(tx);
+    const fromId = (await this.upsertNode(tx, from)).id;
+    const toId = (await this.upsertNode(tx, to)).id;
+    return this.recordEdge(tx, { fromId, toId, ...edge });
   }
 
   /** The nodes and the edges up or down from a node, a level at a time up to the depth; the answer is cut at the node cap. */

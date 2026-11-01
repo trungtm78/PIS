@@ -15533,6 +15533,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bi/query-runs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trạng thái một lần chạy truy vấn của chính người hỏi (công việc nền của truy vấn nặng: QUEUED, RUNNING, rồi kết cục); không có giá trị dữ liệu */
+        get: operations["getBiQueryRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -25303,6 +25320,15 @@ export interface operations {
         responses: {
             /** @description Scoped result; sensitive fields masked */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description ASYNC_JOB: the query was too heavy to answer in the request; its run is in the log (BI-13) and the answer is read by asking the same question again once the job ended */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -107672,7 +107698,10 @@ export interface operations {
     };
     getBiLineage: {
         parameters: {
-            query?: never;
+            query?: {
+                direction?: "upstream" | "downstream";
+                depth?: number;
+            };
             header?: never;
             path: {
                 id: string;
@@ -118384,6 +118413,64 @@ export interface operations {
         };
     };
     getDashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; sensitive fields masked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getBiQueryRun: {
         parameters: {
             query?: never;
             header?: never;

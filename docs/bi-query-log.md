@@ -1,0 +1,39 @@
+# BI: the log of the queries, the jobs the heavy ones become and the lineage of a metric (ST-BI-009, BI 3 F3 and F5, BI-13, BI-14)
+
+## The log (BI-13)
+
+`GET /bi/query-runs` (`listBiQueryRuns`, `bi.admin.read` over the whole tenant: a right over one unit is 403 `SCOPE_DENIED`) lists the runs of the queries newest first, with `status`, `requested_by`, `as_of_period` as filters (an unknown state or a malformed id is 422 naming the field), `limit` 1 to 200 (50 by default) and `cursor`. A line says who asked, the period, the version of the dataset, `mode` (`SYNC` or `ASYNC_JOB`), `status`, `served_from_cache`, `duration_ms`, `row_count`, the cost units, the estimated cost of a job, the error code and when it was made and ended. It never carries what a query asked (filters, dimension) or the figures it answered. The cursor keeps the time as the database wrote it (microseconds).
+
+`bi_query_run` is a log in the database too (V1586): never deleted, what a run asks, for whom and under which scope never changes, a job moves forward only (`QUEUED`, `RUNNING`, then `COMPLETED`, `DENIED`, `FAILED` or `TIMEOUT`; `CANCELLED` from `QUEUED`), how it ended is written once, a refusal says why, a job keeps what it was asked, and the answer of a job is written once with its end and can only be taken away.
+
+## The heavy query (202 ASYNC_JOB)
+
+A query costs the lines of its snapshot (`period_snapshot.row_count`) times the weight of its dimension (project 8, unit and fund source 3, budget level and bucket 1, none 1; kernel `bi-query-cost`). Over the limit (250,000 units; the host may bind another through `BI_QUERY_COST_LIMIT`) it is not answered in the request: the run is made as `QUEUED` with its spec and the key of the cache, and the answer is **202** `{ status: 'ASYNC_JOB', mode, run_id, estimated_cost, as_of_period, snapshot_id }`. The status is part of the stored answer of the idempotency key, so the same key gets 202 again (`CommandScope.respondWith`).
+
+- The same question of the same reader under the same scope is one job at a time: the unique index on `(tenant, cache_key)` of the open jobs, so two requests that come together get the same `run_id`; another reader (another scope) has a job of their own.
+- Audit `bi.query_queued`. The question is found open by a read that waits for nobody (a person who asks again while a worker holds the job in its transaction gets the 202 at once), the insert is conditional on there being no kept answer (a job that ended a moment ago is not made again: the request reads its answer), and the unique index decides between two requests that come together. The spec keeps `pinned` (the question continues a drill that is open), so a job reads the revision of the metric the drill was begun with, as the request does when a newer revision replaced it.
+- `GET /bi/query-runs/{id}` (`getBiQueryRun`, `bi.query`) tells the person who asked how the run stands (`QUEUED`, `RUNNING`, or how it ended with its `error_code`), theirs only (another's is 404), nothing of the figures: it is what a screen asks while it waits.
+- The worker job `bi-query-jobs` (every 30 seconds) takes the jobs that wait, oldest first (`for update skip locked`), and runs each for the person who asked, under the access they have **now**: no right is `DENIED` `SCOPE_DENIED`, no active policy `ACCESS_POLICY_MISSING`, a scope that moved since the question is `DENIED` `SCOPE_CHANGED` (the answer would be of another scope than the one asked under; asking again makes a job under the new scope), a spec that cannot be run is `FAILED` with its code, a statement the database stopped after two minutes is `TIMEOUT` (`QUERY_TIMEOUT`). A failure of the database for one job is rolled back to a savepoint and the others run. The reader is told by `bi.query.completed.v1` or `bi.query.refused.v1` (audit `bi.query_job_completed` or `bi.query_job_refused`; metrics `bi_query_job_completed_total`, `bi_query_job_refused_total`).
+- A job that completed keeps its answer for an hour (`result`, `result_expires_at`). Asking the same question again is answered **200** from it with `served_from_cache: true` (the reading of the figures, the context and the drill token are made as for any query); after the hour the same question makes a new job, even before `bi-query-answer-expiry` (hourly, batches of 200) has taken the answers away. The run stays in the log without its answer.
+
+The screens (`useRunQuery`, `useTile`) read a 202 as a job: they look at the run every five seconds (up to five minutes), ask the question again only once the run is `COMPLETED` (it is then answered from what the job kept; if that is gone again it waits for the job it makes), give the reason when the run ended `DENIED`, `FAILED` or `TIMEOUT` (`SCOPE_CHANGED` has its own words) without making another job, and say the query is still running when the time is out. Nothing more is asked once the screen is left, the query is cancelled, or the member or the tenant is another than the one that asked.
+
+## The lineage of a metric (BI-14)
+
+`GET /bi/metric-definitions/{id}/lineage?direction&depth` (`getBiLineage`, `bi.lineage.read`; upstream and three levels by default) reads the graph of data of DGV from the node of the version of the metric. What BI writes into the graph (`BiLineageStore`, without the lock of the writes when the edge is already there):
+
+| When | Edge | Transform |
+|---|---|---|
+| a version of a dataset is built | snapshot of DIS (`TABLE`) → `DATASET_VERSION`, and each project that has a line in the snapshot (`RECORD`, one statement for the nodes and one for the edges) → snapshot | `bi-dataset-build-v1`, `dis-snapshot-close-v1` |
+| a metric is read (a query, or a job) | `DATASET_VERSION` → `METRIC_VERSION` | `metric:{code}@{revision}` |
+| a version of a dashboard is saved | `METRIC_VERSION` → `DASHBOARD_VERSION` | `bi-dashboard-version-v1` |
+
+The same build asked for again (`UNCHANGED`) writes the source of a version that was built before the lineage was kept, and nothing twice. Each node is judged for the person as in DGV-05 (the rules of `LineageVisibility`), with `bi.lineage.read` as the right to read the lineage: a metric version needs `metric_definition.read`; a dashboard version `bi.query` and the dashboard shared with them or theirs; a dataset version `bi.query` and an active policy that opens the dataset to them; a record the right to read its project over the projects they read; the snapshot is internal data seen by whoever reads the lineage. A node they may not see is `{ key, restricted: true, level }` and the steps that touch it say nothing of their run or transform. The answer adds `quality` for the versions of the dataset they see (`quality_badge`, `excluded_quarantine_rows`). A metric of the tenant that nothing was recorded about is an empty graph (`start: null`) for whoever may read the metrics; one that is not the tenant's, or that the person may not read (with a lineage recorded or not), is 404.
+
+## The screens
+
+BI-13 (`QueryLogScreen`): the filters, a summary of what is on the page (runs, from the cache, jobs, p95 of the durations), the table, "more". BI-14 (`MetricLineageScreen`): the metric, direction and depth, the levels, the steps with their transform and the quality of the versions of the dataset, restricted nodes as such.
+
+## Performance (UAT-AC477, NFR-PERFORMANCE-03)
+
+A tenant of 5,000 projects: a query of 12 metrics run 20 times (each run with a question of its own, so none comes from the cache) has p95 under 2 seconds (about 0.6 s here), and a query by project over the same snapshot is 202. The planner needs the statistics of the tables a snapshot is loaded into: with the lines loaded and not yet analysed (autovacuum does it after a load of this size) the same query took 3.4 s, so the test analyses the tables after the load, as autovacuum does in a running system.

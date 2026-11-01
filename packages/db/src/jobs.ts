@@ -111,6 +111,10 @@ export const JOB_INTERVAL_SECONDS = {
   'bi-export-schedule-runner': 60,
   // Hourly: a file of an export whose seven days are over is removed and its job is EXPIRED, once (ST-BI-008, BI.md F7); the pass is idempotent.
   'bi-export-expiry': 3600,
+  // Every 30 seconds: the queries of BI that were too heavy to wait for are run for the person who asked, under the scope they have now, oldest first, and each ends with how long it took (ST-BI-009, BI.md F3).
+  'bi-query-jobs': 30,
+  // Hourly: the answers a query job kept past their hour are taken away, the run stays in the log without them (ST-BI-009); the pass is idempotent.
+  'bi-query-answer-expiry': 3600,
   // Every 15 minutes: an incident of data quality past its due time is marked and its owner told once, and a waiver that has ended is followed by an open exception within the quarter of an hour (ST-DGV-003); the pass is idempotent.
   'dgv-incident-sweep': 900,
   // Hourly: a data product whose certification has run out (its last day gone, in Vietnamese time) becomes PROVISIONAL, once, and its owner and BI are told (ST-DGV-009); the pass is idempotent.
@@ -315,6 +319,9 @@ export interface StandardJobDeps {
   /** The runner of the schedules of exports and the expiry of their files (ST-BI-008). */
   biExportRunner?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   biExportExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The jobs the heavy queries of BI become, and the expiry of their answers (ST-BI-009). */
+  biQueryJobs?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  biQueryAnswerExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   dgvIncidentSweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   dgvProductExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
@@ -918,6 +925,26 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await exportExpiry.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const queryJobs = deps.biQueryJobs;
+  if (queryJobs !== undefined) {
+    handlers.push({
+      name: 'bi-query-jobs',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await queryJobs.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const answerExpiry = deps.biQueryAnswerExpiry;
+  if (answerExpiry !== undefined) {
+    handlers.push({
+      name: 'bi-query-answer-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await answerExpiry.run(workerContext(tenantId), now)));
       },
     });
   }

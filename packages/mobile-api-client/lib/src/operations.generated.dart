@@ -246,6 +246,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getAuditRecoverySummary': OperationDescriptor(method: 'GET', path: '/audit-engagements/{id}/recovery-summary', versioned: false, stepUp: null, permission: 'aud.read'),
   'getBiExport': OperationDescriptor(method: 'GET', path: '/bi/exports/{id}', versioned: false, stepUp: null, permission: 'bi.export'),
   'getBiLineage': OperationDescriptor(method: 'GET', path: '/bi/metric-definitions/{id}/lineage', versioned: false, stepUp: null, permission: 'bi.lineage.read'),
+  'getBiQueryRun': OperationDescriptor(method: 'GET', path: '/bi/query-runs/{id}', versioned: false, stepUp: null, permission: 'bi.query'),
   'getCampaign': OperationDescriptor(method: 'GET', path: '/notification-campaigns/{campaignId}', versioned: false, stepUp: null, permission: 'notification.campaign.read'),
   'getCapitalAvailability': OperationDescriptor(method: 'GET', path: '/capital/availability', versioned: false, stepUp: null, permission: 'capital.read'),
   'getCapitalPlanAsOf': OperationDescriptor(method: 'GET', path: '/capital-plans/{id}/as-of', versioned: false, stepUp: null, permission: 'capital.read'),

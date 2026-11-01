@@ -244,6 +244,7 @@ export const OPERATIONS = {
   "getAuditRecoverySummary": { method: "get", path: "/audit-engagements/{id}/recovery-summary", versioned: false, stepUp: null, permission: "aud.read" },
   "getBiExport": { method: "get", path: "/bi/exports/{id}", versioned: false, stepUp: null, permission: "bi.export" },
   "getBiLineage": { method: "get", path: "/bi/metric-definitions/{id}/lineage", versioned: false, stepUp: null, permission: "bi.lineage.read" },
+  "getBiQueryRun": { method: "get", path: "/bi/query-runs/{id}", versioned: false, stepUp: null, permission: "bi.query" },
   "getCampaign": { method: "get", path: "/notification-campaigns/{campaignId}", versioned: false, stepUp: null, permission: "notification.campaign.read" },
   "getCapitalAvailability": { method: "get", path: "/capital/availability", versioned: false, stepUp: null, permission: "capital.read" },
   "getCapitalPlanAsOf": { method: "get", path: "/capital-plans/{id}/as-of", versioned: false, stepUp: null, permission: "capital.read" },

@@ -425,6 +425,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getAuditRecoverySummary': AudRecoverySummaryResponse.fromJson,
   'getBiExport': asObject,
   'getBiLineage': asObject,
+  'getBiQueryRun': asObject,
   'getCampaign': CampaignViewResponse.fromJson,
   'getCapitalAvailability': CapAvailabilityResponse.fromJson,
   'getCapitalPlanAsOf': CapPlanAsOfResponse.fromJson,
