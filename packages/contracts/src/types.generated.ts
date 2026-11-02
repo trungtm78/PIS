@@ -12578,9 +12578,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các yêu cầu làm rõ trong phạm vi người gọi, mới nhất trước: nhà thầu (guest) chỉ thấy yêu cầu gửi cho chính nhà thầu của mình; thành viên tổ chuyên gia thấy theo khai báo xung đột (BID-11) */
+        get: operations["listBidClarifications"];
         put?: never;
-        /** Gửi yêu cầu làm rõ tới nhà thầu (guest) qua DOC/CTR */
+        /** Gửi yêu cầu làm rõ tới nhà thầu của một đề án đã mở thầu: câu hỏi, căn cứ (nhận xét của lượt phân tích) và hạn trả lời; thư làm rõ là một văn bản DOC mật về yêu cầu (BID-11) */
         post: operations["sendBidClarification"];
         delete?: never;
         options?: never;
@@ -12597,7 +12598,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Nhà thầu (guest, scope gói) hoặc văn thư ghi trả lời */
+        /** Nhà thầu (guest của đúng nhà thầu đó) hoặc văn thư ghi trả lời bằng một văn bản DOC, trong hạn (BID-11) */
         post: operations["recordClarificationAnswer"];
         delete?: never;
         options?: never;
@@ -15684,6 +15685,23 @@ export interface paths {
         };
         /** Truy xuất đoạn văn của các hồ sơ dự thầu của gói mà người gọi có toàn quyền xem: chỉ trang của hồ sơ được phép được nhúng và so sánh, ACL áp dụng trước khi tính độ gần (BID-09) */
         get: operations["searchProposalPassages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bid-clarifications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một yêu cầu làm rõ; yêu cầu của nhà thầu khác, của tenant khác hoặc đã bị loại bởi xung đột lợi ích là không tồn tại với người gọi (BID-11) */
+        get: operations["getBidClarification"];
         put?: never;
         post?: never;
         delete?: never;
@@ -24520,6 +24538,72 @@ export interface components {
              * @enum {string}
              */
             run_status: "AWAITING_REVIEW" | "COMPLETED";
+        };
+        BidClarificationLine: {
+            /** Format: uuid */
+            id: string;
+            package: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
+            /** Format: uuid */
+            project_id: string;
+            /** Format: uuid */
+            proposal_id: string;
+            contractor: {
+                /** Format: uuid */
+                id: string;
+                legal_name: string;
+            };
+            question: string;
+            /** @description The criterion of the finding of the analysis the question rests on; null for a contractor (a guest never sees the findings of the evaluation) */
+            basis_finding: {
+                /** Format: uuid */
+                id: string;
+                criterion_code: string;
+            } | null;
+            /** Format: date-time */
+            due_at: string;
+            /**
+             * @description EXPIRED is what a request nobody answered by its deadline is shown as; the stored status stays SENT until a person acts on it
+             * @enum {string}
+             */
+            status: "DRAFT" | "SENT" | "ANSWERED" | "EXPIRED" | "WITHDRAWN";
+            /**
+             * Format: uuid
+             * @description The letter that carries the question: a confidential document of DOC about the request
+             */
+            sent_document_id: string | null;
+            /** Format: uuid */
+            answer_document_id: string | null;
+            /** Format: date-time */
+            answered_at: string | null;
+            answered_by: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+            } | null;
+            /** @description True when the contractor answered themselves as a guest; false when the staff who took their letter recorded it */
+            answered_as_guest: boolean | null;
+            /** @description The member of the evaluation team who asked; null for a contractor (the evaluators stay anonymous to the bidders) */
+            asked_by: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+            } | null;
+            /** Format: date-time */
+            created_at: string;
+            actions: {
+                /** @description The request waits for its answer, in time, and the caller holds the permission to record it; the server judges the command again */
+                answer: boolean;
+            };
+            version: number;
+        };
+        BidClarificationList: {
+            items: components["schemas"]["BidClarificationLine"][];
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -101848,6 +101932,74 @@ export interface operations {
             };
         };
     };
+    listBidClarifications: {
+        parameters: {
+            query?: {
+                package_id?: string;
+                proposal_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidClarificationList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification (CONFLICT_UNDECLARED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     sendBidClarification: {
         parameters: {
             query?: never;
@@ -119996,6 +120148,64 @@ export interface operations {
                 };
             };
             /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getBidClarification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidClarificationLine"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification (CONFLICT_UNDECLARED) */
             403: {
                 headers: {
                     [name: string]: unknown;

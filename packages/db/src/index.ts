@@ -438,6 +438,8 @@ export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-
 export { BidOcrStore, MAX_ENGINE_VERSION, MAX_RECORDED_PAGES } from './bid-ocr-store.ts';
 export type { CorrectedText, OcrListed, OcrListing, OcrPageInput, OcrPageLine, RecordedPage, ReviewInput as OcrReviewInput, ReviewedPage as OcrReviewedPage } from './bid-ocr-store.ts';
 export { BidAnalysisStore } from './bid-analysis-store.ts';
+export { BidClarificationStore, CLARIFICATION_DOC_TYPE as BID_CLARIFICATION_DOC_TYPE, CLARIFICATION_SUBJECT_MODULE as BID_CLARIFICATION_SUBJECT_MODULE } from './bid-clarification-store.ts';
+export type { AnswerInput as BidClarificationAnswerInput, ClarificationLine as BidClarificationLine, ClarificationResult as BidClarificationResult, ClarificationViewer as BidClarificationViewer, FoundClarification as BidFoundClarification, SendInput as BidClarificationSendInput, SenderViewer as BidClarificationSender } from './bid-clarification-store.ts';
 export { BidReviewStore } from './bid-review-store.ts';
 export type { ComparisonRead as BidComparisonRead, ReviewInput as BidReviewInput, ReviewTarget as BidReviewTarget, ReviewedFinding as BidReviewedFinding } from './bid-review-store.ts';
 export type { Admission as BidAnalysisAdmission, CancelledRun as BidCancelledRun, EvidenceLine as BidEvidenceLine, FindingFilter as BidFindingFilter, FindingLine as BidFindingLine, FoundRun as BidFoundRun, NewEvidence as BidNewEvidence, NewFinding as BidNewFinding, RecordedOcrPage, ReviewLine as BidReviewLine, RunContext as BidRunContext, RunLine as BidRunLine } from './bid-analysis-store.ts';

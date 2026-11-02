@@ -760,7 +760,7 @@
     "CLARIFICATION_EXPIRED": {
       "status": 409,
       "title": "Clarification expired",
-      "meaning": "Raised by recordClarificationAnswer (POST /bid-clarifications/{id}/answer)",
+      "meaning": "Raised by recordClarificationAnswer (POST /bid-clarifications/{id}/answer) when the answer comes after the deadline of the request (also for a request answered in time: the second answer after the deadline is told the time is up); the request is not changed",
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
@@ -3540,7 +3540,7 @@
     "PROPOSAL_NOT_OPEN": {
       "status": 409,
       "title": "Proposal not open",
-      "meaning": "Raised by sendBidClarification (POST /bid-clarifications)",
+      "meaning": "Raised by sendBidClarification (POST /bid-clarifications) for a proposal that was replaced or withdrawn: the bids are open (a proposal not opened yet does not exist for an evaluator) but this one takes no question",
       "module": "BID",
       "statusBasis": "convention",
       "source": "spec:BID"
@@ -5369,6 +5369,14 @@
       "module": "BID",
       "statusBasis": "convention",
       "source": "story:ST-BID-009"
+    },
+    "CLARIFICATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Clarification state invalid",
+      "meaning": "Raised by recordClarificationAnswer (POST /bid-clarifications/{id}/answer) for a request that does not wait for its answer: it was answered already or withdrawn",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "story:ST-BID-011"
     }
   }
 }

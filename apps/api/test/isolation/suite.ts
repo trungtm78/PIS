@@ -548,6 +548,12 @@ export const PETITION_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
   'TNT-B': { id: '00000000-0000-4000-b0bc-000000000001' },
 };
 
+/** A clarification request to the contractor of each tenant on its proposal, sent and waiting for an answer (the question is distinctive; tenant confidential data). */
+export const CLARIFICATION_FIXTURES: Readonly<Record<TenantName, { id: string; question: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0bd-000000000001', question: 'ALPHA isolation clarification: explain the unit price of the bridge deck.' },
+  'TNT-B': { id: '00000000-0000-4000-b0bd-000000000001', question: 'BETA isolation clarification: explain the unit price of the viaduct deck.' },
+};
+
 /** A stage of land clearance reported by an external unit, in the section of each tenant (its note is distinctive; tenant data). */
 export const STAGE_FIXTURES: Readonly<Record<TenantName, { id: string; note: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0b8-000000000001', note: 'ALPHA-STAGE-BLOCKER-0001' },
@@ -1675,6 +1681,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'conflict relation text', value: PROPOSAL_FIXTURES[tenant].relation },
     { kind: 'procurement result id', value: RESULT_FIXTURES[tenant].id },
     { kind: 'procurement petition id', value: PETITION_FIXTURES[tenant].id },
+    { kind: 'bid clarification id', value: CLARIFICATION_FIXTURES[tenant].id },
+    { kind: 'bid clarification question', value: CLARIFICATION_FIXTURES[tenant].question },
     { kind: 'analysis run id', value: RUN_FIXTURES[tenant].id },
     { kind: 'analysis finding id', value: RUN_FIXTURES[tenant].findingId },
     { kind: 'analysis finding text', value: RUN_FIXTURES[tenant].finding },

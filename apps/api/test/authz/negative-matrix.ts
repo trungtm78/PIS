@@ -2182,6 +2182,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/findings/${t.analysisRunId}/review`, ifMatch: '"1"', body: { decision: 'approve', reason: 'The citations are on the pages they name.', evidence_ids: [] } }),
   },
+  // The clarification requests to contractors: nothing is asked and nothing is answered for a caller that is refused.
+  sendBidClarification: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/bid-clarifications', body: { proposal_id: t.analysisRunId, question: 'Explain the unit price of item 7 of the bill of quantities.', due_at: '2099-01-01T00:00:00Z' } }),
+  },
+  recordClarificationAnswer: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/bid-clarifications/${t.analysisRunId}/answer`, ifMatch: '"1"', body: { answer_document_id: t.documentVersionId } }),
+  },
   uploadOcrCorrectionFile: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/document-page-ocr/files', body: {} }),

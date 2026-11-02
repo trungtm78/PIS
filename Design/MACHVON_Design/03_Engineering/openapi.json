@@ -111799,7 +111799,7 @@
     "/bid-clarifications": {
       "post": {
         "operationId": "sendBidClarification",
-        "summary": "Gửi yêu cầu làm rõ tới nhà thầu (guest) qua DOC/CTR",
+        "summary": "Gửi yêu cầu làm rõ tới nhà thầu của một đề án đã mở thầu: câu hỏi, căn cứ (nhận xét của lượt phân tích) và hạn trả lời; thư làm rõ là một văn bản DOC mật về yêu cầu (BID-11)",
         "tags": [
           "BID"
         ],
@@ -111919,18 +111919,114 @@
         },
         "x-error-codes": [
           "PROPOSAL_NOT_OPEN",
-          "DUE_IN_PAST"
+          "DUE_IN_PAST",
+          "CONFLICT_UNDECLARED",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "bid.clarification.sent.v1"
+        ]
+      },
+      "get": {
+        "operationId": "listBidClarifications",
+        "summary": "Các yêu cầu làm rõ trong phạm vi người gọi, mới nhất trước: nhà thầu (guest) chỉ thấy yêu cầu gửi cho chính nhà thầu của mình; thành viên tổ chuyên gia thấy theo khai báo xung đột (BID-11)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.clarification.read",
+        "parameters": [
+          {
+            "name": "package_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "proposal_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidClarificationList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification (CONFLICT_UNDECLARED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED",
+          "VALIDATION_FAILED"
         ]
       }
     },
     "/bid-clarifications/{id}/answer": {
       "post": {
         "operationId": "recordClarificationAnswer",
-        "summary": "Nhà thầu (guest, scope gói) hoặc văn thư ghi trả lời",
+        "summary": "Nhà thầu (guest của đúng nhà thầu đó) hoặc văn thư ghi trả lời bằng một văn bản DOC, trong hạn (BID-11)",
         "tags": [
           "BID"
         ],
@@ -112068,7 +112164,10 @@
         },
         "x-error-codes": [
           "CLARIFICATION_EXPIRED",
+          "CLARIFICATION_STATE_INVALID",
           "SCOPE_DENIED",
+          "CONFLICT_UNDECLARED",
+          "VALIDATION_FAILED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -137116,6 +137215,82 @@
           "AI_ROUTE_NOT_ALLOWED",
           "AI_KILL_SWITCH_ENGAGED",
           "MODEL_NOT_APPROVED"
+        ]
+      }
+    },
+    "/bid-clarifications/{id}": {
+      "get": {
+        "operationId": "getBidClarification",
+        "summary": "Một yêu cầu làm rõ; yêu cầu của nhà thầu khác, của tenant khác hoặc đã bị loại bởi xung đột lợi ích là không tồn tại với người gọi (BID-11)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.clarification.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidClarificationLine"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification (CONFLICT_UNDECLARED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED"
         ]
       }
     }
@@ -169778,6 +169953,228 @@
               "COMPLETED"
             ],
             "description": "COMPLETED once every finding of the run has a decision"
+          }
+        }
+      },
+      "BidClarificationLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "package",
+          "project_id",
+          "proposal_id",
+          "contractor",
+          "question",
+          "basis_finding",
+          "due_at",
+          "status",
+          "sent_document_id",
+          "answer_document_id",
+          "answered_at",
+          "answered_by",
+          "answered_as_guest",
+          "asked_by",
+          "created_at",
+          "actions",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "proposal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contractor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "legal_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "legal_name": {
+                "type": "string"
+              }
+            }
+          },
+          "question": {
+            "type": "string"
+          },
+          "basis_finding": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "criterion_code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "criterion_code": {
+                "type": "string"
+              }
+            },
+            "description": "The criterion of the finding of the analysis the question rests on; null for a contractor (a guest never sees the findings of the evaluation)"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SENT",
+              "ANSWERED",
+              "EXPIRED",
+              "WITHDRAWN"
+            ],
+            "description": "EXPIRED is what a request nobody answered by its deadline is shown as; the stored status stays SENT until a person acts on it"
+          },
+          "sent_document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "The letter that carries the question: a confidential document of DOC about the request"
+          },
+          "answer_document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "answered_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "answered_by": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "answered_as_guest": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "True when the contractor answered themselves as a guest; false when the staff who took their letter recorded it"
+          },
+          "asked_by": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            },
+            "description": "The member of the evaluation team who asked; null for a contractor (the evaluators stay anonymous to the bidders)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "answer"
+            ],
+            "properties": {
+              "answer": {
+                "type": "boolean",
+                "description": "The request waits for its answer, in time, and the caller holds the permission to record it; the server judges the command again"
+              }
+            }
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "BidClarificationList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidClarificationLine"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

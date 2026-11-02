@@ -742,6 +742,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getBiQueryRun({required String id, Map<String, Object?>? query}) =>
       execute('getBiQueryRun', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getBidClarification({required String id, Map<String, Object?>? query}) =>
+      execute('getBidClarification', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getCampaign({required String campaignId, Map<String, Object?>? query}) =>
       execute('getCampaign', path: <String, Object?>{'campaignId': campaignId}, query: query);
 
@@ -1650,6 +1653,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listBiQueryRuns({Map<String, Object?>? query}) =>
       execute('listBiQueryRuns', query: query);
+
+  Future<Object?> listBidClarifications({Map<String, Object?>? query}) =>
+      execute('listBidClarifications', query: query);
 
   Future<Object?> listBillingPayments({Map<String, Object?>? query}) =>
       execute('listBillingPayments', query: query);

@@ -336,6 +336,8 @@
     "post_analysis_runs_id_cancel",
     "reviewAnalysisFinding",
     "post_findings_id_review",
+    "sendBidClarification",
+    "recordClarificationAnswer",
     "createMaturityMilestone",
     "post_maturity_assessments_id_publish",
     "post_master_records_id_merge",

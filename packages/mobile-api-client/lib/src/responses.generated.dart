@@ -424,6 +424,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getAuditEngagement': asObject,
   'getAuditOverview': asObject,
   'getAuditRecoverySummary': AudRecoverySummaryResponse.fromJson,
+  'getBidClarification': BidClarificationLineResponse.fromJson,
   'getBiExport': asObject,
   'getBiLineage': asObject,
   'getBiQueryRun': asObject,
@@ -548,6 +549,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listBiAccessPolicies': asObject,
   'listBiDatasets': asObject,
   'listBiDatasetVersions': asObject,
+  'listBidClarifications': BidClarificationListResponse.fromJson,
   'listBiExports': asObject,
   'listBiExportSchedules': asObject,
   'listBillingPayments': BillingPaymentListResponse.fromJson,
@@ -1837,6 +1839,306 @@ final class AudRecoverySummaryResponse implements ResponseModel {
         'recovered_vnd': recoveredVnd,
         'remaining_vnd': remainingVnd,
         'completion_rate': completionRate,
+        ...extra,
+      };
+}
+
+final class BidClarificationLineResponse implements ResponseModel {
+  const BidClarificationLineResponse({
+    required this.id,
+    required this.package,
+    required this.projectId,
+    required this.proposalId,
+    required this.contractor,
+    required this.question,
+    required this.basisFinding,
+    required this.dueAt,
+    required this.status,
+    required this.sentDocumentId,
+    required this.answerDocumentId,
+    required this.answeredAt,
+    required this.answeredBy,
+    required this.answeredAsGuest,
+    required this.askedBy,
+    required this.createdAt,
+    required this.actions,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationLineResponse.fromJson(Object? json, [String path = 'BidClarificationLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      package: requiredField(map, path, 'package', BidClarificationLineResponsePackage.fromJson),
+      projectId: requiredField(map, path, 'project_id', asString),
+      proposalId: requiredField(map, path, 'proposal_id', asString),
+      contractor: requiredField(map, path, 'contractor', BidClarificationLineResponseContractor.fromJson),
+      question: requiredField(map, path, 'question', asString),
+      basisFinding: requiredField(map, path, 'basis_finding', nullable(BidClarificationLineResponseBasisFinding.fromJson)),
+      dueAt: requiredField(map, path, 'due_at', asString),
+      status: requiredField(map, path, 'status', asString),
+      sentDocumentId: requiredField(map, path, 'sent_document_id', nullable(asString)),
+      answerDocumentId: requiredField(map, path, 'answer_document_id', nullable(asString)),
+      answeredAt: requiredField(map, path, 'answered_at', nullable(asString)),
+      answeredBy: requiredField(map, path, 'answered_by', nullable(BidClarificationLineResponseAnsweredBy.fromJson)),
+      answeredAsGuest: requiredField(map, path, 'answered_as_guest', nullable(asBool)),
+      askedBy: requiredField(map, path, 'asked_by', nullable(BidClarificationLineResponseAskedBy.fromJson)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      actions: requiredField(map, path, 'actions', BidClarificationLineResponseActions.fromJson),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'package', 'project_id', 'proposal_id', 'contractor', 'question', 'basis_finding', 'due_at', 'status', 'sent_document_id', 'answer_document_id', 'answered_at', 'answered_by', 'answered_as_guest', 'asked_by', 'created_at', 'actions', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final BidClarificationLineResponsePackage package;
+  final String projectId;
+  final String proposalId;
+  final BidClarificationLineResponseContractor contractor;
+  final String question;
+  final BidClarificationLineResponseBasisFinding? basisFinding;
+  final String dueAt;
+  final String status;
+  final String? sentDocumentId;
+  final String? answerDocumentId;
+  final String? answeredAt;
+  final BidClarificationLineResponseAnsweredBy? answeredBy;
+  final bool? answeredAsGuest;
+  final BidClarificationLineResponseAskedBy? askedBy;
+  final String createdAt;
+  final BidClarificationLineResponseActions actions;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'package': package.toJson(),
+        'project_id': projectId,
+        'proposal_id': proposalId,
+        'contractor': contractor.toJson(),
+        'question': question,
+        'basis_finding': (basisFinding == null ? null : basisFinding!.toJson()),
+        'due_at': dueAt,
+        'status': status,
+        'sent_document_id': sentDocumentId,
+        'answer_document_id': answerDocumentId,
+        'answered_at': answeredAt,
+        'answered_by': (answeredBy == null ? null : answeredBy!.toJson()),
+        'answered_as_guest': answeredAsGuest,
+        'asked_by': (askedBy == null ? null : askedBy!.toJson()),
+        'created_at': createdAt,
+        'actions': actions.toJson(),
+        'version': version,
+        ...extra,
+      };
+}
+
+final class BidClarificationLineResponseActions implements ResponseModel {
+  const BidClarificationLineResponseActions({
+    required this.answer,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationLineResponseActions.fromJson(Object? json, [String path = 'BidClarificationLineResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationLineResponseActions(
+      answer: requiredField(map, path, 'answer', asBool),
+      extra: unknownFields(map, path, const <String>{'answer'}, strict: true),
+    );
+  }
+
+  final bool answer;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'answer': answer,
+        ...extra,
+      };
+}
+
+final class BidClarificationLineResponseAnsweredBy implements ResponseModel {
+  const BidClarificationLineResponseAnsweredBy({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationLineResponseAnsweredBy.fromJson(Object? json, [String path = 'BidClarificationLineResponseAnsweredBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationLineResponseAnsweredBy(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', asString),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class BidClarificationLineResponseAskedBy implements ResponseModel {
+  const BidClarificationLineResponseAskedBy({
+    required this.membershipId,
+    required this.displayName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationLineResponseAskedBy.fromJson(Object? json, [String path = 'BidClarificationLineResponseAskedBy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationLineResponseAskedBy(
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', asString),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'display_name'}, strict: true),
+    );
+  }
+
+  final String membershipId;
+  final String displayName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'display_name': displayName,
+        ...extra,
+      };
+}
+
+final class BidClarificationLineResponseBasisFinding implements ResponseModel {
+  const BidClarificationLineResponseBasisFinding({
+    required this.id,
+    required this.criterionCode,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationLineResponseBasisFinding.fromJson(Object? json, [String path = 'BidClarificationLineResponseBasisFinding']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationLineResponseBasisFinding(
+      id: requiredField(map, path, 'id', asString),
+      criterionCode: requiredField(map, path, 'criterion_code', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'criterion_code'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String criterionCode;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'criterion_code': criterionCode,
+        ...extra,
+      };
+}
+
+final class BidClarificationLineResponseContractor implements ResponseModel {
+  const BidClarificationLineResponseContractor({
+    required this.id,
+    required this.legalName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationLineResponseContractor.fromJson(Object? json, [String path = 'BidClarificationLineResponseContractor']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationLineResponseContractor(
+      id: requiredField(map, path, 'id', asString),
+      legalName: requiredField(map, path, 'legal_name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'legal_name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String legalName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'legal_name': legalName,
+        ...extra,
+      };
+}
+
+final class BidClarificationLineResponsePackage implements ResponseModel {
+  const BidClarificationLineResponsePackage({
+    required this.id,
+    required this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationLineResponsePackage.fromJson(Object? json, [String path = 'BidClarificationLineResponsePackage']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationLineResponsePackage(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        ...extra,
+      };
+}
+
+final class BidClarificationListResponse implements ResponseModel {
+  const BidClarificationListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidClarificationListResponse.fromJson(Object? json, [String path = 'BidClarificationListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidClarificationListResponse(
+      items: requiredField(map, path, 'items', asList(BidClarificationLineResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<BidClarificationLineResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
         ...extra,
       };
 }

@@ -64,6 +64,7 @@ import {
   PLAN_COMP_FIXTURES,
   PARCEL_FIXTURES,
   PETITION_FIXTURES,
+  CLARIFICATION_FIXTURES,
   PROJECT_FIXTURES,
   PROPOSAL_FIXTURES,
   RESULT_FIXTURES,
@@ -636,6 +637,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'receiveProcurementPetition',
   'resolveProcurementPetition',
   'listProcurementPetitions',
+  'sendBidClarification',
+  'recordClarificationAnswer',
+  'listBidClarifications',
+  'getBidClarification',
   'reviewOcrPage',
   'uploadOcrCorrectionFile',
   'listProposalOcrPages',
@@ -1781,6 +1786,10 @@ const INSERT_RESULT = `insert into machvon.procurement_result
   (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, evaluation_minutes_document_id, outcome, status, submitted_by, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5::numeric, $6, 'AWARDED', 'SUBMITTED', $7, $7, $7, 1) on conflict do nothing`;
 
+const INSERT_CLARIFICATION = `insert into machvon.bid_clarification
+  (tenant_id, id, package_id, proposal_id, question, due_at, status, sent_document_id, created_by, updated_by, version)
+  values ($1, $2, $3, $4, $5, now() + interval '30 days', 'SENT', $6, $7, $7, 1) on conflict do nothing`;
+
 const INSERT_PETITION = `insert into machvon.procurement_petition
   (tenant_id, id, package_id, contractor_id, petition_kind, received_on, due_on, petition_document_id, status, days_applied, rule_version_id, created_by, updated_by, version)
   values ($1, $2, $3, $4, 'PROCESS', date '2026-10-20', date '2026-10-27', $5, 'RECEIVED', 7, gen_random_uuid(), $6, $6, 1) on conflict do nothing`;
@@ -1814,6 +1823,10 @@ const INSERT_ANALYSIS_EVIDENCE = `insert into machvon.analysis_evidence
 const INSERT_ANALYSIS_REVIEW = `insert into machvon.analysis_finding_review
   (tenant_id, id, finding_id, reviewer_user_id, from_status, to_status, score_before, score_after, reason, decision, ai_decision_record_id)
   values ($1, $2, $3, $4, 'SUPPORTED', 'CONTRADICTED', null, 2, $5, 'ACCEPTED_WITH_CHANGE', $6) on conflict do nothing`;
+
+const INSERT_CLEAR_DECLARATION = `insert into machvon.bid_conflict_declaration
+  (tenant_id, id, package_id, user_id, has_conflict, created_by, updated_by, version)
+  values ($1, $2, $3, $4, false, $4, $4, 1) on conflict do nothing`;
 
 const INSERT_CONFLICT = `insert into machvon.bid_conflict_declaration
   (tenant_id, id, package_id, user_id, has_conflict, relation_text, created_by, updated_by, version)
@@ -2323,9 +2336,13 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const proposal = PROPOSAL_FIXTURES[tenant];
     await client.query(INSERT_PROPOSAL, [tenantId, proposal.id, project.id, pack.id, contractor.id, proposal.bidPrice, ACTOR_ID]);
     await client.query(INSERT_CONFLICT, [tenantId, proposal.declarationId, pack.id, ACTOR_ID, proposal.relation]);
+    // The member the suite reads as is a member of the evaluation team who declared that no conflict stands: the requests for clarification are read by the declared.
+    await client.query(INSERT_CLEAR_DECLARATION, [tenantId, randomUUID(), pack.id, MEMBERSHIP_ID]);
     const result = RESULT_FIXTURES[tenant];
     await client.query(INSERT_RESULT, [tenantId, result.id, pack.id, contractor.id, result.awardPrice, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_PETITION, [tenantId, PETITION_FIXTURES[tenant].id, pack.id, contractor.id, documents.documentId, ACTOR_ID]);
+    // A question to the contractor of the proposal; the letter that carries it is a document of the tenant.
+    await client.query(INSERT_CLARIFICATION, [tenantId, CLARIFICATION_FIXTURES[tenant].id, pack.id, proposal.id, CLARIFICATION_FIXTURES[tenant].question, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
     // A file of the proposal and the page of it that waits for a person: the review command finds the page through the proposal.
     const ocr = OCR_FIXTURES[tenant];
@@ -2529,6 +2546,7 @@ const SNAPSHOT_TABLES = [
   'procurement_plan',
   'procurement_plan_event',
   'procurement_petition',
+  'bid_clarification',
   'document_page_ocr',
   'analysis_run',
   'analysis_finding',

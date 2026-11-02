@@ -522,6 +522,19 @@ export type {
   ScoredCriterion,
 } from './bid-review.ts';
 export {
+  CLARIFICATION_STATUSES,
+  MAX_CLARIFICATION_QUESTION,
+  MIN_CLARIFICATION_QUESTION,
+  assertAnswerDocumentIsNotTheQuestion,
+  assertAnswerable,
+  clarificationDueOf,
+  clarificationQuestionOf,
+  clarificationStatusAt,
+  clarificationVisibleTo,
+  isClarificationLate,
+} from './bid-clarification.ts';
+export type { AnswerFacts, ClarificationReader, ClarificationStatus } from './bid-clarification.ts';
+export {
   CHECKLIST_OUTCOMES,
   INSPECTION_COMMANDS,
   INSPECTION_RESULTS,
