@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { AuditWriter, BidAnalysisStore, TenantDatabase, projectScope } from '@machvon/db';
-import type { BidEvidenceLine, BidFindingLine, BidRunLine, ProposalViewer } from '@machvon/db';
+import type { BidEvidenceLine, BidFindingLine, BidReviewLine, BidRunLine, ProposalViewer } from '@machvon/db';
 import { DomainError, FINDING_STATUSES, RUN_STATUSES, asUuid, cancelReasonOf, runTimeline } from '@machvon/kernel';
 import type { EffectiveAccess, RunStatus, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -28,7 +28,7 @@ const idOf = (value: unknown, field: string): string => {
 };
 
 /** A member of the evaluation team over the project who also holds the permission of the operation over it: the full view of a proposal is judged on top of that, for each read. */
-function viewerOf(tenant: TenantContext, access: EffectiveAccess, permission: string, now: Date): ProposalViewer {
+export function viewerOf(tenant: TenantContext, access: EffectiveAccess, permission: string, now: Date): ProposalViewer {
   return { membershipId: tenant.membershipId, evaluate: within(projectScope(access, EVALUATE_PERMISSION, now), projectScope(access, permission, now)), receive: () => ({ sql: 'false', params: [] }), now };
 }
 
@@ -74,7 +74,24 @@ export function evidenceDto(evidence: BidEvidenceLine): Record<string, unknown> 
   };
 }
 
-/** A finding with the evidence under it: the AI proposal, never a decision (BR-BID-09). */
+/** One decision of an expert about a finding: what stood, what they set and why. */
+export function reviewDto(review: BidReviewLine): Record<string, unknown> {
+  return {
+    id: review.id,
+    reviewer: { id: review.reviewer.id, display_name: review.reviewer.displayName },
+    from_status: review.fromStatus,
+    to_status: review.toStatus,
+    score_before: review.scoreBefore,
+    score_after: review.scoreAfter,
+    reason: review.reason,
+    decision: review.decision,
+    ai_decision_record_id: review.aiDecisionRecordId,
+    checked_evidence_ids: review.checkedEvidenceIds,
+    decided_at: review.decidedAt,
+  };
+}
+
+/** A finding with the evidence under it: the AI proposal, and what a person decided about it, kept apart (BR-BID-09). */
 export function findingDto(finding: BidFindingLine): Record<string, unknown> {
   return {
     id: finding.id,
@@ -86,9 +103,13 @@ export function findingDto(finding: BidFindingLine): Record<string, unknown> {
     evidence_count: finding.evidenceCount,
     missing_source: finding.missingSource,
     final_status: finding.finalStatus,
+    final_score: finding.finalScore,
     reviewed_at: finding.reviewedAt,
+    review_count: finding.reviewCount,
+    version: finding.version,
     created_at: finding.createdAt,
     evidence: finding.evidence.map(evidenceDto),
+    reviews: finding.reviews.map(reviewDto),
   };
 }
 
@@ -104,6 +125,8 @@ function findingSummaryDto(finding: BidFindingLine, proposalId: string | undefin
     evidence_count: finding.evidenceCount,
     missing_source: finding.missingSource,
     final_status: finding.finalStatus,
+    final_score: finding.finalScore,
+    version: finding.version,
     reviewed_at: finding.reviewedAt,
     created_at: finding.createdAt,
   };

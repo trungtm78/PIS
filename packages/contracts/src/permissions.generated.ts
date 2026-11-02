@@ -2705,6 +2705,7 @@ export const MODULES = {
   "post_dashboard_queries": "BI",
   "post_dashboards_id_publish": "BI",
   "post_data_contracts_id_publish": "DGV",
+  "post_findings_id_review": "BID",
   "post_handovers_id_decision": "AST",
   "post_licenses": "SAS",
   "post_licenses_id_revoke": "SAS",

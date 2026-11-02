@@ -691,6 +691,13 @@
       "kind": "REQUEST_BODY_REQUIRED",
       "reason": "a run is cancelled with the reason of the person who cancels it, and nothing called the operation before",
       "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "post_findings_id_review",
+      "kind": "ENUM_TIGHTENED",
+      "location": "decision",
+      "reason": "the decision of an expert about a finding is to approve what stands or to set it aside: a finding has nothing to be returned to, and the operation was a scaffold with the generic Decision body that nothing called",
+      "change_request": "ST-BID-010"
     }
   ]
 }

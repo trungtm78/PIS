@@ -307,6 +307,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.procurement_petition where tenant_id = $1),
     (select string_agg(id::text || review_status || coalesce(reviewed_by::text, '') || coalesce(corrected_text_object_key, ''), ',' order by id) from machvon.document_page_ocr where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(cancel_reason, ''), ',' order by id) from machvon.analysis_run where tenant_id = $1),
+    (select string_agg(id::text || finding_id::text || to_status || coalesce(score_after::text, ''), ',' order by id) from machvon.analysis_finding_review where tenant_id = $1),
+    (select string_agg(id::text || decision || coalesce(applied_operation_id, ''), ',' order by id) from machvon.ai_decision_record where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.inspection where tenant_id = $1),
     (select string_agg(id::text || status || version::text || accepted_amount_vnd::text, ',' order by id) from machvon.acceptance where tenant_id = $1),
     (select string_agg(id::text || active::text || amount_vnd::text, ',' order by id) from machvon.acceptance_line where tenant_id = $1),

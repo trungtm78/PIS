@@ -1,0 +1,32 @@
+.bid-review {
+  margin: 8px 0 24px 16px;
+}
+.bid-review-fields {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+@media (max-width: 640px) {
+  .bid-review-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.bid-review-history {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+.bid-review-entry {
+  padding: 8px 12px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 6px;
+}
+.bid-review-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 6px;
+}

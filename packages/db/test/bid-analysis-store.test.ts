@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { BidAnalysisStore } from '../src/bid-analysis-store';
 import type { Admission, RunContext } from '../src/bid-analysis-store';
 import { BidConflictStore } from '../src/bid-conflict-store';
+import { BidReviewStore } from '../src/bid-review-store';
 import type { ProposalViewer } from '../src/bid-proposal-reads';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
@@ -14,6 +15,7 @@ import type { SeededPackage } from './support/bid-proposal-fixtures';
 const harness = new AuthzHarness();
 const store = new BidAnalysisStore();
 const conflicts = new BidConflictStore();
+const reviews = new BidReviewStore();
 const E1 = 2;
 const E2 = 3;
 const APPROVER = 4;
@@ -249,8 +251,8 @@ describe('the AI analysis of a proposal (ST-BID-009, BID 3 F5, BR-BID-05/07)', (
       expect(await attempt('update machvon.analysis_run set version = version + 2 where id = $1::uuid', [run])).toMatchObject({ message: expect.stringContaining('one version at a time') });
       expect(await attempt('update machvon.analysis_run set ai_request_id = gen_random_uuid(), version = version + 1 where id = $1::uuid', [run])).toMatchObject({ message: expect.stringContaining('set once') });
       expect(await attempt('delete from machvon.analysis_run where id = $1::uuid', [run])).toMatchObject({ message: expect.stringMatching(/permission denied|kept for good|kept as it was found/) });
-      expect(await attempt("update machvon.analysis_finding set finding = 'Rewritten.' where id = $1::uuid", [finding?.id])).toMatchObject({ message: expect.stringContaining('does not change') });
-      expect(await attempt("update machvon.analysis_finding set status = 'CONTRADICTED' where id = $1::uuid", [finding?.id])).toMatchObject({ message: expect.stringContaining('does not change') });
+      expect(await attempt("update machvon.analysis_finding set finding = 'Rewritten.' where id = $1::uuid", [finding?.id])).toMatchObject({ message: expect.stringContaining('kept as the model said it') });
+      expect(await attempt("update machvon.analysis_finding set status = 'CONTRADICTED' where id = $1::uuid", [finding?.id])).toMatchObject({ message: expect.stringContaining('kept as the model said it') });
       expect(await attempt('delete from machvon.analysis_finding where id = $1::uuid', [finding?.id])).toMatchObject({ message: expect.stringMatching(/permission denied|kept for good|kept as it was found/) });
       expect(await attempt('update machvon.analysis_evidence set verified_present = true where id = $1::uuid', [evidence?.id])).toMatchObject({ message: expect.stringContaining('kept as it was found') });
       expect(await attempt('delete from machvon.analysis_evidence where id = $1::uuid', [evidence?.id])).toMatchObject({ message: expect.stringMatching(/permission denied|kept for good|kept as it was found/) });
@@ -260,28 +262,15 @@ describe('the AI analysis of a proposal (ST-BID-009, BID 3 F5, BR-BID-05/07)', (
       expect(await rows('select count(*)::int as n from machvon.analysis_finding where run_id = $1::uuid', [run])).toEqual([{ n: 2 }]);
     });
 
-    it('lets an expert review the finding of a run that waits for them and nothing else of it, and not before the run is over', async () => {
+    it('does not let anyone change a finding, not even the columns of a review: the decision of an expert is a row of its own (ST-BID-010)', async () => {
       const fx = await fixture();
       const run = await runOf(fx);
       const reason = 'The page shows three bridges, one of them not accepted.';
-      await as((tx) =>
-        tx.query("update machvon.analysis_finding set final_status = 'CONTRADICTED', reviewer_id = $2::uuid, override_reason = $3, reviewed_at = now() where run_id = $1::uuid and criterion_id = 'C1'", [run, memberId(E1), reason]),
-      );
-      expect(await rows('select final_status, status from machvon.analysis_finding where run_id = $1::uuid and criterion_id = $2', [run, 'C1'])).toEqual([{ final_status: 'CONTRADICTED', status: 'SUPPORTED' }]);
-      // A reason shorter than twenty characters, or a final status without a reviewer, is not a review.
-      expect(await failure(as((tx) => tx.query("update machvon.analysis_finding set final_status = 'MISSING', reviewer_id = $2::uuid, override_reason = 'short', reviewed_at = now() where run_id = $1::uuid and criterion_id = 'C2'", [run, memberId(E1)])))).toMatchObject({
-        message: expect.stringContaining('analysis_finding_reason_chk'),
+      expect(await attempt("update machvon.analysis_finding set final_status = 'CONTRADICTED', reviewer_id = $2::uuid, override_reason = $3, reviewed_at = now() where run_id = $1::uuid and criterion_id = 'C1'", [run, memberId(E1), reason])).toMatchObject({
+        message: expect.stringContaining('an expert decides in a record of its own'),
       });
-      expect(await failure(as((tx) => tx.query("update machvon.analysis_finding set final_status = 'MISSING', override_reason = $2, reviewed_at = now() where run_id = $1::uuid and criterion_id = 'C2'", [run, reason])))).toMatchObject({
-        message: expect.stringContaining('analysis_finding_override_chk'),
-      });
-      // A run that was cancelled keeps its findings as they were: they are not reviewed any more.
-      await rows("update machvon.analysis_finding set final_status = null, reviewer_id = null, override_reason = null, reviewed_at = null where run_id = $1::uuid", [run]);
-      const cancelled = await as((tx) => store.cancel(tx, run, 2, 'Wrong criteria were chosen', fx.evaluator));
-      expect(cancelled.run.status).toBe('CANCELLED');
-      expect(await failure(as((tx) => tx.query("update machvon.analysis_finding set final_status = 'MISSING', reviewer_id = $2::uuid, override_reason = $3, reviewed_at = now() where run_id = $1::uuid and criterion_id = 'C2'", [run, memberId(E1), reason])))).toMatchObject({
-        message: expect.stringContaining('waits for the experts'),
-      });
+      expect(await attempt("update machvon.analysis_finding set override_reason = $2 where run_id = $1::uuid", [run, reason])).toMatchObject({ message: expect.stringContaining('an expert decides in a record of its own') });
+      expect(await rows('select final_status, status from machvon.analysis_finding where run_id = $1::uuid and criterion_id = $2', [run, 'C1'])).toEqual([{ final_status: null, status: 'SUPPORTED' }]);
     });
 
     it('writes findings and evidence only while the run runs, and checks the count of verified citations when the transaction commits', async () => {
@@ -434,7 +423,10 @@ describe('the AI analysis of a proposal (ST-BID-009, BID 3 F5, BR-BID-05/07)', (
     it('refuses a run an expert already reviewed a finding of, and a run the caller may not see', async () => {
       const fx = await fixture();
       const run = await runOf(fx);
-      await rows("update machvon.analysis_finding set final_status = 'SUPPORTED', reviewer_id = $2::uuid, override_reason = 'The page shows three bridges, all accepted.', reviewed_at = now() where run_id = $1::uuid and criterion_id = 'C1'", [run, memberId(E1)]);
+      const [finding] = await rows<{ id: string }>("select id from machvon.analysis_finding where run_id = $1::uuid and criterion_id = 'C1'", [run]);
+      await as((tx) =>
+        reviews.review(tx, { findingId: finding?.id as string, expectedVersion: 1, target: { kind: 'STATUS', status: 'SUPPORTED', score: undefined }, reason: 'The page shows three bridges, all accepted.', checkedEvidenceIds: [] }, fx.evaluator, memberId(E1)),
+      );
       expect(await failure(as((tx) => store.cancel(tx, run, 2, 'Wrong criteria were chosen', fx.evaluator)))).toMatchObject({ code: 'ANALYSIS_STATE_INVALID', extensions: { run_status: 'AWAITING_REVIEW', reviewed_findings: 1 } });
       expect(await failure(as((tx) => store.cancel(tx, run, 2, 'Wrong criteria were chosen', viewer(E1))))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
       expect(await failure(as((tx) => store.cancel(tx, run, 2, 'Wrong criteria were chosen', viewer(E2, onProjects(fx.seeded.projectId))), E2))).toMatchObject({ code: 'CONFLICT_UNDECLARED', status: 403 });

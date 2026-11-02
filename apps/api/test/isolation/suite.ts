@@ -364,8 +364,8 @@ export const OCR_FIXTURES: Readonly<Record<TenantName, { id: string; documentId:
   },
 };
 
-/** An AI analysis run of the proposal of each tenant, waiting for the experts, with one finding and the citation under it (the finding, the quotation and the hash of the input are distinctive; tenant confidential data). */
-export const RUN_FIXTURES: Readonly<Record<TenantName, { id: string; findingId: string; evidenceId: string; finding: string; quote: string; inputHash: string }>> = {
+/** An AI analysis run of the proposal of each tenant, waiting for the experts, with one finding and the citation under it, and the decision of an expert about the finding (the finding, the quotation, the hash of the input and the reason of the expert are distinctive; tenant confidential data). */
+export const RUN_FIXTURES: Readonly<Record<TenantName, { id: string; findingId: string; evidenceId: string; finding: string; quote: string; inputHash: string; reviewId: string; reviewReason: string }>> = {
   'TNT-A': {
     id: '00000000-0000-4000-a0be-000000000001',
     findingId: '00000000-0000-4000-a0be-000000000002',
@@ -373,6 +373,8 @@ export const RUN_FIXTURES: Readonly<Record<TenantName, { id: string; findingId: 
     finding: 'ALPHA isolation finding: the contractor completed the bridge of the national road.',
     quote: 'ALPHA isolation quotation: bridge of the national road completed in 2024',
     inputHash: 'a1'.repeat(32),
+    reviewId: '00000000-0000-4000-a0be-000000000004',
+    reviewReason: 'ALPHA isolation review: the contract of the national road bridge was not accepted by the owner.',
   },
   'TNT-B': {
     id: '00000000-0000-4000-b0be-000000000001',
@@ -381,6 +383,8 @@ export const RUN_FIXTURES: Readonly<Record<TenantName, { id: string; findingId: 
     finding: 'BETA isolation finding: the contractor completed the viaduct of the coastal road.',
     quote: 'BETA isolation quotation: viaduct of the coastal road completed in 2023',
     inputHash: 'b2'.repeat(32),
+    reviewId: '00000000-0000-4000-b0be-000000000004',
+    reviewReason: 'BETA isolation review: the contract of the coastal viaduct was not accepted by the owner.',
   },
 };
 
@@ -1676,6 +1680,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'analysis finding text', value: RUN_FIXTURES[tenant].finding },
     { kind: 'analysis evidence quotation', value: RUN_FIXTURES[tenant].quote },
     { kind: 'analysis input hash', value: RUN_FIXTURES[tenant].inputHash },
+    { kind: 'analysis review id', value: RUN_FIXTURES[tenant].reviewId },
+    { kind: 'analysis review reason', value: RUN_FIXTURES[tenant].reviewReason },
     { kind: 'ocr page id', value: OCR_FIXTURES[tenant].id },
     { kind: 'ocr engine version', value: OCR_FIXTURES[tenant].engineVersion },
     { kind: 'ocr page text key', value: OCR_FIXTURES[tenant].textObjectKey },

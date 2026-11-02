@@ -1056,7 +1056,7 @@
     "CRITERIA_VERSION_MISMATCH": {
       "status": 422,
       "title": "Criteria version mismatch",
-      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports)",
+      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports); compareProposals (GET /procurement-packages/{id}/proposal-comparison) names it as the reason a proposal whose analysis ran on other criteria is left out of the comparison",
       "module": "BID",
       "statusBasis": "convention",
       "source": "spec:BID"
@@ -3644,7 +3644,7 @@
     "REASON_REQUIRED": {
       "status": 422,
       "title": "Reason required",
-      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review)",
+      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review) and post_findings_id_review (POST /findings/{id}/review) when the reason of an expert is missing, longer than 4000 or shorter than 20 characters once trimmed",
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
@@ -4199,7 +4199,7 @@
     "RUN_NOT_COMPLETED": {
       "status": 422,
       "title": "Run not completed",
-      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review)",
+      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review) and post_findings_id_review (POST /findings/{id}/review) for a finding of a run that does not wait for the experts (it ran, failed, was refused or cancelled)",
       "module": "BID",
       "statusBasis": "default",
       "source": "spec:BID"

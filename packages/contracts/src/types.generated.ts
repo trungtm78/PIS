@@ -145,7 +145,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Chuyên gia kiểm chứng bằng chứng */
+        /** Chuyên gia kiểm chứng bằng chứng: chấp nhận hoặc bác nhận xét AI, nêu các trích dẫn đã kiểm; cùng lệnh với reviewAnalysisFinding */
         post: operations["post_findings_id_review"];
         delete?: never;
         options?: never;
@@ -12529,7 +12529,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Chuyên gia thẩm tra nhận xét AI: đổi trạng thái/điểm bắt buộc lý do; ghi ai_decision_record */
+        /** Chuyên gia quyết định điều nào đứng cho nhận xét AI: đổi trạng thái/điểm bắt buộc lý do; ghi analysis_finding_review và ai_decision_record trong cùng giao dịch */
         post: operations["reviewAnalysisFinding"];
         delete?: never;
         options?: never;
@@ -12716,7 +12716,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** So sánh đề án theo cùng criteria_version; loại thuộc tính cá nhân/không liên quan */
+        /** So sánh đề án theo cùng criteria_version từ quyết định của chuyên gia; loại lượt khác phiên bản tiêu chí và thuộc tính cá nhân/vùng */
         get: operations["compareProposals"];
         put?: never;
         post?: never;
@@ -19710,9 +19710,11 @@ export interface components {
             decision: "ALLOWED" | "RECUSED" | "BLOCKED";
             decision_reason: string;
         };
+        /** @description An expert decides what stands for a finding of the analysis: the status, and the score when the criterion is scored. The reason is judged by the command (422 REASON_REQUIRED when it is not there or has fewer than 20 characters once trimmed), not by the schema, so that every refusal of it has the same code. */
         BidFindingReview: {
             /** @enum {string} */
             to_status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+            /** @description From 0 to the top of the scale of the criterion, two decimals at most; none leaves the score as it stood */
             score_after?: string;
             reason: string;
         };
@@ -19807,11 +19809,89 @@ export interface components {
              */
             outcome: "RESOLVED" | "ESCALATED";
         };
+        /** @description The proposals of a package side by side on one version of the criteria, from what the experts decided. No total ranks the proposals and none names a winner: the award is a decision of a person with the authority (BR-BID-09) */
         BidComparison: {
+            package: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
             /** Format: uuid */
             criteria_version_id: string;
-            rows: Record<string, never>[];
+            /** @description How the version of the criteria stands (APPROVED, SUPERSEDED) */
+            criteria_status: string;
+            proposals: {
+                /** Format: uuid */
+                proposal_id: string;
+                contractor: {
+                    /** Format: uuid */
+                    id: string;
+                    legal_name: string;
+                };
+                /** Format: uuid */
+                run_id: string;
+                /** @enum {string} */
+                run_status: "AWAITING_REVIEW" | "COMPLETED";
+                criteria_count: number;
+                decided_count: number;
+                mandatory_not_met: number;
+                /** @description The weighted sum of the scores the experts gave, out of 100; null until every scored criterion has one */
+                weighted_score: string | null;
+            }[];
+            rows: {
+                criterion: {
+                    code: string;
+                    name: string;
+                    /** @enum {string} */
+                    kind: "SCORED" | "PASS_FAIL";
+                    weight: number | null;
+                    max_score: number | null;
+                    threshold: number | null;
+                    mandatory: boolean;
+                };
+                cells: {
+                    /** Format: uuid */
+                    proposal_id: string;
+                    /** Format: uuid */
+                    finding_id: string | null;
+                    /** @description What a person decided; null while nobody has. What the model said is not part of the comparison */
+                    decided: {
+                        /** @enum {string} */
+                        status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+                        score: string | null;
+                        /** @enum {string} */
+                        decision: "ACCEPTED" | "ACCEPTED_WITH_CHANGE" | "REJECTED";
+                        /** Format: date-time */
+                        decided_at: string;
+                    } | null;
+                    /** @enum {string} */
+                    risk: "UNDECIDED" | "NONE" | "ATTENTION" | "MANDATORY_NOT_MET";
+                }[];
+            }[];
+            excluded: {
+                /** Format: uuid */
+                proposal_id: string;
+                contractor: {
+                    /** Format: uuid */
+                    id: string;
+                    legal_name: string;
+                };
+                /** Format: uuid */
+                run_id: string | null;
+                /** Format: uuid */
+                criteria_version_id: string | null;
+                /** @enum {string} */
+                reason: "CRITERIA_VERSION_MISMATCH" | "NO_ANALYSIS_RUN";
+            }[];
+            /** @description Criteria whose text falls under a rule of the criteria nobody may ask for: never compared */
+            excluded_criteria: {
+                code: string;
+                rule: string;
+            }[];
+            /** @description The personal attributes and the region the comparison never looks at, by the code of the rule (BR-BID-11) */
             excluded_attributes: string[];
+            /** Format: date-time */
+            as_of: string;
         };
         LlmProviderRegister: {
             provider_code: string;
@@ -24301,13 +24381,27 @@ export interface components {
             evidence_count: number;
             /** @description The finding claimed without a verified citation and was taken back to NEEDS_REVIEW */
             missing_source: boolean;
-            /** @enum {string|null} */
+            /**
+             * @description What a person decided, the latest decision about the finding; null until one did. The status above is what the model said and never changes
+             * @enum {string|null}
+             */
             final_status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW" | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When the latest decision was made
+             */
             reviewed_at: string | null;
             /** Format: date-time */
             created_at: string;
             evidence: components["schemas"]["AnalysisEvidenceView"][];
+            /** @description The score of the latest decision that gave one */
+            final_score: string | null;
+            /** @description The decisions made about the finding */
+            review_count: number;
+            /** @description One more than the decisions made: the version a review names in If-Match */
+            version: number;
+            /** @description The history of the review, oldest first */
+            reviews: components["schemas"]["AnalysisReviewView"][];
         };
         AnalysisFindingList: {
             run: components["schemas"]["AnalysisRunView"];
@@ -24343,6 +24437,8 @@ export interface components {
             reviewed_at: string | null;
             /** Format: date-time */
             created_at: string;
+            final_score: string | null;
+            version: number;
         };
         AnalysisFindingSummaryList: {
             items: components["schemas"]["AnalysisFindingSummary"][];
@@ -24364,6 +24460,66 @@ export interface components {
             items: components["schemas"]["BidProposalPassage"][];
             /** Format: date-time */
             as_of: string;
+        };
+        /** @description One decision of an expert about a finding (BR-BID-09): the record of what a person did with what the model said, kept for good */
+        AnalysisReviewView: {
+            /** Format: uuid */
+            id: string;
+            reviewer: {
+                /** Format: uuid */
+                id: string;
+                display_name: string | null;
+            };
+            /** @enum {string} */
+            from_status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+            /** @enum {string} */
+            to_status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+            score_before: string | null;
+            score_after: string | null;
+            reason: string;
+            /** @enum {string} */
+            decision: "ACCEPTED" | "ACCEPTED_WITH_CHANGE" | "REJECTED";
+            /** Format: uuid */
+            ai_decision_record_id: string;
+            checked_evidence_ids: string[];
+            /** Format: date-time */
+            decided_at: string;
+        };
+        /** @description The form of the review that approves what stands for a finding or sets it aside, naming the citations the expert checked. The reason is judged by the command (422 REASON_REQUIRED). */
+        BidFindingDecision: {
+            /**
+             * @description approve keeps the status that stands; reject leaves NEEDS_REVIEW, so that no conclusion stands
+             * @enum {string}
+             */
+            decision: "approve" | "reject";
+            reason: string;
+            /** @description Citations of the finding that the expert checked */
+            evidence_ids: string[];
+        };
+        /** @description The decision that was recorded: the finding stands for the status of the decision from now on */
+        BidFindingReviewed: {
+            /** Format: uuid */
+            operation_id: string;
+            /** @description The status that stands for the finding */
+            status: string;
+            /** @description The version of the finding after the decision */
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** Format: uuid */
+            review_id: string;
+            /** @enum {string} */
+            decision: "ACCEPTED" | "ACCEPTED_WITH_CHANGE" | "REJECTED";
+            /** @enum {string} */
+            final_status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+            final_score: string | null;
+            /** Format: uuid */
+            ai_decision_record_id: string;
+            /**
+             * @description COMPLETED once every finding of the run has a decision
+             * @enum {string}
+             */
+            run_status: "AWAITING_REVIEW" | "COMPLETED";
         };
     };
     responses: never;
@@ -25195,17 +25351,17 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["Decision"];
+                "application/json": components["schemas"]["BidFindingDecision"];
             };
         };
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description The decision that was recorded */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["BidFindingReviewed"];
                 };
             };
             /** @description Invalid request */
@@ -101413,13 +101569,13 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Command accepted; returns resource id/version/status */
+            /** @description The decision that was recorded */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["BidFindingReviewed"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -102613,6 +102769,7 @@ export interface operations {
     compareProposals: {
         parameters: {
             query?: {
+                /** @description The version of the criteria to compare on; by default the version in force for the package */
                 criteria_version_id?: string;
             };
             header?: never;
@@ -102652,6 +102809,15 @@ export interface operations {
             };
             /** @description Not found within scope */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The version of the criteria is not one of the package */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -485,6 +485,43 @@ export {
 } from './bid-analysis.ts';
 export type { AnalysisCriterion, AnalysisInputParts, AnalysisPage, CalcFact, Citation, DocumentVersionRef, FindingStatus, InputHashParts, ModelFinding, ParsedAnswer, RequestOutcome, RunEnd, RunStatus, RunStep, SettledFinding, StepState } from './bid-analysis.ts';
 export {
+  CELL_RISKS,
+  PROPOSAL_EXCLUSION_REASONS,
+  FINDING_DECISION_FORMS,
+  MAX_CHECKED_EVIDENCE,
+  MAX_REVIEW_REASON,
+  MIN_REVIEW_REASON,
+  REVIEW_DECISIONS,
+  assertRunReviewable,
+  cellRisk,
+  compareProposals,
+  decisionFormOf,
+  findingVersion,
+  reviewDecision,
+  reviewReasonOf,
+  reviewScoreOf,
+  reviewStatusOf,
+  scoreAfterReview,
+  statusForForm,
+} from './bid-review.ts';
+export type {
+  CellRisk,
+  ComparedProposal,
+  Comparison,
+  ComparisonCell,
+  ComparisonCriterion,
+  ComparisonInput,
+  ComparisonRow,
+  ComparisonRunInput,
+  DecidedFinding,
+  ExcludedProposal,
+  ProposalExclusionReason,
+  FindingDecisionForm,
+  ReviewDecision,
+  ReviewFacts,
+  ScoredCriterion,
+} from './bid-review.ts';
+export {
   CHECKLIST_OUTCOMES,
   INSPECTION_COMMANDS,
   INSPECTION_RESULTS,

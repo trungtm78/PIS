@@ -1210,7 +1210,7 @@
     "/findings/{id}/review": {
       "post": {
         "operationId": "post_findings_id_review",
-        "summary": "Chuyên gia kiểm chứng bằng chứng",
+        "summary": "Chuyên gia kiểm chứng bằng chứng: chấp nhận hoặc bác nhận xét AI, nêu các trích dẫn đã kiểm; cùng lệnh với reviewAnalysisFinding",
         "x-permission": "ai.review",
         "parameters": [
           {
@@ -1243,11 +1243,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "The decision that was recorded",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/BidFindingReviewed"
                 }
               }
             }
@@ -1338,11 +1338,25 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Decision"
+                "$ref": "#/components/schemas/BidFindingDecision"
               }
             }
           }
-        }
+        },
+        "tags": [
+          "BID"
+        ],
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED",
+          "REASON_REQUIRED",
+          "RUN_NOT_COMPLETED",
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.finding.reviewed.v1"
+        ]
       }
     },
     "/model-profiles/{id}/publish": {
@@ -111362,7 +111376,7 @@
     "/analysis-findings/{id}/review": {
       "post": {
         "operationId": "reviewAnalysisFinding",
-        "summary": "Chuyên gia thẩm tra nhận xét AI: đổi trạng thái/điểm bắt buộc lý do; ghi ai_decision_record",
+        "summary": "Chuyên gia quyết định điều nào đứng cho nhận xét AI: đổi trạng thái/điểm bắt buộc lý do; ghi analysis_finding_review và ai_decision_record trong cùng giao dịch",
         "tags": [
           "BID"
         ],
@@ -111408,11 +111422,11 @@
         },
         "responses": {
           "200": {
-            "description": "Command accepted; returns resource id/version/status",
+            "description": "The decision that was recorded",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/BidFindingReviewed"
                 }
               }
             }
@@ -111502,7 +111516,8 @@
           "CONFLICT_UNDECLARED",
           "REASON_REQUIRED",
           "RUN_NOT_COMPLETED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -113094,7 +113109,7 @@
     "/procurement-packages/{id}/proposal-comparison": {
       "get": {
         "operationId": "compareProposals",
-        "summary": "So sánh đề án theo cùng criteria_version; loại thuộc tính cá nhân/không liên quan",
+        "summary": "So sánh đề án theo cùng criteria_version từ quyết định của chuyên gia; loại lượt khác phiên bản tiêu chí và thuộc tính cá nhân/vùng",
         "tags": [
           "BID"
         ],
@@ -113113,8 +113128,10 @@
             "name": "criteria_version_id",
             "in": "query",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The version of the criteria to compare on; by default the version in force for the package"
           }
         ],
         "responses": {
@@ -113158,6 +113175,16 @@
               }
             }
           },
+          "422": {
+            "description": "The version of the criteria is not one of the package",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limit",
             "content": {
@@ -113171,7 +113198,8 @@
         },
         "x-error-codes": [
           "CRITERIA_VERSION_MISMATCH",
-          "CONFLICT_UNDECLARED"
+          "CONFLICT_UNDECLARED",
+          "VALIDATION_FAILED"
         ]
       }
     },
@@ -151883,6 +151911,7 @@
           "to_status",
           "reason"
         ],
+        "description": "An expert decides what stands for a finding of the analysis: the status, and the score when the criterion is scored. The reason is judged by the command (422 REASON_REQUIRED when it is not there or has fewer than 20 characters once trimmed), not by the schema, so that every refusal of it has the same code.",
         "properties": {
           "to_status": {
             "type": "string",
@@ -151895,11 +151924,11 @@
           },
           "score_after": {
             "type": "string",
-            "pattern": "^-?[0-9]{1,18}(\\.[0-9]{1,8})?$"
+            "pattern": "^-?[0-9]{1,18}(\\.[0-9]{1,8})?$",
+            "description": "From 0 to the top of the scale of the criterion, two decimals at most; none leaves the score as it stood"
           },
           "reason": {
             "type": "string",
-            "minLength": 20,
             "maxLength": 4000
           }
         }
@@ -152173,21 +152202,336 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
+          "package",
           "criteria_version_id",
+          "criteria_status",
+          "proposals",
           "rows",
-          "excluded_attributes"
+          "excluded",
+          "excluded_criteria",
+          "excluded_attributes",
+          "as_of"
         ],
+        "description": "The proposals of a package side by side on one version of the criteria, from what the experts decided. No total ranks the proposals and none names a winner: the award is a decision of a person with the authority (BR-BID-09)",
         "properties": {
+          "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
           "criteria_version_id": {
             "type": "string",
             "format": "uuid"
           },
+          "criteria_status": {
+            "type": "string",
+            "description": "How the version of the criteria stands (APPROVED, SUPERSEDED)"
+          },
+          "proposals": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "proposal_id",
+                "contractor",
+                "run_id",
+                "run_status",
+                "criteria_count",
+                "decided_count",
+                "mandatory_not_met",
+                "weighted_score"
+              ],
+              "properties": {
+                "proposal_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contractor": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "legal_name"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "legal_name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "run_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "run_status": {
+                  "type": "string",
+                  "enum": [
+                    "AWAITING_REVIEW",
+                    "COMPLETED"
+                  ]
+                },
+                "criteria_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "decided_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "mandatory_not_met": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "weighted_score": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[0-9]{1,5}(\\.[0-9]{1,2})?$",
+                  "description": "The weighted sum of the scores the experts gave, out of 100; null until every scored criterion has one"
+                }
+              }
+            }
+          },
           "rows": {
             "type": "array",
+            "maxItems": 500,
             "items": {
-              "type": "object"
-            },
-            "maxItems": 500
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "criterion",
+                "cells"
+              ],
+              "properties": {
+                "criterion": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code",
+                    "name",
+                    "kind",
+                    "weight",
+                    "max_score",
+                    "threshold",
+                    "mandatory"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "SCORED",
+                        "PASS_FAIL"
+                      ]
+                    },
+                    "weight": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "max_score": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "threshold": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "mandatory": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "cells": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "proposal_id",
+                      "finding_id",
+                      "decided",
+                      "risk"
+                    ],
+                    "properties": {
+                      "proposal_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "finding_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "uuid"
+                      },
+                      "decided": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "score",
+                          "decision",
+                          "decided_at"
+                        ],
+                        "description": "What a person decided; null while nobody has. What the model said is not part of the comparison",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "SUPPORTED",
+                              "CONTRADICTED",
+                              "MISSING",
+                              "NEEDS_REVIEW"
+                            ]
+                          },
+                          "score": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "pattern": "^[0-9]{1,5}(\\.[0-9]{1,2})?$"
+                          },
+                          "decision": {
+                            "type": "string",
+                            "enum": [
+                              "ACCEPTED",
+                              "ACCEPTED_WITH_CHANGE",
+                              "REJECTED"
+                            ]
+                          },
+                          "decided_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      },
+                      "risk": {
+                        "type": "string",
+                        "enum": [
+                          "UNDECIDED",
+                          "NONE",
+                          "ATTENTION",
+                          "MANDATORY_NOT_MET"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "excluded": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "proposal_id",
+                "contractor",
+                "run_id",
+                "criteria_version_id",
+                "reason"
+              ],
+              "properties": {
+                "proposal_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contractor": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "legal_name"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "legal_name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "run_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "criteria_version_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "CRITERIA_VERSION_MISMATCH",
+                    "NO_ANALYSIS_RUN"
+                  ]
+                }
+              }
+            }
+          },
+          "excluded_criteria": {
+            "type": "array",
+            "maxItems": 500,
+            "description": "Criteria whose text falls under a rule of the criteria nobody may ask for: never compared",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "rule"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "rule": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "excluded_attributes": {
             "type": "array",
@@ -152195,7 +152539,12 @@
               "type": "string",
               "maxLength": 4000
             },
-            "maxItems": 500
+            "maxItems": 500,
+            "description": "The personal attributes and the region the comparison never looks at, by the code of the rule (BR-BID-11)"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -168869,7 +169218,11 @@
           "final_status",
           "reviewed_at",
           "created_at",
-          "evidence"
+          "evidence",
+          "final_score",
+          "review_count",
+          "version",
+          "reviews"
         ],
         "properties": {
           "id": {
@@ -168924,14 +169277,16 @@
               "MISSING",
               "NEEDS_REVIEW",
               null
-            ]
+            ],
+            "description": "What a person decided, the latest decision about the finding; null until one did. The status above is what the model said and never changes"
           },
           "reviewed_at": {
             "type": [
               "string",
               "null"
             ],
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the latest decision was made"
           },
           "created_at": {
             "type": "string",
@@ -168942,6 +169297,31 @@
             "items": {
               "$ref": "#/components/schemas/AnalysisEvidenceView"
             }
+          },
+          "final_score": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,5}(\\.[0-9]{1,2})?$",
+            "description": "The score of the latest decision that gave one"
+          },
+          "review_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The decisions made about the finding"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "One more than the decisions made: the version a review names in If-Match"
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalysisReviewView"
+            },
+            "description": "The history of the review, oldest first"
           }
         }
       },
@@ -169017,7 +169397,9 @@
           "missing_source",
           "final_status",
           "reviewed_at",
-          "created_at"
+          "created_at",
+          "final_score",
+          "version"
         ],
         "properties": {
           "id": {
@@ -169085,6 +169467,17 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "final_score": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,5}(\\.[0-9]{1,2})?$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
           }
         },
         "description": "How a finding stands, without what it says or what it rests on: those come with listAnalysisFindings"
@@ -169175,6 +169568,216 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "AnalysisReviewView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "reviewer",
+          "from_status",
+          "to_status",
+          "score_before",
+          "score_after",
+          "reason",
+          "decision",
+          "ai_decision_record_id",
+          "checked_evidence_ids",
+          "decided_at"
+        ],
+        "description": "One decision of an expert about a finding (BR-BID-09): the record of what a person did with what the model said, kept for good",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reviewer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "display_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "from_status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "MISSING",
+              "NEEDS_REVIEW"
+            ]
+          },
+          "to_status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "MISSING",
+              "NEEDS_REVIEW"
+            ]
+          },
+          "score_before": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,5}(\\.[0-9]{1,2})?$"
+          },
+          "score_after": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,5}(\\.[0-9]{1,2})?$"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "ACCEPTED_WITH_CHANGE",
+              "REJECTED"
+            ]
+          },
+          "ai_decision_record_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checked_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 20
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BidFindingDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "reason",
+          "evidence_ids"
+        ],
+        "description": "The form of the review that approves what stands for a finding or sets it aside, naming the citations the expert checked. The reason is judged by the command (422 REASON_REQUIRED).",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "description": "approve keeps the status that stands; reject leaves NEEDS_REVIEW, so that no conclusion stands"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 20,
+            "description": "Citations of the finding that the expert checked"
+          }
+        }
+      },
+      "BidFindingReviewed": {
+        "type": "object",
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "review_id",
+          "decision",
+          "final_status",
+          "final_score",
+          "ai_decision_record_id",
+          "run_status"
+        ],
+        "description": "The decision that was recorded: the finding stands for the status of the decision from now on",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "description": "The status that stands for the finding"
+          },
+          "resource_version": {
+            "type": "integer",
+            "description": "The version of the finding after the decision"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "review_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "ACCEPTED_WITH_CHANGE",
+              "REJECTED"
+            ]
+          },
+          "final_status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "MISSING",
+              "NEEDS_REVIEW"
+            ]
+          },
+          "final_score": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,5}(\\.[0-9]{1,2})?$"
+          },
+          "ai_decision_record_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "run_status": {
+            "type": "string",
+            "enum": [
+              "AWAITING_REVIEW",
+              "COMPLETED"
+            ],
+            "description": "COMPLETED once every finding of the run has a decision"
           }
         }
       }

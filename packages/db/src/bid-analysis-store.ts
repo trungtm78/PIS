@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { ANALYSIS_TASK_TYPE, DomainError, analysisInputHash, assertCancellable, assertReadOnlyTools, classifySources, documentSetSha256, versionConflict } from '@machvon/kernel';
-import type { AnalysisCriterion, Classification, FindingStatus, RunEnd, RunStatus, RunStep } from '@machvon/kernel';
+import { ANALYSIS_TASK_TYPE, DomainError, analysisInputHash, assertCancellable, assertReadOnlyTools, classifySources, documentSetSha256, findingVersion, versionConflict } from '@machvon/kernel';
+import type { AnalysisCriterion, Classification, FindingStatus, ReviewDecision, RunEnd, RunStatus, RunStep } from '@machvon/kernel';
 import { BidOcrStore } from './bid-ocr-store.ts';
 import { SqlParams } from './bid-plan-reads.ts';
 import type { Page } from './bid-plan-reads.ts';
@@ -56,19 +56,43 @@ export interface EvidenceLine {
   verifiedPresent: boolean;
 }
 
+/** One decision of an expert about a finding: what stood, what the expert set, and why. It points at the finding and never changes it. */
+export interface ReviewLine {
+  id: string;
+  findingId: string;
+  reviewer: { id: string; displayName: string | null };
+  fromStatus: FindingStatus;
+  toStatus: FindingStatus;
+  scoreBefore: string | null;
+  scoreAfter: string | null;
+  reason: string;
+  decision: ReviewDecision;
+  aiDecisionRecordId: string;
+  checkedEvidenceIds: string[];
+  decidedAt: string;
+}
+
 export interface FindingLine {
   id: string;
   runId: string;
   criterionId: string;
+  /** What the model said; it never changes. */
   status: FindingStatus;
   finding: string;
   confidenceType: string;
   evidenceCount: number;
   missingSource: boolean;
+  /** What a person decided, the latest decision; null until one did. */
   finalStatus: FindingStatus | null;
+  finalScore: string | null;
   reviewedAt: string | null;
+  reviewCount: number;
+  /** One more than the decisions made: what a review names in If-Match. */
+  version: number;
   createdAt: string;
+  /** The evidence and the history of the review are read with the findings of a run; the other reads leave them empty. */
   evidence: EvidenceLine[];
+  reviews: ReviewLine[];
 }
 
 export interface NewEvidence {
@@ -167,8 +191,26 @@ interface FindingSql {
   evidence_count: number;
   missing_source: boolean;
   final_status: FindingStatus | null;
+  final_score: string | null;
   reviewed_at: string | null;
+  review_count: number;
   created_at: string;
+}
+
+interface ReviewSql {
+  id: string;
+  finding_id: string;
+  reviewer_user_id: string;
+  reviewer_name: string | null;
+  from_status: FindingStatus;
+  to_status: FindingStatus;
+  score_before: string | null;
+  score_after: string | null;
+  reason: string;
+  decision: ReviewDecision;
+  ai_decision_record_id: string;
+  checked_evidence_ids: string[];
+  decided_at: string;
 }
 
 interface EvidenceSql {
@@ -187,16 +229,32 @@ const RUN_SELECT = `select r.id, r.proposal_id, r.package_id, k.code as package_
     to_char(r.created_at at time zone 'UTC', ${ISO}) as created_at, ${timestampKey('r.created_at')} as created_at_key, r.version::text as version, a.policy_version_id, a.cost_vnd::text as cost_vnd,
     (select count(*)::int from machvon.analysis_finding f where f.tenant_id = r.tenant_id and f.run_id = r.id) as finding_count,
     (select count(*)::int from machvon.analysis_finding f where f.tenant_id = r.tenant_id and f.run_id = r.id and f.missing_source) as missing_source_count,
-    (select count(*)::int from machvon.analysis_finding f where f.tenant_id = r.tenant_id and f.run_id = r.id and f.final_status is not null) as reviewed_count
+    (select count(*)::int from machvon.analysis_finding f where f.tenant_id = r.tenant_id and f.run_id = r.id
+       and exists (select 1 from machvon.analysis_finding_review rv where rv.tenant_id = f.tenant_id and rv.finding_id = f.id)) as reviewed_count
   from machvon.analysis_run r
   join machvon.procurement_package k on k.tenant_id = r.tenant_id and k.id = r.package_id
   join machvon.proposal pr on pr.tenant_id = r.tenant_id and pr.id = r.proposal_id
   join machvon.contractor c on c.tenant_id = pr.tenant_id and c.id = pr.contractor_id
   left join machvon.ai_request a on a.tenant_id = r.tenant_id and a.id = r.ai_request_id`;
 
-const FINDING_SELECT = `select f.id, f.run_id, f.criterion_id, f.status, f.finding, f.confidence_type, f.evidence_count, f.missing_source, f.final_status,
-    to_char(f.reviewed_at at time zone 'UTC', ${ISO}) as reviewed_at, to_char(f.created_at at time zone 'UTC', ${ISO}) as created_at
-  from machvon.analysis_finding f`;
+/**
+ * What stands for a finding is its latest decision (ST-BID-010): the finding itself is never updated, a review is a row of its own that points at it. The decisions are ordered by the moment each was recorded, which the
+ * store takes inside the lock of the proposal, so that the order is the order they were made in.
+ */
+export const LATEST_REVIEW = `left join lateral (
+    select rv.to_status, rv.score_after, rv.decision, rv.decided_at from machvon.analysis_finding_review rv where rv.tenant_id = f.tenant_id and rv.finding_id = f.id order by rv.decided_at desc, rv.id desc limit 1
+  ) lr on true`;
+
+export const FINDING_COLUMNS = `f.id, f.run_id, f.criterion_id, f.status, f.finding, f.confidence_type, f.evidence_count, f.missing_source, lr.to_status as final_status, lr.score_after::text as final_score,
+    to_char(lr.decided_at at time zone 'UTC', ${ISO}) as reviewed_at, (select count(*)::int from machvon.analysis_finding_review rv where rv.tenant_id = f.tenant_id and rv.finding_id = f.id) as review_count,
+    to_char(f.created_at at time zone 'UTC', ${ISO}) as created_at`;
+
+const FINDING_SELECT = `select ${FINDING_COLUMNS} from machvon.analysis_finding f ${LATEST_REVIEW}`;
+
+const REVIEW_SELECT = `select rv.id, rv.finding_id, rv.reviewer_user_id, d.display_name as reviewer_name, rv.from_status, rv.to_status, rv.score_before::text as score_before, rv.score_after::text as score_after, rv.reason,
+    rv.decision, rv.ai_decision_record_id, rv.checked_evidence_ids, to_char(rv.decided_at at time zone 'UTC', ${ISO}) as decided_at
+  from machvon.analysis_finding_review rv
+  left join machvon.tenant_user_directory d on d.tenant_id = rv.tenant_id and d.membership_id = rv.reviewer_user_id`;
 
 const lineOf = (row: RunSql): RunLine => ({
   id: row.id,
@@ -236,7 +294,22 @@ const evidenceOf = (row: EvidenceSql): EvidenceLine => ({
   verifiedPresent: row.verified_present,
 });
 
-const findingOf = (row: FindingSql, evidence: EvidenceLine[]): FindingLine => ({
+export const reviewOf = (row: ReviewSql): ReviewLine => ({
+  id: row.id,
+  findingId: row.finding_id,
+  reviewer: { id: row.reviewer_user_id, displayName: row.reviewer_name },
+  fromStatus: row.from_status,
+  toStatus: row.to_status,
+  scoreBefore: row.score_before,
+  scoreAfter: row.score_after,
+  reason: row.reason,
+  decision: row.decision,
+  aiDecisionRecordId: row.ai_decision_record_id,
+  checkedEvidenceIds: row.checked_evidence_ids,
+  decidedAt: row.decided_at,
+});
+
+export const findingOf = (row: FindingSql, evidence: EvidenceLine[], reviews: ReviewLine[] = []): FindingLine => ({
   id: row.id,
   runId: row.run_id,
   criterionId: row.criterion_id,
@@ -246,9 +319,13 @@ const findingOf = (row: FindingSql, evidence: EvidenceLine[]): FindingLine => ({
   evidenceCount: row.evidence_count,
   missingSource: row.missing_source,
   finalStatus: row.final_status,
+  finalScore: row.final_score,
   reviewedAt: row.reviewed_at,
+  reviewCount: row.review_count,
+  version: findingVersion(row.review_count),
   createdAt: row.created_at,
   evidence,
+  reviews,
 });
 
 const notFound = (field?: string): DomainError => new DomainError('RESOURCE_NOT_FOUND', 404, field);
@@ -501,8 +578,18 @@ export class BidAnalysisStore {
     const rows = await tx.query<FindingSql>(`${FINDING_SELECT} where ${where.join(' and ')} order by f.criterion_id, f.id limit ${params.add(page.limit + 1)}`, params.values);
     const shown = rows.slice(0, page.limit);
     const evidence = await this.evidenceOf(tx, shown.map((row) => row.id));
+    const reviews = await this.reviewsOf(tx, shown.map((row) => row.id));
     const tail = shown[shown.length - 1];
-    return { findings: shown.map((row) => findingOf(row, evidence.get(row.id) ?? [])), more: rows.length > page.limit, last: tail === undefined ? undefined : { code: tail.criterion_id, id: tail.id } };
+    return { findings: shown.map((row) => findingOf(row, evidence.get(row.id) ?? [], reviews.get(row.id) ?? [])), more: rows.length > page.limit, last: tail === undefined ? undefined : { code: tail.criterion_id, id: tail.id } };
+  }
+
+  /** The decisions made about each finding, oldest first. */
+  async reviewsOf(tx: TenantTx, findingIds: readonly string[]): Promise<Map<string, ReviewLine[]>> {
+    const byFinding = new Map<string, ReviewLine[]>();
+    if (findingIds.length === 0) return byFinding;
+    const rows = await tx.query<ReviewSql>(`${REVIEW_SELECT} where rv.finding_id = any($1::uuid[]) order by rv.decided_at, rv.id`, [[...findingIds]]);
+    for (const row of rows) byFinding.set(row.finding_id, [...(byFinding.get(row.finding_id) ?? []), reviewOf(row)]);
+    return byFinding;
   }
 
   private async evidenceOf(tx: TenantTx, findingIds: readonly string[]): Promise<Map<string, EvidenceLine[]>> {
@@ -525,9 +612,8 @@ export class BidAnalysisStore {
     if (filter.runId !== undefined) where.push(`f.run_id = ${params.add(filter.runId)}::uuid`);
     if (page.after !== undefined) where.push(`(${timestampKey('f.created_at')}, f.id) < (${params.add(page.after.code)}::text, ${params.add(page.after.id)}::uuid)`);
     const rows = await tx.query<FindingSql & { proposal_id: string; created_at_key: string }>(
-      `select f.id, f.run_id, f.criterion_id, f.status, f.finding, f.confidence_type, f.evidence_count, f.missing_source, f.final_status, to_char(f.reviewed_at at time zone 'UTC', ${ISO}) as reviewed_at,
-              to_char(f.created_at at time zone 'UTC', ${ISO}) as created_at, ${timestampKey('f.created_at')} as created_at_key, r.proposal_id
-         from machvon.analysis_finding f join machvon.analysis_run r on r.tenant_id = f.tenant_id and r.id = f.run_id
+      `select ${FINDING_COLUMNS}, ${timestampKey('f.created_at')} as created_at_key, r.proposal_id
+         from machvon.analysis_finding f ${LATEST_REVIEW} join machvon.analysis_run r on r.tenant_id = f.tenant_id and r.id = f.run_id
          ${where.length === 0 ? '' : `where ${where.join(' and ')}`} order by f.created_at desc, f.id desc limit ${params.add(page.limit + 1)}`,
       params.values,
     );
@@ -541,7 +627,7 @@ export class BidAnalysisStore {
     };
   }
 
-  /** One finding (without its evidence) of a run the caller may see. */
+  /** One finding (without its evidence or the history of its review) of a run the caller may see. */
   async findFinding(tx: TenantTx, id: string, viewer: ProposalViewer): Promise<{ kind: 'HIDDEN' } | { kind: 'DECLARATION_REQUIRED' } | { kind: 'SEEN'; finding: FindingLine }> {
     const rows = await tx.query<FindingSql>(`${FINDING_SELECT} where f.id = $1::uuid`, [id]);
     const row = rows[0];

@@ -2173,6 +2173,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/analysis-runs/${t.analysisRunId}/cancel`, ifMatch: '"1"', body: { reason: 'Cancelled by the matrix' } }),
   },
+  // The review of a finding of the analysis: no decision is recorded for a caller that is refused.
+  reviewAnalysisFinding: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/analysis-findings/${t.analysisRunId}/review`, ifMatch: '"1"', body: { to_status: 'CONTRADICTED', reason: 'The contract of the bridge was not accepted by the owner.' } }),
+  },
+  post_findings_id_review: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/findings/${t.analysisRunId}/review`, ifMatch: '"1"', body: { decision: 'approve', reason: 'The citations are on the pages they name.', evidence_ids: [] } }),
+  },
   uploadOcrCorrectionFile: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/document-page-ocr/files', body: {} }),

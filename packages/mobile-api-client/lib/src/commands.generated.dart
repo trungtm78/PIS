@@ -2059,7 +2059,7 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> postDataContractsIdPublish(Decision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('post_data_contracts_id_publish', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> postFindingsIdReview(Decision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+  Future<Object?> postFindingsIdReview(BidFindingDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('post_findings_id_review', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> postHandoversIdDecision(AstHandoverDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>

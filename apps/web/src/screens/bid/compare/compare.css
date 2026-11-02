@@ -1,0 +1,31 @@
+.bid-compare {
+  width: 100%;
+}
+.bid-compare td,
+.bid-compare th {
+  vertical-align: top;
+}
+.bid-compare td[data-risk='MANDATORY_NOT_MET'] {
+  border-left: 3px solid var(--shell-danger, #b91c1c);
+}
+.bid-compare td[data-risk='ATTENTION'] {
+  border-left: 3px solid var(--shell-warning, #b45309);
+}
+.bid-criterion-facts {
+  display: block;
+}
+.bid-excluded {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.bid-attributes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}

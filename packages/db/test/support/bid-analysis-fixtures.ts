@@ -10,13 +10,13 @@ export interface SeededCriteria {
 }
 
 /** A version of criteria of a package, as the planner and the approver would have left it (the statements are written past the triggers so a test starts from any status). */
-export async function seedCriteria(harness: AuthzHarness, packageId: string, options: { status?: string; codes?: string[]; revision?: number } = {}): Promise<SeededCriteria> {
+export async function seedCriteria(harness: AuthzHarness, packageId: string, options: { status?: string; codes?: string[]; revision?: number; names?: Record<string, string> } = {}): Promise<SeededCriteria> {
   const criteriaId = randomUUID();
   const codes = options.codes ?? ['C1', 'C2'];
   // As the planner stores them: the first is pass or fail, the others are scored with a weight, a scale and a threshold.
   const criteria = codes.map((code, position) => ({
     code,
-    name: `Criterion ${code}`,
+    name: options.names?.[code] ?? `Criterion ${code}`,
     kind: position === 0 ? 'PASS_FAIL' : 'SCORED',
     weight: position === 0 ? null : 40,
     max_score: position === 0 ? null : 10,
@@ -85,8 +85,8 @@ export async function seedAiRequest(harness: AuthzHarness, options: { status?: s
   const requestId = randomUUID();
   await seedAs(harness, [
     [
-      `insert into machvon.ai_request (tenant_id, id, task_type, subject_module, requested_by, profile_version_id, data_classification, classification_basis, policy_version_id, route_class, status, reject_code, input_sha256, cost_vnd, created_by, updated_by)
-       values ($1, $2, 'BID_ANALYSIS', 'BID', $3, $4, $5, '[]'::jsonb, $6, $7, $8, $9, repeat('d', 64), $10::numeric, $3, $3)`,
+      `insert into machvon.ai_request (tenant_id, id, task_type, subject_module, requested_by, profile_version_id, data_classification, classification_basis, policy_version_id, route_class, status, reject_code, input_sha256, output_sha256, cost_vnd, created_by, updated_by)
+       values ($1, $2, 'BID_ANALYSIS', 'BID', $3, $4, $5, '[]'::jsonb, $6, $7, $8, $9, repeat('d', 64), case when $8 = 'COMPLETED' then repeat('e', 64) end, $10::numeric, $3, $3)`,
       [
         TENANT_A,
         requestId,

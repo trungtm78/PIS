@@ -647,6 +647,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_analysis_finding',
   'get_resources_analysis_finding_id',
   'searchProposalPassages',
+  'reviewAnalysisFinding',
+  'post_findings_id_review',
+  'compareProposals',
   'get_resources_proposal',
   'get_resources_proposal_id',
   'get_resources_procurement_package',
@@ -1808,6 +1811,10 @@ const INSERT_ANALYSIS_EVIDENCE = `insert into machvon.analysis_evidence
   (tenant_id, id, finding_id, evidence_kind, document_version_id, page_index, quote_sha256, quote_excerpt, verified_present)
   values ($1, $2, $3, 'DOCUMENT', $4, 0, repeat('f', 64), $5, true) on conflict do nothing`;
 
+const INSERT_ANALYSIS_REVIEW = `insert into machvon.analysis_finding_review
+  (tenant_id, id, finding_id, reviewer_user_id, from_status, to_status, score_before, score_after, reason, decision, ai_decision_record_id)
+  values ($1, $2, $3, $4, 'SUPPORTED', 'CONTRADICTED', null, 2, $5, 'ACCEPTED_WITH_CHANGE', $6) on conflict do nothing`;
+
 const INSERT_CONFLICT = `insert into machvon.bid_conflict_declaration
   (tenant_id, id, package_id, user_id, has_conflict, relation_text, created_by, updated_by, version)
   values ($1, $2, $3, $4, true, $5, $4, $4, 1) on conflict do nothing`;
@@ -2452,6 +2459,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_ATTEMPT, [tenantId, llm.attemptId, llm.modelCode, llm.priceId, llm.requestId, `iso-${llm.attemptId}`]);
     await client.query(INSERT_LLM_KILL, [tenantId, llm.killId, llm.killScope, llm.killReason, ACTOR_ID]);
     await client.query(INSERT_LLM_DECISION, [tenantId, llm.decisionId, llm.requestId, 'd'.repeat(64), llm.decisionRationale, ACTOR_ID]);
+    // What an expert decided about the finding of the analysis: a row of its own that points at the finding and at the record of the decision of a person.
+    await client.query(INSERT_ANALYSIS_REVIEW, [tenantId, analysis.reviewId, analysis.findingId, ACTOR_ID, analysis.reviewReason, llm.decisionId]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);
@@ -2523,6 +2532,7 @@ const SNAPSHOT_TABLES = [
   'document_page_ocr',
   'analysis_run',
   'analysis_finding',
+  'analysis_finding_review',
   'analysis_evidence',
   'contract',
   'contract_revision',

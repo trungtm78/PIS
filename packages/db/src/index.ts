@@ -438,7 +438,9 @@ export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-
 export { BidOcrStore, MAX_ENGINE_VERSION, MAX_RECORDED_PAGES } from './bid-ocr-store.ts';
 export type { CorrectedText, OcrListed, OcrListing, OcrPageInput, OcrPageLine, RecordedPage, ReviewInput as OcrReviewInput, ReviewedPage as OcrReviewedPage } from './bid-ocr-store.ts';
 export { BidAnalysisStore } from './bid-analysis-store.ts';
-export type { Admission as BidAnalysisAdmission, CancelledRun as BidCancelledRun, EvidenceLine as BidEvidenceLine, FindingFilter as BidFindingFilter, FindingLine as BidFindingLine, FoundRun as BidFoundRun, NewEvidence as BidNewEvidence, NewFinding as BidNewFinding, RecordedOcrPage, RunContext as BidRunContext, RunLine as BidRunLine } from './bid-analysis-store.ts';
+export { BidReviewStore } from './bid-review-store.ts';
+export type { ComparisonRead as BidComparisonRead, ReviewInput as BidReviewInput, ReviewTarget as BidReviewTarget, ReviewedFinding as BidReviewedFinding } from './bid-review-store.ts';
+export type { Admission as BidAnalysisAdmission, CancelledRun as BidCancelledRun, EvidenceLine as BidEvidenceLine, FindingFilter as BidFindingFilter, FindingLine as BidFindingLine, FoundRun as BidFoundRun, NewEvidence as BidNewEvidence, NewFinding as BidNewFinding, RecordedOcrPage, ReviewLine as BidReviewLine, RunContext as BidRunContext, RunLine as BidRunLine } from './bid-analysis-store.ts';
 export { BidConflictStore } from './bid-conflict-store.ts';
 export { CtrChangeChainStore } from './ctr-change-chain-store.ts';
 export { CtrChangeDecisionStore } from './ctr-change-decision-store.ts';

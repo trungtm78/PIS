@@ -14,6 +14,7 @@ import { AnalysisController } from '../../src/modules/bid/analysis.controller';
 import { BidAnalysisService } from '../../src/modules/bid/analysis.service';
 import { ConflictController } from '../../src/modules/bid/conflict.controller';
 import { OcrController } from '../../src/modules/bid/ocr.controller';
+import { ReviewController } from '../../src/modules/bid/review.controller';
 import { BID_METRICS } from '../../src/modules/bid/tokens';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
@@ -153,6 +154,7 @@ describe('the AI analysis of a proposal with verified citations and classificati
   /** Takes away what a test made, so that the next one starts from a tenant with no registry and no analysis. */
   async function reset(): Promise<void> {
     await harness.owner(TENANT_A, [
+      ['truncate machvon.analysis_finding_review, machvon.ai_decision_record'],
       ['delete from machvon.analysis_evidence'],
       ['delete from machvon.analysis_finding'],
       ['delete from machvon.analysis_run'],
@@ -260,7 +262,7 @@ describe('the AI analysis of a proposal with verified citations and classificati
     app = await startTestApp({
       signingKey: SIGNING_KEY,
       imports: [CommandModule.register({ database: tenants }), PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) })],
-      controllers: [AnalysisController, ConflictController, OcrController],
+      controllers: [AnalysisController, ConflictController, OcrController, ReviewController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
@@ -672,6 +674,24 @@ describe('the AI analysis of a proposal with verified citations and classificati
       const again = await start(fx);
       expect(again.json).toMatchObject({ status: 'AWAITING_REVIEW', reused: false });
       expect(again.json.resource_id).not.toBe(runId);
+    });
+  });
+
+  describe('the review of a finding the pipeline made (ST-BID-010)', () => {
+    it('rests the decision of the expert on the answer the gateway recorded for the run, completes the run with the last decision, and then the run is not cancelled any more', async () => {
+      const fx = await fixture({ codes: ['C1'] });
+      gateway.script('dom-model', [{ output: answer(fx, [finding('C1', 'SUPPORTED', [onPage(fx, 0, QUOTE_ZERO)])]) }]);
+      const runId = (await start(fx)).json.resource_id as string;
+      const [row] = await rows<{ id: string }>('select id from machvon.analysis_finding where run_id = $1', [runId]);
+      const decided = await call('POST', `/analysis-findings/${row?.id}/review`, { member: E1, ifMatch: '"1"', body: { to_status: 'SUPPORTED', reason: 'The page shows three bridges, all accepted.' } });
+      expect(decided).toMatchObject({ status: 200, json: { decision: 'ACCEPTED', final_status: 'SUPPORTED', run_status: 'COMPLETED' } });
+      const [record] = await rows<{ decided: string; answered: string }>(
+        'select d.ai_output_sha256 as decided, r.output_sha256 as answered from machvon.ai_decision_record d join machvon.ai_request r on r.id = d.ai_request_id where d.id = $1',
+        [decided.json.ai_decision_record_id],
+      );
+      expect(record?.decided).toMatch(/^[0-9a-f]{64}$/);
+      expect(record?.decided).toBe(record?.answered);
+      expect(await cancel(runId, 3)).toMatchObject({ status: 409, json: { code: 'ANALYSIS_STATE_INVALID' } });
     });
   });
 

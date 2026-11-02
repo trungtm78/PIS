@@ -1092,6 +1092,25 @@ final class BidCriteriaDraft implements RequestModel {
       };
 }
 
+final class BidFindingDecision implements RequestModel {
+  const BidFindingDecision({
+    required this.decision,
+    required this.reason,
+    required this.evidenceIds,
+  });
+
+  final String decision;
+  final String reason;
+  final List<String> evidenceIds;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+        'evidence_ids': evidenceIds,
+      };
+}
+
 final class BidFindingReview implements RequestModel {
   const BidFindingReview({
     required this.toStatus,

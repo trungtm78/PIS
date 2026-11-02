@@ -124,6 +124,22 @@ export class BidProposalReads {
     return new Set(rows.filter((row) => this.seen(row) === 'FULL').map((row) => row.id));
   }
 
+  /**
+   * The live proposals of a package that exist for the caller, with what they may see of each: a read of the package as a whole (BID-10) keeps the ones they have in full and asks the declaration of one who owes it.
+   * The replaced and the withdrawn are not read, so the revisions a contractor has handed in never crowd another bid out; a contractor has one live proposal, so the read has no page to cut.
+   */
+  async ofPackage(tx: TenantTx, viewer: ProposalViewer, packageId: string): Promise<ProposalLine[]> {
+    const query = this.query(viewer);
+    const rows = await tx.query<ProposalSql>(
+      `${query.select} where pr.package_id = ${query.params.add(packageId)}::uuid and pr.status = 'RECEIVED' and ${query.reach} order by c.legal_name, pr.id`,
+      query.params.values,
+    );
+    return rows.flatMap((row) => {
+      const line = this.line(row);
+      return line === undefined ? [] : [line];
+    });
+  }
+
   /** The files of a proposal: the part, the title and what the file is, never where it is stored. */
   private async files(tx: TenantTx, proposalId: string): Promise<ProposalFile[]> {
     const rows = await tx.query<{ id: string; document_version_id: string; part: ProposalPart; title: string; mime: string; page_count: number; byte_length: string | null; received_at: string }>(

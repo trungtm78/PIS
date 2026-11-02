@@ -1497,6 +1497,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'listAnalysisFindings', method: 'GET', id: RUN_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_analysis_run_id', method: 'GET', id: RUN_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_analysis_finding_id', method: 'GET', id: RUN_FIXTURES['TNT-B'].findingId },
+  { operation: 'reviewAnalysisFinding', method: 'POST', id: RUN_FIXTURES['TNT-B'].findingId, versioned: true, body: { to_status: 'MISSING', reason: 'Isolation foreign review attempt of a finding.' } },
+  { operation: 'post_findings_id_review', method: 'POST', id: RUN_FIXTURES['TNT-B'].findingId, versioned: true, body: { decision: 'approve', reason: 'Isolation foreign review attempt of a finding.', evidence_ids: [] } },
+  { operation: 'compareProposals', method: 'GET', id: PACKAGE_FIXTURES['TNT-B'].id, query: `criteria_version_id=${CRITERIA_FIXTURES['TNT-B'].approvedId}` },
   { operation: 'searchProposalPassages', method: 'GET', id: PACKAGE_FIXTURES['TNT-B'].id, query: `embedding_model_id=${RUN_FIXTURES['TNT-B'].evidenceId}&question=bridge` },
   { operation: 'get_resources_proposal_id', method: 'GET', id: PROPOSAL_FIXTURES['TNT-B'].id },
   {
