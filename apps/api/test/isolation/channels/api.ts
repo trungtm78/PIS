@@ -51,6 +51,7 @@ import {
   INVENTORY_FIXTURES,
   ISSUE_FIXTURES,
   PAYMENT_COMP_FIXTURES,
+  OCR_FIXTURES,
   PLAN_COMP_FIXTURES,
   PACKAGE_FIXTURES,
   PARCEL_FIXTURES,
@@ -1489,6 +1490,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     body: { outcome: 'RESOLVED', resolution_document_id: DOCUMENT_FIXTURES['TNT-B'].documentId },
   },
   { operation: 'decideProcurementResult', method: 'POST', id: RESULT_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'REJECT', comment: 'Isolation foreign decision attempt' } },
+  { operation: 'reviewOcrPage', method: 'POST', id: OCR_FIXTURES['TNT-B'].id, body: { decision: 'CONFIRMED', note: 'Isolation foreign review attempt' } },
+  { operation: 'listProposalOcrPages', method: 'GET', id: PROPOSAL_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_proposal_id', method: 'GET', id: PROPOSAL_FIXTURES['TNT-B'].id },
   {
     operation: 'assignProjectLeader',

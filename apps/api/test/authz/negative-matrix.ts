@@ -208,6 +208,8 @@ export interface MatrixTargets {
   resultId: string;
   /** A RECEIVED petition of a contractor (version 1) on that package, logged by someone other than the callers. */
   petitionId: string;
+  /** A page of OCR of tenant A that waits for a person (a reading at 0.71 on a clean PDF version), read by the pipeline and not yet reviewed. */
+  ocrPageId: string;
   /** A REQUESTED inspection (version 1) of the draft contract, asked for by someone other than the callers. */
   inspectionId: string;
   /** Quality acceptance minutes in DRAFT (version 1) of the draft contract, drafted by someone other than the callers. */
@@ -2154,6 +2156,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   uploadProposalFile: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/proposals/files', body: {} }),
+  },
+  // The review of the OCR of a page: no page is confirmed or corrected, and no text of a correction is stored, by a caller that is refused.
+  reviewOcrPage: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-page-ocr/${t.ocrPageId}/review`, body: { decision: 'CONFIRMED' } }),
+  },
+  uploadOcrCorrectionFile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/document-page-ocr/files', body: {} }),
   },
   declareConflictOfInterest: {
     referencesTenantIds: true,

@@ -15641,6 +15641,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/document-page-ocr/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tải lên văn bản đã sửa của một trang OCR (văn bản thuần) lên kho đối tượng và quét mã độc; chưa gắn vào trang nào */
+        post: operations["uploadOcrCorrectionFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/proposals/{id}/ocr-pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các trang OCR của một hồ sơ dự thầu với độ tin cậy, văn bản nhận dạng và trạng thái xác nhận, cùng cổng cho phân tích tài chính (BID-06) */
+        get: operations["listProposalOcrPages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -24085,6 +24119,57 @@ export interface components {
             format: "CSV" | "XLSX";
             columns: string[];
             row_count: number;
+        };
+        BidOcrCorrectionFileUpload: {
+            file_object_key: string;
+            file_sha256: string;
+            size_bytes: number;
+        };
+        BidOcrPageLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            document_version_id: string;
+            /** @description From 0; the screen shows the page as page_index + 1 */
+            page_index: number;
+            /** @description Decimal string from 0 to 1 with up to four digits */
+            ocr_confidence: string;
+            /** @enum {string} */
+            review_status: "AUTO_ACCEPTED" | "NEEDS_REVIEW" | "CONFIRMED" | "CORRECTED";
+            /** @description A table of the page states a total that is not the sum of its lines */
+            table_mismatch: boolean;
+            /** Format: uuid */
+            reviewed_by: string | null;
+            /** Format: date-time */
+            reviewed_at: string | null;
+            note: string | null;
+            engine_version: string;
+            /** @description The text the engine recognised, read from the object store and checked against its digest; null when it cannot be read */
+            text: string | null;
+            /** @enum {string} */
+            text_state: "READABLE" | "DIGEST_MISMATCH" | "MISSING";
+            /** @description The text the reviewer put in its place, for a corrected page */
+            corrected_text: string | null;
+        };
+        BidOcrPageList: {
+            items: components["schemas"]["BidOcrPageLine"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+            /** @description No page of the proposal waits for a person: the financial analysis may run */
+            financial_ready: boolean;
+            /** @description The number of pages of the proposal that wait for a person */
+            blocked_pages: number;
+            /** @description The confidence under which a page waits, as a decimal string */
+            threshold: string;
+            documents: {
+                /** Format: uuid */
+                document_version_id: string;
+                title: string;
+                /** @enum {string} */
+                part: "LEGAL" | "TECHNICAL" | "FINANCIAL" | "OTHER";
+                page_count: number;
+            }[];
         };
     };
     responses: never;
@@ -119338,6 +119423,188 @@ export interface operations {
             };
             /** @description Not found within scope */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    uploadOcrCorrectionFile: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The text is stored and clean; the key is what reviewOcrPage takes */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidOcrCorrectionFileUpload"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Payload too large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProposalOcrPages: {
+        parameters: {
+            query?: {
+                document_version_id?: string;
+                review_status?: "AUTO_ACCEPTED" | "NEEDS_REVIEW" | "CONFIRMED" | "CORRECTED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result: only the caller with the full view of the proposal */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidOcrPageList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification (CONFLICT_UNDECLARED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

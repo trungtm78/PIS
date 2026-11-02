@@ -344,6 +344,26 @@ export const PROPOSAL_FIXTURES: Readonly<Record<TenantName, { id: string; declar
   'TNT-B': { id: '00000000-0000-4000-b0ba-000000000001', declarationId: '00000000-0000-4000-b0ba-000000000002', bidPrice: '7772000001', relation: 'BETA-CONFLICT-RELATION-0001' },
 };
 
+/** A page of OCR of a file of the proposal of each tenant that waits for a person (the engine version and the key of its text are distinctive; tenant confidential data). */
+export const OCR_FIXTURES: Readonly<Record<TenantName, { id: string; documentId: string; versionId: string; fileObjectKey: string; engineVersion: string; textObjectKey: string }>> = {
+  'TNT-A': {
+    id: '00000000-0000-4000-a0bd-000000000001',
+    documentId: '00000000-0000-4000-a0bd-000000000002',
+    versionId: '00000000-0000-4000-a0bd-000000000003',
+    fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000a/document/alpha-isolation-proposal-file-0001',
+    engineVersion: 'ALPHA-OCR-ENGINE-0001',
+    textObjectKey: 'tenants/00000000-0000-4000-8000-00000000000a/ocr-text/alpha-isolation-page-0001',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0bd-000000000001',
+    documentId: '00000000-0000-4000-b0bd-000000000002',
+    versionId: '00000000-0000-4000-b0bd-000000000003',
+    fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000b/document/beta-isolation-proposal-file-0001',
+    engineVersion: 'BETA-OCR-ENGINE-0001',
+    textObjectKey: 'tenants/00000000-0000-4000-8000-00000000000b/ocr-text/beta-isolation-page-0001',
+  },
+};
+
 /** A result of the selection of the contractor of each tenant on its package: submitted, with an award price of its own (the price is distinctive; tenant confidential data). */
 export const RESULT_FIXTURES: Readonly<Record<TenantName, { id: string; awardPrice: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bb-000000000001', awardPrice: '8881000001' },
@@ -1631,6 +1651,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'conflict relation text', value: PROPOSAL_FIXTURES[tenant].relation },
     { kind: 'procurement result id', value: RESULT_FIXTURES[tenant].id },
     { kind: 'procurement petition id', value: PETITION_FIXTURES[tenant].id },
+    { kind: 'ocr page id', value: OCR_FIXTURES[tenant].id },
+    { kind: 'ocr engine version', value: OCR_FIXTURES[tenant].engineVersion },
+    { kind: 'ocr page text key', value: OCR_FIXTURES[tenant].textObjectKey },
+    { kind: 'ocr proposal file key', value: OCR_FIXTURES[tenant].fileObjectKey },
     { kind: 'procurement result award price', value: RESULT_FIXTURES[tenant].awardPrice },
     { kind: 'assignment id', value: ACCOUNTABILITY_FIXTURES[tenant].assignmentId },
     { kind: 'task force id', value: ACCOUNTABILITY_FIXTURES[tenant].taskForceId },

@@ -59,6 +59,7 @@ import {
   INVENTORY_FIXTURES,
   PACKAGE_FIXTURES,
   PAYMENT_COMP_FIXTURES,
+  OCR_FIXTURES,
   PLAN_COMP_FIXTURES,
   PARCEL_FIXTURES,
   PETITION_FIXTURES,
@@ -634,6 +635,9 @@ export const FULL_RIGHTS_OPERATIONS = [
   'receiveProcurementPetition',
   'resolveProcurementPetition',
   'listProcurementPetitions',
+  'reviewOcrPage',
+  'uploadOcrCorrectionFile',
+  'listProposalOcrPages',
   'get_resources_proposal',
   'get_resources_proposal_id',
   'get_resources_procurement_package',
@@ -1769,6 +1773,20 @@ const INSERT_PETITION = `insert into machvon.procurement_petition
   (tenant_id, id, package_id, contractor_id, petition_kind, received_on, due_on, petition_document_id, status, days_applied, rule_version_id, created_by, updated_by, version)
   values ($1, $2, $3, $4, 'PROCESS', date '2026-10-20', date '2026-10-27', $5, 'RECEIVED', 7, gen_random_uuid(), $6, $6, 1) on conflict do nothing`;
 
+const INSERT_OCR_DOCUMENT = `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, subject_module, subject_id, created_by, updated_by)
+  values ($1, $2, 'ATTACHMENT', 'BID-PROPOSAL-FILE', 'Isolation proposal file', 'CONFIDENTIAL', 'BID_PROPOSAL', $3, $4, $4) on conflict do nothing`;
+
+const INSERT_OCR_VERSION = `insert into machvon.document_version
+  (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage, byte_length, created_by)
+  values ($1, $2, $3, 1, $4, repeat('b', 64), 'application/pdf', 3, 'CONFIDENTIAL', 'CLEAN', '{}'::jsonb, 'ATTACHMENT', 2048, $5) on conflict do nothing`;
+
+const INSERT_PROPOSAL_FILE = `insert into machvon.proposal_document (tenant_id, id, proposal_id, document_version_id, part, received_by)
+  values ($1, gen_random_uuid(), $2, $3, 'TECHNICAL', $4) on conflict do nothing`;
+
+const INSERT_OCR_PAGE = `insert into machvon.document_page_ocr
+  (tenant_id, id, document_version_id, page_index, ocr_confidence, text_sha256, text_object_key, engine_version, review_status)
+  values ($1, $2, $3, 0, 0.71, repeat('c', 64), $4, $5, 'NEEDS_REVIEW') on conflict do nothing`;
+
 const INSERT_CONFLICT = `insert into machvon.bid_conflict_declaration
   (tenant_id, id, package_id, user_id, has_conflict, relation_text, created_by, updated_by, version)
   values ($1, $2, $3, $4, true, $5, $4, $4, 1) on conflict do nothing`;
@@ -2281,6 +2299,12 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_RESULT, [tenantId, result.id, pack.id, contractor.id, result.awardPrice, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_PETITION, [tenantId, PETITION_FIXTURES[tenant].id, pack.id, contractor.id, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
+    // A file of the proposal and the page of it that waits for a person: the review command finds the page through the proposal.
+    const ocr = OCR_FIXTURES[tenant];
+    await client.query(INSERT_OCR_DOCUMENT, [tenantId, ocr.documentId, proposal.id, ACTOR_ID]);
+    await client.query(INSERT_OCR_VERSION, [tenantId, ocr.versionId, ocr.documentId, ocr.fileObjectKey, ACTOR_ID]);
+    await client.query(INSERT_PROPOSAL_FILE, [tenantId, proposal.id, ocr.versionId, ACTOR_ID]);
+    await client.query(INSERT_OCR_PAGE, [tenantId, ocr.id, ocr.versionId, ocr.textObjectKey, ocr.engineVersion]);
     const planFixture = PLAN_COMP_FIXTURES[tenant];
     await client.query(HANDLE_COMP_FEEDBACK, [planFixture.id, MEMBERSHIP_ID]);
     await client.query(CLOSE_COMP_PLAN, [planFixture.id]);
@@ -2470,6 +2494,7 @@ const SNAPSHOT_TABLES = [
   'procurement_plan',
   'procurement_plan_event',
   'procurement_petition',
+  'document_page_ocr',
   'contract',
   'contract_revision',
   'change_chain_config',

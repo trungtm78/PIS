@@ -1903,6 +1903,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listProjectTransfers({Map<String, Object?>? query}) =>
       execute('listProjectTransfers', query: query);
 
+  Future<Object?> listProposalOcrPages({required String id, Map<String, Object?>? query}) =>
+      execute('listProposalOcrPages', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> listQualityAcceptances({Map<String, Object?>? query}) =>
       execute('listQualityAcceptances', query: query);
 

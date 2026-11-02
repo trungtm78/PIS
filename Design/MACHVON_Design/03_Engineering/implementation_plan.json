@@ -12018,7 +12018,9 @@
         "BID-06"
       ],
       "operations": [
-        "reviewOcrPage"
+        "reviewOcrPage",
+        "uploadOcrCorrectionFile",
+        "listProposalOcrPages"
       ],
       "tables": [
         "document_page_ocr"

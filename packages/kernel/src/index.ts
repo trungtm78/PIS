@@ -436,6 +436,25 @@ export {
 } from './bid-petition.ts';
 export type { PetitionDayCount, PetitionKind, PetitionOutcome, PetitionRule, PetitionStatus } from './bid-petition.ts';
 export {
+  MAX_OCR_NOTE,
+  MAX_OCR_TABLES,
+  MAX_OCR_TEXT_BYTES,
+  MAX_OCR_TABLE_ROWS,
+  OCR_CONFIDENCE_THRESHOLD,
+  OCR_CONFIDENCE_THRESHOLD_TEXT,
+  OCR_DECISIONS,
+  OCR_STATUSES,
+  belowThreshold,
+  checkReview,
+  classifyPage,
+  financialGate,
+  isConfidence,
+  pageTablesMismatch,
+  parseTables,
+  tableMismatch,
+} from './bid-ocr.ts';
+export type { FinancialGate, GatePage, OcrDecision, OcrReading, OcrStatus, OcrTable, OcrTableRow, OcrReviewInput } from './bid-ocr.ts';
+export {
   CHECKLIST_OUTCOMES,
   INSPECTION_COMMANDS,
   INSPECTION_RESULTS,

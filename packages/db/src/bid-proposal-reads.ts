@@ -17,6 +17,8 @@ export interface ProposalViewer {
 
 export interface ProposalFile {
   id: string;
+  /** The version of the document that holds the file: what the pages of its OCR belong to. */
+  documentVersionId: string;
   part: ProposalPart;
   title: string;
   mime: string;
@@ -113,8 +115,8 @@ export class BidProposalReads {
 
   /** The files of a proposal: the part, the title and what the file is, never where it is stored. */
   private async files(tx: TenantTx, proposalId: string): Promise<ProposalFile[]> {
-    const rows = await tx.query<{ id: string; part: ProposalPart; title: string; mime: string; page_count: number; byte_length: string | null; received_at: string }>(
-      `select pd.id, pd.part, d.title, v.mime, v.page_count, v.byte_length::text as byte_length, to_char(pd.received_at at time zone 'UTC', ${ISO}) as received_at
+    const rows = await tx.query<{ id: string; document_version_id: string; part: ProposalPart; title: string; mime: string; page_count: number; byte_length: string | null; received_at: string }>(
+      `select pd.id, pd.document_version_id, pd.part, d.title, v.mime, v.page_count, v.byte_length::text as byte_length, to_char(pd.received_at at time zone 'UTC', ${ISO}) as received_at
          from machvon.proposal_document pd
          join machvon.document_version v on v.tenant_id = pd.tenant_id and v.id = pd.document_version_id
          join machvon.document d on d.tenant_id = v.tenant_id and d.id = v.document_id
@@ -123,6 +125,7 @@ export class BidProposalReads {
     );
     return rows.map((row) => ({
       id: row.id,
+      documentVersionId: row.document_version_id,
       part: row.part,
       title: row.title,
       mime: row.mime,

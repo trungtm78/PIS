@@ -111039,6 +111039,7 @@
           }
         },
         "x-error-codes": [
+          "CONFLICT_UNDECLARED",
           "OCR_STATE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -136730,6 +136731,280 @@
             }
           }
         }
+      }
+    },
+    "/document-page-ocr/files": {
+      "post": {
+        "operationId": "uploadOcrCorrectionFile",
+        "summary": "Tải lên văn bản đã sửa của một trang OCR (văn bản thuần) lên kho đối tượng và quét mã độc; chưa gắn vào trang nào",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.ocr.review",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The text is stored and clean; the key is what reviewOcrPage takes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidOcrCorrectionFileUpload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "FILE_NOT_CLEAN",
+          "FILE_TYPE_NOT_ALLOWED",
+          "PAYLOAD_TOO_LARGE",
+          "SCAN_PENDING"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
+    },
+    "/proposals/{id}/ocr-pages": {
+      "get": {
+        "operationId": "listProposalOcrPages",
+        "summary": "Các trang OCR của một hồ sơ dự thầu với độ tin cậy, văn bản nhận dạng và trạng thái xác nhận, cùng cổng cho phân tích tài chính (BID-06)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.ocr.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "document_version_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "review_status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AUTO_ACCEPTED",
+                "NEEDS_REVIEW",
+                "CONFIRMED",
+                "CORRECTED"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result: only the caller with the full view of the proposal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidOcrPageList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification (CONFLICT_UNDECLARED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED"
+        ]
       }
     }
   },
@@ -167950,6 +168225,202 @@
           "row_count": {
             "type": "integer",
             "minimum": 0
+          }
+        }
+      },
+      "BidOcrCorrectionFileUpload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_key",
+          "file_sha256",
+          "size_bytes"
+        ],
+        "properties": {
+          "file_object_key": {
+            "type": "string"
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "BidOcrPageLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "document_version_id",
+          "page_index",
+          "ocr_confidence",
+          "review_status",
+          "table_mismatch",
+          "reviewed_by",
+          "reviewed_at",
+          "note",
+          "engine_version",
+          "text",
+          "text_state",
+          "corrected_text"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "page_index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "From 0; the screen shows the page as page_index + 1"
+          },
+          "ocr_confidence": {
+            "type": "string",
+            "description": "Decimal string from 0 to 1 with up to four digits"
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "AUTO_ACCEPTED",
+              "NEEDS_REVIEW",
+              "CONFIRMED",
+              "CORRECTED"
+            ]
+          },
+          "table_mismatch": {
+            "type": "boolean",
+            "description": "A table of the page states a total that is not the sum of its lines"
+          },
+          "reviewed_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "reviewed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "engine_version": {
+            "type": "string"
+          },
+          "text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The text the engine recognised, read from the object store and checked against its digest; null when it cannot be read"
+          },
+          "text_state": {
+            "type": "string",
+            "enum": [
+              "READABLE",
+              "DIGEST_MISMATCH",
+              "MISSING"
+            ]
+          },
+          "corrected_text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The text the reviewer put in its place, for a corrected page"
+          }
+        }
+      },
+      "BidOcrPageList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of",
+          "financial_ready",
+          "blocked_pages",
+          "threshold",
+          "documents"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidOcrPageLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "financial_ready": {
+            "type": "boolean",
+            "description": "No page of the proposal waits for a person: the financial analysis may run"
+          },
+          "blocked_pages": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The number of pages of the proposal that wait for a person"
+          },
+          "threshold": {
+            "type": "string",
+            "description": "The confidence under which a page waits, as a decimal string"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "document_version_id",
+                "title",
+                "part",
+                "page_count"
+              ],
+              "properties": {
+                "document_version_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "part": {
+                  "type": "string",
+                  "enum": [
+                    "LEGAL",
+                    "TECHNICAL",
+                    "FINANCIAL",
+                    "OTHER"
+                  ]
+                },
+                "page_count": {
+                  "type": "integer"
+                }
+              }
+            }
           }
         }
       }

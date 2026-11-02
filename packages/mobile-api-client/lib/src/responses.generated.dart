@@ -636,6 +636,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProjectRevisions': PrjRevisionListResponse.fromJson,
   'listProjectRisks': PrjRiskRegisterResponse.fromJson,
   'listProjectTransfers': PrjProjectTransferPageResponse.fromJson,
+  'listProposalOcrPages': BidOcrPageListResponse.fromJson,
   'listQualityAcceptances': QmsAcceptanceListResponse.fromJson,
   'listReallocationProposals': asObject,
   'listReconciliationItems': PayReconciliationItemPageResponse.fromJson,
@@ -983,6 +984,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'uploadMasterImportFile': MdmImportFileResponse.fromJson,
   'uploadMigrationFile': MigrationFileUploadResponse.fromJson,
   'uploadNationalCodeFile': PrjNationalCodeFileUploadResponse.fromJson,
+  'uploadOcrCorrectionFile': BidOcrCorrectionFileUploadResponse.fromJson,
   'uploadProcurementFile': BidProcurementFileUploadResponse.fromJson,
   'uploadProposalFile': BidProposalFileUploadResponse.fromJson,
   'uploadReportFile': DisReportFileResponse.fromJson,
@@ -1698,6 +1700,202 @@ final class BidMilestoneListResponse implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'items': items.map((e0) => e0.toJson()).toList(),
         'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class BidOcrCorrectionFileUploadResponse implements ResponseModel {
+  const BidOcrCorrectionFileUploadResponse({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    required this.sizeBytes,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidOcrCorrectionFileUploadResponse.fromJson(Object? json, [String path = 'BidOcrCorrectionFileUploadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidOcrCorrectionFileUploadResponse(
+      fileObjectKey: requiredField(map, path, 'file_object_key', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      extra: unknownFields(map, path, const <String>{'file_object_key', 'file_sha256', 'size_bytes'}, strict: true),
+    );
+  }
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final int sizeBytes;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        ...extra,
+      };
+}
+
+final class BidOcrPageLineResponse implements ResponseModel {
+  const BidOcrPageLineResponse({
+    required this.id,
+    required this.documentVersionId,
+    required this.pageIndex,
+    required this.ocrConfidence,
+    required this.reviewStatus,
+    required this.tableMismatch,
+    required this.reviewedBy,
+    required this.reviewedAt,
+    required this.note,
+    required this.engineVersion,
+    required this.text,
+    required this.textState,
+    required this.correctedText,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidOcrPageLineResponse.fromJson(Object? json, [String path = 'BidOcrPageLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidOcrPageLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      documentVersionId: requiredField(map, path, 'document_version_id', asString),
+      pageIndex: requiredField(map, path, 'page_index', asInt),
+      ocrConfidence: requiredField(map, path, 'ocr_confidence', asString),
+      reviewStatus: requiredField(map, path, 'review_status', asString),
+      tableMismatch: requiredField(map, path, 'table_mismatch', asBool),
+      reviewedBy: requiredField(map, path, 'reviewed_by', nullable(asString)),
+      reviewedAt: requiredField(map, path, 'reviewed_at', nullable(asString)),
+      note: requiredField(map, path, 'note', nullable(asString)),
+      engineVersion: requiredField(map, path, 'engine_version', asString),
+      text: requiredField(map, path, 'text', nullable(asString)),
+      textState: requiredField(map, path, 'text_state', asString),
+      correctedText: requiredField(map, path, 'corrected_text', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'document_version_id', 'page_index', 'ocr_confidence', 'review_status', 'table_mismatch', 'reviewed_by', 'reviewed_at', 'note', 'engine_version', 'text', 'text_state', 'corrected_text'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String documentVersionId;
+  final int pageIndex;
+  final String ocrConfidence;
+  final String reviewStatus;
+  final bool tableMismatch;
+  final String? reviewedBy;
+  final String? reviewedAt;
+  final String? note;
+  final String engineVersion;
+  final String? text;
+  final String textState;
+  final String? correctedText;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'document_version_id': documentVersionId,
+        'page_index': pageIndex,
+        'ocr_confidence': ocrConfidence,
+        'review_status': reviewStatus,
+        'table_mismatch': tableMismatch,
+        'reviewed_by': reviewedBy,
+        'reviewed_at': reviewedAt,
+        'note': note,
+        'engine_version': engineVersion,
+        'text': text,
+        'text_state': textState,
+        'corrected_text': correctedText,
+        ...extra,
+      };
+}
+
+final class BidOcrPageListResponse implements ResponseModel {
+  const BidOcrPageListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    required this.financialReady,
+    required this.blockedPages,
+    required this.threshold,
+    required this.documents,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidOcrPageListResponse.fromJson(Object? json, [String path = 'BidOcrPageListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidOcrPageListResponse(
+      items: requiredField(map, path, 'items', asList(BidOcrPageLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      financialReady: requiredField(map, path, 'financial_ready', asBool),
+      blockedPages: requiredField(map, path, 'blocked_pages', asInt),
+      threshold: requiredField(map, path, 'threshold', asString),
+      documents: requiredField(map, path, 'documents', asList(BidOcrPageListResponseDocumentsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of', 'financial_ready', 'blocked_pages', 'threshold', 'documents'}, strict: true),
+    );
+  }
+
+  final List<BidOcrPageLineResponse> items;
+  final String? nextCursor;
+  final String asOf;
+  final bool financialReady;
+  final int blockedPages;
+  final String threshold;
+  final List<BidOcrPageListResponseDocumentsItem> documents;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        'financial_ready': financialReady,
+        'blocked_pages': blockedPages,
+        'threshold': threshold,
+        'documents': documents.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class BidOcrPageListResponseDocumentsItem implements ResponseModel {
+  const BidOcrPageListResponseDocumentsItem({
+    required this.documentVersionId,
+    required this.title,
+    required this.part_,
+    required this.pageCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidOcrPageListResponseDocumentsItem.fromJson(Object? json, [String path = 'BidOcrPageListResponseDocumentsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidOcrPageListResponseDocumentsItem(
+      documentVersionId: requiredField(map, path, 'document_version_id', asString),
+      title: requiredField(map, path, 'title', asString),
+      part_: requiredField(map, path, 'part', asString),
+      pageCount: requiredField(map, path, 'page_count', asInt),
+      extra: unknownFields(map, path, const <String>{'document_version_id', 'title', 'part', 'page_count'}, strict: true),
+    );
+  }
+
+  final String documentVersionId;
+  final String title;
+  final String part_;
+  final int pageCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document_version_id': documentVersionId,
+        'title': title,
+        'part': part_,
+        'page_count': pageCount,
         ...extra,
       };
 }

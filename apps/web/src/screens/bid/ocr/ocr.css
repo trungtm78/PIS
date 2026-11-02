@@ -1,0 +1,44 @@
+.bid-ocr-page {
+  margin-bottom: 16px;
+}
+.bid-ocr-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+}
+.bid-ocr-head h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.bid-ocr-sides {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .bid-ocr-sides {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.bid-ocr-sides h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.bid-ocr-text {
+  margin: 0;
+  padding: 8px;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font: inherit;
+}
+.bid-ocr-page textarea {
+  width: 100%;
+  font: inherit;
+}

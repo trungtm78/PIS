@@ -136,7 +136,9 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `verifyContractor` | POST /contractors/{id}/verification | bid.contractor.verify | `BidContractorVerify` | SELF_APPROVAL_DENIED, TAX_ID_DUPLICATE_VERIFIED | ✔ | ✔ |
 | `recordContractorRestriction` | POST /contractors/{id}/restrictions | bid.contractor.verify | `BidRestriction` | DECISION_DOCUMENT_NOT_EFFECTIVE | ✔ | – |
 | `receiveProposal` | POST /proposals | bid.proposal.receive | `BidProposalReceive` | BID_CLOSED, CONTRACTOR_RESTRICTED, CONTRACTOR_NOT_VERIFIED, SCAN_PENDING | ✔ | – |
-| `reviewOcrPage` | POST /document-page-ocr/{id}/review | bid.ocr.review | `BidOcrReview` | OCR_STATE_INVALID | ✔ | – |
+| `reviewOcrPage` | POST /document-page-ocr/{id}/review | bid.ocr.review | `BidOcrReview` | OCR_STATE_INVALID; CONFLICT_UNDECLARED; VALIDATION_FAILED | ✔ | – |
+| `uploadOcrCorrectionFile` | POST /document-page-ocr/files | bid.ocr.review | tệp văn bản thuần | văn bản đã sửa của một trang được quét mã độc, lưu kho; chưa gắn vào trang nào | FILE_NOT_CLEAN, FILE_TYPE_NOT_ALLOWED, PAYLOAD_TOO_LARGE, SCAN_PENDING | ✔ | – |
+| `listProposalOcrPages` | GET /proposals/{id}/ocr-pages | bid.ocr.read | – | `BidOcrPageList`: trang, độ tin cậy, văn bản nhận dạng, trạng thái xác nhận và cổng cho phân tích tài chính; chỉ người có toàn quyền xem hồ sơ | CONFLICT_UNDECLARED | – | – |
 | `declareConflictOfInterest` | POST /procurement-packages/{id}/conflict-declarations | bid.evaluate | `BidConflictDeclare` | ALREADY_DECLARED | ✔ | – |
 | `decideConflictOfInterest` | POST /bid-conflict-declarations/{id}/decision | bid.conflict.decide | `BidConflictDecision` | SELF_APPROVAL_DENIED | ✔ | ✔ |
 | `uploadProposalFile` | POST /proposals/files | bid.proposal.receive | tệp PDF | tệp được quét mã độc, lưu kho, đếm trang; chưa gắn vào hồ sơ nào | FILE_NOT_CLEAN, SCAN_PENDING, UPLOAD_NOT_PDF | ✔ | – |

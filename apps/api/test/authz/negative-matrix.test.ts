@@ -305,6 +305,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || confirmation_status || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.document_template where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.reporting_period where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.procurement_petition where tenant_id = $1),
+    (select string_agg(id::text || review_status || coalesce(reviewed_by::text, '') || coalesce(corrected_text_object_key, ''), ',' order by id) from machvon.document_page_ocr where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.inspection where tenant_id = $1),
     (select string_agg(id::text || status || version::text || accepted_amount_vnd::text, ',' order by id) from machvon.acceptance where tenant_id = $1),
     (select string_agg(id::text || active::text || amount_vnd::text, ',' order by id) from machvon.acceptance_line where tenant_id = $1),
@@ -1143,6 +1144,15 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, petitionId, criteriaPackageId, id(0x77, 1), id(0x78, 1), ACTOR],
       ],
     ]);
+    // A page of OCR read at 0.71 on that clean PDF version: it waits for a person, and the review command acts on it.
+    const ocrPageId = id(0xb6, 6);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.document_page_ocr (tenant_id, id, document_version_id, page_index, ocr_confidence, text_sha256, text_object_key, engine_version, review_status)
+         values ($1, $2, $3, 0, 0.71, repeat('a', 64), 'tenants/matrix/ocr-text', 'matrix-engine', 'NEEDS_REVIEW')`,
+        [TENANT_A, ocrPageId, documentVersionId],
+      ],
+    ]);
     // A dataset of the DIS module with a working contract, a DRAFT quality rule of it made by someone other than the callers, and a frozen snapshot of the open period: the quality commands act on them.
     const qualityDatasetId = id(0xde, 1);
     const qualityContractId = id(0xde, 2);
@@ -1302,6 +1312,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       conflictDeclarationId,
       resultId,
       petitionId,
+      ocrPageId,
       inspectionId: id(0x77, 19),
       acceptanceId: id(0x77, 20),
       diaryId: id(0x77, 40),

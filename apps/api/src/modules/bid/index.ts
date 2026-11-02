@@ -5,6 +5,7 @@ import { ContractorHistoryController } from './contractor-history.controller';
 import { CriteriaVersionController, CriteriaVersionReadsController } from './criteria.controller';
 import { UnboundIdentityPort } from './identity-port';
 import { MilestoneController, MilestoneReadsController } from './milestone.controller';
+import { OcrController } from './ocr.controller';
 import { PetitionController } from './petition.controller';
 import { ProcurementImportController } from './procurement-import.controller';
 import { ProposalController, ProposalReadsController } from './proposal.controller';
@@ -18,11 +19,11 @@ import { CONTRACTOR_IDENTITY_PORT } from './tokens';
  * criteria of a package, weighted to 100, screened for what nobody may ask and locked on approval (ST-BID-003), and the milestones of the choice of a contractor with the
  * file of the national bidding system that fills them and the differences it leaves for a person to settle (ST-BID-005), and the sealed proposals of the contractors, locked until
  * the opening of the bids and read by the evaluators who declared that no conflict of interest stands between them and the bidder (ST-BID-004), and the result of the choice, submitted by
- * a proposer, within the price of the package and for a winner no restriction stops, and approved on a decision document by someone else (ST-BID-006), and the petitions of contractors, with the last day to answer taken from rule data, answered with a document by someone who has no conflict of interest (ST-BID-007).
+ * a proposer, within the price of the package and for a winner no restriction stops, and approved on a decision document by someone else (ST-BID-006), and the petitions of contractors, with the last day to answer taken from rule data, answered with a document by someone who has no conflict of interest (ST-BID-007), and the OCR of the pages of a proposal, whose pages below the confidence threshold or with a table that does not add up are confirmed or corrected by a member of the evaluation team before the financial analysis runs (ST-BID-008).
  * The official lookup of a tax id is a port; until an agency confirms a contract for it the adapter says MISSING.
  */
 export const bidModule = defineModule({
   code: 'BID',
-  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, ResultController, PetitionController],
+  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, OcrController, ResultController, PetitionController],
   providers: [{ provide: CONTRACTOR_IDENTITY_PORT, useValue: new UnboundIdentityPort() }],
 });

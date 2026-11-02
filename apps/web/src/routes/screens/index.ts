@@ -39,6 +39,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'BID-03': () => import('../../screens/bid/PackageListScreen'),
   'BID-04': () => import('../../screens/bid/CriteriaScreen'),
   'BID-05': () => import('../../screens/bid/proposal/ProposalScreen'),
+  'BID-06': () => import('../../screens/bid/ocr/OcrScreen'),
   'BID-14': () => import('../../screens/bid/history/ContractLinksScreen'),
   'BID-15': () => import('../../screens/bid/ProcurementPlanScreen'),
   'BID-16': () => import('../../screens/bid/ProcurementPlanEditorScreen'),

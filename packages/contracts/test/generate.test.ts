@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { listOperations } from '../src/openapi-document';
-import { generatePermissions, generatePlanes, generateStepUp, generateTypes, main, renderPermissionsModule } from '../src/generate';
+import { generateModules, generatePermissions, generatePlanes, generateStepUp, generateTypes, main, renderPermissionsModule } from '../src/generate';
 import { PLANES, STEP_UP } from '../src/permissions.generated';
 import { documentWith, jsonResponse, loadRealDocument } from './fixtures';
 
@@ -132,7 +132,7 @@ describe('committed generated files', () => {
     const doc = loadRealDocument();
     const normalize = (text: string) => text.replace(/\r\n/g, '\n');
     expect(normalize(readFileSync(join(GENERATED_DIR, 'permissions.generated.ts'), 'utf8'))).toBe(
-      renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc)),
+      renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc), generateModules(doc)),
     );
     expect(normalize(readFileSync(join(GENERATED_DIR, 'types.generated.ts'), 'utf8'))).toBe(await generateTypes(doc));
   }, 120_000);

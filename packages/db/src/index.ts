@@ -435,6 +435,8 @@ export { PACKAGE_STATUS_OPEN_FOR_BIDS, PROPOSAL_FILE_DOC_TYPE, PROPOSAL_SUBJECT_
 export type { NewProposalInput, ProposalFileInput, ReceivedProposal } from './bid-proposal-store.ts';
 export { BidProposalReads } from './bid-proposal-reads.ts';
 export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-reads.ts';
+export { BidOcrStore, MAX_ENGINE_VERSION, MAX_RECORDED_PAGES } from './bid-ocr-store.ts';
+export type { CorrectedText, OcrListed, OcrListing, OcrPageInput, OcrPageLine, RecordedPage, ReviewInput as OcrReviewInput, ReviewedPage as OcrReviewedPage } from './bid-ocr-store.ts';
 export { BidConflictStore } from './bid-conflict-store.ts';
 export { CtrChangeChainStore } from './ctr-change-chain-store.ts';
 export { CtrChangeDecisionStore } from './ctr-change-decision-store.ts';
