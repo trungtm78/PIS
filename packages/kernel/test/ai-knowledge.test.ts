@@ -1,4 +1,4 @@
-import { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, assertEmbedding, assertWithin, checkCollection, chunkPages, retrievalLimit } from '../src/ai-knowledge.ts';
+import { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, assertEmbedding, assertWithin, checkCollection, chunkPages, cosineDistance, retrievalLimit } from '../src/ai-knowledge.ts';
 
 const M1 = '00000000-0000-4000-8000-000000000001';
 const thrown = (run: () => unknown): { code: string; status: number; detail?: string } => {
@@ -81,5 +81,22 @@ describe('the embedding and the question', () => {
     expect(retrievalLimit(undefined)).toBe(5);
     expect(retrievalLimit(20)).toBe(20);
     for (const bad of [0, 21, 1.5, -1]) expect(thrown(() => retrievalLimit(bad)).detail).toBe('limit');
+  });
+});
+
+describe('the distance of two embeddings', () => {
+  it('is zero for the same direction, one for texts that share nothing and two for opposite ones, whatever the length of the vectors', () => {
+    expect(cosineDistance([1, 0], [1, 0])).toBeCloseTo(0, 10);
+    expect(cosineDistance([1, 0], [5, 0])).toBeCloseTo(0, 10);
+    expect(cosineDistance([1, 0], [0, 1])).toBeCloseTo(1, 10);
+    expect(cosineDistance([1, 0], [-1, 0])).toBeCloseTo(2, 10);
+    expect(cosineDistance([1, 1], [1, 0])).toBeCloseTo(1 - Math.SQRT1_2, 10);
+  });
+
+  it('puts a vector with no length as far as can be from any other, and reads a missing place as zero', () => {
+    expect(cosineDistance([0, 0], [1, 0])).toBe(1);
+    expect(cosineDistance([1, 0], [0, 0])).toBe(1);
+    expect(cosineDistance([0, 0], [0, 0])).toBe(1);
+    expect(cosineDistance([1, 2], [1])).toBeCloseTo(1 - 1 / Math.sqrt(5), 10);
   });
 });

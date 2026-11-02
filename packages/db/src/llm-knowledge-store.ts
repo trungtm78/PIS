@@ -1,7 +1,8 @@
-import { DomainError, assertEmbedding, assertWithin, checkCollection, retrievalLimit } from '@machvon/kernel';
+import { DomainError, assertEmbedding, assertWithin, checkCollection, retrievalLimit, routesFor } from '@machvon/kernel';
 import type { KnowledgeChunk, KnowledgeCollectionInput } from '@machvon/kernel';
 import { cursorFor, cursorOf } from './dgv-keyset.ts';
 import { NOT_SEALED, VERSION_JOINS } from './document-store.ts';
+import { LlmRegistryStore } from './llm-registry-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -226,6 +227,29 @@ export class LlmKnowledgeStore {
     if (model.status !== 'APPROVED') throw new DomainError('MODEL_NOT_APPROVED', 422, 'embedding_model_id');
     if (model.provider_status !== 'ACTIVE') throw new DomainError('PROVIDER_UNAVAILABLE', 503, 'embedding_model_id');
     return { providerModelId: model.model_id, modelRefId: embeddingModelId.toLowerCase(), providerId: model.provider_id };
+  }
+
+  /**
+   * The model that embeds passages a caller has already chosen, for passages of a class: it is one that embeds (422), is approved and on an active provider (as for a collection), takes the class (422), and is
+   * reached over a route the policy in force allows for the class (422 `AI_ROUTE_NOT_ALLOWED`): the text is sent nowhere else, as for a completion.
+   */
+  async rankingModel(tx: TenantTx, embeddingModelId: string, classification: string): Promise<EmbeddingModel> {
+    const model = await this.providerModelOf(tx, embeddingModelId);
+    const rows = await tx.query<{ capabilities: { embedding?: unknown } | null; max_classification: string; route_class: string }>(
+      'select m.capabilities, m.max_classification, p.route_class from machvon.ai_model m join machvon.ai_provider p on p.tenant_id = m.tenant_id and p.id = m.provider_id where m.id = $1::uuid',
+      [embeddingModelId],
+    );
+    const row = rows[0] as { capabilities: { embedding?: unknown } | null; max_classification: string; route_class: string };
+    if (row.capabilities?.embedding !== true) throw new DomainError('VALIDATION_FAILED', 422, 'embedding_model_id');
+    try {
+      assertWithin(classification, row.max_classification);
+    } catch {
+      throw new DomainError('VALIDATION_FAILED', 422, 'embedding_model_id');
+    }
+    const inForce = await new LlmRegistryStore().published(tx);
+    const allowed = routesFor(classification as Parameters<typeof routesFor>[0], inForce === undefined ? undefined : { matrix: inForce.matrix, internationalEnabled: inForce.internationalEnabled });
+    if (!allowed.includes(row.route_class as (typeof allowed)[number])) throw new DomainError('AI_ROUTE_NOT_ALLOWED', 422, 'embedding_model_id');
+    return model;
   }
 
   /**

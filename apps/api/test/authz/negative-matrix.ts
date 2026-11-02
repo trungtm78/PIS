@@ -210,6 +210,8 @@ export interface MatrixTargets {
   petitionId: string;
   /** A page of OCR of tenant A that waits for a person (a reading at 0.71 on a clean PDF version), read by the pipeline and not yet reviewed. */
   ocrPageId: string;
+  /** An analysis run of tenant A that is still running (version 1), asked for by someone other than the callers. */
+  analysisRunId: string;
   /** A REQUESTED inspection (version 1) of the draft contract, asked for by someone other than the callers. */
   inspectionId: string;
   /** Quality acceptance minutes in DRAFT (version 1) of the draft contract, drafted by someone other than the callers. */
@@ -2161,6 +2163,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   reviewOcrPage: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/document-page-ocr/${t.ocrPageId}/review`, body: { decision: 'CONFIRMED' } }),
+  },
+  // The AI analysis of a proposal: no run is asked for, no model is called and no run is cancelled by a caller that is refused.
+  post_analysis_runs: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/analysis-runs', body: { proposal_id: t.analysisRunId, criteria_version_id: t.criteriaDraftId, profile_version_id: t.analysisRunId } }),
+  },
+  post_analysis_runs_id_cancel: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/analysis-runs/${t.analysisRunId}/cancel`, ifMatch: '"1"', body: { reason: 'Cancelled by the matrix' } }),
   },
   uploadOcrCorrectionFile: {
     referencesTenantIds: false,

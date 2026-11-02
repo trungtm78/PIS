@@ -1,0 +1,32 @@
+.bid-finding {
+  margin-bottom: 16px;
+}
+.bid-evidence-list {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.bid-evidence {
+  padding: 8px 12px;
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 6px;
+}
+.bid-evidence[data-verified='false'] {
+  border-color: var(--shell-danger, #b91c1c);
+}
+.bid-evidence-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 6px;
+}
+.bid-quote {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--shell-line, #e4e0e6);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

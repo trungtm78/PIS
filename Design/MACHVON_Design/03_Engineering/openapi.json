@@ -917,7 +917,7 @@
     "/analysis-runs": {
       "post": {
         "operationId": "post_analysis_runs",
-        "summary": "Reserve ngân sách và enqueue AI",
+        "summary": "Chạy phân tích AI một hồ sơ dự thầu: kiểm xung đột và trang OCR, băm đầu vào, phân loại và chọn tuyến, đặt chỗ ngân sách, kiểm dẫn chứng trên trang (BID-07)",
         "x-permission": "ai.analyze",
         "parameters": [
           {
@@ -928,24 +928,15 @@
               "type": "string",
               "minLength": 16
             }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Required for existing-resource transitions; strong ETag of current version."
           }
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "The run: new, or the existing run of the same input",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/AnalysisRunStarted"
                 }
               }
             }
@@ -1040,7 +1031,29 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "BID"
+        ],
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED",
+          "CRITERIA_STATE_INVALID",
+          "PROFILE_NOT_PUBLISHED",
+          "TOOL_NOT_READ_ONLY",
+          "OCR_NOT_RECORDED",
+          "OCR_REVIEW_PENDING",
+          "AI_ROUTE_NOT_ALLOWED",
+          "BUDGET_EXCEEDED",
+          "AI_KILL_SWITCH_ENGAGED",
+          "VALIDATION_FAILED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.analysis.finished.v1",
+          "llm.request.completed.v1",
+          "llm.request.failed.v1",
+          "llm.request.rejected.v1"
+        ]
       }
     },
     "/analysis-runs/{id}/cancel": {
@@ -1168,7 +1181,30 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "BID"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisCancel"
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "ANALYSIS_STATE_INVALID",
+          "CONFLICT_UNDECLARED",
+          "VERSION_CONFLICT",
+          "VALIDATION_FAILED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.analysis.cancelled.v1"
+        ]
       }
     },
     "/findings/{id}/review": {
@@ -10080,36 +10116,39 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "proposal_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "QUEUED",
+                "RUNNING",
+                "AWAITING_REVIEW",
+                "COMPLETED",
+                "FAILED",
+                "CANCELLED",
+                "REJECTED_BY_POLICY"
+              ]
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "Scoped result: only the runs of proposals the caller has the full view of",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/AnalysisRunList"
                 }
               }
             }
@@ -10215,53 +10254,15 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "Scoped result: only a run of a proposal the caller has the full view of",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/AnalysisRunView"
                 }
               }
             }
@@ -10375,36 +10376,23 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "run_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "Scoped result: only the findings of runs of proposals the caller has the full view of",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/AnalysisFindingSummaryList"
                 }
               }
             }
@@ -10510,53 +10498,15 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 200,
-              "default": 50
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "Scoped result: only a finding of a run of a proposal the caller has the full view of",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object"
-                      }
-                    },
-                    "next_cursor": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "snapshot_id": {
-                      "type": "string"
-                    },
-                    "as_of": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "$ref": "#/components/schemas/AnalysisFindingSummary"
                 }
               }
             }
@@ -113332,15 +113282,40 @@
               "maximum": 200,
               "default": 50
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SUPPORTED",
+                "CONTRADICTED",
+                "MISSING",
+                "NEEDS_REVIEW"
+              ]
+            }
+          },
+          {
+            "name": "missing_source",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "description": "Only the findings that lack a source, or only the ones that do not"
           }
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "Scoped result: only the caller with the full view of the proposal",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AnalysisFindingList"
                 }
               }
             }
@@ -137006,6 +136981,115 @@
           "CONFLICT_UNDECLARED"
         ]
       }
+    },
+    "/procurement-packages/{id}/proposal-passages": {
+      "get": {
+        "operationId": "searchProposalPassages",
+        "summary": "Truy xuất đoạn văn của các hồ sơ dự thầu của gói mà người gọi có toàn quyền xem: chỉ trang của hồ sơ được phép được nhúng và so sánh, ACL áp dụng trước khi tính độ gần (BID-09)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.evaluate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "embedding_model_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The approved embedding model that ranks the passages: it must embed, take the class of the files and not be reached over a route the class forbids"
+          },
+          {
+            "name": "question",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Only the passages of the proposals the caller has the full view of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidProposalPassageList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "AI_ROUTE_NOT_ALLOWED",
+          "AI_KILL_SWITCH_ENGAGED",
+          "MODEL_NOT_APPROVED"
+        ]
+      }
     }
   },
   "components": {
@@ -137278,6 +137362,11 @@
           "profile_version_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "max_cost_vnd": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,17})$",
+            "description": "The most the run may cost, in whole VND: a run whose estimate is above it is refused before any model is called"
           }
         }
       },
@@ -168421,6 +168510,671 @@
                 }
               }
             }
+          }
+        }
+      },
+      "AnalysisCancel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 1000
+          }
+        }
+      },
+      "AnalysisRunStarted": {
+        "type": "object",
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version",
+          "resource_id",
+          "reused",
+          "failure_code"
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reused": {
+            "type": "boolean",
+            "description": "The same input was run before: this is that run, and no model was asked"
+          },
+          "failure_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why a run that did not reach the experts ended: AI_ROUTE_EXHAUSTED, REJECTED_NO_CITATION, OUTPUT_INVALID, AI_ROUTE_NOT_ALLOWED..."
+          }
+        }
+      },
+      "AnalysisRunView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "proposal_id",
+          "package",
+          "contractor",
+          "criteria_version_id",
+          "profile_version_id",
+          "status",
+          "data_classification",
+          "route_class",
+          "policy_version_id",
+          "failure_code",
+          "failed_step",
+          "timeline",
+          "supersedes_run_id",
+          "requested_by",
+          "started_at",
+          "finished_at",
+          "cancel_reason",
+          "cost_vnd",
+          "finding_count",
+          "missing_source_count",
+          "reviewed_count",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "proposal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "contractor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "legal_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "legal_name": {
+                "type": "string"
+              }
+            }
+          },
+          "criteria_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "profile_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING",
+              "AWAITING_REVIEW",
+              "COMPLETED",
+              "FAILED",
+              "CANCELLED",
+              "REJECTED_BY_POLICY"
+            ]
+          },
+          "data_classification": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "INTERNAL",
+              "CONFIDENTIAL",
+              "PERSONAL",
+              "IMPORTANT_CORE"
+            ],
+            "description": "The highest class of the files of the run, from the files and never from the caller"
+          },
+          "route_class": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "DOMESTIC_HOSTED",
+              "SELF_HOSTED",
+              "INTERNATIONAL",
+              null
+            ],
+            "description": "The route of the last attempt; null when the request was refused before any"
+          },
+          "policy_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "The classification policy in force when the request was routed; null for the baseline"
+          },
+          "failure_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "failed_step": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "EXTRACT",
+              "MATCH",
+              "VERIFY",
+              null
+            ]
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "step",
+                "state"
+              ],
+              "properties": {
+                "step": {
+                  "type": "string",
+                  "enum": [
+                    "EXTRACT",
+                    "MATCH",
+                    "VERIFY",
+                    "COMPLETE"
+                  ]
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "DONE",
+                    "FAILED",
+                    "PENDING",
+                    "SKIPPED"
+                  ]
+                }
+              }
+            }
+          },
+          "supersedes_run_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "requested_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "cancel_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cost_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Whole VND settled at the gateway"
+          },
+          "finding_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "missing_source_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reviewed_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "description": "A run as a screen reads it: never the hash of its input or the request it made at the gateway"
+      },
+      "AnalysisEvidenceView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "document_version_id",
+          "page_index",
+          "quote_excerpt",
+          "calc_ref",
+          "verified_present"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "DOCUMENT",
+              "SCORECARD",
+              "DETERMINISTIC_CALC"
+            ]
+          },
+          "document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "page_index": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "quote_excerpt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500
+          },
+          "calc_ref": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "The figure the pipeline computed in code"
+          },
+          "verified_present": {
+            "type": "boolean",
+            "description": "The words quoted are on the page they name (BR-BID-07)"
+          }
+        }
+      },
+      "AnalysisFindingView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "run_id",
+          "criterion_id",
+          "status",
+          "finding",
+          "confidence_type",
+          "evidence_count",
+          "missing_source",
+          "final_status",
+          "reviewed_at",
+          "created_at",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "criterion_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "MISSING",
+              "NEEDS_REVIEW"
+            ]
+          },
+          "finding": {
+            "type": "string"
+          },
+          "confidence_type": {
+            "type": "string",
+            "enum": [
+              "CALIBRATED",
+              "HEURISTIC",
+              "NONE"
+            ],
+            "description": "A signal, never the probability of being right (BR-BID-08)"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The citations that were found on their page"
+          },
+          "missing_source": {
+            "type": "boolean",
+            "description": "The finding claimed without a verified citation and was taken back to NEEDS_REVIEW"
+          },
+          "final_status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "MISSING",
+              "NEEDS_REVIEW",
+              null
+            ]
+          },
+          "reviewed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalysisEvidenceView"
+            }
+          }
+        }
+      },
+      "AnalysisFindingList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "run",
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "run": {
+            "$ref": "#/components/schemas/AnalysisRunView"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalysisFindingView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AnalysisRunList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalysisRunView"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AnalysisFindingSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "run_id",
+          "proposal_id",
+          "criterion_id",
+          "status",
+          "confidence_type",
+          "evidence_count",
+          "missing_source",
+          "final_status",
+          "reviewed_at",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "proposal_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "criterion_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "MISSING",
+              "NEEDS_REVIEW"
+            ]
+          },
+          "confidence_type": {
+            "type": "string",
+            "enum": [
+              "CALIBRATED",
+              "HEURISTIC",
+              "NONE"
+            ]
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "missing_source": {
+            "type": "boolean"
+          },
+          "final_status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "SUPPORTED",
+              "CONTRADICTED",
+              "MISSING",
+              "NEEDS_REVIEW",
+              null
+            ]
+          },
+          "reviewed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "How a finding stands, without what it says or what it rests on: those come with listAnalysisFindings"
+      },
+      "AnalysisFindingSummaryList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalysisFindingSummary"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BidProposalPassage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_version_id",
+          "page_index",
+          "chunk_no",
+          "classification",
+          "distance",
+          "text"
+        ],
+        "properties": {
+          "document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "page_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "chunk_no": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "INTERNAL",
+              "CONFIDENTIAL",
+              "PERSONAL",
+              "IMPORTANT_CORE"
+            ]
+          },
+          "distance": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "BidProposalPassageList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidProposalPassage"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

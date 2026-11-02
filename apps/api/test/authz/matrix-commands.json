@@ -332,6 +332,8 @@
     "recordMaturityEvidence",
     "reviewMaturityEvidence",
     "reviewOcrPage",
+    "post_analysis_runs",
+    "post_analysis_runs_id_cancel",
     "createMaturityMilestone",
     "post_maturity_assessments_id_publish",
     "post_master_records_id_merge",

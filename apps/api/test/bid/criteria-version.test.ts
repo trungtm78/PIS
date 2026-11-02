@@ -219,9 +219,9 @@ describe('criteria versions commands and reads (ST-BID-003)', () => {
       expect([again.status, again.json.code]).toEqual([409, 'CRITERIA_STATE_INVALID']);
       await seedAs([
         [
-          `insert into machvon.analysis_run (tenant_id, id, proposal_id, criteria_version_id, profile_version_id, input_hash, status, budget_reservation_id)
-           values ($1, $2, $3, $4, $5, repeat('b', 64), 'COMPLETED', $6)`,
-          [TENANT_A, randomUUID(), randomUUID(), criteriaId, randomUUID(), randomUUID()],
+          `insert into machvon.analysis_run (tenant_id, id, proposal_id, criteria_version_id, profile_version_id, input_hash, status, budget_reservation_id, package_id, data_classification, prompt_version_id, document_version_set_sha256, requested_by)
+           values ($1, $2, $3, $4, $5, repeat('b', 64), 'RUNNING', $6, $7, 'CONFIDENTIAL', $8, repeat('c', 64), $9)`,
+          [TENANT_A, randomUUID(), randomUUID(), criteriaId, randomUUID(), randomUUID(), seeded.packageId, randomUUID(), memberId(PLANNER)],
         ],
       ]);
       const locked = await approve(APPROVER, criteriaId, 2);

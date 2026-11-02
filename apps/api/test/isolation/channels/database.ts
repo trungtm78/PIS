@@ -60,6 +60,7 @@ import {
   PACKAGE_FIXTURES,
   PAYMENT_COMP_FIXTURES,
   OCR_FIXTURES,
+  RUN_FIXTURES,
   PLAN_COMP_FIXTURES,
   PARCEL_FIXTURES,
   PETITION_FIXTURES,
@@ -638,6 +639,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'reviewOcrPage',
   'uploadOcrCorrectionFile',
   'listProposalOcrPages',
+  'post_analysis_runs',
+  'post_analysis_runs_id_cancel',
+  'listAnalysisFindings',
+  'get_resources_analysis_run',
+  'get_resources_analysis_run_id',
+  'get_resources_analysis_finding',
+  'get_resources_analysis_finding_id',
+  'searchProposalPassages',
   'get_resources_proposal',
   'get_resources_proposal_id',
   'get_resources_procurement_package',
@@ -1787,6 +1796,18 @@ const INSERT_OCR_PAGE = `insert into machvon.document_page_ocr
   (tenant_id, id, document_version_id, page_index, ocr_confidence, text_sha256, text_object_key, engine_version, review_status)
   values ($1, $2, $3, 0, 0.71, repeat('c', 64), $4, $5, 'NEEDS_REVIEW') on conflict do nothing`;
 
+const INSERT_ANALYSIS_RUN = `insert into machvon.analysis_run
+  (tenant_id, id, proposal_id, criteria_version_id, profile_version_id, input_hash, status, package_id, data_classification, route_class, prompt_version_id, document_version_set_sha256, requested_by, ai_request_id, finished_at, version)
+  values ($1, $2, $3, $4, $5, $6, 'AWAITING_REVIEW', $7, 'CONFIDENTIAL', 'SELF_HOSTED', $8, repeat('e', 64), $9, $10, now(), 2) on conflict do nothing`;
+
+const INSERT_ANALYSIS_FINDING = `insert into machvon.analysis_finding
+  (tenant_id, id, run_id, criterion_id, status, finding, evidence_refs, confidence_type, evidence_count, missing_source)
+  values ($1, $2, $3, 'ISO1', 'SUPPORTED', $4, '[]'::jsonb, 'HEURISTIC', 1, false) on conflict do nothing`;
+
+const INSERT_ANALYSIS_EVIDENCE = `insert into machvon.analysis_evidence
+  (tenant_id, id, finding_id, evidence_kind, document_version_id, page_index, quote_sha256, quote_excerpt, verified_present)
+  values ($1, $2, $3, 'DOCUMENT', $4, 0, repeat('f', 64), $5, true) on conflict do nothing`;
+
 const INSERT_CONFLICT = `insert into machvon.bid_conflict_declaration
   (tenant_id, id, package_id, user_id, has_conflict, relation_text, created_by, updated_by, version)
   values ($1, $2, $3, $4, true, $5, $4, $4, 1) on conflict do nothing`;
@@ -2419,6 +2440,11 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_RUN, [tenantId, llm.runId, llm.profileId, llm.datasetId, ACTOR_ID]);
     await client.query(INSERT_LLM_REQUEST, [tenantId, llm.requestId, llm.profileId, llm.policyId, ACTOR_ID, 'c'.repeat(64)]);
     await client.query(INSERT_LLM_BUDGET, [tenantId, llm.budgetId, ACTOR_ID]);
+    // The AI analysis of the proposal: a run that waits for the experts, its finding and the citation under it.
+    const analysis = RUN_FIXTURES[tenant];
+    await client.query(INSERT_ANALYSIS_RUN, [tenantId, analysis.id, proposal.id, criteria.approvedId, llm.profileId, analysis.inputHash, pack.id, llm.promptId, ACTOR_ID, llm.requestId]);
+    await client.query(INSERT_ANALYSIS_FINDING, [tenantId, analysis.findingId, analysis.id, analysis.finding]);
+    await client.query(INSERT_ANALYSIS_EVIDENCE, [tenantId, analysis.evidenceId, analysis.findingId, OCR_FIXTURES[tenant].versionId, analysis.quote]);
     const reconciliation = AI_INVOICE_FIXTURES[tenant];
     await client.query(INSERT_LLM_RECONCILIATION, [tenantId, reconciliation.id, llm.providerId, reconciliation.invoiceRef, ACTOR_ID]);
     await client.query(INSERT_LLM_RESERVATION, [tenantId, llm.reservationId, llm.requestId, llm.reservationNote]);
@@ -2495,6 +2521,9 @@ const SNAPSHOT_TABLES = [
   'procurement_plan_event',
   'procurement_petition',
   'document_page_ocr',
+  'analysis_run',
+  'analysis_finding',
+  'analysis_evidence',
   'contract',
   'contract_revision',
   'change_chain_config',

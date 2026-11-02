@@ -109,3 +109,19 @@ export function retrievalLimit(value: number | undefined): number {
   if (!Number.isInteger(limit) || limit < 1 || limit > MAX_RETRIEVED) throw new DomainError('VALIDATION_FAILED', 422, 'limit');
   return limit;
 }
+
+/**
+ * The distance of two embeddings: one minus their cosine, so that the nearest text has the smallest. A vector with no length has nothing to compare, and is as far as can be (1) from any other.
+ */
+export function cosineDistance(left: readonly number[], right: readonly number[]): number {
+  let dot = 0;
+  let leftLength = 0;
+  let rightLength = 0;
+  left.forEach((value, place) => {
+    const other = right[place] ?? 0;
+    dot += value * other;
+    leftLength += value * value;
+    rightLength += other * other;
+  });
+  return leftLength === 0 || rightLength === 0 ? 1 : 1 - dot / (Math.sqrt(leftLength) * Math.sqrt(rightLength));
+}

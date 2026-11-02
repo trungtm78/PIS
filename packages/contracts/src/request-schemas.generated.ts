@@ -3,7 +3,8 @@ import type { Schema } from './validation.ts';
 
 export const REQUEST_SCHEMAS: Readonly<Record<string, Schema>> = {
   "AckRequest": {"type":"object","additionalProperties":false,"required":[],"properties":{"comment":{"type":"string","maxLength":1000}}},
-  "AnalysisRequest": {"type":"object","additionalProperties":false,"required":["proposal_id","criteria_version_id","profile_version_id"],"properties":{"proposal_id":{"type":"string","format":"uuid"},"criteria_version_id":{"type":"string","format":"uuid"},"profile_version_id":{"type":"string","format":"uuid"}}},
+  "AnalysisCancel": {"type":"object","additionalProperties":false,"required":["reason"],"properties":{"reason":{"type":"string","minLength":3,"maxLength":1000}}},
+  "AnalysisRequest": {"type":"object","additionalProperties":false,"required":["proposal_id","criteria_version_id","profile_version_id"],"properties":{"proposal_id":{"type":"string","format":"uuid"},"criteria_version_id":{"type":"string","format":"uuid"},"profile_version_id":{"type":"string","format":"uuid"},"max_cost_vnd":{"type":"string","pattern":"^(0|[1-9][0-9]{0,17})$"}}},
   "ApprovalDecision": {"type":"object","additionalProperties":false,"required":["decision"],"properties":{"decision":{"type":"string","enum":["approve","return","reject"]},"reason":{"type":"string","maxLength":2000},"evidence_ids":{"type":"array","items":{"type":"string","format":"uuid"}},"signature_ref":{"type":"string"},"return_to_step":{"type":"string"}}},
   "AstAcknowledgeEvaluationTrigger": {"type":"object","additionalProperties":false,"properties":{"mne_evaluation_id":{"type":"string","format":"uuid"}},"required":["mne_evaluation_id"]},
   "AstAcknowledgeWarrantyClaim": {"type":"object","additionalProperties":false,"properties":{"committed_fix_on":{"type":"string","format":"date"},"note":{"type":"string","minLength":1,"maxLength":2000}},"required":["committed_fix_on"]},
@@ -728,6 +729,7 @@ export const REQUEST_BODIES: Readonly<Record<string, string>> = {
   "postCompensationPlan": "LndPostCompensationPlan",
   "post_acceptances_id_decision": "Decision",
   "post_analysis_runs": "AnalysisRequest",
+  "post_analysis_runs_id_cancel": "AnalysisCancel",
   "post_budgets_id_reconcile": "Decision",
   "post_contract_changes_id_decision": "CtrContractChangeDecision",
   "post_contracts_id_activate": "CtrActivateContract",

@@ -111,7 +111,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Reserve ngân sách và enqueue AI */
+        /** Chạy phân tích AI một hồ sơ dự thầu: kiểm xung đột và trang OCR, băm đầu vào, phân loại và chọn tuyến, đặt chỗ ngân sách, kiểm dẫn chứng trên trang (BID-07) */
         post: operations["post_analysis_runs"];
         delete?: never;
         options?: never;
@@ -15675,6 +15675,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/procurement-packages/{id}/proposal-passages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Truy xuất đoạn văn của các hồ sơ dự thầu của gói mà người gọi có toàn quyền xem: chỉ trang của hồ sơ được phép được nhúng và so sánh, ACL áp dụng trước khi tính độ gần (BID-09) */
+        get: operations["searchProposalPassages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -15757,6 +15774,8 @@ export interface components {
             criteria_version_id: string;
             /** Format: uuid */
             profile_version_id: string;
+            /** @description The most the run may cost, in whole VND: a run whose estimate is above it is refused before any model is called */
+            max_cost_vnd?: string;
         };
         DrillQuery: {
             /** Format: uuid */
@@ -24171,6 +24190,181 @@ export interface components {
                 page_count: number;
             }[];
         };
+        AnalysisCancel: {
+            reason: string;
+        };
+        AnalysisRunStarted: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id: string;
+            /** @description The same input was run before: this is that run, and no model was asked */
+            reused: boolean;
+            /** @description Why a run that did not reach the experts ended: AI_ROUTE_EXHAUSTED, REJECTED_NO_CITATION, OUTPUT_INVALID, AI_ROUTE_NOT_ALLOWED... */
+            failure_code: string | null;
+        };
+        /** @description A run as a screen reads it: never the hash of its input or the request it made at the gateway */
+        AnalysisRunView: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            proposal_id: string;
+            package: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
+            contractor: {
+                /** Format: uuid */
+                id: string;
+                legal_name: string;
+            };
+            /** Format: uuid */
+            criteria_version_id: string;
+            /** Format: uuid */
+            profile_version_id: string;
+            /** @enum {string} */
+            status: "QUEUED" | "RUNNING" | "AWAITING_REVIEW" | "COMPLETED" | "FAILED" | "CANCELLED" | "REJECTED_BY_POLICY";
+            /**
+             * @description The highest class of the files of the run, from the files and never from the caller
+             * @enum {string}
+             */
+            data_classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE";
+            /**
+             * @description The route of the last attempt; null when the request was refused before any
+             * @enum {string|null}
+             */
+            route_class: "DOMESTIC_HOSTED" | "SELF_HOSTED" | "INTERNATIONAL" | null;
+            /**
+             * Format: uuid
+             * @description The classification policy in force when the request was routed; null for the baseline
+             */
+            policy_version_id: string | null;
+            failure_code: string | null;
+            /** @enum {string|null} */
+            failed_step: "EXTRACT" | "MATCH" | "VERIFY" | null;
+            timeline: {
+                /** @enum {string} */
+                step: "EXTRACT" | "MATCH" | "VERIFY" | "COMPLETE";
+                /** @enum {string} */
+                state: "DONE" | "FAILED" | "PENDING" | "SKIPPED";
+            }[];
+            /** Format: uuid */
+            supersedes_run_id: string | null;
+            /** Format: uuid */
+            requested_by: string;
+            /** Format: date-time */
+            started_at: string;
+            /** Format: date-time */
+            finished_at: string | null;
+            cancel_reason: string | null;
+            /** @description Whole VND settled at the gateway */
+            cost_vnd: string | null;
+            finding_count: number;
+            missing_source_count: number;
+            reviewed_count: number;
+            /** Format: date-time */
+            created_at: string;
+            version: number;
+        };
+        AnalysisEvidenceView: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "DOCUMENT" | "SCORECARD" | "DETERMINISTIC_CALC";
+            /** Format: uuid */
+            document_version_id: string | null;
+            page_index: number | null;
+            quote_excerpt: string | null;
+            /** @description The figure the pipeline computed in code */
+            calc_ref: Record<string, never> | null;
+            /** @description The words quoted are on the page they name (BR-BID-07) */
+            verified_present: boolean;
+        };
+        AnalysisFindingView: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            run_id: string;
+            criterion_id: string;
+            /** @enum {string} */
+            status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+            finding: string;
+            /**
+             * @description A signal, never the probability of being right (BR-BID-08)
+             * @enum {string}
+             */
+            confidence_type: "CALIBRATED" | "HEURISTIC" | "NONE";
+            /** @description The citations that were found on their page */
+            evidence_count: number;
+            /** @description The finding claimed without a verified citation and was taken back to NEEDS_REVIEW */
+            missing_source: boolean;
+            /** @enum {string|null} */
+            final_status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW" | null;
+            /** Format: date-time */
+            reviewed_at: string | null;
+            /** Format: date-time */
+            created_at: string;
+            evidence: components["schemas"]["AnalysisEvidenceView"][];
+        };
+        AnalysisFindingList: {
+            run: components["schemas"]["AnalysisRunView"];
+            items: components["schemas"]["AnalysisFindingView"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        AnalysisRunList: {
+            items: components["schemas"]["AnalysisRunView"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description How a finding stands, without what it says or what it rests on: those come with listAnalysisFindings */
+        AnalysisFindingSummary: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            run_id: string;
+            /** Format: uuid */
+            proposal_id: string | null;
+            criterion_id: string;
+            /** @enum {string} */
+            status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+            /** @enum {string} */
+            confidence_type: "CALIBRATED" | "HEURISTIC" | "NONE";
+            evidence_count: number;
+            missing_source: boolean;
+            /** @enum {string|null} */
+            final_status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW" | null;
+            /** Format: date-time */
+            reviewed_at: string | null;
+            /** Format: date-time */
+            created_at: string;
+        };
+        AnalysisFindingSummaryList: {
+            items: components["schemas"]["AnalysisFindingSummary"][];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        BidProposalPassage: {
+            /** Format: uuid */
+            document_version_id: string;
+            page_index: number;
+            chunk_no: number;
+            /** @enum {string} */
+            classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE";
+            distance: number;
+            text: string;
+        };
+        BidProposalPassageList: {
+            items: components["schemas"]["BidProposalPassage"][];
+            /** Format: date-time */
+            as_of: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -24791,8 +24985,6 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
-                /** @description Required for existing-resource transitions; strong ETag of current version. */
-                "If-Match"?: string;
             };
             path?: never;
             cookie?: never;
@@ -24803,13 +24995,13 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description The run: new, or the existing run of the same input */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["AnalysisRunStarted"];
                 };
             };
             /** @description Invalid request */
@@ -24899,7 +25091,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisCancel"];
+            };
+        };
         responses: {
             /** @description Scoped result; sensitive fields masked */
             200: {
@@ -31023,6 +31219,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                proposal_id?: string;
+                status?: "QUEUED" | "RUNNING" | "AWAITING_REVIEW" | "COMPLETED" | "FAILED" | "CANCELLED" | "REJECTED_BY_POLICY";
             };
             header?: never;
             path?: never;
@@ -31030,19 +31228,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description Scoped result: only the runs of proposals the caller has the full view of */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["AnalysisRunList"];
                 };
             };
             /** @description Invalid request */
@@ -31121,10 +31313,7 @@ export interface operations {
     };
     get_resources_analysis_run_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -31133,19 +31322,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description Scoped result: only a run of a proposal the caller has the full view of */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["AnalysisRunView"];
                 };
             };
             /** @description Invalid request */
@@ -31227,6 +31410,7 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                run_id?: string;
             };
             header?: never;
             path?: never;
@@ -31234,19 +31418,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description Scoped result: only the findings of runs of proposals the caller has the full view of */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["AnalysisFindingSummaryList"];
                 };
             };
             /** @description Invalid request */
@@ -31325,10 +31503,7 @@ export interface operations {
     };
     get_resources_analysis_finding_id: {
         parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -31337,19 +31512,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description Scoped result: only a finding of a run of a proposal the caller has the full view of */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        items?: Record<string, never>[];
-                        next_cursor?: string | null;
-                        snapshot_id?: string;
-                        /** Format: date-time */
-                        as_of?: string;
-                    };
+                    "application/json": components["schemas"]["AnalysisFindingSummary"];
                 };
             };
             /** @description Invalid request */
@@ -102564,6 +102733,9 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                status?: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+                /** @description Only the findings that lack a source, or only the ones that do not */
+                missing_source?: "true" | "false";
             };
             header?: never;
             path: {
@@ -102573,13 +102745,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description Scoped result: only the caller with the full view of the proposal */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["AnalysisFindingList"];
                 };
             };
             /** @description Unauthenticated */
@@ -119605,6 +119777,69 @@ export interface operations {
             };
             /** @description Domain invariant failure */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    searchProposalPassages: {
+        parameters: {
+            query: {
+                /** @description The approved embedding model that ranks the passages: it must embed, take the class of the files and not be reached over a route the class forbids */
+                embedding_model_id: string;
+                question: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Only the passages of the proposals the caller has the full view of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidProposalPassageList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

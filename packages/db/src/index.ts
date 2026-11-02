@@ -437,6 +437,8 @@ export { BidProposalReads } from './bid-proposal-reads.ts';
 export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-reads.ts';
 export { BidOcrStore, MAX_ENGINE_VERSION, MAX_RECORDED_PAGES } from './bid-ocr-store.ts';
 export type { CorrectedText, OcrListed, OcrListing, OcrPageInput, OcrPageLine, RecordedPage, ReviewInput as OcrReviewInput, ReviewedPage as OcrReviewedPage } from './bid-ocr-store.ts';
+export { BidAnalysisStore } from './bid-analysis-store.ts';
+export type { Admission as BidAnalysisAdmission, CancelledRun as BidCancelledRun, EvidenceLine as BidEvidenceLine, FindingFilter as BidFindingFilter, FindingLine as BidFindingLine, FoundRun as BidFoundRun, NewEvidence as BidNewEvidence, NewFinding as BidNewFinding, RecordedOcrPage, RunContext as BidRunContext, RunLine as BidRunLine } from './bid-analysis-store.ts';
 export { BidConflictStore } from './bid-conflict-store.ts';
 export { CtrChangeChainStore } from './ctr-change-chain-store.ts';
 export { CtrChangeDecisionStore } from './ctr-change-decision-store.ts';

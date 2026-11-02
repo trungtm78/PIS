@@ -5345,6 +5345,30 @@
       "module": "LND",
       "statusBasis": "convention",
       "source": "openapi"
+    },
+    "ANALYSIS_STATE_INVALID": {
+      "status": 409,
+      "title": "Analysis state invalid",
+      "meaning": "Raised by post_analysis_runs_id_cancel (POST /analysis-runs/{id}/cancel) for a run that is over, or that has a finding an expert already reviewed",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "story:ST-BID-009"
+    },
+    "OCR_REVIEW_PENDING": {
+      "status": 409,
+      "title": "Ocr review pending",
+      "meaning": "Raised by post_analysis_runs (POST /analysis-runs) while a page of the files of the proposal waits for an evaluator to confirm or correct it: the analysis does not run on it",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "story:ST-BID-009"
+    },
+    "OCR_NOT_RECORDED": {
+      "status": 409,
+      "title": "Ocr not recorded",
+      "meaning": "Raised by post_analysis_runs (POST /analysis-runs) for a file of the proposal whose pages the OCR has not recorded yet",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "story:ST-BID-009"
     }
   }
 }

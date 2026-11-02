@@ -14,22 +14,38 @@ final class AckRequest implements RequestModel {
       };
 }
 
+final class AnalysisCancel implements RequestModel {
+  const AnalysisCancel({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class AnalysisRequest implements RequestModel {
   const AnalysisRequest({
     required this.proposalId,
     required this.criteriaVersionId,
     required this.profileVersionId,
+    this.maxCostVnd,
   });
 
   final String proposalId;
   final String criteriaVersionId;
   final String profileVersionId;
+  final String? maxCostVnd;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'proposal_id': proposalId,
         'criteria_version_id': criteriaVersionId,
         'profile_version_id': profileVersionId,
+        if (maxCostVnd != null) 'max_cost_vnd': maxCostVnd,
       };
 }
 

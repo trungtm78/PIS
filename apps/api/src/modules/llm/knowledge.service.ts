@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { PERMISSIONS } from '@machvon/contracts';
 import { LlmEmergencyStore, LlmKnowledgeStore, versionScope } from '@machvon/db';
 import type { AuditWriter, ChunkToStore, EmbeddingModel, KnowledgeItem, RetrievedChunk, TenantDatabase, TenantTx } from '@machvon/db';
-import { DomainError, chunkPages, killedBy } from '@machvon/kernel';
+import { DomainError, assertEmbedding, chunkPages, cosineDistance, killedBy, retrievalLimit } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import type { FileService } from '../files';
 import type { AiEmbeddingPort, DocumentTextPort } from './knowledge-ports';
@@ -170,6 +170,46 @@ export class AiKnowledgeService {
         if (!(error instanceof DomainError) || error.code !== 'RESOURCE_NOT_FOUND' || attempt >= RETRIEVAL_ATTEMPTS) throw error;
       }
     }
+  }
+
+  /**
+   * Orders passages the caller has already chosen by their nearness to a question, with the embedding model given (a proposal is not in any collection: it is sealed, and the module that owns it decides who may read which
+   * file). The passages are the only candidates, so what the asker may not read is never embedded or compared. The model must embed, take the class of the passages and not be reached over a route the class forbids; a
+   * switch of the emergency stop stops it as it stops the indexing. Nothing but the hash of the question and the references of the passages that came back is logged.
+   */
+  async rank(
+    tenants: TenantDatabase,
+    tenant: TenantContext,
+    input: { embeddingModelId: string; classification: string; question: string; passages: ReadonlyArray<{ ref: string; text: string }>; limit?: number },
+  ): Promise<Array<{ ref: string; distance: number }>> {
+    const question = input.question.trim();
+    if (question === '' || question.length > 4000) throw new DomainError('VALIDATION_FAILED', 422, 'question');
+    const limit = retrievalLimit(input.limit);
+    const model = await tenants.withTenant(tenant, async (tx) => {
+      const found = await this.store.rankingModel(tx, input.embeddingModelId, input.classification);
+      await this.assertRunning(tx, found);
+      return found;
+    });
+    if (input.passages.length === 0) return [];
+    const vectors = await this.embeddings.embed({ providerModelId: model.providerModelId, texts: [question, ...input.passages.map((passage) => passage.text)] });
+    if (vectors.length !== input.passages.length + 1) throw new DomainError('VALIDATION_FAILED', 422, 'embedding');
+    for (const vector of vectors) assertEmbedding(vector);
+    const [asked, ...found] = vectors as [number[], ...number[][]];
+    const ranked = input.passages
+      .map((passage, place) => ({ ref: passage.ref, distance: cosineDistance(asked, found[place] as number[]) }))
+      .sort((left, right) => left.distance - right.distance || left.ref.localeCompare(right.ref))
+      .slice(0, limit);
+    await tenants.withTenant(tenant, async (tx) => {
+      await this.audit?.recordInTx(tx, tenant.membershipId, {
+        action: 'llm.knowledge.ranked',
+        resourceType: 'ai_model',
+        resourceId: input.embeddingModelId,
+        diff: { question_sha256: sha256(new TextEncoder().encode(question)), candidates: input.passages.length, refs: ranked.map((entry) => entry.ref) },
+        correlationId: randomUUID(),
+        requestId: randomUUID(),
+      });
+    });
+    return ranked;
   }
 
   /** The text of each chunk, read from the object store and checked against the hash the chunk carries. */

@@ -306,6 +306,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.reporting_period where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.procurement_petition where tenant_id = $1),
     (select string_agg(id::text || review_status || coalesce(reviewed_by::text, '') || coalesce(corrected_text_object_key, ''), ',' order by id) from machvon.document_page_ocr where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || coalesce(cancel_reason, ''), ',' order by id) from machvon.analysis_run where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.inspection where tenant_id = $1),
     (select string_agg(id::text || status || version::text || accepted_amount_vnd::text, ',' order by id) from machvon.acceptance where tenant_id = $1),
     (select string_agg(id::text || active::text || amount_vnd::text, ',' order by id) from machvon.acceptance_line where tenant_id = $1),
@@ -1153,6 +1154,20 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, ocrPageId, documentVersionId],
       ],
     ]);
+    // An analysis run of that package that is still running: the cancel command acts on it (foreign keys to unrelated modules are off for the seeding).
+    const analysisRunId = id(0xb6, 7);
+    const analysisSeeder = new Client({ connectionString: harness.database.adminUrl });
+    await analysisSeeder.connect();
+    try {
+      await analysisSeeder.query('set session_replication_role = replica');
+      await analysisSeeder.query(
+        `insert into machvon.analysis_run (tenant_id, id, proposal_id, criteria_version_id, profile_version_id, input_hash, status, package_id, data_classification, prompt_version_id, document_version_set_sha256, requested_by)
+         values ($1, $2, $3, $4, $5, repeat('a', 64), 'RUNNING', $6, 'CONFIDENTIAL', $7, repeat('b', 64), $8)`,
+        [TENANT_A, analysisRunId, id(0xb6, 8), criteriaDraftId, id(0xb6, 9), criteriaPackageId, id(0xb6, 10), ACTOR],
+      );
+    } finally {
+      await analysisSeeder.end();
+    }
     // A dataset of the DIS module with a working contract, a DRAFT quality rule of it made by someone other than the callers, and a frozen snapshot of the open period: the quality commands act on them.
     const qualityDatasetId = id(0xde, 1);
     const qualityContractId = id(0xde, 2);
@@ -1313,6 +1328,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       resultId,
       petitionId,
       ocrPageId,
+      analysisRunId,
       inspectionId: id(0x77, 19),
       acceptanceId: id(0x77, 20),
       diaryId: id(0x77, 40),

@@ -247,10 +247,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_ai_eval_run_id': GetResourcesAiEvalRunIdResponse.fromJson,
   'get_resources_allocation_line': GetResourcesAllocationLineResponse.fromJson,
   'get_resources_allocation_line_id': GetResourcesAllocationLineIdResponse.fromJson,
-  'get_resources_analysis_finding': GetResourcesAnalysisFindingResponse.fromJson,
-  'get_resources_analysis_finding_id': GetResourcesAnalysisFindingIdResponse.fromJson,
-  'get_resources_analysis_run': GetResourcesAnalysisRunResponse.fromJson,
-  'get_resources_analysis_run_id': GetResourcesAnalysisRunIdResponse.fromJson,
+  'get_resources_analysis_finding': AnalysisFindingSummaryListResponse.fromJson,
+  'get_resources_analysis_finding_id': AnalysisFindingSummaryResponse.fromJson,
+  'get_resources_analysis_run': AnalysisRunListResponse.fromJson,
+  'get_resources_analysis_run_id': AnalysisRunViewResponse.fromJson,
   'get_resources_approval_task': GetResourcesApprovalTaskResponse.fromJson,
   'get_resources_approval_task_id': GetResourcesApprovalTaskIdResponse.fromJson,
   'get_resources_asset_record': GetResourcesAssetRecordResponse.fromJson,
@@ -535,7 +535,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAiVirtualKeys': asObject,
   'listAllocationExtensions': AllocationExtensionPageResponse.fromJson,
   'listAllocationScenarios': CapScenarioPageResponse.fromJson,
-  'listAnalysisFindings': asObject,
+  'listAnalysisFindings': AnalysisFindingListResponse.fromJson,
   'listAppropriations': asObject,
   'listAuditConclusions': asObject,
   'listAuditEngagements': asObject,
@@ -679,7 +679,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'planMneEvaluation': CommandResultResponse.fromJson,
   'planRemediationAction': CommandResultResponse.fromJson,
   'post_acceptances_id_decision': CommandResultResponse.fromJson,
-  'post_analysis_runs': CommandResultResponse.fromJson,
+  'post_analysis_runs': AnalysisRunStartedResponse.fromJson,
   'post_analysis_runs_id_cancel': CommandResultResponse.fromJson,
   'post_budgets_id_reconcile': CommandResultResponse.fromJson,
   'post_contract_changes_id_decision': CommandResultResponse.fromJson,
@@ -908,6 +908,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'searchCatalog': asObject,
   'searchGlobal': SearchPageResponse.fromJson,
   'searchMasterRecords': asObject,
+  'searchProposalPassages': BidProposalPassageListResponse.fromJson,
   'selectTenantContext': SessionContextResponse.fromJson,
   'sendBidClarification': CommandResultResponse.fromJson,
   'sendConversationMessage': CommandResultResponse.fromJson,
@@ -1128,6 +1129,552 @@ final class AllocationExtensionResponse implements ResponseModel {
         if (decidedAt != null) 'decided_at': decidedAt,
         if (decisionReason != null) 'decision_reason': decisionReason,
         'version': version,
+        ...extra,
+      };
+}
+
+final class AnalysisEvidenceViewResponse implements ResponseModel {
+  const AnalysisEvidenceViewResponse({
+    required this.id,
+    required this.kind,
+    required this.documentVersionId,
+    required this.pageIndex,
+    required this.quoteExcerpt,
+    required this.calcRef,
+    required this.verifiedPresent,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisEvidenceViewResponse.fromJson(Object? json, [String path = 'AnalysisEvidenceViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisEvidenceViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      documentVersionId: requiredField(map, path, 'document_version_id', nullable(asString)),
+      pageIndex: requiredField(map, path, 'page_index', nullable(asInt)),
+      quoteExcerpt: requiredField(map, path, 'quote_excerpt', nullable(asString)),
+      calcRef: requiredField(map, path, 'calc_ref', nullable(asObject)),
+      verifiedPresent: requiredField(map, path, 'verified_present', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'document_version_id', 'page_index', 'quote_excerpt', 'calc_ref', 'verified_present'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String kind;
+  final String? documentVersionId;
+  final int? pageIndex;
+  final String? quoteExcerpt;
+  final Map<String, Object?>? calcRef;
+  final bool verifiedPresent;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'kind': kind,
+        'document_version_id': documentVersionId,
+        'page_index': pageIndex,
+        'quote_excerpt': quoteExcerpt,
+        'calc_ref': calcRef,
+        'verified_present': verifiedPresent,
+        ...extra,
+      };
+}
+
+final class AnalysisFindingListResponse implements ResponseModel {
+  const AnalysisFindingListResponse({
+    required this.run,
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisFindingListResponse.fromJson(Object? json, [String path = 'AnalysisFindingListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisFindingListResponse(
+      run: requiredField(map, path, 'run', AnalysisRunViewResponse.fromJson),
+      items: requiredField(map, path, 'items', asList(AnalysisFindingViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'run', 'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final AnalysisRunViewResponse run;
+  final List<AnalysisFindingViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'run': run.toJson(),
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class AnalysisFindingSummaryListResponse implements ResponseModel {
+  const AnalysisFindingSummaryListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisFindingSummaryListResponse.fromJson(Object? json, [String path = 'AnalysisFindingSummaryListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisFindingSummaryListResponse(
+      items: requiredField(map, path, 'items', asList(AnalysisFindingSummaryResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<AnalysisFindingSummaryResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class AnalysisFindingSummaryResponse implements ResponseModel {
+  const AnalysisFindingSummaryResponse({
+    required this.id,
+    required this.runId,
+    required this.proposalId,
+    required this.criterionId,
+    required this.status,
+    required this.confidenceType,
+    required this.evidenceCount,
+    required this.missingSource,
+    required this.finalStatus,
+    required this.reviewedAt,
+    required this.createdAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisFindingSummaryResponse.fromJson(Object? json, [String path = 'AnalysisFindingSummaryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisFindingSummaryResponse(
+      id: requiredField(map, path, 'id', asString),
+      runId: requiredField(map, path, 'run_id', asString),
+      proposalId: requiredField(map, path, 'proposal_id', nullable(asString)),
+      criterionId: requiredField(map, path, 'criterion_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      confidenceType: requiredField(map, path, 'confidence_type', asString),
+      evidenceCount: requiredField(map, path, 'evidence_count', asInt),
+      missingSource: requiredField(map, path, 'missing_source', asBool),
+      finalStatus: requiredField(map, path, 'final_status', nullable(asString)),
+      reviewedAt: requiredField(map, path, 'reviewed_at', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'run_id', 'proposal_id', 'criterion_id', 'status', 'confidence_type', 'evidence_count', 'missing_source', 'final_status', 'reviewed_at', 'created_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String runId;
+  final String? proposalId;
+  final String criterionId;
+  final String status;
+  final String confidenceType;
+  final int evidenceCount;
+  final bool missingSource;
+  final String? finalStatus;
+  final String? reviewedAt;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'run_id': runId,
+        'proposal_id': proposalId,
+        'criterion_id': criterionId,
+        'status': status,
+        'confidence_type': confidenceType,
+        'evidence_count': evidenceCount,
+        'missing_source': missingSource,
+        'final_status': finalStatus,
+        'reviewed_at': reviewedAt,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class AnalysisFindingViewResponse implements ResponseModel {
+  const AnalysisFindingViewResponse({
+    required this.id,
+    required this.runId,
+    required this.criterionId,
+    required this.status,
+    required this.finding,
+    required this.confidenceType,
+    required this.evidenceCount,
+    required this.missingSource,
+    required this.finalStatus,
+    required this.reviewedAt,
+    required this.createdAt,
+    required this.evidence,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisFindingViewResponse.fromJson(Object? json, [String path = 'AnalysisFindingViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisFindingViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      runId: requiredField(map, path, 'run_id', asString),
+      criterionId: requiredField(map, path, 'criterion_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      finding: requiredField(map, path, 'finding', asString),
+      confidenceType: requiredField(map, path, 'confidence_type', asString),
+      evidenceCount: requiredField(map, path, 'evidence_count', asInt),
+      missingSource: requiredField(map, path, 'missing_source', asBool),
+      finalStatus: requiredField(map, path, 'final_status', nullable(asString)),
+      reviewedAt: requiredField(map, path, 'reviewed_at', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      evidence: requiredField(map, path, 'evidence', asList(AnalysisEvidenceViewResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'run_id', 'criterion_id', 'status', 'finding', 'confidence_type', 'evidence_count', 'missing_source', 'final_status', 'reviewed_at', 'created_at', 'evidence'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String runId;
+  final String criterionId;
+  final String status;
+  final String finding;
+  final String confidenceType;
+  final int evidenceCount;
+  final bool missingSource;
+  final String? finalStatus;
+  final String? reviewedAt;
+  final String createdAt;
+  final List<AnalysisEvidenceViewResponse> evidence;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'run_id': runId,
+        'criterion_id': criterionId,
+        'status': status,
+        'finding': finding,
+        'confidence_type': confidenceType,
+        'evidence_count': evidenceCount,
+        'missing_source': missingSource,
+        'final_status': finalStatus,
+        'reviewed_at': reviewedAt,
+        'created_at': createdAt,
+        'evidence': evidence.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class AnalysisRunListResponse implements ResponseModel {
+  const AnalysisRunListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisRunListResponse.fromJson(Object? json, [String path = 'AnalysisRunListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisRunListResponse(
+      items: requiredField(map, path, 'items', asList(AnalysisRunViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<AnalysisRunViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class AnalysisRunStartedResponse implements ResponseModel {
+  const AnalysisRunStartedResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.reused,
+    required this.failureCode,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisRunStartedResponse.fromJson(Object? json, [String path = 'AnalysisRunStartedResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisRunStartedResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      reused: requiredField(map, path, 'reused', asBool),
+      failureCode: requiredField(map, path, 'failure_code', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'reused', 'failure_code'}, strict: false),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final bool reused;
+  final String? failureCode;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'reused': reused,
+        'failure_code': failureCode,
+        ...extra,
+      };
+}
+
+final class AnalysisRunViewResponse implements ResponseModel {
+  const AnalysisRunViewResponse({
+    required this.id,
+    required this.proposalId,
+    required this.package,
+    required this.contractor,
+    required this.criteriaVersionId,
+    required this.profileVersionId,
+    required this.status,
+    required this.dataClassification,
+    required this.routeClass,
+    required this.policyVersionId,
+    required this.failureCode,
+    required this.failedStep,
+    required this.timeline,
+    required this.supersedesRunId,
+    required this.requestedBy,
+    required this.startedAt,
+    required this.finishedAt,
+    required this.cancelReason,
+    required this.costVnd,
+    required this.findingCount,
+    required this.missingSourceCount,
+    required this.reviewedCount,
+    required this.createdAt,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisRunViewResponse.fromJson(Object? json, [String path = 'AnalysisRunViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisRunViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      proposalId: requiredField(map, path, 'proposal_id', asString),
+      package: requiredField(map, path, 'package', AnalysisRunViewResponsePackage.fromJson),
+      contractor: requiredField(map, path, 'contractor', AnalysisRunViewResponseContractor.fromJson),
+      criteriaVersionId: requiredField(map, path, 'criteria_version_id', asString),
+      profileVersionId: requiredField(map, path, 'profile_version_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      dataClassification: requiredField(map, path, 'data_classification', asString),
+      routeClass: requiredField(map, path, 'route_class', nullable(asString)),
+      policyVersionId: requiredField(map, path, 'policy_version_id', nullable(asString)),
+      failureCode: requiredField(map, path, 'failure_code', nullable(asString)),
+      failedStep: requiredField(map, path, 'failed_step', nullable(asString)),
+      timeline: requiredField(map, path, 'timeline', asList(AnalysisRunViewResponseTimelineItem.fromJson)),
+      supersedesRunId: requiredField(map, path, 'supersedes_run_id', nullable(asString)),
+      requestedBy: requiredField(map, path, 'requested_by', asString),
+      startedAt: requiredField(map, path, 'started_at', asString),
+      finishedAt: requiredField(map, path, 'finished_at', nullable(asString)),
+      cancelReason: requiredField(map, path, 'cancel_reason', nullable(asString)),
+      costVnd: requiredField(map, path, 'cost_vnd', nullable(asString)),
+      findingCount: requiredField(map, path, 'finding_count', asInt),
+      missingSourceCount: requiredField(map, path, 'missing_source_count', asInt),
+      reviewedCount: requiredField(map, path, 'reviewed_count', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'proposal_id', 'package', 'contractor', 'criteria_version_id', 'profile_version_id', 'status', 'data_classification', 'route_class', 'policy_version_id', 'failure_code', 'failed_step', 'timeline', 'supersedes_run_id', 'requested_by', 'started_at', 'finished_at', 'cancel_reason', 'cost_vnd', 'finding_count', 'missing_source_count', 'reviewed_count', 'created_at', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String proposalId;
+  final AnalysisRunViewResponsePackage package;
+  final AnalysisRunViewResponseContractor contractor;
+  final String criteriaVersionId;
+  final String profileVersionId;
+  final String status;
+  final String dataClassification;
+  final String? routeClass;
+  final String? policyVersionId;
+  final String? failureCode;
+  final String? failedStep;
+  final List<AnalysisRunViewResponseTimelineItem> timeline;
+  final String? supersedesRunId;
+  final String requestedBy;
+  final String startedAt;
+  final String? finishedAt;
+  final String? cancelReason;
+  final String? costVnd;
+  final int findingCount;
+  final int missingSourceCount;
+  final int reviewedCount;
+  final String createdAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'proposal_id': proposalId,
+        'package': package.toJson(),
+        'contractor': contractor.toJson(),
+        'criteria_version_id': criteriaVersionId,
+        'profile_version_id': profileVersionId,
+        'status': status,
+        'data_classification': dataClassification,
+        'route_class': routeClass,
+        'policy_version_id': policyVersionId,
+        'failure_code': failureCode,
+        'failed_step': failedStep,
+        'timeline': timeline.map((e0) => e0.toJson()).toList(),
+        'supersedes_run_id': supersedesRunId,
+        'requested_by': requestedBy,
+        'started_at': startedAt,
+        'finished_at': finishedAt,
+        'cancel_reason': cancelReason,
+        'cost_vnd': costVnd,
+        'finding_count': findingCount,
+        'missing_source_count': missingSourceCount,
+        'reviewed_count': reviewedCount,
+        'created_at': createdAt,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class AnalysisRunViewResponseContractor implements ResponseModel {
+  const AnalysisRunViewResponseContractor({
+    required this.id,
+    required this.legalName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisRunViewResponseContractor.fromJson(Object? json, [String path = 'AnalysisRunViewResponseContractor']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisRunViewResponseContractor(
+      id: requiredField(map, path, 'id', asString),
+      legalName: requiredField(map, path, 'legal_name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'legal_name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String legalName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'legal_name': legalName,
+        ...extra,
+      };
+}
+
+final class AnalysisRunViewResponsePackage implements ResponseModel {
+  const AnalysisRunViewResponsePackage({
+    required this.id,
+    required this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisRunViewResponsePackage.fromJson(Object? json, [String path = 'AnalysisRunViewResponsePackage']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisRunViewResponsePackage(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        ...extra,
+      };
+}
+
+final class AnalysisRunViewResponseTimelineItem implements ResponseModel {
+  const AnalysisRunViewResponseTimelineItem({
+    required this.step,
+    required this.state,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AnalysisRunViewResponseTimelineItem.fromJson(Object? json, [String path = 'AnalysisRunViewResponseTimelineItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AnalysisRunViewResponseTimelineItem(
+      step: requiredField(map, path, 'step', asString),
+      state: requiredField(map, path, 'state', asString),
+      extra: unknownFields(map, path, const <String>{'step', 'state'}, strict: true),
+    );
+  }
+
+  final String step;
+  final String state;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'step': step,
+        'state': state,
         ...extra,
       };
 }
@@ -2228,6 +2775,82 @@ final class BidProposalFileUploadResponse implements ResponseModel {
         'file_sha256': fileSha256,
         'size_bytes': sizeBytes,
         'page_count': pageCount,
+        ...extra,
+      };
+}
+
+final class BidProposalPassageListResponse implements ResponseModel {
+  const BidProposalPassageListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidProposalPassageListResponse.fromJson(Object? json, [String path = 'BidProposalPassageListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidProposalPassageListResponse(
+      items: requiredField(map, path, 'items', asList(BidProposalPassageResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<BidProposalPassageResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class BidProposalPassageResponse implements ResponseModel {
+  const BidProposalPassageResponse({
+    required this.documentVersionId,
+    required this.pageIndex,
+    required this.chunkNo,
+    required this.classification,
+    required this.distance,
+    required this.text,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BidProposalPassageResponse.fromJson(Object? json, [String path = 'BidProposalPassageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BidProposalPassageResponse(
+      documentVersionId: requiredField(map, path, 'document_version_id', asString),
+      pageIndex: requiredField(map, path, 'page_index', asInt),
+      chunkNo: requiredField(map, path, 'chunk_no', asInt),
+      classification: requiredField(map, path, 'classification', asString),
+      distance: requiredField(map, path, 'distance', asNum),
+      text: requiredField(map, path, 'text', asString),
+      extra: unknownFields(map, path, const <String>{'document_version_id', 'page_index', 'chunk_no', 'classification', 'distance', 'text'}, strict: true),
+    );
+  }
+
+  final String documentVersionId;
+  final int pageIndex;
+  final int chunkNo;
+  final String classification;
+  final num distance;
+  final String text;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document_version_id': documentVersionId,
+        'page_index': pageIndex,
+        'chunk_no': chunkNo,
+        'classification': classification,
+        'distance': distance,
+        'text': text,
         ...extra,
       };
 }
@@ -9904,158 +10527,6 @@ final class GetResourcesAllocationLineResponse implements ResponseModel {
   factory GetResourcesAllocationLineResponse.fromJson(Object? json, [String path = 'GetResourcesAllocationLineResponse']) {
     final Map<String, Object?> map = asObject(json, path);
     return GetResourcesAllocationLineResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesAnalysisFindingIdResponse implements ResponseModel {
-  const GetResourcesAnalysisFindingIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesAnalysisFindingIdResponse.fromJson(Object? json, [String path = 'GetResourcesAnalysisFindingIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesAnalysisFindingIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesAnalysisFindingResponse implements ResponseModel {
-  const GetResourcesAnalysisFindingResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesAnalysisFindingResponse.fromJson(Object? json, [String path = 'GetResourcesAnalysisFindingResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesAnalysisFindingResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesAnalysisRunIdResponse implements ResponseModel {
-  const GetResourcesAnalysisRunIdResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesAnalysisRunIdResponse.fromJson(Object? json, [String path = 'GetResourcesAnalysisRunIdResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesAnalysisRunIdResponse(
-      items: optionalField(map, path, 'items', asList(asObject)),
-      nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
-      snapshotId: optionalField(map, path, 'snapshot_id', asString),
-      asOf: optionalField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'snapshot_id', 'as_of'}, strict: false),
-    );
-  }
-
-  final List<Map<String, Object?>>? items;
-  final String? nextCursor;
-  final String? snapshotId;
-  final String? asOf;
-
-  /// The members the contract does not name (kept so that writing the response back gives what was read).
-  final Map<String, Object?> extra;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        if (items != null) 'items': items,
-        if (nextCursor != null) 'next_cursor': nextCursor,
-        if (snapshotId != null) 'snapshot_id': snapshotId,
-        if (asOf != null) 'as_of': asOf,
-        ...extra,
-      };
-}
-
-final class GetResourcesAnalysisRunResponse implements ResponseModel {
-  const GetResourcesAnalysisRunResponse({
-    this.items,
-    this.nextCursor,
-    this.snapshotId,
-    this.asOf,
-    this.extra = const <String, Object?>{},
-  });
-
-  factory GetResourcesAnalysisRunResponse.fromJson(Object? json, [String path = 'GetResourcesAnalysisRunResponse']) {
-    final Map<String, Object?> map = asObject(json, path);
-    return GetResourcesAnalysisRunResponse(
       items: optionalField(map, path, 'items', asList(asObject)),
       nextCursor: optionalField(map, path, 'next_cursor', nullable(asString)),
       snapshotId: optionalField(map, path, 'snapshot_id', asString),

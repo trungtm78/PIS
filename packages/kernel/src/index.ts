@@ -455,6 +455,36 @@ export {
 } from './bid-ocr.ts';
 export type { FinancialGate, GatePage, OcrDecision, OcrReading, OcrStatus, OcrTable, OcrTableRow, OcrReviewInput } from './bid-ocr.ts';
 export {
+  ANALYSIS_TASK_TYPE,
+  CHARS_PER_TOKEN,
+  DEFAULT_INPUT_TOKENS,
+  FINDING_STATUSES,
+  MAX_CITATIONS_PER_FINDING,
+  MAX_FINDING_CHARS,
+  MAX_QUOTE_CHARS,
+  MIN_QUOTE_CHARS,
+  RUN_STATUSES,
+  RUN_STEPS,
+  analysisInputHash,
+  assertCancellable,
+  assertInputFits,
+  assertReadOnlyTools,
+  buildAnalysisInput,
+  cancelReasonOf,
+  documentSetSha256,
+  missingEvidenceRatio,
+  normaliseQuote,
+  parseAnswer,
+  priceFacts,
+  quoteIsPresent,
+  quoteSha256,
+  runEnd,
+  runTimeline,
+  settleFinding,
+  wrapUntrusted,
+} from './bid-analysis.ts';
+export type { AnalysisCriterion, AnalysisInputParts, AnalysisPage, CalcFact, Citation, DocumentVersionRef, FindingStatus, InputHashParts, ModelFinding, ParsedAnswer, RequestOutcome, RunEnd, RunStatus, RunStep, SettledFinding, StepState } from './bid-analysis.ts';
+export {
   CHECKLIST_OUTCOMES,
   INSPECTION_COMMANDS,
   INSPECTION_RESULTS,
@@ -1639,7 +1669,7 @@ export { LABEL_ATTRIBUTE, attributeKey, SURVIVORSHIP_STRATEGIES, checkSurvivorsh
 export type { AttributeDecision, DecisionBy, MergeRecord, MergeResult, MergeSide, SurvivorshipRuleInput, SurvivorshipStrategy, UnmergeInput, UnmergeResult } from './master-merge.ts';
 export { MAX_MIGRATION_ROWS, MIGRATION_ENTITY_PATTERN, MIGRATION_LOT_SIZE, MIGRATION_MAPPINGS, MIGRATION_TABULAR_LIMITS, checkReferences, checkRegistration, judgeMigrationFile, migrationMappingOf, totalsMatch } from './migration-batch.ts';
 export type { ControlTotals, JudgedRow, MigrationJudgement, MigrationMapping, MigrationReference, RowError } from './migration-batch.ts';
-export { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, MAX_RETRIEVED, assertEmbedding, assertWithin, checkCollection, chunkPages, retrievalLimit } from './ai-knowledge.ts';
+export { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, MAX_RETRIEVED, assertEmbedding, assertWithin, checkCollection, chunkPages, cosineDistance, retrievalLimit } from './ai-knowledge.ts';
 export type { Chunk as KnowledgeChunk, CollectionInput as KnowledgeCollectionInput } from './ai-knowledge.ts';
 export { RECONCILE_TOLERANCE_PERCENT, checkReconcile, compare as compareInvoice, fromUnits, providerOfInvoice, toUnits } from './llm-reconcile.ts';
 export type { CheckedReconcile, ReconcileRequest } from './llm-reconcile.ts';

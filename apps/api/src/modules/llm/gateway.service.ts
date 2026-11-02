@@ -19,6 +19,10 @@ export interface GatewayInput {
   inputSha256: string;
   anonymisationAttestationId: string | undefined;
   maxCostVnd: string | undefined;
+  /** The profile the caller admitted its request against: when given, the request is served by that profile or by none, never by one published since. */
+  profileVersionId?: string;
+  /** The project the request is made for, when the subject is not the project itself: its budget is held and charged as a project's is. */
+  projectId?: string;
 }
 
 export interface GatewayOutcome {
@@ -49,10 +53,15 @@ export class LlmGatewayService {
     this.metrics = metrics ?? NOOP_METRICS;
   }
 
+  private async pinnedProfile(tx: CommandScope['tx'], taskType: string, id: string) {
+    const profile = await this.evals.findProfile(tx, id);
+    return profile !== undefined && profile.status === 'PUBLISHED' && profile.taskType === taskType ? profile : undefined;
+  }
+
   async request(scope: CommandScope, input: GatewayInput): Promise<GatewayOutcome> {
     const { tx } = scope;
     const actor = scope.tenant.membershipId;
-    const profile = await this.evals.publishedProfile(tx, input.taskType);
+    const profile = input.profileVersionId === undefined ? await this.evals.publishedProfile(tx, input.taskType) : await this.pinnedProfile(tx, input.taskType, input.profileVersionId);
     // A task with no profile in force cannot be asked for at all: there is nothing to record the request against.
     if (profile === undefined || profile.promptVersionId === null) throw new DomainError('AI_ROUTE_NOT_ALLOWED', 422, 'profile');
     // A profile that was published before the schema was limited to what the gateway checks is not served: an answer would be taken as valid by a rule that is not applied.
@@ -128,7 +137,8 @@ export class LlmGatewayService {
     const estimate = dearest * BigInt(1 + MAX_CHECK_RETRIES);
     if (input.maxCostVnd !== undefined && estimate > BigInt(input.maxCostVnd)) return this.reject(scope, admitted, new DomainError('BUDGET_EXCEEDED', 429, 'max_cost_vnd'), 'COST_ABOVE_LIMIT');
     const scopes: Array<{ kind: BudgetScope; ref: string | null }> = [{ kind: 'TENANT', ref: null }];
-    if (input.subjectModule.toUpperCase() === 'PRJ' && input.subjectId !== undefined) scopes.push({ kind: 'PROJECT', ref: input.subjectId });
+    const project = input.projectId ?? (input.subjectModule.toUpperCase() === 'PRJ' ? input.subjectId : undefined);
+    if (project !== undefined) scopes.push({ kind: 'PROJECT', ref: project });
     // The person who asks has a budget of their own when one was set.
     scopes.push({ kind: 'USER', ref: actor });
     const held = await this.finops.reserve(tx, { requestId: admitted.id, scopes, estimateVnd: estimate.toString(), day: vietnamDateOf(now), expiresAt: new Date(now.getTime() + HOLD_MINUTES * 60_000) });

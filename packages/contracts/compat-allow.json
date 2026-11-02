@@ -580,6 +580,117 @@
       "location": "place",
       "reason": "the forms carry the place-and-date line, as the Treasury forms of a payment request do; the operation had no client",
       "change_request": "ST-PAY-012"
+    },
+    {
+      "operation": "get_resources_analysis_run",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of the analysis runs is paged by the creation time and the id, and answers the time it was read",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_run_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one analysis run is the analysis run itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_run_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one analysis run is the analysis run itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_run_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one analysis run is the analysis run itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_run_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one analysis run is the analysis run itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_run_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:cursor",
+      "reason": "the read of one analysis run is not paged",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_run_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:limit",
+      "reason": "the read of one analysis run is not paged",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_finding",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of the analysis findings is paged by the creation time and the id, and answers the time it was read",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_finding_id",
+      "kind": "FIELD_REMOVED",
+      "location": "as_of",
+      "reason": "the read of one analysis finding is the analysis finding itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_finding_id",
+      "kind": "FIELD_REMOVED",
+      "location": "items",
+      "reason": "the read of one analysis finding is the analysis finding itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_finding_id",
+      "kind": "FIELD_REMOVED",
+      "location": "next_cursor",
+      "reason": "the read of one analysis finding is the analysis finding itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_finding_id",
+      "kind": "FIELD_REMOVED",
+      "location": "snapshot_id",
+      "reason": "the read of one analysis finding is the analysis finding itself, not a page",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_finding_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:cursor",
+      "reason": "the read of one analysis finding is not paged",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "get_resources_analysis_finding_id",
+      "kind": "PARAMETER_REMOVED",
+      "location": "query:limit",
+      "reason": "the read of one analysis finding is not paged",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "post_analysis_runs",
+      "kind": "PARAMETER_REMOVED",
+      "location": "header:If-Match",
+      "reason": "a run is asked for, not changed: it has no version to match, and nothing called the operation before",
+      "change_request": "ST-BID-009"
+    },
+    {
+      "operation": "post_analysis_runs_id_cancel",
+      "kind": "REQUEST_BODY_REQUIRED",
+      "reason": "a run is cancelled with the reason of the person who cancels it, and nothing called the operation before",
+      "change_request": "ST-BID-009"
     }
   ]
 }

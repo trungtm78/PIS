@@ -364,6 +364,26 @@ export const OCR_FIXTURES: Readonly<Record<TenantName, { id: string; documentId:
   },
 };
 
+/** An AI analysis run of the proposal of each tenant, waiting for the experts, with one finding and the citation under it (the finding, the quotation and the hash of the input are distinctive; tenant confidential data). */
+export const RUN_FIXTURES: Readonly<Record<TenantName, { id: string; findingId: string; evidenceId: string; finding: string; quote: string; inputHash: string }>> = {
+  'TNT-A': {
+    id: '00000000-0000-4000-a0be-000000000001',
+    findingId: '00000000-0000-4000-a0be-000000000002',
+    evidenceId: '00000000-0000-4000-a0be-000000000003',
+    finding: 'ALPHA isolation finding: the contractor completed the bridge of the national road.',
+    quote: 'ALPHA isolation quotation: bridge of the national road completed in 2024',
+    inputHash: 'a1'.repeat(32),
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0be-000000000001',
+    findingId: '00000000-0000-4000-b0be-000000000002',
+    evidenceId: '00000000-0000-4000-b0be-000000000003',
+    finding: 'BETA isolation finding: the contractor completed the viaduct of the coastal road.',
+    quote: 'BETA isolation quotation: viaduct of the coastal road completed in 2023',
+    inputHash: 'b2'.repeat(32),
+  },
+};
+
 /** A result of the selection of the contractor of each tenant on its package: submitted, with an award price of its own (the price is distinctive; tenant confidential data). */
 export const RESULT_FIXTURES: Readonly<Record<TenantName, { id: string; awardPrice: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bb-000000000001', awardPrice: '8881000001' },
@@ -1651,6 +1671,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'conflict relation text', value: PROPOSAL_FIXTURES[tenant].relation },
     { kind: 'procurement result id', value: RESULT_FIXTURES[tenant].id },
     { kind: 'procurement petition id', value: PETITION_FIXTURES[tenant].id },
+    { kind: 'analysis run id', value: RUN_FIXTURES[tenant].id },
+    { kind: 'analysis finding id', value: RUN_FIXTURES[tenant].findingId },
+    { kind: 'analysis finding text', value: RUN_FIXTURES[tenant].finding },
+    { kind: 'analysis evidence quotation', value: RUN_FIXTURES[tenant].quote },
+    { kind: 'analysis input hash', value: RUN_FIXTURES[tenant].inputHash },
     { kind: 'ocr page id', value: OCR_FIXTURES[tenant].id },
     { kind: 'ocr engine version', value: OCR_FIXTURES[tenant].engineVersion },
     { kind: 'ocr page text key', value: OCR_FIXTURES[tenant].textObjectKey },

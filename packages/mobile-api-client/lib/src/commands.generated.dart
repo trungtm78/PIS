@@ -2038,8 +2038,8 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> postAnalysisRuns(AnalysisRequest body, {CommandAttempt? attempt}) =>
       execute('post_analysis_runs', body: body, attempt: attempt);
 
-  Future<Object?> postAnalysisRunsIdCancel({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
-      execute('post_analysis_runs_id_cancel', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+  Future<Object?> postAnalysisRunsIdCancel(AnalysisCancel body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('post_analysis_runs_id_cancel', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> postBudgetsIdReconcile(Decision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('post_budgets_id_reconcile', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -2718,6 +2718,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> searchMasterRecords({Map<String, Object?>? query}) =>
       execute('searchMasterRecords', query: query);
+
+  Future<Object?> searchProposalPassages({required String id, Map<String, Object?>? query}) =>
+      execute('searchProposalPassages', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> selectTenantContext(TenantSelection body, {CommandAttempt? attempt}) =>
       execute('selectTenantContext', body: body, attempt: attempt);

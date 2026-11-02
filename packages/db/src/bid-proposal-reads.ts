@@ -113,6 +113,17 @@ export class BidProposalReads {
     return { kind: 'SEEN', line, files: line.view === 'FULL' ? await this.files(tx, id) : [] };
   }
 
+  /**
+   * Which of the proposals the caller has the full view of (declared, no conflict standing, released): a read of something that belongs to a proposal keeps only what belongs to one of these. A proposal
+   * the caller may not see in full is not in the set, and nothing is said of why.
+   */
+  async fullView(tx: TenantTx, viewer: ProposalViewer, ids: readonly string[]): Promise<Set<string>> {
+    if (ids.length === 0) return new Set();
+    const query = this.query(viewer);
+    const rows = await tx.query<ProposalSql>(`${query.select} where pr.id = any(${query.params.add([...ids])}::uuid[]) and ${query.reach}`, query.params.values);
+    return new Set(rows.filter((row) => this.seen(row) === 'FULL').map((row) => row.id));
+  }
+
   /** The files of a proposal: the part, the title and what the file is, never where it is stored. */
   private async files(tx: TenantTx, proposalId: string): Promise<ProposalFile[]> {
     const rows = await tx.query<{ id: string; document_version_id: string; part: ProposalPart; title: string; mime: string; page_count: number; byte_length: string | null; received_at: string }>(

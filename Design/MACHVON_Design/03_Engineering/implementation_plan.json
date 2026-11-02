@@ -12118,6 +12118,7 @@
       ],
       "operations": [
         "listAnalysisFindings",
+        "searchProposalPassages",
         "post_analysis_runs",
         "post_analysis_runs_id_cancel",
         "get_resources_analysis_run",

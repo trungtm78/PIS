@@ -905,6 +905,7 @@ export const OPERATIONS = {
   "searchCatalog": { method: "get", path: "/dgv/catalog", versioned: false, stepUp: null, permission: "data.catalog.read" },
   "searchGlobal": { method: "get", path: "/search", versioned: false, stepUp: null, permission: "search.use" },
   "searchMasterRecords": { method: "get", path: "/master-records", versioned: false, stepUp: null, permission: "master.read" },
+  "searchProposalPassages": { method: "get", path: "/procurement-packages/{id}/proposal-passages", versioned: false, stepUp: null, permission: "bid.evaluate" },
   "selectTenantContext": { method: "post", path: "/me/session/tenant-selection", versioned: false, stepUp: null, permission: "session.self" },
   "sendBidClarification": { method: "post", path: "/bid-clarifications", versioned: false, stepUp: null, permission: "bid.evaluate" },
   "sendConversationMessage": { method: "post", path: "/conversations/{conversationId}/messages", versioned: true, stepUp: null, permission: "omni.conversation.reply" },

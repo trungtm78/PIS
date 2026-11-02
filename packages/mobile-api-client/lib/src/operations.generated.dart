@@ -907,6 +907,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'searchCatalog': OperationDescriptor(method: 'GET', path: '/dgv/catalog', versioned: false, stepUp: null, permission: 'data.catalog.read'),
   'searchGlobal': OperationDescriptor(method: 'GET', path: '/search', versioned: false, stepUp: null, permission: 'search.use'),
   'searchMasterRecords': OperationDescriptor(method: 'GET', path: '/master-records', versioned: false, stepUp: null, permission: 'master.read'),
+  'searchProposalPassages': OperationDescriptor(method: 'GET', path: '/procurement-packages/{id}/proposal-passages', versioned: false, stepUp: null, permission: 'bid.evaluate'),
   'selectTenantContext': OperationDescriptor(method: 'POST', path: '/me/session/tenant-selection', versioned: false, stepUp: null, permission: 'session.self'),
   'sendBidClarification': OperationDescriptor(method: 'POST', path: '/bid-clarifications', versioned: false, stepUp: null, permission: 'bid.evaluate'),
   'sendConversationMessage': OperationDescriptor(method: 'POST', path: '/conversations/{conversationId}/messages', versioned: true, stepUp: null, permission: 'omni.conversation.reply'),

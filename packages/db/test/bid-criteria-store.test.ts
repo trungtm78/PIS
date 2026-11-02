@@ -393,9 +393,9 @@ describe('BidCriteriaStore (the evaluation criteria, ST-BID-003)', () => {
       expect(await refusal(approve(created.id, 2))).toEqual({ code: 'CRITERIA_STATE_INVALID', status: 409, detail: 'status', extensions: { criteria_status: 'APPROVED' } });
       await seedAs([
         [
-          `insert into machvon.analysis_run (tenant_id, id, proposal_id, criteria_version_id, profile_version_id, input_hash, status, budget_reservation_id)
-           values ($1, $2, $3, $4, $5, repeat('a', 64), 'COMPLETED', $6)`,
-          [TENANT_A, randomUUID(), randomUUID(), created.id, randomUUID(), randomUUID()],
+          `insert into machvon.analysis_run (tenant_id, id, proposal_id, criteria_version_id, profile_version_id, input_hash, status, budget_reservation_id, package_id, data_classification, prompt_version_id, document_version_set_sha256, requested_by)
+           values ($1, $2, $3, $4, $5, repeat('a', 64), 'RUNNING', $6, $7, 'CONFIDENTIAL', $8, repeat('c', 64), $9)`,
+          [TENANT_A, randomUUID(), randomUUID(), created.id, randomUUID(), randomUUID(), seeded.packageId, randomUUID(), memberId(MAKER)],
         ],
       ]);
       expect(await refusal(approve(created.id, 2))).toEqual({ code: 'CRITERIA_LOCKED_BY_RUN', status: 409, detail: 'status', extensions: { criteria_status: 'APPROVED' } });
