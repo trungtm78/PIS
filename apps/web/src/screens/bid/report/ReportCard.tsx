@@ -14,6 +14,8 @@ export interface ReportCardProps {
   report: Report;
   /** The caller is offered the signature: the draft waits for them, nothing changed since, the right is held and the session is not read-only. */
   signable: boolean;
+  /** The signature is only the confirmation of the one the caller gave (nobody is awaited any more): it takes no dissent, so the form has no field for one. */
+  confirmation: boolean;
   /** The dissent typed for this report. */
   dissent: string;
   /** The signature on this report is being sent: what was typed is what is sent, so the field does not change meanwhile. */
@@ -30,7 +32,7 @@ export interface ReportCardProps {
  * One report of BID-13: the stage of the minutes (the signatures, DOC, issued), what the experts decided criterion by criterion with the weighted score of each proposal (no ranking, no winner), the conclusion, who
  * signed and who is still awaited, and the dissent in the words of the members. The member signs here, with a dissent if they hold one.
  */
-export function ReportCard({ report, signable, dissent, pending, busy, refusal, onDissent, onSign }: ReportCardProps) {
+export function ReportCard({ report, signable, confirmation, dissent, pending, busy, refusal, onDissent, onSign }: ReportCardProps) {
   const { t } = useTranslation();
   const moment = useMoment();
   const fieldId = useId();
@@ -40,7 +42,7 @@ export function ReportCard({ report, signable, dissent, pending, busy, refusal, 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     setSubmitted(true);
-    if (pending || busy || problem !== undefined) return;
+    if (pending || busy || (!confirmation && problem !== undefined)) return;
     onSign();
   };
   const { summary } = report;
@@ -200,16 +202,22 @@ export function ReportCard({ report, signable, dissent, pending, busy, refusal, 
       )}
       {!signable ? null : (
         <form onSubmit={submit} noValidate data-testid="sign-form">
-          <div className="field">
-            <label htmlFor={fieldId}>{t('bid.report.sign.dissent.label')}</label>
-            <textarea id={fieldId} rows={4} readOnly={pending} disabled={busy} value={dissent} onChange={(event) => onDissent(event.target.value)} />
-            <small className="sub">{t('bid.report.sign.dissent.hint', { min: MIN_DISSENT, max: MAX_DISSENT })}</small>
-            {submitted && problem !== undefined ? (
-              <small role="alert" className="field-error">
-                {formProblemMessage(t, problem)}
-              </small>
-            ) : null}
-          </div>
+          {confirmation ? (
+            <p className="callout" role="note" data-testid="confirm-hint">
+              {t('bid.report.sign.confirm.hint')}
+            </p>
+          ) : (
+            <div className="field">
+              <label htmlFor={fieldId}>{t('bid.report.sign.dissent.label')}</label>
+              <textarea id={fieldId} rows={4} readOnly={pending} disabled={busy} value={dissent} onChange={(event) => onDissent(event.target.value)} />
+              <small className="sub">{t('bid.report.sign.dissent.hint', { min: MIN_DISSENT, max: MAX_DISSENT })}</small>
+              {submitted && problem !== undefined ? (
+                <small role="alert" className="field-error">
+                  {formProblemMessage(t, problem)}
+                </small>
+              ) : null}
+            </div>
+          )}
           <div className="formfooter">
             <button type="submit" className="primary" disabled={pending || busy}>
               {pending ? t('bid.report.sign.pending') : t('bid.report.sign.submit')}

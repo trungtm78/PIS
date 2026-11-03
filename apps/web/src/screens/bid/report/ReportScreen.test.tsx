@@ -2,6 +2,7 @@ import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
+import { TENANT } from '../test-support';
 import { compared } from '../compare/test-support';
 import ReportScreen from './ReportScreen';
 import { CV2, EVALUATOR, READER, client, comparison, mount, packageId, report, reportId, routeOf, runId, world } from './test-support';
@@ -345,6 +346,57 @@ describe('ReportScreen (BID-13): the evaluation report and its sign-off', () => 
       expect(h.command.mock.calls[0]?.[0]).toBe('signOffEvaluationReport');
       expect(h.command.mock.calls[0]?.[1]).toMatchObject({ path: { id: reportId(1) }, body: {}, ifMatchVersion: 2, attempt: expect.anything() });
       await waitFor(() => expect(h.read.mock.calls.filter((call) => call[0] === 'listEvaluationReports').length).toBeGreaterThan(1));
+    });
+
+    it('AC-ST-BID-012-1: offers a member who signed the confirmation, without a field for a dissent, once nobody is awaited any more, and sends it with the version they saw', async () => {
+      const mine = { membership_id: TENANT.membershipId, display_name: 'Chuyên gia 1', signed_at: '2026-12-06T06:00:00.000Z', dissent: false };
+      const state = world({ reports: [report(1, { signed_off_by: [mine], awaiting: [] }), report(2)] });
+      const h = open(state);
+      await screen.findByTestId('reports');
+      // Report 1: signed by the caller, nobody awaited, and the server offers the call.
+      expect(within(card(1)).getByTestId('sign-form')).toBeTruthy();
+      expect(within(card(1)).queryByLabelText(vi_['bid.report.sign.dissent.label'])).toBeNull();
+      expect(within(card(1)).getByTestId('confirm-hint').textContent).toBe(vi_['bid.report.sign.confirm.hint']);
+      // Report 2: the first expert signed, another is awaited, so the caller signs and may hold a dissent.
+      expect(within(card(2)).queryByTestId('confirm-hint')).toBeNull();
+      expect(dissentField(2)).toBeTruthy();
+      fireEvent.click(signButton(1));
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+      expect(h.command.mock.calls[0]?.[0]).toBe('signOffEvaluationReport');
+      expect(h.command.mock.calls[0]?.[1]).toMatchObject({ path: { id: reportId(1) }, ifMatchVersion: 2 });
+      expect((h.command.mock.calls[0]?.[1] as { body: unknown }).body).toEqual({});
+    });
+
+    it('AC-ST-BID-012-1: does not send a dissent typed before the report became a confirmation, which the server would refuse', async () => {
+      const mine = { membership_id: TENANT.membershipId, display_name: 'Chuyên gia 1', signed_at: '2026-12-06T06:00:00.000Z', dissent: false };
+      const state = world({ reports: [report(1, { signed_off_by: [], awaiting: [{ membership_id: 'm2', display_name: 'Chuyên gia 2', standing: 'CLEAR' }] })] });
+      let calls = 0;
+      const h = open(state, {
+        command: () => {
+          calls += 1;
+          // The first attempt meets a report that changed: the member signed from another window and the team was cut down meanwhile.
+          if (calls === 1) {
+            state.reports[0] = report(1, { signed_off_by: [mine], awaiting: [], version: 4 });
+            return problem('VERSION_CONFLICT', 409);
+          }
+          return OK;
+        },
+      });
+      await screen.findByTestId('reports');
+      type(dissentField(1), DISSENT);
+      fireEvent.click(signButton(1));
+      await within(card(1)).findByTestId('confirm-hint');
+      fireEvent.click(signButton(1));
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
+      expect(h.command.mock.calls[1]?.[1]).toMatchObject({ ifMatchVersion: 4 });
+      expect((h.command.mock.calls[1]?.[1] as { body: unknown }).body).toEqual({});
+    });
+
+    it('offers nothing to a member who signed while the server says the report waits for others', async () => {
+      const mine = { membership_id: TENANT.membershipId, display_name: 'Chuyên gia 1', signed_at: '2026-12-06T06:00:00.000Z', dissent: false };
+      open(world({ reports: [report(1, { signed_off_by: [mine], actions: { sign_off: false } })] }));
+      await screen.findByTestId('reports');
+      expect(within(card(1)).queryByTestId('sign-form')).toBeNull();
     });
 
     it('signs with the dissent typed, trimmed, in the words of the member, and drops it once the signature is taken', async () => {

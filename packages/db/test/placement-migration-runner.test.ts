@@ -83,12 +83,40 @@ describe('the worker of the promotion of a tenant to a silo (ST-SAS-018, SAS.md 
       await harness.base.owner(tenant, [['update machvon.ai_budget set limit_vnd = limit_vnd + 1 where limit_vnd = 1000', []]]);
       const amount = await measure();
       expect(amount.rows).toBe(before.rows);
-      expect(amount.checksum).toBe(before.checksum);
+      expect(amount.checksum).not.toBe(before.checksum);
       expect(amount.money.limit_vnd).toBe((BigInt(before.money.limit_vnd as string) + 1n).toString());
       await harness.base.owner(tenant, [['update machvon.ai_budget set id = $1 where limit_vnd = $2', [randomUUID(), BIG]]]);
       const key = await measure();
       expect(key.money).toEqual(amount.money);
       expect(key.checksum).not.toBe(before.checksum);
+    });
+
+    it('AC-ST-SAS-018-3: measures the content of every column, so a change to a column that is neither key nor money changes the checksum and nothing else', async () => {
+      const { tenant } = await seeded();
+      const measure = async () => (await harness.tenants.withSnapshot(ctxOf(tenant), (tx) => measureTenantTables(tx))).tables.find((table) => table.table === 'ai_budget') as TableMeasure;
+      const before = await measure();
+      await harness.base.owner(tenant, [["update machvon.ai_budget set effective_from = '2026-02-01' where limit_vnd = 1000", []]]);
+      const after = await measure();
+      expect(after.rows).toBe(before.rows);
+      expect(after.money).toEqual(before.money);
+      expect(after.checksum).not.toBe(before.checksum);
+      // Put back, the same rows give the same checksum again.
+      await harness.base.owner(tenant, [["update machvon.ai_budget set effective_from = '2026-01-01' where limit_vnd = 1000", []]]);
+      expect((await measure()).checksum).toBe(before.checksum);
+    });
+
+    it('AC-ST-SAS-018-3: reads the same checksum whatever the time zone and the date style of the session that measures', async () => {
+      const { tenant } = await seeded();
+      const measure = async (settings: ReadonlyArray<readonly [string, string]>) =>
+        (
+          await harness.tenants.withSnapshot(ctxOf(tenant), async (tx) => {
+            for (const [name, value] of settings) await tx.query('select set_config($1, $2, true)', [name, value]);
+            return measureTenantTables(tx);
+          })
+        ).tables.find((table) => table.table === 'ai_budget') as TableMeasure;
+      const plain = await measure([]);
+      expect(await measure([['TimeZone', 'Asia/Tokyo'], ['DateStyle', 'German, DMY']])).toEqual(plain);
+      expect(await measure([['TimeZone', 'America/Los_Angeles'], ['IntervalStyle', 'sql_standard'], ['extra_float_digits', '-3']])).toEqual(plain);
     });
 
     it('names the tables of the tenant plane that the worker cannot read, and measures all the others', async () => {
@@ -329,6 +357,61 @@ describe('the worker of the promotion of a tenant to a silo (ST-SAS-018, SAS.md 
       expect(await targetIntact(mover, switched)).toBe(false);
       expect(reconcileCopy([], await mover.measureTarget(moveOf(switched))).match).toBe(false);
       expect(await targetIntact(mover, { ...switched, report: null })).toBe(false);
+    }, 120_000);
+  });
+
+  describe('a copy that differs in a column that is neither key nor money (BR-SAS-05)', () => {
+    /** A mover whose copy of the budgets is read from the live rows, the way a real mover reads the silo: a write to those rows is a write to the silo. The rest of the copy is the picture of the stand-in. */
+    class LiveCopyMover extends MockPlacementMover {
+      override async measureTarget(move: MoveRef): Promise<TableMeasure[]> {
+        const picture = await super.measureTarget(move);
+        const live = (await harness.tenants.withSnapshot(ctxOf(move.tenantId), (tx) => measureTenantTables(tx))).tables.find((table) => table.table === 'ai_budget');
+        return picture.map((table) => (table.table === 'ai_budget' && live !== undefined ? live : table));
+      }
+    }
+
+    it('AC-ST-SAS-018-3 UAT-AC150: reports a MISMATCH for the table when the copy differs in a text or date column, though rows, keys and money agree', async () => {
+      const { tenant } = await seeded();
+      const picture = (await harness.tenants.withSnapshot(ctxOf(tenant), (tx) => measureTenantTables(tx))).tables;
+      expect(reconcileCopy(picture, picture).match).toBe(true);
+      await harness.base.owner(tenant, [["update machvon.ai_budget set period = 'YEAR' where limit_vnd = 1000", []]]);
+      const original = (await harness.tenants.withSnapshot(ctxOf(tenant), (tx) => measureTenantTables(tx))).tables;
+      const result = reconcileCopy(original, picture);
+      expect(result.match).toBe(false);
+      expect(result.mismatchedTables).toEqual(['ai_budget']);
+      const line = result.tables.find((entry) => entry.table === 'ai_budget');
+      expect(line).toMatchObject({ rowsMatch: true, moneyMatch: true, checksumMatch: false });
+    });
+
+    it('AC-ST-SAS-018-3: measures the record of the promotion by its key alone, so the steps of the promotion are no change to the copy', async () => {
+      const { tenant, silo } = await seeded();
+      const migration = await start(tenant, silo);
+      const measure = async () => (await harness.tenants.withSnapshot(ctxOf(tenant), (tx) => measureTenantTables(tx))).tables.find((table) => table.table === 'tenant_placement_migration') as TableMeasure;
+      const before = await measure();
+      expect(before.rows).toBe(1);
+      await runnerFor(new MockPlacementMover()).run(ctxOf(tenant), NOW);
+      expect((await find(tenant, migration.id)).status).toBe('AwaitingCutover');
+      expect(await measure()).toEqual(before);
+    }, 120_000);
+
+    it('AC-ST-SAS-018-3 UAT-AC150: refuses to roll back a switched migration once a column that is neither key nor money was updated in the silo', async () => {
+      const { tenant, silo } = await seeded();
+      const mover = new LiveCopyMover();
+      const runner = runnerFor(mover);
+      const migration = await start(tenant, silo);
+      await runner.run(ctxOf(tenant), NOW);
+      await approve(tenant, migration.id, minutes(1));
+      await runner.run(ctxOf(tenant), minutes(2));
+      const switched = await find(tenant, migration.id);
+      expect(switched.status).toBe('Switched');
+      expect(await targetIntact(mover, switched)).toBe(true);
+      await harness.base.owner(tenant, [["update machvon.ai_budget set period = 'YEAR' where limit_vnd = 1000", []]]);
+      expect(await targetIntact(mover, switched)).toBe(false);
+      const attempt = harness.inTenant(tenant, (tx) =>
+        store.abort(tx, recorder(APPROVER), { migrationId: migration.id, actor: APPROVER, reason: 'The customer asked to go back to the pool.', expectedVersion: switched.version }, minutes(3), { targetIntact: (row) => targetIntact(mover, row) }),
+      );
+      await expect(attempt).rejects.toMatchObject({ code: 'MIGRATION_STATE_INVALID', status: 409 });
+      expect((await find(tenant, migration.id)).status).toBe('Switched');
     }, 120_000);
   });
 

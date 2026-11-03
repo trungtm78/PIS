@@ -61,7 +61,7 @@ CREATE TABLE machvon.retroactive_adjustment_line (
   created_at timestamptz NOT NULL DEFAULT now(),
   created_by uuid NOT NULL,
   PRIMARY KEY (tenant_id, id),
-  CONSTRAINT retroactive_adjustment_line_amount_chk CHECK (quantity > 0 AND old_amount_vnd > 0 AND new_unit_price >= 0 AND new_amount_vnd >= 0),
+  CONSTRAINT retroactive_adjustment_line_amount_chk CHECK (quantity > 0 AND old_amount_vnd >= 0 AND new_unit_price >= 0 AND new_amount_vnd >= 0),
   -- The difference is the new amount less the old one, and it is never nothing: a balance that does not change has no line.
   CONSTRAINT retroactive_adjustment_line_delta_chk CHECK (delta_vnd <> 0 AND delta_vnd = new_amount_vnd - old_amount_vnd)
 );

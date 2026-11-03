@@ -131,7 +131,7 @@ describe('the comparison of the copy with the original (BR-SAS-05)', () => {
     expect(sameAmount('', '')).toBe(false);
   });
 
-  it('AC-ST-SAS-018-1 UAT-AC150: agrees when every table has the same rows, the same checksum of keys and the same money sums', () => {
+  it('AC-ST-SAS-018-1 UAT-AC150: agrees when every table has the same rows, the same content checksum and the same money sums', () => {
     const result = reconcileCopy(SOURCE, [...SOURCE].reverse());
     expect(result.match).toBe(true);
     expect(result.mismatchedTables).toEqual([]);

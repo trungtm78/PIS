@@ -237,6 +237,15 @@ export function maySign(report: Report, permissions: readonly string[] | undefin
   return canAct(permissions, mode) && report.canSign && report.status === 'DRAFT' && !report.stale;
 }
 
+/**
+ * The call is the confirmation of a signature given before: the caller signed, and nobody is awaited any more (a decision on a conflict of interest cut the team down to the members who signed). It adds no signature
+ * and takes no dissent, so the form offers none. The server decides whether the call is offered at all (`canSign`); this only tells the form which of the two calls it is, by the same fact the server uses.
+ */
+export function isConfirmation(report: Report, membershipId: string | undefined): boolean {
+  const mine = membershipId?.toLowerCase();
+  return mine !== undefined && report.awaiting.length === 0 && report.signedOffBy.some((signature) => signature.membershipId.toLowerCase() === mine);
+}
+
 /** Where the minutes stand: waiting for the signatures, with DOC, issued, replaced by later minutes. The words of DOC's own state are shown beside it as DOC says them. */
 export type Stage = 'signing' | 'doc' | 'issued' | 'superseded' | 'refused';
 

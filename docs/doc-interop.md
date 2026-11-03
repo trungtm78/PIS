@@ -30,6 +30,10 @@ calls off the messages that did not leave together with their rows.
 `DocInteropSender.runPass` for each tenant (a stand-in for `DocInteropSendWorkflow`; there is no workflow engine in this repository, the job runner holds one owner at a time and every message is locked `FOR UPDATE SKIP LOCKED`):
 
 1. messages `SENT` in an earlier pass are asked what the receiving agency did (`receipt`): `ACKED` or `REJECTED` (with the code of the reason), or still pending, or the gateway cannot say (the message stays `SENT`, counted as `receipt_unavailable`);
+   A pass asks at most 50 messages, in the order of the last poll: the messages never asked first (the longest sent first), then the one asked the longest ago. Every message that is asked gets the moment of the poll in
+   `doc_interop_message.last_polled_at`, whatever the answer (pending, the gateway cannot say, acknowledged, refused), so a batch of messages whose receipts stay pending moves behind the others and the later messages are
+   asked in the next pass. The moment is bookkeeping: the version and `updated_at` of the message do not change, and the guard trigger lets it be written only while the message is `SENT`. The column belongs to the
+   migration `V1230__doc1_interop_message.sql` itself (not released anywhere, so it was extended in place, with a partial index `doc_interop_message_poll_idx` for the order);
 2. messages that are due (`QUEUED`, or `FAILED` with the wait over) are handed to the gateway, one transaction for each message, so that one that fails does not hold the others. A failed attempt keeps its code in `error_code`:
    `INTEROP_ADAPTER_NOT_ACTIVE` (the tenant has no LGSP connector in `Active`), `EGRESS_NOT_ALLOWED` (see below), `ENVELOPE_INVALID` (the stored envelope no longer matches its digest), the code the gateway named, or `CHANNEL_ERROR`;
 3. the number of dead messages of the tenant is set in the gauge `doc_interop_dead_gauge{tenant_id}`.

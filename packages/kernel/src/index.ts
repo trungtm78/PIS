@@ -600,9 +600,10 @@ export {
   reportDissentOf,
   reportRunIdsOf,
   reportSummary,
+  signOffKind,
   signerIds,
 } from './bid-report.ts';
-export type { DecisionLine, Dissent, EvaluationReportStatus, NotCoveredReason, PayloadInput, Quorum, ReportSummary, Signature, SummaryInput, TeamMember } from './bid-report.ts';
+export type { DecisionLine, Dissent, EvaluationReportStatus, NotCoveredReason, PayloadInput, Quorum, ReportSummary, SignOffKind, Signature, SummaryInput, TeamMember } from './bid-report.ts';
 export {
   CHECKLIST_OUTCOMES,
   INSPECTION_COMMANDS,
@@ -697,7 +698,7 @@ export {
   settlementBlocks,
   totalDelta,
 } from './ctr-retroactive.ts';
-export type { AcceptedLine, BalanceAdjustment, PostingTarget, PricedItem, RepricedLine, Repricing, SettlementFact } from './ctr-retroactive.ts';
+export type { AcceptedLine, BalanceAdjustment, PostingTarget, PricedItem, PriorAdjustment, RepricedLine, Repricing, SettlementFact } from './ctr-retroactive.ts';
 export {
   LEDGER_ENTRY_KINDS,
   LEDGER_RULES,

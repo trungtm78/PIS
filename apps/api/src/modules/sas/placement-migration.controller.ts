@@ -84,7 +84,7 @@ function effectsOf(scope: CommandScope): ApprovalEffects {
 
 /**
  * The promotion of a tenant from the pool to a silo of its own on the control plane (ST-SAS-018, SAS-23, SAS.md 3.3, BR-SAS-05): `system.tenant.manage` writes (the System Admin), `system.tenant.read` reads. Starting a
- * promotion only plans it: the worker copies the data, compares the copy with the original table by table (rows, checksum of the keys, sums of money) and keeps the comparison up to date. A System Admin other than the one
+ * promotion only plans it: the worker copies the data, compares the copy with the original table by table (rows, checksum of the content of every row, sums of money) and keeps the comparison up to date. A System Admin other than the one
  * who started approves the cutover when the comparison agrees (403 SELF_APPROVAL_DENIED, 422 MIGRATION_VERIFICATION_FAILED otherwise); writes are then frozen for at most the minutes asked for, the copy is compared again, and
  * the routing is switched and watched for 24 hours. An abort before Completed puts everything back. The commands act as the tenant of the migration, so what they write, audit and emit belongs to that tenant.
  */

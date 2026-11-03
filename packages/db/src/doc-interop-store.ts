@@ -211,13 +211,25 @@ export class DocInteropStore {
     return rows.map(toRecord);
   }
 
-  /** Messages the adapter took and the receiving agency has not answered, the longest waiting first; locked like the due ones. */
+  /**
+   * Messages the adapter took and the receiving agency has not answered: those never asked for the receipt first (the longest sent first), then the one asked the longest ago, so that a batch that stays pending
+   * does not hold back the later messages. Locked like the due ones.
+   */
   async awaitingReceipt(tx: TenantTx, limit: number): Promise<InteropRecord[]> {
     const rows = await tx.query<Row>(
-      `select ${COLUMNS} from ${FROM} where m.direction = 'OUTBOUND' and m.status = 'SENT' order by m.updated_at, m.id limit $1::int for update of m skip locked`,
+      `select ${COLUMNS} from ${FROM} where m.direction = 'OUTBOUND' and m.status = 'SENT' order by m.last_polled_at nulls first, m.created_at, m.id limit $1::int for update of m skip locked`,
       [limit],
     );
     return rows.map(toRecord);
+  }
+
+  /** The receipt of the message was asked for at `at`, whatever the answer. It is bookkeeping of the job: the version and the time of the last change stay as they are. */
+  async recordReceiptPoll(tx: TenantTx, id: string, at: Date): Promise<void> {
+    const [polled] = await tx.query<{ id: string }>(
+      `update machvon.doc_interop_message set last_polled_at = $2::timestamptz where id = $1::uuid and direction = 'OUTBOUND' and status = 'SENT' returning id`,
+      [id, at.toISOString()],
+    );
+    if (polled === undefined) throw new DomainError('INTEROP_STATE_INVALID', 409, 'status');
   }
 
   /** The wait is over: the failed message is due again. */

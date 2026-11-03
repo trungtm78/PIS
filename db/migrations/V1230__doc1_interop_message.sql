@@ -6,9 +6,12 @@
 --     then processed into an incoming letter. A failure keeps the code of its reason, a wait has the moment it ends, a message that left has the id the LGSP gave it.
 --   * The edges of the states, the attempts that are only counted up (a dead message that a person sends again starts a fresh count), the identity of a message that never changes, and the end of the chain: a message
 --     that was acknowledged, refused or processed is kept as it is. Nothing is ever deleted (retention 10 years).
+--   * The moment the receipt of a message that left was last asked for (`last_polled_at`, written by the job that sends, whatever the answer was): the job asks the messages never asked first and then the ones asked
+--     the longest ago, so a batch that stays pending does not keep the later messages from being asked. It is bookkeeping: it changes neither the version nor the time of the last change of the message.
 
 ALTER TABLE machvon.doc_interop_message
-  ADD COLUMN distribution_id uuid;
+  ADD COLUMN distribution_id uuid,
+  ADD COLUMN last_polled_at timestamptz;
 
 ALTER TABLE machvon.doc_interop_message
   ADD CONSTRAINT doc_interop_message_distribution_fk FOREIGN KEY (tenant_id, distribution_id) REFERENCES machvon.document_distribution (tenant_id, id);
@@ -17,6 +20,9 @@ ALTER TABLE machvon.doc_interop_message
 CREATE UNIQUE INDEX doc_interop_message_distribution_uq ON machvon.doc_interop_message (tenant_id, distribution_id) WHERE distribution_id IS NOT NULL;
 -- The monitor lists the latest first.
 CREATE INDEX doc_interop_message_created_idx ON machvon.doc_interop_message (tenant_id, created_at DESC, id DESC);
+
+-- The messages that wait for a receipt, in the order they are asked: never asked first, then the one asked the longest ago.
+CREATE INDEX doc_interop_message_poll_idx ON machvon.doc_interop_message (tenant_id, last_polled_at NULLS FIRST, created_at, id) WHERE direction = 'OUTBOUND' AND status = 'SENT';
 
 -- One incoming letter for each message that arrived: the letter is made in the transaction that receives the message, so a second letter for the same message cannot be.
 CREATE UNIQUE INDEX incoming_document_interop_message_uq ON machvon.incoming_document (tenant_id, interop_message_id) WHERE interop_message_id IS NOT NULL;
@@ -47,7 +53,9 @@ ALTER TABLE machvon.doc_interop_message
     AND (status <> 'REJECTED' OR error_code IS NOT NULL)
     AND (status NOT IN ('SENT', 'ACKED') OR (external_message_id IS NOT NULL AND attempts >= 1))
     AND ((status IN ('ACKED', 'REJECTED', 'PROCESSED')) = (processed_at IS NOT NULL))),
-  ADD CONSTRAINT doc_interop_message_version_chk CHECK (version >= 1);
+  ADD CONSTRAINT doc_interop_message_version_chk CHECK (version >= 1),
+  -- Only a message that left is asked for a receipt.
+  ADD CONSTRAINT doc_interop_message_polled_chk CHECK (last_polled_at IS NULL OR direction = 'OUTBOUND');
 
 REVOKE DELETE, TRUNCATE ON TABLE machvon.doc_interop_message FROM machvon_app;
 
@@ -94,6 +102,10 @@ BEGIN
      WHERE allowed.direction = OLD.direction AND allowed.from_status = OLD.status AND allowed.to_status = NEW.status
   ) THEN
     RAISE EXCEPTION 'INTEROP_STATE_INVALID' USING ERRCODE = '23514';
+  END IF;
+  -- The moment of a poll is written while the message waits for its receipt, and only then.
+  IF NEW.last_polled_at IS DISTINCT FROM OLD.last_polled_at AND (OLD.status <> 'SENT' OR NEW.status <> 'SENT') THEN
+    RAISE EXCEPTION 'a message is asked for its receipt only while it is sent and waits for it' USING ERRCODE = '23514';
   END IF;
   IF NEW.attempts < OLD.attempts AND NOT (OLD.status = 'DEAD' AND NEW.status = 'QUEUED' AND NEW.attempts = 0) THEN
     RAISE EXCEPTION 'attempts are counted, never taken back (a dead message that is sent again starts over)' USING ERRCODE = '23514';

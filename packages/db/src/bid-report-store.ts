@@ -12,6 +12,7 @@ import {
   evaluationReportSourceRef,
   payloadSha256,
   reportSummary,
+  signOffKind,
   signerIds,
   standingOpens,
   versionConflict,
@@ -229,9 +230,10 @@ export class BidReportStore {
     const team = await this.team(tx, row.package_id, place, viewer);
     const before = evaluationQuorum(team, signers);
     // A member signs once. The one case in which they sign again is the confirmation: the team they were waiting with was cut down by a decision on a conflict of interest after they signed, so that every member
-    // who is left has signed and nobody is left to complete the report. It adds no signature and no dissent.
-    const confirming = signers.includes(actor);
-    if (confirming && (!before.complete || input.dissent !== null)) throw new DomainError('ALREADY_SIGNED_OFF', 422);
+    // who is left has signed and nobody is left to complete the report. It adds no signature and no dissent. The read model offers the call by the same rule (`signOffKind`).
+    const kind = signOffKind(team, signers, actor);
+    const confirming = kind === 'CONFIRM';
+    if (kind === 'ALREADY_SIGNED' || (confirming && input.dissent !== null)) throw new DomainError('ALREADY_SIGNED_OFF', 422);
     if (Number(row.version) !== input.expectedVersion) throw versionConflict(Number(row.version));
     if (await this.isStale(tx, row)) throw new DomainError('REPORT_OUT_OF_DATE', 409);
 
@@ -435,7 +437,7 @@ export class BidReportStore {
         reportDocumentId: row.report_document_id,
         documentStatus: row.document_status,
         stale,
-        mayChange: row.status === 'DRAFT' && !stale && standingOpens(standing) && !signers.includes(viewer.membershipId),
+        mayChange: row.status === 'DRAFT' && !stale && standingOpens(standing) && signOffKind(team, signers, viewer.membershipId) !== 'ALREADY_SIGNED',
         createdBy: { membershipId: row.created_by, displayName: row.created_by_name ?? '' },
         createdAt: row.created_at,
         issueRequestedAt: row.issue_requested_at,

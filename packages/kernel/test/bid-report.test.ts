@@ -21,6 +21,7 @@ import {
   reportDissentOf,
   reportRunIdsOf,
   reportSummary,
+  signOffKind,
   signerIds,
 } from '../src/bid-report';
 import type { DecisionLine } from '../src/bid-report';
@@ -135,6 +136,32 @@ describe('the evaluation report and its sign-off (ST-BID-012)', () => {
     it('is never complete for a team with nobody to sign', () => {
       expect(evaluationQuorum([], [ID_A]).complete).toBe(false);
       expect(evaluationQuorum([{ membershipId: ID_A, standing: 'RECUSED' }], [ID_A]).complete).toBe(false);
+    });
+
+    it('is a signature for a member who has not signed, whoever else has (AC-ST-BID-012-1)', () => {
+      expect(signOffKind(team, [], ID_A)).toBe('SIGN');
+      expect(signOffKind(team, [ID_B], ID_A.toUpperCase())).toBe('SIGN');
+      // Even the last signature, which completes the team, is a signature and not a confirmation.
+      expect(signOffKind(team, [ID_A, ID_B], ID_C)).toBe('SIGN');
+    });
+
+    it('refuses the second signature of a member while others are awaited (AC-ST-BID-012-1)', () => {
+      expect(signOffKind(team, [ID_A], ID_A)).toBe('ALREADY_SIGNED');
+      expect(signOffKind(team, [ID_A, ID_B], ID_B.toUpperCase())).toBe('ALREADY_SIGNED');
+    });
+
+    it('is the confirmation of a member who signed when nobody is awaited any more, as when a decision on a conflict shut out the last one who had not signed (AC-ST-BID-012-1)', () => {
+      expect(signOffKind(team, [ID_A, ID_B, ID_C], ID_A)).toBe('CONFIRM');
+      const cut = [{ membershipId: ID_A, standing: 'CLEAR' as const }, { membershipId: ID_B, standing: 'CLEAR' as const }, { membershipId: ID_C, standing: 'RECUSED' as const }];
+      expect(signOffKind(cut, [ID_A, ID_B], ID_B)).toBe('CONFIRM');
+      expect(signOffKind(cut, [ID_A, ID_B], ID_A.toUpperCase())).toBe('CONFIRM');
+      // The member who has not signed is still asked to sign, with a dissent if they hold one.
+      expect(signOffKind(cut, [ID_A], ID_B)).toBe('SIGN');
+    });
+
+    it('is no confirmation for a team with nobody to sign (AC-ST-BID-012-1)', () => {
+      expect(signOffKind([{ membershipId: ID_A, standing: 'RECUSED' as const }], [ID_A], ID_A)).toBe('ALREADY_SIGNED');
+      expect(signOffKind([], [ID_A], ID_A)).toBe('ALREADY_SIGNED');
     });
 
     it('reads a signature as a membership id or as an object that names it, and ignores anything else', () => {

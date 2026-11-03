@@ -19,7 +19,7 @@ import {
   valueAfterChange,
   APPROVED_SETTLEMENT_STATUSES,
 } from '@machvon/kernel';
-import type { AcceptedLine, BalanceAdjustment, PricedItem, RoundingMode, SettlementFact } from '@machvon/kernel';
+import type { AcceptedLine, BalanceAdjustment, PricedItem, PriorAdjustment, RoundingMode, SettlementFact } from '@machvon/kernel';
 import { CtrChangeChainStore } from './ctr-change-chain-store.ts';
 import { CtrChangeRevisions, absoluteVnd } from './ctr-change-revision.ts';
 import type { NewRevisionResult } from './ctr-change-revision.ts';
@@ -29,6 +29,7 @@ import type { ContractScopes } from './ctr-contract-store.ts';
 import { decisionDocument } from './ctr-decision-document.ts';
 import type { DecisionHooks } from './ctr-change-decision-store.ts';
 import { putRevisionInForce } from './ctr-revision-effective.ts';
+import type { RevisionTakeover } from './ctr-revision-effective.ts';
 import { PayLedgerStore } from './pay-ledger-store.ts';
 import type { BalanceAdjustmentInput, PostedEntry } from './pay-ledger-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -132,7 +133,7 @@ const roundingOf = (value: string): RoundingMode => {
  * ordinary decision (422 `RETROACTIVE_NOT_ALLOWED`), by someone who had no part in its chain (403 `SELF_APPROVAL_DENIED`), on a decision document, and while no settlement that has read the
  * ledger is approved (409 `SETTLEMENT_ALREADY_APPROVED`). It makes the next revision of the contract (flagged retroactive, in force from today) and takes it over at once, because the ledger it
  * adjusts is judged against the value the contract has after the change. The acceptances it reaches keep their lines and their amounts as they were approved; the money difference of each
- * balance (the rules of the kernel: only items whose price the change moves, from the effective day on, as the difference of the rounded amounts) is a new `ADJUSTMENT` entry of the cumulative
+ * balance (the rules of the kernel: only items whose price the change moves, from the effective day on, as the difference of the rounded amounts between what the balance is worth, counting the earlier adjustments, and what it is worth at the new price) is a new `ADJUSTMENT` entry of the cumulative
  * ledger of PAY, and the adjustment, its lines and the decision document are recorded. The caller names the affected acceptances and they must be exactly the ones the change reaches.
  */
 export class CtrRetroactiveStore {
@@ -173,7 +174,9 @@ export class CtrRetroactiveStore {
 
     const revision = await this.revisions.make(tx, { head, contractId: contract.id, row, value: newValue, validFrom: today, documentVersionId: document.versionId, actor, boqLines: input.boqLines, scopes, retroactive: true });
     const repricing = await this.repricing(tx, head.id, revision.id);
-    const balances = groupByBalance(repriceAcceptedLines(await this.acceptedLines(tx, contract.id, effectiveOn, [...repricing.keys()]), repricing, effectiveOn));
+    const reached = repriceAcceptedLines(await this.acceptedLines(tx, contract.id, effectiveOn, [...repricing.keys()]), repricing, effectiveOn);
+    // A balance is moved from what it is worth now, the amounts of its lines and the differences earlier adjustments posted on it, to its worth at the new price.
+    const balances = groupByBalance(reached, await this.priorAdjustments(tx, contract.id, [...new Set(reached.map((line) => line.acceptanceId))]));
     assertAffectedMatches(asked, affectedAcceptanceIds(balances));
     const total = totalDelta(balances);
 
@@ -200,15 +203,19 @@ export class CtrRetroactiveStore {
       adjustments: balances.map((balance, index) => ({ adjustmentLineId: lineIds[index] as string, acceptanceId: balance.acceptanceId, boqItemId: balance.boqItemId, partyId: balance.partyId, deltaVnd: balance.deltaVnd })),
     });
 
-    // The revision takes over before the accepted total moves: the total may go above the value the contract had, never above the value it has.
-    const takeover = await putRevisionInForce(tx, { contractId: contract.id, revisionId: revision.id, validFrom: today, amountVnd: newValue, actor });
-    let contractVersion = takeover.version;
-    if (total !== '0') {
-      const moved = await tx.query<{ version: string }>(
-        'update machvon.contract set accepted_total_vnd = accepted_total_vnd + $2::numeric, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid returning version::text as version',
-        [contract.id, total, actor],
-      );
-      contractVersion = Number(moved[0]?.version ?? contractVersion);
+    // `contract_ledger_order_chk` (accepted total <= value) is judged after each statement, so the two updates of the contract go in the order that keeps every figure in between valid: when the
+    // total rises the revision takes over first (the total may go above the value the contract had, never above the value it has); when it falls the total moves first (the value may go below
+    // the total the contract had, never below the one it has). The final figures were judged by the floor above.
+    const takeOver = (): Promise<RevisionTakeover> => putRevisionInForce(tx, { contractId: contract.id, revisionId: revision.id, validFrom: today, amountVnd: newValue, actor });
+    let takeover: RevisionTakeover;
+    let contractVersion: number;
+    if (BigInt(total) < 0n) {
+      await this.moveAcceptedTotal(tx, contract.id, total, actor);
+      takeover = await takeOver();
+      contractVersion = takeover.version;
+    } else {
+      takeover = await takeOver();
+      contractVersion = total === '0' ? takeover.version : await this.moveAcceptedTotal(tx, contract.id, total, actor);
     }
     await tx.query(
       `update machvon.change_request
@@ -259,6 +266,26 @@ export class CtrRetroactiveStore {
   }
 
   // ---- what the adjustment is judged on --------------------------------------------------------------------------------------
+
+  /** Moves the accepted total of the contract by the signed total of the adjustment; the version of the contract after it. */
+  private async moveAcceptedTotal(tx: TenantTx, contractId: string, total: string, actor: string): Promise<number> {
+    const moved = await tx.query<{ version: string }>(
+      'update machvon.contract set accepted_total_vnd = accepted_total_vnd + $2::numeric, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid returning version::text as version',
+      [contractId, total, actor],
+    );
+    return Number(moved[0]?.version ?? '0');
+  }
+
+  /** The differences earlier adjustments of the contract posted on the balances of these acceptances, one row for each balance (the lines of every record, summed). */
+  private async priorAdjustments(tx: TenantTx, contractId: string, acceptanceIds: readonly string[]): Promise<PriorAdjustment[]> {
+    if (acceptanceIds.length === 0) return [];
+    const rows = await tx.query<{ acceptance_id: string; boq_item_id: string; party_id: string | null; delta_vnd: string }>(
+      `select acceptance_id, boq_item_id, party_id, sum(delta_vnd)::text as delta_vnd from machvon.retroactive_adjustment_line
+        where contract_id = $1::uuid and acceptance_id = any($2::uuid[]) group by acceptance_id, boq_item_id, party_id`,
+      [contractId, acceptanceIds],
+    );
+    return rows.map((row) => ({ acceptanceId: row.acceptance_id, boqItemId: row.boq_item_id, partyId: row.party_id, deltaVnd: row.delta_vnd }));
+  }
 
   private async commitmentLineOf(tx: TenantTx, contractId: string): Promise<string | null> {
     const rows = await tx.query<{ allocation_line_id: string | null }>(

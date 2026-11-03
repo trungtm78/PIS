@@ -52,7 +52,7 @@ const localInput = (instant: Date): string => new Date(instant.getTime() - insta
 
 /**
  * SAS-23: the promotion of a tenant from the shared pool to a database of its own (SAS.md 3.3, BR-SAS-05). The System Admin plans it (the target silo, the longest time writes may be frozen, the window, the reason); the
- * platform copies the data and compares the copy with the original table by table (rows, checksum of the keys, sums of money), which the screen shows as it is kept up to date. A second System Admin approves the cutover when
+ * platform copies the data and compares the copy with the original table by table (rows, checksum of the content of every row, sums of money), which the screen shows as it is kept up to date. A second System Admin approves the cutover when
  * every table agrees; writes are then frozen for the minutes asked for, the copy is compared again, the routing is switched and the tenant is watched for 24 hours. A promotion that is not over can be aborted. The registry
  * readers see everything and write nothing.
  */

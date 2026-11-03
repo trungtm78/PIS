@@ -104,6 +104,8 @@ export class DocInteropSender {
   private async ask(tx: TenantTx, ctx: TenantContext, id: string, now: Date): Promise<'ACKED' | 'REJECTED' | undefined> {
     const message = await this.messages.lock(tx, id);
     if (message === undefined || message.status !== 'SENT' || message.externalMessageId === null) return undefined;
+    // Asked now, whatever the answer: a message that stays pending moves behind the ones not asked for longer, so the batch rotates.
+    await this.messages.recordReceiptPoll(tx, message.id, now);
     const connector = await this.connectors.primaryOfMode(tx, LGSP_CONNECTOR_MODE);
     let receipt;
     try {

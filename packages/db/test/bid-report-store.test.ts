@@ -328,6 +328,29 @@ describe('the evaluation report and its sign-off (ST-BID-012, BID 3 F6, BR-BID-0
       expect(confirmed.issue).toBeDefined();
     });
 
+    it('offers the sign-off to a member who signed once a decision on a conflict left nobody to wait for, the same call the command allows, and not while others are awaited or the report is stale (AC-ST-BID-012-1)', async () => {
+      const fx = await fixture([E1, E2]);
+      const alpha = await analysed(fx, 'Alpha Builders');
+      await decideAll(fx, alpha);
+      const { report } = await create(fx, [alpha]);
+      await sign(fx, report.id, E1, 1);
+      await sign(fx, report.id, E2, 2);
+      const mayChange = async (member: number): Promise<boolean | undefined> => (await as((tx) => reports.find(tx, report.id, viewer(member, fx.evaluate)), member))?.mayChange;
+      // E3 has not declared and is awaited: the member who signed has nothing to do but wait.
+      expect([await mayChange(E1), await mayChange(E2)]).toEqual([false, false]);
+
+      const declared = await as((tx) => conflicts.declare(tx, { packageId: fx.seeded.packageId, hasConflict: true, relationText: 'A relative works for Alpha Builders.' }, memberId(E3), everything), E3);
+      await as((tx) => conflicts.decide(tx, declared.id, 1, 'RECUSED', 'The relation was examined and decided by the authority.', memberId(APPROVER), everything), APPROVER);
+      // Nobody is awaited any more and nobody is left to complete the report: every member who signed may confirm.
+      expect([await mayChange(E1), await mayChange(E2)]).toEqual([true, true]);
+      // The member who is shut out finds nothing at all.
+      expect(await failure(as((tx) => reports.find(tx, report.id, viewer(E3, fx.evaluate)), E3))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+
+      // The experts decide again: the draft is stale and nobody confirms it.
+      await decide(fx, alpha, 'C2', 2, 'CONTRADICTED', '2');
+      expect([await mayChange(E1), await mayChange(E2)]).toEqual([false, false]);
+    });
+
     it('refuses the confirmation of a member who signed when others are still awaited, and a confirmation that brings a dissent', async () => {
       const { fx, report } = await drafted();
       await sign(fx, report.id, E1, 1);

@@ -269,6 +269,54 @@ describe('DocInteropStore and the messages of the LGSP (ST-DOC-021, DOC 3 F13)',
       expect(waiting.map((record) => record.id)).toContain(sent.id);
       expect(await inA((tx) => store.awaitingReceipt(tx, 0))).toEqual([]);
     });
+
+    it('rotates: the messages not asked for the longest come first, so a batch that stays pending does not hold the others back (AC-ST-DOC-021-1)', async () => {
+      const batch = 50;
+      for (let n = 0; n < 60; n += 1) await inA(async (tx) => store.markSent(tx, await queued(), { externalMessageId: `LGSP-${randomUUID().slice(0, 8)}`, adapterStatus: 'MOCK' }, WORKER));
+      const total = (await inA((tx) => store.awaitingReceipt(tx, 1000))).length;
+      expect(total).toBeGreaterThanOrEqual(60);
+
+      const first = await inA((tx) => store.awaitingReceipt(tx, batch));
+      expect(first).toHaveLength(batch);
+      // Every one of them is asked and stays pending: only the moment of the poll is written, not the version or the time of the last change.
+      const before = await inA((tx) => store.find(tx, first[0]?.id as string));
+      await inA(async (tx) => {
+        for (const record of first) await store.recordReceiptPoll(tx, record.id, NOW);
+      });
+      const after = await inA((tx) => store.find(tx, first[0]?.id as string));
+      expect(after).toMatchObject({ status: 'SENT', version: before?.version, updatedAt: before?.updatedAt, attempts: before?.attempts });
+      expect(await rowsA<{ polled: number }>('select count(*)::int as polled from machvon.doc_interop_message where last_polled_at = $1::timestamptz', [NOW.toISOString()])).toEqual([{ polled: batch }]);
+
+      // The next pass takes every message never asked before any that was asked.
+      const asked = new Set(first.map((record) => record.id));
+      const neverAsked = Math.min(total - batch, batch);
+      expect(neverAsked).toBeGreaterThanOrEqual(10);
+      const second = await inA((tx) => store.awaitingReceipt(tx, batch));
+      expect(second.slice(0, neverAsked).filter((record) => !asked.has(record.id))).toHaveLength(neverAsked);
+
+      // Once every message was asked, those asked the longest ago come first.
+      const later = new Date(NOW.getTime() + MINUTE);
+      await inA(async (tx) => {
+        for (const record of await store.awaitingReceipt(tx, 1000)) if (!asked.has(record.id)) await store.recordReceiptPoll(tx, record.id, later);
+      });
+      const third = await inA((tx) => store.awaitingReceipt(tx, batch));
+      expect(third.filter((record) => asked.has(record.id))).toHaveLength(batch);
+    });
+
+    it('writes the moment of a poll only while the message waits for its receipt (AC-ST-DOC-021-1)', async () => {
+      const waiting = await queued();
+      const early = await failure(inA((tx) => store.recordReceiptPoll(tx, waiting.id, NOW)));
+      expect([early.code, early.status]).toEqual(['INTEROP_STATE_INVALID', 409]);
+      const sent = await inA((tx) => store.markSent(tx, waiting, { externalMessageId: `LGSP-${randomUUID().slice(0, 8)}`, adapterStatus: 'MOCK' }, WORKER));
+      await inA((tx) => store.recordReceiptPoll(tx, sent.id, NOW));
+      // The database says the same to a writer that bypasses the store: a message that is not SENT has no poll to write, and one that ended is kept as it is.
+      const queuedOnly = await queued();
+      const direct = await failure(inA((tx) => tx.query('update machvon.doc_interop_message set last_polled_at = now() where id = $1::uuid', [queuedOnly.id])));
+      expect(direct.sqlState).toBe('23514');
+      await inA((tx) => store.markAcknowledged(tx, sent, new Date(NOW.getTime() + MINUTE), WORKER));
+      const ended = await failure(inA((tx) => tx.query('update machvon.doc_interop_message set last_polled_at = now() where id = $1::uuid', [sent.id])));
+      expect(ended.sqlState).toBe('23514');
+    });
   });
 
   describe('sending again by hand (retryInteropMessage, AC-ST-DOC-021-1)', () => {

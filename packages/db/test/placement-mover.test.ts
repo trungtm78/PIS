@@ -98,20 +98,25 @@ describe('the stand-in for the data path of a promotion (ST-SAS-018, D02)', () =
 });
 
 describe('the SQL that measures a table (BR-SAS-05)', () => {
-  it('hashes the primary key and sums each money column of the table the tenant sees', () => {
-    expect(measureSql('allocation_line', ['tenant_id', 'id'], ['amount_vnd', 'ctmtqg_subset_vnd'])).toBe(
-      'select count(*)::text as n, coalesce(sum(hashtextextended(row(r."tenant_id", r."id")::text, 0)::numeric), 0)::text as checksum, coalesce(sum(r."amount_vnd"), 0)::text as m0, coalesce(sum(r."ctmtqg_subset_vnd"), 0)::text as m1 from machvon."allocation_line" r',
+  it('hashes the whole row of the table the tenant sees, as jsonb text, and sums each money column', () => {
+    expect(measureSql('allocation_line', ['amount_vnd', 'ctmtqg_subset_vnd'])).toBe(
+      'select count(*)::text as n, coalesce(sum(hashtextextended(to_jsonb(r)::text, 0)::numeric), 0)::text as checksum, coalesce(sum(r."amount_vnd"), 0)::text as m0, coalesce(sum(r."ctmtqg_subset_vnd"), 0)::text as m1 from machvon."allocation_line" r',
     );
   });
 
-  it('hashes the whole row of a table without a key, and has no money column to sum when there is none', () => {
-    expect(measureSql('outbox_line', [], [])).toBe('select count(*)::text as n, coalesce(sum(hashtextextended(r::text, 0)::numeric), 0)::text as checksum from machvon."outbox_line" r');
+  it('hashes the primary key instead of the content for a table of the own record of the promotion', () => {
+    expect(measureSql('tenant_placement_migration', [], ['tenant_id', 'id'])).toBe(
+      'select count(*)::text as n, coalesce(sum(hashtextextended(row(r."tenant_id", r."id")::text, 0)::numeric), 0)::text as checksum from machvon."tenant_placement_migration" r',
+    );
+  });
+
+  it('has no money column to sum when there is none', () => {
+    expect(measureSql('outbox_line', [])).toBe('select count(*)::text as n, coalesce(sum(hashtextextended(to_jsonb(r)::text, 0)::numeric), 0)::text as checksum from machvon."outbox_line" r');
   });
 
   it('quotes every name, so no table or column can bring SQL of its own', () => {
-    expect(measureSql('a"b', ['k"1'], ['m"1'])).toContain('machvon."a""b"');
-    expect(measureSql('a"b', ['k"1'], ['m"1'])).toContain('r."k""1"');
-    expect(measureSql('a"b', ['k"1'], ['m"1'])).toContain('r."m""1"');
+    expect(measureSql('a"b', ['m"1'])).toContain('machvon."a""b"');
+    expect(measureSql('a"b', ['m"1'])).toContain('r."m""1"');
   });
 });
 

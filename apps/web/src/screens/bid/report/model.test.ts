@@ -13,6 +13,7 @@ import {
   declarationPath,
   describeProblem,
   emptyCreate,
+  isConfirmation,
   maySign,
   readFailure,
   reviewRunPath,
@@ -111,6 +112,20 @@ describe('the model of BID-13 (ST-BID-012)', () => {
       expect(maySign(parsed({ status: 'ISSUE_REQUESTED' }), ['bid.evaluate'], 'FULL')).toBe(false);
       expect(maySign(parsed(), ['bid.evaluate'], 'READ_ONLY')).toBe(false);
       expect(maySign(parsed(), ['bid.read'], 'FULL')).toBe(false);
+    });
+
+    it('knows the signature is only a confirmation when the caller signed already and nobody is awaited any more (AC-ST-BID-012-1)', () => {
+      const signed = [{ membership_id: memberOf(1), display_name: 'Chuyên gia 1', signed_at: '2026-12-06T06:00:00.000Z', dissent: false }];
+      // The server offers the call to a member who signed once the team was cut down to the members who signed.
+      const cut = parsed({ signed_off_by: signed, awaiting: [] });
+      expect(maySign(cut, ['bid.evaluate'], 'FULL')).toBe(true);
+      expect(isConfirmation(cut, memberOf(1))).toBe(true);
+      expect(isConfirmation(cut, memberOf(1).toUpperCase())).toBe(true);
+      // Someone who has not signed signs, with the dissent they hold, even when nobody else is awaited.
+      expect(isConfirmation(cut, memberOf(2))).toBe(false);
+      expect(isConfirmation(cut, undefined)).toBe(false);
+      // Others are still awaited: the signature is not a confirmation.
+      expect(isConfirmation(parsed({ signed_off_by: signed }), memberOf(1))).toBe(false);
     });
 
     it('names the stage of the minutes for each status', () => {

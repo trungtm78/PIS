@@ -71,7 +71,7 @@ describe('the retroactive adjustment of a change order over HTTP (ST-CTR-016)', 
     acceptance: (await rows<{ row: unknown }>('select to_jsonb(a) as row from machvon.acceptance a where id = $1::uuid', [acceptanceId]))[0]?.row,
     lines: (await rows<{ row: unknown }>('select to_jsonb(l) as row from machvon.acceptance_line l where acceptance_id = $1::uuid order by id', [acceptanceId])).map((each) => each.row),
   });
-  const contractRow = async (contractId: string) => (await rows<{ contract_value_vnd: string; accepted_total_vnd: string; current_revision_id: string }>('select contract_value_vnd::text, accepted_total_vnd::text, current_revision_id from machvon.contract where id = $1::uuid', [contractId]))[0];
+  const contractRow = async (contractId: string) => (await rows<{ contract_value_vnd: string; accepted_total_vnd: string; current_revision_id: string; version: string }>('select contract_value_vnd::text, accepted_total_vnd::text, current_revision_id, version::text from machvon.contract where id = $1::uuid', [contractId]))[0];
   const requestRow = async (requestId: string) => (await rows<{ status: string; retroactive: boolean; effective_on: string | null; version: string }>('select status, retroactive, effective_on::text, version::text from machvon.change_request where id = $1::uuid', [requestId]))[0];
 
   interface World {
@@ -82,22 +82,22 @@ describe('the retroactive adjustment of a change order over HTTP (ST-CTR-016)', 
   }
 
   /** A contract with an approved acceptance of 500 m3 of B02 (one billion, dated 25 July) on the ledger, and a CO that was assessed (+100,000,000). */
-  async function scenario(): Promise<World> {
-    const contract = await fixtures.seedContract();
-    const approved = await fixtures.approve(contract, [{ item: 1, quantity: '500' }]);
-    await fixtures.as((tx) => ledger.recognize(tx, { acceptanceId: approved.acceptance.id, requestId: randomUUID(), actor: memberId(MAKER) }), MAKER);
-    const event = await fixtures.as((tx) => chain.create(tx, contract.contractId, { stage: 'EVENT', baselineRevisionId: contract.revisionId, reason: 'The owner agreed a new price.', estimatedDeltaVnd: '100000000', scheduleImpactDays: 12 }, memberId(MAKER), contractScopes), MAKER);
+  async function scenario(delta = '100000000', baselineRevisionId?: string, contractOf?: { contract: SeededContract; approved: ApprovedAcceptance }): Promise<World> {
+    const contract = contractOf?.contract ?? (await fixtures.seedContract());
+    const approved = contractOf?.approved ?? (await fixtures.approve(contract, [{ item: 1, quantity: '500' }]));
+    if (contractOf === undefined) await fixtures.as((tx) => ledger.recognize(tx, { acceptanceId: approved.acceptance.id, requestId: randomUUID(), actor: memberId(MAKER) }), MAKER);
+    const event = await fixtures.as((tx) => chain.create(tx, contract.contractId, { stage: 'EVENT', baselineRevisionId: baselineRevisionId ?? contract.revisionId, reason: 'The owner agreed a new price.', estimatedDeltaVnd: delta, scheduleImpactDays: 12 }, memberId(MAKER), contractScopes), MAKER);
     const pco = await fixtures.as((tx) => chain.promote(tx, event.id, 1, 'It is a change.', memberId(MAKER), contractScopes), MAKER);
     const co = await fixtures.as((tx) => chain.promote(tx, pco.id, 1, 'Priced.', memberId(MAKER), contractScopes), MAKER);
     const evaluated = await fixtures.as(
-      (tx) => chain.evaluate(tx, co.id, 1, { evaluatedDeltaVnd: '100000000', scheduleImpactDays: 12, fundingImpactNote: 'Paid from the plan.', allocationLineId: fixtures.lineId }, memberId(EVALUATOR), contractScopes, { available: async () => undefined }),
+      (tx) => chain.evaluate(tx, co.id, 1, { evaluatedDeltaVnd: delta, scheduleImpactDays: 12, fundingImpactNote: 'Paid from the plan.', ...(BigInt(delta) > 0n ? { allocationLineId: fixtures.lineId } : {}) }, memberId(EVALUATOR), contractScopes, { available: async () => undefined }),
       EVALUATOR,
     );
     return { contract, approved, request: co.id, version: evaluated.version };
   }
 
-  const boq = (perM3 = '2100000') => [
-    { business_key: 'B01', description: 'Item B01', unit_code: 'M3', quantity: '8000', unit_price: '1000000' },
+  const boq = (perM3 = '2100000', lump = '1000000') => [
+    { business_key: 'B01', description: 'Item B01', unit_code: 'M3', quantity: '8000', unit_price: lump },
     { business_key: 'B02', description: 'Item B02', unit_code: 'M3', quantity: '500', unit_price: perM3 },
     { business_key: 'B03', description: 'Item B03', unit_code: 'M3', quantity: '10', unit_price: '1234.5' },
   ];
@@ -183,6 +183,40 @@ describe('the retroactive adjustment of a change order over HTTP (ST-CTR-016)', 
         ['SUPERSEDED', false, '9000000000'],
         ['EFFECTIVE', true, '9100000000'],
       ]);
+    });
+
+    it('AC-ST-CTR-016-1: lets a price fall take the contract below the accepted total it had when the adjusted total fits: 200, the accepted total and the value follow, and the ledger reconciles', async () => {
+      const target = await scenario('-8040000000');
+      const before = await contractRow(target.contract.contractId);
+      const done = await adjust(APPROVER, target, { boq_lines: boq('1900000', '1') });
+      expect(done).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
+      const after = await contractRow(target.contract.contractId);
+      expect(after).toMatchObject({ contract_value_vnd: '960000000', accepted_total_vnd: '950000000' });
+      expect(Number(after?.version)).toBe(Number(before?.version) + 2);
+      expect((await entriesOf(target.contract.contractId)).map((entry) => entry.accepted_delta_vnd)).toEqual(['-50000000']);
+      const events = await rows<{ aggregate_version: string }>("select aggregate_version::text from machvon.outbox_event where aggregate_id = $1 and type = 'ctr.commitment.changed.v1'", [target.contract.contractId]);
+      expect(events.map((each) => each.aggregate_version)).toEqual([after?.version]);
+      const page = await call('GET', `/contracts/${target.contract.contractId}/cumulative-ledger`, { member: READER });
+      expect(page.json.reconciled).toBe(true);
+    });
+
+    it('AC-ST-CTR-016-1: counts the adjustment of an earlier change order once: 1,000 then 1,050 then 1,100 million posts +50 million the second time', async () => {
+      const first = await scenario();
+      expect((await adjust(APPROVER, first)).status).toBe(200);
+      const [revision] = await rows<{ id: string }>('select id from machvon.contract_revision where contract_id = $1::uuid and retroactive', [first.contract.contractId]);
+      // Two adjustments cannot be made on one day (a revision begins on a day of its own): the first is moved back a day, as if it had been made yesterday.
+      await seedAs(harness, [
+        ['update machvon.contract_revision set valid_until = valid_until - 1 where contract_id = $1::uuid and not retroactive', [first.contract.contractId]],
+        ['update machvon.contract_revision set valid_from = valid_from - 1 where id = $1::uuid', [revision?.id]],
+      ]);
+      const second = await scenario('100000000', revision?.id, { contract: first.contract, approved: first.approved });
+      const done = await adjust(APPROVER, second, { boq_lines: boq('2200000') });
+      expect(done.status).toBe(200);
+      expect((await entriesOf(first.contract.contractId)).map((entry) => entry.accepted_delta_vnd)).toEqual(['50000000', '50000000']);
+      expect(await contractRow(first.contract.contractId)).toMatchObject({ contract_value_vnd: '9200000000', accepted_total_vnd: '1100000000' });
+      const page = await call('GET', `/contracts/${first.contract.contractId}/cumulative-ledger`, { member: READER });
+      expect((page.json.items as Array<{ accepted_vnd: string }>)[0]?.accepted_vnd).toBe('1100000000');
+      expect(page.json.reconciled).toBe(true);
     });
 
     it('audits and tells the world with ids, days and amounts only: the change, the revision, the capital and the ledger', async () => {

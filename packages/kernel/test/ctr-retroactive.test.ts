@@ -13,7 +13,7 @@ import {
   settlementBlocks,
   totalDelta,
 } from '../src/ctr-retroactive';
-import type { AcceptedLine, Repricing, SettlementFact } from '../src/ctr-retroactive';
+import type { AcceptedLine, PriorAdjustment, Repricing, SettlementFact } from '../src/ctr-retroactive';
 
 function refusal(work: () => unknown): DomainError {
   try {
@@ -38,6 +38,11 @@ const line = (overrides: Partial<AcceptedLine> = {}): AcceptedLine => ({
 });
 
 const price = (unitPrice: string, roundingRule: Repricing['roundingRule'] = 'HALF_UP'): Repricing => ({ unitPrice, roundingRule });
+
+/** What the adjustment posts: the balances the new price moves, given the differences earlier adjustments already posted on them. */
+const balancesOf = (lines: readonly AcceptedLine[], repricing: ReadonlyMap<string, Repricing>, effectiveOn: string, prior: readonly PriorAdjustment[] = []) =>
+  groupByBalance(repriceAcceptedLines(lines, repricing, effectiveOn), prior);
+const earlier = (deltaVnd: string, overrides: Partial<PriorAdjustment> = {}): PriorAdjustment => ({ acceptanceId: 'A1', boqItemId: 'B02', partyId: null, deltaVnd, ...overrides });
 
 describe('the day of a retroactive change (ST-CTR-016, BR-CTR-03)', () => {
   it('AC-ST-CTR-016-1, UAT-AC58: takes only a day before the day of the approval; a day that is not past goes through the ordinary decision', () => {
@@ -78,34 +83,100 @@ describe('which items a change order re-prices (ST-CTR-016, price difference)', 
   });
 });
 
-describe('the difference of an accepted line when its price changes (ST-CTR-016)', () => {
-  it('AC-ST-CTR-016-1, UAT-AC58: is the quantity at the new price, rounded as the new line is, less what the line was accepted for, with the sign of the change of price', () => {
-    const rise = repriceAcceptedLines([line()], new Map([['B02', price('2100000.000000')]]), '2026-06-01');
-    expect(rise).toEqual([{ ...line(), newUnitPrice: '2100000.000000', newAmountVnd: '1050000000', deltaVnd: '50000000' }]);
-    const fall = repriceAcceptedLines([line()], new Map([['B02', price('1900000.000000')]]), '2026-06-01');
-    expect(fall[0]).toMatchObject({ newAmountVnd: '950000000', deltaVnd: '-50000000' });
+describe('the lines a change of price reaches (ST-CTR-016)', () => {
+  it('AC-ST-CTR-016-1, UAT-AC58: is the quantity at the new price, rounded as the new line is, beside the amount the line was accepted for', () => {
+    expect(repriceAcceptedLines([line()], new Map([['B02', price('2100000.000000')]]), '2026-06-01')).toEqual([{ ...line(), newUnitPrice: '2100000.000000', newAmountVnd: '1050000000' }]);
+    expect(repriceAcceptedLines([line()], new Map([['B02', price('1900000.000000')]]), '2026-06-01')[0]).toMatchObject({ newAmountVnd: '950000000' });
   });
 
-  it('is the difference of the amounts, not of the prices times the quantity, so a rounded line ends exactly where a line accepted at the new price would', () => {
-    // 3 at 1234.5 was accepted for 3704 (HALF_UP of 3703.5); at 1235.5 it is 3706.5, 3707: the difference is 3, not 3.
-    const accepted = line({ quantity: '3.000000', unitPriceSnapshot: '1234.500000', amountVnd: '3704' });
-    expect(repriceAcceptedLines([accepted], new Map([['B02', price('1235.500000', 'HALF_UP')]]), '2026-06-01')[0]).toMatchObject({ newAmountVnd: '3707', deltaVnd: '3' });
-    expect(repriceAcceptedLines([accepted], new Map([['B02', price('1235.500000', 'DOWN')]]), '2026-06-01')[0]).toMatchObject({ newAmountVnd: '3706', deltaVnd: '2' });
-  });
-
-  it('leaves out a line before the day, a line of an item that is not re-priced, and a line whose amount does not change', () => {
+  it('leaves out a line before the day and a line of an item that is not re-priced, and keeps a line whose amount does not change (its balance may still differ)', () => {
     const lines = [
       line({ lineId: 'L1', acceptedOn: '2026-05-31' }),
       line({ lineId: 'L2', acceptedOn: '2026-06-01' }),
       line({ lineId: 'L3', boqItemId: 'B09' }),
       line({ lineId: 'L4', unitPriceSnapshot: '2100000.000000', amountVnd: '1050000000' }),
     ];
-    expect(repriceAcceptedLines(lines, new Map([['B02', price('2100000.000000')]]), '2026-06-01').map((each) => each.lineId)).toEqual(['L2']);
+    expect(repriceAcceptedLines(lines, new Map([['B02', price('2100000.000000')]]), '2026-06-01').map((each) => each.lineId)).toEqual(['L2', 'L4']);
+  });
+});
+
+describe('the difference of a balance when its price changes (ST-CTR-016)', () => {
+  it('AC-ST-CTR-016-1, UAT-AC58: is the amount at the new price less what the balance is worth, with the sign of the change of price', () => {
+    const rise = balancesOf([line()], new Map([['B02', price('2100000.000000')]]), '2026-06-01');
+    expect(rise).toHaveLength(1);
+    expect(rise[0]).toMatchObject({ oldAmountVnd: '1000000000', newAmountVnd: '1050000000', deltaVnd: '50000000' });
+    const fall = balancesOf([line()], new Map([['B02', price('1900000.000000')]]), '2026-06-01');
+    expect(fall[0]).toMatchObject({ newAmountVnd: '950000000', deltaVnd: '-50000000' });
+  });
+
+  it('is the difference of the amounts, not of the prices times the quantity, so a rounded line ends exactly where a line accepted at the new price would', () => {
+    // 3 at 1234.5 was accepted for 3704 (HALF_UP of 3703.5); at 1235.5 it is 3706.5, 3707: the difference is 3, not 3.
+    const accepted = line({ quantity: '3.000000', unitPriceSnapshot: '1234.500000', amountVnd: '3704' });
+    expect(balancesOf([accepted], new Map([['B02', price('1235.500000', 'HALF_UP')]]), '2026-06-01')[0]).toMatchObject({ newAmountVnd: '3707', deltaVnd: '3' });
+    expect(balancesOf([accepted], new Map([['B02', price('1235.500000', 'DOWN')]]), '2026-06-01')[0]).toMatchObject({ newAmountVnd: '3706', deltaVnd: '2' });
+  });
+
+  it('has no adjustment for a line before the day, an item that is not re-priced, or a balance whose amount does not change', () => {
+    const lines = [
+      line({ lineId: 'L1', acceptedOn: '2026-05-31', acceptanceId: 'A0' }),
+      line({ lineId: 'L2', acceptedOn: '2026-06-01' }),
+      line({ lineId: 'L3', boqItemId: 'B09', acceptanceId: 'A3' }),
+      line({ lineId: 'L4', acceptanceId: 'A4', unitPriceSnapshot: '2100000.000000', amountVnd: '1050000000' }),
+    ];
+    expect(balancesOf(lines, new Map([['B02', price('2100000.000000')]]), '2026-06-01').map((each) => each.acceptanceId)).toEqual(['A1']);
   });
 
   it('prices a line accepted after a later revision against the same new price (the change order stands over every revision since its day)', () => {
     const later = line({ lineId: 'L9', acceptanceId: 'A2', acceptedOn: '2026-08-02', quantity: '100.000000', unitPriceSnapshot: '2100000.000000', amountVnd: '210000000' });
-    expect(repriceAcceptedLines([later], new Map([['B02', price('2200000.000000')]]), '2026-06-01')[0]).toMatchObject({ deltaVnd: '10000000' });
+    expect(balancesOf([later], new Map([['B02', price('2200000.000000')]]), '2026-06-01')[0]).toMatchObject({ deltaVnd: '10000000' });
+  });
+});
+
+describe('a balance that an earlier adjustment already moved (ST-CTR-016: no double counting)', () => {
+  // 100 m3 accepted for 100 dong (1 per m3): +20 by a first adjustment to 1.2, so the balance is worth 120.
+  const hundred = line({ quantity: '100.000000', unitPriceSnapshot: '1.000000', amountVnd: '100' });
+  const to = (unitPrice: string) => new Map([['B02', price(unitPrice)]]);
+
+  it('AC-ST-CTR-016-1: is moved from what it is worth now, not from the amount it was accepted for: 100, then 120, then 130 posts +10 and ends at 130', () => {
+    const [second] = balancesOf([hundred], to('1.300000'), '2026-06-01', [earlier('20')]);
+    expect(second).toMatchObject({ oldAmountVnd: '120', newAmountVnd: '130', deltaVnd: '10' });
+    // Without the earlier adjustment the same price would post +30 and leave the ledger at 150.
+    expect(balancesOf([hundred], to('1.300000'), '2026-06-01')[0]).toMatchObject({ oldAmountVnd: '100', deltaVnd: '30' });
+  });
+
+  it('AC-ST-CTR-016-1: takes back an earlier adjustment when the price returns to the price of the acceptance (the difference against the original is nothing, the balance is not)', () => {
+    const balances = balancesOf([hundred], to('1.000000'), '2026-06-01', [earlier('20')]);
+    expect(balances).toHaveLength(1);
+    expect(balances[0]).toMatchObject({ oldAmountVnd: '120', newAmountVnd: '100', deltaVnd: '-20' });
+    expect(affectedAcceptanceIds(balances)).toEqual(['A1']);
+  });
+
+  it('counts a balance that is already worth what the new price makes it as unaffected: no line, and its acceptance is not in the list', () => {
+    const balances = balancesOf([hundred], to('1.200000'), '2026-06-01', [earlier('20')]);
+    expect(balances).toEqual([]);
+    expect(affectedAcceptanceIds(balances)).toEqual([]);
+    expect(totalDelta(balances)).toBe('0');
+  });
+
+  it('adds every earlier difference of the balance, with its sign, and reads them on the whole balance and not on each line', () => {
+    const lines = [
+      line({ lineId: 'L1', quantity: '60.000000', unitPriceSnapshot: '1.000000', amountVnd: '60' }),
+      line({ lineId: 'L2', quantity: '40.000000', unitPriceSnapshot: '1.000000', amountVnd: '40' }),
+    ];
+    // +20, then -5, then +3: the balance is worth 118.
+    const [balance] = balancesOf(lines, to('1.500000'), '2026-06-01', [earlier('20'), earlier('-5'), earlier('3')]);
+    expect(balance).toMatchObject({ lineIds: ['L1', 'L2'], oldAmountVnd: '118', newAmountVnd: '150', deltaVnd: '32' });
+  });
+
+  it('reads the earlier differences of its own balance only: another acceptance, item or member does not move it', () => {
+    const others = [earlier('999', { acceptanceId: 'A2' }), earlier('999', { boqItemId: 'B05' }), earlier('999', { partyId: 'P1' })];
+    expect(balancesOf([hundred], to('1.300000'), '2026-06-01', others)[0]).toMatchObject({ oldAmountVnd: '100', deltaVnd: '30' });
+    const member = line({ partyId: 'P1', quantity: '100.000000', unitPriceSnapshot: '1.000000', amountVnd: '100' });
+    expect(balancesOf([member], to('1.300000'), '2026-06-01', [earlier('20'), earlier('7', { partyId: 'P1' })])[0]).toMatchObject({ oldAmountVnd: '107', deltaVnd: '23' });
+  });
+
+  it('leaves alone a balance an earlier adjustment moved if the change does not reach its day', () => {
+    expect(balancesOf([line({ acceptedOn: '2026-05-31' })], to('1.300000'), '2026-06-01', [earlier('20')])).toEqual([]);
   });
 });
 
@@ -126,7 +197,7 @@ describe('the adjustment of each balance of the ledger (ST-CTR-016)', () => {
   );
 
   it('adds the lines of one item of one acceptance (and member) into one adjustment, in a stable order', () => {
-    const groups = groupByBalance(repriced);
+    const groups = groupByBalance(repriced, []);
     expect(groups.map((group) => [group.acceptanceId, group.boqItemId, group.partyId, group.deltaVnd])).toEqual([
       ['A1', 'B02', null, '50000000'],
       ['A1', 'B05', 'P1', '-1000'],
@@ -148,7 +219,7 @@ describe('the adjustment of each balance of the ledger (ST-CTR-016)', () => {
   });
 
   it('adds the differences with their signs and names each acceptance once', () => {
-    const groups = groupByBalance(repriced);
+    const groups = groupByBalance(repriced, []);
     expect(totalDelta(groups)).toBe('59998000');
     expect(totalDelta([])).toBe('0');
     expect(affectedAcceptanceIds(groups)).toEqual(['A1', 'A2']);

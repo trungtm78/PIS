@@ -377,13 +377,19 @@ describe('the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13)'
       const id = (await create(w)).json.resource_id as string;
       await sign(id, E1);
       await sign(id, E2);
+      // While E3 is awaited the members who signed are offered nothing: a second signature is refused.
+      expect((await call('GET', `/evaluation-reports/${id}`, { member: E1 })).json).toMatchObject({ actions: { sign_off: false } });
       // E3 declared no conflict, so nothing can shut them out: the team is cut by taking the right to evaluate away from them.
       await harness.owner(TENANT_A, [["update machvon.role_grant set status = 'Revoked', revoked_at = now() where membership_id = $1::uuid", [memberId(E3)]]]);
       const read = await call('GET', `/evaluation-reports/${id}`, { member: E1 });
-      expect(read.json).toMatchObject({ status: 'DRAFT', awaiting: [] });
+      expect(read.json).toMatchObject({ status: 'DRAFT', awaiting: [], actions: { sign_off: true } });
+      const listed = await call('GET', `/procurement-packages/${w.seeded.packageId}/evaluation-reports`, { member: E2 });
+      expect((listed.json.items as Array<{ id: string }>).find((item) => item.id === id)).toMatchObject({ actions: { sign_off: true } });
       expect(await sign(id, E1, { dissent: DISSENT })).toMatchObject({ status: 422, json: { code: 'ALREADY_SIGNED_OFF' } });
       expect(await sign(id, E1)).toMatchObject({ status: 200, json: { status: 'ISSUE_REQUESTED' } });
       expect((await stored(id)).signed_off_by).toHaveLength(2);
+      // Completed: nothing is left to sign.
+      expect((await call('GET', `/evaluation-reports/${id}`, { member: E1 })).json).toMatchObject({ status: 'ISSUE_REQUESTED', actions: { sign_off: false } });
       await harness.owner(TENANT_A, [["update machvon.role_grant set status = 'Active', revoked_at = null where membership_id = $1::uuid", [memberId(E3)]]]);
     });
   });

@@ -34,10 +34,16 @@ accepted with no entry to say who owes the difference; that is a recovery of an 
   change order that never mentioned it. A new item, an item the new BOQ no longer prices, and a new rounding rule alone, re-price nothing.
 * **Which lines.** Every approved, active line of such an item accepted **on the effective day or after** (the day is inclusive, like the first day of a revision), whichever revision priced it. The change order stands over the
   revisions since its day: an acceptance of 2 August priced at 2,100,000 under revision 2 is re-priced to the new price of a CO that applies from 1 June.
-* **The difference of a line** is `round(quantity × new unit price) − amount the line was accepted for`, rounded as the **new** line of the BOQ is rounded (`HALF_UP`, `DOWN`, `UP`, `HALF_EVEN`). It is the difference of the
-  rounded amounts, not `(new − old price) × quantity`: after the adjustment the line is worth exactly what it would have been accepted for at the new price, with no unit of rounding lost or made. (Example: 3 at 1,234.5 accepted
-  for 3,704; at 1,235.5 `HALF_UP` it is 3,707 and the difference is 3, not 3.) A line whose difference is zero has no adjustment.
-* **The entry.** The lines of one item of one acceptance (and member of a joint venture) are one balance of the ledger and one adjustment line; the entry is the sum of their differences.
+* **The difference is judged on the balance of the ledger**, the lines of one item of one acceptance (and member of a joint venture), which is also one adjustment line and one entry. A balance is **worth** the amounts its
+  lines were accepted for **plus the differences of the earlier adjustments on that balance** (`retroactive_adjustment_line.delta_vnd` of the same acceptance, item and member, whichever change order made them). At the new
+  price it is worth the sum of `round(quantity × new unit price)` of its lines, each rounded as the **new** line of the BOQ is rounded (`HALF_UP`, `DOWN`, `UP`, `HALF_EVEN`). The difference is the second less the first. It
+  is the difference of the rounded amounts, not `(new − old price) × quantity`: after the adjustment the balance is worth exactly what it would have been accepted for at the new price, with no unit of rounding lost or made.
+  (Example: 3 at 1,234.5 accepted for 3,704; at 1,235.5 `HALF_UP` it is 3,707 and the difference is 3, not 3.)
+* **Adjusted again.** The difference is never taken against the amount the line was accepted for alone, or two change orders would count the first twice: an acceptance worth 100, adjusted to 120 (+20) and then to 130, posts
+  **+10** and leaves 130 on the ledger, not +30 and 150. A later price that returns to the price of the acceptance takes the first adjustment back (−20, to 100) although each line differs from its original by nothing.
+* **The entry.** A balance whose difference is zero has no adjustment line and no entry, whether its lines did not change or an earlier adjustment already brought it to the new worth; its acceptance is then not among the
+  affected ones. The `old_amount_vnd` of the line is what the balance was worth before this adjustment (so the lines of successive adjustments of a balance chain: each one's old amount is the previous one's new amount), and
+  its `new_amount_vnd` what it is worth after; `delta_vnd = new − old` as the database checks.
 
 UAT-AC58 in numbers: B02, 500 m3 accepted on 25 July at 2,000,000 (1,000,000,000); a CO from 1 June sets 2,100,000; the line is worth 1,050,000,000, the entry is +50,000,000, the balance's accepted amount goes from
 1,000,000,000 to 1,050,000,000, the acceptance and its line still say 1,000,000,000, and the accepted total of the contract rises by 50,000,000.
@@ -48,7 +54,11 @@ The revision a retroactive CO makes is the next one in the history (`retroactive
 left to do for it): `putRevisionInForce` is the code the job uses, shared. It is not back-dated. The history of revisions is a line where exactly one is in force at a time, an acceptance takes the price of the revision in
 force on its day (BR-CTR-03), and a back-dated revision would put two in force on the same day. The day the change reaches back to (`effective_on`, a day before today) is kept on the change order
 (`change_request.effective_on`, `retroactive = true`) and on the record of the adjustment; the work accepted from that day is paid for by the entries, and the work accepted from today is priced by the revision. It
-is put in force at once because the ledger it adjusts is judged against the value the contract has after the change: `contract_ledger_order_chk` (accepted total ≤ value) must hold when the entries are posted.
+is put in force at once because the ledger it adjusts is judged against the value the contract has after the change: `contract_ledger_order_chk` (accepted total ≤ value) must hold when the entries are posted. The
+check is immediate, so the two updates of the contract (the revision taking over with the new value, the accepted total moving by the total of the adjustment) are ordered by the sign of the total so that the figures in
+between are valid too: when the accepted total **rises** the revision takes over first (the total may go above the value the contract had, never above the value it has); when it **falls** the total moves first and the
+revision takes over after (the value may fall below the accepted total the contract had, never below the one it has, and `assertValueAboveFloor` has already judged the final figures). Both are two updates in either order
+(the version of the contract rises by two; none for the total when it is zero), and the answer carries the version of the last.
 
 The call is refused (409 `CONTRACT_STATE_INVALID`, `reason: REVISION_PENDING`) while another revision waits for its day, and (422 `VALIDATION_FAILED`, `reason: NOT_AFTER_REVISION`) when the revision in force began today or later.
 
@@ -60,7 +70,8 @@ later, since a settlement of a year reads the entries posted before the year end
 
 ### 5. The list of affected acceptances
 
-The caller names them (`affected_acceptance_ids`, at most 500, each once whatever the case of the uuid) and the list must be **exactly** the acceptances the change reaches (rule 2). The server computes the set itself and a
+The caller names them (`affected_acceptance_ids`, at most 500, each once whatever the case of the uuid) and the list must be **exactly** the acceptances the change reaches (rule 2): those with a balance whose worth the new
+price changes, counting the earlier adjustments (section 2), so an acceptance already worth its new amount is not in it and one whose price returns to its first is. The server computes the set itself and a
 list that differs is 422 `VALIDATION_FAILED` on `affected_acceptance_ids`, `reason: AFFECTED_MISMATCH`, with `missing_acceptance_ids` and `unexpected_acceptance_ids`. A call that silently re-priced some acceptances and left
 others at the old price would be worse than a refusal, and a call that trusted the list would let a caller choose the acceptances it re-prices. A change that reaches none (no price moved, or none accepted from the day) is
 allowed with an empty list: the revision is made and no entry is posted.
@@ -118,7 +129,7 @@ and amounts, never the words of the basis.
 ## Reads and screens
 
 * `getContractSummary` / `GET /resources/contract/{id}` carry `retroactive_adjustments` (by right of the ledger only: a guest contractor sees the flag of a revision, never the money): for each adjustment the day, the basis, the
-  total, and the balances it moved (acceptance, item, quantity, what it was accepted for, the new price and amount, the signed difference).
+  total, and the balances it moved (acceptance, item, quantity, what the balance was worth before, the new price and amount, the signed difference).
 * The board of changes (`getChangeChain`) reads `retroactive` on a request and `actions.adjust` (an assessed CO, a contract being performed, the permission `change.retroactive.approve` over it, and not a person of the chain).
 * The ledger page (PAY-10) lists the new kind with its sign (`ADJUSTMENT`).
 * **CTR-26** (revisions): a revision that reaches back says so, lists the acceptances it re-priced with the difference on each (for those who read the ledger) and links to CTR-14.

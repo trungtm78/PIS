@@ -31,7 +31,7 @@ export function failureCodeOf(error: unknown): string {
 
 export const moveOf = (row: MigrationRow): MoveRef => ({ migrationId: row.id, tenantId: row.tenantId, fromPlacementId: row.fromPlacementId, toPlacementId: row.toPlacementId });
 
-/** Whether nothing was written to the silo since the comparison that let the routing switch: the copy still holds what the last comparison saw. Only then may a switched migration be rolled back without losing data. */
+/** Whether nothing was written to the silo since the comparison that let the routing switch: the copy still holds what the last comparison saw (rows, the checksum of the content of every column of every row, and the money), so an update of any column shows. Only then may a switched migration be rolled back without losing data. */
 export async function targetIntact(mover: PlacementMover, row: MigrationRow): Promise<boolean> {
   if (row.report === null) return false;
   return reconcileCopy(row.report.target, await mover.measureTarget(moveOf(row))).match;
@@ -39,7 +39,7 @@ export async function targetIntact(mover: PlacementMover, row: MigrationRow): Pr
 
 /**
  * The work of the worker on the promotions of a tenant (SAS.md 3.3, `PlacementMigrationWorkflow`). A pass takes each migration of the tenant that has something to do and moves it as far as it can, at most `MAX_STEPS_PER_PASS`
- * steps: the copy begins at its window, the copy is made, compared with the original (rows, checksum of the keys, sums of money) and kept in step while the cutover waits for approval; once the cutover is approved the last
+ * steps: the copy begins at its window, the copy is made, compared with the original (rows, checksum of the content of every row, sums of money) and kept in step while the cutover waits for approval; once the cutover is approved the last
  * difference is sent, the copy is compared again with writes frozen, and the routing is switched, or the migration is rolled back when the freeze ran out or the comparison disagreed; 24 hours later it is Completed.
  * A migration that ended has its copy destroyed, and a completed one has the old data deleted after its 30 days unless a legal hold is in force. A step that fails leaves the migration where it is with the class of the failure
  * and is tried again at the next pass; every step is idempotent.

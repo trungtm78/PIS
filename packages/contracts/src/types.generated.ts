@@ -6653,7 +6653,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Chi tiết một lần nâng cấp silo: trạng thái, cửa sổ đóng băng ghi, người duyệt cutover và bảng đối chiếu từng bảng (đếm, checksum khóa, tổng tiền) (SAS-23) */
+        /** Chi tiết một lần nâng cấp silo: trạng thái, cửa sổ đóng băng ghi, người duyệt cutover và bảng đối chiếu từng bảng (đếm, checksum nội dung các dòng, tổng tiền) (SAS-23) */
         get: operations["getPlacementMigration"];
         put?: never;
         post?: never;
@@ -22961,7 +22961,7 @@ export interface components {
             items: components["schemas"]["PlacementMigration"][];
             next_cursor: string | null;
         };
-        /** @description The copy compared with the original, table by table: the number of rows, the checksum of the primary keys and the sum of every numeric(24,0) money column (decimal text). A table is in agreement only when all three are the same. */
+        /** @description The copy compared with the original, table by table: the number of rows, the checksum of the content of every column of every row (a change to any column changes it) and the sum of every numeric(24,0) money column (decimal text). A table is in agreement only when all three are the same. */
         PlacementReconciliation: {
             match: boolean;
             /** Format: date-time */

@@ -9,7 +9,7 @@ import { useComparison } from '../compare/hooks';
 import { CreatePanel } from './CreatePanel';
 import { ReportCard } from './ReportCard';
 import { useReports, useSignOff } from './hooks';
-import { REPORT_PERMISSION, candidatesOf, canAct, comparePath, declarationPath, holds, maySign, readFailure, signBody, withDissentDraft, withoutDissentDraft } from './model';
+import { REPORT_PERMISSION, candidatesOf, canAct, comparePath, declarationPath, holds, isConfirmation, maySign, readFailure, signBody, withDissentDraft, withoutDissentDraft } from './model';
 import type { DissentDrafts, Report } from './model';
 import './report.css';
 import '../bid.css';
@@ -27,7 +27,7 @@ export default function ReportScreen({ route }: ScreenProps) {
 
 function ReportContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const [search] = useSearchParams();
   const packageId = search.get('package') ?? '';
   const allowed = holds(permissions, REPORT_PERMISSION);
@@ -43,7 +43,7 @@ function ReportContent({ route }: ScreenProps) {
   const reports = read.data ?? [];
   const packageCode = reports[0]?.package.code ?? comparison.data?.packageCode ?? '';
   const send = (report: Report): void =>
-    sign.mutate({ report, body: signBody(drafts[report.id] ?? '') }, { onSuccess: () => setDrafts((current) => withoutDissentDraft(current, report.id)) });
+    sign.mutate({ report, body: signBody(isConfirmation(report, tenant?.membershipId) ? '' : (drafts[report.id] ?? '')) }, { onSuccess: () => setDrafts((current) => withoutDissentDraft(current, report.id)) });
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -84,6 +84,7 @@ function ReportContent({ route }: ScreenProps) {
                     key={report.id}
                     report={report}
                     signable={maySign(report, permissions, mode)}
+                    confirmation={isConfirmation(report, tenant?.membershipId)}
                     dissent={drafts[report.id] ?? ''}
                     pending={sign.isPending && sign.variables?.report.id === report.id}
                     busy={sign.isPending && sign.variables?.report.id !== report.id}

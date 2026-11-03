@@ -14,9 +14,11 @@ import type { SettlementScope } from './pay-project-settlement.ts';
  *    older acceptances say: a revision in between that raised another price is not undone by this change.
  * 2. Every approved line of such an item accepted on the effective day or after is re-priced at the new price, whichever revision priced it: the change order stands over the revisions since its
  *    day. The new amount of a line is the quantity at the new price rounded as the new line of the BOQ is rounded, exactly as if the line had been accepted at the new price.
- * 3. The difference of a line is the new amount less the amount it was accepted for (the difference of the rounded amounts, not of the prices times the quantity, so no cent is lost or made by
- *    rounding twice). It is positive when the price rises and negative when it falls; the ledger entry carries that sign on the accepted amount and on nothing else.
- * 4. The lines of one item of one acceptance (and member of a joint venture) are one balance of the ledger and one adjustment.
+ * 3. The difference is judged on the balance of the ledger, the lines of one item of one acceptance (and member of a joint venture), which is one adjustment. What a balance is worth now is the
+ *    amounts its lines were accepted for plus the differences earlier adjustments already posted on it; what it is worth at the new price is the sum of its lines' amounts at that price. The
+ *    difference is the second less the first (the difference of the rounded amounts, not of the prices times the quantity, so no cent is lost or made by rounding twice), so a balance is never
+ *    counted twice by two adjustments, and a price that returns to the one of the acceptance takes the earlier adjustment back. It is positive when the balance rises and negative when it falls;
+ *    the ledger entry carries that sign on the accepted amount and on nothing else. A balance whose difference is zero has no adjustment.
  * 5. The caller names the affected acceptances and the list must be exactly the acceptances that rule 2 finds.
  * 6. An approved settlement, which has read the ledger, closes the adjustment.
  */
@@ -48,8 +50,16 @@ export interface PricedItem extends Repricing {
 
 export interface RepricedLine extends AcceptedLine {
   newUnitPrice: string;
+  /** The amount of the line at the new price. */
   newAmountVnd: string;
-  /** New amount less the amount accepted, signed. */
+}
+
+/** A difference an earlier adjustment posted on a balance of the ledger (a line of a record of adjustment). */
+export interface PriorAdjustment {
+  acceptanceId: string;
+  boqItemId: string;
+  partyId: string | null;
+  /** Signed. */
   deltaVnd: string;
 }
 
@@ -61,9 +71,12 @@ export interface BalanceAdjustment {
   partyId: string | null;
   lineIds: string[];
   quantity: string;
+  /** What the balance is worth before this adjustment: the amounts its lines were accepted for and the differences of the earlier adjustments. */
   oldAmountVnd: string;
   newUnitPrice: string;
+  /** What it is worth at the new price. */
   newAmountVnd: string;
+  /** New less old, signed, never zero. */
   deltaVnd: string;
 }
 
@@ -98,34 +111,41 @@ export function repricedItems(inForce: readonly PricedItem[], next: readonly Pri
 }
 
 /**
- * The lines the change reaches and what each differs by (rules 2 and 3): lines of a re-priced item accepted on the effective day or after, whose amount at the new price is not the amount they were
- * accepted for. The caller passes approved, active lines only.
+ * The lines the change reaches and what each is worth at the new price (rules 2 and 3): lines of a re-priced item accepted on the effective day or after. A line whose amount does not change is kept:
+ * its balance may still differ from the new amount because of an earlier adjustment. The caller passes approved, active lines only.
  */
 export function repriceAcceptedLines(lines: readonly AcceptedLine[], repricing: ReadonlyMap<string, Repricing>, effectiveOn: string): RepricedLine[] {
   const repriced: RepricedLine[] = [];
   for (const line of lines) {
     const price = repricing.get(line.boqItemId);
     if (price === undefined || line.acceptedOn < effectiveOn) continue;
-    const newAmountVnd = lineAmount(line.quantity, price.unitPrice, price.roundingRule);
-    const deltaVnd = (BigInt(newAmountVnd) - BigInt(line.amountVnd)).toString();
-    if (deltaVnd === '0') continue;
-    repriced.push({ ...line, newUnitPrice: price.unitPrice, newAmountVnd, deltaVnd });
+    repriced.push({ ...line, newUnitPrice: price.unitPrice, newAmountVnd: lineAmount(line.quantity, price.unitPrice, price.roundingRule) });
   }
   return repriced;
 }
 
 const compareText = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
-/** One adjustment for each balance of the ledger (rule 4), in the order of the acceptance, the item and the member (no member first), so a retried call posts the same entries in the same order. */
-export function groupByBalance(lines: readonly RepricedLine[]): BalanceAdjustment[] {
+const balanceKey = (balance: { acceptanceId: string; boqItemId: string; partyId: string | null }): string => JSON.stringify([balance.acceptanceId, balance.boqItemId, balance.partyId]);
+
+/**
+ * One adjustment for each balance of the ledger the change reaches whose worth changes (rule 3), in the order of the acceptance, the item and the member (no member first), so a retried call posts
+ * the same entries in the same order. `prior` are the differences of the earlier adjustments on those balances (any balance, any number of them); a balance is worth the amounts its lines were
+ * accepted for plus them, and moves to the sum of its lines at the new price. A balance that is already worth that has no adjustment, and so its acceptance is not affected.
+ */
+export function groupByBalance(lines: readonly RepricedLine[], prior: readonly PriorAdjustment[]): BalanceAdjustment[] {
   const groups = new Map<string, RepricedLine[]>();
   for (const line of lines) {
-    const key = JSON.stringify([line.acceptanceId, line.boqItemId, line.partyId]);
+    const key = balanceKey(line);
     groups.set(key, [...(groups.get(key) ?? []), line]);
   }
-  return [...groups.values()]
-    .map((members): BalanceAdjustment => {
+  const earlier = new Map<string, bigint>();
+  for (const each of prior) earlier.set(balanceKey(each), (earlier.get(balanceKey(each)) ?? 0n) + BigInt(each.deltaVnd));
+  return [...groups.entries()]
+    .map(([key, members]): BalanceAdjustment => {
       const first = members[0]!;
+      const oldAmountVnd = (BigInt(sumAmounts(members.map((member) => member.amountVnd))) + (earlier.get(key) ?? 0n)).toString();
+      const newAmountVnd = sumAmounts(members.map((member) => member.newAmountVnd));
       return {
         acceptanceId: first.acceptanceId,
         acceptanceNo: first.acceptanceNo,
@@ -133,12 +153,13 @@ export function groupByBalance(lines: readonly RepricedLine[]): BalanceAdjustmen
         partyId: first.partyId,
         lineIds: members.map((member) => member.lineId).sort(compareText),
         quantity: members.reduce((sum, member) => addDecimal(sum, member.quantity), '0'),
-        oldAmountVnd: sumAmounts(members.map((member) => member.amountVnd)),
+        oldAmountVnd,
         newUnitPrice: first.newUnitPrice,
-        newAmountVnd: sumAmounts(members.map((member) => member.newAmountVnd)),
-        deltaVnd: sumAmounts(members.map((member) => member.deltaVnd)),
+        newAmountVnd,
+        deltaVnd: (BigInt(newAmountVnd) - BigInt(oldAmountVnd)).toString(),
       };
     })
+    .filter((balance) => balance.deltaVnd !== '0')
     .sort((a, b) => compareText(a.acceptanceId, b.acceptanceId) || compareText(a.boqItemId, b.boqItemId) || compareText(a.partyId ?? '', b.partyId ?? ''));
 }
 

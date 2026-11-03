@@ -115,6 +115,18 @@ export function evaluationQuorum(team: readonly TeamMember[], signed: readonly s
   return { required, awaiting, complete: required.length > 0 && awaiting.length === 0 };
 }
 
+/**
+ * What a call to sign off a draft is for a member: their signature (they have not signed), the confirmation (they signed, and a decision on a conflict of interest then cut the team down to the members who signed,
+ * so that nobody is left to complete the report), or a second signature, which is refused. The command that signs and the read that tells the caller whether they may sign both ask this, so they never disagree.
+ */
+export type SignOffKind = 'SIGN' | 'CONFIRM' | 'ALREADY_SIGNED';
+
+export function signOffKind(team: readonly TeamMember[], signed: readonly string[], member: string): SignOffKind {
+  const id = member.toLowerCase();
+  if (!signed.some((signer) => signer.toLowerCase() === id)) return 'SIGN';
+  return evaluationQuorum(team, signed).complete ? 'CONFIRM' : 'ALREADY_SIGNED';
+}
+
 // ---- the content ---------------------------------------------------------------------------------------------------------------------------
 
 export interface DecisionLine {

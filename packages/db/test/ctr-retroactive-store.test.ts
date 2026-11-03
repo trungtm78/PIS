@@ -79,8 +79,8 @@ async function scenario(options: { delta?: string; recognise?: boolean; stage?: 
   return { contract, approved, co };
 }
 
-async function evaluatedCo(contract: SeededContract, delta: string): Promise<ChangeResult> {
-  const event = await as((tx) => chain.create(tx, contract.contractId, { stage: 'EVENT', baselineRevisionId: contract.revisionId, reason: 'The owner agreed a new price.', estimatedDeltaVnd: delta, scheduleImpactDays: 0 }, memberId(MAKER), contractScopes), MAKER);
+async function evaluatedCo(contract: SeededContract, delta: string, baselineRevisionId: string = contract.revisionId): Promise<ChangeResult> {
+  const event = await as((tx) => chain.create(tx, contract.contractId, { stage: 'EVENT', baselineRevisionId, reason: 'The owner agreed a new price.', estimatedDeltaVnd: delta, scheduleImpactDays: 0 }, memberId(MAKER), contractScopes), MAKER);
   const pco = await as((tx) => chain.promote(tx, event.id, 1, 'It is a change.', memberId(MAKER), contractScopes), MAKER);
   const co = await as((tx) => chain.promote(tx, pco.id, 1, 'Priced.', memberId(MAKER), contractScopes), MAKER);
   return as(
@@ -115,7 +115,7 @@ const entriesOf = (contractId: string, kind = 'ADJUSTMENT') =>
 const balanceOf = async (acceptanceId: string) =>
   (await owner<{ accepted_vnd: string; requested_vnd: string; paid_vnd: string }>('select sum(accepted_vnd)::text as accepted_vnd, sum(requested_vnd)::text as requested_vnd, sum(paid_vnd)::text as paid_vnd from machvon.cumulative_ledger where acceptance_id = $1::uuid', [acceptanceId]))[0];
 const contractRow = async (contractId: string) =>
-  (await owner<{ contract_value_vnd: string; accepted_total_vnd: string; current_revision_id: string | null }>('select contract_value_vnd::text, accepted_total_vnd::text, current_revision_id from machvon.contract where id = $1::uuid', [contractId]))[0];
+  (await owner<{ contract_value_vnd: string; accepted_total_vnd: string; current_revision_id: string | null; version: string }>('select contract_value_vnd::text, accepted_total_vnd::text, current_revision_id, version::text from machvon.contract where id = $1::uuid', [contractId]))[0];
 const revisionsOf = (contractId: string) =>
   owner<{ id: string; revision: number; status: string; retroactive: boolean; amount_vnd: string; valid_from: string; valid_until: string | null; supersedes_id: string | null }>(
     'select id, revision, status, retroactive, amount_vnd::text, valid_from::text, valid_until::text, supersedes_id from machvon.contract_revision where contract_id = $1::uuid order by revision',
@@ -314,6 +314,22 @@ describe('the retroactive adjustment of a change order (ST-CTR-016)', () => {
       expect(await contractRow(target.contract.contractId)).toMatchObject({ contract_value_vnd: '9100000000', accepted_total_vnd: '9050000000' });
     });
 
+    it('AC-ST-CTR-016-1: lets the value of the contract fall below the accepted total it had when the adjustment brings the accepted total under the new value (contract_ledger_order_chk judges the figures at the end)', async () => {
+      // 1,000,000,000 accepted; the price falls to 1,900,000 (950,000,000 accepted) and the contract to 960,000,000: below the old accepted total, above the new one.
+      const target = await scenario({ delta: '-8040000000' });
+      const before = await contractRow(target.contract.contractId);
+      expect(before).toMatchObject({ contract_value_vnd: '9000000000', accepted_total_vnd: '1000000000' });
+      const done = await approve(target, { boqLines: boqFor('1900000', '1') });
+      expect(done).toMatchObject({ fromValueVnd: '9000000000', toValueVnd: '960000000', totalAdjustmentVnd: '-50000000', acceptedTotalVnd: '950000000' });
+      const after = await contractRow(target.contract.contractId);
+      expect(after).toMatchObject({ contract_value_vnd: '960000000', accepted_total_vnd: '950000000', current_revision_id: done.revision.id });
+      // Two updates of the contract (the accepted total, the revision taking over), and the answer carries the version the contract ended at.
+      expect(Number(after?.version)).toBe(Number(before?.version) + 2);
+      expect(done.contractVersion).toBe(Number(after?.version));
+      expect(await revisionsOf(target.contract.contractId)).toMatchObject([{ status: 'SUPERSEDED', valid_until: TODAY }, { id: done.revision.id, status: 'EFFECTIVE', amount_vnd: '960000000' }]);
+      expect(await balanceOf(target.approved.acceptance.id)).toEqual({ accepted_vnd: '950000000', requested_vnd: '0', paid_vnd: '0' });
+    });
+
     it('re-prices only the items whose unit price the change moves: an acceptance of an item at the same price is not affected', async () => {
       const target = await scenario();
       const other = await fixtures.approve(target.contract, [{ item: 0, quantity: '10' }]);
@@ -334,6 +350,75 @@ describe('the retroactive adjustment of a change order (ST-CTR-016)', () => {
       expect(await entriesOf(target.contract.contractId)).toEqual([]);
       expect(await balanceOf(target.approved.acceptance.id)).toMatchObject({ accepted_vnd: '1000000000' });
       expect(await contractRow(target.contract.contractId)).toMatchObject({ contract_value_vnd: '9100000000', accepted_total_vnd: '1000000000' });
+    });
+  });
+
+  describe('a balance adjusted again by a later change order (AC-ST-CTR-016-1: no double counting)', () => {
+    /** The first adjustment (2,000,000 to 2,100,000, +50,000,000 on the balance), then a second change order on the revision it made, approved the day after. */
+    async function adjustedOnce(): Promise<{ target: Scenario; first: RetroactiveResult }> {
+      const target = await scenario();
+      const first = await approve(target);
+      return { target, first };
+    }
+    const nextDay = '2026-08-11';
+    const secondCo = async (target: Scenario, first: RetroactiveResult, delta: string): Promise<Scenario> => ({ contract: target.contract, approved: target.approved, co: await evaluatedCo(target.contract, delta, first.revision.id) });
+    const again = (target: Scenario, overrides: Partial<RetroactiveInput>) => approve(target, overrides, { today: nextDay });
+
+    it('moves the balance from what it is worth after the first adjustment: 1,000 then 1,050 then 1,100 million posts +50 million and not +100 million', async () => {
+      const { target, first } = await adjustedOnce();
+      const second = await secondCo(target, first, '100000000');
+      const done = await again(second, { boqLines: boqFor('2200000') });
+      expect(done).toMatchObject({ totalAdjustmentVnd: '50000000', acceptedTotalVnd: '1100000000', affectedAcceptanceIds: [target.approved.acceptance.id] });
+      expect(done.balances[0]).toMatchObject({ oldAmountVnd: '1050000000', newAmountVnd: '1100000000', deltaVnd: '50000000' });
+      expect(await balanceOf(target.approved.acceptance.id)).toEqual({ accepted_vnd: '1100000000', requested_vnd: '0', paid_vnd: '0' });
+      expect((await entriesOf(target.contract.contractId)).map((entry) => entry.accepted_delta_vnd)).toEqual(['50000000', '50000000']);
+      expect(await contractRow(target.contract.contractId)).toMatchObject({ contract_value_vnd: '9200000000', accepted_total_vnd: '1100000000' });
+      // The record of the second adjustment says what the balance was worth, so the lines of both read as a chain.
+      const lines = await owner<{ old_amount_vnd: string; new_amount_vnd: string; delta_vnd: string }>(
+        'select l.old_amount_vnd::text, l.new_amount_vnd::text, l.delta_vnd::text from machvon.retroactive_adjustment_line l join machvon.retroactive_adjustment a on a.tenant_id = l.tenant_id and a.id = l.adjustment_id where l.contract_id = $1::uuid order by a.approved_on',
+        [target.contract.contractId],
+      );
+      expect(lines).toEqual([
+        { old_amount_vnd: '1000000000', new_amount_vnd: '1050000000', delta_vnd: '50000000' },
+        { old_amount_vnd: '1050000000', new_amount_vnd: '1100000000', delta_vnd: '50000000' },
+      ]);
+    });
+
+    it('takes the first adjustment back when the later price returns to the price of the acceptance: the balance is -50 million although the line differs from its original by nothing', async () => {
+      const { target, first } = await adjustedOnce();
+      const second = await secondCo(target, first, '-50000000');
+      // The list the old computation would have found is empty; the acceptance is affected.
+      expect(await refusal(again(second, { boqLines: boqFor('2000000'), affectedAcceptanceIds: [] }))).toMatchObject({ extensions: { reason: 'AFFECTED_MISMATCH', missing_acceptance_ids: [target.approved.acceptance.id], unexpected_acceptance_ids: [] } });
+      const done = await again(second, { boqLines: boqFor('2000000') });
+      expect(done).toMatchObject({ totalAdjustmentVnd: '-50000000', acceptedTotalVnd: '1000000000' });
+      expect(done.balances[0]).toMatchObject({ oldAmountVnd: '1050000000', newAmountVnd: '1000000000', deltaVnd: '-50000000' });
+      expect(await balanceOf(target.approved.acceptance.id)).toEqual({ accepted_vnd: '1000000000', requested_vnd: '0', paid_vnd: '0' });
+      expect(await contractRow(target.contract.contractId)).toMatchObject({ contract_value_vnd: '9050000000', accepted_total_vnd: '1000000000' });
+    });
+
+    it('posts nothing for a balance that is already worth what the new price makes it, and the acceptance is not in the list', async () => {
+      const { target, first } = await adjustedOnce();
+      const second = await secondCo(target, first, '1');
+      // 2,100,000.0004 is another price than the one in force, and 500 of it is 1,050,000,000.2: the same amount.
+      expect(await refusal(again(second, { boqLines: boqFor('2100000.0004') }))).toMatchObject({ extensions: { reason: 'AFFECTED_MISMATCH', missing_acceptance_ids: [], unexpected_acceptance_ids: [target.approved.acceptance.id] } });
+      const done = await again(second, { boqLines: boqFor('2100000.0004'), affectedAcceptanceIds: [] });
+      expect(done).toMatchObject({ totalAdjustmentVnd: '0', balances: [], affectedAcceptanceIds: [], acceptedTotalVnd: '1050000000' });
+      expect(await entriesOf(target.contract.contractId)).toHaveLength(1);
+      expect(await balanceOf(target.approved.acceptance.id)).toMatchObject({ accepted_vnd: '1050000000' });
+    });
+
+    it('raises a balance that was claimed after the first adjustment, from what it is worth then', async () => {
+      const { target, first } = await adjustedOnce();
+      const balance = await owner<{ id: string }>('select id from machvon.cumulative_ledger where acceptance_id = $1::uuid', [target.approved.acceptance.id]);
+      await as(
+        (tx) =>
+          ledger.post(tx, { ledgerId: balance[0]?.id as string, kind: 'CLAIM', delta: { accepted: '0', requested: '1050000000', paid: '0', advanceRecovery: '0', retention: '0' }, requestId: randomUUID(), actor: memberId(MAKER), advanceOutstandingVnd: '0' }),
+        MAKER,
+      );
+      const second = await secondCo(target, first, '100000000');
+      const done = await again(second, { boqLines: boqFor('2200000') });
+      expect(done.balances[0]).toMatchObject({ oldAmountVnd: '1050000000', deltaVnd: '50000000' });
+      expect(await balanceOf(target.approved.acceptance.id)).toEqual({ accepted_vnd: '1100000000', requested_vnd: '1050000000', paid_vnd: '0' });
     });
   });
 
@@ -622,6 +707,18 @@ describe('the retroactive adjustment of a change order (ST-CTR-016)', () => {
       );
       expect(wrongDelta.sqlstate).toBe('23514');
       expect(wrongDelta.message).toMatch(/retroactive_adjustment_line_delta_chk/);
+    });
+
+    it('lets a balance that an earlier adjustment brought to nothing be adjusted again: the old amount of a line may be zero', async () => {
+      const target = await scenario();
+      const done = await approve(target);
+      const zeroOld = owner(
+        `insert into machvon.retroactive_adjustment_line (tenant_id, id, adjustment_id, contract_id, acceptance_id, boq_item_id, party_id, quantity, old_amount_vnd, new_unit_price, new_amount_vnd, delta_vnd, created_by)
+         values ($1, gen_random_uuid(), $2, $3, $4, $5, null, 1, 0, 150, 150, 150, $6)`,
+        [TENANT_A, done.adjustmentId, target.contract.contractId, target.approved.acceptance.id, target.contract.items[0], memberId(MAKER)],
+      );
+      // Whatever else refuses this row (the append-only guard), the amount check is not what does.
+      expect((await databaseRefusal(zeroOld)).message).not.toMatch(/retroactive_adjustment_line_amount_chk/);
     });
 
     it('does not let an acceptance with an adjustment be withdrawn, by the command or by SQL', async () => {

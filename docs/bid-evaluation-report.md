@@ -47,7 +47,9 @@ signatures of the reports that are not issued, `BidConflictStore.removeFromSignO
 the declaration stands. `awaiting` of the read says who and why. A team with nobody to wait for is never complete.
 
 **The confirmation.** If a decision on a conflict cuts the team down to members who have all signed already, nobody is left to sign and the report would stay a draft. A member who signed may then call the same
-operation without a dissent: it adds no signature and completes the report. With others still awaited, or with a dissent in the body, a second call is still 422 `ALREADY_SIGNED_OFF`.
+operation without a dissent: it adds no signature and completes the report. With others still awaited, or with a dissent in the body, a second call is still 422 `ALREADY_SIGNED_OFF`. The command and the read
+model ask the same pure function, `signOffKind(team, signers, member)` of the kernel (`SIGN`, `CONFIRM` or `ALREADY_SIGNED`), so `actions.sign_off` is true for the member who signed exactly when the confirmation is allowed (and the
+report is a non-stale draft), and the screen offers it.
 
 **Asking DOC.** The signature that leaves nobody to wait for moves the report DRAFT to SIGNED_OFF and, in the same transaction, to ISSUE_REQUESTED: the payload of the minutes (`title`, `body` with a block for each proposal and the
 decision of the experts on each criterion, the proposals left out, the conclusion, the signatures with their moments and the dissent, `agency` = the owner unit of the project, `place` = a dash which DOC's drafter
@@ -76,14 +78,14 @@ Another hash, an answer without its document or reason, or one that does not fol
 `GET /procurement-packages/{id}/evaluation-reports` (newest first) and `GET /evaluation-reports/{id}`, `bid.evaluate`, with the same gate of the declaration (403 `CONFLICT_UNDECLARED`; a member shut out by a conflict, a
 package outside the project scope or another tenant: 404). A report shows its frozen `summary`, `signed_off_by` and `dissenting_opinions` with display names, `awaiting` (membership, name, standing
 `UNDECLARED`, `PENDING`, `CLEAR`, `ALLOWED`), `payload_sha256`, `report_document_id`, `document_status` (the state of the document DOC drafted, as DOC keeps it), `stale`, `recalled_at` and
-`actions.sign_off` (the draft waits for the caller, nothing changed since; the server judges the command again).
+`actions.sign_off` (the draft waits for the caller, or for the confirmation of a member who signed when nobody is awaited any more, and nothing changed since; the server judges the command again).
 
 ## Screen BID-13
 
 `/bid/bid-13?package=` (opened from a package). A panel makes the draft (the proposals of the comparison with how many criteria the experts decided for each, a checkbox to take one out, a link to the review of the
 findings of the ones not complete, the conclusion with its count) and a card for each report: the stage (waiting for the signatures, with DOC, issued, replaced, refused by DOC), the table of the decisions of the
 experts with the weighted score and the mandatory criteria not met, the proposals left out, the conclusion, who signed and who is awaited, the dissent in the words of the members, the document of DOC, and the form
-that signs (with the optional dissent). The seven states of the standard, the declaration owed as a notice with the way to BID-05, one signature at a time (the field of the report on its way is read-only, the other forms
+that signs (with the optional dissent; for the confirmation above it shows a note and no field for a dissent, since the call takes none). The seven states of the standard, the declaration owed as a notice with the way to BID-05, one signature at a time (the field of the report on its way is read-only, the other forms
 are closed), the refusal shown outside the form that may disappear because of it, and the retry after a lost answer with the same version and idempotency key.
 
 ## What the database holds (V1354)

@@ -59301,7 +59301,7 @@
     "/system/placement-migrations/{migrationId}": {
       "get": {
         "operationId": "getPlacementMigration",
-        "summary": "Chi tiết một lần nâng cấp silo: trạng thái, cửa sổ đóng băng ghi, người duyệt cutover và bảng đối chiếu từng bảng (đếm, checksum khóa, tổng tiền) (SAS-23)",
+        "summary": "Chi tiết một lần nâng cấp silo: trạng thái, cửa sổ đóng băng ghi, người duyệt cutover và bảng đối chiếu từng bảng (đếm, checksum nội dung các dòng, tổng tiền) (SAS-23)",
         "tags": [
           "SAS"
         ],
@@ -164315,7 +164315,7 @@
       },
       "PlacementReconciliation": {
         "type": "object",
-        "description": "The copy compared with the original, table by table: the number of rows, the checksum of the primary keys and the sum of every numeric(24,0) money column (decimal text). A table is in agreement only when all three are the same.",
+        "description": "The copy compared with the original, table by table: the number of rows, the checksum of the content of every column of every row (a change to any column changes it) and the sum of every numeric(24,0) money column (decimal text). A table is in agreement only when all three are the same.",
         "required": [
           "match",
           "measured_at",

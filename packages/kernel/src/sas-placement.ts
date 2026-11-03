@@ -4,7 +4,7 @@ import { assertFourEyes } from './four-eyes.ts';
 
 /**
  * The promotion of a tenant from the shared (pool) placement to a database of its own (silo) with a verified cutover (ST-SAS-018, SAS.md 3.3, BR-SAS-05): the rows are copied, the copy is compared with the original table by table
- * (the number of rows, a checksum of the primary keys and the sum of every numeric(24,0) money column), a System Admin other than the one who started approves the cutover, writes are frozen for a bounded time, the copy is
+ * (the number of rows, a checksum of the content of every row and the sum of every numeric(24,0) money column), a System Admin other than the one who started approves the cutover, writes are frozen for a bounded time, the copy is
  * compared again, the routing is switched and the tenant is watched for 24 hours before the migration is Completed. The rules below are pure: the database and the worker only carry them out.
  */
 
@@ -141,7 +141,7 @@ export function assertSiloPromotable(tenant: PromotableTenant, target: Promotion
 export interface TableMeasure {
   table: string;
   rows: number;
-  /** The sum of a hash of the primary key of every row (or of the whole row for a table without a key), as decimal text: the same rows give the same sum in any order. */
+  /** The sum of a hash of the whole content of every row (every column, so a change to any of them changes it), as decimal text: the same rows give the same sum in any order. */
   checksum: string;
   /** The sum of each numeric(24,0) column, as decimal text, by column. */
   money: Readonly<Record<string, string>>;
@@ -170,7 +170,7 @@ export interface TableReconciliation {
 export interface CopyReconciliation {
   match: boolean;
   tables: TableReconciliation[];
-  /** The tables that do not agree (rows, checksum or money), by name. */
+  /** The tables that do not agree (rows, content checksum or money), by name. */
   mismatchedTables: string[];
   sourceRows: number;
   targetRows: number;
@@ -194,7 +194,7 @@ function moneyOf(source: TableMeasure | undefined, target: TableMeasure | undefi
 }
 
 /**
- * Compares the original with the copy, table by table. A table is in agreement only when both sides have it, the number of rows is the same, the checksum of the primary keys is the same and every money column has the same
+ * Compares the original with the copy, table by table. A table is in agreement only when both sides have it, the number of rows is the same, the checksum of the content of the rows is the same and every money column has the same
  * sum; a table on one side only (a table the copy lacks, or rows of a table the tenant does not have) is a difference. The whole is in agreement only when every table is.
  */
 export function reconcileCopy(source: readonly TableMeasure[], target: readonly TableMeasure[]): CopyReconciliation {

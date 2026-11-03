@@ -32,19 +32,41 @@ const CATALOGUE_SQL = `
      and exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = 'tenant_id' and a.attnum > 0 and not a.attisdropped)
    order by c.relname`;
 
-/** The SQL that measures one table: the rows, the sum of a hash of the primary key of each row (the whole row for a table without a key) and the sum of each money column. Row-level security confines it to the tenant of the transaction. */
-export function measureSql(table: string, keyColumns: readonly string[], moneyColumns: readonly string[]): string {
-  const identity = keyColumns.length === 0 ? 'r' : `row(${keyColumns.map((column) => `r.${quote(column)}`).join(', ')})`;
+/**
+ * The tables that the promotion itself writes in every step (its status, version, comparison and timestamps change after the copy and after the comparison that lets the routing switch). Their content is no write of the tenant and
+ * no difference of the copy, so they are measured by key alone (the rows and the checksum of the primary keys), not by content: otherwise every step of the promotion would read as a change to the silo.
+ */
+export const PROMOTION_RECORD_TABLES: ReadonlySet<string> = new Set(['tenant_placement_migration']);
+
+// The settings that decide how a value is written as text. The checksum hashes that text, so both sides are read with the same ones, whatever the session of the role that measures.
+const TEXT_SETTINGS: ReadonlyArray<readonly [string, string]> = [
+  ['TimeZone', 'UTC'],
+  ['DateStyle', 'ISO, YMD'],
+  ['IntervalStyle', 'iso_8601'],
+  ['bytea_output', 'hex'],
+  ['extra_float_digits', '1'],
+];
+
+/**
+ * The SQL that measures one table: the rows, the checksum of the content and the sum of each money column. The checksum is the sum, over the rows, of a 64-bit hash of the whole row written as `jsonb` text, so it sees a change
+ * to ANY column (a status, a name, a date, a document reference), not only to the key or to money, and it does not depend on the order of the rows. `jsonb` names every column and keeps them in one order whatever the physical order
+ * of the columns is; the system columns of the storage (ctid, xmin) are not part of a row. `keyColumns`, given only for a table of the promotion's own record, hashes the primary key instead of the content.
+ * Row-level security confines the read to the tenant of the transaction.
+ */
+export function measureSql(table: string, moneyColumns: readonly string[], keyColumns?: readonly string[]): string {
+  const identity = keyColumns === undefined ? 'to_jsonb(r)::text' : `row(${keyColumns.map((column) => `r.${quote(column)}`).join(', ')})::text`;
   const money = moneyColumns.map((column, index) => `coalesce(sum(r.${quote(column)}), 0)::text as m${index}`);
-  const columns = ['count(*)::text as n', `coalesce(sum(hashtextextended(${identity}::text, 0)::numeric), 0)::text as checksum`, ...money].join(', ');
+  const columns = ['count(*)::text as n', `coalesce(sum(hashtextextended(${identity}, 0)::numeric), 0)::text as checksum`, ...money].join(', ');
   return `select ${columns} from machvon.${quote(table)} r`;
 }
 
 /**
- * Measures the data of the tenant of the transaction, table by table (SAS.md 3.3 step 1 and BR-SAS-05): the number of rows, a checksum of the primary keys that does not depend on the order of the rows, and the sum of every
- * numeric(24,0) money column. The same measure is taken on the copy; what differs is a difference in the data. Run it in a snapshot (`TenantDatabase.withSnapshot`) so every table is read at the same moment.
+ * Measures the data of the tenant of the transaction, table by table (SAS.md 3.3 step 1 and BR-SAS-05): the number of rows, a checksum of the content of every column of every row that does not depend on the order of the
+ * rows, and the sum of every numeric(24,0) money column. The same measure is taken on the copy; what differs is a difference in the data, and the same measure of the silo later tells whether anything was written to it.
+ * Run it in a snapshot (`TenantDatabase.withSnapshot`) so every table is read at the same moment.
  */
 export async function measureTenantTables(tx: TenantTx): Promise<MeasuredTenant> {
+  for (const [name, value] of TEXT_SETTINGS) await tx.query('select set_config($1, $2, true)', [name, value]);
   const catalogue = await tx.query<CatalogueRow>(CATALOGUE_SQL);
   const tables: TableMeasure[] = [];
   const unreadable: string[] = [];
@@ -53,7 +75,7 @@ export async function measureTenantTables(tx: TenantTx): Promise<MeasuredTenant>
       unreadable.push(entry.table_name);
       continue;
     }
-    const [row] = await tx.query<Record<string, string>>(measureSql(entry.table_name, entry.key_columns, entry.money_columns));
+    const [row] = await tx.query<Record<string, string>>(measureSql(entry.table_name, entry.money_columns, PROMOTION_RECORD_TABLES.has(entry.table_name) ? entry.key_columns : undefined));
     const money: Record<string, string> = {};
     entry.money_columns.forEach((column, index) => {
       money[column] = row?.[`m${index}`] ?? '0';

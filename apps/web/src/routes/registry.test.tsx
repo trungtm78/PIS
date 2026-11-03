@@ -9,11 +9,12 @@ import { screenModules } from './screens/index';
 import { WEB_ROUTES } from './web-routes.ts';
 import type { ScreenLoader, ScreenProps } from './types.ts';
 
-// A screen that is not implemented yet and names its requirement, so that the fallback is what is tested: whichever one the table still holds, since every landed story takes one away.
+// A screen that is not implemented and names its requirement, so that the fallback is what is tested. Every screen of the table is implemented by now, so the route is one the registry does not hold.
 function home() {
-  const route = WEB_ROUTES.find((candidate) => screenModules[candidate.id] === undefined && candidate.req !== null);
-  if (route === undefined) throw new Error('every screen of the route table is implemented');
-  return route;
+  const [first] = WEB_ROUTES;
+  if (first === undefined) throw new Error('the route table is empty');
+  if (screenModules['ZZZ-99'] !== undefined) throw new Error('ZZZ-99 must stay unimplemented');
+  return { ...first, id: 'ZZZ-99', title: 'Màn hình chưa có', path: '/zzz/zzz-99', req: 'FR-ZZZ-99' };
 }
 
 describe('route lookup', () => {

@@ -451,6 +451,34 @@ describe('document interoperability through the LGSP (ST-DOC-021)', () => {
       expect(app.metrics).toContainEqual({ name: 'doc_interop_message_total', labels: { direction: 'outbound', outcome: 'receipt_unavailable' } });
     });
 
+    it('writes the moment each message was asked for its receipt, whatever the answer, so the next pass asks the ones asked least recently first (AC-ST-DOC-021-1)', async () => {
+      const one = await queued();
+      const two = await queued();
+      const polledAt = async (id: string): Promise<{ at: string | null; version: string }> => {
+        const [row] = await owner<{ at: string | null; version: string }>("select to_char(last_polled_at at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') as at, version::text from machvon.doc_interop_message where id = $1", [id]);
+        if (row === undefined) throw new Error('no message');
+        return row;
+      };
+      const iso = (at: Date): string => at.toISOString().slice(0, 19) + 'Z';
+      app.gateway.answer = { outcome: 'PENDING' };
+      expect(await pass(app.now)).toMatchObject({ sent: 2 });
+      // Handed over in this pass, so nobody asked about them yet.
+      expect((await polledAt(one.message.id)).at).toBeNull();
+      const handed = (await polledAt(one.message.id)).version;
+
+      // Still pending: asked, and the time is written; the version of the message does not move.
+      const pending = new Date(app.now.getTime() + MINUTE);
+      expect(await pass(pending)).toMatchObject({ acknowledged: 0, rejected: 0 });
+      expect(await polledAt(one.message.id)).toEqual({ at: iso(pending), version: handed });
+      expect((await polledAt(two.message.id)).at).toBe(iso(pending));
+
+      // The gateway cannot answer: asked all the same.
+      app.gateway.receiptFailure = new Error('gateway timeout');
+      const unavailable = new Date(app.now.getTime() + 2 * MINUTE);
+      expect(await pass(unavailable)).toMatchObject({ acknowledged: 0, rejected: 0 });
+      expect((await polledAt(two.message.id)).at).toBe(iso(unavailable));
+    });
+
     it('calls off a queued message with the recall of the document: nothing is sent for a document that is no longer in force', async () => {
       const doc = await queued();
       const recalled = await app.call('POST', `/outgoing-documents/${doc.id}/recall`, { member: RECALLER, ifMatch: `"${doc.version}"`, body: { reason: 'Wrong figures in table 2, issued for the wrong period' } });
